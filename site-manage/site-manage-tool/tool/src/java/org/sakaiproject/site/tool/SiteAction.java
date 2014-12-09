@@ -41,7 +41,6 @@ import java.util.List;
 import java.util.ListIterator;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Stack;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
@@ -116,7 +115,6 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.importer.api.ImportDataSource;
 import org.sakaiproject.importer.api.ImportService;
-import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.importer.api.SakaiArchive;
 import org.sakaiproject.importer.api.ResetOnCloseInputStream;
 import org.sakaiproject.javax.PagingPosition;
@@ -379,6 +377,11 @@ public class SiteAction extends PagedResourceActionII {
 
 	private final static String SITE_DEFAULT_LIST = ServerConfigurationService
 			.getString("site.types");
+
+	private final static String DEFAULT_SITE_TYPE_SAK_PROP = ServerConfigurationService.getString("site.types.defaultType");
+	private final static String[] PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicChangeable");
+	private final static String[] PUBLIC_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicOnly");
+	private final static String[] PRIVATE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.privateOnly");
 
 	private final static String STATE_SITE_QUEST_UNIQNAME = "site_quest_uniqname";
 	
@@ -999,53 +1002,26 @@ public class SiteAction extends PagedResourceActionII {
 		PortletConfig config = portlet.getPortletConfig();
 
 		// types of sites that can either be public or private
-		String changeableTypes = StringUtils.trimToNull(config
-				.getInitParameter("publicChangeableSiteTypes"));
-		if (state.getAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES) == null) {
-			if (changeableTypes != null) {
-				state
-						.setAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES,
-								new ArrayList(Arrays.asList(changeableTypes
-										.split(","))));
-			} else {
-				state.setAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES,
-						new Vector());
-			}
-		}
+		addSiteTypesToStateFromPropertyOrToolReg(state, STATE_PUBLIC_CHANGEABLE_SITE_TYPES,
+				PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP, "publicChangeableSiteTypes", config);
 
 		// type of sites that are always public
-		String publicTypes = StringUtils.trimToNull(config
-				.getInitParameter("publicSiteTypes"));
-		if (state.getAttribute(STATE_PUBLIC_SITE_TYPES) == null) {
-			if (publicTypes != null) {
-				state.setAttribute(STATE_PUBLIC_SITE_TYPES, new ArrayList(
-						Arrays.asList(publicTypes.split(","))));
-			} else {
-				state.setAttribute(STATE_PUBLIC_SITE_TYPES, new Vector());
-			}
-		}
+		addSiteTypesToStateFromPropertyOrToolReg(state, STATE_PUBLIC_SITE_TYPES,
+				PUBLIC_SITE_TYPES_SAK_PROP, "publicSiteTypes", config);
 
 		// types of sites that are always private
-		String privateTypes = StringUtils.trimToNull(config
-				.getInitParameter("privateSiteTypes"));
-		if (state.getAttribute(STATE_PRIVATE_SITE_TYPES) == null) {
-			if (privateTypes != null) {
-				state.setAttribute(STATE_PRIVATE_SITE_TYPES, new ArrayList(
-						Arrays.asList(privateTypes.split(","))));
-			} else {
-				state.setAttribute(STATE_PRIVATE_SITE_TYPES, new Vector());
-			}
-		}
+		addSiteTypesToStateFromPropertyOrToolReg(state, STATE_PRIVATE_SITE_TYPES,
+				PRIVATE_SITE_TYPES_SAK_PROP, "privateSiteTypes", config);
 
 		// default site type
-		String defaultType = StringUtils.trimToNull(config
-				.getInitParameter("defaultSiteType"));
-		if (state.getAttribute(STATE_DEFAULT_SITE_TYPE) == null) {
-			if (defaultType != null) {
-				state.setAttribute(STATE_DEFAULT_SITE_TYPE, defaultType);
-			} else {
-				state.setAttribute(STATE_PRIVATE_SITE_TYPES, new Vector());
+		if (state.getAttribute(STATE_DEFAULT_SITE_TYPE) == null)
+		{
+			String defaultType = DEFAULT_SITE_TYPE_SAK_PROP;
+			if (defaultType == null) // not set via sakai properties, fall back to tool registration
+			{
+				defaultType = StringUtils.trimToEmpty(config.getInitParameter("defaultSiteType"));
 			}
+			state.setAttribute(STATE_DEFAULT_SITE_TYPE, defaultType);
 		}
 
 		// certain type(s) of site cannot get its "joinable" option set
@@ -1105,8 +1081,34 @@ public class SiteAction extends PagedResourceActionII {
 
 		
 	} // initState
-	
-	
+
+	/**
+	 * If not yet set, adds the given site type list to the state, either from sakai.properties if available, or from the tool registration configuration
+	 * 
+	 * @param state the session state
+	 * @param stateKey state attribute the site type list should be added as
+	 * @param typesFromProperty site type list from sakai.properties, may be null if property not set
+	 * @param toolRegKey the key for the site type list property in the tool registration
+	 * @param config the tool registration configuration
+	 */
+	private void addSiteTypesToStateFromPropertyOrToolReg(SessionState state, String stateKey, String[] typesFromProperty,
+			String toolRegKey, PortletConfig config)
+	{
+		if (state.getAttribute(stateKey) == null)
+		{
+			List<String> siteTypes = new ArrayList<>();
+			if (typesFromProperty != null) // override tool registration with sakai properties
+			{
+				siteTypes.addAll(Arrays.asList(typesFromProperty));
+			}
+			else // sakai property not set, fall back to tool registration
+			{
+				String toolRegTypes = StringUtils.trimToEmpty(config.getInitParameter(toolRegKey));
+				siteTypes.addAll(Arrays.asList(toolRegTypes.split(",")));
+			}
+			state.setAttribute(stateKey, siteTypes);
+		}
+	}
 
 	/**
 	 * cleanState removes the current site instance and it's properties from
