@@ -166,20 +166,20 @@ function textCounter(field, maxlimit) {
 </h4>
   <div class="tier2">
 <div class="navIntraToolLink">
-  <h:commandButton id="removeSubmit" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}" value="#{commonMessages.remove_action}">
+  <h:commandButton id="removeSubmit" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring == 'false'}" action="#{questionpool.doit}" value="#{commonMessages.remove_action}">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.StartRemoveItemsListener" />
     <f:param name="outCome" value="editPool"/>
   </h:commandButton>
  
  <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
  
- <h:commandButton title="#{questionPoolMessages.t_copyQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="copySubmit" immediate="true" action="#{questionpool.startCopyQuestions}" value="#{questionPoolMessages.copy}">
+ <h:commandButton title="#{questionPoolMessages.t_copyQuestion}" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring != 'true'}" id="copySubmit" immediate="true" action="#{questionpool.startCopyQuestions}" value="#{questionPoolMessages.copy}">
  
  </h:commandButton>
  
  <h:outputText escape="false" value=" | " rendered="#{questionpool.importToAuthoring != 'true'}" />
  
- <h:commandButton title="#{questionPoolMessages.t_moveQuestion}" rendered="#{questionpool.importToAuthoring != 'true'}" id="moveSubmit" immediate="true" action="#{questionpool.startMoveQuestions}" value="#{questionPoolMessages.move}">
+ <h:commandButton title="#{questionPoolMessages.t_moveQuestion}" disabled="#{questionpool.currentPool.numberOfQuestions == 0 }" rendered="#{questionpool.importToAuthoring != 'true'}" id="moveSubmit" immediate="true" action="#{questionpool.startMoveQuestions}" value="#{questionPoolMessages.move}">
  </h:commandButton>
  
  </div>
