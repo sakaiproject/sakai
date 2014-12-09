@@ -1,0 +1,186 @@
+<html style="width: 398; height: 218">
+
+<head>
+  <title>Insert Link</title>
+
+<script type="text/javascript" src="../popups/popup.js"></script>
+<style type="text/css">
+@import url(htmlarea.css);
+
+</style>
+
+<script type="text/javascript"><!--
+
+// is this link an HTTP or HTTPS url?
+function hasHTTP(s) {
+  if (!s) return false;
+  if (s.indexOf("http")==0) return true;
+  return false;
+}
+
+// prepends http:// on URLs that don't have a protocol
+function fixMyURL(o){
+  s=o.value;
+  if (!hasHTTP(s)){
+    o.value="http://" + s;
+  }
+
+  document.getElementById("f_url").value = s;
+}
+
+function Init() {
+  __dlg_init();
+//  if f_url were not a hidden value but a text input, uncomment this line
+//  document.getElementById("f_url").focus();
+};
+
+// This is if the Submit button is pressed, the default dialog used OK, hence the name
+function onOK() {
+
+// need to fix bug in validation
+/**********************
+  var required = {
+    "f_url": "You must enter the URL or file.",
+  };
+  for (var i in required) {
+    var el = document.getElementById(i);
+    if (!el.value) {
+      alert(required[i]);
+      el.focus();
+      return false;
+    }
+    window.close();//mozilla
+  }
+
+  *************************/
+
+  // pass data back to the calling window
+  var fields = ["f_url", "f_newfile", "f_name", "f_author",
+  "f_source_0",  "f_description" ];
+
+  // create an associative array of parameters
+  var param = new Object();
+  for (var i in fields) {
+    var id = fields[i];
+    var el = document.getElementById(id);
+    param[id] = el.value;
+  }
+
+  // insert the URL HTML in the calling editor
+  opener.editor.insertHTML('<a  href="' + param["f_url"] + '" />' +
+    param["f_name"] +
+    '</a>'
+    );
+  __dlg_close(param);
+ window.close();//mozilla
+  return false;
+};
+
+// This is if the cancel is pressed
+function onCancel() {
+  __dlg_close(null);
+  window.close();//mozilla
+  //return false;
+};
+
+// this supplies a default for the alt tag
+function defaultName(){
+  if ( document.getElementById("f_name").value=="" &&
+    document.getElementById("f_url").value!=""
+  ){
+    document.getElementById("f_name").value=document.getElementById("f_url").value;
+  }
+}
+
+//--></script>
+<style type="text/css">
+html, body {
+  font: 11px Tahoma,Verdana,sans-serif;
+  margin: 0px;
+  padding: 0px;
+}
+body { padding: 5px; }
+table {
+  font: 11px Tahoma,Verdana,sans-serif;
+}
+form p {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+.fl { width: 9em; float: left; padding: 2px 5px; text-align: right; }
+.fr { width: 6em; float: left; padding: 2px 5px; text-align: right; }
+fieldset { padding: 0px 10px 5px 5px; }
+select, input, button { font: 11px Tahoma,Verdana,sans-serif; }
+button { width: 70px; }
+.space { padding: 2px; }
+
+.title { background: #ddf; color: #000; font-weight: bold; font-size: 120%;
+padding: 3px 10px; margin-bottom: 10px;
+border-bottom: 1px solid black; letter-spacing: 2px;
+}
+form { padding: 0px; margin: 0px; }
+</style>
+
+
+</head>
+
+<body onload="Init()">
+
+<div class="title">Insert Link</div>
+
+<form action="/Navigo/htmlInlineUpload.do" method="post"
+  enctype="multipart/form-data">
+
+<table border="0" width="100%" >
+  <tbody>
+      <tr  bgcolor=#E1E1E1 >
+      <td class="tdSideRedText">Source</td>
+      <td>
+        <input type="radio" name="source" id="f_source_0" value="0" checked="checked">
+        Link to a file uploaded from your computer:
+        <input type="file" name="newfile" id="f_newfile" value="">
+        <br>
+        <input type="radio" name="source" id="f_source_1" value="1">
+        Link to an external URL:
+        <input type="text" name="link" value=""
+          onchange="fixMyURL(this);defaultName();" size="50" style="width:100%" >
+        <input type="hidden" name="url" id="f_url"  /><!-- URL for internal use in WYSIWYG editor -->
+        <input type="hidden" name="isHtmlInline" id="isHtmlInline"  /><!-- for internal use  -->
+        <br>
+      </td>
+    </tr>
+
+
+    <tr  bgcolor=#FFFFFF >
+      <td class="tdSideRedText">Title</td>
+      <td>
+        <input type="text" name="name" id="f_name"  style="width:100%">
+        <br>
+      </td>
+    </tr>
+    <tr  bgcolor=#E1E1E1 >
+      <td class="tdSideRedText">Description <br> (Optional)</td>
+      <td>
+        <textarea name="description" id="f_description"
+          cols="60" rows="4" style="width:100%" ></textarea>
+        <br>
+      </td>
+    </tr>
+    <tr  bgcolor=#FFFFFF >
+      <td class="tdSideRedText">Author/Citation <br> (Optional)</td>
+      <td>
+        <input type="text" name="author" id="f_author" value="">
+        <br>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2">
+<hr />
+   <input type="reset" value="Cancel" onclick="return onCancel();"/>
+   <input type="submit" value="Submit" onclick="return onOK();"/>
+    </tr>
+  </tbody>
+</table>
+</form>
+</body>
+</html>

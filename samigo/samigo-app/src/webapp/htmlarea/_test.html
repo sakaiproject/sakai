@@ -1,0 +1,98 @@
+<html>
+<head>
+<title>Example of WYSIWYG Editor</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+<link type="TEXT/CSS" rel="STYLESHEET" href="htmlarea.css"/>
+
+<script type="text/javascript"> var item =0; </script>
+<link type="TEXT/CSS" rel="STYLESHEET" href="/Navigo/htmlarea/htmlarea.css">
+<script type="text/javascript" src="/Navigo/htmlarea/htmlarea.js"></script>
+<script type="text/javascript" src="/Navigo/htmlarea/lang/en.js"></script>
+<script type="text/javascript" src="/Navigo/htmlarea/dialog.js"></script>
+<script type="text/javascript" src="/Navigo/htmlarea/popupwin.js"></script>
+<script type="text/javascript" src="/Navigo/htmlarea/navigo_js/navigo_editor.js"></script>
+<script type="text/javascript">
+HTMLArea.loadPlugin("SpellChecker", "/Navigo/htmlarea/");
+// these seem to prevent showing the toolbar
+var ta_editor =  [];
+var hidden = [];
+var textAreaNames = [];
+var runFocus=true;
+
+function startup()
+{
+// initEditorById("ta2", "/Navigo/htmlarea/", "three",true);
+loadEditor("/Navigo/htmlarea/",1,0,"three");
+
+}
+
+</script>
+
+<style type="text/css">
+@import url(htmlarea.css);
+
+html, body {
+  font-family: Verdana,sans-serif;
+  background-color: #fea;
+  color: #000;
+}
+a:link, a:visited { color: #00f; }
+a:hover { color: #048; }
+a:active { color: #f00; }
+
+textarea { background-color: #fff; border: 1px solid 00f; }
+</style>
+
+
+</head>
+
+<body  onload="javascript:startup();">
+
+<h1>WYSIWYG Demo</h1>
+
+<form action="test.cgi" method="post" id="edit" name="edit">
+<table width="350">
+<tr>
+<td>
+<textarea rows="15"
+  id="ta1"
+  name="ta1"
+  cols="70">  <h1>This is a test.</h1>
+</textarea>
+</td>
+</tr>
+<tr>
+<td>
+<textarea rows="15"
+  id="ta2"
+  name="ta2"
+  cols="70">  <h1>This is a test.</h1>
+  <h2>this is a test    </h2>
+  <h3>this is a test </h3>
+  <h4>this is a test </h4>
+  <h5>this is a test </h5>
+  <h6>This is a test...</h6>
+  <p>Just so you have something to do when we activate spell checking:</p>
+      <p><i>The document that yu are reading now <b>intentionaly</b> containes
+        some errorz, so that you have something to corect</i> ;-)</p></textarea>
+<img src="/Navigo/htmlarea/images/htmlarea_editor.gif" alt="Toggle Toolbar"
+onClick="javascript:hideUnhide('ta2',null)"
+>
+</td>
+</tr>
+</table>
+
+<!--
+onClick="javascript:toggle_display_toolbar(ta_editor[0],ta_editor[0],'two')"
+onClick="javascript:hideUnhide('ta2',null)"
+-->
+
+<p />
+
+<input type="submit" name="ok" value="  submit  " />
+</form>
+
+</body>
+</html>
