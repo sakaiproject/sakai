@@ -1,24 +1,11 @@
 // SAM-1817: This was originally in RichTextEditor.java
-function show_hide_editor(client_id, frame_id) {
+function show_editor(client_id, frame_id) {
 	var status =  document.getElementById(client_id + '_textinput_current_status');
-	if (status.value == "firsttime") {
-		status.value = "expanded";
-		chef_setupformattedtextarea(client_id, true, frame_id);
-		if (typeof setBlockDivs == "function" && typeof retainHideUnhideStatus == "function") {
-			setBlockDivs();
-			retainHideUnhideStatus('none');
-		}
-	}
-	else {
-		if (status.value == "collapsed") {
-			status.value = "expanded";
-			chef_setupformattedtextarea(client_id, true, frame_id);
-		}
-		else if (status.value == "expanded") {
-			status.value = "collapsed";
-			var editor = CKEDITOR.instances[client_id + '_textinput'];
-			editor.destroy();
-		}
+	status.value = "expanded";
+	chef_setupformattedtextarea(client_id, true, frame_id);
+	if (typeof setBlockDivs == "function" && typeof retainHideUnhideStatus == "function") {
+		setBlockDivs();
+		retainHideUnhideStatus('none');
 	}
 }
 
@@ -45,4 +32,5 @@ function chef_setupformattedtextarea(client_id, shouldToggle, frame_id) {
 
 	sakai.editor.launch(textarea_id,'','450','240');
 	setMainFrameHeight(frame_id);
+	document.getElementById(client_id + "_toggle").style.display = "none";
 }

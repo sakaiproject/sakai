@@ -209,8 +209,8 @@ public class RichTextEditArea extends Renderer
     
     if(shouldToggle)
     {    	
-    	String show_hide_editor = rb.getString("show_hide_editor");
-    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:show_hide_editor('" +  clientId + "', '" + samigoFrameId + "');\">" + show_hide_editor + "</a></div>\n");
+    	String show_editor = rb.getString("show_editor");
+    	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:show_editor('" +  clientId + "', '" + samigoFrameId + "');\">" + show_editor + "</a></div>\n");
     }
     else {
         	value = FormattedText.escapeHtmlFormattedTextarea((String) value);
