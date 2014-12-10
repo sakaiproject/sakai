@@ -2,7 +2,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 
 /**
- * Settings page
+ * Import Export page
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *

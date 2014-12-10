@@ -22,7 +22,7 @@ import com.inmethod.grid.datagrid.DataGrid;
 import com.inmethod.grid.datagrid.DefaultDataGrid;
 
 /**
- * GB3 tester
+ * Grades page
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
