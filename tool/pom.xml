@@ -85,7 +85,7 @@
 
 	<build>
 		<resources>
-			<!-- include our HTML but not the Java source -->
+			<!-- include everything except the Java source -->
 			<resource>
 				<directory>src/java</directory>
 				<includes>

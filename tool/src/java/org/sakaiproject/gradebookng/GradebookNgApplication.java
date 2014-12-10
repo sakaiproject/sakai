@@ -38,83 +38,56 @@ public class GradebookNgApplication extends WebApplication {
 
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
-            public void onBeginRequest()
-            {
-            // optionally do something at the beginning of the request
-            }
+            //public void onBeginRequest() {
+            	// optionally do something at the beginning of the request
+            //}
 
-            public void onEndRequest()
-            {
-            // optionally do something at the end of the request
-            }
+            //public void onEndRequest() {
+            	// optionally do something at the end of the request
+            //}
 
-            public IRequestHandler onException(RequestCycle cycle, Exception ex)
-            {
-            // optionally do something here when there's an exception
-
-            // then, return the appropriate IRequestHandler, or "null"
-            // to let another listener handle the exception
+            public IRequestHandler onException(RequestCycle cycle, Exception ex) {
+	            // optionally do something here when there's an exception
+	            // then, return the appropriate IRequestHandler, or "null"
+	            // to let another listener handle the exception
                 ex.printStackTrace();
                 return null;
             }
 
             @Override
             public void onBeginRequest(RequestCycle arg0) {
-            // TODO Auto-generated method stub
-
             }
 
             @Override
             public void onDetach(RequestCycle arg0) {
-            // TODO Auto-generated method stub
-
             }
 
             @Override
             public void onEndRequest(RequestCycle arg0) {
-            // TODO Auto-generated method stub
-
             }
 
             @Override
-            public void onExceptionRequestHandlerResolved(
-                    RequestCycle arg0, IRequestHandler arg1, Exception arg2) {
-            // TODO Auto-generated method stub
-
+            public void onExceptionRequestHandlerResolved(RequestCycle arg0, IRequestHandler arg1, Exception arg2) {
             }
 
             @Override
-            public void onRequestHandlerExecuted(RequestCycle arg0,
-                                                 IRequestHandler arg1) {
-            // TODO Auto-generated method stub
-
+            public void onRequestHandlerExecuted(RequestCycle arg0, IRequestHandler arg1) {
             }
 
             @Override
-            public void onRequestHandlerResolved(RequestCycle arg0,
-                                                 IRequestHandler arg1) {
-            // TODO Auto-generated method stub
-
+            public void onRequestHandlerResolved(RequestCycle arg0, IRequestHandler arg1) {
             }
 
             @Override
-            public void onRequestHandlerScheduled(RequestCycle arg0,
-                                                  IRequestHandler arg1) {
-            // TODO Auto-generated method stub
-
+            public void onRequestHandlerScheduled(RequestCycle arg0, IRequestHandler arg1) {
             }
 
             @Override
-            public void onUrlMapped(RequestCycle arg0,
-                                    IRequestHandler arg1, Url arg2) {
-            // TODO Auto-generated method stub
-
+            public void onUrlMapped(RequestCycle arg0,IRequestHandler arg1, Url arg2) {
             }
         });
 
-
-
-
+   
 		//to put this app into deployment mode, see web.xml
 	}
 	
@@ -133,8 +106,7 @@ public class GradebookNgApplication extends WebApplication {
 	/**
      * Constructor
      */
-	public GradebookNgApplication()
-	{
+	public GradebookNgApplication() {
 	}
 	
 	

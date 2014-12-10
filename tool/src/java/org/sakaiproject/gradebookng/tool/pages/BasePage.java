@@ -36,6 +36,10 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	protected GradebookNgBusinessService businessService;
 	
 	Link<Void> gradebookPageLink;
+	Link<Void> settingsPageLink;
+	Link<Void> importExportPageLink;
+	Link<Void> permissionsPageLink;
+	
 	
 	FeedbackPanel feedbackPanel;
 	
@@ -43,17 +47,42 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		log.debug("BasePage()");
 		
-		
-    	//first link
+    	//grades page
 		gradebookPageLink = new Link<Void>("gradebookPageLink") {
 			private static final long serialVersionUID = 1L;
 			public void onClick() {
-				
 				setResponsePage(new GradebookPage());
 			}
 		};
 		add(gradebookPageLink);
 		
+		//settings page
+		settingsPageLink = new Link<Void>("settingsPageLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new SettingsPage());
+			}
+		};
+		add(settingsPageLink);
+		
+		//settings page
+		importExportPageLink = new Link<Void>("importExportPageLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new ImportExportPage());
+			}
+		};
+		add(importExportPageLink);
+		
+		//permissions page
+		permissionsPageLink = new Link<Void>("permissionsPageLink") {
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new PermissionsPage());
+			}
+		};
+		add(permissionsPageLink);
+
 		// Add a FeedbackPanel for displaying our messages
         feedbackPanel = new FeedbackPanel("feedback"){
         	
@@ -89,22 +118,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	
 	
-	
-	
-
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
 	/**
 	 * This block adds the required wrapper markup to style it like a Sakai tool. 
 	 * Add to this any additional CSS or JS references that you need.
@@ -116,7 +129,6 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		response.render(StringHeaderItem.forString((String)request.getAttribute("sakai.html.head")));
 		response.render(OnLoadHeaderItem.forScript("setMainFrameHeight( window.name )"));
-		
 		
 		//Tool additions (at end so we can override if required)
 		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
