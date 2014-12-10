@@ -1,3 +1,8 @@
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"%>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<c:set var="const" value="32"/>
+
+
 <f:view>
 	<script type="text/javascript" language="JavaScript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript" language="JavaScript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
@@ -84,9 +89,11 @@
 			<%@ include file="/inc/filterPagingRoster.jspf"%>
 		</t:aliasBean>
 
+          <c:set var="initHeight" value="${(fn:length(rosterBean.studentRows)) *32}"/>
+
 		<gbx:spreadsheetUI 
 			colLock="#{rosterBean.colLock}"
-			initialHeight="200px"
+			initialHeight="${initHeight}px"
 			value="#{rosterBean.studentRows}" 
 			binding="#{rosterBean.rosterDataTable}" 
 			sortColumn="#{rosterBean.sortColumn}"
@@ -138,4 +145,5 @@
 		</h:panelGroup>
 	</h:panelGrid>
 	</div>
+
 </f:view>

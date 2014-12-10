@@ -197,7 +197,7 @@
 		<attribute>
 			<name>initialHeight</name>
 			<required>false</required>
-			<rtexprvalue>false</rtexprvalue>
+			<rtexprvalue>true</rtexprvalue>
 			<description>Initial Height (in px) of the spreasheetUI scrolling viewport</description>
 		</attribute>
 	</tag>

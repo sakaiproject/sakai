@@ -156,7 +156,7 @@ public class SpreadsheetUIRenderer extends Renderer
 		Iterator grandkids = null;
 		
 		String initialHeight = (String) data.getAttributes().get("initialHeight");
-		if(initialHeight == null){
+		if(initialHeight == null || initialHeight.length() <= 0){
 			initialHeight = "150px";
 		}
 		int initHeight = Integer.parseInt(initialHeight.substring(0, initialHeight.length() - 2));
