@@ -65,6 +65,26 @@
 						#end
 					#end
 					|
+					#if (!$currentSortedBy.equals("releasedate"))
+						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedate')">$tlang.getString('gen.sortbyreleasedate')</a>
+					#else
+						#if ($currentSortAsc.equals("true"))
+							 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedateasc')">$tlang.getString('gen.sortbyreleasedate') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyreleasedateasc')" /></a>
+						#else
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyreleasedate")';return false;"  title="$tlang.getString('gen.sortbyreleasedatedesc')">$tlang.getString('gen.sortbyreleasedate') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbyreleasedatedesc')" /></a>
+						#end
+					#end
+					|
+					#if (!$currentSortedBy.equals("retractdate"))
+						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdate')">$tlang.getString('gen.sortbyretractdate')</a>
+					#else
+						#if ($currentSortAsc.equals("true"))
+							 <a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdateasc')">$tlang.getString('gen.sortbyretractdate') <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('gen.sortbyretractdateasc')" /></a>
+						#else
+							<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbyretractdate")';return false;"  title="$tlang.getString('gen.sortbyretractdatedesc')">$tlang.getString('gen.sortbyretractdate') <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt ="$tlang.getString('gen.sortbyretractdatedesc')" /></a>
+						#end
+					#end
+					|
 					#if (!$currentSortedBy.equals("date"))
 						<a href="#" onclick="location='#toolLink("AnnouncementAction" "doSortbydate")';return false;"  title="$tlang.getString('gen.sortbydate')">$tlang.getString('gen.sortbydate')</a>
 					#else
