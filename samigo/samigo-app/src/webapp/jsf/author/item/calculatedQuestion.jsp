@@ -42,15 +42,6 @@ confirmation dialog
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head><%= request.getAttribute("html.head") %>
 	<title><h:outputText value="#{authorMessages.item_display_author}"/></title>
-	<!-- HTMLAREA -->
-	<samigo:stylesheet path="/htmlarea/htmlarea.css"/>
-	<samigo:script path="/htmlarea/htmlarea.js"/>
-	<samigo:script path="/htmlarea/lang/en.js"/>
-	<samigo:script path="/htmlarea/dialog.js"/>
-	<samigo:script path="/htmlarea/popupwin.js"/>
-	<samigo:script path="/htmlarea/popups/popup.js"/>
-	<samigo:script path="/htmlarea/navigo_js/navigo_editor.js"/>
-	<samigo:script path="/jsf/widget/wysiwyg/samigo/wysiwyg.js"/>
 	<!-- AUTHORING -->
 	<samigo:script path="/js/authoring.js"/>
 	<script type="text/javascript">
