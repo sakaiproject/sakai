@@ -4,8 +4,11 @@
 <body>
 <wicket:panel>
 	
-	<div wicket:id="grade">1</div>
-	<div wicket:id="menu">action menu</div>
+	<div wicket:id="title"></div>
+	<div wicket:id="averageGradeSection">
+		<span wicket:message="value:label.avg">Avg: </span><span wicket:id="averagePoints">72</span> / <span wicket:id="totalPoints">100</span>
+	</div>
+	<div wicket:id="dueDate">23/5/2014</div>
 	
 </wicket:panel>
 </body>
