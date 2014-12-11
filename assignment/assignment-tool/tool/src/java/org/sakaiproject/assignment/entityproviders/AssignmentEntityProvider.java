@@ -26,6 +26,7 @@ import org.sakaiproject.assignment.impl.BaseAssignmentService;
 import org.sakaiproject.assignment.impl.MySecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
@@ -56,6 +57,8 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 
 
 public class AssignmentEntityProvider extends AbstractEntityProvider implements EntityProvider, 
@@ -252,7 +255,12 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 		 * Supplement items: all purpose item text
 		 */
 		private String allPurposeItemText;
-		private String gradebookItemId;
+		
+		/**
+		 * the linked gradebook item id and name
+		 */
+		private Long gradebookItemId;
+		private String gradebookItemName;
 		
 		public SimpleAssignment() {
 		}
@@ -285,8 +293,36 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 			this.position_order = a.getPosition_order();
 			this.groups = a.getGroups();
 			this.access = a.getAccess();
-			this.gradebookItemId=a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
-			
+					
+			String gradebookAssignmentProp = a.getProperties().getProperty(AssignmentService.PROP_ASSIGNMENT_ASSOCIATE_GRADEBOOK_ASSIGNMENT);
+			if (gradebookAssignmentProp != null)
+			{
+				// try to get internal gradebook assignment first
+				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = gradebookService.getAssignment(a.getContext(), gradebookAssignmentProp);
+				if (gAssignment != null)
+				{
+					// linked Gradebook item is internal
+					this.gradebookItemId = gAssignment.getId();
+					this.gradebookItemName = gAssignment.getName();
+				}
+				else
+				{
+					// If the linked assignment is not internal to Gradebook, try the external assignment service
+					// However, there is no API available in GradebookExternalAssessmentService of getExternalAssignment()
+					// We will first check whether the external assignment is defined, and then get it through GradebookService 
+					boolean isExternalAssignmentDefined = gradebookExternalService.isExternalAssignmentDefined(a.getContext(), gradebookAssignmentProp);
+					if (isExternalAssignmentDefined)
+					{
+						// since the gradebook item is externally defined, the item is named after the external object's title
+						gAssignment = gradebookService.getAssignment(a.getContext(), a.getTitle());
+						if (gAssignment != null)
+						{
+							this.gradebookItemId = gAssignment.getId();
+							this.gradebookItemName = gAssignment.getName();
+						}
+					}
+				}
+			}
 			if (a.getContent() != null){
 				this.instructions = a.getContent().getInstructions();
 	
@@ -349,6 +385,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 	private SiteService siteService;
 	@Setter
 	private AssignmentSupplementItemService assignmentSupplementItemService;
+	@Setter
+	private GradebookService gradebookService;
+	@Setter
+	private GradebookExternalAssessmentService gradebookExternalService;
 	
 	// HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
 	public String[] getHandledOutputFormats() {

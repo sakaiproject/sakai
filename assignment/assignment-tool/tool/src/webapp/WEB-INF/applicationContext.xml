@@ -2,8 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
     <!-- entity providers -->
-<!-- 	<bean id="org.sakaiproject.assignment.api.AssignmentEntityProvider"
- -->	<bean
+	<bean
 		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
 		class="org.sakaiproject.assignment.entityproviders.AssignmentEntityProvider">
 		<property name="assignmentService" ref="org.sakaiproject.assignment.api.AssignmentService" />
@@ -12,7 +11,8 @@
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
         <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
         <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService" />
-		
+		<property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradebookExternalService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService" />
 	</bean>
 	
 </beans>
