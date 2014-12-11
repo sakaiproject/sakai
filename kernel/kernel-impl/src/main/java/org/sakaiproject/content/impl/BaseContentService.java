@@ -2355,9 +2355,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	 */
 	public List getAllDeletedResources(String id)
 	{
+		List rv = new ArrayList();
 		try {
 			ContentCollection collection = getCollection(id);
-			return m_storage.getDeletedResources(collection);
+			if ( unlockCheck(AUTH_RESOURCE_WRITE_ANY, id) ) {
+				return m_storage.getDeletedResources(collection);
+			} else {
+				List l = m_storage.getDeletedResources(collection);
+				String currentUserId = sessionManager.getCurrentSessionUserId(); 
+				// Check if the file was removed by the current user
+				for (Object o:l) {
+					BaseResourceEdit e = (BaseResourceEdit)o;
+					String removedBy = e.getProperties().getProperty(ResourceProperties.PROP_CREATOR);
+					if (removedBy != null && removedBy.equals(currentUserId)) {
+						rv.add(e);
+					}
+				}
+			}
 		} catch (IdUnusedException iue) {
 			M_log.warn("getAllDeletedResources: cannot retrieve collection for : " + id);
 		} catch (TypeException te) {
@@ -2365,7 +2379,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		} catch (PermissionException pe) {
 			M_log.warn("getAllDeletedResources: access to resource with id: " + id + " failed : " + pe);
 		}
-		return new ArrayList(0);
+		return rv;
 	} // getAllDeletedResources
 
 
