@@ -131,18 +131,6 @@ public class PublishedItemText
 		this.itemTextAttachmentSet = itemTextAttachmentSet;
 	}
 
-	public List getItemTextAttachmentList() {
-		ArrayList list = new ArrayList();
-		if (itemTextAttachmentSet != null) {
-			Iterator iter = itemTextAttachmentSet.iterator();
-			while (iter.hasNext()) {
-				ItemTextAttachmentIfc a = (ItemTextAttachmentIfc) iter.next();
-				list.add(a);
-			}
-		}
-		return list;
-	}
-	
 	  // for EMI - Attachments at Answer Level
 	  public boolean getHasAttachment(){
 	    if (itemTextAttachmentSet != null && itemTextAttachmentSet.size() >0)

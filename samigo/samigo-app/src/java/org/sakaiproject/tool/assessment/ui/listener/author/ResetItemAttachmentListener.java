@@ -22,7 +22,10 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -100,10 +103,10 @@ public class ResetItemAttachmentListener
 	      ItemDataIfc item = itemService.getItem(itemId);
 	      ItemTextIfc itemText = item.getItemTextBySequence(sequence);
 	      //log.debug("*** item attachment="+item.getItemAttachmentList());
-	      resetItemTextAttachment(answerBean.getResourceHash(), itemText.getItemTextAttachmentList(), assessmentService);
+	      resetItemTextAttachment(answerBean.getResourceHash(), itemText.getItemTextAttachmentSet(), assessmentService);
 	    }
 	    else{
-	      resetItemTextAttachment(answerBean.getResourceHash(), new ArrayList(), assessmentService);
+	      resetItemTextAttachment(answerBean.getResourceHash(), new HashSet(), assessmentService);
 	    }
 		
 	}
@@ -189,15 +192,15 @@ public class ResetItemAttachmentListener
   }
   */
     
-    private void resetItemTextAttachment(HashMap resourceHash, List attachmentList, AssessmentService service){
+    private void resetItemTextAttachment(HashMap resourceHash, Set<ItemTextAttachmentIfc> attachmentSet, AssessmentService service){
         // 1. we need to make sure that attachment removed/added by file picker 
         //    will be restored/remove when user cancels the entire modification
-        if (attachmentList != null){
-          for (int i=0; i<attachmentList.size(); i++){
-             AttachmentIfc attach = (AttachmentIfc) attachmentList.get(i);
+        if (attachmentSet != null){
+          for (Iterator<ItemTextAttachmentIfc> it = attachmentSet.iterator(); it.hasNext();) {
+             AttachmentIfc attach = (AttachmentIfc) it.next();
              try{
                ContentResource cr = AssessmentService.getContentHostingService().getResource(attach.getResourceId());
-    	 }
+             }
              catch (PermissionException e) {
                log.warn("PermissionException from ContentHostingService:"+e.getMessage());
              }

@@ -61,8 +61,6 @@ public interface ItemTextIfc
 
   void setItemTextAttachmentSet(Set<ItemTextAttachmentIfc> itemTextAttachmentSet);
 
-  List<ItemTextAttachmentIfc> getItemTextAttachmentList();
-
     /**
      * This is an actual EMI Question Item (i.e. not Theme or Lead In Text or
      * Complete Answer Options List)

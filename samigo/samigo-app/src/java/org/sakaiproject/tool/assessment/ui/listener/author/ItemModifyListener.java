@@ -41,6 +41,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -645,7 +646,11 @@ public class ItemModifyListener implements ActionListener
 				  }
 				  answerbean.setCorrectOptionLabels(correctOptionLabels);
 
-			      List attachmentList = itemfacade.getItemTextBySequence(answerbean.getSequence()).getItemTextAttachmentList();
+			      Set<ItemTextAttachmentIfc> attachmentSet = itemfacade.getItemTextBySequence(answerbean.getSequence()).getItemTextAttachmentSet();
+			      ArrayList<ItemTextAttachmentIfc> attachmentList = new ArrayList<ItemTextAttachmentIfc>();
+			      for (Iterator<ItemTextAttachmentIfc> it = attachmentSet.iterator(); it.hasNext();) {
+			    	  attachmentList.add(it.next());
+			      }
 				  answerbean.setAttachmentList(attachmentList);
 				  answerbean.setResourceHash(null);
 				  qaComboList.add(answerbean);

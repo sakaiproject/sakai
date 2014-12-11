@@ -132,18 +132,6 @@ public class ItemText
 		this.itemTextAttachmentSet = itemTextAttachmentSet;
 	}
 
-	public List<ItemTextAttachmentIfc> getItemTextAttachmentList() {
-		ArrayList<ItemTextAttachmentIfc> list = new ArrayList<ItemTextAttachmentIfc>();
-		if (itemTextAttachmentSet != null) {
-			Iterator<ItemTextAttachmentIfc> iter = itemTextAttachmentSet.iterator();
-			while (iter.hasNext()) {
-				ItemTextAttachmentIfc a = iter.next();
-				list.add(a);
-			}
-		}
-		return list;
-	}
-  
 	  // for EMI - Attachments at Answer Level
 	  public boolean getHasAttachment(){
 	    if (itemTextAttachmentSet != null && itemTextAttachmentSet.size() >0)

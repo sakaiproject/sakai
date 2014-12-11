@@ -445,7 +445,14 @@ public class AnswerBean implements Serializable, Comparable{
 	        else if (itemText == null) {
 	        	return new ArrayList();
 	        }
-	        else return itemText.getItemTextAttachmentList();
+	        else {
+	        	ArrayList attachmentList = new ArrayList();
+	        	Set<ItemTextAttachmentIfc> itemTextAttachmentSet = itemText.getItemTextAttachmentSet();
+	        	for (Iterator<ItemTextAttachmentIfc> it = itemTextAttachmentSet.iterator(); it.hasNext();) {
+	        		attachmentList.add(it.next());
+	        	}
+	        	return attachmentList;
+	        }
 	      }
 
 	    private HashMap getResourceIdHash(Set attachmentSet){
