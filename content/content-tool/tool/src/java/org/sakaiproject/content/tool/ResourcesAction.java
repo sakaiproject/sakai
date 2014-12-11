@@ -4644,7 +4644,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		
 		// whether the user can revise any resources in this site
 		// used for showing the restore deleted files interface
-		context.put("canReviseAny", canReviseAny());
+		context.put("canDeleteResource", canDeleteResource());
 		
 		// output the current session user id
 		context.put("userId", SessionManager.getCurrentSessionUserId());
@@ -4730,6 +4730,25 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	    return canReviseAny;
 	}
 
+	/**
+	 * Check if you have 'content.delete.any' or 'content.delete.own' in the site
+	 * @return true if user can delete
+	 */
+	public boolean canDeleteResource() {
+	    boolean canDeleteResource = false;
+	    try {
+	        Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+	        canDeleteResource = SecurityService.unlock(
+	                ContentHostingService.AUTH_RESOURCE_REMOVE_ANY, site.getReference())
+	                || SecurityService.unlock(
+	    	                ContentHostingService.AUTH_RESOURCE_REMOVE_OWN, site.getReference());
+
+	    } catch (IdUnusedException e) {
+	        logger.debug("ResourcesAction.canDeleteResource: cannot find current site");
+	    }
+	    return canDeleteResource;
+	}
+	
 
 	/**
 	* Build the context for normal display

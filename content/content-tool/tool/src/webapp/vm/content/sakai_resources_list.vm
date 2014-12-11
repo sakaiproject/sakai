@@ -35,7 +35,7 @@ if ( window.jQuery ) {
 	#set($itemsOnLine = 0)
 		<ul class="navIntraTool actionToolBar">
 			<li class="firstToolBarItem"><span class="current">$tlang.getString("list.site")</span></li>
-			#if($canReviseAny)
+			#if($canDeleteResource)
 				## view restore deleted resources area if the user has revise permission
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
 			#end
