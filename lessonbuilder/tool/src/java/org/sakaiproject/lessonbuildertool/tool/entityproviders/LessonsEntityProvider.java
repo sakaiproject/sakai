@@ -24,6 +24,7 @@ package org.sakaiproject.lessonbuildertool.tool.entityproviders;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,6 +71,8 @@ import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ActiveTool;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.cover.ActiveToolManager;
 import org.sakaiproject.tool.api.Placement;
@@ -238,8 +241,12 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		for(SimplePageItem item : list)
 		{
 		    simplePageBean = makeSimplePageBean(simplePageBean, siteId, item);
-		    if (hasUpdatePermission || lessonsAccess.isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean)) 
-			ret.add(new DecoratedSiteItem(item.getId(), item.getName(), baseURL + item.getId()));
+		    if (hasUpdatePermission || lessonsAccess.isItemAccessible(item.getId(), siteId, currentUserId, simplePageBean)) {
+			SimplePage currentSimplePage = simplePageBean.getCurrentPage();
+				if (currentSimplePage != null){
+					ret.add(new DecoratedSiteItem(item.getId(), item.getName(), baseURL + item.getId(), currentSimplePage.isHidden(), currentSimplePage.getReleaseDate(), currentSimplePage.getGradebookPoints()));
+				}
+		    }
 		}
 		
 		return ret;
@@ -378,7 +385,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 				if(simpleType)
 					ret.add(new DecoratedItem(item.getId(), item.getName(), item.getType(), site.getId(), site.getTitle()));
 				else
-					addItem(item, ret, hasUpdatePermission);
+					addItem(item, ret, hasUpdatePermission, page);
 				return ret.get(0);
 			}
 			
@@ -446,6 +453,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		private long id;
 		private String lessonTitle;
 		private String contentsURL;
+		private boolean hidden;
+		private Date releaseDate;
+		private Double gradebookPoints;
 	}
 	
 	//for action=user
@@ -475,6 +485,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		private long pageId;
 		private boolean prerequisite;
 		private boolean required;
+		private String description;
 		
 		public LessonBase(SimplePageItem item)
 		{
@@ -486,6 +497,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 				this.pageId = item.getPageId();
 				this.prerequisite = item.isPrerequisite();
 				this.required = item.isRequired();
+				this.description = item.getDescription();
 			}
 		}
 	}
@@ -517,17 +529,104 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	public class DecoratedLessonPage extends DecoratedLesson {
 		private String contentsURL;
 		private List<LessonBase> contentsList;
+		private boolean hidden;
+		private Date releaseDate;
+		private Double gradebookPoints;
+		
 		public void setContentsList(List<LessonBase> list) {
 		    contentsList = list;
 		}
-		public DecoratedLessonPage(SimplePageItem item) {
+		public DecoratedLessonPage(SimplePageItem item, SimplePage simplePage) {
 		    super(item);
 		    String baseURL = developerHelperService.getEntityURL(REFERENCE_ROOT, EntityView.VIEW_LIST, null);   //   /direct/lessons
 		    baseURL = baseURL + "/lesson/";
 		    this.contentsURL = baseURL + item.getId();
 		    this.contentsList = null;
+		    
+		    if (simplePage != null) {
+		        this.hidden = simplePage.isHidden();
+		        this.releaseDate = simplePage.getReleaseDate();
+		        this.gradebookPoints = simplePage.getGradebookPoints();
+		    }
 		}		    
 	}
+	
+	//(based on LessonBase) for most cases
+	@NoArgsConstructor
+	@AllArgsConstructor
+	@Data
+	public class DecoratedResource extends DecoratedLesson{                
+	    private Boolean openInNewWindow;
+	    private String contentType;
+
+	    public DecoratedResource(SimplePageItem item)
+	    {
+	        super(item);
+	        if(item != null)
+	        {
+	            this.openInNewWindow = !item.isSameWindow();
+	            
+	            // retrieve the content type for this resource since the html
+	            // field doesn't differentiate html from url resources
+	            ContentResource resource = null;
+	            try {
+	                resource = contentHostingService.getResource(item.getSakaiId());
+	                if (resource != null) {
+	                    this.contentType = resource.getContentType();
+	                }
+	            } catch (Exception e) {
+	                log.warn("Exception when retrieving resource for sakaiId:" + item.getSakaiId() + ". " + e);
+	            } 
+	        }
+	    }
+	}
+        
+	// For properties related to grading a DecoratedLesson
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @Data
+        public class GradedDecoratedLesson extends DecoratedLesson{                
+            private String requiredPointsEarned;
+
+            public GradedDecoratedLesson(SimplePageItem item)
+            {
+                super(item);
+                if(item != null && item.getSubrequirement())
+                {
+                    this.requiredPointsEarned = item.getRequirementText();
+                }
+            }
+        }
+        
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @Data
+        public class DecoratedStudentContent extends DecoratedLesson{                
+            private Integer contentGradebookPoints;
+            private Integer commentsGradebookPoints;
+            private boolean addCommentsSection;
+
+            public DecoratedStudentContent(SimplePageItem item)
+            {
+                super(item);
+                this.contentGradebookPoints = item.getGradebookPoints();
+                this.commentsGradebookPoints = item.getAltPoints();
+                this.addCommentsSection = item.getShowComments();
+            }
+        }
+        
+        @NoArgsConstructor
+        @AllArgsConstructor
+        @Data
+        public class DecoratedComments extends DecoratedLesson {
+            private Integer gradebookPoints;
+
+            public DecoratedComments(SimplePageItem item)
+            {
+                super(item);
+                this.gradebookPoints = item.getGradebookPoints();
+            }
+        }
 
 	//for question items (base)
 	@NoArgsConstructor
@@ -739,9 +838,11 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	    if (pageMap.get(pageId) == null)
 	    	return;
 
+	    
+	    SimplePage currPage = pageMap.get(pageId);
 	    // say done
 	    pageMap.remove(pageId);
-	    LessonBase lessonPage = addItem(pageItem, entries, hasUpdatePermission);
+	    LessonBase lessonPage = addItem(pageItem, entries, hasUpdatePermission, currPage);
 
 	    // now recursively do subpages
 	    List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
@@ -766,7 +867,7 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	    	if (item.getType() == SimplePageItem.PAGE)
 		    findAllPages(item, entries, pageMap, hasUpdatePermission, siteId, currentUserId );
 		else
-		    addItem(item, entries, hasUpdatePermission);
+		    addItem(item, entries, hasUpdatePermission, simplePageBean.getCurrentPage());
 	    }
 	    }
 	}
@@ -825,8 +926,9 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 	 * @param item
 	 * @param list
 	 * @param hasUpdatePermission
+	 * @param simplePage
 	 */
-	private LessonBase addItem(SimplePageItem item, List<LessonBase> list, boolean hasUpdatePermission)
+	private LessonBase addItem(SimplePageItem item, List<LessonBase> list, boolean hasUpdatePermission, SimplePage simplePage)
 	{
 		if(list == null)
 			list = new ArrayList<LessonBase>();
@@ -835,47 +937,63 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 		{
 			LessonBase lesson = null;
 			//check type
-			switch(item.getType())
-			{
+			switch (item.getType()) {
 				case SimplePageItem.QUESTION:
-					if("multipleChoice".equals(item.getAttribute("questionType"))) {
-						lesson = new DecoratedMultipleChoiceQuestion(item, 
-																	item.getAttribute("questionText"), 
-																	item.getAttribute("questionCorrectText"), 
-																	item.getAttribute("questionIncorrectText"), 
-																	item.getAttribute("questionGraded"),
-																	item.getAttribute("questionShowPoll"));
-																	
-						List<SimplePageQuestionAnswer> answers = simplePageToolDao.findAnswerChoices(item);	
-						for(SimplePageQuestionAnswer a : answers)
-						{
+					if ("multipleChoice".equals(item.getAttribute("questionType"))) {
+						lesson = new DecoratedMultipleChoiceQuestion(item,
+								item.getAttribute("questionText"),
+								item.getAttribute("questionCorrectText"),
+								item.getAttribute("questionIncorrectText"),
+								item.getAttribute("questionGraded"),
+								item.getAttribute("questionShowPoll"));
+	
+						List<SimplePageQuestionAnswer> answers = simplePageToolDao
+								.findAnswerChoices(item);
+						for (SimplePageQuestionAnswer a : answers) {
 							DecoratedAnswerItem answer = new DecoratedAnswerItem();
 							answer.setId(a.getId());
 							answer.setText(a.getText());
-							//only show correct value if has permissions
-							if(hasUpdatePermission)
+							// only show correct value if has permissions
+							if (hasUpdatePermission)
 								answer.setCorrect(a.isCorrect());
-								
-							((DecoratedMultipleChoiceQuestion)lesson).addAnswer(answer);
+	
+							((DecoratedMultipleChoiceQuestion) lesson)
+									.addAnswer(answer);
 						}
-						
-					} else if("shortanswer".equals(item.getAttribute("questionType"))) {
-						lesson = new DecoratedShortAnswerQuestion(item, 
-																	item.getAttribute("questionText"), 
-																	item.getAttribute("questionCorrectText"), 
-																	item.getAttribute("questionIncorrectText"), 
-																	item.getAttribute("questionGraded"),
-																	item.getAttribute("questionAnswer"));
+	
+					} else if ("shortanswer".equals(item
+							.getAttribute("questionType"))) {
+						lesson = new DecoratedShortAnswerQuestion(item,
+								item.getAttribute("questionText"),
+								item.getAttribute("questionCorrectText"),
+								item.getAttribute("questionIncorrectText"),
+								item.getAttribute("questionGraded"),
+								item.getAttribute("questionAnswer"));
 					}
 					break;
-			        case SimplePageItem.PAGE:
-					lesson = new DecoratedLessonPage(item);
+				case SimplePageItem.PAGE:
+					lesson = new DecoratedLessonPage(item, simplePage);
+					break;
+				case SimplePageItem.RESOURCE:
+					lesson = new DecoratedResource(item);
+					break;
+				case SimplePageItem.ASSIGNMENT:
+					lesson = new GradedDecoratedLesson(item);
+					break;
+				case SimplePageItem.ASSESSMENT:
+					lesson = new GradedDecoratedLesson(item);
+					break;
+				case SimplePageItem.STUDENT_CONTENT:
+					lesson = new DecoratedStudentContent(item);
+					break;
+				case SimplePageItem.COMMENTS:
+					lesson = new DecoratedComments(item);
 					break;
 				default:
 					lesson = new DecoratedLesson(item);
 					break;
 			}
-			
+
 			list.add(lesson);
 			return lesson;
 		}
@@ -902,5 +1020,8 @@ public class LessonsEntityProvider extends AbstractEntityProvider implements Ent
 
         @Setter
         private DeveloperHelperService developerHelperService;
+        
+        @Setter
+        private ContentHostingService contentHostingService;
 
 }
