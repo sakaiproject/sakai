@@ -84,7 +84,10 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
         
         listLink.setVisible(canUpload || canValidate);
         uploadLink.setVisible(canUpload);
-        validateLink.setVisible(canValidate);
+        
+        // SCO-107 - hide the validate link (interface is currently unimplemented)
+        //validateLink.setVisible(canValidate);
+        validateLink.setVisibilityAllowed(false);
         
         wmc.add(listLink);
         wmc.add(uploadLink);
@@ -96,7 +99,10 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
         
         listIcon.setVisible(canUpload || canValidate);
         uploadIcon.setVisible(canUpload);
-        validateIcon.setVisible(canValidate);
+        
+        // SCO-107 hide the validate link (interface is currently unimplemented)
+        //validateIcon.setVisible(canValidate);
+        validateIcon.setVisibilityAllowed(false);
         
         wmc.add(listIcon);
         wmc.add(uploadIcon);
