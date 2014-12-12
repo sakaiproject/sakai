@@ -4,7 +4,7 @@
   <parent>
     <artifactId>sakai-scorm-base</artifactId>
     <groupId>org.sakaiproject</groupId>
-    <version>3.1.8</version>
+    <version>3.1.9-SNAPSHOT</version>
     <relativePath>../../pom.xml</relativePath>
   </parent>
   <name>sakai-scorm-adl-impl</name>
