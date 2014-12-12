@@ -6949,7 +6949,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					contentType = contentType + "; charset=" + encoding;
 				}
 
-		        ArrayList<Range> ranges = parseRange(req, res, len);
+				ArrayList<Range> ranges = parseRange(req, res, len);
+				res.addHeader("Accept-Ranges", "bytes");
+				res.addHeader("Cache-Control", "max-age=0, no-cache, no-store");
 
 		        if (req.getHeader("Range") == null || (ranges == null) || (ranges.isEmpty())) {
 		        	
@@ -6967,7 +6969,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	
 						res.setContentType(contentType);
 						res.addHeader("Content-Disposition", disposition);
-						res.addHeader("Accept-Ranges", "bytes");
 						// http://bugs.sun.com/bugdatabase/view_bug.do?bug_id=4187336
  						if (len <= Integer.MAX_VALUE){
  							res.setContentLength((int)len);
