@@ -1,44 +1,60 @@
 ##
 ## the Page part of the standard view, with page navigation
 ##
-##
 <!-- START VM includePageWithNav.vm -->
+
 #if ( $portalBreadCrumbs or $portalPwd ) 
-    <ul id="siteHierarchy"> 
+
+    <ul id="siteHierarchy" class="Mrphs-breadCrumbs"> 
         #set ($tabTotal = 0)
+
         #foreach ( $pwd in $portalPwd )
+
             #set ($tabTotal = $tabTotal + 1)
-        #end
+
+        #end ## END of FOREACH ( $pwd in $portalPwd )
         
         #foreach ( $crumb in $portalBreadCrumbs )
+
             #set ($tabTotal = $tabTotal + 1)
-        #end
+
+        #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
        
-        #set ($tabCountBread = 0)
+            #set ($tabCountBread = 0)
         
         #foreach ( $pwd in $portalPwd )
-        #set ($tabCountBread = $tabCountBread + 1)
-            <li class="crumb-$tabCountBread">
-                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+
+            #set ($tabCountBread = $tabCountBread + 1)
+            <li class="Mrphs-breadCrumbs--$tabCountBread">
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
             </li>
-        #end
+
+        #end ## END of FOREACH ( $pwd in $portalPwd )
         
         #foreach ( $pwd in $portalBreadCrumbs )
+
             #set ($tabCountBread = $tabCountBread + 1)
-            <li class="crumb-$tabCountBread">
-                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+            <li class="Mrphs-breadCrumbs--$tabCountBread">
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
             </li>
-        #end
+
+        #end ## END of FOREACH ( $pwd in $portalBreadCrumbs )
+        
     </ul>
-#end
 
-<div id="container" class="box portal" $pageSiteType>
+#end ## END of IF ( $portalBreadCrumbs or $portalPwd )
 
-    #if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
+<div id="container" class="Mrphs-container Mrphs-container--site" $pageSiteType>
+
+    #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
         #parse("/vm/morpheus/includePageNav.vm")
+
     #else 
+
         <!-- no page nav requested -->
-    #end
+
+    #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
 
     #parse("/vm/morpheus/includePageBody.vm")
     
