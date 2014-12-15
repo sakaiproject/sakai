@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
@@ -17,9 +18,12 @@ public class AssignmentHeaderPanel extends Panel {
 		averageGradeSection.add(new Label("totalPoints", new Model("100")));
 		add(averageGradeSection);
 		
-		add(new Label("dueDate", new Model("12/12/14")));
+		add(new Label("dueDate", new Model("01/12/14")));
 		
-		//TODO need icon here for the dropdown
+		//menu
+		//AjaxLink menu = new AjaxLink("menu", "http://google.com");
+		//link.add(new Label("menuLabel"));
+		//add(link);
 
 	}
 

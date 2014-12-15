@@ -21,6 +21,8 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 
+import de.agilecoders.wicket.core.Bootstrap;
+
 
 /**
  * Base page for our app
@@ -124,6 +126,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	 * 
 	 */
 	public void renderHead(IHeaderResponse response) {
+		super.renderHead(response);
+		
 		//get the Sakai skin header fragment from the request attribute
 		HttpServletRequest request = (HttpServletRequest)getRequest().getContainerRequest();
 		
@@ -134,6 +138,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
 		//response.renderCSSReference("css/my_tool_styles.css");
 		//response.renderJavascriptReference("js/my_tool_javascript.js");
+		
+	    //Bootstrap.renderHead(response);
 	}
 	
 	

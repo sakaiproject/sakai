@@ -8,6 +8,9 @@ import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
+import de.agilecoders.wicket.core.Bootstrap;
+import de.agilecoders.wicket.core.settings.BootstrapSettings;
+
 /**
  * Main application class
  * 
@@ -86,6 +89,10 @@ public class GradebookNgApplication extends WebApplication {
             public void onUrlMapped(RequestCycle arg0,IRequestHandler arg1, Url arg2) {
             }
         });
+        
+        // bootstrap
+        //BootstrapSettings settings = new BootstrapSettings();
+        //Bootstrap.install(this, settings);
 
    
 		//to put this app into deployment mode, see web.xml
