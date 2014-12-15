@@ -25,8 +25,8 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         ${sakai_html_head_css}
-        <link href="${pageSkinRepo}/${pageSkin}/pda.css$!{portalCDNQuery}" rel="stylesheet"> 
-        <link rel="apple-touch-icon" href="${pageSkinRepo}/${pageSkin}/images/pda-ico.png"/>      >
+        <link href="${pageSkinRepo}/${pageSkin}/pda.css$!{portalCDNQuery}" rel="stylesheet">
+        <link rel="apple-touch-icon" href="${pageSkinRepo}/${pageSkin}/images/pda-ico.png">
         ## portalscripts.js seems to only apply to the main portal and the dhthml "More" capability
         ## It depends on jquery - so we either have to include both jquery and portalscripts or neither
         ## and since we don't use any of this in pda.vm - we don't include either one
@@ -72,7 +72,7 @@
                     #if ($currentSite && !$currentPlacement)
                         <!-- if (currentSite && !currentPlacement) -->
                         ## user is logged in - and in site (with tool list): show back to sites link, site name, logout button
-                        #if ( $loggedIn ) 
+                        #if ($loggedIn) 
                             <li class="sitesLink backLink"><span><a href="${portalTopUrl}" title="$rloader.getString("pda_back_to_sites")">$rloader.getString("pda_sites")</a></span></li>
                         #end
                         #if ( $currentSite.isChild )
@@ -118,7 +118,7 @@
 
                     #if ( ${mobileSmallDisplay} ) 
                         <!-- Mobile Small Display -->
-                        #if ( $loggedIn ) 
+                        #if ($loggedIn) 
                             <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
                         #else
                             <!-- xportal -->
@@ -140,7 +140,7 @@
                                 #end
                             #end
                         #end
-                        #if ( $loggedIn ) 
+                        #if ($loggedIn) 
                             ## need to get string from bundle
                             <li class="logoutLink"><span><a href="${portalTopUrl}?force.logout=yes">$rloader.getString("pda_logout")</a></span></li>
                         #else
