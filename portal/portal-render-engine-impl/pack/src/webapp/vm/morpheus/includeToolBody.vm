@@ -16,57 +16,57 @@
 ## JSR-168 portlets in the background document rather than in an iFrame.
 ##
 <!-- START VM includeToolBody.vm -->
-#if ( $tool )
-    
+#if ($tool)
+
     <!-- start Tool -->
     #if (${tool.hasRenderResult})
-    
-        <nav class="portlet portlet-title wrapper">
+
+        <nav class="Mrphs-toolNav Mrphs-container Mrphs-container--toolnav">
 
             #if (${tool.toolShowResetButton})
-                <a class="portlet title-tools reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}"></a>
-            #end
-            
-            ## <h2>${tool.toolRenderResult.getTitle()}</h2>
+                <a class="Mrphs-toolNav__link Mrphs-toolNav__link--reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}"></a>
+            #end ## END of IF (${tool.toolShowResetButton})
+
+            ## <h2 class="Mrphs-toolNav__title">${tool.toolRenderResult.getTitle()}</h2>
             ## Do not show the title in this mode because there may be a separate title above this                    
 
-            #if (${tool.toolJSR168Edit} )
-                <a class="portlet title-tools edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}"></a>
-            #end 
+            #if (${tool.toolJSR168Edit})
+                <a class="Mrphs-toolNav__link Mrphs-toolNav__link--edit" accesskey="e" id="jsr-edit" href="${tool.toolJSR168Edit}" title="${rloader.sit_edit}"></a>
+            #end ## END of IF (${tool.toolJSR168Edit})
 
             #if (${tool.toolShowHelpButton})
-        
-                #if (${tool.toolJSR168Help} )
-                    <a class="portlet title-tools help" accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}"><span class="skip">${rloader.site_newwindow}</span></a>
+
+                #if (${tool.toolJSR168Help})
+                    <a class="Mrphs-toolNav__link Mrphs-toolNav__link--help" accesskey="h" href="${tool.toolJSR168Help}" title="${rloader.sit_help}"><span class="skip">${rloader.site_newwindow}</span></a>
                 #else
-                    <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
-                #end
-        
-            #end
+                    <a class="Mrphs-toolNav__link Mrphs-toolNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolRenderResult.getTitle()}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+                #end ## END of IF  (${tool.toolJSR168Help})
+
+            #end ## END of IF (${tool.toolShowHelpButton})
         </nav>
-    
+
     #else
-    
-        <nav class="portlet portlet-title wrapper">
+
+        <nav class="Mrphs-toolNav Mrphs-container Mrphs-container--toolnav">
             #if (${tool.toolShowResetButton})
-                <h2><a class="portlet title-tools title reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
+                <h2 class="Mrphs-toolNav__title"><a class="Mrphs-toolNav__link Mrphs-toolNav__link--reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${tool.toolTitle}">${tool.toolTitle}</a></h2>
             #else
-                 <h2>${tool.toolTitle}</h2>
-            #end
+                 <h2 class="Mrphs-toolNav__title">${tool.toolTitle}</h2>
+            #end ## END of IF (${tool.toolShowResetButton})
 
             #if (${tool.toolShowHelpButton})
-                <a class="portlet title-tools help popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
-            #end
+                <a class="Mrphs-toolNav__link Mrphs-toolNav__link--help-popup" href="${tool.toolHelpActionUrl}" title="${rloader.sit_helpfor} ${tool.toolTitle}" target="_blank" onclick="openWindow('${tool.toolHelpActionUrl}', 'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); return false"><span class="skip">${rloader.site_newwindow}</span></a>
+            #end ## END of IF (${tool.toolShowHelpButton})
 
         </nav>
-    #end
-    
+    #end ## END of IF (${tool.hasRenderResult})
+
     <!-- end Tool -->
     <!-- start Tool Body -->
-    
+
     #parse("/vm/morpheus/snippets/toolBody-snippet.vm")
-    
+
     <!-- end Tool Body -->
-    
+
     <!-- END VM includeToolBody.vm -->
-#end
+#end ## END of IF ($tool)
