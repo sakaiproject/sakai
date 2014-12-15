@@ -1,19 +1,25 @@
 ## Adds $viewAsStudentLink options from includeTabs.vm
 
-<div id="roleSwitch">
+<div id="roleSwitch" class="Mrphs-roleSwitch">
 
     #if ($roleSwitchState)
         <a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span></a>
     #else
-    
+
         #if ($roleswapdropdown)
-            <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }">       
+
+            <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }" class="Mrphs-roleSwitch__dropdown">       
+
             <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>
-            #foreach( $role in $siteRoles)   
+
+            #foreach ( $role in $siteRoles )
+
                 <option value="$switchRoleUrl$role$panelString">$role</option>
-            #end
+
+            #end ## END of FOREACH ( $role in $siteRoles )
+
             </select>
-        
+
         #else
         
             <a href="$switchRoleUrl" id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>

@@ -1,31 +1,41 @@
-<ul class="loginlinks" role="menu">
+<ul class="Mrphs-loginUser" role="menu">
 
     #if (${displayUserloginInfo})
-        <span class="login-user login-user-info"><span class="login-user-name">${loginUserDispName}</span> <span class="login-user-id">${loginUserDispId}</span></span>
-    #end
 
-    #if (${loginHasImage1}) 
-        <li role="menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="login-link login-link-1 login-link-image"><img src="${loginImage1}" alt="${loginMessage}"></a>
+        <span class="Mrphs-loginUser Mrphs-loginUser__info"><span class="Mrphs-loginUser__name">${loginUserDispName}</span> <span class="Mrphs-loginUser__id">${loginUserDispId}</span></span>
+
+    #end ## END of IF (${displayUserloginInfo})
+
+    #if (${loginHasImage1})
+
+        <li role="menuitem" class="Mrphs-loginUser__menuitem">
+            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__image"><img src="${loginImage1}" alt="${loginMessage}"></a>
         </li>
+
     #else
-        <li role="menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="login-link login-link-1 login-link-message">${loginMessage}</a>
+
+        <li role="menuitem" class="Mrphs-loginUser__menuitem">
+            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message">${loginMessage}</a>
         </li>
-    #end
-    
+
+    #end ## END of IF (${loginHasImage1})
+
     #if (${loginHasLogInOutUrl2})
-    
-        #if (${loginHasImage2}) 
-            <li role="menuitem">
-                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="login-link login-link-2 login-link-image"><img src="${loginImage2}" alt="${loginMessage2}"></a>
+
+        #if (${loginHasImage2})
+
+            <li role="menuitem" class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitem--alt">
+                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__image"><img src="${loginImage2}" alt="${loginMessage2}"></a>
             </li>
+
         #else
-            <li role="menuitem">
-                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="login-link login-link-2 login-link-message">${loginMessage2}</a>
+
+            <li role="menuitem" class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitemk--alt">
+                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__message">${loginMessage2}</a>
             </li>
-        #end
-        
-    #end
-    
+
+        #end ## END of IF (${loginHasImage2})
+
+   #end ## END of IF (${loginHasLogInOutUrl2})
+
 </ul>
