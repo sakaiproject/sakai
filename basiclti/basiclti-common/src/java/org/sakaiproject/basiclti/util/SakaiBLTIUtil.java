@@ -511,6 +511,8 @@ public class SakaiBLTIUtil {
 				&& ! SecurityService.isSuperUser() ) {
 
 				secret = decryptSecret(secret);
+				// sha1secret is 160-bits hex the sha1 for "secret" is
+				// e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4
 				String sha1Secret = PortableShaUtil.sha1Hash(secret);
 				Session s = SessionManager.getCurrentSession();
 				if (s != null) {

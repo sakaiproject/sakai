@@ -83,6 +83,7 @@ if ( $context->valid ) {
 	// In the future support key lengths beyond 128 bits
 	$keylength = isset($_POST['ext_sakai_blowfish_length']) ? $_POST['ext_sakai_blowfish_length'] / 8 : 16;
 	if ( $keylength < 1 ) $keylength = 16;
+	// hash is returning binary - not hex encoded so we get the full 160 bits
 	$sha1Secret = hash('sha1',$secret, true);
 	if ( strlen($sha1Secret) > $keylength ) $sha1Secret = substr($sha1Secret,0,$keylength);
 	$encrypted_session=hex2bin($_POST['ext_sakai_encrypted_session']);

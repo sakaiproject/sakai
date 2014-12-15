@@ -14,7 +14,11 @@ import org.sakaiproject.basiclti.util.PortableShaUtil;
 
 public class BlowFishTest {
 
-	public static final String encode1 = "f18c3f45a1a635ba0c03649b101b7fbd";
+	public static final String goodsha1 = "e5e9fa1ba31ecd1ae84f75caaa474f3a663f05f4";
+	public static final String encode1 = "0308b4f79fdfdfb17de9fc29356be82d";
+
+	public static final String encode2 = "f18c3f45a1a635ba0c03649b101b7fbd";
+	public static final String hexkey2 = "7468697320697320746865206b6579";
 
 	public static final String strings[] = {
 		"Short", "Medium", 
@@ -27,14 +31,32 @@ public class BlowFishTest {
 	}
 
 	private String str2hex(String str) { return PortableShaUtil.str2hex(str); }
+
+	@Test	
+	public void testKeyOfSecret() {
+		String plain = "I am plain text";
+		String secret = "secret"; // A weak but common test key
+		String sha1Secret = PortableShaUtil.sha1Hash(secret);
+		// System.out.println("sha1Secret="+sha1Secret);
+		assertTrue(sha1Secret.equals(goodsha1));
+		String enc = BlowFish.encrypt(sha1Secret, plain);
+		// System.out.println("Blowfish encoded: "+enc);
+		assertTrue(enc.equals(encode1));
+		String dec = BlowFish.decrypt(sha1Secret, enc);
+		// System.out.println("Blowfish decoded: "+dec);
+		assertTrue(dec.equals(plain));
+	}
 	
 	@Test	
-	public void testNullDecrypt() {
+	public void testBackAndForth() {
 		String plain = "I am plain text";
-		String enc = BlowFish.encrypt(str2hex("this is the key"), plain);
-		assertTrue(enc.equals(encode1));
+		String hexkey = str2hex("this is the key");
+		// System.out.println("Blowfish hexkey: "+hexkey);
+		assertTrue(hexkey.equals(hexkey2));
+		String enc = BlowFish.encrypt(hexkey, plain);
 		// System.out.println("Blowfish encoded: "+enc);
-		String dec = BlowFish.decrypt(str2hex("this is the key"), enc);
+		assertTrue(enc.equals(encode2));
+		String dec = BlowFish.decrypt(hexkey, enc);
 		// System.out.println("Blowfish decoded: "+dec);
 		assertTrue(dec.equals(plain));
 	}
