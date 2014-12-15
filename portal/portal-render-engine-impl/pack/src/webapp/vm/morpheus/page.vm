@@ -5,25 +5,32 @@
 ## No Site Tabs
 ## No Page Tabs
 ##
-##
-#parse("/vm/morpheus/includeStandardHead.vm")
-    ## includes <html> 
-    <body class="portalBody">
+
+#parse("/vm/morpheus/includeStandardHead.vm") ## includes <html> 
+
+    <body class="Mrphs-portalBody">
         <!-- START VM page.vm -->
-        #if ( $pageTop )
-        <script>
-            var sakaiPortalWindow = "";
-        </script>
-        #end
-        <div id="portalOuterContainer">
-            <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="minimize-site-nav" #end >
-                ## Skip Nav
+
+            #if ($pageTop)
+
+                <script>
+                    var sakaiPortalWindow = "";
+                </script>
+
+            #end ## END of IF ## END of IF 
+
+            <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="Mrphs-portalWrapper Mrphs-siteNav is-minimized" #else class="Mrphs-portalWrapper" #end>
+ 
+                ## SkipNav
                 #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
-                
+
+                ## IncludePage
                 #parse("/vm/morpheus/includePage.vm")
+
             </div>
-        </div>
-        #parse("/vm/morpheus/includeAnalytics.vm")
+
+            #parse("/vm/morpheus/includeAnalytics.vm")
+
         <!-- END VM page.vm -->
     </body>
 </html>
