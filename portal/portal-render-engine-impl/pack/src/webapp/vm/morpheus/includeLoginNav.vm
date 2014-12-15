@@ -1,0 +1,90 @@
+## login component
+
+<nav id="mastLogin" class="Mrphs-loginNav">
+
+    #if (!${loginTopLogin})
+
+        #if ($viewAsStudentLink)
+
+            #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+
+        #end ## END of IF ($viewAsStudentLink)
+
+        <ul id="loginLinks" class="Mrphs-userNav">
+            <li class="Mrphs-userNav__popup" aria-haspopup="true">
+
+                <ul class="Mrphs-userNav__subnav" role="menu">
+
+                    #if (${displayUserloginInfo})
+
+                        #if (${tabsSites.profileToolUrl})
+
+                            <li class="Mrphs-userNav__submenuitem">
+                                <a id="loginUser" role="menuitem" href="${tabsSites.profileToolUrl}?sakai_nav_minimized=true&amp;sakai.state.reset=true" class="Mrphs-userNav__submenuitem--userlink">
+                                    <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
+                                    <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
+                                </a>
+                            </li>
+
+                        #else
+
+                            <li class="Mrphs-userNav__submenuitem" role="menuitem">
+                                <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
+                                <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
+                            </li>
+
+                        #end ## END of IF (${tabsSites.profileToolUrl})
+
+                    #end ## END of IF (${displayUserloginInfo})
+
+                    #if (${tabsSites.prefsToolUrl})
+
+                        <li class="Mrphs-userNav__submenuitem">
+                            <a role="menuitem" href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true" class="Mrphs-userNav__submenuitem--prefs">
+                                <span>${rloader.sit_preferences}</span>
+                            </a>
+                        </li>
+
+                    #end ## END of IF (${tabsSites.prefsToolUrl})
+
+                    #if (${tabsSites.worksiteToolUrl})
+
+                        #if ($allowAddSite)
+
+                            <li class="Mrphs-userNav__submenuitem">
+                                <a id="addNewSiteLink" role="menuitem" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&amp;panel=Shortcut&amp;sakai_action=doNew_site&amp;sakai.state.reset=true" class="Mrphs-userNav__submenuitem--newsite">
+                            <span>${rloader.sit_newsite}</span>
+                                </a>
+                            </li>
+
+                        #end ## END of IF ($allowAddSite)
+
+                    #end ## END of IF (${tabsSites.prefsToolUrl})
+
+                    #if (${tabsSites.tutorial})
+
+                        <li class="Mrphs-userNav__submenuitem">
+                            <a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial">
+                                <span>${rloader.sit_tutorial}</span>
+                            </a>
+                        </li>
+
+                    #end ## END of IF (${tabsSites.tutorial})
+
+                </ul>
+                
+                <span class="Mrphs-userNav__dropdown--icon Mrphs-dropDown--icon" tabindex="-1"></span>
+
+                #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
+
+            </li>
+
+        </ul> <!-- end of nav#loginLinks-->
+
+    #else ## ELSE of IF (!${loginTopLogin})
+
+        #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
+
+    #end ## END of IF (!${loginTopLogin})
+
+</nav>

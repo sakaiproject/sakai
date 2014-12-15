@@ -1,0 +1,69 @@
+<nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="Mrphs-mainNav">
+    <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
+
+    <ul class="Mrphs-mainNav__menu" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
+
+        #foreach ( $site in $tabsSites.tabsSites )
+
+            #if (${site.isCurrentSite})
+
+                #if (${site.isMyWorkspace})
+
+                    <li class="Mrphs-mainNav_menuitem Mrphs-mainNav_menuitem--myworkspace is-selected"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+
+                #else
+
+                    #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+
+                        <li class="Mrphs-mainNav_menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span><span class="drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+
+                    #else
+
+                        <li class="Mrphs-mainNav_menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span><span class="drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+
+                    #end ## END of IF (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+
+                #end ## END of IF (${site.isMyWorkspace})
+
+            #else
+
+                #if (${site.isMyWorkspace})
+
+                    <li class="Mrphs-mainNav_menuitem"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+
+                #else
+
+                    #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+
+                        <li class="Mrphs-mainNav_menuitem"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a><span class="Mrphs-mainNav__dropdown" tabindex="-1" data-site-id="${site.siteId}"></span></li>
+
+                    #else    
+
+                        <li class="Mrphs-mainNav_menuitem"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span class="Mrphs- ">${site.siteTitle}</span><span class="Mrphs-mainNav" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+
+                    #end
+
+                #end
+
+            #end ## END of IF (${site.isCurrentSite})
+
+        #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+
+        #if ($tabsSites.tabsMoreSitesShow)
+
+            <li class="Mrphs-mainNav_menuitem Mrphs-mainNav_menuitem--more-tab"><a href="javascript:;" onclick="return dhtml_view_sites();" title="${rloader.sit_more}" aria-haspopup="true" class="Mrphs- js-show-more-sites"><span class="Mrphs- more">${rloader.sit_more}</span></a></li>
+
+        #end ## END of IF ($tabsSites.tabsMoreSitesShow)
+
+    </ul>
+
+    ## Is this still used? Mark Reilly 2014-12-10
+    #if ($tabsAddLogout)
+
+        <div class="galleryLogin Mrphs-MainNav__logout">
+            <a href="$tabsLogoutUrl">${rloader.sit_log}</a>
+        </div>
+
+    #end
+
+</nav> <!-- /Mrphs-mainNav -->
