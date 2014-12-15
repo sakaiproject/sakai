@@ -1,10 +1,9 @@
 ##
 ## the Page part of the standard view, with no page navigation
 ##
-##
 <!-- START VM includePage.vm --> 
     
-<div id="container" class="box portal" $pageSiteType>
+<div id="container" class="Mrphs-container Mrphs-container--portal" $pageSiteType>
     
     #parse("/vm/morpheus/includePageBody.vm")
 
