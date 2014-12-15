@@ -3,60 +3,25 @@
 ## Don't put anything before the <!DOCTYPE or it breaks IE9
 ## DOCTYPE detection and puts it in quirks mode.
 ##
+
 <!DOCTYPE html>
 <html lang="$!{locale}">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        
-        #if ( ${bufferedResponse} && ${responseHead} ) 
-            <!-- Head material from Tool in PDA mode (will include title and headscripts) -->
-            ${responseHead}
-            <!-- End of Head material from Tool -->
-            <title>
-                #if (  $pageColumn0Tools )
-                    #foreach ( $tool in $pageColumn0Tools ) 
-                        #if ( $tool ) 
-                            #if ( $tool.toolRenderResult ) 
-                                ${tool.toolRenderResult.getTitle()}
-                            #end
-                        #end
-                    #end
-                #end
-                #if ($pageTwoColumn)
-                    #if (  $pageColumn1Tools )
-                        #foreach ( $tool in $pageColumn1Tools ) 
-                            #if ( $tool ) 
-                                #if ( $tool.toolRenderResult ) 
-                                    ${tool.toolRenderResult.getTitle()}
-                                #end
-                            #end
-                        #end
-                    #end
-                #end
-            </title>
-        #else 
-            <title>${pageTitle}</title>
-        #end
-        
-        <!--[if (lt IE 9)]>
-          <link href="${pageSkinRepo}/${pageSkin}/portal-ie.css$!{portalCDNQuery}" rel="stylesheet">
-        <![endif]-->
-        ## downlevel revealed conditional comment - only loads for IE9+, IEMobile and Non IE browsers
-        <!--[if (gte IE 9)|(IEMobile)|(!IE)]><!--> 
-          <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" rel="stylesheet">
-        <!--<![endif]-->
-        
+
+        #parse("/vm/morpheus/snippets/title-snippet.vm")
+
+        #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
+
         #if ( $neoChat && $loggedIn )
+
             <link href="${pageSkinRepo}/${pageSkin}/portalchat.css$!{portalCDNQuery}" rel="stylesheet">
-        #end
-        
+
+        #end ## END of IF ( $neoChat && $loggedIn )
+
         <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
+
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
-
-        <!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
-        <script>var sakai_portal_ie_detected=false;</script>
-        <!--[if IE]><script>sakai_portal_ie_detected=true;</script><![endif]-->
-
     </head>
