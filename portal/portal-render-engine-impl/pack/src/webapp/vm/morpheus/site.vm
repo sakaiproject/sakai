@@ -1,51 +1,51 @@
 ##<!-- START VM site.vm --> ## Comments seen before doctype. Internet Explorer will go into the quirks mode.
+
     #parse("/vm/morpheus/includeStandardHead.vm")
-    <body #if( !${loggedIn} ) class="portalBody is-logged-out" #else class="portalBody" #end  $pageSiteType>
-        #parse("/vm/morpheus/snippets/morpheus-snippet.vm")
+
+    <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody" #end $pageSiteType>
+
         <noscript>
-            <span id="portal_js_warn">${rloader.sit_noscript_message}</span>
+            <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
-        
-        ## Might take this out. Leaving it for now. MR
-        ##if ( ${portal_add_mobile_link} )
-            ##<span id="mobile-portal-link"><a href="/portal/pda/?force.login=yes">${rloader.sit_switch_mobile}</a></span>
-        ##end
-        
-        <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="box portal outer minimize-site-nav" #else class="box portal outer" #end>
+
+        <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="Mrphs-portalWrapper Mrphs-siteNav is-minimized" #else class="Mrphs-portalWrapper" #end>
+
             ## Skip Nav
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
 
-            <div #if ( ${tabsSites} ) class="header max ${logoSiteClass}" #else class="header min ${logoSiteClass}" #end>
-                
+            <div #if ( ${tabsSites} ) class="Mrphs-mainHeader is-maximized ${logoSiteClass}" #else class="Mrphs-mainHeader is-minimized ${logoSiteClass}" #end>
+
                 ## Header
                 #parse("/vm/morpheus/snippets/header-snippet.vm")
-                
-                #if ( ${tabsSites} )
+
+                #if (${tabsSites})
                     ## tabs
                     #parse("/vm/morpheus/includeTabs.vm")
+
                 #else
-                    <nav class="header header-login">
+
+                    <nav class="Mrphs-mainHeader__loginNav">
                         <!-- login component -->
-                        
+
                             #if (!${loginTopLogin})
                                 #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
-                            
                             #else
-    
                                 #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
                                 <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
-    
-                            #end
+                            #end ## END of IF (!${loginTopLogin})
+
                         <!-- end login component -->
                     </nav>
-                    
-                #end
-                
+
+                #end ## END of IF (${tabsSites})
+
             </div>
-             
+
             #parse("/vm/morpheus/includePageWithNav.vm")
-            
-        </div> <!-- end div.box.portal.outer -->
+
+        </div> <!-- end Mrphs-portalWrapper -->
+        <!-- END VM site.vm -->
+        
         <script>
             ## SAK-16484 Allow Javascript to easily get at user details.
             ## SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
@@ -78,42 +78,44 @@
                 }
             };
         </script>
-        
-        #if ( ${bufferedResponse} && ${responseHead} ) 
+
+        #if ( ${bufferedResponse} && ${responseHead} )
+            ## Make sure we at least have a jQuery 1.9 or higher, log messages
+            <script>
+                var needJQuery = true;
+                if ( window.jQuery ) {
+                    tver = jQuery.fn.jquery;
+                    if ( tver.indexOf('1.9.') == 0 ) {
+                        window.console && console.log('Tool loaded jQuery '+tver);
+                        needJQuery = false;
+                    } else {
+                        toggleJQuery = true;
+                        window.console && console.log('Warning: Unloading Tool jQuery '+tver+' (portal needs version 1.9)');
+                        jQuery.noConflict();
+                    }
+                }
+                if ( needJQuery ) {
+                    document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                }
+            </script>
+            <script>
+                if ( needJQuery ) {
+                    window.console && console.log('Loaded Portal jQuery '+jQuery.fn.jquery);
+                }
+            </script>
         #else 
             ${sakai_html_head_js}
-        #end
+            <script src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}"></script>
+        #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
-        ## Make sure we at least have a jQuery 1.9 or higher, log messages
-#set ( $d = "$")
-        <script>
-            var needJQuery = true;
-            var secondJQuery = false;
-            if ( window.jQuery ) {
-                tver = jQuery.fn.jquery;
-                if ( tver.indexOf('1.9.') == 0 ) {
-                    window.console && console.log('Using tool jQuery '+tver);
-                    needJQuery = false;
-                } else {
-		    secondJQuery = true;
-		}
-            }
-            if ( needJQuery ) {
-                document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-                document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-            }
-	</script>
-	<script>
-            ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
-            window.console && console.log('Portal scripts loading PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
-        </script>
-        
-        #if ( $loggedIn )
+        #if ($loggedIn)
             <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
-        #end
+        #end ## END of IF ($loggedIn)
+        
         <!--[if lt IE 9]>
             <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7/html5shiv.min.js"></script>
-        <![endif]-->
+<![endif]-->
+
         <script src="${pageScriptPath}trimpath-template-latest.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/bgiframe/jquery.bgiframe.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
@@ -121,90 +123,56 @@
         <script src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
-        
+
+        <!--[if IE]>
+            <script src="${pageSkinRepo}/${pageSkin}/js/lib/sakai.portal.ie.js$!{portalCDNQuery}"></script>
+<![endif]-->
+
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
-        #end
-        
+        #end ## END of IF ( $tutorial && $loggedIn )
+
         #if ( $neoChat && $loggedIn )
-            <script src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}"></script>
+            <script src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}" ></script>
             <script>
                 var portalChatPollInterval = ${portalChatPollInterval};
             </script>
             <script src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
-#if ( $neoChatVideo )
-<script type="text/javascript">
+        #end ## END of IF ( $neoChat && $loggedIn )
 
-    portal.chat.video.enabled = true;
-    portal.chat.video.timeout = ${portalVideoChatTimeout};
-    portal.chat.video.messages = {
-        "pc_video_status_setup": "${rloader.pc_video_status_setup}",
-        "pc_video_status_user_hung": "${rloader.pc_video_status_user_hung}",
-        "pc_video_status_hangup": "${rloader.pc_video_status_hangup}",
-        "pc_video_status_user_refused": "${rloader.pc_video_status_user_refused}",
-        "pc_video_status_incoming_call": "${rloader.pc_video_status_incoming_call}",
-        "pc_video_status_call_timeout": "${rloader.pc_video_status_call_timeout}",
-        "pc_video_status_waiting_peer": "${rloader.pc_video_status_waiting_peer}",
-        "pc_video_status_call_accepted": "${rloader.pc_video_status_call_accepted}",
-        "pc_video_status_call_not_accepted": "${rloader.pc_video_status_call_not_accepted}",
-        "pc_video_status_call_in_progress": "${rloader.pc_video_status_call_in_progress}",
-        "pc_video_status_answer_timeout": "${rloader.pc_video_status_answer_timeout}",
-        "pc_video_status_connecting": "${rloader.pc_video_status_connecting}",
-        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}",
-        "pc_video_status_call_failed": "${rloader.pc_video_status_call_failed}",
-        "pc_video_status_you_ignored": "${rloader.pc_video_status_you_ignored}",
-        "pc_video_status_connection_established": "${rloader.pc_video_status_connection_established}"
-    };
-</script>
-<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/webrtc-adapter.js$!{portalCDNQuery}"></script>
-<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/videocall.js$!{portalCDNQuery}"></script>
-#end
+        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
-        #end
-        
-        #if ( ${styleable} )
-            <script src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}"></script>
-            <script>
-                window.onload = insertStyleAbleStyles;
-            </script>
-            #if ( ${styleableStyleSheet} )
-                <style title="StyleAble">${styleableStyleSheet}</style>
-            #end
-            #if ( ${styleableJS} )
-                <script>
-                    ${styleableJS} 
-                </script>
-            #end
-        #end
-        #if ( $pageTop )
+        #if ($pageTop)
             <script>
                 var sakaiPortalWindow = "";
                 $(document).ready(function() {
                     setupSkipNav();
                 });
             </script>
-        #end
-        
-        #if ( !${loginTopLogin} )
-        
-            #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} ) 
+        #end ## END of IF ($pageTop)
+
+        #if (!${loginTopLogin})
+
+            #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} )
                 <script>
                     $(document).ready(function() {
-                        var toggleClass=""
-                        
-                        #if ( ${portal_allow_minimize_tools} )
-                            toggleClass="toggleTools"
-                        #end
-                        
-                        #if ( ${portal_allow_minimize_navigation} )
-                            toggleClass= toggleClass + "toggleNav"
-                        #end
+                        var toggleClass = "";
+
+                        #if (${portal_allow_minimize_tools})
+                            toggleClass = "toggleTools";
+                        #end ## END of IF (${portal_allow_minimize_tools})
+
+                        #if (${portal_allow_minimize_navigation})
+                            toggleClass = toggleClass + "toggleNav";
+                        #end ## END of IF (${portal_allow_minimize_navigation})
+                
                             setupToolToggle(toggleClass);
                     });
                 </script>
-            #end
-            
-        #end
+            #end ## END of IF ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} )
+
+        #end ## END of IF (!${loginTopLogin})
+
         <script>
 	    // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
             if ( secondJQuery ) {
@@ -228,6 +196,5 @@
             });
         </script>
         #parse("/vm/morpheus/includeAnalytics.vm")
-        <!-- END VM site.vm -->
     </body>
 </html>
