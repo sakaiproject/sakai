@@ -144,14 +144,17 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.hierarchyNode");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'"; //escape apostrophe
+					inParams += "?";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
 				}
 				inParams += ")";
-				query = query.replace("(?)", inParams);
-				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, new Object[]{hierarchyId}, new RowMapper() {
+				query = query.replace("(?)", inParams);				
+				List<String> parameters = new ArrayList<String>();
+				parameters.add(hierarchyId);
+				parameters.addAll(Arrays.asList(subSiteRefs));
+				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, parameters.toArray(), new RowMapper() {
 
 					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
 						return new String[]{resultSet.getString("title"), resultSet.getString("ID")};
@@ -253,14 +256,17 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
+					inParams += "?";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
 				}
 				inParams += ")";
-				query1 = query1.replace("(?)", inParams);
-				getJdbcTemplate().update(query1, new Object[]{propertyName});
+				query1 = query1.replace("(?)", inParams);		
+				List<String> parameters = new ArrayList<String>();
+				parameters.add(propertyName);
+				parameters.addAll(Arrays.asList(subSiteRefs));
+				getJdbcTemplate().update(query1, parameters.toArray());
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < siteIds.length);
 		}catch (DataAccessException ex) {
@@ -418,14 +424,17 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.nodes.and.perms.for.user");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
+					inParams += "?";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
 				}
 				inParams += ")";
-				query = query.replace("(?)", inParams);
-				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, new Object[]{userId}, new RowMapper() {
+				query = query.replace("(?)", inParams);		
+				List<String> parameters = new ArrayList<String>();
+				parameters.add(userId);
+				parameters.addAll(Arrays.asList(subSiteRefs));				
+				List<String[]> results =  (List<String[]>) getJdbcTemplate().query(query, parameters.toArray(), new RowMapper() {
 
 					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
 						return new String[]{resultSet.getString("NODEID"), resultSet.getString("PERMISSION")};
@@ -474,14 +483,14 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.activeSites");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
+					inParams += "?";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
 				}
 				inParams += ")";
 				query = query.replace("(?)", inParams);
-				List<String> results =  (List<String>) getJdbcTemplate().query(query, new RowMapper() {
+				List<String> results =  (List<String>) getJdbcTemplate().query(query,subSiteRefs,new RowMapper() {
 					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
 						return resultSet.getString("SITE_ID");
 					}
@@ -518,7 +527,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
+					inParams += "?";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -526,8 +535,8 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				inParams += ")";
 				query1 = query1.replace("(?)", inParams);
 				query2 = query2.replace("(?)", inParams);
-				getJdbcTemplate().update(query1);
-				getJdbcTemplate().update(query2);
+				getJdbcTemplate().update(query1,subSiteRefs);
+				getJdbcTemplate().update(query2,subSiteRefs);
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < siteRefs.length);
 		}catch (DataAccessException ex) {
@@ -553,7 +562,7 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
+					inParams += "?";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
@@ -561,8 +570,16 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				inParams += ")";
 				query1 = query1.replace("(?)", inParams);
 				query2 = query2.replace("(?)", inParams);
-				getJdbcTemplate().update(query1, new Object[]{fromRealm, fromRole, toRole});
-				getJdbcTemplate().update(query2, new Object[]{toRole});
+				List<String> parameters1 = new ArrayList<String>();
+				parameters1.addAll(Arrays.asList(subSiteRefs));
+				parameters1.add(fromRealm);
+				parameters1.add(fromRole);
+				parameters1.add(toRole);				
+				List<String> parameters2 = new ArrayList<String>();
+				parameters2.addAll(Arrays.asList(subSiteRefs));
+				parameters2.add(toRole);
+				getJdbcTemplate().update(query1, parameters1.toArray());
+				getJdbcTemplate().update(query2, parameters2.toArray());
 				subArrayIndex = subArrayIndex + subArraySize;
 			}while(subArrayIndex < toRealm.length);
 		}catch (DataAccessException ex) {
@@ -601,14 +618,14 @@ public class DelegatedAccessDaoImpl extends JdbcDaoSupport implements DelegatedA
 				String query = getStatement("select.delegatedaccess.user.hasworkspacetool");
 				String inParams = "(";
 				for(int i = 0; i < subSiteRefs.length; i++){
-					inParams += "'" + subSiteRefs[i].replace("'", "''") + "'";
+					inParams += "?";
 					if(i < subSiteRefs.length - 1){
 						inParams += ",";
 					}
 				}
 				inParams += ")";
 				query = query.replace("(?)", inParams);
-				List<String> results =  (List<String>) getJdbcTemplate().query(query, new RowMapper() {
+				List<String> results =  (List<String>) getJdbcTemplate().query(query, subSiteRefs, new RowMapper() {
 					public Object mapRow(ResultSet resultSet, int i) throws SQLException {
 						return resultSet.getString("SITE_ID");
 					}
