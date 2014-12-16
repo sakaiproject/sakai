@@ -14,6 +14,7 @@ import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
 import org.sakaiproject.gradebookng.tool.model.StudentGrades;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import com.inmethod.grid.DataProviderAdapter;
 import com.inmethod.grid.IGridColumn;
@@ -33,7 +34,7 @@ public class GradebookPage extends BasePage {
 	
 	private static final long serialVersionUID = 1L;
 
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
 		
@@ -42,10 +43,13 @@ public class GradebookPage extends BasePage {
 		Form<Void> form = new Form<Void>("form");
 		add(form);
 		
-		final List<StudentGrades> grades = businessService.buildGradeMatrix();
-        final ListDataProvider<StudentGrades> listDataProvider = new ListDataProvider<StudentGrades>(grades);
-
+        //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
+        final List<Assignment> assignments = this.businessService.getGradebookAssignments();
         
+        //get the grade matrix
+        final List<StudentGrades> grades = businessService.buildGradeMatrix();
+        
+        final ListDataProvider<StudentGrades> listDataProvider = new ListDataProvider<StudentGrades>(grades);
         List<IGridColumn> cols = new ArrayList<IGridColumn>();
         
         //these properties need to match the studentgrades model
@@ -54,7 +58,36 @@ public class GradebookPage extends BasePage {
         cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade").setReorderable(false));
         
         
+        //build the rest of the columns based on the assignment list
+        for(final Assignment assignment: assignments) {
+        	
+        	AbstractColumn column = new AbstractColumn(String.valueOf(assignment.getId()), new Model(assignment.getName())) {
+
+            	@Override
+            	public Component newHeader(String componentId) {
+            		AssignmentHeaderPanel panel = new AssignmentHeaderPanel(componentId, assignment);
+    				return panel;
+            		
+            	}
+            	
+    			@Override
+    			public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
+    				StudentGrades studentsGrades = (StudentGrades) rowModel.getObject();
+    				GradeItemCellPanel panel = new GradeItemCellPanel(componentId, assignment.getId(), studentsGrades);
+    				return panel;
+    			}
+    			
+    			//TODO since we are now using a custom cell, we still need this to be editable, it will be done in the panel itself.
+
+    			
+            	
+            };
+            
+            cols.add(column);
+        	
+        }
         //TODO lookup how many assignments we have and iterate here
+        /*
         cols.add(new EditablePropertyColumn(new Model("Assignment 1"), "assignments.0"));
         cols.add(new EditablePropertyColumn(new Model("Assignment 2"), "assignments.1"));
         cols.add(new EditablePropertyColumn(new Model("Mid Term"), "assignments.2"));
@@ -87,12 +120,10 @@ public class GradebookPage extends BasePage {
         };
         
         cols.add(custom);
+        */
         
        
-        
-
-        //cols.add(new SubmitCancelColumn("form", Model.of("")));
-
+       
         
         DataGrid grid = new DefaultDataGrid("grid", new DataProviderAdapter(listDataProvider), cols);
         form.add(grid);
@@ -104,13 +135,12 @@ public class GradebookPage extends BasePage {
 		
 	
 		//testing the save and load
-		GradebookUserPreferences prefs = new GradebookUserPreferences(currentUserUuid);
-		prefs.setSortOrder(3);
-		
-		this.businessService.saveUserPrefs(prefs);
-		
-		GradebookUserPreferences crap = businessService.getUserPrefs();
-		
+		//GradebookUserPreferences prefs = new GradebookUserPreferences(currentUserUuid);
+		//prefs.setSortOrder(3);
+		//this.businessService.saveUserPrefs(prefs);
+				
 	}
+	
+	
 	
 }

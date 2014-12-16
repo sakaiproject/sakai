@@ -18,6 +18,7 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
+import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGrades;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -55,8 +56,6 @@ public class GradebookNgBusinessService {
 	@Setter
 	private GradebookService gradebookService;
 	
-	//@Setter
-	//private XmlMarshaller xmlMarshaller;
 	
 	/**
 	 * Get a list of users in the current site that can have grades
@@ -116,23 +115,7 @@ public class GradebookNgBusinessService {
 		return assignments;
 	}
 
-	/**
-	 * Get a list of grades for the supplied gradebook assignment, for the supplied list of users
-	 * 
-	 * This has the potential to be paged into an infinite scroll by passing a different list of users each time
-	 * 
-	 * @param assignmentId
-	 * @param userUuids
-	 * @return
-	 */
-	public List<GradeDefinition> getGradesForStudentsForItem(final Long assignmentId, final List<String> userUuids){
-		Gradebook gradebook = getGradebook();
-		if(gradebook != null) {
-			List<GradeDefinition> grades = gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignmentId, userUuids);
-			return grades;
-		}
-		return null;
-	}
+	
 		
 	/**
 	 * Get a map of course grades for the users in the site, using a grade override preferentially over a calculated one
@@ -195,49 +178,53 @@ public class GradebookNgBusinessService {
 	}
 	
 	
+	/**
+	 * Build the matrix of assignments, students and grades
+	 * 
+	 * In the future this can be expanded to be given a list of students so we can do scrolling
+	 * @return
+	 */
 	public List<StudentGrades> buildGradeMatrix() {
+		
 		List<User> students = this.getGradeableUsers();
 		List<Assignment> assignments = this.getGradebookAssignments();
-		List<StudentGrades> grades = new ArrayList<StudentGrades>();
-		for(User u: students) {
-			StudentGrades sg = this.getGradeListForStudent(u, assignments);
-			grades.add(sg);
-		}
-		return grades;
-	}
-
-	/**
-	 * Get the list of grades for the given assignments for each user
-	 * 
-	 * This may need to be reworked for performance and use the method to get the grades for all students per item so it can include GradeDenitiion items
-	 * 
-	 * @param studentUuid
-	 * @param assignments
-	 */
-	public StudentGrades getGradeListForStudent(final User student, List<Assignment> assignments){
+		
+		Map<String,String> courseGrades = this.getCourseGrades();
+		
+		//NOTES:
+		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
+		
+		List<StudentGrades> rval = new ArrayList<StudentGrades>();
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
 			return null;
 		}
 		
-		List<String> scores = new ArrayList<String>();
+		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
+		//however the logic needs to be reqorked so we can capture the user info
+		//currently storing the full grade definition too, this may be unnecessary
 		
-		//the list of assignments will already be ordered so no need to maintain a map
-		for(Assignment assignment: assignments) {
-			scores.add(gradebookService.getAssignmentScoreString(gradebook.getUid(), assignment.getId(), student.getId()));
+		for(User student: students) {
+			
+			StudentGrades sg = new StudentGrades(student);
+			
+			for(Assignment assignment: assignments) {
+				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
+				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
+			}
+			
+			sg.setCourseGrade(courseGrades.get(student.getId()));
+			
+			rval.add(sg);
+			
 		}
+		return rval;
 		
-		StudentGrades sg = new StudentGrades(student);
-		sg.setAssignments(scores);
-		
-		//TODO get course grade
-		
-		//NOTES:
-		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
-		
-		return sg;
+			
 	}
+
+	
 	
 	/**
 	 * Get the user prefs for this gradebook instance
