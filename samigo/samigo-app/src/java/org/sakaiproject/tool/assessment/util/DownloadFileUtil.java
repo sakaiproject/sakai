@@ -421,16 +421,9 @@ public class DownloadFileUtil {
 	}
 
 	private FileInputStream getFileStream(String mediaLocation){
-		ExternalContext external = FacesContext.getCurrentInstance().getExternalContext();
-		String repositoryPath = (String)((ServletContext)external.getContext()).getAttribute("FILEUPLOAD_REPOSITORY_PATH");
-
-		// If there is a "/" at the end, remove it
-		if (repositoryPath.endsWith("/") && mediaLocation.startsWith("/")) {
-			repositoryPath = repositoryPath.substring(0, repositoryPath.length() - 1);
-		}
 		FileInputStream inputStream=null;
 		try{
-			File media=new File(repositoryPath + mediaLocation);
+			File media=new File(mediaLocation);
 			inputStream = new FileInputStream(media);
 		}
 		catch (FileNotFoundException ex) {
