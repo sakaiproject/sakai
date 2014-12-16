@@ -23,8 +23,8 @@ module.exports = function(grunt) {
 
 		watch: {
 			sass: {
-				files: ['sass/*.scss' ,'sass/**/*.scss','sass/**/**/*.scss'],
-				tasks: ['compass:dist']
+				files: ['sass/{,**/}*.scss'],
+				tasks: ['compass:dev']
 			},
       
       scripts: {
@@ -34,6 +34,7 @@ module.exports = function(grunt) {
           spawn: false,
         }
       },
+      
 			css: {
 				files: ['*.css']
 			},
@@ -52,11 +53,22 @@ module.exports = function(grunt) {
 		compass: {
 			dist: {
 				options: {
+          environment: 'production',
+          outputStyle: 'compressed',
+					config: 'config.rb',
+					sourcemap: true
+				}
+			},
+			dev: {
+				options: {
+          environment: 'development',
+          outputStyle: 'expanded',
 					config: 'config.rb',
 					sourcemap: true
 				}
 			}
 		},
+    
     concat: {   
       dist: {
         src: [
