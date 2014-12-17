@@ -11117,6 +11117,7 @@ public class AssignmentAction extends PagedResourceActionII
 					// check for grade overrides
 					if (a.isGroup()) {
 					    User[] _users = submission.getSubmitters();
+					    HashMap<String,String> scaledValues = new HashMap<String,String>();
 					    for (int i=0; _users != null && i < _users.length; i++) {
 					        String ug = StringUtil.trimToNull(params.getCleanString(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId()));
 					        if ("null".equals(ug)) ug = null;
@@ -11158,10 +11159,16 @@ public class AssignmentAction extends PagedResourceActionII
 					                            M_log.warn(this + ":readGradeForm User " + e.getMessage());
 					                        }
 					                    }
-					                    state.setAttribute(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId(), scalePointGrade(state,ugrade));
+					                    scaledValues.put(GRADE_SUBMISSION_GRADE + "_" + _users[i].getId(), scalePointGrade(state,ugrade));
 					                }
 					            }
 					        }
+					    }
+					    // SAK-28182 If all grades are right place scaled values in state
+					    if (state.getAttribute(STATE_MESSAGE) == null) {
+					    	for (Map.Entry<String,String> entry:scaledValues.entrySet()) {
+					    		state.setAttribute(entry.getKey(),entry.getValue());
+					    	}
 					    }
 					}
 
