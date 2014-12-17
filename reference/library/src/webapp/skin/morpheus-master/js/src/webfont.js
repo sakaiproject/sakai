@@ -11,5 +11,3 @@ WebFontConfig = {
   var s = document.getElementsByTagName('script')[0];
   s.parentNode.insertBefore(wf, s);
 })();
-
-// note here is useless but triggers compilation tasks

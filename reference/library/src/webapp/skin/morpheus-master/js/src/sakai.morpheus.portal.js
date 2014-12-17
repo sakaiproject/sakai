@@ -243,34 +243,34 @@ function portalMaximizeTool(){
     sakaiMinimizeNavigation();
 }
 
-function sakaiMinimizeNavigation(){
-    if (!(portal.toggle.sitenav || portal.toggle.tools)) 
-        return;
-    if (portal.toggle.sitenav) {
-        $('#portalContainer').addClass('minimize-site-nav')
-    }
-    if (portal.toggle.tools) {
-        $('.nav-tools').addClass('is-minimized');
-    }
-    $('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
-    $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
-    $('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
-}
-
-function sakaiRestoreNavigation(){
-    if (!(portal.toggle.sitenav || portal.toggle.tools)) 
-        return;
-    if (portal.toggle.sitenav) {
-        $('#portalContainer').removeClass('minimize-site-nav')
-    }
-    if (portal.toggle.tools) {
-        $('#toolMenuWrap').removeClass('minimize-tool-nav');
-    }
-    $('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
-    
-    
-    $('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
-}
+// function sakaiMinimizeNavigation(){
+//     if (!(portal.toggle.sitenav || portal.toggle.tools))
+//         return;
+//     if (portal.toggle.sitenav) {
+//         $('#portalContainer').addClass('minimize-site-nav')
+//     }
+//     if (portal.toggle.tools) {
+//         $('.nav-tools').addClass('is-minimized');
+//     }
+//     $('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
+//     $('#toggleToolMenu').attr('title',$('#toggleNormal em').text());
+//     $('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
+// }
+//
+// function sakaiRestoreNavigation(){
+//     if (!(portal.toggle.sitenav || portal.toggle.tools))
+//         return;
+//     if (portal.toggle.sitenav) {
+//         $('#portalContainer').removeClass('minimize-site-nav')
+//     }
+//     if (portal.toggle.tools) {
+//         $('#toolMenuWrap').removeClass('minimize-tool-nav');
+//     }
+//     $('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
+//
+//
+//     $('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
+// }
 
 function updatePresence(){
     jQuery.ajax({
