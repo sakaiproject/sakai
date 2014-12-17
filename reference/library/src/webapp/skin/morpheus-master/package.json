@@ -1,14 +1,14 @@
 {
   "name": "morpheus-master-grunt",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "",
   "main": "Gruntfile.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
-    "type": "git",
-    "url": "git@v3.es.its.nyu.edu:mar22/morpheus.git"
+    "type": "svn",
+    "url": "https://source.sakaiproject.org/svn/reference/trunk/library/src/webapp/skin/morpheus-master"
   },
   "author": "Mark Reilly",
   "copyright": "2014",
