@@ -8,7 +8,7 @@
 
 <f:view>
 	<sakai:view title="Forums">
-<link rel="stylesheet" href="/messageforums-tool/css/jquery-ui-1.7.2.custom.css" type="text/css" />
+<link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
 <link rel="stylesheet" href="/messageforums-tool/css/msgcntr.css" type="text/css" />
 <link rel="stylesheet" href="/messageforums-tool/css/msgcntr_move_thread.css" type="text/css" />
 

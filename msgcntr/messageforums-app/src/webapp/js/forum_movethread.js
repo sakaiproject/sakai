@@ -312,7 +312,7 @@ Licenses.
     };
     
     var initDialog = function () {
-        $(".topic-picker").dialog({ autoOpen: false, width: 660, modal: true, position: 'top'});
+        $(".topic-picker").dialog({ autoOpen: false, width: 680, modal: true, position: 'top'});
     };
  
     $(function () {
