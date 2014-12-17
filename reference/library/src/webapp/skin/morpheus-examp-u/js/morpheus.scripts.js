@@ -1,16 +1,15 @@
 /**
- * For Footer toggles in Morpheus
+ * For inline Chat in Morpheus: 
+ */
+/**
+ * For <details> support in FF and IE
  */
 
-$PBJQ(".js-footer-toggle__panel").addClass("is-hidden");
-$PBJQ(".js-footer-toggle__control").addClass("plus");
+$PBJQ('details').details();
 
-$PBJQ('.js-footer-toggle__control').click(function() {
-event.preventDefault();
-$PBJQ(this).next('.js-footer-toggle__panel').toggleClass("is-hidden is-visible");
-//$PBJQ(this).next('pre').next(".source__link").slideToggle("fast");
-$PBJQ(this).toggleClass("plus minus");
-});
+/**
+ * For Footer toggles in Morpheus
+ */
 /* dhtml_view_sites
  * displays the More Sites div
  * note the technique of recasting the function after initalization
@@ -256,34 +255,34 @@ function portalMaximizeTool(){
     sakaiMinimizeNavigation();
 }
 
-function sakaiMinimizeNavigation(){
-    if (!(portal.toggle.sitenav || portal.toggle.tools)) 
-        return;
-    if (portal.toggle.sitenav) {
-        $PBJQ('#portalContainer').addClass('minimize-site-nav')
-    }
-    if (portal.toggle.tools) {
-        $PBJQ('.nav-tools').addClass('is-minimized');
-    }
-    $PBJQ('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
-    $PBJQ('#toggleToolMenu').attr('title',$PBJQ('#toggleNormal em').text());
-    $PBJQ('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
-}
-
-function sakaiRestoreNavigation(){
-    if (!(portal.toggle.sitenav || portal.toggle.tools)) 
-        return;
-    if (portal.toggle.sitenav) {
-        $PBJQ('#portalContainer').removeClass('minimize-site-nav')
-    }
-    if (portal.toggle.tools) {
-        $PBJQ('#toolMenuWrap').removeClass('minimize-tool-nav');
-    }
-    $PBJQ('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
-    
-    
-    $PBJQ('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
-}
+// function sakaiMinimizeNavigation(){
+//     if (!(portal.toggle.sitenav || portal.toggle.tools))
+//         return;
+//     if (portal.toggle.sitenav) {
+//         $PBJQ('#portalContainer').addClass('minimize-site-nav')
+//     }
+//     if (portal.toggle.tools) {
+//         $PBJQ('.nav-tools').addClass('is-minimized');
+//     }
+//     $PBJQ('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
+//     $PBJQ('#toggleToolMenu').attr('title',$PBJQ('#toggleNormal em').text());
+//     $PBJQ('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
+// }
+//
+// function sakaiRestoreNavigation(){
+//     if (!(portal.toggle.sitenav || portal.toggle.tools))
+//         return;
+//     if (portal.toggle.sitenav) {
+//         $PBJQ('#portalContainer').removeClass('minimize-site-nav')
+//     }
+//     if (portal.toggle.tools) {
+//         $PBJQ('#toolMenuWrap').removeClass('minimize-tool-nav');
+//     }
+//     $PBJQ('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
+//
+//
+//     $PBJQ('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
+// }
 
 function updatePresence(){
     $PBJQ.ajax({
@@ -347,7 +346,7 @@ function showToolMenu(e, xOffset){
     e.preventDefault();
     var jqObj = $PBJQ(e.target);
     var classId = jqObj.attr('id');
-    // We need to escape special chars, like exclamations, or else jQuery selectors don't work.
+    // We need to escape special chars, like exclamations, or else $PBJQ selectors don't work.
     var id = classId.replace(/!/g,'\\!').replace(/~/g,'\\~');
     $PBJQ('.toolMenus').removeClass('toolMenusActive');
     if ($PBJQ('.' + id).length) {
@@ -718,6 +717,7 @@ function addArrowNavAndDisableTabNav(ul,callback) {
         }
     });
 }
+
 /**
  * For Responsive Menus in Morpheus: Adds classes to the <body>
  */
@@ -734,6 +734,37 @@ function toggleSitesNav(){
 
 $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
 $PBJQ(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
+
+/**
+* For Toggling the Minimize and Maximize tools menu in Morpheus: Adds classes to the <body>
+*/
+
+function toggleMinimizeNav(){
+
+  var el = $PBJQ(this);
+  var label = $PBJQ('.accessibility-btn-label' , el);
+
+  el.toggleClass('min max');
+    
+  if (label.text() == el.data("title-expand")) {
+    label.text(el.data("text-original"));
+    el.attr('title', (el.data("text-original")));
+    el.attr('aria-pressed', true);
+  
+  } else {
+    el.data("text-original", label.text());
+    label.text(el.data("title-expand"));
+    el.attr('title', (el.data("title-expand")));
+    el.attr('aria-pressed', false);
+  }
+
+}
+
+$PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
+
+
+
+
 // Google Webfont
 WebFontConfig = {
   google: { families: [ 'Open+Sans:300italic,400italic,600italic,700italic,400,600,300,700:latin' ] }
@@ -747,5 +778,3 @@ WebFontConfig = {
   var s = document.getElementsByTagName('script')[0];
   s.parentNode.insertBefore(wf, s);
 })();
-
-// note here is useless but triggers compilation tasks

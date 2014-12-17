@@ -148,4 +148,4 @@
 
 	}
 
-}(document, jQuery));
+}(document, $PBJQ));

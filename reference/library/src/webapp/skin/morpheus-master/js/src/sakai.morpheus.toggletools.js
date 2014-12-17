@@ -4,8 +4,8 @@
 
 function toggleMinimizeNav(){
 
-  var el = $(this);
-  var label = $('.accessibility-btn-label' , el);
+  var el = $PBJQ(this);
+  var label = $PBJQ('.accessibility-btn-label' , el);
 
   el.toggleClass('min max');
     
@@ -23,7 +23,7 @@ function toggleMinimizeNav(){
 
 }
 
-$(".js-toggle-nav").on("click", toggleMinimizeNav);
+$PBJQ(".js-toggle-nav").on("click", toggleMinimizeNav);
 
 
 

@@ -4,13 +4,13 @@
 
 function toggleToolsNav(){
   event.preventDefault();
-  $('body').toggleClass('nav-tools-displayed');
+  $PBJQ('body').toggleClass('nav-tools-displayed');
 }
 
 function toggleSitesNav(){
   event.preventDefault();
-  $('body').toggleClass('nav-sites-displayed');
+  $PBJQ('body').toggleClass('nav-sites-displayed');
 }
 
-$(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
-$(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
+$PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
+$PBJQ(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
