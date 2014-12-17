@@ -2,6 +2,11 @@
  * For inline Chat in Morpheus: 
  */
 /**
+ * For <details> support in FF and IE
+ */
+
+$('details').details();
+/**
  * For Footer toggles in Morpheus
  */
 /* dhtml_view_sites
