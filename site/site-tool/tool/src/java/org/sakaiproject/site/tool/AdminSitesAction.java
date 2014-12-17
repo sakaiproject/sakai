@@ -1018,14 +1018,14 @@ public class AdminSitesAction extends PagedResourceActionII
 			// site unpublished
 			EventTrackingService.post(EventTrackingService.newEvent(
 					SiteService.EVENT_SITE_UNPUBLISH,
-					site.getId(), true));
+					site.getReference(), true));
 		}
 		else if (!currentSitePublished && afterSitePublished)
 		{
 			// site published
 			EventTrackingService.post(EventTrackingService.newEvent(
 					SiteService.EVENT_SITE_PUBLISH,
-					site.getId(), true));
+					site.getReference(), true));
 		}
 
 	} // doSave
