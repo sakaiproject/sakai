@@ -64,15 +64,20 @@ public class SiteUnpublishEventProcessor implements EventProcessor {
 		}
 		
 		// get site id
-		String context = event.getContext();
+		String site_reference = event.getResource();
+		if (site_reference != null && site_reference.contains(SiteService.REFERENCE_ROOT))
+		{
+			// get the substring of site id
+			String context = site_reference.substring(SiteService.REFERENCE_ROOT.length() + 1);
 		
-		logger.info(this + " process Event start removing News links and Calendar links for site " + context);
-		
-		// if unpublished, remove all news links and calendar links
-		dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_NEWS, false/*removing*/);
-		dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_CALENDAR, false/*removing*/);
-		
-		logger.info(this + " process Event end removing News links and Calendar links for site " + context);
+			logger.info(this + " process Event start removing News links and Calendar links for site " + context);
+			
+			// if unpublished, remove all news links and calendar links
+			dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_NEWS, false/*removing*/);
+			dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_CALENDAR, false/*removing*/);
+			
+			logger.info(this + " process Event end removing News links and Calendar links for site " + context);
+		}
 	}
 
 	public void init() {

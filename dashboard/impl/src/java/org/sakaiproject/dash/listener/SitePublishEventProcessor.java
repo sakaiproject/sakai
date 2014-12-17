@@ -64,15 +64,19 @@ public class SitePublishEventProcessor implements EventProcessor {
 		}
 		
 		// get site id
-		String context = event.getContext();
-		
-		logger.info(this + " process Event start adding News links and Calendar links for site " + context);
-		
-		// if published, add all news links and calendar links
-		dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_NEWS, true/*adding*/);
-		dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_CALENDAR, true/*adding*/);
-
-		logger.info(this + " process Event end adding News links and Calendar links for site " + context);
+		String site_reference = event.getResource();
+		if (site_reference != null && site_reference.contains(SiteService.REFERENCE_ROOT))
+		{
+			String context = site_reference.substring(SiteService.REFERENCE_ROOT.length() + 1);
+			
+			logger.info(this + " process Event start adding News links and Calendar links for site " + context);
+			
+			// if published, add all news links and calendar links
+			dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_NEWS, true/*adding*/);
+			dashboardLogic.modifyLinksByContext(context, dashboardLogic.TYPE_CALENDAR, true/*adding*/);
+	
+			logger.info(this + " process Event end adding News links and Calendar links for site " + context);
+		}
 	}
 
 	public void init() {
