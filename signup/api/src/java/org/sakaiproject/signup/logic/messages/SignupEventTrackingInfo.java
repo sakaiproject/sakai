@@ -104,4 +104,19 @@ public interface SignupEventTrackingInfo {
 	 * @return a string value.
 	 */
 	public String getAllAttendeeTransferLogInfo();
+	
+	/**
+	 * set the attendeeComment object
+	 * 
+	 * @param attendeeComment
+	 *            an AttendeeComment object
+	 */
+	public void setAttendeeComment(AttendeeComment attendeeComment);
+	
+	/**
+	 * get the AttendeeComment object
+	 * 
+	 * @return the AttendeeComment object
+	 */
+	public AttendeeComment getAttendeeComment();
 }

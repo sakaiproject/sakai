@@ -15,6 +15,8 @@
 		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
     	<script type="text/javascript">
+    		 jQuery.noConflict();//this requried by calendar dropdown tomhawk
+    		 
 		     var timeslotTag; 
 		     var maxAttendeeTag;
 		     var originalTsVal; 

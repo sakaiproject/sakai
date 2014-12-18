@@ -19,7 +19,9 @@
 
 package org.sakaiproject.signup.tool.jsf.attendee;
 
+import java.text.MessageFormat;
 import java.util.Collections;
+import java.util.List;
 
 import javax.faces.component.UIData;
 import javax.faces.context.FacesContext;
@@ -28,14 +30,15 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.apache.commons.lang.StringUtils;
-import org.sakaiproject.signup.logic.SignupCalendarHelper;
+import org.sakaiproject.signup.logic.SignupUser;
 import org.sakaiproject.signup.logic.SignupUserActionException;
 import org.sakaiproject.signup.model.SignupAttendee;
 import org.sakaiproject.signup.model.SignupMeeting;
+import org.sakaiproject.signup.tool.jsf.AttendeeWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
+import org.sakaiproject.signup.tool.jsf.attendee.EditCommentSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddAttendee;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddWaiter;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CancelAttendee;
@@ -58,7 +61,9 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 	private String currentSiteId;
 
 	private boolean collapsedMeetingInfo;
-
+	
+	private EditCommentSignupMBean editCommentMBean;
+	
 	/**
 	 * This will initialize all the wrapper objects such as
 	 * SignupMeetingWrapper, SignupTimeslotWrapper etc.
@@ -90,7 +95,7 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			return ATTENDEE_ADD_COMMENT_PAGE_URL;
 		else
 			return attendeeSaveSignup();//skip comment page
-
+		
 	}
 
 	/**
@@ -237,6 +242,71 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 
 		return updateMeetingwrapper(meeting, ATTENDEE_MEETING_PAGE_URL);
 	}
+	
+	/**
+	 * This is a JSF action call method by UI to edit the attendee's
+	 * comments of the event/meeting.
+	 * 
+	 * @return an action outcome string.
+	 */
+	public String editAttendeeComment() {
+		String attUserId = sakaiFacade.getCurrentUserId();
+		String timeslotId = (String) Utilities.getRequestParam("timeslotId");
+		if (attUserId == null || timeslotId == null)
+			return "";
+
+		AttendeeWrapper attWrp = findAttendee(timeslotId, attUserId);
+		if (attWrp == null)
+			return "";
+		
+		this.editCommentMBean.init(attWrp, this.getAttendeeRole(attUserId), getMeetingWrapper(), timeslotId);
+		
+		return EDIT_COMMENT_PAGE_URL;
+	}
+	
+	/**
+	 * this methods returns the attendee's user role
+	 * @param attendeeUserId
+	 * @return
+	 */
+	private String getAttendeeRole(String attendeeUserId) {
+		SignupUser sUser = getSakaiFacade().getSignupUser(getMeetingWrapper().getMeeting(), attendeeUserId);		
+		if (sUser == null)
+			return "unknown";
+		else
+			return sUser.getUserRole().getId();
+	}
+	
+	/**
+	 * find an attendee in a specific time slot
+	 * @param timeslotId
+	 * @param userId
+	 * @return
+	 */
+	private AttendeeWrapper findAttendee(String timeslotId, String userId) {
+		if (getTimeslotWrappers() == null || getTimeslotWrappers().isEmpty())
+			return null;
+
+		String timeslotPeriod = null;
+		for (TimeslotWrapper wrapper : getTimeslotWrappers()) {
+			if (wrapper.getTimeSlot().getId().toString().equals(timeslotId)) {
+				timeslotPeriod = getSakaiFacade().getTimeService().newTime(
+						wrapper.getTimeSlot().getStartTime().getTime()).toStringLocalTime()
+						+ " - "
+						+ getSakaiFacade().getTimeService().newTime(wrapper.getTimeSlot().getEndTime().getTime())
+								.toStringLocalTime();
+				List<AttendeeWrapper> attWrp = wrapper.getAttendeeWrappers();
+				for (AttendeeWrapper att : attWrp) {
+					if (att.getSignupAttendee().getAttendeeUserId().equals(userId)) {
+						att.setTimeslotPeriod(timeslotPeriod);
+						return att;
+					}
+				}
+				break;
+			}
+		}
+		return null;
+	}
 
 	/**
 	 * This is a getter method for UI.
@@ -269,6 +339,24 @@ public class AttendeeSignupMBean extends SignupUIBaseBean {
 			currentSiteId = sakaiFacade.getCurrentLocationId();
 
 		return currentSiteId;
+	}
+	
+	/**
+	 * This is a getter.
+	 * 
+	 */
+	public EditCommentSignupMBean getEditCommentMBean() {
+		return editCommentMBean;
+	}
+
+	/**
+	 * This is a setter.
+	 * 
+	 * @param editCommentMBean
+	 *            a EditCommentSignupMBean object.
+	 */
+	public void setEditCommentMBean(EditCommentSignupMBean editCommentMBean) {
+		this.editCommentMBean = editCommentMBean;
 	}
 
 	/**

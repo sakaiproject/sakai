@@ -2,36 +2,22 @@
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
-
 <f:view locale="#{UserLocale.locale}">
 	<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
 	   <jsp:setProperty name="msgs" property="baseName" value="messages"/>
 	</jsp:useBean>
 	<sakai:view_container title="Signup Tool">
-			<style type="text/css">
-				@import url("/sakai-signup-tool/css/signupStyle.css");
-			</style>
-			<style type="text/css" media="print">
-				@import url("/sakai-signup-tool/css/print.css");
-			</style>
+		<style type="text/css">
+			@import url("/sakai-signup-tool/css/signupStyle.css");
+		</style>
+		<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>
 		
-			<h:form id="viewComment">
-				<sakai:tool_bar>
-					<h:outputLink id="print" value="javascript:window.print();" style="vertical-align:bottom;">
-						<h:graphicImage url="/images/printer.png"
-							alt="#{msgs.print_friendly}" title="#{msgs.print_friendly}" />
-						<h:outputText value="#{msgs.print_event}" escape="false"/>
-					</h:outputLink>
-				</sakai:tool_bar>
-			</h:form>
 		<sakai:view_content>
-			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/>      			
-				
+			<h:outputText value="#{msgs.event_error_alerts} #{messageUIBean.errorMessage}" styleClass="alertMessage" escape="false" rendered="#{messageUIBean.error}"/> 
 			<h:form id="meeting">
-			 	<sakai:view_title value="#{msgs.event_view_comment_page_title}"/>
-											
-				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn">
-				
+			 	<sakai:view_title value="#{msgs.event_edit_comment_page_title}"/>
+
+				<h:panelGrid columns="2" columnClasses="titleColumn,valueColumn" style="margin-top:20px;">
 					<h:outputText value="#{msgs.event_name}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{EditCommentSignupMBean.meetingWrapper.meeting.title}" styleClass="longtext"/>
 					
@@ -53,24 +39,29 @@
 					<h:outputText value="#{msgs.event_appointment_date}" styleClass="titleText" escape="false"/>
 					<h:outputText value="#{EditCommentSignupMBean.meetingWrapper.meeting.startTime}" styleClass="longtext">
 					 	<f:convertDateTime dateStyle="full" timeZone="#{UserTimeZone.userTimeZone}"/>
-					</h:outputText>	
+					</h:outputText>				
 					
-					<h:outputText value="&nbsp" escape="false"/>
-					<h:outputText value="&nbsp" escape="false"/>
-									
+					<h:outputText value="&nbsp;" escape="false"/>
+					<h:outputText value="&nbsp;" escape="false"/>
+					
 					<h:outputText value="#{msgs.event_comment}" styleClass="titleText" escape="false"/>
-					<h:outputText value="#{EditCommentSignupMBean.comment}" escape="false" styleClass="longtext" rendered="#{EditCommentSignupMBean.comment !=null}"/>
-					<h:outputText value="#{msgs.event_no_comment_available}" escape="false" styleClass="longtext" rendered="#{EditCommentSignupMBean.comment ==null}"/>																	
-						
+					<sakai:rich_text_area value="#{EditCommentSignupMBean.comment}" width="720" height="200" rows="5"  columns="80"/>
+				   	
+					<h:outputText value="#{msgs.event_email_notification}" styleClass="titleText" escape="false"/>
+					<h:panelGrid columns="1" style="width:100%;margin:-3px 0 0 -3px;" rendered="#{EditMeetingSignupMBean.publishedSite}">
+						<h:panelGroup styleClass="editText" >
+							<h:selectBooleanCheckbox id="emailChoice" value="#{EditCommentSignupMBean.sendEmail}" onclick="isShowEmailChoice()"/>
+							<h:outputText value="#{EditCommentSignupMBean.userType}" escape="false"/>
+						</h:panelGroup>
+					</h:panelGrid>
 				</h:panelGrid>
-															
+				
 				<sakai:button_bar>
-					<h:commandButton id="save" action="#{EditCommentSignupMBean.editAttendeeComment}" value="#{msgs.edit_button}"/> 			
-					<h:commandButton id="Back" action="organizerMeeting" value="#{msgs.goback_button}"  immediate="true"/>  
+					<h:commandButton id="save" action="#{EditCommentSignupMBean.attendeeSaveComment}" value="#{msgs.save_button}"/> 
+					<h:commandButton id="Cancel" action="#{EditCommentSignupMBean.checkReturnUrl}" value="#{msgs.cancel_button}"  immediate="true"/>  
                 </sakai:button_bar>
 
 			 </h:form>
   		</sakai:view_content>	
 	</sakai:view_container>
-
 </f:view> 

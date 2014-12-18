@@ -64,6 +64,8 @@ public class TimeslotWrapper implements Comparable{
 	private boolean deleted = false;
 	
 	private String errorStyle="";
+	
+	private boolean comment = false;
 
 	/**
 	 * Constructor
@@ -133,11 +135,28 @@ public class TimeslotWrapper implements Comparable{
 			return false;
 		for (Iterator iter = attendees.iterator(); iter.hasNext();) {
 			SignupAttendee attendee = (SignupAttendee) iter.next();
-			if (currentUserId.equals(attendee.getAttendeeUserId()))
+			if (currentUserId.equals(attendee.getAttendeeUserId())){
+				//to see whether there is a comment for this attendee
+				String comm = attendee.getComments();
+				if (comm != null && comm.trim().length() > 0){
+					this.comment = true;
+				}
+				
+				//in the attendee list
 				return true;
+			}
 
 		}
 		return false;
+	}
+	
+	/**
+	 * This is a getter for UI.
+	 * 
+	 * @return a boolean true if attendee has a comment.
+	 */
+	public boolean isComment(){
+		return this.comment;
 	}
 
 	/**

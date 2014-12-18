@@ -61,6 +61,8 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	/** Indicates whether the email represents a cancellation - to be overwritten by subclasses */
 	protected boolean cancellation = false;
+	
+	protected boolean modifyComment = false;
 
 	/* footer for the email */
 	protected String getFooter(String newline) {
@@ -278,5 +280,13 @@ abstract public class SignupEmailBase implements SignupEmailNotification, Meetin
 
 	public boolean isCancellation() {
 		return cancellation;
+	}
+
+	public boolean isModifyComment() {
+		return modifyComment;
+	}
+
+	public void setModifyComment(boolean modifyComment) {
+		this.modifyComment = modifyComment;
 	}
 }

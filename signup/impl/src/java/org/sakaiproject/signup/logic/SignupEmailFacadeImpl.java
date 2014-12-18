@@ -40,6 +40,7 @@ import org.sakaiproject.email.api.NoRecipientsException;
 import org.sakaiproject.signup.logic.messages.AddAttendeeEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeCancellationEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeCancellationOwnEmail;
+import org.sakaiproject.signup.logic.messages.AttendeeModifiedCommentEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeSignupEmail;
 import org.sakaiproject.signup.logic.messages.AttendeeSignupOwnEmail;
 import org.sakaiproject.signup.logic.messages.CancelMeetingEmail;
@@ -228,7 +229,50 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		}
 		
 	}
-
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public void sendUpdateCommentEmail(SignupEventTrackingInfo signupEventTrackingInfo) throws Exception {
+		try {
+			User currentModifier = userDirectoryService.getUser(sakaiFacade.getCurrentUserId());
+			boolean isOrganizer = signupEventTrackingInfo.getMeeting().getPermission().isUpdate();
+			List<String> coOrganizers = signupEventTrackingInfo.getMeeting().getCoordinatorIdsList();
+			User selectedAttendee = userDirectoryService.getUser(signupEventTrackingInfo.getAttendeeComment().getAttendeeId());
+			String emailReturnSiteId = sakaiFacade.getCurrentLocationId();
+			AttendeeModifiedCommentEmail email = new AttendeeModifiedCommentEmail(currentModifier, signupEventTrackingInfo.getMeeting(), 
+					this.sakaiFacade, emailReturnSiteId, signupEventTrackingInfo.getAttendeeComment());
+			
+			if (isOrganizer){
+				try{
+					sendEmail(selectedAttendee, email);
+				}catch(Exception e){
+					//do nothing: avoid one wrong email address for one user to break all things
+				}
+			}
+			else {
+				try{
+					//attendee send email out
+					List<User> coUsers = new ArrayList<User>();
+					User organizer = userDirectoryService.getUser(signupEventTrackingInfo.getMeeting().getCreatorUserId());
+					coUsers.add(organizer);
+					if(coOrganizers !=null && !coOrganizers.isEmpty()){
+						for (String userId : coOrganizers) {
+							User coUser = userDirectoryService.getUser(userId);
+							coUsers.add(coUser);
+						}
+					}
+					sendEmail(coUsers, email);
+				}catch(Exception e){
+					//do nothing: avoid one wrong email address for one user to break all things
+				}
+			}
+		} catch (UserNotDefinedException e) {
+			throw new Exception("User is not found for userId: "
+					+ signupEventTrackingInfo.getMeeting().getCreatorUserId());
+		}
+	}
+	
 	/**
 	 * {@inheritDoc}
 	 */
@@ -671,8 +715,11 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 		message.setFrom(email.getFromAddress());
 		message.setContentType("text/html; charset=UTF-8");
 		
-		for(Attachment a: collectAttachments(email, recipient)){
-			message.addAttachment(a);
+		if(!email.isModifyComment()){
+			//skip ICS attachment file for user comment email
+			for(Attachment a: collectAttachments(email, recipient)){
+				message.addAttachment(a);
+			}
 		}
 		
 		//add recipient, only if valid email
@@ -684,7 +731,6 @@ public class SignupEmailFacadeImpl implements SignupEmailFacade {
 			return null;
 		}
 		
-				
 		return message;
 	}
 

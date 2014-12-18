@@ -19,6 +19,7 @@
         
     	<script type="text/javascript">
 	         //initialization of the page
+	         jQuery.noConflict(); //this requried by calendar dropdown tomhawk
 	         jQuery(document).ready(function() {
 	        	 initialLayoutsSetup();
 		         otherUserSitesSelection();

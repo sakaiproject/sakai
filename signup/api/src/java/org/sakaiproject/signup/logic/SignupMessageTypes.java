@@ -50,6 +50,10 @@ public interface SignupMessageTypes {
 
 	static final String SIGNUP_MEETING_MODIFIED = "signup.email.meeting.modified";
 	
+	static final String ATTENDEE_EDIT_COMMENT_NOTE = "send_email_to_notify_the_attendee";
+	
+	static final String ORGANIZER_EDIT_COMMENT_NOTE = "send_email_to_notify_the_organizers";
+	
 	//The following three are used to determine who should receive email
 	static final String SEND_EMAIL_ALL_PARTICIPANTS = "all";
 	

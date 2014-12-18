@@ -16,13 +16,14 @@
         <script type="text/javascript" src="/sakai-signup-tool/js/signupScript.js"></script>
         
 		<script type="text/javascript">
+			jQuery.noConflict();
 			jQuery(document).ready(function(){
         		sakai.initSignupBeginAndEndsExact();
         	});
     	</script>
  
 		<script type="text/javascript">
-			jQuery.noConflict();
+			jQuery.noConflict(); //this requried by calendar dropdown tomhawk
 			
 			var recurWarnTag1;
 	        var recurWarnTag2;

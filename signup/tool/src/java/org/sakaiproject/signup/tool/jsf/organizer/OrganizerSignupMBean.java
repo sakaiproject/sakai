@@ -43,6 +43,7 @@ import org.sakaiproject.signup.tool.jsf.AttendeeWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupMeetingWrapper;
 import org.sakaiproject.signup.tool.jsf.SignupUIBaseBean;
 import org.sakaiproject.signup.tool.jsf.TimeslotWrapper;
+import org.sakaiproject.signup.tool.jsf.attendee.EditCommentSignupMBean;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddAttendee;
 import org.sakaiproject.signup.tool.jsf.organizer.action.AddWaiter;
 import org.sakaiproject.signup.tool.jsf.organizer.action.CancelAttendee;
@@ -115,7 +116,7 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 
 	private EditMeetingSignupMBean editMeetingMBean;
 
-	private ViewCommentSignupMBean viewCommentMBean;
+	private EditCommentSignupMBean editCommentMBean;
 
 	private CancelRestoreTimeslot cancelRestoreTimeslot;
 
@@ -260,25 +261,30 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 		AttendeeWrapper attWrp = findAttendee(timeslotId, attUserId);
 		if (attWrp == null)
 			return "";
-
-		this.viewCommentMBean.init(attWrp, this.getAttendeeRole(attUserId), getMeetingWrapper());
+		
+		this.editCommentMBean.init(attWrp, this.getAttendeeRole(attUserId), getMeetingWrapper(), timeslotId);
 		return VIEW_COMMENT_PAGE_URL;
 	}
 
-	/* find an attendee in a specific time slot */
+	/**
+	 * find an attendee in a specific time slot
+	 * @param timeslotId
+	 * @param userId
+	 * @return
+	 */
 	private AttendeeWrapper findAttendee(String timeslotId, String userId) {
 		if (getTimeslotWrappers() == null || getTimeslotWrappers().isEmpty())
 			return null;
 
 		String timeslotPeriod = null;
-		for (TimeslotWrapper wraper : getTimeslotWrappers()) {
-			if (wraper.getTimeSlot().getId().toString().equals(timeslotId)) {
+		for (TimeslotWrapper wrapper : getTimeslotWrappers()) {
+			if (wrapper.getTimeSlot().getId().toString().equals(timeslotId)) {
 				timeslotPeriod = getSakaiFacade().getTimeService().newTime(
-						wraper.getTimeSlot().getStartTime().getTime()).toStringLocalTime()
+						wrapper.getTimeSlot().getStartTime().getTime()).toStringLocalTime()
 						+ " - "
-						+ getSakaiFacade().getTimeService().newTime(wraper.getTimeSlot().getEndTime().getTime())
+						+ getSakaiFacade().getTimeService().newTime(wrapper.getTimeSlot().getEndTime().getTime())
 								.toStringLocalTime();
-				List<AttendeeWrapper> attWrp = wraper.getAttendeeWrappers();
+				List<AttendeeWrapper> attWrp = wrapper.getAttendeeWrappers();
 				for (AttendeeWrapper att : attWrp) {
 					if (att.getSignupAttendee().getAttendeeUserId().equals(userId)) {
 						att.setTimeslotPeriod(timeslotPeriod);
@@ -1170,20 +1176,20 @@ public class OrganizerSignupMBean extends SignupUIBaseBean {
 	/**
 	 * This is a getter method.
 	 * 
-	 * @return a ViewCommentSignupMBean object.
+	 * @return a EditCommentSignupMBean object.
 	 */
-	public ViewCommentSignupMBean getViewCommentMBean() {
-		return viewCommentMBean;
+	public EditCommentSignupMBean getEditCommentMBean() {
+		return editCommentMBean;
 	}
 
 	/**
 	 * This is a setter.
 	 * 
-	 * @param viewCommentMBean
-	 *            a ViewCommentSignupMBean object.
+	 * @param editCommentMBean
+	 *            a EditCommentSignupMBean object.
 	 */
-	public void setViewCommentMBean(ViewCommentSignupMBean viewCommentMBean) {
-		this.viewCommentMBean = viewCommentMBean;
+	public void setEditCommentMBean(EditCommentSignupMBean editCommentMBean) {
+		this.editCommentMBean = editCommentMBean;
 	}
 
 	/**

@@ -330,7 +330,19 @@ public interface SignupMeetingService {
 	 *             thrown if something goes bad
 	 */
 	void sendCancellationEmail(SignupEventTrackingInfo eventTrackingInfo) throws Exception;
-
+	
+	/**
+	 * This sends an email notifying the receiver that the comment has been modified
+	 * 
+	 * @param eventTrackingInfo
+	 *            an EventTrackingInfo object, which contains all the
+	 *            information about user action such as signup and cancel as
+	 *            well as auto-promotion
+	 * @throws Exception
+	 *             thrown if something goes bad
+	 */
+	void sendUpdateCommentEmail(SignupEventTrackingInfo eventTrackingInfo) throws Exception;
+	
 	/**
 	 * This will send email to participants by organizer
 	 * 

@@ -15,6 +15,7 @@
 			<script TYPE="text/javascript" LANGUAGE="JavaScript" src="/sakai-signup-tool/js/signupScript.js"></script>			
 			
 		<script TYPE="text/javascript" LANGUAGE="JavaScript">
+			jQuery.noConflict();//this requried by calendar dropdown tomhawk
 			jQuery(document).ready(function() {				
 				replaceCalendarImageIcon();				
 				});

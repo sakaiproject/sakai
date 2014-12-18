@@ -80,5 +80,11 @@ public interface SignupEmailNotification {
 	 * @return true if it is a cancellation, false otherwise
 	 */
 	boolean isCancellation();
+	
+	/**
+	 * this type means that it will not generate ICS file
+	 * @return
+	 */
+	boolean isModifyComment();
 
 }

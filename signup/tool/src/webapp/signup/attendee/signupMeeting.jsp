@@ -374,6 +374,13 @@
 							<h:commandLink id="tsICS" action="#{AttendeeSignupMBean.downloadICSForTimeslot}" rendered="#{AttendeeSignupMBean.icsEnabled}">
 								<h:graphicImage value="/images/calendar_add.png" alt="#{msgs.label_ics}" title="#{msgs.label_download_ics_timeslot}" style="margin-left: 5px;" />
 							</h:commandLink>
+							<h:panelGroup>
+								<h:commandLink action="#{AttendeeSignupMBean.editAttendeeComment}">
+									<f:param id="timeslotId" name="timeslotId" value="#{timeSlotWrapper.timeSlot.id}"/>				   										   								
+									<h:outputText value="#{attendeeWrapper.displayName}" title="#{attendeeWrapper.commentForTooltips}" style="cursor:pointer;" rendered="#{attendeeWrapper.signupAttendee.attendeeUserId !=null}"/>
+									<h:graphicImage title="Click to view/edit comment" value="/images/comment.gif" width="18" height="18" alt="view or add comment" style="border:none" styleClass="openCloseImageIcon" rendered="#{timeSlotWrapper.currentUserSignedUp && timeSlotWrapper.comment}"/>
+								</h:commandLink>
+							</h:panelGroup>
 						</h:panelGroup>
 						<h:outputText value="#{msgs.event_on_waiting_list}"
 							title="#{msgs.event_tool_tip_you_ranking_num} #{timeSlotWrapper.rankingOnWaiting}"

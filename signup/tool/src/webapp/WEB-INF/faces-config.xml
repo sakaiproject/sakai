@@ -96,6 +96,10 @@
 			<to-view-id>/signup/organizer/viewComment.jsp</to-view-id>
 		</navigation-case>
 		<navigation-case>
+			<from-outcome>editComment</from-outcome>
+			<to-view-id>/signup/attendee/editComment.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
 			<from-outcome>cancelTimeslot</from-outcome>
 			<to-view-id>/signup/organizer/cancelTimeslot.jsp</to-view-id>
 		</navigation-case>
@@ -161,14 +165,14 @@
 			<value>#{EditMeetingSignupMBean}</value>
 		</managed-property>
 		<managed-property>
-			<property-name>viewCommentMBean</property-name>
-			<value>#{ViewCommentSignupMBean}</value>
+			<property-name>editCommentMBean</property-name>
+			<value>#{EditCommentSignupMBean}</value>
 		</managed-property>
     </managed-bean>
     
     <managed-bean>
-        <managed-bean-name>ViewCommentSignupMBean</managed-bean-name>
-        <managed-bean-class>org.sakaiproject.signup.tool.jsf.organizer.ViewCommentSignupMBean</managed-bean-class>
+        <managed-bean-name>EditCommentSignupMBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.signup.tool.jsf.attendee.EditCommentSignupMBean</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
 			<property-name>signupMeetingService</property-name>
@@ -242,6 +246,10 @@
 		<managed-property>
 			<property-name>attachmentHandler</property-name>
 			<value>#{AttachmentHandler}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>editCommentMBean</property-name>
+			<value>#{EditCommentSignupMBean}</value>
 		</managed-property>
     </managed-bean>
     
@@ -339,7 +347,7 @@
     </managed-bean>
     
     <managed-bean>
-        <managed-bean-name>AttachmentHandler</managed-bean-name>
+		<managed-bean-name>AttachmentHandler</managed-bean-name>
         <managed-bean-class>org.sakaiproject.signup.tool.jsf.attachment.AttachmentHandler</managed-bean-class>
         <managed-bean-scope>session</managed-bean-scope>
 		<managed-property>
