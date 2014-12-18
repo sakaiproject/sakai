@@ -1634,7 +1634,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 		 *        The value of the current max
 		 */
 		private void setMessageUnreleasedMax(int currentMax) {
-			boolean releaseDateFirst = ServerConfigurationService.getBoolean("sakai.announcement.release_date_first", false);
+			boolean releaseDateFirst = ServerConfigurationService.getBoolean("sakai.announcement.release_date_first", true);
 			//Don't run this if the property is not set
 			if (releaseDateFirst == false) {
 				return;
