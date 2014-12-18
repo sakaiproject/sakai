@@ -33,6 +33,7 @@ import java.io.UnsupportedEncodingException;
 import java.net.SocketException;
 import java.net.URI;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,6 +50,7 @@ import java.util.Set;
 import java.util.SortedSet;
 import java.util.Stack;
 import java.util.StringTokenizer;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.TreeSet;
@@ -254,6 +256,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	private boolean m_useMimeMagic = true;
 
 	private static final Detector DETECTOR = new DefaultDetector(MimeTypes.getDefaultMimeTypes());
+	
+	// This is the date format for Last-Modified header
+	public static final String RFC1123_DATE = "EEE, dd MMM yyyy HH:mm:ss zzz";
 
 	static
 	{
@@ -6856,11 +6861,31 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		{
 			resource = filter.wrap(resource);
 		}
+		
+		// Set some headers to tell browsers to revalidate and check for updated files
+		res.addHeader("Cache-Control", "must-revalidate, private");
+		res.addHeader("Expires", "-1");
 
 		try
 		{
 			long len = resource.getContentLength();
 			String contentType = resource.getContentType();
+			ResourceProperties rp = resource.getProperties();
+			long lastModTime = 0;
+
+			try {
+				Time modTime = rp.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE);
+				lastModTime = modTime.getTime();
+			} catch (Exception e1) {
+				M_log.info("Could not retrieve modified time for: " + resource.getId());
+			}
+			
+			// KNL-1316 tell the browser when our file was last modified for caching reasons
+			if (lastModTime > 0) {
+				SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE);
+				rfc1123Date.setTimeZone(TimeZone.getTimeZone("GMT"));
+				res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
+			}
 
 			// for url content type, encode a redirect to the body URL
 			if (contentType.equalsIgnoreCase(ResourceProperties.TYPE_URL))
@@ -6904,7 +6929,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				            || lcct.contains("html") || lcct.contains("script") ) && 
 				            m_serverConfigurationService.getBoolean(SECURE_INLINE_HTML, true)) {
 				        // increased checks to handle more mime-types - https://jira.sakaiproject.org/browse/KNL-749
-						ResourceProperties rp = resource.getProperties();
 
 						boolean fileInline = false;
 						boolean folderInline = false;
@@ -6948,10 +6972,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				{
 					contentType = contentType + "; charset=" + encoding;
 				}
+				
+				// KNL-1316 let's see if the user already has a cached copy. Code copied and modified from Tomcat DefaultServlet.java
+				long headerValue = req.getDateHeader("If-Modified-Since");
+				if (headerValue != -1 && (lastModTime < headerValue + 1000)) {
+					// The entity has not been modified since the date specified by the client. This is not an error case.
+					res.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+					return; 
+				}
 
 				ArrayList<Range> ranges = parseRange(req, res, len);
 				res.addHeader("Accept-Ranges", "bytes");
-				res.addHeader("Cache-Control", "max-age=0, no-cache, no-store");
 
 		        if (req.getHeader("Range") == null || (ranges == null) || (ranges.isEmpty())) {
 		        	
