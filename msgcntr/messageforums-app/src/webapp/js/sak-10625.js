@@ -1,6 +1,9 @@
 //fix for double click stack traces in IE - SAK-10625
+var click=0;
 sak10625_disabler = function(){
-	 $("a, input[type=button], input[type=submit]").attr("onclick", "");
+  var existing_event = this.onclick;
+  this.onclick = null;
+  if(existing_event) $(this).click(existing_event);
 }
 if (typeof window.jQuery != "undefined") {
 
