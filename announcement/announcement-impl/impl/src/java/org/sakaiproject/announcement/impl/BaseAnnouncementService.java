@@ -68,6 +68,8 @@ import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityNotDefinedException;
 import org.sakaiproject.entity.api.EntityPermissionException;
+import org.sakaiproject.entity.api.EntityPropertyNotDefinedException;
+import org.sakaiproject.entity.api.EntityPropertyTypeException;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
@@ -1618,23 +1620,95 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 
 		} // addAnnouncementMessage
 		
+		//Intercept this commit to update the order and set unreleased to the top
 		public void commitMessage(MessageEdit edit, int priority, String invokee) {
-			setMessageOrderMax(edit);
+			int currentMax = setMessageOrderMax(edit);
+			setMessageUnreleasedMax(currentMax);
 			super.commitMessage(edit, priority, invokee);
 		}
 		
-		private void setMessageOrderMax(MessageEdit msg) {
+		/**
+		 * used to set unreleased messages higher than other messages
+		 * 
+		 * @param currentMax
+		 *        The value of the current max
+		 */
+		private void setMessageUnreleasedMax(int currentMax) {
+			boolean releaseDateFirst = ServerConfigurationService.getBoolean("sakai.announcement.release_date_first", false);
+			//Don't run this if the property is not set
+			if (releaseDateFirst == false) {
+				return;
+			}
+			try {
+				//Get all messages in this channel
+				List<MessageEdit> msglist = (List<MessageEdit>) this.getMessages(null, false);
+
+				//Go through all the messages and move all the ones that aren't yet released higher in the order. Just ignore any errors
+				for (MessageEdit me:msglist) {
+					Date releaseDate = null;
+					try {
+						releaseDate = me.getProperties().getDateProperty(AnnouncementService.RELEASE_DATE);
+					} catch (EntityPropertyNotDefinedException e) {
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("Exception moving an unreleased item.",e);
+						}
+						continue;
+					} catch (EntityPropertyTypeException e) {
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("Exception moving an unreleased item.",e);
+						}
+						continue;
+					}
+					//releaseDate of this item is after current date, so set it later than max
+					if (releaseDate.compareTo(new Date()) > 0) {
+						if (M_log.isDebugEnabled()) {
+							M_log.debug("Placing unreleased announcement to top of list " + me.getId());
+						}
+						//Try to set the current max of these other messages
+						try {
+							AnnouncementMessageEdit em = editAnnouncementMessage(me.getId());
+							em.getHeaderEdit().setMessage_order(++currentMax);
+							super.commitMessage(em, NotificationService.NOTI_NONE, "");
+						} catch (InUseException e) {
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("Exception moving an unreleased item.",e);
+							}
+							continue;
+						}
+						catch (IdUnusedException e) {
+							if (M_log.isDebugEnabled()) {
+								M_log.debug("Exception moving an unreleased item.",e);
+							}
+							continue;
+						}
+						//Commit this update directly
+					}
+				}
+			} catch (PermissionException ex) {
+				M_log.error(ex);
+			}
+		}
+		
+		/**
+		 * Go through all of the messages to find the max, put this message at the Maximum + 1
+		 * 
+		 * @param msg
+		 *        The message to edit
+		 * @return The currentMax value determined (To save on future execution)
+		 */
+		private int setMessageOrderMax(MessageEdit msg) {
+			int currentMax = 0;
 			try {
 				List<MessageEdit> msglist = (List<MessageEdit>) this.getMessages(null, false);
-				int currentMax = 0;
 				for (MessageEdit me:msglist) {
 					if (me.getHeaderEdit().getMessage_order()>currentMax)
 						currentMax = me.getHeaderEdit().getMessage_order();
 				}
-				msg.getHeaderEdit().setMessage_order(currentMax+1);
+				msg.getHeaderEdit().setMessage_order(++currentMax);
 			} catch (PermissionException ex) {
 				M_log.error(ex);
 			}
+			return currentMax;
 		}
 
 	} // class BaseAnnouncementChannelEdit
