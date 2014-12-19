@@ -10850,7 +10850,11 @@ public class AssignmentAction extends PagedResourceActionII
 					Integer score = item.getScore();
 					if(g != null && !"".equals(g)){
 						try{
-							Double dScore = Double.parseDouble(g);
+							String decSeparator = FormattedText.getDecimalSeparator();
+							g = StringUtils.replace(g, (",".equals(decSeparator)?".":","), decSeparator);
+							NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);
+							DecimalFormat dcformat = (DecimalFormat) nbFormat;
+							Double dScore = dcformat.parse(g).doubleValue();
 							if(dScore < 0){
 								addAlert(state, rb.getString("peerassessment.alert.saveinvalidscore"));
 							}else{
