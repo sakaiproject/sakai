@@ -43,6 +43,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -66,6 +67,8 @@ import org.sakaiproject.entitybroker.providers.model.EntityGroup;
 import org.sakaiproject.entitybroker.providers.model.EntitySite;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.entitybroker.util.TemplateParseUtil;
+import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.exception.IdInvalidException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
@@ -845,6 +848,9 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
             throw new IllegalArgumentException("Cannot find site to update with id: " + siteId);
         }
 
+        // get the site current publish status
+        boolean oldPublishStatus = s.isPublished();
+        boolean newPublishStatus = oldPublishStatus;
         boolean admin = developerHelperService.isUserAdmin(developerHelperService.getCurrentUserReference());
 
         if (entity.getClass().isAssignableFrom(Site.class)) {
@@ -881,6 +887,9 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 ResourcePropertiesEdit rpe = s.getPropertiesEdit();
                 rpe.set(site.getProperties());
             }
+            
+            // set the new publish status
+            newPublishStatus = site.isPublished();
         } else if (entity.getClass().isAssignableFrom(EntitySite.class)) {
             // if they instead pass in the entitysite object
             EntitySite site = (EntitySite) entity;
@@ -936,18 +945,34 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 }
                 ReflectUtils.getInstance().setFieldValue(s, "m_createdUserId", ownerUserId);
             }
+            
+            // new publish status
+            newPublishStatus = site.isPublished();
         } else {
             throw new IllegalArgumentException(
             "Invalid entity for update, must be Site or EntitySite object");
         }
         try {
             siteService.save(s);
+            
+            // post event
+            EventTrackingService eventTrackingService = (EventTrackingService) ComponentManager.get("org.sakaiproject.event.api.EventTrackingService");
+            if (oldPublishStatus && !newPublishStatus)
+            {
+               // unpublish a published site
+               eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_UNPUBLISH,siteService.siteReference(siteId),true));
+            }
+            else if (!oldPublishStatus&& newPublishStatus)
+            {
+               // publish an unpublished site
+               eventTrackingService.post(eventTrackingService.newEvent(SiteService.EVENT_SITE_PUBLISH,siteService.siteReference(siteId),true));
+            }
         } catch (IdUnusedException e) {
-            throw new IllegalArgumentException(
-                    "Sakai was unable to save a site which it just fetched: " + ref, e);
+           throw new IllegalArgumentException(
+                                              "Sakai was unable to save a site which it just fetched: " + ref, e);
         } catch (PermissionException e) {
-            throw new SecurityException("Current user does not have permissions to update site: "
-                    + ref + ":" + e.getMessage(), e);
+           throw new SecurityException("Current user does not have permissions to update site: "
+                                       + ref + ":" + e.getMessage(), e);
         }
     }
 
