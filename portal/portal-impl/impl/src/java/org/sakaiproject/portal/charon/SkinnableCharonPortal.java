@@ -1206,7 +1206,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("toolParamResetState", portalService.getResetStateParam());
 
                 // Get the tool header properties
-                Properties props = toolHeaderProperties(skin);
+                Properties props = toolHeaderProperties(request, skin);
                 for(Object okey : props.keySet() ) 
                 {
                         String key = (String) okey;
@@ -1426,30 +1426,43 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	// NOTE: This code is duplicated in ToolPortal.java - make sure to change 
 	// both places
-	public Properties toolHeaderProperties(String skin)
+	public Properties toolHeaderProperties(HttpServletRequest req, String skin)
 	{
-		return toolHeaderProperties(skin, null);
+		return toolHeaderProperties(req, skin, null);
 	}
 	
-	public Properties toolHeaderProperties(String skin, Placement placement) 
+	// Note - When modifying this code, make sure to review
+	// org.sakaiproject.portal.charon.velocity.VelocityPortalRenderEngine.java
+	// as it has its own setupForward that tweaks these values
+	public Properties toolHeaderProperties(HttpServletRequest req, String skin, Placement placement) 
 	{
 		Properties retval = new Properties();
 
 		// setup html information that the tool might need (skin, body on load,
 		// js includes, etc).
-		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-		String skinRepo = ServerConfigurationService.getString("skin.repo");
-		// Adjust skin name if we are in the neo Portal
+
+		String headCssPortalSkin = "<link href=\"" 
+			+ PortalUtils.getCDNPath()
+			+ CSSUtils.getCssPortalSkin(skin)
+			+ PortalUtils.getCDNQuery()
+			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+
 		String headCssToolBase = "<link href=\""
 			+ PortalUtils.getCDNPath()
 			+ CSSUtils.getCssToolBase()
 			+ PortalUtils.getCDNQuery()
 			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+
+		if ( ! ToolUtils.isInlineRequest(req) ) {
+			headCssToolBase = headCssPortalSkin + headCssToolBase;
+		}
+
 		String headCssToolSkin = "<link href=\"" 
 			+ PortalUtils.getCDNPath()
 			+ CSSUtils.getCssToolSkin(skin)
 			+ PortalUtils.getCDNQuery()
 			+ "\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
+
 		String headCss = headCssToolBase + headCssToolSkin;
 		
 		Editor editor = portalService.getActiveEditor(placement);
@@ -1551,7 +1564,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			Placement p, String skin) throws ToolException
         {
 		// Get the tool header properties
-		Properties props = toolHeaderProperties(skin, p);
+		Properties props = toolHeaderProperties(req, skin, p);
 		for(Object okey : props.keySet() ) 
 		{
 			String key = (String) okey;

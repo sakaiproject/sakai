@@ -82,6 +82,21 @@ public class CSSUtils
 		return cssToolSkin;
 	}
 
+	/**
+	 * Returns a URL for the portal.css suitable for putting in an href= field.
+	 *
+	 * @param <code>skinFolder</code>
+	 *		where the portal.css skin lives for this site.
+	 * @return <code>cssPortalSkin</code> URL for the portal.css
+	 */
+	public static String getCssPortalSkin(String skinFolder)
+	{
+		skinFolder = adjustCssSkinFolder(skinFolder);
+		String skinRepo = ServerConfigurationService.getString("skin.repo");
+		String cssPortalSkin = skinRepo + "/" + skinFolder + "/portal.css";
+		return cssPortalSkin;
+	}
+
 
 	/**
 	 * Returns a URL for the tool.css suitable for putting in an href= field.
