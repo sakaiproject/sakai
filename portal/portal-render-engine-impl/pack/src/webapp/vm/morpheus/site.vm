@@ -135,13 +135,7 @@
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
         #end ## END of IF ( $tutorial && $loggedIn )
 
-        #if ( $neoChat && $loggedIn )
-            <script src="$!{portalCDNPath}/portal/scripts/jquery.idle-timer.js$!{portalCDNQuery}" ></script>
-            <script>
-                var portalChatPollInterval = ${portalChatPollInterval};
-            </script>
-            <script src="$!{portalCDNPath}/portal/scripts/chat.js$!{portalCDNQuery}"></script>
-        #end ## END of IF ( $neoChat && $loggedIn )
+        #parse("/vm/morpheus/snippets/portalChat-snippet.vm")
 
         #parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
