@@ -54,6 +54,7 @@
             var portal = { 
                 "chat": {
                     "enabled": $!{neoChat},
+                    "pollInterval": $!{portalChatPollInterval},
 		    "video" : {
 			"enabled": $!{neoChatVideo}
 		    }
@@ -80,6 +81,10 @@
                 }
             };
         </script>
+
+<!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
+<script type="text/javascript">var sakai_portal_ie_detected=false;</script>
+<!--[if IE]><script type="text/javascript">sakai_portal_ie_detected=true;</script><![endif]-->
 
         #if ( ${bufferedResponse} && ${responseHead} )
         #else 
