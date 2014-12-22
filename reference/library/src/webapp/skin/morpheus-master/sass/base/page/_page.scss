@@ -5,23 +5,16 @@
 @import "_page_variables";
 
 html {
-  @include border-outline(border, $html-border-width, $html-border-style, $html-border-color);
-  background-color: $html-background-color;
+  @include border-outline(border, $html__border-width, $html__border-style, $html__border-color);
+  background-color: $html__background-color;
 }
 body {
-  @include margin-padding(margin, $body-margin);
-  @include margin-padding(padding, $body-padding);
-  @include type-size($body-font-size, $body-line-height);
-  color: $body-color;
-  @include border-outline(border, $body-border-width, $body-border-style, $body-border-color);
-  border-color: $body-border-color-rgba;
-
-  &.portalBody { // increase specificity to combat bootstrap!
-    background-color: $body-background-color;
-    background: $body-background-rgba;
-    @include type-size($body-font-size, $body-line-height);
-    color: $body-color;
-  }
+  @include margin-padding(margin, $body__margin);
+  @include margin-padding(padding, $body__padding);
+  @include type-size($body__font-size, $body__line-height);
+  color: $body__color;
+  @include border-outline(border, $body__border-width, $body__border-style, $body__border-color);
+  border-color: $body__border-color-rgba;
 }
 
 // use the border-box for responsive design http://paulirish.com/2012/box-sizing-border-box-ftw/
@@ -58,23 +51,23 @@ video {
 
 html {
   @include respond-to('full navigation') {
-    @include type-size($body-font-size); // 16px
+    @include type-size($body__font-size); // 16px
   }
 
   @include respond-to('narrow navigation') {
-    @include type-size($body-font-size - 3); // 13px
+    @include type-size($body__font-size - 3); // 13px
   }
 }
 
 body {
   @include respond-to('full navigation') {
-    @include type-size( 1rem, $body-line-height); // 16px/1.5em 
+    @include type-size( 1rem, $body__line-height); // 16px/1.5em 
   }
 
   @include respond-to('narrow navigation') { 
 
     &.portalBody {
-      @include type-size( 1rem, $body-line-height - .1); // 13px/1.4em
+      @include type-size( 1rem, $body__line-height - .1); // 13px/1.4em
     }
   }
 }
