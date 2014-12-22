@@ -6,20 +6,20 @@
 
 [role="search"] {
   position: relative;
-  background-color: $search-background-color;
-  @include border-outline(border, $search-border-width, $search-border-style, $search-border-color);
-  @include margin-padding(padding, $search-padding);
-  @include border-radius($search-border-radius);
+  background-color: $search__background-color;
+  @include border-outline(border, $search__border-width, $search__border-style, $search__border-color);
+  @include margin-padding(padding, $search__padding);
+  @include border-radius($search__border-radius);
   input[type="search"], input {
-    @include border-outline(border, $search-input-border-width, $search-input-border-style, $search-input-border-color);
-    @include border-radius($search-input-border-radius);
+    @include border-outline(border, $search__input__border-width, $search__input__border-style, $search__input__border-color);
+    @include border-radius($search__input__border-radius);
   }
   input[type="image"] {
-    background-color: $search-image-background-color;
+    background-color: $search__image__background-color;
     position: absolute;
-    width: $search-image-width;
-    top: $search-image-top;
-    right: $search-image-right;
-    @include margin-padding(padding, $search-image-padding);
+    width: $search__image__width;
+    top: $search__image__top;
+    right: $search__image__right;
+    @include margin-padding(padding, $search__image__padding);
   }
 }                                
