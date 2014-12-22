@@ -1669,6 +1669,14 @@ $(function() {
 
 			$("#height").val(row.find(".mm-height").text());
 			$("#width").val(row.find(".mm-width").text());
+			if (row.find(".mm-embedtype").text() == '1') {
+			    // embed code, can't edit size
+			    $('#width-p').hide();
+			    $('#height-p').hide();
+			} else {
+			    $('#width-p').show();
+			    $('#height-p').show();
+			}
 			$("#description2").val(row.find(".description").text());
 			$("#mimetype").val(row.find(".mm-type").text());
 			var tagname = row.find(".multimedia").get(0).nodeName.toLowerCase();
