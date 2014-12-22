@@ -8,6 +8,7 @@
 label {
   cursor: pointer;
   
+  // inline labels for mobile screens
   @include respond-to('narrow navigation') {
     display: block;
   }
@@ -23,20 +24,20 @@ input[type="checkbox"],
 input[type="radio"],
 input[type="image"] {
   margin: .25em .25em 0 .05em;
-  
+
   @include for-legacy-browser("ie", "8") {
     background: transparent;
   }
-  
+
   + label {
     display: inline;
     margin-right: 1em;
   }
   // for accessibility
   &:focus + label {
-    background: $forms-label-focus-background-color;
+    background: $forms__label--focus__background-color;
   }
-  
+
   &[disabled] + label {
     color: #888;
   }
@@ -44,5 +45,5 @@ input[type="image"] {
 
 input[required],
 textarea[required] {
-  border-color: $forms-required-border-color;
+  border-color: $forms--required__border-color;
 }

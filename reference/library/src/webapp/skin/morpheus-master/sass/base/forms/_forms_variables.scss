@@ -10,12 +10,12 @@
 //////////////////////////////
 
 // Forms _forms.scss
-$forms-background-color: #fff !default;
-$forms-padding: 0.125em !default; 
-$forms-border-width: false !default; 
-$forms-border-style: solid !default;
-$forms-border-color: #ccc !default;
-$forms-border-radius: 0.25em !default;
-$forms-focus-border-color: #666 !default;
-$forms-required-border-color: #999 !default;
-$forms-label-focus-background-color: #faedab !default;
+$forms__background-color: #fff !default;
+$forms__padding: 0.125em !default; 
+$forms__border-width: false !default; 
+$forms__border-style: solid !default;
+$forms__border-color: #ccc !default;
+$forms__border-radius: 0.25em !default;
+$forms--focus__border-color: #666 !default;
+$forms--required__border-color: #999 !default;
+$forms__label--focus__background-color: #faedab !default;
