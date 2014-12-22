@@ -2,50 +2,55 @@
 // VARIABLES: For Base styles 
 //////////////////////////////
 
-$link-color: desaturate(darken(nth($primary, 1), 7%), 4%); // WCAG compliant http://contrast-finder.tanaguru.com/
-$link-text-decoration: none;
-$link-border-width: false;
+$links__color: desaturate(darken(nth($primary, 1), 7%), 4%); // WCAG compliant http://contrast-finder.tanaguru.com/
+$links__text-decoration: none;
+$links__border-width: false;
 
-/// Visited
-$link-visited-link-color: darken($link-color, 2.2%); // WCAG compliant
-$link-visited-border-width: $link-border-width;
+//// Visited
+$links--visited__color: darken($links__color, 2.2%); // WCAG compliant
+$links--visited__border-width: $links__border-width;
 
-/// Hover
-$link-hover-link-color: lighten($link-color, 10%);
-$link-hover-text-decoration: none; 
-$link-hover-border-width: 0 0 1px 0;
-$link-hover-border-style: solid;
-/// Active
-$link-active-link-color: $link-color;
+//// Hover
+$links--hover__color: lighten($links__color, 10%);
+$links--hover__text-decoration: none; 
+$links--hover__border-width: 0 0 1px 0;
+$links--hover__border-style: solid;
+
+//// Active
+$links--active__color: $links__color;
 
 //////////////////////////////
 // DEFAULT VARIABLES
 //////////////////////////////
 
 // Links
-$link-color: #369 !default;
-$link-text-decoration: none !default;
-$link-border-width: 0 0 1px 0 !default;
-$link-border-style: dotted !default;
-$link-border-color: $link-color !default;
-/// Visited
-$link-visited-link-color: $link-color !default;
-$link-visited-border-width: $link-border-width !default;
-$link-visited-border-style: $link-border-style !default;
-$link-visited-border-color: $link-border-color !default;
-/// Hover
-$link-hover-text-decoration: underline !default;
-$link-hover-link-color: #c03 !default;
-$link-hover-border-width: $link-border-width !default;
-$link-hover-border-style: $link-border-style !default;
-$link-hover-border-color: $link-hover-link-color !default;
-/// Active
-$link-active-link-color: #900 !default;
-$link-active-border-width: $link-border-width !default;
-$link-active-border-style: $link-border-style !default;
-$link-active-border-color: $link-active-link-color !default;
-/// Logo and Headers
-$headers-link-color: $link-color !default;
-$logo-headers-border-width: false !default;
-$logo-headers-border-style: $link-border-style !default;
-$logo-headers-border-color: $link-active-link-color !default;
+$links__color: #369 !default;
+$links__text-decoration: none !default;
+$links__border-width: 0 0 1px 0 !default;
+$links__border-style: dotted !default;
+$links__border-color: $links__color !default;
+
+//// Visited
+$links--visited__color: $links__color !default;
+$links--visited__border-width: $links__border-width !default;
+$links--visited__border-style: $links__border-style !default;
+$links--visited__border-color: $links__border-color !default;
+
+//// Hover
+$links--hover__text-decoration: underline !default;
+$links--hover__color: #c03 !default;
+$links--hover__border-width: $links__border-width !default;
+$links--hover__border-style: $links__border-style !default;
+$links--hover__border-color: $links--hover__color !default;
+
+//// Active
+$links--active__color: #900 !default;
+$links--active__border-width: $links__border-width !default;
+$links--active__border-style: $links__border-style !default;
+$links--active__border-color: $links--active__color !default;
+
+//// Logo and Headers
+$headings__color: $links__color !default;
+$headings__border-width: false !default;
+$headings__border-style: $links__border-style !default;
+$headings__border-color: $links--active__color !default;
