@@ -2,47 +2,47 @@
 // VARIABLES: For Base styles 
 //////////////////////////////
 
-$button-padding: 0.33em .66em;
-$button-border-radius: .1875em;
-$button-border-color: transparent;
+$button__padding: 0.33em .66em;
+$button__border-radius: .1875em;
+$button__border-color: transparent;
 
-$button-color: nth($light-grey, 1);
-$button-background: nth($light-grey, 5);
-$button-background-color-offset: 5%;
+$button__color: nth($light-grey, 1);
+$button__background-color: nth($light-grey, 5);
+$button__background-color-offset: 5%;
 
-$button-light-color: nth($light-grey, 6);
-$button-action-background: #693;
-$button-cancel-background: #d61e16;
+$button--light__color: nth($light-grey, 6);
+$button--action__background-color: #693;
+$button--cancel__background-color: #d61e16;
 
-$button-gradient-pos: 45deg;
+$button__gradient-position: 45deg;
 
 //////////////////////////////
 // DEFAULT VARIABLES
 //////////////////////////////
 
 /// Buttons
-$button-font-family: $secondary-font !default;
-$button-padding: 0.5em 1em !default;
+$button__font-family: $secondary__font-family !default;
+$button__padding: 0.5em 1em !default;
 
-$button-border-width: 1px !default; 
-$button-border-style: solid !default;
-$button-border-color: #666 !default;
-$button-border-radius: 1em !default;
+$button__border-width: 1px !default; 
+$button__border-style: solid !default;
+$button__border-color: #666 !default;
+$button__border-radius: 1em !default;
 
-$button-light-color: #eee !default;
-$button-dark-color: #999 !default;
-$button-color: $button-light-color !default;
+$button--light__color: #eee !default;
+$button--dark__color: #999 !default;
+$button__color: $button--light__color !default;
 
-$button-gradient-pos: top !default;
-$button-background: #47a !default;
-$button-background-color-offset: 5% !default;
+$button__gradient-position: top !default;
+$button__background-color: #47a !default;
+$button__background-color-offset: 5% !default;
 
 //// Action
-$button-action-background: #007ae5 !default;
+$button--action__background-color: #007ae5 !default;
 
 //// Cancel
-$button-cancel-background: #ee5f5b !default;
+$button--cancel__background-color: #ee5f5b !default;
 
-//// disabled
-$button-disabled-opacity: .75 !default;
-$button-disabled-background: $button-background !default;
+//// Disabled
+$button--disabled__opacity: .75 !default;
+$button--disabled__background-color: $button__background-color !default;

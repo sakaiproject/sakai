@@ -5,33 +5,33 @@
 %btn-all {
   width: auto;
   text-align: center;
-  font-family: $button-font-family;
+  font-family: $button__font-family;
   font-size: inherit;
   font-weight: normal;
   font-style: normal;
-  @include border-outline(border, $button-border-width, $button-border-style, $button-border-color);
+  @include border-outline(border, $button__border-width, $button__border-style, $button__border-color);
   cursor: pointer;
-  @include margin-padding(padding, $button-padding);
+  @include margin-padding(padding, $button__padding);
   line-height: 1;
-  @include border-radius($button-border-radius);
+  @include border-radius($button__border-radius);
 }
 
 %button {
   @extend %btn-all;
-  @include button-theme($button-color, $button-background, $button-gradient-pos, $button-background-color-offset);
+  @include button-theme($button__color, $button__background-color, $button__gradient-position, $button__background-color-offset);
 }
 
 %button-action {
   @extend %btn-all;
-  @include button-theme($button-light-color, $button-action-background, $button-gradient-pos, $button-background-color-offset);
+  @include button-theme($button--light__color, $button--action__background-color, $button__gradient-position, $button__background-color-offset);
 }
 
 %button-cancel {
   @extend %btn-all;
-  @include button-theme($button-light-color, $button-cancel-background, $button-gradient-pos, $button-background-color-offset);
+  @include button-theme($button--light__color, $button--cancel__background-color, $button__gradient-position, $button__background-color-offset);
 }
 
 %button-disabled {
   @extend %btn-all;
-  @include button-theme($button-color, $button-disabled-background, $button-gradient-pos, $button-background-color-offset, true, $button-disabled-opacity);
+  @include button-theme($button__color, $button--disabled__background-color, $button__gradient-position, $button__background-color-offset, true, $button--disabled__opacity);
 }
