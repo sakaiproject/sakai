@@ -2,11 +2,11 @@
 // VARIABLES: For Modules specific styles 
 //////////////////////////////
 
-$icon-font-name: false !default;
-$icon-font-file-name: false !default;
-$icon-inline-fonts: false;
-$icon-font-weight: normal;
-$icon-font-style: normal;
+$icon__font-name: false !default;
+$icon__font-file-name: false !default;
+$icon__inline-fonts: false;
+$icon__font-weight: normal;
+$icon__font-style: normal;
 
 $fallback-icon: ('[class*="icon-sakai"]': '\f0a3'); // fallback for unassigned icons.
 
