@@ -15,7 +15,7 @@ $body__line-height: 1.5em;
 
 /// body
 //$body__background-color: lighten(nth($light-grey , 6), 15%); 
-//$body__background-rgba: rgba($body__background-color, 1);
+//$body__background--rgba: rgba($body__background-color, 1);
 $body__border-width: false;
 
 $body__margin: 0 0 1em 0;
@@ -42,7 +42,7 @@ $html__background-color: #eee !default;
 
 /// body
 $body__background-color: #fefefe !default;
-$body__background-rgba: rgba(255,255,255,0.9) !default;
+$body__background--rgba: rgba(255,255,255,0.9) !default;
 $body__margin: 0 2.5% !default;
 $body__padding: 0 2.5% !default;
 $body__font-size: 100% !default;
