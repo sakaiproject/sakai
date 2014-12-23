@@ -3,7 +3,6 @@
 //////////////////////////////
 
 $links__color: desaturate(darken(nth($primary, 1), 7%), 4%); // WCAG compliant http://contrast-finder.tanaguru.com/
-$links__text-decoration: none;
 $links__border-width: false;
 
 //// Visited
@@ -31,7 +30,7 @@ $links__border-style: dotted !default;
 $links__border-color: $links__color !default;
 
 //// Visited
-$links--visited__color: $links__color !default;
+$links--visited__color: darken($links__color, 10%) !default;
 $links--visited__border-width: $links__border-width !default;
 $links--visited__border-style: $links__border-style !default;
 $links--visited__border-color: $links__border-color !default;
