@@ -84,6 +84,20 @@ $(function() {
 		    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
 		    });
 });
+
+function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
+    if($(checkbox).is(':checked')) {
+	$.ajax({
+		url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+		    success: function(shortUrl) {
+		    $('.'+textbox).val(shortUrl);
+		}
+	    });
+    } else {
+	$('.'+textbox).val(defaultUrl);
+    }
+}
+
 </script>
 
 	<div class="portletBody" id="outer">
@@ -121,7 +135,7 @@ $(function() {
 	            </a>
 		    <div rsf:id="directurl-div" class="portlet title-tools direct-url-wrap">
 		      <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/>
-		      <span>Short URL</span>
+		      <span rsf:id="directurl-shorten">Short URL</span>
 		      <textarea rsf:id="directurl-textarea" class="portlet title-tools"></textarea>
 		    </div>
                     <a href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help"><img rsf:id="helpimage2" src="/library/image/transparent.gif" /><span rsf:id="helpnewwindow2" class="offscreen"></span></a>

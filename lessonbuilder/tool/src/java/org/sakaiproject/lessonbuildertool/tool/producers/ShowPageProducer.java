@@ -875,8 +875,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    // if (inline) {
 			UIOutput.make(tofill, "directurl-div").
 			    decorate(new UIFreeAttributeDecorator("id", "Main" + Web.escapeJavascript(placement.getId()) + "_directurl"));
-			UIOutput.make(tofill, "directurl-input").
-			    decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + Web.escapeJavascript(placement.getId()) + "_urlholder');"));
+			// in general 2.9 doesn't have the url shortener
+			if (majorVersion >= 10) {
+			    UIOutput.make(tofill, "directurl-input").
+				decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + Web.escapeJavascript(placement.getId()) + "_urlholder');"));
+			    UIOutput.make(tofill, "directurl-shorten", messageLocator.getMessage("simplepage.short-url"));
+			}
 			UIOutput.make(tofill, "directurl-textarea", myUrl() + "/portal/directtool/" + placement.getId() + "/").
 			    decorate(new UIFreeAttributeDecorator("class", "portlet title-tools Main" + Web.escapeJavascript(placement.getId()) + "_urlholder"));
 			// } else
