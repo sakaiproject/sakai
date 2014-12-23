@@ -237,8 +237,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 	    }
 
-	    System.out.println("major version " + major);
-
 	    return major;
 
 	}

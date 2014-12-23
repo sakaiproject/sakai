@@ -1889,8 +1889,8 @@ $(function() {
         resizeFrame('grow');
 	});
 	
-	// only if in iframe
-	if (window.location.pathname.indexOf('/portal/site') != 0)
+	// don't do this twice. if portal is loaded portal will do it
+        if(typeof portal == 'undefined')
 	$('a.tool-directurl').cluetip({
 		local: true,
 		    arrows: true,

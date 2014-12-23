@@ -72,7 +72,8 @@ $(function() {
 	    // fake it; can't seem to get rid of underline though
 	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
 	}
-	if (window.location.pathname.indexOf('/portal/site') != 0)
+	// don't do this twice. if portal is loaded portal will do it
+        if(typeof portal == 'undefined')
 	$('a.tool-directurl').cluetip({
 		local: true,
 		    arrows: true,
