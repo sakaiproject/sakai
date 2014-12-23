@@ -3,32 +3,30 @@
 //////////////////////////////
 
 
-
-
 //////////////////////////////
 // DEFAULT VARIABLES
 //////////////////////////////
 
 // Controls
-$controls-font-family: $secondary-font !default;
-$controls-font-size: 1.5em !default;
-$controls-padding: 0.5em 0.75em !default; 
-$controls-border-width: false !default; 
-$controls-border-style: solid !default;
-$controls-border-color: #666 !default;
-$controls-border-radius: 0.25em !default;
+$controls__font-family: $secondary__font-family !default;
+$controls__font-size: 1.5em !default;
+$controls__padding: 0.5em 0.75em !default; 
+$controls__border-width: false !default; 
+$controls__border-style: solid !default;
+$controls__border-color: #666 !default;
+$controls__border-radius: 0.25em !default;
 /// Visited
-$controls-visited-color: $button-color !default;
-$controls-visited-gradient-pos: $button-gradient-pos !default;
-$controls-visited-gradient-stop-1: #47a !default;
-$controls-visited-gradient-stop-2: #258 !default;
+$controls--visited__color: $button__color !default;
+$controls--visited__gradient-position: $button__gradient-position !default;
+$controls--visited__gradient-stop-1: #47a !default;
+$controls--visited__gradient-stop-2: #258 !default;
 /// Hover
-$controls-hover-color: $button-color !default;
-$controls-hover-gradient-pos: $button-gradient-pos !default;
-$controls-hover-gradient-stop-1: #d04 !default;
-$controls-hover-gradient-stop-2: #b02 !default;
+$controls--hover__color: $button__color !default;
+$controls--hover__gradient-position: $button__gradient-position !default;
+$controls--hover__gradient-stop-1: #d04 !default;
+$controls--hover__gradient-stop-2: #b02 !default;
 /// Active
-$controls-active-color: $button-color !default;
-$controls-active-gradient-pos: $button-gradient-pos !default;
-$controls-active-gradient-stop-1: #800 !default;
-$controls-active-gradient-stop-2: #a00 !default;
+$controls--active__color: $button__color !default;
+$controls--active__gradient-position: $button__gradient-position !default;
+$controls--active__gradient-stop-1: #800 !default;
+$controls--active__gradient-stop-2: #a00 !default;
