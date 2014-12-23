@@ -259,3 +259,10 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 ALTER TABLE GB_GRADEBOOK_T ADD COLUMN COURSE_POINTS_DISPLAYED bit not null
 -- End SAK-27937
 
+--
+-- SAK-27929 Add Dashboard to default !user site
+--
+
+INSERT INTO SAKAI_SITE_PAGE VALUES('!user-99', '!user', 'Dashboard', '1', 0, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!user-999', '!user-99', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
+
