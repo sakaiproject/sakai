@@ -181,6 +181,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowSessionId = ServerConfigurationService.getBoolean("session.parameter.allow", false);
         public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", true);
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
+        public String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
 
 
 	// I don't much like the static, because it opens us to a possible race
@@ -820,7 +821,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		// this section shouldn't be needed, but the portal in trunk
 		// isn't going this right
 		if (httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
-		    inline = true;
+		    // inline without morpheus is weird, but it seems to work
+		    // if I treat it like Sakai 10
+		    if ("morpheus".equals(portalTemplates))
+			inline = true;
 		    if (reseturl == null)
 			reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
 		    if (helpurl == null)
