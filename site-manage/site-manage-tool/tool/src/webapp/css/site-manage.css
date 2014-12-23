@@ -391,293 +391,293 @@ dl.defList dd{
     vertical-align: text-bottom;
 }
 
-.icon-osp-evaluation {
+.portletBody .icon-osp-evaluation {
     background-image: url(/library/image/silk/thumb_up.png) !important;
 }
 
-.icon-osp-glossary {
+.portletBody .icon-osp-glossary {
     background-image: url(/library/image/silk/text_list_bullets.png) !important;
 }
 
-.icon-osp-matrix {
+.portletBody .icon-osp-matrix {
     background-image: url(/library/image/silk/table.png) !important;
 }
 
-.icon-osp-presentation {
+.portletBody .icon-osp-presentation {
     background-image: url(/library/image/silk/briefcase.png) !important;
 }
 
-.icon-osp-presLayout {
+.portletBody .icon-osp-presLayout {
     background-image: url(/library/image/silk/layout_content.png) !important;
 }
 
-.icon-osp-presTemplate {
+.portletBody .icon-osp-presTemplate {
     background-image: url(/library/image/silk/application_view_tile.png) !important;
 }
 
-.icon-osp-style {
+.portletBody .icon-osp-style {
     background-image: url(/library/image/silk/style.png) !important;
 }
 
-.icon-osp-wizard {
+.portletBody .icon-osp-wizard {
     background-image: url(/library/image/silk/wand.png) !important;
 }
 
-.icon-sakai-announcements {
+.portletBody .icon-sakai-announcements {
     background-image: url(/library/image/silk/flag_blue.png) !important;
 }
 
-.icon-sakai-chat {
+.portletBody .icon-sakai-chat {
     background-image: url(/library/image/silk/user_comment.png) !important;
 }
 
-.icon-sakai-datapoint {
+.portletBody .icon-sakai-datapoint {
     background-image: url(/library/image/silk/chart_line.png) !important;
 }
 
-.icon-sakai-discussion {
+.portletBody .icon-sakai-discussion {
     background-image: url(/library/image/silk/comments.png) !important;
 }
 
-.icon-sakai-dropbox {
+.portletBody .icon-sakai-dropbox {
     background-image: url(/library/image/silk/folder_page.png) !important;
 }
 
-.icon-sakai-emailtemplateservice {
+.portletBody .icon-sakai-emailtemplateservice {
     background-image: url(/library/image/silk/email_edit.png) !important;
 }
 
-.icon-sakai-gmt {
+.portletBody .icon-sakai-gmt {
     background-image: url(/library/image/silk/award_star_gold_3.png) !important;
 }
 
-.icon-sakai-help {
+.portletBody .icon-sakai-help {
     background-image: url(/library/image/silk/help.png) !important;
 }
 
-.icon-sakai-iframe {
+.portletBody .icon-sakai-iframe {
     background-image: url(/library/image/silk/page_world.png) !important;
 }
 
-.icon-sakai-iframe-site {
+.portletBody .icon-sakai-iframe-site {
     background-image: url(/library/image/silk/house.png) !important;
 }
 
-.icon-sakai-web-168 {
+.portletBody .icon-sakai-web-168 {
     background-image: url(/library/image/silk/application_go.png) !important;
 }
 
-.icon-sakai-mailbox {
+.portletBody .icon-sakai-mailbox {
     background-image: url(/library/image/silk/email.png) !important;
 }
 
-.icon-sakai-messages {
+.portletBody .icon-sakai-messages {
     background-image: url(/library/image/silk/comment.png) !important;
 }
 
-.icon-sakai-metaobj {
+.portletBody .icon-sakai-metaobj {
     background-image: url(/library/image/silk/application_form.png) !important;
 }
 
-.icon-sakai-membership {
+.portletBody .icon-sakai-membership {
     background-image: url(/library/image/silk/group.png) !important;
 }
 
-.icon-sakai-news {
+.portletBody .icon-sakai-news {
     background-image: url(/library/image/silk/rss.png) !important;
 }
 
-.icon-sakai-podcasts{
+.portletBody .icon-sakai-podcasts{
     background-image: url(/library/image/silk/ipod_cast.png) !important;
 }
 
-.icon-sakai-postem{
+.portletBody .icon-sakai-postem{
     background-image: url(/library/image/silk/database_table.png) !important;
 }
 
-.icon-sakai-preferences{
+.portletBody .icon-sakai-preferences{
     background-image: url(/library/image/silk/cog.png) !important;
 }
 
-.icon-sakai-rutgers-linktool{
+.portletBody .icon-sakai-rutgers-linktool{
     background-image: url(/library/image/silk/application.png) !important;
 }
 
-.icon-sakai-sections{
+.portletBody .icon-sakai-sections{
     background-image: url(/library/image/silk/group_gear.png) !important;
 }
 
-.icon-sakai-singleuser{
+.portletBody .icon-sakai-singleuser{
     background-image: url(/library/image/silk/user.png) !important;
 }
 
-.icon-sakai-syllabus{
+.portletBody .icon-sakai-syllabus{
     background-image: url(/library/image/silk/script.png) !important;
 }
 
-.icon-blogger{
+.portletBody .icon-blogger{
     background-image: url(/library/image/silk/book_edit.png) !important;
 }
 
-.icon-sakai-assignment-grades{
+.portletBody .icon-sakai-assignment-grades{
     background-image: url(/library/image/silk/page_edit.png) !important;
 }
 
-.icon-sakai-forums{
+.portletBody .icon-sakai-forums{
     background-image: url(/library/image/silk/comments.png) !important;
 }
 
-.icon-sakai-gradebook-tool{
+.portletBody .icon-sakai-gradebook-tool{
     background-image: url(/library/image/silk/report.png) !important;
 }
 
-.icon-sakai-mailtool {
+.portletBody .icon-sakai-mailtool {
     background-image: url(/library/image/silk/email_go.png) !important;
 }
 
-.icon-sakai-poll{
+.portletBody .icon-sakai-poll{
     background-image: url(/library/image/silk/chart_bar.png) !important;
 }
 
-.icon-sakai-sitestats {
+.portletBody .icon-sakai-sitestats {
     background-image: url(/library/image/silk/chart_bar.png) !important;
 }
 
-.icon-sakai-sitestats-admin {
+.portletBody .icon-sakai-sitestats-admin {
     background-image: url(/library/image/silk/chart_line.png) !important;
 }
 
-.icon-sakai-presentation {
+.portletBody .icon-sakai-presentation {
     background-image: url(/library/image/silk/monitor.png) !important;
 }
 
-.icon-sakai-profile {
+.portletBody .icon-sakai-profile {
     background-image: url(/library/image/silk/vcard_edit.png) !important;
 }
 
-.icon-sakai-reports {
+.portletBody .icon-sakai-reports {
     background-image: url(/library/image/silk/report_magnify.png) !important;
 }
 
-.icon-sakai-resetpass {
+.portletBody .icon-sakai-resetpass {
     background-image: url(/library/image/silk/key.png) !important;
 }
 
-.icon-sakai-resources {
+.portletBody .icon-sakai-resources {
     background-image: url(/library/image/silk/folder.png) !important;
 }
 
-.icon-sakai-rwiki {
+.portletBody .icon-sakai-rwiki {
     background-image: url(/library/image/silk/page_white_edit.png) !important;
 }
 
-.icon-sakai-samigo {
+.portletBody .icon-sakai-samigo {
     background-image: url(/library/image/silk/pencil.png) !important;
 }
 
-.icon-sakai-schedule {
+.portletBody .icon-sakai-schedule {
     background-image: url(/library/image/silk/calendar.png) !important;
 }
 
-.icon-sakai-search {
+.portletBody .icon-sakai-search {
     background-image: url(/library/image/silk/find.png) !important;
 }
 
-.icon-sakai-siteinfo {
+.portletBody .icon-sakai-siteinfo {
     background-image: url(/library/image/silk/application_lightning.png) !important;
 }
 
-.icon-sakai-sitesetup{
+.portletBody .icon-sakai-sitesetup{
     background-image: url(/library/image/silk/application_lightning.png) !important;
 }
 
-.icon-sakai-site-roster {
+.portletBody .icon-sakai-site-roster {
     background-image: url(/library/image/silk/vcard.png) !important;
 }
 
-.icon-sakai-synoptic-messagecenter{
+.portletBody .icon-sakai-synoptic-messagecenter{
     background-image: url(/library/image/silk/comment.png) !important;
 }
 
-.icon-sakai-conferencing {
+.portletBody .icon-sakai-conferencing {
     background-image : url(/library/image/silk/webcam.png) !important;
 }
 
-.icon-sakai-profile2 { 
+.portletBody .icon-sakai-profile2 { 
     background-image: url(/library/image/silk/vcard.png) !important; 
 } 
 
 /*admin tools*/
-.icon-sakai-users{
+.portletBody .icon-sakai-users{
     background-image: url(/library/image/silk/folder_user.png) !important;
 }
-.icon-sakai-aliases{
+.portletBody .icon-sakai-aliases{
     background-image: url(/library/image/silk/tag_blue.png) !important;
 }
-.icon-sakai-sites{
+.portletBody .icon-sakai-sites{
     background-image: url(/library/image/silk/application_cascade.png) !important;
 }
-.icon-sakai-realms{
+.portletBody .icon-sakai-realms{
     background-image: url(/library/image/silk/sitemap_color.png) !important;
 }
-.icon-sakai-online{
+.portletBody .icon-sakai-online{
     background-image: url(/library/image/silk/report_user.png) !important;
 }
-.icon-sakai-memory{
+.portletBody .icon-sakai-memory{
     background-image: url(/library/image/silk/server_chart.png) !important;
 }
-.icon-sakai-archive{
+.portletBody .icon-sakai-archive{
     background-image: url(/library/image/silk/page_white_compressed.png) !important;
 }
-.icon-sakai-scheduler{
+.portletBody .icon-sakai-scheduler{
     background-image: url(/library/image/silk/clock.png) !important;
 }
-.icon-sakai-su{
+.portletBody .icon-sakai-su{
     background-image: url(/library/image/silk/user_go.png) !important;
 }
-.icon-sakai-usermembership{
+.portletBody .icon-sakai-usermembership{
     background-image: url(/library/image/silk/drive_user.png) !important;
 }
 
-.icon-sakai-motd { 
+.portletBody .icon-sakai-motd { 
     background-image: url(/library/image/silk/house.png) !important; 
 } 
-.icon-sakai-sitebrowser { 
+.portletBody .icon-sakai-sitebrowser { 
     background-image: url(/library/image/silk/world.png) !important; 
 } 
-.icon-sakai-createuser { 
+.portletBody .icon-sakai-createuser { 
     background-image: url(/library/image/silk/user_add.png) !important; 
 } 
-.icon-sakai-subsite { 
+.portletBody .icon-sakai-subsite { 
     background-image: url(/library/image/silk/chart_organisation.png) !important; 
 }
 
-.icon-sakai-iframe-service {
+.portletBody .icon-sakai-iframe-service {
     background-image: url(/library/image/silk/house.png) !important;
 }
-.icon-sakai-iframe-myworkspace {
+.portletBody .icon-sakai-iframe-myworkspace {
     background-image: url(/library/image/silk/house.png) !important;
 }
 
-.icon-sakai-basiclti { 
+.portletBody .icon-sakai-basiclti { 
     background-image: url(/library/image/silk/application_go.png) !important; 
 }
-.icon-sakai-basiclti-admin { 
+.portletBody .icon-sakai-basiclti-admin { 
     background-image: url(/library/image/silk/application_go.png) !important; 
 }
-.icon-sakai-lessonbuildertool {
+.portletBody .icon-sakai-lessonbuildertool {
     background-image: url(/library/image/silk/book_open.png) !important;
 }
-.icon-sakai-see-all-tools {
+.portletBody .icon-sakai-see-all-tools {
     background-image: url(/library/image/silk/bullet_go.png) !important;
 }
-.icon-sakai-signup {
+.portletBody .icon-sakai-signup {
     background-image: url(/library/image/silk/date.png) !important;
 }
-.icon-sakai-site-roster2 { 
+.portletBody .icon-sakai-site-roster2 { 
     background-image: url(/library/image/silk/vcard.png) !important; 
 }
-.icon-home { 
+.portletBody .icon-home { 
   background-image: url("/library/image/silk/house.png") !important;
 }
 #alertBox {
