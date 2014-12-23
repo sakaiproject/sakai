@@ -12,32 +12,36 @@ The Dashboard can optionally be configured to allow event processing to be sched
    disable.dashboard.eventprocessing=true 
 
 2. Configure one or more of the following Quartz Scheduler jobs:
+   * Select the "Job Scheduler" Admin tool
+   * Select Jobs -> New Job, select the desired job and enter a name
+   * Select Triggers -> New Trigger and enter a name and a cron expression, for example the following will run every 15 minutes:
+   
+       0 0/15 * * * ?
+
 
 ### Dashboard Aggregate Job
 
-* Go to Job Scheduler->Jobs->New Job Select the "Dashboard Aggregate Job", give it a name.
-
-* Click Triggers and Run Job Now. You can enter a trigger to make it run every X minutes like for every 15 minutes, for example:
-
-   0 0/15 * * * ?
+Description TBD
    
 ### Dashboard Check Admin Configuration Changes Job
 
-** Used at UM (every 30 minutes) **
+Description TBD
 
 ### Dashboard Check Availability Job
 
-** Used at UM (every 5 minutes) **
+Description TBD
 
 ### Dashboard Expire Purge Job
 
-** Used at UM  (every 30 minutes) **
+Description TBD
 
 ### Dashboard Repeat Event Job
 
-** Used at UM (every 30 minutes) **
+Description TBD
 
 ### Dashboard Synchronize Dashboard Link Users with Site Users Job
+
+Description TBD
 
 ## Update Guide
 
