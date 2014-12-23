@@ -1,52 +1,44 @@
 //////////////////////////////
 // VARIABLES: For Modules 
 //////////////////////////////
-$feedback-border-width: 1px; 
-
-$feedback-error-background: #fbb;
-                                      
-$feedback-warning-color: #A66208;
-$feedback-warning-background: #fcf8e3;
-$feedback-warning-border-color: mix($feedback-warning-color, $feedback-warning-background, 25%); // #fbeed5
-
-$feedback-validation-color: #b54e4c;
-$feedback-validation-background: #fee;
-$feedback-validation-border-color: #fbb;
-
-$feedback-success-color: #1e7b20;
-$feedback-success-background: #dff0d8;
-$feedback-success-border-color: #c4e4a3;
-
-$feedback-information-color: #396987;
-$feedback-information-background: #bce8f1;
-$feedback-information-border-color: #96e2f0;
-
 
 //////////////////////////////
 // DEFAULT VARIABLES
 //////////////////////////////
 
 // Feedback
-$feedback-background: #d9edf7 !default;
-$feedback-padding: 0.125em 1em !default;
-$feedback-margin: 1em !default;
-$feedback-color: #3a87ad !default; 
-$feedback-border-width: false !default; 
-$feedback-border-style: solid !default;
-$feedback-border-color: #bce8f1 !default;
-$feedback-border-radius: 0.5em !default;
-$feedback-a-font-bold: true !default; // bold
-$feedback-a-font-italic: false !default;
-$feedback-a-font-uppercase: false !default;
-$feedback-a-font-variant: false !default;
-$feedback-a-text-decoration: underline !default;
+$feedback__background: #d9edf7 !default;
+$feedback__padding: 0.125em 1em !default;
+$feedback__margin: 1em !default;
+$feedback__color: #3a87ad !default; 
+$feedback__border-width: 1px !default; 
+$feedback__border-style: solid !default;
+$feedback__border-color: #bce8f1 !default;
+$feedback__border-radius: 0.5em !default;
+$feedback__a__font-weight: true !default; // bold
+$feedback__a__font-style: false !default;
+$feedback__a__text-transform: false !default;
+$feedback__a__font-variant: false !default;
+$feedback__a-text-decoration: underline !default;
 
 /// feedback error
-$feedback-error-background: #fcc !default;
-$feedback-error-color: #b10804 !default;
-$feedback-error-border-color: #c99 !default;
+$feedback--error__background: #fbb !default;
+$feedback--error__color: #b10804 !default;
+$feedback--error__border-color: #c99 !default;
 
 /// feedback warning
-$feedback-warning-background: #fff7bd !default;
-$feedback-warning-color: #947d72 !default;
-$feedback-warning-border-color: #947d72 !default;
+$feedback--warning__background: #fcf8e3 !default;
+$feedback--warning__color: #A66208 !default;
+$feedback--warning__border-color: mix($feedback--warning__color, $feedback--warning__background, 25%) !default;
+
+$feedback--validation__color: #b54e4c !default;
+$feedback--validation__background: #fee !default;
+$feedback--validation__border-color: #fbb !default;
+
+$feedback--success__color: #1e7b20 !default;
+$feedback--success__background: #dff0d8 !default;
+$feedback--success__border-color: #c4e4a3 !default;
+
+$feedback--information__color: #396987 !default;
+$feedback--information__background: #bce8f1 !default;
+$feedback--information__border-color: #96e2f0 !default;
