@@ -98,7 +98,7 @@
   @if $lightness < 50% {
     $color: white;
   }
-  
+
   &:before, &:after {
     color: $color;
   }
