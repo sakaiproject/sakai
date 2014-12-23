@@ -12,11 +12,11 @@
   > a, > h2, > div {
     display: table-cell;
   }
-  
+
   h2 {
     @extend %break-word;
   }
-  
+
   .title-tools {
     width: 5%;
     max-width: 2em;
@@ -24,7 +24,7 @@
     &:hover {
       border: none;
     }
-  
+
     &:before, 
     &:after  {
       font-size: 1.5em;
@@ -48,7 +48,7 @@
 }
   
 .portlet-title {
-  
+
   @include respond-to('full navigation') {
     border-top: .5em #bbb solid;
     
@@ -57,7 +57,7 @@
       margin: 0;
     }
   }
-  
+
   @include respond-to('narrow navigation') {
 
     border-top: .25em #bbb solid;
@@ -75,7 +75,7 @@
 }
 
 .portlet-main {
-  border-bottom: 1em $main-background solid; // creates a fake bottom margin between tools. Needs to blend with the background so it's the same color
+  border-bottom: 1em $main__background solid; // creates a fake bottom margin between tools. Needs to blend with the background so it's the same color
 }
 
 @include generate-icons($portletnav-icons, after, '.title-tools.', 'ico-font-icons');
