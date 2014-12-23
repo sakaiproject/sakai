@@ -3,14 +3,14 @@
 //////////////////////////////
 
 $skipNav-icons: (
-  tools: '\f0ca', 
-  worksite: '\f0c9'
+  'tools a': '\f0ca', 
+  'worksite a': '\f0c9'
 );
 
 $header-icon: (
-  nav-skip: '\e600'
+  skipNav: '\e600'
 );
 
 // inset 0 -4px 0 #cbeefa
 
-$sakai-logo-mobile-font-size: 2.5em;
+$sakai-logo-mobile__font-size: 2.5em;
