@@ -2,35 +2,29 @@
 // VARIABLES: For Modules specific styles 
 //////////////////////////////
 
-$alerts-icon-opacity: 0.5;
-$alerts-icon-font-size: 1.75em;
-$alerts-icon-line-height: .75em;
-$alerts-icon-padding-push: .15em;
-$alerts-icon-margin-pull: -.05em; // negative margin related to padding
+$alerts__icon__opacity: 0.5 !default;
+$alerts__icon__font-size: 1.75em !default;
+$alerts__icon__line-height: .75em !default;
+$alerts__icon__padding--push: .15em !default;
+$alerts__icon__margin--pull: -.05em !default; // negative margin related to padding
 
+$alerts--information__color: #468847 !default;
+$alerts--information__background-color: #dff0d8 !default;
+$alerts--information__border-color: #d6e9c6 !default;
 
-$alerts-information-color: #468847;
-$alerts-information-background-color: #dff0d8;
-$alerts-information-border-color: #d6e9c6;
+$alerts--highlight__color: #333 !default;
+$alerts--highlight__background-color: #faedab !default;
+$alerts--highlight__font-weight: false !default;
+$alerts--highlight__font-style: false !default;
+$alerts--highlight__text-transform: false !default; 
+$alerts--highlight__font-variant: false !default;
 
-$alerts-highlight-color: #333;
-$alerts-highlight-background-color: #faedab;
-$alerts-highlight-font-bold: false;
-$alerts-highlight-font-italic: false;
-$alerts-highlight-font-uppercase: false; 
-$alerts-highlight-font-variant: false;
+$alerts--instruction__color: #595959 !default; // checked for WCAG
+$alerts--instruction__font-weight: false !default;
+$alerts--instruction__font-style: true !default;
+$alerts--instruction__text-transform: false !default;
+$alerts--instruction__font-variant: false !default;
 
-$alerts-instruction-color: #595959; // checked for WCAG
-$alerts-instruction-font-bold: false;
-$alerts-instruction-font-italic: true;
-$alerts-instruction-font-uppercase: false; 
-$alerts-instruction-font-variant: false;
-
-$alerts-instruction-highlight-font-bold: true;
-$alerts-instruction-highlight-font-italic: false;
-$alerts-instruction-highlight-font-uppercase: false; 
-$alerts-instruction-highlight-font-variant: false;
-
-$alerts-step-color: nth($light-grey , 2);
-$alerts-step-background-color: nth($light-grey , 6);
-$alerts-step-border-color: nth($light-grey , 4);  
+$alerts--step__color: nth($light-grey , 2) !default;
+$alerts--step__background-color: nth($light-grey , 6) !default;
+$alerts--step__border-color: nth($light-grey , 4) !default;

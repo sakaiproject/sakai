@@ -12,12 +12,12 @@
   @extend %feedback;
   @extend %sakai-messages;
   @extend %information;
-  
+
   &:before {
     @extend %alerts-icon;
     content: '\e01d'; // round info icon
   }
-  
+
   &:empty {
     display: none;
     background: none;
@@ -44,7 +44,7 @@
   @extend %feedback;
   @extend %sakai-messages;
   @extend %error;
-  
+
   &:before {
     @extend %alerts-icon;
     content: '\e01a'; // round exclamation mark!
@@ -58,7 +58,7 @@
   @extend %feedback;
   @extend %sakai-messages;
   @extend %validation;
-  
+
   &:before {
     @extend %alerts-icon;
     content: '\e01b'; // triangle exclamation mark!
@@ -70,7 +70,7 @@
   @extend %feedback;
   @extend %sakai-messages;
   @extend %success;
-  
+
   &:before {
     @extend %alerts-icon;
     content: '\e071'; // round Correct tick
@@ -81,7 +81,7 @@
   @extend %feedback;
   @extend %sakai-messages;
   @extend %warning;
-  
+
   &:before {
     @extend %alerts-icon;
     content: '\e019'; // diamond exclamation mark!
@@ -91,26 +91,26 @@
 
 .instruction,
 .messageInstruction {
-  color: $alerts-instruction-color;
-  @include bold-italic-uppercase-variant($alerts-instruction-font-bold, $alerts-instruction-font-italic, $alerts-instruction-font-uppercase, $alerts-instruction-font-variant);
+  color: $alerts--instruction__color;
+  @include bold-italic-uppercase-variant($alerts--instruction__font-weight, $alerts--instruction__font-style, $alerts--instruction__text-transform, $alerts--instruction__font-variant);
   a {
-    color: $link-color;
+    color: $links__color;
     text-decoration: underline;
   }
 }
 
 .highlight {
-  color: $alerts-highlight-color;
-  background: $alerts-highlight-background-color;
-  @include bold-italic-uppercase-variant($alerts-highlight-font-bold, $alerts-highlight-font-italic, $alerts-highlight-font-uppercase, $alerts-highlight-font-variant);
+  color: $alerts--highlight__color;
+  background: $alerts--highlight__background-color;
+  @include bold-italic-uppercase-variant($alerts--highlight__font-weight, $alerts--highlight__font-style, $alerts--highlight__text-transform, $alerts--highlight__font-variant);
 }
 
 .step {
   @extend %feedback;
   @extend %sakai-messages;
-  color: $alerts-step-color;
-  border-color: $alerts-step-border-color;
-  background: $alerts-step-background-color;
+  color: $alerts--step__color;
+  border-color: $alerts--step__border-color;
+  background: $alerts--step__background-color;
 }
 
 
@@ -177,20 +177,7 @@ h3 [class*="message"] {
     }
   }
 }
-// Remove Icon and background from create site table and Edit Site Info pages 
-//th, h3 {
-//  .highlight {
-//    background: none;
-//    padding: 0 !important;
-//    margin: 0 !important;
-//    border: none;
-//    &:before {
-//      content: '';
-//      padding: 0;
-//      margin: 0;
-//    } 
-//  }
-//}
+
 // Tool Order page messages (Page Order)
 .alertMessage {  
   div {
@@ -200,7 +187,7 @@ h3 [class*="message"] {
       display: none;
     }
   }
-  
+
   #message strong { // inconsistency using strong here
     font-weight: normal;
   }
@@ -210,7 +197,7 @@ h3 [class*="message"] {
 .ui-widget[role="alert"] {
   font-family: inherit;
   font-size: inherit;
-  
+
   .ui-icon {
     display: none;
     

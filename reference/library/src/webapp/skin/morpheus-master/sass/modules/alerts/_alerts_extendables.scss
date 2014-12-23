@@ -14,13 +14,13 @@
 
 %alerts-icon {
   @extend %ico-font-base;
-  font-size: $alerts-icon-font-size;
-  line-height: $alerts-icon-line-height;
+  font-size: $alerts__icon__font-size;
+  line-height: $alerts__icon__line-height;
   @if $old-ie-8 {
-    @include opacitIE($alerts-icon-opacity);
+    @include opacitIE($alerts__icon__opacity);
   }
-  opacity: $alerts-icon-opacity;
+  opacity: $alerts__icon__opacity;
   vertical-align: middle;
-  padding: 0 $alerts-icon-padding-push 0 0;
-  margin: 0 0 0 $alerts-icon-margin-pull;
+  padding: 0 $alerts__icon__padding--push 0 0;
+  margin: 0 0 0 $alerts__icon__margin--pull;
 }
