@@ -7,6 +7,7 @@
 
 //$debug-breakpoints: true;
 
+
 $primary-color:  #1999cc;
 $secondary-color: #ffc80f;
 $grey-value: #808080;
@@ -36,10 +37,12 @@ $dark-grey:   shade-stack($grey-value);
 
 
 
-$icon-font-name: 'Sakai-Icon-Font';
-$icon-font-file-name: 'Sakai-Icon-Font';
-$icon-inline-fonts: false;
-$icon-font-weight: normal;
-$icon-font-style: normal;
+$icon__font-name: 'Sakai-Icon-Font';
+$icon__font-file-name: 'Sakai-Icon-Font';
+$icon__inline-fonts: false;
+$icon__font-weight: normal;
+$icon__font-style: normal;
 
 
+$body__background-color: darken(nth($dark-grey , 3), 25%); 
+$body__background--rgba: rgba($body__background-color, 1);
