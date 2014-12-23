@@ -3,20 +3,22 @@
 //////////////////////////////
 
 %options {
-  list-style: $options-list-style;
-  @include border-outline(border, $options-border-width, $options-border-style, $options-border-color);
+  list-style: $options__list-style;
+  @include border-outline(border, $options__border-width, $options__border-style, $options__border-color);
+
   li {
-    text-indent: $options-li-text-indent;
-    font-family: $options-li-font-family;
-    text-transform: $options-li-text-transform;
-    letter-spacing: $options-li-letter-spacing;
-    font-weight: $options-li-font-weight;
-    @include margin-padding(margin, $options-li-margin);
-    @include margin-padding(padding, $options-li-padding);
-    @include border-outline(border, $options-li-border-width, $options-li-border-style, $options-li-border-color);
+    text-indent: $options__li__text-indent;
+    font-family: $options__li__font-family;
+    text-transform: $options__li__text-transform;
+    letter-spacing: $options__li__letter-spacing;
+    font-weight: $options__li__font-weight;
+    @include margin-padding(margin, $options__li__margin);
+    @include margin-padding(padding, $options__li__padding);
+    @include border-outline(border, $options__li__border-width, $options__li__border-style, $options__li__border-color);
   }
+
   a {
     display: block;
-    @include border-outline(border, $options-a-border-width, $options-a-border-style, $options-a-border-color);
+    @include border-outline(border, $options__a__border-width, $options__a__border-style, $options__a__border-color);
   }
 }

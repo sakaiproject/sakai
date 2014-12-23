@@ -10,22 +10,22 @@
 //////////////////////////////
 
 // Options 
-$options-border-width: 1px 0 0 0!default;
-$options-border-style: solid !default;
-$options-border-color: #ccc !default;
-$options-list-style: none !default;
+$options__border-width: 1px 0 0 0!default;
+$options__border-style: solid !default;
+$options__border-color: #ccc !default;
+$options__list-style: none !default;
 /// Options li
-$options-li-font-family: $secondary-font !default;
-$options-li-text-indent: 0 !default;
-$options-li-text-transform: uppercase !default;
-$options-li-letter-spacing: 0.15em !default;
-$options-li-font-weight: bold !default;
-$options-li-margin: 0 !default;
-$options-li-padding: 0.3125em 0.625em !default;
-$options-li-border-width: 0 0 1px 0 !default;
-$options-li-border-style: solid !default;
-$options-li-border-color: #ccc !default;
+$options__li__font-family: $secondary__font-family !default;
+$options__li__text-indent: 0 !default;
+$options__li__text-transform: uppercase !default;
+$options__li__letter-spacing: 0.15em !default;
+$options__li__font-weight: bold !default;
+$options__li__margin: 0 !default;
+$options__li__padding: 0.3125em 0.625em !default;
+$options__li__border-width: 0 0 1px 0 !default;
+$options__li__border-style: solid !default;
+$options__li__border-color: #ccc !default;
 /// Options a
-$options-a-border-width: false !default;
-$options-a-border-style: solid !default;
-$options-a-border-color: #ccc !default;
+$options__a__border-width: false !default;
+$options__a__border-style: solid !default;
+$options__a__border-color: #ccc !default;
