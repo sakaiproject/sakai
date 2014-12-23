@@ -16,8 +16,8 @@ public class ObjectiveProvider extends EnhancedDataProvider {
 		this.objectives = objectives;
 	}
 	
-	public Iterator iterator(int first, int last) {
-		return objectives.subList(first, last).iterator();
+	public Iterator<Objective> iterator(int first, int count) {
+		return objectives.subList(first, first + count).iterator();
 	}
 
 	public int size() {

@@ -16,8 +16,8 @@ public class InteractionProvider extends EnhancedDataProvider {
 		this.interactions = interactions;
 	}
 	
-	public Iterator iterator(int first, int last) {
-		return interactions.subList(first, last).iterator();
+	public Iterator<Interaction> iterator(int first, int count) {
+		return interactions.subList(first, first + count).iterator();
 	}
 
 	public int size() {
