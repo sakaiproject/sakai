@@ -2,15 +2,15 @@
 // VARIABLES: For Layout specific styles 
 //////////////////////////////
 
-$container-background: $body-background-color;
-$portal-background: lighten(nth($light-grey,6),1%);
+$container__background: $body__background-color;
+$portal__background: lighten(nth($light-grey,6),1%);
 
-$portal-max-width: 80em;
-$portal-tool-menu-max-width: 15em;
+$portal__max-width: 80em;
+$portal--tool-menu__max-width: 15em;
 
-$portal-tool-menu-width: ($portal-tool-menu-max-width / $portal-max-width) * 100%;
+$portal--tool-menu__width: ($portal--tool-menu__max-width / $portal__max-width) * 100%;
 
-$content-max-width: $portal-tool-menu-max-width - $portal-max-width;
-$content-width:  100% - $portal-tool-menu-width;
+$content__max-width: $portal--tool-menu__max-width - $portal__max-width;
+$content__width:  100% - $portal--tool-menu__width;
 
-$nav-tools-background: nth($light-grey, 6);
+$nav-tools__background: nth($light-grey, 6);

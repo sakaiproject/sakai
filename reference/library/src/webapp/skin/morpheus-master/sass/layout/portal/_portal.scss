@@ -4,173 +4,167 @@
 
 @import "_portal_variables";
 
+.Mrphs- {
 
-// Menus and Content area
-.box.portal {
-  display: table;
-  width: 100%;
-  border-collapse: collapse;
-  
-  &.outer {
-    //background: $portal-background;
-  }
-}
-// Responsive Menus 
-
-//// Jump/Skip Menu
-.nav-skip {
-  
-  @include respond-to('narrow navigation') {
-    display: block;
-  }
-  
-  @include respond-to('full navigation') {
-    display: none;
-  }
-}
-
-
-//// Sites Menu
-.nav-sites {
-
-  @include respond-to('narrow navigation') {
-    margin-top: -100%;
-    z-index: 9;
-    position: relative;
-        
-   .nav-sites-displayed & {
-      margin-top: 0;
-    }
-  }
-  
-  @include respond-to('full navigation') {
-    display: block;
-  }
-}
-
-
-//// Tools Menu
-.nav-tools {
-    
-    background: $nav-tools-background;
-  @include respond-to('narrow navigation') {
-    margin-left: -100%;
-    float: left;
-
-   .nav-tools-displayed & {
-    margin-left: 0;
-    }
-  }
-  
-  @include respond-to('full navigation') {
-    width: 20%;
-    display: table-cell;
-    vertical-align: top;
-  }
-}
-
-// adds the title to the tool nav of the currently selected site
-h2.selected.current-site {
-  
-  @include respond-to('narrow navigation') {
-    font-size: 1.2em;
-    margin: .25em;
-    font-style: italic;
-    padding: 0;
-    max-width: 8em;
-    overflow: hidden;
-    display: inline;
-  }
-
-  // hide title in the full nav view
-  @include respond-to('full navigation') {
-    display: none;
-  }
-}
-
-
-//// Main Content 
-main {
-
-  @include respond-to('narrow navigation') {
-    position: relative;
-    float: left;
+  // Menus and Content area
+  &container--site {
+    display: table;
     width: 100%;
-    margin-right: 0; 
-    
-    .nav-tools-displayed & {
-      margin-right: -100%;
+    border-collapse: collapse;
+  }
+  // Responsive Menus 
+
+  //// Jump/Skip Menu
+  &skipNav {
+
+    @include respond-to('full navigation') {
+      display: none;
     }
   }
-  
-  @include respond-to('full navigation') {
-    display: table-cell;
-    vertical-align: top;
+
+
+  //// Sites Menu
+  .nav-sites {
+
+    @include respond-to('narrow navigation') {
+      margin-top: -100%;
+      z-index: 9;
+      position: relative;
+        
+     .nav-sites-displayed & {
+        margin-top: 0;
+      }
+    }
+
+    @include respond-to('full navigation') {
+      display: block;
+    }
   }
-}
 
 
-//// Menu transitions
-.jump--tools,
-.nav-tools,
-.nav-sites,
-main {
-  @include transition(.25s all ease-in-out);
-}
+  //// Tools Menu
+  &container--nav-tools {
+    
+      background: $nav-tools__background;
+    @include respond-to('narrow navigation') {
+      margin-left: -100%;
+      float: left;
 
+     .nav-tools-displayed & {
+      margin-left: 0;
+      }
+    }
 
-
-#mastLogin {
-  
-  @include respond-to('narrow navigation') {
-    //display: none;
+    @include respond-to('full navigation') {
+      width: 20%;
+      display: table-cell;
+      vertical-align: top;
+    }
   }
-  
-  @include respond-to('full navigation') {
-    //display: none;
+
+  // adds the title to the tool nav of the currently selected site
+  &navTools__title--current-site {
+
+    @include respond-to('narrow navigation') {
+      font-size: 1.2em;
+      margin: .25em;
+      font-style: italic;
+      padding: 0;
+      max-width: 8em;
+      overflow: hidden;
+      display: inline;
+    }
+
+    // hide title in the full nav view
+    @include respond-to('full navigation') {
+      display: none;
+    }
   }
-}
 
-.page-columns,
-.page-single {
- background: #fff;
-}
 
-// Columns
+  //// Main Content 
+  &mainContent {
 
-@include respond-to('narrow navigation') {
+    @include respond-to('narrow navigation') {
+      position: relative;
+      float: left;
+      width: 100%;
+      margin-right: 0; 
+    
+      .nav-tools-displayed & {
+        margin-right: -100%;
+      }
+    }
+
+    @include respond-to('full navigation') {
+      display: table-cell;
+      vertical-align: top;
+    }
+  }
+
+
+  //// Menu transitions
+  .jump--tools,
+  .nav-tools,
+  .nav-sites,
+  main {
+    @include transition(.25s all ease-in-out);
+  }
+
+
+
+  #mastLogin {
+
+    @include respond-to('narrow navigation') {
+      //display: none;
+    }
+
+    @include respond-to('full navigation') {
+      //display: none;
+    }
+  }
 
   .page-columns,
   .page-single {
-    width: calc(100% - 1em);
-    margin: .5em;
+   background: #fff;
   }
-}
 
-@include respond-to('full navigation') {
+  // Columns
 
-  .page-columns {
-    width: calc(50% - 1.5em);
-    float: left;
-    margin: 1em;
-    &.second {
-      margin-left: 0;
+  @include respond-to('narrow navigation') {
+
+    .page-columns,
+    .page-single {
+      width: calc(100% - 1em);
+      margin: .5em;
     }
   }
-  
-  .page-single {
-    margin: 1em;
+
+  @include respond-to('full navigation') {
+
+    .page-columns {
+      width: calc(50% - 1.5em);
+      float: left;
+      margin: 1em;
+      &.second {
+        margin-left: 0;
+      }
+    }
+
+    .page-single {
+      margin: 1em;
+    }
   }
-}
 
 
-// Footer app tray
-//// hide for now 2014-09-25 
-.box.extras {
-  //display: none;
-}
+  // Footer app tray
+  //// hide for now 2014-09-25 
+  .box.extras {
+    //display: none;
+  }
 
-ul.navIntraTool.actionToolBar {
-  padding: 0;
-  margin: .5em 0;
+  ul.navIntraTool.actionToolBar {
+    padding: 0;
+    margin: .5em 0;
+  }
 }
