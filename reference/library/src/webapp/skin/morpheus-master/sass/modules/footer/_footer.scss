@@ -5,8 +5,8 @@
 @import "_footer_variables";
 
 .box.footer {
-  background: $footer-background;
-  color: $footer-color;
+  background: $footer__background;
+  color: $footer__color;
   padding-bottom: 2em;
 }
 
@@ -23,13 +23,13 @@
       padding: 0;
     }
   }
-  
+
   a {
-    color: $footer-link-color;
+    color: $footer__a__color;
 
     &:hover {
-      color: $footer-link-color-hover;
-      border-color: $footer-link-color-hover;
+      color: $footer__a--hover__color;
+      border-color: $footer__a--hover__color;
     }
   }
 
@@ -37,7 +37,7 @@
     margin: 0.5em;
     display: block;
   }
-  
+
   // hide for now Add a Toggle later
   .build-info,
   .server-time-container {
@@ -88,7 +88,7 @@
         padding: .375em .5em;
 
         a {
-          
+
           margin: 0;
           line-height: 2em;
 
