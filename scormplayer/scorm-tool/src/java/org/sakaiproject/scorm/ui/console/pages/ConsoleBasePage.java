@@ -31,6 +31,7 @@ import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.scorm.service.api.LearningManagementSystem;
 import org.sakaiproject.scorm.ui.Icon;
 import org.sakaiproject.scorm.ui.console.components.BreadcrumbPanel;
@@ -51,6 +52,9 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	private static ResourceReference UPLOAD_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_add.png");
 	private static ResourceReference VALIDATE_ICON = new ResourceReference(ConsoleBasePage.class, "res/table_link.png");
 
+    private static final String SAK_PROP_ENABLE_MENU_BUTTON_ICONS = "scorm.menuButton.icons";
+    @SpringBean( name = "org.sakaiproject.component.api.ServerConfigurationService" )
+    ServerConfigurationService serverConfigurationService;
 	
 	// The feedback panel component displays dynamic messages to the user
 	protected FeedbackPanel feedback;
@@ -97,12 +101,23 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
         Icon uploadIcon = new Icon("uploadIcon", UPLOAD_ICON);
         Icon validateIcon = new Icon("validateIcon", VALIDATE_ICON);
         
+        // SCO-109 - conditionally show the icons in the menu bar buttons
+        boolean enableMenuBarIcons = serverConfigurationService.getBoolean( SAK_PROP_ENABLE_MENU_BUTTON_ICONS, true );
+        if( enableMenuBarIcons )
+        {
         listIcon.setVisible(canUpload || canValidate);
         uploadIcon.setVisible(canUpload);
         
         // SCO-107 hide the validate link (interface is currently unimplemented)
         //validateIcon.setVisible(canValidate);
         validateIcon.setVisibilityAllowed(false);
+        }
+        else
+        {
+            listIcon.setVisibilityAllowed( false );
+            uploadIcon.setVisibilityAllowed( false );
+            validateIcon.setVisibilityAllowed( false );
+        }
         
         wmc.add(listIcon);
         wmc.add(uploadIcon);
