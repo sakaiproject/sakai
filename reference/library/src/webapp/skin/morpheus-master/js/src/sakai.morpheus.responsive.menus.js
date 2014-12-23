@@ -4,12 +4,12 @@
 
 function toggleToolsNav(){
   event.preventDefault();
-  $PBJQ('body').toggleClass('nav-tools-displayed');
+  $PBJQ('body').toggleClass('sitesNav-displayed');
 }
 
 function toggleSitesNav(){
   event.preventDefault();
-  $PBJQ('body').toggleClass('nav-sites-displayed');
+  $PBJQ('body').toggleClass('toolsNav-displayed');
 }
 
 $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
