@@ -7,7 +7,7 @@
   label {
     padding: .3333em 0 .25em 0;
   }
-  
+
   input[type="submit"] {
     @extend %button-action;
   }
@@ -16,11 +16,11 @@
 
 
 @include respond-to('narrow navigation') {
-  
+
   nav.header-login {
     text-align: center;
   }
-  
+
   #loginForm {
     display: inline-block;
     margin: 1em auto;
@@ -42,12 +42,12 @@
 }
 
 @include respond-to('full navigation') {
-  
+
   nav.header-login {
     background: nth($dark-grey, 3);
     text-align: right;
   }
-  
+
   #loginForm {
     margin: 0;
     padding: .5em;
