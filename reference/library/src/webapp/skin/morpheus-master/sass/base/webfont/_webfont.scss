@@ -8,7 +8,7 @@
 
 body {
   font-family: $fontstack;
-  @include wf-loader($font-name, $font-name-lc);
+  @include wf-loader($font-name, $font-name--lowercase);
 }
 
 i,

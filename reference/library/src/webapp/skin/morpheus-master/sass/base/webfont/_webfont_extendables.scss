@@ -3,73 +3,73 @@
 //////////////////////////////
 
 %thin {
-  @include wf-loader($font-name, $font-name-lc, 100);
+  @include wf-loader($font-name, $font-name--lowercase, 100);
 }
 
 %thin-italic {
-  @include wf-loader($font-name, $font-name-lc, 100, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 100, italic);
 }
 
 %extra-light {
-  @include wf-loader($font-name, $font-name-lc, 200);
+  @include wf-loader($font-name, $font-name--lowercase, 200);
 }
 
 %extra-light-italic {
-  @include wf-loader($font-name, $font-name-lc, 200, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 200, italic);
 }
 
 %light {
-  @include wf-loader($font-name, $font-name-lc, 300);
+  @include wf-loader($font-name, $font-name--lowercase, 300);
 }
 
 %light-italic {
-  @include wf-loader($font-name, $font-name-lc, 300, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 300, italic);
 }
 
 %normal {
-  @include wf-loader($font-name, $font-name-lc, 400);
+  @include wf-loader($font-name, $font-name--lowercase, 400);
 }
 
 %italic {
-  @include wf-loader($font-name, $font-name-lc, 400, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 400, italic);
 }
 
 %medium {
-  @include wf-loader($font-name, $font-name-lc, 500);
+  @include wf-loader($font-name, $font-name--lowercase, 500);
 }
 
 %medium-italic {
-  @include wf-loader($font-name, $font-name-lc, 500, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 500, italic);
 }
 
 %semi-bold {
-  @include wf-loader($font-name, $font-name-lc, 600);
+  @include wf-loader($font-name, $font-name--lowercase, 600);
 }
 
 %semi-bold-italic {
-  @include wf-loader($font-name, $font-name-lc, 600, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 600, italic);
 }
 
 %bold {
-  @include wf-loader($font-name, $font-name-lc, 700);
+  @include wf-loader($font-name, $font-name--lowercase, 700);
 }
 
 %bold-italic {
-  @include wf-loader($font-name, $font-name-lc, 700, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 700, italic);
 }
 
 %extra-bold {
-  @include wf-loader($font-name, $font-name-lc, 800);
+  @include wf-loader($font-name, $font-name--lowercase, 800);
 }
 
 %extra-bold-italic {
-  @include wf-loader($font-name, $font-name-lc, 800, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 800, italic);
 }
 
 %ultra-bold {
-  @include wf-loader($font-name, $font-name-lc, 900);
+  @include wf-loader($font-name, $font-name--lowercase, 900);
 }
 
 %ultra-bold-italic {
-  @include wf-loader($font-name, $font-name-lc, 900, italic);
+  @include wf-loader($font-name, $font-name--lowercase, 900, italic);
 }
