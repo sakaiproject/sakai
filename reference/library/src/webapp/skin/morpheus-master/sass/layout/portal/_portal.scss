@@ -24,7 +24,7 @@
 
 
   //// Sites Menu
-  .nav-sites {
+  &sitesNav {
 
     @include respond-to('narrow navigation') {
       margin-top: -100%;
@@ -111,21 +111,7 @@
     @include transition(.25s all ease-in-out);
   }
 
-
-
-  #mastLogin {
-
-    @include respond-to('narrow navigation') {
-      //display: none;
-    }
-
-    @include respond-to('full navigation') {
-      //display: none;
-    }
-  }
-
-  .page-columns,
-  .page-single {
+  &pageColumns {
    background: #fff;
   }
 
@@ -133,8 +119,7 @@
 
   @include respond-to('narrow navigation') {
 
-    .page-columns,
-    .page-single {
+    &pageColumns {
       width: calc(100% - 1em);
       margin: .5em;
     }
@@ -142,17 +127,22 @@
 
   @include respond-to('full navigation') {
 
-    .page-columns {
-      width: calc(50% - 1.5em);
-      float: left;
+    &pageColumns {
       margin: 1em;
-      &.second {
+
+      &--first,
+      &--second {
+        width: calc(50% - 1.5em);
+        float: left;
+      }
+      
+      &--second {
         margin-left: 0;
       }
-    }
 
-    .page-single {
-      margin: 1em;
+      &--single {
+        width: calc(100% - 2em);
+      }
     }
   }
 

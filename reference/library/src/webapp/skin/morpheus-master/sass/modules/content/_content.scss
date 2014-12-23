@@ -4,6 +4,8 @@
 
 @import "_content_variables";  
 
-main {
-  background: $main__background;
+.Mrphs- { 
+  &mainContent {
+    background: $main__background;
+  }
 }

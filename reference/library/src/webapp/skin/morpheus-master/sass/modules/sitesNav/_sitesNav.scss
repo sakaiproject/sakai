@@ -4,69 +4,73 @@
 
 @import "_sitesNav_variables";
 
-[aria-labelledby="sitetabs"] {
+.Mrphs- {
 
-  @include respond-to('full navigation') {
+  &sitesNav {
 
-    @if $old-ie-8 {
-      background-image: url(data:image/gif;base64,R0lGODlhCgAmAIAAAO3t7dTU1CH5BAAAAAAALAAAAAAKACYAAAIXhI+py+0Po5y02ouz3hyHD4biSJbmKRYAOw==);
-      background-repeat: repeat;
-    }
+    @include respond-to('full navigation') {
 
-    @include experimental-value(background-image, $repeating-linear-gradient, false, true, false, false);
-
-    [role="menubar"] {
-      margin: 0;
-      padding: 0 0 0 .25em;
-      font-size: $sitesNav__font-size;
-      line-height: $sitesNav__line-height;
-
-      &:before {
-        float: left;
-        font-size: 2.2em;
-        color: #f2f2f2;
+      @if $old-ie-8 {
+        background-image: url(data:image/gif;base64,R0lGODlhCgAmAIAAAO3t7dTU1CH5BAAAAAAALAAAAAAKACYAAAIXhI+py+0Po5y02ouz3hyHD4biSJbmKRYAOw==);
+        background-repeat: repeat;
       }
 
-      > li {
-        position: relative;
+      @include experimental-value(background-image, $repeating-linear-gradient, false, true, false, false);
 
-        a {
-          text-decoration: none;
-          border: none;
-          font-weight: bold;
-          color: $sitesNav__a__color;
-
-          &:visited {
-            color: $sitesNav__a--visited__color;
-          }
-        }
-      }
-
-      .nav-menu {
-        @include horizontal-list-item;
-        padding-top: 5px;
-        padding-bottom: 5px;
-      }
-    }
-
-    @include respond-to('narrow navigation') {
-
-      [role="menubar"] {
+      ul {
         margin: 0;
-        padding: 0;
-        list-style-type: none;
+        padding: 0 0 0 .25em;
+        font-size: $sitesNav__font-size;
+        line-height: $sitesNav__line-height;
 
-        // hide Sakai logo
         &:before {
-          display: none;
+          float: left;
+          font-size: 2.2em;
+          color: #f2f2f2;
         }
 
-        li {
-          margin: 0;
-          padding: 0;
+        > li {
+          position: relative;
+          list-style: none;
 
           a {
-            display: block;
+            text-decoration: none;
+            border: none;
+            font-weight: bold;
+            color: $sitesNav__a__color;
+
+            &:visited {
+              color: $sitesNav__a--visited__color;
+            }
+          }
+        }
+
+        .nav-menu {
+          @include horizontal-list-item;
+          padding-top: 5px;
+          padding-bottom: 5px;
+        }
+      }
+
+      @include respond-to('narrow navigation') {
+
+        [role="menubar"] {
+          margin: 0;
+          padding: 0;
+          list-style-type: none;
+
+          // hide Sakai logo
+          &:before {
+            display: none;
+          }
+
+          li {
+            margin: 0;
+            padding: 0;
+
+            a {
+              display: block;
+            }
           }
         }
       }
@@ -74,29 +78,35 @@
   }
 }
 
-[aria-labelledby="sitetabs"] li a,
-[aria-labelledby="sitetabs"] li a:visited,  
-[aria-labelledby="sitetabs"] li.nav-selected.tab-dim a {
+.Mrphs- {
 
-  @include respond-to('full navigation') {
+  &sitesNav {
+    
+    li > a,
+    li > a:visited,  
+    li.nav-selected.tab-dim > a {
 
-    //@include border-radius(calc-em(3px, $base__font-size));
-    padding: $sitesNav__full-nav-padding;
-    color: $sitesNav__a__color;
-    background: $sitesNav__background;
-    @include transition-property(( color, background));
-    @include transition-duration(180ms);
-    @include transition-timing-function(ease-in); 
-  }
+      @include respond-to('full navigation') {
 
-  @include respond-to('narrow navigation') {
+        //@include border-radius(calc-em(3px, $base__font-size));
+        padding: $sitesNav__full-nav-padding;
+        color: $sitesNav__a__color;
+        background: $sitesNav__background;
+        @include transition-property(( color, background ));
+        @include transition-duration(180ms);
+        @include transition-timing-function(ease-in); 
+      }
 
-    padding: $sitesNav__full-nav-padding;
-    color: $sitesNav__a__color;
-    background: $sitesNav__background;
-    @include transition-property(( color, background));
-    @include transition-duration(180ms);
-    @include transition-timing-function(ease-in); 
+      @include respond-to('narrow navigation') {
+
+        padding: $sitesNav__full-nav-padding;
+        color: $sitesNav__a__color;
+        background: $sitesNav__background;
+        @include transition-property(( color, background ));
+        @include transition-duration(180ms);
+        @include transition-timing-function(ease-in); 
+      }
+    }
   }
 }
 
