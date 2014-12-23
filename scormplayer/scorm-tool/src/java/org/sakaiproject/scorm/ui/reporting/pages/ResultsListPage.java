@@ -146,8 +146,8 @@ public class ResultsListPage extends ConsoleBasePage {
 			this.learnerExperiences = resultService.getLearnerExperiences(contentPackageId);
 		}
 		
-		public Iterator<LearnerExperience> iterator(int first, int last) {
-			return learnerExperiences.subList(first, last).iterator();
+		public Iterator<LearnerExperience> iterator(int first, int count) {
+			return learnerExperiences.subList(first, first + count).iterator();
 		}
 
 		public int size() {

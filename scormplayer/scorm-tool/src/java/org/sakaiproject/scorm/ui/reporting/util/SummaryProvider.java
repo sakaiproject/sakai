@@ -16,8 +16,8 @@ public class SummaryProvider extends EnhancedDataProvider {
 		this.summaries = summaries;
 	}
 	
-	public Iterator iterator(int first, int last) {
-		return summaries.subList(first, last).iterator();
+	public Iterator<ActivitySummary> iterator(int first, int count) {
+		return summaries.subList(first, first + count).iterator();
 	}
 
 	public int size() {
