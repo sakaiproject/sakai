@@ -4,11 +4,11 @@
 
 @import "compass/css3/font-face";
 
-@mixin simple-background-gradient($color, $background-gradient-pos, $background-gradient-1, $background-gradient-2) {
+@mixin simple-background-gradient($color, $background-gradient-position, $background-gradient-1, $background-gradient-2) {
   color: $color;
   // provide background color for older IEs
   background-color: mix($background-gradient-1, $background-gradient-2);
-  @include background-image(linear-gradient($background-gradient-pos, $background-gradient-1, $background-gradient-2));
+  @include background-image(linear-gradient($background-gradient-position, $background-gradient-1, $background-gradient-2));
 }
 
 @mixin border-outline($type: border, $width: 1px, $style: solid, $color: #333, $offset: false) {
@@ -43,9 +43,9 @@
   }  
 }
 
-@mixin margin-padding($type, $amount: false, $side: false) {
-  @if $side {
-    #{$type}-#{$side}: $amount;
+@mixin margin-padding($type, $amount: false, $position: false) {
+  @if $position {
+    #{$type}-#{$position}: $amount;
   } @else {
     #{$type}: $amount;
   }
