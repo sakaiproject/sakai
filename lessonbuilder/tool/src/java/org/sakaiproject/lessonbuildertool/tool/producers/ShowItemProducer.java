@@ -208,9 +208,11 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    Placement placement = ToolManager.getCurrentPlacement();
 	    String toolId = placement.getToolId();
 	    boolean inline = false;
+	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
 
 	    if (httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
-		inline = true;
+		if ("morpheus".equals(portalTemplates))
+		    inline = true;
 		if (reseturl == null)
 		    reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
 		if (helpurl == null)
@@ -244,14 +246,14 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		UILink.make(tofill, "directurl").
 		    decorate(new UIFreeAttributeDecorator("rel", "#Main" + Web.escapeJavascript(placement.getId()) + "_directurl")).
 		    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.direct-link")));
-		if (inline) {
+		//		if (inline) {
 		    UIOutput.make(tofill, "directurl-div").
 			decorate(new UIFreeAttributeDecorator("id", "Main" + Web.escapeJavascript(placement.getId()) + "_directurl"));
 		    UIOutput.make(tofill, "directurl-input").
 			decorate(new UIFreeAttributeDecorator("onclick", "toggleShortUrlOutput('" + myUrl() + "/portal/directtool/" + placement.getId() + "/', this, 'Main" + Web.escapeJavascript(placement.getId()) + "_urlholder');"));
 		    UIOutput.make(tofill, "directurl-textarea", myUrl() + "/portal/directtool/" + placement.getId() + "/").
 			decorate(new UIFreeAttributeDecorator("class", "portlet title-tools Main" + Web.escapeJavascript(placement.getId()) + "_urlholder"));
-		} else
+		    //		} else
 		    UIOutput.make(tofill, "directimage").decorate(new UIFreeAttributeDecorator("alt",
 			messageLocator.getMessage("simplepage.direct-link")));
 
