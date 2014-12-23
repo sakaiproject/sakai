@@ -916,7 +916,7 @@ div[role="dialog"] {
     border: none;
     height: 18px;
 }
-.portletTitle .action a.help img{
+.portletTitle .action a.help{
     background: url(../images/help.gif) center right no-repeat;
     text-align: left;
     padding: 0;
@@ -934,11 +934,11 @@ div[role="dialog"] {
 .portletTitle .action a.tool-directurl{
     text-decoration:none;
 }
-.portletTitle .action a.tool-directurl img{
+.portletTitle .action a.tool-directurl{
     padding:2px;
     background: url(/library/image/silk/link.png) center right no-repeat;
 }
-.portletTitle .action a.tool-directurl:hover img{
+.portletTitle .action a.tool-directurl:hover{
     background: url(/library/image/silk/link_go.png) center right no-repeat;
 }
 .direct-url-wrap {
