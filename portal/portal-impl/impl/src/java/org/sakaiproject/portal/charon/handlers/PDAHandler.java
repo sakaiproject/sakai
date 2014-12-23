@@ -106,8 +106,9 @@ public class PDAHandler extends SiteHandler
 	// SAK-25494 with the post bufffer check now working, it seems as though we can inline everything
 	// private static final String IFRAME_SUPPRESS_DEFAULT = ":all:";
 
-    // SAK-27774 - We are going inline default but a few tools need a crutch - This is Sakai 11 only do not back-port or merge this
-	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.samigo:sakai.preferences:sakai.lessonbuildertool:sakai.rsf.evaluation";
+	// SAK-27774 - We are going inline default but a few tools need a crutch 
+	// This is Sakai 11 only so please do not back-port or merge this
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.rsf.evaluation";
 	
 	public PDAHandler()
 	{
