@@ -32,7 +32,7 @@ public class Bb6ExternalLinkTranslator implements IMSResourceTranslator {
 		link.setSequenceNum(priority);
 		link.setContextPath(contextPath);
 		link.setDescription(description);
-		link.setAbsolute(url.startsWith("http://"));
+		link.setAbsolute(url.indexOf("://") > -1);
 		return link;
 	}
 

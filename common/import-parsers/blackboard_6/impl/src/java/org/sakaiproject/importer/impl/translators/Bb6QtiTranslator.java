@@ -5,6 +5,7 @@ import org.sakaiproject.importer.api.Importable;
 import org.sakaiproject.importer.impl.Blackboard6FileParser;
 import org.sakaiproject.importer.impl.importables.Assessment;
 
+import javax.xml.XMLConstants;
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -53,6 +54,9 @@ public class Bb6QtiTranslator implements IMSResourceTranslator {
 			DocumentBuilderFactory.newInstance();
 		builderFactory.setNamespaceAware(true);
 		try {
+			builderFactory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+			builderFactory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+			builderFactory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
 			DocumentBuilder documentBuilder = builderFactory.newDocumentBuilder();
 			transformedDoc = documentBuilder.newDocument();
 		}

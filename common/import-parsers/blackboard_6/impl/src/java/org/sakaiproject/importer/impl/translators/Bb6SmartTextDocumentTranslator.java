@@ -19,7 +19,7 @@ public class Bb6SmartTextDocumentTranslator implements IMSResourceTranslator {
 
 	public Importable translate(Node resourceNode, Document descriptor, String contextPath, String archiveBasePath) {
 		String content = XPathHelper.getNodeValue("/CONTENT/BODY/TEXT", descriptor);
-		String title = XPathHelper.getNodeValue("/CONTENT/TITLE/@value", descriptor).replaceAll("/", "_");
+		String title = XPathHelper.getNodeValue("/CONTENT/TITLE/@value", descriptor).trim().replaceAll("\\<.*?\\>", "").replaceAll("/", "_");
 		int priority = Integer.parseInt(((Element)resourceNode).getAttribute("priority"));
 		// SmartText replaces the double-quote with the HTML entity equivalent
 		content.replaceAll("&quot;", "\"");

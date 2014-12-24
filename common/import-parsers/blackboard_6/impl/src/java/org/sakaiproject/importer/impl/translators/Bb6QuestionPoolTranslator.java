@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://newtools.oirt.rutgers.edu:8443/repos/sakai2.x/sakai/trunk/archive/import-parsers/blackboard_6/impl/src/java/org/sakaiproject/importer/impl/translators/Bb6QuestionPoolTranslator.java $
- * $Id: Bb6QuestionPoolTranslator.java 1314 2009-04-08 19:09:09Z weresow $
+ * $URL: https://source.sakaiproject.org/contrib/migration/trunk/import-parsers/blackboard_6/impl/src/java/org/sakaiproject/importer/impl/translators/Bb6QuestionPoolTranslator.java $
+ * $Id: Bb6QuestionPoolTranslator.java 10459 2007-07-03 00:56:38Z zach.thomas@txstate.edu $
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.

@@ -1,6 +1,6 @@
 /**********************************************************************************
- * $URL: https://newtools.oirt.rutgers.edu:8443/repos/sakai2.x/sakai/trunk/archive/import-parsers/blackboard_6/impl/src/java/org/sakaiproject/importer/impl/translators/Bb6AssessmentTranslator.java $
- * $Id: Bb6AssessmentTranslator.java 1314 2009-04-08 19:09:09Z weresow $
+ * $URL: https://source.sakaiproject.org/contrib/migration/trunk/import-parsers/blackboard_6/impl/src/java/org/sakaiproject/importer/impl/translators/Bb6AssessmentTranslator.java $
+ * $Id: Bb6AssessmentTranslator.java 58054 2009-02-13 23:18:11Z zach@aeroplanesoftware.com $
  ***********************************************************************************
  *
  * Copyright (c) 2006 The Sakai Foundation.
@@ -22,12 +22,15 @@
 package org.sakaiproject.importer.impl.translators;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.sakaiproject.importer.api.IMSResourceTranslator;
 import org.sakaiproject.importer.api.Importable;
@@ -36,11 +39,18 @@ import org.sakaiproject.importer.impl.XPathHelper;
 import org.sakaiproject.importer.impl.importables.Assessment;
 import org.sakaiproject.importer.impl.importables.AssessmentAnswer;
 import org.sakaiproject.importer.impl.importables.AssessmentQuestion;
+import org.sakaiproject.util.Validator;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
+import org.jsoup.Jsoup;
+
 
 public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 
+	private static final String IMG_PATTERN = "(.*/)*.+\\.(png|jpg|gif|bmp|jpeg|PNG|JPG|GIF|BMP|JPEG)$";
+	private Pattern imgPattern = Pattern.compile(IMG_PATTERN);
+	
 	public String getTypeName() {
 		return "assessment/x-bb-qti-test";
 	}
@@ -127,7 +137,7 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 					String answerText = XPathHelper.getNodeValue(".//mat_formattedtext[1]", answerNode);
 					String answerImageText = getAnswerImageText(answerNode);
 					if (!("".equals(answerImageText))) answerText = new StringBuffer(answerText + "\n").append("<img src=\"" + answerImageText + "\"/>").toString();
-					a.setAnswerText(answerText);
+					a.setAnswerText(stripHTMLComments(answerText));
 					c = new AssessmentAnswer();
 					c.setAnswerId(XPathHelper.getNodeValue("./resprocessing//varequal[@respident='" + a.getAnswerId() + "']", questionNode));
 					for (int k = 1;k <= choicesSize; k++) {
@@ -135,7 +145,7 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 							String choiceText = XPathHelper.getNodeValue("./presentation//flow[@class='RIGHT_MATCH_BLOCK']/flow[" + k + "]//mat_formattedtext", questionNode);
 							String choiceImageText = getChoiceImageText(questionNode, k);
 							if (!("".equals(choiceImageText))) choiceText = new StringBuffer(choiceText + "\n").append("<img src=\"" + choiceImageText + "\"/>").toString();
-							c.setAnswerText(choiceText);
+							c.setAnswerText(stripHTMLComments(choiceText));
 							// XPath uses 1-based indexes, but we use zero-based positioning in an AssessmentAnswer
 							c.setPosition(k-1);
 							choices.put(c.getAnswerId(), c);
@@ -150,7 +160,7 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 			} else if (questionType == AssessmentQuestion.ESSAY) {
 				a = new AssessmentAnswer();
 				a.setAnswerId(XPathHelper.getNodeValue("./itemmetadata/bbmd_asi_object_id", questionNode));
-				a.setAnswerText(XPathHelper.getNodeValue("./itemfeedback[@ident='solution']//mat_formattedtext[1]", questionNode));
+				a.setAnswerText(stripHTMLComments(XPathHelper.getNodeValue("./itemfeedback[@ident='solution']//mat_formattedtext[1]", questionNode)));
 				correctAnswerIDs.add(a.getAnswerId());
 				answers.put(a.getAnswerId(), a);
 			} else if (questionType == AssessmentQuestion.FILL_BLANK) {
@@ -159,7 +169,7 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 					a = new AssessmentAnswer();
 					answerNode = (Node)j.next();
 					a.setAnswerId(XPathHelper.getNodeValue("./@title", answerNode));
-					a.setAnswerText(XPathHelper.getNodeValue("./conditionvar/varequal", answerNode));
+					a.setAnswerText(stripHTMLComments(XPathHelper.getNodeValue("./conditionvar/varequal", answerNode)));
 					answers.put(a.getAnswerId(), a);
 				}
 				
@@ -193,7 +203,16 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 					if (answerText == null || "".equals(answerText)) {
 						answerText = XPathHelper.getNodeValue(".//mattext[1]", answerNode);
 					}
-					a.setAnswerText(answerText);
+
+					if (answerText != null && questionType == AssessmentQuestion.MULTIPLE_CHOICE) {
+						// NYU: Some multiple choice entries are wrapped in <p> tags which causes them
+						// to be displayed with extra newlines.  Some also have trailing breaks.  Drop those now.
+						answerText = answerText.trim().replaceAll("(?i)^<p>(.*)</p>$", "$1");
+						answerText = answerText.trim().replaceAll("(?i)<br[ /]*>$", "");
+					}
+
+
+					a.setAnswerText(stripHTMLComments(answerText));
 					//TODO parse the date strings in the XML into Date objects
 					answers.put(a.getAnswerId(), a);
 				}
@@ -215,14 +234,14 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 					// sometimes the correctAnswerNode yields an empty string for correctAnswerId
 					if ("".equals(correctAnswerId)) continue;
 					// BB 6 uses true and false rather than the ID for true/false questions
-					if (correctAnswerId.equalsIgnoreCase("true") ||
-					    correctAnswerId.equalsIgnoreCase("false")) {
-					    for (Object o:answers.values()) {
-						a = (AssessmentAnswer)o;
-						if (a.getAnswerText().equalsIgnoreCase(correctAnswerId))
-						    correctAnswerId = a.getAnswerId();
-					    }
-					}
+                    if (correctAnswerId.equalsIgnoreCase("true") ||
+                        correctAnswerId.equalsIgnoreCase("false")) {
+                        for (Object o:answers.values()) {
+                            a = (AssessmentAnswer)o;
+                            if (a.getAnswerText().equalsIgnoreCase(correctAnswerId))
+                                correctAnswerId = a.getAnswerId();
+                        }
+                    }
 					correctAnswerIDs.add(correctAnswerId);
 				}
 			}
@@ -231,13 +250,21 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 			q.setQuestionType(questionType);
 			q.setAnswers(answers);
 			String questionTextString = XPathHelper.getNodeValue("./presentation//flow[@class='FORMATTED_TEXT_BLOCK']//mat_formattedtext[1]", questionNode);
-			String questionImageText = getQuestionImageText(questionNode);
-			if (!("".equals(questionImageText))) questionTextString = new StringBuffer(questionTextString + "\n").append("<img src=\"" + questionImageText + "\"/>").toString();
-			q.setQuestionText(questionTextString);
+			
+			// Make sure the FIB question has a blank area
+			// Subject: mystery answer (JDL-591852)
+			if (questionType == AssessmentQuestion.FILL_BLANK && questionTextString.indexOf("__") < 0) {
+				questionTextString = questionTextString + " ____";
+			}
+
+			String questionResourceEmbed = getResourceEmbed(questionNode);
+
+			// Drop comment garbage
+			q.setQuestionText(stripHTMLComments(questionTextString + questionResourceEmbed));
 			try {
-				double pointValue = Double.parseDouble(XPathHelper.getNodeValue("./itemmetadata/qmd_absolutescore_max", questionNode));
+				float pointValue = Float.parseFloat(XPathHelper.getNodeValue("./itemmetadata/qmd_absolutescore_max", questionNode));
 				if (pointValue < 0) {
-					pointValue = Double.parseDouble(XPathHelper.getNodeValue("./resprocessing/outcomes/decvar/@maxvalue", questionNode));
+					pointValue = Float.parseFloat(XPathHelper.getNodeValue("./resprocessing/outcomes/decvar/@maxvalue", questionNode));
 				}
 				q.setPointValue(pointValue);
 			} catch (NumberFormatException e) {
@@ -245,8 +272,8 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 				// we can live with that.
 			}
 			q.setCorrectAnswerIDs(correctAnswerIDs);
-			q.setFeedbackWhenCorrect(XPathHelper.getNodeValue("./itemfeedback[@ident = 'correct']//mat_formattedtext[1]", questionNode));
-			q.setFeedbackWhenIncorrect(XPathHelper.getNodeValue("./itemfeedback[@ident = 'incorrect']//mat_formattedtext[1]", questionNode));
+			q.setFeedbackWhenCorrect(stripHTMLComments(XPathHelper.getNodeValue("./itemfeedback[@ident = 'correct']//mat_formattedtext[1]", questionNode)));
+			q.setFeedbackWhenIncorrect(stripHTMLComments(XPathHelper.getNodeValue("./itemfeedback[@ident = 'incorrect']//mat_formattedtext[1]", questionNode)));
 			rv.add(q);	
 		}
 		return rv;
@@ -263,9 +290,65 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 		return imageUri.replaceAll("\\\\", "/");
 	}
 
-	protected String getQuestionImageText(Node questionNode) {
-		String imageUri = XPathHelper.getNodeValue("./presentation/flow/flow[@class='QUESTION_BLOCK']/flow[@class='FILE_BLOCK']/material/matapplication[1]/@uri", questionNode);
+	// NYU-1 we actually have no idea if this is an img or a word doc or a pdf
+	protected String getResourceEmbed(Node questionNode) {
+		String uri = XPathHelper.getNodeValue("./presentation/flow/flow[@class='QUESTION_BLOCK']/flow[@class='FILE_BLOCK']/material/matapplication[1]/@uri", questionNode);
 		// get rid of those pesky back slashes
-		return imageUri.replaceAll("\\\\", "/");
+		uri = uri.replaceAll("\\\\", "/");
+		
+		// run the filename only (not the directories) through the resource escaper
+		String[] subPath = uri.split(Pattern.quote("/"));
+		System.out.println("s:" + Arrays.toString(subPath));
+		String fileName = subPath[subPath.length-1];
+		String cleanedFileName = Validator.escapeResourceName(fileName);
+		uri = uri.replaceAll(fileName, cleanedFileName);
+		System.out.println("replacing: " + fileName + "::" + cleanedFileName + "::" + uri);
+		
+		Matcher matcher = imgPattern.matcher(uri);
+		if (matcher.matches()) {
+			return "\n<br/><img alt=\"\" src=\"" + uri + "\" />";
+		}
+		else if (!"".equals(uri)) {
+			String label = XPathHelper.getNodeValue("./presentation/flow/flow[@class='QUESTION_BLOCK']/flow[@class='FILE_BLOCK']/material/matapplication[1]/@label", questionNode);
+			if ("".equals(label)) {
+				label = "Document Link";
+			}
+			return "\n<br/><br/><IMG SRC=\"/library/image/silk/report.png\" alt=\"\" />&nbsp;<a href=\"" + uri + "\">" + label + "</a>";
+		}
+		else {
+			return "";
+		}
+	}
+
+
+	private static String stripHTMLComments(String html) {
+
+		if (html == null) {
+			return null;
+		}
+
+		org.jsoup.nodes.Document doc = Jsoup.parseBodyFragment(html);
+
+		List<org.jsoup.nodes.Node> nodes = new ArrayList<org.jsoup.nodes.Node>();
+		List<org.jsoup.nodes.Node> comments = new ArrayList<org.jsoup.nodes.Node>();
+		nodes.add(doc);
+
+		while (!nodes.isEmpty()) {
+			org.jsoup.nodes.Node node = nodes.remove(0);
+
+			if (node instanceof org.jsoup.nodes.Comment) {
+				comments.add(node);
+			}
+			else {
+				nodes.addAll(node.childNodes());
+			}
+		}
+
+		for (org.jsoup.nodes.Node victim : comments) {
+			victim.remove();
+		}
+
+		return doc.body().html();
 	}
 }
+;
