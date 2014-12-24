@@ -262,9 +262,9 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 			// Drop comment garbage
 			q.setQuestionText(stripHTMLComments(questionTextString + questionResourceEmbed));
 			try {
-				float pointValue = Float.parseFloat(XPathHelper.getNodeValue("./itemmetadata/qmd_absolutescore_max", questionNode));
+				double pointValue = Double.parseDouble(XPathHelper.getNodeValue("./itemmetadata/qmd_absolutescore_max", questionNode));
 				if (pointValue < 0) {
-					pointValue = Float.parseFloat(XPathHelper.getNodeValue("./resprocessing/outcomes/decvar/@maxvalue", questionNode));
+					pointValue = Double.parseDouble(XPathHelper.getNodeValue("./resprocessing/outcomes/decvar/@maxvalue", questionNode));
 				}
 				q.setPointValue(pointValue);
 			} catch (NumberFormatException e) {
