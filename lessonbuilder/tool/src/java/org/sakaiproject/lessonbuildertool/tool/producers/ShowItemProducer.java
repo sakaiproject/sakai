@@ -211,8 +211,6 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
 
 	    if (httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
-		if ("morpheus".equals(portalTemplates))
-		    inline = true;
 		if (reseturl == null)
 		    reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
 		if (helpurl == null)
@@ -221,6 +219,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		reseturl = null;
 		helpurl = null;
 	    }
+
+	    if ("morpheus".equals(portalTemplates))
+		inline = true;
 
 	    if (helpurl != null || reseturl != null) {
 

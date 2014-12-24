@@ -821,8 +821,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		if (httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
 		    // inline without morpheus is weird, but it seems to work
 		    // if I treat it like Sakai 10
-		    if ("morpheus".equals(portalTemplates))
-			inline = true;
 		    if (reseturl == null)
 			reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
 		    if (helpurl == null)
@@ -831,6 +829,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    reseturl = null;
 		    helpurl = null;
 		}
+
+		// inline includes iframes when morpheus is in effect
+		if ("morpheus".equals(portalTemplates))
+		    inline = true;
 
 		String skinName = null;
 		String skinRepo = null;
@@ -886,7 +888,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				messageLocator.getMessage("simplepage.direct-link")));
 		}
 
-		if (reseturl != null) {
+		// morpheus does reset as part of title
+		if (reseturl != null && !inline) {
 		    UILink.make(tofill, (pageItem.getPageId() == 0 ? "resetbutton" : "resetbutton2"), reseturl).
 			decorate(new UIFreeAttributeDecorator("onclick",
 				"location.href='" + reseturl + "'; return false")).
