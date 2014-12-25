@@ -4,12 +4,14 @@ import java.util.Arrays;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.wicket.Component;
 import org.apache.wicket.PageParameters;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.calldecorator.AjaxPostprocessingCallDecorator;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.feedback.FeedbackMessages;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -17,6 +19,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -86,6 +89,10 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			// We need to establish the largest file allowed to be uploaded
 			setMaxSize(Bytes.megabytes(resourceService.getMaximumUploadFileSize()));
 			
+			// create a feedback panel, setMaxMessages not in this version
+			final Component feedbackPanel = new FeedbackPanel("feedback").setOutputMarkupPlaceholderTag(true);
+			//feedbackPanel.setMaxMessages( 5 );
+
 			setMultiPart(true);
 			
 			add(fileUploadField = new FileUploadField("fileInput"));
@@ -144,6 +151,14 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 				private static final long serialVersionUID = 1L;
 				
 				@Override
+				protected void onError(AjaxRequestTarget target, Form<?> form ) {
+					FeedbackMessages feedbackMessages = form.getSession().getFeedbackMessages();
+					if (!feedbackMessages.isEmpty()) {
+						log.info("Errors uploading file." + feedbackMessages.toString());
+					}
+					target.addComponent(feedbackPanel);
+				}
+				@Override
 				protected IAjaxCallDecorator getAjaxCallDecorator()
 				{
 					return new AjaxPostprocessingCallDecorator( super.getAjaxCallDecorator() )
@@ -194,6 +209,8 @@ public class UploadPage extends ConsoleBasePage implements ScormConstants {
 			};
 			add( btnCancel );
 			add( btnSubmit );			
+			add(feedbackPanel);
+
 		}
 
 
