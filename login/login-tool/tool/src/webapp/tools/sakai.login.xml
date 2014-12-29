@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.login"
+			title="Login"
+			description="A login tool.">
+
+		<configuration name="eid" value="user id: " />
+		<configuration name="pw" value="password: " />
+
+		<keyword name="login" />
+
+		<category name="sakai.helper" />
+
+	</tool>
+
+</registration>

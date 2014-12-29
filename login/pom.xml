@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>master</artifactId>
+      <version>11-SNAPSHOT</version>
+      <relativePath>../master/pom.xml</relativePath>
+    </parent>
+	<name>Sakai Login Project</name>
+	<groupId>org.sakaiproject.login</groupId>
+	<artifactId>login</artifactId>
+  <version>11-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<scm>
+		<connection>scm:svn:https://source.sakaiproject.org/svn/login/trunk
+		</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/login/trunk
+		</developerConnection>
+		<url>https://source.sakaiproject.org/svn/login/trunk</url>
+	</scm>
+	<modules>
+		<module>login-api/api</module>
+		<module>login-authn-tool/tool</module>
+		<module>login-impl/impl</module>
+		<module>login-impl/pack</module>
+		<module>login-render-engine-impl/impl</module>
+		<module>login-render-engine-impl/pack</module>
+		<module>login-tool/tool</module>
+	</modules>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<artifactId>login-api</artifactId>
+				<groupId>org.sakaiproject.login</groupId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.velocity</groupId>
+				<artifactId>velocity</artifactId>
+				<version>${sakai.velocity.version}</version>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+</project>
