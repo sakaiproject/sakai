@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+
+    <bean id="org.sakaiproject.chat2.model.ChatHibernateBean"
+        class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="mappingResources">
+            <list>
+                <value>
+                    org/sakaiproject/chat2/model/impl/ChatImpl.hbm.xml
+                </value>
+            </list>
+        </property>
+    </bean>
+
+
+    <bean id="org.sakaiproject.chat2.model.ChatManager"
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+        </property>
+        <property name="target">
+            <ref bean="org.sakaiproject.chat2.model.impl.ChatManagerImpl" />
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
+    	class="org.sakaiproject.chat2.model.impl.ChatManagerImpl"
+    	singleton="true" init-method="init" destroy-method="destroy">
+    	<property name="sessionFactory">
+    		<ref
+    			bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    	</property>
+    	<property name="entityManager">
+    		<ref bean="org.sakaiproject.entity.api.EntityManager" />
+    	</property>
+    	<property name="defaultChannelSettings">
+    		<ref bean="defaultChatChannelSettings" />
+    	</property>
+    </bean>
+    
+    <bean id="defaultChatChannelSettings" 
+    		class="org.sakaiproject.chat2.model.ChatChannel"
+    		singleton="true">
+    	<property name="filterType">
+    		<bean id="org.sakaiproject.chat2.model.ChatChannel.FILTER_ALL"
+               class="org.springframework.beans.factory.config.FieldRetrievingFactoryBean">
+         </bean>
+      </property>
+    	<property name="filterParam"><value>3</value></property>
+    	<property name="timeParam"><value>3</value></property>
+    	<property name="numberParam"><value>10</value></property>
+    	<property name="enableUserOverride"><value>true</value></property>
+    </bean>
+    
+   
+   <bean id="org.sakaiproject.chat2.model.impl.ChatDataMigration"
+      class="org.sakaiproject.chat2.model.impl.ChatDataMigration"
+      init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+      <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+      <property name="performChatMigration">
+    		<value>false</value>
+    	</property>
+    	<property name="chatMigrationExecuteImmediate">
+    		<value>true</value>
+    	</property>
+    	<property name="debug">
+    		<value>false</value>
+    	</property>
+   </bean>
+
+    <bean id="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
+      class="org.sakaiproject.chat2.model.impl.ChatEntityProducer"
+      init-method="init"
+		destroy-method="destroy"
+		singleton="true">
+      <property name="entityManager">
+         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+      </property>
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+   </bean>
+
+	<bean id="org.sakaiproject.chat2.model.impl.ChatChannelEntityProvider"
+		class="org.sakaiproject.chat2.model.impl.ChatChannelEntityProvider">
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+	</bean>
+
+	<bean id="org.sakaiproject.chat2.model.impl.ChatMessageEntityProvider"
+		class="org.sakaiproject.chat2.model.impl.ChatMessageEntityProvider">
+      <property name="chatManager"><ref bean="org.sakaiproject.chat2.model.ChatManager"/></property>
+	</bean>
+
+
+    <bean id="chatSearchAdapter"
+    	class="org.sakaiproject.chat2.model.impl.ChatContentProducer"
+    	singleton="true" init-method="init" destroy-method="destroy">
+    	<property name="addEvents">
+    		<list>
+    			<value>chat.new</value>
+    			<value>chat.revise.own</value>
+    			<value>chat.revise.any</value>
+    		</list>
+    	</property>
+    	<property name="removeEvents">
+    		<list>
+    			<value>chat.delete.own</value>
+    			<value>chat.delete.any</value>
+    		</list>
+    	</property>
+    	<property name="entityManager">
+         <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+      </property>
+      <property name="chatManager">
+      	<ref bean="org.sakaiproject.chat2.model.ChatManager"/>
+      </property>
+      <property name="searchService">
+      	<ref bean="org.sakaiproject.search.api.SearchService" />
+      </property>
+      <property name="searchIndexBuilder">
+      	<ref bean="org.sakaiproject.search.api.SearchIndexBuilder" />
+      </property>
+      <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+    </bean>
+
+</beans>

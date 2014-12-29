@@ -1,0 +1,76 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.chat2.model"
+	default-lazy="true">
+
+	<class name="ChatChannel" table="CHAT2_CHANNEL" lazy="true">
+
+		<cache usage="nonstrict-read-write" />
+
+		<comment>This table stores chat channels</comment>
+		<id name="id" length="99" column="CHANNEL_ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+		</id>
+		<property name="placement" column="PLACEMENT_ID" type="string"
+			length="99" not-null="false"/>
+		<property name="context" column="CONTEXT" type="string"
+			length="99" not-null="true" index="CHAT_CHANNEL_CONTEXT_I"/>
+		<property name="creationDate" column="CREATION_DATE"
+			type="java.util.Date" />
+
+		<property name="title" type="string" length="64" />
+		<property name="description" type="string" length="255" />
+		<property name="filterType" type="string" length="25" />
+		<property name="filterParam" type="int" />
+		<property name="timeParam" type="int" not-null="true" />
+		<property name="numberParam" type="int" not-null="true"/>
+		<property name="placementDefaultChannel" type="boolean" index="CHAT_CHANNEL_DEFAULT_I"/>
+		<property name="enableUserOverride" type="boolean" column="ENABLE_USER_OVERRIDE" not-null="false"/>
+		<property name="migratedChannelId" type="string" length="99" />
+        <property name="startDate" column="START_DATE" type="java.util.Date" />
+        <property name="endDate" column="END_DATE" type="java.util.Date" />
+
+		<set name="messages" cascade="all-delete-orphan" inverse="false"
+			lazy="true" fetch="join" batch-size="50">
+			<key column="CHANNEL_ID" />
+			<one-to-many class="ChatMessage" />
+		</set>
+
+	</class>
+	
+	<class name="ChatMessage" table="CHAT2_MESSAGE" lazy="true">
+
+		<cache usage="nonstrict-read-write" />
+
+		<comment>This table stores chat messages</comment>
+		<id name="id" length="99" column="MESSAGE_ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+		</id>
+		<many-to-one name="chatChannel" column="CHANNEL_ID"
+			class="ChatChannel" index="CHAT_MESSAGE_CHANNEL_I" lazy="false" />
+
+		<property name="owner" column="OWNER" type="string" length="96"
+			not-null="true" index="CHAT_MESSAGE_OWNER_I" />
+
+		<property name="messageDate" column="MESSAGE_DATE"
+			type="java.util.Date" index="CHAT_MESSAGE_DATE_I" />
+		<property name="body" column="BODY" type="materialized_clob" not-null="true" />
+		<property name="migratedMessageId" type="string" length="99" />
+	</class>
+
+	<query name="findChannelsInContext">
+		from ChatChannel c WHERE c.context=? order by c.title
+	</query>
+
+	<query name="findDefaultChannelsInContext">
+		from ChatChannel c WHERE c.context=? and c.placement=? and c.placementDefaultChannel=true order by c.title
+	</query>
+	
+	<query name="findMigratedMessage">
+		from ChatMessage m where m.migratedMessageId=?
+	</query>
+
+</hibernate-mapping>

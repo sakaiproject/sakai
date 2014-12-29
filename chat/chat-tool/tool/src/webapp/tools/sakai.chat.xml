@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.chat"
+			title="Chat Room"
+			description="For real-time conversations in written form.">
+
+		<configuration name="display-date" value="false" />
+		<configuration name="display-time" value="true" />
+		<configuration name="display-user" value="true" />
+		<configuration name="sound-alert" value="true" />
+		<configuration name="filter-type" value="SelectMessagesByTime" />
+		<configuration name="filter-param" value="3" />
+		<configuration name="channel" value="" />
+
+		<category name="course" />
+		<category name="project" />
+
+		<configuration name="functions.require" value="chat.read" /> 
+
+	</tool>
+
+</registration>

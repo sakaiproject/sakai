@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>master</artifactId>
+      <version>11-SNAPSHOT</version>
+      <relativePath>../master/pom.xml</relativePath>
+    </parent>
+  <name>Sakai Chat Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>chat-base</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>chat-api/api</module>
+    <module>chat-impl/impl</module>
+    <module>chat-impl/pack</module>
+    <module>chat-tool/tool</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/chat/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/chat/trunk</url>
+  </scm>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-chat-api</artifactId>
+        <version>${project.version}</version>
+	<scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-chat-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

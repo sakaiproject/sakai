@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+  <application>
+    <message-bundle>chat</message-bundle>
+    <locale-config>
+      <default-locale>en</default-locale>
+      <!-- 
+      <supported-locale>de</supported-locale>
+      <supported-locale>fr</supported-locale>
+      <supported-locale>es</supported-locale> -->
+    </locale-config>
+    <navigation-handler>
+    	org.sakaiproject.chat2.tool.ChatNavigationHandler
+    </navigation-handler>
+  </application>
+
+<!--sakai2 - take this out. <application>
+    <view-handler>
+      org.sakaiproject.jsf.custom.SakaiViewHandler
+    </view-handler>
+    <navigation-handler>
+      org.sakaiproject.jsf.custom.SakaiNavigationHandler
+    </navigation-handler>
+    <variable-resolver>
+      org.sakaiproject.jsf.custom.SakaiVariableResolver
+    </variable-resolver>
+    <state-manager>
+      org.sakaiproject.jsf.custom.SakaiStateManager
+    </state-manager>
+  </application> -->
+
+  <!-- =================== Tool Beans ============== -->
+    <managed-bean>
+
+        <description>ChatTool</description>
+        <managed-bean-name>ChatTool</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.chat2.tool.ChatTool</managed-bean-class>
+<!--sakai2      <managed-bean-scope>request</managed-bean-scope>-->
+        <managed-bean-scope>session</managed-bean-scope>
+
+        <managed-property>
+            <description>chatManager</description>
+            <property-name>chatManager</property-name>
+            <value>#{Components["org.sakaiproject.chat2.model.ChatManager"]}</value>
+        </managed-property>
+
+      	<managed-property>
+      	   <description>Service Dependency: toolManager</description>
+           <property-name>toolManager</property-name>
+           <value>#{Components["org.sakaiproject.tool.api.ActiveToolManager"]}</value>
+        </managed-property>
+
+    </managed-bean>
+
+    <managed-bean>
+        <description>
+            JSF Portal Object
+        </description>
+        <managed-bean-name>Portal</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.portal.util.PortalBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+            <description>Caller</description>
+            <property-name>caller</property-name>
+            <value>chat-tool</value>
+        </managed-property>
+    </managed-bean>
+
+  <navigation-rule>
+    <from-view-id>*</from-view-id>
+    <navigation-case>
+      <from-outcome>room</from-outcome>
+      <to-view-id>/jsp/room.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case><!-- not needed if using the courier -->
+      <from-outcome>roomActions</from-outcome>
+      <to-view-id>/jsp/roomActions.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>editRoom</from-outcome>
+      <to-view-id>/jsp/editRoom.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>listRooms</from-outcome>
+      <to-view-id>/jsp/listRooms.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>deleteMessageConfirm</from-outcome>
+      <to-view-id>/jsp/deleteMessageConfirm.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>deleteRoomConfirm</from-outcome>
+      <to-view-id>/jsp/deleteRoomConfirm.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>deleteRoomMessagesConfirm</from-outcome>
+      <to-view-id>/jsp/deleteRoomMessagesConfirm.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>synoptic</from-outcome>
+      <to-view-id>/jsp/synoptic.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+    <navigation-case>
+      <from-outcome>synopticOptions</from-outcome>
+      <to-view-id>/jsp/synopticOptions.jsp</to-view-id>
+      <redirect/>
+    </navigation-case>
+  </navigation-rule>
+  
+   
+  
+	<managed-bean>
+		<description>
+			Dynamic Resource Bundle Loader
+		</description>
+		<managed-bean-name>msgs</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Bundle baseName</description>
+			<property-name>baseName</property-name>
+			<value>chat</value>
+		</managed-property>
+	</managed-bean>
+  
+
+</faces-config>

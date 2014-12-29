@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="sakai.chat.deleteMessage" title="Delete Chat Message" description="Chat Message Deletion Helper Tool">
+       <category name="sakai.helper" />
+
+	</tool>
+
+</registration>

@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.synoptic.chat"
+			title="Recent Chat Messages"
+			description="Display recent chat messages, updated as messages arrive">
+
+		<configuration name="days" value="10" />
+		<configuration name="items" value="3" />
+		<configuration name="length" value="50" />
+		<configuration name="show-subject" value="false" />
+		<configuration name="show-newlines" value="false" />
+		<configuration name="channel" value="" />
+
+		<configuration name="message-service" value="org.sakaiproject.chat.api.ChatService" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+		<configuration name="help.id" value="sakai.chat" type="final" />
+
+        <configuration name="functions.require" value="site.visit" />
+
+	</tool>
+
+</registration>
