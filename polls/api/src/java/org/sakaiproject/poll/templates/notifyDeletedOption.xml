@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<locale></locale>
+	<subject>[${localSakaiName}] A poll option you voted for has been deleted</subject>
+	<key>polls.notifyDeletedOption</key>
+	<owner>admin</owner>
+	<version>2</version>
+	<message>Dear ${recipientFirstName},
+
+		The poll option you voted for in the site '${siteTitle}' has been deleted
+		by a poll maintainer. The poll question is:
+
+		${pollQuestion}
+
+		Please log in to ${localSakaiName} and place a new vote for the poll.
+	</message>
+	<htmlMessage>Dear ${recipientFirstName},
+&lt;br /&gt;
+&lt;br /&gt;
+		The poll option you voted for in the site '${siteTitle}' has been deleted
+		by a poll maintainer. The poll question is:
+&lt;br /&gt;
+&lt;br /&gt;
+		${pollQuestion}
+&lt;br /&gt;
+&lt;br /&gt;
+		Please log in to ${localSakaiName} and place a new vote for the poll.
+&lt;br /&gt;
+	</htmlMessage>
+</emailTemplate>

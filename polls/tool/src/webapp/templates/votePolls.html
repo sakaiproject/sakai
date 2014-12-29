@@ -1,0 +1,93 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:rsf="http://ponder.org.uk/rsf">
+<head >
+<title>Polls</title>
+<link rsf:id="scr=portal-matter" href="https://vula.uct.ac.za/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all"/>
+<link href="https://vula.uct.ac.za/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" rsf:id="scr=portal-matter" />
+<link href="../css/poll_base.css" type="text/css" rel="stylesheet" media="all"/>
+<script  rsf:id="scr=portal-matter" type="text/javascript" src="/library/js/headscripts.js"></script>
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
+<script type="text/javascript" src="../js/polls.js"></script>
+</head>
+
+<body rsf:id="scr=sakai-body">
+<div class="portletBody">
+
+<ul rsf:id="actions:" class="navIntraTool">
+  <li><span><a href="voteAdd.html" rsf:id="actions-add">Add</a></span></li>
+  <li><span><a href="votePermissions.html" rsf:id="actions-permissions">Permissions</a></span></li>
+</ul>
+
+	
+<h3 rsf:id="poll-list-title">Polls</h3>
+
+
+<div rsf:id="message-for:*" class="alertMessage">
+	<span>Message for user here</span>
+</div>
+<div class="instruction" rsf:id="no-polls">No polls have been created yet.</div>
+<div class="addItem" rsf:id="add-poll-icon">
+	<a href="voteAdd.html" rsf:id="add-poll">Add</a>
+</div>
+
+<script type="text/javascript">
+	$(document).ready(function(){
+	$('#remove-all').click(function(){
+		if ($(this).is(':checked')){
+			$('.checkbox-cell input').attr('checked',true);
+		}
+		else{
+			$('.checkbox-cell input').attr('checked',false);
+		}
+	});	
+	});
+</script>
+
+<form rsf:id="delete-poll-form">
+<!-- This span is needed here to guide the renderer away to the checkboxes -->
+<span rsf:id="delete-poll"/>
+
+<table id="sortableTable" class="listHier lines nolines" border="0" cellspacing="0">
+<caption class="skip"><span class="skip" rsf:id="msg=poll_list_summary"></span></caption>
+  <thead>
+    <tr> 
+      <th><a rsf:id="poll-question-title" title="Sort by Question" href="#">Question</a></th>
+      <th><a rsf:id="poll-open-title" title=" Sort by Opening Date" href="#">Opening</a></th>
+      <th><a rsf:id="poll-close-title" title="Sort by Closing Date" href="#">Closing</a></th>
+      <th rsf:id="poll-result-title">Results</th>
+      <th><label for="remove-all" class="skip"><span  rsf:id="poll-remove-title">Remove all</span></label><input type="checkbox" id="remove-all"/></th>
+    </tr>
+  </thead>
+  <tbody id="tasks:polllist:tbody_element">
+
+    <tr rsf:id="poll-row:votable"> 
+          <td><a href="voteQuestion.html" target="_self" rsf:id="poll-vote">Votable Poll Question</a>
+          <div class="itemAction"><a href="voteAdd.html" target="_self"  rsf:id="poll-revise">Edit</a></div>
+       </td>
+      <td rsf:id="poll-open-date">opening date</td>
+      <td rsf:id="poll-close-date">closing date</td>
+      <td><a rsf:id="poll-results">Results</a></td>
+      <td class="checkbox-cell"><label rsf:id="delete-label" id="check-2" class="skip">Label for element</label><input rsf:id="poll-select" title="Select to remove" type="checkbox" id="check-2" name="deletePoll" value="" /> 
+      </td>
+    </tr>
+    <tr rsf:id="poll-row:nonvotable"> 
+      <td><span rsf:id="poll-text">Non Votable Question</span>
+         <div class="itemAction"><a href="voteAdd.html" target="_self" rsf:id="poll-revise">Edit</a></div>
+        </td>
+      <td rsf:id="poll-open-date">opening date</td>
+      <td rsf:id="poll-close-date">closing date</td>
+      <td><a href="voteResults.html" target="_self" rsf:id="poll-results">Results</a></td>
+      <td class="checkbox-cell"><label rsf:id="delete-label" id="check-2" class="skip">Label for element</label><input rsf:id="poll-select" title="Select to remove" type="checkbox" id="check-2" name="deletePoll" value="" /> 
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<p class="act">
+<input type="submit" class="active" rsf:id="delete-polls" name="deleteSelectPoll" value="Update"  accesskey="s" />
+</p>
+</form>
+</div>
+</body>
+</html>

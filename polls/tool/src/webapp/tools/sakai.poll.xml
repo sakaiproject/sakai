@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.poll"
+		title="Polls"
+		description="For anonymous polls or voting">
+		<category name="course" />
+		<category name="project" />
+	</tool>	
+</registration>

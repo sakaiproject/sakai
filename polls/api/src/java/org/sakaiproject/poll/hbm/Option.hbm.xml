@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+	<!-- put your value object in the class name, the table name is optional
+		but it is a good idea to specify it -->
+	<class name="org.sakaiproject.poll.model.Option"
+		table="POLL_OPTION">
+
+		<!-- create the primary key id, using native is typically the best way
+			to do this -->
+		<id name="optionId" type="long" column="OPTION_ID">
+	    	<generator class="native">
+                <param name="sequence">POLL_OPTION_ID_SEQ</param>
+	    	</generator>
+		</id>
+		<!-- The remaining properties should just match the properties
+			of your value object.
+			The name should be the actual variable name in your object.
+			We used Hibernate native property types here but
+			you could also use java classes like java.lang.String.
+			Column names are optional but people often specify them. -->
+
+		<property name="pollId" type="long" not-null="true">
+            <column name="OPTION_POLL_ID"/>
+        </property>
+		<property name="optionText" type="materialized_clob" length="255" not-null="true">
+            <column name="OPTION_TEXT"/>
+        </property>
+        <property name="UUId" type="string" length="255" not-null="true">
+        	<column name="OPTION_UUID" />
+        </property>
+        <property name="deleted" type="java.lang.Boolean">
+        	<column name="DELETED" />
+        </property>
+     </class>
+    
+	
+</hibernate-mapping>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<locale>zh_CN</locale>
+	<key>polls.notifyDeletedOption</key>
+	<subject>[${localSakaiName}] 您所参与的调查中，您选择的选项被删除了</subject>
+	<owner>admin</owner>
+	<version>2</version>
+	<message>${recipientDisplayName}，您好：
+
+此前您在 “${siteTitle}” 参与的调查 “${pollQuestion}” 中所选择的选项已被删除。
+
+请您登录 ${localSakaiName} 重新选择。
+	</message>
+	<htmlMessage>${recipientDisplayName}，您好：
+&lt;br /&gt;
+&lt;br /&gt;
+此前您在 “${siteTitle}” 参与的调查 “${pollQuestion}” 中所选择的选项已被删除。
+&lt;br /&gt;
+&lt;br /&gt;
+请您登录 ${localSakaiName} 重新选择。
+	</htmlMessage>
+</emailTemplate>

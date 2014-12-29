@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>Sakai Polls Project base pom (polls)</name>
+    <groupId>org.sakaiproject.polls</groupId>
+    <artifactId>polls</artifactId>
+    <packaging>pom</packaging>
+    <version>11-SNAPSHOT</version>
+
+    <licenses>
+        <license>
+            <name>ECL-2.0</name>
+            <url>http://www.opensource.org/licenses/ecl2.txt</url>
+            <distribution>repo</distribution>
+            <comments>Copyright 2003-2010 Sakai Foundation</comments>
+        </license>
+    </licenses>
+
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>pack</module>
+        <module>tool</module>
+    </modules>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/polls/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/polls/trunk</url>
+    </scm>
+
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/polls/${project.version}</url>
+        </site>
+    </distributionManagement>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>polls-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>polls-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>
