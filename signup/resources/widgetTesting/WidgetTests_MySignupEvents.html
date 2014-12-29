@@ -1,0 +1,165 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<script type="text/javascript" language="JavaScript" src="js/trimpath.js"></script>
+	<script type="text/javascript" language="JavaScript" src="js/jquery.js"></script>
+	<script type="text/javascript" language="JavaScript" src="js/eventsData.js"></script>
+	<script type="text/javascript" language="JavaScript" src="js/signupEvents.js"></script>
+</head>
+<body id="body-show">
+<script type="text/javascript" language="JavaScript" src="js/sdata_alternative.js"></script>
+<h3 style='text-align:center'>TESTING PAGE FOR SIGN-UP RESTFUL</h3>
+<h4>display Json object</h4>
+<div class="eventConfig_container" >
+ 
+  <p id="helloworld_message" >
+     <a href="#" onclick="showMeJsonObjectEvent.click(); return false; " >Show me the Signup Event List from a Json object</a>
+  </p>
+
+<h4>Display Sign-up Events Via Direct Ajax Access To Your Application Server</h4>
+  <p>Important Note: you need to login in first to establish a session for ajax access. 
+      If you use Firefox, the files should be <br> at server side due Firefox security. It works for IE 7 or 8 and Safari as local files.
+      However, this local test won't work on Window 7 OS.
+  </p>
+  <table>
+	<tr><td>View Range: </td><td noWrap><input id='nextDays' type='text' value='30' name='nextDays'/> [Empty value means view next 30 days range]</td></tr>
+	<tr><td>Enter Your User Id: </td><td noWrap><input id='userId' type='text' value='' name='userId'/> [Example: c8f0e8a4-31fd-4525-ac5e-6788d612347c ]</td></tr>
+	<tr><td>Enter Server Access URL: </td><td noWrap><input id="serverUrl" type='text' value="http://localhost:8080" name="serverUrl"/> </td></tr>
+  </table>
+
+  <p id="helloworld_message" >
+     <input type="button" onclick="showMySignupAjaxEventList.click(); return false; " value="Show My Signup Events" />
+  </p>
+  
+</div>
+
+<div  id="eventlist_template" style="display:none"><!--
+  <h3>Sign-up Event List</h3>
+ <table width="900pix" >
+	<tr align="left">
+		<th>Meeting Title</th>
+		<th>Organizer</th>
+		<th>Location</th>
+		<th>Date</th>
+		<th>Time</th>
+		<th>Status</th>
+	</tr>
+	{if mySignup_collection.length >0}
+	{for event in mySignup_collection}
+		<tr>
+			<td><a href="#" onclick="showEventDetail.click(${event.id},'${event.siteId}')">${event.title}</a></td>
+			<td>${event.organizerName}</td>
+			<td>${event.location}</td>
+			<td>${event.date}</td>
+			<td>${event.myStartTime} - ${event.myEndTime}</td>
+			<td>${event.availableStatus}</td>
+		</tr>
+
+	{/for}
+	{else}
+		<tr align="center">
+			<td> -- </td>
+			<td> -- </td>
+			<td> -- </td>
+			<td> -- </td>
+			<td> -- </td>
+			<td> -- </td>
+		</tr>
+
+	{/if}
+
+  </table>
+--></div>
+
+
+<div  id="eventDetail_template" style="display:none"><!--
+	<h3>Sign-up Event Detail</h3>
+	{if userActionWarningMsg !=null}
+		<p style='color:b11;'>Warning: ${userActionWarningMsg}</p>
+	{/if}
+ 	<table>
+		<tr><td>Meeting Title:</td><td>${title}</td></tr>
+		<tr><td>Organizer:</td><td>${organizerName}</td></tr>
+		<tr><td>Location:</td><td>${location}</td></tr>
+		<tr><td>Description:</td><td>${description}</td></tr>
+		<tr><td>Meeting Date:</td><td>${date}</td></tr>
+		{if meetingExpired }
+			<tr><td>Meeting Status:</td><td style="color:b11">The meeting is closed</td></tr>
+		{/if}
+		{if !startToSignUp}
+			<tr><td>Meeting Status:</td><td style="color:b11">The Sign-up process will start at ${signupBegins}</td></tr>
+		{/if}
+
+	</table>
+
+{if (signupTimeSlotItems !=null && signupTimeSlotItems.length >0) }
+<form id="userActionForm">
+<table width="800pix">
+	<tr align="left">
+		<th>Time Slot</th>
+		<th>Max # of Participants</th>
+		<th>Participants</th>
+		<th>Status</th>
+		<th>Action</th>
+			</tr>
+	{for ts in signupTimeSlotItems}
+		<tr>
+			<td>${ts.startTime} - ${ts.endTime}</td>
+			<td>${ts.maxNoOfAttendees}</td>
+			<td>
+				<table>
+					{for p in ts.attendees}
+						<tr><td>${p.displayName}</td></tr>
+					{/for}
+				</table>
+			</td>
+			<td nowrap>
+				{if ts.signedUp}
+				 ${availableStatus}
+				{else}
+				    {if ts.onWaitList}
+				       On Wait List
+				   {/if}
+				{/if}
+			</td>
+			<td>	
+			    {if (ts.available && !meetingExpired && !ts.signedUp && availableStatus !="<font color='red'>Signed up<\/font>")}
+				   {if startToSignUp && !passedDeadline && !currentUserSignedUp}	
+			    	     <input type="button"  onclick="submitEvent.click('${id}','${ts.id}','${allowedUserActionTypes[0]}','${siteId}')"  value="${allowedUserActionTypes[0]}" name="userActionType">
+			    	   {else}
+					 <input type="button" disabled="true" onclick="submitEvent.click('${id}','${ts.id}','${allowedUserActionTypes[0]}','${siteId}')"  value="${allowedUserActionTypes[0]}" name="userActionType">
+				    {/if}		
+			     {elseif ts.signedUp && !meetingExpired}
+			   	     <input type="button" onclick="submitEvent.click('${id}','${ts.id}','${allowedUserActionTypes[1]}','${siteId}')" value="${allowedUserActionTypes[1]}" name="userActionType"/>
+			     {elseif !meetingExpired && !ts.available && !ts.onWaitList}
+					   <input type="button" onclick="submitEvent.click('${id}','${ts.id}','${allowedUserActionTypes[2]}','${siteId}')" value="${allowedUserActionTypes[2]}" name="userActionType"/>
+			     {elseif !meetingExpired && !ts.available && ts.onWaitList}
+					   <input type="button" onclick="submitEvent.click('${id}','${ts.id}','${allowedUserActionTypes[3]}','${siteId}')" value="${allowedUserActionTypes[3]}" name="userActionType"/>
+			     {else}
+					   {if !meetingExpired }	
+						 <input type="button" disabled="true" value="${allowedUserActionTypes[0]}" name="userActionType"/>
+					   {/if}
+			     {/if} 
+			</td>
+			
+		</tr>
+		
+
+	{/for}
+
+  </table>
+  </form>
+{else}
+	<h3>sign-up is not required.</h3
+{/if}
+
+--></div>
+
+
+
+
+
+
+</body>
+
+
+</html>

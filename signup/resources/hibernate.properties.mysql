@@ -1,0 +1,6 @@
+hibernate.show_sql=true
+hibernate.connection.driver_class=com.mysql.jdbc.Driver
+hibernate.connection.url=jdbc:mysql://127.0.0.1:3306/sakai26
+hibernate.connection.username=sakai26
+hibernate.connection.password=iron
+hibernate.dialect=org.hibernate.dialect.MySQLInnoDBDialect

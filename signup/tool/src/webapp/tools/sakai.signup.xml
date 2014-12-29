@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registration>
+	<tool id="sakai.signup"
+		title="Sign-up"
+		description="For enabling online registration for meetings and other events.">
+		
+		<!-- <configuration name="functions.require" value="signup.view|signup.view.all" /> -->
+		<configuration name="signup.other.sites.availability" value="default" />
+		<category name="course" />
+		<category name="project" />
+		
+		<!-- <category name="myworkspace" /> -->
+		<!-- <category name="sakai.admin" /> -->
+	</tool>	
+</registration>

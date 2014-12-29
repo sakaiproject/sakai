@@ -1,0 +1,6 @@
+hibernate.show_sql=true
+hibernate.connection.driver_class=oracle.jdbc.OracleDriver
+hibernate.connection.url=
+hibernate.connection.username=
+hibernate.connection.password=
+hibernate.dialect=org.hibernate.dialect.Oracle9Dialect

@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
+
+	<name>Sakai Signup Module</name>
+	<groupId>org.sakaiproject.signup</groupId>
+	<artifactId>signup</artifactId>
+	<version>11-SNAPSHOT</version>
+
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2007</inceptionYear>
+	<packaging>pom</packaging>
+
+	<developers>
+		<developer>
+			<name>Peter Liu</name>
+			<email>peter.liu@yale.edu</email>
+			<organization>Yale University</organization>
+		</developer>
+	</developers>
+
+	<contributors>
+		<contributor>
+			<name>Steve Swinsburg</name>
+			<email>steve.swinsburg@gmail.com</email>
+		</contributor>
+		<contributor>
+			<name>Anthony Whyte</name>
+			<email>arwhyte@umich.edu</email>
+		</contributor>
+	</contributors>
+
+	<scm>
+		<connection>scm:https://source.sakaiproject.org/svn/signup/trunk</connection>
+		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/signup/trunk</developerConnection>
+		<url>https://source.sakaiproject.org/svn/signup/trunk</url>
+	</scm>
+
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<modules>
+		<module>api</module>
+		<module>impl</module>
+		<module>pack</module>
+		<module>tool</module>
+	</modules>
+
+	<distributionManagement>
+		<site>
+			<id>sakai-site</id>
+			<name>Sakai release Site</name>
+			<url>scpexe://source.sakaiproject.org/var/www/html/release/signup/${project.version}</url>
+		</site>
+	</distributionManagement>
+
+	<dependencyManagement>
+		<dependencies>
+			<!-- project dependencies -->
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>signup-api</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>${project.groupId}</groupId>
+				<artifactId>signup-impl</artifactId>
+				<version>${project.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+
+			<!-- sakai dependencies -->
+			<dependency>
+				<groupId>org.sakaiproject.calendaring</groupId>
+				<artifactId>external-calendaring-service-api</artifactId>
+				<version>${sakai.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.entitybroker</groupId>
+				<artifactId>entitybroker-utils</artifactId>
+				<version>${sakai.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject</groupId>
+				<artifactId>generic-dao</artifactId>
+				<version>${generic-dao.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.jsf</groupId>
+				<artifactId>jsf-tool</artifactId>
+				<version>${sakai.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.jsf</groupId>
+				<artifactId>jsf-app</artifactId>
+				<version>${sakai.version}</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.jsf</groupId>
+				<artifactId>jsf-widgets-sun-depend</artifactId>
+				<version>${sakai.version}</version>
+				<type>pom</type>
+			</dependency>
+
+			<!-- third party dependencies -->
+			<dependency>
+				<groupId>org.azeckoski</groupId>
+				<artifactId>reflectutils</artifactId>
+				<version>${reflectutils.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>easymock</groupId>
+				<artifactId>easymock</artifactId>
+				<version>1.2_Java1.3</version>
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>jta</groupId>
+				<artifactId>jta</artifactId>
+				<version>h2.1.8</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.myfaces.tomahawk</groupId>
+				<artifactId>tomahawk</artifactId>
+				<version>1.1.11</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.poi</groupId>
+				<artifactId>poi</artifactId>
+				<version>3.10.1</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>jstl</artifactId>
+				<version>1.1.2</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>taglibs</groupId>
+				<artifactId>standard</artifactId>
+				<version>1.1.2</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet.jsp</groupId>
+				<artifactId>jsp-api</artifactId>
+				<version>2.1</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>commons-validator</groupId>
+				<artifactId>commons-validator</artifactId>
+				<version>1.3.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>oro</groupId>
+				<artifactId>oro</artifactId>
+				<version>2.0.8</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>net.sf.opencsv</groupId>
+				<artifactId>opencsv</artifactId>
+				<version>2.3</version>
+				<scope>compile</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+	<build />
+</project>

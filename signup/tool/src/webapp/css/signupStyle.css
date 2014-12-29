@@ -1,0 +1,539 @@
+@media print  {
+.portletBody .navIntraTool, .portletBody #attendanceList thead, .noPrint, .portletBodyPrint input{
+    display:none !important;
+}    
+h4{
+    width :100% !important
+}
+.selectedSelected{
+    font-weight:bold !important;    
+    background:#ccc !important
+}
+}    
+table.signupTable {
+	text-align: left;
+}
+
+table.signupTable th {
+	background-color: #ddd;
+	padding: .3em 1em;
+}
+
+table.signupTable tr.evenRow {
+	background: #f8f8f8;
+}
+
+table.signupTable tr.recurRow {
+	display: table-row;
+	background-color: #EEF3F6; /*#FFFFCC*/
+}
+
+table.signupTable td {
+	padding: .3em 1em;
+}
+
+table.signupTable td.titleCol{	
+	padding: .3em 1em;
+	padding-left:1.2em;
+}
+
+table.userDefineTsTable {
+	text-align: left;
+}
+
+table.userDefineTsTable th {
+	background-color: #ddd;
+	padding: .3em .3em;
+}
+
+table.userDefineTsTable tr.evenRow {
+	background: #f8f8f8;
+}
+
+table.userDefineTsTable td {
+	padding: .3em .3em;
+}
+
+table.userDefineTsTable td.titleCol{	
+	padding: .3em 1em;
+	padding-left:.5em;
+}
+
+.titleColumn {
+	vertical-align: top;
+	text-align: right;
+	font-weight: bold;
+	padding: 0.2em 1em;
+	white-space: nowrap;
+}
+
+.plainTitleColumn {
+	vertical-align: top;
+	padding: 0.2em 1em;
+}
+
+.valueColumn {
+	vertical-align: top;
+	padding: 0.2em 1em;
+}
+
+.titleText {
+	
+}
+
+.longtext {
+	border: 0px;
+	margin: 0px;
+}
+
+.editText {
+	
+}
+
+.oddTimeSlotRow {
+	height: 50px;
+}
+
+.evenTimeSlotRow {
+	height: 50px;
+	background: rgb(248, 248, 248);
+}
+
+.addButton {
+	padding-left: 15px;
+}
+
+.timeslotCol {
+	white-space: nowrap;
+	text-align: left;
+	width: 30%;
+}
+
+.assignStudentsCol {
+	text-align: left;
+	width: 70%;
+}
+
+table.organizerAction {
+	text-align: left;
+}
+
+table.organizerAction td {
+	padding: 0em 0em;
+}
+
+.noWrapCol{
+	white-space: nowrap;
+}
+
+.orgTimeslotCol {
+	width: 26%;
+	white-space: nowrap;
+}
+
+.orgMaxAttsCol {
+	width: 10%;
+}
+
+.orgSlotStatusCol {
+	width: 32%;
+}
+
+.orgWaiterStatusCol {
+	width: 32%;
+}
+
+.attendeeSignupTSCol {
+	width: 25%;
+	white-space: nowrap;
+}
+
+.attendeeSignupAvailCol {
+	width: 15%;
+}
+
+.attendeeSignupCol {
+	width: 20%;
+}
+
+.attendeeInfoCol {
+	width: 20%
+}
+
+.actButton {
+	padding: .2em 1;
+	text-align: center;
+}
+
+.downloadSelection{
+	margin-top:20px;
+}
+	
+.dwVersionRadioBtn{
+	margin-left: 10px;
+}
+	
+.downloadBttn{	
+	text-align: center;
+}
+
+.editAddImages{
+	white-space: nowrap;
+}
+
+.attendee_status {
+	border: 1px solid #fff;
+	color: blue;
+}
+
+.attendee_status:hover {
+	cursor:help;
+}
+
+.signedUpList {
+	margin: .4em 1em;
+	border: 1px solid #fff;
+	cursor: pointer;
+	line-height: 1.1em;
+	color: darkred;
+}
+
+.waitingList {
+	margin: .4em 1em;
+	border: 1px solid #fff;
+	cursor: pointer;
+	line-height: 1.1em;
+	background: rgb(221, 221, 221);
+}
+
+.evenRow {
+	background: rgb(248, 248, 248);
+}
+
+table.organizer td {
+	padding: .15em 0em 0em 1em;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.organizer_canceled {
+	padding: .15em 0em 0em 1.8em;
+	font-weight: bold;
+	color: red;
+}
+
+.attendee_canceled {
+	font-weight: bold;
+	color: red;
+}
+
+.meetingTypeTable {
+	margin: 5px 5px 5px 20px;
+}
+
+.meetingGpsSitesTable {
+	vertical-align: top;
+	margin-top: 5px;
+	margin-left: 10px;
+}
+
+.rs {
+	vertical-align: top;
+}
+
+.untilCalendar {
+	margin-left: 0px;
+}
+
+.mi {
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	width: 350px;
+}
+
+.greyed_mi{
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	width: 350px;
+	color:#A3A3A3;
+}
+
+.longtext_red{
+	border: 0px;
+	margin: 0px;
+	color:#b11;
+}
+
+.greyed_mi input, .greyed_si label, .greyed_mi longtext_red{
+	color:#A3A3A3;
+}
+
+.si {
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	color: #e7eef5;
+	width: 350px;
+}
+
+.greyed_si{
+	vertical-align: top;
+	margin-left: 30px;
+	background: #e7eef5;
+	color: #A3A3A3;
+	width: 350px;
+}
+
+.greyed_si input, .greyed_si label {
+	color:#A3A3A3;
+}
+
+	
+.miCol1, .miCol2{
+	vertical-align: top;
+}
+
+.startTSCol, .endTSCol{
+	vertical-align:top;
+}
+
+.startTSCol td, .endTSCol td{
+	white-space: nowrap;
+ 	text-align:left;
+}
+.numAttnTSCol{
+	vertical-align:top;
+	text-align:left;
+	width:7%;
+}
+
+.delTSCol{
+	white-space:nowrap;
+	vertical-align:middle;
+	text-align:right;
+	width:5%;
+}
+
+.meetingRadioBtn{
+	white-space: nowrap;
+}
+
+.alertMessage {
+	width: 80%;
+	font-size: 1em;
+	color: #b11;
+	margin: 5px 0px 5px 0;
+	padding: 3px 3px 3px 25px;
+}
+
+.multiple {
+	background: #eee;
+}
+
+.single {
+	background: #e7eef5;
+	background-color: #e7eef5;
+	color: #e7eef5;
+}
+
+.displaySites {
+	background: #c12;
+	background-color: #c12;
+}
+
+.recurrence {
+	padding: 5px 5px 5px 120px;
+}
+
+.meetingMaxAttd {
+	margin: 5px 5px 5px 30px;
+}
+
+.grouptitle {
+	margin: .3em 1em;
+	border: 1px solid #fff;
+	line-height: 90%;
+	font-size: 85%
+}
+
+.sitetitle {
+	margin: .1em 0em;
+	border: 1px solid #fff;
+	line-height: 100%;
+}
+
+table.sitegroup td {
+	padding: .1em 0em 0em 0em;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.published_grouptitle {
+	margin: 5px 0px;
+	line-height: 90%;
+	font-size: 85%;
+	font-size: 85%
+}
+
+.published_sitetitle {
+	margin: 10px 0px;
+	line-height: 100%;
+}
+
+table.published_sitegroup td {
+	padding: 3px 0px 3px 20px;
+	text-align: left;
+	white-space: nowrap;
+}
+
+table.preSignTable td {
+	padding: .15em 0em 0em 1em;
+	text-align: left;
+	white-space: nowrap;
+}
+
+.annoncement {
+	margin: 3em 5em;
+	font-weight: bold;
+	text-align: center
+}
+
+.timeSelectTab {
+	text-align: left;
+	padding: 4px 3px 4px 20px;
+}
+
+.instruction {
+	margin-left: 10px;
+	line-height: 130%;
+	font-size: 90%;
+}
+
+table.instruction td.note{
+	vertical-align: top;
+}
+
+table.instruction td.desc{
+	padding-left:13px;
+}
+
+.alertMessageInline {
+	width: 80%;
+	font-size: 1em;
+	color: #b11;
+	margin: 5px 0px 5px 0;
+	padding: 3px 3px 3px 25px;
+}
+
+.noMeetingsWarn {
+	margin-left: 2em;
+}
+
+.organizerToplevelTable {
+	width: 100%;
+}
+
+.addAttendee,.activeTag {
+	cursor: pointer;
+	color: #35b;
+	text-decoration: none !important;
+}
+
+.addWaiter {
+	cursor: pointer;
+	color: #35b;
+	text-decoration: none !important;
+}
+
+.addWaiter:hover,.addAttendee:hover,.activeTag:hover {
+	color: blue;
+}
+
+.disabledAddAttendee {
+	
+}
+
+.padLeft {
+	margin-left: 30px;
+	text-align: left;
+}
+
+.calendarImageIcon {
+	vertical-align: bottom;
+	margin-left: 3px;
+	margin-right: 7px;
+}
+
+.orgShowTitleOnly, .emailTable, .assingAttendeeTable {
+	width:98%;
+}
+
+table.orgShowTitleOnly td.titleColumn {
+	width: 12.3%;
+}
+
+table.assingAttendeeTable td.titleColumn{
+	width: 10%;
+}
+
+table.emailTable td.alignRightColumn {
+	text-align: right;
+	white-space: nowrap;
+	padding-right:20px;
+}
+
+table.emailTable td.titleColumn {
+	width: 10%;
+	text-align:left;
+	font-weight:bold; 
+}
+
+table.emailTable td.valueColumn {	
+	text-align:left;
+	padding-left:0px;
+}
+
+.openCloseImageIcon:hover, .addButton:hover{
+	background:buttonhighlight;
+	/* for IE */
+  	filter:alpha(opacity=80);
+  	/* CSS3 standard */
+  	opacity:0.80;
+}
+
+.published_siteGroupTable{
+	margin-top:-8px; 
+	margin-left:-5px;
+}
+
+.subListHeader{
+    background:#eee !important;
+}
+.waitListed{
+    margin-top:1em;
+}
+.waitListed th{
+    background:none !important;
+    border:none;
+    border-bottom:2px solid #aaa;
+    font-style:italic;
+
+}
+.toggle{
+	position:absolute;
+	right:5px;
+	top:50px;
+}
+
+.dateExact {
+	color: #888;
+	margin-left: 10px;
+}
+
+/* control CKEditor window size*/
+.cke_contents {
+		height: 160px !important;
+		width:700px !important;
+}

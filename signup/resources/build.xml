@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="signup" basedir="." default="">
+	<!--WARNING This is a hack to generate the schema scripts. Please use maven hibernate plugin with maven2 for generic 
+		approach.
+	 -->
+	<property name="maven.repo" value="C:/Documents and Settings/gl256/.m2/repository/" />
+	
+	<path id="classpath">
+		<filelist dir="${maven.repo}">
+			<file name="org.hibernate/jars/hibernate-3.1.3.jar"/>
+			<file name="dom4j/jars/dom4j-1.6.1.jar"/>
+			<file name="commons-logging/jars/commons-logging-1.1.jar"/>
+			<file name="commons-collections/jars/commons-collections-3.1.jar" />
+			<file name="mysql/jars/mysql-connector-java-3.1.14-bin.jar"/>
+			<file name="oracle/jars/ojdbc-1.4.jar"/>
+		</filelist>
+	</path>
+	<target name="mysql-schemaexport">
+	    <taskdef name="mysql-schemaexport"
+	        classname="org.hibernate.tool.hbm2ddl.SchemaExportTask"
+	        classpathref="classpath"/>
+	    <mysql-schemaexport
+	        properties="hibernate.properties.mysql"
+	        quiet="no"
+	        text="no"
+	        drop="no"
+	        delimiter=";"
+	        output="sakai.signup.mysql.sql">
+	        <fileset dir="../api/src/java">
+	            <include name="**/*.hbm.xml"/>
+	        </fileset>
+	    </mysql-schemaexport>
+	</target>
+	
+	<target name="oracle-schemaexport">
+		    <taskdef name="oracle-schemaexport"
+		        classname="org.hibernate.tool.hbm2ddl.SchemaExportTask"
+		        classpathref="classpath"/>
+		    <oracle-schemaexport
+		        properties="hibernate.properties.oracle"
+		        quiet="no"
+		        text="no"
+		        drop="no"
+		        delimiter=";"
+		        output="sakai.signup.oracle.sql">
+		        <fileset dir="../api/src/java">
+		            <include name="**/*.hbm.xml"/>
+		        </fileset>
+		    </oracle-schemaexport>
+		</target>
+</project>	

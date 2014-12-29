@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean
+		id="org.sakaiproject.signup.hibernate.AdditionalHibernateMappings"
+		class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/signup/hbm/SignupMeeting.hbm.xml</value>
+				<value>org/sakaiproject/signup/hbm/SignupSite.hbm.xml</value>
+				<value>org/sakaiproject/signup/hbm/SignupTimeslot.hbm.xml</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>
