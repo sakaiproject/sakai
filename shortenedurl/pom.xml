@@ -1,0 +1,127 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+    </parent>
+    
+	<name>Sakai Shortened URL Service</name>
+	<groupId>org.sakaiproject.shortenedurl</groupId>
+	<artifactId>shortenedurl</artifactId>
+	<version>11-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+	<organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    
+    <inceptionYear>2009</inceptionYear>
+	
+	<developers>
+		<developer>
+			<name>Steve Swinsburg</name>
+			<email>steve.swinsburg@gmail.com</email>
+		</developer>
+	</developers>
+
+	<licenses>
+        <license>
+            <name>Educational Community License, Version 2.0</name>
+            <url>http://www.opensource.org/licenses/ecl2.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.sakaiproject.org/jira/browse/TINYURL</url>
+    </issueManagement>
+    
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>pack</module>
+        <module>tool</module>
+    </modules>
+
+    <profiles>
+        <profile>
+            <id>remove-10</id>
+            <modules>
+                <module>ddl</module>
+            </modules>
+        </profile>
+    </profiles>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/shortenedurl/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/shortenedurl/trunk</url>
+    </scm>
+    
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/shortenedurl/${project.version}</url>
+        </site>
+    </distributionManagement>
+    
+	<dependencyManagement>
+		<dependencies>
+			
+			<!-- internal dependencies -->
+			<dependency>
+		      	<groupId>${project.groupId}</groupId>
+		      	<artifactId>shortenedurl-api</artifactId>
+		      	<version>${project.version}</version>
+		      	<scope>provided</scope>
+		    </dependency>
+		    <dependency>
+	        	<groupId>${project.groupId}</groupId>
+	         	<artifactId>shortenedurl-impl</artifactId>
+				<version>${project.version}</version>
+				<scope>runtime</scope>
+	      	</dependency>
+		    
+		    <!-- external dependencies -->
+		    <dependency>
+		      	<groupId>commons-logging</groupId>
+		      	<artifactId>commons-logging</artifactId>
+		      	<version>${sakai.commons-logging.version}</version>
+		      	<scope>provided</scope>
+		    </dependency>
+		     <dependency>
+		      	<groupId>commons-lang</groupId>
+		      	<artifactId>commons-lang</artifactId>
+		      	<version>2.5</version>
+		      	<scope>provided</scope>
+		    </dependency>
+		    <dependency>
+				<groupId>org.apache.httpcomponents</groupId>
+				<artifactId>httpclient</artifactId>
+				<version>4.0</version>
+				<scope>compile</scope>
+			</dependency>
+			<dependency>
+				<groupId>javax.servlet</groupId>
+				<artifactId>servlet-api</artifactId>
+				<version>2.4</version>
+				<scope>provided</scope>
+			</dependency>
+			
+			<!-- java 1.5 requires this at compilation time for org.apache.http.impl.client.DefaultHttpClient -->
+			<dependency>
+				<groupId>net.jcip</groupId>
+				<artifactId>jcip-annotations</artifactId>
+				<version>1.0</version>
+				<scope>provided</scope>
+			</dependency>
+    	</dependencies>
+    </dependencyManagement>
+</project>

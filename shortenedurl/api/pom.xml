@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+	<name>Sakai Shortened URL Service API</name>
+	<groupId>org.sakaiproject.shortenedurl</groupId>
+	<artifactId>shortenedurl-api</artifactId>
+
+	<packaging>jar</packaging>
+	
+	<properties>
+      <deploy.target>shared</deploy.target>
+   	</properties>
+   	
+	<parent>
+		<groupId>org.sakaiproject.shortenedurl</groupId>
+		<artifactId>shortenedurl</artifactId>
+		<version>11-SNAPSHOT</version>
+	</parent>
+
+   <dependencies>
+        <dependency>
+      		<groupId>org.sakaiproject.entitybroker</groupId>
+      		<artifactId>entitybroker-api</artifactId>
+      		<scope>provided</scope>
+    	</dependency>
+   </dependencies>
+
+   <build>
+      <resources>
+         <resource>
+            <directory>${basedir}/src/java</directory>
+            <includes>
+               <include>**/*.xml</include>
+            </includes>
+            <filtering>false</filtering>
+         </resource>
+      </resources>
+   </build>
+
+</project>
