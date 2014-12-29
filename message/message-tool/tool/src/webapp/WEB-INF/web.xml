@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>sakai-message-tool</display-name>
+    <description>sakai-message-tool</description>
+
+	<!-- Sakai request filter -->
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.synoptic.discussion</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.motd</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+	<!-- the vm handling servlet : used direct by name, not by URL path -->
+	<servlet>
+		<servlet-name>
+		   sakai.vm
+		</servlet-name>
+		<servlet-class>
+			org.sakaiproject.vm.VelocityServlet
+		</servlet-class>
+		<init-param>
+			<param-name> properties </param-name>
+			<param-value> velocity.properties </param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.synoptic.discussion
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.message.tool.SynopticMessageAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>recent/chef_synoptic_message</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <servlet>
+        <servlet-name>
+           sakai.motd
+        </servlet-name>
+        <servlet-class>
+            org.sakaiproject.message.tool.SynopticMessageAction
+        </servlet-class>
+        <init-param>
+            <param-name>template</param-name>
+            <param-value>recent/chef_synoptic_message</param-value>            
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+     </servlet>
+
+    <listener>
+        <listener-class>org.sakaiproject.util.ToolListener</listener-class>
+    </listener>
+
+</web-app>

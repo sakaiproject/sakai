@@ -1,0 +1,197 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/recent/chef_synoptic_message-customize.vm,v 1.7 2005/05/23 19:03:56 gsilver.umich.edu Exp $
+##
+## $allow_show_subject indicates whether user can choose to show subject rather than body of message
+## $allow_channel_choice indicates whether user can choose channel
+## $tool_title the title of the tool, such as "Recent Announcements", "Recent Chat", etc.
+## $tool_name the name of the tool, such as "Announcements", "Chat", etc.
+## $channel_analog the word(s) used to refer to a channel, such as "Chat Room"
+## $one_item the word(s) used to refer to a single message
+## $all_items the word(s) used to refer to all messages collectively
+## $channels 
+## $default_channel 
+##
+<div class="portletBody">
+	<h3>
+##		$tlang.getString("cus.cus") $tool_title
+		$tlang.getString("gen.options")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $validator.escapeHtml($alertMessage))</div><div class="clear"></div>#end
+	<p class="instruction indnt1">
+		$tlang.getFormattedMessage("cus.youare.for", $tool_title)
+	</p>
+	
+	<form action="#toolForm("$action")" method="post">
+		<div class="indnt1">
+			<h4>
+					$tlang.getFormattedMessage("cus.dis1.tool", $tool_title)
+			</h4>
+			
+			## Recent Discussion tool got the true setting of allow_show_subject
+			
+			#if($allow_show_subject == "true")
+				#if ($toolId=="sakai.motd")
+					<p class="checkbox indnt1">
+						<input 	type="radio"
+							#if ($showSubject == "true")
+								checked="checked"
+							#end
+							name="$show_subject_form" 
+							id="${show_subject_form}-subject" 
+							value="true" /> 
+						<label for="${show_subject_form}-subject">
+							$tlang.getFormattedMessage("gen.show.sub", $one_item)
+						</label>
+					</p>
+					<p class="checkbox indnt1">
+						<input 	type="radio"
+							#if($showSubject == "false")
+								checked="checked" 
+							#end
+							name="$show_subject_form" 
+							id="${show_subject_form}-body" 
+							value="false"	/> 
+						<label for="${show_subject_form}-body">
+							$tlang.getFormattedMessage("gen.show.bod", $one_item)
+						</label>
+					</p>
+				
+				#else
+					#if ($toolId=="sakai.synoptic.discussion")
+						<p class="checkbox indnt1">
+							<input 	type="checkbox"
+								#if($showBody == "true")
+									checked="checked"
+								#end
+								name="$show_body_form" 
+								id="$show_body_form" 
+								value="true" /> 
+							<label for="$show_body_form">
+								$tlang.getFormattedMessage("gen.show.bod", $one_item)
+							</label>
+						</p>
+					#end
+				#end
+						
+				<p class="shorttext">
+					<label for="$length_form">
+						<span class="indnt2">$tlang.getString("gen.showabout")</span>
+					</label>
+					## here are some yardsticks - 50 chars per line
+					<select id="$length_form" name="$length_form" size="1">
+					#if ($toolId=="sakai.motd")
+						#foreach ($chars in ["$tlang.getString('gen.oneline')", "$tlang.getString('gen.twoline')", "$tlang.getString('gen.allline')"])
+							#if ($chars.equals("$tlang.getString('gen.oneline')"))
+								#set ($value = "50")
+							#else
+								#if ($chars.equals("$tlang.getString('gen.twoline')"))
+									#set ($value = "100")
+								#else
+									#if ($chars.equals("$tlang.getString('gen.allline')"))
+										#set ($value = "50000")
+									#end
+								#end
+							#end
+							#if ($!selectedChars.toString() == $value)
+								<option value = "$value" selected="selected" >$chars</option>
+							#else
+								<option value = "$value">$chars</option>
+							#end
+						#end
+					#else
+						#foreach ($chars in ["$tlang.getString('gen.oneline')", "$tlang.getString('gen.twoline')"])
+							#if ($chars.equals("$tlang.getString('gen.oneline')"))
+								#set ($value = "50")
+							#else
+								#if ($chars.equals("$tlang.getString('gen.twoline')"))
+									#set ($value = "100")
+								#end
+							#end
+							#if ($!selectedChars.toString() == $value)
+								<option value = "$value" selected="selected" >$chars</option>
+							#else
+								<option value = "$value">$chars</option>
+							#end
+						#end
+					#end
+					</select>
+				</p>
+				
+				<p class="shorttext">
+					<label for="$days_form">
+						$tlang.getString("cus.numpas")
+					</label>
+					<input type="text" id="$days_form"  name="$days_form" value="$days" size="3" />
+				</p>
+				#if ($toolId!="sakai.motd")
+				<p class="shorttext">
+					<label for="$items_form">
+						$tlang.getFormattedMessage("cus.numof.items", $all_items)
+					</label>
+					<input type="text" id="$items_form" name="$items_form" value="$items" size="3" />
+				</p>
+				#end
+				
+			#end
+			
+			## Recent Chat tool got the true setting of allow_channel_choice
+			
+			#if($allow_channel_choice == "true")
+				#if($channels.size() > 0) 
+					<p class="checkbox indnt1">
+						<input type="radio" 
+							value="$default_channel" 
+							#if ($default_channel == $channel)
+								checked="checked" 
+							#end
+							name="$channel_form"
+							id="${channel_form}-default" />
+						<label for="${channel_form}-default">
+							$tlang.getString("cus.maicha")
+						</label>
+					</p>
+					#set($buttonNum = 0)
+					#foreach ($chnl in $channels)
+						<p class="checkbox indnt1">
+							<input 
+								type="radio" 
+								value="$chnl" 
+								#if ($chnl == $channel)
+										checked="checked" 
+								#end
+								name="$channel_form"
+								id="${channel_form}-$buttonNum" />
+							<label for="${channel_form}-$buttonNum">
+								$chnl
+							</label>
+						</p>
+						#set($buttonNum = $buttonNum + 1)
+					#end
+				#end
+			
+				<p class="shorttext">
+					<label for="$days_form">
+						$tlang.getString("cus.numpas") 
+					</label>
+					<input type="text" id="$days_form"  name="$days_form" value="$days" size="2" />
+				</p>
+				<p class="shorttext">
+					<label for="$items_form">
+						$tlang.getFormattedMessage("cus.numof.items", $all_items)
+					</label>
+					<input type="text" id="$items_form" name="$items_form" value="$items" size="2"  />
+				</p>
+				<p class="shorttext">
+					<label for="$items_form">
+						$tlang.getFormattedMessage("cus.numof2.item", $one_item)
+					</label>
+					<input type="text" id="$length_form" name="$length_form" value="$length" size="2" />
+				</p>
+			#end
+		</div>	
+		<p class="act">
+			<input type="submit" class="active" name="$form-submit" id="$form-submit" value="$tlang.getString("gen.sav")"  accesskey="s" />
+			<input type="submit" name="$form-cancel" id="$form-cancel" value="$tlang.getString("gen.can")"  accesskey="x" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

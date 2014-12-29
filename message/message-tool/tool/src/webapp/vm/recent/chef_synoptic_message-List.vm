@@ -1,0 +1,97 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/recent/chef_synoptic_message-List.vm,v 1.6 2005/05/20 17:28:19 suiyy.umich.edu Exp $
+<div class="portletBody">
+	#set($counter = 0)
+
+		#if ($toolId=="sakai.motd")
+			#if($menu)
+			<ul class="navIntraTool actionToolBar">
+				<li class="firstToolBarItem"><span><a href="#" title="$tlang.getString("motd.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+					$tlang.getString("gen.options")
+					<span class="skip">$toolTitle</span>
+				</a>
+				</span></li>
+			</ul>
+			#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			<ul class="synopticList">
+			#foreach ($item in $messages)
+				<li>
+					#set($counter = $counter + 1)
+					#if ($showSubject)
+					#if (!$props.isEmpty() && $props.getProperty("releaseDate"))
+						#set($releasedate = $props.getTimeProperty("releaseDate"))
+					#else
+						#set($releasedate= $item.Header.Date)
+					#end
+						<h3 class="textPanelHeader">$validator.escapeHtml($item.Header.Subject)</h3>
+					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
+					#else
+						#set ($text=$item.Body)
+						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</div>
+					#end
+					#set ($size = 0)
+					#if (!$item.Header.Attachments.isEmpty())
+##					<h3 class="textBlockHeader indnt1">$tlang.getString("gen.attach")</h3>
+						#set ($props = false)
+						#set ($size = $item.Header.Attachments.size())
+						<ul class="attachList indnt1">
+						#foreach ($attachment in $item.Header.Attachments)
+							#set ($props = $attachment.Properties)
+							#if (!$props)
+								#if ($size > 0) #set ($size = $size - 1) #end
+							#else
+								<li>
+									#if ($props.getBooleanProperty($props.NamePropIsCollection))
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="" />
+									#else
+										<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt=""/>
+									#end
+									<a href="$attachment.Url" target="_blank">
+										$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+									#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+										($props.getPropertyFormatted($props.NamePropContentLength))
+									#end
+								</li>
+							#end
+						#end
+						</ul>
+				#end
+				</li>
+			#end	
+			</ul>
+		#end
+		#if ($toolId=="sakai.synoptic.discussion")
+			#if($menu)
+			<ul class="navIntraTool actionToolBar">
+				<li class="firstToolBarItem"><span>					
+				<a href="#" title="$tlang.getString("disc.options")" onclick="location = '#toolLink("$action" "doOptions")';return false;">
+					$tlang.getString("gen.options")
+					<span class="skip">$toolTitle</span>
+				</a>
+				</span></li>
+			</ul>
+			#end
+			#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+			<ul class="synopticList">
+			#foreach ($item in $messages)
+				<li>
+				#set($counter = $counter + 1)
+				#if ($!item.Header.Subject)
+					<h3 class="textPanelHeader">$validator.escapeHtml($item.Header.Subject)</h3>
+					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{item.Header.Date.toStringLocalFull()})</p>
+				#end
+				#if ($showBody) #set ($text=$item.Body)
+						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</div>
+				#end
+				</li>	
+			#end	
+			</ul>
+		#end
+		
+	#if ($counter == 0)
+		<p class="instruction">
+			$tlang.getString("lis.the")
+		</p>
+	#end
+</div>
+

@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.motd"
+			title="Message Of The Day"
+			description="Display the system message of the day">
+
+		<configuration name="days" value="1000" />
+		<configuration name="items" value="1" />
+		<configuration name="length" value="50000" />
+		<configuration name="show-subject" value="false" />
+		<configuration name="show-newlines" value="true" />
+		<configuration name="channel" value="/announcement/channel/!site/motd" />
+
+		<configuration name="message-service" value="org.sakaiproject.announcement.api.AnnouncementService" type="final" />
+		<configuration name="reset.button" value="false" type="final" />
+		<configuration name="help.id" value="sakai.motd" type="final" />
+
+	</tool>
+
+</registration>
