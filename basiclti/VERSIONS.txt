@@ -1,0 +1,7 @@
+Version History
+
+Sakai 2.7.0 includes BasicLTI 1.1.3
+Sakai 2.8.0 includes BasicLTI 1.3.1
+Sakai 2.9.0 includes BasicLTI 2.0
+Sakai 2.9.1 includes BasicLTI 2.0
+Sakai 2.9.2 includes BasicLTI 2.1

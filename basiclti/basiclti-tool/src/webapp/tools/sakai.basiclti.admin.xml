@@ -1,0 +1,34 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.basiclti.admin"
+			title="External Tools"
+			description="This tool manages external tools launchable via IMS LTI.">
+
+		<configuration name="reset.button" value="true"/>
+
+		<category name="admin" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+		
+	</tool>
+
+	<tool
+			id="sakai.basiclti.admin.helper"
+			title="External Tool Helper"
+			description="This tool manages external tools launchable via IMS LTI.">
+
+		<configuration name="reset.button" value="true"/>
+
+		<category name="sakai.helper" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+		<configuration name="helper" value="true" /> 
+		
+	</tool>
+
+</registration>

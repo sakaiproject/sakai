@@ -1,0 +1,113 @@
+#This needs a slight patch for 2.6 currently because of a missing API. This is better than doing it with reflection.
+Index: basiclti-portlet/src/java/org/sakaiproject/portlets/IMSBLTIPortlet.java
+===================================================================
+--- basiclti-portlet/src/java/org/sakaiproject/portlets/IMSBLTIPortlet.java (revision 73061)
++++ basiclti-portlet/src/java/org/sakaiproject/portlets/IMSBLTIPortlet.java (working copy)
+@@ -503,7 +503,7 @@
+                    Site site = SiteService.getSite(toolConfig.getSiteId());
+                    SitePage page = site.getPage(toolConfig.getPageId());
+            page.setTitle(imsTIPageTitle);
+-           page.setTitleCustom(true);
++//         page.setTitleCustom(true);
+            SiteService.save(site);
+            } catch (Exception e) {
+                        setErrorMessage(request, rb.getString("error.page.title"));
+Index: pom.xml
+===================================================================
+--- pom.xml (revision 73061)
++++ pom.xml (working copy)
+@@ -2,11 +2,13 @@
+ <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+     <modelVersion>4.0.0</modelVersion>
+     
++    <!--
+     <parent>
+         <groupId>org.sakaiproject.purepoms</groupId>
+         <artifactId>sakai-standard-tool</artifactId>
+         <version>2.7.0-build04</version>
+     </parent>
++    -->
+     
+     <name>BasicLTI base pom (basiclti)</name>
+     <groupId>org.sakaiproject.basiclti</groupId>
+@@ -22,13 +24,11 @@
+     <!-- Change this to the Sakai released version you're running -->
+     <!-- Unreleased or snapshot tags may require the entire source -->
+     <!-- example: <version>2.6.1</version> -->
+-    <!--
+     <parent>
+         <artifactId>master</artifactId>
+         <groupId>org.sakaiproject</groupId>
+-        <version>2.7.0-SNAPSHOT</version>
++        <version>2.6-SNAPSHOT</version>
+     </parent>
+-    -->
+ 
+     <properties>
+         <url.localsite>scp://source.sakaiproject.org/var/www/html/release/basiclti/${project.version}</url.localsite>
+
+Index: basiclti-portlet/src/java/org/sakaiproject/blti/ProviderServlet.java
+===================================================================
+--- basiclti-portlet/src/java/org/sakaiproject/blti/ProviderServlet.java	(revision 89654)
++++ basiclti-portlet/src/java/org/sakaiproject/blti/ProviderServlet.java	(working copy)
+@@ -669,7 +669,7 @@
+ 		}
+ 		
+ 		// Check user has access to this tool in this site
+-		if(!ToolManager.isVisible(site, toolConfig)) {
++		if(!isToolVisible(site, toolConfig)) {
+ 			M_log.warn("Not allowed to access tool user_id=" + user_id + " site="+ siteId + " tool=" + tool_id);
+ 			doError(request, response, "launch.site.tool.denied", "user_id=" + user_id + " site="+ siteId + " tool=" + tool_id, null);
+ 			return;
+@@ -724,4 +724,51 @@
+ 
+ 	}
+ 	
++	/**
++	 * Method to check if a tool is visible for a user in a site, based on KNL-428
++	 * @param site
++	 * @param toolConfig
++	 * @return
++	 */
++	 private boolean isToolVisible(Site site, ToolConfiguration toolConfig) {
++
++		//no way to check, so allow access. It's then up to the tool to control permissions
++		if(site == null || toolConfig == null) {
++			return true;
++		}
++
++		String toolPermissionsStr = toolConfig.getConfig().getProperty("functions.require");
++		if (M_log.isDebugEnabled()) {
++			M_log.debug("tool: " + toolConfig.getToolId() + ", permissions: " + toolPermissionsStr);
++		}
++
++		//no special permissions required, it's visible
++		if (toolPermissionsStr == null || toolPermissionsStr.trim().length() == 0) {
++			return true;
++		}
++
++		//check each set, if multiple permissions in the set, must have all.
++		String[] toolPermissionsSets = toolPermissionsStr.split("\\|");
++		for (int i = 0; i < toolPermissionsSets.length; i++){
++			String[] requiredPermissions = toolPermissionsSets[i].split(",");
++			boolean allowed = true;
++			for (int j = 0; j < requiredPermissions.length; j++) {
++				//since all in a set are required, if we are missing just one permission, set false, break and continue to check next set
++				//as that set may override and allow access
++				if (!SecurityService.unlock(requiredPermissions[j].trim(), site.getReference())){
++					allowed = false;
++					return false;
++				}
++			}
++			//if allowed, we have matched the entire set so are satisfied
++			//otherwise we will check the next set
++			if(allowed) {
++				return true;
++			}
++		}
++
++		//no sets were completely matched
++		return false;
++	}
++	
+ }

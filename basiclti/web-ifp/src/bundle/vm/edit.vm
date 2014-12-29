@@ -1,0 +1,23 @@
+<script type="text/javascript">
+	focus_path = [ "title" ];
+</script>
+
+<div class="portletBody">
+	<h3>
+		$tlang.getString("gen.custom")
+	</h3>
+	#if ($alertMessage)
+	<div class="alertMessage">
+	$tlang.getString("gen.alert") $alertMessage
+	</div>
+	<div class="clear"></div>
+	#end
+	<form action="$actionUrl" method="post" name="customizeForm" >
+		$formInput 
+
+		<p class="act">
+			<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+		</p>
+	</form>
+</div>

@@ -1,0 +1,15 @@
+<div class="portletBody">
+#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+<script type="text/javascript"><!--
+if(self == top) {
+	whereToGo = '$sakai_ActionURL.setPanel("ToolSite")';
+	window.console && console.log("We should not be redirecting to "+whereToGo);
+	setTimeout('window.top.location="'+whereToGo+'";', 3000);
+} else {
+	setTimeout('window.top.location.reload(true);', 3000);
+}
+// -->
+</script>
+<h4>$tlang.getString("operation.refreshing")</h4>
+</div>

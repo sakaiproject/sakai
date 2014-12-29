@@ -1,0 +1,66 @@
+/*links for the generic toolbar  - inline-block is there to make IE behave
+see: http://www.quirksmode.org/bugreports/archives/2005/07/Wrapped_inlinenowrap_elements_lose_padding_left_in.html*/
+.navIntraTool a, .navIntraTool a:link,
+.navViewGlobal a, .navViewGlobal a:link, .actionToolBar a, .actionToolBar a:link, .navToolBar a, .navToolBar a:link, .navLinkList a, .navLinkList a:link{
+	margin: 0;
+	text-decoration: underline;
+	white-space: nowrap;
+
+	padding:0;
+
+}
+.actionToolBar a, .actionToolBar a:link, .navToolBar a, .navToolBar a:link, .navLinkList a:link{
+	margin:0;
+		padding:0;
+}
+
+
+* html body .navIntraTool a, * html body .navIntraTool a:link{
+/*	display:inline-block;*/
+}
+
+.navIntraTool a:visited,
+.navToolBar a:visited
+.actionToolBar  a:visited
+.navLinkList  a:visited{
+
+	color: #35b;
+	text-decoration: underline;
+}
+
+.navIntraTool a:hover,
+.navToolBar a:hover,
+.actionToolBar a:hover
+.navLinkList a:hover{
+	color: #33f;
+	text-decoration: underline;
+}
+
+.navIntraTool a:active{
+	color: #33f;
+	text-decoration: none;
+}
+
+/*where one is at in hierarchy - can be static or active links*/
+ul.navBreadCrumb {
+	font-weight:bold;
+	list-style:none;
+	padding-left: 0
+}
+ul.navBreadCrumb li {
+	display:inline;
+	}
+/*for accessib. some breadcrumbs have h3 children - format like normal text*/
+.breadCrumb h3,.breadCrumb h4,.breadCrumb h5, .breadCrumb h6{
+	font-size:85%
+}
+
+.breadCrumb a:link,.breadCrumb a:visited{
+	color: #35b;
+	text-decoration: none;
+}
+
+.breadCrumb a:hover{
+	color: #33f;
+	text-decoration: underline;
+}

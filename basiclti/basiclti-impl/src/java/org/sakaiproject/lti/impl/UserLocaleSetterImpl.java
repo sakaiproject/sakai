@@ -1,0 +1,70 @@
+/**
+ * Copyright (c) 2009 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://www.opensource.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.sakaiproject.lti.impl;
+
+import java.util.Map;
+
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import org.imsglobal.basiclti.BasicLTIConstants;
+
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.lti.api.UserLocaleSetter;
+import org.sakaiproject.user.api.Preferences;
+import org.sakaiproject.user.api.PreferencesEdit;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.PreferencesService;
+
+/**
+ *  @author Adrian Fish <a.fish@lancaster.ac.uk>
+ */
+public class UserLocaleSetterImpl implements UserLocaleSetter {
+
+	private static Log M_log = LogFactory.getLog(UserFinderOrCreatorImpl.class);
+
+    private PreferencesService preferencesService = null;
+    public void setPreferencesService(PreferencesService  preferencesService) {
+        this.preferencesService = preferencesService;
+    }
+
+    public void setupUserLocale(Map payload, User user, boolean isTrustedConsumer) {
+
+    	if(isTrustedConsumer) return;
+
+        // BLTI-153. Set up user's language.
+        String locale = (String) payload.get(BasicLTIConstants.LAUNCH_PRESENTATION_LOCALE);
+        if(locale != null && locale.length() > 0) {
+            try {
+                PreferencesEdit pe = null;
+                try {
+                    pe = preferencesService.edit(user.getId());
+                } catch(IdUnusedException idue) {
+                    pe = preferencesService.add(user.getId());
+                }
+                
+                ResourcePropertiesEdit propsEdit = pe.getPropertiesEdit("sakai:resourceloader");
+                propsEdit.removeProperty(Preferences.FIELD_LOCALE);
+                propsEdit.addProperty(Preferences.FIELD_LOCALE,locale);
+                preferencesService.commit(pe);
+            } catch(Exception e) {
+                M_log.error("Failed to setup launcher's locale",e);
+            }
+        }
+    }
+}

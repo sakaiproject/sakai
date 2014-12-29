@@ -1,0 +1,20 @@
+These are the steps to keep my git repo synchronized for this code
+
+git svn init https://source.sakaiproject.org/svn/basiclti/trunk/basiclti-docs/resources/docs/sakai-api-test
+
+git svn fetch
+
+Takes a long time.
+
+git repack -d
+
+git remote add origin https://github.com/csev/sakai-lti-test.git
+
+git pull origin master
+
+When something changes:
+
+git svn rebase
+git push
+
+

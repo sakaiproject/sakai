@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>basiclti</artifactId>
+        <groupId>org.sakaiproject.basiclti</groupId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+    <name>BasicLTI Docs (basiclti-docs)</name>
+    <groupId>org.sakaiproject.basiclti</groupId>
+    <artifactId>basiclti-docs</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2009</inceptionYear>
+    <packaging>pom</packaging>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/resources/docs</directory>
+            </resource>
+        </resources>
+    </build>
+</project>

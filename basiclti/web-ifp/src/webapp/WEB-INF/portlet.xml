@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<portlet-app xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_1_0.xsd"
+        version="1.0">
+
+    <portlet>
+        <portlet-name>SakaiIFrame</portlet-name>
+        <display-name xml:lang="en">Sakai IFrame Portlet</display-name>
+        <portlet-class>org.sakaiproject.portlets.SakaiIFrame</portlet-class>
+
+       <init-param>
+            <name>sakai.test.init.parm</name>
+            <value>Hello from portlet.xml</value>
+       </init-param>
+
+        <expiration-cache>60</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>view</portlet-mode>
+            <portlet-mode>edit</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+
+        <portlet-info>
+            <title>Sakai IFrame Portlet (JSR-168)</title>
+            <short-title>IFrame Portlet</short-title>
+            <keywords>Sakai</keywords>
+        </portlet-info>
+    </portlet>
+
+    <user-attribute>
+        <description>User Given Name</description>
+        <name>user.name.given</name>
+    </user-attribute>
+    <user-attribute>
+        <description>User Last Name</description>
+        <name>user.name.family</name>
+    </user-attribute>
+    <user-attribute>
+        <description>User Nick Name</description>
+        <name>user.name.nickname</name>
+    </user-attribute>
+    <user-attribute>
+        <description>User eMail</description>
+        <name>user.business-info.online.email</name>
+    </user-attribute>
+    <user-attribute>
+        <description>User eMail</description>
+        <name>user.home-info.online.email</name>
+    </user-attribute>
+
+</portlet-app>
