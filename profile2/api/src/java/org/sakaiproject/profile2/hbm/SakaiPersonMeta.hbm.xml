@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.model">
+
+	<class name="SakaiPersonMeta" table="SAKAI_PERSON_META_T">
+
+	    <id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">SAKAI_PERSON_META_S</param>
+	      </generator>
+	    </id>
+
+	    <property name="userUuid" column="USER_UUID" length="99" not-null="true"/>
+	    <property name="property" column="PROPERTY" not-null="true"/>
+		<property name="value" column="VALUE" not-null="true" />
+		
+  	</class>
+  	
+	<query name="getProperty">
+    	<![CDATA[from SakaiPersonMeta spm WHERE spm.userUuid = :userUuid AND spm.property = :property]]>
+	</query>
+	
+	
+	<!--  these are on the SakaiPerson object. -->
+	<query name="findSakaiPersonsByNameOrEmail">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where lower(sp.nickname) like lower(:search) or lower(sp.mail) like lower(:search)]]>
+  	</query>
+  
+ 	<query name="findSakaiPersonsByInterest">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where lower(sp.favouriteBooks) like lower(:search) or lower(sp.favouriteTvShows) like lower(:search) or lower(sp.favouriteMovies) like lower(:search) or lower(sp.favouriteQuotes) like lower(:search) or lower(sp.notes) like lower(:search)]]>
+  	</query>
+  	
+  	<query name="findSakaiPersonsByInterestAndBusinessBio">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp where lower(sp.favouriteBooks) like lower(:search) or lower(sp.favouriteTvShows) like lower(:search) or lower(sp.favouriteMovies) like lower(:search) or lower(sp.favouriteQuotes) like lower(:search) or lower(sp.notes) like lower(:search) or lower(sp.businessBiography) like lower(:search)]]>
+  	</query>
+  	
+  	<query name="getAllSakaiPersonIds">
+    	<![CDATA[select sp.agentUuid from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
+  	</query>
+  	
+  	<query name="getAllSakaiPersonIdsCount">
+    	<![CDATA[select count(distinct sp.agentUuid) from org.sakaiproject.component.common.edu.person.SakaiPersonImpl as sp]]>
+  	</query>
+  	
+  	<!--  this is a native query to get only the fields that Profile2 currently uses, it is then transformed into a UserProfile object.
+  	This should be chunked in the Hibernate call so as to only get a set of records at a time, say 100 -->
+  	<sql-query name="getSakaiPerson">
+  		<return-scalar column="userUuid" type="string" />
+  		<return-scalar column="nickname" type="string" />
+  		<return-scalar column="dateOfBirth" type="date" />
+  		<return-scalar column="department" type="string" />
+  		<return-scalar column="school" type="string" />
+  		<return-scalar column="room" type="string" />
+  		<return-scalar column="homepage" type="string" />
+  		<return-scalar column="workphone" type="string" />
+  		<return-scalar column="homephone" type="string" />
+  		<return-scalar column="mobilephone" type="string" />
+  		<return-scalar column="facsimile" type="string" />
+  		<return-scalar column="favouriteBooks" type="string" />
+  		<return-scalar column="favouriteTvShows" type="string" />
+  		<return-scalar column="favouriteMovies" type="string" />
+  		<return-scalar column="otherInformation" type="string" />
+  		<return-scalar column="course" type="string" />
+  		<return-scalar column="subjects" type="string" />
+  		<return-scalar column="locked" type="boolean" />
+  		
+    	<![CDATA[
+    	select 
+    		sp.AGENT_UUID as userUuid,
+    		sp.NICKNAME as nickname,
+    		sp.dateOfBirth as dateOfBirth,
+    		sp.TITLE as title,
+    		sp.OU as department,
+    		sp.CAMPUS as school,
+    		sp.ROOM_NUMBER as room,
+    		sp.LABELED_URI as homepage,
+    		sp.TELEPHONE_NUMBER as workphone,
+    		sp.HOME_PHONE as homephone,
+    		sp.MOBILE as mobilephone,
+    		sp.FAX_NUMBER as facsimile,
+    		sp.FAVOURITE_BOOKS as favouriteBooks,
+    		sp.FAVOURITE_TV_SHOWS as favouriteTvShows,
+    		sp.FAVOURITE_MOVIES as favouriteMovies,
+    		sp.FAVOURITE_QUOTES as favouriteQuotes,
+    		sp.NOTES as otherInformation,
+    		sp.EDUCATION_COURSE as course,
+    		sp.EDUCATION_SUBJECTS as subjects,
+    		sp.LOCKED as locked
+    	from 
+    		SAKAI_PERSON_T sp
+    	]]>
+  	</sql-query>
+
+</hibernate-mapping>

@@ -1,0 +1,234 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      xml:lang="en"  
+      lang="en">  
+      
+<body>
+<wicket:extend>
+	
+	<div id="pageWrapper">
+	
+		<!-- 
+		<div id="leftPanel">
+	    
+	    </div>
+		-->
+		
+		<div id="fullWidth">
+            
+            <div class="mainSectionContentForm">
+            
+	            <h3 wicket:id="heading" class="header icon preferences">[Preferences]</h3>
+	            
+	            <form wicket:id="form" class="profileForm">
+									
+					<!-- Email notifications -->
+					<h4 class="formSectionHeading" wicket:id="emailSectionHeading">[email notifications]</h4>
+					<div class="formSectionText" wicket:id="emailSectionText">[send me email when]</div>
+					
+					<table class="preferencesContent" wicket:message="summary:accessibility.prefs.overview">
+						<tr>
+							<td>&nbsp;</td>
+							<th class="item" wicket:id="prefOn">[On]</th>
+							<th class="item" wicket:id="prefOff">[Off]</th>
+						</tr>
+						<tr wicket:id="requestEmailEnabled">
+							<td class="label" wicket:id="requestsLabel">[requestsLabel]</td>
+							<td class="item">
+								<input type="radio" wicket:id="requestsOn" />
+								<label for="requestsoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.requests.on" /></label>
+							</td>
+							<td class="item">
+								<input type="radio" wicket:id="requestsOff" />
+								<label for="requestsoffinput" class="accessibility-label"><wicket:message key="accessibility.prefs.requests.off" /></label>
+							</td>
+						</tr>
+						<tr wicket:id="confirmEmailEnabled">
+							<td class="label" wicket:id="confirmsLabel">[confirmsLabel]</td>
+							<td class="item">
+								<input type="radio" wicket:id="confirmsOn" />
+								<label for="confirmsoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.confirms.on" /></label>
+							</td>
+							<td class="item">
+								<input type="radio" wicket:id="confirmsOff" />
+								<label for="confirmsoffinput" class="accessibility-label"><wicket:message key="accessibility.prefs.confirms.off" /></label>
+							</td>
+						</tr>
+						<tr wicket:id="messageNewEmailEnabled">
+							<td class="label" wicket:id="messageNewLabel">[messageNewLabel]</td>
+							<td class="item">
+								<input type="radio" wicket:id="messageNewOn" />
+								<label for="messagenewoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.messagenew.on" /></label>
+							</td>
+							<td class="item">
+								<input type="radio" wicket:id="messageNewOff" />
+								<label for="messagenewoffinput" class="accessibility-label"><wicket:message key="accessibility.prefs.messagenew.off" /></label>
+							</td>
+						</tr>
+						<tr wicket:id="messageReplyEmailEnabled">
+							<td class="label" wicket:id="messageReplyLabel">[messageReplyLabel]</td>
+							<td class="item">
+								<input type="radio" wicket:id="messageReplyOn" />
+								<label for="messagereplyoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.messagereply.on" /></label>
+							</td>
+							<td class="item">
+								<input type="radio" wicket:id="messageReplyOff" />
+								<label for="messagereplyoffinput" class="accessibility-label"><wicket:message key="accessibility.prefs.messagereply.off" /></label>
+							</td>
+						</tr>
+						<tr wicket:id="wallItemNewEmailEnabled">
+							<td class="label" wicket:id="wallItemNewLabel">[wallItemNewLabel]</td>
+							<td class="item">
+								<input type="radio" wicket:id="wallItemNewOn" />
+								<label for="wallitemnewoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.wallnew.on" /></label>
+							</td>
+							<td class="item">
+								<input type="radio" wicket:id="wallItemNewOff" />
+								<label for="wallitemnewoffinput" class="accessibility-label"><wicket:message key="accessibility.prefs.wallnew.off" /></label>
+							</td>
+						</tr>
+						<tr wicket:id="worksiteNewEmailEnabled">
+							<td class="label" wicket:id="worksiteNewLabel">[wallItemNewLabel]</td>
+							<td class="item">
+								<input type="radio" wicket:id="worksiteNewOn" />
+								<label for="worksitenewoninput" class="accessibility-label"><wicket:message key="accessibility.prefs.worksite.on" /></label>
+							</td>
+							<td class="item">
+								<input type="radio" wicket:id="worksiteNewOff" />
+								<label for="worksitenewoffinput" class="accessibility-label"><wicket:message key="accessibility.prefs.worksite.off" /></label>
+							</td>
+						</tr>
+					</table>
+					
+					
+					<!-- Twitter integration panel -->
+					<div wicket:id="twitterSectionHeadingContainer">
+						<h4 class="formSectionHeading" wicket:id="twitterSectionHeading">[twitter integration]</h4>
+						<div class="formSectionText" wicket:id="twitterSectionText">[twitterSectionText]</div>
+					</div>
+					<div wicket:id="twitterPanel"></div>
+					
+					
+					<!-- Image settings -->
+					<div wicket:id="imageSettingsContainer">
+						<h4 class="formSectionHeading" wicket:id="imageSettingsHeading">[profile image settings]</h4>
+						<div class="formSectionText" wicket:id="imageSettingsText">[imageSettingsText]</div>
+						
+						<table class="preferencesContent">
+							<tr wicket:id="officialImageContainer">
+								<td class="label" wicket:id="officialImageLabel">[officialImageLabel]</td>
+								<td class="content">
+									<input wicket:id="officialImage" type="checkbox" />
+									<label for="officalimageinput" class="accessibility-label"><wicket:message key="accessibility.prefs.officialimage" /></label>
+								</td>
+							</tr>
+						
+							<tr wicket:id="gravatarContainer">
+								<td class="label" wicket:id="gravatarLabel">[gravatarLabel]</td>
+								<td class="content">
+									<input wicket:id="gravatarImage" type="checkbox" />
+									<label for="gravatarimageinput" class="accessibility-label"><wicket:message key="accessibility.prefs.gravatar" /></label>
+								</td>
+							</tr>
+						</table>
+					</div>
+					
+					<!-- Widget settings -->
+					<div wicket:id="widgetSettingsContainer">
+						<h4 class="formSectionHeading" wicket:id="widgetSettingsHeading">[widget settings]</h4>
+						<div class="formSectionText" wicket:id="widgetSettingsText">[widgetSettingsText]</div>
+						
+						<table class="preferencesContent">
+							<tr wicket:id="kudosContainer">
+								<td class="label" wicket:id="kudosLabel">[kudosLabel]</td>
+								<td class="content">
+									<input wicket:id="kudosSetting" type="checkbox" />
+									<label for="kudosinput" class="accessibility-label"><wicket:message key="accessibility.prefs.kudos" /></label>
+								</td>
+								<td class="toolTip"><span wicket:id="kudosToolTip">[kudosToolTip]</span></td>
+							</tr>
+							<tr wicket:id="galleryFeedContainer">
+								<td class="label" wicket:id="galleryFeedLabel">[galleryFeedLabel]</td>
+								<td class="content">
+									<input wicket:id="galleryFeedSetting" type="checkbox" />
+									<label for="galleryfeedsettinginput" class="accessibility-label"><wicket:message key="accessibility.prefs.gallery" /></label>
+								</td>
+								<td class="toolTip"><span wicket:id="galleryFeedToolTip">[galleryFeedToolTip]</span></td>
+							</tr>
+							<tr wicket:id="onlineStatusContainer">
+								<td class="label" wicket:id="onlineStatusLabel">[onlineStatusLabel]</td>
+								<td class="content">
+										<input wicket:id="onlineStatusSetting" type="checkbox" />
+										<label for="onlinestatussettinginput" class="accessibility-label"><wicket:message key="accessibility.prefs.onlinestatus" /></label>
+								</td>
+								<td class="toolTip"><span wicket:id="onlineStatusToolTip">[onlineStatusToolTip]</span></td>
+							</tr>
+						</table>
+					</div>
+					
+					<div class="pageFormButtons">
+						<input type="submit" wicket:id="submit" value="Save" />
+					</div>
+					
+				</form>	
+				
+				<div wicket:id="formFeedback" tabindex="0">[formFeedback]</div>
+			
+			</div>
+		
+		</div>
+		
+		<!-- <div id="rightPanel"></div> -->
+	
+	
+	</div>
+	
+	<!--  general MyPrivacy scripting -->
+	<script type="text/javascript">
+
+		//init
+		$(document).ready(function(){ 
+			//resize iframe
+			setMainFrameHeight(window.name);
+
+		});
+
+		$(document).ready(function() {
+			$('.sakai-wicket-iconwithtooltip').cluetip({
+				local: true,
+				showTitle: false,
+				attribute: 'rel',
+				cursor: 'pointer',
+				cluetipClass: 'jtip',
+				arrows: true,
+				hoverIntent: true
+			});	
+			
+		});
+
+	</script>
+	
+</wicket:extend>
+</body>
+</html>
+

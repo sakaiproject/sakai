@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- these mapping resource paths must point to your hibernate template files (.hbm.xml),
+            this should be the classpath location (typically after the src directory) -->
+        	<mapping resource="org/sakaiproject/profile2/hbm/ProfileStatus.hbm.xml" />
+	        <mapping resource="org/sakaiproject/profile2/hbm/ProfilePrivacy.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/ProfileFriend.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/ProfileImageUploaded.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/SakaiPersonMeta.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/ProfilePreferences.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/ProfileImageExternal.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/Message.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/MessageThread.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/MessageParticipant.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/GalleryImage.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/CompanyProfile.hbm.xml" />
+	       	<mapping resource="org/sakaiproject/profile2/hbm/SocialNetworkingInfo.hbm.xml" />
+		<mapping resource="org/sakaiproject/profile2/hbm/ProfileKudos.hbm.xml" />
+		<mapping resource="org/sakaiproject/profile2/hbm/ExternalIntegrationInfo.hbm.xml" />
+		<mapping resource="org/sakaiproject/profile2/hbm/WallItem.hbm.xml" />
+		<mapping resource="org/sakaiproject/profile2/hbm/WallItemComment.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>

@@ -1,0 +1,210 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>Profile2</name>
+  <groupId>org.sakaiproject.profile2</groupId>
+  <artifactId>profile2</artifactId>
+  <packaging>pom</packaging>
+  <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+  <organization>
+    <name>The Sakai Foundation</name>
+    <url>http://www.sakaiproject.org</url>
+  </organization>
+  <inceptionYear>2008</inceptionYear>
+
+  <properties>
+    <wicket.version>1.4.23</wicket.version>
+    <log4j.version>1.2.14</log4j.version>
+    <twitter4j.version>3.0.5</twitter4j.version>
+    <wicketstuff.objectautocomplete.version>1.4.21</wicketstuff.objectautocomplete.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
+  </properties>
+
+  <modules>
+    <module>api</module>
+    <module>impl</module>
+    <module>util</module>
+    <module>pack</module>
+    <module>tool</module>
+    <module>bundle</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>cafe</id>
+      <modules>
+        <module>deploy</module>
+      </modules>
+    </profile>
+    <profile>
+        <id>remove-10</id>
+        <modules>
+            <module>ddl</module>
+        </modules>
+    </profile>
+  </profiles>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/profile2/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <!-- Profile2 related dependencies -->
+  <dependencyManagement>
+    <dependencies>
+      <!-- internal -->
+      <dependency>
+        <groupId>org.sakaiproject.profile2</groupId>
+        <artifactId>profile2-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.profile2</groupId>
+        <artifactId>profile2-impl</artifactId>
+        <version>${project.version}</version>
+        <scope>runtime</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.profile2</groupId>
+        <artifactId>profile2-util</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.profile2</groupId>
+        <artifactId>profile2-bundle</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- external -->
+      <dependency>
+        <groupId>org.twitter4j</groupId>
+        <artifactId>twitter4j-core</artifactId>
+        <version>${twitter4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-extensions</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.wicket</groupId>
+        <artifactId>wicket-spring</artifactId>
+        <version>${wicket.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>htmlvalidator</artifactId>
+        <version>${wicketstuff.htmlvalidator.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.wicketstuff</groupId>
+        <artifactId>objectautocomplete</artifactId>
+        <version>${wicketstuff.objectautocomplete.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>generic-dao</artifactId>
+        <version>${generic-dao.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>${log4j.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.imgscalr</groupId>
+        <artifactId>imgscalr-lib</artifactId>
+        <version>4.2</version>
+        <scope>compile</scope>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.opencsv</groupId>
+        <artifactId>opencsv</artifactId>
+        <version>2.3</version>
+        <scope>compile</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <issueManagement>
+    <system>JIRA</system>
+    <url>http://jira.sakaiproject.org/browse/PRFL</url>
+  </issueManagement>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/profile2/trunk</url>
+  </scm>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila.maven-license-plugin</groupId>
+        <artifactId>maven-license-plugin</artifactId>
+        <version>1.9.0</version>
+        <configuration>
+          <basedir>${basedir}</basedir>
+          <header>https://source.sakaiproject.org/svn/sakai/trunk/ECLv2-header-template.txt</header>
+          <quiet>false</quiet>
+          <failIfMissing>true</failIfMissing>
+          <aggregate>false</aggregate>
+          <includes>
+            <include>**/org/sakaiproject/**/*.java</include>
+            <include>src/webapp/css/profile2-help.css</include>
+            <include>src/webapp/css/profile2-profile-entity.css</include>
+            <include>src/webapp/css/profile2.css</include>
+            <include>src/webapp/javascript/profile2.js</include>
+            <include>src/webapp/javascript/profile2-eb.js</include>
+          </includes>
+          <excludes>
+            <exclude>target/**</exclude>
+            <exclude>m2-target/**</exclude>
+            <exclude>**/*.doc</exclude>
+            <exclude>**/*.properties</exclude>
+            <exclude>**/*.txt</exclude>
+            <exclude>**/*.xml</exclude>
+            <exclude>**/*.sql</exclude>
+            <exclude>**/*.html</exclude>
+          </excludes>
+          <useDefaultExcludes>true</useDefaultExcludes>
+          <useDefaultMapping>true</useDefaultMapping>
+          <properties>
+            <year>${project.inceptionYear}-2012</year>
+            <holder>The Sakai Foundation</holder>
+          </properties>
+          <encoding>UTF-8</encoding>
+          <strictCheck>true</strictCheck>
+        </configuration>
+      </plugin>
+      <!-- enforce Java 6 compiler -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <compilerVersion>${sakai.jdk.version}</compilerVersion>
+          <source>${sakai.jdk.version}</source>
+          <target>${sakai.jdk.version}</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

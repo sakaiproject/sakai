@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.profile2.hbm.model">
+
+	<class name="ProfileFriend" table="PROFILE_FRIENDS_T">
+
+	    <id name="id">
+	      <column name="ID" not-null="true" length="19" />
+	      <generator class="native">
+	        <param name="sequence">PROFILE_FRIENDS_S</param>
+	      </generator>
+	    </id>
+
+	    <property name="userUuid" column="USER_UUID" length="99" not-null="true" index="PROFILE_FRIENDS_USER_UUID_I" />
+	    <property name="friendUuid" column="FRIEND_UUID" length="99" not-null="true" index="PROFILE_FRIENDS_FRIEND_UUID_I" />
+		<property name="relationship" column="RELATIONSHIP" length="1" not-null="true" />
+		<property name="requestedDate" column="REQUESTED_DATE" not-null="true" />
+		<property name="confirmed" column="CONFIRMED" not-null="true" index="PROFILE_FRIENDS_CONFIRMED_I" />
+	    <property name="confirmedDate" column="CONFIRMED_DATE" not-null="false" />
+
+  	</class>
+  	
+	<sql-query name="getFriendRequestsForUser">
+		<return-scalar column="userUuid" type="string" />
+		<!-- <return-scalar column="requestedDate" type="date" />-->
+    	<![CDATA[
+		select PROFILE_FRIENDS_T.USER_UUID as userUuid from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.FRIEND_UUID = :userUuid and PROFILE_FRIENDS_T.CONFIRMED=:false
+		]]>
+	</sql-query>
+	
+	<query name="getFriendRequestsForUserCount">
+    	<![CDATA[select count(distinct friend.userUuid) from ProfileFriend as friend where friend.friendUuid = :userUuid and friend.confirmed=:false]]>
+	</query>
+	
+	<sql-query name="getConfirmedFriendUserIdsForUser">
+		<return-scalar column="userUuid" type="string" />
+    	<![CDATA[
+		select PROFILE_FRIENDS_T.FRIEND_UUID as userUuid from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.USER_UUID = :userUuid and PROFILE_FRIENDS_T.CONFIRMED=:true
+		union
+		select PROFILE_FRIENDS_T.USER_UUID as userUuid from PROFILE_FRIENDS_T where PROFILE_FRIENDS_T.FRIEND_UUID = :userUuid and PROFILE_FRIENDS_T.CONFIRMED=:true
+		]]>
+	</sql-query>
+
+	
+	<query name="getFriendRecord">
+    	<![CDATA[from ProfileFriend friend WHERE ((friend.userUuid = :userUuid AND friend.friendUuid = :friendUuid) OR (friend.userUuid = :friendUuid AND friend.friendUuid = :userUuid))]]>
+	</query>
+
+	<query name="getFriendRequest">
+    	<![CDATA[from ProfileFriend friend WHERE friend.userUuid = :userUuid AND friend.friendUuid = :friendUuid AND friend.confirmed = :confirmed]]>
+	</query>
+
+</hibernate-mapping>

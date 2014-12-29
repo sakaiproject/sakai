@@ -1,0 +1,79 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<!--
+
+    Copyright (c) 2008-2012 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+
+<html xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.3-strict.dtd"  
+      wicket:id="html">
+<head>
+	<title><wicket:message key="page.title" /></title>
+	
+	<script type="text/javascript" src="/library/js/headscripts.js"></script>
+	
+	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+	<!-- Might not be needed -->
+	<!--
+	<script type="text/javascript" src="/library/js/jquery/jquery-migrate-1.2.1.min.js"></script>
+	-->
+	<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+	<!--
+	<script type="text/javascript" src="/library/js/jquery/dimensions/1.1.2/jquery.dimensions-1.1.2.js"></script>
+	-->
+	<script type="text/javascript" src="/library/js/jquery/hoverIntent/r7/jquery.hoverIntent.minified.js"></script>
+	<script type="text/javascript" src="/library/js/jquery/cluetip/1.2.10/jquery.cluetip.min.js"></script>
+	<script type="text/javascript" src="/library/js/jquery/i18n-properties/1.0.9/jquery.i18n.properties-1.0.9.js"></script>
+	<script type="text/javascript" src="/library/js/jquery/apTextCounter/jquery.apTextCounter.min.js"></script>
+	
+	<link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.css" />
+	<link rel="stylesheet" type="text/css" href="/library/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" />
+	
+</head>     
+<body>
+	
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem">
+			<a wicket:id="myProfileLink" class="icon profile"><span wicket:id="myProfileLabel" tabindex="0">[myProfileLabel]</span></a>
+		</li>
+		<li>
+			<a wicket:id="myPicturesLink" class="icon pictures"><span wicket:id="myPicturesLabel" tabindex="0">[myPicturesLabel]</span></a>
+		</li>
+		<li>
+			<a wicket:id="myFriendsLink" class="icon connections"><span wicket:id="myFriendsLabel" tabindex="0">[myFriendsLabel]</span><span wicket:id="newRequestsLabel" class="new-items-count">[newRequestsLabel]</span></a>
+		</li>
+		<li>
+			<a wicket:id="myMessagesLink" class="icon messages"><span wicket:id="myMessagesLabel" tabindex="0">[myMessagesLabel]</span><span wicket:id="newMessagesLabel" class="new-items-count">[newMessagesLabel]</span></a>
+		</li>
+		<li>
+			<a wicket:id="searchLink" class="icon search"><span wicket:id="searchLabel" tabindex="0">[searchLabel]</span></a>
+		</li>
+		<li>
+			<a wicket:id="myPrivacyLink" class="icon privacy"><span wicket:id="myPrivacyLabel" tabindex="0">[myPrivacyLabel]</span></a>
+		</li>
+		<li>
+			<a wicket:id="preferencesLink" class="icon preferences"><span wicket:id="preferencesLabel" tabindex="0">[preferencesLabel]</span></a>
+		</li>
+	</ul>
+	<div class="portletBody">
+		<wicket:child />
+	</div>
+	
+	<div id="footer"></div>
+	
+</body>
+</html>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} 请求在 ${localSakaiName} 加您为好友</subject>
+	<message>${senderDisplayName} 请求在 ${localSakaiName} 加您为好友
+
+您可以通过下面的链接来确认 ${senderDisplayName} 的好友请求：
+${connectionLink}
+
+---
+此邮件由 ${localSakaiName} (${localSakaiUrl})自动发送。
+您可以在“我的工作空间” > “${toolName}” > “偏好设置” 中设定您希望接收的邮件类型。
+	</message>
+	<htmlMessage>${senderDisplayName} 请求在 ${localSakaiName} 加您为好友
+&lt;p&gt;
+您可以通过下面的链接来确认 ${senderDisplayName} 的好友请求：
+&lt;br /&gt;${connectionLink}
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;此邮件由 ${localSakaiName} (${localSakaiUrl})自动发送。
+&lt;br /&gt;您可以在“我的工作空间” > “${toolName}” > “偏好设置” 中设定您希望接收的邮件类型。
+&lt;/p&gt;
+	</htmlMessage>
+	<locale>zh_CN</locale>
+	<version>1</version>
+	<owner>admin</owner>
+	<key>profile2.connectionRequest</key>
+</emailTemplate>

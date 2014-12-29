@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<subject>${senderDisplayName} godkände din kontaktförfrågan i ${localSakaiName}</subject>
+	<message>${senderDisplayName} godkände din kontaktförfrågan i ${localSakaiName}
+
+För att se profilen för ${senderDisplayName}, följ länken nedan:
+${connectionLink}
+
+---
+Detta är ett automatiskt meddelande som skickades från ${localSakaiName} (${localSakaiUrl})
+Ändra dina inställningar för dessa meddelanden på Min arbetsyta > ${toolName} > Inställningar
+	</message>
+	<htmlMessage>${senderDisplayName} godkände din kontaktförfrågan i ${localSakaiName}
+&lt;p&gt;
+För att se profilen för ${senderDisplayName}, följ länken nedan:
+&lt;br /&gt;${connectionLink}
+&lt;/p&gt;
+&lt;p&gt;
+---
+&lt;br /&gt;Detta är ett automatiskt meddelande som skickades från ${localSakaiName} (${localSakaiUrl})
+&lt;br /&gt;Ändra dina inställningar för dessa meddelanden på Min arbetsyta &gt; ${toolName} &gt; Inställningar
+&lt;/p&gt;
+	</htmlMessage>
+	<locale>sv_SE</locale>
+	<version>1</version>
+	<owner>admin</owner>
+	<key>profile2.connectionConfirm</key>
+</emailTemplate>
