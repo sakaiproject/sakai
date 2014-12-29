@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool
+			id="sakai.podcasts"
+			title="Podcasts"
+			description="For managing individual podcast and podcast feed information.">
+			
+		<category name="course" />
+		<category name="project" />
+
+		<configuration name="functions.require" value="content.read" /> 
+		<configuration name="help.id" value="sakai.podcasts" /> 
+	</tool>	
+</registration>

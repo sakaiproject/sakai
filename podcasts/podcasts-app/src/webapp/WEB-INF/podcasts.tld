@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  Description: Faces Component Tag Library for Samigo Assessment Tool
+  Copyright: Copyright (c) 2006
+  Organization: Sakai Project
+  Author: Ed Smiley
+  @version $Id$
+-->
+
+<!DOCTYPE taglib
+  PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+
+  <!-- ============== Tag Library Description Elements ============= -->
+<!--  <tlib-version>$Revision$</tlib-version> -->
+  <tlib-version>1.0</tlib-version>
+  <jsp-version>1.2</jsp-version>
+  <short-name>Podcasts Taglib</short-name>
+  <uri>http://www.sakaiproject.org/podcasts</uri>
+  <description>
+    This tag library contains JSF tags needed by the Podcast Tool
+    for the Sakai project over and above the core Sakai JSF taglib.
+  </description>
+
+  <!-- Custom Tags -->
+
+  <!-- ==== display a date picker control ===================== -->
+  <tag>
+  <name>datePicker</name>
+  <tag-class>org.sakaiproject.tool.podcasts.jsf.tag.DatePickerTag</tag-class>
+  <body-content>JSP</body-content>
+    <attribute>
+      <name>value</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>size</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <!-- helper: display the HTML for date picker popup -->
+  <tag>
+  <name>datePickerPopup</name>
+  <tag-class>org.sakaiproject.tool.podcasts.jsf.tag.DatePickerPopupTag</tag-class>
+  <body-content>JSP</body-content>
+  </tag>
+
+</taglib>

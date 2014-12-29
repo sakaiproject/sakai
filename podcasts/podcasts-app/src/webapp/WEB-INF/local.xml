@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    
+    <!-- entity providers -->
+    <bean
+        parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+        class="org.sakaiproject.tool.podcasts.entityproviders.PodcastEntityProvider">
+        <property name="podcastService" ref="org.sakaiproject.api.app.podcasts.PodcastService"/>
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+    </bean>
+    
+</beans>

@@ -1,0 +1,51 @@
+body {
+	width: 98%;
+}
+
+.indnt1 {
+    left: 21px;
+}
+
+.indnt2 {
+    position: relative;
+    left: 18px;
+}
+
+.podDateFormat {
+	font-size: 13pt;
+}
+
+.podTitleFormat {
+	font-size: 11pt;
+}
+
+.rssIcon {
+	position: relative;
+	top: 6px;
+}
+
+.podDelDescPosition {
+	position: relative;
+	top: 12px;
+}
+
+.podDelButtonsPosition {
+	position: relative;
+	top: 30px;
+}
+
+.podcatcher_popup {
+  margin-top: 4px;
+  margin-bottom: 4px;
+  padding: 5px 5px 5px 5px;
+  color: inherit;
+  background-color: #ffffcc;
+  border: 1px dotted #003366;
+  line-height: 100%;
+}
+
+url {
+	position: relative;
+	left: 15px;
+	margin: .5em 0;
+}

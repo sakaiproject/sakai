@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+>
+    <display-name>podcasts</display-name>
+    <description>Sakai Podcasts Feed Servlet</description>
+
+    <servlet>
+        <description>This generates the actual Poddcast feed</description>
+        <display-name>RSSPodfeedServlet</display-name>
+        <servlet-name>podcasts</servlet-name>
+        <servlet-class>org.sakaiproject.tool.podcasts.RSSPodfeedServlet</servlet-class>
+        <load-on-startup>2</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>podcasts</servlet-name>
+        <url-pattern>/site/*</url-pattern>
+    </servlet-mapping>
+
+
+    <filter>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    </filter>
+
+  <!-- tells RequestFilter what can be done with your servlet
+  	   usually all 3 dispachers values kept -->
+    <filter-mapping>
+        <filter-name>org.sakaiproject.util.RequestFilter</filter-name>
+        <servlet-name>podcasts</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+</web-app>

@@ -1,0 +1,140 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+<!-- add to allow internalization of the content messages -->
+  <application>
+    <message-bundle>org.sakaiproject.api.podcasts.bundle.Messages</message-bundle>
+    <locale-config>
+      <default-locale>en</default-locale>
+      <supported-locale>de</supported-locale>
+      <supported-locale>fr</supported-locale>
+      <supported-locale>es</supported-locale>
+    </locale-config>
+  </application>
+    
+  <!-- let the framework deal with the beans -->
+  <managed-bean>
+    <description>podHomeBean - Backing bean for main page, Add podcast, Revise podcast</description>
+    <managed-bean-name>podHomeBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podHomeBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+    
+    <!--	 Needed to access the services of PodcastService -->
+    <managed-property>
+		<description>podcastService</description>
+		<property-name>podcastService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
+	</managed-property>
+  
+    <!--	 Needed to access the services of PodcastPermissionsService -->
+    <managed-property>
+		<description>podcastPermissionsService</description>
+		<property-name>podcastPermissionsService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastPermissionsService"]}</value>
+	</managed-property>
+  </managed-bean>
+  
+   <managed-bean>
+  	  <description>Comparator to sort podcasts</description>
+  	  <managed-bean-name>podcastComparator</managed-bean-name>
+  	  <managed-bean-class>org.sakaiproject.tool.podcasts.PodcastComparator</managed-bean-class>
+  	  <managed-bean-scope>session</managed-bean-scope>
+  	</managed-bean>
+
+  <managed-bean>
+    <description>Bean to hold current/changed permissions</description>
+    <managed-bean-name>podPerms</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podPermBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+
+     <!--	 Needed to access the services of PodcastService -->
+     <managed-property>
+		<description>podcastService</description>
+		<property-name>podcastService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
+	 </managed-property>
+   </managed-bean>
+
+  <managed-bean>
+    <description>Bean to hold display option (Public / Site)</description>
+    <managed-bean-name>podOptions</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podOptionsBean</managed-bean-class>
+    <managed-bean-scope>request</managed-bean-scope>
+
+    <!--	 Needed to access the services of PodcastService -->
+    <managed-property>
+		<description>podcastService</description>
+		<property-name>podcastService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodcastService"]}</value>
+	</managed-property>
+  </managed-bean>
+
+  <managed-bean>
+    <description>Bean to process global feed information</description>
+    <managed-bean-name>podfeedBean</managed-bean-name>
+    <managed-bean-class>org.sakaiproject.tool.podcasts.podFeedBean</managed-bean-class>
+    <managed-bean-scope>session</managed-bean-scope>
+
+	<managed-property>
+		<description>podfeedService</description>
+		<property-name>podfeedService</property-name>
+		<value>#{Components["org.sakaiproject.api.app.podcasts.PodfeedService"]}</value>
+	</managed-property>
+
+  </managed-bean>
+  
+  <!-- Custom tags -->
+  <render-kit>
+    <!-- date picker -->
+    <renderer>
+      <component-family>javax.faces.Input</component-family>
+      <renderer-type>DatePicker</renderer-type>
+      <renderer-class>org.sakaiproject.tool.podcasts.jsf.renderer.DatePickerRenderer</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>DatePickerPopup</renderer-type>
+      <renderer-class>org.sakaiproject.tool.podcasts.jsf.renderer.DatePickerPopupRenderer</renderer-class>
+    </renderer>
+  </render-kit>
+	
+	<!-- navigation
+			FROM what page TO what page
+			IUPUI: path needs to be /projname/xx.jsp -->
+	<navigation-rule>
+	    <navigation-case>  <!-- GOTO podMain (Podcast Home) -->
+	      <from-outcome>cancel</from-outcome>
+	      <to-view-id>/podcasts/podMain.jsp</to-view-id>
+	      <redirect />
+	    </navigation-case>
+	    <navigation-case>  <!-- GOTO addPodcast -->
+	        <from-outcome>podcastAdd</from-outcome>
+	        <to-view-id>/podcasts/podAdd.jsp</to-view-id>
+	    </navigation-case>
+	    <navigation-case>  <!-- GOTO podPermissions -->
+	        <from-outcome>podcastPermissions</from-outcome>
+	        <to-view-id>/podcasts/podPermissions.jsp</to-view-id>
+	    </navigation-case>
+	    <navigation-case>  <!-- GOTO podOptions -->
+	        <from-outcome>podcastOptions</from-outcome>
+	        <to-view-id>/podcasts/podOptions.jsp</to-view-id>
+	    </navigation-case>
+	    <navigation-case>  <!-- GOTO podRevise -->
+	      <from-outcome>podcastRevise</from-outcome>
+	      <to-view-id>/podcasts/podRevise.jsp</to-view-id>
+	    </navigation-case>
+	    <navigation-case> <!-- GOTO podDelete -->
+	      <from-outcome>podcastDelete</from-outcome>
+	      <to-view-id>/podcasts/podDelete.jsp</to-view-id>
+	    </navigation-case>
+	    <navigation-case> <!-- GOTO podfeedRevise -->
+	      <from-outcome>podfeedRevise</from-outcome>
+	      <to-view-id>/podcasts/podFeedRevise.jsp</to-view-id>
+	    </navigation-case>
+	</navigation-rule>
+	
+</faces-config>
