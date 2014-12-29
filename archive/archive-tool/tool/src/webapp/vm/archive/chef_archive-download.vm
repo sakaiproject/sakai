@@ -1,0 +1,97 @@
+
+<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+
+<script type="text/javascript">
+
+	/**
+	 * main
+	 */
+    jQuery(function(){
+    	
+    	/**
+    	 * Dispatch a request to the download servlet. 
+		 * Constructs and submits a form in the success response.
+    	 */
+        jQuery(".downloadLink").click(function(){
+            var filename=jQuery(this).attr("rel");
+    		        			
+			jQuery.ajax({
+                type: "POST",
+                url: '/sakai-archive-tool/download',
+                data: 'archive='+filename,
+                success: function(response, status, request) {
+                    var disp = request.getResponseHeader('Content-Disposition');
+                    if (disp && disp.search('attachment') != -1) {
+						var form = jQuery('<form method="POST" action="/sakai-archive-tool/download">');
+                        form.append(jQuery('<input type="hidden" name="archive" value="' + filename + '">'));
+                        jQuery('body').append(form);
+                        form.submit();
+                    }
+                },
+				error: function (request, status, error) {
+        			alert('An error occurred downloading the file. Please check the logs.');
+      			}
+            });
+			
+        });
+    	
+    });
+
+</script>
+
+
+<div class="portletBody">
+	
+	<h3>
+		$tlang.getString("archive.download.heading")
+	</h3>
+	
+	#if($archives.size() == 0)
+		<p>$tlang.getString("archive.download.none")</p>
+	#else
+		
+	
+		<table class="listHier lines" cellspacing="0">
+		<tr>
+			<th>
+				$tlang.getString("archive.download.site")
+			</th>
+			<th>
+				$tlang.getString("archive.download.date")
+			</th>
+			<th>
+				$tlang.getString("archive.download.size")
+			</th>
+			<th>
+				$tlang.getString("archive.download.hash")
+			</th>
+		</tr>
+			
+    	#foreach($archive in $archives)
+    		<tr>
+    			<td>
+					<a href="javascript:void(0);" rel="$!archive.filename" class="downloadLink">
+        				#if ($archive.siteTitle)
+        					$!archive.siteTitle <span class="smalltext">($!archive.siteId)</span>
+        				#else 
+        					$!archive.siteId
+						#end
+					</a>
+    			<td>
+    				$!archive.dateCreated
+    			</td>
+    			<td>
+    				$!archive.size
+    			</td>
+    			<td>
+    				$!archive.hash
+    			</td>
+    		</tr>
+		
+		#end
+		
+	</table>
+	#end
+		
+	
+</div>

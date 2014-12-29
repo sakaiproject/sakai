@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.archive"
+			title="Site Archive"
+			description="An administration tool to Archive and Import Sites.">
+
+	</tool>
+
+</registration>

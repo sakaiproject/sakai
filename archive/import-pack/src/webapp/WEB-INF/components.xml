@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+
+
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.AnnouncementHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.AnnouncementHandler" -->
+	<!-- 		singleton="true"> -->
+	<!-- 	<property name="announcementService"> -->
+	<!-- 		<ref bean="org.sakaiproject.announcement.api.AnnouncementService" />  -->
+	<!-- 	</property> -->
+	<!-- </bean> -->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.SamigoAssessmentHandler" -->
+	<!-- 		singleton="true"> -->
+	<!-- </bean> -->
+	<!--  -->
+	<!-- <bean id="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler" -->
+	<!-- 		class="org.sakaiproject.importer.impl.handlers.SamigoPoolHandler" -->
+	<!-- 		singleton="true"> -->
+	<!-- </bean> -->
+	
+
+
+</beans>
