@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="org.sakaiproject.section.api.facade.manager.Authn"
+        class="org.sakaiproject.tool.section.facade.sakai.AuthnSakaiImpl"/>
+
+    <bean id="org.sakaiproject.section.api.facade.manager.Authz"
+        class="org.sakaiproject.tool.section.facade.sakai.AuthzSakaiImpl">
+    </bean>
+
+    <bean id="org.sakaiproject.section.api.facade.manager.Context"
+        class="org.sakaiproject.tool.section.facade.sakai.ContextSakaiImpl"/>
+</beans>

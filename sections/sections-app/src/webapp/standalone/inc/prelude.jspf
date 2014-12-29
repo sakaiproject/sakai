@@ -1,0 +1,20 @@
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
+<%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
+<%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"%>
+<%@ taglib uri="http://sakaiproject.org/jsf/sections" prefix="sec"%>
+<f:loadBundle basename="sections" var="msgs"/>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<meta http-equiv="Content-Type" content="text/xml; charset=UTF-8" />
+	<title>Sections</title>
+	<script
+		language="JavaScript"
+		type="text/javascript"
+		src="${pageContext.request.contextPath}/js/sections.js">
+	</script>
+	<link href="${pageContext.request.contextPath}/css/sections.css" rel="stylesheet" type="text/css" />
+	<link href="${pageContext.request.contextPath}/css/sectionsStandalone.css" rel="stylesheet" type="text/css" />
+</head>
+	<body onload="prepForms()">

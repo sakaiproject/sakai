@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+    <application>
+        <!-- Sakai VariableResolver for JSF -->
+        <variable-resolver>
+            org.sakaiproject.jsf.app.SakaiVariableResolver
+        </variable-resolver>
+        <message-bundle>
+            sections
+        </message-bundle>
+        <locale-config>
+            <default-locale>en</default-locale>
+            <supported-locale>en</supported-locale>
+            <supported-locale>de</supported-locale>
+            <supported-locale>fr</supported-locale>
+            <supported-locale>es</supported-locale>
+            <supported-locale>sv</supported-locale>
+        </locale-config>
+    </application>
+
+    <lifecycle>
+        <phase-listener>
+            org.sakaiproject.jsf.app.SakaiPhaseListener
+        </phase-listener>
+    </lifecycle>
+
+
+    <render-kit>
+        <renderer>
+            <component-family>javax.faces.Messages</component-family>
+            <renderer-type>javax.faces.Messages</renderer-type>
+            <renderer-class>org.sakaiproject.tool.section.jsf.DivMessagesRenderer</renderer-class>
+        </renderer>
+        <renderer>
+            <component-family>javax.faces.Message</component-family>
+            <renderer-type>javax.faces.Message</renderer-type>
+            <renderer-class>org.sakaiproject.tool.section.jsf.DivMessageRenderer</renderer-class>
+        </renderer>
+        <renderer>
+            <component-family>javax.faces.Command</component-family>
+            <renderer-type>org.apache.myfaces.SortHeader</renderer-type>
+            <renderer-class>org.sakaiproject.tool.section.jsf.HtmlSortHeaderRenderer</renderer-class>
+        </renderer>
+
+    </render-kit>
+
+</faces-config>

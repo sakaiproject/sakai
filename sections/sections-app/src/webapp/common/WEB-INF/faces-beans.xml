@@ -1,0 +1,138 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+    <managed-bean>
+        <description>Configuration Bean</description>
+        <managed-bean-name>confBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.ConfigurationBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+    <managed-bean>
+        <description>Course Bean</description>
+        <managed-bean-name>courseBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.CourseBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <description>Section Manager</description>
+            <property-name>sectionManager</property-name>
+            <value>#{org_sakaiproject_section_api_SectionManager}</value>
+        </managed-property>
+        <managed-property>
+            <description>Authn</description>
+            <property-name>authn</property-name>
+            <value>#{org_sakaiproject_section_api_facade_manager_Authn}</value>
+        </managed-property>
+        <managed-property>
+            <description>Authz</description>
+            <property-name>authz</property-name>
+            <value>#{org_sakaiproject_section_api_facade_manager_Authz}</value>
+        </managed-property>
+        <managed-property>
+            <description>Context</description>
+            <property-name>context</property-name>
+            <value>#{org_sakaiproject_section_api_facade_manager_Context}</value>
+        </managed-property>
+        <managed-property>
+            <description>Preferences Bean</description>
+            <property-name>prefs</property-name>
+            <value>#{preferencesBean}</value>
+        </managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Navigation Menu Bean</description>
+        <managed-bean-name>navMenuBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.NavMenuBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Student View Bean</description>
+        <managed-bean-name>studentViewBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.StudentViewBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Overview Bean</description>
+        <managed-bean-name>overviewBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.OverviewBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Edit Section Bean</description>
+        <managed-bean-name>editSectionBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditSectionBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Edit Students Bean</description>
+        <managed-bean-name>editStudentsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditStudentsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Edit Managers Bean</description>
+        <managed-bean-name>editManagersBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditManagersBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Add Sections Bean</description>
+        <managed-bean-name>addSectionsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.AddSectionsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Edit Student Sections Bean</description>
+        <managed-bean-name>editStudentSectionsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.EditStudentSectionsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>studentUid</property-name>
+			<value>#{param.studentUid}</value>
+		</managed-property>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Options Bean</description>
+        <managed-bean-name>optionsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.OptionsBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Roster Bean</description>
+        <managed-bean-name>rosterBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.RosterBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Messaging bean for redirect-safe messages across pages</description>
+        <managed-bean-name>messagingBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.MessagingBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>Preferences bean to maintain session-scoped preferences</description>
+        <managed-bean-name>preferencesBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.PreferencesBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>configured</property-name>
+            <value>true</value>
+		</managed-property>
+		<managed-property>
+			<property-name>maxNameLength</property-name>
+            			<value>255</value>
+		</managed-property>		
+    </managed-bean>
+
+</faces-config>

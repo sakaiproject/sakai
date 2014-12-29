@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+	<managed-bean>
+		<description>Login Bean</description>
+		<managed-bean-name>loginBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.standalone.LoginBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+
+	<managed-bean>
+		<description>Application Configuration Bean</description>
+		<managed-bean-name>configBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.section.jsf.backingbean.standalone.ConfigBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+	</managed-bean>
+</faces-config>

@@ -1,0 +1,1173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>Sakai Sectioning Tool Scope and Requirements</title>
+<style type="text/css" title="text/css">
+body {
+	font-family: arial, helvetica, sans-serif;
+	font-size: .85em;
+	color: #222;
+	margin: 20px 50px;
+}
+#page {
+	width: 700px;
+	margin: 20px auto;
+	padding: 10px;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px 2px 2px 1px;
+	background-color: #ffe;
+}
+h1 {
+}
+h2 {
+    border-top: solid yellow 1px;
+    padding-top: 10px;
+    margin-top: 25px;
+}
+h3 {
+    margin-top: 25px;
+}
+p {
+    margin-left: 20px;
+}
+img {
+    margin-left: 20px;
+	border-style: solid;
+	border-color: #bbb;
+	border-width: 1px;
+}
+p.caption {
+    margin: 3px 30px;
+    font-style: italic;
+}
+p.draft {
+	font-size: 16px;
+	font-weight:bold;
+	margin-left: 0px;
+}
+.style1 {color: #000099}
+</style>
+</head>
+<body>
+<div id="page">
+<img width="200" height="115" src="images/spec_clip_image002.jpg">
+<p class="draft">&nbsp;</p>
+<h3>Section Info Tool: Functional Requirements and Specification</h3>
+<p><a name="home"></a><a href="#scope">Description</a>| <a href="#out"></a><a href="#def">Overview &amp; Definitions</a>| <a href="#diagrams">Overview Diagrams</a>| <a href="#reqs">Functional Requirements</a>|<a href="#specs">Specification with Wireframes</a></p>
+<h3>I. Description <a name="scope"></a></h3>
+<p>Section Info  is a a new Sakai administrative tool that primarily allows authorized users to create Course Sections and/or manage Course Section metadata and memberships. The tool can be made available to authorized users for each of their Course Sites from the standard toolbar.</p>
+<p>While the Section Info tool can potentially be deployed with any type of Site, this documentation assumes it will generally be associated with Course Sites. </p>
+<p>The new Sakai Manage Groups feature is treated within this document because of its very close functional relationship with the Section Info tool.</p>
+<p>See II Overview and Definitions for Site, Course Site, Course Section below.</p>
+<p><a href="#home">Back to top</a></p>
+<h3>II. Overview &amp; Definitions<a name="def"></a></h3>
+<p>Some definitions are taken in part and adapted from the Course Management Service Requirements document (http://bugs.sakaiproject.org/confluence/display/CMAPI/CM+Requirements). They are not part of any official Sakai glossary.</p>
+<ol type="A">
+  <li type="A"><u>Sites and Groups<br />
+  </u></li>
+
+<ul>
+  <li><strong>Worksite or Site</strong> -- Sakai &quot;out of the box&quot; (OOTB) has two types of Sites, Project Sites and Course Sites.  Site types are extensible. The biggest change for all types of Sites in Sakai 2.1 is the introduction of Group and Section Awareness into Announcements, the Gradebook and Tests &amp; Quizzes. See IIC Group and Section Awareness below.<br />
+  </li>
+  <li><strong>Course Site</strong> -- A Sakai Worksite  or Site of the type Course. Sakai 2.1 Course Sites are primarily distinguished from Project Sites by a new set of default roles, Instructor, Teaching Assistant and Student. See IID Roles for more information. . <br />
+  </li>
+  <li><strong>Group</strong> -- A generic collection of users belonging to a single Site of any type.  Groups are created and managed in the Site Info tool through the Manage Groups function. Manage Groups can be disabled for a Sakai installation via a properties setting.<br />
+    <br />
+    Within Sakai 2.1, Groups always have<br />
+    <ul>
+      <li> A title or name</li>
+      </ul>
+    <br />
+    Optionally, Groups can have a description.<br />
+  </li>
+  </ul>
+
+  <li type="A"><u>Courses, Groups and Sections</u> <br />
+  </li>
+
+<ul>
+  <li><strong>Canonical Course</strong> -- An abstract course that exists across sessions or terms. Sakai does not currently include any functionality to represent Canonical Courses, e,g, a course catalog.<br />
+  </li>
+  <li><strong>Course Offering</strong> aka <strong>Course</strong> -- An instance of a Canonical Course associated with a specific session, e.g., Math 16B Fall 2006 and the associated roster of Students, Instructors, TAs. A Course Offering can have a grade type, status type, etc. It may be concrete where the Canonical Course is abstract. <br />
+    <br />
+    Despite the introduction of the Section Info tool, 
+    Sakai 2.1 will not offer a standard way of integrating, representing and managing within Course Sites the full range of Course data and the complex relationships among Course Offerings, e.g., cross-listed courses.<br />
+  </li>
+</ul>
+<ul>
+    <li>    <strong>Course Section</strong> aka <strong>Section</strong> --  A Course Section is an instance of a Course Offering. Course Sections are a superset of Groups. They are collections of users with information and memberships aligned with or defined by institutional enterprise data. Sections may have a schedule, location, roster, etc.
+    Sections may include everyone in the Course, or they may comprise subsets of Course members or both. <br />
+    <br />
+    Within Sakai 2.1, Sections always have<br />
+      <ul>
+        <li> A &quot;section category,&quot; e.g., lecture, discussion</li>
+        <li>A Section title or name (by default this is  the section category plus a sequential number) </li>
+        <li> Business rules that regulate memberships. Students are not allowed to be in more than one Section of any single category</li>
+      </ul>
+      <br /> 
+    See IV Functional Requirements and IID Roles for optional Section metadata and additional membership rules.<br />
+    </li>
+    <li><strong>Course Group </strong> -- A Course Group is a Group created for a Course Site.  Unlike Sections, Course Groups have no official relationship with or meaning to the institution.<br />
+        <br />
+        There are no user interface or workflow distinctions between creating a generic Group  and a Course Group in Sakai 2.1. Just like a generic Group, Course Groups are created and managed in the Site Info tool through the Manage Groups function. <strong>N.B</strong>.: Although there is a very close functional relationship between Sections and Course Groups in Course Sites, the Course Groups can NOT be managed in the Section Info tool. Similarly, Sections can not be managed in Site Info's Manage Groups function.<br />
+        <br />
+        While Groups and Course Groups are virtually identical, there are at least 3 reasons for introducing a theoretical distinction between them at this time.<br />
+        <ol type="i">
+          <li>Course Groups  have  a variety of functions (study groups, course projects, peer evaluation etc.) that post 2.1 will very likely entail a workflow and UI separate from what is now available for creating Groups in Site Info. The requirements for these different kinds of Course Groups are not yet fully known.<br />
+          </li>
+          <li>Project sites do not have an OOTB TA role equivalent. The existence of the default Teaching Assistant (TA) role for Course Sites ensures that in Sakai OOTB, site members in the TA role who are added to a Course Group will retain any group-scoped capabilities within the group aware tools. In other words, a TA's Course Group and Section permissions are identical in those tools. For instance, if a TA is added to a Course Group with several students, that TA, while unable to send announcements to the entire Course Site, will be able to create and address an announcement to the Group that she is a member of (unlike the Student members).<br />
+          </li>
+          <li>The Section Info tool has very few required fields. Under one Sakai integration scenario (See  III Integration below), Instructors may create  Sections of their own choosing, which, in effect, allows them to organize and name these Sections much as they would any other Group. The Sections in this scenario are likely to mirror official registrar data, but they don't have to. Again, the principal difference is the Course Site context.</li>
+        </ol>
+    </li>
+  </ul>
+<li><u>Group and Section Awareness<br />
+  <br />
+  </u> Terminology for the ability to represent Groups and Sections in Sakai tools and to enforce any authorizations within those tools based on a Site member's role. These authorizations or permissions are enabled at the Group or Section level (rather than at the Site level) in select Sakai tools. <br />
+  <br />
+  Group and Section Awareness are provided by two different Sakai services, but from a basic functional and end user standpoint, there is no effective difference between the two. The Sakai service that provides Section Awareness does pass on additional metadata, e.g., the section category, that  a Section Aware tool could make use of and expose in the user interface. Currently, this extra metadata is being used exclusively behind the scenes.<br />
+  <br />
+  The Group and Section Aware tools in Sakai 2.1 are Announcements, Gradebook and Tests and Quizzes.<br />
+  <br />
+</li>
+  
+<li type="A">
+  <u>Roles</u></li>
+
+<p>Three new OOTB roles are supported in Sakai Course Sites:</p>
+<ul>
+  <li><strong>Instructor</strong> -- Usually a professor, lecturer or teaching assistant who is a member of a course and who has full administrative control of the Course Site and Sections/Groups. S/he has access to all Sections/Groups. Instructor is the equivalent to the generic Maintain role <br />
+  </li>
+  <li><strong>Teaching Assistant (TA) </strong> -- A graduate student instructor or faculty member with limited administrative access to and control of Sections within the Section Aware tools. TA has no equivalent generic Sakai role. Within the Section Info tool itself, the TAs will be able to:
+      <ul>
+        <li> View Section metadata for all Sections</li>
+        <li>View and manage student memberships in all Sections<br />
+        </li>
+      </ul>
+  </li>
+  <li><strong>Student</strong> -- A member of a course and possibly of a Section(s) and/or group, but not in an administrative or instructional capacity for Sections. Student is equivalent to the generic Access role. Within the Section Info tool itself, the Students will be able to:
+      <ul>
+        <li>View Section metadata for all Sections</li>
+        <li>Depending on Instructor preferences, join and switch Sections<br />
+          <br />
+          <br />
+        </li>
+      </ul>
+      <table width="273" border="0">
+        <caption>
+        <div align="center">Default Roles
+Comparison        </div>
+        </caption>
+        <tr>
+          <td width="89"><u>Project Site</u> </td>
+          <td width="27">&nbsp;</td>
+          <td width="143"><u>Course Site</u> </td>
+        </tr>
+        <tr>
+          <td><span class="style1">Maintain</span></td>
+          <td>=</td>
+          <td><span class="style1">Instructor</span></td>
+        </tr>
+        <tr>
+          <td><span class="style1">------</span></td>
+          <td><span class="style1"></span></td>
+          <td><span class="style1">Teaching Assistant</span></td>
+        </tr>
+        <tr>
+          <td><span class="style1">Access</span></td>
+          <td><span class="style1">=</span></td>
+          <td><span class="style1">Student</span></td>
+        </tr>
+      </table>
+ 
+  </ul>
+<p><a href="#home">Back to top</a></p>
+<li><u>Integration</u></li><p>Course Section data are usually defined and maintained to varying degrees in an institution's Registrar system. There are roughly 3 types of formal Course Section integration scenarios for institutions.  The Section Info tool supports numbers 1 and 3 below. It is important to remember that, while the Section Info tool can represent some hierarchical Course structures, e.g., a lecture Course with multiple discussion Sections, their integration with Sakai is not supported OOTB.</p>
+<ol>
+  <li><strong>Externally defined, externally controlled formal Sections</strong> -- Section metadata and memberships are defined and maintained in enterprise systems outside of Sakai. The Section Info tool is essentially in a read-only mode, with one major exception. In this mode, Instructors may still assign and re-assign TAs to Sections. <br />
+    <br />
+    This scenario requires institutions to customize enterprise data providers in Sakai 2.1 in order to represent Course Section hierarchies. <br /> 
+    </li>
+  <li><strong>Externally initialized, internally managed and negotiated formal Sections</strong> -- Section metadata and memberships are defined wholly or in part in enterprise systems outside of Sakai, but can be managed and modified inside of Sakai. The 2.1 release does not support this type of Section management.<br />
+  </li>
+  <li><strong>Internally defined, internally controlled formal Sections</strong> -- Section metadata and memberships are defined and managed in Sakai (via the Section Info tool), but are usually aligned in many respects with &quot;official&quot; Sections, e.g., the meeting location.</li>
+  </ol>
+</ol> 
+<p><a href="#home">Back to top</a></p>
+<h3>III. Overview Diagrams<a name="diagrams" id="diagrams"></a></h3>
+<p>&nbsp;</p>
+<p><img src="images/SectionGroupAwareFlow.jpg" width="606" height="756" /></p>
+<p>&nbsp;</p>
+<p><img src="images/SectionGroupAwareFlowProject.jpg" width="540" height="654" /></p>
+<p>&nbsp;</p>
+<p><a href="#home">Back to top</a></p>
+<h3>IV. Functional Requirements<a name="reqs" id="reqs"></a></h3>
+<h4>Without Enterprise Section Data<strong>/Manual Section Creation</strong></h4>
+<p><strong>A. Instructor Requirements</strong>.</p>
+<ol type="1">
+  <li><a href="#INoverview">Overview</a><a name="FuncOver" id="FuncOver"></a>
+      <ol type="a">
+        <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).</li>
+        <li>Open views to edit section properties, assign TAs and assign students for each individual section.<br />
+        </li>
+      </ol>
+  </li>
+  <li type="1"><a href="#INAddSections">Add Sections</a><a name="FuncAddSect" id="FuncAddSect"></a>
+      <ol type="a">
+        <li type="a">Create new sections for a course and specify the category (e.g., discussion, lab, project) and the number of sections of a particular category to be created.</li>
+        <li type="a">Give a distinct title to each section in a category. By default the section titles are the category names, with each section uniquely identified by a number in a sequence that ends with the total number of sections created within a category (lab 1, lab 2, lab 3 . . . lab 21). </li>
+        <li type="a">Set the locations and times of section meetings, and set the maximum number of students in a section.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#InRoster">Roster</a><a name="FuncRoster" id="FuncRoster"></a>
+      <ol type="a">
+        <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+        <li>Filter by student name or id.</li>
+        <li>Set the number of students to view per page.</li>
+        <li>Page through all students based on the number of students to view per page.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#InOptions">Options</a><a name="FuncOptions" id="FuncOptions"></a>
+      <ol type="a">
+        <li>Authorize students to sign up for and/or switch among all sections.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#INEditSectionProperties">Edit Section Properties</a><a name="FuncEditSectProp" id="FuncEditSectProp"></a>
+      <ol type="a">
+        <li>Edit the locations and times of meetings, and the maximum number of students in a section.</li>
+        <li>Disband sections.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#INAssignTeachingAssistants">Assign Teaching Assistants</a><a name="funcAssignTAs" id="funcAssignTAs"></a>
+      <ol type="a">
+        <li>Assign, re-assign zero or more TAs to one section at a time by selecting from current members of the course in the TA role. A TA may be unassigned to any section.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#InAssignStudents">Assign Students</a><a name="FuncAssignStud" id="FuncAssignStud"></a>
+      <ol type="a">
+        <li>Assign, re-assign one or more student(s) to one section at a time by selecting from current members of the course in the student role. A student may be added to no more than one section within any section category. A student may be unassigned to any sections. </li>
+      </ol>
+      <br />
+      <strong>B. TA Requirements</strong>. </li>
+</ol>
+<ol type="1">
+  <li><a href="#TAOverview">Overview</a><a name="FuncTAOverview" id="FuncTAOverview"></a>
+      <ol type="a">
+        <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).</li>
+        <li>Open views to assign students for each individual section.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#TARoster">Roster</a><a name="TAfuncRoster" id="TAfuncRoster"></a>
+      <ol type="a">
+        <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+        <li>Filter by student name or id.</li>
+        <li>Set the number of students to view per page.</li>
+        <li>Page through all students based on the number of students to view per page.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#TAAssignStudents">Assign Students</a><a name="TAfuncAssignStud" id="TAfuncAssignStud"></a>
+      <ol type="a">
+        <li>Assign, re-assign one or more student(s) to one section at a time by selecting from current members of the course in the student role. A student may be added to no more than one section within any section category. A student may be unassigned to any sections.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#TAoptions">Options</a><a name="TAfuncOptions" id="TAfuncOptions"></a>
+      <ol type="a">
+        <li>View student authorizations to sign up for and/or switch among all sections.</li>
+      </ol>
+  </li>
+</ol>
+<p><strong>C. Student Requirements. </strong></p>
+<ol type="1">
+  <li><a href="#StudSections">Sections</a><a name="StudFuncSections" id="StudFuncSections"></a>
+      <ol type="a">
+        <li>Students can view a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, whether they are member or not, etc.) and sort by the information columns.</li>
+        <li>Authorized students can join and /or switch among all or selected sections. </li>
+      </ol>
+  </li>
+</ol>
+<p><strong>D. Sakai Requirements. </strong> </p>
+<ol>
+  <li><a href="#SakManagingmemberships">Managing memberships</a><a name="SakFuncmangingMemberships" id="SakFuncmangingMemberships"></a>
+      <ol type="a">
+        <li>Provide a list of all students associated with a site </li>
+        <li>Provide a list of all TA's associated with a site</li>
+        <li>Prohibit any student from membership in more than one section per section category within a course</li>
+      </ol>
+  </li>
+</ol>
+<p>&nbsp;</p>
+<h4>With Enterprise Section Data<strong>/</strong>Automated Section Creation </h4>
+<p>[IMPORANT NOTE: The services and modifications to other administrative tools necessary to support enterprise Section data OOTB will not be in place for the fall 2005 2.1 delivery. The Section Tool UI, however, will nevrtheless support the views on enterprise managed Sections as defined by the below requirements.]</p>
+<p><strong>E. Instructor Requirements</strong>. </p>
+<ol type="1">
+  <li><a href="#EntINOverview">Overview</a><a name="EntFuncOverview" id="EntFuncOverview"></a>
+      <ol type="a">
+        <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).</li>
+        <li>Open view to assign TAs<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#EntINRoster">Roster</a><a name="EntFuncRoster" id="EntFuncRoster"></a>
+      <ol type="a">
+        <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+        <li>Filter by student name or id.</li>
+        <li>Set the number of students to view per page.</li>
+        <li>Page through all students based on the number of students to view per page.<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#EntINAssignTeachingAssistants">Assign Teaching Assistants</a><a name="EntFuncAssignTAs" id="EntFuncAssignTAs"></a>
+      <ol type="a">
+        <li>Assign, re-assign zero or more TAs to one section at a time by selecting from current members of the course in the TA role. A TA may be unassigned to any section.        </li>
+      </ol>
+  </li>
+</ol>
+<p><strong>F. TA Requirements</strong>.</p>
+<ol type="1">
+  <li><a href="#EntTAOverview">Overview</a><a name="EntTAFuncOver" id="EntTAFuncOver"></a>
+      <ol type="a">
+        <li>View and sort on a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, section category).<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#EntTARoster">Roster</a><a name="EntTAFuncRoster" id="EntTAFuncRoster"></a>
+      <ol type="a">
+        <li> View and sort on student name, IDs, section(s), enrollment status columns.</li>
+        <li>Filter by student name or id.</li>
+        <li>Set the number of students to view per page.</li>
+        <li>Page through all students based on the number of students to view per page.</li>
+      </ol>
+  </li>
+</ol>
+<p><strong>G. Student Requirements. </strong></p>
+<ol type="1">
+  <li><a href="#EntStudSections">Sections</a><a name="EntStudFuncSect" id="EntStudFuncSect"></a>
+      <ol type="a">
+        <li>Students can view a list of per-section specific info (days, time, assigned TA, room, current enrollment, available slots, max enrollment, whether they are member or not, etc.) and sort by the information columns.</li>
+      </ol>
+  </li>
+</ol>
+<p><strong>H. Sakai Requirements</strong></p>
+<p><strong>Note: </strong>Sakai here is defined as the combination of services and application specific business logic that will enable the system to automate and control section-related administrative tasks. </p>
+<ol>
+  <li><a href="#EntSAKCreatingandeditingsectionsandsectiontypes">Creating and editing sections and section categories</a><a name="EntSakfuncCreate" id="EntSakfuncCreate"></a>
+      <ol type="a">
+        <li>Create one or more categories of sections based on course management data</li>
+        <li>Prohibit the disbanding of any section officially defined through an enterprise system outside Sakai<br />
+        </li>
+      </ol>
+  </li>
+  <li><a href="#EntSAKManagingmemberships">Managing memberships</a><a name="EntSakFuncManage" id="EntSakFuncManage"></a>
+      <ol type="a">
+        <li>Associate enterprise defined students in a course with their sections</li>
+        <li> Associate enterprise defined TAs in a course with their sections</li>
+        <li>Provide a list of all TA's associated with a site</li>
+        <li>Prohibit or restrict the membership management of sections officially defined through an enterprise system outside Sakai</li>
+      </ol>
+  </li>
+</ol>
+<p><a href="#home">Back to top</a></p>
+<h3>V. Specification with Wireframes <a name="specs" id="specs"></a></h3>
+<h4>Without Enterprise Section Data<strong>/Manual Section Creation</strong></h4>
+<p><strong>A. Instructor Requirements</strong>.</p>
+<ol type="1">
+<li><u><a href="#FuncOver">Overview</a><a name="INoverview" id="overview"></a></u>
+
+<p>The Overview page is is the entry page to the Section Info tool for Instructors. It is meant to give Instructors a quick picture of the Sections associated with a Site along with basic information about the Sections.&nbsp; The overview also serves as the jumping off point to actions that can be taken on the individual Sections.</p>
+<p><u><br />
+    <img src="images/OverviewInst.jpg" width="574" height="584" /></u> </p>
+<ol type="a">
+ 
+    <li><strong>Global action links (links at the top of page)<a name="Globalactionlinks" id="Globalactionlinks"></a></strong>
+      <ol type="i">
+        <li>Clicking on an enabled link takes user to respective page. Links taking users to pages other than the one they are currently on are enabled.&nbsp; Page titles match the action link label.</li>
+        <li> Global action links are persistently available from&nbsp; all pages within the Section Info tool.</li>
+        <li>The active link or page user is on should appear disabled.&nbsp; In this case the &ldquo;overview&rdquo; link is disabled.</li>
+        <li>If user navigates away from page using the global action links, data entered on this page is not saved.</li>
+      </ol> </li>  
+    <li><strong>Overview Page Heading<a name="InOverviewPageHeading" id="InOverviewPageHeading"></a> </strong> 
+          <ol type="i">
+            <li>Static Informational page title</li>
+          </ol></li>    
+    <li><strong>Table Display and Sorting Rules</strong>
+        <a name="InTableSortingRules" id="InTableSortingRules"></a>
+        <ol type="i">
+          <li>Primary sort is always by section category in ascending order.&nbsp; Section categories are grouped together regardless of the secondary sort. The 'Out of the box' order of section categories is: Lecture, Discussion, Lab, Recitation, Studio.</li>
+          <li>Section types are separated by 2 rows of white space.</li>
+          <li>Initial (default) secondary sort is on section name within the section category grouping.&nbsp;</li>
+          <li>Sort arrow allows user to switch between ascending an descending sorting within section type. </li>
+          <li>Display sort arrow next to title of active sort column.&nbsp; </li>
+          <li>Clicking title or arrow of active sort column reverses sort order. </li>
+          <li>Clicking on non-active sort column activates sort in that column.</li>
+          <li>Default sort for each column:
+              <ul>
+                <li>Name = Alphanumeric</li>
+                <li>Day/time = Calendar</li>
+                <li>TA = Alphabetical on last name</li>
+                <li>Location = Alphabetical on 1st letter</li>
+                <li>Max size = Numeric, largest to smallest</li>
+                <li>Avail = Numeric, largest to smallest</li>
+                <li>Remove = no sort</li>
+              </ul>
+          </li>
+          <li>The sort order is preserved for the duration of the sessions.&nbsp; The default is reset at the beginning of each session.</li>
+          <li>Sort on native language of user (rather than ID) </li>
+        </ol></li>
+  
+
+    <li><strong>Item action links (links under each item in list)<a name="InItemActionLinks" id="InItemActionLinks"></a> </strong>
+      <ol type="i">
+        <li>Takes user to respective page and workflow.&nbsp; Page titles match the action link label.</li>
+      </ol></li>
+    <li><strong>Name Column</strong> <a name="InNameColumn" id="InNameColumn"></a> </li>
+    <ol type="i">
+      <li>Display the name assigned to the section (see table sorting rules above for sort details).</li>
+    </ol>
+    <li><strong>Day/Time Column<a name="InDayTimeColumn" id="InDayTimeColumn"></a></strong>
+    
+  <ol type="i">
+      
+        <li>Display current day/time associated with section.&nbsp; Day/time attribute may be set when creating and/or editing the section (see table sorting rules above for sort details).</li>
+        <li>If no day/time associated with section, leave cell blank.</li>
+      </ol></li>
+      <li><strong>Teaching Assistant Column</strong><a name="InTeachingAssistantColumn" id="InTeachingAssistantColumn"></a>
+          <ol type="i">
+            <li>Display &lt;last name, first name&gt; of current TA assigned to the section (see table sorting rules above for sort details).</li>
+            <li>Display only 12 characters of name.&nbsp; If name is longer than 12 characters, display &ldquo;&hellip;&rdquo; at the end to signify there is more.</li>
+            <li>For multiple TA&rsquo;s assigned to a section, display each name on consecutive rows.</li>
+            <li>If no TA assigned, display &ldquo;None assigned&rdquo; in cell.</li>
+          </ol>
+      </li>
+      <li><strong>Location Column<a name="InLocationColumn" id="InLocationColumn"></a></strong>
+        <ol type="i">
+          <li>Display current location associated with section during section creation or editing (see table sorting rule rules above for sort details).&nbsp; </li>
+          <li>Display only 12 characters of name. If name is longer than 12 characters, truncate display name in the middle using &quot;...&quot; to signify split. </li>
+          <li>If no location associated with section, leave cell blank.</li>
+        </ol>
+      </li>
+      <li><strong>Maximum Size (Max Size) Column<a name="InMaximumSizeColumn" id="InMaximumSizeColumn"></a></strong>
+        <ol type="i">
+            <li>Display current Maximum size associated with section during section creation or editing.</li>
+            <li>If no sections have a maximum size associated with them, do not display the column.</li>
+            <li>If &gt;1, &lt;all sections do not have a maximum size associated with them, leave the cells blank for those without a max size.</li>
+        </ol>
+      </li>
+      <li><strong>Avail Size Column<a name="InAvailSizeColumn" id="InAvailSizeColumn"></a></strong>
+        <ol type="i">
+          <li>Display Maximum size &ndash; current size of section.&nbsp; </li>
+          <li>Display true numbers even if it is a negative.</li>
+        </ol>
+      </li>
+      <li><strong>Remove Column<a name="InRemoveColumn" id="InRemoveColumn"></a></strong>
+        <ol type="i">
+            <li>Display checkbox for all sections.</li>
+            <li>Checked boxes activated by user checking on &lsquo;remove section&rsquo; button.</li>
+        </ol>
+      </li>
+      <li><strong>Remove Section Button<a name="InRemoveSectionButton" id="InRemoveSectionButton"></a></strong>
+        <ol type="i">
+            <li>If boxes have been checked in the remove column, display the remove confirmation page (next wire frame).</li>
+            <li>Ignore check box action if user navigates away without clicking 'remove' button. When user arrives back at page, no boxes are checked (i.e. do not save interim action between pages) </li>
+            <li>If no boxes have been checked in the remove column, redisplay page with alert message at the top, &ldquo;You have not chosen a section to remove.&nbsp; Please use the &lsquo;Remove&rsquo; column to choose the section(s) you would like to remove and click the &lsquo;Remove Section&rsquo; button again.&rdquo;</li>
+        </ol>
+      </li>
+      <li><strong>Cancel Button<a name="InCancelButton" id="InCancelButton"></a></strong>
+        <ol type="i">
+          <li> Clears any boxes checked in the &ldquo;remove&rdquo; column.</li>
+        </ol>
+       
+</li>
+</ol>
+
+<li><u>Remove Confirmation<a name="InRemoveConfirmation" id="InRemoveConfirmation"></a> </u>
+
+<p>The Instructor sees the remove confirmation page after clicking the Remove Section button on the <a href="#INoverview">Overview</a> page (assuming they first selected sections to remove). This page is meant to protect Instructors from removing Sections unintentionally.</p>
+<p><img src="images/Remove%20Confirmation.jpg" width="609" height="382" /></p>
+
+<ol type="a">
+  <li> <strong>Global Action Links</strong>
+    <ol type="i">
+      <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+    </ol>
+  </li>
+  <li><strong>Message
+    </strong>
+
+    <ol type="i">
+      <li>List sections being removed in a bulleted list</li>
+    </ol>
+  </li>
+  <li><strong>Remove Button
+    </strong>
+    <ol type="i">
+      <li>On click, removes all sections in list and returns the Instructor to the overview page. </li>
+
+      <li>The sections they removed will no longer be in the overview list.</li>
+    </ol>
+  </li>
+  <li><strong>Cancel Button
+    </strong>
+    <ol type="i">
+      <li>On click, cancel the action, take user back to the overview page without any sections checked. This starts them from a clean slate.</li>
+    </ol>
+	</li>
+  </ol>
+</li>
+<li><u><a href="#FuncAddSect">Add Sections</a><a name="INAddSections" id="AddSections"></a></u><u> </u>
+
+<p>	The user arrives on the Add Sections page by choosing the &quot;Add Sections&quot; <a href="#Globalactionlinks">global action links</a> from anywhere within the Section Info tool. It allows Instructors to create Sections and assign attributes such as meeting information to the Section.<u><br />
+    <br />
+
+    <img src="images/AddSections.jpg" width="568" height="612" /> </u></p>
+
+  <ol type="a">
+      
+        <li><strong>Global Action Links</strong>
+          
+          <ol type="i">
+            <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+          </ol>
+      </li>
+        <li><strong>&quot;Add Section(s)&quot; Page Heading</strong>
+  
+          <ol type="i">
+              <li>Static Informational page title</li>
+          </ol>
+        </li>
+        <li><strong>Section number and category control</strong>
+            <ol type="i">
+              <li>On initial entry to page,the category dropdown is set to &quot;-choose one-&quot; as shown in the wireframe. The category choices for OOTB are: lecture, lab, discussion, recitation and studio. </li>
+              <li>On initial entry to page, the add dropdown is set to '1'. The add dropdown choices are 1 , 2, 3, .... 8, 9, 10 </li>
+              <li>On arriving at this page, the add dropdown is the location of the cursor. </li>
+              <li>Section categories are created in the configuration files for each instance of Sakai.</li>
+              <li>If user changes the add dropdown, the page re-renders with the respective number of &quot;forms&quot; available. The wireframe shows 2 &quot;forms&quot;. </li>
+              <li> Upon category dropdown selection, the title for each section being created is automatically created with the format &quot;[Section category] #&quot; (# being the the next consecutive number of sections of that category for that site -- including any preexisting sections). </li>
+            </ol>
+        </li>
+        <li><strong>Title</strong>
+            <ol type="i">
+              <li>Free text entry field that always displays current setting.</li>
+              <li>This is the only required field on the form.</li>
+              <li>On initial entry to page, the title is empty until a category is chosen from the dropdown. Upon dropdown selection, the title is automatically created with the format &quot;[Section category] #&quot; (# being the the next consecutive number on sections of that category for that site. </li>
+              <li>If title exists for this site already (would only occur if user changes the name), display alert at the top of page, &quot;The is already a section with the title, &lt;title&gt;, please create a new title.</li>
+            </ol>
+        </li>
+        <li><strong>Days</strong>
+            <ol type="i">
+              <li>Display one checkbox for each day of the week, starting with Monday and ending with Sunday.</li>
+              <li>By default, no boxes are checked when user arrives at this page. </li>
+              <li>Checkboxes checked by user are meeting days assigned to the section. They are displayed in various other locations within the section tool. Eventually, when sections are integrated with course management, this information will display in other Sakai Tools (e.g. administrative tools). </li>
+            </ol>
+        </li>
+  </ol>
+</li>
+  <li><u><a href="#FuncRoster">Roster</a><a name="InRoster" id="InRoster"></a></u>
+<p>The user arrives on the Roster page by choosing &quot;Roster&quot; in the <a href="#Globalactionlinks">global action links</a>.  It displays all participants of the site assigned the 'student' role along with their section assignment.<br/>
+    <br />
+    <img src="images/Roster.jpg" width="567" height="364" /> </u></p>
+<ol type="a">
+    <li>
+      <strong>Global Action Link</strong>
+      <ol type="i">
+        <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+      </ol>
+    </li>
+    <li><strong>Find Rules</strong>
+      <ol type="i">
+        <li>Initial value: as in wireframe. When the focus comes to this field, the initial value disappears.</li>
+        <li>If there is no match, the page reloads with an alert message that reads &quot;There were no results found for &quot;[the search term]&quot;. Please check your terms and try again.&quot; The table list remains the same.</li>
+        <li>The last established students per page value is retained and displayed. Use the style guide specified for alert messages in the style guide. </li>
+        <li>For search values, only the last space or comma separated value is treated as a substring:
+          <p>Copp<br />
+          Francis Ford Copp<br />
+          Coppola, Francis F<br />
+          ffcoppola@niebaum.edu<br />
+          ffcopp          
+          <p>All return <strong>Coppola, Francis Ford</strong></p>
+          <p><strong>Francis F. Coppola</strong> Returns an error
+          <p></p></p>
+        </li>
+        <li>Case is ignored.</li>
+        <li>Truncation or wild card symbols are not supported</li>
+        <li>Clear resets the view to the default, except for the students per page, if that value has changed during the session.</li>
+        <li>The enter key executes Find if the search box has focus</li>
+      </ol>
+    </li>
+    <li><strong>Paging control
+      </strong>
+      <ol type="i">
+        <li> The dropdown sets number of items to display on each page. By default, it is set to 20.</li>
+        <li>|&gt; button returns to the top of the list with the appropriate number (assigned by dropdown) displayed on the page. </li>
+        <li>&lt;| button takes user to the end of the list with the appropriate number (assigned by dropdown) displayed on the page. </li>
+        <li>&gt; moves display one page back toward the top of list with appropriate number displayed on page.</li>
+        <li>&lt; moves display one page forward toward the end of list with appropriate number displayed on page.</li>
+        <li>&quot;Viewing...&quot; displays &quot;x - y of total students&quot; in the list. </li>
+      </ol>
+    </li>
+    <li><strong>Table Sorting Rules</strong>
+      <ol type="i">
+        <li>Default sort on arrival at this page is by student name on last name (as shown in the wireframe). </li>
+        <li>Display sort arrow next to title of active sort column.&nbsp; </li>
+        <li>Clicking title or arrow of active sort column reverses sort order.</li>
+        <li>Clicking on non-active sort column activates sort in that column.</li>
+        <li>Default sort for each column:
+            <ul>
+              <li>Name = Alphabetical by last name </li>
+              <li>ID = Alphanumeric</li>
+              <li>Section category columns (i.e. Discussion &amp; section in wireframe) = Alphanumeric</li>
+              <li>Status = Alphabetical</li>
+            </ul>
+        </li>
+        <li>The sort order is preserved for the duration of the session.&nbsp; The default is reset at the beginning of each session.</li>
+      </ol>
+    </li>
+    <li><strong>Student Name Column</strong>
+      <ol type="i">
+        <li>Display names of students assigned to this site in the student role. </li>
+        <li>Display names in the format, &quot;Last name, First name Middle (if applicable)</li>
+      </ol>
+    </li>
+    <li><strong>Student ID Column</strong>
+      <ol type="i">
+        <li>Display student ID </li>
+        <li>If no student ID exists, a guest for instance, leave field blank. </li>
+      </ol>
+    </li>
+    <li><strong>Section Name  Columns (i.e. &quot;Discussion&quot; &amp; &quot;Lab&quot;) </strong>
+      <ol type="i">
+        <li>Display a column for each section category associated with the site. </li>
+        <li>Display section assignment for each student.</li>
+        <li>If section is not assigned to section of that category, leave field blank. </li>
+	  </ol>
+	</li>
+    </ol>
+</li>
+	   <li><a href="#FuncOptions">Options</a><a name="InOptions" id="InOptions"></a>
+
+<p>The Instructor arrives on the &quot;Options&quot; page by clicking the &quot;Options&quot; <a href="#Globalactionlinks">global action link</a>.  It allows Instructors to set rules around student self assignment to Sections. <br />
+    <br />
+    <img src="images/InOptions.jpg" width="580" height="205" /> </p>
+<ol type="a">
+  <li><strong>Global Action Links</strong>
+    <ol type="i">
+      <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+    </ol>
+  </li>
+  <li><strong>&quot;Students can sign up for sections&quot; checkbox </strong>
+    <ol type="i">
+      <li>Off by default</li>
+      <li>Checking the box (and completing change by then choosing the 'update&quot; button) allows students to initially sign up for sections. See <a href="#StudSections">"Sections" page</a> in Student requirement section of spec. </li>
+    </ol>
+  </li>
+  <li><strong>&quot;Students can switch sections&quot; checkbox</strong>
+    <ol type="i">
+      <li>Off by default</li>
+      <li>Checking the box (and completing change by then choosing the &quot;update&quot; button) allows students to switch between sections once they are initially assigned to a section. See <a href="#StudSections">"Sections" page</a> in Student requirement section of spec.</li>
+	  </ol>
+	</li>
+      </ol>
+	  </li>
+	<li><a href="#FuncEditSectProp">Edit Section Properties</a><a name="INEditSectionProperties" id="INEditSectionProperties"></a>
+
+<p>The Instructor arrives on the &quot;Edit Section&quot; page from the &quot;Overview&quot; page by clicking the &quot;edit&quot; link below a Section in the list. It is a form that allows Instructors to edit attributes /&nbsp; metadata associated with the Section.&nbsp; This information is displayed on other pages throughout the tool.</p>
+<p><br />
+    <br />
+    <img src="images/EditSection.jpg" width="568" height="346" /> </p>
+<ol type="a">
+  <li><strong>Global action links (links at the top of page)</strong>
+    <ol type="i">
+      <li>Clicking on an enabled link takes user to respective page. Links taking users to pages other than the one they are currently on are enabled.&nbsp; In this case,&nbsp; the user is on a &lsquo;sub-page&rsquo; of the &ldquo;Overview&rdquo; page so all global action links are enabled.&nbsp; Page titles match the action link label.</li>
+      <li>Global action links are persistently available from all pages within the section tool.</li>
+    </ol>
+  </li>
+  <li><strong>Page Title</strong>
+    <ol type="i">
+      <li>Display Section Name in title for context. </li>
+    </ol>
+  </li>
+  <li><strong>Title field</strong>
+      <ol type="i">
+        <li>Free text entry field that displays current setting.</li>
+        <li>This is the only required field on the form. </li>
+        <li>On arriving at this page, the title field is the default location of the cursor.</li>
+      </ol>
+  </li>
+  <li><strong>Days</strong>
+      <ol type="i">
+              <li>Checkboxes for each day of the week, starting with Monday and ending with Sunday.</li>
+              <li>Controls show current settings.</li></ol><li><strong>Start Time:&nbsp; Time</strong><a name="EditStarttimetime" id="EditStarttimetime"></a>
+  		<ol type="i">
+              <li>Text entry field.&nbsp; </li>
+              <li>User is required to enter time in one of two formats:
+                  <ul>
+                    <li>Same as example shown on interface, #:##</li>
+                    <li>Single or double number entered without colon is assumed to be the hour.&nbsp; If this is the case, upon leaving the field, display in format of example (i.e. user enters 9 then clicks in another field, time displays as 9:00).</li>
+                  </ul></li>
+       <li>Text field displays current setting.</li>       </ol></li>
+              
+
+  <li><strong>Start Time:&nbsp; AM/P</strong><strong>M</strong><a name="Editstarttimeampm" id="Editstarttimeampm"></a>
+      <ol type="i">
+        <li>Radio button control required if time is entered in text field.&nbsp; </li>
+        <li>Once the radio button control is &lsquo;turned on&rsquo;, it always displays as on.&nbsp; However, if time gets cleared in text field, am/pm setting does not display in other parts of the tool (i.e. treat as one setting with display determined by text field).</li>
+        <li>If there is no setting in the time field upon entering page, neither of these radio buttons is enabled.</li>
+        <li>Control should display current setting.</li>
+      </ol>
+  </li>
+  <li><strong>End Time</strong>
+      <ol type="i">
+        <li>See <a href="#EditStarttimetime">Start time 4. & 5. above</a>.</li>
+        <li>End time is not required even if start time is set.&nbsp; If start time is set but not end time, display only start time in other places within tool.</li>
+      </ol>
+  </li>
+  <li><strong>Maximum Size</strong>
+      <ol type="i">
+        <li>Free text entry field</li>
+        <li>If this field is not set, then maximum size is set to infinity and nothing is displayed for maximum size in other places in the tool.</li>
+        <li>If max is set for less than current section size, on click of update button, display alert message at the top of overview page, &quot;You have set &lt;section name&gt;'s Maximum size for &lt;X&gt; and there are currently &lt;Y&gt; students assigned to the section.&quot;</li>
+      </ol>
+  </li>
+  <li><strong>Location</strong>
+    <ol type="i">
+      <li>Free text entry field.</li>
+      <li>Current setting displayed in field by default. </li>
+      <li>Data entered is displayed in other locations within the section tool.</li>
+      <li>If field left blank for all sections associated with this site, do not show location information in lists of sections like the <a href="#INoverview">overview</a> page.</li>
+    </ol>
+  </li>
+  <li><strong>Update Button
+    </strong>
+    <ol type="i">
+      <li>On click, users changes in the form are saved and they are returned to the overview page with the confirmation message at the top, &quot;Your changes to &lt;section name&gt; have been saved! &quot;. </li>
+      <li>If required field, &quot;Title&quot;, is left empty, re-render page with an alert message at the top, &quot;A title is required. Please enter a title and update the section again&quot;. </li>
+      <li>In addition, if title is left blank, add link next to the title field to &quot;Create default&quot; title. On click, a title is entered in the the field in the format [section category] [next consecutive number of sections of that category].</li>
+    </ol>
+  </li>
+  <li><strong>Cancel Button</strong>
+    <ol type="i">
+      <li>On click, all data entry is ignored and user is returned to the overview page with focus on the section they were editing. </li>  
+	  </ol>
+    </li>
+    </ol>
+</li>
+	<li><u><a href="#funcAssignTAs">Assign Teaching Assistants</a><a name="INAssignTeachingAssistants" id="INAssignTeachingAssistants"></a></u>
+      <p>Instructors arrive at the Assign Teaching Assistants page from the <a href="#INoverview">Overview page</a> by choosing the Assign TA's link under a Section in the list.  It allows Instructors to assign TAs to a Section from a predefined list. The course TA list is created through assigning site participants to the TA role from within other administrative tools (i.e. Site Info, Worksite Setup) in Sakai.<u><br />
+    <br />
+    <img src="images/AssignTA.jpg" width="568" height="487" /> </u></p>
+<ol type="a">
+  <li><strong> Global Action Links
+    </strong>
+    <ol type="i">
+      <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+    </ol>
+  <li><strong>Section Information (i.e. &quot;Lab 1, &lt;#&gt; meets M, W, 1 - 2&quot; in wireframe)
+    </strong>
+    <ol type="i">
+      <li>Information provided about the section. This is information assigned the section on the Add or Edit Sections pages. </li>
+    </ol>
+  <li><strong> &quot;Available Teaching Assistants&quot; Combo Box </strong>
+    <ol type="i">
+      <li>Display label, &quot;Available Teaching Assistants&quot;</li>
+      <li>Display all people assigned the TA role for this site. The role assignment is done in other administrative tools, like Site Info or Worksite Setup.</li>
+      <li>Include Note under box as shown in wireframe.</li>
+      <li>A TA is selected by clicking on the name. This highlights the name to show focus. Allow users to user ctrl and shift shortcuts to choose multiple names at once.</li>
+    </ol>
+  <li><strong>&lt;Lab X&gt; Teaching Assistant Combo Box </strong>
+    <ol type="i">
+      <li>Display section title in place or &lt;Lab X&gt; in title for the combo box </li>
+      <li>Display all TA's assigned to this section in the list. </li>
+      <li>A TA is selected by clicking on the name. This highlights the name to show focus. Allow users to user ctrl and shift shortcuts to choose multiple names at once.</li>
+    </ol>
+  </li>
+  <li><strong>Move  / Move All Controls
+</strong><ol type="i"><li>The arrows on the button show direction of data flow between the combo boxes. The top button copies all TA's from the TA's for course box into the &lt;Section&gt; TA's. The bottom button Removes all TA's from the &lt;Section&gt; TAs combo box.        </li>
+      <li>Move buttons, move selected names.</li>
+      <li>Move all buttons, move all names in the combo box. </li>
+      <li>Names only appear once a combo box but may appear in both boxes. If user attempts to move over a name already in the Section TA list, do not add them to the list again.</li>
+      <li>If no names are selected upon clicking either button, give user an alert message at the top of the page, &quot;Please choose a TA to move.&quot;</li>
+    </ol>
+  <li><strong>Assign TA's Button
+    </strong>
+    <ol type="i">
+      <li>If assistants have been added to the section during the session, clicking the button executes all changes the user has made on the page and returns them to the Overview page with a confirmation message at the top, &quot;You have successfully assigned &lt;TA name&gt;, &lt;TA name&gt;, &lt;TA name&gt; and &lt;TA name&gt; as Teaching Assistants and removed &lt;TA name&gt;, TA name&gt; from the list of TAs for &lt;section name&gt;!&quot;</li>
+    </ol>
+  </li>
+  <li><strong>Cancel Button
+    </strong>
+    <ol type="i">
+      <li>Clicking the cancel button clears all changes users has made on the page and returns them to Overview page. </li>  
+	  </ol>
+    </li>
+    </ol>
+</li>
+    <li><a href="#FuncAssignStud">Assign Students</a><a name="InAssignStudents" id="InAssignStudents"></a></u>
+  <p>Instructors arrive at this page from the <a href="#INoverview">Overview page</a> by clicking on the &quot;Assign Students&quot; link under a Section in the list. It allows Instructors to assign participants of the site in the student role to a Section. </p>
+  <blockquote>
+        <p><br />
+        <img src="images/AssignStudents.jpg" width="570" height="486" /></p>
+  </blockquote>
+  <ol type="a"><li><strong>Global Action Links </strong>
+        <ol type="i">
+          <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+          <li>If user has made changes on this page and clicks a global action item to navigate away, display a confirmation message that requires user action, &quot;You are about to leave this page, do you want to save changes you have made?&quot;. Include  'Save changes', 'Don't save changes' and 'Cancel' buttons. </li>
+        </ol>
+    </li>
+    <li><strong>Section Information (i.e. &quot;Lab 1, &lt;#&gt; meets M, W, 1 - 2&quot; in wireframe) </strong>
+        <ol type="i">
+          <li>Information provided about the section. This is information assigned the section on the Add or Edit Sections pages. </li>
+        </ol>
+    </li>
+    <li><strong>View dropdown
+      </strong>
+      <ol type="i">
+        <li>The dropdown is a filter on the students participants list for the site that display in the combo box below. The dropdown selections are:
+          <ul>
+            <li>Each section associated with the site = all students assigned to that section </li>
+            <li> All = all participants of the site assigned to the student role </li>
+            <li>Unassigned = all students not assigned to a section of this category</li>
+          </ul>
+        </li>
+        <li>The dropdown is executed when the user changes the selection.</li>
+      </ol>
+    </li>
+    <li><strong> Students Combo Box </strong>
+        <ol type="i">
+          <li>The names that appear in the combo box are based on the view dropdown above. </li>
+          <li>A student is selected by clicking on the name. This highlights the name to show focus. Allow users to user ctrl and shift shortcuts to choose multiple names at once.</li>
+        </ol>
+    </li>
+    <li><strong>&lt;Lab X&gt; Teaching Assistant Combo Box </strong>
+        <ol type="i">
+          <li>Display section title as title for the combo box.</li>
+          <li>Display number students assigned to section / maximum allowed in section on same row with title, left-aligned as seen in the wireframe. The number assigned is dynamic and changes as students are added to the combo box. </li>
+          <li>By default display all students assigned to this section in the list. </li>
+          <li>A student is selected by clicking on the name. This highlights the name to show focus. Allow users to user ctrl and shift shortcuts to choose multiple names at once.</li>
+        </ol>
+    </li>
+    <li><strong>Move / Move All Controls </strong>
+        <ol type="i">
+          <li>The arrows on the button show direction of data flow between the combo boxes. The top button copies all TA's from the TA's for course box into the &lt;Section&gt; TA's. The bottom button Removes all TA's from the &lt;Section&gt; TAs combo box. </li>
+          <li>Move buttons, move selected names.</li>
+          <li>Move all buttons, move all names in the combo box. </li>
+          <li>Names only appear once a combo box but may appear in both boxes. If user attempts to move over a name already in the Section TA list, do not add them to the list again.</li>
+          <li>If no names are selected upon clicking either button, give user an alert message at the top of the page, &quot;Please choose a TA to move.&quot;</li>
+        </ol>
+    </li>
+    <li><strong>Assign Students Button </strong>
+        <ol type="i">
+          <li>If user has moved students between combo box, clicking the button executes all changes the user has made on the page and returns them to the Overview page with a confirmation message at the top, &quot;You have successfully moved: &lt;#&gt; students from &lt;section name&gt; to &lt;section name&gt;. and &lt;#&gt; students from &lt;section name&gt; to &lt;section name&gt;!&quot;</li>
+          <li>If maximum number of students has been surpassed, add additional alert message below a. on confirmation page, &quot; &lt;Section name&gt; now includes &lt;X&gt; students, 3 over your Max size limit! &quot;.  </li>
+        </ol>
+    </li>
+    <li><strong>Cancel Button </strong>
+        <ol type="i">
+          <li>Clicking the cancel button clears all changes users has made on the page and returns them to Overview page</li>
+	  </ol>
+    </li>
+    </ol>
+    </li></ol>
+	  <p><strong>B. TA Requirements</strong>.</p> 
+
+   <ol type="1">     <li>
+
+	  <u><a href="#FuncTAOverview">Overview</a><a name="TAOverview" id="TAOverview"></a></u>
+  
+          
+	  <p>The overview page is is the entry page to the Section Info tool for TAs. It is meant to give them a quick picture of the Sections associated with this site along with basic information about the Sections.&nbsp; The overview also serves as the jumping off point to assign students to the individual Sections.<br/>
+    <br />
+  <img src="images/OverviewTA.jpg" width="602" height="526"/></p>
+<ol type="a"><li><strong>Global action links (links at the top of page)</strong>
+        <ol type="i">
+          <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            <li>NOTE: The TA overview page does not include the &quot;Add Sections&quot; global action link that is in the Instructors view. </li>
+        </ol>
+      </li>
+      <li><strong>Overview Page Heading </strong>
+          <ol type="i">
+            <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+          </ol>
+      </li>
+      <li><strong>Table Display and Sorting Rules</strong>
+          <ol type="i">
+            <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            <li>Sections TA is assigned to have a 'strong' emphasis.</li>
+          </ol>
+      </li>
+      <li><strong>Item action links (links under each item in list) </strong>
+          <ol type="i">
+            <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            <li>TAs assigned to site can add and remove students to all sections (not just their own). </li>
+            <li>NOTE: The TA overview does not include the &quot;Edit&quot; or &quot;Add TAs&quot; actions links that are in the Instructor view. </li>
+          </ol>
+      </li>
+      <li><strong>Name Column</strong> 
+        <ol type="i">
+          <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+        </ol>
+      </li>
+      <li><strong>Day/Time Column</strong> 
+        <ol type="i">
+          <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+        </ol>
+      </li>
+      <li><strong>Teaching Assistant Column</strong>
+            <ol type="i">
+              <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            </ol>
+      </li>
+      <li><strong>Location Column</strong>
+            <ol type="i">
+              <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            </ol>
+      </li>
+      <li><strong>Maximum Size (Max Size) Column</strong>
+            <ol type="i">
+              <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            </ol>
+      </li>
+      <li><strong>Avail Size Column</strong>
+            <ol type="i">
+              <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            </ol>
+      </li>
+      <li><strong>Remove Column</strong>
+            <ol type="i">
+              <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            </ol>
+      </li>
+      <li><strong>Remove Section Button</strong>
+            <ol type="i">
+              <li>See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            </ol>
+      </li>
+      <li><strong>Cancel Button</strong>
+            <ol type="i">
+              <li> See <a href="#INoverview">Instructor Overview page</a> for specification details.</li>
+            </ol>
+      </li>
+
+    </ol>
+	  </li> 
+	    <li><a href="#TAfuncRoster">Roster</a><a name="TARoster" id="TARoster"></a></li><br />Please see <a href="#InRoster">Section VI.A.3</a> for specification details<br />
+	    <br />
+      <li><u><a href="#TAfuncAssignStud">Assign Students</a></u><br />
+        <br />
+        Please see <a href="#InAssignStudents">Section VI.A.7</a> view for specification details<br />
+      </li>
+     <li><a href="#TAfuncOptions"> Options</a><a name="TAoptions" id="TAoptions"></a> <br />
+          <br />
+       <img src="images/TAOptions.jpg" width="576" height="206" />          </p>
+          <br />
+</li>
+        <ol type="a">
+	      <li><strong>Global Action Links</strong>
+            <ol type="i">
+              <li>See <a href="#Globalactionlinks">"Global Action Links" under Overview page</a></li>
+            </ol>
+          </li>
+	      <li><strong>&quot;Students can sign up for sections&quot; checkbox </strong>
+            <ol type="i">
+              <li>Read-only to allow TAs to see the rules for the class. </li>
+            </ol>
+          </li>
+	      <li><strong>&quot;Students can switch sections&quot; checkbox</strong>
+            <ol type="i">
+              <li>Read-only to allow TAs to see the rules for the class. </li>
+            </ol>
+          </li>
+	      <li><strong>Update Button</strong>
+            <ol type="i">
+              <li>Since this a read-only page, display button grayed out and disable.</li>
+            </ol>
+          </li>
+	      <li><strong>Cancel Button </strong>
+            <ol type="i">
+              <li>Cancel takes user back to Overview page. </li>
+            </ol>
+          </li>
+        </ol>
+		</li>
+   </ol>
+   <p><strong>C. Student Requirements. </strong></p>
+<ol type="1">
+  <li><<a href="#StudFuncSections">Sections</a><a name="StudSections" id="StudSections"></a></li>      
+  <p>This is main and only page students view in the Section Info tool. Is is meant to give students an overview of the Sections associated with the site and highlight the Sections they belong to. If the Section rules have been set to allow students to sign up for and switch Sections, they complete those tasks on this page. <br />
+        <br />
+        <img src="images/MySections.jpg" width="598" height="364" />
+  <ol type="a">
+  <li><strong>Page Heading
+    </strong>
+    <ol type="i">
+      <li>Informational only.</li>
+    </ol>
+  </li>
+  <li><strong>Instructions
+    </strong>
+    <ol type="i">
+      <li>Informational only.</li>
+      <li>Instructions only display is students are allowed to sign up for and/or switch sections.</li>
+    </ol>
+  </li>
+  <li><strong>View Dropdown
+    </strong>
+    <ol type="i"><li>The dropdown is a filter on the sections that appear in the table. The dropdown choices are:
+          <ul>
+            <li>All Sections</li>
+            <li>My Sections</li>
+            <li>All &lt;lab category&gt; - one for each lab category associated with this site</li>
+          </ul>
+      </li>
+      <li>The default is &quot;All Sections&quot; as shown in the wireframe.</li>
+    </ol>
+  </li>
+  <li><strong>Table Display and Sorting Rules</strong> <a name="InTableSortingRules" id="InTableSortingRules"></a>
+  <ol type="a">
+  <li>Section categories are grouped together regardless of the secondary sort.</li>
+            <li>Within the section category grouping, sections are sorted by Day/time by default. </li>
+            <li>Section categorys are separated by 2 rows of white space.</li>
+            <li>Display sort arrow next to title of active sort column.&nbsp; </li>
+            <li>Clicking title or arrow of active sort column reverses sort order.</li>
+            <li>Clicking on non-active sort column activates sort in that column.</li>
+            <li>Default sort for each column:
+			<ul><li>Day/time = Calendar</li>
+                <li>TA = Alphabetical on last name</li>
+                <li>Section Name = Alphanumeric</li>
+                <li>Location = Alphanumeric</li>
+                <li>Change Schedule - &quot;Member&quot;, &quot;Switch to&quot; &amp; &quot;Full&quot; </li>
+              </ul>
+            </li>
+            <li>The sort order is preserved for the duration of the sessions.&nbsp; The default is reset at the beginning of each session.</li>
+      </ol>
+  </li>
+  <li><strong>Time/Days column
+      </strong>
+    <ol type="a">
+        <li>Display the Day(s) and time(s) associated with the section</li>
+    </ol>
+  </li>
+  <li><strong>Teaching Assistant Column
+    </strong>
+    <ol type="a">
+      <li>Display TAs assigned to the section. One TA per row. </li>
+      <li>Display first 15 characters of name, then &quot;...&quot; if there is more.</li>
+    </ol>
+  </li>
+  <li><strong>Section Name
+    </strong>
+    <ol type="a">
+      <li>Display name of section</li>
+      <li>Display first 15 characters of name, then &quot;...&quot; if there is more</li>
+    </ol>
+  </li>
+  <li><strong>Location</strong>    
+    <ol type="a">
+      <li>Display location associated with section.</li>
+      <li>If no location has been associated, leave field blank.</li>
+    </ol>
+  </li>
+  <li><strong>Change Schedule
+Column    
+    </strong>
+    <ol type="a">
+      <li>Column only displays if section rules allow students to sign up for or switch sections.</li>
+      <li>Rules are based on group of section category. Within each category:
+        <ul>
+          <li>If student is not a member of a section, display &quot;Join&quot; action link for all available (not full) sections of that category. On click, student becomes a member of that section. The page re-renders with display updated to show that student is a member of section. NOTE: Section must have &quot;allow students to join sections&quot; setting turned on. </li>
+          <li>If student is already a member of a section of category X, display &quot;Switch to&quot; action link for all available sections of that category not including the section they currently belong to. NOTE: Section must have &quot;allow students to switch sections&quot; setting turned on. </li>
+          <li>Display &quot;Member&quot; for sections student belongs to. </li>
+        </ul>
+      </li>
+      <li>If section is at maximum size, display Full in field. Students are not allowed to sign up for full sections.</li>
+	</ol>
+      </li>
+    </ol>
+		</li>
+  </ol> 
+<p><strong>D. Sakai Requirements. </strong> </p>
+<ol>
+  <li><u><a href="#SakFuncmangingMemberships">Managing memberships</a><a name="SakManagingmemberships" id="StudManagingmemberships"></a></u></li>
+</ol>
+<blockquote>
+  <p>See  <a href="#INAssignTeachingAssistants">Section VI.A.6</a> and <a href="#InAssignStudents">Section VI.A.7</a> above for specification details. </p>
+</blockquote>
+<h4>With Enterprise Section Data<strong>/</strong>Automated Section Creation </h4>
+<p>[IMPORANT NOTE: The services and modifications to other administrative tools necessary to support enterprise Section data will not be in place for the fall 2005 2.1 delivery. The Section Info tool UI, however, will still support the views on enterprise managed Sections as defined by the below requirements.]</p>
+<p><strong>E. Instructor Requirements</strong>. The numbered Sections correspond to Instructor views in the Section Info Tool.</p>
+<ol type="1">
+  <li><a href="#EntFuncOverview">Overview</a><a name="EntINOverview" id="EntINOverview"></a><br />
+    <br />
+    <img src="images/OverviewSIS.jpg" width="569" height="489" /> </u></li>
+</ol>
+<blockquote>
+  <p>This is a read-only version of the <a href="#INoverview">Instructor Overview</a>, without Enterprise Section Data except for the &quot;Assign TAs&quot; functionality.</p>
+</blockquote>
+<ol type="1">
+    <li><a href="#EntFuncRoster">Roster</a><a name="EntINRoster" id="EntINRoster"></a><br />
+      <br />
+      See <a href="#InRoster">Section VI.A.3</a> above for specification details <br />
+    </li>
+    <li><a href="#EntFuncAssignTAs">Assign Teaching Assistants</a>
+      <a name="EntINAssignTeachingAssistants" id="EntINAssignTeachingAssistants"></a> <br />
+      <br />
+    See <a href="#INAssignTeachingAssistants">Section VI.A.6</a> above for specification details </li>
+</ol>
+<p><strong>F. TA Requirements</strong>. The numbered sections correspond to TA views in the Section Info Tool.</p>
+<ol type="1">
+  <li><a href="#EntTAFuncOver">Overview</a><a name="EntTAOverview" id="EntTAOverview"></a><br />
+    <br />
+    <img src="images/OverviewTASIS.jpg" width="576" height="364" /> </u></li>
+
+<blockquote>
+  <p>This is a read-only version of the <a href="#FuncTAOverview">TA Overview</a>, without enterprise Section data. </p>
+</blockquote>
+
+  <li><a href="#EntTAFuncRoster">Roster</a><a name="EntTARoster" id="EntTARoster"></a><br />
+      <br />
+    </u>See <a href="#InRoster">Section VI.A.3</a> above for specification details </li>
+</ol>
+<p><strong>G. Student Requirements. </strong>The numbered sections correspond to Student views in the Section Info Tool.</p>
+<ol type="1">
+  <li><a href="#EntStudFuncSect">Sections</a><a name="EntStudSections" id="EntStudSections"></a><br />
+    <br />
+    <img src="images/MySectionsSIS.jpg" width="568" height="377" /> </u></li>
+</ol>
+<blockquote>
+  <p>This is a read-only version of the <a href="#StudFuncSections">Student Section</a> page without enterprise Section data. </p>
+</blockquote>
+<p><strong>H. Sakai Requirements</strong></p>
+<ol>
+  <li><a href="#EntSakfuncCreate">Creating and editing sections and section categories</a><a name="EntSAKCreatingandeditingsectionsandsectiontypes" id="EntSAKCreatingandeditingsectionsandsectiontypes"></a></u>
+    <ol type="a">
+      <li>The section categories created by the enterprise are represented in the Roster. There is no capability for manually creating section categories. See  <a href="#InRoster">Section VI.A.3</a>. </li>
+      <li>The column to remove a section is not present in the Overview. See <a href="#EntINOverview">Section VI.E.1</a><br />
+          <br />
+      </li>
+    </ol>
+  </li>
+  <li><u><a href="#EntSakFuncManage">Managing memberships</a><a name="EntSAKManagingmemberships" id="EntSAKManagingmemberships"></a></u>
+    <ol type="a">
+      <li>Students and the sections they've been assigned to via the enterprise are represented in the Roster and the students' Section views. See <a href="#InRoster">Section VI.A.3</a>. and <a href="#EntStudSections">Section VI.G.1</a>.</li>
+      <li>TA's and the sections they've been assigned to via the enterprise are represented in the Overview. </li>
+      <li>If Instructors are permitted to assign and re-assign TAs, the list of TAs who are members of a site will be available in the Assign TAs view. See <a href="#INAssignTeachingAssistants">Section VI.A.6</a> </li>
+      <li>Depending on institutional deployment choices, the link to the Assign TAs view may or may not be made available to Instructors in the Overview. See <a href="#EntINOverview">Section VI.E.1</a><br />
+          <br />
+      </li>   
+   </ol>
+    <a href="#home">Back to top</a></li>
+  </ol>
+		</li>
+   </ol>  
+</div>
+
+</body>
+</html>

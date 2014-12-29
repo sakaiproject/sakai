@@ -1,0 +1,21 @@
+        <h:panelGrid
+            id="transferButtons"
+            columns="1"
+            columnClasses="transferButtonTable">
+            <h:outputText value="#{msgs.transfer_membership_move_selected}"/>
+            <f:verbatim>
+                <input type="button" onclick="addUser();" value="&gt;" />
+            </f:verbatim>
+            <f:verbatim>
+                <input type="button" onclick="removeUser();" value="&lt;"/>
+            </f:verbatim>
+            <t:div styleClass="verticalPadding">
+                <h:outputText value="#{msgs.transfer_membership_move_all}"/>
+            </t:div>
+            <f:verbatim>
+                <input type="button" onclick="addAll();" value="&gt;&gt;"/>
+            </f:verbatim>
+            <f:verbatim>
+                <input type="button" onclick="removeAll();" value="&lt;&lt;"/>
+            </f:verbatim>
+        </h:panelGrid>

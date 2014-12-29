@@ -1,0 +1,285 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>sections-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>sakai-sections-tool</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-sections-tool</artifactId>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2005</inceptionYear>
+  <packaging>war</packaging>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl-standalone</artifactId>
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-model</artifactId>
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-impl</artifactId>
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-integrationsupport</artifactId>
+      <scope>provided</scope>
+<!-- FIXME: is this required here ? -->
+<!--properties:	war.bundle: false -->
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-sections-app-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-tool</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-spreadsheet</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>jsf-app</artifactId>
+      <exclusions>
+        <exclusion>
+<!-- we are pulling the myfaces version of this api -->
+          <groupId>javax.faces</groupId>
+          <artifactId>jsf-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+<!-- Sakai plugin -->
+<!-- End Sakai2 Dependencies -->
+<!-- Database dependencies -->
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+    </dependency>
+<!-- Uncomment as necessary to run tests, or to generate new db schemas -->
+<!-- 
+				<dependency>
+					<groupId>mysql</groupId>
+					<artifactId>mysql-connector-java</artifactId>
+					<version>3.1.12</version>
+				</dependency>
+			<dependency>
+				<groupId>oracle</groupId>
+				<artifactId>oracle</artifactId>
+				<jar>ojdbc14.jar</jar>
+			</dependency>
+		-->
+<!-- End database dependencies -->
+    <dependency>
+      <groupId>${sakai.spring.groupId}</groupId>
+      <artifactId>${sakai.spring.test.artifactId}</artifactId>
+      <version>${sakai.spring.test.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+   </dependency>
+<!-- MyFaces JSF -->
+    <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-api</artifactId>
+      <version>1.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.core</groupId>
+      <artifactId>myfaces-impl</artifactId>
+      <version>1.1.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.myfaces.tomahawk</groupId>
+      <artifactId>tomahawk</artifactId>
+      <version>1.1.10</version>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.jsf</groupId>
+      <artifactId>myfaces-widgets-depend</artifactId>
+      <type>pom</type>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>jstl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>taglibs</groupId>
+      <artifactId>standard</artifactId>
+      <version>1.1.2</version>
+    </dependency>
+  </dependencies>
+  <reports />
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <version>2.0</version>
+        <configuration>
+          <webResources>
+            <resource>
+              <!-- this is relative to the this pom.xml directory -->
+              <directory>${basedir}/src/webapp/sakai</directory>
+              <includes>
+                <include>**/*.*</include>
+              </includes>
+            </resource>
+          </webResources>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <executions>
+          <execution>
+            <phase>compile</phase>
+            <configuration>
+              <tasks>
+                <delete dir="${project.build.directory}/${project.build.finalName}/common" />
+                <delete dir="${project.build.directory}/${project.build.finalName}/sakai" />
+                <delete dir="${project.build.directory}/${project.build.finalName}/standalone" />
+                <echo message="Copying common resources into sakai and standalone webapps" />
+                <copy todir="${project.build.directory}/${project.build.finalName}" overwrite="true">
+                  <fileset dir="${basedir}/src/webapp/common" />
+                </copy>
+                <copy todir="${project.build.directory}/${project.build.finalName}_standalone" overwrite="true">
+                  <fileset dir="${basedir}/src/webapp/common" />
+                </copy>
+                <echo message="Copying sakai dependent resources into sakai webapp" />
+                <copy todir="${project.build.directory}/${project.build.finalName}" overwrite="true">
+                  <fileset dir="${basedir}/src/webapp/sakai/">
+                    <include name="**/*" />
+                  </fileset>
+                </copy>
+                <echo message="Copying standalone resources into standalone webapp" />
+                <copy todir="${project.build.directory}/${project.build.finalName}_standalone" overwrite="true">
+                  <fileset dir="${basedir}/src/webapp/standalone/">
+                    <include name="**/*" />
+                  </fileset>
+                </copy>
+              </tasks>
+            </configuration>
+            <goals>
+              <goal>run</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <testExcludes>
+            <exclude implementation="java.lang.String">**/*Test*</exclude>
+            <exclude implementation="java.lang.String">**/*Loader*</exclude>
+          </testExcludes>
+          <testIncludes>
+            <include implementation="java.lang.String">**/SectionsTestSuite</include>
+          </testIncludes>
+        </configuration>
+      </plugin>
+    </plugins>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.properties</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${hibernate.properties.dir}</directory>
+        <includes>
+          <include>hibernate.properties</include>
+        </includes>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>${basedir}</directory>
+        <includes>
+          <include>log4j.properties</include>
+        </includes>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/src/test/</directory>
+        <includes>
+          <include>hibernate.properties</include>
+        </includes>
+      </testResource>
+    </testResources>
+  </build>
+</project>

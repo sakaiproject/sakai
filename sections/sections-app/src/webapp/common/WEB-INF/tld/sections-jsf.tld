@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE taglib
+	PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+	"http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+<taglib>
+	<tlib-version>1.0</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>sec</short-name>
+	<uri>http://sakaiproject.org/jsf/sections</uri>
+	<description>Sakai Section Info Tags</description>
+	<tag>
+		<name>sectionTable</name>
+		<tag-class>org.sakaiproject.tool.section.jsf.SectionTableTag</tag-class>
+		<body-content>JSP</body-content>
+
+	<!-- All attributes copied from dataTable in Myfaces 1.1.1 TLD -->
+        <attribute>
+            <name>id</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>Every component may have an unique id. Automatically created if omitted.</description>
+        </attribute>
+        <attribute>
+            <name>rendered</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>If false, this component will not be rendered.</description>
+        </attribute>
+        <attribute>
+            <name>binding</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>Component binding.</description>
+        </attribute>
+
+
+        <!-- HTML 4.0 universal attributes -->
+        <attribute><name>dir</name>     <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>lang</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>style</name>   <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>title</name>   <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute>
+            <name>styleClass</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Corresponds to the HTML class attribute.</description>
+        </attribute>
+
+        <!-- HTML 4.0 event-handler attributes -->
+        <attribute><name>onclick</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>ondblclick</name> <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onmousedown</name><required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onmouseup</name>  <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onmouseover</name><required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onmousemove</name><required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onmouseout</name> <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onkeypress</name> <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onkeydown</name>  <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>onkeyup</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+
+        <!-- HTML 4.0 table attributes -->
+        <attribute><name>align</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>border</name>          <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>bgcolor</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>cellpadding</name>     <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>cellspacing</name>     <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>datafld</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>datasrc</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>dataformatas</name>    <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>frame</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>rules</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>summary</name>         <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+        <attribute><name>width</name>           <required>false</required>  <rtexprvalue>false</rtexprvalue></attribute>
+
+        <!-- UIData attributes -->
+        <attribute>
+            <name>value</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Supported types see JSF Spec 4.1.3</description>
+        </attribute>
+        <attribute>
+            <name>var</name>
+            <required>true</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>rows</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>first</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <!-- TableRenderer attributes -->
+        <attribute>
+            <name>columnClasses</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>footerClass</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>headerClass</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+        <attribute>
+            <name>rowClasses</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+        </attribute>
+
+        <!-- MyFaces extensions -->
+                <!-- 
+        This attribute indicates that the component should be forced to use the specified id instead of 
+        using the one that faces generates.  Components contained within a "list" will include a '[n]'  
+        suffix where 'n' is the row index (unless the forceIdIndex attribute is set to false).
+        -->
+        <attribute>
+            <name>forceId</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>If true, this component will force the use of the specified id when rendering.</description>
+        </attribute>        
+
+        <!-- 
+        If the component is contained within an "list" (such as dataTable), this attribute indicates whether or not a 
+        '[n]' suffix should be added where 'n' is the row index.  Default is true.  The attribute is ignored if forceId 
+        is false (or not specified)
+        -->
+        <attribute>
+            <name>forceIdIndex</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+            <description>
+                If false, this component will not append a '[n]' suffix (where 'n' is the row index) to components 
+                that are contained within a "list."  This value will be true by default and the value will be ignored if 
+                the value of forceId is false (or not specified.)
+            </description>
+        </attribute>        
+
+        <!-- MyFaces extension: user role attributes -->
+        <attribute>
+            <name>enabledOnUserRole</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                If user is in given role, this component will be rendered
+                normally. If not, no hyperlink is rendered but all nested
+                tags (=body) are rendered.
+            </description>
+        </attribute>
+        <attribute>
+            <name>visibleOnUserRole</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                If user is in given role, this component will be rendered
+                normally. If not, nothing is rendered and the body of this tag
+                will be skipped.
+            </description>
+        </attribute>
+
+        <attribute>
+            <name>preserveDataModel</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Indicates whether the state of the whole DataModel should be saved and
+                restored.
+                Default: false
+            </description>
+        </attribute>
+        <attribute>
+            <name>forceIdIndexFormula</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+				A formula that overrides the defaut row index in the construction of table's
+				body components.
+				Example : #{myRowVar.key}
+				Warning, the EL should evaluate to a unique value for each row !
+            </description>
+        </attribute>
+        <attribute>
+            <name>sortColumn</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Value reference to a model property that gives the current sort column name.
+            </description>
+        </attribute>
+        <attribute>
+            <name>sortAscending</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Value reference to a model property that gives the current sort direction.
+            </description>
+        </attribute>
+        <attribute>
+            <name>preserveSort</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Indicates whether the state of the sortColumn and sortAscending attribute
+                should be saved and restored and written back to the model during the
+                update model phase.
+                Default: true
+            </description>
+        </attribute>
+        <attribute>
+            <name>renderedIfEmpty</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Indicates whether this table should be rendered if the underlying DataModel is
+                empty.
+                You could as well use rendered="#{not empty bean.list}", but this one causes
+                the getList method of your model bean beeing called up to five times per
+                request, which is not optimal when the list is backed by a DB table.
+                Using renderedIfEmpty="false" solves this problem, because the MyFaces
+                extended HtmlDataTable automatically caches the DataModel and calles the
+                model getter only once per request.
+                Default: true
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowIndexVar</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                A parameter name, under which the current rowIndex is set in request scope
+                similar to the var parameter.
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowCountVar</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                A parameter name, under which the rowCount is set in request scope
+                similar to the var parameter.
+            </description>
+        </attribute>
+        <attribute>
+            <name>previousRowDataVar</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                A parameter name, under which the previous RowData Object is set in request scope
+                similar to the rowIndexVar and rowCountVar parameters.
+                Mind that the value of this request scope attribute is null in the first row
+                or when isRowAvailable returns false for the previous row.
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnClick</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onclick event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnDblClick</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript ondblclick event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnMouseDown</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onmpusedown event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnMouseUp</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onmouseup event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnMouseOver</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onmouseover event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnMouseMove</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onmousemove event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnMouseOut</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onmouseout event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnKeyPress</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onkeypress event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnKeyDown</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onkeydown event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowOnKeyUp</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                Defines a JavaScript onkeyup event handler for each table row
+            </description>
+        </attribute>
+        <attribute>
+            <name>rowId</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>
+                The id to use for &lt;tr&gt; elements that are generated by the table.
+            </description>
+        </attribute>        
+        <attribute>
+            <name>rowStyleClass</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Corresponds to the HTML class attribute for the row tr tag.</description>
+        </attribute>
+        <attribute>
+            <name>rowStyle</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <description>Corresponds to the HTML style attribute for the row tr tag.</description>
+        </attribute>
+
+	</tag>
+
+</taglib>

@@ -1,0 +1,5 @@
+		<div>
+			Configuration = <%=application.getAttribute("section.info.integration")%>
+		</div>
+	</body>
+</html>
