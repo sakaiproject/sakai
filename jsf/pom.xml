@@ -1,0 +1,97 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>Sakai JSF Base POM (jsf)</name>
+    <groupId>org.sakaiproject.jsf</groupId>
+    <artifactId>jsf</artifactId>
+    <version>11-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>jsf-app</module>
+        <module>jsf-resource</module>
+        <module>jsf-spreadsheet</module>
+        <module>jsf-tool</module>
+        <module>jsf-tool-sun</module>
+        <module>jsf-widgets</module>
+        <module>jsf-widgets-sun</module>
+        <module>jsf-widgets-sun-depend</module>
+        <module>myfaces-tool</module>
+        <module>myfaces-widgets</module>
+        <module>myfaces-widgets-depend</module>
+    </modules>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/jsf/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jsf/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/jsf/trunk</url>
+    </scm>
+    
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/jsf/${project.version}</url>
+        </site>
+    </distributionManagement>
+    
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jsf-app</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jsf-tool</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jsf-widgets</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jsf-widgets-sun</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>jsf-widgets-sun-depend</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+             <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>myfaces-widgets</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>myfaces-widgets-depend</artifactId>
+                <version>${project.version}</version>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+            	<groupId>javax.faces</groupId>
+            	<artifactId>jsf-api</artifactId>
+            	<version>1.1_02</version>
+            </dependency>
+            <dependency>
+            	<groupId>javax.faces</groupId>
+            	<artifactId>jsf-impl</artifactId>
+            	<version>1.1_02</version>
+            </dependency>
+	</dependencies>
+    </dependencyManagement>
+</project>
