@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <!-- entity providers -->
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.news.tool.entityproviders.NewsEntityProvider">
+		<property name="newsService"
+			ref="org.sakaiproject.news.api.NewsService" />
+
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		
+	</bean>
+
+</beans>

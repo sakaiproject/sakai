@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.news.api.NewsService"
+			class="org.sakaiproject.news.impl.BasicNewsService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+	</bean>
+
+</beans>

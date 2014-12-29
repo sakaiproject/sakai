@@ -1,0 +1,90 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/web/chef_iframe.vm,v 1.4 2005/05/15 17:05:28 gsilver.umich.edu Exp $ -->
+<script  type="text/javascript" language="JavaScript">
+
+	function updateMainFrameHeight()
+	{
+		var iframeUrl = "$!validator.escapeHtml($url)";
+		//checking for different domain so that resize does not fire (results in error when domain is different from iframe domain). 
+		if (iframeUrl.indexOf(document.domain) !==-1)
+		{
+			var frame = parent.document.getElementById(window.name);
+			if (frame)
+			{
+				// reset the scroll
+				parent.window.scrollTo(0,0);
+				
+				// Mozilla way to detect height
+				var height = document.body.offsetHeight;
+				
+				// Internet Explorer way to detect height
+				if (document.body.scrollHeight)
+				{
+					height = document.body.scrollHeight;
+				}
+	
+				var innerIframe = document.getElementById("wciframe");
+				var innerIframeName = innerIframe.name;
+				var iHeight = 0;
+				// Internet Explorer way to detect height
+				if (innerIframe.contentWindow.document.body.scrollHeight)
+				{
+					iHeight = innerIframe.contentWindow.document.body.scrollHeight;
+				}
+				document.getElementById(innerIframeName).style.height=iHeight + "px";
+				height += iHeight;
+
+				frame.height = height;
+			}	
+		}
+		
+	}
+</script>
+
+<div class="portletBody">
+#if($options_title) 
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><span><a href="#" title="$validator.escapeHtml($options_title)" onclick="location = '#toolLink("" "doOptions")';return false;">
+		$tlang.getString("gen.options") </a></span></li>
+	</ul>
+#end
+
+#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+
+		#if($TargetPageUrl && !$TargetPagePopup)
+			<h3><a href=$TargetPageUrl>$TargetPageName</a></h3><br>
+			$desp		  
+		#end
+		#if($TargetPageUrl && $TargetPagePopup)
+			<h3><a target="_blank" href=$TargetPageUrl>$TargetPageName</a></h3><br>
+			$desp		  
+		#end
+		<div class="wcwmenu"> ##style="padding:0; margin:3px -2em -1em	 -2em">
+		#if($!popup)
+			<script type="text/javascript" language="JavaScript">
+				window.open('$!url','_blank');
+			</script>
+			<p>	$tlang.getString("gen.trouble.loading")</p> 
+			<p>
+			<a href="$source" onclick="window.open('$!url','_blank'); return false;" target="_blank">$tlang.getString("new.page.relaunch")</a>
+			</p>
+		#else
+		<iframe 
+			title="$tlang.getString("gen.info.title.message")"
+			width="100%"
+			id="wciframe"
+			name="wciframe"
+			style="width:100%;padding:0 !important; height:$validator.escapeHtml($height)"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto"
+			 #if(!$TargetPageUrl)	
+				src="$!validator.escapeHtml($url)"	
+  			 #end
+			onload="updateMainFrameHeight();">
+		</iframe>
+		#end
+	</div>
+</div>
+
+

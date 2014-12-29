@@ -1,0 +1,56 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/web/chef_iframe-customize.vm,v 1.7 2005/05/23 21:06:12 suiyy.umich.edu Exp $
+
+<script type="text/javascript">
+	focus_path = [ "title" ];
+</script>
+
+<div class="portletBody">
+	<h3>
+		$heading 
+	</h3>
+    <br /><br />
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm("")" method="post" name="customizeForm" >
+		
+		
+		<p class="shorttext indnt1">
+			<span class="reqStar">*</span>
+			<label for="title"> $tlang.getString("gen.title")</label>
+			<input type="text" id="title" name="title" value="$!validator.escapeHtml($title)" maxlength="$max_length_title" />
+        </p>
+        <br />
+	
+	
+		<p class="shorttext indnt1">
+			<label for="height">$tlang.getString("gen.height")</label>
+			<select id="height" name="height" size="1">
+				<option value = "300px" #if ($!height == "300px") selected="selected" #end>$tlang.getString('gen.hei1')</option>
+				<option value = "450px" #if ($!height == "450px") selected="selected" #end>$tlang.getString('gen.hei2')</option>
+				<option value = "600px" #if ($!height == "600px") selected="selected" #end>$tlang.getString('gen.hei3')</option>
+				<option value = "750px" #if ($!height == "750px") selected="selected" #end>$tlang.getString('gen.hei4')</option>
+				<option value = "900px" #if ($!height == "900px") selected="selected" #end>$tlang.getString('gen.hei5')</option>
+				<option value = "1200px" #if ($!height == "1200px") selected="selected" #end>$tlang.getString('gen.hei6')</option>
+				<option value = "1800px" #if ($!height == "1800px") selected="selected" #end>$tlang.getString('gen.hei7')</option>
+				<option value = "2400px" #if ($!height == "2400px") selected="selected" #end>$tlang.getString('gen.hei8')</option>
+			</select>
+		</p>			
+
+		<div class="longtext indnt1">
+			<label for="description">$tlang.getString("gen.description")</label>
+			<br />
+			<table border="0" cellpadding="0" cellspacing="0" >
+					<tr>
+						<td>
+						<textarea id="description" name="description" rows="23" cols="40"  wrap="virtual">$!description</textarea>
+						#chef_setupformattedtextarea("description")
+						</td>
+					</tr>
+			</table>
+		</div>
+		<p class="act">
+			<input type="submit" accesskey ="s" class="active" name="$doUpdate" value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey ="x" name="$doCancel" value="$tlang.getString('gen.cancel')" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

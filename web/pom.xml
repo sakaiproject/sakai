@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>Sakai Web Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>web-base</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/web/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/web/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/web/trunk</url>
+  </scm>
+
+  <profiles>
+    <profile>
+      <id>framework</id>
+      <modules>
+        <module>web-api/api</module>
+        <module>web-impl/impl</module>
+        <module>web-impl/pack</module>
+        <module>web-tool/tool</module>
+        <module>web-portlet</module> 
+      </modules>
+    </profile>
+    <profile>
+      <id>full</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>news-api/api</module>
+        <module>news-impl/impl</module>
+        <module>news-impl/pack</module>
+        <module>news-tool/tool</module>
+        <module>web-api/api</module>
+        <module>web-impl/impl</module>
+        <module>web-impl/pack</module>
+        <module>web-tool/tool</module>
+        <module>web-portlet</module> 
+      </modules>
+    </profile>
+  </profiles>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-news-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-web-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

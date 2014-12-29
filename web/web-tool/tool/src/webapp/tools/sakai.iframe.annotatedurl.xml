@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.iframe.annotatedurl"
+			title="Annotated Url"
+			description="Displays a link with an annotation. URL and initial annotation can be set by admin, tool maintain user can change the annotation">
+
+		<configuration name="height" value="600px" />
+
+		<configuration name="special" value="annotatedurl" type="final" />
+		<configuration name="reset.button" value="true" type="final" />
+		<configuration name="desp" value="[Change this text when configuring the tool. It should give some idea of the purpose of the URL and prompt the tool maintain user to change this annotation via the tool menu if needed]" />
+		<configuration name="TargetPageName" value="[Target Page Name - will be used as the label for the link to the URL]" />
+		<configuration name="TargetPageUrl" value="http://sakaiproject.org/" />
+		
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+				
+		<!-- Event for accessing the sakai.iframe.annotatedurl tool; remove property to remove logging of event -->
+		<configuration name="webcontent.read" value="webcontent.read.annotatedurl" /> 
+		
+		<!-- Event for modifying the sakai.iframe.annotatedurl tool configuration; remove property to remove logging of event -->
+		<configuration name="webcontent.revise" value="webcontent.revise.annotatedurl" /> 
+		
+	</tool>
+
+</registration>
