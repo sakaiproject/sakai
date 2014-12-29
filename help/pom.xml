@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>master</artifactId>
+      <version>11-SNAPSHOT</version>
+      <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+  <name>Sakai Help Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>help-base</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>help</module>
+    <module>help-api</module>
+    <module>help-component</module>
+    <module>help-component-shared</module>
+    <module>help-tool</module>
+  </modules>
+
+  <dependencyManagement>
+      <dependencies>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-core</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-queries</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-queryparser</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+          <dependency>
+              <groupId>org.apache.lucene</groupId>
+              <artifactId>lucene-analyzers-common</artifactId>
+              <version>${sakai.lucene.version}</version>
+          </dependency>
+      </dependencies>
+  </dependencyManagement>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/help/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/help/trunk</url>
+  </scm>
+</project>

@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.component.app.help.model">
+	<class name="CategoryBean" table="SAKAI_HELP_CATEGORY_T">
+
+		<id name="id">
+			<column name="id" not-null="true" length="19" />
+			<generator class="native">
+				<param name="sequence">Help_Category_SEQ</param>
+			</generator>
+		</id>
+
+		<property name="name">
+			<column name="NAME" not-null="true" length="255"/>
+		</property>
+
+		<set name="resources" cascade="all-delete-orphan"
+			inverse="true">
+			<key>
+				<column name="CATEGORY_ID" />
+			</key>
+			<one-to-many class="ResourceBean" />
+		</set>
+
+	</class>
+
+	<query name="query.getCategoryByName">
+		<![CDATA[from CategoryBean c where lower(c.name) = :name order by c.id]]>
+	</query>
+</hibernate-mapping>

@@ -1,0 +1,58 @@
+
+body {padding:6px; margin: 0; font-size: 1.0em;}
+
+ol {padding: 0; margin: 0; list-style: none outside;}
+
+ol.docs {display:none}
+
+img {border: 0; margin-right: 1px}
+
+table {margin: 0; padding: 0; border-collapse: collapse;}
+
+tr { vertical-align: baseline}
+
+/** Make tree control spacing consistent between IE and FF **/
+
+* html li {
+        margin: 0 0 -3px 0
+} 
+
+
+.helpIndexBody h1{
+	padding:0;margin:0;
+}
+.helpIndexBody h1 img{
+	padding-right:3px;
+	}
+.helpIndexBody ol.docs{
+	margin:0;padding:0;
+}
+.helpIndexBody ol.docs li{
+	margin:0;padding:0;
+	}
+.helpIndexBody h2{
+	text-indent:-1.5em;
+	padding:2px 0 2px 1.5em !important;
+    margin:0 0 0 1em
+}
+
+ol#root li ol.docs {
+    padding-left: 4px;
+    font-size: 0.9em;
+}
+ol#root li {
+    font-size: 0.90em;
+}
+ol#root li h1,
+ol#root li h2
+{
+    font-size: 100%;
+    font-weight: bold;
+}
+
+ol#root li a {
+  text-decoration: none;
+}
+ol#root li a:hover {
+  text-decoration: underline;
+}

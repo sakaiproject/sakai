@@ -1,0 +1,188 @@
+==Help Configuration==
+
+Sakai 10 Help Rewrite: https://jira.sakaiproject.org/browse/SAK-26062
+Sakai 10 Help Process: https://confluence.sakaiproject.org/display/ESUP/Help+Files+and+Documentation+Process+Redesign
+
+How were help files generated for Sakai 10?
+--------------------------------------------
+1) Articles were authoried in an online system called Screensteps
+2) HTML + Images were exported from Screensteps as a ZIP
+3) Files were converted using a PHP file written by Longsight (https://github.com/LongsightGroup/sakai-help-conversion)
+
+# Unzip the Screensteps export
+mkdir /tmp/help
+cd /tmp/help
+unzip export.zip
+
+# Git the code
+cd ~/
+git clone https://github.com/LongsightGroup/sakai-help-conversion.git
+cd sakai-help-conversion
+php -q sakai-help-parse.php
+
+# Optimize the PNG images from the export
+find /tmp/help/images/ -iname '*.png' -exec optipng -o7 {} \;
+find /tmp/help/images/ -name '*.png' -print0 | xargs -0 -P8 pngquant --ext .png --force 64
+
+# Remove empty image directories
+find /tmp/help/images/ -empty -type d -delete
+
+# Copy the images into the sourcecode
+rsync --delete -vzra /tmp/help/images/ /path/to/source/reference/library/images/help/en/
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Overview:
+
+The Help Tool can have multiple configurations based on institutional requirements.
+Some would like to have the generic Sakai help out-of-the-box while others want to provide custom documentation.
+Access to help documentation can also be provided from a web service such as REST which uses basic web authentication.
+
+
+Configuration: Help - Out of the Box
+
+	From the Sakai distribution, the help tool will:
+	1. Deploy all help documents into shared/lib from the /help subdirectory of the help tool.
+	2. On first access the help tool will enumerate the list of well-known tool id's
+	   a) For each tool id found using the tool manager , replace "." with "-".
+	   b) For each id found, search the classpath for a tool_id/help.xml file
+	   c) Perform a full-text index and register the tool's documents from help.xml
+	4. The structure of the help.xml is identical to that of Sakai 1.5. The following is an example of
+	   a specific tool's help configuration file:
+	   
+	   
+	   <?xml version="1.0" encoding="UTF-8"?>
+		 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+		 
+		 <beans>
+		    <bean id="adminToolOverview" class="org.sakaiproject.component.app.help.model.ResourceBean">
+		       <property name="docId"><value>arct</value></property>
+		       <property name="name"><value>Admin Tool Overview</value></property>
+		       <property name="location"><value>/sakai_admin_tool/arct.html</value></property>
+		       <property name="defaultForTool"><value>sakai.admin.tool</value></property>
+		    </bean>
+		    			   
+		    <bean id="org.sakaiproject.api.app.help.TableOfContents" 
+		           class="org.sakaiproject.component.app.help.model.TableOfContentsBean">
+		       <property name="name"><value>root</value></property>
+		       <property name="categories">
+		          <list>
+		             <bean id="adminToolCategory" class="org.sakaiproject.component.app.help.model.CategoryBean">
+		                <property name="name"><value>Admin Tools</value></property>
+		                <property name="resources">
+		                   <list>
+		                      <ref bean="adminToolOverview"/>		 		
+		                   </list>
+		                </property>
+		             </bean>
+		           </list>
+		        </property>
+		     </bean>
+		 </beans>
+		 
+	
+
+	
+Configuration: Help - External Registration
+	
+	
+  Several institutions requested a feature for external help registration. We have implemented this using a 
+  custom help registration xml file which is required to be accessible on the network from where Sakai runs.
+  For a simple example, I have created a webapp which has the following structure:
+  
+  ¦   announcementOverview.html
+	¦   announcementPost.html
+	¦   help.xml
+	¦   help.xsd
+	¦
+	+---META-INF
+	¦       MANIFEST.MF
+	¦
+	+---sakai_announcements
+	¦       announcementOverview.html
+	¦       announcementPost.html
+	¦
+	+---WEB-INF
+        web.xml
+        
+  The web.xml is simple:
+  
+  <?xml version="1.0"?>
+	
+	<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	    <display-name>sakai-help</display-name>
+	    <description>Sakai Help Tool</description>	
+  </web-app>
+  
+  The help.xml file contains categories and resources organized in a hierarchy which will be reflected in
+  help tool's table of contents. The following is a simple help.xml configuration file:
+  
+  <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+	
+	<!-- Help External Configuration -->
+	
+	<help-reg>	
+	  <!-- Announcements -->
+	  <category name="Announcements">
+	    <resource name="Announcements Overview" location="/announcementOverview.html" defaultForTool="sakai.announcements"/>
+	    <resource name="Post Announcement" location="/announcementPost.html"/>
+	  </category> 	
+	  .
+	  .
+	  .
+  </help-reg>                   
+  
+  The order of the categories in the table of contents will match the order of the categories in the help.xml file.
+  The resource element requires a name and location for the external help configuration. The 'defaultForTool' attribute
+  is optional. In this example, the 'Announcements Overview' document will appear when the help icon is clicked in the
+  announcements tool. 
+  
+  Note: set the help.location property to the web space where the external help configuration file exists.
+        (In this example help.location=http://localhost:8080/sakai_help)
+        
+  One advantage to using the external registration is that this implementation supports nested categories in the table
+  of contents.
+        
+  
+Configuration: Help - External Registration using REST
+
+  At IU, the REST protocol has been utilized to access the Knowledge Base web service. Similar to the External Registration
+  configuration of the help tool, the REST configuration uses an external configuration file. Instead of using the optional
+  location attribute for a resource element, we use the docId attribute to reference a Knowledge Base document:
+  
+  
+  <help-reg>	
+		  <!-- Announcements -->
+		  <category name="Announcements">
+		    <resource name="Announcements Overview" docId="apkh" defaultForTool="sakai.announcements"/>
+		    <resource name="Post Announcement" docId="arbw"/>
+		  </category> 	      
+		  .
+		  .
+		  .
+  </help-reg>                   
+  
+  
+  The document contents will be refreshed if a new request arrives and the document has not been refreshed in the past two
+  hours. Otherwise, the cached, transformed document will be delivered to the client.
+  
+  To configure the Help tool using REST, reference the help.xml external configuration file (see External Configuration).
+  In addition, add the following REST properties to sakai.properties:
+  
+  #### Rest Configuration ####
+	organization@org.sakaiproject.api.app.help.RestConfiguration=REST
+	restCredentials@org.sakaiproject.api.app.help.RestConfiguration=user:pass
+	restUrl@org.sakaiproject.api.app.help.RestConfiguration=http://remote.kb.iu.edu/REST/v0.2
+	restDomain@org.sakaiproject.api.app.help.RestConfiguration=sakai21
+	
+	A username and password can be obtained from the Knowledge base. (Email kb-clients@kb-dev.indiana.edu)
+
+		
+Configuration: Help - Window Title
+  The Help tool's window title will be retrieved from the property ui.service in sakai.properties:
+  ui.service=CTools
+  
+ 

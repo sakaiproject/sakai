@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping
+	package="org.sakaiproject.component.app.help.model">
+
+	<class name="ResourceBean" table="SAKAI_HELP_RESOURCE_T">
+
+		<!-- <cache usage="read-write" /> -->
+
+		<id name="id">
+			<column name="id" not-null="true" length="19" />
+			<generator class="native">
+				<param name="sequence">Help_Resource_SEQ</param>
+			</generator>
+		</id>
+
+		<property name="docId">
+			<column name="document_id" length="36" not-null="true"/>
+		</property>
+
+		<property name="defaultForTool">
+			<column name="DEFAULT_FOR_TOOL" length="255"
+				not-null="false" />
+		</property>
+		
+		<property name="welcomePage">
+			<column name="WELCOME_PAGE" length="50"
+				not-null="false" />
+		</property>
+
+		<property name="name" type="string" column="NAME"
+			not-null="false" index="HELP_CAT_IDX" />
+
+		<property name="location" type="string" column="LOCATION"
+			not-null="false" />
+
+		<property name="source" type="materialized_clob" column="SOURCE"
+			not-null="false" />
+
+		<property name="tstamp" type="long" column="TSTAMP"
+			not-null="false" />
+
+		<many-to-one name="category" class="CategoryBean"
+			column="CATEGORY_ID" not-null="true" />
+
+	</class>
+
+	<query name="query.getResourceByDocId">
+		<![CDATA[from ResourceBean r where r.docId = :docId]]>
+	</query>
+	
+	<query name="query.getWelcomePage">
+		<![CDATA[from ResourceBean r where lower(r.welcomePage) = :welcomePage]]>
+	</query>
+
+</hibernate-mapping>

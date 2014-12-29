@@ -1,0 +1,178 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+	<application>
+		<message-bundle>
+			org.sakaiproject.tool.help.bundle.Messages
+		</message-bundle>
+		<locale-config>
+			<default-locale>en</default-locale>
+			<supported-locale>de</supported-locale>
+			<supported-locale>fr</supported-locale>
+			<supported-locale>es</supported-locale>
+		</locale-config>
+	</application>
+	
+	<managed-bean>
+		<description>Content Servlet</description>
+		<managed-bean-name>ContentServlet</managed-bean-name>
+		<managed-bean-class>
+			org.sakaiproject.tool.help.ContentServlet
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+
+		<managed-property>
+			<description>Bean Dependency: Help Manager</description>
+			<property-name>helpManager</property-name>
+			<value>
+				#{Components["org.sakaiproject.api.app.help.HelpManager"]}
+			</value>
+		</managed-property>			
+	</managed-bean>
+
+	<managed-bean>
+		<description>HelpTool</description>
+		<managed-bean-name>HelpTool</managed-bean-name>
+		<managed-bean-class>
+			org.sakaiproject.tool.help.HelpTool
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+
+		<managed-property>
+			<description>Bean Dependency: Help Manager</description>
+			<property-name>helpManager</property-name>
+			<value>
+				#{Components["org.sakaiproject.api.app.help.HelpManager"]}
+			</value>
+		</managed-property>
+			
+	</managed-bean>		
+
+	<managed-bean>
+		<description>TableOfContentsTool</description>
+		<managed-bean-name>TableOfContentsTool</managed-bean-name>
+		<managed-bean-class>
+			org.sakaiproject.tool.help.TableOfContentsTool
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+
+		<managed-property>
+			<description>Bean Dependency: Help Manager</description>
+			<property-name>helpManager</property-name>
+			<value>
+				#{Components["org.sakaiproject.api.app.help.HelpManager"]}
+			</value>
+		</managed-property>
+	</managed-bean>
+
+	<managed-bean>
+		<description>SearchTool</description>
+		<managed-bean-name>SearchTool</managed-bean-name>
+		<managed-bean-class>
+			org.sakaiproject.tool.help.SearchTool
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+
+		<managed-property>
+			<description>Bean Dependency: Help Manager</description>
+			<property-name>helpManager</property-name>
+			<value>
+				#{Components["org.sakaiproject.api.app.help.HelpManager"]}
+			</value>
+		</managed-property>
+
+	</managed-bean>	
+
+	<managed-bean>
+		<description>QuestionTool</description>
+		<managed-bean-name>QuestionTool</managed-bean-name>
+		<managed-bean-class>
+			org.sakaiproject.tool.help.QuestionTool
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+
+		<managed-property>
+			<description>Bean Dependency: Help Manager</description>
+			<property-name>helpManager</property-name>
+			<value>
+				#{Components["org.sakaiproject.api.app.help.HelpManager"]}
+			</value>
+		</managed-property>
+
+		<managed-property>
+			<description>Bean Dependency: Email Service</description>
+			<property-name>emailService</property-name>
+			<value>
+				#{Components["org.sakaiproject.email.api.EmailService"]}
+			</value>
+		</managed-property>       
+	</managed-bean>
+   
+ 	<managed-bean>
+		<description>
+			Dynamic Resource Bundle Loader
+		</description>
+		<managed-bean-name>msgs</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Bundle baseName</description>
+			<property-name>baseName</property-name>
+			<value>org.sakaiproject.tool.help.bundle.Messages</value>
+		</managed-property>
+	</managed-bean>
+   
+	<!-- 
+		<component>
+		<component-type>SakaiTocTree</component-type>
+		<component-class>org.sakaiproject.jsf.help.TocTreeComponent</component-class>
+		</component>
+	-->
+	<component>
+		<component-type>SetDefaultAction</component-type>
+		<component-class>
+			org.sakaiproject.jsf.help.HelpSetDefaultActionComponent
+		</component-class>
+	</component>
+	<render-kit>
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>SakaiTocTree</renderer-type>
+			<renderer-class>
+				org.sakaiproject.jsf.help.TocTreeRender
+			</renderer-class>
+		</renderer>
+
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>CSTree</renderer-type>
+			<renderer-class>
+				org.sakaiproject.jsf.help.ContextSensitiveTreeRender
+			</renderer-class>
+		</renderer>
+
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>HelpFrameSet</renderer-type>
+			<renderer-class>
+				org.sakaiproject.jsf.help.HelpFrameSetRender
+			</renderer-class>
+		</renderer>
+
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>QuestionLink</renderer-type>
+			<renderer-class>
+				org.sakaiproject.jsf.help.QuestionLinkRender
+			</renderer-class>
+		</renderer>
+
+
+	</render-kit>
+
+</faces-config>
