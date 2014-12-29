@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- Aaron Zeckoski (aaronz@vt.edu) -->
+<beans>
+
+    <!-- dao beans -->
+    <bean id="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget"
+        class="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoImpl">
+        <property name="dataSource" ref="javax.sql.DataSource" />
+        <property name="autoDDL" ref="sakaiAutoDDL" />
+        <property name="databaseType" ref="sakaiDatabaseType" />
+        <property name="dataMappers">
+            <list>
+                <bean class="org.sakaiproject.genericdao.springjdbc.SimpleDataMapper">
+                    <property name="persistentClassname"
+                        value="org.sakaiproject.entitybroker.dao.EntityProperty" />
+                    <property name="tableName" value="ENTITY_PROPERTIES" />
+                    <property name="usePropertyNamesForColumns" value="true" />
+                    <property name="DBTypeToFile">
+                        <map>
+                            <entry key="HSQLDB" value="hsqldb/entityProperty.sql" />
+                            <entry key="MYSQL" value="mysql/entityProperty.sql" />
+                            <entry key="ORACLE" value="oracle/entityProperty.sql" />
+                            <entry key="DB2" value="db2/entityProperty.sql" />
+                        </map>
+                    </property>
+                </bean>
+                <bean class="org.sakaiproject.genericdao.springjdbc.SimpleDataMapper">
+                    <property name="persistentClassname"
+                        value="org.sakaiproject.entitybroker.dao.EntityTagApplication" />
+                    <property name="tableName" value="ENTITY_TAG_APPLICATIONS" />
+                    <property name="usePropertyNamesForColumns" value="true" />
+                    <property name="DBTypeToFile">
+                        <map>
+                            <entry key="HSQLDB" value="hsqldb/entityTagApplication.sql" />
+                            <entry key="MYSQL" value="mysql/entityTagApplication.sql" />
+                            <entry key="ORACLE" value="oracle/entityTagApplication.sql" />
+                            <entry key="DB2" value="db2/entityTagApplication.sql" />
+                        </map>
+                    </property>
+                </bean>
+            </list>
+        </property>
+    </bean>
+
+    <!-- This wraps our DAO so that the transactions are managed -->
+    <bean id="org.sakaiproject.entitybroker.dao.EntityBrokerDao"
+        class="org.sakaiproject.genericdao.springutil.CurrentClassLoaderTxProxyFactoryBean">
+        <property name="transactionManager"
+            ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
+        <property name="target">
+            <ref bean="org.sakaiproject.entitybroker.dao.impl.EntityBrokerDaoTarget" />
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="can*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="check*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="count*">PROPAGATION_REQUIRED,readOnly</prop>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+                <!--           <prop key="*">PROPAGATION_REQUIRED,+java.lang.RuntimeException</prop>-->
+            </props>
+        </property>
+    </bean>
+
+</beans>

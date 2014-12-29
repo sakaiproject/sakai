@@ -1,0 +1,47 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Test setting the course owner</title>
+<script type="text/javascript" src="https://source.caret.cam.ac.uk/camtools/trunk/camtools/flat/src/main/webapp/lib/jquery.js"></script>
+<script type="text/javascript" src="https://source.caret.cam.ac.uk/camtools/trunk/camtools/flat/src/main/webapp/lib/sdata.js"></script>
+<script type="text/javascript" src="http://www.json.org/json2.js"></script>
+</head>
+<body>
+
+<form>
+    OwnerId: <input type="text" id="ownerId" value="testuser" /> <br/>
+    SiteId: <input type="text" id="siteId" value="test1" /> <br/>
+    <input type="button" value="Request" onclick="fireRequest()" />
+</form>
+
+<div id="result" style="border: 1px solid black;"></div>
+
+<script type="text/javascript">
+    function fireRequest() {
+        var result = jQuery("#result");
+        result.text(""); // clear
+	    var ownerId = jQuery("#ownerId").attr("value");
+	    var siteId = jQuery("#siteId").attr("value");
+	    var parameters = {"owner": ownerId};
+	    result.append("sending request with params: " + JSON.stringify(parameters) + "<br/>");
+	    var URL = "http://localhost:8080/direct/site/"+siteId+"/edit";
+	    result.append("using URL: " + URL + "<br/>");
+		sdata.Ajax.request( {
+			url : URL,
+			httpMethod : "POST",
+			onSuccess : function(data) {
+			    result.append("Hooray! It maybe worked! " + data);
+			},
+			onFail : function(status) {
+				result.append("Baxters!!!!! died! " + status);
+			},
+			postData :parameters,
+			contentType :"application/x-www-form-urlencoded"
+		});
+		document.body.style.display = "block";
+    }
+</script>
+
+</body>
+</html>
