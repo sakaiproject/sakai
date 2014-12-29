@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.delegatedaccess.shopping" 
+		title="Shopping" 
+		description="Search for available sites for shopping">
+		<category name="sakai.admin" />
+    </tool>
+</registration>
+

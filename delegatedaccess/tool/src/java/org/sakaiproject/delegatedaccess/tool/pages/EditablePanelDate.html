@@ -1,0 +1,29 @@
+<html xmlns:wicket="http://wicket.apache.org">
+<link rel="stylesheet" type="text/css" href="style.css" />
+<wicket:panel>
+   <input type="text" wicket:id="dateTextField" class="formInputField datePicker" readonly="readonly" size="8"/>
+	<style>
+		.ui-datepicker-trigger{
+			display: none;
+		}
+	</style>
+	<script type="text/javascript">
+		/*
+		ranged from current year minus 100 years and cannot be past today
+		defaults to today if none set
+		http://docs.jquery.com/UI/Datepicker/datepicker#options
+		*/
+		/* PRFL-267, alt text below is hardcoded. Fixed in 1.4, cannot be fixed in 1.3 */
+		$(document).ready(function(){
+			$('.datePicker').datepicker({
+				dateFormat: 'mm/dd/yy',
+				defaultDate: new Date(),
+				hideIfNoPrevNext: true,
+				showOn: 'both', 
+				/*buttonImage: '/library/image/silk/calendar.png',*/
+				
+			});
+		});
+	</script> 
+	</wicket:panel>
+</html>

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>delegatedaccess</artifactId>
+        <groupId>org.sakaiproject.delegatedaccess</groupId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+    <name>Delegated Access - Components</name>
+    <groupId>org.sakaiproject.delegatedaccess</groupId>
+    <artifactId>delegatedaccess-pack</artifactId>
+
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <!-- internal dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.delegatedaccess</groupId>
+            <artifactId>delegatedaccess-impl</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build/>
+</project>

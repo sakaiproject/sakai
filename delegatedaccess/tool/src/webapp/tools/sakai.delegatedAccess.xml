@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.delegatedaccess" 
+		title="Delegated Access" 
+		description="Delegate access for users based on a site hierarchy">
+      	<category name="myworkspace" />
+       	<category name="sakai.admin" />
+    </tool>
+</registration>
+

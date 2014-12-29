@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<!--
+* The Trustees of Columbia University in the City of New York
+* licenses this file to you under the Educational Community License,
+* Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the
+* License at:
+*
+* http://opensource.org/licenses/ecl2.txt
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+
+<body>
+<wicket:extend>
+	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
+	<br/>
+	<div style="font-size: 150%">
+		<wicket:message key="administrationTools"/>
+	</div>
+	<div>
+		<h5><wicket:message key="add.da.myworkspace"/></h5>
+		<br/>
+		<div style="color: #888"><wicket:message key="add.da.myworkspace.desc"/></div>
+		<br/>
+		<div>
+			<form wicket:id="addDaMyworkspaceForm">
+				<input wicket:id="addDaMyworkspace" type="button"/>
+			</form>
+		</div>
+		<br/>
+		<div>
+			<span style="font-weight:bold"><wicket:message key="status"/></span>&nbsp;<span wicket:id="lastRanInfo"/>
+		</div>
+	</div>
+	
+</wicket:extend>
+</body>
+</html>

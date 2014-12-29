@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<!--
+* The Trustees of Columbia University in the City of New York
+* licenses this file to you under the Educational Community License,
+* Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the
+* License at:
+*
+* http://opensource.org/licenses/ecl2.txt
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+
+<wicket:head>
+    <style>
+        table.wicket-tree-content {
+            width: 100%;
+        }
+        td {
+            font-size: 100%;
+        }
+         div.my-tree {
+         min-height: 20em;
+         overflow: auto;
+        }  
+        table.wicket-tree-content.selected{
+			background-color: #FFF !important;
+		}
+    </style>
+</wicket:head>
+
+
+<body>
+<wicket:extend>
+	<br/>
+	<div style="font-size: 150%">
+		<span wicket:id="title">Title</span>
+		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
+	</div>
+	<br/>
+	<span class="instruction information" style="white-space: normal; display:none">
+		
+		<span wicket:id="description">Instructions here</span>
+		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>	
+	</span>
+	<br/>
+	<span wicket:id="noAccess"></span>
+	<span wicket:id="noHierarchy"></span>
+	<form wicket:id="form">
+		<h3><wicket:message key="searchSites"/></h3>
+		<table>
+			<tr>
+				<td align='right'>
+					<wicket:message key="siteIdTitleField"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="search" />
+					
+				</td>
+			</tr>
+			<tr>
+				<td align='right'>
+					<span wicket:id="instructorFieldLabel"/>
+				</td>
+				<td>
+					<input type="text" wicket:id="instructorField" />
+					&nbsp;
+					<wicket:container wicket:id="instructorOptionsGroup">
+					    <label><input wicket:id="instructorOption" type="radio" name="ticker"/><wicket:message key="instructor"/></label>
+					    <label><input wicket:id="memberOption" type="radio" name="ticker"/><wicket:message key="member"/></label>
+				  </wicket:container>
+				</td>
+			</tr>
+			<wicket:enclosure child="termField">
+				<tr>
+					<td align='right'>
+						<wicket:message key="termField"/>
+					</td>
+					<td>
+						<select wicket:id="termField">
+						</select>
+					</td>
+				</tr>
+			</wicket:enclosure>
+			<div class="hierarchyFields" wicket:id="hierarchyFields">
+				<wicket:component wicket:id="hierarchyDropdowns">
+					<tr>
+						<td align='right'>
+							<span wicket:id="hierarchyLabel">Dept</span>:
+						</td>
+						<td>
+							<select wicket:id="hierarchyLevel" onchange=" this.form.submit();"/>
+						</td>								
+					</tr>
+				</wicket:component>
+			</div>
+			<tr>
+				<td/>
+				<td align='right'>
+					<input type="submit" onclick="loadSemaphore = true; showLoading();"/>
+				</td>
+			</tr>
+		</table>
+	</form>
+	<br/>
+	
+	
+	<br/>
+	<br/>
+	<wicket:enclosure child="tree">
+    <table class="wicket-tree-content" style="border: 1px solid #eee"><tr><td>
+        <div wicket:id="tree" class="my-tree">  
+        </div>  
+    </td></tr></table>
+	</wicket:enclosure>
+	
+</wicket:extend>
+</body>
+</html>

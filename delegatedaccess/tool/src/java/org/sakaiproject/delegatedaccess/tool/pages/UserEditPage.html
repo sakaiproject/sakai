@@ -1,0 +1,114 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<!--
+* The Trustees of Columbia University in the City of New York
+* licenses this file to you under the Educational Community License,
+* Version 2.0 (the "License"); you may not use this file
+* except in compliance with the License. You may obtain a copy of the
+* License at:
+*
+* http://opensource.org/licenses/ecl2.txt
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+-->
+
+<wicket:head>
+    <style>
+        table.wicket-tree-content {
+            width: 100%;
+        }
+        td {
+            font-size: 100%;
+        }
+        input {
+            font-family: 'Lucida Sans', 'Helvetica', 'Sans-serif', 'sans';
+            font-size: 9pt;         
+        }
+        form {
+            margin: 0px; padding: 0px;
+        }
+        div.my-tree div.wicket-tree-table {
+        }   
+        div.wicket-tree-table{
+        	min-width: 800px;
+        }
+        
+        div.my-tree div.wicket-tree-table-body {
+            height: 20em;
+            overflow: auto;
+        } 
+        div.wicket-tree-table a{
+        	float: none !important;
+        }
+        
+        div.my-tree{
+        	overflow: -moz-scrollbars-horizontal;;
+        	width: 100%;
+        }
+        div.header{
+        	height: auto !important;
+        	white-space: normal !important;
+        	overflow: auto !important;
+        }
+        div.header div span.b_{
+        	height: auto !important;
+        }
+        
+        div.header div span.b_ span.c_{
+    		height: auto;
+		}
+
+		div.noRoles div.wicket-tree-table {
+    		min-width: 695px;
+		}
+		
+		div.wicket-tree-table div.row-selected{
+			background-color: #FFF !important;
+		}
+		
+		div.wicket-tree-table div.row-selected a.node-link span{
+			font-weight: normal !important;
+		}
+		
+		div.wicket-tree-table div.wicket-tree-table-body .row:hover{
+ 			background: #FFFFCC !important;
+		}
+
+		div.wicket-tree-table div.wicket-tree-table-body .row-selected:hover{
+ 			background: #FFFFCC !important;
+		}
+    </style>
+</wicket:head>
+
+
+<body>
+<wicket:extend>
+	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
+	<br/>
+	<div style="font-size: 150%">
+		<span><wicket:message key="editUsersTitle"/></span><span wicket:id="userName"></span>
+		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
+	</div>
+	<br/>
+	<div class="instruction" style="display: none"><a href="#" onclick="$('.instruction').toggle();"><wicket:message key="hideInstructions"/></a></div>	
+	<span class="instruction information" style="white-space: normal; display:none">
+		<wicket:message key="editUsersInstructions"/>
+		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
+	</span>
+	<br/>
+	<form wicket:id="form">
+		<a wicket:id="expandAll"><span wicket:id="expandCollapse">Expand All Nodes</span></a>&nbsp;&nbsp;
+        <div wicket:id="treeTable" class="my-tree">
+        </div>
+        <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
+    </form>
+	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>
+	
+</wicket:extend>
+</body>
+</html>

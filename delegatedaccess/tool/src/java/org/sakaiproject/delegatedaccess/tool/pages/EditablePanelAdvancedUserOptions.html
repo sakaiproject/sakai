@@ -1,0 +1,26 @@
+<wicket:panel>
+<a wicket:id="advancedOptionsLink"><span wicket:id="advancedOptionsSpan"/></a>
+<span wicket:id="advancedOptionsSpan" id="advancedOptionsSpan" style="display:none; width: 450px; position: absolute; left: 200px; top: 130px; z-index: 1000000;">	
+    <div style="border: 1px solid black; padding: 1px; background-color: #eee">		
+        <div style="overflow: auto; width: 100%">			
+            <div style="float: right; padding: 0.2em; padding-right: 1em; color: black;">
+            	<a wicket:id="saveEditableSpanLink"><wicket:message key="done"/></a>               
+            </div>
+            <div style="padding: 0.2em; background-color: gray; color: white; padding-left: 1em; margin-right: 14em; ">
+                <span wicket:id="editableNodeTitle"/>
+            </div>			
+            <div style="width: 100%; height: 300px; background-color: white; color: black; overflow: auto; white-space: nowrap; text-align:left;">			
+                <div style="margin-left: 1em; margin-top: 1em;">
+                	<h3><span wicket:id="advnacedOptionsTitle"></span></h3>
+                	<span wicket:id="advancedOptionsInstructions" class="instruction" style="white-space: normal"></span>
+                	<br/><br/>
+	                <div>
+	                		<span wicket:id="allowBecomeUserCheckbox" id="allowBecomeUserCheckbox"/>
+	                		<label for="allowBecomeUserCheckbox"><wicket:message key="allowBecomeUser"/></label>
+	                </div>
+				</div>
+            </div>           
+        </div>		
+    </div>	
+</span>
+</wicket:panel>

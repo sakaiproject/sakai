@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--  SakaiProxy -->
+ 	<bean id="org.sakaiproject.delegatedaccess.logic.SakaiProxy"
+    	class="org.sakaiproject.delegatedaccess.logic.SakaiProxyImpl"
+        init-method="init">
+        
+        <!-- API injection -->
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager"/>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+		<property name="cms"><ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/></property>
+    	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+    	<property name="emailService" ref="org.sakaiproject.email.api.EmailService" />
+	</bean>
+	
+	<!-- ProjectLogic -->
+	<bean id="org.sakaiproject.delegatedaccess.logic.ProjectLogic"
+    	class="org.sakaiproject.delegatedaccess.logic.ProjectLogicImpl"
+    	init-method="init">
+    	
+    	<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />	
+    	<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />	
+    	<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+    	<property name="scheduledInvocationManager" ref="org.sakaiproject.api.app.scheduler.ScheduledInvocationManager" />
+    	<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+        <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.delegatedaccess.logic.DelegatedAccessObserver"
+    	class="org.sakaiproject.delegatedaccess.logic.DelegatedAccessObserver"
+    	init-method="init">
+   		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+   		<property name="eventTrackingService" ref="org.sakaiproject.event.api.EventTrackingService" />
+    </bean>
+    
+    <!-- DAO. This uses the DataSource that has already been setup by Sakai  -->
+	<bean id="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao"
+		class="org.sakaiproject.delegatedaccess.dao.impl.DelegatedAccessDaoImpl"
+		init-method="init">
+		<property name="jdbcTemplate">
+			<bean class="org.springframework.jdbc.core.JdbcTemplate">
+				<constructor-arg type="javax.sql.DataSource">
+					<ref bean="javax.sql.DataSource" />
+				</constructor-arg>
+			</bean>
+		</property>	
+	</bean>
+    
+	<!-- Quartz Job -->
+	<bean id="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessSiteHierarchyJob"
+		class="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessSiteHierarchyJob"
+		init-method="init">
+		<property name="hierarchyService" ref="org.sakaiproject.hierarchy.HierarchyService" />
+		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
+		<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+	</bean>
+	
+	<bean id="DelegatedAccessSiteHierarchyJob"
+       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+       singleton="true" init-method="init">
+       <property name="beanId">
+          <value>org.sakaiproject.delegatedaccess.jobs.DelegatedAccessSiteHierarchyJob</value>
+       </property>
+       <property name="jobName">
+          <value>Delegated Access Site Hierarchy Job</value>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+    </bean>
+    
+    <bean id="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob"
+		class="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob"
+		init-method="init">
+		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy"/>
+	</bean>
+	
+	<bean id="DelegatedAccessShoppingPeriodJob"
+       class="org.sakaiproject.component.app.scheduler.jobs.SpringJobBeanWrapper"
+       singleton="true" init-method="init">
+       <property name="beanId">
+          <value>org.sakaiproject.delegatedaccess.jobs.DelegatedAccessShoppingPeriodJob</value>
+       </property>
+       <property name="jobName">
+          <value>Delegated Access Shopping Period Job</value>
+       </property>
+       <property name="schedulerManager">
+          <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+       </property>
+    </bean>
+	
+    <bean id="org.sakaiproject.delegatedaccess.entity.DelegatedAccessEntityProvider"
+            class="org.sakaiproject.delegatedaccess.entity.DelegatedAccessEntityProviderImpl">
+            <property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+            <property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />
+    </bean>
+
+	<bean id="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob" class="org.sakaiproject.delegatedaccess.jobs.DelegatedAccessAddToolToMyWorkspacesJob">
+		<property name="projectLogic" ref="org.sakaiproject.delegatedaccess.logic.ProjectLogic" />
+		<property name="dao" ref="org.sakaiproject.delegatedaccess.dao.DelegatedAccessDao" />
+		<property name="sakaiProxy" ref="org.sakaiproject.delegatedaccess.logic.SakaiProxy" />
+	</bean>
+		
+</beans>

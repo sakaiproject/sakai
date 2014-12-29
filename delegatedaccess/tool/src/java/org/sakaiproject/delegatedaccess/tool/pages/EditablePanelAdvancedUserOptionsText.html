@@ -1,0 +1,25 @@
+<wicket:panel>
+<a wicket:id="inheritedToolsLink"><wicket:message key="inheritedToolsHeader"/></a>
+<span wicket:id="inheritedSpan" id="inheritedSpan" style="display:none; width: 450px; position: absolute; left: 200px; top: 130px; z-index: 1000000;">
+    <div style="border: 1px solid black; padding: 1px; background-color: #eee">		
+        <div style="overflow: auto; width: 100%">			
+            <div style="float: right; padding: 0.2em; padding-right: 1em; color: black;">
+            	<a wicket:id="closeInheritedSpanLink"><wicket:message key="close"/></a>
+            </div>
+            <div style="padding: 0.2em; background-color: gray; color: white; padding-left: 1em; margin-right: 14em; ">
+                <span wicket:id="inheritedNodeTitle"/>
+            </div>			
+            <div style="width: 100%; height: 300px; background-color: white; color: black; overflow: auto; white-space: nowrap; text-align:left;">			
+                <div style="margin-left: 1em; margin-top: 1em;">
+                	<h3><wicket:message key="inheritedRestrictedToolsTitle"/></h3>
+                	<span class="instruction" style="white-space: normal"><wicket:message key="inheritedRestrictedToolsDescription"/></span>
+                	<br/><br/>
+	                <div>
+	                	<div wicket:id="allowBecomeUserTitle"/>
+	                </div>
+				</div>
+			</div>
+		</div>
+	</div>
+</span>
+</wicket:panel>

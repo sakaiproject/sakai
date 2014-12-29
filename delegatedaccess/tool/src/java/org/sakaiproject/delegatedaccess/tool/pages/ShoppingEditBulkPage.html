@@ -1,0 +1,219 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<body>
+<wicket:extend>
+	<script type="text/javascript">
+				$(document).ready(function() {
+					$( "#tabs" ).tabs();
+					$( "#shoppingtabs" ).tabs();
+					$('.datePicker').datepicker({
+						dateFormat: 'mm/dd/yy',
+						defaultDate: new Date(),
+						hideIfNoPrevNext: true,
+						showOn: 'both', 
+						/*buttonImage: '/library/image/silk/calendar.png',*/
+						
+					});
+					
+					//make the select box pretty:
+					$("#showAuthTools").asmSelect({selectClass: "shoppingSetting showAuthTools", removeClass: "asmListItemRemove shoppingSetting"})
+					.each(function(index){
+						if(index < 1){
+							$("#showPublicTools").asmSelect({selectClass: "shoppingSetting showPublicTools", removeClass: "asmListItemRemove shoppingSetting"})
+							.each(function(index){
+								//only need to run this once :)
+								if(index < 1){
+									setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
+								}
+							});
+						}
+					});
+					
+					$("#showPublicToolsSelectAll").click(function() {
+						$("#showPublicTools").children().attr("selected", "selected").end().change();
+						setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
+						return false;
+					}); 
+					$("#showAuthToolsSelectAll").click(function() {
+						$(".showPublicTools option:not(.asmOptionDisabled)").each(
+							function(i, elem){
+								$("#showAuthTools").children("[value='" + $(elem).val() + "']").attr("selected", "selected").end().change();
+							}
+						);
+						setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
+						return false;
+					});
+				});
+				
+				function setShoppingSettingsDisabled(disabled){
+					$(".shoppingSetting").attr("disabled", disabled).end().change();
+					if(disabled){
+						$("a.shoppingSetting").hide();
+					}else{
+						$("a.shoppingSetting").show();
+					}
+					//always set these to disabled
+					$(".shoppingSettingDisabled").attr("disabled", true).end().change();
+					$("a.shoppingSettingDisabled").hide();
+					if(!disabled){
+						setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});
+					}
+				}
+				
+				function setShoppingToolOptionsEnabled(first, callback){
+					if(first){
+						//remove all the public tool options which were added to the auth list
+						//these will be readded below:
+						$("#showAuthTools").children(".publicTool").attr("selected", "").attr('disabled', true).end().change();
+						$("#showAuthTools").children(".publicTool").removeClass("publicTool");
+					}
+					$(".showPublicTools option").each(function (i, elem) {
+						if("" !== $(elem).val()){
+							$(".showAuthTools option").each(function (j, elem2) {
+								if($(elem).val() === $(elem2).val()){
+									if($(elem).hasClass("asmOptionDisabled")){
+										if(first){
+											//add the selected public option to the auth options list to
+											//show to the user that public tools will show up for auth users as well
+											$("#showAuthTools").children("[value='" + $(elem).val() + "']").attr("selected", "selected").attr('disabled', true).end().change();
+										}else{
+											//hide the "remove" link for auth tools that are in the public tools list
+											$("li.asmListItem[rel='" + $(elem2).attr("rel") +"'] a.asmListItemRemove").hide();
+											$("#showAuthTools").children("[value='" + $(elem).val() + "']").addClass("publicTool");
+										}
+									}
+								}
+							});
+						}
+					});
+					if(callback != null){
+						//call back to ourselves and manipulate the <select> tag.  This is because
+						//we have to wait for change() to complete first before modifying.
+						callback();
+					}
+				}
+	</script>
+	<div wicket:id="formFeedback" id="formFeedback">[formFeedback]</div>
+	<br/>
+	<div style="font-size: 150%">
+		<span><wicket:message key="shoppingAdminBulkTitle"/></span>
+		<span class="instruction"><a href="#" onclick="$('.instruction').toggle();"><img src="/library/image/silk/information.png"/></a></span>
+	</div>
+	<br/>
+	
+	<span class="instruction information" style="white-space: normal; display:none">
+		<wicket:message key="shoppingAdminBulkInstructions"/>
+		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
+	</span>
+	<form wicket:id="form">
+		<div id="tabs">
+			<ul>
+				<li>
+					<a href="#tabs-2"><wicket:message key="addUpdateShoppingSettings"/></a>
+				</li>
+				<li>
+					<a href="#tabs-1"><wicket:message key="deleteShoppingSettings"/></a>
+				</li>
+			</ul>
+			<div id="tabs-1">
+				<span style="font-weight: bold"><wicket:message key="siteIds"/>:</span>&nbsp;<span class="instruction"><wicket:message key="siteIdsInfo"/></span>
+				<br/>
+				<textarea wicket:id="deleteSitesInput" rows="10" cols="80"></textarea>
+				<br/>
+				<input wicket:id="addDeleteSites" type="submit" value="Add" />
+				<br/>
+				<br/>	
+				<span style="font-weight: bold"><wicket:message key="sitesToBeDeleted"/>:</span>
+				<br/>
+				<table cellspacing="0" class="dataview listHier lines nolines" wicket:id="deleteSites"/>
+				<br/>
+			</div>
+			<div id="tabs-2">
+				<span style="font-weight: bold"><wicket:message key="shoppingPeriodSettings"/>:</span>
+				<br/>
+				<table>
+					<tr>
+						<td align="right">
+							<span style="font-weight: bold"><wicket:message key="startDate"/></span>
+						</td>
+						<td>
+							<input type="text" wicket:id="shoppingVisibilityStart"/>
+						</td>
+					</tr>
+                    <tr>
+                        <td align="right">
+                        	<span style="font-weight: bold"><wicket:message key="endDate"/></span>
+                        </td>
+                        <td>
+							<input type="text" wicket:id="shoppingVisibilityEnd"/>
+						</td>
+					</tr>
+					<wicket:enclosure child="shoppingRole">
+						<tr>
+							<td align="right">
+								<span style="font-weight: bold"><wicket:message key="shoppersBecome"/></span>
+							</td>
+							<td>
+								<select name="shoppingRole" wicket:id="shoppingRole"></select>
+							</td>
+						</tr>
+					</wicket:enclosure>
+					<tr>
+						<td align="right" valign="top">
+							<span style="font-weight: bold"><wicket:message key="showToolsHeader"/></span>
+						</td>
+						<td>
+							<div id="shoppingtabs">
+								<ul>
+							        <li><a href="#shoppingtabs-1"><wicket:message key=".anon"/></a></li>
+							        <li><a href="#shoppingtabs-2"><wicket:message key=".auth"/></a></li>
+							    </ul>
+							    <div id="shoppingtabs-1">
+							        <select id="showPublicTools" wicket:id="showPublicTools" name="showPublicTools" onchange="setShoppingToolOptionsEnabled(true, function(){setShoppingToolOptionsEnabled(false);});"  multiple="multiple" class="shoppingSetting" style="height: 100px">
+									</select>
+									<a id="showPublicToolsSelectAll" class="shoppingSetting" href="javascript:void(0);"><wicket:message key="selectAll"/></a>
+							    </div>
+							    <div id="shoppingtabs-2">
+							        <select id="showAuthTools" wicket:id="showAuthTools" name="showAuthTools" multiple="multiple" class="shoppingSetting" style="height: 100px">
+									</select>
+									<a id="showAuthToolsSelectAll" class="shoppingSetting" href="javascript:void(0);"><wicket:message key="selectAll"/></a>
+							    </div>
+							</div>
+						</td>
+					</tr>
+					<tr>
+						<td align="right" valign="top">
+							<span style="font-weight: bold"><wicket:message key="advanced"/></span>
+						</td>
+						<td>
+							<input type="checkbox" wicket:id="revokeInstructorOverrideCheckbox" id="revokeInstructorOverrideCheckbox"/>
+		                	<label for="revokeInstructorOverrideCheckbox"><wicket:message key="shoppingPeriodRevokeInstructorEditable"/></label>
+		                	<br/>
+		                	<input type="checkbox" wicket:id="revokePublicOptCheckbox" id="revokePublicOptCheckbox"/>
+		                	<label for="revokePublicOptCheckbox"><wicket:message key="shoppingPeriodRevokePublicOptCheckbox"/></label>
+						</td>
+					</tr>
+				</table>
+				<br/>
+				<span style="font-weight: bold"><wicket:message key="siteIds"/>:</span>&nbsp;<span class="instruction"><wicket:message key="siteIdsInfo"/></span>
+				<br/>
+				<textarea wicket:id="addSitesInput" rows="10" cols="80"></textarea>
+				<br/>
+				<input wicket:id="addAddSites" type="submit" value="Add" />
+				<br/>
+				<br/>	
+				<span style="font-weight: bold"><wicket:message key="sitesToBeAdded"/>:</span>
+				<br/>
+				<table cellspacing="0" class="dataview listHier lines nolines" wicket:id="addSites"/>
+				<br/>
+			</div>
+		</div>
+		<br/>
+		<br/>
+
+        <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />
+    </form>
+	<div wicket:id="formFeedback2" id="formFeedback2">[formFeedback]</div>	
+</wicket:extend>
+</body>
+</html>
