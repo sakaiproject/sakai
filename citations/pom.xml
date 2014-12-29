@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>master</artifactId>
+      <version>11-SNAPSHOT</version>
+      <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+  <name>Citations Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>citations-base</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>citations-servlet/servlet</module>
+    <module>citations-api/api</module>
+    <module>citations-tool/tool</module>
+    <module>citations-util/util</module>
+    <module>citations-osid/web2bridge</module>
+    <module>citations-osid/xserver</module>
+    <module>citations-impl/impl</module>
+    <module>citations-impl/pack</module>
+    <module>citations-shared-deploy</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-citations-web2bridge</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-citations-xserver</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-citations-util</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-citations-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/citations/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/citations/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/citations/trunk</url>
+  </scm>
+</project>

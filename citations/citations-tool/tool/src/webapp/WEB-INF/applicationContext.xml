@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+        class="org.sakaiproject.citation.entity.CitationEntityProvider">
+        <property name="citationService" ref="org.sakaiproject.citation.api.CitationService"/>
+        <property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService"/>
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+    </bean>
+</beans>

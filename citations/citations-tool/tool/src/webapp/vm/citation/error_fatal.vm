@@ -1,0 +1,18 @@
+<script type="text/javascript" src="#scriptLink('citationscript.js')">	
+</script>
+
+</script>
+
+<div class="portletBody">
+	<div class="indnt1">
+		#if ($alertMessage)
+			<br />
+			<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+			<div class="clear" ></div>
+		#end
+		<h3>$tlang.getString("title.error")</h3>
+		<h4>$tlang.getString("subtitle.error.restart")</h4>
+	</div>
+
+</div>
+

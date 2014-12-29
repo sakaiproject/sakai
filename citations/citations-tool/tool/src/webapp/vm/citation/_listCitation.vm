@@ -1,0 +1,47 @@
+<tr>
+	<td headers="checkboxes" class="attach">
+<!-- onclick="highlightCheckedSelections();" -->	
+		<span class="itemCheckbox">
+			<input type="checkbox" name="selected" id="select_$!{citation.id}"
+			  value="$!{citation.id}"  /> 
+		</span>
+	</td>
+	<td colspan="2" headers="details">
+
+		#if( $citation.hasPreferredUrl() )
+			#set( $urlHref = $citation.getCustomUrl( "$citation.getPreferredUrlId()" ).toString() )
+		#else
+			#set( $urlHref = $citation.openurl )
+		#end
+
+		<a href="$!{xilator.escapeHtml($urlHref)}" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
+
+		<br />
+		$!{xilator.escapeHtml( $!{citation.creator} )}
+		$!{xilator.escapeHtml( $!{citation.source} )}
+		<div class="itemAction">
+
+			#if($citation.hasCustomUrls())
+				#foreach($urlid in $citation.customUrlIds)
+
+  				#if(!$citation.hasPreferredUrl() || ($citation.hasPreferredUrl() && ($citation.getPreferredUrlId() != $urlid)))
+
+  					  <a href="$!{xilator.escapeHtml($citation.getCustomUrl("$urlid").toString())}" target="_blank">
+  					  #if( ! $citation.getCustomUrlLabel("$urlid") || $citation.getCustomUrlLabel("$urlid") == "" )
+  					    $tlang.getString( "nullUrlLabel.view" )#else$xilator.escapeHtml( $citation.getCustomUrlLabel("$urlid") )#end</a> |
+  			  #end
+  			  
+  		 #end
+		  #end
+		  #if( ! $citation.hasPreferredUrl() )
+		  	<a href="$citation.openurl" target="_blank">${openUrlLabel}</a>
+ 				|
+		  #end
+			<a href="#toolLink("CitationHelperAction" "doView")&citationId=${citation.id}&collectionId=$collectionId">$tlang.getString( "action.view" )</a>
+ 				|
+			<a href="#toolLink("CitationHelperAction" "doEdit")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.edit")</a>
+				|
+			<a href="#toolLink("CitationHelperAction" "doRemoveSelectedCitations")&citationId=$citation.id&collectionId=$collectionId">$tlang.getString("action.remove")</a>
+		</div>
+	</td>
+</tr>

@@ -1,0 +1,17 @@
+#if( $citation.hasPreferredUrl() )
+#set( $urlHref = $citation.getCustomUrl( "$citation.getPreferredUrlId()" ).toString() )
+#else
+#set( $urlHref = $citation.openurl )
+#end
+<li>
+	<div class="removeCitation">
+		<img src="/library/image/sakai/cross.png" />
+	</div> 
+	<span style="display:none;" class="citationId">$!{citation.id}</span>
+    <div class="citationBody">
+		<a href="$!{xilator.escapeHtml($urlHref)}" target="_blank">$xilator.escapeHtml( $citation.getCitationProperty( $titleProperty ) )</a>
+		<br />
+		$!{xilator.escapeHtml( $!{citation.creator} )}
+		$!{xilator.escapeHtml( $!{citation.source} )}
+    </div>
+</li>

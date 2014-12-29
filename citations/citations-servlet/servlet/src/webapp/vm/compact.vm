@@ -1,0 +1,78 @@
+#* 
+ * macro to easily show multivalued fields
+ *#
+#macro(showMultivalued $values)
+	#if(! $values.isEmpty())
+		#foreach($value in $values)
+			<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;">$!value</p>
+		#end
+	#end
+#end
+
+#*
+ * return HTML
+ *#
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<meta http-equiv="Content-Style-Type" content="text/css" />
+		<title>$tlang.getString( "window.gscholar" )</title>
+		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="/savecite/css/savecite.css" type="text/css" rel="stylesheet" media="all" />
+		<script type="text/javascript" src="/library/js/jquery/1.7.1/jquery-1.7.1.min.js"></script>
+	</head>
+  	<body>
+		<div class="portletBody">
+			<div class="indnt1">
+				#if( $success )
+					<span style="display:none;" id="resourceId">$!{resourceId}</span>
+					<h3>$tlang.getFormattedMessage("savecite.title.success", $titleArgs)</h3>
+                	<ol class="citationList">
+					#if( $citations )
+						#foreach($citation in $citations)
+							#parse( "vm/_compact_citation.vm" )
+						#end
+					#else
+						#parse( "vm/_compact_citation.vm" )
+					#end
+					</ol>
+					
+	                <p class="messageSuccess" style="width:50%">
+	                    $tlang.getFormattedMessage( "title.gscholar", $titleArgs )
+	                </p>
+					
+					#if($client)
+						<div class="highlightPanel" style="width:30%;float:left;background:#ffe">
+							<p class="instruction">$tlang.getString("savecite.button.add_more")</p>
+							<button type="button" onclick="history.back();">${client.return_label}</button>
+						</div>
+						<div class="highlightPanel" style="width:30%;float:center;background:#ffe">
+							<p class="instruction">$tlang.getString("savecite.button.done")</p>
+							<button type="button" onclick="window.close();">${client.close_label}</button>
+						</div>
+						<div class="highlightPanel" style="width:30%;float:right;background:#ffe">
+							<p class="instruction">$tlang.getString("savecite.button.cancel")</p>
+							<button type="button" id="removeAllCitations">$tlang.getString("savecite.cancel")</button>
+						</div>
+					#else
+						<p class="act">
+							<button type="button" onclick="history.back();">$tlang.getString( "back.gscholar" )</button>
+							<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+							<button type="button" id="removeAllCitations">Cancel</button>
+						</p>
+					#end
+				#else
+					<h3>$tlang.getString( "error.gscholar" )</h3>
+					<p class="instruction">#if($error) $error #else $tlang.getString( "error.sub.gscholar" ) #end</p>
+
+					<p class="act">
+						<button type="button" onclick="window.close();">$tlang.getString( "close.gscholar" )</button>
+					</p>
+				#end
+			</div>
+		</div>
+		<script type="text/javascript" src="/savecite/js/savecite.js"></script>
+	</body>
+</html>

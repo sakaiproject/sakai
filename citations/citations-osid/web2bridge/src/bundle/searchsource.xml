@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<search>
+
+  <!--
+
+  Repsoitory configuration.  The OSID implementation supports the following
+  repositories:
+
+    360 Search (from Serials Solutions)
+    The Web2 Bridge (from Sirsi/Dynex)
+
+  URL, username, and password configuration in this file is optional.
+
+  Each repository can be enabled/disabled   (true  = search this source,
+                                             false = hide this source).
+
+    <options enabled="true"/>
+
+  Each Repository requires these entries; they specifify the class names
+  for the Repository specific query and response handlers.
+
+    <queryhandler name="edu.indiana.lib.twinpeaks.search.singlesearch.web2.Web2Query"/>
+    <responsehandler name="edu.indiana.lib.twinpeaks.search.singlesearch.web2.Web2Response"/>
+
+  These entries are effectively "constants" and should be provided "as is" with
+  each source definition.
+
+    <authority name="sakaibrary"/>
+    <domain name="search"/>
+    <searchtype name="asynchMetasearch"/>
+    <searchdescription name="Asynchronous SingleSearch"/>
+  -->
+
+  <!--
+    Global configuration
+
+    Select an ID manager implementation.  The configuration below makes use
+    of the standalone id manager provided with this OSID implementation.
+    It's unlikely you'll want to change this value.
+  -->
+
+  <osid_20_Id_Implementation name="edu.indiana.lib.osid.component.id"/>
+
+	<!-- -->
+	<!-- The <source> element defines a Repository.  The name -->
+	<!-- attribute provides the Repository name seen by the user. -->
+	<!-- -->
+	<!-- The <id> element refers to a specific repository.  It's used -->
+	<!-- by the configuration service and the search manager to identify -->
+	<!-- which repository we'll search. -->
+	<!-- -->
+
+	<!-- -->
+  <!-- Web2 Bridge -->
+  <!-- -->
+  <!-- This should be the first definition to provide the original -->
+  <!-- OSID configuration default behavior -->
+	<!-- -->
+  <source name="Web2 Repository">
+    <id name="Web2 Repository"/>
+    <description name="Access Sirsi SingleSearch via the Web2 Bridge XML API"/>
+
+		<!-- -->
+		<!-- Base URL [optional, overrides externally configured value]
+    <parameter name="url" value="http://example.com/web2/servlet/MuseWeb2"/>
+    -->
+
+    <!-- -->
+		<!-- Username and password [optional, overrides externally configured values]
+    <parameter name="username" value="example-username"/>
+    <parameter name="password" value="example-password"/>
+    -->
+
+		<!-- -->
+		<!-- The following are constant values (no need to change) -->
+    <queryhandler name="edu.indiana.lib.twinpeaks.search.singlesearch.web2.Web2Query"/>
+    <responsehandler name="edu.indiana.lib.twinpeaks.search.singlesearch.web2.Web2Response"/>
+
+		<!-- -->
+    <authority name="sakaibrary"/>
+    <domain name="search"/>
+    <searchtype name="asynchMetasearch"/>
+    <searchdescription name="Meta-search"/>
+
+		<!-- -->
+    <options enabled="true"/>
+  </source>
+
+	<!-- -->
+  <!-- MusePeer -->
+  <!-- -->
+  <source name="MusePeer Repository">
+    <id name="MusePeer Repository"/>
+    <description name="Access Sirsi SingleSearch via the MusePeer XML interface"/>
+
+		<!-- -->
+		<!-- Base URL [optional, overrides externally configured value]
+    <parameter name="url" value="http://example.com/muse/servlet/MusePeer"/>
+    -->
+
+    <!-- -->
+		<!-- Username and password [optional, overrides externally configured values]
+    <parameter name="username" value="example-username"/>
+    <parameter name="password" value="example-password"/>
+    -->
+
+		<!-- -->
+		<!-- The following are constant values (no need to change) -->
+    <queryhandler name="edu.indiana.lib.twinpeaks.search.singlesearch.musepeer.Query"/>
+    <responsehandler name="edu.indiana.lib.twinpeaks.search.singlesearch.musepeer.Response"/>
+
+		<!-- -->
+    <authority name="sakaibrary"/>
+    <domain name="search"/>
+    <searchtype name="asynchMetasearch"/>
+    <searchdescription name="Meta-search"/>
+
+		<!-- -->
+    <options enabled="true"/>
+  </source>
+
+	<!-- -->
+  <!-- 360 Search -->
+	<!-- -->
+  <source name="360 Search Repository">
+    <id name="360 Search Repository"/>
+    <description name="Access Serials Solutions 360 Search via the SRU gateway"/>
+
+		<!-- -->
+		<!-- Base URL [optional, overrides externally configured value]
+    <parameter name="url" value="http://example.com/web2/servlet/MuseWeb2"/>
+    -->
+
+		<!-- -->
+		<!-- The following are constant values (no need to change) -->
+    <queryhandler name="edu.indiana.lib.twinpeaks.search.sru.ss360search.Query"/>
+    <responsehandler name="edu.indiana.lib.twinpeaks.search.sru.ss360search.Response"/>
+
+		<!-- -->
+    <authority name="sakaibrary"/>
+    <domain name="search"/>
+    <searchtype name="asynchMetasearch"/>
+    <searchdescription name="Meta-search"/>
+
+		<!-- -->
+    <options enabled="true"/>
+  </source>
+
+</search>

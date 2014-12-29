@@ -1,0 +1,2 @@
+<input type="hidden" id="addedCitationId" value="$!{citationId}" />
+<input type="hidden" id="citationCount" value="$!{citationCount}" />

@@ -1,0 +1,8 @@
+zooRec = .+ \d+(\(\d+\))?, (.*)? \d{4}: \d+-\d+
+animBehavAbs = .+ Vol\. \d+, no\. \d+, (\d+)? pp\.|p\. \d+(-\d+.)? (.*)? \d{4}\.$
+pubMed = .+ (Volume: \d+, )?Issue: ((\d+)|(\w+)), Date: \d{4} \d+ \d+,( Pages: \d+-\d+)?
+isiWos = ^\d+( \(\d+\))?: \w+-.+(.+)?( \w{3})?( \w{3}-\w{3})?( \d+)? \d{4}$
+jstor = .+, Vol\. \d+(, No\. \d+)?
+eric = ^v\d+ n|v\d+ p\d+-\d+( \w{3})?( \w{3}-\w{3})?( \d+)? \d{4}$
+proquest = ^\d+; \d+(; .+)?
+psycInfo = ^Vol \d+\(.+\)

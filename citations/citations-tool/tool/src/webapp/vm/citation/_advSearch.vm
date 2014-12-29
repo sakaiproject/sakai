@@ -1,0 +1,111 @@
+<div id="advancedSearchForm" #if($basicSearch)style="display: none;"#end>
+  <p class="instruction">$tlang.getString("instr.search.adv")</p>
+  <table class="shorttext" id="advancedForm">
+    <tr>
+      <td>
+        <select name="advField1" id="advField1">
+          <option value="keyword" #if($advField1 == "keyword") selected="selected" #end>$tlang.getString("keyword.adv.search")</option>
+          <option value="author" #if($advField1 == "author") selected="selected" #end>$tlang.getString("author.adv.search")</option>
+          <option value="title" #if($advField1 == "title") selected="selected" #end>$tlang.getString("titletext.adv.search")</option>
+          <option value="subject" #if($advField1 == "subject") selected="selected" #end>$tlang.getString("subject.adv.search")</option>
+          <option value="year" #if($advField1 == "year") selected="selected" #end>$tlang.getString("year.adv.search")</option>
+        </select>
+      </td>
+      <td>
+        <input name="advCriteria1" id="advCriteria1" class="advField" type="text"
+          value="$xilator.escapeHtml($!{advCriteria1})" size="40"
+        />
+      </td>
+      <td>
+        <span class="advSearch">
+          <input type="button" class="active" name="advFormSearchButton" id="advFormSearchButton"
+            value="$tlang.getString("submit.search")"
+            onclick="javascript: submitSearchForm( '$basicSearchType', '$advancedSearchType', '$FORM_NAME' );"
+          />
+        </span>
+        <input type="button" class="advCancel" name="advFormCancelButton" id="advFormCancelButton"
+          value="$tlang.getString("cancel.search")" style="color: #FF0000; display: none;"
+          onclick="javascript: location.assign( '#toolForm("CitationHelperAction")&sakai_action=doCancelSearch&searchpage=$searchpage' );"
+        />
+        <span class="advancedSearchLoad_replace">
+          <span class="itemAction">
+            <a id="basicSearchLink" href="#" onclick="showBasicForm( '$basicSearchType' ); return false;">$tlang.getString( "link.basic.search" )</a>
+          </span>
+        </span>
+        <span class="advancedSearchLoad" style="display: none;">
+          <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.search" )" />
+          $tlang.getString( "wait.search" )
+        </span>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <select name="advField2" id="advField2">
+          <option value="keyword" #if($advField2 == "keyword") selected="selected" #end>$tlang.getString("keyword.adv.search")</option>
+          <option value="author" #if($advField2 == "author") selected="selected" #end>$tlang.getString("author.adv.search")</option>
+          <option value="title" #if($advField2 == "title") selected="selected" #end>$tlang.getString("titletext.adv.search")</option>
+          <option value="subject" #if($advField2 == "subject") selected="selected" #end>$tlang.getString("subject.adv.search")</option>
+          <option value="year" #if($advField2 == "year") selected="selected" #end>$tlang.getString("year.adv.search")</option>
+        </select>
+      </td>
+      <td>
+        <input name="advCriteria2" id="advCriteria2" class="advField" type="text"
+          value="$xilator.escapeHtml($!{advCriteria2})" size="40"
+        />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <select name="advField3" id="advField3">
+          <option value="keyword" #if($advField3 == "keyword") selected="selected" #end>$tlang.getString("keyword.adv.search")</option>
+          <option value="author" #if($advField3 == "author") selected="selected" #end>$tlang.getString("author.adv.search")</option>
+          <option value="title" #if($advField3 == "title") selected="selected" #end>$tlang.getString("titletext.adv.search")</option>
+          <option value="subject" #if($advField3 == "subject") selected="selected" #end>$tlang.getString("subject.adv.search")</option>
+          <option value="year" #if($advField3 == "year") selected="selected" #end>$tlang.getString("year.adv.search")</option>
+        </select>
+      </td>
+      <td>
+        <input name="advCriteria3" id="advCriteria3" class="advField" type="text"
+          value="$xilator.escapeHtml($!{advCriteria3})" size="40"
+        />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <select name="advField4" id="advField4">
+          <option value="keyword" #if($advField4 == "keyword") selected="selected" #end>$tlang.getString("keyword.adv.search")</option>
+          <option value="author" #if($advField4 == "author") selected="selected" #end>$tlang.getString("author.adv.search")</option>
+          <option value="title" #if($advField4 == "title") selected="selected" #end>$tlang.getString("titletext.adv.search")</option>
+          <option value="subject" #if($advField4 == "subject") selected="selected" #end>$tlang.getString("subject.adv.search")</option>
+          <option value="year" #if($advField4 == "year") selected="selected" #end>$tlang.getString("year.adv.search")</option>
+        </select>
+      </td>
+      <td>
+        <input name="advCriteria4" id="advCriteria4" class="advField" type="text"
+          value="$xilator.escapeHtml($!{advCriteria4})" size="40"
+        />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <select name="advField5" id="advField5">
+          <option value="keyword" #if($advField5 == "keyword") selected="selected" #end>$tlang.getString("keyword.adv.search")</option>
+          <option value="author" #if($advField5 == "author") selected="selected" #end>$tlang.getString("author.adv.search")</option>
+          <option value="title" #if($advField5 == "title") selected="selected" #end>$tlang.getString("titletext.adv.search")</option>
+          <option value="subject" #if($advField5 == "subject") selected="selected" #end>$tlang.getString("subject.adv.search")</option>
+          <option value="year" #if($advField5 == "year") selected="selected" #end>$tlang.getString("year.adv.search")</option>
+        </select>
+      </td>
+      <td>
+        <input name="advCriteria5" id="advCriteria5" class="advField" type="text"
+          value="$xilator.escapeHtml($!{advCriteria5})" size="40"
+        />
+      </td>
+      <td>
+        <input type="button" name="clearForm" id="clearForm"
+          value="$tlang.getString( "clear.search" )" onclick="clearAdvancedForm()"
+        />
+      </td>
+    </tr>
+  </table>
+</div>

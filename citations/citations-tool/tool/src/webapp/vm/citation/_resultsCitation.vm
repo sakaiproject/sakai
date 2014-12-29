@@ -1,0 +1,50 @@
+  <tr id="row_$citation.id">
+    <td style="text-align: center;" class="attach" headers="actions" id="save_$citation.id">
+      #if( $resourcesTool )
+        <input type="button" id="$citation.id"
+          onclick="toggleCitation( '#toolForm("CitationHelperAction")', this, '$collectionId', 'spinner_$citation.id', '$tlang.getString("add.results")', '$tlang.getString("remove.results")' );"
+          #if($citation.isAdded())
+            value="$tlang.getString("remove.results")"
+          #else
+            value="$tlang.getString("add.results")"
+          #end
+        />
+      #end
+      #if( $editorIntegration )
+        <input type="button" id="$citation.id"
+          onclick="SRC_addCitation('$citation.primaryUrl',
+                                   '$TextValidator.escapeHtmlAndJsQuoted($!{citation.displayName})',
+                                   '$TextValidator.escapeHtmlAndJsQuoted($!{citation.creator})',
+                                   '$TextValidator.escapeHtmlAndJsQuoted($!{citation.source})');"
+          value="$tlang.getString("add.results")"
+        />
+      #end
+      <div style="display: none;" id="spinner_$citation.id" class="addSpinner">
+        <img src="/library/image/sakai/spinner.gif" alt="$stlang.getString("gen.proces")" />
+      </div>
+    </td>
+    <td class="attach">
+      <img onclick="toggleDetails( '$citation.id', '$tlang.getString("link.show.results")', '$tlang.getString("link.hide.results")' );"
+        id="toggle_$citation.id" class="toggleIcon"
+        style="cursor: pointer;" src="/library/image/sakai/expand.gif?panel=Main"
+        alt="$tlang.getString("link.show.results")" align="top"
+        border="0" height="13" width="13"
+      />
+    </td>
+    <td headers="details">
+      <a href="$citation.primaryUrl" target="_blank">$citation.displayName</a>
+      <br />$xilator.escapeHtml( $!{citation.creator} )
+        $xilator.escapeHtml( $!{citation.source} )
+      <div class="citationDetails" id="details_$citation.id" style="display:none;">
+        #if($citation.subjectString)
+          <p><strong><em>$tlang.getString("subjects.result")</em></strong> $xilator.escapeHtml($citation.subjectString)</p>
+        #end
+        #if($citation.abstract)
+          <p><strong><em>$tlang.getString("abstract.result")</em></strong> $xilator.escapeHtml($citation.abstract)</p>
+        #end
+        #if(!$citation.subjectString && !$citation.abstract)
+          <p><em>$tlang.getString("nodetails.result")</em></p>
+        #end
+      </div>
+    </td>
+  </tr>

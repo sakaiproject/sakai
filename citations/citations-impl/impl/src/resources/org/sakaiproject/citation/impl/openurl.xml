@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springkernel.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl"
+    class="org.sakaiproject.citation.impl.openurl.OpenURLServiceImpl"
+    init-method="init">
+    <property name="transports">
+      <list>
+        <bean
+          class="org.sakaiproject.citation.impl.openurl.ByValueHttpTransport" />
+        <bean
+          class="org.sakaiproject.citation.impl.openurl.InlineHttpTransport" />
+      </list>
+    </property>
+    <property name="formats">
+      <list>
+        <bean class="org.sakaiproject.citation.impl.openurl.KEVFormat" />
+      </list>
+    </property>
+    <property name="converters">
+      <list>
+        <bean class="org.sakaiproject.citation.impl.openurl.BookConverter">
+          <property name="citationService"
+            ref="org.sakaiproject.citation.api.CitationService" />
+        </bean>
+        <bean class="org.sakaiproject.citation.impl.openurl.JournalConverter">
+          <property name="citationService"
+            ref="org.sakaiproject.citation.api.CitationService" />
+        </bean>
+        <!-- Should always be last in the list -->
+        <bean class="org.sakaiproject.citation.impl.openurl.GenericConverter">
+          <property name="citationService"
+            ref="org.sakaiproject.citation.api.CitationService" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+</beans>

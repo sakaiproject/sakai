@@ -1,0 +1,53 @@
+<script type="text/javascript" src="/sakai-citations-tool/js/citationscript.js">	
+</script>
+
+<div class="portletBody">
+	<div class="indnt1" style="border: 3px solid red; display: none;" id="hiddenMessage">
+		<div style="margin: 10px 10px 10px 10px;">
+			<h3>
+				$tlang.getString("title.close")
+			</h3>
+			<h4>
+				$tlang.getString("subtitle.close")
+			</h4>
+			<p class="act">
+				<input type="button" name="Close" id="Close" value="$tlang.getString("button.close")" onclick="window.close();" />
+			</p>
+		</div>
+	</div>
+	<div class="indnt1">
+		<h3>$tlang.getString("title.view")</h3>
+		
+		<p class="act">
+			<input class="active" type="button" name="Back" id="Back"
+			  value="$tlang.getString("label.back")"
+			  onclick="document.getElementById('sakai_action').value='doList'; submitform('$FORM_NAME');"
+			/>
+			<input type="button" name="Edit" id="Edit"
+			  value="$tlang.getString("label.edit.view")"
+			  onclick="document.getElementById('sakai_action').value='doEdit'; submitform('$FORM_NAME');"
+			/>
+		</p>
+		
+		#parse( "vm/citation/_citation.vm" )
+
+		<form name="$FORM_NAME" id="$FORM_NAME" action="#toolForm("CitationHelperAction")" method="post">
+			<input name="sakai_action" id="sakai_action" value="doList" type="hidden" />
+			<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+			<input name="citationId" id="citationId" value="$citationId" type="hidden" />
+			<input name="collectionId" id="collectionId" value="$collectionId" type="hidden" />
+
+			<p class="act">
+    			<input class="active" type="button" name="Back" id="Back"
+    		  	  value="$tlang.getString("label.back")"
+    		  	  onclick="document.getElementById('sakai_action').value='doList'; submitform('$FORM_NAME');"
+    			/>
+    			<input type="button" name="Edit" id="Edit"
+    		  	  value="$tlang.getString("label.edit.view")"
+    		  	  onclick="document.getElementById('sakai_action').value='doEdit'; submitform('$FORM_NAME');"
+    			/>
+    		</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    	</form>
+	</div>
+</div>

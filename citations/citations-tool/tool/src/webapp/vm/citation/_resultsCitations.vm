@@ -1,0 +1,97 @@
+<table id="resultsTable" class="listHier lines nolines" summary="$tlang.getString( "summary.results" )" cellpadding="0" cellspacing="0">
+  <tbody>
+    <tr>
+      <th colspan="3">
+        <div class="viewNav" style="padding: 0pt;"><strong>$tlang.getString( "title.results" )</strong>
+          <span class="pageLoad_replace">$showing</span>
+          <span class="pageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+            <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.results" )" />
+            $tlang.getString( "wait.results" )
+          </span>
+        </div>
+        <div class="listNav">
+          <input type="button" name="firstPage" id="firstPage1"
+            value="&lt;&lt;" alt="$tlang.getString("first.results")"
+            #if($searchResults.viewPageNumber < 1)disabled="disabled" #end
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doFirstSearchPage'; submitform('$FORM_NAME');"
+          />
+          <input type="button" name="prevPage" id="prevPage1"
+            value="&lt;" alt="$tlang.getString("prev.results")"
+            #if($searchResults.viewPageNumber < 1)disabled="disabled" #end
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doPrevSearchPage'; submitform('$FORM_NAME');"
+          />
+          <select name="pageSizeTop" id="pageSizeTop"
+            onchange="javascript: changePageSize( 'doChangeSearchPageSize', 'top', '$FORM_NAME' );">
+            <option value="10" #if("$!{searchResults.viewPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
+            <option value="20" #if("$!{searchResults.viewPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
+            <option value="30" #if("$!{searchResults.viewPageSize}" == "30") selected="selected"#end>$tlang.getString("show30.results")</option>
+            <option value="40" #if("$!{searchResults.viewPageSize}" == "40") selected="selected"#end>$tlang.getString("show40.results")</option>
+            <option value="50" #if("$!{searchResults.viewPageSize}" == "50") selected="selected"#end>$tlang.getString("show50.results")</option>
+          </select>
+          <input type="button" name="nextPage" id="nextPage1"
+            value="&gt;" alt="$tlang.getString("next.results")"
+            #if($searchResults.isLastPage())disabled="disabled" #end
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doNextSearchPage'; submitform('$FORM_NAME');"
+          />
+        </div>
+      </th>
+    </tr>
+    <tr class="exclude">
+      <td colspan="3">
+        <div class="itemAction">
+          <a href="#" onclick="showAllDetails( '$tlang.getString("link.hide.results")' ); return false;">$tlang.getString("link.show.results")</a> |
+          <a href="#" onclick="hideAllDetails( '$tlang.getString("link.show.results")' ); return false;">$tlang.getString("link.hide.results")</a>
+        </div>
+      </td>
+    </tr>
+    
+    #foreach($citation in $currentResults)
+      #parse( "vm/citation/_resultsCitation.vm" )
+    #end
+    
+    <tr class="exclude">
+      <td colspan="3">
+        <div class="itemAction">
+          <a href="#" onclick="showAllDetails( '$tlang.getString("link.hide.results")' ); return false;">$tlang.getString("link.show.results")</a> |
+          <a href="#" onclick="hideAllDetails( '$tlang.getString("link.show.results")' ); return false;">$tlang.getString("link.hide.results")</a>
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <th colspan="3">
+        <div class="viewNav" style="padding: 0pt;"><strong>$tlang.getString( "title.results" )</strong>
+          <span class="pageLoad_replace">$showing</span>
+          <span class="pageLoad" style="display: none; vertical-align: bottom; padding: 0.5em; border: 1px solid #000; background: #fff;">
+            <img src="/library/image/sakai/spinner.gif" alt="$tlang.getString( "wait.results" )" />
+            $tlang.getString( "wait.results" )
+          </span>
+        </div>
+        <div class="listNav">
+          <input type="button" name="firstPage" id="firstPage2"
+            value="&lt;&lt;" alt="$tlang.getString("first.results")"
+            #if($searchResults.viewPageNumber < 1)disabled="disabled" #end
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doFirstSearchPage'; submitform('$FORM_NAME');"
+          />
+          <input type="button" name="prevPage" id="prevPage2"
+            value="&lt;" alt="$tlang.getString("prev.results")"
+            #if($searchResults.viewPageNumber < 1)disabled="disabled" #end
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doPrevSearchPage'; submitform('$FORM_NAME');"
+          />
+          <select name="pageSizeBottom" id="pageSizeBottom"
+            onchange="javascript: changePageSize( 'doChangeSearchPageSize', 'bottom', '$FORM_NAME' );">
+            <option value="10" #if("$!{searchResults.viewPageSize}" == "10") selected="selected"#end>$tlang.getString("show10.results")</option>
+            <option value="20" #if("$!{searchResults.viewPageSize}" == "20") selected="selected"#end>$tlang.getString("show20.results")</option>
+            <option value="30" #if("$!{searchResults.viewPageSize}" == "30") selected="selected"#end>$tlang.getString("show30.results")</option>
+            <option value="40" #if("$!{searchResults.viewPageSize}" == "40") selected="selected"#end>$tlang.getString("show40.results")</option>
+            <option value="50" #if("$!{searchResults.viewPageSize}" == "50") selected="selected"#end>$tlang.getString("show50.results")</option>
+          </select>
+          <input type="button" name="nextPage" id="nextPage2"
+            value="&gt;" alt="$tlang.getString("next.results")"
+            #if($searchResults.isLastPage())disabled="disabled" #end
+            onclick="javascript: showSpinner( '.pageLoad' ); document.getElementById('sakai_action').value='doNextSearchPage'; submitform('$FORM_NAME');"
+          />
+        </div>
+      </th>
+    </tr>
+  </tbody>
+</table>

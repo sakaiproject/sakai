@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.citation.tool" title="Citation Tool" description="Citation Tool.">
+		<category name="sakai.helper" />
+
+		<!--
+    	<category name="course" />
+		<category name="project" />
+		<category name="sakai.sample" />
+		<category name="mercury" />
+		<category name="myworkspace" />
+		-->
+    </tool>
+
+    <tool id="sakai.citation.editor.integration" title="Search Library Resources" description="Citations Editor Integration.">
+      <category name="sakai.helper" />
+    </tool>
+</registration>

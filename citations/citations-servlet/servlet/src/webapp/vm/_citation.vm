@@ -1,0 +1,53 @@
+<table class="listHier lines nolines">
+	<tr>
+		<td class="attach">
+			<strong>$tlang.getString("type.view")</strong>
+		</td>
+		<td>
+			$tlang.getString("type.$!{citation.schema.identifier}")
+		</td>
+		<td>
+			<a href="#" class="removeCitation">
+				<img src="/library/image/sakai/cross.png" />
+			</a> 
+			<span style="display:none;" class="citationId">$!{citation.id}</span>
+			<span style="display:none;" class="collectionId">$!{collectionId}</span>
+		</td>
+	</tr>
+	#foreach($field in $!{citation.schema.fields})
+		#if($citation.hasPropertyValue("$field.identifier"))
+			#set($currentValue = "")
+			#if($!{citation.getCitationProperty("$field.identifier")})
+				#set($currentValue = $!{citation.getCitationProperty("$field.identifier")} )
+			##elseif($!{field.defaultValue})
+				##set($currentValue = $!{field.defaultValue})
+			#end
+			<tr>
+				<td class="attach">
+					<strong>$tlang.getString("$!{citation.schema.identifier}.$!{field.identifier}")</strong>
+				</td>
+				<td valign="top" colspan="2">
+					#if($field.isMultivalued())
+						#showMultivalued($!{currentValue})
+					#else
+						$!{currentValue}
+					#end
+				</td>
+			</tr>
+		#end
+	#end
+	#if($citation.hasCustomUrls())
+		<tr>
+			<td>
+				<strong>$tlang.getString( "title.link" )</strong>
+			</td>
+			<td colspan="2">
+			#foreach($urlId in $citation.customUrlIds)
+				<p style="margin-top: 0; padding-top: 0; margin-bottom: 0.3em; padding-bottom: 0;"><a href="$citation.getCustomUrl( "$urlId" )" target="_blank">$citation.getCustomUrlLabel( "$urlId" )</a>
+					($citation.getCustomUrl("$urlId"))
+				</p>
+			#end
+			</td>
+		</tr>
+	#end
+</table>

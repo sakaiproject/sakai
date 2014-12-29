@@ -1,0 +1,10 @@
+<table class="itemSummary">
+	<tr>
+		<th>
+			$tlang.getString( "list.title" ): <strong>$collectionTitle</strong>
+		</th>
+		<td>
+			$tlang.getString( "list.count" ): <strong id="citationCountDisplay">$collectionSize</strong>
+		</td>
+	</tr>
+</table>
