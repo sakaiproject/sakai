@@ -1,0 +1,57 @@
+<!DOCTYPE html      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+	<title rsf:id="msg=previewemail.page.title">Preview Email</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<script type="text/javascript" rsf:id="scr=portal-matter" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<link href="../css/Emailtemplateservice.css" type="text/css" rel="stylesheet" media="all" />
+</head>
+
+<body>
+	<div class="portletBody">
+		
+	<ul class="breadCrumb inactive">
+		<li ><span rsf:id="msg=summary.page.title">Summary</span></li><li rsf:id="msg=starteval.page.title">Create Evaluation</li><li class="lastCrumb" rsf:id="msg=previewemail.page.title">Preview Email</li>
+	</ul>
+	
+	<h3 rsf:id="msg=previewemail.header">Preview of the text of the email that is sent out to students the day evaluation goes live</h3> 
+		<p rsf:id="msg=previewemail.desc" class="instruction">
+			Please note when sending the email the bracketed values will be substituted with actual values.
+		</p>
+		<div style="width:70%">
+              <div rsf:id="email_templates_fieldhints" class="highlightPanel" style="background:#eee;">
+${EvalTitle} - the title of this evaluation <br/>
+${EvalStartDate} - the start date of this evaluation <br/>
+${EvalDueDate} - the due date of this evaluation <br/>
+${EvalResultsDate} - the view results date of this evaluation <br/>
+${EvalGroupTitle} - the title to the site/course/group/evalGroup which this evaluation is assigned to for this user <br/>
+${HelpdeskEmail} - the email address for the helpdesk (or the support contact) <br/>
+${URLtoAddItems} - the direct URL for evaluatees to add items to evals assigned from above <br/>
+${URLtoTakeEval} - the direct URL for evaluators to take this evaluation <br/>
+${URLtoViewResults} - the direct URL to view results for this evaluation <br/>
+${URLtoSystem} - the main URL to the system this is running in <br/>
+${URLtoAddItems} - the direct URL to add items to an evaluation <br/>
+${URLtoOptOut} - the direct URL for evaluators to opt in to use this evaluation
+              </div>
+              <div>
+                  <span rsf:id="msg=modifyemail.template.subject">Subject:</span>
+                  <span rsf:id="emailSubject">The message subject</span>
+              </div>
+			  <div class="highlightPanel"  style="background:#eee">
+                  <div rsf:id="emailMessage">The email message would go here</div>
+              </div>
+		</div>	
+		<p class="act">
+             <form rsf:id="previewEmailForm" name="previewEmailForm" method="get" class="inlineForm">
+ 				<input rsf:id="modifyEmailTemplate" name="modifyEmailTemplate" type="submit" value="Edit this Email Template" accesskey="r" />
+             </form>
+			<input type="button" value="Close Window" onclick = "self.close()" rsf:id="close-button" accesskey="x"/>
+		</p>
+	</div>	
+</body>
+
+</html>

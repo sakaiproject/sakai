@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>Sakai Emailtemplateservice Base POM (emailtemplateservice)</name>
+  <groupId>org.sakaiproject.emailtemplateservice</groupId>
+  <artifactId>emailtemplateservice</artifactId>
+  <packaging>pom</packaging>
+  <version>11-SNAPSHOT</version>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+
+  <properties>
+    <sakai.simple-xml.version>2.6</sakai.simple-xml.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <modules>
+    <module>api</module>
+    <module>deploy</module>
+    <module>impl/logic</module>
+    <module>pack</module>
+    <module>tool</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/emailtemplateservice/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/emailtemplateservice/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/emailtemplateservice/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>emailtemplateservice-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>emailtemplateservice-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.simpleframework</groupId>
+        <artifactId>simple-xml</artifactId>
+        <version>${sakai.simple-xml.version}</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <reportSets>
+          <reportSet>
+            <id>aggregate</id>
+            <configuration>
+              <encoding>UTF-8</encoding>
+              <links>
+                <link>http://download.oracle.com/javase/6/docs/api/</link>
+                <link>http://docs.oracle.com/javaee/5/api/</link>
+                <link>http://junit.sourceforge.net/javadoc/</link>
+              </links>
+              <breakiterator>true</breakiterator>
+              <verbose>false</verbose>
+              <maxmemory>512m</maxmemory>
+              <additionalJOption>-J-Xmx512m -J-XX:MaxPermSize=160m</additionalJOption>
+            </configuration>
+            <reports>
+              <report>aggregate</report>
+            </reports>
+          </reportSet>
+        </reportSets>
+      </plugin>
+    </plugins>
+  </reporting>
+
+</project>
