@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<mbeans-descriptors>
+	<mbean
+			name="DavRealm"
+			className="org.apache.catalina.mbeans.ClassNameMBean"
+			description="Sakai WebDAV Realm for Tomcat"
+			domain="Catalina"
+			group="Realm"
+			type="org.sakaiproject.dav.DavRealm">
+		<attribute
+				name="className"
+				description="Fully qualified class name of the managed object"
+				type="java.lang.String"
+				writeable="false"/>
+		<attribute
+				name="debug"
+				description="The debugging detail level for this component"
+				type="int"/>
+  </mbean>
+</mbeans-descriptors>
