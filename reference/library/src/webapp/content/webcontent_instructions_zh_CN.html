@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh" xml:lang="zh">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>“网站内容”设置说明</title>
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal.css") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		// -->
+		</script>
+	</head>
+	<body>
+		<div class="portletBody">
+			<h3>“网站内容”设置</h3>
+			<p>使用本工具可以将此页面指向您所需要的位置。</p>
+			<p>点击 <strong>选项</strong> 链接，然后在 <strong>路径</strong> 中输入网页的地址。</p>
+			<p class="instruction">例如，如果希望点击此工具时显示Google首页，就请在 <strong>路径</strong> 
+				中输入www.google.com</p>
+		</div>
+	</body>
+</html>

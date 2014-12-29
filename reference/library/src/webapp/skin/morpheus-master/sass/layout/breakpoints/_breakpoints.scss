@@ -1,0 +1,19 @@
+//////////////////////////////
+// LAYOUT: Temp helpers to show breakpoints on the interface DEV only
+//////////////////////////////
+
+@import "_breakpoints_variables";
+@import "_breakpoints_mixin";
+
+$debug-breakpoints: false !default;
+
+@if $debug-breakpoints {
+  body.portalBody {
+    margin: 0;
+    @include list-breaks($breakpoints);
+
+    &:before {
+      @include style-breaks;
+    }
+  }
+}

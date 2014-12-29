@@ -1,0 +1,940 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/REC-html40/loose.dtd"><HTML><HEAD>
+  <TITLE>
+   Overview of package util.concurrent Release 1.3.4.
+  </TITLE></HEAD><BODY bgcolor="#ffffee" vlink="#0000aa" link="#cc0000">
+<H1>Overview of package util.concurrent Release 1.3.4.</H1>
+
+  by <A href="http://gee.cs.oswego.edu/dl">Doug Lea</A>
+  <P>
+Note: Upon release of J2SE 5.0, this package enters maintenance mode:
+Only essential corrections will be released. J2SE5 package <A href="http://gee.cs.oswego.edu/dl/concurrency-interest/index.html">java.util.concurrent </A> includes improved, more efficient,
+standardized versions of the main components in this package. Please
+plan to convert your applications to use them. (A few niche classes
+here have no equivalents in java.util.concurrent. They will become
+part of a follow-up add-on package that will also include other
+unstandardized classes.) If you cannot convert to J2SE5 immediately,
+consider using a backport of the main java.util.concurrent classes by
+<A href="http://www.mathcs.emory.edu/dcl/util/backport-util-concurrent/"> Dawid Kurzyniec </A>.
+
+
+</P><P>   This package provides standardized, efficient versions of utility
+   classes commonly encountered in concurrent Java programming.  This
+   code consists of implementations of ideas that have been around for
+   ages, and is merely intended to save you the trouble of coding them.
+   Discussions of the rationale and applications of several of these
+   classes can be found in the second edition of <A href="http://gee.cs.oswego.edu/dl/cpj">Concurrent Programming in
+   Java</A>.  There are also <A href="http://gee.cs.oswego.edu/dl/cpjslides/util.pdf">pdf
+   slides</A> providing an overview of the package.
+    
+
+  </P><P>
+   The package mainly consists of implementations of a few interfaces:
+   <BR>
+  </P><UL>
+   <LI><CODE>Sync</CODE> -- locks, conditions <BR>
+   </LI><LI><CODE>Channel</CODE> -- queues, buffers <BR>
+   </LI><LI><CODE>Barrier</CODE> -- multi-party synchronization <BR>
+
+   </LI><LI><CODE>SynchronizedVariable</CODE> -- atomic ints, refs etc <BR>
+
+   </LI><LI><CODE>java.util.Collection</CODE> -- collections <BR>
+
+   </LI><LI><CODE>Executor</CODE> -- replacements for direct use of Thread <BR>
+  </LI></UL>
+   
+   Plus some utilities and frameworks that build upon these.
+  <P>   If you arrived at page<BR>
+   http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/intro.html
+   <BR>
+   following links from your local documentation, please check the
+   version number and get an update if you are running an outdated
+   version.
+
+
+</P><H2>Installation</H2>
+
+  This package, currently declared as
+  <BLOCKQUOTE>   <CODE>EDU.oswego.cs.dl.util.concurrent</CODE> 
+  </BLOCKQUOTE>
+
+  is available in (<A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/current/concurrent.tar.gz">tar.gz
+format</A>) or (<A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/current/concurrent.zip">zip
+format</A>).
+
+  <P>
+  It is currently distributed in source form only. To build it, use a
+   Java 1.2+ compiler to:
+</P><PRE>  javac -d <EM>[SOMEWHERE IN YOUR CLASSPATH]</EM> *.java
+</PRE>
+  Or use this <A href="build.xml">ant build file</A> donated by
+  Travell Perkins.
+  <P>   The classes in the <CODE>misc</CODE> directory can be built the
+   same way.
+  </P><P>
+   To use it, add to java files:
+</P><PRE>  import EDU.oswego.cs.dl.util.concurrent.*
+</PRE>
+  <P> You can also create a jar or zip file of the compiled classes
+   and add them to your classpath.
+  </P><P>
+   All <A href="http://gee.cs.oswego.edu/dl/classes/index.html"> documentation</A>
+    except for this file was produced by javadoc, which
+    places some index and summary files outside the current
+    directory. This can cause some broken links on unpacked versions.
+    You can avoid this, and integrate with your local javadoc-produced
+    documentation by running:
+</P><PRE>  javadoc -public -d <EM>[BASE OF SOME JAVADOC PATH]</EM> *.java
+</PRE>
+ 
+<H2>Contents</H2>
+  
+  <DL><DT><B><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/EDU/oswego/cs/dl/util/concurrent/Sync.html">Sync</A> </B>
+
+   </DT><DD>Interface for classes used as exclusion, resource management,
+   and related synchronization aids, supporting methods
+   <CODE>acquire</CODE>, <CODE>attempt(msecs)</CODE>, and
+   <CODE>release</CODE>.
+    <P>     <B>Implementations</B>
+
+    </P></DD><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Semaphore.html">Semaphore</A>
+     </DT><DD>Default implementation of Semaphores, providing no 
+      special ordering guarantees. 
+
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaiterPreferenceSemaphore.html">WaiterPreferenceSemaphore</A>
+     </DT><DD>Provides protection against barging (infinite overtaking)
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FIFOSemaphore.html">FIFOSemaphore</A>
+     </DT><DD>Provides first-in/first-out ordering
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/PrioritySemaphore.html">PrioritySemaphore</A>
+     </DT><DD>Prefers notifications to higher-priority threads
+
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Mutex.html">Mutex</A>
+     </DT><DD>Basic non-reentrant mutual exclusion lock
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReentrantLock.html">ReentrantLock</A>
+     </DT><DD>Java-style per-thread mutual exclusion lock
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Latch.html">Latch</A>
+     </DT><DD>A condition that is acquirable forever more after the first release
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CountDown.html">CountDown</A>
+     </DT><DD>A condition that is acquirable forever more after the <EM>nth</EM> 
+      release.
+    </DD></DL><P>
+ 
+    The following implementation classes do not themselves perform any
+    synchronization, but serve as adaptors, glue, and extensibility
+    hooks for those that do. They may also be helpful when using Syncs
+    in generic before/after constructions:
+
+    </P><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/NullSync.html">NullSync</A>
+     </DT><DD>A no-op implementation: acquire and attempt always succeed.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/TimeoutSync.html">TimeoutSync</A>
+     </DT><DD>Routes all calls to acquire to use attempt with a predefined
+      timeout value.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/LayeredSync.html">LayeredSync</A>
+     </DT><DD>Cascades operations of two Syncs
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ObservableSync.html">ObservableSync</A>
+     </DT><DD>Issues calls to SyncObservers upon each acquire and release.
+    </DD></DL><P>
+     <B>Related Classes</B>
+    </P><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CondVar.html">CondVar</A>
+     </DT><DD>Support for POSIX (pthreads) style condition variables
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/TimeoutException.html">TimeoutException</A>
+     </DT><DD>A standardized time-out exception class
+    </DD></DL><P></P><P>
+
+
+   </P><DT><B><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReadWriteLock.html">ReadWriteLock</A></B>
+   </DT><DD>Interface for pairs of locks, one for reading, and one for
+   writing.
+
+    <P>     <B>Implementations</B>
+    </P></DD><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WriterPreferenceReadWriteLock.html">WriterPreferenceReadWriteLock</A>
+     </DT><DD>The most useful and common policy
+
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReentrantWriterPreferenceReadWriteLock.html">ReentrantWriterPreferenceReadWriteLock</A>
+     </DT><DD>Allows multiple lock holds as well as lock downgrading by writers.
+
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReaderPreferenceReadWriteLock.html">ReaderPreferenceReadWriteLock</A>
+     </DT><DD>Prefers waiting readers to waiting writers.
+
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FIFOReadWriteLock.html">FIFOReadWriteLock</A>
+     </DT><DD>Prefers earliest threads (whether readers or writers).
+    </DD></DL><P>
+
+   </P><DT><B><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Barrier.html">Barrier</A></B>
+   </DT><DD> Synchronization points for groups of threads. 
+    <P>     <B>Implementations</B>
+    </P></DD><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CyclicBarrier.html">CyclicBarrier</A>
+     </DT><DD> A tool to force multiple threads to synchronize at a given point
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Rendezvous.html">Rendezvous</A>
+     </DT><DD>A cyclic barrier that does not rely on there being a
+      predetermined number of participant threads, and allows threads
+      to exchange information at each barrier point.
+    </DD></DL><P>
+     <B>Related Classes</B>
+    </P><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BrokenBarrierException.html">BrokenBarrierException</A>
+     </DT><DD>A standardized exception for barrier synchronization failures
+    </DD></DL><P>
+
+   </P><DT><B><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Channel.html">Channel</A></B> 
+
+   </DT><DD> Interface for queues, buffers, conduits and pipes supporting
+    blocking <CODE>put</CODE> and <CODE>take</CODE>, as well as
+    timeout-based <CODE>offer</CODE> and <CODE>poll</CODE>.  To assist
+    efforts to use channels with somewhat greater type safety, Channel
+    is defined as a subinterface of <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Puttable.html">Puttable</A> and <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Takable.html">Takable</A>, each defining only one side of
+    the channel.  Also, the <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedChannel.html">BoundedChannel</A> subinterface is used
+    for channels with finite capacities.
+    <P>     <B>Implementations</B>
+
+    </P></DD><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/LinkedQueue.html">LinkedQueue</A>
+     </DT><DD>An unbounded linked-list-based queue. This is usually the
+     best choice for a general-purpose queue.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedLinkedQueue.html">BoundedLinkedQueue</A>
+     </DT><DD>A linked queue with a capacity bound
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedBuffer.html">BoundedBuffer</A>
+     </DT><DD>An array-based bounded buffer
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Slot.html">Slot</A>
+     </DT><DD>A one-slot bounded buffer. (Note that this can also
+      serve as a restricted form of Synchronized variable.)
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronousChannel.html">SynchronousChannel</A>
+     </DT><DD>A zero-slot CSP/Ada-style channel in which every put must
+      wait for a take, and vice versa.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedPriorityQueue.html">BoundedPriorityQueue</A>
+     </DT><DD>A channel based on a Heap data structure. Elements
+      must either be Comparable, or comparable using a supplied Comparator
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitFreeQueue.html">WaitFreeQueue</A>
+     </DT><DD>An unbounded linked-list-based queue relying on atomic
+      commits and retries rather than wait/notify.
+
+    </DD></DL><P>
+     <B>Related Classes</B>
+    </P><DL><DT> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/DefaultChannelCapacity.html">DefaultChannelCapacity</A>
+     </DT><DD> A utility class that makes it easier to set default
+      capacities for channels that have a capacity that must otherwise
+      be set in constructors.
+    </DD></DL><P>
+
+   </P><DT><B> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Executor.html">Executor</A></B>
+   </DT><DD> Interface for objects that <CODE>execute</CODE> Runnable commands.
+
+    <P>     <B>Implementations</B>
+    </P></DD><DL><DT> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/DirectExecutor.html">DirectExecutor</A>
+     </DT><DD> An implementation that just directly runs command
+      in current thread.
+
+     </DD><DT> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/LockedExecutor.html">LockedExecutor</A>
+     </DT><DD> An implementation that directly runs command
+      within a supplied Sync lock in current thread.
+
+     </DD><DT> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ThreadedExecutor.html">ThreadedExecutor</A>
+     </DT><DD> An implementation that runs each command
+      in a new thread.
+
+     </DD><DT> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/QueuedExecutor.html">QueuedExecutor</A>
+     </DT><DD> An implementation that queues commands for execution
+      by a single background thread.
+
+     </DD><DT> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/PooledExecutor.html">PooledExecutor</A>
+     </DT><DD>A tunable, extensible thread pool class
+    </DD></DL><P>
+    <B>Related classes</B>
+    </P><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Callable.html">Callable</A>
+     </DT><DD>Interface for runnable actions that return results
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FutureResult.html">FutureResult</A>
+     </DT><DD>Holder for results of actions that can be set by Callables.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ThreadFactory.html">ThreadFactory</A>
+     </DT><DD>Interface for objects that create Thread objects
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ThreadFactoryUser.html">ThreadFactoryUser</A>
+     </DT><DD>Convenient base for classes that use ThreadFactories.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ClockDaemon.html">ClockDaemon</A>
+     </DT><DD> A utility for executing commands at given times,
+      after given delays, or periodically with given cycles.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/TimedCallable.html">TimedCallable</A>
+     </DT><DD>Invokes a Callable in its own thread, but cancels it if not
+      completed by a given maximum time.
+    </DD></DL><P>
+
+   </P><DT> <B>Fork/Join Tasks</B>
+
+   </DT><DD> A fast lightweight task framework built upon Java threads, and
+   geared for parallel computation. 
+
+    </DD><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FJTask.html">FJTask</A>
+     </DT><DD>Abstract Base class for tasks.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FJTaskRunnerGroup.html">FJTaskRunnerGroup</A>
+     </DT><DD>Control class for running Tasks.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FJTaskRunner.html">FJTaskRunner</A>
+     </DT><DD>Underlying specialized Thread subclass for running Tasks.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/taskDemo/demos.html">Demos and examples</A>
+     </DT><DD>A directory of sample programs that use the Task framework.
+      (See also a paper on <A href="http://gee.cs.oswego.edu/dl/papers/fj.pdf">the design and
+      performance of this framework</A>.)
+      
+    </DD></DL><P>
+
+
+   </P><DT> <B>Collections</B>
+   </DT><DD> Implementations of java.util.Collection and related classes that
+    can help solve concurrency problems. 
+    </DD><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ConcurrentReaderHashMap.html">ConcurrentReaderHashMap</A>
+     </DT><DD>An analog of java.util.Hashtable that allows retrievals
+      during updates.
+
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ConcurrentHashMap.html">ConcurrentHashMap</A>
+     </DT><DD>An analog of java.util.Hashtable that allows 
+      both concurrent retrievals and concurrent updates.
+
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CopyOnWriteArrayList.html">CopyOnWriteArrayList</A>
+     </DT><DD>A copy-on-write analog of java.util.ArrayList 
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CopyOnWriteArraySet.html">CopyOnWriteArraySet</A>
+     </DT><DD>A java.util.Set based on CopyOnWriteArrayList.
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncCollection.html">SyncCollection</A>
+     </DT><DD>A wrapper class placing either Syncs or ReadWriteLocks 
+      around java.util.Collection
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncSet.html">SyncSet</A>
+     </DT><DD>A wrapper around java.util.Set
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncSortedSet.html">SyncSortedSet</A>
+     </DT><DD>A wrapper around java.util.SortedSet
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncList.html">SyncList</A>
+     </DT><DD>A wrapper around java.util.List
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncMap.html">SyncMap</A>
+     </DT><DD>A wrapper around java.util.Map
+     </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncSortedMap.html">SyncSortedMap</A>
+     </DT><DD>A wrapper around java.util.SortedMap
+     </DD><DT><B>Related classes</B>
+     </DT><DD> 
+      </DD><DL><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/PropertyChangeMulticaster.html">PropertyChangeMulticaster</A>
+       </DT><DD>A copy-on-write replacement for java.beans.PropertyChangeSupport
+       </DD><DT><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/VetoableChangeMulticaster.html">VetoableChangeMulticaster</A>
+       </DT><DD>A copy-on-write replacement for java.beans.VetoableChangeSupport
+
+    </DD></DL></DL><P>
+
+   </P><DT> <B><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedVariable.html">SynchronizedVariable</A></B>
+
+   </DT><DD> Simple synchronized analogs of Number and Ref classes in
+   java.lang. Each has a subclass that in addition to maintaining
+   synchronization, also provides notifications upon value changes and
+   supports guarded waits.
+    <UL>     <LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedRef.html">SynchronizedRef</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableRef.html">WaitableRef</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedInt.html">SynchronizedInt</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableInt.html">WaitableInt</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedLong.html">SynchronizedLong</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableLong.html">WaitableLong</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedFloat.html">SynchronizedFloat</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableFloat.html">WaitableFloat</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedDouble.html">SynchronizedDouble</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableDouble.html">WaitableDouble</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedBoolean.html">SynchronizedBoolean</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableBoolean.html">WaitableBoolean</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedByte.html">SynchronizedByte</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableByte.html">WaitableByte</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedChar.html">SynchronizedChar</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableChar.html">WaitableChar</A>
+     </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedShort.html">SynchronizedShort</A> and
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableShort.html">WaitableShort</A>
+    </LI></UL>
+    <P>
+    </P></DD><DT> <B><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/misc">Miscellany</A></B>
+
+    </DT><DD> There are some classes in the <CODE>misc</CODE> directory
+    that might be of interest but aren't really part of this
+    package. They include:
+    <UL>     <LI> <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/misc/SynchronizationTimer.html">SynchronizationTimer</A>,
+    that can be used to experiment with different synchronization
+    schemes. It requires Swing (JFC). (To run it, compile misc/*.java, and
+    then java EDU.oswego.cs.dl.util.concurrent.misc.SynchronizationTimer .)
+     </LI><LI>An immutable <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/misc/Fraction.html">Fraction</A> class.
+     </LI><LI>Joe Bowbeer's 
+      <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/misc/SwingWorker.html">SwingWorker</A>
+      class,  discussed in his
+      <A href="http://java.sun.com/products/jfc/tsc/articles/threads/threads3.html#swing-worker">"The Last Word in Swing Threads"</A> article.
+     </LI><LI>Other implementations of the above interfaces that 
+      are not valuable or stable enough to include here.
+    </LI></UL>
+    If you would like to contribute other related classes, demos,
+    usage examples, etc., please contact me. People frequently write
+    me asking for such things.
+  </DD></DL>
+
+
+
+  <H2>Notes</H2>
+  <UL>
+   <LI>All classes are released to the public domain and may be used
+   for any purpose whatsoever without permission or
+   acknowledgment. Portions of the CopyOnWriteArrayList and
+   ConcurrentReaderHashMap classes are adapted from Sun JDK source
+   code. These are copyright of Sun Microsystems, Inc, and are used
+   with their kind permission,  <A href="../sun-u.c.license.pdf">   as described in this license</A>.
+
+    <P>
+   </P></LI><LI>Version numbers for this package are of the form
+   Major.minor.fix. Fix numbers reflect corrections of small errors
+   and release problems (missing files, portability enhancements,
+   etc). Minor numbers are incremented on additions. Major numbers
+   reflect serious incompatibilities and restructurings.  I may also
+   sometimes make minor updates to this page and related files before
+   packaging up all files as a release. During early releases of added
+   classes, I expect to make frequent small changes and releases, as
+   soon as problems are noticed. Other ongoing changes are reflected
+   in individual source files, that you can get individual updates on
+   if you need them.
+    <P>
+   </P></LI><LI>Most of the interfaces and classes contain usage notes and
+   examples. I hope to add more.  Please send suggestions to <A href="mailto:dl@cs.oswego.edu">dl@cs.oswego.edu</A>
+    <P>
+   </P></LI><LI> You can get e-mail notification when this page (or any other
+   URL for that matter) changes via <A href="http://www.changedetection.com/">ChangeDetecion.com</A> or
+   other such services.
+    <P>
+   </P></LI><LI>These have been tested with JDK1.2+, but all except those
+   relying on JDK1.2 java.util.collections (i.e., BoundedPriorityQueue
+   and CopyOnWriteArrayList) should also work with
+   JDK1.1.x. Workarounds exist for those relying on collections by
+   obtaining the <A href="http://java.sun.com/beans/infobus/#DOWNLOAD_COLLECTIONS">backported
+   1.1 versions</A> and follow the <A href="http://java.sun.com/beans/infobus/collectionsreadme.html">instructions.
+</A>
+  You can then use "sed" or somesuch to replace all occurrences of
+   "java.util." with "com.sun.java.util".  Also, I'm told that some
+   1.1 compilers have some problems compiling some of the blank finals
+   used. And while the 1.1port of collections also includes a
+   1.2-compliant version of java.util.Random, you can alternatively
+   use the following version contributed by Andrew Cooke:
+
+<PRE>package EDU.oswego.cs.dl.util.concurrent ;
+
+class Random extends java.util.Random {
+
+  public Random() {super() ;}
+  public Random(long l) {super(l) ;}
+
+  public int nextInt(int i) {
+    int ii = (int)(i * nextDouble()) ;
+    if (ii >= i) {ii = i-1 ;} // should (almost?) never happen...
+    return ii ;
+  }
+
+}
+</PRE>
+    <P>
+    Konstantin Läufer has generously placed a version compiled for JDK1.1 
+    at <A href="http://www.cs.luc.edu/%7Elaufer/courses/337/handouts/concurrent11.zip">http://www.cs.luc.edu/~laufer/courses/337/handouts/concurrent11.zip</A>
+    </P><P>
+
+   </P></LI><LI>Many of these classes are adapted from versions described in
+   the second edition of <A href="http://gee.cs.oswego.edu/dl/cpj">   Concurrent Programming in Java</A> (CPJ) and examples from
+   tutorials based on the book.
+    <P>
+   </P></LI><LI>Several classes were developed with the help of <A href="http://www.mri.mq.edu.au/%7Edholmes">David Holmes</A> and <A href="http://ourworld.compuserve.com/homepages/jozart/">Joe
+   Bowbeer</A>. Many have benefited from discussions and comments from
+   other people, including Tom Cargill, Tom May, Wayne Boucher,
+   Matthias Ernst, Michael Banks, Richard Emberson, Piotr Kaminski,
+   Bill Pugh, Peter Buhr, Alexander Terekhov, Alex Yiu-Man Chan,
+   Andrew Kelly, Markos Kapes, Boris Dimitshteyn.
+
+  </LI></UL>
+   
+<H2>Some Questions and Answers about Design and Implementation</H2>
+
+  <DL><DT>Isn't it annoying that so many methods throw InterruptedException?
+
+   </DT><DD> Maybe, but synchronization points are among the best points to
+   detect interruption. Since this a package of synchronization aids,
+   most methods detect interruption as early and often as reasonable
+   to help avoid becoming stuck when the thread should be stopping
+   anyway. In particular, interruption is normally checked before
+   trying to obtain locks used in Syncs, which minimizes the
+   vulnerability window for getting stuck when an activity is
+   cancelled.  (Between this and the finite durations that internal
+   java synchronization locks are held in Sync classes, it is normally
+   impossible for threads to become stuck waiting on internal locks
+   when they have been interrupted.)  These classes fail cleanly upon
+   interruption. Normally, all you need to do upon catching an
+   InterruptedException is either rethrow it, or clean up and then set
+    <CODE>Thread.currentThread().interrupt()</CODE> to propagate
+    status.
+    <P>
+  If you need to invoke such methods even when the thread is in an
+  interrupted state (for example, during recovery actions) you can do:
+</P><PRE>  void quietlyAcquire(Sync sync) {
+    boolean wasInterrupted = Thread.interrupted(); // record and clear
+    for (;;) {
+      try {
+        sync.acquire();   // or any other method throwing InterruptedException
+        break;
+      }
+      catch (InterruptedException ex) { // re-interrupted; try again
+        wasInterrupted = true;
+      }
+    }
+    if (wasInterrupted) {              // re-establish interrupted state
+      Thread.currentThread().interrupt();
+    }
+ }
+</PRE>
+    <P>     The heavy use of InterruptedException makes it possible to write
+     very responsive and robust code, at the expense of forcing class
+     and method authors to contemplate possible exception handling
+     actions at each interruption (and time-out) point. See the <A href="http://gee.cs.oswego.edu/dl/cpj/cancel.html">CPJ supplement
+     page on cancellation</A> for more discussion of some associated
+     design issues.
+
+    </P><P>
+
+   </P></DD><DT>Why is there so much near-duplication of code?
+
+   </DT><DD> You'd think there would be some nice way to unify more classes
+   to share significant aspects of synchronization mechanics.  But
+   standard lines of attack for doing this turn out unsatisfying at
+   best.  The main reason for creating this package is that even
+   simple classes involving concurrency control mechanics are
+   sometimes tedious, repetitive, tricky, and/or error-prone to write,
+   so it is nice to have them written already.
+    <P>
+   </P></DD><DT>Why do most methods return false/null after timeouts rather
+   than throwing TimeoutException?
+
+   </DT><DD> Because I think it would normally be misleading to throw
+   exceptions. In Java, timeout arguments merely provide hints about
+   when threads should be woken to check out the state of the world.
+   Due to scheduling delays, threads need not resume immediately after
+   their timeouts elapse, so real-time-based timeout exceptions would
+   not be appropriate. The simplest course of action is just to report
+   whether the condition the thread is waiting for does hold after
+   waiting for at least this period. Returning false/null is not
+   necessarily an exceptional situation.  In those classes where it is
+   exceptional (in some classes layered on top of basic Syncs and
+   Channels) failed timeouts are converted to TimeoutExceptions. You
+   can do the same in your own code using these classes. As of version
+   1.1.0, this is made simpler to carry out, since TimeoutException
+   now extends InterruptedException.
+    <P>
+   </P></DD><DT>Why aren't there deadlock-detecting Syncs or related classes for
+    detecting lockups?
+
+   </DT><DD>Because timeouts appear to be more generally useful. In fact,
+   it is hard to imagine contexts where deadlock detection is a better
+   option than timeouts in Java. A timeout can serve as a heuristic
+   deadlock detection device, but can also serve to detect stalled IO,
+   network partitions, and related failures. Program responses to
+   deadlock are hardly ever different than responses to these other
+   failures. So, it is usually a good idea to use timeouts as
+   general-purpose heuristic detectors for all liveness problems,
+   subdividing responses to particular failures (for example, by
+   subclassing TimeoutException), only when necessary. Additionally,
+   there are two problems with implementing deadlock-detecting Syncs
+   that make them unattractive choices: (1) They can only detect
+   deadlock among uses of the particular Sync classes being used, so
+   cannot deal with deadlocks involving builtin synchronization (2)
+   lock cycle detection adds overhead to each lock acquire and
+   release.  The main context in which deadlock detection would be
+   useful is during program debugging, but here, it would be better to
+   rely on specially instrumented JVMs. (Note that it is easy to
+   transform code that relies on acquire to instead use timeouts via
+   the TimeoutSync class. This can be a good way to make code more
+   robust with respect to locking problems.)
+    <P>
+   </P></DD><DT> Why isn't there a distinct Lock or MutualExclusionLock interface?
+
+   </DT><DD> Because many objects implementing the Sync interface can be
+   used as locks if they are in appropriate states, but not all of
+   them can always be used as such. Additionally, there are several
+   senses of mutual exclusion (for example, reentrant vs
+   non-reentrant, full vs read/write).  Since there is no way to say
+   that a given class only sometimes conforms to the intended sense of
+   a subinterface, the flexibility and simplicity of only using a
+   single principle interface (Sync) for all such types outweighs the
+   potential advantages of finer-grained categorizations.
+    <P>
+    </P></DD><DT> Why do so many methods perform notify within InterruptedException 
+    catches?
+    
+    </DT><DD> Because when notify's and interrupt's happen at about the
+    same time, JVMs are currently free to treat them independently, so
+    a notified thread could return out as interrupted.  In classes
+    using notify rather than notifyAll, the extra notify in the catch
+    clause is a safeguard to ensure that a non-interrupted thread, if
+    one exists, will be notified. See my CPJ book for more details.
+    <P>
+   </P></DD><DT> How efficient are these classes?
+
+   </DT><DD> Most of these classes use the most efficient implementations I
+   know of for general-purpose concurrent programming, yet also try to
+   be conservative about differences across common JVMs, and to
+   minimize surprising limitations and side-effects.  This is always a
+   bit of a trade-off though. Some could be made more efficient at the
+   cost of supporting fewer operations, relying on properties of
+   particular JVMs, or having more usage constraints. Conversely some
+   could support more contexts or operations, or simpler usage, at the
+   cost of efficiency.
+
+    <P>
+     You will almost surely trade off some cost in efficiency for the
+     flexibility of using Syncs and classes built out of them rather
+     than built-in <CODE>synchronized</CODE> method/block locks. On
+     some JVMs the cost is very low. (You can check approximate impact
+     using <A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/misc/SynchronizationTimer.html">SynchronizationTimer</A>.)
+     But, while Java VMs are getting much faster about
+     <CODE>synchronized</CODE> locks, most of the classes in this
+     package rely heavily on wait/notify and interruption mechanics,
+     which are not currently as heavily optimized. (Also, they seem to
+     be subject to more variation in behavior than other Java
+     constructs.)  Class implementations generally ignore the fact
+     that the JVM overhead for these operations might be slower than
+     you'd wish they were on some JVMs.
+
+    </P><P>
+
+   </P></DD><DT> Are there any programming errors?
+
+   </DT><DD> I don't believe so. Please try to prove me wrong. If you are
+    the first person to discover a particular coding error in a
+    current release, I'll send you a free copy of my CPJ book.  Also,
+    I would greatly appreciate receiving any sample applications that
+    can help serve as useful tests, so as to build up a more extensive
+    test suite.
+    <P>
+   </P></DD><DT> Should I worry about the use of <TT>volatile</TT> in these
+   classes?
+
+   </DT><DD> Many JVMs are known not to correctly implement the JLS spec
+   (either the original or the upcoming revision) for volatile fields.
+   However, volatiles are used in conservative ways in this package,
+   that don't encounter problems at least on recent Sun and IBM JVMs.
+
+    <P>
+
+   </P></DD><DT> Why do classes declare practically all internal matters as
+    <CODE>protected</CODE>?
+
+   </DT><DD> While probably 99% of the uses of these classes should
+   just treat them as black-box utility components, these classes are
+   intended to be extensible, to allow more specialized
+   synchronization control to be customized for different
+   applications.  However, it takes a lot of expertise to extend or
+   modify most of them via subclassing. If you do try to extend,
+   consider first running javadoc on these classes with switches that
+   generate documentation for non-public classes, methods, and
+   fields. Also, if you encounter problems making subclasses due to
+   inflexibility in base classes, I'd like to hear about it, so I can
+   try to come up with a better factoring.
+    <P>
+    </P></DD><DT> Why aren't most classes <CODE>Serializable</CODE>?
+    </DT><DD> I don't know what to about this. On one hand, it wouldn't
+    make sense in a lot of contexts to serialize, say, a Semaphore. On
+    the other hand, maybe it ought not be precluded.  Opinions
+    welcome. One suggestion is to only declare as serializable those
+    classes specifically designed to work with other persistent or
+    distributed concurrency control frameworks. (No such classes
+    currently exist.)
+    <P>
+    </P></DD><DT> Why didn't using ReadWriteLocks instead of plain
+    synchronization speed up my program?
+    </DT><DD> ReadWriteLocks have more overhead than do synchronized
+    methods or blocks.  They pay off only when the code being
+    protected by the locks is time-consuming, and when readers
+    outnumber writers, so the increased concurrency outweighs the
+    increased bookkeeping.  (They are also sometimes of use in
+    avoiding deadlock.)  Special-purpose data structures such as the
+    Concurrent hash tables in this package have far less overhead, and
+    typically much better performance than placing ReadWriteLocks
+    around most sequential data structures.
+    <P>
+   </P></DD><DT>Are instances of these classes externally lockable -- that is,
+    can I control object <CODE>x</CODE> via <CODE>synchronized(x) {
+    ... }</CODE> ?
+   </DT><DD> Not necessarily. Some objects rely on their own
+    synchronization locks, some rely on internal locks, some rely on
+    other synchronization objects.  So in general, you cannot know the
+    effect of <CODE>synchronized(x)</CODE> and so probably ought never
+    use it.
+    <P>
+   </P></DD><DT> Why do I get strict alternation of producer and consumer
+    threads when using buffered channels such as BoundedBuffer?
+
+   </DT><DD> Although it depends on details of JVM scheduling policies,
+   this is the most likely result when producer and consumer actions
+   both take about the same amount of time to process, since both put
+   and take operations signal waiting threads. The point of buffering
+   is to decouple producers and consumers when one or the other is
+   bursty, so temporarily gets ahead or behind its average rate. (If
+   the average rates of producers and consumers are not approximately
+   equal, buffering is not of much use.) While it again relies on JVM
+   details, unbounded buffers (for example LinkedQueue) typically do
+   not result in alternation, allowing producers to get arbitrarily
+   ahead of consumers, at the expense of potential resource
+   exhaustion.
+
+    <P>
+   </P></DD><DT>Why aren't there timeout methods supporting nanosecond
+   arguments?
+   </DT><DD> Because most JVMs only time to millisecond accuracy (at best)
+    anyway.  If this changes, nanosecond versions could be added.
+    <P>
+   </P></DD><DT>Why is the package named <CODE>EDU</CODE>..., not <CODE>edu</CODE>?
+   </DT><DD>I've been using the initially-recommended upper-case EDU prefix
+    for a long time for my packages. It would take a lot of busy-work
+    to convert everything to the now-recommended practice of using
+    lower-case. Someday I will do this though.
+
+    <P>
+
+   </P></DD><DT> Why do you use those ugly underscores?!
+   </DT><DD> Because otherwise I tend to make coding mistakes surrounding
+   instance variables versus local variables. See my <A href="http://gee.cs.oswego.edu/dl/html/javaCodingStd.html"> Sample
+   Java Coding Standard</A>. But I think I've decided to reform :-)
+   Newer classes use a more JDK-like set of conventions.
+    <P>
+   </P></DD><DT> Why don't you supply Ant build scripts? Or Jar files?  Or
+   rearrange into separate src/doc/lib directories? Or CVS? Or ...?
+   </DT><DD> There are too many different ways people would like to use
+   this package for me to keep up with.  So I release it in a simple
+   way that should be very easy to adapt to all sorts of different
+   needs and conventions.
+   <P>
+   </P></DD><DT> Is this code in any way tied to Sun JDK releases?
+
+   </DT><DD> No.  The acknowlegdment to Sun Labs in headers recognizes
+   their generous donations of equipment and release time support that
+   help make this work possible. But this software is not in any way
+   tied to Sun. However, work is underway to create a JSR with the
+   goal of including a similar package in a future JDK release.
+
+    <P>
+   </P></DD><DT>Can I use this code in commercial products?
+   </DT><DD>Yes. Many people appear to do so.
+    <P>
+   </P></DD><DT>Do I need a license to use it? Can I get one?
+   </DT><DD>No!
+    <P>
+   </P></DD><DT>Can I get commercial support for this package?
+   </DT><DD>I don't know of any place to get it. I can't think of any
+    technical reason that you'd want it.
+    <P>
+  </P></DD></DL>
+
+
+<H2>Sources</H2>
+
+  <UL>
+    <LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Barrier.java">Barrier.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedBuffer.java">BoundedBuffer.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedChannel.java">BoundedChannel.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedLinkedQueue.java">BoundedLinkedQueue.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BoundedPriorityQueue.java">BoundedPriorityQueue.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/BrokenBarrierException.java">BrokenBarrierException.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Callable.java">Callable.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Channel.java">Channel.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ClockDaemon.java">ClockDaemon.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ConcurrentHashMap.java">ConcurrentHashMap.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ConcurrentReaderHashMap.java">ConcurrentReaderHashMap.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CondVar.java">CondVar.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CopyOnWriteArrayList.java">CopyOnWriteArrayList.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CopyOnWriteArraySet.java">CopyOnWriteArraySet.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CountDown.java">CountDown.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/CyclicBarrier.java">CyclicBarrier.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/DefaultChannelCapacity.java">DefaultChannelCapacity.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/DirectExecutor.java">DirectExecutor.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Executor.java">Executor.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FIFOReadWriteLock.java">FIFOReadWriteLock.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FIFOSemaphore.java">FIFOSemaphore.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FJTask.java">FJTask.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FJTaskRunner.java">FJTaskRunner.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/FJTaskRunnerGroup.java">FJTaskRunnerGroup.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Heap.java">Heap.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Latch.java">Latch.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/LayeredSync.java">LayeredSync.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/LinkedNode.java">LinkedNode.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/LinkedQueue.java">LinkedQueue.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/LockedExecutor.java">LockedExecutor.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Mutex.java">Mutex.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/NullSync.java">NullSync.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ObservableSync.java">ObservableSync.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/PooledExecutor.java">PooledExecutor.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/PrioritySemaphore.java">PrioritySemaphore.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/PropertyChangeMulticaster.java">PropertyChangeMulticaster.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Puttable.java">Puttable.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/QueuedExecutor.java">QueuedExecutor.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/QueuedSemaphore.java">QueuedSemaphore.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReadWriteLock.java">ReadWriteLock.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReaderPreferenceReadWriteLock.java">ReaderPreferenceReadWriteLock.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReentrantLock.java">ReentrantLock.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ReentrantWriterPreferenceReadWriteLock.java">ReentrantWriterPreferenceReadWriteLock.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Rendezvous.java">Rendezvous.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Semaphore.java">Semaphore.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SemaphoreControlledChannel.java">SemaphoreControlledChannel.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Slot.java">Slot.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Sync.java">Sync.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncCollection.java">SyncCollection.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncList.java">SyncList.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncMap.java">SyncMap.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncSet.java">SyncSet.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncSortedMap.java">SyncSortedMap.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SyncSortedSet.java">SyncSortedSet.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedRef.java">SynchronizedRef.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedInt.java">SynchronizedInt.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedLong.java">SynchronizedLong.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedFloat.java">SynchronizedFloat.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedDouble.java">SynchronizedDouble.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedBoolean.java">SynchronizedBoolean.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedByte.java">SynchronizedByte.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedChar.java">SynchronizedChar.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedShort.java">SynchronizedShort.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronizedVariable.java">SynchronizedVariable.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/SynchronousChannel.java">SynchronousChannel.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/Takable.java">Takable.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ThreadedExecutor.java">ThreadedExecutor.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ThreadFactory.java">ThreadFactory.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/ThreadFactoryUser.java">ThreadFactoryUser.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/TimedCallable.java">TimedCallable.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/TimeoutException.java">TimeoutException.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/TimeoutSync.java">TimeoutSync.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/VetoableChangeMulticaster.java">VetoableChangeMulticaster.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableRef.java">WaitableRef.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableInt.java">WaitableInt.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableLong.java">WaitableLong.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableFloat.java">WaitableFloat.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableDouble.java">WaitableDouble.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableBoolean.java">WaitableBoolean.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableByte.java">WaitableByte.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableChar.java">WaitableChar.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitableShort.java">WaitableShort.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaitFreeQueue.java">WaitFreeQueue.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WaiterPreferenceSemaphore.java">WaiterPreferenceSemaphore.java</A>
+    </LI><LI><A href="http://gee.cs.oswego.edu/dl/classes/EDU/oswego/cs/dl/util/concurrent/WriterPreferenceReadWriteLock.java">WriterPreferenceReadWriteLock.java</A>
+
+  </LI></UL>
+
+<H2>History</H2>
+
+  <UL>   <LI> 10Jul1998 1.0
+   </LI><LI> 11Jul1998 1.0.1: removed .class files from release, Fixed
+    documentation error, included Barrier interface.
+   </LI><LI>12Jul1998 1.0.2: Fixed return value for swap; fixed documentation errors.
+   </LI><LI>15Jul1998 1.0.3: Fixed more documentation errors; re-fixed swap; 
+    other cosmetic improvements.
+   </LI><LI>18Jul1998 1.0.4: Simplified some classes by removing
+    some alleged optimizations that do not actually help on some platforms;
+    improved SynchronizationTimer; added some documentation.
+   </LI><LI> 1Sep1998 version 1.1.0:
+    <UL>     <LI>Replace SynchronousChannel algorithm with fairer, more scalable one
+     </LI><LI>TimeoutException now extends InterruptedException
+     </LI><LI>Replace int counters with longs to avoid wrapping.
+     </LI><LI>new LayeredSync class
+     </LI><LI>new ObservableSync class
+     </LI><LI>new NullSync class
+     </LI><LI>new TimeoutSync class
+     </LI><LI>new SyncCollection classes
+     </LI><LI>new ReentrantWriterPreferenceReadWriteLock class
+     </LI><LI>peek added to Channel
+     </LI><LI>new ClockDaemon class
+     </LI><LI>Refactorings to standardize usage of thread factories
+     </LI><LI>removed reliance on ThreadGroups in PooledExecutor
+    </LI></UL>
+    </LI><LI> 7Jan 1999 Version 1.2 
+    <UL>     <LI> ClockDaemon.shutdown allows immediate restart
+     </LI><LI> Callable.call throws Throwable, not Exception
+     </LI><LI> new Task, TaskRunner, TaskRunnerGroup classes
+     </LI><LI> new taskDemo subdirectory
+    </LI></UL>
+   </LI><LI>13Jan1999 version 1.2.1
+    <UL>     <LI>Minor cleanup of Task classes
+    </LI></UL>
+
+   </LI><LI> 17Jan1999 version 1.2.2:
+    <UL>     <LI> Simplify Task classes; improve documentation;
+      add priority control; they are no longer labeled as `preliminary'.
+     </LI><LI> More sample programs in taskDemos
+     </LI><LI> Add warnings about reentrancy to RW locks
+     </LI><LI> Callable throws Exception again, but FutureResult handles Throwables
+    </LI></UL>
+
+   </LI><LI>25Mar1999 version 1.2.3
+    <UL>     <LI>PooledExecutor -- allow pool to shrink when max size decreased
+     </LI><LI>Task -- add reset, array-based operations
+     </LI><LI>new PropertyChangeMulticaster, VetoableChangeMulticaster
+    </LI></UL>
+
+   </LI><LI>21may1999 version 1.2.4
+    <UL>     <LI>PooledExecutor -- allow supplied Channel in constructor;
+      new methods createThreads(), drain()
+     </LI><LI> Task, TaskRunner, TaskRunnerGroup renamed to
+         FJTask, FJTaskRunner, FJTaskRunnerGroup to avoid
+         clashes with commonly used class name of `Task'.
+     </LI><LI>Misc documentation improvements
+     </LI><LI>WriterPreferenceReadWriteLock -- fix to notify on interrupt
+    </LI></UL>
+
+   </LI><LI>23oct1999 version 1.2.5
+    <UL>     <LI>PooledExecutor -- add minimumPoolSize settings
+     </LI><LI>LU in taskDemo
+     </LI><LI>Minor improvements to LinkedQueue, FJTaskRunner
+    </LI></UL>
+
+
+   </LI><LI>29dec1999 version 1.2.6
+    <UL>     <LI>FJTaskRunner -- now works on MP JVMs that do not
+      correctly implement read-after-write of volatiles.
+     </LI><LI>added TimedCallable
+    </LI></UL>
+
+
+   </LI><LI>12jan2001 version 1.3.0
+    <UL>     <LI> new ConcurrentHashMap, ConcurrentReaderHashMap classes.
+     </LI><LI>BoundedLinkedQueue.setCapacity: immediately reconcile permits.
+     </LI><LI>ReentrantWriterPreferenceReadWriteLock: Both readers and writers
+      are now reentrant.
+     </LI><LI>PooledExecutor: policy now an interface, not abstract class.
+     </LI><LI>QueuedExecutor, PooledExecutor: new shutdown methods
+    </LI></UL>
+
+   </LI><LI>2dec2001 Version 1.3.1
+    <UL>     <LI> PooledExecutor: declare inner class constructor as protected,
+      more flexible shutdown support, blocked exec handlers can
+      throw InterruptedExceptions.
+     </LI><LI>Ensure all serialization methods are <TT>private</TT>.
+     </LI><LI>Joe Bowbeer's SwingWorker now in misc
+     </LI><LI> Improvements to ConcurrentHashMap, ConcurrentReaderHashMap,
+     FIFOReadWriteLock, ReentrantWriterPreferenceReadWriteLock.
+     WaitFreeQueue, SynchronousChannel.
+    </LI></UL>
+
+   </LI><LI>12dec2002 Version 1.3.2
+    <UL>     <LI> SemaphoreControlledChannel - fix constructor to
+     use longs, not ints.
+     </LI><LI>Improvements to Heap.
+     </LI><LI>Fix interference check in ConcurrentReaderHashMap.
+     </LI><LI> ReentrantWriterPreferenceReadWriteLock throw IllegalStateException
+      instead of NullPointerException on release errors.
+    </LI></UL>
+    </LI><LI> 20feb2004 Version 1.3.3
+    <UL>      <LI> PooledExecutor: Create new threads if needed when terminating.
+      (Thanks to Bruno Dumon), and replace dying thread if it is only one.
+      </LI><LI> Clarify by-permission wordings.
+      </LI><LI> Fix synchronization scope error in SynchronizedLong (Thanks to
+      Aaron Greenhouse.)
+    </LI></UL>
+    </LI><LI> 20may2004 Version 1.3.4
+    <UL>      <LI> WaitableX: notify on bitwise operations
+      </LI><LI> QueuedExecutor: can shutdown before thread created (thanks to
+      Wolfgang Hoschek)
+    </LI></UL>
+    </LI><LI> Not yet released as package but accessible as files
+    <UL>      <LI> ConcurrentHashMap -- avoid keySet etc toArray array underallocation
+      (Thanks to Kade.Hansson.)
+      </LI><LI> PooledExecutor shutdownAfterProcessingCurrentlyQueuedTasks wakes
+      up waiting threads to cause them to terminate (Thanks to
+      Brent Boyer.)
+    </LI></UL>
+
+  </LI><LI>Coming attractions
+    <UL>     <LI> This package is entering maintenance mode because improved
+      versions of main functionality are part of JDK1.5 java.util.concurrent
+      via <A href="http://gee.cs.oswego.edu/dl/concurrency-interest/index.html">    JSR 166. </A>
+     </LI>
+    </UL>
+  </LI></UL>
+
+
+ </BODY></HTML>

@@ -1,0 +1,64 @@
+Cross-Browser Rich Text Editor change log
+
+3/4/2005 - Updated insert link function to automatically place highlighted text in link text field
+3/2/2005 - Replaced insert image icon
+3/2/2005 - To satisfy a handful of people who have a problem with my "no license" policy I have added "// This code is public domain. Redistribution and use of this code, with or without modification, is permitted." to top of richtext.js.
+3/1/2005 - Fixed display of buttons when submitting in view source mode
+3/1/2005 - Fixed toggleHTMLSrc() function to update view source textbox with XHTML-converted code
+3/1/2005 - Removed XHTML demo and included genXHTML option in initRTE function is standard demo
+3/1/2005 - Changed back default behaviour of IE (again) to insert <p> tags when hitting return.  Previous fix broke list items and indenting functionality in IE.
+2/24/2005 - Added XHTML output demo (demo_xhtml.htm)
+2/24/2005 - Fixed view source checkbox for RTEs not displaying buttons
+2/24/2005 - Added label tag to view source checkbox
+2/24/2005 - Updated insert link function to display more advanced dialog window
+2/24/2005 - popup dialogs (insert table and insert link) now are centered in the user's screen
+2/24/2005 - Updated demo.php and demo.asp to allow actual submission of the forms, to demonstrate getting the submitted value of the RTE
+2/24/2005 - Fixed corrupt demo.php file
+2/24/2005 - Changed behaviour in IE so that when return is pressed, a <br> is inserted instead of a new paragraph (now functions same as Gecko browsers)
+2/10/2005 - Fixed IE crash when back button is clicked (changed doctype in blank.htm)
+2/10/2005 - Added table insert functionality (thanks dannyuk1982!)
+2/10/2005 - Cleaned up code considerably
+2/10/2005 - Updated default rte widths (IE and Gecko are now the same width by default)
+2/10/2005 - Tried to turn off useCSS in Gecko by default (to keep generated html consistent with IE), but enabling this disables the ability to use the 'hilitecolor' command in Firefox for some reason
+11/12/2004 - Fixed palette position when rte is embedded within multiple divs.
+11/12/2004 - Fixed button events for non-IE browsers (now uses CSS)
+11/9/2004 - Fixed bug when using SSL saying page has unsecured items (re-added blank.htm).
+11/9/2004 - Changed back default behaviour of IE to insert <p> tags when hitting return.  Previous fix broke list items and indenting functionality in IE
+11/2/2004 - Changed default behaviour of IE to insert <br> tags instead of <p> tags upon hitting return - thanks TotalJSNoob and archv1le!
+7/14/2004 - Changed rte.css to maintain td styles under parent objects
+5/18/2004 - Added CSS file for RTE button styles.  css is no longer printed every time a new rte is created.
+5/18/2004 - Made color palette smaller
+5/18/2004 - Fixed placement of color pallette for rtes embedded within divs - thanks Ernst!
+5/18/2004 - If a css is specified, the body tag is no longer overruled - thanks Ernst!
+5/18/2004 - Fixed headings dropdown, replacing < and > characters
+4/13/2004 - Fixed bug with standard textarea and updateRTE function
+4/12/2004 - Fixed bug with IE where toggle source would err if only content was horizontal rules
+4/12/2004 - Fixed bug  where nothing would be returned if the only content was horizontal rules and/or images
+4/9/2004 - Fixed bug for Konqueror browser
+4/9/2004 - Added multi.htm to demonstrate using multiple RTEs on one page.
+4/9/2004 - Fixed bug in IE where you could set style on document objects not in iframe.
+4/9/2004 - Updated buttons look and feel - thanks Ernst!
+3/31/2004 - Fixed bug in stripHTML function - thanks valli!
+3/19/2004 - Fixed bug with Gecko browsers where <br> is returned when empty content submitted.
+2/23/2004 - Fixed bug with Mac Safari 1.2
+1/16/2004 - Added Justify Full button
+1/9/2004 - Added updateRTEs function to update all rtes on page
+1/9/2004 - Fixed bug with updateRTE in readOnly mode
+1/8/2004 - Added parameter to writeRichText function, readOnly
+1/8/2004 - Fixed bug with Mozilla when adding blank url links
+1/8/2004 - Fixed init bug for Konqueror and Mac IE browsers.  Added parameters to init function for images path, includes path, and css file
+1/6/2004 - Added compressed richtext_compressed.js file to zip.  File size is 37% smaller
+1/5/2004 - Removed reference to style.css
+1/5/2004 - Fixed demo form submit code
+1/2/2004 - Fixed crashing with Mozilla 1.3
+1/2/2004 - Fixed bug with Mozilla 1.3
+1/2/2004 - Fixed problem with html view on submit
+12/26/2003 - Fixed color palette dropdowns for multiple RTEs.  Improved enableDesignMode function.
+12/23/2003 - Fixed several bugs with multiple RTEs on one page.
+12/22/2003 - Added support for IE5.
+12/22/2003 - Modified code to remove all timeout settings.  Fixed IE stylesheet support.  Blank.htm is no longer needed.
+12/17/2003 - Changed code for IE enableDesignMode function to load quicker and to eliminate use of timeout.
+12/8/2003 - Fixed bug with IE5.
+12/8/2003 - Added in keyboard shortcut support for Mozilla.  Code contributed by Anti Veeranna
+12/5/2003 - Removed dependence on browserdetect.js and removed js link.  Also updated initRTE function to speed up load.
+12/5/2003 - Created changelog.txt to keep track of version history from now on.

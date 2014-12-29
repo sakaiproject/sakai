@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+	<translate>
+		<text id="propComboLEFT">STINGA</text>
+		<text id="propComboCENTER">CENTRU</text>
+		<text id="propComboRIGHT">DREAPTA</text>
+		<text id="propComboTOP">SUS</text>
+		<text id="propComboBOTTOM">JOS</text>
+		<text id="propComboNONE">FARA</text>
+		<text id="propComboSOLID">PLINA</text>
+		<text id="propComboDASHED">PUNCTATA</text>		
+		<text id="propLabelText">Text:</text>
+		<text id="propLabelHref">HRef:</text>
+		<text id="propLabelBorder">Bordura:</text>
+		<text id="propLabelBorderColor">Coloarea bordurii:</text>
+		<text id="propLabelVariant">Font:</text>
+		<text id="propLabelSize">Marime:</text>
+		<text id="propLabelColor">Culoare:</text>
+		<text id="propLabelBackcolor">Backcolor:</text>
+		<text id="propLabelShiftSup">Deplasare supraunitate:</text>
+		<text id="propLabelShiftSub">Deplasare subunitate:</text>
+		<text id="propLabelShiftY">Deplasare Y:</text>
+		<text id="propLabelShiftX">Deplasare X:</text>
+		<text id="propLabelBevelled">Bevelled:</text>
+		<text id="propLabelNumAlign">Alinierea numaratorului:</text>
+		<text id="propLabelDenumAlign">Alinierea numitorului:</text>
+		<text id="propLabelThickness">Grosimea liniei:</text>
+		<text id="propLabelNumber">Numar:</text>
+		<text id="propLabelRowalign">Alinierea liniilor:</text>
+		<text id="propLabelRowspan">Row span:</text>
+		<text id="propLabelColumnalign">Alinierea coloanelor:</text>
+		<text id="propLabelColumnspan">Column span:</text>
+		<text id="propLabelFrame">Cadru:</text>
+		<text id="propLabelFramespacing">Spatierea cadrului:</text>
+		<text id="propLabelRowlines">Nr. de linii:</text>
+		<text id="propLabelRowspacing">Spatierea liniilor:</text>
+		<text id="propLabelColumnlines">Nr. de coloane:</text>
+		<text id="propLabelColumnspacing">Spatierea coloanelor:</text>
+		<text id="propLabelOpen">Deschidere:</text>
+		<text id="propLabelClose">Inchidere:</text>
+		<text id="propLabelLongdiv">Longdiv:</text>		
+		<text id="propLabelActuarial">Actuarial:</text>		
+		<text id="propLabelRadical">Radical:</text>
+		<text id="propLabelBox">Box:</text>
+		<text id="propLabelRoundedbox">Rounded box:</text>
+		<text id="propLabelCircle">Cerc:</text>
+		<text id="propLabelLeft">Stinga:</text>
+		<text id="propLabelRight">Dreapta:</text>
+		<text id="propLabelTop">Sus:</text>
+		<text id="propLabelBottom">Jos:</text>
+		<text id="propLabelUpdiagonalstrike">Up diagonal:</text>
+		<text id="propLabelDowndiagonalstrike">Down diagonal:</text>
+		<text id="propLabelVerticalstrike">Vertical:</text>
+		<text id="propLabelHorizontalstrike">Orizontal:</text>
+		<text id="propLabelMadruwb">Madruwb:</text>
+		<text id="propLabelWidth">Latime:"</text>
+		<text id="propLabelHeight">Inaltime:"</text>
+		<text id="propLabelBreak">Este un spatiu?"</text>
+		<text id="propLabelLspace">Spatiu in stinga:</text>
+		<text id="propLabelDepth">Adincime:</text>
+		<text id="propLabelStretchy">Este extensibila?</text>
+		<text id="propLabelMaxsize">Marimea maxima:</text>
+		<text id="propLabelMinsize">Marimea minima:</text>
+		<text id="propLabelNbPrescripts">Nb prescripts:</text>
+		<text id="propLabelNbPostscripts">Nb postscripts:</text>
+		
+		<text id="propUpdateButton">Modifica</text>		
+
+		<text id="mrowProperties">setarile pt. mrow</text>
+		<text id="mathProperties">setarile pt. math</text>
+		<text id="mactionProperties">setarile pt. maction</text>
+		<text id="mencloseProperties">setarile pt. menclose</text>
+		<text id="mfencedProperties">setarile pt. mfenced</text>
+		<text id="mphantomProperties">setarile pt. mphantom</text>
+		<text id="mpaddedProperties">setarile pt. mpadded</text>
+		<text id="mspaceProperties">setarile pt. mspace</text>
+		<text id="merrorProperties">setarile pt. merror</text>
+		<text id="mfracProperties">setarile pt. mfrac</text>
+		<text id="msqrtProperties">setarile pt. msqrt</text>
+		<text id="mrootProperties">setarile pt. mroot</text>
+		<text id="mmultiscriptsProperties">setarile pt. mmultiscripts</text>
+		<text id="noneProperties">setarile pt. none</text>
+		<text id="moverProperties">setarile pt. mover</text>
+		<text id="msupProperties">setarile pt. msup</text>
+		<text id="munderProperties">setarile pt. munder</text>
+		<text id="msubProperties">setarile pt. msub</text>
+		<text id="msubsupProperties">setarile pt. msubsup</text>
+		<text id="munderoverProperties">setarile pt. munderover</text>
+		<text id="miProperties">setarile pt. mi</text>
+		<text id="mnProperties">setarile pt. mn</text>
+		<text id="moProperties">setarile pt. mo</text>
+		<text id="mtextProperties">setarile pt. mtext</text>
+		<text id="msProperties">setarile pt. ms</text>
+		<text id="mtableProperties">setarile pt. mtable</text>
+		<text id="mtrProperties">setarile pt. mtr</text>
+		<text id="mtdProperties">setarile pt. mtd</text>
+		<text id="mstyleProperties">setarile pt. mstyle</text>
+		<text id="mstackProperties">setarile pt. mstack</text>
+		<text id="msrowProperties">setarile pt. msrow</text>
+		<text id="mslineProperties">setarile pt. msline</text>
+		<text id="mscarriesProperties">setarile pt. mscarries</text>
+		<text id="mscarryProperties">setarile pt. mscarry</text>
+		<text id="mlongdivProperties">setarile pt. mlongdiv</text>
+		<text id="msgroupProperties">setarile pt. msgroup</text>
+		
+		<text id="commonProperties">setarile comune:</text>
+		<text id="styleProperties">setarile de design:</text>
+		<text id="fenceOpen">Deschidere:</text>		
+		<text id="fenceClose">Inchidere:</text>
+		<text id="matrixChoiceLines">Nr.de linii:</text>
+		<text id="matrixChoiceColumns">Nr. de coloane:</text>
+		<text id="matrixChoiceButton">Creaza o matrice</text>
+		<text id="gradeChoiceLines">Puterea:</text>		
+		<text id="PolynomCreateButton">Creaza un polinom</text>
+		<text id="EquationCreateButton">Creaza o ecuatie</text>	
+		
+		<text id="font-normal">Serif</text>
+		<text id="font-sans-serif">Sans Serif</text>
+		<text id="font-script">Script</text>
+		<text id="font-double-struck">Double Struck</text>
+		<text id="font-fraktur">Fraktur</text>
+		<text id="font-monospace">Monospace</text>
+		<text id="font-circle">Circle</text>
+
+		<text id="lookAndFeelXP">Xp Design</text>
+		<text id="lookAndFeelXpBlue">Albastru</text>		
+		<text id="lookAndFeelXpRed">Rosu</text>		
+		<text id="lookAndFeelXpGreen">Verde</text>		
+
+		<text id="lookAndFeelYui">Yui Design</text>
+		<text id="lookAndFeelYuiBlack">Default</text>	
+		
+		<text id="lookAndFeelCKE">CKEditor Design</text>
+		<text id="lookAndFeelCKEBlue">Default</text>		
+		
+		<text id="lookAndFeelTiny">TinyMCE Design</text>
+		<text id="lookAndFeelTinyDefault">Default</text>
+		<text id="lookAndFeelTinyRed">Rosu</text>		
+
+		<text id="languageEn">Engleza</text>		
+		<text id="languageFr">Franceza</text>		
+		<text id="languageRo">Romana</text>				
+	</translate>
+</configuration>

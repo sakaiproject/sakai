@@ -1,0 +1,120 @@
+@import "tool.css";
+/* access.css : Styles for access servlet (/access/) directory listings */
+
+.directoryIndex a{
+	text-decoration: none !important;
+}
+.directoryIndex { margin-top:2em;padding:1em}
+.directoryIndex .textPanel{
+	font-size: .95em;
+	line-height: 150%;
+	padding:5px 5px  5px  21px;
+}
+.directoryIndex ul{
+	list-style: none;
+	margin:.5em 0 0 0;
+	padding:0;
+}
+
+.directoryIndex ul li{
+	list-style: none;
+	vertical-align: middle;
+	padding:.3em 0;
+	margin:0;
+}
+
+.directoryIndex ul li img{
+	margin:0 5px 0  0;
+	vertical-align: top;
+	border:none;
+}
+.directoryIndex ul li a{
+	font-weight:bold;
+}
+
+.directoryIndex ul li.folder{
+	padding:3px;
+}
+.directoryIndex ul li.folder a{
+	padding-left:21px;
+	background: url(../../image/silk/folder.png) center left no-repeat !important
+}	
+
+.directoryIndex ul li.folder a:hover{
+	padding-left:21px;
+	background: url(../../image/silk/folder_go.png) center left no-repeat !important
+}	
+
+.directoryIndex ul li.upfolder{
+	position:absolute;
+	top:2px;
+	left:2px;
+	margin-bottom:2em;
+}
+.directoryIndex ul li.upfolder a{
+	border:1px solid #ccc;
+	padding:3px;
+	display: inline-block;
+}
+.directoryIndex ul li.upfolder a:hover{
+	border:1px solid #aaa;
+	background: #ffe;
+	
+}
+.directoryIndex ul li.file{
+	padding:3px;
+}
+
+p#toggle{text-align: right;margin:0 0 1em 0;font-weight:bold}
+
+/*file listings*/
+
+.directoryIndex ul li.file a{
+	padding:6px;
+	padding-left:21px;
+	background: url(../../image/sakai/generic.gif) center left no-repeat;
+	}
+/*file exensions to match*/
+.doc, .rtf, .docx, .docm, .dotx, .dotm {
+	background: url(../../image/sakai/word.gif) center left no-repeat !important
+	}
+.ppt, .pps, .pptx, .pptm, .ppsx, .potx, .potm, .ppam {
+	background: url(../../image/sakai/ppt.gif) center left no-repeat !important
+	}
+.xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam{
+	background: url(../../image/sakai/excel.gif) center left no-repeat !important
+	}	
+.mdb{
+	background: url(../../image/sakai/access.gif) center left no-repeat !important
+	}	
+.gif, .jpg, .jpeg, .png{
+	background: url(../../image/sakai/image.gif) center left no-repeat !important
+	}
+.html, .htm{
+	background: url(../../image/sakai/html.gif) center left no-repeat !important
+	}
+.txt, .java{
+	background: url(../../image/sakai/text.gif) center left no-repeat !important
+	}
+.zip, .tar, .sit, .hqx {
+	background: url(../../image/sakai/compressed.gif) center left no-repeat !important
+	}
+.mov, .mpeg, .avi {
+	background: url(../../image/sakai/movie.gif) center left no-repeat !important
+	}
+.mp3, .wav, .aiff{
+	background: url(../../image/sakai/audio.gif) center left no-repeat !important
+	}
+.pdf{
+	background: url(../../image/sakai/pdf.gif) center left no-repeat !important
+	}
+.ai, .ps, .psd{
+	background: url(../../image/sakai/postscript.gif) center left no-repeat !important
+	}
+.ram, .rm{
+	background: url(../../image/sakai/real.gif) center left no-repeat !important
+	}
+.swf{
+	background: url(../../image/sakai/shockwave.gif) center left no-repeat !important
+	}
+	

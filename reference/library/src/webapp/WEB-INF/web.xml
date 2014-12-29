@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+    <display-name>sakai-library</display-name>
+    <description>Sakai 2 Library</description>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>/WEB-INF/local.xml</param-value>
+	</context-param>
+
+	<context-param>
+		<param-name>contextSharedLocation</param-name>
+		<param-value>/WEB-INF/components.xml</param-value>
+	</context-param>
+
+	<listener>
+		<listener-class>
+			org.sakaiproject.util.ContextLoaderListener</listener-class>
+	</listener>
+
+    <!--  Definition of Request header filter that will add cache information to the responses -->
+	<filter>
+		<description>Response Header Filter to enable caching</description>
+		<display-name>Cache Filter For One Week</display-name>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<filter-class>org.sakaiproject.util.ResponseHeaderFilter</filter-class>
+		<init-param>
+			<param-name>Cache-Control</param-name>
+			<param-value>max-age=2678400, public</param-value>
+		</init-param>
+	</filter>
+
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+		<init-param>
+			<param-name>upload.enabled</param-name>
+			<param-value>false</param-value>
+		</init-param>
+	</filter>
+	
+	<!--  cache everything in the library web applications -->
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>	
+	<!-- 
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/skin/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/image/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/js/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/editor/*</url-pattern>
+	</filter-mapping>	
+	 -->
+	 
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>Connector</servlet-name>
+		<servlet-class>org.sakaiproject.connector.fck.FCKConnectorServlet</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>Connector</servlet-name>
+		<url-pattern>/editor/FCKeditor/sakai-fck-connector/*</url-pattern>
+	</servlet-mapping>
+
+</web-app>

@@ -1,0 +1,1824 @@
+/* PART 1 - MAIN LAYOUT BLOCKS
+/* general body - used by main portal document   */
+body.portalBody {
+    width: 100%;
+    padding: 0;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: .8em;
+    margin: 0;
+    background-repeat: repeat-x;
+}
+ /* outer wrapper for portal content (decorative - child is #portalContainer )  */
+#portalOuterContainer {}
+/* inner wrapper for portal content (decorative - children are #header #container and #footer )  */
+#portalContainer {}
+/* wrapper for masthead and site navigation. Two possible states - not logged in (#headerMin), logged in (#headerMax)
+ * this allows you to provide different user experiences for both states */
+#headerMax, #headerMin {
+    width: 100%
+}
+/* accessibility links wrapper   */
+#skipNav {}
+/* wrapper for site content (includes as children #toolMenuWrap,#content and #footer)  */
+#container {
+    background: #fff;
+}
+/* wrapper for #toolMenu - children are #worsiteLogo,#toolMenu  */
+#toolMenuWrap {
+    float: left;
+    width: 12em;
+    color: #000;
+    text-align: right;
+    padding: 0;
+    border: 1px solid #ccc;
+    border-width: 0 1px 1px 0;
+    -moz-border-radius: 0 0 5px 0;
+    -webkit-border-radius: 0 0 5px 0;
+    border-radius: 0 0 5px 0;
+    margin-bottom: 30px;
+}
+#toolMenuWrap #toggler {
+    display: block;
+    float: right;
+}
+.toolMenuIcon { 
+    background-color: transparent;
+    background-image: url(/library/image/silk/fff-sprites/images/famfamfam.png);
+    background-repeat: no-repeat;
+    background-position: -36px -0px;
+    display: inline-block;
+    height: 16px;
+    width: 16px;
+    margin: 5px;
+    position:absolute;
+    top:7px;
+    right:3px;
+    vertical-align: middle;
+}
+
+.menuTitle {
+    margin: 5px 25px 5px 0;
+    display:block;
+    
+}
+/* wrapper for site content (portlets) - children can be #col1 or #col1of2 and #col2of2 depending in the number of columns  */
+#content {
+    padding: .8em 0 0 13.2em;
+}
+/* second wrapper for content - needed by SAK-12563 */
+#innercontent {
+    float: left;
+    width:100%
+}
+#col1of2 .portletTitleWrap, #col2of2 .portletTitleWrap {
+    width: 98.5%;
+    border-bottom: 2px solid #000;
+}
+#col1of2 .portletMainWrap, #col2of2 .portletMainWrap {
+    width: 98.5%;
+    margin-bottom: .5em;
+}
+#col1 .portletTitleWrap {
+    width: 99%;
+    border-bottom: 2px solid #000 !important;
+}
+#col1 .portletMainWrap {
+    width: 99%
+}
+/* wrapper for footer blocks  */
+#footer {
+    clear: both;
+    background: #444;
+    padding: 10px;
+    text-align: center;
+    background: #f3f3f3;
+    border: 1px solid #ddd;
+    width: 90%;
+    margin: 0 auto 50px auto;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+}
+#footerLinks {
+    text-align: center;
+    font-size: .9em;
+    margin: 0;
+    padding: 0;
+}
+#footerLinks li {
+    margin: 0;
+    border-left: 1px solid #ccc;
+    display: inline;
+    list-style-type: none;
+    padding: 0;
+}
+#footerLinks li:first-child {
+    border: none
+}
+/* Time in the portal footer */
+#footer .server-time-container {
+    right: 0px;
+    font-size: 0.9em;
+    text-align: right;
+}
+#footer .server-time {
+    font-weight: bold;
+}
+/* PART 2 - HEADER BLOCKS (BRANDING,LOGIN) */
+#headerMax, #headerMin {
+    background: #45484d;
+    background: -moz-linear-gradient(top, #45484d 0%, #000000 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000));
+    background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%);
+    background: -o-linear-gradient(top, #45484d 0%,#000000 100%);
+    background: -ms-linear-gradient(top, #45484d 0%,#000000 100%);
+    background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
+}
+#headerMin {
+    overflow: hidden;
+}
+/* outermost block containing mast head elements and site navigation. Block also has a class = site type name, in case you need to 
+ * do something special to either mast head elements or site navigation depending on the site type (i.e. a site type='collab') may get a banner with a 
+ * graphic denoting so: .collaboration .mastHead .mastBanner{url to the 'collaboration' image}*/
+#siteNavWrapper {}
+/* wrapper for mast head elements - children are 2 blocks - #mastLogo,#mastBanner
+ * in this skin it and the children are hidden, The gradient is specified above, the logo is specified
+ * as a background image in "ul.topnav" */
+#mastHead {
+    clear: both;
+    display: block;
+    background: none repeat scroll 0 0 #F4BC2D;
+    height: 95px;
+}
+/* container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
+that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
+#mastLogo {
+    display: none;
+}
+#mastLogo img {
+    display: none
+}
+/* show #mastLogo if the user is not logged in so that we can display the logo in the usual place (the logo
+in this skin is rendered via ul.topnav, which a anon user does not see)*/
+#headerMin #mastLogo {
+    display: none; 
+}
+/* another container wrapping branding images - portal outputs one /library/skin/<skin name>/images/banner_inst.gif
+that can be used or hidden,can also use a background: url(images/<image name>.<ext>) in this block,or both superimposing them  */
+#mastBanner {
+    background: url("images/logo_back.png") no-repeat scroll 0 0 transparent;
+    float: left;
+    height: 95px;
+    width: 390px;
+}
+#mastBanner img {
+    display: none;
+}
+/* #mastLogin is a sibling of #mastLogo and #mastBanner when user is not logged in. It is located at #headerMax > #siteNavWrapper > .siteNavWrap > #siteNav when 
+ * a user is logged in. It is a container wrapping, depending on Sakai settings: 1) #loginForm:  a login form,2) a login link for CAS,3) a logout link, 4) a link to open a menu with user
+ *  centered info and controls, as well as 5) a role switching control set
+*/
+#mastLogin {
+    float: right;
+    padding: 17px 10px 10px;
+}
+/* #mastLogin #loginForm is the form for login - contains children #eid #pw #submit as well as labels for these inputs*/
+#loginForm {
+    color: #fff;
+}
+#loginForm label {
+    padding: 0 6px;
+    color: #fff;
+}
+#eid, #pw {
+    border: 1px solid #ccc;
+    padding: 3px;
+    margin-right: 15px;
+    width: 7em;
+}
+/* #submit is rendered like the logout link, so defined there, instead of here,
+ * display: block there overriden here */
+#submit {display: inline !important;}
+#submit:hover {}
+/* #mastLogin #loginLinks: block for login/logout links and  link to the user centered menu */
+#loginLinks {
+    float: right;
+    color: #aaa;
+    margin: 0;
+}
+/* login links for CAS,logout link  */
+#loginLinks a, #loginLinks a:visited {
+    color: #000;
+    float: right;
+}
+/* #loginLink1 is the "login/logout" link in a CAS setup, #loginLink2 is the secondary CAS link: login for
+guests, for example */ 
+#loginLink1, #loginLink2 {
+    text-decoration: none;
+    margin-top: -4px !important;
+    color: #000;
+}
+#loginLink2 {
+    margin: 0 5px;
+}
+/* main rendering for all links and the submit button */
+#loginLink1, #loginLink2, form#loginForm input#submit {
+    display: block;
+    border-radius: 5px;
+    padding: 4px 6px;
+    text-align: center;
+    text-decoration: none;
+    background: #eab92d;
+    background: -moz-linear-gradient(top, #eab92d 0%, #c79810 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eab92d), color-stop(100%,#c79810));
+    background: -webkit-linear-gradient(top, #eab92d 0%,#c79810 100%);
+    background: -o-linear-gradient(top, #eab92d 0%,#c79810 100%);
+    background: -ms-linear-gradient(top, #eab92d 0%,#c79810 100%);
+    background: linear-gradient(to bottom, #eab92d 0%,#c79810 100%);
+}
+#headerMin #loginLink1, #headerMin #loginLink2 {
+    margin-top: -2px;
+}
+#headerMin #loginLink1 {
+    background: #45484d;
+    background: -moz-linear-gradient(top, #45484d 0%, #000000 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000));
+    background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%);
+    background: -o-linear-gradient(top, #45484d 0%,#000000 100%);
+    background: -ms-linear-gradient(top, #45484d 0%,#000000 100%);
+    background: linear-gradient(to bottom, #45484d 0%,#000000 100%);
+    color: #fff !important
+}
+#loginLink1:hover, #loginLink2:hover, form#loginForm input#submit:hover {
+    background: #eab92d;
+    text-decoration: none;
+}
+/*make secondary CAS login link (ie. Guest Login) different*/ 
+#loginLink2, #loginLink2:hover {
+    background: none;
+    border: none;
+}
+#loginLink2:hover  {
+    text-decoration: underline;
+}
+/* container for the link to open the user menu, and the menu itself */
+#loginLinks .topnav {
+    float: left;
+    display: block;
+}
+#loginLinks .nav-menu > span {
+    display: none;
+}
+#loginLinks .nav-menu > span.drop {
+    display: block !important;
+}
+/* link to toggle the user info and controls */
+#mastLogin span.drop {
+    cursor: pointer;
+    background: transparent url(/library/image/silk/user.png) 0 0 no-repeat;
+    margin: 0 10px 0 10px; 
+    width: 20px;
+    height: 20px;
+}
+/* menu for user actions (could be one of several:link to profile, preferences, add a new site, view tutorial, other)*/
+#mastLogin ul.subnav {
+    list-style: none;
+    position: absolute;
+    right: 2px;
+    margin-top: 30px;
+    padding: 0;
+    display: none;
+    width: 100%;
+    white-space: nowrap;
+    z-index: 100;
+    top: 130px !important;
+}
+#mastLogin ul.subnav li.submenuitem {
+    margin: 0;
+    display: block;
+    height:100%;
+    overflow: hidden;
+    text-align: left;
+    position: relative;
+}
+/* link items in above menu (some attr/vals are same as for site tool sub-menu, and submenus in othe rsites tray so both are doubled up here)*/
+ul.nav-submenu li.submenuitem .toolMenuIcon, #mastLogin li.submenuitem a .toolMenuIcon, #otherSiteTools li .toolMenuIcon {
+    background-color: transparent;
+    background-image: url(/library/image/silk/fff-sprites/images/famfamfam.png);
+    background-repeat: no-repeat;
+    left: 1px;
+    position: absolute;
+    top: 1px;
+}
+#mastLogin li.submenuitem a .toolMenuIcon {
+    left:5px;
+    top:1px;
+}
+
+ul.nav-submenu li.submenuitem a, #mastLogin li.submenuitem a, #otherSiteTools li a {
+    text-decoration: none;
+    width: 180px;
+    font-weight: normal;
+    color: #111;
+    color: #444;
+    padding: 7px 6px 6px 30px !important;
+    font-size: 1em !important;
+    position:relative;
+}
+/* icons for specific menu items */
+#mastLogin ul.subnav li.submenuitem a span.submenuitem-new-site {
+    background-position: -324px -0px;
+}
+#mastLogin ul.subnav li.submenuitem a span.submenuitem-profile {
+    background-position: -198px -522px;
+}
+#mastLogin ul.subnav li.submenuitem a  span.submenuitem-prefs{
+    background-position: -54px -126px;
+}
+#mastLogin ul.subnav li.submenuitem a span.submenuitem-tutorial {
+    background-position: -54px -252px;
+}
+#mastLogin ul.subnav li.submenuitem:last-child a {
+    border-bottom: none
+}
+/* #mastLogin can also contain controls to toggle in/out of different roles #roleSwitch is the container for: a selct menu, links */
+#roleSwitch {
+    float: left;
+    padding: 0 5px;
+}
+#roleSwitch select {
+    font-size: 0.9em;
+}
+#roleSwitch a#roleSwitchAnchor:hover {
+    text-decoration: underline;
+}
+#roleSwitch label, #roleSwitch a#roleSwitchAnchor {
+    text-decoration: none;
+    color: #fff;
+    padding: 0 5px;
+}
+#tabBottom {
+    height:5px;
+}
+/* PART 3 - SITE NAVIGATION - children of #siteNavWrapper
+/* outer wrapper for the site navigation blocks and login and user menu for logged in users - it will also have a class with a value equiv to the site type, so any of 
+ * the childen can be styled depending on the site type (course, project, etc). */
+.siteNavWrap {
+    width: 100%;
+    font-size: 100%;
+    line-height: normal;
+    padding: 0;
+}
+/* wrapper for the site links, link to the 'more sites' tray, logout controls - children are #mastLogin and #linkNav*/
+#siteNav {}
+/* wrapper for the site link list and link to the 'more sites' tray - since the logo is displayed here on left, it is padded.*/
+#linkNav {
+    display: block;
+    padding-right: 300px;
+}
+/* site tab navigation: a list right padding makes room for logo and matches width of tool menu
+ * if you do not have a logo you can eliminate it to save some room */
+#linkNav ul.topnav {
+    list-style: none;
+    padding: 8px 0 5px 7px; /* matches the width of the toolMenu*/
+    margin: 0;
+    width: 100%;
+}
+/* the individual containers for the site links, tool menu control, tool menu*/
+ul.topnav li {
+    display: inline-block;
+    /* Note: IE 7 hack and IE 8 compat mode*/
+    *display: inline;
+    *float: left;
+    margin: 0 5px 0 0;
+    padding: 0;
+    position: relative; /*--Declare X and Y axis base for sub navigation--*/
+    font-weight: bold;
+    border: 1px solid transparent;
+}
+/* hover treatment for site links*/
+ul.topnav li.nav-menu:hover, ul.topnav li.more-tab:hover {
+    border: 1px solid #fff;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+}
+/* current site control rendering */
+ ul.topnav li.nav-selected {
+    background: #ffd65e;
+    background: -moz-linear-gradient(top, #ffd65e 0%, #febf04 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffd65e), color-stop(100%,#febf04));
+    background: -webkit-linear-gradient(top, #ffd65e 0%,#febf04 100%);
+    background: -o-linear-gradient(top, #ffd65e 0%,#febf04 100%);
+    background: -ms-linear-gradient(top, #ffd65e 0%,#febf04 100%);
+    background: linear-gradient(to bottom, #ffd65e 0%,#febf04 100%);
+    border: 1px solid #000;
+    -moz-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    border-radius: 3px;
+ }
+  ul.topnav li.nav-selected a {
+      color: #000 !important;
+}
+/* site submenu trigger */
+ul.topnav li span.drop {
+    width: 17px;
+    margin-top: 3px;
+    margin-right: 7px;
+    height: 29px;
+    float: left;
+    background: url(images/subnav_btn.png) no-repeat center -3px;
+}
+/* site submenu trigger hover, move the subnav_btn.png sprite up*/
+ul.topnav li span.subhover {
+    background-position: center -38px;
+    cursor: pointer;
+}
+/* The menu displayed for each site link, contains the tools of the site. Also used
+in constructing menu for user links in #mastLogin, as well as the submenus for the sites in the "more sites" tray */ 
+ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools {
+    list-style: none;
+    position: absolute;
+    top: 31px;
+    background: #f3f3f3;
+    font-size: .9em;
+    margin: 0;
+    padding: 0 !important;
+    display: none;
+    float: left;
+    width: 210px;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 0 1px;
+    z-index: 100;
+    -moz-box-shadow: 0 0 8px #444;
+    -webkit-box-shadow: 0 0 8px #444;
+    box-shadow: 0 0 8px #444;
+}
+/* each tool in the above menu as well as the one on #mastLogin and the submenus in the other sites tray */
+ul.topnav li ul.subnav li, #mastLogin ul.subnav li, .otherSiteTool {
+    background: #f3f3f3;
+    border: 1px solid #ccc;
+    border-width: 0 0 1px 0;
+    width: 100%;
+    position: relative;
+}
+/* some overrides for the menu in #mastLogin */
+#mastLogin ul.subnav li {
+    border: none;
+    outline: 1px solid #ccc;
+}
+/* treatment for focus and hover in the site and user sub-menus, as well as submenus in other sites */
+ul.topnav li ul.subnav li:hover, ul.topnav li ul.subnav li a:focus,
+    #mastLogin ul.subnav li:hover, #mastLogin ul.subnav li a:focus, #otherSiteTools li:hover {
+    text-decoration: none;
+    color: #000;
+    background: #ccc;
+}
+/* link to site */
+ul.topnav li a {
+    padding: 8px 7px 8px 8px;
+    font-size: 13px;
+    color: #fff;
+    text-decoration: none;
+    float: left;
+    display: block;
+}
+/* Note:not needed? tool submenu for sites in site list
+span.topnav li ul.subnav li {
+    margin: 0;
+    padding: 0;
+    clear: both;
+    width: 210px;
+}
+*/
+/* treatment of a tool that has been hidden via Page Order tool - below takes care of tools in submenus as well as in the site tool menu */
+li.submenuitem span.hidden, #toolMenu li a.hidden {
+    font-style: italic;
+    opacity: 0.7;
+}
+/* "More sites" link container, link and image background container */
+li.more-tab {
+    padding-right: 7px !important
+}
+li.more-tab a {
+    background: transparent url(images/subnav_btn_more.png)  right -0px no-repeat;
+    display: block;
+    height: 16px;
+    padding: 0;
+    margin: 0;
+}
+li.more-tab a span {
+    padding-right: 15px
+}
+/* container for tray that opens when "More sites" is activated, both the default and the categorized one when portal.use.dhtml.more=true in sak.props. */
+#selectSite {
+    background: #f3f3f3;
+    border-width: 0;
+    border: 1px solid #888;
+    color: #000;
+    left: 10%;
+    line-height: 1.5em;
+    padding: 0 0 15px 0;
+    position: absolute;
+    right: 4px;
+    top: 0;
+    vertical-align: middle;
+    width: 80%;
+    z-index: 9999;
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-radius: 0px 0px 5px 5px;
+    box-shadow: 0 0 10px #555;
+    -moz-box-shadow: 0 0 10px #555;
+    -webkit-box-shadow: 0 0 10px #555;
+}
+/* mask that gets applied to the portal when "More sites" is triggered, making the tray modal sort of*/
+#portalMask {
+    background-color: #ffffff;
+    position: absolute;
+    height: 100%;
+    z-index: 9000;
+    top: 0;
+    left: 0;
+    filter: alpha(opacity=50);
+    opacity: 0.50;
+}
+/* wrapper and menu in the "Other Sites" tray (View all Sites, Add site, Preferences [tab management])*/
+#otherSiteMenuWrap {
+    margin: 5px;
+    padding: 5px;
+    width: auto;
+    height: 30px;
+}
+#otherSiteMenuWrap * {
+    vertical-align: middle
+}
+ul#otherSitesMenu {
+    border-bottom: 1px solid #aaa;
+    font-size: .9em;
+    text-align: right;
+}
+/* style the menu for the tray - since the publish site link is the same, doubled up here */ 
+ul#otherSitesMenu li, #siteStatus a {
+    width: auto;
+    font-size: 1.1em;
+    padding: 2px 3px 3px 3px;
+    display: inline-block;
+    margin: 0 4px 4px 0;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #e7e7e7;
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7));
+    background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -moz-box-shadow:    0 0 5px rgba(200, 200, 200, .2);
+    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+}
+#otherSitesMenu li a, #otherSitesMenu li a:visited {
+    display: block;
+    padding: 3px;
+    text-decoration: none;
+    color: #444;
+    font-weight: bold;
+}
+/* since the publish site link is the same, doubled up here */ 
+#otherSitesMenu li a:hover, #siteStatus a:hover, #siteStatus a:focus {
+    color: #009dce;
+}
+/*container and control to close the "Other sites tray"*/
+#otherSitesMenu #otherSiteCloseW {
+    margin-left: 10px
+}
+#otherSitesMenu #otherSiteCloseW a {
+    color: #c00;
+}
+/* the lists in the tray (sites and controls): two types, depending on whether portal.use.dhtml.more=true in sak.props*/
+ul#otherSiteList {
+    list-style: none;
+    margin: 5px;
+    padding: 0;
+    clear: both;
+    float: left;
+    font-size: .9em;
+    max-height: 315px;
+    overflow: auto;
+}
+ul.otherSitesCategorList {
+    float:none;
+    clear: both;
+    height:100%;
+    margin:0;
+    overflow:
+}
+/* list of sites in the "More sites" tray (both flat and categorized via s.p. "portal.use.dhtml.more=true" *), since there
+ * is a lot of commonalities they are both mixed up here. The flat view container is ul#otherSiteList and the categorized one is
+ *  ul.otherSitesCategorList. This last one will appear once per each category
+ */
+ul#otherSiteList li, ul.otherSitesCategorList li {
+    background: #e7e7e7;
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7));
+    background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%);
+    box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -moz-box-shadow:    0 0 5px rgba(200, 200, 200, .2);
+    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    border: 1px solid #ccc;
+    font-weight: bold;
+    position: relative;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    overflow: hidden;
+    margin: 6px 6px 0 0;
+    line-height: 1.1em;
+    width: 18em;
+    float: left;
+    display: block;
+}
+ul#otherSiteList li a, ul.otherSitesCategorList li a {
+    display: block;
+    padding: 8px;
+    text-decoration: none;
+    color: #000;
+    white-space: nowrap;
+}
+ul#otherSiteList li a:focus span, ul.otherSitesCategorList li a:focus span {
+    outline: 1px dotted #000;
+}
+ul#otherSiteList li a span, ul.otherSitesCategorList li a span {
+    width: 14em;
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+/* search elements for flat other sites tray search */
+#otherSiteSearch {
+    margin: 15px;
+    float: left;
+}
+#otherSiteSearch span#noSearchResults {
+    padding-left: 10px;
+    color:#555;
+}
+#otherSiteSearch #imgSearch {
+    margin-left: 5px;
+}
+#otherSiteSearch label {
+    padding-right: 15px;
+    font-weight: bold;
+}
+/* specific to  categorized view */
+#otherSitesCategorWrap {
+    float: none;
+    clear: both;
+    margin: 5px;
+    max-height: 300px !important;
+    overflow: auto;
+}
+#otherSitesCategorWrap h4 {
+    float: none;
+    clear: both;
+    color: #555;
+    font-size: 90%;
+    text-transform: uppercase;
+    padding: 4px 10px 0 7px;
+    margin: 0 0 0 0;
+}
+/* tool submenu for sites in the "More sites" tray (both flat and categorized)*
+ * shares attr/vals with  ul.topnav li ul.subnav, #mastLogin ul.subnav, #otherSiteTools above, here are the overrides needed for this context */
+#otherSiteTools {
+    display: block;
+    z-index: 1000000;
+}
+#otherSiteTools li a {
+    padding: 7px 5px 6px;
+    padding-left: 25px;
+    display: block;
+}
+#otherSiteTools li a:focus {
+    color: #000;
+    font-weight: bold;
+}
+/* trigger that retrieves from entity broker the tool menu for a site in the "More sites" tray*/
+.toolMenus {
+    width: 17px;
+    height: 17px;
+    padding: 0px;
+    background: url(images/subnav_btn.png) no-repeat 10px -3px;
+    position: absolute;
+    right: 1px;
+    top: 2px;
+    height: 11px;
+    border-left: thin solid #FFFFFF;
+}
+.toolMenus:hover {
+    background: url(images/subnav_btn.png) no-repeat  10px -38px;
+    cursor: pointer;
+}
+.toolMenusActive {
+    background: url(images/toolMenusActive.png)  no-repeat  10px -40px;
+}
+.toolMenusActive:hover {
+    background: url(images/toolMenusActive.png) no-repeat 10px -5px;
+}
+/* site hierarchy breadcrumb  */
+#siteHierarchy {
+    list-style: none;
+    line-height: .95em;
+    vertical-align: middle;
+    padding: 10px;
+    margin: 0;
+    background-color: #f3f3f3;
+    border-bottom: 1px solid #ccc;
+    font-size: .85em;
+    color: #aaa;
+}
+#siteHierarchy li {
+    display: inline;
+    padding: 0 1px 0 0;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited {
+    color: #2630cc;
+    font-size: 1.2em;
+    text-decoration: none;
+}
+#siteHierarchy li a.lastBreadCrumb {
+    color: #000;
+    cursor: text;
+}
+/* breadcrumb separator: can set display: none if needed because the list-style is taking care of it  */
+.breadSeparator {
+    font: 1em bold 'Helvetica Neue', Arial
+}
+
+/* PART 4 - SITE TOOL LINKS - children of #toolMenuWrap
+/* wrapper for ul that lists the links to tools, and the wrapper that lists links to subsites */
+#toolMenu, #subSites {
+    width: 12em;
+    padding: 0;
+    margin: 0 0 0 0;
+    color: #000;
+    background: #f3f3f3;
+}
+#toolMenu ul, #subSites ul {
+    width: auto;
+    list-style: none;
+    margin: 0;
+    padding-right: 0;
+    padding-left: 0;
+}
+/* list element wrapper for all links in the tool menu list, and subsites list */
+#toolMenu li, #subSites li {
+    margin: 0;
+    width: auto;
+    padding: 0;
+    border-bottom: 1px solid #ccc;
+    text-align: right;
+    background: #f3f3f3;
+    background: -moz-linear-gradient(top, #f3f3f3 0%, #e7e7e7 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f3f3f3), color-stop(100%,#e7e7e7));
+    background: -webkit-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+    background: -o-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+    background: -ms-linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+    background: linear-gradient(top, #f3f3f3 0%,#e7e7e7 100%);
+}
+#subSites {
+    border: 1px solid #ccc;
+}
+/* the current tool */
+#toolMenu li.selectedTool a {
+    color: #000;
+    font-weight: bold;
+    cursor: default;
+}
+/* eliminate the normal hover effect when it is current tool */
+#toolMenu li.selectedTool a:hover {
+    background: inherit !important;
+    *background: #f3f3f3 !important;
+}
+/* span holds the tool icon bkgnd image for left hand menu 
+ * and "a" the icon for tool pull downs - here a default is provided */
+#toolMenu li span, #subSites li span, .submenuitem a, .otherSiteTool a {
+}
+/* adjusting rendering of last item in the tool menu */
+#toolMenuWrap > div:last-of-type li:last-of-type {
+    border-width: 0;
+}
+
+#toolMenuWrap > div:last-of-type, #toolMenuWrap > div:last-of-type ul:last-of-type, #toolMenuWrap > div:last-of-type li:last-of-type, #toolMenuWrap > div:last-of-type li:last-of-type a {
+    -moz-border-radius: 0 0 4px 0;
+    -webkit-border-radius: 0 0 4px 0;
+    border-radius: 0 0 4px 0;
+}
+#toolMenu li a:link, #toolMenu li a, #subSites li a:link, #subSites li a {
+    display: block;
+    text-decoration: none;
+    color: #444;
+    padding: 7px 6px 6px;
+    margin-bottom: 0px;
+    margin-left: 0px;
+    margin-right: 0px;
+    margin-top: 0px;
+    overflow: hidden;
+    position: relative;
+}
+#toolMenu li a:hover, #subSites li a:hover, #toolMenu li a:focus, #subSites li a:focus {
+    text-decoration: none;
+    background: #f5f5f5;
+    background: -moz-linear-gradient(top, #f5f5f5 0%, #dcdcdc 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f5f5f5), color-stop(100%,#dcdcdc));
+    background: -webkit-linear-gradient(top, #f5f5f5 0%,#dcdcdc 100%);
+    background: -o-linear-gradient(top, #f5f5f5 0%,#dcdcdc 100%);
+    background: -ms-linear-gradient(top, #f5f5f5 0%,#dcdcdc 100%);
+    background: linear-gradient(to bottom, #f5f5f5 0%,#dcdcdc 100%);
+    color: #000;
+}
+/* link in tool menu that allows adding one more tool, may be disabled */
+#toolMenu li.moreTools {
+    padding: 8px 0
+}
+#toolMenu li.moreTools a {
+    display: inline;
+    padding: 2px 5px;
+    -moz-border-radius: 4px !important;
+    -webkit-border-radius: 4px !important;
+    -khtml-border-radius: 4px !important;
+    border-radius: 4px !important;
+    color: #444;
+    margin-right: 6px;
+}
+#toolMenu li.moreTools a:hover {
+    color: #fff
+}
+#toolMenu li.moreTools a span {
+    display: inline-block;
+    padding-right: 0;
+}
+
+/* PART 6 - SITE AFFILIATION,SITE TYPE/STATUS - children of #toolMenuWrap */
+/* site logo wrapper  */
+#worksiteLogo {
+    height: auto;
+    overflow: hidden;
+    display: block;
+}
+/* setting the max-width by percentage to avoid crops and permit scaling when tool menu is minimized*/
+#worksiteLogo img {
+    display: block;
+    margin: 5px auto;
+    max-width: 90%
+}
+/* wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific. Not sure what good this is so hiding it. */
+#siteType {
+    text-align: center;
+    text-transform: capitalize;
+    display: none;
+}
+/* wrapper for the string that Sakai will output based on site status when status is "Unpublished"  */
+#siteStatus {
+    text-transform: capitalize;
+    clear: both;
+    color: #777;
+    font-size: small;
+    font-weight: bold;
+    line-height: 130%;
+    padding: 10px 3px;
+    border: 1px solid #ccc;
+    border-width: 0 0 1px 0;
+    text-align: center;
+    margin: 0;
+}
+/* link to inmediately publish the site */
+#siteStatus a, #siteStatus a:hover {
+    text-decoration: none;
+    display: block;
+    padding: 3px;
+    font-size: 80%;
+    width: auto;
+    margin: 10px 20px;
+    color: #000;
+}
+
+/* PART 7 - PORTLETS - children of #content
+/* a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet   */
+#col1 {
+    padding-right: 1em
+}
+#col1of2 {
+    width: 49%;
+    float: left;
+    margin: 0;
+}
+#col2of2 {
+    width: 49%;
+    float: right;
+}
+.portletTitle {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+.portletTitle .action {
+    padding: 2px 4px 6px 2px;
+    text-align: right;
+    vertical-align: middle;
+}
+.portletTitle .action a#jsr-edit {
+    padding: 2px;
+    background: url(images/page_edit.gif) center right no-repeat;
+}
+.portletTitle .action a#jsr-edit:hover {
+    background: url(images/page_edit.gif) center right no-repeat
+}
+.portletTitle .action img {
+    margin: 0;
+    vertical-align: text-bottom;
+    width: 18px;
+    border: none;
+    height: 18px;
+}
+.portletTitle .action a {
+    background: url(images/help.gif) center right no-repeat;
+    text-align: left;
+    padding: 0;
+    text-decoration: none !important;
+    width: 1em;
+    height: 1.5em;
+    outline: none;
+}
+.portletTitle .title a:focus, .portletTitle .action a:focus {
+    outline: black dotted thin
+}
+.portletTitle .action a:hover, .portletTitle .action a:focus {
+    background: url(images/help_h.gif) center right no-repeat
+}
+.portletTitle .action a.tool-directurl{
+    padding:2px;
+    background: url(/library/image/silk/link.png) center right no-repeat;
+}
+.portletTitle .action a.tool-directurl:hover{
+    background: url(/library/image/silk/link_go.png) center right no-repeat;
+}
+#cluetip {
+	background-color: #fff;
+	padding: 5px;
+}
+
+#cluetip .cluetip-close {
+	float: right;	
+}
+
+#cluetip .cluetip-title {
+	margin: 0 0 0 0;
+}
+.direct-url-wrap {
+    font-size: 85%;
+    color: #555;
+}
+.direct-url-wrap textarea {
+    color: #000;
+    overflow:auto;
+    width:97%;
+    display:block;
+}
+.portletTitle .title {
+    padding: 2px 4px 6px 0;
+    height: 1em;
+    float: left;
+    color: #000;
+}
+.portletTitle .title img {
+    margin: 0;
+    vertical-align: text-bottom;
+    width: 18px;
+    border: none;
+    height: 18px;
+}
+.portletTitle .title h2 {
+    display: inline;
+    margin: 0;
+    padding: 0;
+    color: #444;
+    font-weight: bold;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    font-size: 1.2em !important;
+}
+.portletTitle .title h2 .siteTitle {
+    color: #333
+}
+.portletTitle .title a {
+    background: url(images/reload.png) center left no-repeat;
+    text-decoration: none !important;
+    border: 1px solid #fff;
+    height: 1.5em;
+    outline: none;
+}
+.portletTitle .title a:hover, .portletTitle .title a:focus {
+    background: url(images/reload_h.png) center left no-repeat
+}
+.portletMainIframe {
+    text-align: left;
+    margin-bottom: .5em;
+    height: auto;
+    border: none;
+    margin-top: 0;
+}
+/* PART 8 - FOOTER BLOCKS - descendants of #footer */
+/* wrapper for links going to external sites */
+.footerExtNav {
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+.footerExtNav a, .footerExtNav a:link, .footerExtNav A:visited {
+    color: #333;
+    font-size: 1em;
+    text-decoration: none;
+    margin: 1em;
+}
+.footerExtNav a:hover {
+    color: #444;
+    text-decoration: underline;
+}
+/* the links displayed inside the wrapper above  */
+/* a second wrapper - server info,build,etc  */
+#footerInfo {
+    display: none
+}
+#footerInfo img {
+    margin-top: .5em;
+    margin-bottom: .5em;
+}
+.serviceInfo {
+    font-size:.9em;
+    color:#333;    
+}
+/* a third wrapper - reserved for copyright blurbs  */
+.sakaiCopyrightInfo {
+    padding: 5px 0;
+    font-size: .9em;
+    color: #333;
+}
+
+/* PART 9 - Tool Icons - applies to both left hand menu and submenus, as well as to submenus of sites in "Other sites" tray */
+
+.icon-osp-evaluation {
+    background-position: -252px -504px;
+}
+.icon-osp-glossary {
+    background-position: -468px -486px;
+}
+.icon-osp-matrix, .icon-osp-exposedmatrix {
+    background-position: -558px -450px;
+}
+.icon-osp-presentation {
+    background-position: -234px -54px;
+}
+.icon-osp-presLayout {
+    background-position: -198px -270px;
+}
+.icon-osp-presTemplate {
+    background-position: -54px -18px;
+}
+.icon-osp-style {
+    background-position: -360px -450px;
+}
+.icon-osp-wizard, .icon-osp-exposedwizard {
+    background-position: -270px -522px;
+}
+.icon-sakai-announcements {
+    background-position: -324px -216px;
+}
+.icon-sakai-chat {
+    background-position: -558px -504px;
+}
+.icon-sakai-datapoint {
+    background-position: -180px -108px;
+}
+.icon-sakai-discussion {
+    background-position: -324px -126px;
+}
+.icon-sakai-dropbox {
+    background-position: -216px -234px;
+}
+.icon-sakai-emailtemplateservice {
+    background-position: -162px -198px;
+}
+.icon-sakai-gmt {
+    background-position: -54px -36px;
+}
+.icon-sakai-help {
+    background-position: -54px -252px;
+}
+.icon-sakai-iframe {
+    background-position: -432px -360px;
+}
+.icon-sakai-iframe-site {
+    background-position: -162px -252px;
+}
+.icon-sakai-web-168 {
+    background-position: -270px -0px;
+}
+.icon-sakai-mailbox {
+    background-position: -90px -198px;
+}
+.icon-sakai-messages {
+    background-position: -252px -126px;
+}
+.icon-sakai-metaobj {
+    background-position: -162px -0px;
+}
+.icon-sakai-membership {
+    background-position: -432px -234px;
+}
+.icon-sakai-news {
+    background-position: -432px -396px;
+}
+.icon-sakai-podcasts {
+   background-position: -450px -252px;
+}
+.icon-sakai-postem {
+    background-position: -450px -162px;
+}
+.icon-sakai-preferences {
+    background-position: -54px -126px;
+}
+.icon-sakai-rutgers-linktool {
+    background-position: -36px -0px;
+}
+.icon-sakai-sections {
+    background-position: -522px -234px;
+}
+.icon-sakai-singleuser {
+    background-position: -522px -504px;
+}
+.icon-sakai-syllabus {
+    background-position: -90px -414px;
+}
+.icon-blogger {
+    background-position: -522px -36px;
+}
+.icon-sakai-assignment-grades, .icon-sakai-assignment2 {
+    background-position: -324px -324px;
+}
+.icon-sakai-forums, .icon-sakai-jforum-tool {
+    background-position: -324px -126px;
+}
+.icon-sakai-gradebook-tool, .icon-sakai-gradebook-gwt-rpc {
+    background-position: -126px -396px;
+}
+.icon-sakai-mailtool {
+    background-position: -198px -198px;
+}
+.icon-sakai-poll {
+    background-position: -540px -90px;
+}
+.icon-sakai-sitestats {
+    background-position: -540px -90px;
+}
+.icon-sakai-sitestats-admin {
+    background-position: -180px -108px;
+}
+.icon-sakai-presentation {
+    background-position: -234px -306px;
+}
+.icon-sakai-profile {
+    background-position: -198px -522px;
+}
+.icon-sakai-reports {
+    background-position: -270px -396px;
+}
+.icon-sakai-resetpass {
+    background-position: -0px -270px;
+}
+.icon-sakai-resources {
+    background-position: -450px -216px;
+}
+.icon-sakai-rwiki {
+    background-position: -324px -342px;
+}
+.icon-sakai-samigo, .icon-sakai-mneme-admin, .icon-sakai-mneme {
+    background-position: -540px -360px;
+}
+.icon-sakai-schedule {
+    background-position: -504px -72px;
+}
+.icon-sakai-search {
+    background-position: -306px -216px;
+}
+.icon-sakai-siteinfo {
+    background-position: -324px -0px;
+}
+.icon-sakai-sitesetup {
+    background-position: -324px -0px;
+}
+.icon-sakai-site-roster {
+    background-position: -144px -522px;
+}
+.icon-sakai-synoptic-messagecenter {
+    background-position: -252px -126px;
+}
+.icon-sakai-conferencing {
+    background-position: -396px -522px;
+}
+.icon-sakai-profile2 {
+    background-position: -144px -522px;
+}
+.icon-sakai-summary-calendar {
+    background-position: -504px -72px;
+}
+.icon-sakai-synoptic-announcement {
+    background-position: -324px -216px;
+}
+.icon-sakai-synoptic-chat {
+    background-position: -558px -504px;
+}
+.icon-sakai-subsite {
+    background-position: -288px -108px;
+}
+.icon-sakai-iframe-service {
+    background-position: -162px -252px;
+}
+.icon-sakai-iframe-myworkspace {
+    background-position: -162px -252px;
+}
+.icon-sakai-basiclti {
+    background-position: -270px -0px;
+}
+.icon-sakai-basiclti-admin {
+    background-position: -270px -0px;
+}
+.icon-sakai-lessonbuildertool {
+    background-position: -36px -54px;
+}
+.icon-my-libintro, .icon-my-libguides {
+    background-position: -450px -36px;
+}
+.icon-sakai-see-all-tools {
+    background-position: -126px -72px;
+}
+.icon-sakai-signup {
+    background-position: -468px -162px;
+}
+.icon-sakai-privacy {
+    background-position: -522px -198px;
+}
+.icon-sakai-rsf-evaluation {
+    background-position: -324px -324px;
+}
+.icon-sakai-iclicker, .icon-sakai-turningtool {
+    background-position: -396px -72px;
+}
+.icon-sakai-bbb, .icon-sakai-rutgers-connect, .icon-portlet-\/sakai-elluminate-tool-sakai-elluminate {
+    background-position: -432px -234px;
+}
+.icon-sakai-melete {
+    background-image: url(../../image/sakai/tool-icons/sakai.melete.png);
+}
+.icon-sakai-blogwow {
+    background-position: -0px -18px;
+}
+.icon-sakai-scormcloud {
+    background-position: -90px -414px;
+}
+.icon-sakai-njvidbrowser {
+    background-position: -144px -216px;
+}
+.icon-role-enter {
+    background-position: -432px -18px;
+}
+.icon-role-exit {
+    background-position: -270px -18px;
+}
+/* admin tools  */
+.icon-sakai-users {
+    background-position: -324px -234px;
+}
+.icon-sakai-aliases {
+    background-position: -288px -468px;
+}
+.icon-sakai-sites {
+    background-position: -72px -0px;
+}
+.icon-sakai-realms {
+    background-position: -558px -432px;
+}
+.icon-sakai-online {
+    background-position: -306px -396px;
+}
+.icon-sakai-memory {
+    background-position: -378px -414px;
+}
+.icon-sakai-archive {
+    background-position: -180px -342px;
+}
+.icon-sakai-scheduler {
+    background-position: -450px -108px;
+}
+.icon-sakai-su {
+    background-position: -36px -522px;
+}
+.icon-sakai-usermembership {
+    background-position: -504px -180px;
+}
+.icon-sakai-motd {
+    background-position: -162px -252px;
+}
+.icon-sakai-sitebrowser {
+    background-position: -468px -522px;
+}
+.icon-sakai-createuser {
+    background-position: -540px -504px;
+}
+.icon-sakai-add-tool {
+    background-position: 0 0;
+}
+
+/* PART 10: specific functionality: presence, chat */
+
+/* presence and chat rendering */
+#presenceArea {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    position: fixed;
+    height: 265px;
+    width: 175px;
+    bottom: 26px;
+    right: 18px;
+}
+
+/* wrapper for all elements of presence display   */
+#presenceWrapper {
+    width: 100%;
+    height: 100%;
+}
+/* wrapper for title of iframe ("Users present")*/
+#presenceTitle, #pc_title {
+    color: #000;
+    border-bottom: 1px solid #ccc;
+    padding: 3px 3px 4px 3px;
+    background: #eee;
+    vertical-align: bottom;
+    border-bottom: 1px solid #ddd;
+    height: 15px;
+    font-weight: bold;
+}
+#presenceTitle div, #pc_title div {
+    position: absolute;
+    top: 0px;
+    text-align: center;
+    right: 0px;
+    bottom: 0;
+    width: 22px;
+    height: 22px;
+    font-size: 120%;
+    border-left: 1px solid #ccc;
+}
+#presenceTitle div a, #pc_title div a {
+    width: 100%;
+    height: 100%;
+    display: block;
+    background-image: url(../../image/silk/cross.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+    color: transparent;
+    font-size: 0;
+}
+#pc_title div {
+    position: absolute;
+    top: 0px;
+    text-align: center;
+    right: 0px;
+    bottom: 0;
+    width: 17px;
+    height: 17px;
+    font-size: 120%;
+    border-left: 1px solid #ccc;
+    padding: 4px 5px 4px 4px;
+}
+/* this used to be an iframe, hence the name  */
+#presenceIframe {
+    height: 242px;
+    width: 100%;
+    overflow: auto;
+}
+.presenceList {
+    list-style: none;
+    margin: 3px !important;
+    padding: 0;
+}
+.presenceList li.inChat {
+    background: url(images/chatpresicon.png) right center no-repeat !important
+}
+.presenceList li {;
+    padding: 3px 16px 3px 2px !important
+}
+/* list item when the user is an a chat room is a link to that chat room */
+.presenceList li a {
+    color: #2630cc;
+    text-decoration: none;
+}
+
+/* main container for presence and portal chat.*/
+#footerAppTray {
+    font-size: .9em;
+    position: fixed;
+    right: 18px;
+    bottom: 0;
+    line-height: 1.2em;
+    text-align: center;
+    padding: 0;
+    z-index: 9999;
+    border: 1px solid #ccc;
+    border-width: 1px 1px 0 1px;
+    background: #eeeeee;
+    background: -moz-linear-gradient(top, #eeeeee 0%, #e4e4e4 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e4e4e4));
+    background: -webkit-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    background: -o-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%);
+    *width: 30px;
+}
+#footerAppTray #chattableCount {
+    font-size: 80%;
+    margin-left: 10px;
+    outline: none;
+}
+#footerAppTray #presenceCount {
+    font-size: 80%;
+    outline: none;
+}
+#footerAppTray span.present {
+    margin: -2px 0 0 5px !important;
+    border: 2px solid #fff;
+    background-color: #444;
+    padding: 0 5px;
+    color: #fff;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    height: 14px;
+    width: auto;
+    display: inline;
+}
+#footerAppTray span.empty {
+    display: none;
+}
+#footerAppPresence {
+    height: 100%;
+    width: auto;
+    color: #888;
+    vertical-align: middle;
+    float: right;
+    padding: 5px;
+    text-align: center;
+    white-space: nowrap;
+}
+#footerAppChat {
+    vertical-align: bottom;
+    color: #000;
+    float: left;
+    text-align: left;
+    width: 200px;
+}
+#presenceToggle {
+    color: white;
+    text-decoration: none;
+    text-align: center;
+}
+
+#chatToggle {
+    display: inline;
+    padding: 6px 6px 5px 6px;
+    color: #222;
+    text-decoration: none;
+    height: 16px;
+    font-weight: bold;
+}
+#presenceToggle:focus, #chatToggle:focus {
+    outline: 1px dotted #000;
+}
+.workspace #footerAppPresence {
+    display: none;
+    border: none;
+}
+#chattableCount {
+    display: inline-block;
+    vertical-align: middle !important;
+    padding: 2px 5px !important;
+    line-height: normal;
+    width: auto !important;
+    height: auto !important;
+}
+
+/* PART 11: Utilities */
+/* Privacy Popup Styles */
+div#privacy_tool_popup {
+    position: absolute;
+    background: #fff;
+    color: #000;
+    border: 4px solid #0198CD;
+    width: 450px;
+    top: 20%;
+    left: 50%;
+    margin-left: -225px;
+    z-index: 1000;
+    padding: 5px 5px 5px 10px;
+}
+div#privacy_overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    filter: alpha(opacity=70);
+    opacity: 0.7;
+    z-index: 0;
+}
+
+/* used to hide various blocks from sighted users that are in the source to help with accessibility  */
+.portalBody .skip {
+    outline:1px solid transparent;
+    display: inline !important; 
+    position: fixed !important; 
+    height: 1px !important; 
+    width: 1px !important; 
+    overflow: hidden !important;
+    top: 0px !important;
+    left: 0px; 
+    padding: 0px 0px 0px 0px !important;
+} 
+
+/* jump-to links, tabbing into focus treatment  */
+#skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
+    text-decoration: none;
+    font-size: 140%;
+    position: fixed !important;
+    background: #000;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    vertical-align: middle;
+    padding: 8px !important;
+    outline: none;
+    z-index: 200000;
+    box-shadow: 0px 0px 3px #000;
+    -webkit-box-shadow: 0px 0px 3px #000;
+    -moz-box-shadow: 0px 0px 3px #000000;
+    top: 2px !important;
+    left: 90px  !important;
+    height: 28px  !important;
+    color: #fff;
+    width: 190px  !important;
+}
+/* append the value of the accesskey attr to the text*/
+.internalSkip:after {content: ' [' attr(accesskey) ']'}
+
+/* minimize tool menu */
+
+/* when the tool menu is minimized the class "sakaiMinimizePageNavigation" gets added to the
+ * #container block, inheritance is then used to hide, move and shring elements or hide expand them
+ * in this skin we hide the text of the tool links by sliding it out of the viewport
+ * but leave the tool icons displayed - so for the sacrificed of 30 px you still have 
+ * page navigation. If you are not using icons the same effect will be achieved by setting ".sakaiMinimizePageNavigation #toolMenuWrap"
+ * to display off screen and tweaking the padding of ".sakaiMinimizePageNavigation #content"
+ * */
+/* container for tool menu display toggle control */
+#togglebar {
+    float: left;
+    width: 13px;
+    height: 30px;
+    padding-top: 2em;
+}
+/* hover effect for control */
+#togglebar .toggleToolMenuHover {
+    background-position: 0 0 !important;
+}
+#togglebar #toggleToolMax {
+    background: url(images/toggleClose.png) -2px 0 no-repeat;
+    padding: 4px;
+    display: block;
+    height: 50px;
+}
+#togglebar #toggleNormal {
+    background: url(images/toggleOpen.png) -2px 0 no-repeat;
+    padding: 4px;
+    display: block;
+    height: 50px;
+}
+a#toggleToolMenu {
+    text-decoration: none
+}
+
+.sakaiMinimizePageNavigation #toolMenuWrap {
+   /* display: none; uncomment if not using icons for the tool menu */
+    width: 30px;
+    overflow: hidden;
+}
+.sakaiMinimizePageNavigation #toolMenuWrap li {
+    text-align: left;
+    overflow: hidden;
+}
+.sakaiMinimizePageNavigation  #toolMenu li.selectedTool {
+    background: #fff;
+}
+.sakaiMinimizePageNavigation  #toolMenu li.selectedTool span {
+    -moz-opacity: 0.5;
+    opacity: 0.5;
+}
+.sakaiMinimizePageNavigation #toolMenu li span.menuTitle {
+    display: inline !important; 
+    position: fixed !important; 
+    height: 1px !important; 
+    width: 1px !important; 
+    overflow: hidden !important;
+    top: 0px !important;
+    left: 0px; 
+    padding: 0px 0px 0px 0px !important; 
+}
+.sakaiMinimizePageNavigation #toolMenu li span.toolMenuIcon {
+    top:2px;
+    left:2px;   
+}
+
+.sakaiMinimizePageNavigation #toolMenu li a {
+    width:20px;
+    height: 16px;
+}
+
+/*when the tool menu is shoved away a class of .sakaiMinimizePageNavigation gets added to parent block, here we style the selected tool link so that when 
+everything except the tool icon is gone it is still distincts as the current tool (also hover treatment for tools and subsites)*/
+.sakaiMinimizePageNavigation #toolMenu li.selectedTool a, .sakaiMinimizePageNavigation #toolMenu li a:hover, .sakaiMinimizePageNavigation #subSites li a:hover,.sakaiMinimizePageNavigation #toolMenu li a:focus, .sakaiMinimizePageNavigation #subSites li a:focus {
+    background: #ffeebb;
+    background: -moz-linear-gradient(top, #ffeebb 0%, #ffe493 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffeebb), color-stop(100%,#ffe493));
+    background: -webkit-linear-gradient(top, #ffeebb 0%,#ffe493 100%);
+    background: -o-linear-gradient(top, #ffeebb 0%,#ffe493 100%);
+    background: -ms-linear-gradient(top, #ffeebb 0%,#ffe493 100%);
+    background: linear-gradient(to bottom, #ffeebb 0%,#ffe493 100%);
+}
+.sakaiMinimizePageNavigation #togglebar {
+    padding-left: 0em;
+    margin-top: 0em;
+    margin-left: 0;
+}
+.sakaiMinimizePageNavigation #siteStatus {
+    display: none;
+}
+.sakaiMinimizePageNavigation #content {
+    /* adjust if not using icons in tool menu */
+    padding-left: 45px;
+}
+/* portal timeout display*/
+#timeout_alert_body {
+    font-size: 130%;
+    position: fixed;
+    background: #c00;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    vertical-align: middle;
+    padding: 5px;
+    outline: none;
+    z-index: 200000;
+    box-shadow: 0px 0px 3px #000;
+    -webkit-box-shadow: 0px 0px 3px #000;
+    -moz-box-shadow: 0px 0px 3px #000000;
+    top: 25%;
+    left: 40%;
+    height: auto;
+    color: #fff;
+    font-weight: bold;
+    width: auto;
+}
+#timeout_alert_body p {
+    margin: 0;
+    padding: 0 5px 10px;
+}
+#timeout_alert_body input {
+    padding: 3px !important;
+    border: 1px solid #ccc !important;
+    border-radius: 4px;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    background: #e7e7e7 !important;
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #e7e7e7 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#e7e7e7)) !important;
+    background: -webkit-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -o-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: -ms-linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    background: linear-gradient(top, #f7f7f7 0%,#e7e7e7 100%) !important;
+    box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -moz-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+    -webkit-box-shadow: 0 0 5px rgba(200, 200, 200, .2);
+}
+
+/* Qtip overrides used by tutorial*/
+a.qtipLinkButton {
+     right: 0px;
+    top: 85px;
+    background: #ddd !important;
+    background: -moz-linear-gradient(top, #F7F7F7 0%, #E7E7E7 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#F7F7F7), color-stop(100%,#E7E7E7)) !important;
+    background: -webkit-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    background: -o-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    background: -ms-linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    background: linear-gradient(top, #F7F7F7 0%,#E7E7E7 100%) !important;
+    text-align: center;
+    width: auto;
+    border-radius: 4px;
+    border: 1px solid #ccc !important;
+    border-width: 1px 1px 1px 1px !important;
+    font-size: .85em;
+    text-transform: capitalize;
+    text-align: center;
+    color: #000 !important;
+    display: block;
+    padding: 6px 12px;
+    text-decoration: none !important;
+    font-size: 12px !important;
+    letter-spacing: normal !important;
+}
+a.qtipLinkButton img {
+    vertical-align: bottom;
+}
+a.qtipLinkButton:hover {
+     color: #7AA3CC !important;
+}
+div.qtip-titlebar{
+    border-bottom-width: 0 !important;
+    color: #fff !important;
+    background: #45484d !important;
+    background: -moz-linear-gradient(top, #45484d 0%, #000000 100%) !important;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#45484d), color-stop(100%,#000000)) !important;
+    background: -webkit-linear-gradient(top, #45484d 0%,#000000 100%) !important;
+    background: -o-linear-gradient(top, #45484d 0%,#000000 100%) !important;
+    background: -ms-linear-gradient(top, #45484d 0%,#000000 100%) !important;
+    background: linear-gradient(to bottom, #45484d 0%,#000000 100%) !important;
+}
+
+.qtip{
+    font-family: inherit !important;
+    font-size: inherit !important;
+    line-height: inherit !important;
+}
+.qtip-title:focus{
+    outline:none;
+}
+
+.qtipClose{
+    float: left;
+    position: absolute;
+    right: 5px;
+    top: 5px;
+    border: none !important;
+    background: none !important;
+}
+
+/* warning displayed when js is disabled */
+#portal_js_warn {
+    font-size: 1.2em;
+    background: #c00;
+    color: #fff;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    left: 25%;
+    z-index: 2002;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+/*back to mobile link*/
+#mobile-portal-link{
+    display:block;
+    position:absolute;
+    top:0px;
+    right:8px;
+    background: #000;
+    padding:8px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-right-radius: 5px;
+    border-bottom-left-radius: 5px;
+}
+#mobile-portal-link a,#mobile-portal-link a:visited{
+    color:#fff;
+    font-size: 120%;
+    text-decoration:none;
+}

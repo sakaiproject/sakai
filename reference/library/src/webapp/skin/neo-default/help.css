@@ -1,0 +1,404 @@
+/* BEGIN CSS Reset */
+
+body {
+  line-height: 1.5;
+  color: #333333;
+  font-size: 87.5%; }
+
+body h1 {
+  font-weight: normal;
+  color: #222222;
+  font-size: 2.5em;
+  line-height: 1;
+  margin-bottom: 0.5em; }
+  body h1 body h1 img {
+    margin: 0; }
+
+body h2 {
+  font-weight: normal;
+  color: #222222;
+  font-size: 1.5em;
+  margin-bottom: 0.75em; }
+
+body h3 {
+  font-weight: normal;
+  color: #222222;
+  font-size: 1.3em;
+  line-height: 1;
+  margin-bottom: 1em; }
+
+body p {
+  margin: 0 0 1.5em; }
+  body p body p img.left {
+    display: inline;
+    float: left;
+    margin: 1.5em 1.5em 1.5em 0;
+    padding: 0; }
+  body p body p img.right {
+    display: inline;
+    float: right;
+    margin: 1.5em 0 1.5em 1.5em;
+    padding: 0; }
+
+body a {
+  text-decoration: underline;
+  color: #000099; }
+  body a body a:visited {
+    color: #000066; }
+  body a body a:focus {
+    color: black; }
+  body a body a:hover {
+    color: black; }
+  body a body a:active {
+    color: #cc0099; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-family: inherit;
+  vertical-align: baseline; }
+
+div, span, object, iframe, h1, h2, h3, h4, h5, h6, p,
+a, abbr, acronym, address, del, dfn, em, img,
+dl, dt, dd, ol, ul, li, fieldset, form, label, legend, caption, tbody, tfoot, thead, tr {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline; }
+
+blockquote, q {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+  quotes: "" ""; }
+  blockquote blockquote:before, blockquote q:before, q blockquote:before, q q:before,
+  blockquote blockquote:after, blockquote q:after, q blockquote:after, q q:after {
+    content: ""; }
+
+th, td, caption {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+  text-align: left;
+  font-weight: normal;
+  vertical-align: middle; }
+
+table {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-weight: inherit;
+  font-style: inherit;
+  font-size: 100%;
+  font-family: inherit;
+  vertical-align: baseline;
+  border-collapse: separate;
+  border-spacing: 0;
+  vertical-align: middle; }
+
+a img {
+  border: none; }
+
+p {
+  margin: 0 0 1.5em; }
+
+a {
+  text-decoration: underline;
+  color: #000099; }
+  a a:visited {
+    color: #000066; }
+  a a:focus {
+    color: black; }
+  a a:hover {
+    color: black; }
+  a a:active {
+    color: #cc0099; }
+
+blockquote {
+  margin: 1.5em;
+  color: #666;
+  font-style: italic; }
+
+strong {
+  font-weight: bold; }
+
+em {
+  font-style: italic; }
+
+tt {
+  font: 1em 'andale mono', 'lucida console', monospace;
+  font-size: 12px;
+  line-height 18px;
+  white-space: pre-wrap;
+  background-color: whiteSmoke;
+  padding: 8.5px;
+  margin: 0 0 18px;
+  border: 1px solid #CCC;
+  border-radius: 3px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  word-wrap: break-word;
+}
+
+code {
+  padding: 2px 4px;
+  color: #d14;
+  white-space: nowrap;
+  background-color: #f7f7f9;
+  border: 1px solid #e1e1e8;
+}
+pre {
+  background-color: #f5f5f5;
+  display: block;
+  padding: 9.5px;
+  margin: 0 0 10px;
+  font-size: 13px;
+  line-height: 20px;
+  word-break: break-all;
+  word-wrap: break-word;
+  white-space: pre;
+  white-space: pre-wrap;
+  border: 1px solid #ccc;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  -webkit-border-radius: 4px;
+     -moz-border-radius: 4px;
+          border-radius: 4px;
+}
+pre.prettyprint {
+  margin-bottom: 20px;
+}
+pre code {
+  padding: 0;
+  color: inherit;
+  white-space: pre;
+  white-space: pre-wrap;
+  background-color: transparent;
+  border: 0;
+}
+.pre-scrollable {
+  max-height: 340px;
+  overflow-y: scroll;
+}
+
+li ul, li ol {
+  margin: 0 1.5em; }
+
+ul {
+  margin: 0 1.5em 1.5em 1.5em;
+  list-style-type: disc; }
+
+ol {
+  margin: 0 1.5em 1.5em 1.5em;
+  list-style-type: decimal; }
+
+table {
+  margin-bottom: 1.4em;
+  width: 100%; }
+
+th {
+  font-weight: bold; }
+
+thead th {
+  background: #c3d9ff; }
+
+th, td, caption {
+  padding: 4px 10px 4px 5px; }
+
+tr.even td {
+  background: #e5ecf9; }
+
+.clearfix {
+  overflow: hidden;
+  display: inline-block; }
+  .clearfix .clearfix {
+    display: block; }
+.clear {
+    clear: both; }
+    
+p.indent1 { text-indent: 2em; }
+p.indent2 { text-indent: 4em; }
+p.indent3 { text-indent: 6em; }
+p.indent4 { text-indent: 8em; }
+p.indent5 { text-indent: 10em; }
+p.indent6 { text-indent: 12em; }
+p.indent7 { text-indent: 14em; }
+p.indent8 { text-indent: 16em; }
+p.indent9 { text-indent: 18em; }
+p.indent10 { text-indent: 20em; }
+
+/* END CSS Reset */
+
+/* BEGIN ScreenSteps Template Default */
+body div#wrapper {
+  margin-top: 2em; }
+body div#article-content {
+  padding-bottom: 1em; }
+  body div#article-content div.step-container {
+    clear: left;
+  }
+  body div#article-content div.step-instructions {
+    text-align: left; }
+  body div#article-content div.step-container div.step-instructions {
+    clear: left; }
+  body div#article-content div.step-container div.step-image-container {
+    margin-bottom: 1em;
+    float: left;
+    position: relative;
+    border: 1px solid #ccc;
+    padding: 5px; }
+    body div#article-content div.step-container div.step-image-container div.step-image-caption { padding: 5px; }
+      body div#article-content div.step-container div.step-image-fullsize { padding-bottom: 25px;}
+      body div#article-content div.step-container div.step-image-container div.step-image-caption {
+        text-align: right; 
+        font-size: 0.75em; 
+        padding: 0;
+        position: absolute; 
+        bottom: 5px; 
+        right: 10px;}
+      body div#article-content div.step-container div.step-image-container div.step-image-caption a {
+        text-decoration: none; 
+        color: #777; 
+        background: url("../images/icon-zoom.png") no-repeat; 
+        padding-left: 19px; 
+        line-height: 16px !important; 
+        display: block; 
+        float: right;}
+        div#article-content div.step-container div.step-image-container:after {
+          content: "."; 
+          display: block; 
+          height: 0; 
+          clear: both; 
+          visibility: hidden;}
+        html>body div#article-content div.step-container div.step-image-container div.step-image-caption a {
+          background: url("../images/icon-zoom.png") no-repeat; 
+          padding-left: 19px; }
+  body div#article-content div.right {
+    overflow: hidden;
+    display: inline-block; }
+    body div#article-content div.right {
+      display: block; }
+    body div#article-content div.right div.step-image-container {
+      float: right;
+      margin-left: 1em; }
+      body div#article-content div.right div.step-image-container div.step-image-caption a {
+        display: block;
+        text-align: right; }
+div#article-navigation {
+  border-top: 1px solid #cfcfcf; 
+  padding: 1em 0 1.25em 0; 
+  margin-top: 2.5em; 
+  font-family: Georgia, serif; 
+  font-size: 1.1em; 
+  color: #222;}
+div#article-navigation ul {
+  list-style-type: none; 
+  margin: 0; 
+  padding: 0;}
+div#article-navigation a {
+  color: #222; 
+  text-decoration: none; 
+  display: block; }
+div#article-navigation a:hover {text-decoration: underline;}
+div#article-navigation li#article-page-count {
+  float: left; 
+  width: 135px; 
+  text-align: center; }
+div#article-navigation li#next-article {
+  margin: 0; 
+  padding: 0; 
+  float: right; 
+  width: 320px; 
+  text-align: right; }
+div#article-navigation li#next-article a {
+  padding: 0 29px 0 0; 
+  background: url("../images/ui/icon-next.png") no-repeat top right; 
+  line-height: 21px; 
+  display: block; }
+div#article-navigation li#previous-article {
+  margin: 0; 
+  line-height: 21px; 
+  float: left; 
+  width: 320px; 
+  text-align: left; }
+div#article-navigation li#previous-article a {
+  padding: 0 0 0 29px; 
+  background: url("../images/ui/icon-previous.png") no-repeat top left; 
+  line-height: 21px; 
+  display: block; }
+  
+body div#TOC {
+  padding: 1em 2em; }
+  body div#TOC div.section h2 {
+    font-size: 1.4em;
+    margin-bottom: 0.5em; }
+  body div#TOC div.section div.description {
+    font-size: 85%; }
+body div#lessonNavigation {
+  border-top: 1px solid #ccc;
+  padding-top: 1em;
+  padding-bottom: 1px;}
+  body div#lessonNavigation table td {
+    width: 33%;
+    padding: 0 2em; }
+    body div#lessonNavigation table td.TOC {
+      text-align: center;
+      padding: 0; }
+body.lucida {
+  font-family: "Lucida Grande", Lucida, Verdana, sans-serif; }
+
+body.helvetica {
+  font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif; }
+
+body.courier {
+  font-family: "Courier New", Courier, mono; }
+
+body.georgia {
+  font-family: Georgia, "Times New Roman", Times, serif; }
+
+body.trebuchet {
+  font-family: "Trebuchet MS","Helvetica Neue", Arial, Helvetica, Geneva, sans-serif; }
+  
+body.lucida h2, body.helvetica h2, body.trebuchet h2 {
+  font-family: Georgia, "Times New Roman", Times, serif; }
+
+body.georgia h2 {
+  font-family: "Helvetica Neue", Arial, Helvetica, Geneva, sans-serif; }
+
+/* END ScreenSteps Template Default */
+
+/* BEGIN ScreenSteps Template Custom */
+body div#wrapper {
+  width: 640px;
+  margin: 2em auto; }
+body div.step-container .step-title {
+  border-bottom: 3px solid #ccc; }
+
+/* END ScreenSteps Template Custom */
+
+body div#wrapper img {
+  width: auto;
+  height: auto;
+  max-width: 640px;
+}
+div#article-navigation li#previous-article,
+div#article-navigation li#next-article 
+{
+  width: 240px;
+}

@@ -1,0 +1,44 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<title>欢迎使用Sakai</title>
+		<script language="JavaScript" type="text/JavaScript">
+		<!--
+			var i, a, href
+			for(i=0; (a = top.document.getElementsByTagName("link")[i]); i++) 
+			{
+				if(a.getAttribute("rel").indexOf("style") != -1)
+				{
+					if(a.getAttribute("href").indexOf("portal.css") != -1)
+					{
+						//normal - top is portal
+						document.write ('<link href=\"');
+						var lastSlash = a.getAttribute("href").lastIndexOf("/");
+						document.write (a.getAttribute("href").substring(0,lastSlash+1));
+						document.write ('tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href").substring(0,a.getAttribute("href").lastIndexOf("/", lastSlash-1)+1));
+						document.write ('tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+					else
+					{
+						//not normal - top is something else - use it's stylesheets
+						document.write ('<link href=\"');
+						document.write (a.getAttribute("href"));
+						document.write ('" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />');
+					}
+				}
+			}
+		// -->
+		</script>
+	</head>
+	<body>
+		<div class="portletBody">
+			<h3>欢迎使用Sakai</h3>
+			<p>欢迎使用Sakai。此演示是为了让您能够快速方便地搭建Sakai而做的。如要了解搭建生产环境额Sakai，请阅读readme文件，或访问Sakai官方站点(sakaiproject.org),
+				以及Sakai开发者网站(collab.sakaiproject.org)。</p>
+			<p class="instruction">这里显示的信息可以由Sakai管理员通过修改sakai.properties文件中的"server.info.url"来指定。</p>
+		</div>
+	</body>
+</html>

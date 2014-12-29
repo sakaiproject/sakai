@@ -1,0 +1,98 @@
+#audio-recorder-intro {
+  padding: 8px;
+}
+
+#audio-controls {
+  background-color: #ccc;
+  border: 1px solid #bbbbbb;
+  padding: 8px;
+  -webkit-border-radius: 0.33em;
+  -moz-border-radius: 0.33em;
+  -ms-border-radius: 0.33em;
+  -o-border-radius: 0.33em;
+  border-radius: 0.33em;
+  width: 500px;
+  text-align: center;
+  margin: 0 auto;
+}
+
+#audio-controls button {
+  padding: 8px;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
+  opacity: 0.75;
+  color: #333333;
+  background-color: #e6e6e6;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #e6e6e6), color-stop(100%, #e6e6e6));
+  background-image: -webkit-linear-gradient(top, #e6e6e6, #e6e6e6);
+  background-image: -moz-linear-gradient(top, #e6e6e6, #e6e6e6);
+  background-image: -o-linear-gradient(top, #e6e6e6, #e6e6e6);
+  background-image: linear-gradient(top, #e6e6e6, #e6e6e6);
+  margin-right: 10px;
+  width: 90px;
+  font-weight: bold;
+}
+
+#audio-controls #audio-upload {
+  width: 90px;
+  opacity: 0.75;
+}
+
+#audio-record {
+  background-color: green;
+}
+
+#audio-stop {
+  color: white;
+  background-color: #d54a45;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ee5f5b), color-stop(100%, #bd362f));
+  background-image: -webkit-linear-gradient(top, #ee5f5b, #bd362f);
+  background-image: -moz-linear-gradient(top, #ee5f5b, #bd362f);
+  background-image: -o-linear-gradient(top, #ee5f5b, #bd362f);
+  background-image: linear-gradient(top, #ee5f5b, #bd362f);
+}
+
+#audio-levelbar {
+  background-color: #ddd;
+  border: 1px solid #eee;
+  margin-top: 12px;
+  width: 98%;
+  height: 2px;
+}
+
+#audio-statusbar {
+  background-color: red;
+  border: 1px solid #eee;
+  margin-top: 12px;
+  width: 100%;
+  height: 6px;
+}
+
+#audio-timer-wrapper {
+  font-size: 24px;
+  font-weight: bold;
+  padding-bottom: 8px;
+}
+
+#audio-analyzer {
+  height: 100px;
+  width: 500px;
+  -webkit-border-radius: 0.33em;
+  -moz-border-radius: 0.33em;
+  -ms-border-radius: 0.33em;
+  -o-border-radius: 0.33em;
+  border-radius: 0.33em;
+  margin: 20px auto;
+  background-color: #333;
+}
+
+.audioaudio {
+  visibility: hidden\9;
+  visibility: hidden\10;
+}
+
+.audioobject {
+  visibility: hidden;
+  visibility: visible\9;
+  visibility: visible\10;
+}
+

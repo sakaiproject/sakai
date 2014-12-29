@@ -1,0 +1,1892 @@
+/*general body - used by main portal document */ 
+body{
+	width: 100%;
+	padding: 0;
+	font-family: 'Trebuchet MS',Verdana,sans-serif;
+	font-size:.8em;
+	margin: 0;
+	background-color: #093b52;
+        background-image:  url(images/page_bg_water.jpg);
+        background-repeat:repeat-x;
+
+}
+
+/*PART 1 - MAIN LAYOUT BLOCKS*/
+/*outer wrapper for portal content (decorative - child is #portalContainer )*/
+#portalOuterContainer{
+}
+
+/*inner wrapper for portal content (decorative - children are #header #container and #footer )*/
+#portalContainer{
+}
+
+#portal_js_warn {
+    font-size: 1.2em;
+    background: #c00;
+    color: #fff;
+    padding: 10px;
+    position: fixed;
+    bottom:0;
+    left: 25%;
+    z-index:2002;
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+/*wrapper masthead  and site navigation 
+ two possible states - logged in headerMax, not logged in - headerMin*/
+#headerMax,#headerMin{
+	width: 100%;
+}
+#headerMin{
+	overflow:hidden;
+}
+#headerMax{
+    height:35px;
+}
+/*accessibility links wrapper */
+#skipNav{
+}
+
+/*site hierarchy breadcrumb*/
+#siteHierarchy{
+	margin:0;
+    z-index:10000;
+    position:fixed;
+    top:38px;
+    left:0;
+    right:0;
+    height:12px;
+	list-style: none;
+    line-height:.95em;
+    vertical-align:middle;
+    padding:5px 7px;
+	background-color: #aaa;
+	border-bottom: 1px solid #aaa;
+    font:.85em bold Helvetica, 'Helvetica Neue', Arial;
+    color:#ddd;
+}
+#siteHierarchy + #container{
+    margin-top:35px;
+}
+#headerMax + #container{
+    margin-top:0;
+}
+
+/*style the standard breadcrumbseparator
+can set display:none if needed because the list-style is taking care of it*/
+.breadSeparator{
+    font:1em bold Arial;
+}
+a.lastBreadCrumb{
+	color: black;
+	text-decoration: none;
+}
+#siteHierarchy li{
+        display:inline;
+        padding:0 1px 0 0;
+}
+#siteHierarchy li a, #siteHierarchy li a:visited{
+        color:#333;
+        font-size:1em;
+        text-decoration:none;
+}
+#tabBottom{
+    display:none
+}
+#headerMin #tabBottom{
+    display:none;
+    }
+/*wrapper for site content (includes as children #toolMenuWrap,#content and #footer)*/
+#container{
+   margin-right:50px;
+   padding-top:0px;
+   margin-bottom:0px;
+   margin-left:50px;
+   background: #fff;
+   -moz-border-radius: 0 0 10px 10px;
+   -webkit-border-radius: 0 0 10px 10px;
+   -khtml-border-radius: 0 0 10px 10px;
+   border-radius: 0 0 10px 10px;
+   box-shadow:0px 0px 3px #000000;
+   -webkit-box-shadow:0px 0px 3px #000000;
+   border:1px solid #ccc; 
+}
+
+/*wrapper for #toolMenu - children are #worsiteLogo,#toolMenu*/
+#toolMenuWrap{
+	float: left;
+	width: 150px;
+	color: #000;
+	text-align: right;
+	padding:10px 0 0 0;
+    margin-bottom:1em;
+    overflow:hidden;
+    z-index:1;
+    }
+
+#toolMenuWrap:hover{
+	
+	}
+/*depending on site type - different hover effects for the tool menu parent block
+site types are a local setting - adjust */
+.workspace #toolMenuWrap:hover{
+	
+}
+.course #toolMenuWrap:hover{
+	
+}
+.project #toolMenuWrap:hover{
+	
+}
+
+
+/*wrapper for site content (portlets) -  children can be #col1 or #col1of2 and #col2of2 depending in the number of columns*/
+#togglebar{
+    padding-bottom:100px;
+}
+
+#content{
+	padding: 20px 0 0 1em;
+	margin-left: 153px;
+   -webkit-box-shadow:-5px 0px 2px -2px #aaa;
+   -moz-box-shadow:box-shadow: -5px 0px 2px -2px #aaa;
+   box-shadow:-5px 0px 2px -2px #aaa;
+   min-height:1000px;
+   z-index:3;
+   border-left:1px solid #ccc;
+
+}
+/*margin tweak for IE to avoid float drop*/
+* html #content{margin-left:12.3em}
+/*wrapper for footer blocks*/
+#footer{
+    clear:both;
+    margin:0;
+    background:#444;
+    padding:5px;
+    text-align: center;
+
+}
+#footerLinks{
+    text-align: center;
+    font:.80em bold Helvetica, 'Helvetica Neue', Arial;
+    margin:0;
+    padding:0;
+
+}
+#footerLinks li{
+	margin:0;
+	border-left:1px solid #ccc;
+	display: inline;
+	list-style-type: none;
+	padding:0;
+}
+#footerLinks li:first-child{
+	border:none;
+}
+
+
+/*PART 3 - HEADER BLOCKS (BRANDING,LOGIN)*/
+/*depending on site type - different border-bottoms for the site menu parent block
+site types are a local setting - adjust */
+#siteNavWrapper{
+	margin: 0;
+    height:100%;
+}
+
+
+
+/*wrapper for mast head elements - children are 3 blocks - #mastLogo,#mastBanner,#mastLogin*/
+#mastHead{
+	display:none;
+}
+
+#headerMin #mastHead{
+	clear:both;
+    display:block;
+}
+
+/*container wrapping branding images - portal outputs one /library/skin/<skin name>/images/logo_inst.gif
+that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
+#mastLogo{
+	float: left;
+	margin-left: 0.2em;
+	width: auto;
+    height:80px;
+    width: 120px;
+    background:transparent url(images/logo_inst.png) 30px 3px no-repeat;
+}
+
+/*the portal outputs an image that can be treated here or hidden with display:none*/
+#mastLogo img{
+	display:none;
+}
+
+/*another container wrapping branding images - portal outputs one /library/skin/<skin name>/images/banner_inst.gif
+that can be used or hidden,can also use a background:url(images/<image name>.<ext>) in this block,or both superimposing them*/
+#mastBanner{
+	width: auto;
+	vertical-align: top;
+	float: left;
+}
+
+/*the portal outputs an image that can be treated here or hidden with display:none*/
+#mastBanner img{
+	margin: 1em .5em;
+}
+
+/*container wrapping,depending on Sakai settings:1) a login form,2) a login link for CAS,3) a logout link*/
+#mastLogin{
+    position:absolute;
+    top:5px;
+    right:0;
+    	text-align: right;
+	padding-right: 15px;
+	vertical-align: middle;
+}
+
+/*the anchor for the login link for CAS above can be an image - treated here*/
+#mastLogin img{
+	margin-top: 0;
+	border: 0;
+}
+
+/*login links for CAS,logout link*/
+#mastLogin a,#mastLogin a:visited{
+	color: #FFF;
+	margin-top: 0;
+}
+
+#mastLogin a:hover{
+	text-decoration: none;
+}
+
+/*login form elements - in order,form,userid field,password field,login button - first 2 have labels associated with them,gettable as #loginForm label{
+}
+
+#loginForm is the form for login - contains children #eid #pw #submit*/
+#loginForm{
+	margin: 1em 0;
+}
+
+#eid{
+	border: 1px solid #aaa;
+	padding: 3px;
+	margin-left: .5em;
+	width: 7em;
+}
+
+#pw{
+	border: 1px solid #aaa;
+	padding: 3px;
+	margin-left: .5em;
+	width: 7em;
+}
+
+#loginForm label{
+	color: #000;
+	padding: 0 .5em
+}
+
+#submit{
+}
+
+#submit:hover{
+	color: #09c;
+}
+
+/*block for login/logout links */
+#loginLinks{
+    color:#aaa;
+	margin: 0;
+	padding:6px 20px 0 6px;
+    
+}
+
+/*main CAS link*/
+#loginLink1{
+    padding:0 5px;
+    margin-right:5px;
+    text-decoration:none
+}
+
+/*secondary CAS link*/
+#loginLink2{
+
+}
+#loginUserWrap{
+    font-size:70%;
+    border-right:1px solid #ccc;
+    padding-right:5px;
+    margin-right:3px;
+    text-decoration:none
+}
+#loginUser{
+    text-decoration:none;
+    font-size:140%;
+    color:#ccc;    
+}
+#loginLink1:hover, #loginUser:hover{
+    text-decoration:underline !important;
+}
+
+#loginLinks .drop{
+    background:transparent url(/library/image/silk/user.png) 15px 0  no-repeat;
+    position:absolute;
+    top:3px;
+    padding:0 13px;
+    right:5px;
+}
+/*PART 4 - SITE NAVIGATION - children of #siteNavBlock*/
+/*outer wrapper for the site navigation blocks - it is a class,not an id because it can be overloaded with other values having to do with site type
+so for example <div class="tabHolder workspace"> so that different site types can be treated differently via inheritance - children are #siteNavWrap and #navBottom*/
+
+.siteNavWrap {
+	position: fixed;
+        background-color:#454A4F;
+        color:#000000;
+	width: 100%;
+	font-size: 100%;
+	line-height: normal;
+	z-index: 100001;/*needs to be be higher than #siteHierarchy*/ 
+    padding:0;
+-moz-box-shadow: 0 0 5px 5px #888;
+-webkit-box-shadow: 0 0 5px 5px#888;
+box-shadow: 0 0 5px 5px #888;
+}
+
+/*wrapper for the site links and site <select> blocks - children are #siteNav and #tabNav */
+#siteNav{
+    height:35px;
+    padding: 0px;
+}
+
+/*wrapper for the site link list   - the #siteLinkList child)*/
+#linkNav{
+	display: block;
+	/* position: relative;
+	float:left; */
+}
+
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+#selectNav{
+	padding: 0;
+	vertical-align: middle;
+	margin: 0.2em 0 0 0.6em;
+	float: left;
+}
+
+/*the <select> contextually defined*/
+#selectNav select{
+	display:inline;
+	font-size: .9em;
+	margin: 7px 0 0 ;
+	padding: 0;
+	border: 2px solid #0077B5;
+}
+
+#selectNav select option{
+	background: #fff;
+}
+
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+#selectSite {
+	padding: 3px 0;
+    position:absolute;
+    top:35px;
+    right:100px;
+	vertical-align: middle;
+}
+
+/*the <select> contextually defined*/
+#selectSite select{
+	display:inline;
+	border: 2px solid #0077B5;
+}
+
+#selectSite select option{
+	background: #fff;
+}
+
+#roleSwitch{
+    position:absolute;
+    top:30px;
+    white-space:nowrap;
+    right:0;
+    background:#191919;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-left-radius: 5px;    z-index:20000;
+    vertical-align:middle;
+    padding:6px 10px;
+    box-shadow:0px 0px 10px #000;
+   -webkit-box-shadow:0px 0px 10px #000;
+   -moz-box-shadow:0px 0px 10px #000000;
+
+}
+#roleSwitch label, #roleSwitch  a#roleSwitchAnchor{
+    color:#fff;
+}
+#roleSwitch a#roleSwitchAnchor{
+    font-size:.85em;
+    text-decoration:none;
+    display:block;
+    padding:1px 3px;
+    background:#fff;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+  color:#555;
+}   
+#roleSwitch select{
+    display:inline;
+    font-size:0.9em;
+    padding:0;
+}
+/*a ul - the li below are outer wrappers for the links to sites */
+#siteLinkList{
+	white-space: nowrap;
+	list-style-image:none;
+	list-style-position:outside;
+	list-style-type:none;
+	margin: 0;	
+}
+
+/*list elements - children are <span> and <a>*/
+#siteLinkList li {
+	position: relative;
+	display:block;
+	float:left;
+}
+
+/*links to other sites*/
+#siteLinkList li a, #siteLinkList li a:link, #siteLinkList li a:visited {
+	color: #FFF;
+	text-decoration: none;
+	display: block;
+	float: left;
+	margin: 0 2px 0 0;
+	padding: 0 0 0 11px;
+	border-left:2px solid #878A8C;
+}
+
+#siteLinkList li a:hover {
+	text-decoration: underline;
+}
+
+#siteLinkList li span {
+	display: block;
+	padding: 8px 13px 3px 2px;
+	margin: 0pt;
+}
+
+/*the current sites' link - consists of the li and a*/
+
+#siteLinkList li.selectedTab a,
+	#siteLinkList li.selectedTab a:link,
+	#siteLinkList li.selectedTab a:visited,
+	#siteLinkList li.selectedTab a:hover {
+	color: #FFF;
+	background-color: #878A8C;
+	font-weight: bolder;
+	text-decoration: none;
+	border-width: 0;
+}
+
+#siteLinkList li.selectedTab a span{
+	padding: 8px 11px 5px 0;
+}
+
+#siteLinkList li.tab-dim a,
+	#siteLinkList li.tab-dim a:link,
+	#siteLinkList li.tab-dim a:visited,
+	#siteLinkList li.tab-dim a:hover {
+	color: #666;
+}
+
+#siteLinkList li.tab-dim a span {
+	padding-bottom: 3px;
+}
+
+/* more tab */
+li.more-tab {
+    
+
+}
+li.more-tab a {
+	background-image:  url(images/subnav_btn_more.png);
+    display:block;
+    height:16px;
+	background-repeat: no-repeat;
+	background-position:  right top;
+	padding:0;
+	margin: 0;
+
+}
+li.more-tab a span{
+    padding-right:15px;
+}
+#siteLinkList li.more-active a,
+	#siteLinkList li.more-active a:link,
+	#siteLinkList li.more-active a:visited {
+	color:#000000;
+	font-weight: bolder;
+	text-decoration: none;
+	border-width: 0;
+}
+
+#siteLinkList li.more-active a:hover {
+	text-decoration: underline;
+}
+
+#siteLinkList li.more-active a span {
+	padding-bottom: 5px;
+}
+
+#siteLinkList li.more-active a span.inner {
+}
+
+.fixTabsIE{
+	visibility: hidden;
+	display: none;
+	border-width: 0;
+}
+
+/*wrapper for the site <select> that is displayed when more than x sites are in the link list*/
+.dhtml_more_tabs {
+	position: absolute;
+	top: 2.5em;
+	right: 4px;
+	line-height: 1.5em;
+	background-color: #555; 
+	border-top-width: 0;
+	width: 75%;
+	z-index: 9999;
+    -moz-box-shadow: 3px 3px 4px #000;
+	-webkit-box-shadow: 3px 3px 4px #000;
+	box-shadow: 3px 3px 4px #000;
+    border-radius: 0px 0px 5px 5px;
+    -moz-border-radius: 0px 0px 5px 5px;
+    -webkit-border-bottom-right-radius: 5px;
+    -webkit-border-bottom-left-radius: 5px;
+}
+
+html>body .dhtml_more_tabs {
+	right: 2px;
+}
+
+.dhtml_more_tabs div.termContainer {
+	float: left;
+	padding: 0.8em;
+	text-align: left;
+	width: 28%;
+}
+	
+.dhtml_more_tabs h4 {
+	font-size: 1.06em;
+	margin: 0;
+	padding: 0;
+	font-weight: normal;
+}
+
+.dhtml_more_tabs  ul {
+	list-style: none;
+	margin: 10px;
+	padding: 10px;	
+}
+
+.dhtml_more_tabs  li {
+	margin: 3px; 
+	line-height: 1.1em;
+    width:18em;
+    float:left;
+    display:block
+}
+
+.dhtml_more_tabs div:first-child {
+	border-left: none;
+}
+
+
+#more_tabs_instr  {
+	color: #333;
+	font-size: 1em;
+	margin: 0.4em 0.8em 0.8em;
+	padding-top: 0.4em;
+	clear: both;
+	border-top: 1px solid #CCC;
+	text-align: left;
+	line-height: 1.1em;
+}
+
+#portalMask {
+	background-color: #EEEEEE; 
+	position: absolute;
+	z-index: 9000;
+	top:0;
+	left:0;
+	filter:alpha(opacity=50);
+	opacity: 0.50;
+}
+
+/*block in case need to display any decorative element above or below the .tabHolder block*/
+#navBottom{
+	display: none;
+}
+
+/*PART 5 - SITE TOOL LINKS  - children of #toolMenuWrap	*/
+/*wrapper for ul that lists the links to tools*/
+#toolMenu, #subSites{
+	width: 103%;
+	padding: 0;
+	margin: 1em 0 0 0;
+	color: #000;
+	background: inherit;
+}
+
+#toolMenu ul, #subSites ul{
+	width:auto;
+	list-style: none;
+	margin: 0;
+	padding-right: 0;
+	padding-left: 0;
+}
+
+#toolMenu li, #subSites li{
+	margin:0;
+	width: auto;
+	padding: 0;
+	text-align: right;
+    height:28px;
+    vertical-align:middle;
+
+}
+
+#subSites {
+    border: 1px solid #ccc;
+}
+
+#toolMenu li{
+    padding-right:5px;
+}
+/*span shim for fine grained manipulation of link display (decorative)
+also hide if are going to be using icon links (as background of <a> nad <li>
+*/
+#toolMenu li span, #subSites li span{
+    background-repeat:no-repeat;
+    background-position:right;
+    padding:3px 22px 3px 0px;
+}
+
+#toolMenu li.selectedTool{
+	background:#45BFEF url(images/lhnav_selected_item_bg.png) top left repeat-x
+}
+
+#toolMenu li.selectedTool a,#toolMenu li.selectedTool a:hover{
+	color:#fff
+    }
+
+#toolMenu li a:link,#toolMenu li a,
+#subSites li a:link,#subSites li a{
+    display: block;
+	text-decoration: none;
+	color: #333;
+    font:1em bold Helvetica, 'Helvetica Neue', Arial;
+	padding:5px;
+    display:block;
+}
+#toolMenu li a:hover,
+#subSites li a:hover{
+	text-decoration: none;
+	color: #09f;
+}
+
+#toolMenu li a.selected,
+#subSites li a.selected{
+	text-decoration: none;
+	color: #000;
+	cursor: text;
+}
+
+#toolMenu li a.selected:hover,
+#subSites li a.selected:hover{
+	text-decoration: none;
+	color: #000;
+	cursor: text;
+}
+
+#toolMenu li a.hidden { 
+	font-style: italic;
+	filter: alpha(opacity=70); /* opacity for IE */
+	opacity: 0.7; /* CSS3 standard */
+} 
+#toolMenu li.moreTools{
+    margin-top:10px
+}
+#toolMenu li.moreTools a{
+   display:inline;
+   -moz-border-radius: 5px;
+   -webkit-border-radius: 5px;
+   -khtml-border-radius: 5px;
+   padding:2px 5px;
+   border-radius: 4px;
+   color:#777;
+}
+#toolMenu li.moreTools a span{
+    padding-right:0
+    }
+#toolMenu li.moreTools a:hover{
+    background:#ccc;
+    color:#000
+    
+    }
+/*
+set of special selectors when a user has chosen to minimize navigation and maximize real
+page estate
+*/
+#togglebar{
+    position:absolute;
+    top:50px;
+    left:205px;
+    width:18px;
+    height:30px;
+    padding-top:2em;
+}
+a#toggleToolMenu{
+    text-decoration:none;
+    display:block;
+}
+
+#togglebar #toggleNormal{
+    position:absolute;
+    top:50px;
+    left:-155px;
+    background:transparent url(images/toggleOpen.png) -2px 0 no-repeat;
+    padding:0;
+    width:10px;
+    display:block;
+    height:48px;
+}
+#togglebar #toggleToolMax{
+    position:absolute;
+    top:50px;
+    left:-1px;
+    background:transparent url(images/toggleClose.png) -2px 0  no-repeat;
+    padding:0;
+    width:10px;
+    display:block;
+    height:48px;
+}
+#togglebar .toggleToolMenuHover{
+    background-position: 0 0 !important;
+    display:block;
+    width:14px !important;
+}
+/*
+
+#toggleToolMax, #toggleNormal{
+	height:18px;
+    padding:0 2px;
+	border:1px solid #fff;
+}
+#toggleToolMenu{
+    margin-left:-23px;
+}
+ #toggleToolMax{
+     outline:1px solid #ccc
+ }
+.toggleToolstoggleNav #toggleToolMax{
+    background:#fff url(images/toggler-back.png) 0 0 no-repeat
+ }
+#toggleNormal{
+    outline:1px solid lime;
+}
+.toggleToolstoggleNav #toggleNormal{
+    background:#fff url(images/toggler-back.png) -16px 0 no-repeat
+ }
+.toggleNav #toggleToolMax{
+	background:#fff url(images/toggler-back.png) -32px 0 no-repeat
+ }
+.toggleNav #toggleNormal{
+	background:#fff url(images/toggler-back.png) -48px 0 no-repeat
+ }  
+ .toggleTools #toggleToolMax{
+	background:#fff url(images/toggler-back.png) -64px 0 no-repeat
+ }
+.toggleTools #toggleNormal{
+	background:#fff url(images/toggler-back.png) -80px 0 no-repeat
+ }
+*/
+.sakaiMinimizePageNavigation #toolMenu li a {
+	display:block;
+	height:16px;
+	padding-right:0 !important;
+	width:1px;
+}
+.sakaiMinimizePageNavigation #toolMenu{
+	width:1px;
+}
+
+.sakaiMinimizePageNavigation #toolMenu li span {
+    position:absolute; 
+    left:-10000px; 
+    top:auto; 
+    width:1px; 
+    height:1px; 
+    overflow:hidden; 
+}
+.sakaiMinimizePageNavigation #toolMenuWrap, .sakaiMinimizePageNavigation #toolMenuWrap:hover{
+    position:absolute; 
+    left:-10000px; 
+    top:auto; 
+    width:1px; 
+    height:1px; 
+    overflow:hidden; 
+}
+.sakaiMinimizePageNavigation #togglebar{
+	padding-left:0em;
+	margin-top: 0em;
+	margin-left:0;
+}
+.sakaiMinimizePageNavigation #content{
+	padding-left:1.6em;
+	margin-left:0;
+}
+.sakaiMinimizeSiteNavigation #siteNavWrapper{
+	display:none
+}
+.sakaiMinimizeSiteNavigation #headerMax{
+	padding:0;
+	margin:0; 
+}
+
+#toolMenuWrap #toggler {
+	display:block;
+	float:right;
+}
+.sakaiMinimizePageNavigation #toggler {
+	display:block;
+	float:none !important;
+}
+
+
+/** Portal Timeout **/
+#timeout_alert_body {
+    position: absolute;
+    background: #fff;
+    color: #000;
+    border: 4px solid #0198CD;
+    width: 450px;
+    top: 20%;
+    left: 50%;
+    margin-left: -225px;
+    z-index: 10000;
+    padding: 5px 5px 5px 10px;
+}
+
+
+/*PART 6 - SITE AFFILIATION,SITE TYPE/STATUS AND PRESENCE - children of #toolMenuWrap	*/
+/*site logo wrapper*/
+#worksiteLogo{
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    text-align:center;
+    display: block;
+}
+/*site logo image - Sakai may output,depending on installation,an image here based in site affiliation. Site owner may also point to a url - overriding the Sakai provided image*/
+#worksiteLogo img{ 
+    width:95%;
+    margin:.5em auto;
+}
+
+/*wrapper for the string that Sakai will output based on site type (ie. project,course) this is open ended and institution specific*/
+#siteType{
+	display: none;
+}
+
+/*wrapper for the string that Sakai will output based on site status when status is "Unpublished"*/
+#siteStatus{
+	text-transform: capitalize;
+	text-align: left;
+	background: url(images/warn.gif) .2em center no-repeat #fff;
+	border: 1px solid  #aaa;
+	clear: both;
+	color: #aaa;	
+	font-size: 	small;
+	margin: 5px 2px 15px 2px;
+	padding: 3px 3px 3px 2em;
+}
+
+
+#presenceArea {
+	background-color: #fff;
+    border: 1px solid  #aaa;
+    position:fixed;
+    height: 250px;
+    width: 175px;
+    bottom: 40px;
+    right: 5px;
+    -moz-box-shadow: 3px 3px 4px #ccc;
+	-webkit-box-shadow: 3px 3px 4px #ccc;
+	box-shadow: 3px 3px 4px #ccc;
+}
+
+/*wrapper for all elements of presence display */
+#presenceWrapper{
+	width: 100%;
+}
+
+/*wrapper for title of iframe ("Users present")*/
+#presenceTitle, #pc_title{
+	font-size: 1.1em;
+    color:#555;
+    line-height:1em;
+    border-bottom:1px solid #ccc;
+	padding:5px;
+    background:#eee;
+    vertical-align:bottom;
+    border-bottom:1px solid #ddd
+}
+#presenceTitle div, #pc_title div{
+    position:absolute;
+    top:2px;
+    text-align:center;
+    right:0px;
+    bottom:0;
+    width:15px;    
+    height:13px;
+    font-size:120%;
+    border-left:1px solid #ccc;
+    padding:4px;
+}    
+#presenceTitle div a,#pc_title div a{
+    color:#888;
+    padding:3px;
+    text-decoration:none;
+}    
+/*of presence iframe*/
+#presenceIframe{
+	height: 100px;
+	width: 100%;
+	overflow:auto;
+}
+/*below for "presence in chat" functionality*/
+.presenceBody{
+	background:#fff
+}
+/*
+TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
+*/
+
+.presenceList{
+	font-size: .8em;
+	list-style: none;
+	margin: 3px !important;
+    padding:0;
+}
+/*
+TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
+*/
+.presenceList li {
+	padding: 3px 16px  3px  2px !important;
+}
+.presenceList li a{
+    font-weight:bold;
+    color:#09c;
+    text-decoration:none;
+}    
+/*
+TODO: remove important when the neoportal picks up right skin and edit tool.css removing all presence stuff from there
+*/
+/*see presense list when one member is in chat room*/
+.presenceList li.inChat {
+	background: url(images/chatpresicon.png) right center no-repeat !important;
+}
+
+/*PART 7 - PORTLETS - children of #content*/
+/*a page may display portlets in one column or two columns - the next three id selectors address the three possiblities - sole child of column is the .portlet */
+#col1{
+	padding-right: .5em;
+}
+
+#col1of2{
+	width: 49%;
+	float: left;
+	margin: 0;
+}
+
+#col2of2{
+	width: 50%;
+	float: right;
+}
+
+/*wrapper class for portlets - decorative -  contains two wrapper block children:.portletTitleWrap and  .portletMainWrap*/
+.portlet{
+}
+
+/*.portletTitleWrap are wrappers for the tool title documents,
+below they are contextually defined depending on the column as an example,as you may want to adjust the widths accordingly*/ 
+#col1 .portletTitleWrap{
+	width: 99%;
+	border-bottom: 2px solid #09c;
+
+}
+
+#col1 .portletMainWrap{
+	width: 99%;
+}
+#col1of2 .portletTitleWrap,#col2of2 .portletTitleWrap{
+	width: 98.5%;
+	border-bottom: 2px solid #09c;
+}
+
+#col1of2 .portletMainWrap,#col2of2 .portletMainWrap{
+	width: 98.5%;
+	margin-bottom: .5em;
+}
+
+.portletTitle{
+	width: 100%;
+	height:100%;
+	overflow:hidden;
+}
+
+.portletTitle .title img{
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 18px;
+	border:none;
+	height: 18px;
+}
+
+.portletTitle .title a{
+	background: url(images/reload.gif) center left no-repeat;
+	text-decoration: none !important;
+	border:1px solid #fff;
+	height:1.5em;
+	outline:none	
+}
+
+
+.portletTitle .title{
+	padding: 2px 4px 6px 0;
+	height: 1em;
+	float: left;
+	color: #000;
+}
+
+.portletTitle .title h2{
+	display: inline;
+	margin: 0;
+	padding: 0;
+    color:#555;	
+	font-weight: bold;
+	font-family:'Trebuchet MS',Verdana,sans-serif;
+	font-size: 1.2em !important;
+}
+.portletTitle .title h2 .siteTitle{
+    color: #333;
+}    
+.portletTitle .title a:hover, .portletTitle .title a:focus{
+	background: url(images/reload_h.gif) center left no-repeat;
+}
+
+.portletTitle .title a:focus,.portletTitle .action a:focus{ 
+	outline:black dotted thin; 
+} 
+
+.portletTitle .action{
+	padding: 2px 4px 6px 2px;
+	text-align: right;
+	vertical-align: middle;
+}
+
+.portletTitle .action img{
+	margin: 0;
+	vertical-align: text-bottom;
+	width: 18px;
+	border:none;
+	height: 18px;
+}
+
+.portletTitle .action a{
+	background: url(images/help.gif) center right no-repeat;
+	text-align: left;
+	padding:0;
+	text-decoration: none !important;
+	width:1em;
+	height:1.5em;
+	outline:none
+}
+
+.portletTitle .action a:hover, .portletTitle .action a:focus{
+	background: url(images/help_h.gif) center right no-repeat;
+}
+
+.portletTitle .action a#jsr-edit{
+        padding:2px;
+        background: url(images/page_edit.gif) center right no-repeat;
+}
+        
+.portletTitle .action a#jsr-edit:hover{
+        background: url(images/page_edit.gif) center right no-repeat;
+}       
+
+.portletMainIframe{
+	text-align: left;
+	margin-bottom: .5em;
+	height: auto;
+	margin-top:0
+}
+
+/*PART 8 - FOOTER BLOCKS - descendants of #footer TODO - unpack the 3 descendants and make them all children*/
+/*wrapper for links going to external sites - links are output as a series  separated via pipes (TODO:make a list already)*/
+.footerExtNav{
+	padding-top: 5px;
+	padding-bottom: 3px;
+}
+
+/*the links displayed inside the wrapper above*/
+.footerExtNav a,.footerExtNav A:link,.footerExtNav A:visited{
+	color: #fff;
+    font:1em bold Helvetica, 'Helvetica Neue', Arial;
+    text-decoration: none;
+	margin: 1em;
+}
+
+.footerExtNav a:hover{
+	color: #aaa;
+	text-decoration: underline;
+}
+
+/*a second wrapper - server info,build,etc*/
+#footerInfo{
+    display:none
+}
+
+#footerInfo img{
+	margin-top: .5em;
+	margin-bottom: .5em;
+}
+
+/*a third wrapper - reserved for copyright blurbs*/
+.sakaiCopyrightInfo, .serviceInfo {
+
+    font:.75em bold Helvetica, 'Helvetica Neue', Arial;
+	color: #fff;
+}
+#footerAppTray{
+     font:.85em bold Helvetica, 'Helvetica Neue', Arial;
+     position:fixed;
+     right:5px;
+     bottom:0;
+     height:23px;
+     z-index: 9999;
+     line-height:1.2em;
+     width:auto;
+     padding:0;
+     background:#eee url(images/appTrayBack.png) top left repeat-x;
+    border:1px solid #ccc;
+}
+#footerAppPresence{
+    height:100%;
+    color:#fff;
+    vertical-align:middle;
+    float:right;
+    padding: 5px 3px;
+}
+#footerAppChat{
+    height:35px;
+    vertical-align:bottom;
+    color:#000;
+    float:left;
+    text-align:left;
+    width:200px;
+    padding: 5px;
+}
+#presenceToggle{
+	color: white;
+	text-decoration: none;
+}
+#chatToggle:focus, #presenceToggle:focus{
+    outline:1px dotted #000;
+}
+
+#chatToggle{
+	display: inline;
+	color: #888;
+	text-decoration: none;
+}
+#footerAppTray span.present {
+    background-color: #b11;
+    padding:0 5px;
+    color:#fff;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    height:14px;
+    width:14px;
+}
+
+.workspace #footerAppPresence{
+    display:none;
+    border:none;
+}
+#footerAppTray #presenceCount{
+    font-size:80%;
+    outline:none;
+}
+#footerAppTray #chattableCount{
+    font-size:80%;
+    margin-left:10px;
+    outline:none;
+}
+#footerAppTray span.empty {
+    visibility:hidden;
+}    
+/*PART 8 - CONVENIENCE*/
+/*used to hide various blocks from sighted users that are in the source to help with accessibility*/
+.portalBody .skip{
+    display: inline !important; 
+    position: fixed !important; 
+    height: 1px !important; 
+    width: 1px !important; 
+    overflow: hidden !important;
+    top:0px !important;
+    left:0px; 
+		padding:0px 0px 0px 0px !important;
+} 
+/*jump-to links, tabbing into  */
+#skipNav a.internalSkip:focus, #skipNav a.internalSkip:active {
+    text-decoration:none;
+    font-size:90%;
+    position:fixed !important;
+    background:#0d0d0d;
+    border-color:#222;
+    border-width: 0 2px 2px 0;
+    border-style:solid;
+    -webkit-border-bottom-right-radius: 5px;
+    -moz-border-radius-bottomright: 5px;
+    border-bottom-right-radius: 5px;
+    vertical-align:middle;
+    padding:6px 10px !important;
+    outline:none;
+    z-index:200000;
+    box-shadow:0px 0px 10px #000;
+    -webkit-box-shadow:0px 0px 10px #000;
+    -moz-box-shadow:0px 0px 10px #000000;
+    top:35px !important;
+    left:0  !important;
+    height:auto  !important;
+    color:#fff;
+    width: auto  !important;
+}
+
+#headerMin #skipNav a.internalSkip:focus, #headerMin #skipNav a.internalSkip:active {
+    top:0 !important;
+    left:0  !important;
+}
+/*append the value of the accesskey attr to the text*/
+.internalSkip:after {content:' [' attr(accesskey) ']'}
+
+
+/* PART 9 - Tool Icons */
+
+.icon-osp-evaluation {
+	background-image: url(/library/image/silk/thumb_up.png);
+}
+
+.icon-osp-glossary {
+	background-image: url(/library/image/silk/text_list_bullets.png);
+}
+
+.icon-osp-matrix {
+	background-image: url(/library/image/silk/table.png);
+}
+
+.icon-osp-presentation {
+	background-image: url(/library/image/silk/briefcase.png);
+}
+
+.icon-osp-presLayout {
+	background-image: url(/library/image/silk/layout_content.png);
+}
+
+.icon-osp-presTemplate {
+	background-image: url(/library/image/silk/application_view_tile.png);
+}
+
+.icon-osp-style {
+	background-image: url(/library/image/silk/style.png);
+}
+
+.icon-osp-wizard {
+	background-image: url(/library/image/silk/wand.png);
+}
+
+.icon-sakai-announcements {
+	background-image: url(/library/image/silk/flag_blue.png);
+}
+
+.icon-sakai-chat {
+	background-image: url(/library/image/silk/user_comment.png);
+}
+
+.icon-sakai-datapoint {
+	background-image: url(/library/image/silk/chart_line.png);
+}
+
+.icon-sakai-discussion {
+	background-image: url(/library/image/silk/comments.png);
+}
+
+.icon-sakai-dropbox {
+	background-image: url(/library/image/silk/folder_page.png);
+}
+
+.icon-sakai-emailtemplateservice {
+	background-image: url(/library/image/silk/email_edit.png);
+}
+
+.icon-sakai-gmt {
+	background-image: url(/library/image/silk/award_star_gold_3.png);
+}
+
+.icon-sakai-help {
+	background-image: url(/library/image/silk/help.png);
+}
+
+.icon-sakai-iframe {
+	background-image: url(/library/image/silk/page_world.png);
+}
+
+.icon-sakai-iframe-site {
+	background-image: url(/library/image/silk/house.png);
+}
+
+.icon-sakai-web-168 {
+    background-image: url(/library/image/silk/application_go.png);
+}
+
+.icon-sakai-mailbox {
+	background-image: url(/library/image/silk/email.png);
+}
+
+.icon-sakai-messages {
+	background-image: url(/library/image/silk/comment.png );
+}
+
+.icon-sakai-metaobj {
+	background-image: url(/library/image/silk/application_form.png);
+}
+
+.icon-sakai-membership {
+	background-image: url(/library/image/silk/group.png);
+}
+
+.icon-sakai-news {
+	background-image: url(/library/image/silk/rss.png);
+}
+
+.icon-sakai-podcasts{
+	background-image: url(/library/image/silk/ipod_cast.png );
+}
+
+.icon-sakai-postem{
+	background-image: url(/library/image/silk/database_table.png );
+}
+
+.icon-sakai-preferences{
+	background-image: url(/library/image/silk/cog.png );
+}
+
+.icon-sakai-rutgers-linktool{
+	background-image: url(/library/image/silk/application.png);
+}
+
+.icon-sakai-sections{
+	background-image: url(/library/image/silk/group_gear.png );
+}
+
+.icon-sakai-singleuser{
+	background-image: url(/library/image/silk/user.png );
+}
+
+.icon-sakai-syllabus{
+	background-image: url(/library/image/silk/script.png );
+}
+
+.icon-blogger{
+	background-image: url(/library/image/silk/book_edit.png );
+}
+
+.icon-sakai-assignment-grades{
+	background-image: url(/library/image/silk/page_edit.png );
+}
+
+.icon-sakai-forums{
+	background-image: url(/library/image/silk/comments.png );
+}
+
+.icon-sakai-gradebook-tool{
+	background-image: url(/library/image/silk/report.png);
+}
+
+.icon-sakai-mailtool {
+	background-image: url(/library/image/silk/email_go.png );
+}
+
+.icon-sakai-poll{
+	background-image: url(/library/image/silk/chart_bar.png);
+}
+
+.icon-sakai-sitestats {
+	background-image: url(/library/image/silk/chart_bar.png);
+}
+
+.icon-sakai-sitestats-admin {
+        background-image: url(/library/image/silk/chart_line.png);
+}
+
+.icon-sakai-presentation {
+	background-image: url(/library/image/silk/monitor.png);
+}
+
+.icon-sakai-profile {
+	background-image: url(/library/image/silk/vcard_edit.png);
+}
+
+.icon-sakai-reports {
+	background-image: url(/library/image/silk/report_magnify.png);
+}
+
+.icon-sakai-resetpass {
+	background-image: url(/library/image/silk/key.png);
+}
+
+.icon-sakai-resources {
+	background-image: url(/library/image/silk/folder.png);
+}
+
+.icon-sakai-rwiki {
+	background-image: url(/library/image/silk/page_white_edit.png);
+}
+
+.icon-sakai-samigo {
+	background-image: url(/library/image/silk/pencil.png);
+}
+
+.icon-sakai-schedule {
+	background-image: url(/library/image/silk/calendar.png);
+}
+
+.icon-sakai-search {
+	background-image: url(/library/image/silk/find.png);
+}
+
+.icon-sakai-siteinfo {
+	background-image: url(/library/image/silk/application_lightning.png );
+}
+
+.icon-sakai-sitesetup{
+	background-image: url(/library/image/silk/application_lightning.png );
+}
+
+.icon-sakai-site-roster {
+	background-image: url(/library/image/silk/vcard.png);
+}
+
+.icon-sakai-synoptic-messagecenter{
+background-image: url(/library/image/silk/comment.png);
+}
+
+.icon-sakai-conferencing {
+    background-image : url(/library/image/silk/webcam.png);
+}
+
+.icon-sakai-profile2 { 
+	background-image: url(/library/image/silk/vcard.png); 
+} 
+
+/*admin tools*/
+.icon-sakai-users{
+	background-image: url(/library/image/silk/folder_user.png);
+}
+.icon-sakai-aliases{
+	background-image: url(/library/image/silk/tag_blue.png);
+}
+.icon-sakai-sites{
+	background-image: url(/library/image/silk/application_cascade.png);
+}
+.icon-sakai-realms{
+	background-image: url(/library/image/silk/sitemap_color.png);
+}
+.icon-sakai-online{
+	background-image: url(/library/image/silk/report_user.png);
+}
+.icon-sakai-memory{
+	background-image: url(/library/image/silk/server_chart.png);
+}
+.icon-sakai-archive{
+	background-image: url(/library/image/silk/page_white_compressed.png);
+}
+.icon-sakai-scheduler{
+	background-image: url(/library/image/silk/clock.png);
+}
+.icon-sakai-su{
+	background-image: url(/library/image/silk/user_go.png);
+}
+.icon-sakai-usermembership{
+	background-image: url(/library/image/silk/drive_user.png);
+}
+
+.icon-sakai-motd { 
+	background-image: url(/library/image/silk/house.png); 
+} 
+.icon-sakai-sitebrowser { 
+	background-image: url(/library/image/silk/world.png); 
+} 
+.icon-sakai-createuser { 
+	background-image: url(/library/image/silk/user_add.png); 
+} 
+.icon-sakai-subsite { 
+	background-image: url(/library/image/silk/chart_organisation.png); 
+}
+
+.icon-sakai-iframe-service {
+	background-image: url(/library/image/silk/house.png);
+}
+.icon-sakai-iframe-myworkspace {
+	background-image: url(/library/image/silk/house.png);
+}
+
+.icon-sakai-basiclti { 
+	background-image: url(/library/image/silk/application_go.png); 
+}
+.icon-sakai-basiclti-admin { 
+	background-image: url(../../image/silk/application_go.png); 
+}
+.icon-sakai-lessonbuildertool {
+    background-image: url(../../image/silk/book_open.png);
+}
+.icon-sakai-see-all-tools {
+    background-image: url(../../image/silk/bullet_go.png);
+}
+
+/** Privacy Popup Styles **/
+div#privacy_tool_popup {
+    position: absolute;
+    background: #fff;
+    color: #000;
+    border: 4px solid #0198CD;
+    width: 450px;
+    top: 20%;
+    left: 50%;
+    margin-left: -225px;
+    z-index: 1000;
+    padding: 5px 5px 5px 10px;
+}
+
+div#privacy_overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: #000;
+	filter:alpha(opacity=70);
+	opacity: 0.7;
+   z-index: 0;
+}
+
+ul.topnav {
+	list-style: none;
+	padding-left:5px;
+	margin: 0 ;
+    width:100%;
+	float: left;
+    background: #222 url(images/topnav_bg.gif) repeat-x;
+	font-size: 1.1em;
+}
+ul.topnav li {
+	background: #222 url(images/topnav_bg.gif) repeat-x;
+	float: left;
+	margin: 0;
+	padding: 0 15px 0 0;
+	position: relative; /*--Declare X and Y axis base for sub navigation--*/
+}
+ul.topnav li a{
+	padding: 10px 5px;
+	color: #fff;
+	text-decoration: none;
+	float: left;
+     display:block;
+}
+ul.topnav li a:hover,ul.topnav li a:focus{
+    color:#9cf   
+}
+ul.topnav li a span{
+	vertical-align: bottom;
+}
+ul.topnav li.nav-selected > a{
+    color:#9cf
+}
+li.nav-menu > a:hover, li.nav-menu > a:focus,  li.nav-menu > a:active{
+	background:  url(images/topnav_hover.gif) no-repeat center top;
+}
+span.nav-menu > a:hover, span.nav-menu > a:focus,  span.nav-menu > a:active{
+	background:  url(images/topnav_hover.gif) no-repeat center top;
+}
+ul.topnav li span.drop { /*--Drop down trigger styles--*/
+	width: 17px;
+    margin-top:3px;
+	height: 35px;
+	float: left;
+	background: url(images/subnav_btn.png) no-repeat center top;
+}
+/*
+remove these hacks after we redo the more sites functionality
+*/
+ul.topnav li span.drop:nth-child(even){
+ display:none;
+}
+.portletTitle .title h2 span.siteTitle:nth-child(even){
+    display:none;
+}
+ul.topnav li span.subhover {background-position: center bottom; cursor: pointer;} /*--Hover effect for trigger--*/
+ul.topnav li ul.subnav{
+	list-style: none;
+	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
+	left: 0; top: 35px;
+	background: #333;
+    font-size:.9em;
+	margin: 0; padding: 0;
+	display: none;
+	float: left;
+	width: 210px;
+	border: 1px solid #111;
+    white-space:nowrap;
+    z-index:100;
+	-moz-box-shadow: 6px 6px 8px #000;
+	-webkit-box-shadow: 6px 6px 8px #000;
+	box-shadow: 6px 6px 8px #000;
+}
+#mastLogin span.drop { /*--Drop down trigger styles--*/
+	width: 17px;
+	margin-top:3px;
+	height: 35px;
+}
+
+#mastLogin ul.subnav {
+	list-style: none;
+	position: absolute; /*--Important - Keeps subnav from affecting main navigation flow--*/
+	right: 2px; top: 30px;
+	background: #333;
+    font-size:.9em;
+	margin: 0; padding: 0;
+	display: none;
+	float: left;
+	width: 210px;
+	border: 1px solid #111;
+    white-space:nowrap;
+    z-index:100;
+	-moz-box-shadow: 6px 6px 8px #000;
+	-webkit-box-shadow: 6px 6px 8px #000;
+	box-shadow: 6px 6px 8px #000;
+}
+
+ul.subnav span.addTool{
+    text-align:right;
+}
+
+#otherSiteTools{
+    list-style: none;
+	position: fixed;
+    top:-2000px;
+    left:-2000px;
+    z-index:1000000;
+	background: #aaa;
+    font-size:.9em;
+	margin: 0; padding: 0;
+	width: 200px;
+    padding:1px;
+	border: 1px solid #111;
+    white-space:nowrap;
+	-moz-box-shadow: 6px 6px 8px #000;
+	-webkit-box-shadow: 6px 6px 8px #000;
+	box-shadow: 6px 6px 8px #000;
+}
+#otherSiteTools li{
+    background: url("images/topnav_bg.gif") repeat-x scroll 0 0 #222222;
+    float: left; 
+    padding:0;margin:0
+ }
+#otherSiteTools li a {
+   width: 210px;
+    background-position: 3px center !important;
+    background-repeat: no-repeat !important;
+    outline:none;
+	width: 170px;
+    padding: 10px 5px;
+	padding-left: 25px;
+    color: #FFFFFF;
+    display: block;
+    text-decoration: none;
+}
+
+#otherSiteTools li a:hover, #otherSiteTools li a:focus {
+    color:#9cf;
+    }
+span.topnav li ul.subnav li{
+	margin: 0; padding: 0;
+	clear: both;
+	width: 210px;
+}
+ul.nav-submenu li.submenuitem a, #mastLogin  li.submenuitem a {
+    background-position: 3px center !important;
+    background-repeat: no-repeat !important;
+    outline:none;
+    text-decoration:none;
+	width: 170px;
+	padding-left: 25px;
+}
+#mastLogin  li.submenuitem{
+    margin:0;
+    text-align:left;
+}
+#mastLogin  li.submenuitem a{
+    background-position:left center;
+    background-repeat:no-repeat;
+    border-bottom:1px solid #777;
+    padding:10px 25px;
+    width:auto;
+    display:block;
+}
+li.submenuitem span.hidden{
+    font-style:italic;
+	filter:alpha(opacity=50);
+	opacity: 0.70;
+}
+#mastLogin  li.submenuitem:last-child a{
+    border-bottom:none;
+    }
+#mastLogin  li.submenuitem a.submenuitem-profile{
+    background-image: url(/library/image/silk/vcard_edit.png);    
+}
+#mastLogin  li.submenuitem a.submenuitem-prefs{
+    background-image: url(/library/image/silk/cog.png);    
+}
+
+#mastLogin  li.submenuitem a.submenuitem-new-site{
+        background-image: url(/library/image/silk/application_lightning.png );
+}
+
+#mastLogin  li.submenuitem a:hover,#mastLogin  li.submenuitem a:focus { /*--Hover effect for subnav links--*/
+    color:#9cf;
+}
+
+ul#otherSiteList, ul.otherSitesCategorList{
+    margin:5px;
+    padding:0;
+    clear:both;
+    float:none;
+}
+ul#otherSitesMenu{
+    position:absolute;
+    top:15px;
+    right:5px;
+    font-size:.7em;
+    margin:0;
+    padding:0
+}
+ul#otherSiteList li,ul#otherSitesMenu li, ul.otherSitesCategorList li{
+    background: #222 url(images/topnav_bg.gif) 0  -1px   repeat-x;
+    position:relative;
+    border-radius: 5px;
+    -moz-border-radius: 5px;
+    -webkit-border-radius: 5px;
+    overflow:hidden;
+}
+ul#otherSitesMenu li, ul.otherSitesCategorList li{
+    width:auto
+    }
+ul#otherSiteList li a, #otherSitesMenu li a, ul.otherSitesCategorList li a{
+    display:block;
+    padding:7px;
+    color:#fff;
+    text-decoration:none !important;
+}
+ul#otherSiteList li a, ul.otherSitesCategorList li a{
+    white-space:nowrap;
+}
+ul#otherSiteList li a span, ul.otherSitesCategorList li a span{
+    width:14em;
+    display:block;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    }
+.toolMenus{
+    width: 17px;
+    height:17px;
+    padding:0px;
+    border-left:1px solid #888;
+	background: #292929 url(images/subnav_btn.png) no-repeat 10px -4px;
+    position:absolute;
+   right:1px;
+   top:2px;
+   height:11px;
+}
+.toolMenus:hover{background-position: 10px -38px; cursor: pointer;}
+/*
+for categorized view
+*/    
+#otherSitesCategorWrap{
+    margin:5px;
+}
+#otherSitesCategorWrap h4{
+    float:none;
+    clear:both;
+    color:#fff;
+    font-size:120%;
+    text-transform:capitalize;
+    font-variant:small-caps;
+    padding:5px 10px 0 10px;
+    margin:0;
+    text-shadow: -1px -1px 0 black;
+}    
+ul#otherSiteList li a:hover,ul#otherSiteList li a:focus,ul#otherSiteList li a:active, #otherSitesMenu li a:hover,#otherSitesMenu li a:focus,#otherSitesMenu li a:active, ul.otherSitesCategorList li a:hover, ul.otherSitesCategorList li a:focus     {
+   color:#9cf
+}
+#otherSiteMenuWrap{
+    margin:5px;
+    padding:5px;
+    width:auto;
+    height:30px;
+}
+#otherSiteMenuWrap h4{
+    color:#fff;
+}
+#otherSiteMenuWrap *{
+    vertical-align:middle;
+}
+#otherSiteSearch{
+    padding:5px;
+    width:70%;
+    float:left;
+}
+#otherSiteSearch label{
+    color:#fff;
+    padding-right:2em;
+}
+#otherSiteSearch span#noSearchResults{
+    color:#fff
+}
+.workspace #presenceToggle{
+    display:none;
+}
