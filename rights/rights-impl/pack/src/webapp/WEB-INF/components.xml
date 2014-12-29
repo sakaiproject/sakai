@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.rights.api.RightsService"
+			class="org.sakaiproject.rights.impl.BasicRightsService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+
+<!--
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+ 		<property name="siteQuota"><value>1048576</value></property>
+ 		<property name="availabilityChecksEnabled"><value>true</value></property>
+  		<property name="prioritySortEnabled"><value>true</value></property>
+-->
+  	</bean>
+
+</beans>

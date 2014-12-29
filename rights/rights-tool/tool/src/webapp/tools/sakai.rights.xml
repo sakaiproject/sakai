@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.rights" title="Rights Helper"
+			description="For maintaining information about intellectual property rights related to resources.">
+		<category name="helper" />
+	</tool>
+</registration>
+
