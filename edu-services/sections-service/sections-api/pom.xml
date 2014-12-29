@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>sections</artifactId>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+    </parent>
+    <name>Sakai Sections API</name>
+    <groupId>org.sakaiproject.edu-services.sections</groupId>
+    <artifactId>sections-api</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+    <packaging>jar</packaging>
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+    </dependencies>
+    <reports />
+    <build>
+        <resources />
+    </build>
+</project>

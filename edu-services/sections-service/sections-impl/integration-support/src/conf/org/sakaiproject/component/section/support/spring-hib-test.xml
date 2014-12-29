@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="sectionsTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
+    
+    <bean abstract="true" id="sectionsTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="sectionsTransactionManager"/></property>
+        <property name="transactionAttributes">
+            <props>
+            <!--  Do not apply transactions during testing -->
+            </props>
+        </property>
+    </bean>
+
+</beans>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="sectionsTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
+
+    <!--
+        This Spring configuration file sets up the shared Hibernate properties.
+    -->
+    
+    <bean abstract="true" id="sectionsTxTemplate" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="sectionsTransactionManager"/></property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="join*">PROPAGATION_REQUIRED</prop>
+                <prop key="switch*">PROPAGATION_REQUIRED</prop>
+                <prop key="drop*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="set*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="remove*">PROPAGATION_REQUIRED</prop>
+                <prop key="disband*">PROPAGATION_REQUIRED</prop>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+</beans>
+    

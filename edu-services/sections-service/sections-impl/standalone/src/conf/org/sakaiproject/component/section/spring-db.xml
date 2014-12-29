@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <bean id="sectionsPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+        <property name="locations">
+            <list>
+                <value>classpath:/hibernate.properties</value>
+            </list>
+        </property>
+    </bean>
+
+	<bean id="sectionsDataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName"><value>${hibernate.connection.driver_class}</value></property>
+		<property name="url"><value>${hibernate.connection.url}</value></property>
+		<property name="username"><value>${hibernate.connection.username}</value></property>
+		<property name="password"><value>${hibernate.connection.password}</value></property>
+	</bean>
+    
+    <bean id="sectionsSessionFactory" class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+        <property name="dataSource"><ref bean="sectionsDataSource"/></property>
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/component/section/LearningContextImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/section/ParticipationRecordImpl.hbm.xml</value>
+                <value>org/sakaiproject/component/section/UserImpl.hbm.xml</value>
+            </list>
+        </property>
+        
+        <property name="hibernateProperties">
+          <props>
+            <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+            <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+            <prop key="hibernate.query.factory_class">${hibernate.query.factory_class}</prop>
+            <prop key="hibernate.cache.provider_class">${hibernate.cache.provider_class}</prop>
+            <prop key="hibernate.query.substitutions">true 1, false 0</prop>
+            <prop key="hibernate.hbm2ddl.auto">update</prop>
+          </props>
+        </property>
+    </bean>
+</beans>

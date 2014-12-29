@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>scoring-service</artifactId>
+        <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>scoring-service-component</artifactId>
+    <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
+
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+    <dependencies>
+        <dependency>
+            <artifactId>scoring-service-impl</artifactId>
+            <groupId>org.sakaiproject.edu-services.scoringservice</groupId>
+        </dependency>
+    </dependencies>
+
+
+</project>

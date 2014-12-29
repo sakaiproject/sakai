@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>sections</artifactId>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+        <relativePath>../../../pom.xml</relativePath>
+    </parent>
+    <name>sakai-sections-model</name>
+    <groupId>org.sakaiproject.edu-services.sections</groupId>
+    <artifactId>sections-model</artifactId>
+    <packaging>jar</packaging>
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+    <dependencies>
+	<dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+	<dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+       
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+    </dependencies>
+    <reports />
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/conf</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>${basedir}/src/hibernate</directory>
+                <includes>
+                    <include>ehcache.xml</include>
+                    <include>**/*.hbm.xml</include>
+                </includes>
+            </resource>
+        </resources>
+    </build>
+</project>

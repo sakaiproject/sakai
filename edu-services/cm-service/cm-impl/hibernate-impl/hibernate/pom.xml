@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>course-management</artifactId>
+		<groupId>org.sakaiproject.edu-services.course-management</groupId>
+		<version>11-SNAPSHOT</version><!-- ProjectVersion -->
+		<relativePath>../../../pom.xml</relativePath>
+	</parent>
+	<name>coursemanagement-hibernate-model</name>
+	<groupId>org.sakaiproject.edu-services.course-management</groupId>
+	<artifactId>coursemanagement-hibernate-model</artifactId>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2006</inceptionYear>
+	<packaging>jar</packaging>
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.edu-services.course-management</groupId>
+			<artifactId>coursemanagement-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+		</dependency>
+
+	</dependencies>
+	<reports />
+	<build>
+		<resources>
+			<resource>
+				<directory>${basedir}/src/hibernate</directory>
+				<includes>
+					<include>**/*.hbm.xml</include>
+				</includes>
+			</resource>
+		</resources>
+	</build>
+</project>

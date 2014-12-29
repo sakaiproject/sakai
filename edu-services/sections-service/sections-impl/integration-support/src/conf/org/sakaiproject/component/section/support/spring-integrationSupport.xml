@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <bean id="org.sakaiproject.component.section.support.IntegrationSupport" parent="sectionsTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.component.section.support.IntegrationSupportImpl">
+                <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+                <property name="courseManager">
+                    <ref bean="org.sakaiproject.section.api.CourseManager"/>
+                </property>
+                <property name="sectionManager">
+                    <ref bean="org.sakaiproject.section.api.SectionManager"/>
+                </property>
+                <property name="userManager">
+                    <ref bean="org.sakaiproject.component.section.support.UserManager"/>
+                </property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.component.section.support.UserManager" parent="sectionsTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.component.section.support.UserManagerHibernateImpl">
+                <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+            </bean>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.section.api.CourseManager" parent="sectionsTxTemplate">
+        <property name="target">
+            <bean class="org.sakaiproject.component.section.CourseManagerHibernateImpl">
+                <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+            </bean>
+        </property>
+    </bean>
+
+</beans>

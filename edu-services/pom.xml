@@ -1,0 +1,137 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>Sakai educational Services Project</name>
+  <groupId>org.sakaiproject.edu-services</groupId>
+  <artifactId>edu-services</artifactId>
+  <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>gradebook-service</module>
+    <module>cm-service</module>
+    <module>sections-service</module>
+    <module>scoring-service</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/edu-services/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <!--internal dependencies -->
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-hibernate</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+        <artifactId>gradebook-service</artifactId>
+        <version>${project.version}</version>
+        <type>pom</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.course-management</groupId>
+        <artifactId>coursemanagement-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+        <dependency>
+          <groupId>org.sakaiproject.edu-services.scoring-service</groupId>
+          <artifactId>scoring-service-api</artifactId>
+          <version>${project.version}</version>
+          <scope>provided</scope>
+        </dependency>
+      <!-- Used only for test data. -->
+      <dependency>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <artifactId>sections-integrationsupport</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <reporting>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jxr-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>findbugs-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>taglist-maven-plugin</artifactId>
+        <configuration>
+          <tags>
+            <tag>TODO</tag>
+            <tag>todo</tag>
+            <tag>FIXME</tag>
+            <tag>fixme</tag>
+            <tag>Ignore</tag>
+            <tag>Deprecated</tag>
+          </tags>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>cobertura-maven-plugin</artifactId>
+        <version>2.2</version>
+        <configuration>
+          <formats>
+            <format>xml</format>
+            <format>html</format>
+          </formats>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>jdepend-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+</project>

@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+	"http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping default-cascade="none" package="org.sakaiproject.tool.gradebook"
+	default-lazy="false">
+
+	<class name="org.sakaiproject.tool.gradebook.Category" table="GB_CATEGORY_T">
+
+		<id name="id" column="ID" type="long">
+			<generator class="native">
+				<param name="sequence">GB_CATEGORY_S</param>
+			</generator>
+		</id>
+
+		<version name="version" type="integer" column="VERSION"/>
+
+		<many-to-one name="gradebook" column="GRADEBOOK_ID" class="org.sakaiproject.tool.gradebook.Gradebook" not-null="true"/>
+
+		<property name="name" column="NAME" type="string" not-null="true"/>
+
+		<property name="weight" column="WEIGHT" type="double" not-null="false" />
+		
+		<property name="drop_lowest" column="DROP_LOWEST" type="integer" not-null="false" />
+		
+		<property name="removed" column="REMOVED" type="boolean" />
+		
+		<property name="extraCredit" column="IS_EXTRA_CREDIT" type="boolean" not-null="false" />
+		
+		<property name="equalWeightAssignments" column="IS_EQUAL_WEIGHT_ASSNS" type="boolean" not-null="false" />
+   
+   		<property name="unweighted" column="IS_UNWEIGHTED" type="boolean" not-null="false" />
+   
+   		<property name="categoryOrder" column="CATEGORY_ORDER" type="integer" not-null="false" />
+   
+   		<property name="enforcePointWeighting" column="ENFORCE_POINT_WEIGHTING" type="boolean" not-null="false" />
+   		
+   		<property name="dropHighest" column="DROP_HIGHEST" type="integer" not-null="false" />
+		
+		<property name="keepHighest" column="KEEP_HIGHEST" type="integer" not-null="false" />
+		</class>
+  
+ 	<database-object>
+		<create>create index GB_CATEGORY_GB_IDX on GB_CATEGORY_T (GRADEBOOK_ID)</create>
+		<drop></drop>
+		<dialect-scope name="org.hibernate.dialect.Oracle9Dialect"/>
+		<dialect-scope name="org.hibernate.dialect.OracleDialect"/>
+	</database-object>
+</hibernate-mapping>

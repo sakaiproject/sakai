@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cm-data>
+	<academic-sessions>
+		<academic-session>
+			<eid>fall_2006</eid>
+			<title>Fall 2006</title>
+			<description>The fall semester for the year 2006</description>
+			<start-date>9/1/2006</start-date>
+			<end-date>12/31/2006</end-date>
+		</academic-session>
+
+		<academic-session>
+			<eid>winter_2007</eid>
+			<title>Winter 2007</title>
+			<description>The winter semester for the year 2007</description>
+			<start-date>1/1/2007</start-date>
+			<end-date>4/30/2007</end-date>
+		</academic-session>
+	</academic-sessions>
+
+	<current-academic-sessions>
+		<academic-session-eid>winter_2007</academic-session-eid>
+	</current-academic-sessions>
+
+	<canonical-courses>
+		<canonical-course>
+			<eid>biology_101</eid>
+			<title>Biology 101</title>
+			<description>Introduction to Cellular Biology</description>
+		</canonical-course>
+
+		<canonical-course>
+			<eid>chemistry_101</eid>
+			<title>Chemistry 101</title>
+			<description>Introduction to Inorganic Chemistry</description>
+		</canonical-course>
+	</canonical-courses>
+
+	<course-offerings>
+		<course-offering>
+			<eid>biology_101_01</eid>
+			<title>Intro to Biology, Fall 2006</title>
+			<description>Introduction to Biology for the Fall 2006 Semester</description>
+			<status>open-enrollment</status>
+			<academic-session-eid>fall_2006</academic-session-eid>
+			<canonical-course-eid>biology_101</canonical-course-eid>
+			<start-date>9/1/2006</start-date>
+			<end-date>12/31/2006</end-date>
+			<members>
+				<member userEid="co_member_1" role="assistant"/>
+				<member userEid="co_member_2" role="assistant"/>
+			</members>
+		</course-offering>
+
+		<course-offering>
+			<eid>chemistry_101_01</eid>
+			<title>Intro to Inorganic Chemistry, Fall 2006</title>
+			<description>Introduction to Inorganic Chemistry for the Fall 2006 Semester</description>
+			<status>full</status>
+			<academic-session-eid>fall_2006</academic-session-eid>
+			<canonical-course-eid>chemistry_101</canonical-course-eid>
+			<start-date>9/1/2006</start-date>
+			<end-date>12/31/2006</end-date>
+		</course-offering>
+	</course-offerings>
+
+	<sections>
+		<section>
+			<eid>biology_101_01_lec01</eid>
+			<title>Intro to Biology Lecture</title>
+			<description>Main lecture section for biology_101</description>
+			<category>Lecture</category>
+			<parent-section-eid/>
+			<enrollment-set-eid>biology_101_01_lec01_es</enrollment-set-eid>
+
+			<meetings>
+				<meeting>
+					<location>Lecture Hall A</location>
+					<time>Tuesday, 12:00pm</time>
+					<notes>Don't be late.</notes>
+				</meeting>
+				<meeting>
+					<location>Lecture Hall B</location>
+					<time>Thursday, 12:00pm</time>
+					<notes></notes>
+				</meeting>
+			</meetings>
+
+			<members>
+				<member userEid="sec_member_1" role="assistant"/>
+				<member userEid="sec_member_2" role="assistant"/>
+			</members>
+		</section>
+	</sections>
+
+	<enrollment-sets>
+		<enrollment-set>
+			<eid>biology_101_01_lec01_es</eid>
+			<title>Intro to Biology Lecture Enrollment Set</title>
+			<description>Main lecture section for biology_101 - Enrollment set</description>
+			<course-offering-eid>biology_101_01</course-offering-eid>
+			<category>Lecture</category>
+			<default-enrollment-credits>3</default-enrollment-credits>
+			<official-instructors>
+				<official-instructor>instructor1</official-instructor>
+				<official-instructor>instructor2</official-instructor>
+			</official-instructors>
+			<enrollments>
+				<enrollment>
+					<userEid>student1</userEid>
+					<status>enrolled</status>
+					<credits>3</credits>
+					<grading-scheme>letter_grade</grading-scheme>
+				</enrollment>
+				<enrollment>
+					<userEid>student2</userEid>
+					<status>waitlisted</status>
+					<credits>2</credits>
+					<grading-scheme>pass_fail</grading-scheme>
+				</enrollment>
+			</enrollments>
+		</enrollment-set>
+	</enrollment-sets>
+
+	<course-sets>
+		<course-set>
+			<eid>ucb</eid>
+			<title>UC Berkeley</title>
+			<description>Berkeley campus of the University of California</description>
+			<category>University</category>
+			<parent-course-set />
+			<members>
+				<member userEid="birgeneau" role="president"/>
+			</members>
+		</course-set>
+
+		<course-set>
+			<eid>bio</eid>
+			<title>Biology Department</title>
+			<description>Biology Department</description>
+			<category>dept</category>
+			<parent-course-set>ucb</parent-course-set>
+			<members>
+				<member userEid="bio_dude_1" role="dept_admin"/>
+				<member userEid="bio_dude_2" role="dept_admin"/>
+			</members>
+		</course-set>
+
+		<course-set>
+			<eid>chem</eid>
+			<title>Chemistry Department</title>
+			<description>Chemistry Department</description>
+			<category>dept</category>
+			<parent-course-set>ucb</parent-course-set>
+		</course-set>
+	</course-sets>
+
+</cm-data>

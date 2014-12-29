@@ -1,0 +1,70 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>sections</artifactId>
+        <groupId>org.sakaiproject.edu-services.sections</groupId>
+        <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+        <relativePath>../../../pom.xml</relativePath>
+    </parent>
+    <name>sakai-sections-impl</name>
+    <groupId>org.sakaiproject.edu-services.sections</groupId>
+    <artifactId>sections-impl</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2005</inceptionYear>
+    <packaging>jar</packaging>
+    <properties>
+        <deploy.target />
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.course-management</groupId>
+            <artifactId>coursemanagement-api</artifactId>
+            <scope>provided</scope>
+        </dependency> 
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.edu-services.sections</groupId>
+            <artifactId>sections-model</artifactId>
+            <scope>provided</scope>
+        </dependency>
+       <dependency>
+            <groupId>org.opensymphony.quartz</groupId>
+            <artifactId>quartz</artifactId>
+           <version>1.6.6</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>commons-lang</groupId>
+            <artifactId>commons-lang</artifactId>
+        </dependency>
+      
+    </dependencies>
+    <reports />
+    <build>
+        <resources />
+    </build>
+</project>
