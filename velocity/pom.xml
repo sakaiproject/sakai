@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-velocity base pom</name>
+    <groupId>org.sakaiproject.velocity</groupId>
+    <artifactId>velocity</artifactId>
+    <version>11-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <modules>
+        <module>tool</module>
+        <module>tool-api</module>
+    </modules>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/velocity/trunk</url>
+    </scm>
+    
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/velocity/${project.version}</url>
+        </site>
+    </distributionManagement>
+</project>
