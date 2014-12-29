@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+    http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<!--
+		Proxy pointing to whichever Group Provider implementation has been assigned
+		the property name "org.sakaiproject.authz.api.GroupProvider". By default, it points to
+		"org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider".
+		If you use a different Group Provider, there's no need to edit this file.
+		Instead, just use your "sakai.properties" file to point the property to your
+		implementation.
+	-->
+	<bean id="org.sakaiproject.authz.api.GroupProvider" class="org.springframework.aop.framework.ProxyFactoryBean">
+		<property name="targetName" value="${org.sakaiproject.authz.api.GroupProvider}" />
+		<property name="proxyInterfaces">
+			<list>
+                <value>org.sakaiproject.authz.api.GroupProvider</value>
+			</list>
+		</property>
+	</bean>
+
+	<!--
+		Configuration object which can safely be overridden by a deployment's
+		sakai-configuration.xml file.
+	-->
+	<util:map id="org.sakaiproject.coursemanagement.GroupProviderConfiguration">
+		<entry key="siteRoleResolutionOrder">
+			<list>
+				<value>Instructor</value>
+				<value>Teaching Assistant</value>
+				<value>Student</value>
+			</list>
+		</entry>
+		<entry key="officialInstructorToSiteRole" value="Instructor"/>
+		<entry key="enrollmentStatusToSiteRole">
+			<map>
+				<entry key="enrolled" value="Student"/>
+				<entry key="wait" value="Student"/>
+			</map>
+		</entry>
+		<entry key="sectionRoleToSiteRole">
+			<map>
+				<entry key="I" value="Instructor"/>
+				<entry key="GSI" value="Teaching Assistant"/>
+				<entry key="S" value="Student"/>
+			</map>
+		</entry>
+		<entry key="courseOfferingRoleToSiteRole">
+			<map>
+				<entry key="CourseAdmin" value="Instructor"/>
+				<entry key="I" value="Instructor"/>
+			</map>
+		</entry>
+		<entry key="courseSetRoleToSiteRole">
+			<map>
+				<entry key="DeptAdmin" value="Instructor"/>
+			</map>
+		</entry>
+	</util:map>
+	
+	<!-- Course Management site role and group provider services. -->
+	<!--
+		TODO These bean definitions should really be kept within the project itself
+		for easier maintenance and testing. We continue to expose them here for
+		the sake of easier customization merging in Sakai 2.* versions.
+	-->
+	<!--
+		The default group provider is based on the Course Management service,
+		and calls the service many times. Since the default Course Management
+		implementation uses Hibernate, we wrap the service in a transaction
+		proxy to take advantage of Hibernate's session-level caching. If you
+		use a different CM implementation, you should ensure that it also performs
+		aggressive caching.
+	-->
+	<bean id="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
+		lazy-init="true">
+		<property name="transactionManager">
+			<ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+		</property>
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+			</props>
+		</property>
+		<property name="target">
+			<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseManagementGroupProvider"
+				init-method="init"
+				destroy-method="destroy">
+				<property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+				<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+				<property name="roleResolvers">
+					<list>
+						<bean class="org.sakaiproject.coursemanagement.impl.provider.SectionRoleResolver" init-method="init">
+							<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+						</bean>
+						<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseOfferingRoleResolver" init-method="init">
+							<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+						</bean>
+						<bean class="org.sakaiproject.coursemanagement.impl.provider.CourseSetRoleResolver" init-method="init">
+							<property name="configuration" ref="org.sakaiproject.coursemanagement.GroupProviderConfiguration"/>
+						</bean>
+					</list>
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+<!-- Uncomment to use the sample GroupProvider (read the code to see exactly what it does!)
+
+                Make sure to remove any other GroupProviders as there can only be one group provider active at any time.
+
+	<bean id="org.sakaiproject.authz.api.GroupProvider"
+			class="org.sakaiproject.provider.authzGroup.SampleGroupProvider"
+			init-method="init"
+			destroy-method="destroy">
+		<property name="courseStudents"><value>22</value></property>
+	</bean>
+-->
+
+<!-- Uncomment to use the sample UserDirectoryProvider (read the code to see exactly what it does!)
+
+                Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
+
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+			class="org.sakaiproject.provider.user.SampleUserDirectoryProvider"
+			init-method="init"
+			destroy-method="destroy">
+		<property name="courseStudents"><value>500</value></property>
+	</bean>
+-->
+
+<!-- Uncomment to use the sample AllHandsGroup Provider
+     (read the code to see exactly what it does!)
+
+        <bean id="org.sakaiproject.authz.api.GroupProvider"
+                        class="org.sakaiproject.provider.authzGroup.AllHandsGroupProvider"
+                        init-method="init"
+                        destroy-method="destroy">
+        </bean>
+-->
+
+<!--    Uncomment to use the IMS Enterprise provider
+
+                 Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
+
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+			class="org.sakaiproject.component.imsent.user.IMSEntUserDirectoryProvider"
+			init-method="init"
+			destroy-method="destroy">
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="autoDdl"><value>true</value></property>
+	</bean>
+-->
+
+<!-- Uncomment and configure to use the JLDAPDirectoryProvider -->
+	<!--  import resource="jldap-beans.xml" / -->
+
+<!--	Uncomment and configure to use the Kerberos Provider.
+
+                 Make sure to remove any other UserDirectoryProviders as there can only be one user provider active at any time.
+
+	<bean id="org.sakaiproject.user.api.UserDirectoryProvider"
+			class="org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider"
+			init-method="init"
+			destroy-method="destroy">
+		<property name="loginContext"><value>KerberosAuthentication</value></property>
+		<property name="requireLocalAccount"><value>true</value></property>
+		<property name="knownUserMsg"><value>Integrity check on decrypted field failed</value></property>
+	</bean>
+-->
+
+<!-- Uncomment and configure to use the Federating UserDirectoryProvider.
+
+   <bean
+  		id="org.sakaiproject.user.api.UserDirectoryProvider"
+  		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
+  		init-method="init" destroy-method="destroy">
+  		<property name="myProvider">
+  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider1" />
+  		</property>
+  		<property name="nextProvider">
+  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.chain1" />
+  		</property>
+  	</bean>
+  	<bean
+  		id="org.sakaiproject.user.api.UserDirectoryProvider.chain1"
+  		class="org.sakaiproject.provider.user.FilterUserDirectoryProvider"
+  		init-method="init" destroy-method="destroy">
+  		<property name="myProvider">
+  			<ref bean="org.sakaiproject.user.api.UserDirectoryProvider.provider2" />
+  		</property>
+  	</bean>
+ -->
+
+</beans>

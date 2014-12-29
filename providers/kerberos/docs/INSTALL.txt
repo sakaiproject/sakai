@@ -1,0 +1,339 @@
+This file describes configuring Java for Kerberos for use with Sakai.
+
+NOTE: To use this provider with an existing or new systemwide
+configuration, contact your local administrator and/or follow the
+steps in SYSTEMWIDE.txt. By default, most JDKs are NOT configured for
+use with Kerberos.
+
+By default, the provider provides authentication ONLY for existing 
+accounts in the local Sakai user database (where Sakai EIDs and 
+Kerberos principals are the same). If you wish to allow anyone with a 
+valid Kerberos principal to use Sakai, follow the instructions below 
+under ADVANCED OPTIONS.
+
+In addition, to protect the integrity of your Kerberos password, the 
+use of a secure Web front-end is HIGHLY recommended.
+
+Throughout this document, ${sakai.home} refers to the directory that
+contains Sakai's configuration information. By default, this is the
+"sakai" directory at the top-level of your Tomcat installation (known
+here as $TOMCAT_HOME). For more information on configuring
+${sakai.home}, refer to the configuration documentation in the top-level
+"docs" directory of the Sakai source tree.
+
+**CHANGES TO CACHING MECHANISM**
+
+This provider previously implemented a configurable, in-memory caching 
+mechanism. By default, a user's successful authentication was valid 
+for 5 minutes. This mechanism prevented WebDAV, which sends 
+authenticates on every connection, from overloading local KDCs.
+
+This internal caching mechanism is now DEPRECATED per:
+
+http://jira.sakaiproject.org/browse/SAK-10227
+
+Implementors using Kerberos for authentication MUST use the 
+UserDirectoryService's central authentication cache, introduced in 
+Sakai 2.5, to tune the longevity of their authenticated logins:
+
+http://jira.sakaiproject.org/browse/SAK-13403
+
+The default TTL for entries in the central cache is 2 minutes.
+
+**GENERAL SETUP**
+
+To use this provider using ${sakai.home}/sakai.properties:
+
+1) Create a JAAS configuration file. A sample file -- sakai-jaas.conf 
+-- with the following content is included:
+
+/*
+ * JAAS Login Configuration for Sakai 
+ */
+
+KerberosAuthentication {
+	com.sun.security.auth.module.Krb5LoginModule required
+		storeKey="true"
+		useTicketCache="false";
+};
+
+The provider uses the KerberosAuthentication context by default; it 
+can be configured by changing the loginContext parameter in the 
+components.xml file described in Step 3. Each context name is unique 
+and may not be duplicated.
+
+The installation of this file is described in Step 4.
+
+2) A test program (JaasTest.java) is available to confirm Kerberos 
+authentication. To run it:
+
+$ javac JaasTest.java
+$ java -Djava.security.auth.login.config=sakai-jaas.conf \
+ JaasTest KerberosAuthentication
+
+LoginContext for testing: KerberosAuthentication
+Enter a username and password to test this LoginContext.
+
+Kerberos username [user1]: user1
+Kerberos password for user1: foo
+Authentication succeeded.
+
+If authentication fails, contact your local administrator for help.
+
+3) Uncommment the required dependency shown near "Needed for the
+Kerberos Provider" in the "<dependency>" section of:
+
+    providers/component/pom.xml
+
+Then, uncomment the configuration section for the 
+KerberosUserDirectoryProvider in:
+
+    providers/component/src/webapp/WEB-INF/components.xml
+
+After deployment, you can also edit this file:
+
+$TOMCAT_HOME/components/sakai-provider-pack/WEB-INF/components.xml 
+
+4) Once Sakai is deployed, copy sakai-jaas.conf to ${sakai.home} and 
+then set options in ${sakai.home}/sakai.properties to configure the 
+provider for use.
+
+Three options control the behavior of this provider:
+
+provider.kerberos.auth.login.config -- location of JAAS config file
+provider.kerberos.krb5.conf -- location of krb5.conf
+provider.kerberos.showconfig -- show extended config info (true/false)
+
+Locations specified using the above options are used in place of the 
+current system locations. Absolute path names are acceptable; if the 
+file specified exists and is readable, it is used. Otherwise, the file 
+path is assumed to be relative to ${sakai.home}. If no readable file 
+is found, an error message is written to the log.
+
+You MUST provide a value for provider.kerberos.auth.login.config 
+unless you are using a systemwide configuration. Otherwise, all 
+authentication will fail.
+
+Examples:
+
+provider.kerberos.auth.login.config=sakai-jaas.conf
+provider.kerberos.auth.login.config=kerberos/sakai-jaas.conf
+provider.kerberos.auth.login.config=/usr/local/sakai/sakai-jaas.conf
+
+For general use. the last two options do not need to be specified. An
+alternate Kerberos5 configuration file can specified using
+provider.kerberos.krb5.conf; otherwise, the system default
+(/etc/krb5.conf on Unix-based systems) is used. Setting the
+provider.kerberos.showconfig option to "true" provides extended
+configuration about the provider's settings in the catalina.out logs:
+
+- Standard information (wrapped/edited for clarity)
+
+INFO:
+org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init()
+Domain=null
+LoginContext=SakaiAuthentication
+RequireLocalAccount=true KnownUserMsg=Integrity check on decrypted field failed
+
+- Extended information (wrapped/edited for clarity)
+
+INFO:
+org.sakaiproject.component.kerberos.user.KerberosUserDirectoryProvider@1fd9cd5.init()
+SakaiHome=/usr/local/sakai/sakai-demo/sakai/
+SakaiPropertyKrb5Conf=null
+SakaiPropertyAuthLoginConfig=kerberos/sakai-jaas.conf
+SystemPropertyKrb5Conf=null
+SystemPropertyAuthLoginConfig=/usr/local/sakai/sakai-demo/sakai/kerberos/sakai.jaas.conf
+
+In the above, "null" entries indicate the use of systemwide defaults.
+
+5) After startup, create a new Sakai account with your Kerberos 
+principal as the user EID. You should then be able to login using your 
+Kerberos password.
+
+**VERIFYING KERBEROS SERVICE TICKETS**
+
+Service-ticket verification was introduced in Sakai 2.7.
+
+If someone has access to the network traffic between your Sakai 
+deployment and the KDC, it is possible for them to fake responses 
+from the KDC to indicate a successful authentication. They way to 
+prevent this is to use the TGT to obtain a service ticket for a 
+local service principal and then check that the service ticket is 
+valid.
+
+To setup this the first thing you need to do is to have a service 
+principal created in the KDC, we have a service ticket for each 
+node in our cluster and will probably be something like:
+
+sakai-test/machine.inst.edu
+
+You will probably want another principal to have rights granted 
+on this service principal so you can create a keytab file for it.
+
+Once the service principal has been created you should create the 
+keytab file. This is normally done with the kadmin command. This 
+is an example of creating the keytab file.
+
+$ kadmin -p user/foo
+Authenticating as principal user/foo with password.
+Password for user/foo@INST.EDU: 
+kadmin:  ktadd -k krb5-test.keytab sakai-test/machine.inst.edu
+Entry for principal sakai-test/machine.inst.edu with kvno 3, encryption type AES-256 CTS mode with 96-bit SHA-1 HMAC added to keytab WRFILE:krb5-test.keytab.
+Entry for principal sakai-test/machine.inst.edu with kvno 3, encryption type AES-128 CTS mode with 96-bit SHA-1 HMAC added to keytab WRFILE:krb5-test.keytab.
+Entry for principal sakai-test/machine.inst.edu with kvno 3, encryption type ArcFour with HMAC/md5 added to keytab WRFILE:krb5-test.keytab.
+Entry for principal sakai-test/machine.inst.edu with kvno 3, encryption type Triple DES cbc mode with HMAC/sha1 added to keytab WRFILE:krb5-test.keytab.
+Entry for principal sakai-test/machine.inst.edu with kvno 3, encryption type DES cbc mode with CRC-32 added to keytab WRFILE:krb5-test.keytab.
+kadmin:  quit
+
+This will create a keytab file called krb5-test.keytab in the 
+current directory.
+
+To check what is in your keytab file you can use the klist command:
+
+$ klist -ke krb5-test.keytab 
+Keytab name: WRFILE:krb5-test.keytab
+KVNO Principal
+---- --------------------------------------------------------------------------
+   7 sakai-test/machine.inst.edi@INST.EDU (AES-256 CTS mode with 96-bit SHA-1 HMAC) 
+   7 sakai-test/machine.inst.edi@INST.EDU (AES-128 CTS mode with 96-bit SHA-1 HMAC) 
+   7 sakai-test/machine.inst.edi@INST.EDU (ArcFour with HMAC/md5) 
+   7 sakai-test/machine.inst.edi@INST.EDU (Triple DES cbc mode with HMAC/sha1) 
+   7 sakai-test/machine.inst.edi@INST.EDU (DES cbc mode with CRC-32) 
+
+Now add an extra section to your JAAS configuration file changing 
+values to account for local settings (principal and keyTab):
+
+ServiceKerberosAuthentication {
+	com.sun.security.auth.module.Krb5LoginModule required
+		debug="false"
+		doNotPrompt="true" // no username/password for this principal
+		principal="--- Set this to match the service principal in test.properties, e.g., sakai-test/machine.inst.edu ---"
+		useKeyTab="true"
+		keyTab="--- Location of the keytab file for the service principal is, e.g., /home/user/krb5-test.keytab --- "
+		storeKey="true" // store the key inside the subject
+		isInitiator="false" // request a TGT? (JDK 6 only)
+		useTicketCache="false";
+};
+
+Finally, configure the Kerberos provider to verify tickets by 
+setting the service principal to use in sakai.properties:
+
+servicePrincipal@org.sakaiproject.user.api.UserDirectoryProvider=sakai-test/machine.inst.edu
+
+**TROUBLESHOOTING**
+
+1) If you get an error message similar to this when attempting to 
+get the Kerberos ticket granting ticket (TGT):
+
+KDC has no support for encryption type (14) - BAD_ENCRYPTION_TYPE
+		[Krb5LoginModule]: Entering logout
+		[Krb5LoginModule]: logged out Subject
+
+This you probably need to limit the encryption types in your 
+system Kerberos configuation file (provider.kerberos.krb5.conf) 
+with something like:
+
+[libdefaults]
+   default_tkt_enctypes = des-cbc-md5 des-cbc-crc des3-cbc-sha1
+
+2) If when attempting to verify service tickets you see this 
+message:
+
+Checksum failed
+
+then you may be using an old keytab file or if you have recently 
+created a new keytab it may not have yet synced across all the 
+KDCs.
+
+3) If you have a stack trace containing lines like these when 
+attempting to verify a service ticket:
+
+Caused by: KrbException: Integrity check on decrypted field failed (31)
+	at sun.security.krb5.internal.crypto.DesCbcEType.decrypt(DesCbcEType.java:154)
+	at sun.security.krb5.internal.crypto.DesCbcMd5EType.decrypt(DesCbcMd5EType.java:33)
+	at sun.security.krb5.internal.crypto.DesCbcEType.decrypt(DesCbcEType.java:125)
+	at sun.security.krb5.internal.crypto.DesCbcMd5EType.decrypt(DesCbcMd5EType.java:33)
+	at sun.security.krb5.EncryptedData.decrypt(EncryptedData.java:168)
+	at sun.security.krb5.KrbApReq.authenticate(KrbApReq.java:267)
+	at sun.security.krb5.KrbApReq.<init>(KrbApReq.java:134)
+	at sun.security.jgss.krb5.InitSecContextToken.<init>(InitSecContextToken.java:79)
+	at sun.security.jgss.krb5.Krb5Context.acceptSecContext(Krb5Context.java:724)
+
+Then you may be using an encryption type that isn't supported. 
+Try restricting the algorithms used when generating the keytab 
+with something similar to:
+
+$ ktadd -k krb5-test.keytab -e \
+	"des-cbc-md5:normal des-cbc-crc:normal des3-cbc-sha1:normal" \
+	sakai-test/machine.inst.edu@INST.EDU
+
+**ADVANCED OPTIONS**
+
+The Kerberos UserDirectoryProvider takes 6 configuration properties in 
+its components.xml:
+
+loginContext -- the name of the JAAS LoginContext to use
+requireLocalAccount -- require a local account to login (true/false)
+knownUserMsg -- error message used to determine valid Kerberos principal
+domain -- the 2nd-level domain name of the user's e-mail address
+serviceLoginContent -- the name of the JAAS LoginContext to use when verifying service ticket (optional)
+servicePrincipal -- the name of the service principal to verify service tickets against (optional)
+
+In addition, all of the properties can be set in the sakai.properties
+file by specifying a value in this format:
+
+<PROPERTY>@org.sakaiproject.user.api.UserDirectoryProvider=<VALUE>
+
+To allow anyone with a valid Kerberos principal to login into 
+Sakai without a local account, you MUST configure the 
+"requireLocalAccount", "knownUserMsg", and "domain" properties.
+
+To do so:
+
+1) Determine the error message to be used by passing a valid Kerberos 
+principal and an INCORRECT password to the JaasTest application:
+
+$ java -Djava.security.auth.login.config=sakai-jaas.conf \
+ JaasTest KerberosAuthentication
+
+(NOTE: for systemwide configuration testing, use:
+	$ java JaasTest KerberosAuthentication
+)
+
+LoginContext for testing: KerberosAuthentication
+Enter a username and password to test this LoginContext.
+
+Kerberos username [user1]: user1
+Kerberos password for user1: foo
+Authentication failed.
+
+Error message
+ --> Integrity check on decrypted field failed (31) - PREAUTH_FAILED
+
+In this case, we'll use "Integrity check on decrypted field failed" as 
+the string to compare (the provider compares the first part of the 
+string).
+
+2) In:
+
+    providers/component/src/webapp/WEB-INF/components.xml
+
+configure the settings or provide values for 
+"requireLocalAccount", "knownUserMsg", and "domain":
+
+<property name="requireLocalAccount"><value>false</value></property> 
+<property name="knownUserMsg"><value>STRING</value></property>
+<property name="domain"><value>DOMAIN</value></property> 
+
+where STRING is replaced by "Integrity check on decrypted field 
+failed" (the default, culled from RFC 1510) and DOMAIN is the 
+2nd-level domain name of the user's e-mail address.
+
+These properties can also be specified in the sakai.properties file as
+noted above.
+
+NOTE: Starting in Sakai 2.7, the default value for the "domain" 
+property is NULL. If "requireLocalAccount" is set to "true", a 
+value for the "domain" property MUST be set or Sakai will halt at 
+startup.

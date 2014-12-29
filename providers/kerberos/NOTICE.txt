@@ -1,0 +1,8 @@
+The following people have contributed to the Kerberos provider:
+
+  Sakai Development Team (UM)
+  Matthew Buckett, University of Oxford
+  Ray Davis, University of California, Berkeley
+  Seth Theriault, Columbia University
+
+And is included here with permission.

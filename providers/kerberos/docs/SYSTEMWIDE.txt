@@ -1,0 +1,109 @@
+This file describes configuring Java for Kerberos for use by all 
+applications systemwide. By default, most JDKs are NOT configured for 
+use with Kerberos on a systemwide basis.
+
+IF YOU ARE ONLY USING KERBEROS FOR SAKAI, YOU ARE ENCOURAGED TO FOLLOW 
+THE INSTRUCTIONS IN INSTALL.txt. IT DESCRIBES AN EASIER (AND 
+PREFERRED) METHOD FOR CONFIGURING JAVA FOR USE WITH SAKAI AND THIS 
+PROVIDER.
+
+Before following these instructions, contact your local administrator 
+to see if there is an existing systemwide configuration. If there is, 
+your administrator can show you how to select the appropriate 
+LoginContext for use with Sakai.
+
+By default, the provider provides authentication ONLY for existing
+accounts in the local Sakai user database (where Sakai EIDs and
+Kerberos principals are the same). If you wish to allow anyone with a
+valid Kerberos principal to use Sakai, follow the instructions below
+under ADVANCED OPTIONS in the accompanying INSTALL.txt.
+
+In addition, to protect the integrity of your Kerberos password, the 
+use of a secure Web front-end is HIGHLY recommended.
+
+**CHANGES TO CACHING MECHANISM**
+
+This provider previously implemented a configurable, in-memory caching
+mechanism. By default, a user's successful authentication was valid
+for 5 minutes. This mechanism prevented WebDAV, which sends
+authenticates on every connection, from overloading local KDCs.
+
+This internal caching mechanism is now DEPRECATED per:
+
+http://jira.sakaiproject.org/browse/SAK-10227
+
+Implementors using Kerberos for authentication MUST use the 
+UserDirectoryService's central authentication cache, introduced in 
+Sakai 2.5, to tune the longevity of their authenticated logins:
+
+http://jira.sakaiproject.org/browse/SAK-13403
+
+The default TTL for entries in the central cache is 2 minutes.
+
+**CONFIGURING A SYSTEMWIDE CONFIGURATION**
+
+1) Configure Java for Kerberos using JAAS:
+
+- Find the file java.security in the your Java installation, usually 
+in $JAVA_HOME/lib/security or $JAVA_HOME/jre/lib/security.
+
+- Add this block (or edit an existing block):
+
+# Default login configuration file
+#
+#login.config.url.1=file:${user.home}/.java.login.config
+login.config.url.1=file:${java.home}/lib/security/jaas.conf
+
+The name of the login configuration file can be anything.
+
+- In the same directory as java.security, create a file called 
+jaas.conf with the following content:
+
+/*
+ * Login Configuration for the JAAS Applications 
+ */
+
+KerberosAuthentication {
+	com.sun.security.auth.module.Krb5LoginModule required;
+		storeKey="true"
+		useTicketCache="false";
+};
+
+The UserDirectoryProvider uses the KerberosAuthentication context by 
+default; it can be configured by changing the loginContext parameter 
+in the components.xml file described in Step 3. Each context name is 
+unique and may not be duplicated.
+
+2) Test your JAAS installation. A test program (JaasTest.java) is 
+available to confirm Kerberos authentication. To run it:
+
+$ javac JaasTest.java
+$ java JaasTest KerberosAuthentication
+
+LoginContext for testing: KerberosAuthentication
+Enter a username and password to test this LoginContext.
+
+Kerberos username [user1]: user1
+Kerberos password for user1: foo
+Authentication succeeded.
+
+If authentication fails, contact your local administrator for help.
+
+3) Uncommment the required dependency shown near "Needed for the
+Kerberos Provider" in the "<dependency>" section of:
+
+    providers/component/pom.xml
+
+Then, uncomment the configuration section for the 
+KerberosUserDirectoryProvider in:
+
+    providers/component/src/webapp/WEB-INF/components.xml
+
+After deployment, you can also edit this file:
+
+$TOMCAT_HOME/components/sakai-provider-pack/WEB-INF/components.xml 
+
+4) After deployment and startup, create a new Sakai account with your 
+Kerberos principal as the user EID. You should then be able to login 
+using your Kerberos password.
+

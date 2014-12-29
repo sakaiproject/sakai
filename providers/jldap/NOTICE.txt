@@ -1,0 +1,6 @@
+The JLDAP Provider was initially developed by
+
+  David Ross, Albany Medical College
+  Rishi Pande, Virginia Tech
+
+And is included here with permission.

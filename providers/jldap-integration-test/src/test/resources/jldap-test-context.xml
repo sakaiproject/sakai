@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!-- Defines configuration beans for JLDAPDirectoryProviderTest.
+	Override bean properties or add new beans specific to local tests in
+	ldap-test-context-local.xml. Some bean properties are configured
+	in ldap-test.properties, which can be overriden/extended in
+	ldap-test-local.properties 
+	-->
+	
+	
+	<!-- user1 should authenticate successfully and typically have
+	a different "type" than user2 such that user type calculation
+	strategies can be verified. -->
+	<bean id="user1" class="edu.amc.sakai.user.UserEditStub"
+	  singleton="false">
+	
+		<property name="eid"><value>${user-1-eid}</value></property>
+		
+		<!-- Typically identical to eid, but not necessarily. -->
+		<property name="login"><value>${user-1-login}</value></property>
+		
+		<!-- UserEditStub does not consider passwords when comparing
+		objects for equality, but this field is still useful for encapsulating
+		test configuration. -->
+		<property name="password"><value>${user-1-pass}</value></property>
+		
+		<property name="email"><value>${user-1-email}</value></property>
+		<property name="firstName"><value>${user-1-first-name}</value></property>
+		<property name="lastName"><value>${user-1-last-name}</value></property>
+		<property name="type"><value>${user-1-type}</value></property>
+		
+		<!-- User properties are a common extension point when configuring local
+		test expectations.
+		
+		ResourcePropertiesEditStub takes a Map rather than a Properties
+		instance so we can support multi-valued properties. -->
+		<property name="propertiesEdit">
+			<bean class="edu.amc.sakai.user.ResourcePropertiesEditStub">
+				<constructor-arg>
+			  		<props>
+				  		<prop key="udp.dn"> <!--AttributeMappingConstants.USER_DN_PROPERTY -->
+			  	  			${user-1-property-udp.dn}
+			  			</prop>
+			  		</props>
+				</constructor-arg>
+				<constructor-arg>
+					<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+						<property name="properties">
+        					<ref bean="user1LocalPropertyOverrides" />
+        				</property>
+					</bean>
+				</constructor-arg>
+        	</bean>
+        </property>
+        
+    </bean>
+	
+	<!-- Override this bean in jldap-test-context-local.xml to extend or override
+	"custom" user properties on user1 as appropriate for your environment.
+	 
+	For multi-valued properties, specify semi-colon-delimited String values and the 
+	ResourcePropertiesEditStub will take care of the parsing.
+	Subclass ResourcePropertiesEditStub if this approach is too simplistic
+	for your attribute set.
+	
+	It's a good idea to use a consistent naming convention for interpolated
+	properties so that this kind of thing can be handled by a
+	BeanFactoryPostProcessor in the future. -->
+	<bean id="user1LocalPropertyOverrides" 
+	  class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+        	<props />
+        </property>
+        <property name="singleton"><value>false</value></property>
+	</bean>
+	
+	
+	<!-- user1 should authenticate successfully and typically have
+	a different "type" than user2 such that user type calculation
+	strategies can be verified. -->
+	<bean id="user2" class="edu.amc.sakai.user.UserEditStub"
+	  singleton="false">
+	
+		<!-- See user1 for comments on property semantics -->
+	
+		<property name="eid"><value>${user-2-eid}</value></property>
+		<property name="login"><value>${user-2-login}</value></property>
+		<property name="password"><value>${user-2-pass}</value></property>
+		<property name="email"><value>${user-2-email}</value></property>
+		<property name="firstName"><value>${user-2-first-name}</value></property>
+		<property name="lastName"><value>${user-2-last-name}</value></property>
+		<property name="type"><value>${user-2-type}</value></property>
+		<property name="propertiesEdit">
+			<bean class="edu.amc.sakai.user.ResourcePropertiesEditStub">
+				<constructor-arg>
+			  		<map>
+				  		<entry key="udp.dn"> <!--AttributeMappingConstants.USER_DN_PROPERTY -->
+			  	  			<value>${user-2-property-udp.dn}</value>
+			  			</entry>
+			  		</map>
+				</constructor-arg>
+				<constructor-arg>
+					<bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+						<property name="properties">
+        					<ref bean="user2LocalPropertyOverrides" />
+        				</property>
+					</bean>
+				</constructor-arg>
+			</bean>
+		</property>  
+		
+	</bean>
+	
+	<!-- See user1LocalPropertyOverrides for an explanation -->
+	<bean id="user2LocalPropertyOverrides" 
+	  class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+		<property name="properties">
+        	<props />
+        </property>
+        <property name="singleton"><value>false</value></property>
+	</bean>
+	
+	<!-- Under the current configuration, this user is intended to
+	act as input to a variety of negative tests, e.g. this user's
+	credentials should not authenticate. -->
+	<bean id="user3" class="edu.amc.sakai.user.UserEditStub"
+	  singleton="false">
+	
+		<!-- See user1 for comments on property semantics -->
+		<property name="eid"><value>${user-3-eid}</value></property>
+		<property name="login"><value>${user-3-login}</value></property>
+		<property name="password"><value>${user-3-pass}</value></property>
+		<property name="email"><value>${user-3-email}</value></property>
+		
+		
+	</bean>
+	
+	<bean id="propertiesConfigurer" 
+      class="edu.amc.sakai.user.PropertyResolver">
+      
+      <property name="properties">
+        <ref bean="testConfiguration" />
+      </property>
+      
+    </bean>
+    
+    <bean id="testConfiguration" 
+      class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+          
+        <property name="location">
+            <ref bean="localTestConfigurationLocation" />
+        </property>
+        <property name="properties">
+            <ref bean="defaultTestConfigurationProperties" />
+        </property>
+        <property name="ignoreResourceNotFound">
+            <value>true</value>
+        </property>
+        
+    </bean>
+    
+    <bean id="defaultTestConfigurationProperties"
+        class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        
+        <property name="location">
+        	<ref bean="defaultTestConfigurationLocation" />
+        </property>
+        
+    </bean>
+    
+    <bean id="defaultTestConfigurationLocation" class="java.lang.String">
+        <constructor-arg><value>classpath:/jldap-test.properties</value></constructor-arg>
+    </bean>
+    
+    
+    <bean id="localTestConfigurationLocation" class="java.lang.String">
+        <constructor-arg><value>classpath:/jldap-test-local.properties</value></constructor-arg>
+    </bean>
+	
+
+</beans>

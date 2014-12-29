@@ -1,0 +1,26 @@
+Kerberos UserDirectoryProvider
+
+Changes/features:
+
+- for 2.2
+
+ o change license to new "Sakai Foundation" language (slt)
+
+ o fix: compare entered username (userID) to cache (from scott amerson)
+
+- for 2.1.x
+
+ o uses configurable, in-memory caching mechanism to alleviate load
+   on KDCs caused by WebDAV usage (slt)
+
+- for 2.1
+
+ o compatible with new UserDirectoryProvider methods (core)
+
+ o uses "master project descriptor file" for project.xml (core)
+
+ o can use sakai.properties settings to reduce dependency on working
+   systemwide Kerberos JAAS configuration (slt)
+
+ o documentation improved and moved into separate directory (slt)
+
