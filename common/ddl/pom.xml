@@ -1,0 +1,125 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <name>Common DB DDL generator</name>
+    <groupId>org.sakaiproject.common</groupId>
+    <artifactId>common-ddl-generator</artifactId>
+    <packaging>pom</packaging>
+
+    <parent>
+		<groupId>org.sakaiproject.common</groupId>
+		<artifactId>common</artifactId>
+	    <version>1.2-SNAPSHOT</version>
+	</parent>
+	
+    <properties>
+        <project.ddl.name>common-ddl</project.ddl.name>
+    </properties>
+
+    <dependencies>
+
+        <!-- pull in your hibernate persistent objects -->
+         <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>sakai-common-edu-person-api</artifactId>
+        <version>1.2-SNAPSHOT</version>
+      </dependency>
+      <dependency>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>sakai-common-composite-component-data</artifactId>
+      <version>1.2-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>sakai-common-composite-component</artifactId>
+        <version>1.2-SNAPSHOT</version>
+      </dependency>
+      
+     
+      <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>sakai-common-manager-api</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.common</groupId>
+        <artifactId>sakai-common-type-api</artifactId>
+        <version>1.2-SNAPSHOT</version>
+        <scope>provided</scope>
+      </dependency>
+     
+      
+      
+
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <!-- this should pull in your hibernate template (.hbm.xml) files -->
+                <directory>${basedir}/../impl</directory>
+                <includes>
+                    <include>**/*.hbm.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
+        <plugins>
+            <plugin>
+                <!-- hibernate ddl generation -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>hibernate3-maven-plugin</artifactId>
+                <version>2.1</version>
+                <configuration>
+                    <components>
+                        <component>
+                            <name>hbm2ddl</name>
+                            <outputDirectory>.</outputDirectory>
+                        </component>
+                    </components>
+                    <componentProperties>
+                        <configurationfile>hibernate.cfg.xml</configurationfile>
+                        <drop>false</drop>
+                        <create>true</create>
+                        <export>false</export>
+                        <jdk5>true</jdk5>
+                        <format>true</format>
+                    </componentProperties>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>export-mysql</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>hbm2ddl</goal>
+                        </goals>
+                        <configuration>
+                            <componentProperties>
+                                <propertyfile>hibernate-mysql.properties</propertyfile>
+                                <outputfilename>mysql/${project.ddl.name}-${project.parent.version}-mysql.sql</outputfilename>
+                            </componentProperties>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <id>export-oracle</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>hbm2ddl</goal>
+                        </goals>
+                        <configuration>
+                            <componentProperties>
+                                <propertyfile>hibernate-oracle.properties</propertyfile>
+                                <outputfilename>oracle/${project.ddl.name}-${project.parent.version}-oracle.sql</outputfilename>
+                            </componentProperties>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>

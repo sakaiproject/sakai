@@ -1,0 +1,35 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>common</artifactId>
+    <groupId>org.sakaiproject.common</groupId>
+    <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>archive-api</name>
+  <groupId>org.sakaiproject.common</groupId>
+  <artifactId>archive-api</artifactId>
+  <description>The API for importing content into Sakai. There's
+  some more information about the design on.
+  https://confluence.sakaiproject.org/display/PROD/A+Tour+of+Sakai+Import
+  </description>
+  <organization>
+    <name>Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target>shared</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+  	<sourceDirectory>src/main/java</sourceDirectory>
+    <resources />
+  </build>
+</project>

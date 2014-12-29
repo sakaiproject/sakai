@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>common</artifactId>
+    <groupId>org.sakaiproject.common</groupId>
+    <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>archive-pack</name>
+  <groupId>org.sakaiproject.common</groupId>
+  <artifactId>archive-pack</artifactId>
+  <organization>
+  	<name>Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <description>									</description>
+  <inceptionYear>2003</inceptionYear>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.common</groupId>
+      <artifactId>archive-impl2</artifactId>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources />
+<!-- java source -->
+  </build>
+</project>
