@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>Sakai WebServices Project</name>
+  	<groupId>org.sakaiproject.webservices</groupId>
+  	<artifactId>webservices</artifactId>
+  	<version>11-SNAPSHOT</version>
+  	<packaging>pom</packaging>
+  	
+  	<parent>
+		<groupId>org.sakaiproject</groupId>
+		<artifactId>master</artifactId>
+		<version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+	</parent>
+  	
+  	<organization>
+    	<name>Sakai Foundation</name>
+    	<url>http://sakaiproject.org/</url>
+  	</organization>
+  	
+  	<inceptionYear>2005</inceptionYear>
+  	
+	<licenses>
+        <license>
+            <name>Educational Community License, Version 2.0</name>
+            <url>http://www.opensource.org/licenses/ecl2.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    
+    <issueManagement>
+        <system>JIRA</system>
+        <url>http://jira.sakaiproject.org/jira/browse/SAK</url>
+    </issueManagement>
+    
+    <developers>
+        <developer>
+            <name>Steve Swinsburg</name>
+            <email>s.swinsburg@gmail.com</email>
+            <timezone>10</timezone>
+        </developer>
+    </developers>
+    
+    <modules>
+        <module>cxf</module>
+    </modules>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/webservices/trunk</url>
+    </scm>
+    
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/webservices/${project.version}</url>
+        </site>
+    </distributionManagement>
+    
+</project>
