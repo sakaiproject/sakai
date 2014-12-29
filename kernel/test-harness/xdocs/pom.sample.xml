@@ -1,0 +1,63 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>my-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>${sakai.version}</version>
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>sakai-my-integration-test</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-my-integration-test</artifactId>
+
+  <!-- Integration tests generally take too long to run on every build. -->
+  <properties>
+    <skipLongTests>true</skipLongTests>
+  </properties>
+
+  <dependencies>
+    <!-- Test harness -->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-test-harness</artifactId>
+      <version>${sakai.version}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <!-- In case you'd like to log anything. -->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+	<!-- Add any APIs or other JARs your tests need -->
+	<!-- ... -->
+
+  </dependencies>
+
+  <build>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <plugins>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <skipTests>${skipLongTests}</skipTests>
+          <!--
+          	Uncomment the next line if you have multiple tests that use
+          	different Sakai configurations. Otherwise, static data may hang around
+          	component classes and break your tests.
+          -->
+          <!-- <forkMode>pertest</forkMode> -->
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>

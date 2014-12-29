@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>kernel</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>11-SNAPSHOT</version><!-- KernelVersion -->
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <description>Kernel Direct Common Deployer</description>
+  <name>Kernel Direct Common Deployer</name>
+  <groupId>org.sakaiproject.kernel.deploy</groupId>
+  <artifactId>common</artifactId>
+  <organization>
+    <name>Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</url>
+  </scm>
+
+  <packaging>pom</packaging>
+  <properties>
+    <deploy.target>common</deploy.target>
+    <kernel.basedir>${basedir}/../..</kernel.basedir>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-common</artifactId>
+      <version>${project.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <!-- needed by kernel -->
+    <dependency>
+      <groupId>log4j</groupId>
+      <artifactId>log4j</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <scope>compile</scope>
+    </dependency>
+    <!-- needed by Ehcache -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <scope>compile</scope>
+    </dependency>
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <scope>compile</scope>
+    </dependency>
+  </dependencies>
+</project>

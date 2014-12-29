@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+	<!--
+	  This is the central configuration file for Sakai, mostly used to load properties files.
+	  Individual Sakai installations can add a supplemental "sakai-configuration.xml" file to
+	  their "sakai.home" directory (which is "$CATALINA_HOME/sakai/" by default). Currently
+	  the most common use for a local "sakai-configuration.xml" is to change which properties
+	  files are read at start-up. To do so, paste an edited version of the
+	  "org.sakaiproject.component.SakaiProperties" bean definition into your local file,
+	  keeping the "parent" part of the definition in place.
+	-->
+
+	<!-- An abstract parent SakaiProperties is used to set up defaults. -->
+	<bean id="org.sakaiproject.component.DefaultSakaiProperties" abstract="true" class="org.sakaiproject.util.SakaiProperties">
+		<property name="properties">
+			<bean class="org.sakaiproject.component.impl.DynamicDefaultSakaiProperties" init-method="init"/>
+		</property>
+		<property name="locations">
+			<list>
+				<value>classpath:/org/sakaiproject/config/kernel.properties</value>
+				<value>classpath:/org/sakaiproject/config/version.properties</value>
+				<value>classpath:org/sakaiproject/config/bundle/default.sakai.properties</value>
+			</list>
+		</property>
+
+		<!--
+			The standard singleton SakaiProperties should override any component-set properties, but can
+			themselves be overridden or preceded by another instance of the class.
+		 -->
+		<property name="order" value="1"/>
+	</bean>
+
+	<!-- Certain Sakai properties need to be exposed as Java system properties to support legacy code. -->
+	<bean id="org.sakaiproject.component.SakaiPropertyPromoter" class="org.sakaiproject.util.SakaiPropertyPromoter" init-method="init">
+		<property name="sakaiProperties" ref="org.sakaiproject.component.SakaiProperties"/>
+		<property name="sakaiPropertyToSystemPropertyMap">
+			<map>
+				<entry key="serverId" value="sakai.serverId"/>
+				<entry key="content.upload.max" value="sakai.content.upload.max"/>
+				<entry key="content.upload.ceiling" value="sakai.content.upload.ceiling"/>
+				<entry key="content.upload.dir" value="sakai.content.upload.dir"/>
+				<entry key="force.url.secure" value="sakai.force.url.secure"/>
+				<entry key="cookieName" value="sakai.cookieName"/>
+				<entry key="cookieDomain" value="sakai.cookieDomain"/>
+			</map>
+		</property>
+	</bean>
+
+	<!--
+		The "${sakai.home}/sakai-configuration.xml" file can override this bean to change which properties
+		files are read, or to plug a DB-backed or JMX-backed properties factory bean into the "properties"
+		slot.
+		
+		If you do override the SakaiProperties bean locally, make sure to include the original
+		"parent" attribute. The DefaultSakaiProperties bean handles Sakai's built-in properties
+		files, and pointing to it will protect you against possible changes in future releases.
+	-->
+	<bean id="org.sakaiproject.component.SakaiProperties" parent="org.sakaiproject.component.DefaultSakaiProperties">
+		<property name="locations">
+			<list merge="true">
+				<value>file:${sakai.home}placeholder.properties</value>
+				<value>file:${sakai.home}sakai.properties</value>
+				<value>file:${sakai.home}local.properties</value>
+				<value>file:${sakai.security}security.properties</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

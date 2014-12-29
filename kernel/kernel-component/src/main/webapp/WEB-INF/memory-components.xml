@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="org.sakaiproject.memory.api.MemoryService"
+        class="org.sakaiproject.memory.impl.BaseMemoryService"
+        init-method="init" destroy-method="destroy" singleton="true">
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
+  </bean>
+
+    <bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" 
+        class="org.sakaiproject.memory.impl.SakaiCacheManagerFactoryBean">
+        <property name="configLocation">
+            <value>classpath:org/sakaiproject/memory/api/ehcache.xml</value>
+        </property>
+        <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    </bean>
+
+	<!-- 
+	a JMX Agent to make the Cache visable in JConsole 
+	-->
+	<bean id="org.sakaiproject.memory.api.MemoryService.jmxAgent" 
+	    class="org.sakaiproject.memory.impl.MemoryServiceJMXAgent"
+	    init-method="init" >
+  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
+		<property name="registerCacheManager"><value>true</value></property>
+		<property name="registerCaches"><value>true</value></property>
+		<property name="registerCacheConfigurations"><value>true</value></property>
+		<property name="registerCacheStatistics"><value>true</value></property>
+	</bean>
+
+</beans>

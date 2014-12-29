@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>kernel</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>11-SNAPSHOT</version><!-- KernelVersion -->
+    <relativePath>../pom.xml</relativePath>
+  </parent>
+  <name>Sakai Kernel Terracotta Integration Module</name>
+  <groupId>org.sakaiproject.kernel</groupId>
+  <artifactId>tim-kernel</artifactId>
+  <organization>
+    <name>Sakai Foundation</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</url>
+  </scm>
+
+  <packaging>jar</packaging>
+
+  <properties>
+    <tc.version>2.6.4</tc.version>
+    <tc.maven.version>1.2.0</tc.maven.version>
+    <Bundle-RequiredExecutionEnvironment>J2SE-1.5</Bundle-RequiredExecutionEnvironment>
+  </properties>
+
+  <build>
+    <resources>
+      <resource>
+        <directory>src/main/resources</directory>
+        <filtering>true</filtering>
+      </resource>
+    </resources>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.terracotta.maven.plugins</groupId>
+          <artifactId>tc-maven-plugin</artifactId>
+          <version>${tc.maven.version}</version>
+          <configuration>
+            <workingDirectory>${project.build.directory}</workingDirectory>
+          </configuration>
+          <executions>
+            <execution>
+              <phase>generate-resources</phase>
+              <goals>
+                <goal>manifest</goal>
+              </goals>
+              <configuration>
+                <bundleRequiredExecutionEnvironment>${Bundle-RequiredExecutionEnvironment}</bundleRequiredExecutionEnvironment>
+                <bundleCategory>Terracotta Integration Module</bundleCategory>
+                <bundleCopyright>Copyright (c) 2008 The Sakai Foundation</bundleCopyright>
+                <importPackage>org.terracotta.modules.configuration</importPackage>
+              </configuration>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.terracotta</groupId>
+              <artifactId>terracotta</artifactId>
+              <version>${tc.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>org.terracotta</groupId>
+              <artifactId>tcconfig</artifactId>
+              <version>${tc.version}</version>
+            </dependency>
+          </dependencies>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-jar-plugin</artifactId>
+          <executions>
+            <execution>
+              <id>default</id>
+              <goals>
+                <goal>jar</goal>
+              </goals>
+              <configuration>
+                <forceCreation>true</forceCreation>
+                <archive>
+                  <manifestFile>${project.build.directory}/MANIFEST.MF</manifestFile>
+                </archive>
+              </configuration>
+            </execution>
+          </executions>
+        </plugin>
+        <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+        <plugin>
+            <groupId>org.eclipse.m2e</groupId>
+            <artifactId>lifecycle-mapping</artifactId>
+            <version>1.0.0</version>
+            <configuration>
+                <lifecycleMappingMetadata>
+                    <pluginExecutions>
+                        <pluginExecution>
+                            <pluginExecutionFilter>
+                                <groupId>org.terracotta.maven.plugins</groupId>
+                                <artifactId>tc-maven-plugin</artifactId>
+                                <versionRange>[1.2.0,)</versionRange>
+                                <goals>
+                                    <goal>manifest</goal>
+                                </goals>
+                            </pluginExecutionFilter>
+                            <action>
+                                <ignore></ignore>
+                            </action>
+                        </pluginExecution>
+                    </pluginExecutions>
+                </lifecycleMappingMetadata>
+            </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
+    <plugins>
+      <plugin>
+        <groupId>org.terracotta.maven.plugins</groupId>
+        <artifactId>tc-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+</project>

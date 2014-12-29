@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-2.0.xsd">
+
+	<!-- Change the list of local properties files. (The default sakai.properties will still be read.) -->
+	<bean id="org.sakaiproject.component.SakaiProperties" parent="org.sakaiproject.component.DefaultSakaiProperties">
+		<property name="locations">
+			<list merge="true">
+				<value>file:${sakai.home}sakai.properties</value>
+			</list>
+		</property>
+	</bean>
+
+</beans>

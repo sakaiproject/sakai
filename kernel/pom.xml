@@ -1,0 +1,618 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>kernel</artifactId>
+  <packaging>pom</packaging>
+  <name>Sakai Kernel</name>
+  <version>11-SNAPSHOT</version><!-- KernelVersion -->
+  <url>http://source.sakaiproject.org/release/kernel/${project.version}</url>
+  <description>The Sakai kernel provides core functionality for the Sakai framework</description>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2003</inceptionYear>
+  <properties>
+    <kernel.basedir>${basedir}</kernel.basedir>
+  </properties>
+
+  <modules>
+    <module>api</module>
+    <module>component-manager</module>
+    <module>kernel-private</module>
+    <module>kernel-component</module>
+    <module>kernel-common</module>
+    <module>kernel-impl</module>
+    <module>kernel-util</module>
+    <module>kernel-storage-util</module>
+    <module>deploy</module>
+    <module>test-harness</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>terracotta</id>
+      <activation>
+        <property>
+          <name>terracotta</name>
+        </property>
+      </activation>
+      <modules>
+        <module>kernel-tim</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>release</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-javadoc-plugin</artifactId>
+            <version>2.9.1</version>
+            <executions>
+              <execution>
+                <id>attach-javadocs</id>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-source-plugin</artifactId>
+            <version>2.2.1</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>sakai-release</id>
+      <activation>
+        <activeByDefault>false</activeByDefault>
+      </activation>
+      <distributionManagement>
+        <site>
+          <id>sakai-site</id>
+          <name>Sakai release Site</name>
+          <url>scpexe://source.sakaiproject.org/var/www/html/release/kernel/${project.version}</url>
+        </site>
+      </distributionManagement>
+    </profile>
+  </profiles>
+
+  <dependencyManagement>
+    <dependencies>
+      <!-- centralize the versions for hazelcast -->
+      <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast</artifactId>
+        <version>3.2.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-client</artifactId>
+        <version>3.2.3</version>
+        <scope>provided</scope>
+      </dependency>
+      <!-- centralize the versions for distributed ehcache - MUST match ehcache-core 2.6.6 -->
+      <dependency>
+        <groupId>org.terracotta</groupId>
+        <artifactId>terracotta-toolkit-1.6-runtime</artifactId>
+        <version>5.6.0</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>net.sf.ehcache</groupId>
+        <artifactId>ehcache-terracotta</artifactId>
+        <version>2.6.6</version>
+        <scope>provided</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
+  </scm>
+
+  <issueManagement>
+    <system>jira</system>
+    <url>http://jira.sakaiproject.org/browse/KNL</url>
+  </issueManagement>
+  <ciManagement>
+    <system>hudson</system>
+    <url>http://builds.sakaiproject.org:8080/view/Sakai%20Framework/job/kernel%20trunk/</url>
+    <notifiers>
+      <notifier>
+        <type>mail</type>
+        <sendOnError>true</sendOnError>
+        <sendOnFailure>true</sendOnFailure>
+        <sendOnSuccess>false</sendOnSuccess>
+        <sendOnWarning>false</sendOnWarning>
+        <configuration>
+          <address>sakai-dev@collab.sakaiproject.org</address>
+        </configuration>
+      </notifier>
+    </notifiers>
+  </ciManagement>
+
+  <developers>
+    <developer>
+      <id>matthew.buckett@oucs.ox.ac.uk</id>
+      <name>Matthew Buckett</name>
+      <email>matthew.buckett@oucs.ox.ac.uk</email>
+      <organization>Oxford University</organization>
+      <organizationUrl>http://www.oucs.ox.ac.uk/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>0</timezone>
+      <properties />
+    </developer>
+    <developer>
+      <id>david.horwitz@uct.ac.za</id>
+      <name>David Horwitz</name>
+      <email>david.horwitz@uct.ac.za</email>
+      <url>http://blogs.uct.ac.za/blog/daves-blog</url>
+      <organization>Centre for Innovation in Learning and Teaching (CILT), University of Cape Town</organization>
+      <organizationUrl>http://www.cilt.uct.ac.za/</organizationUrl>
+      <roles>
+        <role>developer</role>
+        <role>branch manager</role>
+      </roles>
+      <timezone>+2</timezone>
+      <properties>
+        <picUrl>http://www.sakaiproject.org/access/content/group/sakai-community/images/people/horwitzdavid_sakaigers_100x80.jpg</picUrl>
+      </properties>
+    </developer>
+    <developer>
+      <id>bkirschn@umich.edu</id>
+      <name>Beth Kirschner</name>
+      <email>bkirschn@umich.edu</email>
+      <url />
+      <organization>University of Michigan</organization>
+      <organizationUrl>http://www.umich.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties>
+        <picUrl>http://www.sakaiproject.org/access/content/group/sakai-community/images/people/kirschnerbeth_100x79.png</picUrl>
+      </properties>
+    </developer>
+    <developer>
+      <id>stephen.marquard@uct.ac.za</id>
+      <name>Stephen Marquard</name>
+      <email>stephen.marquard@uct.ac.za</email>
+      <organization>Centre for Innovation in Learning and Teaching (CILT), University of Cape Town</organization>
+      <organizationUrl>http://www.cilt.uct.ac.za/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>+2</timezone>
+      <properties>
+        <picUrl>http://www.sakaiproject.org/access/content/group/sakai-foundation/images/people/marquard_100x77.jpg</picUrl>
+      </properties>
+    </developer>
+    <developer>
+      <id>ottenhoff@longsight.com</id>
+      <name>Sam Ottenhoff</name>
+      <email>ottenhoff@longsight.com</email>
+      <organization>Longsight</organization>
+      <organizationUrl>http://www.longsight.com/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </developer>
+    <developer>
+      <id>arwhyte@umich.edu</id>
+      <name>Anthony Whyte</name>
+      <email>arwhyte@sakaifoundation.org</email>
+      <url>http://www.whyteboy.org</url>
+      <organization>Sakai Foundation / University of Michigan</organization>
+      <organizationUrl>http://www.sakaiproject.org</organizationUrl>
+      <roles>
+        <role>developer</role>
+        <role>release manager</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties>
+        <picUrl>http://www.sakaiproject.org/access/content/group/sakai-foundation/images/staff/arwhyte_capeargus07_grin_100x70.gif</picUrl>
+      </properties>
+    </developer>
+    <developer>
+      <id>aaronz@vt.edu</id>
+      <name>Aaron Zeckoski</name>
+      <email>azeckoski@unicon.net</email>
+      <url>http://tinyurl.com/azprofile</url>
+      <organization>Unicon</organization>
+      <organizationUrl>http://www.unicon.net</organizationUrl>
+      <roles>
+        <role>architect</role>
+        <role>engineer</role>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties />
+    </developer>
+  </developers>
+  <contributors>
+    <contributor>
+      <name>Glenn Golden</name>
+      <email>ggolden@etudes.org</email>
+      <url />
+      <organization>Etudes</organization>
+      <organizationUrl>http://etudes.org/</organizationUrl>
+      <roles>
+        <role>architect (2003-2007)</role>
+      </roles>
+      <timezone>-7</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <!--id>jimeng@umich.edu</id-->
+      <name>Jim Eng</name>
+      <email>jimeng@umich.edu</email>
+      <organization>The University of Michigan</organization>
+      <organizationUrl>http://www.umich.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>Josh Holtzman</name>
+      <email>jholtzman@berkeley.edu</email>
+      <url>http://josh.media.berkeley.edu/</url>
+      <organization>University of California, Berkeley</organization>
+      <organizationUrl>http://ets.berkeley.edu/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-7</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>Charles Severance</name>
+      <email>csev@umich.edu</email>
+      <url>http://www.dr-chuck.com/</url>
+      <organization>University of Michigan</organization>
+      <organizationUrl>http://www.umich.edu</organizationUrl>
+      <roles>
+        <role>chief architect (2003-2007)</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>Lance Speelmon</name>
+      <email>lance@indiana.edu</email>
+      <url>http://lancespeelmon.wordpress.com/</url>
+      <organization>Indiana University</organization>
+      <organizationUrl>http://www.iu.edu</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>Steve Swinsburg</name>
+      <email>steve.swinsburg@gmail.com</email>
+      <url>http://steveswinsburg.wordpress.com/</url>
+      <organization>The Australian National University</organization>
+      <organizationUrl>http://www.anu.edu.au/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>+10</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>Carl Hall</name>
+      <email>carl.hall@gatech.edu</email>
+      <organization>Georgia Tech</organization>
+      <organizationUrl>http://gatech.edu/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>Adrian Fish</name>
+      <email>a.fish@lancaster.ac.uk</email>
+      <organization>University of Lacanster</organization>
+      <organizationUrl>http://www.lancs.ac.uk/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>0</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>John Bush</name>
+      <email>jbush@rsmart.com</email>
+      <organization>rSmart</organization>
+      <organizationUrl>http://www.rsmart.com</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <name>Zach Thomas</name>
+      <email>zach@aeroplanesoftware.com</email>
+      <organization>Aeroplane Software</organization>
+      <organizationUrl>http://www.aeroplanesoftware.com</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+      <properties />
+    </contributor>
+    <contributor>
+      <!-- id>slt@columbia.edu</id -->
+      <name>Seth Theriault</name>
+      <email>slt@columbia.edu</email>
+      <organization>Columbia University</organization>
+      <organizationUrl>http://www.columbia.edu/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-5</timezone>
+    </contributor>
+    <contributor>
+      <!-- id>ieb</id-->
+      <name>Ian Boston</name>
+      <email>ian@caret.cam.ac.uk</email>
+      <url>http://blog.tfd.co.uk/</url>
+      <organization>Centre for Applied Research in Educational Technologies,
+                University of Cambridge</organization>
+      <organizationUrl>http://www.caret.cam.ac.uk</organizationUrl>
+      <roles>
+        <role>architect</role>
+      </roles>
+      <timezone>0</timezone>
+      <properties>
+        <picUrl>http://www.caret.cam.ac.uk/wp-content/uploads/2008/12/ian.jpg</picUrl>
+      </properties>
+    </contributor>
+    <contributor>
+      <!-- id>ray@media.berkeley.edu</id-->
+      <name>Ray Davis</name>
+      <email>ray@media.berkeley.edu</email>
+      <url>http://ray.media.berkeley.edu/blog/</url>
+      <organization>University of California, Berkeley</organization>
+      <organizationUrl>http://ets.berkeley.edu/</organizationUrl>
+      <roles>
+        <role>developer</role>
+      </roles>
+      <timezone>-7</timezone>
+      <properties>
+        <picUrl />
+      </properties>
+    </contributor>
+  </contributors>
+
+  <!-- most reporting rules inherited from corporate POM -->
+  <reporting>
+    <plugins>
+      <!-- triggers a full rebuild -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+      </plugin>
+      <!-- triggers a full rebuild with tests -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </reporting>
+
+  <build>
+    <!-- remap kernel dirs to the standard maven dir structure -->
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <scriptSourceDirectory>src/main/webapp</scriptSourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/test/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </testResource>
+      <testResource>
+        <directory>${basedir}/src/test/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </testResource>
+    </testResources>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/java</directory>
+        <excludes>
+          <exclude>**/*.java</exclude>
+        </excludes>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/bundle</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <includes>
+          <include>**/*</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/sql</directory>
+        <includes>
+          <include>**/*.sql</include>
+        </includes>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/config</directory>
+        <includes>
+          <include>**/*.properties</include>
+          <include>**/*.xml</include>
+        </includes>
+      </resource>
+    </resources>
+
+    <plugins>
+
+		<plugin>
+			<inherited>true</inherited>
+			<groupId>org.sakaiproject.maven.plugins</groupId>
+			<artifactId>sakai</artifactId>
+			<extensions>true</extensions>
+			<configuration>
+				<deployDirectory>
+					${maven.tomcat.home}
+				</deployDirectory>
+				<warSourceDirectory>
+					${basedir}/src/main/webapp
+				</warSourceDirectory>
+			</configuration>
+		</plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-site-plugin</artifactId>
+        <version>3.3</version>
+      </plugin>
+      <plugin>
+        <inherited>true</inherited>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-war-plugin</artifactId>
+        <configuration>
+          <warSourceDirectory>${basedir}/src/main/webapp</warSourceDirectory>
+        </configuration>
+      </plugin>
+    </plugins>
+
+    <extensions>
+      <!-- Enable the use of external ssh for deploys -->
+      <extension>
+        <groupId>org.apache.maven.wagon</groupId>
+        <artifactId>wagon-ssh-external</artifactId>
+        <version>2.0</version>
+      </extension>
+    </extensions>
+
+  </build>
+
+  <repositories>
+    <repository>
+      <id>central</id>
+      <name>Maven Repository Switchboard</name>
+      <layout>default</layout>
+      <url>http://repo1.maven.org/maven2</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>sakai-maven</id>
+      <name>Sakai Maven Repo</name>
+      <layout>default</layout>
+      <url>http://source.sakaiproject.org/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+        <checksumPolicy>ignore</checksumPolicy>
+      </releases>
+      <snapshots>
+        <enabled>false</enabled>
+        <checksumPolicy>ignore</checksumPolicy>
+      </snapshots>
+    </repository>
+    <repository>
+      <id>opencast</id>
+      <name>Opencast Repo</name>
+      <url>http://repository.opencastproject.org/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </repository>
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
+  </repositories>
+  <pluginRepositories>
+    <pluginRepository>
+      <id>central</id>
+      <name>Maven Plugin Repository</name>
+      <url>http://repo1.maven.org/maven2</url>
+      <layout>default</layout>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <updatePolicy>never</updatePolicy>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>Sakai Plugin Repo</id>
+      <url>http://source.sakaiproject.org/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>opencast</id>
+      <name>Opencast Repo</name>
+      <url>http://repository.opencastproject.org/nexus/content/groups/public</url>
+      <snapshots>
+        <enabled>false</enabled>
+      </snapshots>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+    </pluginRepository>
+    <pluginRepository>
+      <id>terracotta-repository</id>
+      <url>http://www.terracotta.org/download/reflector/maven2</url>
+      <releases>
+        <enabled>true</enabled>
+      </releases>
+      <snapshots>
+        <enabled>true</enabled>
+      </snapshots>
+    </pluginRepository>
+  </pluginRepositories>
+</project>
