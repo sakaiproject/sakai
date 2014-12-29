@@ -1,0 +1,127 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-customize.vm,v 1.1 2005/04/14 20:22:10 ggolden.umich.edu Exp $ 
+
+<script type="text/javascript">
+	focus_path = [ "$form-pagesize" ];
+</script>
+
+#if($optSize) #set($sizeValue=$optSize) #else #set($sizeValue=$pagesize) #end
+#if($optOpen) #set($openValue=$optOpen) #else #set($openValue=$channel.Open) #end
+#if($optReply) #set($replyValue=$optReply) #else #set($replyValue=$channel.ReplyToList) #end
+#if($optSendto) #set($sendtoValue=$optSendto) #else #set($sendtoValue=$channel.SendToList) #end
+
+#if($optAlias)
+	#set($aliasValue=$optAlias)
+#else
+	#if ($alias)
+		#set($aliasValue=$alias.Id)
+	#else
+		#set($aliasValue="")
+	#end
+#end
+
+<div class="portletBody">
+	<h3>
+		$tlang.getString("cus.cus2")
+	</h3>
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	<form action="#toolForm($action)" method="post">
+		<h4 class="indnt1">
+			$tlang.getString("cus.maiset2")
+		</h4>
+		<p class="instruction indnt2">
+			$tlang.getString("cus.whoare2")
+		</p>
+		<p class="checkbox indnt2">	
+			<input 
+				type="radio" #if ($openValue) checked="checked" #end
+				name="${form-open}" 
+				id="${form-open}-true" 
+				value="true"
+			/> 
+			<label for="${form-open}-true">
+				$tlang.getString("cus.anyone")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+			<input 
+				type="radio" #if (!$openValue) checked="checked" #end
+				name="${form-open}" 
+				id="${form-open}-false" 
+				value="false"
+			/> 
+			<label for="${form-open}-false">
+				$tlang.getString("cus.onluse2")
+			</label>
+		</p>
+		<p class="instruction indnt2">
+			$tlang.getString("cus.replyto")
+		</p>
+				<p class="checkbox indnt2">	
+			<input 
+				type="radio" #if ($replyValue) checked="checked" #end
+				name="${form-reply}" 
+				id="${form-reply}-true" 
+				value="true"
+			/> 
+			<label for="${form-reply}-true">
+				$tlang.getString("cus.replylist")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+			<input 
+				type="radio" #if (!$replyValue) checked="checked" #end
+				name="${form-reply}" 
+				id="${form-reply}-false" 
+				value="false"
+			/> 
+			<label for="${form-reply}-false">
+				$tlang.getString("cus.replysend")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+		</p>
+				<p class="instruction indnt2">
+			$tlang.getString("cus.sendto")
+		</p>
+				<p class="checkbox indnt2">	
+			<input 
+				type="radio" #if ($sendtoValue) checked="checked" #end
+				name="${form-sendto}" 
+				id="${form-sendto}-true" 
+				value="true"
+			/> 
+			<label for="${form-sendto}-true">
+				$tlang.getString("cus.sendon")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+			<input 
+				type="radio" #if (!$sendtoValue) checked="checked" #end
+				name="${form-sendto}" 
+				id="${form-sendto}-false" 
+				value="false"
+			/> 
+			<label for="${form-sendto}-false">
+				$tlang.getString("cus.sendoff")
+			</label>
+		</p>
+		<p class="checkbox indnt2">
+		</p>
+		<h4 class="indnt1">
+			$tlang.getString("gen.maiali2")
+		</h4>	
+		<p class="shorttext indnt2">
+			<label for ="$form-alias">
+				$tlang.getString("cus.usethi2")
+			</label>
+			<input type="text" name="$form-alias" id="$form-alias" value="$!alias" maxlength="$form-alias-max-length" /> @${serverName}
+		</p>
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.sav2")" />
+			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.can")" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

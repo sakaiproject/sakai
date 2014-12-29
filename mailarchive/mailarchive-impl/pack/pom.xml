@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.mailarchive</groupId>
+        <artifactId>mailarchive</artifactId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-mailarchive-pack</name>
+    <groupId>org.sakaiproject.mailarchive</groupId>
+    <artifactId>sakai-mailarchive-pack</artifactId>
+    <organization>
+        <name>Sakai Foundation</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sakai-mailarchive-impl</artifactId>
+        </dependency>
+    </dependencies>
+</project>

@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>Sakai Mail Archive Project</name>
+    <groupId>org.sakaiproject.mailarchive</groupId>
+    <artifactId>mailarchive</artifactId>
+    <version>11-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>mailarchive-api/api</module>
+        <module>mailarchive-impl/impl</module>
+        <module>mailarchive-impl/pack</module>
+        <module>mailarchive-james/james</module>
+        <module>mailarchive-tool/tool</module>
+        <module>search-adapters/impl</module>
+        <module>search-adapters/pack</module>
+    </modules>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/mailarchive/trunk</url>
+    </scm>
+      
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/mailarchive/${project.version}</url>
+        </site>
+    </distributionManagement>
+      
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-mailarchive-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-mailarchive-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

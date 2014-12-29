@@ -1,0 +1,102 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-view.vm,v 1.2 2005/05/06 18:51:57 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	<div class="navPanel">
+		<div class="itemNav">
+				#if ($goPPButton)
+					<a href="#" title="&lt; $tlang.getString('view.prev')" onclick="location = '#toolLinkParam("$action" "doView" "item_number=${prevPos}")';return false;" accesskey="p">
+						<input type="button" value="&lt; $tlang.getString('view.prev')" title="$tlang.getString('view.prev')" accesskey="p" />
+					</a>	
+				#else
+						<input type="button" value="&lt; $tlang.getString('view.prev')" disabled="disabled" />		
+				#end
+				<a href="#" title="$tlang.getString('view.return')" onclick="location = '#toolLink("$action" "doList")';return false;" accesskey="l">
+					<input type="button" value="$tlang.getString('view.return')" title="$tlang.getString('view.return')"  accesskey="l" />	
+				</a>
+				#if ($goNPButton)
+					<a href="#" title="$tlang.getString('view.next')" onclick="location = '#toolLinkParam("$action" "doView" "item_number=${nextPos}")';return false;" accesskey="n">
+						<input type="button" value="$tlang.getString('view.next') &gt;" title="$tlang.getString('view.next')" accesskey="n" />
+					</a>
+				#end
+			</div>
+	</div>	
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	
+   #if ("$email.Header.Subject" == "")
+       #set ($email.Header.Subject = $tlang.getString("err_no_subject"))
+   #end
+	<table class ="itemSummary" summary="$tlang.getString('view.summary')">
+		<tr>
+			<th>$tlang.getString("gen.dat")</th>
+			<td>$email.Header.DateSent.toStringLocalFullZ()</td>
+		</tr>
+		<tr>
+			<th>$tlang.getString("gen.fro3")</th>
+			<td>$validator.escapeHtml($email.Header.FromAddress)</td>
+		</tr>
+		<tr>
+			<th>$tlang.getString("gen.sub2")</th>
+			<td>$validator.escapeHtml($email.Header.Subject)</td>
+		</tr>
+		#if ($viewheaders)
+			<tr>
+				<th>$tlang.getString("gen.hea")</th>
+				<td>
+					<ul class="textPanelFooter instruction attachList" style="width:50em;overflow:hidden; margin:0 !important">
+						#set($headers = $email.Header.MailHeaders)
+						#foreach ($header in $headers)
+							<li>$validator.escapeHtml($header)</li>
+						#end
+					</ul>
+				</td>
+			</tr>
+		#end
+		<tr>
+			<th>$tlang.getString("gen.bod2")</th>
+			<td>$validator.escapeHtmlFormattedText($email.FormattedBody)</td>
+		</tr>
+		#set ($attachments = $email.Header.Attachments)
+		#if (!$attachments.isEmpty())
+			<tr>
+				<th>$tlang.getString("gen.att")</th>
+				<td>
+					<ul class="attachList">
+						#foreach ($attachment in $attachments)                                        
+							#set ($props = $attachment.Properties)
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="$tlang.getString("gen.fol")" />
+							#else
+								<li><img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
+							#end
+							<a href="$attachment.Url" target="_new">
+							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+							</li>
+						#end
+					</ul>	
+				</td>
+			</tr>
+		#end
+	</table>
+	<div class="navPanel">
+		<div class="itemNav">
+			#if ($goPPButton)
+				<a href="#" title="$tlang.getString('view.prev')" onclick="location = '#toolLinkParam("$action" "doView" "item_number=${prevPos}")';return false;">
+					<input type="button" value="&lt; $tlang.getString('view.prev')" title="$tlang.getString('view.prev')" />
+				</a>	
+			#else
+					<input type="button" value="&lt; $tlang.getString('view.prev')" disabled="disabled" />		
+			#end
+			<a href="#" title="$tlang.getString('view.return')" onclick="location = '#toolLink("$action" "doList")';return false;">
+				<input type="button" value="$tlang.getString('view.return')" title="$tlang.getString('view.return')" />	
+			</a>
+			#if ($goNPButton)
+				<a href="#" title="$tlang.getString('view.next')" onclick="location = '#toolLinkParam("$action" "doView" "item_number=${nextPos}")';return false;">
+					<input type="button" value="$tlang.getString('view.next') &gt;" title="$tlang.getString('view.next')" />
+				</a>
+			#end
+		</div>
+	</div>	
+</div>

@@ -1,0 +1,29 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/email/chef_mailbox-confirm_remove.vm,v 1.2 2005/05/06 18:51:57 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	<h3>
+		$tlang.getString("rem.rem")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="alertMessage">$tlang.getString("rem.ple")</div>
+	<form action="#toolForm($action)" method="post">
+		<table class ="listHier lines nolines" cellspacing="0" summary ="$tlang.getString("rem.tabho2")">
+			<tr>
+				<th id="from">$tlang.getString("gen.fro")</th>
+				<th id="subject">$tlang.getString("gen.sub")</th>
+				<th id="date">$tlang.getString("gen.sen")</th>
+			</tr>
+			<tr>
+				<td headers ="from">$validator.escapeHtml($email.Header.FromAddress)</td>
+				<td headers="subject">$validator.escapeHtml($email.Header.Subject)</td>
+				<td headers="date">$email.Header.DateSent.toStringLocalFullZ()</td>
+			</tr>
+		</table>
+		<div class="act">
+			<input type="submit" accesskey="s" class="active" name="eventSubmit_doRemove_confirmed" value="$tlang.getString("gen.rem")" />
+			<input type="submit" accesskey="x"  name="eventSubmit_doRemove_cancel" value="$tlang.getString("gen.can")" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+
+

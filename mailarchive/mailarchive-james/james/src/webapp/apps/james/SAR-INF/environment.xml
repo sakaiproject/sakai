@@ -1,0 +1,108 @@
+<?xml version="1.0"?>
+
+<server>
+  <logs version="1.1">
+    <!-- see http://jakarta.apache.org/avalon/excalibur/logger/index.html -->
+    <factories>
+      <factory type="file" class="org.apache.avalon.excalibur.logger.factory.FileTargetFactory"/>
+    </factories>
+
+    <!-- Logger categories -->
+    <!-- -->
+    <!-- The categories element contains zero or more category elements. -->
+    <!-- -->
+    <!-- Each category element has a name attribute that should be unique -->
+    <!-- among the category elements. It also has a log-level attribute. -->
+    <!-- This attribute can be set to any of the values FATALERROR, ERROR, -->
+    <!-- WARN, INFO, or DEBUG.  This value determines what log messages -->
+    <!-- are recorded in the log file.  In addition, each category element -->
+    <!-- can have zero or more category subelements. -->
+    <!-- -->
+    <!-- Each category element has a single log-target sub-element.  Each of -->
+    <!-- these elements has an id-ref attribute that must match the id attribute -->
+    <!-- of a file subelement of the targets element that can be found in this -->
+    <!-- file. -->
+    <!-- -->
+    <!-- In addition, each category element can have zero or more category subelements. -->
+    <!-- -->
+    <categories>
+      <category name="" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="James.Mailet" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="James" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="spoolmanager" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="dnsserver" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="remotemanager" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="pop3server" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="smtpserver" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="nntpserver" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="nntp-repository" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="mailstore" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="users-store" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="objectstorage" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="connections" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="sockets" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="scheduler" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+      <category name="fetchpop" log-level="INFO">
+        <log-target id-ref="default"/>
+      </category>
+    </categories>
+
+    <!-- Logger targets -->
+    <!-- -->
+    <!-- The targets element contains zero or more file elements. -->
+    <!-- -->
+    <!-- Each file element has an id attribute that should be unique -->
+    <!-- among the file elements.  -->
+    <!-- -->
+    <!-- Each file element has three sub-elements.  The filename element -->
+    <!-- specifies the file associated with this log target.   The format -->
+    <!-- element describes the format for each line in the log.  The append -->
+    <!-- element is a boolean value that determines whether James appends -->
+    <!-- to old logs on restart.  -->
+    <!-- -->
+    <targets>
+      <file id="default">
+        <filename>[SAKAI.HOME]logs/james</filename>
+        <format>%{time:dd/MM/yy HH:mm:ss} %5.5{priority} %{category}: %{message}\n%{throwable}</format>
+        <append>true</append>
+        <rotation type="unique" pattern="-yyyy-MM-dd" suffix=".log">
+          <or>
+            <date>dd</date>
+          </or>
+        </rotation>
+      </file>
+    </targets>
+  </logs>
+</server>

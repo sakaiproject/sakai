@@ -1,0 +1,99 @@
+<?xml version="1.0"?>
+
+<phoenix>
+    <embeddor role="org.apache.avalon.phoenix.interfaces.Embeddor"
+        class="org.apache.avalon.phoenix.components.embeddor.DefaultEmbeddor">
+
+        <component role="org.apache.avalon.phoenix.interfaces.Deployer"
+            class="org.apache.avalon.phoenix.components.deployer.DefaultDeployer"
+            logger="deployer"/>
+
+        <component role="org.apache.avalon.phoenix.interfaces.LogManager"
+            class="org.apache.avalon.phoenix.components.logger.DefaultLogManager"
+            logger="logs"/>
+
+        <!-- There is one JMX MBeanServer infrastructure currently
+             supported by Avalon, namely MX4J. Previously the JMX RI
+             was supported but due to severe bugs and lack of implementation
+             of certain features (such as ModelMBeans), support has been
+             dropped for the JMX RI implementation.
+
+            The MX4J manager using the MX4J adapter devewloped at SourceForge
+            See http://mx4j.sourceforge.net/ -
+
+              org.apache.avalon.phoenix.components.manager.MX4JSystemManager
+              
+            There is an impl of system manager that does nothing and it is....
+            
+              org.apache.avalon.phoenix.components.manager.NoopSystemManager
+            
+            Alternatively, you could comment the whole SystemManager section out.
+            [This is false.  You get an exception:
+             org.apache.avalon.framework.service.ServiceException: Unable to provide implementation for org.apache.avalon.phoenix.interfaces.SystemManager (Role='org.apache.avalon.phoenix.interfaces.SystemManager')]
+        -->
+
+        <component role="org.apache.avalon.phoenix.interfaces.SystemManager"
+            class="org.apache.avalon.phoenix.components.manager.NoopSystemManager"
+            logger="manager" >
+          <manager-adaptor-port>8082</manager-adaptor-port>
+          <!--
+          <enable-rmi-adaptor>true</enable-rmi-adaptor>
+          <rmi-naming-factory>com.sun.jndi.rmi.registry.RegistryContextFactory</rmi-naming-factory>
+          <stylesheets-dir>conf/xsl</stylesheets-dir>
+          -->
+          <!--
+          <user>
+            <name>user</name>
+            <password>password</password>
+          </user>
+          -->
+        </component>
+
+        <!-- There are two kernels
+          org.apache.avalon.phoenix.components.kernel.DefaultKernel
+            - The default one.
+          org.apache.avalon.phoenix.components.kernel.beanshell.BeanShellKernel
+            - One with a beanshell view at the application level.
+        -->
+        <component role="org.apache.avalon.phoenix.interfaces.Kernel"
+            class="org.apache.avalon.phoenix.components.kernel.DefaultKernel"
+            logger="kernel"/>
+
+        <component role="org.apache.avalon.phoenix.interfaces.ConfigurationRepository"
+            class="org.apache.avalon.phoenix.components.configuration.DefaultConfigurationRepository"
+            logger="config"/>
+
+        <!--
+        <component role="org.apache.avalon.phoenix.interfaces.ConfigurationRepository"
+            class="org.apache.avalon.phoenix.components.configuration.FileSystemPersistentConfigurationRepository"
+            logger="config"/>
+            -->
+
+        <component role="org.apache.avalon.phoenix.interfaces.ConfigurationValidator"
+            class="org.apache.avalon.phoenix.components.configuration.validator.NoopConfigurationValidator"
+            logger="validator"/>
+
+<!--
+        <component role="org.apache.avalon.phoenix.interfaces.ConfigurationValidator"
+            class="org.apache.avalon.phoenix.components.configuration.validator.DelegatingConfigurationValidator"
+            logger="validator">
+            <delegate schema-type="relax-ng"
+                class="org.apache.avalon.phoenix.components.configuration.validator.JarvConfigurationValidator">
+                <schema-language>http://relaxng.org/ns/structure/1.0</schema-language>
+            </delegate>
+        </component>
+        -->
+
+        <component role="org.apache.avalon.phoenix.interfaces.ClassLoaderManager"
+            class="org.apache.avalon.phoenix.components.classloader.DefaultClassLoaderManager"
+            logger="classes"/>
+        <component role="org.apache.avalon.excalibur.packagemanager.ExtensionManager"
+            class="org.apache.avalon.phoenix.components.extensions.DefaultExtensionManager"
+            logger="packages"/>
+<!--
+        <component role="org.apache.avalon.excalibur.packagemanager.ExtensionManager"
+            class="org.apache.avalon.excalibur.packagemanager.impl.NoopPackageRepository"
+            logger="packages"/>
+-->
+    </embeddor>
+</phoenix>
