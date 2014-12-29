@@ -1,0 +1,9 @@
+<gbx:iterator value="#{bean.assignmentGradeRows}" var="gradeRow" rowIndexVar="rowIndex">
+    <gbx:dhtmlPopup popupId="#{rowIndex}" columns="1"
+		value="#{gradeRow.comments}" var="commentRow"
+		titleText="#{msgs.student_view_comment_popup_header} #{gradeRow.assignment.name}"
+		closeIconUrl="dhtmlpopup/dhtmlPopClose.gif"
+		styleClass="dhtmlPopup dhtmlCommentPopup" titleBarClass="dhtmlPopupTitleBar" closeClass="dhtmlPopupClose" dataRowClass="dhtmlPopupDataRow">
+        <h:outputText value="#{commentRow.commentText}"/>
+    </gbx:dhtmlPopup>
+</gbx:iterator>

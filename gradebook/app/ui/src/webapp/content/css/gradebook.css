@@ -1,0 +1,267 @@
+/* Reset tool styles ========================================*/
+
+.reqStar{
+	float: none;
+	margin-left: 0;
+}
+
+label .reqStar {
+	margin-left: -6pt;	
+}
+
+table.listHier{
+	width: 100%;
+}
+
+
+
+/* Nav ========================================*/
+
+.navIntraTool li, .itemAction li {
+	display: inline;
+	margin: 0;
+	margin-left: -.5em;
+	padding: 0 1em;
+}
+
+.navIntraTool li span.separator {
+    margin-left: 1em;
+    margin-right: -1.5em;
+}
+
+.itemAction li {
+	margin-left: 0;
+	padding: 0 .3em;
+}
+
+.navIntraTool a, .navIntraTool a:link{
+	margin: 0;
+	padding: 0;
+}
+
+li.last {
+	border: 0 none;
+}
+
+
+.pagerDiv {
+	float: right;	
+	position: relative;
+}
+
+h3 {
+	height: 2.5em;
+}
+
+
+/* Forms ========================================*/
+
+fieldset {
+	background-color: #fff;
+	margin: 20px 0;
+	padding: 0;
+}
+
+legend {
+	color: #000;
+	font-weight: bold;
+	margin-left: 0;
+	margin-bottom: .5em;
+	padding: 0;
+}
+
+form ol {
+	margin:0;
+	padding:0;
+}
+
+form li {
+	list-style: none;
+	margin: 0 .5em .5em 15px;
+	padding: 2px;
+}
+
+form li.activefield {
+   background-color: #f1f5f8;
+}
+
+form li label, .due_date_label {
+	display: block;
+	float: left;
+	margin-right: .5em;
+	margin-top: .3em;
+	text-align: left;
+	width: 16em;
+}
+
+li label.block {
+	display: block;
+	float: none;
+	width: auto;
+}
+
+fieldset fieldset {
+	background: transparent;
+	border: none;
+	margin: 0;
+	padding: 0;
+}
+
+fieldset div.indent {
+    margin-left: 14.5em;	
+}
+
+fieldset fieldset.indent li {
+	margin: 0 .5em .5em 0;
+}
+
+fieldset fieldset legend {
+	color: #333;
+	font-weight: normal;
+	margin-left: 0;
+}
+
+form fieldset fieldset li {
+	margin-bottom: 0;
+	margin-left: 0;
+	padding: 0;
+}
+
+form fieldset fieldset label {
+	display: inline;
+	float: none;
+	margin: 5px 0 0 5px;
+	text-align: left;
+	width: auto;
+}
+
+.textarea {
+	width: 100%;
+}
+
+.submit {
+	border-style: none;
+	padding: 0;
+	background: none;
+}
+
+.indent {
+	margin-left: 3em;
+}
+
+li p.instruction {
+	margin-left: 14.5em;
+}
+
+li fieldset ol li p.instruction {
+	margin-left: 0;	
+}
+
+
+
+/* Errors/Notifications ========================================*/
+
+li.alertMessageInline {
+	display: inline;	
+}
+
+div.generalErrors li.alertMessageInline {
+	display: block;	
+}
+
+.messages {
+	xbackground: url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	xcolor: #fff;
+	display: block;
+	margin: 0;
+	xpadding: .5em .5em .5em 2em;
+}
+
+.messages li {
+	xbackground: url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	padding: .5em .5em .5em 2em;
+}
+
+li.error {
+	background-color: #ba0005;
+}
+
+li.info {
+	background-color: #00ba05;
+	color: #fff;
+}
+
+.error input[type="text"] {
+	border: 1px solid #ba0005;
+}
+
+.error p,
+.error ul {
+	background: #ba0005 url("/sakai-assignment2-tool/content/images/error-arrow.png") no-repeat .5em 0;
+	color: #fff;
+	display: block;
+	margin: 0;
+	padding: .5em .5em .5em 2em;
+}
+
+.error ul {
+	list-style: none;
+}
+
+li .error p {
+	margin-left: 12.5em;
+}
+
+.error a {
+	color: #fff;
+}
+
+.pointer {
+	cursor: pointer;
+}
+
+
+/* breadcrumb navigation styles */
+.breadCrumb {
+	font-size: 1.2em;
+	padding: .5em 0; 
+	background: #ffe; /* This is our background color */
+	margin: 0 0 1em 0;
+}
+
+.navIntraTool 	 .breadCrumb {
+	margin:0;float:left
+}
+
+.breadCrumb li{
+	display: inline; 
+	background: #ffe url("/sakai-assignment2-tool/content/images/breadSep.gif") center right no-repeat;
+	padding:0 1.2em 0  .5em;
+	margin:0;
+}
+.breadCrumb li:first-child{
+	padding-left:3px
+}
+.breadCrumb li.lastCrumb{
+	display: inline; 
+	background-image: none;
+}
+
+.breadCrumbCurrent {
+	font-weight: bold;
+	display: inline; 
+	padding: 0px;
+}
+
+A.breadCrumb {
+	font-weight: bold;
+	margin: 0px;
+}
+
+A:hover.breadCrumb {
+	color: #333;
+}
+
+div.instruction {
+    margin-left: 16em;
+}

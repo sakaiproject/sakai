@@ -1,0 +1,138 @@
+div#mainwrap {
+   position: relative;
+}
+div#headers {
+   background-color: #ddd;
+   border: 1px solid #afafaf;
+   border-bottom: 4px solid #afafaf;
+   height: 45px;
+   margin-right: 15px;
+   overflow: hidden;
+   padding: 0;
+}
+	div#headers img {
+		width: 12px;
+	}
+
+div#contents {
+   xoverflow: hidden;
+   padding: 0;
+   position: relative;
+}
+	div#contents:after { content: "."; display: block; height: 0; clear: both; visibility: hidden; }
+	div#contents{ display: inline-block; }
+	div#contents{ display: block; }
+
+ul#q1 {
+   border-right: 2px solid #a3a3a3;
+   float: left;
+   margin: 0;
+   padding: 0;
+position: relative;
+z-index: 5;
+}
+
+   ul#q1 li {
+   background-color: #ddd;
+      border: 1px solid #a3a3a3;
+      bottom: 0;
+      display: block;
+      float: left;
+      height: 40px;
+      *height: 45px;
+      list-style: none;
+      padding: 5px 5px 0 5px;
+      text-align: center;
+      white-space: nowrap;
+   z-index: 5;
+   }
+
+div#q2 {
+   display:block;
+   *display:inline;
+   left: 0;
+   overflow: hidden;
+   position: relative;
+}
+
+   div#q2 div {
+      overflow: hidden;
+      position: relative;  
+   }
+
+      div#q2 div ul{
+         float: left;
+         height: 45px;
+         margin: 0;
+         padding: 0;
+         position: relative;
+         *xposition: absolute;
+         width: 1000000px;
+      	z-index: 0;
+      }
+         div#q2 div ul li {
+            border: 1px solid #a3a3a3;
+            float: left;
+            height: 40px;
+            *height: 43px;
+            list-style: none;
+            padding: 5px 5px 0 5px;
+            text-align: center;
+            white-space: nowrap;
+         }
+
+div#q4 {
+   display:block;
+   *display: inline;
+   left: 0px;
+   overflow: hidden;
+   position: relative;
+}
+ 
+   div#q4 div{
+      overflow: scroll;
+      position: relative;
+   }
+          
+      div#q4 div table {
+         float: left;
+         position: absolute;
+         text-align: center;
+      }
+      
+      	div#q4 div table td.inactive-column {
+      		background-color: #eee;
+      	}
+
+div#q3 {
+   border-left: 1px solid #ddd;
+   border-right: 2px solid #a3a3a3;
+   float: left;
+}
+   div#q3 td span {
+	  display: block;
+      text-align:center;
+      width: 100%;
+   }
+   
+   div#q3 div {
+      float: left;
+      overflow: hidden;
+      position: relative;
+   }
+      div#q3 div table{
+         left: 0;
+         position: absolute;
+         top: 0;
+      }
+   
+      div#q3 div table td,
+      div#q4 table td {
+         border: 1px solid #6f6f6f;
+         margin: 0;
+         padding: 5px;
+      }
+
+#hidShowForm {
+  padding: 0 12px;
+}

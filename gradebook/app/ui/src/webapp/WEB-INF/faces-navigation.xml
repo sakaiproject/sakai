@@ -1,0 +1,114 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+	<navigation-rule>
+		<from-view-id>*</from-view-id>
+		<navigation-case>
+			<from-outcome>overview</from-outcome>
+			<to-view-id>/overview.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>roster</from-outcome>
+			<to-view-id>/roster.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>addAssignment</from-outcome>
+			<to-view-id>/addAssignment.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>assignmentDetails</from-outcome>
+			<to-view-id>/assignmentDetails.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>courseGradeDetails</from-outcome>
+			<to-view-id>/courseGradeDetails.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>calculateCourseGrades</from-outcome>
+			<to-view-id>/calculateCourseGrades.jsp</to-view-id>
+		</navigation-case>
+		<navigation-case>
+			<from-outcome>editAssignment</from-outcome>
+            <to-view-id>/editAssignment.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>removeAssignment</from-outcome>
+            <to-view-id>/removeAssignment.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>feedbackOptions</from-outcome>
+            <to-view-id>/gradeOptions.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetUpload</from-outcome>
+            <to-view-id>/spreadsheetUpload.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetPreview</from-outcome>
+            <to-view-id>/spreadsheetPreview.jsp</to-view-id>
+        </navigation-case>
+
+         <navigation-case>
+            <from-outcome>spreadsheetUploadPreview</from-outcome>
+            <to-view-id>/spreadsheetUploadPreview.jsp</to-view-id>
+         </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetImport</from-outcome>
+            <to-view-id>/spreadsheetImport.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetListing</from-outcome>
+            <to-view-id>/spreadsheetListing.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetRemove</from-outcome>
+            <to-view-id>/spreadsheetRemove.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>gradebookSetup</from-outcome>
+            <to-view-id>/gradebookSetup.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetAll</from-outcome>
+            <to-view-id>/spreadsheetEntireGBImport.jsp</to-view-id>
+        </navigation-case>
+
+        <navigation-case>
+            <from-outcome>spreadsheetVerify</from-outcome>
+            <to-view-id>/spreadsheetEntireGBVerify.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>instructorView</from-outcome>
+            <to-view-id>/instructorView.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>studentView</from-outcome>
+            <to-view-id>/studentView.jsp</to-view-id>
+        </navigation-case>
+        
+        <navigation-case>
+            <from-outcome>graderRules</from-outcome>
+            <to-view-id>/graderRules.jsp</to-view-id>
+        </navigation-case>
+		<navigation-case>
+            <from-outcome>hideShowColumns</from-outcome>
+            <to-view-id>/hideShowColumns.jsp</to-view-id>
+        </navigation-case>
+		
+    </navigation-rule>
+</faces-config>

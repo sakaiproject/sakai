@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<%@ taglib uri="http://java.sun.com/jsf/html" prefix="h"
+%><%@ taglib uri="http://java.sun.com/jsf/core" prefix="f"
+%><%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"
+%><%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai"
+%><%@ taglib uri="http://sakaiproject.org/jsf/gradebook" prefix="gbx"
+%><jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
+   <jsp:setProperty name="msgs" property="baseName" value="org.sakaiproject.tool.gradebook.bundle.Messages"/>
+</jsp:useBean>
+<html lang="<%= request.getAttribute("sakai.html.head.lang") %>">
+	<head>
+		<title>Gradebook Tool</title>
+		<%= request.getAttribute("sakai.html.head.css.base") %>
+		<!-- To get the original Gradebook look, replace the above line with this:
+			<link href="${pageContext.request.contextPath}/css/gradebookStandalone.css" rel="stylesheet" type="text/css" />
+		-->
+		<link href="${pageContext.request.contextPath}/css/gradebook.css" rel="stylesheet" type="text/css" />
+		<link href="${pageContext.request.contextPath}/css/spreadsheetUI.css" rel="stylesheet" type="text/css" />
+		<%= request.getAttribute("sakai.html.head.css.skin") %>
+		<%= request.getAttribute("sakai.html.head.js") %>
+		<script type="text/javascript" src="${pageContext.request.contextPath}/js/gradebook.js"></script>
+	</head>
+	<body onload="<%=request.getAttribute("sakai.html.body.onload")%>">

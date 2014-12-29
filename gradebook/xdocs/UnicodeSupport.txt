@@ -1,0 +1,14 @@
+Unicode support is dependent on the underlying database. That is, if the database stores and returns UTF-8 characters, that's what the Gradebook application will store and retrieve.
+
+If, for example, you create a MySQL 4.1 database and tables with a default character set of "latin1".
+
+  mysql> show create database gradebook_db;
+  ... ENGINE=MyISAM DEFAULT CHARSET=latin1 ...
+
+Then UTF-8 characters will not be obtained (or displayed) correctly.
+
+If you've installed your database server to use something other than "utf8" as a default character set, then you can probably reset the default for particular databases.
+
+In MySQL or Oracle, for example, you could back up the tables, drop the tables, issue the following command, and then recreate the tables:
+
+  alter database gradebook_db character set utf8;

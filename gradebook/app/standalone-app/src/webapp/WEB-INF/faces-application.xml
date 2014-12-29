@@ -1,0 +1,149 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+	<application>
+		<!-- Spring VariableResolver for JSF -->
+		<variable-resolver>
+			org.springframework.web.jsf.DelegatingVariableResolver
+		</variable-resolver>
+		<!-- End of deployment-specific properties -->
+
+		<message-bundle>
+			org.sakaiproject.tool.gradebook.bundle.Messages
+		</message-bundle>
+		<locale-config>
+			<default-locale>en</default-locale>
+			<!-- The JSTL specfication implies that region-specific locales must precede generic language locales. -->
+			<supported-locale>en_ZA</supported-locale>
+			<supported-locale>en</supported-locale>
+			<supported-locale>nl</supported-locale>
+			<supported-locale>de</supported-locale>
+			<supported-locale>fr</supported-locale>
+			<supported-locale>es</supported-locale>
+		</locale-config>
+	</application>
+
+	<lifecycle>
+		<phase-listener>
+			org.sakaiproject.tool.gradebook.jsf.FacesPhaseListener
+		</phase-listener>
+	</lifecycle>
+
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.COURSE_GRADE
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.CourseGradeConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.PERCENTAGE
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.PercentageConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.PrecisePercentageConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.POINTS
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.PointsConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.ASSIGNMENT_POINTS
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.AssignmentPointsConverter
+		</converter-class>
+	</converter>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.NONTRAILING_DOUBLE
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.NontrailingDoubleConverter
+		</converter-class>
+	</converter>
+
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.ASSIGNMENT_GRADE
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.AssignmentGradeValidator
+		</validator-class>
+	</validator>
+	<converter>
+		<converter-id>
+			org.sakaiproject.gradebook.jsf.converter.DROP_SCORES
+		</converter-id>
+		<converter-class>
+			org.sakaiproject.tool.gradebook.jsf.DropScoresConverter
+		</converter-class>
+	</converter>
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.DROP_SCORES
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.DropScoresValidator
+		</validator-class>
+	</validator>
+	
+	
+	<validator>
+		<validator-id>
+			org.sakaiproject.gradebook.jsf.validator.CATEGORY_ITEM
+		</validator-id>
+		<validator-class>
+			org.sakaiproject.tool.gradebook.jsf.CategoryItemValidator
+		</validator-class>
+	</validator>
+	
+
+	<render-kit>
+		<renderer>
+			<component-family>javax.faces.Messages</component-family>
+			<renderer-type>javax.faces.Messages</renderer-type>
+			<renderer-class>
+				org.sakaiproject.tool.gradebook.jsf.DivMessagesRenderer
+			</renderer-class>
+		</renderer>
+		<renderer>
+			<component-family>javax.faces.Message</component-family>
+			<renderer-type>javax.faces.Message</renderer-type>
+			<renderer-class>
+				org.sakaiproject.tool.gradebook.jsf.DivMessageRenderer
+			</renderer-class>
+		</renderer>
+		<renderer>
+			<component-family>javax.faces.Command</component-family>
+			<renderer-type>org.apache.myfaces.SortHeader</renderer-type>
+			<renderer-class>org.sakaiproject.tool.gradebook.jsf.HtmlSortHeaderRenderer</renderer-class>
+		</renderer>
+    	<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>SpreadsheetUIRenderer</renderer-type>
+			<renderer-class>org.sakaiproject.tool.gradebook.jsf.spreadsheetUI.SpreadsheetUIRenderer</renderer-class>
+		</renderer>
+		<renderer>
+			<component-family>javax.faces.Data</component-family>
+			<renderer-type>GradbookItemTableRenderer</renderer-type>
+			<renderer-class>org.sakaiproject.tool.gradebook.jsf.gradebookItemTable.GradebookItemTableRenderer</renderer-class>
+		</renderer>
+	</render-kit>
+
+</faces-config>

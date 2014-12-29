@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN" "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+	<application>
+		<variable-resolver>
+			org.sakaiproject.jsf.app.SakaiVariableResolver
+		</variable-resolver>
+		<locale-config>
+			<default-locale>en_US</default-locale>
+		</locale-config>
+	</application>
+
+	<managed-bean>
+		<managed-bean-name>gradebookBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.gradebooktest.GradebookBean</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<property-name>gradebookFrameworkService</property-name>
+			<value>#{Components["org.sakaiproject.service.gradebook.GradebookFrameworkService"]}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>gradebookExternalAssessmentService</property-name>
+			<value>#{Components["org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"]}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>gradebookService</property-name>
+			<value>#{Components["org.sakaiproject.service.gradebook.GradebookService"]}</value>
+		</managed-property>
+	</managed-bean>
+
+</faces-config>

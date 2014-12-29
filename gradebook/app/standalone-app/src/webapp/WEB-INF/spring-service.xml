@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<!--
+		This Spring configuration file wires the external service interface.
+	-->
+
+	<!-- Gradebook Framework Service -->
+	<bean id="org_sakaiproject_service_gradebook_GradebookFrameworkService"
+		name="org.sakaiproject.service.gradebook.GradebookFrameworkService"
+		parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.component.gradebook.GradebookFrameworkServiceImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Gradebook Externally Managed Assessments Service -->
+	<bean id="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"
+		name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"
+		parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.component.gradebook.GradebookExternalAssessmentServiceImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<!-- Gradebook Service -->
+	<bean id="org_sakaiproject_service_gradebook_GradebookService"
+		name="org.sakaiproject.service.gradebook.GradebookService"
+		parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="sectionAwareness">
+					<ref bean="org.sakaiproject.section.api.SectionAwareness" />
+				</property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+				<property name="authz">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authz" />
+				</property>
+				<property name="gradebookPermissionService">
+					<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService" />
+				</property>
+
+				<!-- Temporary support for deprecated methods. -->
+				<property name="frameworkService">
+					<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
+				</property>
+				<property name="externalAssessmentService">
+					<ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionService"
+		class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"
+		name="org.sakaiproject.service.gradebook.GradebookPermissionService">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+		<property name="sectionAwareness"><ref bean="org.sakaiproject.section.api.SectionAwareness"/></property>
+	</bean>
+</beans>

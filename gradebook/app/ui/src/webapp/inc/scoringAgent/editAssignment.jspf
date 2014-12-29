@@ -1,0 +1,15 @@
+<script src="js/scoringAgent/integration.js" type="text/javascript"></script>    
+<div class ="gbSection">
+    <h:outputLink value="#" 
+                  onclick='showPopup(encodeUrl("#{bean.scoringAgentData.scoringComponentUrl}")); return false;'
+                  rendered="#{bean.scoringAgentEnabled}"> 
+        <h:graphicImage value="#{bean.scoringAgentData.scoringAgentImageRef}" alt="#{bean.scoringAgentData.selectScoringComponentText}" title="#{bean.scoringAgentData.selectScoringComponentText}" style="padding-right: .5em"/>   
+        <h:outputFormat value="#{msgs.selectScoringComponent}">
+            <f:param value="#{bean.scoringAgentData.scoringAgentName}" />
+        </h:outputFormat>           
+    </h:outputLink>
+
+    <h:outputFormat value="#{msgs.existingScoringComponent}" rendered="#{bean.scoringAgentEnabled && bean.scoringAgentData.scoringComponentEnabled}">
+        <f:param value="#{bean.scoringAgentData.scoringComponentName}" />
+    </h:outputFormat>
+</div>

@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<!--
+		The Spring transaction test framework does autowiring assuming only one transactionManager
+		and only one sessionFactory. To combine its use with use of the current Sections integration
+		support, we replace the standard Sections "spring-hib.xml" file with this one to eliminate
+		the following bean:
+
+    <bean id="sectionsTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+        <property name="sessionFactory"><ref bean="sectionsSessionFactory"/></property>
+    </bean>
+	-->
+    <!--
+        Copied from the Sections spring-hib.xml:
+    -->
+
+    <bean id="sectionsTxTemplate" abstract="true" lazy-init="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="gradebookTransactionManager"/></property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="join*">PROPAGATION_REQUIRED</prop>
+                <prop key="switch*">PROPAGATION_REQUIRED</prop>
+                <prop key="drop*">PROPAGATION_REQUIRED</prop>
+                <prop key="add*">PROPAGATION_REQUIRED</prop>
+                <prop key="create*">PROPAGATION_REQUIRED</prop>
+                <prop key="set*">PROPAGATION_REQUIRED</prop>
+                <prop key="update*">PROPAGATION_REQUIRED</prop>
+                <prop key="remove*">PROPAGATION_REQUIRED</prop>
+                <prop key="disband*">PROPAGATION_REQUIRED</prop>
+                <prop key="*">PROPAGATION_REQUIRED,readOnly</prop>
+            </props>
+        </property>
+    </bean>
+
+</beans>
+<!--
+<beans>
+	<bean id="gradebookPropertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="locations">
+			<list>
+				<value>classpath:/hibernate.properties</value>
+			</list>
+		</property>
+	</bean>
+
+	<bean id="gradebookTransactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
+	<bean id="gradebookTxTemplate" lazy-init="true" abstract="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+		<property name="transactionManager"><ref bean="gradebookTransactionManager"/></property>
+		<property name="transactionAttributes">
+			<props>
+				Do not apply transactions during testing.
+			</props>
+		</property>
+	</bean>
+
+</beans>
+-->

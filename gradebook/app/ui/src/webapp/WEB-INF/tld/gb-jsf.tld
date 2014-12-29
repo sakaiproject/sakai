@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!DOCTYPE taglib
+	PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+	"http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+
+<taglib>
+	<tlib-version>1.0</tlib-version>
+	<jsp-version>1.2</jsp-version>
+	<short-name>gbx</short-name>
+	<uri>http://sakaiproject.org/jsf/gradebook</uri>
+	<description>Sakai Gradebook tags</description>
+
+	<tag>
+		<name>iterator</name>
+		<tag-class>org.sakaiproject.tool.gradebook.jsf.iterator.IteratorTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>id</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>var</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>rowIndexVar</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+        <attribute>
+            <name>rendered</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+	</tag>
+
+	<tag>
+		<name>dhtmlPopup</name>
+		<tag-class>org.sakaiproject.tool.gradebook.jsf.dhtmlpopup.DhtmlPopupTag</tag-class>
+		<body-content>JSP</body-content>
+		<attribute>
+			<name>popupId</name>
+			<required>true</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>columns</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>titleText</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>styleClass</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>titleBarClass</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>closeClass</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>closeIconUrl</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>dataRowClass</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+
+		<attribute>
+			<name>id</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>value</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>var</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+        <attribute>
+            <name>rendered</name>
+            <required>false</required>
+            <rtexprvalue>false</rtexprvalue>
+            <type>java.lang.String</type>
+        </attribute>
+	</tag>
+
+    <tag>
+		<name>convertDateTime</name>
+		<tag-class>org.sakaiproject.tool.gradebook.jsf.convertDateTime.ConvertDateTimeTag</tag-class>
+		<display-name>DateTime Converter</display-name>
+		<description>Convert date time using normal system timezone like it should</description>
+
+		<attribute>
+			<name>dateStyle</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<description>default|short|medium|long|full</description>
+		</attribute>
+		<attribute>
+			<name>timeStyle</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<description>default|short|medium|long|full</description>
+		</attribute>
+		<attribute>
+			<name>type</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+			<description>date|time|both</description>
+		</attribute>
+	</tag>
+
+
+	<tag>
+		<name>spreadsheetUI</name>
+		<tag-class>org.sakaiproject.tool.gradebook.jsf.spreadsheetUI.SpreadsheetUITag</tag-class>
+		<display-name>SpreadsheetUI</display-name>
+		<body-content>JSP</body-content>
+		<description>Spreadsheet for new UI with locking rows and cols</description>
+		<attribute>
+	      <name>value</name>
+	      <required>false</required>
+	      <rtexprvalue>false</rtexprvalue>
+	      <description>
+	      
+	          The current value of this component.
+	      </description>
+	    </attribute>
+	    <attribute>
+	      <name>var</name>
+	      <required>false</required>
+	      <rtexprvalue>false</rtexprvalue>
+	      <description>
+	      
+	          Name of a request-scope attribute under which the model data for the
+	          row selected by the current value of the "rowIndex" property (i.e.
+	          also the current value of the "rowData" property) will be exposed.
+	      </description>
+	    </attribute>
+		<attribute>
+			<name>colLock</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>rowLock</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>rendered</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>binding</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>sortColumn</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>sortAscending</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		<attribute>
+			<name>initialHeight</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+			<description>Initial Height (in px) of the spreasheetUI scrolling viewport</description>
+		</attribute>
+	</tag>
+	
+	<tag>
+		<name>gradebookItemTable</name>
+		<tag-class>org.sakaiproject.tool.gradebook.jsf.gradebookItemTable.GradebookItemTableTag</tag-class>
+		<display-name>GradebookItemTable</display-name>
+		<body-content>JSP</body-content>
+		<description>Table that displays assignments by categories with ability to toggle categories</description>
+		<attribute>
+	    <name>value</name>
+	    <required>false</required>
+	    <rtexprvalue>false</rtexprvalue>
+	    <description>
+	          The current value of this component.
+	    </description>
+	  </attribute>
+	    
+	  <attribute>
+	    <name>var</name>
+	    <required>false</required>
+	    <rtexprvalue>false</rtexprvalue>
+	    <description>
+	          Name of a request-scope attribute under which the model data for the
+	          row selected by the current value of the "rowIndex" property (i.e.
+	          also the current value of the "rowData" property) will be exposed.
+	    </description>
+	  </attribute>
+	  
+		<attribute>
+			<name>rendered</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+			<name>binding</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+			<name>sortColumn</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+			<name>sortAscending</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+			<name>expanded</name>
+			<required>false</required>
+			<rtexprvalue>false</rtexprvalue>
+		</attribute>
+		
+		<attribute>
+      <name>cellpadding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Definition of how much space the user agent should
+          leave between the border of each cell and its contents.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>cellspacing</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Definition of how much space the user agent should
+          leave between the left side of the table and the
+          leftmost column, the top of the table and the top of
+          the top side of the topmost row, and so on for the
+          right and bottom of the table.  It also specifies
+          the amount of space to leave between cells.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>columnClasses</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Comma-delimited list of CSS style classes that will be applied
+          to the columns of this table.  A space separated list of
+          classes may also be specified for any individual column.  If
+          the number of elements in this list is less than the number of
+          columns specified in the "columns" attribute, no "class"
+          attribute is output for each column greater than the number of
+          elements in the list.  If the number of elements in the list
+          is greater than the number of columns specified in the
+          "columns" attribute, the elements at the posisiton in the list
+          after the value of the "columns" attribute are ignored.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>rowClasses</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Comma-delimited list of CSS style classes that will be applied
+          to the rows of this table.  A space separated list of classes
+          may also be specified for any individual row.  Thes styles are
+          applied, in turn, to each row in the table.  For example, if
+          the list has two elements, the first style class in the list
+          is applied to the first row, the second to the second row, the
+          first to the third row, the second to the fourth row, etc.  In
+          other words, we keep iterating through the list until we reach
+          the end, and then we start at the beginning again.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>styleClass</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Space-separated list of CSS style class(es) to be applied when
+          this element is rendered.  This value must be passed through
+          as the "class" attribute on generated markup.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>headerClasses</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          Comma-delimited list of CSS style class(es) to be applied to the
+          headers of this table.
+      </description>
+    </attribute>
+    
+    <attribute>
+      <name>rowIndexVar</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+          A parameter name, under which the current rowIndex is set in request scope
+          similar to the var parameter.
+      </description>
+	  </attribute>
+	</tag>
+</taglib>
+

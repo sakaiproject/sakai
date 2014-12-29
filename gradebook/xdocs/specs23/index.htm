@@ -1,0 +1,1927 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=us-ascii">
+<title>Gradebook 2.3 Functional Specs</title>
+
+<style>
+<!--
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	mso-believe-normal-left:yes;}
+h1
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:24.0pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+h2
+	{margin-top:18.75pt;
+	margin-right:0in;
+	margin-left:0in;
+	border:none;
+	padding:0in;
+	font-size:18.0pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+h3
+	{margin-top:18.75pt;
+	margin-right:0in;
+	margin-left:0in;
+	font-size:13.5pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+h4
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+a:link, span.MsoHyperlink
+	{color:blue;
+	text-decoration:underline;}
+a:visited, span.MsoHyperlinkFollowed
+	{color:blue;
+	text-decoration:underline;}
+p
+	{margin-right:0in;
+	margin-left:15.0pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";}
+p.caption, li.caption, div.caption
+	{margin-top:2.25pt;
+	margin-right:22.5pt;
+	margin-bottom:2.25pt;
+	margin-left:22.5pt;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	font-style:italic;}
+p.draft, li.draft, div.draft
+	{margin-right:0in;
+	margin-left:0in;
+	font-size:12.0pt;
+	font-family:"Times New Roman";
+	font-weight:bold;}
+@page Section1
+	{size:8.5in 11.0in;
+	margin:1.0in 1.25in 1.0in 1.25in;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ -->
+</style>
+<![if mso 9]>
+<style>
+p.MsoNormal
+	{margin-left:37.5pt;}
+</style>
+<![endif]>
+</head>
+
+<body lang=EN-US link=blue vlink=blue style='margin-left:37.5pt;margin-top:
+15.0pt;margin-right:37.5pt;margin-bottom:15.0pt'>
+
+<div class=Section1>
+
+<div style='border-top:1.0pt;border-left:1.0pt;border-bottom:1.5pt;border-right:
+1.5pt;border-color:#BBBBBB;border-style:solid;padding:8.0pt 8.0pt 8.0pt 8.0pt;
+margin-top:15.0pt;margin-bottom:15.0pt' id=page>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img width=200
+height=115 src="spec_clip_image002.jpg"></span></p>
+
+<p class=draft style='background:#FFFFEE'><span style='font-family:Arial;
+color:#222222'>&nbsp;</span></p>
+
+<h1 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>DRAFT</span></h1>
+
+<h1 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>Sakai</span><span
+style='font-family:Arial;color:#222222'> 2.3 Gradebook Functional Requirements
+and Specification</span></h1>
+
+<div style='border:none;border-top:solid yellow 1.0pt;padding:8.0pt 0in 0in 0in;
+background:#FFFFEE'>
+
+<h2 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>Contents</span></h2>
+
+</div>
+
+<ol start=1 type=I>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'><a href="#Introduction">Introduction</a></span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'><a href="#Summary">Summary</a></span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'><a href="#Functional">Functional
+     Requirements</a></span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'><a href="#Roles">Roles and
+     Groups</a></span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'><a href="#Wireframes">Screenshots/Functional
+     Specifications</a></span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'><a href="#roadmap">Functional
+     Roadmap</a></span></li>
+</ol>
+
+<div style='border:none;border-top:solid yellow 1.0pt;padding:8.0pt 0in 0in 0in;
+background:#FFFFEE'>
+
+<h2 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>I.
+Introduction<a name=Introduction id=Introduction></a></span></h2>
+
+</div>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial'>The
+Gradebook is a tool that instructors can use to record, calculate, and
+disseminate grade information online. The principal aim of this development
+effort has been to produce a simple, open source grade management utility that
+can be deployed as a stand-alone web servlet or as a tool within Sakai.&nbsp; <span style='color:#222222'>A secondary aim of this effort has been to
+provide for the Sakai-deployed Gradebook a service that other Sakai tools can
+use to store and manage assignment scores. Design and development of the </span>Gradebook<span
+style='color:#222222'> has been led by UC Berkeley. Plans for further
+development of the Gradebook are outlined in Section VII.</span></span></p>
+
+<div style='border:none;border-top:solid yellow 1.0pt;padding:8.0pt 0in 0in 0in;
+background:#FFFFEE'>
+
+<h2 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>II.
+Summary<a name=Summary id=Summary></a> </span></h2>
+
+</div>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>A. The Sakai 2.3 Gradebook enables instructors to: </span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Auto calculate course grades</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Establish and edit a mapping of
+     the course letter grade to a 100 percent scale </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Add, view, edit and release to
+     students the class assignments/assessments (straight point values only) </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Manually enter, view, edit and
+     release to students their scores and grades </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>Transmit
+     scores to the Gradebook from tools such as Tests &amp; Quizzes and
+     Assignments<i>, </i>thereby creating a corresponding assignment in the
+     Gradebook and recording student scores for that assignment.<i> </i></span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Export scores and grades in
+     excel, csv format </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>Upload CSV
+     files containing columns of scores and then import these as Gradebook
+     assignments</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Filter student lists by section</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Keep a log of grading activity
+     for each student's work</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>B. The Sakai 2.3 Gradebook enables each student to: </span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View his/her own scores and
+     grades, if they have been released by the instructor(s). </span></li>
+</ol>
+
+<div style='border:none;border-top:solid yellow 1.0pt;padding:8.0pt 0in 0in 0in;
+background:#FFFFEE'>
+
+<h2 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>III.
+Functional Requirements<a name=Functional id=Functional></a></span></h2>
+
+</div>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>Sections A through P correspond to all available views in the
+Sakai 2.3 Gradebook. All actions described in sections B through O are
+available only to the Instructor role.</span></p>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>A. <a href="#Overview">Gradebook Menu </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Link to inactive views. The
+     Overview is the entry page. </span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>B. <a href="#_B._Overview_--">Overview </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Sort display table by
+     assignment name, due date, released setting, class average and total
+     points possible </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View class average scores for
+     each assignment </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Access the assignment details
+     views </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Access the course grade view </span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>C.<a href="#Assignment"> Assignment Detail </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View total possible points for
+     an assignment and the class average </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Page through all assignment
+     summaries one by one </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Filter the grading table by
+     student name or id. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Set the number of students to
+     view per page of the grading table </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Page through all students based
+     on the number of students to view per page </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Access the assignment settings
+     page </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Remove assignments </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Sort the grading table by
+     student name, student ID and score </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Enter, save and edit assignment
+     scores</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Filter student list by section</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Display log of assignment grade
+     changes for each student</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>D. <a href="#Final">Course Grade </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View total possible points for
+     all assignments and the cumulative class average </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Filter the grading table by
+     student name or id. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Set the number of students to
+     view per page of the grading table </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Override auto calculated course
+     grade </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Sort the grading table by
+     student name, student ID, cumulative assignment point totals per student,
+     and calculated course grade (with corresponding percentages). </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Export student IDs, student
+     names, and course grades </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Filter student list by section</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Display log of course grade
+     changes (if any) for each student</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>E. <a href="#Student">Roster</a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Filter the grading table by
+     student name or id. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Set the number of students to
+     view per page of the grading table </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Page through all students based
+     on the number of students to view per page </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View all assignments, each
+     student's scores on all assignments, and the cumulative assignment point
+     totals for each student. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Export student name, student
+     ID, and scores for all assignments in .csv and .xls </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Filter student list by section</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>F. <a href="#AddEdit">Add Assignment</a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Enter an assignment name, a
+     required step </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Enter an assignment point
+     value, a required step </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Select an assignment due date,
+     an optional step</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Choose whether to count
+     assignment towards final grade, an optional step</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Change an assignment&#8217;s
+     release status, an optional step</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>G. <a href="#AddEdit">Edit Assignment</a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Change an assignment name </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Change an assignment point
+     value </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Change an assignment due date</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Choose whether to count
+     assignment towards final grade</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Change an assignment&#8217;s
+     release status</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>H. <a href="#Remove">Remove assignment</a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Select remove option </span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>I. <a href="#Feedback">Grade Options</a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Choose to display released
+     assignment scores to students </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Choose to display </span><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>cumulative
+     score, course grades and calculated assignment grades to students</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Select the grade type for the
+     course grade and assignment level grades in the student view: letter
+     grades, letter grades + - (default), pass/fail </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Define percent ranges for
+     letter grades or the pass/fail threshold </span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>J. <a href="#_J._Upload/Import_--">Upload/Import</a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Upload a spreadsheet (csv
+     format) to the loading dock</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Import assignments from a
+     spreadsheet that is already in the loading dock </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Delete a spreadsheet from the
+     loading dock </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Sort uploaded spreadsheets in
+     the loading dock by Title, Creator, or Date</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>K. <a href="#Feedback">Upload a spreadsheet (csv) format to
+Loading Dock</a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Enter a title for the file as
+     it will appear in the loading dock</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Select a local file (via file
+     picker) for upload to loading dock</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Upload file via Save button</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Cancel upload via Cancel button</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>L. <a href="#Feedback">Verify Upload&nbsp; </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View spreadsheet contents in
+     table display matching original column and row layout</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Cancel upload via Cancel button</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>M. <a href="#Feedback">Import Preview&nbsp;&nbsp;&nbsp; </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View&nbsp; spreadsheet contents
+     with radio button selectors in column headings </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Check radio button for the
+     assignment to be imported </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Select Import Selected button
+     to proceed with import</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Select Cancel to cancel import</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>N. <a href="#Feedback">Import Assignment and
+Scores&nbsp;&nbsp;&nbsp; </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Enter an assignment name, a
+     required step </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Enter an assignment point
+     value, a required step </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Select an assignment due date,
+     an optional step</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Choose whether to count
+     assignment towards final grade, an optional step</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Change an assignment&#8217;s
+     release status, an optional step</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>O. <a href="#Feedback">Delete
+Spreadsheet&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </a></span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Check &#8220;Remove this
+     Spreadsheet from the Gradebook&#8221; option</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>Select Remove
+     button</span></li>
+</ol>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>P. <a href="#StudentView">Grade Report for Student</a></span></p>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>Each student will be able to: </span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View his or her cumulative
+     score for all assignments and corresponding percentage </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View his or her course grade,
+     if released by instructor </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Sort assignments by title, due
+     date, his or her score, total possible points per assignment, his or her
+     grade for each assignment </span></li>
+</ol>
+
+<div style='border:none;border-top:solid yellow 1.0pt;padding:8.0pt 0in 0in 0in;
+background:#FFFFEE'>
+
+<h2 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>IV.
+Roles and Groups<a name=Roles id=Roles></a></span></h2>
+
+</div>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>The Sakai site and section tools will enable authorized users
+to: </span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Add other instructors. The
+     Gradebook will recognize only a single instructor role. Once added to a
+     site, all instructors will be fully authorized to view, create and edit in
+     all areas of a Gradebook.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Add a Teaching Assistant. The
+     Gradebook will recognize only a single TA role. Once added to the site and
+     assigned one or more sections to manage, the TA will be authorized to
+     enter grades exclusively for the students in those assigned sections. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Add students. The Gradebook
+     will recognize only a single student role. </span></li>
+</ol>
+
+<div style='border:none;border-top:solid yellow 1.0pt;padding:8.0pt 0in 0in 0in;
+background:#FFFFEE'>
+
+<h2 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>V.
+Screenshots/Functional Specification<a name=Wireframes id=Wireframes></a>s</span></h2>
+
+</div>
+
+<h3 style='background:#FFFFEE'><a name=Overview id=Overview></a><span
+style='font-family:Arial;color:#222222'>A. Gradebook Menu -- View 1</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=466 height=432 src="image001.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 1</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Gradebook Link</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>If the
+     Gradebook tool has been added to the course or project site, the link goes
+     to the Overview, View 2.</span></li>
+</ol>
+
+<h3 style='background:#FFFFEE'><a name="_B._Overview_--"></a><span
+style='font-family:Arial;color:#222222'>B. Overview -- View 2</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=464 height=438 src="image002.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 2</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+<strong><span style='font-family:Arial'>Table Sorting Rules</span></strong></span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Initial sort is by due date. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If there is no due date, sort
+     to the bottom of the list. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The course grade always appears
+     at the bottom of the list, regardless of the active sort. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Sub sorting for non-default
+     sorts is by assignment name. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The sort order is preserved for
+     the duration of the session.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Assignment Title Link</span></h4>
+
+<ol start=2 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the assignment was created
+     in the Gradebook, the title links to the Assignment Detail, View 3.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the assignment was created
+     in Quiz and Test, there is text indicating that the user must go to that
+     tool to make any changes to the assignment.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The assignment name has a
+     maximum character length of 255 and it is displayed in its entirety. Text
+     will wrap according to the display needs of the table. There are currently
+     no limitations on character types in the name. Internationalization
+     requirements TBD.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Average Performance Values ('Avg')</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The average percent of points
+     given is noted. Values are displayed as integers, and are not rounded up.
+     (e.g. an average of 87.88 is displayed as '87')</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The Average points is the mean
+     of all values &gt;= 0 that have been entered for the assignment. Blanks
+     are not treated as zeros for purposes of the calculation.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Points</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Points possible for this
+     assignment</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If this assignment is not
+     counted towards the final grade, the number is enclosed in parentheses.
+     This number is no counted toward the total points for the course grade.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>5.
+Course Grade Link</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>The Course
+     Grade link goes to the Course Grade, View 4.</span></li>
+</ol>
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>C.
+<a name=Assignment id=Assignment></a>Assignment Detail -- View 3</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=472 height=484 src="image003.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 3</span></p>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=293 height=57 src="../../../../GB_SPECS_files/2log.gif" alt=2log.gif></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Grade change log pop-up window</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Assignment Summary </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The assignment title has a
+     maximum character length of 255 and it is displayed in its entirety. There
+     are currently no limitations on character types in the name.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The average score is the mean
+     of all values &gt;= 0 that have been entered for the assignment. Blanks
+     are not treated as zeros for purposes of the calculation. Values are
+     displayed as integers, and are not rounded up. (e.g. an average of 87.88
+     is displayed as '87')</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Options link: 'Edit assignment
+     settings' links to View 7.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Options link: Remove assignment
+     from Gradebook' links to View 8.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Previous/Next Assignment Navigation</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>All unsaved score values will
+     be discarded upon Previous/Return/Overview navigation</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Entered search values for which
+     find has <strong><span style='font-family:Arial'>not</span></strong> been
+     activated will carry over upon Previous/Overview navigation</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The set of students currently
+     being viewed will carry over upon Previous/Overview navigation, i.e., if
+     students 21-40 are being viewed in assignment 1, those same students will
+     be in the active view when Next is clicked.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+New scores saved message</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Example confirmation message.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+<strong><span style='font-family:Arial'>Table Sorting Rules</span></strong></span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Initial sort is by student
+     name.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Blanks or no scores sort to the
+     top of the list </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Sub sorting for non-default
+     sorts is by student name. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The sort order is preserved for
+     the duration of the session.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>When sorting is changed, the
+     paging resets to the first page</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>5.
+Find Rules </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Initial value: as in wireframe.
+     When the focus comes to this field, the initial value disappears.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If there is no match, the page
+     reloads, there is a note where the listing table would be saying no
+     results found for &quot;[the search term]&quot; The &quot;Find&quot; and
+     &quot;Assignment&quot; values return to the initial values. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The last established students
+     per page value is retained and displayed. (Use the style specified for
+     alert messages in the style guide.)</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>For search values, only the
+     last space-or-comma-separated value is treated as a substring: </span></li>
+</ol>
+
+<p style='margin-left:51.0pt;background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Copp <br>
+Francis Ford Copp <br>
+Coppola, Francis F<br>
+ffcoppola@niebaum.edu<br>
+ffcopp </span></p>
+
+<p style='margin-left:51.0pt;background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>All return <strong><span style='font-family:
+Arial'>Coppola, Francis Ford</span></strong><br>
+<br>
+Francis F. Coppola<br>
+<br>
+Returns an <strong><span style='font-family:Arial'>error</span></strong></span></p>
+
+<ol start=5 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Case is ignored.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>&nbsp;&nbsp;&nbsp; Truncation
+     or wild card symbols are not supported.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Clear resets the view to the
+     default, except for the students per page, if that value has been changed
+     during the session.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The enter key executes Find if
+     the search box has focus</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>6.
+View filter</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the user is only authorized
+     to administer one section, or if there is only one section in this class,
+     this drop down menu does not appear.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>When the user can administer
+     multiple sections, the dropdown menu offers an option for each
+     section/group as well as an option for &quot;All groups.&quot;</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>7.
+Save</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The Save button saves newly
+     entered data and refreshes the view (average score is updated and 'changes
+     saved' message added to top of page). The last executed search and
+     students per page values are retained and displayed upon refresh. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The save button is the <strong><span
+     style='font-family:Arial'>only</span></strong> mechanism for saving score
+     data. The enter key executes Save if the score boxes have focus.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If newly entered data is not
+     saved, it will be discarded upon using any of the Gradebook's internal (as
+     opposed to the browser's or Sakai framework's) navigation or find/show
+     functionality. The Gradebook supports the back button, although this is
+     not currently true of most Sakai tools. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If two or more users are
+     simultaneously attempting to edit the same student's score, the second of
+     the scores to be submitted will overwrite the first.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If bad score values are
+     entered, upon save an error message is generated </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>8.
+Cancel button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Any new form data is discarded
+     and the user returns to the Overview page. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>9.
+Point Entry</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Values must be &gt;= 0. Decimal
+     values of up to 2 places are accepted, e.g. 9.75. Commas and other
+     non-numerical characters are not accepted.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Illegitimate values generate an
+     error message: &quot;Please enter only scores &gt;=0 of up to 2 decimal
+     places. &quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Error messages are also
+     generated next to each of the fields with bad values: &quot;Please enter
+     valid grade.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>After values are saved, the
+     maximum number of visible characters in text box = 3; these are right
+     aligned. Values &gt; 3 characters are scrollable.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Scores submitted via the Tests
+     and Quizzes tool cannot be edited in the Gradebook.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>10.
+Grade Change Log</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Clicking the log icon reveals
+     the pop-up window shown in image above.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Every grade change made,
+     including the initial grade set, is listed in reverse chronological order.
+     </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The date, score set, and person
+     or agent making the change is shown</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>A small &quot;[x]&quot; in the
+     corner of the pop-window can be clicked to close it.</span></li>
+</ol>
+
+<h3 style='background:#FFFFEE'><a name=Final id=Final></a><span
+style='font-family:Arial;color:#222222'>D. Course Grade -- View 4</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=470 height=476 src="image004.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 4</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Course Summary</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Points: Total possible points
+     of all assignments currently entered into the Gradebook directly and/or
+     via SAMigo.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Average Score: The mean of all
+     possible score values for all assignments. Blank scores are treated as
+     zeros for calculation purposes.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Calculated Grade </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The calculated grade field is
+     by default filled with the grade calculated by the Gradebook (A, B . . .or
+     A-, B+ . . . or P/NP) and the percentage the grade is based on. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The grade is always calculated
+     as the current percentage of points scored out of the total possible
+     points of all assignments entered in the Gradebook. Consequently, the
+     grades that the instructors see are unlikely to reflect students' current
+     performance in the class, unless or until all of the assignments have been
+     scored.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>For purposes of calculating the
+     course grade, a student's cumulative average percentage is never rounded
+     up. For example, a student who achieves an overall percentage of 79.99
+     would receive a course grade of C+, if the lower threshold for a B- is
+     80%. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Grade Override</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Override values must be of the
+     appropriate grade type (A, B . . . or A-, B+ . . .or P/NP) or an error is
+     generated: &quot;The Gradebook uses the grade type [pass/not pass|simple
+     letter grade|letter grade +/-]. Please enter only values that correspond
+     to the grade type X.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Error messages are also
+     generated next to each of the fields with bad values: &quot;Please enter
+     valid grade.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Saved overrides appear in the
+     entry field as editable values.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Values identical to the
+     calculated course grade are treated as legitimate entries and do not
+     generate an error.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Deleting a saved overridden
+     value, leaving the entry field blank and executing a save returns the
+     course grade to the calculated value.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Export </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Files are exported in .xls and
+     .csv format</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The file name format is
+     &quot;course_grade_[courseID]__date.*&quot;. If the class number is not
+     available use 'course_grade_050611. Date format should follow the style
+     guide.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Exported fields and the names
+     of the Excel column headers are Student Name, Student ID, Course Grade.
+     The full student display names and complete assignment names are exported.
+     Point values are chopped at 2 decimal places.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Scores are listed in the
+     assignment name column</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Point values are chopped at 2
+     decimal places.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>&nbsp;&nbsp; Exported data is
+     for the course grade only</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>All available roster data is
+     exported. Filtering the view by student does not affect the output.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The exported data is always
+     sorted by the application default, student display name </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>&nbsp;&nbsp; There is no
+     navigation state change after clicking these buttons</span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>E.
+Roster -- View 5</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=469 height=474 src="image005.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 5</span></p>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>Search, view filters and paging work in this view in the same
+way as View 2.</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Export buttons</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Files are exported in .xls and
+     .csv format</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The file name format is
+     &quot;Gradebook_[courseID]_assignment_name_date.*&quot;. If the class
+     number is not available use 'Gradebook-050611.Date format should follow
+     the style guide.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Exported fields and the names
+     of the Excel column headers are Student Name, Student ID, [assignment
+     name].</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The full student display names
+     and complete assignment names are exported. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Point values are chopped at 2
+     decimal places.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>&nbsp;&nbsp; Scores are listed
+     in the assignment name column</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>All available class data is
+     exported. Filtering the view by student does not affect the output.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The exported data is always
+     sorted by the application default, student display name.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>&nbsp;&nbsp; There is no
+     navigation state change after clicking these buttons</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Point Display Values</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Values chop at 2 decimal
+     points; they are not rounded up.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Student Display</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Limit display of the student
+     name to the first 50 characters (use ellipses to indicate truncated name)</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If there is no roster data, the
+     message &quot;No students have been added to this course&quot; appears
+     beneath the Student and Student ID Roster table headers.</span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>F.
+Add <a name=AddEdit id=AddEdit></a>Assignment -- View 6</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=471 height=498 src="image006.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 6</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Title field</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The assignment title has a
+     maximum character length of 255 and it is displayed in its entirety. There
+     are currently no limitations on character types in the name.
+     Internationalization requirements TBD.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Assignment point value field</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Value must be &gt; 0. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Decimals are permitted. Values are
+     limited to 2 decimal places.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the entry is invalid, any
+     values entered or selected in title or date are retained with the error
+     message: &quot;Please only enter numbers in the Assignment Point Value.
+     The point value must be &gt;0 and cannot exceed 2 decimal places.&quot;</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Due date date-picker</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This field is optional.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If any one date value is added
+     (month, day or year), all must be present for a valid submission.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The entered date is validated
+     only to ensure that the values follow the pattern x/x/x. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Include in final grade</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>This option is
+     checked by default </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>If not checked
+     the assignment is not counted when calculating the final grade.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>5.
+Release Assignment</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>This option is
+     checked by default </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>If not checked
+     the assignment is not counted when calculating the final grade.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>6.
+Submit button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>For new assignments, if the
+     submit validates, the user is returned to the overview page with a success
+     message: &quot;You have successfully added assignment X. <u>Add another
+     assignment</u>.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The enter key executes Submit
+     if the entry fields have focus. If the date picker has been used to enter
+     the date, the enter key will not work until the user clicks in one of the
+     text boxes. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>7.
+Cancel button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The form is not submitted. In
+     the case of an added assignment, the user is returned to the Assignment
+     Overview page; for an edited assignment the user is returned to the
+     Assignment Detail page </span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>G.
+Edit Assignment -- View 7</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=471 height=497 src="image007.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 7</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Title field</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The assignment title has a
+     maximum character length of 255 and it is displayed in its entirety. There
+     are currently no limitations on character types in the name.
+     Internationalization requirements TBD.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Assignment point value field</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Value must be &gt; 0. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Decimals are permitted. Values
+     are limited to 2 decimal places.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the entry is invalid, any
+     values entered or selected in title or date are retained with the error
+     message: &quot;Please only enter numbers in the Assignment Point Value. The
+     point value must be &gt;0 and cannot exceed 2 decimal places.&quot;</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Due date date-picker</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This field is optional.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If any one date value is added
+     (month, day or year), all must be present for a valid submission.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The entered date is validated
+     only to ensure that the values follow the pattern x/x/x. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Include in final grade</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>This option is
+     checked by default </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>If not checked
+     the assignment is not counted when calculating the final grade.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>5.
+Release Assignment</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>This option is
+     checked by default </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>&nbsp;If not
+     checked the assignment is not counted when calculating the final grade.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>6.
+Submit button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>For edited assignments, if the
+     submit validates, the user is returned to the assignment detail page with
+     a success message &quot;You have successfully updated assignment Y&quot; </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The enter key executes Submit
+     if the entry fields have focus. If the date picker has been used to enter
+     the date, the enter key will not work until the user clicks in one of the
+     text boxes. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>7.
+Cancel button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The form is not submitted. In
+     the case of an added assignment, the user is returned to the Assignment
+     Overview page; for an edited assignment the user is returned to the
+     Assignment Detail page </span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>H.
+Remove Assignment -- View 8</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=466 height=470 src="image008.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 8</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Remove this assignment checkbox </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Default value</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: unchecked</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Validation</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: The form can't submit unless
+     this button is checked. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Remove button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Marks the assignment as
+     'removed' in the database. It no longer appears in the database, but in an
+     emergency could be recovered by an administrator. The tool then returns
+     view 1 (overview) with a confirmation message </span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: &quot;Assignment
+     deleted&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the checkbox above has not
+     been selected when submit is pressed, a validation message should appear:
+     &quot;You must confirm this deletion by checking the box below before
+     removing.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The enter key executes Remove
+     if the check box has focus</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Cancel </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The user is returned to the
+     assignment details page.</span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>I.
+<a name=Feedback></a>Grade Options -- View 9</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=470 height=475 src="image009.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 14</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Grade Display </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The released assignment grades
+     display checkbox is checked by default </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The </span><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>cumulative
+     score, course grades and calculated assignment grades display </span><span
+     style='font-size:10.0pt;font-family:Arial'>checkbox is unchecked by
+     default </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Grade Conversion </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Grade Type dropdown choices</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: Letters grade +/- (default
+     choice), Simple letter grade, Pass/Fail. Grade types cannot be defined at
+     the level of the individual student. Depending on which type is selected,
+     all students in a class will see either a letter grade or a P/NP mark, if
+     the course grade is released to them.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>The Change grade type button</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: Refreshes the page with the percent
+     table matching the scheme chosen in the dropdown. Other changes to the
+     page are retained, even if they have not yet been saved.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If course grades have been
+     manually entered and the instructor attempts to change the grade type,
+     upon save, the application will throw an error message: &quot;You have
+     manually entered course grades of the type X. To change the course grade
+     type, you must first undo all manually overwritten course grades.&quot; </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Reset to default values link
+     refreshes the page. The minimum % values are returned to the institution
+     default. Grade type remains the same. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Grade/percent table</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the values are changed, then
+     the instructor changes to a different scheme, then switches back, the GB
+     remembers the instructors previously entered scheme.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Manually overwritten course
+     grades are unaffected by changes to the Grade/percent table. If there are
+     manually entered course grades, the application throws a warning message:
+     &quot;You have changed the grading scheme. All manually overwritten course
+     grades remain unaffected.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Minimum Percent text box
+     validation</span></strong><span style='font-size:10.0pt;font-family:Arial'>:
+     Values must be &gt;= 0. Decimal values are accepted with no practical
+     limitation on the number of places. Commas and other non-numerical
+     characters, including % are not accepted. Their inclusion will throw an error
+     message: &quot;Please enter numbers only in the Minimum Percent Value
+     field. The percent value must be &gt; 0.&quot;</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Save button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Upon successful validation,
+     returns the user to the overview, with a confirmation message saying
+     &quot;Student Feedback Options Saved&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The save button is the <strong><span
+     style='font-family:Arial'>only</span></strong> mechanism for saving
+     feedback data. The enter key executes Save if the check boxes or text
+     entry fields have focus. If the Grade Type selector has been activated,
+     the enter key will not execute the save. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If newly entered data is not
+     saved, it will be discarded upon using any of the Gradebook's internal (as
+     opposed to the browser's or Sakai framework's) navigation or find/show
+     functionality. The Gradebook supports the back button, although this is
+     not currently true of most Sakai tools. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>5.
+Cancel button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='color:windowtext'>Returns the user to the overview, with no
+     confirmation message.</span></li>
+</ol>
+
+<h3 style='background:#FFFFEE'><a name="_J._Upload/Import_--"></a><span
+style='font-family:Arial;color:#222222'>J. Upload/Import -- View 10</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=472 height=371 src="image010.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 10</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Upload spreadsheet (csv format) to Loading Dock </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Initiates the process of
+     uploading a spreadsheet to the Loading Dock. Links to View 11a.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Loading Dock</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The uploaded spreadsheet title
+     has a maximum character length of 255 and it is displayed in its entirety.
+     There are currently no limitations on character types in the name.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The Creator is the username of
+     whoever uploaded the spreadsheet to the Loading Dock. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Date Created is the date and
+     time of the upload.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Import link: Import assignments
+     from this spreadsheet into the Gradebook. Links to View 12a.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Delete link: Delete uploaded
+     spreadsheet from the Loading Dock. Links to View 13.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Spreadsheet Operation Messages</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Spreadsheet upload operation
+     results in a confirmation message: </span><span style='font-size:10.0pt;
+     font-family:Arial;color:windowtext'>Spreadsheet &#8220;filename.csv&#8221;
+     has been added.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Spreadsheet delete operation
+     results in a confirmation messages: </span><span style='font-size:10.0pt;
+     font-family:Arial;color:windowtext'>Spreadsheet
+     &quot;loading_dock_title&quot; has been deleted.</span></li>
+</ol>
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>K.
+Upload a spreadsheet (csv format) to Loading Dock -- View 11a</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=488 height=390 src="image011.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 11a</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Title field</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The assignment title has a
+     maximum character length of 255 and it is displayed in its entirety. There
+     are currently no limitations on character types in the name.
+     Internationalization requirements TBD.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Choose a File</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Value must be a fully qualified
+     pathname.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Browse Button File Picker</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Use of file picker is optional.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Either click twice on the
+     filename of csv file or click once on it and click Open button.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Use Cancel button to return to
+     form entry mode.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Save button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>For new assignments, if the
+     submit validates, the user is returned to the overview page with a success
+     message: &quot;You have successfully added assignment X. <u>Add another
+     assignment</u>.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The enter key executes Submit
+     if the entry fields have focus. If the date picker has been used to enter
+     the date, the enter key will not work until the user clicks in one of the
+     text boxes. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>5.
+Cancel button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The form is not submitted. In
+     the case of an added assignment, the user is returned to the Assignment
+     Overview page; for an edited assignment the user is returned to the
+     Assignment Detail page.</span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>L.
+Verify Upload -- View 11b</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=464 height=490 src="image012.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 11b</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Verify Upload Spreadsheet Contents Display </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Preview and inspect spreadsheet
+     contents in table display matching original column and row layout.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Ok button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If successful, links to
+     Upload/Import, View 10 with a validation message.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the Title entered above is
+     already in use in the Loading Dock when submit is pressed, an error
+     message will appear: &quot;</span><span style='font-size:10.0pt;
+     font-family:Arial;color:windowtext'>A spreadsheet with that name already
+     exists.</span><span style='font-size:10.0pt;font-family:Arial'>&quot;</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Back button </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The user is returned to Upload</span><span
+     style='font-family:Arial'> </span><span style='font-size:10.0pt;
+     font-family:Arial'>a spreadsheet (csv format) to Loading Dock -- View 11a.
+     </span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>M.
+Import Preview -- View 12a</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=472 height=499 src="image013.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Wireframe of View 12a</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Import Preview Spreadsheet Contents Display </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>View&nbsp; of previously
+     uploaded spreadsheet&#8217;s contents with radio button selectors in
+     column headings.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Check a single radio button to
+     select an assignment to be imported into the Gradebook assignment list.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Only one assignment can be
+     imported at a time.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Note: Student Name column is an
+     option, though it may not make sense as an assignment.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Import Selected</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Links to Import Assignment and
+     Scores, View 12b.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Cancel </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Links back to Upload/Import,
+     View 10.</span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>N.
+Import Assignment and Scores -- View 12b</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=467 height=495 src="image014.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 12b</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Title field</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The assignment title has a
+     maximum character length of 255 and it is displayed in its entirety. There
+     are currently no limitations on character types in the name.
+     Internationalization requirements TBD.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Assignment point value field</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This is a required field.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Value must be &gt; 0. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Decimals are permitted. Values
+     are limited to 2 decimal places.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the entry is invalid, any
+     values entered or selected in title or date are retained with the error
+     message: &quot;Please only enter numbers in the Assignment Point Value.
+     The point value must be &gt;0 and cannot exceed 2 decimal places.&quot;</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Due date date-picker</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>This field is optional.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If any one date value is added
+     (month, day or year), all must be present for a valid submission.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The entered date is validated
+     only to ensure that the values follow the pattern x/x/x. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>4.
+Include in final grade</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>This option is
+     checked by default. </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>If not checked
+     the assignment is not counted when calculating the final grade.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>5.
+Release Assignment</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>This option is
+     checked by default.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial;color:windowtext'>If not checked
+     the assignment is not counted when calculating the final grade.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>6.
+Submit button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>For new assignments, if the
+     submit validates, the user is returned to the overview page with a success
+     message: &quot;You have successfully added assignment X. <u>Add another
+     assignment</u>.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The enter key executes Submit
+     if the entry fields have focus. If the date picker has been used to enter
+     the date, the enter key will not work until the user clicks in one of the
+     text boxes. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>7.
+Cancel button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The form is not submitted. In
+     the case of an added assignment, the user is returned to the Assignment
+     Overview page; for an edited assignment the user is returned to the
+     Assignment Detail page.</span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>O.
+Delete Spreadsheet -- View 13</span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=469 height=496 src="image015.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 13</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Remove this Spreadsheet from the Gradebook checkbox </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Default value</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: unchecked</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Validation</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: The form can't submit unless
+     this button is checked. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Remove button</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Removes the spreadsheet from
+     the Loading Dock. </span></strong></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>If the checkbox above has not
+     been selected when submit is pressed, a validation message should appear:
+     &quot;You must confirm this deletion by checking the box below before
+     removing.&quot;</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The enter key executes Remove
+     if the check box has focus</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>3.
+Cancel </span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>The user is returned to the
+     assignment details page.</span></li>
+</ol>
+
+<!-- New View -->
+
+<h3 style='background:#FFFFEE'><a name=Remove></a><a name=StudentView></a><span
+style='font-family:Arial;color:#222222'>P. Grade Report for Student -- View 14 </span></h3>
+
+<p class=MsoNormal style='margin:0in;margin-bottom:.0001pt;background:#FFFFEE'><span
+style='font-size:10.0pt;font-family:Arial;color:#222222'><img border=0
+width=470 height=504 src="image016.jpg"></span></p>
+
+<p class=caption style='background:#FFFFEE'><span style='font-size:10.0pt;
+font-family:Arial;color:#222222'>Screenshot of View 14</span></p>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>1.
+Cumulative Score</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Visibility</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: This is visible if the
+     instructor has checked the 'Display Assignment Grades' checkbox in view 5.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Calculation</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: The points taken equals the
+     total of available points for assignments the instructional staff has
+     scored for this assignment. </span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>2.
+Course Grade</span></h4>
+
+<ol start=1 type=a>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Visibility</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: This is visible if the
+     instructor has checked the 'Display Final Grade' checkbox in view 5.</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><strong><span
+     style='font-size:10.0pt;font-family:Arial'>Calculation</span></strong><span
+     style='font-size:10.0pt;font-family:Arial'>: The final grade display is
+     always based on the percentage of points scored out of the total possible
+     points of all assignments entered in the Gradebook. If the instructor
+     releases the course grade before all of the assignments have been scored,
+     the grades that the students see at any one time are unlikely to reflect
+     their current performance in the class.</span></li>
+</ol>
+
+<h4 style='background:#FFFFEE'><span style='font-family:Arial;color:#222222'>VI.
+Functional Roadmap<a name=roadmap id=roadmap></a></span></h4>
+
+<p style='background:#FFFFEE'><span style='font-size:10.0pt;font-family:Arial;
+color:#222222'>The following is a partial list of features that will not be
+included in the 2.0 Gradebook, but which are expected to be prioritized for
+post 2.0 development: </span></p>
+
+<ol start=1 type=1>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>A richer set of grading
+     schemes, including letter grades, percentages (applied to assignments and
+     categories of assignments), automatic dropping of lowest score(s), and
+     class curves</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>An expanded set of
+     instructional roles</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Assignment of instructional
+     staff and students to course subgroups </span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Statistical analyses of student
+     performance</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Detailed grading histories</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>A detailed view and grading of
+     individual students</span></li>
+ <li class=MsoNormal style='color:#222222;background:#FFFFEE'><span
+     style='font-size:10.0pt;font-family:Arial'>Basic interface for course
+     grade submission</span></li>
+</ol>
+
+</div>
+
+</div>
+
+</body>
+
+</html>

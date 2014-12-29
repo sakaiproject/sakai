@@ -1,0 +1,18 @@
+<%/*
+	Included as a fragment to centralize style class defintions.
+	The eventual Sakai messages tag will probably default to Style Guide compliant class names.
+*/%>
+
+<t:div id="messageBlock">
+	<h:messages globalOnly="true" infoClass="success" warnClass="validation" errorClass="validation" fatalClass="validation"/>
+</t:div>
+<script type="text/javascript">
+	for (var i=0; i<document.forms.length; i++){
+		var messageBlock= document.getElementById(document.forms[i].id + ':messageBlock');
+		if (messageBlock && messageBlock.children.length > 0){
+			messageBlock.setAttribute("tabindex", "-1"); 
+			messageBlock.focus(); 
+		}	
+	}
+</script> 
+ 

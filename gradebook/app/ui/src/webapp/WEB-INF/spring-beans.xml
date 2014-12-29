@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans
+    xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+    <tx:annotation-driven transaction-manager="gradebookTransactionManager" />
+
+	<!--
+		This Spring configuration file sets up the shared business logic of the application.
+	-->
+
+	<!-- Gradebook Manager -->
+	<bean id="org_sakaiproject_tool_gradebook_business_GradebookManager" parent="gradebookTxTemplate">
+		<property name="target">
+			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradebookCalculationImpl">
+				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="sectionAwareness">
+					<ref bean="org.sakaiproject.section.api.SectionAwareness" />
+				</property>
+				<property name="authn">
+					<ref bean="org_sakaiproject_tool_gradebook_facades_Authn" />
+				</property>
+                <property name="eventTrackingService">
+                    <ref bean="org_sakaiproject_tool_gradebook_facades_EventTrackingService"/>
+                </property>
+                <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+
+				<property name="gradebookExternalAssessmentService">
+					<ref bean="readonlyExternalAssessmentService"/>
+				</property>
+            </bean>
+		</property>
+	</bean>
+
+	<!--
+		 This bean is added because of cross-service transaction issues. There may
+		 be a cleaner fix, but various exceptions were being thrown about multiple
+		 session factories and/or transaction managers, despite efforts to use the globals
+		 and finer-grained annotations to demarcate transactionality.
+	-->
+	<bean id="readonlyExternalAssessmentService" parent="gradebookTxTemplate">
+		<property name="transactionAttributes">
+			<props>
+				<prop key="*">PROPAGATION_NOT_SUPPORTED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+			</props>
+		</property>
+		<property name="target" ref="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
+	</bean>
+
+	<!--
+		UI authorization filtering. Handled here instead of in Faces configuration files
+		because Faces won't necessarily be loaded on the first authorization check.
+	-->
+	<bean id="org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean" class="org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean">
+		<property name="userAbleToEditPages">
+			<list>
+				<value>addAssignment</value>
+				<value>editAssignment</value>
+				<value>removeAssignment</value>
+				<value>gradeOptions</value>
+                <value>spreadsheetUploadPreview</value>
+                <value>spreadsheetPreview</value>
+                <value>spreadsheetUpload</value>
+                <value>spreadsheetImport</value>
+                <value>spreadsheetListing</value>
+                <value>spreadsheetRemove</value>
+                <value>spreadsheetEntireGBImport</value>
+                <value>spreadsheetEntireGBVerify</value>
+                <value>gradebookSetup</value>
+                <value>graderRules</value>
+            </list>
+		</property>
+		<property name="userAbleToGradePages">
+			<list>
+				<value>assignmentDetails</value>
+				<value>courseGradeDetails</value>
+				<value>overview</value>
+				<value>roster</value>
+				<value>hideShowColumns</value>
+				<value>instructorView</value>
+				<value>studentView</value>
+				<value>calculateCourseGrades</value>
+			</list>
+		</property>
+		<property name="userAbleToViewOwnGradesPages">
+			<list>
+				<value>studentView</value>
+			</list>
+		</property>
+	</bean>
+
+	<!-- Standard course grade spreadsheet formatting -->
+	<bean id="org.sakaiproject.tool.gradebook.ui.CourseGradesToSpreadsheetConverterDefault"
+		class="org.sakaiproject.tool.gradebook.ui.CourseGradesToSpreadsheetConverterDefault"/>
+
+    <!-- for handling integration with an external scoring agent -->
+	  <bean id="org_sakaiproject_tool_gradebook_business_GradebookScoringAgentManager" class="org.sakaiproject.tool.gradebook.business.impl.GradebookScoringAgentManagerImpl">
+		<property name="scoringService" ref="org.sakaiproject.scoringservice.api.ScoringService"/>
+	</bean>
+
+</beans>

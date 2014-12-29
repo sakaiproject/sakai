@@ -1,0 +1,43 @@
+
+
+<%-- Display unknown user names. --%>
+<h:panelGrid rendered="#{spreadsheetUploadBean.hasUnknownUser}" styleClass="alertMessage">
+	<h:outputText value="#{msgs.import_entire_bad_ids_alert}" />
+            	
+    <h:dataTable id="unknownUsers" value="#{spreadsheetUploadBean.unknownUsers}" var="unknownUserId">
+		<h:column>
+			<h:outputText value="#{unknownUserId}" />
+		</h:column>
+	</h:dataTable>
+
+	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize > 1}" />
+	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize == 1}" />
+</h:panelGrid> 
+
+<%-- Display invalid imported gradebook items. --%>
+<h:panelGrid rendered="#{spreadsheetUploadBean.hasUnknownAssignments}" styleClass="alertMessage">
+	<h:outputText value="#{msgs.import_verify_assignment_no_exists}" />
+            	
+    <h:dataTable id="unknownAssignments" value="#{spreadsheetUploadBean.unknownAssignments}" var="unknownAssignmentId">
+		<h:column>
+			<h:outputText value="#{unknownAssignmentId}" />
+		</h:column>
+	</h:dataTable>
+
+	<h:outputText value="#{msgs.import_verify_assignment_no_exists_bottom}" />
+</h:panelGrid> 
+
+<%-- Display invalid scores for assignments. --%>
+<%--<h:panelGrid rendered="#{spreadsheetUploadBean.hasInvalidScores}" styleClass="alertMessage">
+	<h:outputText value="#{msgs.import_entire_bad_ids_alert}" />
+            	
+    <h:dataTable id="unknownUsers" value="#{spreadsheetUploadBean.unknownUsers}" var="unknownUserId">
+		<h:column>
+			<h:outputText value="#{unknownUserId}" />
+		</h:column>
+	</h:dataTable>
+
+	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize > 1}" />
+	<h:outputText value="#{msgs.import_entire_bad_ids_alert_end}" rendered="#{spreadsheetUploadBean.unknownSize == 1}" />
+</h:panelGrid> 
+--%>

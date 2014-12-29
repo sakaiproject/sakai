@@ -1,0 +1,139 @@
+<?xml version="1.0"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>sakai-gradebook</display-name>
+	<description>Sakai Gradebook Tool</description>
+	<context-param>
+		<param-name>javax.faces.STATE_SAVING_METHOD</param-name>
+		<param-value>client</param-value>
+	</context-param>
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath*:org/sakaiproject/component/section/support/spring-integrationSupport.xml
+			classpath*:org/sakaiproject/component/section/spring-*.xml
+			/WEB-INF/spring-beans.xml
+			/WEB-INF/spring-db.xml
+			/WEB-INF/spring-facades.xml
+			/WEB-INF/spring-hib.xml
+			/WEB-INF/spring-service.xml
+		</param-value>
+	</context-param>
+
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+	<!-- Faces Servlet -->
+	<servlet>
+		<servlet-name>Faces Servlet</servlet-name>
+		<servlet-class>javax.faces.webapp.FacesServlet</servlet-class>
+		<load-on-startup>3</load-on-startup>
+	</servlet>
+	<context-param>
+    	<param-name>javax.faces.CONFIG_FILES</param-name>
+    	<param-value>/WEB-INF/faces-application.xml,/WEB-INF/faces-beans.xml,/WEB-INF/faces-navigation.xml,/WEB-INF/faces-gb-jsf.xml,/WEB-INF/faces-test.xml</param-value>
+  	</context-param>
+
+	<servlet-mapping>
+		<servlet-name>Faces Servlet</servlet-name>
+		<url-pattern>*.jsf</url-pattern>
+	</servlet-mapping>
+
+	<!-- Support for MyFaces component resources. -->
+	<filter>
+		<filter-name>MyFacesExtensionsFilter</filter-name>
+		<filter-class>org.apache.myfaces.webapp.filter.ExtensionsFilter</filter-class>
+        <init-param>
+            <param-name>uploadMaxFileSize</param-name>
+            <param-value>10m</param-value>
+        </init-param>
+        <init-param>
+            <param-name>uploadThresholdSize</param-name>
+            <param-value>100k</param-value>
+     </init-param>
+    </filter>
+
+    <filter-mapping>
+		<filter-name>MyFacesExtensionsFilter</filter-name>
+		<servlet-name>Faces Servlet</servlet-name>
+	</filter-mapping>
+	<filter-mapping>
+		<filter-name>MyFacesExtensionsFilter</filter-name>
+		<url-pattern>/faces/myFacesExtensionResource/*</url-pattern>
+	</filter-mapping>
+
+	<!-- Redirects the user to the appropriate starting page, based on their role -->
+	<servlet>
+		<servlet-name>Entry Servlet</servlet-name>
+		<servlet-class>org.sakaiproject.tool.gradebook.ui.EntryServlet</servlet-class>
+		<load-on-startup>4</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>Entry Servlet</servlet-name>
+		<url-pattern>/entry</url-pattern>
+	</servlet-mapping>
+
+	<filter>
+		<filter-name>AuthnFilter</filter-name>
+		<filter-class>org.sakaiproject.tool.gradebook.ui.standalone.AuthnFilter</filter-class>
+		<init-param>
+			<param-name>authnRedirect</param-name>
+			<param-value>/sakai-gradebook-standalone-app/test/login.jsf</param-value>
+		</init-param>
+		<init-param>
+			<param-name>authnServiceBean</param-name>
+			<param-value>org_sakaiproject_tool_gradebook_facades_Authn</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>AuthnFilter</filter-name>
+		<url-pattern>*.jsf</url-pattern>
+	</filter-mapping>
+
+	<filter>
+		<filter-name>AuthzFilter</filter-name>
+		<filter-class>org.sakaiproject.tool.gradebook.ui.RoleFilter</filter-class>
+		<init-param>
+			<param-name>authorizationFilterConfigurationBean</param-name>
+			<param-value>org.sakaiproject.tool.gradebook.ui.AuthorizationFilterConfigurationBean</param-value>
+		</init-param>
+		<init-param>
+			<param-name>authnServiceBean</param-name>
+			<param-value>org_sakaiproject_tool_gradebook_facades_Authn</param-value>
+		</init-param>
+		<init-param>
+			<param-name>authzServiceBean</param-name>
+			<param-value>org_sakaiproject_tool_gradebook_facades_Authz</param-value>
+		</init-param>
+		<init-param>
+			<param-name>contextManagementServiceBean</param-name>
+			<param-value>org_sakaiproject_tool_gradebook_facades_ContextManagement</param-value>
+		</init-param>
+		<init-param>
+			<param-name>selectGradebookRedirect</param-name>
+			<param-value>/sakai-gradebook-standalone-app/test/logout.jsf</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>AuthzFilter</filter-name>
+		<url-pattern>*.jsf</url-pattern>
+	</filter-mapping>
+
+	<!--
+		Prelude and coda for standalone web application.
+		To eliminate "head" and "body" tags, making the application output suitable
+		as a portlet or for embedding, replace "preludeStandalone" with "link" tags
+		for any required CSS or JavaScript files and remove the coda.
+	-->
+	<jsp-config>
+		<jsp-property-group>
+			<url-pattern>*.jsp</url-pattern>
+			<include-prelude>/inc/preludeStandalone.jspf</include-prelude>
+			<include-coda>/inc/codaTestStandalone.jspf</include-coda>
+			<include-coda>/inc/codaStandalone.jspf</include-coda>
+		</jsp-property-group>
+	</jsp-config>
+
+</web-app>

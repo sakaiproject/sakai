@@ -1,0 +1,74 @@
+GRADEBOOK RELEASE NOTES
+
+Changes in Sakai 2.2
+====================
+
+New features
+------------
+
+* Configurable grading scales are now supported. For details, see
+  "gradebook/xdocs/add_custom_grade_mappings.txt".
+
+
+Changed features
+----------------
+
+* Simplified and coordinated student view
+
+  Before 2.2, the instructor's view of assignment scores (as numbers) differed
+  drastically from the student's view of assignment scores (as letter grades),
+  but there was no way for the instructor to see the student's view.
+
+  The UI has been simplified to coordinate the two views. Now both instructors
+  and students see numeric scores for assignments and letter grades for course
+  grades.
+
+  (Full configurable support of letter-graded assignments and addition of
+  a "view as student" page are both feature requests for future releases.)
+
+* Date formats are now internationalized.
+
+* NOT VISIBLE TO END USERS - New methods have been added to the callable
+  GradebookService:
+
+  - updateExternalAssessmentScores
+  - setAvailableGradingScales
+  - setDefaultGradingScale
+
+  The following methods were added as of 2.1.2:
+
+  - isGradebookDefined
+  - isAssignmentDefined
+  - isUserAbleToGradeStudent
+  - getAssignments
+  - getAssignmentScore
+  - setAssignmentScore
+
+  For details, see the GradebookService JavaDoc.
+
+* NOT VISIBLE TO END USERS - The build and deployment structures of the
+Gradebook project have changed in the following ways:
+
+  - Service and application logic is more cleanly separated and layered.
+  - The Gradebook service implementation is deployed as a standard Sakai
+    component, capable of sharing Hibernate-Spring managed transactions
+    with other components.
+  - Both the Sakai-integrated tool and standalone application are always
+    built by "maven sakai". The "-Dstandalone=true" flag only determines
+    if the standalone WAR is automatically deployed to Tomcat.
+
+  See the technical documentation in the "gradebook/xdocs" directory for
+  details.
+
+
+Database changes
+----------------
+
+* New tables were added and a new column was added to the GB_GRADE_MAP_T
+  table to support configurable grading scales. Some indexes were added to
+  improve performance of common operations. The SQL table definitions
+  for supported databases have been updated. For existing installations,
+  the "auto.ddl=true" property or the following script may be used to
+  update the tables:
+
+  gradebook/app/business/src/sql/*/sakai_gradebook_2.1.x_to_2.2.sql

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org_sakaiproject_tool_gradebook_facades_Authn"
+		class="org.sakaiproject.tool.gradebook.facades.test.AuthnTestImpl">
+		<property name="authnContext"><value>authid_teacher</value></property>
+	</bean>
+
+	<bean id="backwardCompatabilityBusiness"
+		class="org.sakaiproject.tool.gradebook.test.support.BackwardCompatabilityBusinessImpl"
+		name="backwardCompatabilityBusiness">
+		<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+	</bean>
+
+</beans>

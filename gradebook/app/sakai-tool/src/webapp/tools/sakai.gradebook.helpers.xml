@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai-gradebook-helper"
+		title="Gradebook Item Helper"
+		description="Gradebook Item Helper">
+		<category name="sakai.helper" />
+		<!-- <configuration name="functions.require" value="site.upd" /> -->
+	</tool>	
+</registration>

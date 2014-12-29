@@ -1,0 +1,89 @@
+﻿<?xml version="1.0"?>
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+	<!-- =================== Tool Beans ============== -->
+
+	<managed-bean>
+		<managed-bean-name>selectGradebookBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.standalone.SelectGradebookBean</managed-bean-class>
+		<managed-bean-scope>request</managed-bean-scope>
+		<managed-property>
+			<property-name>frameworkManager</property-name>
+			<value>#{org_sakaiproject_tool_gradebook_ui_standalone_FrameworkManager}</value>
+		</managed-property>
+		<managed-property>
+			<property-name>authnService</property-name>
+			<value>#{org_sakaiproject_tool_gradebook_facades_Authn}</value>
+		</managed-property>
+	</managed-bean>
+
+	<managed-bean>
+		<managed-bean-name>loginAsBean</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.gradebook.ui.test.LoginAsBean</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+		<managed-property>
+			<property-name>configured</property-name>
+			<value>true</value>
+		</managed-property>
+	</managed-bean>
+
+
+	<managed-bean>
+		<description>Test Gradebook Tool</description>
+		<managed-bean-name>testGradebookTool</managed-bean-name>
+		<managed-bean-class>
+			org.sakaiproject.tool.gradebook.ui.TestGradebookTool
+		</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		<managed-property>
+			<description>Gradebook Manager</description>
+			<property-name>gradebookManager</property-name>
+			<value>#{org_sakaiproject_tool_gradebook_business_GradebookManager}</value>
+		</managed-property>
+		<managed-property>
+			<description>Gradable Object Manager</description>
+			<property-name>gradableObjectManager</property-name>
+			<value>#{org_sakaiproject_tool_gradebook_business_GradableObjectManager}</value>
+		</managed-property>
+		<managed-property>
+			<description>Section Awareness Service</description>
+            <property-name>sectionAwareness</property-name>
+            <value>#{org_sakaiproject_section_api_SectionAwareness}</value>
+        </managed-property>
+        <managed-property>
+            <description>User Directory Service</description>
+            <property-name>userDirectoryService</property-name>
+            <value>#{org_sakaiproject_tool_gradebook_facades_UserDirectoryService}</value>
+        </managed-property>
+        <managed-property>
+            <description>Event Tracking Service</description>
+            <property-name>eventTrackingService</property-name>
+            <value>#{org_sakaiproject_tool_gradebook_facades_EventTrackingService}</value>
+        </managed-property>
+    </managed-bean>
+
+    <!-- Navigation -->
+
+    <navigation-rule>
+        <from-view-id>*</from-view-id>
+		<navigation-case>
+			<from-outcome>selectGradebook</from-outcome>
+			<to-view-id>/standalone/selectGradebook.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+
+	<navigation-rule>
+		<from-view-id>/test/gradebooks.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>details</from-outcome>
+			<to-view-id>/test/details.jsp</to-view-id>
+			<redirect/>
+		</navigation-case>
+	</navigation-rule>
+
+</faces-config>

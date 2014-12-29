@@ -1,0 +1,41 @@
+[Contributed by Ryan Lowe and Lance Speelmon of Indiana University]
+
+IU's Gradebook JMeter Script
+
+The JMeter script allows for testing of multiple different Gradebooks with multiple different users.  For this reason, a variety of variables must be set up in JMeter to allow the script to be able to login to Sakai, select the correct Gradebook, select the correct Assignment and post a new score.
+
+The script will log into Sakai, navigate to a Gradebook, navigate to an assignment within that Gradebook, post a new grade and log out. You have the ability to control how many iterations the script will make in navigating and posting new grades in steps 2 - 5.  In order to ensure that each iteration will cause a new state change in the database, random scores are used with each iteration.  Multiple threads can be set up to take on unique values so that each thread will login and use a unique Gradebook.
+
+The following is a list of what variables need to be specified in the JMeter Script:
+
+
+Server Variables  - Variables shared among all threads:
+server:
+Sets the basic server name for each connection -  Simply update the Value for the variable "server" to match the domain name of the server you are testing.
+
+
+User Variables - Variables used to assign a unique value to each thread:
+tool_path: Sets the actual web path (tool id) to the Gradebook tool (/portal/tool/${tool_path}) - each Gradebook that is to be tested must have this variable hardcoded in.  This is how the script is able to navigate to each unique Gradebook.
+
+course: Actual name of the site used for testing - this is not used by JMeter, but created as a reminder of what site the current Gradebook tool belongs to
+
+lower_bound: The lower bound value of the new random assignment score (range is exclusive)
+
+upper_bound: The upper bound value of the new random assignment score
+
+assignmentId:  Value of the assignmentId variable that is used to navigate to a particular assignment from the grade overview page
+
+link_hidden: Value of the gbForm:_link_hidden_ variable that is used to navigate to a particular assignment from the grade overview page, values start at gbForm:assignmentsTable_0:_id38 and increment for each item listed in the assignments table
+
+username:  username of user to test this Gradebook - used for unique Gradebook users *
+
+password:  password of user to test this Gradebook - used for unique Gradebook users *
+
+
+* Note: if testing with only one user for all threads, the value of username and password can be hardcoded into the "login" HTTP Request Sampler.
+
+Each thread will pick up the next "user" set of values from the "User Vars" config element.  If more threads are ran than are "users" in the "User Vars" config element, then the "users" will be reused and the next thread will receive the first "user" set of variables.  The total number of threads can be set in the "Thread Group".
+
+In order to catch DeadLock exceptions, an Exception Assertion was created to look for the DeadLock Stack Trace and report it back as a Failure.  These results can be found by looking at the "Assertion Results" Listener located at the bottom of the Thread Group.
+
+Please refer to the JMeter User Manual at: http://jakarta.apache.org/jmeter/usermanual/index.html

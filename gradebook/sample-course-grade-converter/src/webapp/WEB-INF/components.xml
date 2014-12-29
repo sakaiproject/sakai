@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="org.sakaiproject.gradebooksample.CourseGradesToSpreadsheetConverterSample"
+		class="org.sakaiproject.gradebooksample.CourseGradesToSpreadsheetConverterSample">
+		<property name="courseManagementService">
+			<ref bean="org.sakaiproject.coursemanagement.api.CourseManagementService"/>
+		</property>
+		<property name="letterGradingSchemeName" value="standard"/>
+		<property name="passGradingSchemeName" value="pnp"/>
+		<property name="satisfactoryGradingSchemeName" value="SF"/>
+		<property name="letterToPassMap">
+			<map>
+				<entry key="A+" value="P"/>
+				<entry key="A" value="P"/>
+				<entry key="A-" value="P"/>
+				<entry key="B+" value="P"/>
+				<entry key="B" value="P"/>
+				<entry key="B-" value="P"/>
+				<entry key="C+" value="P"/>
+				<entry key="C" value="P"/>
+				<entry key="C-" value="P"/>
+				<entry key="D+" value="NP"/>
+				<entry key="D" value="NP"/>
+				<entry key="D-" value="NP"/>
+				<entry key="F" value="NP"/>
+				<entry key="I" value="I"/>
+			</map>
+		</property>
+		<property name="letterToSatisfactoryMap">
+			<map>
+				<entry key="A+" value="S"/>
+				<entry key="A" value="S"/>
+				<entry key="A-" value="S"/>
+				<entry key="B+" value="S"/>
+				<entry key="B" value="S"/>
+				<entry key="B-" value="S"/>
+				<entry key="C+" value="U"/>
+				<entry key="C" value="U"/>
+				<entry key="C-" value="U"/>
+				<entry key="D+" value="U"/>
+				<entry key="D" value="U"/>
+				<entry key="D-" value="U"/>
+				<entry key="F" value="U"/>
+				<entry key="I" value="I"/>
+			</map>
+		</property>
+	</bean>
+</beans>
