@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+  <tool id="sakai.su"
+        title="Become User"
+        description="Tool for logging in as another user."
+        accessSecurity="tool">
+     <category name="sakai.admin" />
+  </tool>
+</registration>
