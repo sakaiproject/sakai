@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>Please Validate your ${localSakaiName} Account</subject>
+		<message>Dear ${displayName},
+
+You currently have a guest account on ${localSakaiName} with access to the following sites:
+
+${memberSites}
+
+If you still require access to these sites using your current login details ${userEid}, 
+or if you would like to access these sites through your staff/student account or another guest, please follow this link to: ${url}
+
+If you no longer require access to ${localSakaiName} using this login, simply ignore this email and your account will be deactivated. 
+If you wish to reactivate your account, please contact ${localSupportMail}.
+
+*Please note*: Accounts that have been deactivated for longer than 90 days will be deleted.
+
+		</message>
+		<messagehtml>&lt;p&gt;Dear ${displayName}&lt;p&gt;
+
+&lt;p&gt;You currently have a guest account on ${localSakaiName} with access to the following sites: &lt;br/&gt;
+
+${memberSites}
+&lt;/p&gt;
+
+&lt;p&gt;If you still require access to these sites using your current login details ${userEid}, or if you would like to access these sites through your staff/student account or another guest, please follow this &lt;a href=&quot;${url}&quot;&gt;link&lt;/a&gt;&lt;/p&gt;
+
+&lt;/p&gt;If you no longer require access to ${localSakaiName} using this login, simply ignore this email and your account will be deactivated. If you wish to reactivate your account, please contact ${supportemail} &lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Please note&lt;/strong&gt;: Accounts that have been deactivated for longer than 90 days will be deleted.&lt;/p&gt;</messagehtml>
+		<locale></locale>
+	</emailTemplate>
+	<emailTemplate>
+		<subject>请验证您的 ${localSakaiName} 帐号</subject>
+		<message>${displayName}，您好：
+
+您在 ${localSakaiName} 上有一个关联下列站点的帐号： 
+
+${memberSites}
+
+如果您依旧希望使用当前帐号 ${userEid} 访问这些站点，或者您希望通过您的教师/学生帐号或其他访客帐号，请点击此链接：${url}
+
+如果您不再需要通过此帐号访问 ${localSakaiName}，请忽略此邮件，您的帐号将失效。如果您希望重新启用您的帐号，请咨询 ${localSupportMail}。
+
+*请注意*: 超过90天的失效帐号将被删除。
+
+		</message>
+		<messagehtml>&lt;p&gt;${displayName}，您好：&lt;p&gt;
+
+&lt;p&gt;您在 ${localSakaiName} 上有一个关联下列站点的帐号：  &lt;br/&gt;
+
+${memberSites}
+&lt;/p&gt;
+
+&lt;p&gt;如果您依旧希望使用当前帐号 ${userEid} 访问这些站点，或者您希望通过您的教师/学生帐号或其他访客帐号，请点击此&lt;a href=&quot;${url}&quot;&gt;链接&lt;/a&gt;&lt;/p&gt;
+
+&lt;p如果您不再需要通过此帐号访问 ${localSakaiName}，请忽略此邮件，您的帐号将失效。如果您希望重新启用您的帐号，请咨询 ${localSupportMail}。 &lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;请注意&lt;/strong&gt;: 超过90天的失效帐号将被删除。&lt;/p&gt;</messagehtml>
+		<locale>zh_CN</locale>
+	</emailTemplate>
+
+</emailTemplates>

@@ -1,0 +1,144 @@
+body {
+background:#cccccc;
+}
+p, h1, form, button {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.spacer {
+    clear: both;
+    height: 1px;
+}
+
+/* ----------- My Form ----------- */
+.myform {
+    margin: 0 auto;
+    width: 260px; /*padding:14px;*/
+}
+
+/* ----------- wrapper ------------*/
+.wrapper {
+border:2px solid #336699;
+padding:10px 20px 20px 20px;
+background:#fff;
+margin: 2em auto;
+width:43em;
+}
+
+.header {
+background:url("/library/skin/default/images/logo_inst.gif") no-repeat scroll left top;
+padding: 5px 0 20px 120px;
+border-bottom: 1px solid #E4E4E4;
+margin-bottom: 10px;
+}
+
+
+/* ----------- stylized ----------- */
+.stylized {
+    /*border:solid 2px #b7ddf2;
+    background:#ebf4fb;*/
+}
+
+.stylized h1 {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.stylized p {
+    font-size: 11px;
+    color: #666666;
+    border-bottom: solid 1px #E4E4E4;
+    padding-bottom: 10px;
+	margin-bottom:20px;
+}
+
+.stylized label {
+    display: block;
+    font-weight: bold;
+    text-align: right;
+    width: 80px;
+    float: left;
+    font-size: 12px;
+}
+
+.stylized .label {
+    display: block;
+    font-weight: bold;
+    text-align: right;
+    width: 80px;
+    float: left;
+    font-size: 12px;
+}
+
+.stylized .info {
+	background:transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
+	color:#666666;
+	font-size:11px;
+	padding-left:20px;
+	padding-bottom:20px;
+}
+
+
+
+.stylized .small {
+    color: #666666;
+    display: block;
+    font-size: 11px;
+    font-weight: normal;
+    text-align: right;
+    width: 110px;
+}
+
+.stylized .inputBox {
+    float: left;
+    font-size: 12px;
+    padding: 4px 2px;
+    border: solid 1px #aacfe4;
+    width: 150px;
+    margin: 0 0 15px 10px;
+}
+
+.stylized .terms {
+	float: left;
+	padding: 5px;
+	border: 1px solid transparent; /* Stop layout jumping when isn't checked. */
+}
+
+.stylized .terms label {
+	width: auto;
+	float: none;
+	display: inline;
+}
+
+.stylized input[type=submit] {
+    margin-left: 90px;
+    margin-top: 10px;
+}
+
+.spacerVertical {
+border-left:4px solid #B7DDF2;
+height:110px;
+width:1px;
+}
+
+.or {
+	color:#FF9900;
+	font-size:140%;
+	font-weight:bold;
+}
+
+.username {
+	color:#336699;
+	font-weight:bold;
+	padding-left:20px;
+}
+
+.usernameParent {
+	margin-bottom: 15px;
+	padding-left:18px;
+}
+
+

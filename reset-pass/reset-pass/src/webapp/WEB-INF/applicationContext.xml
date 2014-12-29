@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- documented by aaronz@vt.edu -->
+<!-- RSF version by antranig@caret.cam.ac.uk - 
+	some contents moved from "spring-beans.xml" -->
+<beans>
+
+
+	<!--  Spring messageSource replaces JSF message-bundle from faces-config.xml -->
+	<bean id="messageSource"
+		class="org.sakaiproject.util.ResourceLoaderMessageSource"
+		depends-on="TLABPostProcessorLoader">
+    <property name="basename"
+			value="classpath:org/sakaiproject/tool/resetpass/bundle/Messages" />
+    <property name="cacheSeconds" value="10" />
+  </bean>
+
+     <bean id="userGuard" parent="writeGuardParent">
+     <property name="guardedPath" value="userBean"/>
+     <property name="guard">
+         <bean class="org.sakaiproject.tool.resetpass.UserValidator">
+         <property name="userDirectoryService"
+			ref="org.sakaiproject.user.api.UserDirectoryService" />
+			<property name="serverConfigurationService"
+			ref="org.sakaiproject.component.api.ServerConfigurationService" />
+			<property name="securityService"
+			ref="org.sakaiproject.authz.api.SecurityService" />
+ 	 </bean>
+     </property>
+   </bean>
+  
+<bean parent="requestAddressibleParent">
+    <property name="value" value="formHandler, userBean" />
+  </bean>
+  
+    <!-- Scope for the user bean -->
+    <bean id="UserScope" parent="beanScopeParent">
+    <property name="copyPreservingBeans" value="userBean"/>
+  </bean>
+
+ <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+<property name="value" value="true" />
+</bean>
+
+</beans>

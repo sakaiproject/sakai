@@ -1,0 +1,87 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>Welcome To ${localSakaiName}!</subject>
+		<message>You have been invited to one or more sites in {localSakaiName}.
+
+Accept this invitation:
+
+${url}
+
+What is ${localSakaiName}?
+${localSakaiName} is the ${institution}'s web-based learning management system. It is home to many course sites, 
+as well as a host of other sites including those used for administration, research and project groups, libraries, 
+and student societies. As a guest user, you have been invited to join a ${localSakaiName} site. On the site, you 
+will have rights to read content. You may also be able to create and/or edit content (depending on your assigned role).
+
+What if I already have a ${localSakaiName} account?
+If you have used ${localSakaiName} in the past, then you already have an account on ${localSakaiName}.
+We strongly suggest that you accept the above invitation and then
+transfer your memberships to your existing ${localSakaiName} account. This
+will help prevent you from having multiple accounts, each with a different set of
+associated sites.
+
+If you do not choose to associate this site with an existing account, 
+a new guest account will be activated for you, and its login ID will be ${userEid}. 
+Afterwards, you may log in to ${localSakaiName} using ${userEid} as your login ID and its associated password. </message>
+               <messagehtml>&lt;p&gt;You have been invited to one or more sites in ${localSakaiName}.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href="${url}"&gt;Accept this invitation&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2&gt;What is ${localSakaiName}?&lt;/h2&gt;
+&lt;p&gt;${localSakaiName} is the ${institution}'s web-based learning management system. It is home to many course sites, 
+as well as a host of other sites including those used for administration, research and project groups, libraries, 
+and student societies. As a guest user, you have been invited to join a ${localSakaiName} site. On the site, you will 
+have rights to read content but you also may be able to create and/or edit content (depending on your assigned role).&lt;/p&gt;
+
+&lt;h2&gt;What if I already have a ${localSakaiName} account?&lt;/h2&gt;
+&lt;p&gt;If you have used ${localSakaiName} in the past, then you already have an account on ${localSakaiName}.
+We strongly suggest that you accept the above invitation and then
+transfer your memberships to your existing ${localSakaiName} account. This
+will help prevent you from having multiple accounts, each with a different set of
+associated sites. &lt;/p&gt;
+
+&lt;p&gt;If you do not choose to associate this site with an existing account, 
+a new guest account will be activated for you, and its login ID will be ${userEid}. 
+Afterwards you may log in to ${localSakaiName} using ${userEid} as your login ID and its associated password. &lt;/p&gt;</messagehtml>
+               <locale></locale>
+               </emailTemplate>
+
+	<emailTemplate>
+		<subject>欢迎加入 ${localSakaiName} ！</subject>
+		<message>${addedBy} (${addedByEmail}) 邀请您加入 ${localSakaiName} 中的 ${memberSites} 站点。
+
+您可以通过 ${url} 接受本邀请。
+
+${localSakaiName} 是什么？
+${localSakaiName} 是 ${institution} 的学习管理系统。其中包含了很多课程站点、
+管理站点、研究小组、图书馆以及学生社群。作为访客，您被邀请加入一个 ${localSakaiName} 站点。
+在此站点中，您可以浏览相关材料，您或许也可以创建或编辑相关材料（这取决于您被赋予的角色）。
+
+如果我已经有 ${localSakaiName} 帐号了，该怎么办？
+如果您曾使用过 ${localSakaiName}，那么您已经拥有了一个 ${localSakaiName} 帐号。
+如此，我们强烈建议您接受上面的邀请，然后指定您准备使用哪个 ${localSakaiName} 帐号。
+这可以避免您使用多个帐号，而每个帐号关联着不同的站点的情况。如果您不将此站点关联到已有帐号，
+那么将会为您创建新访客帐号，并以此email地址为用户名。今后，您可以使用这个访客帐号及相
+关密码访问 ${localSakaiName} 。</message>
+
+		<messagehtml>&lt;p&gt;${addedBy} (${addedByEmail}) 邀请您加入 &lt;strong&gt;${localSakaiName}&lt;/strong&gt; 中的 ${memberSites} 站点。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=${url}&gt;您可以通过 ${url} 接受本邀请。&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2&gt; ${localSakaiName} 是什么？&lt;/h2&gt;
+&lt;p&gt;${localSakaiName} 是 ${institution} 的学习管理系统。其中包含了很多课程站点、
+管理站点、研究小组、图书馆以及学生社群。作为访客，您被邀请加入一个 ${localSakaiName} 站点。
+在此站点中，您可以浏览相关材料，您或许也可以创建或编辑相关材料（这取决于您被赋予的角色）。&lt;/p&gt;
+
+
+&lt;h2&gt;如果我已经有 ${localSakaiName} 帐号了，该怎么办？&lt;/h2&gt;
+&lt;p&gt;如果您曾使用过 ${localSakaiName}，那么您已经拥有了一个 ${localSakaiName} 帐号。
+如此，我们强烈建议您接受上面的邀请，然后指定您准备使用哪个 ${localSakaiName} 帐号。
+这可以避免您使用多个帐号，而每个帐号关联着不同的站点的情况。如果您不将此站点关联到已有帐号，
+那么将会为您创建新访客帐号，并以此email地址为用户名。今后，您可以使用这个访客帐号及相
+关密码访问 ${localSakaiName} 。&lt;/p&gt;</messagehtml>
+		<locale>zh_CN</locale>
+	</emailTemplate>
+
+</emailTemplates>

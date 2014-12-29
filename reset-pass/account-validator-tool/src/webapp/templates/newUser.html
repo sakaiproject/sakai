@@ -1,0 +1,85 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title rsf:id="msg=activateAccount.title">Activate your account</title>
+		<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+		<link href="../css/newUser.css" type="text/css" rel="stylesheet" media="all" />
+		<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+		<script type="text/javascript" language="JavaScript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
+		
+		<script type="text/javascript" language="JavaScript" src="../js/accountValidator.js"></script>
+		<script type="text/javascript" language="JavaScript" rsf:id="passwordPolicyEnabled"></script>
+	</head>
+	<body id="body">
+		<div class="wrapper">
+			<div class="stylized">
+				<h3 rsf:id="welcome1">Welcome to Sakai!</h3>
+				<div rsf:id="welcome" class="instruction">You have been invited to the following sites:</div>
+				<ul class="siteList">
+					<li rsf:id="siteListItem:"><span rsf:id="siteName">Site</span></li>
+				</ul>
+			</div>
+			<fieldset class="activateForm">
+				<legend rsf:id="msg=activateAccount.title" class="activateLegend">Activate</legend>
+					<div class="centeredFeedback">
+					<div rsf:id="message-for:*"><span>Message for user here</span></div>
+				</div>
+				<a rsf:id="redirectLink">Reset your Sakai password / Accept your Sakai invitation</a>
+				<div class="stylized">
+					<form rsf:id="setDetailsForm" id="form" name="form" method="post">
+						<div class="usernameParent">
+							<span rsf:id="username.new" class="info">Your new username will be:</span>
+							<span id="eid" rsf:id="eid" class="username">User ID</span>
+						</div>
+						<div class="yellowBackground">
+							<span rsf:id="wait.1">Wait!</span>
+							<a rsf:id="wait.2">I already have a Sakai account</a>
+						</div>
+						<div class="inputDiv">
+							<label rsf:id="firstNameContainer:">
+								<span rsf:id="lblFirstName">First name</span>
+								<span class="reqStar">*</span>
+							</label>
+							<input type="text" class="inputBox required" rsf:id="firstName" id="firstName" onkeyup="VALIDATOR.validateFirstName();" oninput="VALIDATOR.validateFirstName();" required="required"/>
+						</div>
+						<div class="inputDiv">
+							<label rsf:id="lastNameContainer:">
+								<span rsf:id="lblLastName">Last name</span>
+								<span class="reqStar">*</span>
+							</label>
+							<input type="text" class="inputBox required" rsf:id="surName" id="surname" onkeyup="VALIDATOR.validateLastName();" oninput="VALIDATOR.validateLastName();" required="required"/>
+						</div>
+						<div rsf:id="passrow1:" class="inputDiv">
+							<label><span rsf:id="msg=password">Password</span> <span class="reqStar">*</span></label>
+							<input id="passrow1::password1" type="password" class="inputBox required" rsf:id="password1" onkeyup="VALIDATOR.validatePassword();" oninput="VALIDATOR.validatePassword();" onblur="VALIDATOR.displayStrengthInfo();" onfocus="VALIDATOR.displayStrengthInfo();" required="required"/>
+						</div>
+						<div class="validationMsgContainer">
+							<div id="strongMsg" style="display:none" rsf:id="msg=password.strong"></div>
+							<div id="moderateMsg" style="display:none" rsf:id="msg=password.moderate"></div>
+							<div id="weakMsg" style="display:none" rsf:id="msg=password.weak"></div>
+							<div id="failMsg" style="display:none" rsf:id="msg=password.fail"></div>
+							<div id="strengthBar" style="display:none">
+								<span id="strengthBarMeter" style="display:none"></span>
+							</div>
+						</div>
+						<div id="strengthInfo" style="display:none" rsf:id="msg=password.strengthInfo"></div>
+
+						<div rsf:id="passrow2:" class="inputDiv">
+							<label><span rsf:id="msg=password2">Confirm password</span> <span class="reqStar">*</span></label>
+							<input id="passrow2::password2" type="password" class="inputBox required" rsf:id="password2" onkeyup="VALIDATOR.verifyPasswordsMatch();" oninput="VALIDATOR.verifyPasswordsMatch();" required="required"/>
+						</div>
+						<div class="validationMsgContainer">
+							<div id="matchMsg" rsf:id="msg=password.match" style="display:none;"></div>
+							<div id="noMatchMsg" rsf:id="msg=password.noMatch" style="display:none"></div>
+						</div>
+						<div class=" required terms" rsf:id="termsrow:">
+							<input id="terms" type="checkbox" rsf:id="terms" onclick="VALIDATOR.validateTermsChecked();" required="required"/>
+							<label rsf:id="termsLabel" for="terms">I accept the terms and conditions</label>
+						</div>
+						<input id="addDetailsSub" class="submit" type="submit" rsf:id="addDetailsSub"/>
+					</form>
+				</div>
+			</fieldset>
+		</div>
+	</body>
+</html>

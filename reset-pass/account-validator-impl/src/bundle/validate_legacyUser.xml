@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<emailTemplates>
+	<emailTemplate>
+		<subject>Please verify your details for ${localSakaiName}</subject>
+		<message>
+Dear ${displayName},	
+
+${addedBy} (${addedByEmail}) invited you to join ${localSakaiName}.
+
+Please confirm your details on ${url}
+
+What is ${localSakaiName}?
+${localSakaiName} is the ${institution}'s web-based learning management system. It is home to many course sites, as well as a host of other sites including those 
+used for administration, research and project groups, libraries, and student societies. As a guest user, you have been invited to join a ${localSakaiName} site. 
+On the site you will have rights to read content but you also may be able to create and/or edit content (depending on your assigned role).
+
+What if I already have another ${localSakaiName} account?
+If you have used ${localSakaiName} with another ${localSakaiName} account, we strongly suggest that you accept the above invitation and then
+indicate which existing ${localSakaiName} account you wish to use to access this site. This will avoid you having multiple accounts, each with a different set of
+associated sites. If you do not choose to associate this site with an existing account, a new guest account will be created for you using this email
+address. In the future, login to ${localSakaiName} using the guest account username and its associated password.
+		</message>
+		
+		<locale></locale>
+	</emailTemplate>
+	<emailTemplate>
+		<subject>请确认您的相关信息</subject>
+		<message>
+${displayName}，您好：
+
+${addedBy} (${addedByEmail}) 邀请您加入 ${localSakaiName}。
+
+请在 ${url} 确定您的相关信息
+
+${localSakaiName} 是什么？
+${localSakaiName} 是 ${institution} 的学习管理系统。其中包含了很多课程站点、
+管理站点、研究小组、图书馆以及学生社群。作为访客，您被邀请加入一个 ${localSakaiName} 站点。
+在此站点中，您可以浏览相关材料，您或许也可以创建或编辑相关材料（这取决于您被赋予的角色）。
+
+What if I already have another ${localSakaiName} account?
+If you have used${localSakaiName} with another ${localSakaiName} account, we strongly suggest that you accept the above invitation and then
+indicate which existing ${localSakaiName} account you wish to use to access this site. This will avoid you having multiple accounts, each with a different set of
+associated sites. If you do not choose to associate this site with an existing account, a new guest account will be created for you using this email
+address. In the future, login to ${localSakaiName} using the guest account username and its associated password.
+如果我已经有 ${localSakaiName} 帐号了，该怎么办？
+如果您曾使用另一个帐号登录过 ${localSakaiName}，我们强烈建议您接受上面的邀请，
+然后指定您准备使用哪个 ${localSakaiName} 帐号。这可以避免您使用多个帐号，
+而每个帐号关联着不同的站点的情况。如果您不将此站点关联到已有帐号，那么将会为您创建新访客帐号，
+并以此email地址为用户名。今后，您可以使用这个访客帐号及相关密码访问 ${localSakaiName} 。
+		</message>		
+		<locale>zh_CN</locale>
+	</emailTemplate>
+	
+
+</emailTemplates>
