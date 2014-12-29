@@ -1,0 +1,246 @@
+<!-- $Id$ -->
+<!-- start: chef_assignments_instructor_student_list_submissions.vm  -->
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_instructor_student_list_submissions.vm,v 1.8 2005/05/28 03:04:35 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+		<ul class="navIntraTool actionToolBar">
+			#set($prevAction=false)
+			#if ($allowAddAssignment)
+				#set($prevAction=true)
+				<li  class="firstToolBarItem">
+					<span><a href="#toolLink("$action" "doNew_assignment")" title="$!tlang.getString("new")">$!tlang.getString("new")</a></span>
+				</li>
+				<li>	
+					<span class="current">$!tlang.getString("lisofass1")</span>
+				</li>	
+			#end
+			#if ($withGrade && $!allowGradeSubmission)
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end>
+					<span><a href="#toolLinkParam("$action" "doView" "view=grarep")" title="$!tlang.getString("gen.grarep")">$!tlang.getString("gen.grarep")</a></span>
+				</li>			
+			#end
+			#if ($allowAddAssignment)
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end>
+					<span><a href="#toolLinkParam("$action" "doView" "view=stuvie")" title="$!tlang.getString("gen.stuvie")">$!tlang.getString("gen.stuvie")</a></span>
+				</li>	
+			#end
+			#if (($allowAllGroups) && ($assignmentscheck))
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end>				
+					<span><a href="#toolLink("$action" "doReorder")" title="$tlang.getString('gen.reorder')">$tlang.getString('gen.reorder')</a></span>
+				</li>	
+			#end
+			#if ($allowUpdateSite)
+				<li #if ($prevAction==false) class="firstToolBarItem"  #set($prevAction=true) #end>				
+					<span><a href="#toolLink("$action" "doPermissions")" title="$tlang.getString('permis')">$tlang.getString('permis')</a></span>
+				</li>
+				#if ($enableViewOption)		
+					<li #if ($prevAction==false) class="firstToolBarItem" #set($prevAction=true)  #end>
+						<span><a href="#toolLink("$action" "doOptions")" title="$tlang.getString('options')">$tlang.getString('options')</a></span>
+					</li>
+				#end	
+			#end
+	</ul>
+	<h3>
+		$!tlang.getString('lisofass2')
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+		#if ($!studentMembers.size() == 0)
+			<p class="instruction" style="clear:both">
+				$tlang.getString("theisnostudent")
+			</p>
+		#else
+			<p class="instruction" style="clear:both">
+				$tlang.getString("stulistsunbm.chotri")
+			</p>
+		<div class="navPanel">
+			<div class="viewNav">
+				<form name="viewForm" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+					<input type="hidden" name="eventSubmit_doView" value="view" />
+					<label for="view">$tlang.getString("gen.view2")</label>
+					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+					<select name="view" id="view" size="1" tabindex="3" onchange="document.viewForm.submit();">
+						<option value="lisofass1" >$!tlang.getString('lisofass1')</option>
+						<option value="lisofass2" selected="selected" >$!tlang.getString('lisofass2')</option>
+					</select>
+					
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+					#if ($!groups.hasNext() || !$hasAtLeastOneAnonAssignment)
+					<form name="viewFormGroup" class="inlineForm" method="post" action="#toolForm("AssignmentAction")">
+						<input type="hidden" name="option" id="option" value="x" />
+						<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
+						#if( $!groups.hasNext() )
+						<div class="instruction">
+							$tlang.getString("view_instruction") 
+						</div>
+ 						<span class="skip">$tlang.getString("newassig.selectmessage")</span>
+
+ 						<select id="viewgroup" name="viewgroup" size="1" tabindex="3" onchange="javascript:blur();document.getElementById('option').value='changeView';document.viewFormGroup.submit();return false;">
+
+							#if (!$showSubmissionByFilterSearchOnly)
+								<option value="all" #if($!viewGroup.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
+							#else
+								<option value="" >$tlang.getString('please_select_group')</option>
+							#end
+ 							#foreach($aGroup in $groups)
+ 								<option value="$!aGroup.Reference" #if($!viewGroup.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
+ 							#end
+ 						</select>
+						#end
+ 						<p />
+
+					#if( !$hasAtLeastOneAnonAssignment )
+					<label for="$form_search" class="skip">$tlang.getString("search")</label>
+					<input value="$validator.escapeHtml($searchString)" name="search" id="search" type="text" class="searchField"  size="20" />
+					<input type="button" value="$tlang.getString('search')" 
+						onclick="blur();document.getElementById('option').value='search';document.viewFormGroup.submit();return false;" />
+					#if (($!searchString) && (!$searchString.equals("")))
+						<input type="button" class="button" value="$tlang.getString("search_clear")" 
+							onclick="blur();document.getElementById('option').value='clearSearch';document.viewFormGroup.submit();return false;" />
+					#end
+					#end
+
+					#end
+
+									
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			</div>
+		</div>	
+		<form name="studentAssignmentForm" action="#toolForm("AssignmentAction")" method="post">
+			#if ($assignments.size()==0)
+				<p class="instruction">
+					$tlang.getString("gen.theare2")
+				</p>	
+			#else
+				<table class="listHier lines nolines" border="0" cellspacing="0" summary="$tlang.getString("stulistsunbm.listhestu")">
+					<tr>
+						<th id="studentname">
+							$tlang.getString("gen.student")
+						</th>
+						<th id="assignment">
+							$tlang.getString("gen.assig")
+						</th>
+						<th id="submitted">
+							$tlang.getString("gen.subm4")
+						</th>
+						<th id="status">
+							$tlang.getString("gen.status")
+						</th>
+						#if ($withGrade)
+							<th id="grade">
+								$tlang.getString("gen.gra")
+							</th>
+						#end
+					</tr>
+					#foreach ($member in $studentMembers)
+						#set($submitterName=$!member.sortName)
+						#set($submitterId=$!member.getDisplayId())
+						#if ($!submitterId)
+							##attach the displayId
+							#set($submitterName=$submitterName.concat(" (").concat($submitterId).concat(")"))
+							#end
+						<tr>
+							<td headers="studentname" class="specialLink">	
+								<h4>
+								#if (!$studentListShowSet.contains($member.Id))
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doShow_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.shostuass")"><img src="#imageLink("sakai/expand.gif")" alt="$tlang.getString("stulistsunbm.shostuass")" width="13" height="13" border="0" /></a>
+								#else 
+									<a href="#" onclick="location='#toolLinkParam("AssignmentAction" "doHide_student_submission" "studentId=$validator.escapeUrl($member.Id)")'; return false;" title="$tlang.getString("stulistsunbm.hidstuass")"><img src="#imageLink("sakai/collapse.gif")" alt="$tlang.getString("stulistsunbm.hidstuass")" width="13" height="13" border="0" /></a>
+								#end
+								$submitterName
+								</h4>
+							</td>
+							<td colspan="4">
+							</td>
+						</tr>
+						#if ($studentListShowSet.contains($member.Id))
+							#set($assignments=false)
+							#set($assignments=$!studentAssignmentsTable.get($member))
+							#foreach ($assignment in $!assignments)
+								#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
+								#set ($deleted = false)
+								#set ($deleted = $assignment.getProperties().getProperty($assignment.getProperties().getNamePropAssignmentDeleted()))
+								#if (!$assignment.Draft && !$deleted.equalsIgnoreCase("true"))
+									## not show the draft assignment
+									#set($submission = false)
+									#set($submission = $assignmentService.getSubmission($assignment.Reference, $member))
+									<tr>
+										<td headers="studentname">
+											&nbsp;
+										</td>
+										<td headers="assignment">
+											## SAK-27824
+											#if (!$isAnon)
+											<h5>
+												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.limit($validator.escapeHtml($assignment.Title), 40)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
+												#if ($allowAddAssignment && $allowSubmitByInstructor)
+												<div class="itemAction">
+													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
+														$tlang.getString("subasstudent")
+													</a>
+												</div>
+												#end
+											#else
+												$validator.limit($validator.escapeHtml($assignment.Title), 40) ($tlang.getString("grading.anonymous.title"))
+											#end
+											</h5>
+										</td>
+										<td headers="submitted">
+											#if ($!submission.submitted)
+												#if (!$isAnon)
+													$!submission.TimeSubmitted.toStringLocalFull()
+													#if ($submission.getTimeSubmitted().after($assignment.DueTime))<span class="highlight">$tlang.getString("gen.late2")</span>
+													#end
+													#set ($submitterId = false)
+													#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
+													#if ($!submitterId)
+														<br />by $userService.getUser($submitterId).getDisplayName()
+													#end
+												#elseif ($!submission.TimeSubmitted.toStringLocalFull())
+													$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
+												#end
+											#end
+											&nbsp;
+										</td>
+										<td headers="status">
+											#if ($!submission.Returned)
+												$tlang.getString("gen.returned")
+											#else
+												#if ($!submission.getGraded())
+													#if ($!submission.getGradeReleased())
+														$tlang.getString("gen.relea")
+													#else
+														$tlang.getString("gen.gra")
+													#end
+												#else
+													#if ($!submission.Submitted)
+														$tlang.getString("ungra")
+													#end
+												#end
+											#end
+											&nbsp;
+										</td>
+										#if ($withGrade)
+											<td headers="grade">
+												#if ($!submission.Graded && ($!submission.GradeReleased || $!submission.Returned))
+													##show grade when it is released or when submission is returned
+													#if ($assignment.getContent().TypeOfGrade == 1)
+														$tlang.getString("gen.nograd")
+													#else
+														$!submission.gradeDisplay
+													#end
+												#end
+											</td>
+										#end
+									</tr>
+								#end
+							#end
+						#end
+					#end
+				</table>
+			#end
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>	
+	#end
+</div>
+<!-- end: chef_assignments_instructor_student_list_submissions.vm  -->

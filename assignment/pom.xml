@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>sakai-assignment base pom</name>
+  <groupId>org.sakaiproject.assignment</groupId>
+  <artifactId>assignment</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>assignment-api/api</module>
+    <module>assignment-bundles</module>
+    <module>assignment-impl/impl</module>
+    <module>assignment-impl/pack</module>
+    <module>assignment-tool/tool</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/assignment/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/assignment/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+                <groupId>net.sf.opencsv</groupId>
+                 <artifactId>opencsv</artifactId>
+                 <version>2.3</version>
+            </dependency>
+            <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sakai-assignment-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>sakai-assignment-bundles</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

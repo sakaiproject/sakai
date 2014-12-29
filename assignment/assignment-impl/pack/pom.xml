@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.assignment</groupId>
+        <artifactId>assignment</artifactId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-assignment-pack</name>
+    <groupId>org.sakaiproject.assignment</groupId>
+    <artifactId>sakai-assignment-pack</artifactId>
+    <organization>
+        <name>University of Michigan</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sakai-assignment-impl</artifactId>
+            <exclusions>
+                <!-- the model is not part of the api, and so, although it 
+                    is in shared we perform an exclusion here. If it is part of the API, then 
+                    it MUST go into the dependency management block of the master/pom.xml. Please 
+                    tell me (ian@caret.cam.ac.uk) if this is the case, and I will add -->
+                <exclusion>
+                    <groupId>org.sakaiproject.contentreview</groupId>
+                    <artifactId>contentreview-model-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+    </dependencies>
+</project>
