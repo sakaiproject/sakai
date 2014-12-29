@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai.usermembership"
+    	title="User Membership"
+        description="Admin tool for getting site membership information about any user.">
+    	
+    	<category name="sakai.admin" />
+    	
+    	<!-- Context help -->
+		<configuration name="help.id" value="sakai.usermembership" /> 
+		
+		<!-- Sakai 2.3.0, up -->
+		<configuration name="functions.require" value="usermembership.view" /> 
+		
+		<!-- SAK-12088: filtering the searching and viewing of users to only those users with the same named usertype(s) -->
+		<configuration name="userType.limitToSelf" value="false" /> 
+		<configuration name="userType.limitToList" value="" /> 
+		
+	</tool>
+</registration>

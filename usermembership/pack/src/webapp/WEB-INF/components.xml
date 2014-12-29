@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	
+	<!-- Authz -->	
+	<bean id="org.sakaiproject.umem.api.Authz"
+		class="org.sakaiproject.umem.impl.AuthzImpl"
+		singleton="true"
+		init-method="init">
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	</bean>
+	
+</beans>
