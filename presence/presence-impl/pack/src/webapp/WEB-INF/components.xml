@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="org.sakaiproject.presence.api.PresenceService"
+			class="org.sakaiproject.presence.impl.ClusterPresenceService"
+			init-method="init"
+			destroy-method="destroy"
+			singleton="true">
+		<property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="notificationService"><ref bean="org.sakaiproject.event.api.NotificationService"/></property>
+		<property name="usageSessionService"><ref bean="org.sakaiproject.event.api.UsageSessionService"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="privacyManager"><ref bean="org.sakaiproject.api.privacy.PrivacyManager"/></property>
+ 		<property name="timeoutSeconds"><value>60</value></property>
+ 		<property name="autoDdl"><value>${auto.ddl}</value></property>
+	</bean>
+
+</beans>

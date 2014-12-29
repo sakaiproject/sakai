@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.sakaiproject.presence</groupId>
+        <artifactId>presence</artifactId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+    
+    <name>sakai-presence-api</name>
+    <groupId>org.sakaiproject.presence</groupId>
+    <artifactId>sakai-presence-api</artifactId>
+    <version>11-SNAPSHOT</version>
+    <organization>
+        <name>University of Michigan</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>jar</packaging>
+    
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/presence/trunk/presence-api/api</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/presence/trunk/presence-api/api</developerConnection>
+        <url>https://source.sakaiproject.org/svn/presence/trunk/presence-api/api</url>
+    </scm>
+    
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+    </dependencies>
+
+</project>

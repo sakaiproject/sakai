@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.online"
+			title="Online"
+			description="See who's on-line and where they are.">
+
+	</tool>
+
+</registration>

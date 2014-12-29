@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.presence"
+			title="Presence Tool"
+			description="Display the users present at a location.">
+
+	<configuration name="reset.button" value="false" />
+
+	</tool>
+
+</registration>
