@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.realms"
+			title="Realms"
+			description="An administration tool to edit Realms.">
+
+		<configuration name="pagesize" value="20" />
+
+	</tool>
+
+</registration>
