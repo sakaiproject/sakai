@@ -1,0 +1,275 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_edit.vm,v 1.3 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
+
+<script type="text/javascript" language="JavaScript">
+  focus_path = [#if(!$site)"id"#else"title"#end];
+</script>
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+
+	<h3>
+		$tlang.getString("sitedi.edisit") $!site.Id
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedi.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<div class="instruction">
+		$tlang.getString("sitedi.revandmod")
+	</div>
+
+	<form name="$form-name" action="#toolForm("$action")" method="post">
+		<h4>
+			$tlang.getString("sitedi.sit")
+		</h4>	
+		<table  summary="$tlang.getString("sitedi.revandmod")" class="itemSummary" border="0">
+			<tr>
+				<th>
+					<label #if(!$site) for="id" #end>
+						#if(!$site)<span class="highlight">*</span>#end
+						$tlang.getString("sitedi.sit2")
+					</label>
+				</th>
+				<td class="shorttext">
+					#if(!$site)<input type="text" name="id" id="id"/>#else$validator.escapeHtml($site.Id)#end
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="title">
+						$tlang.getString("sitedi.tit")
+					</label>	
+				</th>
+				<td  class="shorttext">
+					<input type="text" name="title" id="title" #if($site) value="$!validator.escapeHtml($site.Title)"#end />
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="url">
+ 	  	                $tlang.getString("sitedipag.url_alias")
+					</label>	
+				</th>
+				<td  class="shorttext">
+					 $!form_url_base
+	  	                     <input type="text" name="url_alias" id="url_alias" maxlength="40" size="20" value="$validator.escapeHtml($form_url_alias)" /> 
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="type">
+						$tlang.getString("sitedi.typ")
+					</label>
+				</th>
+				<td  class="shorttext">
+					<input type="text" name="type" id="type" #if($site) value="$!validator.escapeHtml($site.Type)"#end />
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="shortDescription">
+						$tlang.getString("sitedi.sho")
+					</label>
+				</th>
+				<td>
+					<textarea wrap="virtual" name="shortDescription" id="shortDescription"  rows="1" cols="30">#if($site)$!validator.escapeHtmlTextarea($site.ShortDescription)#end</textarea>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="description">
+						$tlang.getString("sitedi.des")
+					</label>
+				</th>
+				<td>
+					<table border="0" cellpadding="0" cellspacing="0" >
+						<tr>
+							<td>
+								<textarea name="description" id="description" cols="65" rows="30" wrap="virtual">#if($site)$validator.escapeHtmlFormattedTextarea($site.Description)#end</textarea>
+								#chef_setupformattedtextarea("description")
+							</td>
+						</tr>
+					</table>	
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="status">
+						$tlang.getString("sitedi.pub")
+					</label>
+				</th>
+				<td class="checkbox">
+					<input type="radio" value="false" name="published" id="publishedfalse" #if ((!$site) || (!$site.isPublished())) checked="checked" #end /><label for="publishedfalse"> $tlang.getString("sitedi.unpub") </label>
+					<input type="radio" value="true" name="published" id="publishedtrue" #if ($site.isPublished()) checked="checked" #end /><label for="publishedtrue"> $tlang.getString("sitedi.pub2") </label>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="softlyDeleted">
+						$tlang.getString("sitedi.deleted")
+					</label>
+				</th>
+				<td   class="checkbox">
+					<input type="radio" value="true" name="softlyDeleted" id="softlyDeletedtrue" #if ($site.isSoftlyDeleted()) checked="checked" #end /><label for="SoftlyDeletedtrue">  $tlang.getString("sitedi.yes")</label>
+					<input type="radio" value="false" name="softlyDeleted" id="softlyDeletedfalse" #if (!$site || !$site.isSoftlyDeleted()) checked="checked" #end /><label for="SoftlyDeletedfalse"> $tlang.getString("sitedi.no") </label>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="joinable">
+						$tlang.getString("sitedi.joi")
+					</label>
+				</th>
+				<td  class="checkbox">
+					<input type="radio" value="true" name="joinable" id="opentrue" #if ($site.isJoinable()) checked="checked" #end /><label for="opentrue"> $tlang.getString("sitedi.yes") </label>
+					<input type="radio" value="false" name="joinable" id="openfalse" #if (!$site || !$site.isJoinable()) checked="checked" #end /><label for="openfalse"> $tlang.getString("sitedi.no")</label>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="joinerRole">
+						$tlang.getString("sitedi.joirol")
+					</label>
+				</th>
+				<td  class="shorttext">
+					<input type="text" name="joinerRole" id="joinerRole" #if($site) value="$!validator.escapeHtml($site.JoinerRole)"#end />
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="icon">
+						$tlang.getString("sitedi.worsit")
+					</label>
+				</th>
+				<td   class="shorttext">
+					<input type="text" name="icon" id="icon" #if($site) value="$!validator.escapeHtml($site.IconUrl)"#end />
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="info">
+						$tlang.getString("sitedi.worsit2")
+					</label>
+				</th>
+				<td   class="shorttext">
+					<input type="text" name="info" id="info" #if($site) value="$!validator.escapeHtml($site.InfoUrl)"#end />
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="skin">
+						$tlang.getString("sitedi.ski")
+					</label>
+				</th>
+				<td   class="shorttext">
+					<input type="text" name="skin" id="skin" #if($site) value="$!validator.escapeHtml($site.Skin)"#end />
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="pubView">
+						$tlang.getString("sitedi.pubvie")
+					</label>
+				</th>
+				<td   class="checkbox">
+					<input type="radio" value="true" name="pubView" id="pubViewtrue" #if ($site.isPubView()) checked="checked" #end /><label for="pubViewtrue">  $tlang.getString("sitedi.yes")</label>
+					<input type="radio" value="false" name="pubView" id="pubViewfalse" #if (!$site || !$site.isPubView()) checked="checked" #end /><label for="pubViewfalse"> $tlang.getString("sitedi.no") </label>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					<label for="customOrder">
+						$tlang.getString("sitedi.custom")
+					</label>
+				</th>
+				<td   class="checkbox">
+					<input type="radio" value="true" name="customOrder" id="customOrdertrue" #if ($site.isCustomPageOrdered()) checked="checked" #end /><label for="customOrdertrue">  $tlang.getString("sitedi.yes")</label>
+					<input type="radio" value="false" name="customOrder" id="customOrderfalse" #if (!$site || !$site.isCustomPageOrdered()) checked="checked" #end /><label for="customOrderfalse"> $tlang.getString("sitedi.no") </label>
+				</td>
+			</tr>
+		</table>
+		#if ($site)
+			<h4>
+				$tlang.getString("sitedi.info")
+			</h4>	
+			<table class="itemSummary" summary="$tlang.getString("sitedi.revsit")">
+				<tr>
+					<th>$tlang.getString("sitedi.creby")</th>
+					<td>
+						#if ($site.CreatedBy) $validator.escapeHtml($site.CreatedBy.DisplayName) #end
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("sitedi.cre")</th>
+					<td>
+						#if ($site.CreatedTime) $validator.escapeHtml($site.CreatedTime.toStringLocalFull()) #end
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("sitedi.modby")</th>
+					<td>
+						#if ($site.ModifiedBy) $validator.escapeHtml($site.ModifiedBy.DisplayName) #end
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("sitedi.mod")</th>
+					<td>
+						#if ($site.ModifiedTime) $validator.escapeHtml($site.ModifiedTime.toStringLocalFull()) #end
+					</td>
+				</tr>
+				<tr>
+					<th>$tlang.getString("sitedi.deletedon")</th>
+					<td>
+						#if ($site.SoftlyDeletedDate) $validator.escapeHtml($site.SoftlyDeletedDate.toStringLocalFull()) #end
+					</td>
+				</tr>
+			</table>
+			<h4>
+				$tlang.getString("sitedi.pro")
+			</h4>
+			<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+				##avoid val error on empty table
+				<tr><th></th><td></td></tr>
+				#set ($paramNames = $site.Properties.PropertyNames)
+				#foreach ($paramName in $paramNames)
+					#set ($paramValue = $site.Properties.getPropertyFormatted($paramName))
+					<tr>
+						<th>
+							<label for="param_$paramName">
+								$validator.escapeHtml($paramName):
+							</label>
+						</th>
+						<td>
+							<input type="text" disabled="disabled" name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+						</td>
+					</tr>
+				#end
+			</table>
+		#end
+		<h4>
+			$tlang.getString("sitedi.conedi")
+		</h4>	
+		<div class="act">
+			<input type="submit" name="eventSubmit_doProperties" value="$tlang.getString("sitedi.addeditprops")" />
+		</div>
+		<div class="act">
+			<input type="submit" name="eventSubmit_doPages" value="$tlang.getString("sitedi.addeditpages")" />
+		</div>
+		<div class="act">
+			<input type="submit" name="eventSubmit_doGroups" value="$tlang.getString("sitedi.addeditgroups")" />
+		</div>
+##		$tlang.getString("sitedi.specon")
+##		<div class="alertMessage">$tlang.getString("sitedi.sitcre")</div>
+##		<div class="act">
+##			<input type="submit" name="eventSubmit_doIds" value="$tlang.getString("sitedi.assnew")" />
+##		</div>
+		<h4>
+			$tlang.getString("sitedi.comthesit")
+		</h4>	
+
+		<div class="act">
+			<input type="submit" class="active"  name="eventSubmit_doSave" value="$tlang.getString("sitedi.sav")" accesskey="s" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitedi.can")" accesskey="x" />
+		</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

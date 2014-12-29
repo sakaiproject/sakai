@@ -1,0 +1,84 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_edit.vm,v 1.3 2005/05/24 19:36:12 gsilver.umich.edu Exp $ -->
+
+<script type="text/javascript" language="JavaScript">
+  focus_path = [#if(!$site)"id"#else"title"#end];
+</script>
+<div class="portletBody">
+	#if($menu)
+		#toolbar($menu)
+	#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitedi.alert") $validator.escapeHtml($alertMessage)</div>#end
+	<h3>
+		$tlang.getString("sitedi.edisit") $!site.Id
+	</h3>
+	<div class="instruction">
+		$tlang.getString("sitedi.revandmodprops")
+	</div>
+
+	<form action="#toolForm("$action")" method="post">
+		<h4>
+			$tlang.getString("sitedi.pro")
+		</h4>
+		<table class="itemSummary" summary="$tlang.getString("sitedi.pro")">
+			#set ($paramNames = $site.Properties.PropertyNames)
+			#foreach ($paramName in $paramNames)
+				#set ($paramValue = $site.Properties.getPropertyFormatted($paramName))
+				<tr>
+					<th>
+						<label for="param_$paramName">
+							$validator.escapeHtml($paramName):
+						</label>
+					</th>
+					<td>
+						<input type="text" name="param_$paramName" id="param_$paramName" value="$validator.escapeHtml($paramValue)" />
+					</td>
+				</tr>
+			#end
+		</table>
+		<div class="instruction">
+			$tlang.getString("sitedi.newpropinst")
+		</div>
+		<table summary="$tlang.getString("sitedi.pro")">
+			<tr>
+				<td>
+					<label for="new_name">
+						$tlang.getString("sitedi.name")
+					</label>	
+				</td>
+				<td>
+					<input type="text" name="new_name" id="new_name" value="" />
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label for="new_value">
+						$tlang.getString("sitedi.value")
+					</label>	
+				</td>
+				<td>
+					<input type="text" name="new_value" id="new_value" value="" />
+				</td>
+			</tr>
+		</table>
+
+		<div class="act">
+			<input type="submit" name="eventSubmit_doNew_property" value="$tlang.getString("sitedi.newprop")" />
+		</div>
+
+		<h4>
+			$tlang.getString("sitpag.conedi")
+		</h4>
+			<div class="act">
+				<input type="submit" name="eventSubmit_doEdit_props_to_main" value="$tlang.getString("sitpag.don")" />
+			</div>
+		<h4>	
+			$tlang.getString("sitpag.comthesit")
+		</h4>	
+
+			<div class="act">
+				<input type="submit" name="eventSubmit_doSave_props_edit" value="$tlang.getString("sitpag.sav")" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitpag.can")" />
+			</div>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

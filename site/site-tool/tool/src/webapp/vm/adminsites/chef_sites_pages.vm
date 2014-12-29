@@ -1,0 +1,89 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_pages.vm,v 1.6 2005/06/06 19:42:22 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+
+		<h4>
+			$tlang.getString("sitpag.edisit") $!site.Id
+		</h4>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sitpag.alert") $validator.escapeHtml($alertMessage)</div>#end
+		<div class="instruction">
+			$tlang.getString("sitpag.theare")
+		</div>
+#if ($pages.size() > 0)
+	#set ($pageCount = 0)
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitpag.lisofgro")">
+			<tr>
+				<th id="move">&nbsp;&nbsp;</th>
+				<th id="Id">$tlang.getString("sitpag.pagid")</th>
+				<th id="Title">$tlang.getString("sitpag.tit")</th>
+				<th id="Description">$tlang.getString("sitpag.des")</th>
+			</tr>
+	#foreach ($page in $pages)
+		#set ($pageCount=$pageCount + 1)
+			<tr>
+				<td headers="move">
+					#if ($pageCount > 1)
+					<a href="#toolLinkParam("$action" "doEdit_page_up" "id=$validator.escapeUrl($page.Id)")">
+						<img src = "#imageLink("sakai/arrowUp.gif")" border="0" alt ="$tlang.getString("sitpag.mopaup")" />
+					</a>
+					#end
+					#if ($pageCount < $pages.size())
+					<a href="#toolLinkParam("$action" "doEdit_page_down" "id=$validator.escapeUrl($page.Id)")">
+						<img src = "#imageLink("sakai/arrowDown.gif")" border="0" alt ="$tlang.getString("sitpag.mopadown")" />
+					</a>
+					#end
+				</td>
+				<td headers="Id">
+					<a href="#toolLinkParam("$action" "doEdit_page" "id=$validator.escapeUrl($page.Id)")">
+						$validator.escapeHtml($page.Id)
+					</a>
+				</td>
+				<td headers="Title">$validator.escapeHtml($page.Title)</td>
+				<td headers="Description">
+					<div>
+						$tlang.getString("sitpag.lay")
+					</div>
+					<div class="indnt1">
+						$validator.escapeHtml($page.LayoutTitle)
+					</div>
+					<div>
+						$tlang.getString("sitpag.fea")
+					</div>
+					<div class="indnt1">
+						#set ($pageTools = $page.Tools)
+						#foreach ($tool in $pageTools)
+							$tool.Tool.Id &nbsp;
+						#end
+					</div>
+				</td>
+			</tr>
+	#end
+		</table>
+#else
+		<div class="instruction">
+			$tlang.getString("sitpag.nopag")
+		</div>
+#end
+		<form name="$form-name" action="#toolForm("$action")" method="post">
+			<h4>
+				$tlang.getString("sitpag.conedi")
+			</h4>	
+
+				<div class="act">
+					<input type="submit" name="eventSubmit_doEdit_to_main" value="$tlang.getString("sitpag.don")" />
+				</div>
+			<h4>	
+				$tlang.getString("sitpag.comthesit")
+			</h4>	
+
+				<div class="act">
+					<input type="submit" name="eventSubmit_doSave_edit" value="$tlang.getString("sitpag.sav")"  accesskey="s" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sitpag.can")" accesskey="x"  />
+				</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+

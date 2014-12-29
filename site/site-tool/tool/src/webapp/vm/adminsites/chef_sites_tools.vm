@@ -1,0 +1,88 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_sites_tools.vm,v 1.5 2005/05/28 03:04:35 ggolden.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)
+	#toolbar($menu)
+#end
+	
+
+		<h3>
+			$tlang.getString("sittoo.edisit") $!site.Id / $tlang.getString("sittoo.pag") $!page.Id
+		</h3>
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString("sittoo.alert") $validator.escapeHtml($alertMessage)</div>#end		
+#if ($tools.size() > 0)
+	<div class="instruction">
+		$tlang.getString("sittoo.theare")
+	</div>
+	
+	#set ($toolCount = 0)
+		<table class="listHier lines" cellspacing="0" summary ="$tlang.getString("sitedipag.tool.list.summary")">
+			<tr>
+				<th id="move">&nbsp;&nbsp;</th>
+				<th id="Id">$tlang.getString("sittoo.tooid")</th>
+				<th id="Feature">$tlang.getString("sittoo.fea")</th>
+				<th id="Title">$tlang.getString("sittoo.tit")</th>
+				<th id="Description">$tlang.getString("sittoo.des")</th>
+			</tr>
+	#foreach ($tool in $tools)
+		#set ($toolCount=$toolCount + 1)
+			<tr>
+				<td headers="move">
+					#if ($toolCount > 1)
+					<a href="#toolLinkParam("$action" "doEdit_tool_up" "id=$validator.escapeUrl($tool.Id)")" title="$tlang.getString("sittoo.motoup")">
+						<img src = "#imageLink("sakai/arrowUp.gif")" border="0" alt ="$tlang.getString("sittoo.motoup")" />
+					</a>
+					#end
+					#if ($toolCount < $tools.size())
+					<a href="#toolLinkParam("$action" "doEdit_tool_down" "id=$validator.escapeUrl($tool.Id)")" title ="$tlang.getString("sittoo.motodown")">
+						<img src = "#imageLink("sakai/arrowDown.gif")" border="0" alt ="$tlang.getString("sittoo.motodown")" />
+					</a>
+					#end
+				</td>
+				<td headers="Id">
+					<a href="#toolLinkParam("$action" "doEdit_tool" "id=$validator.escapeUrl($tool.Id)")">
+						$validator.escapeHtml($tool.Id)
+					</a>
+				</td>
+				<td headers="Feature">$validator.escapeHtml($tool.Tool.Id)</td>
+				<td headers="Title">$validator.escapeHtml($tool.Title)</td>
+				<td headers="Description">
+					<div>
+						$tlang.getString("sittoo.con")
+					</div>
+					<div class="indnt2">
+						#set ($toolParams = $tool.PlacementConfig)
+						#set ($paramNames = $toolParams.propertyNames())
+						#foreach ($name in $paramNames)
+							$validator.escapeHtml($name) = $validator.escapeHtml($toolParams.getProperty($name))<br/>
+						#end
+						#if ($tool.LayoutHints)
+							$tlang.getString("sittoo.lay") $tool.LayoutHints
+						#end
+					</div>
+				</td>
+			</tr>
+	#end
+		</table>
+#else
+		<div class="instruction">
+			$tlang.getString("sittoo.theareno")
+		</div>
+#end
+		<form name="$form-name" action="#toolForm("$action")" method="post"> ##  (gsilver) $form-name does not produce a value and names and ids have to start with alphanum, so page does not validate....
+			<h4>
+				$tlang.getString("sittoo.conedi")
+			</h4>	
+			<div class="act">
+				<input type="submit" name="eventSubmit_doEdit_to_page" value="$tlang.getString("sittoo.don")" />
+			</div>
+			<h4>
+				$tlang.getString("sittoo.comthe")
+			</h4>
+				<div class="act">
+					<input type="submit" class="active"  name="eventSubmit_doSave_edit" value="$tlang.getString("sittoo.sav")"  accesskey="s" />
+					<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("sittoo.can")"  accesskey="x" />
+				</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+

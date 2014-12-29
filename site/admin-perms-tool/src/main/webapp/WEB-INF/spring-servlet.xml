@@ -1,0 +1,44 @@
+<!--
+
+    Copyright 2008 Sakaiproject Licensed under the
+    Educational Community License, Version 2.0 (the "License"); you may
+    not use this file except in compliance with the License. You may
+    obtain a copy of the License at
+
+    http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an "AS IS"
+    BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+    or implied. See the License for the specific language governing
+    permissions and limitations under the License.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:context="http://www.springframework.org/schema/context"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- Sakai tool controllers -->
+    <bean id="sitePermsController" class="org.sakaiproject.adminsiteperms.tool.SitePermsController">
+        <property name="formattedText" ref="org.sakaiproject.util.api.FormattedText" />
+        <property name="sitePermsService" ref="sitePermsService" />
+    </bean>
+
+    <!-- Spring controller mappings -->
+    <bean class="org.springframework.web.servlet.handler.SimpleUrlHandlerMapping">
+        <property name="mappings">
+            <value>
+                /sitePerms.htm=sitePermsController
+            </value>
+        </property>
+    </bean>
+
+    <!-- Spring view mappings -->
+    <bean id="viewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+        <property name="viewClass" value="org.springframework.web.servlet.view.JstlView" />
+        <property name="prefix" value="/WEB-INF/jsp/" />
+        <property name="suffix" value=".jsp" />
+        <property name="order" value="10" />
+    </bean>
+
+</beans>
