@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.privacy"
+			title="Privacy Status"
+			description="Display current privacy status for all sites or a site">
+
+		<configuration name="reset.button" value="false" type="final" />
+
+	</tool>
+
+</registration>

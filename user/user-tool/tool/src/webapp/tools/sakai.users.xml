@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.users"
+			title="Users"
+			description="An administration tool to edit Users.">
+
+		<configuration name="pagesize" value="20" />
+
+	</tool>
+
+</registration>

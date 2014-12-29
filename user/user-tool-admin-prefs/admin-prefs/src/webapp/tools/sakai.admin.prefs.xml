@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.admin.prefs"
+			title="Administrator Preferences"
+			description="An admin tool to view and modify any user's Preferences.">
+
+	<category name="sakai.admin" />
+
+	</tool>
+
+</registration>
