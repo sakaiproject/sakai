@@ -1,0 +1,10 @@
+#!/bin/sh
+
+#this command searches all jsp files (-name '*jsp')
+#  using only those that have "_top" in thie (-exec group -s -q _top)
+#  replacing _top with _self (-exec sed -e s/_top/_self/g
+#  renaming the originals to .orig (-i .orig)
+
+find . -name '*jsp' -exec grep -s -q _top '{}' ';' -exec sed -e s/_top/_self/g -i .orig '{}' ';'
+
+

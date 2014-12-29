@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping SYSTEM "classpath://org/hibernate/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+   <class name="org.sakaiproject.lessonbuildertool.SimplePagePropertyImpl" table="lesson_builder_properties">
+
+     <cache usage="nonstrict-read-write" />
+
+     <id name="id" type="long">
+         <generator class="native"/>
+     </id>
+
+     <property name="attribute" type="string" length="255" not-null="true" unique="true"/>
+     <property name="value" type="text" />
+
+   </class>
+</hibernate-mapping>

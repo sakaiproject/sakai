@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<registration>
+	<tool id="sakai.lessonbuildertool"
+		title="Lessons"
+		description="[Lessons] For creating content modules and sequences; can be organized by week or unit" >
+		<category name="course" />
+		<category name="project" />
+		<!-- <category name="myworkspace" /> -->
+		<!-- <category name="sakai.admin" /> -->
+
+		<!-- Allow multiple instances of this tool within one site -->
+		<configuration name="allowMultipleInstances" value="true" />
+        <!-- Filter the HTML from the editor to prevent xss attacks -->
+        <configuration name="filterHtml" value="default" />
+        <configuration name="sakai-portal:suppresstitle" value="true" />
+	</tool>	
+</registration>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.lessonbuilder</groupId>
+        <artifactId>lessonbuilder</artifactId>
+        <relativePath>../pom.xml</relativePath>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+    <name>sakai-lessonbuildertool-tool-components</name>
+    <groupId>org.sakaiproject.lessonbuilder</groupId>
+    <artifactId>lessonbuilder-components</artifactId>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-component-manager</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-util</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>lessonbuilder-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>lessonbuilder-hbm</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+	    <artifactId>${sakai.hibernate.artifactId}</artifactId>
+	    <version>${sakai.hibernate.version}</version>
+	    <scope>provided</scope>
+        </dependency>
+        <!-- Required for hibernate 3 HQL queries -->
+        <dependency>
+            <groupId>antlr</groupId>
+            <artifactId>antlr</artifactId>
+            <version>2.7.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>${sakai.spring.artifactId}</artifactId>
+            <version>${sakai.spring.version}</version> 
+        </dependency>      
+        <dependency>
+            <groupId>com.googlecode.json-simple</groupId>
+            <artifactId>json-simple</artifactId>
+	    <version>1.1.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <resources>
+            <resource>
+                <directory>${basedir}/src/ddl</directory>
+                <includes>
+                    <include>**/*.sql</include>
+                </includes>
+            </resource>
+        </resources>
+	<!-- adds src areas for optional stuff -->
+	<!-- the directories are set up in profiles below -->
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>build-helper-maven-plugin</artifactId>
+            <version>1.7</version>
+            <executions>
+              <execution>
+                <id>add-source</id>
+                <phase>generate-sources</phase>
+                <goals>
+                  <goal>add-source</goal>
+                </goals>
+                <configuration>
+                  <sources>
+                    <source>${src1}/java</source>
+                    <source>${src2}/java</source>
+                    <source>${src3}/java</source>
+                  </sources>
+                </configuration>
+              </execution>
+              <execution>
+                <id>add-resource</id>
+                <phase>generate-resources</phase>
+                <goals>
+                  <goal>add-resource</goal>
+                </goals>
+                <configuration>
+                  <resources>
+                    <resource>
+                      <directory>${src1}/webapp/WEB-INF</directory>
+                      <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
+                    </resource>
+                    <resource>
+                      <directory>${src2}/webapp/WEB-INF</directory>
+                      <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
+                    </resource>
+                  </resources>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+    </build>
+</project>

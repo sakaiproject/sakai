@@ -1,0 +1,52 @@
+*** /Volumes/Users/hedrick/PDAHandler.java.orig	2011-12-13 14:43:30.000000000 -0500
+--- /Volumes/Users/hedrick/PDAHandler.java.patched	2011-12-13 14:43:00.000000000 -0500
+***************
+*** 23,28 ****
+--- 23,30 ----
+  
+  import java.io.IOException;
+  import java.util.List;
++ import java.util.regex.Pattern;
++ import java.util.regex.Matcher;
+  
+  import javax.servlet.http.Cookie;
+  import javax.servlet.http.HttpServletRequest;
+***************
+*** 76,81 ****
+--- 78,85 ----
+  	
+  	private static final String TOOLCONFIG_SHOW_RESET_BUTTON = "reset.button";
+  
++ 	private static final String DEFAULT_BYPASS_PATTERN = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jepg$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls|\\.xlsx|\\.doc|\\.docx";
++ 	
+  	public PDAHandler()
+  	{
+  		setUrlFragment(PDAHandler.URL_FRAGMENT);
+***************
+*** 210,215 ****
+--- 214,238 ----
+  					}
+  				}
+  
++ 				ToolConfiguration siteTool = SiteService.findTool(toolId);
++ 
++ 				if ( siteTool != null ) {
++ 					String uri = req.getRequestURI();
++ 					String commonToolId = siteTool.getToolId();
++ 					String pattern = ServerConfigurationService .getString("portal.pda.bypass", DEFAULT_BYPASS_PATTERN);
++ 					pattern = ServerConfigurationService .getString("portal.pda.bypass."+commonToolId, pattern);
++ 					Pattern p = Pattern.compile(pattern);
++ 					Matcher m = p.matcher(uri.toLowerCase());
++ 					if ( m.find() && parts.length >= 5 ) {
++ 						String toolContextPath = req.getContextPath() + req.getServletPath() + Web.makePath(parts, 1, 5); 
++ 						String toolPathInfo = Web.makePath(parts, 5, parts.length);
++         					ActiveTool tool = ActiveToolManager.getActiveTool(commonToolId);
++ 						portal.forwardTool(tool, req, res, siteTool, 
++ 							siteTool.getSkin(), toolContextPath, toolPathInfo);
++ 						return END;
++ 					}
++ 				}
++ 				
+  				PortalRenderContext rcontext = portal.includePortal(req, res, session,
+  						siteId, toolId, req.getContextPath() + req.getServletPath(),
+  						"pda",

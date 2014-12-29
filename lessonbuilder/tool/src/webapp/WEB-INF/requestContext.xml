@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="sakaiFCKTextEvolver" class="org.sakaiproject.lessonbuildertool.tool.evolvers.SakaiFCKTextEvolver">
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="context" ref="sakai-Context" />
+		<!-- sets the default editor size for this context -->
+		<property name="width" value="400" />
+		<property name="height" value="400" />
+	</bean>
+
+	<!-- rich text evolver bean def -->
+	<bean id="richTextEvolver" class="org.springframework.beans.factory.config.BeanReferenceFactoryBean">
+		<property name="targetBeanName" value="sakaiFCKTextEvolver" />
+	</bean>
+   
+       <bean id="fieldDateTransit" parent="beanExploder">
+                <property name="factory">
+                        <bean
+			                   class="uk.org.ponder.dateutil.StandardFieldDateTransit"
+			                           init-method="init">
+			  <property name="locale" ref="requestLocale" />
+			  <property name="timeZone" ref="requestTimeZone" />
+                        </bean>
+                </property>
+        </bean>
+
+         <bean id="httpServletRequest" factory-bean="httpServletFactory"
+	       factory-method="getHttpServletRequest" />
+
+         <bean id="httpServletResponse" factory-bean="httpServletFactory"
+	       factory-method="getHttpServletResponse" />
+
+	<!-- the producer beans -->
+	<bean name="showPageProducer" class="org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer">
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		
+		<property name="dateEvolver" ref="fieldDateInputEvolver" />
+		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+ 		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+		<property name="timeService" ref="org.sakaiproject.time.api.TimeService" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="httpServletResponse" ref="httpServletResponse" />
+		<property name="httpServletRequest" ref="httpServletRequest" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
+		<property name="richTextEvolver" ref="richTextEvolver" />
+		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
+	</bean>
+	
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReorderProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.PreviewProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.AssignmentPickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+	
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ForumPickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean"
+		/> <property name="simplePageToolDao"
+		ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"
+		/> <property name="forumEntity"
+		ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+ 	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.BltiPickerProducer" >
+ 		<property name="messageLocator" ref="messageLocator"/>
+ 		<property name="simplePageBean" ref="simplePageBean" />
+ 		<property name="simplePageToolDao">
+ 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+ 		</property>
+ 		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+ 	</bean>
+
+	<bean name="org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer" 
+	      class="org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+		<property name="imageToMimeMap" ref="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap"/>
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.LinkTrackerProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.RemovePageProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.QuizPickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.ResourcePickerProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.EditPageProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="richTextEvolver" ref="richTextEvolver" />
+		<property name="showPageProducer" ref="showPageProducer" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+	
+ 	 <bean class="org.sakaiproject.lessonbuildertool.tool.producers.PermissionsHelperProducer" >
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+	</bean>
+
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.ReloadPageProducer" >
+    </bean>
+    
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.CommentGradingPaneProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    	</property>
+    	<property name="messageLocator" ref="messageLocator"/>
+	<property name="localeGetter" ref="requestLocaleProxy" />
+    </bean>
+    
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.QuestionGradingPaneProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    	</property>
+    	<property name="messageLocator" ref="messageLocator"/>
+	<property name="localeGetter" ref="requestLocaleProxy" />
+    </bean>
+
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.ShowItemProducer" >
+      <property name="messageLocator" ref="messageLocator"/>
+      <property name="simplePageBean" ref="simplePageBean" />
+      <property name="simplePageToolDao">
+				<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+      </property>
+      <property name="httpServletRequest" ref="httpServletRequest" />
+      <property name="localeGetter" ref="requestLocaleProxy" />
+    </bean>
+
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.IFrameWindowProducer" >
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+    </bean>
+    
+    <bean class="org.sakaiproject.lessonbuildertool.tool.producers.CommentsProducer" >
+    	<property name="messageLocator" ref="messageLocator"/>
+	<property name="localeGetter" ref="requestLocaleProxy" />
+    	<property name="simplePageBean" ref="simplePageBean" />
+    	<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+    </bean>
+    
+	<bean class="org.sakaiproject.lessonbuildertool.tool.producers.PeerEvalStatsProducer" >
+    	<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+		<property name="showPageProducer" ref="showPageProducer" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
+    </bean>
+
+	<!-- backing beans -->
+	<bean name="simplePageBean" class="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" init-method="init">
+		<property name="messageLocator" ref="messageLocator"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="httpServletResponse" ref="httpServletResponse" />
+		<property name="multipartMap" ref="multipartMap" />
+		<property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+		<property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+		<property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+ 		<property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+		<property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
+		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
+		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
+	</bean>
+	
+	<bean name="gradingBean" class="org.sakaiproject.lessonbuildertool.tool.beans.GradingBean">
+		<property name="simplePageToolDao">
+			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		</property>
+		<property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+		<property name="simplePageBean" ref="simplePageBean" />
+	</bean>
+
+        <!-- Bean override for rootHandlerHook see RSF-123 and CTL-1214 -->
+	<bean id="reportHandlerHook"
+              class="org.sakaiproject.lessonbuildertool.tool.beans.ReportHandlerHook">
+          <property name="viewparams" ref="viewParameters" />
+          <property name="response" ref="httpServletResponse" />
+	</bean>
+
+        <bean id="rootHandlerBean" class="org.sakaiproject.lessonbuildertool.util.RootHandlerBeanOverride" init-method="handle">
+	  <property name="rootHandlerBeanBase" ref="overridedRootHandlerBean"/>
+          <property name="reportHandlerHook" ref="reportHandlerHook"/>
+	</bean>
+
+        <bean id="overridedRootHandlerBean" parent="rootHandlerBeanBase" init-method="doNothing" class="org.sakaiproject.lessonbuildertool.util.OverridedServletRootHandlerBean">
+          <property name="httpServletRequest" ref="httpServletRequest" />
+          <property name="httpServletResponse" ref="httpServletResponse" />
+        </bean>
+
+
+</beans>

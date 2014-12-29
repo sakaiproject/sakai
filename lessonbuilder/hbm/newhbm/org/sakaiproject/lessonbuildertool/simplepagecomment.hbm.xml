@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping SYSTEM "classpath://org/hibernate/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+   <!-- put your value object in the class name, 
+      the table name is optional but you should specify it to avoid collisions -->
+   <class name="org.sakaiproject.lessonbuildertool.SimplePageCommentImpl" table="lesson_builder_comments">
+
+       <cache usage="nonstrict-read-write" />
+
+      <!-- create the primary key id, using native is typically the best way -->
+
+      <id name="id" type="long">
+         <generator class="native"/>
+      </id>
+
+	<property name="itemId" type="long" not-null="true" />
+	<property name="pageId" type="long" not-null="true" />
+	<property name="timePosted" type="timestamp" not-null="true" />
+	<property name="author" type="string" length="99" not-null="true" />
+	<property name="comment" type="materialized_clob" column="commenttext" />
+	<property name="UUID" type="string" length="36" not-null="true" />
+	<property name="html" type="boolean" not-null="true" />
+	<property name="points" type="double" />
+
+   </class>
+</hibernate-mapping>

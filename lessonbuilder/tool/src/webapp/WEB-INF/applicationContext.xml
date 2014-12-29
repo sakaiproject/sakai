@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+   <!-- Use the Sakai session factory, pre-configured, instead of one local to TaskList
+        we are adding our HBM files to the Sakai session factory instead of creating
+        our own copy of it -->
+  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.lessonbuildertool"
+        class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+    <property name="mappingResources">
+      <list>
+        <value>simplepageitem.hbm.xml</value> 
+		<value>simplepage.hbm.xml</value>
+      </list>
+    </property>
+  </bean>
+ 
+
+  <bean id="messageSource" 
+      class="org.sakaiproject.lessonbuildertool.util.ResourceLoaderMessageSource"
+      depends-on="TLABPostProcessorLoader">
+    <property name="basename" value="classpath:messages"/> 
+    <property name="cacheSeconds" value="10" /> 
+  </bean> 
+
+	<!-- Control the location of the html templates (default: content/templates/) -->
+	<bean id="templateResolverStrategy" parent="CRITemplateResolverStrategy">
+		<property name="baseDirectory" value="templates/" />
+	</bean>
+
+   <!-- Define the bean roots from the request scope file that are accessible 
+    via incoming request URL -->
+   <bean parent="requestAddressibleParent">
+	  <property name="value">
+	    <value>
+simplePageBean.addAssignment,
+simplePageBean.addBlti,
+simplePageBean.addComment,
+simplePageBean.addForum,
+simplePageBean.addMultimedia,
+simplePageBean.addOldPage,
+simplePageBean.addPages,
+simplePageBean.addQuiz,
+simplePageBean.alt,
+simplePageBean.anonymous,
+simplePageBean.assigntool,
+simplePageBean.cancel,
+simplePageBean.comments,
+simplePageBean.contents,
+simplePageBean.copyPage,
+simplePageBean.createSubpage,
+simplePageBean.csrfToken,
+simplePageBean.deleteItem,
+simplePageBean.deleteOrphanPages,
+simplePageBean.deletePages,
+simplePageBean.deleteYoutubeItem,
+simplePageBean.description,
+simplePageBean.dropDown,
+simplePageBean.editId,
+simplePageBean.editItem,
+simplePageBean.editMultimedia,
+simplePageBean.editTitle,
+simplePageBean.forcedAnon,
+simplePageBean.format,
+simplePageBean.formattedComment,
+simplePageBean.graded,
+simplePageBean.gradebookTitle,
+simplePageBean.groupOwned,
+simplePageBean.addAnswerData,
+simplePageBean.questionType,
+simplePageBean.questionText,
+simplePageBean.questionCorrectText,
+simplePageBean.questionIncorrectText,
+simplePageBean.questionAnswer,
+simplePageBean.questionResponse,
+simplePageBean.questionId,
+simplePageBean.questionShowPoll,
+simplePageBean.hasReleaseDate,
+simplePageBean.height,
+simplePageBean.hidePage,
+simplePageBean.importCc,
+simplePageBean.importtop,
+simplePageBean.isCaption,
+simplePageBean.isMultimedia,
+simplePageBean.isWebsite,
+simplePageBean.itemId,
+simplePageBean.maxPoints,
+simplePageBean.mimetype,
+simplePageBean.mmUrl,
+simplePageBean.multimediaDisplayType,
+simplePageBean.multimediaMimeType,
+simplePageBean.name,
+simplePageBean.newPageTitle,
+simplePageBean.newWindow,
+simplePageBean.nodownloads,
+simplePageBean.numberOfPages,
+simplePageBean.order,
+simplePageBean.pageTitle,
+simplePageBean.peerEval,
+simplePageBean.points,
+simplePageBean.prerequisite,
+simplePageBean.processCaption,
+simplePageBean.processMultimedia,
+simplePageBean.processResource,
+simplePageBean.processWebSite,
+simplePageBean.quiztool,
+simplePageBean.releaseDate,
+simplePageBean.removeId,
+simplePageBean.removePage,
+simplePageBean.reorder,
+simplePageBean.required,
+simplePageBean.rubricRow,
+simplePageBean.rubricPeerGrade,
+simplePageBean.rubricSubmissionStatus,
+simplePageBean.rubricTitle,
+simplePageBean.savePeerEvalResult,
+simplePageBean.sGraded,
+simplePageBean.sMaxPoints,
+simplePageBean.selectedAssignment,
+simplePageBean.selectedBlti,
+simplePageBean.selectedEntities,
+simplePageBean.selectedEntity,
+simplePageBean.selectedGroups,
+simplePageBean.selectedQuiz,
+simplePageBean.studentSelectedGroups,
+simplePageBean.submit,
+simplePageBean.subpageButton,
+simplePageBean.subpageNext,
+simplePageBean.subpageTitle,
+simplePageBean.subrequirement,
+simplePageBean.topictool,
+simplePageBean.updateComments,
+simplePageBean.updateMovie,
+simplePageBean.updateStudent,
+simplePageBean.updateQuestion,
+simplePageBean.answerMultipleChoiceQuestion,
+simplePageBean.answerShortanswerQuestion,
+simplePageBean.updateYoutube,
+simplePageBean.width,
+simplePageBean.youtubeId,
+simplePageBean.youtubeURL,
+simplePageBean.selectPage,
+simplePageBean.peerEval,
+simplePageBean.peerEvalDueDate,
+simplePageBean.peerEvalOpenDate,
+simplePageBean.peerEvalAllowSelfGrade
+</value>
+</property>
+   </bean>
+   
+   	<bean parent="requestAddressibleParent">
+		<property name="value" value="gradingBean" />
+	</bean>
+
+  <bean id="ignoreFossilizedValues" class="uk.org.ponder.springutil.BooleanFactory">
+    <property name="value" value="true" />
+  </bean>
+
+  <bean parent="templateContributorParent">
+    <property name="templateNames" value="sakai-FCKEditor"/>
+    <property name="baseDirectory" value="templates/" />
+  </bean>
+  
+  <bean id="org.sakaiproject.lessonbuildertool.service.GroupPermissionsService"
+	class="org.sakaiproject.lessonbuildertool.service.GroupPermissionsService"
+	init-method="init">
+    <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+    <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.JForumEntity"
+	class="org.sakaiproject.lessonbuildertool.service.JForumEntity"
+        init-method="init">
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.ForumEntity"
+	class="org.sakaiproject.lessonbuildertool.service.ForumEntity"
+        init-method="init"
+        destroy-method="destroy">
+    <property name="sessionFactory">
+      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+
+    <property name = "nextEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+  </bean>
+  
+  <bean id="org.sakaiproject.lessonbuildertool.service.SamigoEntity"
+	class="org.sakaiproject.lessonbuildertool.service.SamigoEntity"
+        init-method="init"
+        destroy-method="destroy">
+
+    <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"
+	class="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"
+        init-method="init"
+        destroy-method="destroy">
+
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="assignmentSupplementItemService" ref="org.sakaiproject.assignment.api.model.AssignmentSupplementItemService"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.BltiEntity"
+	class="org.sakaiproject.lessonbuildertool.service.BltiEntity"
+	lazy-init="true"
+        init-method="init"
+        destroy-method="destroy">
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.GradebookIfc"
+	class="org.sakaiproject.lessonbuildertool.service.GradebookIfc">
+    <property name="gradebookExternalAssessmentService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property>
+  </bean>
+
+  <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+	id="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"
+        class="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"
+        init-method="init"
+        destroy-method="destroy"
+        singleton="true">
+
+    <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+    <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+    <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+    <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+    <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageSource"><ref bean="messageSource"/></property>
+
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
+	class="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService"
+        init-method="init"
+        destroy-method="destroy"
+        singleton="true">
+
+    <property name="lessonBuilderAccessAPI" ref="org.sakaiproject.lessonbuildertool.LessonBuilderAccessAPI" />
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
+    <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+    <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+    <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+    <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+    <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+    <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+    <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+
+  </bean>
+  
+	<bean id="org.sakaiproject.lessonbuildertool.util.ImageToMimeMap" class="java.util.HashMap">       
+		<constructor-arg>
+			<map>
+				<entry key="application/msword" value="/library/image/silk/page_white_word.png"/>
+				<entry key="application/vnd.openxmlformats-officedocument.wordprocessingml.document" value="/library/image/silk/page_white_word.png"/>
+				<entry key="application/vnd.ms-powerpoint" value="/library/image/silk/page_white_powerpoint.png"/>
+				<entry key="application/vnd.openxmlformats-officedocument.presentationml.presentation" value="/library/image/silk/page_white_powerpoint.png"/>
+				<entry key="application/vnd.ms-excel" value="/library/image/silk/page_white_excel.png"/>
+				<entry key="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" value="/library/image/silk/page_white_excel.png"/>
+				<entry key="application/pdf" value="/library/image/silk/page_white_acrobat.png"/>
+				<entry key="application/x-shockwave-flash" value="/library/image/silk/page_white_flash.png"/>
+				<entry key="video/x-flv" value="/library/image/silk/page_white_flash.png"/>
+                <entry key="video/mp4" value="/library/image/silk/film.png"/>
+				<entry key="text/plain" value="/library/image/silk/page_white_text.png"/>
+				<entry key="text/rtf" value="/library/image/silk/page_white_text.png"/>
+				<entry key="LBWEBSITE" value="/library/image/silk/page_white_world.png"/>
+				<entry key="text/html" value="/library/image/silk/page_white_world.png"/>
+    	</map>
+    	</constructor-arg>
+    	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.CCExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.CCExport">
+	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+	  <property name="samigoExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"/></property>
+	  <property name="assignmentExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"/></property>
+	  <property name="forumsExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"/></property>
+	  <property name="bltiExport"><ref bean="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"/></property>
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.SamigoExport"
+              init-method="init"
+              destroy-method="destroy">
+	  
+	  <property name="publishedAssessmentFacadeQueries"><ref bean="PublishedAssessmentFacadeQueries" /></property>
+	  <property name="questionPoolFacadeQueries"><ref bean="QuestionPoolFacadeQueries" /></property>
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport"
+              init-method="init"
+              destroy-method="destroy">
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport"
+              init-method="init"
+              destroy-method="destroy">
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.JForumExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.JForumExport"
+              init-method="init"
+              destroy-method="destroy">
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	  <property name="prev" ref="org.sakaiproject.lessonbuildertool.ccexport.ForumsExport" />
+	</bean>
+
+
+ 	<bean id="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
+	      class="org.sakaiproject.lessonbuildertool.ccexport.BltiExport"
+              init-method="init"
+              destroy-method="destroy">
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	</bean>
+
+	<bean parent="viewParamsRegistrarParent">
+          <property name="viewID" value="exportCc" />
+          <property name="viewParamsClass"
+		    value="org.sakaiproject.lessonbuildertool.tool.view.ExportCCViewParameters" />
+	</bean>
+	
+	<bean
+		parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+		class="org.sakaiproject.lessonbuildertool.tool.entityproviders.LessonsEntityProvider">
+		
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager"/>
+		<property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+	</bean>
+
+	<bean id="org.sakaiproject.lessonbuildertool.service.LessonsAccess"
+	class="org.sakaiproject.lessonbuildertool.service.LessonsAccess"
+	init-method="init"
+        destroy-method="destroy">
+	  <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+	  <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+	  <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+	  <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+
+	  <property name="messageLocator" ref="messageLocator"/>
+	  <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
+	  <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+	  <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+	  <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
+	  <property name="forumEntity" ref="org.sakaiproject.lessonbuildertool.service.ForumEntity"/>
+	  <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+	  <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
+	  <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
+	  <property name="gradebookIfc" ref="org.sakaiproject.lessonbuildertool.service.GradebookIfc"/>
+
+	</bean>
+
+    <bean id="org.sakaiproject.lessonbuildertool.service.AjaxServer"
+        class="org.sakaiproject.lessonbuildertool.service.AjaxServer"
+        init-method="init"
+        destroy-method="destroy"
+        singleton="true">
+      <property name="messageSource"><ref bean="messageSource"/></property>
+      <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    </bean>
+
+ </beans>

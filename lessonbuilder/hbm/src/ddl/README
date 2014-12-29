@@ -1,0 +1,60 @@
+In this directory are tools to build .sql files from the hibernate
+.hbm.xml files automatically. There is also a tool to compare two .sql
+files and generate the updates that Hibernate would make. (Note that
+Hibernate only adds tables and fields. It does not change the
+definition of existing fields.)
+
+in theory you shouldn't have to build the .sql files. I build them
+and check them in as part of the source.
+
+-------------- BUILDING .sql files for the current system, Sakai 2.10
+
+This section assumes you are using the new Hibernate, which means
+you are using Sakai 2.10. For older versions see the next section
+
+There is a hibernate version of these tools, but I have been unable to
+figure out the documentation.
+
+So for the newest code, I'm using an ANT job, documented in the
+Hibernate documentation. This uses hibernate-tools. As far as I can
+tell, hibernate-tools is distributed only as part of eclipse. To get
+it separately, I have had to get a large distribution and pick out the
+necessary files.
+
+http://www.jboss.org/tools/download/ is the primary site.
+
+I used the JBoss Core Tools 3.3 page, and  picked the update for Hibernate tools,
+
+http://sourceforge.net/projects/jboss/files/JBossTools/JBossTools3.3.x/jbosstools-3.3.2.Final.component--hibernatetools-Update-2013-01-18_18-03-25-H229.zip
+
+This zip file has a number of jars, each of which itself contains a
+bunch of jars. The one with the relevant files is
+
+org.hibernate.eclipse.libs_3.5.1.v20130102-1835-H100-Final.jar
+
+I unzipped it into here. I.e. in this directory
+
+jar xf org.hibernate.eclipse.libs_3.5.1.v20130102-1835-H100-Final.jar
+
+The stuff that matters is in lib/hibernate and lib/tools
+build.xml is set up to use the jars there.
+
+Simply run "ant" with no parameters.
+
+That will generate mysql/lessonbuilder.sql, and similarly for the
+other databases.
+
+-------------- BUILDING .sql files for the current system, Sakai 2.9 and previous
+
+First do a build of lessonbuilder. At that point doing a maven build
+from this directory will use pom.xml here, and will generate
+mysql/lessonbuilder.sql, and similarly for the other databases.
+
+-------------- Creating update scripts
+
+The old subdirectory should have the .sql files for the release you are
+currently running. This directory should have the new ones.
+
+The "schemaupdate" script will generate files called "lessonbuilder-2.9.0-trunk.sql"
+in each subdirectory. Currently old contains .sql files for the 2.9.0 version of
+lessons.

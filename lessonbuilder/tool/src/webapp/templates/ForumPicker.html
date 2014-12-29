@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<title rsf:id="msg=simplepage.forum.chooser"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody">
+		
+		<div rsf:id="error-div" class="ui-widget">
+			<div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;"> 
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<span rsf:id="error"></span> </p>
+			</div>
+		</div>
+
+		<h2 rsf:id="msg=simplepage.forum.chooser"></h2>
+
+		<div rsf:id="description"></div>
+		
+		<h3 rsf:id="msg=simplepage.create_topic" class="offscreen"></h3>
+
+		<div rsf:id="forum-create:">
+		  <a href="#" rsf:id="forum-create-link"></a>
+		</div>
+
+		<h3 rsf:id="msg=simplepage.select_topic" style="margin-bottom:0.75em;margin-top:1em"></h3>
+
+		<form action="#" rsf:id="forum-picker">
+		<input type="hidden" rsf:id="csrf"/>
+
+		<span rsf:id="forum-span"/>
+        <table id="list" border="0" role="list" class="listHier" cellpadding="0" cellspacing="0" style="width:auto">
+            <tr rsf:id="forum:" role="listitem">
+                <td>
+                    <h4 rsf:id="name"></h4>
+                    <input type="radio" rsf:id="select" /> <a href="#" rsf:id="link" target="_blank"></a>
+                </td>
+            </tr>
+        </table>
+		
+		<input type="hidden" rsf:id="item-id" id="item-id" />
+        <p class="act">    
+    		<input type="submit" class="bold" rsf:id="submit" />
+    		<input type="submit" rsf:id="cancel" />
+         </p>
+		</form>
+	</div>
+</body>
+</html>

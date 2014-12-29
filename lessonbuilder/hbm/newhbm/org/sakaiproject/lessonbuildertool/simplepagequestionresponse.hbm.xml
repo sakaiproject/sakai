@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping SYSTEM "classpath://org/hibernate/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+	<class name="org.sakaiproject.lessonbuildertool.SimplePageQuestionResponseImpl" table="lesson_builder_q_responses">
+	
+		<id name="id" type="long">
+			<generator class="native" />
+		</id>
+		
+		<timestamp name="timeAnswered" />
+		
+		<property name="questionId" type="long" not-null="true" />
+		<property name="userId" type="string" length="99" not-null="true" />
+		<property name="correct" type="boolean" not-null="true" />
+		<property name="shortanswer" type="materialized_clob" not-null="false" />
+		<property name="multipleChoiceId" type="long" not-null="false" />
+		<property name="originalText" type="materialized_clob" />
+		
+		<property name="overridden" type="boolean" not-null="true" />
+		<property name="points" type="double" />
+		
+	</class>
+</hibernate-mapping>

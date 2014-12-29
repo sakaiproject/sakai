@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration SYSTEM "classpath://org/hibernate/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+        <!-- these mapping resource paths must point to your hibernate template files (.hbm.xml),
+            this should be the classpath location (typically after the src directory) -->
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepage.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepageitem.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepagecomment.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepagegroup.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepagelogentry.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplestudentpage.hbm.xml"/>
+	<mapping resource="org/sakaiproject/lessonbuildertool/simplepagequestionresponse.hbm.xml"/> 
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepagequestionresponsetotals.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepagepeerevalresult.hbm.xml"/>
+        <mapping resource="org/sakaiproject/lessonbuildertool/simplepageproperty.hbm.xml"/>
+    </session-factory>
+</hibernate-configuration>

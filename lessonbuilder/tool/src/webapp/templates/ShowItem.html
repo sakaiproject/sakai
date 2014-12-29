@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<style rsf:id="iconstyle" type="text/css">
+</style>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css" />
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.11.1.smoothness.css" rel="stylesheet" />	
+<title rsf:id="msg=simplepage.showitem"></title>
+
+<style type="text/css">
+	#outer{
+		min-height:325px;
+	}
+	html>body #outer{height:auto}
+        span.siteTitle{background-color:red;display:none !important;}
+</style>
+<script type="text/javascript">
+
+// need a delay to allow dynamic things like inserting the html editor
+function resizeiframe1() {
+setTimeout("resizeiframe()",1000);
+}
+
+function resizeiframe() {
+
+var iframe = document.getElementById('iframe1');
+var newsize = 350;
+try {
+// workarounds for differing implemtations in several browsers
+var doc = (iframe.contentWindow || iframe.contentDocument);
+if (doc.document) doc = doc.document;
+newsize = doc.body.offsetHeight;
+} catch (err) {
+}
+
+var winh = window.top.innerHeight - 250;
+if (winh > newsize)
+   newsize = winh;
+
+if (newsize > 32760) newsize = 32760;
+
+iframe.style.height = (newsize + 40) + 'px';
+setMainFrameHeight(window.name);
+
+}
+
+</script>
+
+</head>
+
+<body rsf:id="scr=sakai-body">
+<a href="#" rsf:id="redirect-link" id="redirect-link"></a>
+<script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="$context/js/jquery-ui-1.11.1.custom.min.js"></script>
+<script type="text/javascript" language="JavaScript" rsf:id="redirect">
+  location.href = document.getElementById("redirect-link").href;
+</script>
+<script type="text/javascript" src="$context/js/jquery.cluetip.min.js"></script>
+<link rel="stylesheet" href="$context/css/jquery.cluetip.css" type="text/css" />
+
+<script type="text/javascript" language="JavaScript">
+$(function() {
+	if (!(navigator.userAgent.indexOf("Firefox/2.") > 0)) {
+	    $('.usebutton').button({text:true});
+	} else {
+	    // fake it; can't seem to get rid of underline though
+	    $('.usebutton').css('border', '1px solid black').css('padding', '1px 4px').css('color', 'black');
+	}
+	// don't do this twice. if portal is loaded portal will do it
+        if(typeof portal == 'undefined')
+	$('a.tool-directurl').cluetip({
+		local: true,
+		    arrows: true,
+		    cluetipClass: 'jtip',
+		    sticky: true,
+		    cursor: 'pointer',
+		    activation: 'click',
+		    closePosition: 'title',
+		    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+		    });
+});
+
+function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
+    if($(checkbox).is(':checked')) {
+	$.ajax({
+		url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+		    success: function(shortUrl) {
+		    $('.'+textbox).val(shortUrl);
+		}
+	    });
+    } else {
+	$('.'+textbox).val(defaultUrl);
+    }
+}
+
+</script>
+
+	<div class="portletBody" id="outer">
+		
+		
+		<div rsf:id="hiddenAlert" class="ui-widget">
+			<div class="ui-state-error ui-corner-all" style="margin-top: 20px; padding: .5em .7em;">
+				<span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<div rsf:id="hidden-text" ></div>
+			</div>
+		</div>
+		
+		<div rsf:id="refreshAlert" class="ui-widget">
+			<div class="ui-state-highlight ui-corner-all" style="margin-top: 20px; padding: 0 .7em;" title="Some items on this page are required.  Refreshing will update the icons next to them to reflect their current state."> 
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<span rsf:id="msg=simplepage.refresh_prompt"></span> <strong><a href="#" rsf:id="refreshLink"><span rsf:id="msg=simplepage.refresh"></span></a></strong> <span rsf:id="msg=simplepage.update_icons"></span></p>
+			</div>
+		</div>
+		
+		<br rsf:id="breakAfterWarnings" />
+
+        <div role="navigation" class="neoPortletTitleWrap">
+            <div class="portletTitle title-tools">
+                <div class="title">
+                    <a href="#" rsf:id="resetbutton2" class="title-tools reset reload"><img rsf:id="resetimage2" src="/library/image/transparent.gif"/></a>
+                    <span rsf:id="crumb:"><a style="background:none" href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span>
+                    <span class="returnheader nextprev"><a style="background:none; width:auto" href="#" class="usebutton nextprev" rsf:id="return"></a></span>
+                    <span rsf:id="returnwarning" class="returnwarning"></span>
+                </div>
+                <div class="action">
+                    
+                    <span class="returnheader nextprev"><a style="background:none; width: auto" href="#" rsf:id="prev" class="usebutton nextprev">prev</a><a href="#" rsf:id="next" style="background:none; width:auto" class="usebutton nextprev">next</a></span>
+                    <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl">
+                      <img rsf:id="directimage" src="/library/image/transparent.gif"/>
+	            </a>
+		    <div rsf:id="directurl-div" class="portlet title-tools direct-url-wrap">
+		      <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/>
+		      <span rsf:id="directurl-shorten">Short URL</span>
+		      <textarea rsf:id="directurl-textarea" class="portlet title-tools"></textarea>
+		    </div>
+                    <a href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help"><img rsf:id="helpimage2" src="/library/image/transparent.gif" /><span rsf:id="helpnewwindow2" class="offscreen"></span></a>
+
+                </div>
+            <div style="clear:both"> </div>
+            </div>
+        </div>
+
+		<iframe rsf:id="iframe1" role="main"
+			name="iframe1"
+                        id="iframe1"
+			height="350"
+                        onload="resizeiframe1()"
+			width="100%"
+			frameborder="0"
+			marginwidth="0"
+			marginheight="0"
+			scrolling="auto">
+		</iframe>
+	</div>	
+</body>
+</html>

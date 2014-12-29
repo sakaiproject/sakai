@@ -1,0 +1,396 @@
+SHOWPAGE
+
+The guts of the system are ShowPage.html, ShowPageProducer.java and
+show-page.js.  There is a separate file, which should only be read
+after you've read this one, talking about it.
+
+NAMES INVOLVING SIMPLEPAGE
+
+You'll see some class names starting with SimplePage. Lesson Builder
+started out as a copy of the SimplePage tool. All the database tables
+and everything else external were updated, but we didn't have time to
+go back and fix up all the code. Because the class names are all in
+Lesson Builder packages, there should be no conflict with the original
+Simple Page tool, should you use both.
+
+BASIC STRUCTURE
+
+Lesson Builder has quite simple data structures. 
+
+* SimplePage - this is a page, as shown in the UI. It has items on it.
+   the key field for a page is its ID number. Note that pages for student
+   content have owners. Pages with no owner field can be changed by
+   any instructor. Students can also change page that they own.
+* SimpleStudentPage - extra information just for pages owned by students,
+   i.e. student content pages. The problem is that normally an item
+   points to a specific object. However for student content, the item 
+   points to a list of pages. This object holds those lists, as well
+   as information on last update, and comments sections forced by
+   the instructor. Note that entries are not actually deleted, but only
+   marked as deleted. That is required to keep numbering of anonymous
+   authors stable.
+* SimplePageItem - this represents one thing on a page, e.g. a resource,
+   test, assignment, etc. The key fields for an item are the id number
+   and the thing it points to. There's a type code, e.g. RESOURCE or 
+   ASSIGNMENT, and a SakaiID, which is normally a reference, e.g.
+   /assignment/23. The type code is the same for all tools of the
+   type. I.e. ASSESSMENT is used for both Samigo and Mneme. The
+   reference has the actual tool name.
+      Note that we've stopped adding fields to SimplePageItem.
+   New fields are being stored as attributions in a JSON object
+   that is saved in text form as attributeString.
+* SimplePageComment - a comment entry. Note that entries are not 
+   deleted, but the contents are set to full.
+* SimplePageLogEntry - we keep an entry for each user and each page,
+   as well as other types of item in some cases. Note that entries
+   are for items ids, not page ids. In some cases you can get to a page 
+   in more than one way, because several pages can point to the
+   same page. It turns out that we need to do bookkeeping separately
+   for each. By using the item number, the log entry is specific to the
+   way we got to the page.
+      The log entry shows the first and last times they went 
+   to the page/item. Complete indicates whether they've completed all required
+   items on the page. Then there are a couple of weird fields: path is 
+   used so that when we log off and log on, we can get back to the state
+   we were in. We need to know not just what page the user was on before,
+   but the way they got to it, so we can put back the right breadcrumbs.
+   So every time the user accesses a page, we not only update the last
+   access time, but the path (i.e. breadcrumbs). Dummy is used for
+   a page that the user hasn't accessed but is authorized to because
+   he's completed all the prerequisites. Normally there wouldn't be
+   a log entry for something the user hasn't visited, but to avoid
+   lots of recomputation, when we know a user can access the page
+   but hasn't done so yet, we make a dummy log entry. (Implicit in
+   this is that if a user has accessed a page before, he's allowed to
+   access the page. Hence if there's a log entry for a page, we don't
+   have to check whether the user has met the prrequesites. Since pages
+   can chain off each other, checking the whole chain of prerequistes
+   each time would be impractical, and maybe even impossible.)
+* SimplePageGroup is used to keep track of the Sakai groups we create
+   to control access to tests and assignments. Because these tools are
+   group-aware, when access is restricted to a test, we create a group
+   for the test, and set the test to only be available to members of
+   that group. As people meet the prerequeists for the test, we add them
+   to the group. We can only do this for some tools, currently Samigo,
+   Assignment, and I believe jForum.
+      Lesson Builder is also group-aware. We normally use the group
+   restrictions in the tool itself. E.g. if a resource is set to be
+   accessible by a group, that fact is recorded in ContentService.
+   However if Lesson Builder access control is applied to the same
+   items, we have to create our own group to do the access control.
+   In that case the original group list is copied into the
+   SimplePageGroup entry, and is enforced by Lesson Builder.
+      Older code could create multiple access groups with the same
+   name. That should now have been fixed. This means that if you
+   manage to access control two items with the same name, they'll
+   share the same access control group. It also means that if you
+   remove access control, the group is preserved. If you later put
+   it back, anyone who qualified previously will still be there.
+* SimplePageQuestionResponse - stores students answers to the
+   inline Question type
+* SimplePageQuestionResponseTotals - stores totals for multiple-choice
+   questions. This allows the poll to be displayed without having to
+   retrieve every student answer. The complexity is that it has to be
+   kept updated withe the list of possible  ansers and with student
+   responses
+   
+The main classes are
+ ShowPageProducer - displays the main user page. Mostly UI code
+ SimplePageBean - has most of the "business logic" for ShowPageProducer,
+    although other UI code can and does use it as well. There's
+    a detailed description of what it does in comments at the beginning
+ SimplePageToolDao/Impl - all access to the database goes through here
+    please don't access it except through this class
+
+Before you do any significant work, please read the comments at the
+beginning of these three classes, and probaby also look at the data
+structures listed above. It's particularly important to understand
+the security model, so you don't create holes. That is documented in
+the comments at the beginning of these three classes.
+
+CHANGE IN FUNCTION OF PARENT and TOP FIELDS IN SIMPLEPAGE
+
+In the pages (SimplePage), there are two fields that are no longer
+used: parent and top. The original design was for pages and subpages,
+i.e. a strict hiearchy of pages. Thus pages have the ID number of
+their parent and the top level page for their tool.
+
+However I've moved to a general mesh of pages. So those fields no
+longer mean much. They are only actually used to tell which pages are
+top-level, i.e. they show in the left margin. Pages that are top level
+have a null parent. At this point I'm using an ID number of 0 for the
+parent of everything else.
+
+The way pages now work is that each is pretty much independent. What
+differentiates a subpage is that another page has an item of type PAGE
+that points to it. The same page can actually be pointed to from
+several different places. A page can even be both a top-level page
+and a subpage. I.e. it can appear in the left margin and other pages
+can also point to it. In that case it has a null parent to show that
+it's a top-level page. 
+
+There's a notional site-wide page which is the parent of all the
+top-level pages. By that I mean that there's an item entry pointing to
+each top-level page. These are the items that would appear in the
+site-wide page if it existed.
+
+I actually had a sort of embarrassing bug. Since the code for copying
+pages assumed a hierarchy, it just did a recursive descent. The first
+time in the new structure I had two pages pointing to each other, that
+code blew the stack. At this point the export files don't have any
+hierarchy in them. They start with a list of pages, and then for each
+page the items in it. When something is a subpage that fact shows
+because there's an item in another page pointing to it. This
+generality means that I have to generate all the pages in the new
+site, making up a hash table from ID number in old site to ID number
+in new site. Then I go back and fill in the items. When one of the
+items is another page, I use the hash table to find the ID number in
+the new site. I can still read old export files, but I ignore the
+hierarchical structure in them.
+
+HOW LESSON BUILDER PAGES CONNECT TO THE REST OF SAKAI
+
+Sakai is organized into tools and pages. A page is something in the
+left margin. Each page can have more than one tool on it. For Lesson
+Builder that would be unusual. Page in this context is a Sakai page.
+It has nothing to do with Lesson Builder pages. I refer to it as "site
+page" in the few places in the code where it appears.
+
+To find the top level Lesson Builder page for a tool, we look for a
+page that has the right toolID and a parent page ID that is null
+(meaning it's a top level page.) As noted above, at this point all the
+parent page ID is used for is identifying top level pages by the fact
+that their parent is null. toolid's used to be used for all pages, but
+since pages can now move around, only the top-level page is currently
+associated with a tool. Thus the toolId field in SimplePage is really
+only useful for parent==null. (This means that a given Lesson Builder
+page can only appear once in the left margin. I don't think that's a
+serious restriction.)
+
+Note that when you create a new instance of Lesson Builder in the Site
+Info tools dialog, Sakai makes a site page and tool, but doesn't
+create any Lesson Builder entities at all. The first time the tool is
+invoked, ShowPageProducer is called (because RSF is told that it's the
+default view for Lesson Builder). Normally ShowPageProducer is passed
+a parameter of SendingPage to tell it what page to go to. But when
+Sakai calls ShowPageProducer, obviously there's no such argument,
+since Sakai knows nothing about Lesson Builder's structures. So when
+ShowPageProducer isn't passed a sendingpage,
+SimplePageBean.getCurrentPageId will note this fact, and ask the Sakai
+session manager to find the current Sakai tool. It will then locate
+the top level page for that tool by looking for a page with nulll
+parent and the right tool ID.
+
+If this is the first time ShowPageProducer has been called for this
+tool, SimplePageBean will create the top-level page, and also the
+top-level item pointing to it from the notional (but non-existent)
+site-wide page.
+
+CHANGE IN FORMAT OF SAKAIID in ITEMS
+
+Items have a type and a SakeiId. Originally the type was something
+like SmplePageItem.ASSIGNMENT and the SakaiID was the assignment ID
+number. However the moment we got to more than one assignment tool,
+this wasn't the right approach. SakaiId needs to be a reference, e.g.
+"/assignment/ID" or "/assignment2/ID". So the item type is the generic
+type e.g. assignment, but actual implementation type (assignment of
+assignment 2) is in the reference. By separating things in this way we
+could in principle deal with a tool (e.g. Mneme) that can handle both
+assignments and quizes. The SakaiID would use the tool name, while the
+item type field would indicate whether Lesson Builder thinks it's an
+assignment or a quiz.
+
+Newly created items will all use the reference format for the SakaiID.
+However old database entries may not. So if we find a SakaiID that is
+a simple number, we assume it's a reference to the original tool used
+for that type (i.e. Assignment, Samigo, or jForum).
+
+Note that there's another special SakaiID, SimplePageItem.DUMMY. This
+is used for dummy references. When you copy a site, we can't copy the
+actual references to test, assignment, etc (because of issues in how
+the copy code works). So we produce dummy references. The display code
+knows to display them with a note telling the author to choose an
+actual test, assignment, etc.
+
+THE URL ITEM TYPE
+
+There's a URL type. Currently I'm not using it. When an item refers to
+a URL, I actually create a URL item in Resources. So it looks like any
+other resource. This may be a mistake. I've considered going back and
+using raw URL's. The main reason I haven't is that this approach
+causes all access to go through Resources, so Event log entries are
+made, and I have the potential for doing access control in resources
+if I ever want to.
+
+THE PATH
+
+I have a concept called "path". It's really just the breadcrumbs: a
+the path from the top to the page you're on now. It is a dynamic
+concept, since you can get to the same page different ways.
+
+It's displayed as breadcrumbs. It's storted as a toolsession 
+variable, "lessonbuilder.path". It is List<PathEntry>, where
+PathEntry is 
+      public static class PathEntry {
+            public Long pageId;
+            public Long pageItemId;
+            public String title;
+        }
+
+We need all the information to return to previous levels using
+the breadcrumbs.
+
+ShowPageProducer, and to a minor extent ShowItemProducer, calls
+simplePageBean.adjustpath to adjust it. E.g. when going to a subpage,
+the URL include path=push, to indicate that the information for the
+new page should be pushed onto the end of the path. When going to a
+page on the same levell, e.g. when the page is set as a Next page,
+path=next says that information for the new page should replace the
+current top of the stack. path=NNN indicates you should go directly to
+item NNN of the path. This is used when going to something in the
+breadcrums. ShowItemProducer can use path=pop. When you go from a page
+to a normal item on the same level, we have to pop off that page's
+information, and of course when going from a normal item to a subpage
+on the same level, the info for the subpage gets pushed on.
+
+If you reset the tool, or logoff and logon, we will find the most
+recently saved path, and offer to restore the system to that state.
+The path has enough information to get back exactly where we were
+before, except that we'll only go to pages, not to individual items.
+At least for now. I may end up treating things like tests the same
+as pages.
+
+THE NEXT BUTTON
+
+Users have asked me to provide a simple path through content, with
+next (and at some point previous). I've done it. But the system is
+flexible enough that it's sometimes hard to know what to do. The code
+to do the next button is in SimplePageBean, so that it's the same
+everywhere.
+
+In general, here's what I do:
+
+* For pages, if the user has declared a next page, I use it, and
+never show anything else. If the next is not yet available, I
+don't show a next button.
+
+* If the user has more than one next button, I assume there's a
+branching qustion, and don't show my own next.
+
+* Otherwise, the next button goes to the next item at the same level,
+as long as it's somethign I can go to. E.g. if the next item is inline
+on the page above, then I have to return to the page above. Also, if
+the next item isn't available, I go back to the page above so the user
+can see all the checkmarks and asterisks and thus see what they need
+to do.
+
+* there's an interesting corner case: if the current item is a test,
+and the next item isn't released until the user passes the best, I
+can't tell whether to generate the next button. So I do, but the
+button calls ShowItem with a special argument "recheck=true." This
+causes ShowItem to check whether the item is avaialble, and call code
+to fix any ACLs. If it isn't we redirect to the page above as usual.
+ShowPage has similar code.
+
+I hope the system hasn't ended up *too* flexible. The problem is that
+I wanted to handle a simple hiearchy of pages, linear structures, and
+arbitrary restrictions on where you can proceed without doing things.
+You can do a strict linear system, but you'll need to set all items as
+both required and depending upon previous items.
+
+Back is simpler: it is stricty dynamic. It goes back to the page you
+just came from.
+
+GROUP AWARENESS
+
+If a quiz, etc, is released only to a group, Lesson Builder will only
+show it to members of that group. If there are no prerequisites, we
+take the group information from the tool itself. There are getgroups
+and setgroups in the tool interfaces to do this.
+
+1. Group Awareness for Quizzes, Assignments and Forums
+
+As soon as prerequisites are defined, we create our own access group,
+set the item to be available only to people in that group, and then
+add users to it as they qualify. At that point we have to take over
+management of the normal groups. At the point where prerequisites 
+are turned on, checkControlGroup(true) is called. This copies the
+current group list from the tool into a field in SimplePageGroup.
+
+A single SimplePageGroup object exists for each external object, even
+if more than one LB items refer to it. Putting the group list in
+the SimplePageGroup saves us from all kinds of consistency problems.
+
+The LB UI can maintain the group membership. The getgroups and
+setgroups code checks whether there's a SimplePageGroup for this item,
+so it can get the group list from there or the tool as appropriate.
+
+To avoid killing performance, I'm going to cache the group lists for
+tools. But for faculty, I bypass the cache. The problem is that if a
+faculty member changes group membership in the tool and then goes back
+into LB, we want the change to be visible immediately. Otherwise
+things get very confusing. For students we can afford to wait 10 min
+since the last change done by the faculty member.
+
+2. For Resources
+
+For resources I do not maintain any local data. Because I don't ever
+take over access control (since I control access through
+/access/lessonbuilder), group restrictions are done through the normal
+Resources APIs. getItemGroups and setItemGroups will thus use the
+Resources APIs for resources
+
+3. For other items
+
+For pages and text blocks, group membership is stored in the groups
+attribute of SimplePageItem. This will be true for any other
+LB-specific objects that live on pages, such as the new comments
+widget.
+
+While a page can be called from many different other pages, we always
+have the SimplePageItem by which we got to the page. At top level this
+is a special top-level item. Because we always know this, it give us
+more flexbility, and avoids special-purpose code for pages, by putting
+the groups in the item, not the page.
+
+
+PERMISSIONS
+
+Lesson Builder enforced permissions at three levels: The UI (i.e. the
+producer) should never show something you're not allowed to get to.
+
+SimplePageBean checks permissions for most actions, so even if 
+someone fakes up a POST it should be caught. Note that we use a
+new provision in RSF to declare which of the public methods can
+be called directly through EL expressions. If you add functions
+to SimplePageBean please be careful that a user can't cause you to
+make changes he isn't allowed to make. Typically we check that the
+user has update permission in the site and we check that the item
+he's about to change is on a page that's in that site. Both 
+checks are needed.
+
+The Dao checks permission for most updates. In theory the checks in
+SimplePageBean should be good enough, but the application is complex
+enough that I was concerned I might forget a check somewhere.
+Initially the check was pretty simple: only someone who can edit
+should be able to update most things, except primarily log entries.
+However things got more complex when we added student content. So the
+permissions checks now have to see whether the item being updated is
+on a student page. if so, the author of the page is allowed to do the
+update.
+
+Note that saveItem and update in SimplePageToolDaoImpl also do
+call EventTrackingService to register events.
+
+CACHING
+
+A lot of items are cached. I depend upon the hibernate caches, but
+also maintain my own. Most of them are in SimplePageBean, the
+/access/lessonbuilder maintains one as well. These use normal
+Sakai caches with the default timeout, typically 10 min.
+
+Note that there is no cache coherency between front ends. So if you
+change a Lesson Builder page, students (and other instructors) may not
+see the changes for 10 min. For group membership caching, there's a
+special hack so that the instructor's access bypasses the cache.
+Otherwise the instructor might get very misleading information.

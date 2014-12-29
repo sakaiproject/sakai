@@ -1,0 +1,919 @@
+Lesson Builder is a way to structure content. Use cases include
+
+* Online courses, which often want to structure material by unit or
+  week. It must be easy to link to quizes and assignments, and to
+  handle common types of content.
+
+* Online training, which needs to define sequences of material.
+
+* Online certification, which needs to require certain items to be
+  done, and sometimes to limit access until prerequistes are met.
+
+Our thanks go to Joshua Ryan, whose Simple Page Tool is the basis for
+this code. (You may note that some files and classes are still named
+SimplePage. We have changed the package name and enough other things
+that this shouldn't conflict with the original tool.)
+
+It has only been tested on mysql, though I would expect it to work
+with the other databases.
+
+SECURITY WARNING
+
+In order to prevent "cross-site scripting" attacks, Sakai takes two
+precautions that would interfere with Lessons:
+
+1) When you prepare content using an HTML editor, most of Sakai will
+  remove Javascript and other "dangerous" types of content
+2) When you upload an HTML file to resources, and a user clicks on 
+  its link, the Resource tool will download the HTML file rather
+  than displaying it.
+
+Default settings:
+
+Sakai:  both checks
+Lessons before 2.9.2: neither check
+Lessons starting 2.9.2:  1 but not 2
+
+Sakai's behavior is configurable. To get both checks:
+
+lessonbuilder.filterhtml=true
+lessonbuilder.inlinehtml=false
+
+To get neither check (which we strongly recommend):
+
+lessonbuilder.filterhtml=false
+lessonbuilder.inlinehtml=true
+
+If you do the checks, you can change the behavior for 
+individual instances of Lessons:
+
+* To control showing removeing "dangerous" HTML from "add text" blocks,
+add the property
+    filterHtml
+with value true or false to the instance of Lessons
+
+As an administrator, use the Sites tool to find the site.
+Use the "pages" button to show the pages in the site. That
+will show a list of pages. Click on the pageid for the specific
+instance of Lessons. Click "Properties". Add the property "filterHtml"
+with value "true" or "false".
+
+* To allow specific HTML files to be displayed rather than downloaded,
+  as an administrator, go to Resources. Find the site's resources.
+  Do "edit details" for the specific HTML file or for the folder in
+  which it is located. Click the box that says "Allow HTML file"
+  and save (or clear it to prohibit).
+
+Starting with Sakai 2.9.2 lessonbuilder.filterhtml and the
+filterhtml instance property can also be set to explicit antisamy
+filter levels: default, none, high, low.
+
+true is equivalent to low, false to none.
+
+The default is false before Sakai 2.9.2, true starting with 2.9.2.
+
+BUILDING
+
+To build, the normal Sakai maven commands will work. However you'll
+probably need to edit pom.xml to change versions.
+
+You'll need to change 2 things, and consider a third:
+
+1) Near the top, in the <parent> declaration, the version
+should match your version of Sakai. Currently it is
+2.10-SNAPHOT. For 2.8 you'd use 2.8.0, 2.8.1, etc.
+
+2) Look for the <profile> declaration. There are two
+profiles. The default is set for 2.10. You'll want to
+choose the profile for your version of Sakai. Move the
+<activiation> lines
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+to the appropriate profile.
+
+You can also use this sakai-2.8 profile with 2.7.
+
+3) If you want support for several contrib tools, (Assignment2, and
+partial support for YAFT and Mneme), activate the "optional"
+profile in tool/pom.xml.
+
+DATABASE SETUP
+
+If you have auto.ddl on, you'll get a reasonable database creation of
+update automatically. All you might be missing is a few text fields that
+should really be made longer. But see below for more detailed
+instructions.
+
+
+NEW INSTALLATIONS
+
+Hibernate will normally set up the database for you if this is a new
+Sakai installation, or if you are adding Lessons for the first time.
+If you choose not to use hibernate, before you start the system use
+the primary database setup file, which is
+
+   hbm/src/ddl/mysql/lessonbuilder.sql
+
+using oracle rather than mysql if appropriate.  Index creation
+will be done automatically, from
+     ./components/src/ddl/mysql/simplepage.sql
+which is always done by the system
+
+UPDATES BETWEEN OFFICIAL RELEASES
+
+We supply update scripts between official Sakai releases. Currently
+these go only between Lessons 1.4.x versions associated with 2.9.x.
+So they are not yet relevant to trunk.
+
+DATABASE UPDATES INVOLVING TRUNK WITH HIBERNATE
+
+In general you need three things:
+
+1) Adding new tables and columns to tables is handled by Hibernate.
+If you run with autoddl off, we supply a script that will add all
+tables needed to go from 2.9.x to trunk:
+
+2) Creating indices. Hibernate doesn't do this. Files of the form
+     ./components/src/ddl/mysql/simplepage.sql
+contain the CREATE INDEX commands. They should happen automatically,
+even if autoddl is off. But you may want to review them manually to
+make sure all indices have been created.
+
+3) Updating existing colums. Typically these are changes to make a
+text field longer. Hibernate won't do this. The commands are in
+     ./components/src/ddl/mysql/simplepage.for-2.9.2.sql
+     ./components/src/ddl/mysql/simplepage.for-2.9.3.sql
+Only mysql has one for 2.9.2. All 3 databases have one for 2.9.3.
+
+
+DATABASE UPDATES INVOLVING TRUNK MANUALLY
+
+If you are moving from 2.9.0 or later to trunk, or between versions
+of trunk, the following should have all command you need:
+
+   hbm/src/ddl/mysql/lessonbuilder-2.9.0-trunk.sql
+
+Depending upon which version you're coming from, some of the commands
+will not be needed. Nothing is deleted by them, so it should be safe
+to do all of them, as long as you understand that you'll get errors
+such as duplicate index or things already existing.
+
+DATABASE UPDATES FROM OLDER VERSIONS
+
+If you have been using a copy of Lessons from before 2.9.0 was
+released, we strongly recommend enabling auto.ddl the first time
+you start with the new version. In that case see the section above
+on updating with Hibernate.
+
+But in this case you should also use 
+   components/src/ddl/*/simplepage.pre29-to29.sql
+for your database before doing anything else.
+
+If you really can't use auto-ddl, there is a process for generating
+an update script, but it's a bit complex to document here. 
+
+
+TOMCAT
+
+We strongly recommend using "-Dfile.encoding=UTF-8" in JAVAOPTS for Tomcat. 
+Without this you may get strange failures when importing Common Cartridge
+files. Lesson Builder is not the only application that requires this. 
+Problems have been reported in Samigo as well.
+
+This option goes on the command line in start-sakai.sh or start-sakai.bat
+in the demo. Normally for production setups JAVAOPTS is set in tomcat/bin/catalina.sh
+or tomcat/bin/setenv.sh.
+
+BLTI
+
+A note on the two sakai.blti properties, sakai.blti.version and
+sakai.blti.scope. Lesson Builder supports BLTI. However it requires
+the version from Sakai 2.9, which is BLTI version 2. If you are using
+2.8 (and haven't added the 2.9 version of BLTI), you will want to
+leave the sakai.blti properties in pom.xml as they are set for the 2.8
+profile. In order to compile and start, you must have the BLTI API
+file. By using a scope of "compile" the 2.9 version of that API file
+will be fetched from a repository and included in the WAR file. Since
+you won't have the actual implementations, when Lesson Builder looks
+up the implementations at startup, it will get a null, and will
+disable BLTI. But the API file has to be there, or it won't start
+properly.
+
+The 2.9 profile defines the scope as "provided", because you want
+to use the actual API file from your system. With 2.9, you'll
+also want the version number to match the version of BLTI you are
+using, which will probably be shown in master/pom.xml.
+
+
+INSTALLATION
+
+The most recent version of Lesson Builder is set up so that it should
+be usable without any setup after simply installing the code. However
+some work will be needed to get full functionality. How much work that
+is depends upon the version of Sakai.
+
+
+FOR A MORE PERMANENT SETUP:
+
+1) As an admin, using the Realm tool. Check your template realms to
+make sure that the right permissions are set. This is !site.template,
+!site.template.course, and templates for any other site type that will
+use Lesson Builder. The templates apply only to new sites. However for
+existing sites, if Lesson Builder is started by someone with the
+maintain or Instructor role, they will be given the opportunity to fix
+up permissions for their site.
+  
+  * for maintain-type roles, typically maintain and Instructor,
+set lessonbuilder.upd and lessonbuilder.read.
+  * for other roles, set just lessonbuilder.read
+
+That's enough to try Lesson Builder. For real you, there are
+a few more things:
+
+2) Integrating Lesson Builder with other tools may require
+some changes, depending upon the version of Sakai you are
+running:
+
+* You will probably want to install SAK-20799. This allows people to
+hide tools without disablign them. A lot of faculty want to hide the
+assignments and tests tool so students can only go through Lesson
+Builder. The problem with hiding a tool in page order is that it
+disables the tool. This patch give you two options, one that disables
+the tool but one that just hides it.
+
+* 2.8.1 and 2.9 -- OK otherwise
+
+* 2.8 - may need both Samigo changes and a fix to Forums, and
+also fixes to the Sakai kernel. See below for Samigo and
+kernel fixes.
+
+* before 2.8 - like 2.8, except Forums is probably OK
+
+The rest of this document talks about other things you might want to
+know about. However you can try out Lesson Builder without doing
+anything beyond this point.
+
+THE PDA PORTAL
+
+If you want to use iPhones, etc, Sakai gives you a separate UI. This
+UI turns out to cause problems for certain internal operations. In
+order go get web resources to open properly, and grading screens to
+work properly on an Iphone, you'll want to add the following line to
+your sakai.properties.
+
+portal.pda.bypass.sakai.lessonbuildertool=linktracker$|/uvbview$|\.jpg$|\.gif$|\.js$|\.png$|\.jepg$|\.css$|\.zip$|\.pdf\.mov$|\.json$|\.jsonp$\.xml$|\.ajax$|\.xls|\.xlsx|\.doc|\.docx
+
+The first two alternatives, i.e. linktracker$|/uvbview$, are the critical ones. The rest
+are the defaults. It's not clear whether they're actually used.
+
+If you are using a Sakai version older than 2.8.0 (even a beta of 2.8)
+you will need a minor change to the portal to make this
+property functional. You should be able to do the following
+
+patch ../portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/handlers/PDAHandler.java <PDAHandler.java.diff
+
+That is, the file PDFHandler.java.diff in this directory contains the
+patch, which should be applied to the file 
+portal/portal-impl/impl/src/java/org/sakaiproject/portal/charon/handlers/PDAHandler.java
+in your source tree.
+
+MNEME, YAFT, ASSIGNMENT2,  BASIC LTI AND JFORUM DEPENDENCIES
+
+LessonBuilder will support quizes from Mneme, topics from JForum or
+YAFT, assignments from Assignment 2 and external tools using Basic
+LTI. If your system doesn't use them, you can ignore this section.
+
+Mneme, Assignment 2, and YAFT are disabled in the build, to
+comply with Sakai rules about contrib tools. To enable them, look in
+tool/pom.xml, find the "optional" profile, and change
+"activebydefault" to "true".
+
+If you enable the optional profile, check in the main pom.xml, looking
+for <sakai.yaft.version>, <sakai.yaft.scope>, <sakai.mneme.version>,
+<sakai.mneme.scope>, <sakai.assignment2.version>, and
+<sakai.assignment2.scope>. For tools you have, change the version to
+match the version you have. For tools you don't have, change the scope
+from "provided" to "compile".
+
+The Mneme, Jforum, Assignment 2, YAFT and BLTI code starts by checking
+whether those modules are actually present. If not, it disables
+itself. Thus there's no obvious reason to remove any of it, although
+you can do so.
+
+Note however that the jForum and YAFT interfaces are not currently
+able to create topics when importing Common Cartridge documents, nor
+do they support releasing a topic to a specific group. In Common
+Cartridge import, It will leave a place holder in the page. You will
+need to create the topic and choose it in Lesson Builder. The problem
+is that jForum does not have an API that allows another tool to create
+items, and YAFT isn't group-aware.
+
+Note that the version number of Mneme, YAFT, Assignment 2, and BLTI
+are defined in the main pom.xml, in the declarations for
+sakai.mneme.version, sakai.yaft.version and sakai.blti.version. If you
+are using using Mneme, YAFT or BLTI in your site, then you will need
+to change the version numbers in the file to match the version number
+you are using locally. Otherwise there could be problems with Lesson
+Builder using the wrong version of the interface code. Of course the
+Mneme and YAFT version numbers are irrelevant unless you uncomment the
+code that uses them.
+
+Note that basiclti.version is set to a version for Sakai 2.9, even
+with the 2.8 build profile. Lesson Builder's LTI support will not work
+with the Sakai 2.8 version, and in fact Lesson Builder won't even
+build. So you'll need to leave the BLTI version number at 2.0 or
+higher, even if you are actually using a lower version of BLTI on your
+system. If you are using an older BLTI, then the BLTI will be built
+with the 2.9 version, but at runtime BLTI support will be disabled.
+
+
+SAKAI VERSIONS
+
+This code has been used at Rutgers in 2.7.0, 2.7.1, and 2.8. It should
+work in 2.5 or 2.6, though some changes in the pom.xml files may be
+needed. To pick your version, you will need to change the version
+number in the <parent> declaration for pom.xml here. This is, in
+
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <relativePath>../master/pom.xml</relativePath>
+    <version>2.9-SNAPSHOT</version>
+<!--   <version>M2</version>--><!-- 2.5.x -->
+  </parent>
+
+Instead of 2.9-SNAPSHOT, use your version of Sakai.
+
+You may also need to change the profile. Lesson Builder is
+distributed for use with Sakai 2.9. To use it with 2.7 or
+2.8, look for the <profiles> section in pom.xml. There are
+two profiles, named "default" and "sakai-2.8". Move the
+declaration 
+         <activation>
+                <activeByDefault>true</activeByDefault>
+         </activation>
+from default to sakai-2.8. The 2.8 profile should also
+work for 2.7.
+
+If you are using Mneme, check the version number for org.etudes.mneme
+in tool/pom.xml. Make sure the version number matches the version of
+Mneme that you are using. Similarly if you are using YAFT, check
+the yaft version number.
+
+SAMIGO FIXES
+
+You can skip this section when you're first trying out Lesson Builder,
+or if you are using Sakai 2.8.1 or later.
+
+There are two things you'll want to do to Samigo:
+* fix some of its HTML so that it doesn't "escape" its frame
+* add a JSP to allow Lesson Builder to edit quizes and settings
+
+SAMIGO FIXES, Part 1. FIX SAMIGO SO IT WON'T ESCAPE ITS FRAME
+
+As distributed, Samigo (Tests and Quizes) has a problem: when you get
+to the end of a test, the "Continue" button will take you back to the
+main page of Samigo. We run Samigo in an Iframe, and supply a link to
+return to the Lesson. However Samigo's "Continue" completely replaces
+the top-level web page, thus escaping from the Iframe. This will leave
+most students confused.
+
+There's another problem: for many error situations, Samigo will send
+you to the main Sakai login page. Most users will think this means that
+Sakai has lost track of their session, and will login again. In fact
+their session is just fine, but logging in will give them a new session
+and lose anything that's in progress.
+
+These problems have been reported to the Samigo team.
+
+OPTION 1:
+
+The file "sam.diff" has patches that will fix both of these problems.
+Unfortunately it only works if you are willing to build Samigo from
+source. I strongly recommend that you do this. 
+
+OPTION 2:
+
+If you can't build Samigo from source, there's a script that should
+fix the Samigo binary. Wait until the Samigo WAR file has deployed,
+and then go to .../tomcat/webapps/samigo-app/jsf/ and run the file
+fix-samigo. Note that this script has only been tested in OS X, but
+it should also work for Unix and Linux.
+
+If the script doesn't work for you, you can go to
+.../tomcat/webapps/samigo-app/jsf/delivery, look for all .jsp files
+containing _top, and replace it with _self. 
+
+This will prevent Samigo from escaping from the iframe. The student
+will always have an easy way to return to the lesson. But what's in
+the frame may be inappropriate or confusing both at the end of a test
+and in some error situations.
+
+OPTION 3:
+
+There's another more aggressive fix that can be done without building
+from source: Go to .../tomcat/webapps/samigo-app/jsf/delivery, look
+for all .jsp files with _top in them, and remove the entire
+h:commandButton XML object in which _top appears. That will produce
+less confusion for the student, and is essentially equivalent to the
+source patch.
+
+For exanple, in beginTakingAssessment.jsp, remove this entire section.
+The section starts with <h:commandButton and ends with />
+
+ <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_cancel}" type="button"
+    style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')"
+onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
+    rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
+    disabled="#{delivery.actionString=='previewAssessment'}"/>
+
+SAMIGO FIXES, part 2. ALLOW LESSON BUILDER TO EDIT ASSESSMENTS
+
+Lesson Builder will let you create and edit items directly
+from Lesson Builder. Tools other than Samigo have URLs Lesson
+Builder can call to do this. Samigo does not. Thus I supply
+a jsp that will add this ability to Samigo.
+
+editLink.jsp should be installed as
+
+tomcat/webapps/samigo-app/jsf/author/editLink.jsp 
+
+You don't need source to do this. The jsp can be moved into
+place once Sakai haS been installed. If you build from source
+it can be put into the source tree as
+
+.../sam/samigo-app/src/webapp/jsf/author/editLink.jsp
+
+Once you've done this, you'll need to add this property
+to sakai.properties:
+
+   lessonbuilder.samigo.editlink=true
+
+Without the property, Lesson Builder will call the 
+Samigo main page when you ask to edit an assessment.
+
+
+VIDEO PLAYERS
+
+Aside from Youtube (which uses a special player), Lessons handles
+video with three different approaches
+
+* the HTML5 video and audio tag
+* the Strobe player, from Adobe
+* the normal OBJECT and EMBED tags
+
+We normally try them in that order. That is, if the MIME type is
+one that HTML5 might be able to handle, we ask the browser whether
+its HTML video player handles this MIME type. If so, we use HTML5.
+
+If that fails (or if the HTML5 player isn't recognized, despite the
+browser claiming it is), and if the MIME type is one that Srobe might
+handle, we try the Strobe player.
+
+If that fails, we use a normal OBJECT or EMBED tag, allowing the browser
+to pick a player.
+
+Unforunately this approach is less than foolproof. The API for HTML5
+lets us ask whether the player can handle the MIME type, but several
+browsers response "maybe". Hence we only try for types we think should
+work. That is currently MP4, webm, and ogg for video and MP3, ogg and
+WAV for audio. The list may be configured in sakai.properties
+
+lessonbuilder.html5.types=video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav
+
+Similarly, we only try Strobe for things we think will likely work.
+Currently
+
+lessonbuilder.mp4.types=video/mp4,video/m4v,audio/mpeg
+
+plus Flash (video/x-flv). In fact, Strobe claims to handle MOV files
+as well, but it seems safer to let Quicktime handle that. This does
+require users to have quicktime installed. If you want to let Strobe
+handle Quicktime files, add their MIME types to lessonbuilder.mp4.types.
+
+For further information on Strobe, see
+http://www.osmf.org/strobe_mediaplayback.html
+
+Support for JW Player, present in previous versions, has been
+removed for licensing reasons.
+
+
+OPTIONS FOR MULTIMEDIA SUPPORT
+
+This section covers things you might need to do to support multimedia
+options. These are not things I'm doing at Rutgers, and I don't think
+you'll need them.
+
+While I haven't seen the problem yet, in theory some player could get
+confused by the fact that Sakai sets most multimedia types so they
+download rather than play in line. If this becomes an issue I believe
+the following in sakai.properties might help. This lists a reasonable
+set of types as being inline. I do NOT suggest using this unless you
+need it.
+
+content.mime.inline.count = 7
+content.mime.inline.1=video/mp4
+content.mime.inline.2=video/quicktime
+content.mime.inline.3=video/3gpp
+content.mime.inline.4=video/x-ms-wmv
+content.mime.inline.5=audio/mpeg
+content.mime.inline.6=audio/wav
+content.mime.inline.7=audio/x-wav
+
+Lesson Builder has two ways to display multimedia content: IFRAME and
+OBJECT. IFRAME is appropriate for web pages, OBJECT for videos, Flash,
+etc. When a multmedia object is added we can normally tell its MIME
+type. However if a URL is added, and for some reason we can't connect
+to the server to look at it, we fall back to a check based on file
+extension. The following extensions will be displayed with OBJECT:
+
+  mp4,mov,m2v,3gp,wmv,mp3,swf,wav
+
+Everything else will use IFRAME. You can change the list in
+sakai.properties, e.g.
+
+  lessonbuilder.multimedia.types=mp4,mov,m2v,3gp,wmv,mp3,swf,wav
+
+If this property is present the list will override the builtin list,
+so make sure you include those of the default types that you want
+used. However this whole test should only rarely be used, because we
+normally make decisions based on MIME types.
+
+Lesson Builder uses icons for various resource types. It has its own
+list of icons, in sakai-lessonbuildertool-tool/WEB-INF/applicationContext.xml 
+When it doesn't have a specific icon, it will use generic Sakai icons.
+If you prefer to use Sakai icons all the time, you may set
+
+  lessonbuilder.use-sakai-icons=true
+
+in sakai.properties
+
+SECURITY ISSUE:
+
+By default, Lesson Builder allows any HTML to be added using FCK.
+I believe for this application it is important to let authors use
+Javascript. If you don't like this, there are two ways to adjust it:
+
+In sakai/local.properties, you can add
+
+lessonbuilder.filterhtml=true|false
+
+That will change the default.  For individual sites, in the admin
+sites tool you can set the tool property filterhtml to true or false.
+It defaults to "default", which will have no effect. If you set it
+to true or false, that will override whatever the sakai.properties
+sets as the default.
+
+KERNEL BUGS:
+
+If you want to be able to copy instances from site to site, you must 
+install the fix for SAK-18616, if your copy of Sakai doesn't have it
+already. You'll need SAK-19686 if you want the "Duplicate" function
+in Site Info to properly copy Lesson Builder instances.
+
+If you want import from archive to work, in 
+common/archive-impl/pack/src/webapp/WEB-INF/components.xml
+add to mergeFilteredSakaiServices
+<value>LessonBuilderEntityProducer</value>
+
+Restrictions on copying and importing:
+
+* You should also copy resources, or you'll have dead links. And
+  you should make sure you have the assignments and tests/quizes
+  tools in your site if any of the page you're copying uses them.
+
+* Currently assignments and assessments are not copied. Placeholders
+  are put where an assignment or assessment was. They are fairly
+  clearly labelled, and its easy to update the place holders to
+  real items once you have your assignments and quizes published.
+
+* If any units are hidden, that fact is not copied. This is 
+  intentional. Copying typically copies data but not status.
+
+------------------------------------------------------------------
+
+The rest of this document has nothing to do with installation.
+It's advice for people using Lesson Builder, primarily in the
+area of multimedia content.
+
+BROWSERS
+
+I have tested on current (as of Nov, 2010) Mac Safari, Mac Firefox, XP
+IE 6, Vista IE 7, Windows 7 IE 8, and iPhone Safari. Things should
+work on all. The only misbehavior I see is that there are unnecessary
+scroll bars on IE 7 for the dialog boxes. There are no
+browser-specific hacks, so authoring should work on any browser that
+supports jQuery. The student side uses very straightforward HTML, with
+no jQuery, so it should work pretty much anywhere.
+
+I have also tested with Voiceover (the Macintosh screen reader), and
+slightly with JAWS 12.
+
+While Firefox 2 seems to function, I've faked the buttons. jQuery's
+buttons don't work with Firefox 2, and won't be fixed, because FF 2
+is too old. See http://dev.jqueryui.com/ticket/5589. My current
+hack works, but isn't as pretty as I would like.
+
+The dialog boxes will fit themselves to the screen width, but they do
+this when the page loads. So if someone loads a page and makes the
+window narrower without redisplaying, the dialog boxes may be cut off
+or scroll.
+
+The application is intended to be accessible, to the extent that FCK
+and jQuery are accessible. However it hasn't been tested for that.
+Authoring supports alt tags and textual description, to make it easier
+to author accessible content. However that requires authors that are
+sensitive to accessibility.
+
+The application is intended to be internationalized. Please tell me if
+there are English strings that I haven't caught. There is
+documentation in English. Pointer to that documentation are in
+messages.properties, so you can supply a version in another language,
+and have your version of messages.properties point to that version.
+Note that the initial documentation is located in WEB-INF/resources,
+which is referred to as classpath: in messages.properties, because of
+how that file is loaded. The multimedia instructions are specified as
+a location relative to the templates directory, because it is opened
+from the HTML.
+
+
+ISSUES [hints for authors having trouble]
+
+If you set a quiz or assignment to have prerequisites, we modify the
+setup of the quiz or assignment so that it can only be accessed
+through Lesson Builder. Otherwise students could access it directly
+through the Tests and Quizes or Assignments tools. Because the setup
+of the quiz or assignment itself is changed, this means that all
+references to that quiz or assignment must be consistent. That is, if
+you use the same quiz or assignment in several lessons, all must be
+set to have prerequisites or none must. (Similar controls are used
+for Forums starting in the next version of Lsson Builder.)
+
+There's one danger here: once we set the quiz or assignment to have a
+prerequisite, we create a special group, and add the user to it as he
+meets the prequisites. If the instructor goes into the tool, they'll
+see the assignment as being released to a special group named "Access:
+.....". if they modify the groups in the assignment, Lesson Builder's
+prerequisite system will no longer work properly. It is possible to
+change which groups can see an assignment, quiz or forum in Lesson
+Builder itself. Once an item has been added to Lesson Builder, it is
+best to adjust groups through the Lesson Builder "Edit". (This applies
+to Assignments, Tests and Quizzes / Samigo, and Forums. It does not
+apply to Mneme and jForum. Lesson Builder currently is not group-aware
+for those tools.)
+
+It's really nice to be able to include things like Flash and movies
+in a lesson. Unfortunately it's surprisingly hard to make it work
+for everyone. All students need the right plugins, and there may
+still be random failures, depending upon the browser and other things.
+Some problems I've seen are listed below.
+
+The implication is that if you want to include multimedia content,
+you'll need to do the following:
+
+* Test it carefully in at least Firefox and the older version of
+IE you intend to support (probably 6 or 7)
+
+* Supply a unit at the beginning that shows tests of all formats
+you will use, and gives instructions on installing the necessary
+plugins.
+
+* Give download links somewhere on the page for people who can't
+see the embedded content.
+
+You might consider verifying that the setup of each item is correct.
+Except for Youtube content (which is always shown using the
+recommended combination of tags), when you edit an object, the edit
+dialog will show you (in a gray box) which tag is being used, and the
+MIME type. If the MIME type is missing, this means that Lesson Builder
+was unable for some reason to find the type. While Lesosn Builder will
+normally guess the right way to handle it, if it doesn't you should be
+able to fix it by correcting the MIME type. For the OBJECT tag, it's
+safest to if the MIME type is specified. The browser will try to guess
+it, but a missing MIME type may cause problems streaming some media
+types.
+
+The OBJECT tag normally used by lesson Builder for multimedia content
+makes provisions for giving an alternate in case the normal player
+fails. We use this provision. If the user doesn't have an appropriate
+plugin, they will get a sensible message, and a download link. However
+if they have the plugin but it doesn't work, they may end up with a
+blank square where the content is supposed to be, and no error
+message. This is most likely to happen with IE, but I've also seen it
+with Safari.
+
+Here are some notes on the kinds of failutres I've seen:
+
+Some players will not play content if you are using SSL and the
+certificate is invalid.
+
+I saw one case where including a file from Resources failed, and it
+worked when I made the file public. This shouldn't happen, and I
+was unable to duplicate the problem.
+
+The default width for multimedia types is 100%. In most cases this is
+the safest default. However it is possible that with some players it
+could result in the bottom not showing. You may have to adjust the
+size of the player to be appropriate for the contents. Unfortunately I
+don't know of any way to do that automatically for all content types.
+
+Note that Flash, Quicktime and Windows Media will all scale the movie
+to fit the space you have defined. This will probably result in the
+movie being shown at a different resolution from the one at which it
+was recorded. If you need more control over the details of how a movie
+is shown, you can use "Add Text", and insert the file with the "Movie"
+button in the HTML editor. This will result in HTML that is very
+similar to what Lesson Builder uses in "Add Multimedia." Then you can
+use the "Source" button to edit the HTML source, and add whatever
+parameters you need.
+
+I've seen an odd problem with Safari on the Mac. If you edit a Youtube
+video, and change the URL, when the page updates the player isn't
+there. If you refresh the page it works fine. I've checked the HTML
+being sent carefully, and I'm pretty sure this really is a problem in
+Safari. This is only a problem for the person creating the page. It
+works fine for users.
+
+I had Safari hang when adding a .mov (Quicktime) file from my local
+system. I got a warning that the certificate was invalid. I said OK,
+but the system got into a hung state. It just beeped, as it would if
+there's a dialog box open that requires a response. But there wasn't
+one. I was unable to duplicate the problem, probably because it
+remembered that that URL was OK, and didn't ask again in the future.
+This appears to me to be a bug in Safari or Quicktime.
+
+IE does not implement embedding properly. If it is unable to display
+the content inline the standards require it to display an alternate
+message, which allows you to download the content. If it doesn't have
+an appropriate player, it will do so. However if it does have a player
+but there are problems using it, you'll get an empty box where the
+content should be, with no sign of what went wrong. Among the possible
+problems:
+
+* security settings: Active X may need to be enabled. You may not get
+any sign that this is the problem with IE, just an empty box where
+your content should be.
+
+* If the plugin needs to interact it may fail. E.g. after installing
+Acrobat, the first time you need to accept the license. With Firefox
+you are prompted to do this. With IE it simply gives you an empty box
+where your content should be.
+
+HOW MULTIMEDIA IS DISPLAYED
+
+Here are details for people who want to understand how multimedia
+content works:
+
+There are three ways to show multimedia content, using HTML tags
+OBJECT, EMBED and IFRAME. OBJECT is the newest, and is intended to
+replace the other two. Lesson Builder will normally use OBJECT.
+However OBJECT won't work with HTML content in IE, even IE 8.
+
+NOTE: There are a lot of existing practices in handling multimedia
+types that don't seem to make sense anymore. Lesson Builder is
+trying to avoid reproducing old behavior that no longer makes
+sense. However if you see any evidence that this approach isn't
+working, I'd like to hear it. Note that the earliest browser I'm
+willing to support is IE6, and I'd prefer not even that.
+
+* I am not using EMBED, except for Youtube where I use exactly the
+tags they recommend. I have tried a number of things in Safari,
+Firefox, and IE 6, 7 and 8. I have seen no case where sticking an
+EMBED inside an OBJECT is useful. When things fail in OBJECT they also
+fail in EMBED, and using EMBED makes it harder to supply the
+alternative error message and download link. I'd love to see an
+instance where EMBED is needed.
+
+* I am not using CLASSID. This is a Windows-specific way of specifying
+which plugin to use. I am using the TYPE parameter in OBJECT. This
+specifies the MIME type. That should let the browser pick whichever
+plugin the user has installed for that MIME type. I haven't yet seen a
+case where OBJECT with TYPE fails to find a plugin that's actually
+there. If you know of cases where CLASSID is needed, and you've got
+the MIME type correctly specified, I'd love to hear about it.
+
+Because OBJECT won't work with HTML, we need to know what type of
+content we're dealing with. By preference, we use the MIME type,
+although we'll fall back to the extension if we can't get a MIME
+type for some reason. For files in Sakai's resource area, that's
+easy, because they have MIME type as part of the basic metadata. But
+for URLs, we have to connect to the system at the other end and look
+at the object. (Note that this extra connection is only done when you
+add the object to a lesson, not every time it is used.)
+
+If for some reason that connection fails, we look at the extension
+field of the URL. E.g. http://foo.com/xxx.wmf will be assumed to be a
+WMF file.
+
+Here are the rules. If there is a MIME type:
+
+* Use IMG for any type starting with image/
+
+* If the URL is from cnn.com, and if we can recognize it as pointing
+to a specific video, use a Youtube video player, with the same 
+combination of OBJECT and EMBED tags that Youtube gives when
+you ask it to give you the HTML for embedding.
+
+* If the URL is not text/html (HTML) or application/xhtml+xml (XHTML),
+use OBJECT. Pass the MIME type as the TYPE parameter in the OBJECT
+tag. For mime types of video/x-flv, add OSFlvPlayer.swf to the URL,
+since Flash Video uses a Flash-based player than an actual plugin.
+
+* Otherwise, use an IFRAME.
+
+If there is not a MIME type, the decision is based on the "extension",
+i.e. the part of the file name or URL after the last period.
+
+* Use IMG for the following extensions: bmp, gif, icns, ico,
+jpg, jpeg, pgn, tiff, tif
+
+* If the URL is from cnn.com, and if we can recognize it as pointing
+to a specific video, use a Youtube video player, with the same 
+combination of OBJECT and EMBED tags that Youtube gives when
+you ask it to give you the HTML for embedding.
+
+* If the extension is one of mp4,mov,m2v,3gp,wmv,mp3,swf,wav (this
+list can be overridden), use OBJECT, but without the TYPE parameter.
+
+* Otherwise, use an IFRAME.
+
+Height and width for multimedia objects can be either a number of
+pixels or a percent. CSS lengths, which can be actual lengths in
+inches or cm, don't work with any player I've found.
+
+URLs for www.youtube.com are handled specially. The TAGs currently
+recommended by Youtube are used. The result should be a Youtube
+player.
+
+It's worth documenting the handling of youtube. We recognize any
+URL that has v=NNNNNNNNNNN or v/NNNNNNNNNNN (also for internal
+purposes v_NNNNNNNNNNN), where NNNNNNNNNNN is the 11-character
+video ID. We construct appropriate URLs and embedding codes 
+from the ID. This should work for URLs pointing to a specific
+movie. It probably won't work for other URL, e.g. a URL to
+a page like http://www.youtube.com/rutgers. Parsing is slightly
+more flexible when you're changing an existing Youtube widget.
+At that point we'll also allow you to paste the HTML embed code.
+That won't work initially because it's not a URL. I haven't been
+able to find official documentation for the structure of a Youtube
+URL. If they change it, we could need to repair this code.
+
+GPL NOTE: I am using OS FLV player for Flash Video (.flv) files. The
+web site for OS FLV Player says it is covered by the GPL V3. The web
+site has only one distribution, which as far as I can tell includes
+the source, in the .fla file. (I'm not a Flash programmer, so I can't
+verify it). The distribution does not include a copy of the GPL nor
+any other license (not even a copyright notice). But the web site
+points to a copy of the GPLv3. Thus I am warning you here that the
+authors say it is covered by GPLv3. To avoid any questions, I'm also
+ncluding here a copy of the original distribution, which they say
+includes the source. That should make this distribution, and any
+copies of Sakai that include it, compliant with the GPL. Their
+original distribution is tool/src/OSFlvPlayer_v4.2.zip. Because the
+player is a separate program which is loaded and executed by your
+browser, I don't believe there are any issues of compatibility between
+the GPL and the Sakai open source license.
+
+EVENTS
+
+Lessonbuilder reports several events:
+
+lessonbuilder.read - whenever a page is read. It sets modified if the
+page is complete, otherwise access.
+
+lessonbuilder.create - creating a page or item
+
+lessonbuilder.update - updating a page or item
+
+lessonbuilder.delete - deleting a page or item
+
+/DIRECT
+
+The only useful function available via /direct is the ability to load
+Common Cartridge files into a site.
+
+To use it, POST a form with a single field, called "cartridge", containing the file.
+Include parameters in the URL for the site and a session ID
+
+Here's an example, with CURL:
+   curl -F"cartridge=@/users/sakai/IMS_tests_v1.1/cc1p1vtd01v1p0.imscc;type=application/zip" "http://heidelberg.rutgers.edu/direct/lessonbuilder?site=2da97547-7031-4bca-8f18-c6f9517016b9&sakai.sessio\
+n=bcacb865-8df0-40bf-b555-c5e660a23a46"
+
+The file name after cartridge=@ is the ZIP file containing the cartridge
+The site ID is the site into which to load it
+The sakai.session is a session ID which you can get from looking at the JSESSIONID cookie. But remove any hostname from the end.
+
+
+---
+
+Lesson Builder was built at Rutgers by
+
+  Eric Jeney - primary design and implementation - jeney # rutgers edu
+  Charles Hedrick - assisted with design and some coding - hedrick # rutgers edu
+
+and is being developed further by Charles Hedrick
+
+

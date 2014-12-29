@@ -1,0 +1,352 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+		<relativePath>../master/pom.xml</relativePath>
+        <!-- <version>2.8.1</version> --> <!-- purepom deployed with sakai-2.8.0 -->
+    </parent>
+
+    <name>sakai-lessonbuildertool base pom</name>
+    <groupId>org.sakaiproject.lessonbuilder</groupId>
+    <artifactId>lessonbuilder</artifactId>
+    <version>11-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>api</module>
+        <module>components</module>
+        <module>hbm</module>
+        <module>tool</module>
+    </modules>
+    
+    <properties>
+      <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+
+      <!-- set default values. will be overriden in profiles -->
+      <!-- src1 is for opt-src if you use optional tools -->
+      <src1>dummy</src1>
+      <!-- src2 is for special version-specific code -->
+      <src2>dummy</src2>
+      <!-- src3 is for src28-9, which has CSSUtils for pre-10.0 -->
+      <src3>dummy</src3>
+
+    <!-- the following properties are used only if contrib tools are enabled -->
+    <!-- they are listed here rather than in the profile so you just have to look here to adjust things -->
+    <!-- the scopes should be compile if you don't actually have the tool, or provided if you do -->
+
+      <sakai.yaft.version>1.3.0-SNAPSHOT</sakai.yaft.version>
+      <sakai.yaft.scope>provided</sakai.yaft.scope>
+      <sakai.mneme.version>2.1.2</sakai.mneme.version>
+      <sakai.mneme.scope>provided</sakai.mneme.scope>
+      <sakai.assignment2.version>1.0-rc-1</sakai.assignment2.version>
+      <sakai.assignment2.scope>provided</sakai.assignment2.scope>
+
+    </properties>
+
+    <!-- 
+	 Please enable the profile for your version of sakai.
+
+	 If you want support for Assignment2, Mneme, and YAFT, 
+	 set the "contrib" profile in tool/pom.xml, and make sure
+	 that the properties listed above match the versions that you use.
+
+     -->
+
+    <profiles>
+        <profile>
+          <id>10</id>
+    
+          <activation>
+            <activeByDefault>true</activeByDefault>
+          </activation>
+
+          <properties>
+	    <!-- new pom.xml files that use materialied_clob, for new hibernate -->
+	    <hbms>newhbm</hbms>
+
+	    <!-- used in tool for a dependency that's needed only for sakai 10 -->
+            <lessons-sakai-portal-util>org.sakaiproject.portal</lessons-sakai-portal-util>
+            <lessons-sakai-portal-util-artifact>sakai-portal-util</lessons-sakai-portal-util-artifact>
+            <lessons-sakai-portal-util-version>${sakai.version}</lessons-sakai-portal-util-version>
+
+	    <!-- include new Gradebook API -->
+	    <src2>src29</src2>
+
+	    <!-- group id changed for 2.9 -->
+            <sakai.assignment.groupId>org.sakaiproject.assignment</sakai.assignment.groupId>
+
+	  </properties>
+
+
+	  <!-- should be OK to do it here, because these are all provided in shared/lib.
+	       So having them available to all the subprojects won't cause us to include
+	       any unnecessary files 
+	   -->
+
+	  <dependencies>
+            <dependency>
+	      <groupId>org.springframework</groupId>
+	      <artifactId>spring-context</artifactId>
+            </dependency>
+            <dependency>
+	      <groupId>org.springframework</groupId>
+	      <artifactId>spring-orm</artifactId>
+            </dependency>
+            <dependency>
+	      <groupId>org.springframework</groupId>
+	      <artifactId>spring-tx</artifactId>
+            </dependency>
+
+	  </dependencies>
+
+        </profile>
+
+        <profile>
+          <id>2.9</id>
+    
+	  <modules>
+            <module>help</module>
+	  </modules>
+
+          <properties>
+	    <hbms>oldhbm</hbms>
+	    <src2>src29</src2>
+	    <src3>src28-9</src3>
+            <sakai.assignment.groupId>org.sakaiproject.assignment</sakai.assignment.groupId>
+	    <sakai.lombok.version>1.12.4</sakai.lombok.version>
+
+	    <!-- the following are basically dummmies. They cause tool to include the same module twice -->
+	    <!-- it's used becaue for Sakai 10 we need one more dependency than for sakai 2.8 and 9 -->
+            <lessons-sakai-portal-util>uk.org.ponder.sakairsf</lessons-sakai-portal-util>
+            <lessons-sakai-portal-util-artifact>sakairsf</lessons-sakai-portal-util-artifact>
+            <lessons-sakai-portal-util-version>${sakairsf.version}</lessons-sakai-portal-util-version>
+          </properties>
+
+	  <!-- in 10.x these are in master/pom.xml, so we need them here for 2.8 and 2.9.
+	       Otherwise we get mission version for 2.8 and 2.9 -->
+
+	  <dependencyManagement>
+	    <dependencies>
+              <dependency>
+		<groupId>org.sakaiproject.basiclti</groupId>
+		<artifactId>basiclti-api</artifactId>
+		<version>${sakai.basiclti.version}</version>
+		<scope>provided</scope>
+              </dependency>
+	      <dependency>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo-hibernate</artifactId>
+		<version>${sakai.samigo.version}</version>
+		<scope>provided</scope>
+	      </dependency>
+	      <dependency>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo-qti</artifactId>
+		<version>${sakai.samigo.version}</version>
+	      </dependency>
+	      <dependency>
+		<!-- To keep make it easy to update all tool versions -->
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>${sakai.lombok.version}</version>
+	      </dependency>
+	    </dependencies>
+
+
+	  </dependencyManagement>
+
+        </profile>
+
+        <profile>
+          <id>2.8</id>
+
+	  <modules>
+            <module>help</module>
+	  </modules>
+
+          <properties>
+	    <!-- old versions of hbm.xml files, for 2.8 / 2.9 -->
+	    <hbms>oldhbm</hbms>
+	    <src2>src28</src2>
+	    <src3>src28-9</src3>
+            <sakai.assignment.groupId>org.sakaiproject</sakai.assignment.groupId>
+
+	    <!-- need additional properties because they are not in master in 2.9 -->
+            <sakai.assignment.version>2.8.1</sakai.assignment.version>
+            <rsfutil.version>0.7.5</rsfutil.version>
+            <sakairsf.version>0.7.7</sakairsf.version>
+            <sakairsf.components.version>0.7.5</sakairsf.components.version> 
+            <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+ 	    <!-- LB supports version 2 of basiclti. If you have installed that in 2.8, then use the actual version you installed. Otherwise leave this. The build will use the API for 2.0, but realize at runtime that it's not there, and not show the features that depend upon basiclit -->
+	    <sakai.basiclti.version>2.0.0</sakai.basiclti.version>
+	    <sakai.lombok.version>1.12.4</sakai.lombok.version>
+
+	    <!-- the following are basically dummmies. They cause tool to include the same module twice -->
+	    <!-- it's used becaue for Sakai 10 we need one more dependency than for sakai 2.8 and 9 -->
+            <lessons-sakai-portal-util>uk.org.ponder.sakairsf</lessons-sakai-portal-util>
+            <lessons-sakai-portal-util-artifact>sakairsf</lessons-sakai-portal-util-artifact>
+            <lessons-sakai-portal-util-version>${sakairsf.version}</lessons-sakai-portal-util-version>
+
+          </properties>
+
+	  <!-- in 10.x these are in master/pom.xml, so we need them here for 2.8 and 2.9.
+	       Otherwise we get mission version for 2.8 and 2.9 -->
+
+	  <dependencyManagement>
+	    <dependencies>
+              <dependency>
+		<groupId>org.sakaiproject.basiclti</groupId>
+		<artifactId>basiclti-api</artifactId>
+		<version>${sakai.basiclti.version}</version>
+		<scope>provided</scope>
+              </dependency>
+	      <dependency>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo-hibernate</artifactId>
+		<version>${sakai.samigo.version}</version>
+		<scope>provided</scope>
+	      </dependency>
+	      <dependency>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo-qti</artifactId>
+		<version>${sakai.samigo.version}</version>
+	      </dependency>
+              <dependency>
+		<groupId>org.sakaiproject.msgcntr</groupId>
+		<artifactId>messageforums-api</artifactId>
+		<version>${sakai.msgcntr.version}</version>
+		<scope>provided</scope>
+              </dependency>
+	      <dependency>
+		<!-- To keep make it easy to update all tool versions -->
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>${sakai.lombok.version}</version>
+	      </dependency>
+	    </dependencies>
+	  </dependencyManagement>
+
+        </profile>
+    </profiles>
+
+    <scm>
+       <connection>scm:svn:https://source.sakaiproject.org/svn/lessonbuilder/trunk</connection>
+       <developerConnection>scm:svn:https://source.sakaiproject.org/svn/lessonbuilder/trunk</developerConnection>
+       <url>https://source.sakaiproject.org/svn/lessonbuilder/trunk</url>
+    </scm>
+
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/lessonbuilder/${project.version}</url>
+        </site>
+    </distributionManagement>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>maven2-central-repo</id>
+            <name>Maven2 Central Repo</name>
+            <url>http://repo1.maven.org/maven2/</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+    <repositories>
+        <repository>
+            <id>sakai-maven</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>sakai-maven2-snapshots</id>
+            <name>Sakai Maven Repo</name>
+            <layout>default</layout>
+            <url>http://source.sakaiproject.org/maven2-snapshots</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </repository>
+        <repository>
+            <id>default</id>
+            <name>Maven Repository Switchboard</name>
+            <layout>default</layout>
+            <url>http://repo1.maven.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>lessonbuilder-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>lessonbuilder-hbm</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+    
+    <reporting>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>2.7</version>
+                <configuration>
+                    <debug>true</debug>
+                    <links>
+                        <link>http://download.oracle.com/javase/1.5.0/docs/api/</link>
+                        <link>http://download.oracle.com/javase/6/docs/api/</link>
+                    </links>
+                    <breakiterator>true</breakiterator>
+                    <verbose>false</verbose>
+                    <aggregate>true</aggregate>
+                    <minmemory>168m</minmemory>
+                    <maxmemory>1024m</maxmemory>
+                    <additionalJOption>-J-Xms168m -J-Xmx1024m -J-XX:PermSize=128m -J-XX:NewSize=64m</additionalJOption>
+                </configuration>
+            </plugin>
+        </plugins>
+    </reporting>
+</project>

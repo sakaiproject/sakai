@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.LessonsGradeInfoProvider"
+	class="org.sakaiproject.lessonbuildertool.service.LessonsGradeInfoProvider"
+	init-method="init"
+        destroy-method="destroy">
+    <property name="gradebookExternalAssessmentService"><ref bean="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/></property>
+
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess" />
+  </bean>
+
+ </beans>

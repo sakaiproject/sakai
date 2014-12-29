@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.11.1.smoothness.css" rel="stylesheet" />	
+<title rsf:id="msg=simplepage.page.chooser"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+
+	<div class="portletBody" role="application">
+		
+		<div id="error" rsf:id="error" class="error" role="alert"></div>
+
+		<div class="navIntraTool" rsf:id="return-div" role="navigation">
+                <a href="#" rsf:id="return"></a> 
+		</div>
+
+		<div rsf:id="deleteAlert" class="ui-widget">
+			<div class="ui-state-highlight ui-corner-all" style="margin-bottom: 10px; margin-top:10px; padding: 0 .7em;"> 
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<span rsf:id="msg=simplepage.delete-message"></span></p>
+			</div>
+		</div>
+
+        <h2 rsf:id="title"></h2>
+
+        <a href="#" id="show-items"><span rsf:id="msg=simplepage.page.showitems"></span></a>
+        <a href="#" id="hide-items"><span rsf:id="msg=simplepage.page.hideitems"></span></a>
+		<form action="#" rsf:id="page-picker">
+		<input type="hidden" rsf:id="csrf"/>
+		<span rsf:id="page-span"/>
+		<ul id="list" class="pageList" role="main">
+			<li rsf:id="page:">
+				<h4 rsf:id="heading" style="margin:10px -8px 10px;width:80%" ></h4>
+				<p rsf:id="chooseall">
+				  <input type="checkbox" id="chooseall"/><span> Choose all</span><br/>
+			</p>
+                <input type="radio" rsf:id="select" />
+                <input type="checkbox" rsf:id="select-for-deletion" class="deletebox"/>
+                <img class="status-image" alt="" rsf:id="status-image" height="18" width="18" style="" />
+                <a href="#" rsf:id="link"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text"></span></a><span rsf:id="shared" class="page-picker-note"><span rsf:id="msg=simplepage.sharedpage"> </span></span><span rsf:id="page1">page1</span><span rsf:id="page2">page2</span><span rsf:id="item1">item1</span><span rsf:id="item2">item2</span>
+                <span rsf:id="item-list-toggle"><a href="#" class="itemListToggle"><img src="/library/image/sakai/icon-dropdn.gif" height="15"/></a></span>
+                <div rsf:id="itemListContainer" class="itemListContainer">
+                    <ul rsf:id="itemList" class="itemList" role="menu">
+                        <li rsf:id="item:">
+                            <div class="statusCol">
+                                <img rsf:id="required-image" src="/lessonbuilder-tool/images/available.png" class="status-image icon-image" style="margin-right:3px"/>
+                                <img rsf:id="not-required-image" src="/lessonbuilder-tool/images/not-required.png" class="status-image icon-image" style="margin-right:3px"/>
+                            </div>
+                            <div class="contentCol">
+                                <img rsf:id="item-icon" class="item-image" alt="" style="position:relative; top:3px; margin-right:2px" />
+                                <span rsf:id="name"></span>
+                                <span rsf:id="page1"></span>
+                            </div>
+                        </li>
+                    </ul>
+                </div> <!-- /itemListContainer -->
+			</li>
+		</ul>
+
+	<p rsf:id="sharedpageexplanation" class="instructionPanel">
+	  <span rsf:id="msg=simplepage.sharedpage" class="page-picker-note"> </span> <span rsf:id="msg=simplepage.sharedpageexplanation"> </span> 
+	</p>
+		<input type="hidden" rsf:id="item-id" id="item-id" />
+
+		<hr rsf:id="hr" />
+		<p rsf:id="options">
+		<input type="checkbox" name="subpage-next" id="subpage-next" rsf:id="subpage-next" />
+		<label for="subpage-next"><span rsf:id="msg=simplepage.subpage-next"></span></label><br />
+		<input type="checkbox" name="subpage-button" id="subpage-button" rsf:id="subpage-button" />
+		<label for="subpage-button"><span rsf:id="msg=simplepage.subpage-button"></span></label><br />
+		</p>
+		<p>
+		<input type="submit" class="bold" rsf:id="submit" />
+		<input type="submit" rsf:id="cancel" />
+		</p>
+		</form>
+	</div>
+    <script type="text/javascript" src="/lessonbuilder-tool/js/page-picker.js"></script>
+</body>
+</html>

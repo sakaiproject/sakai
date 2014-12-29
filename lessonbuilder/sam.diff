@@ -1,0 +1,79 @@
+Index: samigo-app/src/java/org/sakaiproject/tool/assessment/ui/bean/delivery/DeliveryBean.java
+===================================================================
+--- samigo-app/src/java/org/sakaiproject/tool/assessment/ui/bean/delivery/DeliveryBean.java	(revision 2680)
++++ samigo-app/src/java/org/sakaiproject/tool/assessment/ui/bean/delivery/DeliveryBean.java	(working copy)
+@@ -79,6 +79,8 @@
+ import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+ import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
+ import org.sakaiproject.tool.cover.ToolManager;
++import org.sakaiproject.tool.cover.SessionManager;
++import org.sakaiproject.tool.api.Session;
+ import org.sakaiproject.event.cover.EventTrackingService;
+ import org.sakaiproject.event.cover.NotificationService;
+ 
+@@ -2868,6 +2870,10 @@
+   }
+ 
+   public String getSelectURL(){
++          Session session = SessionManager.getCurrentSession();
++	  String returnUrl = (String)session.getAttribute("LESSONBUILDER_RETURNURL_SAMIGO");
++	  if (returnUrl != null)
++	      return returnUrl;
+ 	  StringBuilder url = new StringBuilder(ServerConfigurationService.getString("portalPath"));
+ 	  url.append("/site/");
+ 	  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+Index: samigo-app/src/webapp/jsf/delivery/beginTakingAssessment.jsp
+===================================================================
+--- samigo-app/src/webapp/jsf/delivery/beginTakingAssessment.jsp	(revision 2680)
++++ samigo-app/src/webapp/jsf/delivery/beginTakingAssessment.jsp	(working copy)
+@@ -165,11 +165,6 @@
+     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
+   </h:commandButton>
+ 
+-  <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_cancel}" type="button"
+-     style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')"
+-onkeypress="javascript:window.open('#{delivery.portal}/login','_top')"
+-     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
+-     disabled="#{delivery.actionString=='previewAssessment'}"/>
+ </p>
+ 
+ <!-- DONE BUTTON, FOR PREVIEW ONLY --> 
+Index: samigo-app/src/webapp/jsf/delivery/anonymousQuitMessage.jsp
+===================================================================
+--- samigo-app/src/webapp/jsf/delivery/anonymousQuitMessage.jsp	(revision 2680)
++++ samigo-app/src/webapp/jsf/delivery/anonymousQuitMessage.jsp	(working copy)
+@@ -46,8 +46,6 @@
+   <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_continue}" type="button"
+      styleClass="active" onclick="javascript:history.go(-1);" onkeypress="javascript:history.go(-1);" />
+ 
+-  <h:commandButton accesskey="#{deliveryMessages.a_quit}" value="#{deliveryMessages.button_quit}" type="button"
+-     onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
+ </p>
+ </h:form>
+ </div>
+Index: samigo-app/src/webapp/jsf/delivery/assessmentNotAvailable.jsp
+===================================================================
+--- samigo-app/src/webapp/jsf/delivery/assessmentNotAvailable.jsp	(revision 2680)
++++ samigo-app/src/webapp/jsf/delivery/assessmentNotAvailable.jsp	(working copy)
+@@ -49,8 +49,6 @@
+        </h:commandButton>
+ 
+ 
+-  <h:commandButton accesskey="#{deliveryMessages.a_next}" value="#{deliveryMessages.button_continue}" type="button" rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
+-       style="act" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
+ </p>
+ </h:form>
+ </div>
+Index: samigo-app/src/webapp/jsf/delivery/accessDenied.jsp
+===================================================================
+--- samigo-app/src/webapp/jsf/delivery/accessDenied.jsp	(revision 2680)
++++ samigo-app/src/webapp/jsf/delivery/accessDenied.jsp	(working copy)
+@@ -42,8 +42,6 @@
+   <h:outputText  value="#{deliveryMessages.access_denied_message}" />
+   </div>
+  <p class="act">
+-  <h:commandButton accesskey="#{deliveryMessages.a_login}" value="#{deliveryMessages.button_continue}" type="button"
+-     styleClass="active" onclick="javascript:window.open('#{delivery.portal}/login','_top')" onkeypress="javascript:window.open('#{delivery.portal}/login','_top')" />
+ <%--
+   <h:commandButton accesskey="#{deliveryMessages.a_cancel}" value="#{deliveryMessages.button_ok}" type="submit"
+      style="act" action="#{delivery.getOutcome}" >

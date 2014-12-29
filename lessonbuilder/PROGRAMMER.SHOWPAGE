@@ -1,0 +1,196 @@
+
+READ PROGRAMMER.README before this
+
+If you need to add anything to the main page, you might find it useful
+to know a bit more about how it works.
+
+Lesson Builder is built around a single page, ShowPage.html, with
+producer ShowPageProducer.java. Most of the functionality comes from
+buttons in the toolbar, and from "edit" buttons next to items on the
+page.
+
+ShowPage is a bit complex to work with, because the actual page is
+produced by the interaction of 3 different things. ShowPage.html,
+ShowPageProducer.java, and show-page.js. ShowPage.html contains HTML
+tmplates. ShowPageProducer has all the logic for controlling which
+parts of the template are shown and adding information from the
+database. show-page.js is used primarily for the popup dialogs. Even
+after ShowPageProducer has filled in data from the database, many of
+the dialogs have fields that are empty. The problem is that we don't
+want to output a separate dialog box for each Edit Button. That would
+make the HTML file too big. Thus we output just one edit dialog box
+with blank fields. The Javascript code takes data from the particular
+item being edited, populates the fields in the dialog box, and then
+opens it.
+
+The structure is also complicated by the fact that we have to
+interface to various Sakai tools, and they all have their own
+peculiarities. For that reason we have a set of classes that know
+about each tool, but all implement a single Lesson Builder interface.
+ShowPage only knows about that interface class. This makes it a lot
+easier to add support for a new type of tool. Note that it is possible
+to chain more than one class of a given type. E.g. we support both
+Samigo and Mneme as testing engines. ShowPage doesn't know which
+engine you're using. In fact your site can have both, and showPage
+won't know it.
+
+In general things like "Add Quiz" are buttons that call separate
+pages, e.g. the quiz picker. The quiz picker looks up all quizes in
+the site, lets you choose one (or call Samigo to create a new one),
+and then submits to SimplePageBean to set up the new entry.
+SimplePageBean will return to ShowPage after doing the change.
+
+For editing existing items, there are buttons labelled "Edit" in the
+left margin. They bring up jQuery dialogs. The dialogs are in a
+section at the bottom of the page in ShowPage. However they are 
+initialized and popped up by Javascript code in show-page.js.
+
+There may be a dozen different quizes on the same page. But there is
+only one actual dialog box. The specific data defining the individual
+quiz is in hidden variables right after the link for the edit button. The
+Javascript code for "edit quiz" is called by the edit button with a
+pointer to the edit button. The Javascript uses that pointer to find
+the data associated with that item, initialized all the fields in the
+dialog, and then pops up the dialog.
+
+In fact the same dialog box is used for tests and assignments, because
+much of it is common. The Javascript code can hide parts of the box
+that aren't relevant.
+
+Adding something touches a number of files:
+  SimplePageItem and SimplePageItemImpl to add a new item type
+      and possibly new fields in the item entry.
+  simplepageitem.hbm.xml if you add any fields. This is what
+      Hibernate uses. Adding fields should happen autoamtically.
+      However if you need to add indices, there are bugs that
+      cause Hibernate not to do it, so you need to add CREATE
+      INDEX statements in 
+	./components/src/ddl/db2/simplepage.sql
+	./components/src/ddl/hsqldb/simplepage.sql
+	./components/src/ddl/mysql/simplepage.sql
+	./components/src/ddl/oracle/simplepage.sql
+  you may need to add a new file such as SamigoEntity.java, which
+      encapsulates most of the code for talking to the Sakai tool
+      that implements an object. In some cases you may also
+      need to define an interface. E.g. Common Cartridge input
+      calls a method to create a new object. Creating a test
+      requires different arguments than creating a forum.
+      Thus there's an interface definition for tests, used by
+      both Samigo and Mneme. It defines the method used to
+      create one. SamigoEntity.java implements both LessonEntity,
+      which has most of the methods used to interface to a tool,
+      and the special interface for tests, which defines the
+      one method used for creating object.
+      If you look at an existing file, you can see how they work.
+  ShowPage.html - this is the template for the main web page.
+      It goes together with ShowPageProducer, using RSF.
+      It has the template for displaying each type of thing,
+      as well as the dialogs.
+  ShowPageProducer.java - the Java code behind ShowPage.html
+  show-page.js - the Javascript used on ShowPage.html. The
+      popups are produced by code here. In some cases the code
+      to produce a popup is fairly complex. E.g. the same
+      popup is used to edit assignments, tests, and forums.
+      The Javascript code looks at hidden variables after
+      the visible part of the item. They define all the
+      things that the dialog box will need. The Javascript
+      code gets all that data and populates the fields in
+      the popup, unhides the ones that should show, and
+      then creates the popup.
+  Simplepagetool.css - in case you need to add any styles
+  messages.properties - all text should be put in this file.
+      This application is internationalized, meaning that no
+      strings should be hard-coded.
+
+Here's a walk through ShowPageProducer changes to add the forums type.
+The line numbers will probably be wrong.
+
+First, I did it by looking at all occurrences of some other object
+type, I don't recall which.
+
+At line 124 you'll see LessonEntity declarations for variables that
+hold a pointer to the plugin for this object type. There can actually
+be a chain, e.g. for quizes, where there are two different providers.
+But ShowPageProducer doesn't know about that. It calls the first one,
+which then call the next in the chain if necessary.
+
+There are issues in copying sites. When you copy a site, the copy
+operation calls code for each tool to ask it to copy all data relevant
+to the tool. However there's no guarantee about what order the tools
+are called. LessonBuilder may be called before forums. So the old site
+may have a reference to a forum topic that hasn't yet been copied to
+the new site. Thus we don't have a reference we can use. So when we
+copy references to other tools, we use a special dummy reference. When
+the user sees such a reference, we should a message explaining that
+they need to go into the picker and pick the right item. The code at
+563 checks whether a reference is dummy and adds an appropriate
+message.
+
+The large if statement starting at 601 dispatches on the item type.
+For adding a new item type, you'll need to add a code to this if
+statement.
+
+Tests, assignments, and forum topics aren't shown inline in the page.
+When you open a test I go to a new page and display the test in an
+iframe (in order to put some navigation at the top.) If your new item
+type should be shown in a separate page, you can use existing code,
+and it will be quite simple to add it. If you want to display
+something inline you'll have to add a new branch to the if statement,
+as well as a new section to the HTML that's a template for showing the
+object.
+
+The "if (list item)" at 532 checks whether your item is one that is
+displayed inline or not. The first option, starting at the text line,
+is for things that are displayed on a new page. Most of that logic is
+common. As explained above, the main thing that is specific to the
+item type is attributes describing thatitem. E.g. for an assignment we
+have to include the grading scale, because the edit item dialog needs
+to know that. But that's only relevant for an assignment. So there
+is code to show the attributes appropriate for the item type.
+
+Those attributes are used in show-page.js. One of the complexities of
+this code, which it's hard to avoid, is that you're juggling pure
+HTML, which is generated by the template and ShowPageProducer, and
+jQuery, which is in show-page.js. Take a look at the generated HTML.
+You'll see that the edit buttons are a link followed by some data.
+That data is picked up by the Javascript for the dialog box.
+
+Starting at line 658 we have the code for the types that are displayed
+inline. Each of those types has its own lines in the template and its
+own branch of the main if statement for instantiating them.
+
+In the case of forums there's code in makeLink, at 1135. This is the
+common code that puts out the link to the page containing the item and
+navigation. It's a case statement because different item types
+typically require somewhat different data to find them, but the code
+is fairly similar for different item types. Hence the use of a common
+method. The inline types are more complex, and typically have their
+own code.
+
+setForumEntity at 1198 is the setter used by Spring to inject the
+plugin for forum entities.
+
+the line at 1244 is in createToolBar, which creates the toolbar at the
+top. THere's a standard method, createToolBarLink, which can often be
+used.
+
+createEditItemDialog, starting at 1308, is used to put out the form
+used for the edit dialog. Not the edit button, which is output above,
+but the actual HTML code that generates the popup dialog. As explained
+above, there are separate dialogs for the inline object types, because
+the logic is so different. However we chose to use a single piece of
+HTML for the edit dialog for all object types that call a new page,
+because there are great similarities. 
+
+One of the things that differs for different object types is the
+"change" link. If you try the tool out you'll see that if you edit a
+quiz, there's a link "change quiz", which ends up calling the same
+page as "add quiz", to let you pick a different quiz, ie. the quiz
+picker. The HTML generates links to all of these pickers. The
+Javascript enables the right one when you click the edit button. Other
+than that, the HTML code for that popup dialog is common. 
+
+The Javascript code uses that HTML code as a template. It decides which
+parts of the dialog should show, and fills in any variables with data
+for the specific item type and item. It then pops up the dialog.
+

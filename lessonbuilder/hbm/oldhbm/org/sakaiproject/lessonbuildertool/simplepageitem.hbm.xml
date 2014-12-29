@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping SYSTEM "classpath://org/hibernate/hibernate-mapping-3.0.dtd">
+	
+<hibernate-mapping>
+
+   <!-- put your value object in the class name, 
+      the table name is optional but you should specify it to avoid collisions -->
+   <class name="org.sakaiproject.lessonbuildertool.SimplePageItemImpl" table="lesson_builder_items">
+
+       <cache usage="nonstrict-read-write" />
+
+      <!-- create the primary key id, using native is typically the best way -->
+
+      <id name="id" type="long">
+         <generator class="native"/>
+      </id>
+
+	<property name="pageId" type="long" not-null="true" />
+	<property name="sequence" type="integer" not-null="true" />
+	<property name="type" type="integer" not-null="true" />
+	<property name="sakaiId" type="string" length="250" />
+	<property name="name" type="string" length="100" />
+	<property name="html" type="text" length="200000" />
+	<property name="description" type="text" />
+	<property name="height" type="string" length="8" />
+	<property name="width" type="string" length="8" />
+	<property name="alt" type="string" length = "500" />
+	<property name="nextPage" type="boolean" />
+	<property name="format" type="string" />
+	<property name="required" type="boolean" />
+	<property name="alternate" type="boolean" />
+	<property name="prerequisite" type="boolean" />
+	<property name="subrequirement" type="boolean" />
+	<property name="requirementText" type="string" length="20" />
+	<property name="sameWindow" type="boolean" />
+	<property name="groups" type="text" />
+	<property name="anonymous" type="boolean" />
+	<property name="showComments" type="boolean" />
+	<property name="forcedCommentsAnonymous" type="boolean" />
+	<property name="showPeerEval" type="boolean" />
+	<property name="gradebookId" type="string" length="100" />
+	<property name="gradebookPoints" type="integer" />
+	<property name="gradebookTitle" type="string" length="200" />
+	<property name="altGradebook" type="string" length="100" />
+	<property name="altPoints" type="integer" />
+	<property name="altGradebookTitle" type="string" length="200" />
+	<property name="groupOwned" type="boolean" />
+	<property name="ownerGroups" type="text" />
+	
+	<property name="attributeString" type="text" />
+
+   </class>
+</hibernate-mapping>

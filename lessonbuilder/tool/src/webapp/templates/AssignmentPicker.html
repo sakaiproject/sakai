@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+<title rsf:id="msg=simplepage.assignment.chooser"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+	<div class="portletBody">
+		
+		<div rsf:id="error-div" class="ui-widget">
+			<div class="ui-state-error ui-corner-all" style="margin-bottom: 20px; margin-top:20px; padding: 0 .7em;"> 
+				<p><span class="ui-icon ui-icon-info" style="float: left; margin-right: .3em;"></span>
+				<span rsf:id="error"></span> </p>
+			</div>
+		</div>
+
+		<h2 rsf:id="msg=simplepage.assignment.chooser"></h2>
+
+		<div rsf:id="description"></div>
+		
+		<h3 rsf:id="msg=simplepage.create_assignment" class="offscreen"></h3>
+
+		<div rsf:id="assignment-create:">
+		  <a href="#" rsf:id="assignment-create-link"></a>
+		</div>
+
+		<h3 rsf:id="msg=simplepage.select_assignment"></h3>
+
+		<form action="#" rsf:id="assignment-picker">
+		<input type="hidden" rsf:id="csrf"/>
+		<span rsf:id="assignment-span"/>
+		<table id="list" border="0" role="list" class="listHier" cellpadding="0" cellspacing="0" style="width:auto">
+			<tr>
+				<th rsf:id="msg=simplepage.chooser.name"></th>
+				<th rsf:id="msg=simplepage.chooser.due"></th>
+			</tr>
+			<tr rsf:id="assignment:" role="listitem">
+				<td><input type="radio" rsf:id="select" id="select"/> <a href="#" rsf:id="link" target="_blank"></a></td>
+				<td class="duecol" rsf:id="due"></td>
+			</tr>
+		</table>
+		
+		<input type="hidden" rsf:id="item-id" id="item-id" />
+        <p class="act">
+    		<input type="submit" class="bold" rsf:id="submit" />
+    		<input type="submit" rsf:id="cancel" />
+        </p>
+		</form>
+	</div>
+</body>
+</html>

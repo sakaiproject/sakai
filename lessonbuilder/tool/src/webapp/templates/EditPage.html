@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html rsf:id="html" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script> 
+<link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+<link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
+
+<title rsf:id="msg=simplepage.edit-page"></title>
+</head>
+<body rsf:id="scr=sakai-body">
+<script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
+
+	<div class="portletBody">
+	
+	<p rsf:id="debugstuff"> junk </p>
+    <h3><span rsf:id="title-label"></span><span class="bold" style="margin-left:5px;" rsf:id="page-title"></span></h3>
+		<form rsf:id="page_form">
+		<input type="hidden" rsf:id="csrf"/>
+
+			<div rsf:id="instructions">Enter your page content below</div>
+			
+			<div class="longtext">
+	            
+				<textarea rsf:id="page:">
+				</textarea>
+            </div>
+	 <div rsf:id="prerequisite-block">
+            <input type="checkbox" id="question-prerequisite" rsf:id="question-prerequisite"/><span rsf:id="msg=simplepage.prerequisites_label"></span>
+	 </div>
+			
+<span style="display:none;" id="confirmDeleteLangSupp" rsf:id="msg=simplepage.delete_page_confirm"></span>
+<script type="text/javascript">
+
+$(function() {
+    $("#grouplist").hide();
+    if ($('#grouplist input').size() == 0) {
+	$('#editgroups').hide();
+    }
+    $("#editgroups").click(function() {
+         $("#grouplist").show();
+         $("#editgroups").hide();
+       });
+});
+
+jQuery(document).ready(function($) {
+	var confirmMsg = document.getElementById('confirmDeleteLangSupp').innerHTML;
+    $('.ConfirmDelete').click(function() {
+        return confirm(confirmMsg);
+    });
+});
+
+</script>
+
+
+			<p id="editgroups" class="edit-group">
+			  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
+			</p>
+
+			<div id="grouplist" rsf:id="grouplist">
+			  <span rsf:id="group-list-span"/>
+			  <p rsf:id="msg=simplepage.select-group"></p>
+			  <div rsf:id="select-group-list:">
+			    <input type="checkbox" rsf:id="select-group" /><input type="checkbox" rsf:id="select-group-checked" checked="checked" /><span rsf:id="select-group-text"></span>
+			  </div>
+			</div>
+
+			<p class="act">
+				<input accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
+				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+                <input type="submit" rsf:id="delete" class="deleteButton" />
+			</p>						
+		</form>
+	</div>
+</body>
+</html>

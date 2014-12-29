@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." name="Export schema">
+
+<path id="toolslib">
+ <fileset dir="lib/hibernate">
+    <include name="**/*.jar/"/>
+ </fileset>
+ <fileset dir="lib/tools">
+    <include name="**/*.jar/"/>
+ </fileset>
+</path>
+   
+<taskdef name="hibernatetool" 
+         classname="org.hibernate.tool.ant.HibernateToolTask" 
+         classpathref="toolslib" />
+
+<hibernatetool destdir="mysql">
+  <classpath> 
+    <path location="../../target/classes"/>
+  </classpath>
+  <configuration configurationfile="hibernate.cfg.xml"
+		 propertyfile="hibernate-mysql.properties"/>
+  <hbm2ddl
+     export="false"
+     update="false"
+     drop="false"
+     create="true"
+     outputfilename="lessonbuilder.sql"
+     delimiter=";" 
+     format="true"
+     haltonerror="false"/>
+</hibernatetool>
+
+<hibernatetool destdir="oracle">
+  <classpath> 
+    <path location="../../target/classes"/>
+  </classpath>
+  <configuration configurationfile="hibernate.cfg.xml"
+		 propertyfile="hibernate-oracle.properties"/>
+  <hbm2ddl
+     export="false"
+     update="false"
+     drop="false"
+     create="true"
+     outputfilename="lessonbuilder.sql"
+     delimiter=";" 
+     format="true"
+     haltonerror="false"/>
+</hibernatetool>
+
+<hibernatetool destdir="hsqldb">
+  <classpath> 
+    <path location="../../target/classes"/>
+  </classpath>
+  <configuration configurationfile="hibernate.cfg.xml"
+		 propertyfile="hibernate-hsqldb.properties"/>
+  <hbm2ddl
+     export="false"
+     update="false"
+     drop="false"
+     create="true"
+     outputfilename="lessonbuilder.sql"
+     delimiter=";" 
+     format="true"
+     haltonerror="false"/>
+</hibernatetool>
+
+<hibernatetool destdir="db2">
+  <classpath> 
+    <path location="../../target/classes"/>
+  </classpath>
+  <configuration configurationfile="hibernate.cfg.xml"
+		 propertyfile="hibernate-db2.properties"/>
+  <hbm2ddl
+     export="false"
+     update="false"
+     drop="false"
+     create="true"
+     outputfilename="new.sql"
+     delimiter=";" 
+     format="true"
+     haltonerror="false"/>
+</hibernatetool>
+
+
+</project>

@@ -1,0 +1,16 @@
+#!/bin/sh
+
+# compare 2.9 and 2.10 versions of database and produce updates
+# uses diff utility because doing a good diff is surprisingly complex
+
+for i in hsqldb mysql oracle
+  do
+  java sqlupdate old/$i/lessonbuilder.sql $i/lessonbuilder.sql $i/lessonbuilder-2.9.0-trunk-gen.sql
+  cat $i/lessonbuilder-2.9.0-trunk-gen.sql $i/lessonbuilder-2.9.0-trunk-manual.sql >$i/lessonbuilder-2.9.0-trunk.sql
+  rm $i/lessonbuilder-2.9.0-trunk-gen.sql
+  java sqlupdate old29/$i/lessonbuilder.sql $i/lessonbuilder.sql $i/lessonbuilder-2.9.3-trunk-gen.sql
+  cat $i/lessonbuilder-2.9.3-trunk-gen.sql $i/lessonbuilder-2.9.3-trunk-manual.sql >$i/lessonbuilder-2.9.3-trunk.sql
+  rm $i/lessonbuilder-2.9.3-trunk-gen.sql
+
+done
+

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee  http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd" 
+		version="2.4">
+	<display-name>sakai-lessonbuildertool</display-name>
+	<description>Sakai Lesson Builder Tool</description>
+
+	<!-- param-value must match the id from tool/project.xml -->
+	<context-param>
+		<param-name>resourceurlbase</param-name> 
+		<param-value>/lessonbuilder-tool/</param-value>
+	</context-param>
+
+	<!-- Configure standard Spring application contexts. Be sure to mention
+		rsf config files first, so any overrides may be processed. The first two
+		config files are loaded from inside the rsfutil.jar  -->
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>
+			classpath:conf/rsf-config.xml,
+			classpath:conf/blank-applicationContext.xml,
+			classpath:conf/sakai-applicationContext.xml,
+			classpath:conf/components-applicationContext.xml,
+			/WEB-INF/*applicationContext.xml
+		</param-value>
+  	</context-param>
+	<!-- Configure "request scope" Spring application contexts (RSAC).
+		Be sure to mention rsf config files first, so any overrides may be
+		processed. -->
+	<context-param>
+		<param-name>requestContextConfigLocation</param-name>
+		<param-value>
+			classpath:conf/rsf-requestscope-config.xml,
+			classpath:conf/blank-requestContext.xml,
+			classpath:conf/sakai-requestContext.xml,
+			classpath:conf/components-requestContext.xml,
+			/WEB-INF/requestContext.xml
+		</param-value>
+	</context-param>
+
+	<!-- Sakai request filter -->
+	<filter>
+	    <filter-name>sakai.request</filter-name>
+	    <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+	    <init-param>
+	      <param-name>upload.enabled</param-name>
+	      <param-value>false</param-value>
+	    </init-param>
+	</filter>
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.lessonbuildertool</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<!-- set up info needed by RSF normally done by the portal -->
+	<!-- have to add request filter because the ajax filter needs to know the user. It would 
+	     be called eventually, but filters associated with URLs are called before others, so
+	     get it in the right order -->
+	<filter>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <filter-class>org.sakaiproject.lessonbuildertool.AjaxFilter</filter-class>
+	</filter>
+	<filter-mapping>
+	  <filter-name>sakai.request</filter-name>
+	  <url-pattern>/faces/Comments</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	  <filter-name>sakai.request</filter-name>
+	  <url-pattern>/faces/CommentGradingPane</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	  <filter-name>sakai.request</filter-name>
+	  <url-pattern>/faces/QuestionGradingPane</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	  <filter-name>sakai.request</filter-name>
+	  <url-pattern>/faces/ShowPage</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <url-pattern>/faces/Comments</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <url-pattern>/faces/CommentGradingPane</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <url-pattern>/faces/QuestionGradingPane</url-pattern>
+	</filter-mapping>
+	<filter-mapping>
+	    <filter-name>lessonbuilder.ajaxfilter</filter-name>
+	    <url-pattern>/faces/ShowPage</url-pattern>
+	</filter-mapping>
+
+
+	<!-- Sakai listeners -->
+	<listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+	<listener>
+		<listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- tool servlet -->
+	<servlet>
+		<!-- servlet name must match tool.id in tools xml file -->
+		<servlet-name>sakai.lessonbuildertool</servlet-name>
+		<servlet-class>uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>sakai.lessonbuildertool</servlet-name>
+		<url-pattern>/faces/*</url-pattern>
+	</servlet-mapping>  
+
+	<servlet>
+	  <servlet-name>sakai.lessonbuildertool.removePage</servlet-name>
+	  <jsp-file>/removePage.jsp</jsp-file>
+	</servlet>
+ 
+	<servlet-mapping>
+	  <servlet-name>sakai.lessonbuildertool.removePage</servlet-name>
+	  <url-pattern>/removePage</url-pattern>
+	</servlet-mapping>
+
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.lessonbuildertool.removePage</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<servlet>
+		<!-- servlet name must match tool.id in tools xml file -->
+		<servlet-name>sakai.lessonbuildertool.ajax</servlet-name>
+		<servlet-class>org.sakaiproject.lessonbuildertool.service.AjaxServer</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>sakai.lessonbuildertool.ajax</servlet-name>
+		<url-pattern>/ajax</url-pattern>
+	</servlet-mapping>  
+	<filter-mapping>
+	    <filter-name>sakai.request</filter-name>
+	    <servlet-name>sakai.lessonbuildertool.ajax</servlet-name>
+	    <dispatcher>REQUEST</dispatcher>
+	    <dispatcher>FORWARD</dispatcher>
+	    <dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+
+</web-app>

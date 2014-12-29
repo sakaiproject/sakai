@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+	"http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.YaftTopicEntity"
+	class="org.sakaiproject.lessonbuildertool.service.YaftTopicEntity"
+        init-method="init">
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="prevEntity" ref="org.sakaiproject.lessonbuildertool.service.JForumEntity"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.MnemeEntity"
+	class="org.sakaiproject.lessonbuildertool.service.MnemeEntity"
+        init-method="init"
+        destroy-method="destroy">
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="prevEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.service.Assignment2Entity"
+	class="org.sakaiproject.lessonbuildertool.service.Assignment2Entity"
+        init-method="init"
+        destroy-method="destroy">
+
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+    <property name = "prevEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity" />
+  </bean>
+
+  <bean id="org.sakaiproject.lessonbuildertool.ccexport.Assignment2Export"
+	class="org.sakaiproject.lessonbuildertool.ccexport.Assignment2Export"
+        init-method="init"
+        destroy-method="destroy">
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+    <property name="prev" ref="org.sakaiproject.lessonbuildertool.ccexport.AssignmentExport" />
+  </bean>
+
+ </beans>
