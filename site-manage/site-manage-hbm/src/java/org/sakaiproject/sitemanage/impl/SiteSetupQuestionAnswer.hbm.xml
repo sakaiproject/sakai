@@ -1,0 +1,39 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+          
+<hibernate-mapping package="org.sakaiproject.sitemanage.impl" default-lazy="false">
+	<class name="SiteSetupQuestionAnswerImpl"
+		table="SSQ_ANSWER">
+		
+		<id name="id" length="99" column="ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+		</id>
+		
+		<property name="answer" type="string" not-null="true">
+            <column name="ANSWER"/>
+        </property>
+        
+        <property name="answerString" type="string" not-null="false">
+            <column name="ANSWER_STRING"/>
+        </property>
+        
+        <property name="isFillInBlank" type="boolean" not-null="true">
+            <column name="FILL_IN_BLANK"/>
+        </property>
+        
+        <property name="orderNum" type="integer" not-null="true">
+        	<column name="ORDER_NUM"/>
+        </property>
+        
+        <many-to-one name="question" column="QUESTION_ID"
+			class="SiteSetupQuestionImpl" index="SSQ_ANSWER_QUESTION_I" />
+    </class>
+    <query name = "findAnswerById">
+			<![CDATA[
+			from SiteSetupQuestionAnswerImpl answer
+			where answer.id = :id
+		]]>
+	</query>
+</hibernate-mapping>

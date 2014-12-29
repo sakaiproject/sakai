@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="siteId" factory-bean="sakai-Placement"
+    factory-method="getContext" />
+   
+  <bean id="GroupListProducer"
+      class="org.sakaiproject.site.tool.helper.managegroup.rsf.GroupListProducer">
+    <property name="handler" ref="SiteManageGroupHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+  </bean>
+   
+  <bean id="GroupEditProdcuer" 
+      class="org.sakaiproject.site.tool.helper.managegroup.rsf.GroupEditProducer">
+    <property name="handler" ref="SiteManageGroupHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+  </bean>
+
+ 	<bean id="SiteManageGroupHandler" init-method="init"
+      class="org.sakaiproject.site.tool.helper.managegroup.impl.SiteManageGroupHandler">
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="messages" ref="targettedMessageList" />
+  </bean>
+  
+    <bean id="GroupDelProdcuer" 
+      class="org.sakaiproject.site.tool.helper.managegroup.rsf.GroupDelProducer">
+    <property name="handler" ref="SiteManageGroupHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+  </bean>
+</beans>

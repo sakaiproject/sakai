@@ -1,0 +1,38 @@
+## SAK-16600 Tool Multiples
+#foreach ($toolMultiple in $toolMultipleList)
+	#set($toolMultipleId = $toolMultiple.getId())
+    	#set ($rowCount=$rowCount + 1)
+	<li id="row-$rowCount" class="indnt3">
+		<div class="toolListControl">
+			<input type="checkbox" name="selectedTools" value="$toolMultipleId" id="$toolMultipleId"
+				## toolMultiples shouldn't be *required* but hey...
+				##if ($toolMultiple.isRequired())
+				##	disabled="disabled"
+				##end
+				##if ($toolMultiple.isSelected())
+    		   			checked="checked"
+    				##end
+    			/>
+    			<label for="$toolMultipleId">
+      				#set($title=$validator.escapeHtml($toolMultiple.getTitle()))
+  	  			$title
+   			</label>
+		</div>
+		<div class="toolListDesc textPanelFooter specialLink">
+  			## in case a tool does not have description defined
+  			#set($description="")
+      			#set($description=$tool.getDescription())
+                        #if ($!multipleToolIdTitleMap.containsKey($toolMultipleId))
+                             #set($properties = $!multipleToolConfiguration.get($toolMultipleId))
+                             #if (!$properties.isEmpty())
+                                  ## show configurations
+                                  (#foreach ($property in $!properties.keySet())
+                                       $property = $validator.escapeHtml($properties.get($property)) 
+                                  #end)
+                            #end
+			#else
+				$tool.getDescription()
+                        #end
+      		</div>
+    	</li>
+#end

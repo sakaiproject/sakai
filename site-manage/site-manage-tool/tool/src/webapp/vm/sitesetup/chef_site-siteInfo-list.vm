@@ -1,0 +1,747 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-siteInfo-list.vm,v 1.6 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+
+<div id="dialog">
+</div>
+<script type="text/javascript">
+    $(document).ready(function(){
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+		sakai.getGroupInfo('moreInfoGroups','dialog','$tlang.getString("sinfo.list.groups.memb")','$tlang.getString("sinfo.list.groups.print")','$tlang.getString("sitegen.siteinfolist.name")','$tlang.getString("sitegen.siteinfolist.role")','&nbsp;');
+		sakai.setupSelectList('siteMembers','selunselallid','selectedSelected');
+//    	sakai.setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+		utils.setupUtils();
+		$("#accordion").accordion({
+			header: 'h4',
+			active: false,
+			collapsible: true,
+			change: function(event, ui){
+				utils.resizeFrame();
+			},
+			activate: function(event, ui){
+				utils.resizeFrame();
+			}
+		});
+	  });
+	  
+	function toggleSelectAll(caller, elementName)
+    {
+		var newValue = caller.checked;
+		var elements = document.getElementsByName(elementName);
+			
+		if(elements)
+		{
+			for(var i = 0; i < elements.length; i++)
+			{
+				elements[i].checked = newValue;
+			}
+		}
+   	}
+</script>
+<script type="text/javascript">
+function printPreview(target){
+    var w = window.open('', 'printwindow', 'width=600,height=400,scrollbars=yes,toolbar=yes,resizable=yes');
+	var content=  "";
+	var content=  document.getElementById('groupListContent').innerHTML;
+	w.document.writeln(
+	'<html><head>'
+	+ '<style type=\"text/css\">.listHier td, .listHier th {text-align:left}</style>'
+	+ '</head>'
+	+ '<body> '
+	+ content
+	+ '</body>'
+	+ '</html>'
+	);
+    w.focus();
+	w.print();
+    return false;
+}
+</script>
+
+<div class ="portletBody specialLink">
+	#if($menu)#toolbar($menu)#end
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>
+		<div class="clear"></div>
+	#end
+	#if($importQueued)
+		<div class="information">
+			#if($importQueuedNoEmail)
+				$tlang.getString("importQueuedNoEmail")
+			#else
+				$tlang.getString("importQueued")
+			#end
+		</div>
+		<div class="clear"></div>
+	#end
+	#if ($fromWSetup)
+		<form name="siteForm" id="siteForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
+			<input type="hidden" name="option" value="x" />
+			<input type="hidden" name="eventSubmit_doNavigate_to_site" value="x" />
+			<div class="navPanel">
+				<div class="itemNav">
+					#if ($!prevSite)
+						<input type="button" 
+							name="previous" 
+							value="&lt; $tlang.getString("sitegen.siteinfolist.previous1")" 
+							onclick="document.siteForm.option.value='$prevSite.Id';javascript:document.siteForm.submit();" accesskey="p" />
+					#else
+						<input type="submit" 
+								name="previous" 
+								value="&lt; $tlang.getString("sitegen.siteinfolist.previous1")" 
+								disabled="disabled" />
+					#end
+					<input type="button" 
+							name="back" 
+							value="$tlang.getString("sitegen.siteinfolist.return")" 
+							onclick="document.siteForm.option.value='';javascript:document.siteForm.submit();" accesskey="l" />
+					#if ($!nextSite)
+						<input type="button" 
+							name="next" 
+							value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" 
+							onclick="document.siteForm.option.value='$nextSite.Id';javascript:document.siteForm.submit();" accesskey="n" />
+					#else
+						<input type="button" 
+							name="next" 
+							value="$tlang.getString("sitegen.siteinfolist.next1") &gt;" disabled="disabled" />
+					#end
+				</div>		
+			</div>		
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#end
+	<h3>
+		$validator.escapeHtml($!siteTitle) 
+	</h3>
+	<table cellpadding="0" border="0" cellspacing="0" class="itemSummary" summary="$tlang.getString("sitegen.siteinfolist.summary")">
+		#if ($!isCourseSite)
+			<tr> 
+				<th>
+					$tlang.getString("sitegen.siteinfolist.term")
+				</th>
+				<td>
+					$!term
+				</td>
+			</tr>
+			#if ($!allowUpdate)
+			<tr> 
+				<th>
+					$tlang.getString("sitegen.siteinfolist.courses")
+				</th>
+				<td>
+					#foreach ($title in $providerCourseTitles)
+						$title<br />
+					#end
+					#foreach($id in $!cmRequestedCourseList)
+						$id.title $tlang.getString("man.requested")<br />
+					#end
+					#foreach($id in $!manualCourseList)
+						$id $tlang.getString("man.requested")<br />
+					#end
+				</td>
+			</tr>
+			#end
+		#end
+		
+		## As with site email addresses, only show UUID-based site URL if that
+		## is our only option (see http://bugs.sakaiproject.org/jira/browse/SAK-10510)
+		#if ($!siteFriendlyUrls.Empty)
+		<tr> 
+			<th>
+				$tlang.getString("sitegen.siteinfolist.siteurl")
+			</th>
+			<td>
+				$!siteDefaultUrl
+			</td>
+		</tr>
+		#else
+		#set ( $aliasIdx = 0 )
+		#foreach($siteFriendlyUrl in $!siteFriendlyUrls)
+		<tr> 
+			<th>
+				#if ( $aliasIdx == 0 )
+					$tlang.getString("sitegen.siteinfolist.siteurl")
+				#else
+					&nbsp;
+				#end
+			</th>
+			<td>
+				$!siteFriendlyUrl
+			</td>
+		</tr>
+		#set ( $aliasIdx = $aliasIdx + 1 )
+		#end
+		#end
+		
+
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.sitecont")
+				</th>
+				<td>
+					$validator.escapeHtml($!contactName)#if($!contactEmail && !$contactEmail.equals("")), <a href="mailto:$!contactEmail">$!contactEmail</a>#end
+				</td>
+			</tr>
+		#if ($!allowUpdate)
+			<tr> 
+				<th>
+					$tlang.getString("sitegen.siteinfolist.ava")
+				</th>
+				<td>
+					#if ($!published)
+						#if ($!siteJoinable)
+							<span class="highlight">$tlang.getString("sitegen.siteinfolist.sitecan")</span>
+						#else
+							$tlang.getString("sitegen.siteinfolist.sitepar")
+						#end
+					#else
+						## unpublished site
+							<span class="highlight">$tlang.getString("sitegen.siteinfolist.siteown")</span>
+					#end
+				</td>
+			</tr>
+ 			<tr>
+ 				<th>
+					$tlang.getString("sitegen.siteinfolist.modify")
+				</th>
+				<td>
+					$!siteModifiedTime
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.usermodify")
+				</th>
+				<td>
+					$!siteModifiedBy
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("ediacc.dismysit")
+				</th>
+				<td>
+					#if ($!published && $!include)
+						<span class="highlight">$tlang.getString("sitegen.siteinfolist.yes")</span>
+					#else
+						$tlang.getString("sitegen.siteinfolist.no")
+					#end
+					<a href="#" id="displayPublicInfo" class="revealInstructions">$tlang.getString("ediacc.dismysit.h.a")</a>
+					<span class="instruction textPanelFooter" id="displayPublicInfoText" style="display:none">$tlang.getString("ediacc.dismysit.h")</span>
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.crea")
+				</th>
+				<td>
+					$!siteCreationDate
+				</td>
+			</tr> 
+		
+		#if ($!isCourseSite)
+			<tr>
+				<th>
+					$tlang.getString("sitegen.siteinfolist.app")
+				</th>
+				<td>
+					$!siteUnit
+				</td>
+			</tr>
+		#else
+			#if ($!siteIcon)
+				<tr>
+					<th>
+						$tlang.getString("sitegen.siteinfolist.icon")
+					</th>
+					<td>
+						<p class="textPanelFooter">$validator.escapeHtml($!siteIcon)</p>
+					</td>
+				</tr>	
+			#end
+		#end
+		#end
+            #if ($isMathJaxInstalled)
+            <tr>
+                <th>
+                $tlang.getString("sinfo.mathjax.name")
+                </th>
+                <td>
+                #if ($isMathJaxAllowedInSite)
+                    $tlang.getString("sinfo.mathjax.allowed")
+                #else
+                    $tlang.getString("sinfo.mathjax.notAllowed")
+                #end
+                </td>
+            </tr>
+            #end			
+		</table>
+
+		#set ($desc = $siteDescription) 
+		#set ($ell= $tlang.getString("sinfo.list.desc.ellipse"))
+		#if (!$desc || $desc.length() == 0|| $desc ==" "|| $desc =="&nbsp;" || $desc =="" || $desc =="<br>" || $desc =="<br/>" || $desc.isEmpty() || $validator.escapeHtml($desc)=="&lt;br type=&quot;_moz&quot; /&gt;" )
+		#else
+
+			<h4 style="padding:5px 0">
+				$tlang.getString("sitegen.siteinfolist.sitedes")
+			</h4>
+			<div style="padding:5px 0">
+				## strip the HTML, trim by x chars, add an ellipsis and add a link to the full description
+				$siteTextEdit.doPlainTextAndLimit($desc,100,"$ell")
+				<a class="getSiteDesc" href="#" id="$!siteId">$tlang.getString("sinfo.list.desc.more")</a>
+			</div>
+		#end
+		#if ($!groups.size() > 0 || $!joinableGroups.size() > 0 || $!sections.size() > 0)
+		<div id="accordion">
+			#if ($!sections.size() > 0)
+			<h4 class="toggleAnchor specialLink">
+				<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.sections")#else $tlang.getString("sinfo.list.sections.student") #end</span>
+			</h4>		
+			<div class="toggledContent">
+			<ul class="defList" style="list-style: none;" id="accordion">
+				#foreach ($g in $!sections)
+					#set ($gdesc = "")
+					<li style="margin: 1em 0 1em 0">
+						<span style="width: 80%;">
+							<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>
+							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id)) 
+									<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+							#end
+							#if ($g.Description)
+								<br/>
+								<span class="instruction">
+									$validator.escapeHtml($g.Description)
+								</span>
+							#end					
+						</span>
+						#if ($!unjoinableGroups.contains($g.Id))
+							<span style="float: right">
+								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+									<input type="hidden" name="group-ref" value="$g.reference" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" />
+								</form>
+							</span>
+						#end
+					</li>
+				#end
+			</ul>
+			</div>
+			#end
+			#if ($!groups.size() > 0)
+			
+			<h4 class="toggleAnchor specialLink">
+				<span  style="padding-left:1.5em">#if ($!viewRoster) $tlang.getString("sinfo.list.groups")#else $tlang.getString("sinfo.list.groups.student") #end</span>
+			</h4>		
+			<div class="toggledContent">
+			<ul class="defList" style="list-style: none;" id="accordion">
+				#foreach ($g in $!groups)
+					#set ($gdesc = "")
+					<li style="margin: 1em 0 1em 0">
+						<span style="width: 80%;">
+							<span id ="group$g.Id">$validator.escapeHtml($g.Title)</span>
+							#if ($!viewRoster || $!viewMembershipGroups.contains($g.Id))
+								<span class="itemAction"> ( <a href="#" class="moreInfoGroups" id ="$g.Id">$tlang.getString("sinfo.list.groups.memb")</a>)</span>
+							#end
+							#if ($g.Description)
+								<br/>
+								<span class="instruction">
+									$validator.escapeHtml($g.Description)
+								</span>
+							#end					
+						</span>
+						#if ($!unjoinableGroups.contains($g.Id))
+							<span style="float: right">
+								<form name="anotherpageForm" class="inlineForm" method="post" action="#toolForm("unjoinable-set")">
+									<input type="hidden" name="group-ref" value="$g.reference" />
+									<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+									<input type="submit" name="eventSubmit_doUnjoinableSet" value="$tlang.getString("sinfo.list.joinable.unjoin")" title="$tlang.getString("sinfo.list.joinable.unjoin") $validator.escapeHtml($g.Title)" />
+								</form>
+							</span>
+						#end
+					</li>
+				#end
+			</ul>
+			</div>
+			#end
+			#if ($!joinableGroups.size() > 0)
+				<h4 class="toggleAnchor specialLink">
+					<span  style="padding-left:1.5em">$tlang.getString("sinfo.list.joinable.groups")</span>
+				</h4>		
+				<div class="toggledContent">
+				<dl class="defList" id="accordion">
+					<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0">
+						<tr>
+							<th>
+								$tlang.getString("sinfo.list.joinable.title")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.joinable-set")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.size")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.members")
+							</th>
+							<th>
+								$tlang.getString("sinfo.list.joinable.join")
+							</th>
+						</tr>
+						#foreach ($g in $!joinableGroups)
+							#set ($disabled = $g.size >= $g.max)
+							<tr #if ($$disabled) style="color:gray"#end >
+								<td>
+									<span>$validator.escapeHtml($g.title)</span>
+								</td>
+								<td>
+									<span>$validator.escapeHtml($g.joinableSet)</span>
+								</td>
+								<td>
+									<span>$g.size ($g.max)</span>
+								</td>
+								<td>
+									#if ($g.preview)
+										<span>$validator.escapeHtml($g.members)</span>
+									#else
+										<span>$tlang.getString("sinfo.list.joinable.na")</span>
+									#end
+								</td>
+								<td>
+									<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("joinable-set")">
+										<input type="hidden" name="joinable-group-ref" value="$g.reference" />
+										<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+										<input #if ($$disabled) DISABLED #end type="submit" name="eventSubmit_doJoinableSet" value="$tlang.getString("sinfo.list.joinable.join")" title="$tlang.getString("sinfo.list.joinable.join")" />
+									</form>
+								</td>
+							</tr>
+						#end
+					</table>
+				</dl>
+				</div>
+			#end
+		</div>
+		<div style="clear:both"> </div>
+		#end
+
+	#if ($!viewRoster)
+		#if ($participantList.size() > 0)
+		 <div class="navPanel">
+		 	<div class="viewNav">
+			 	<h4>
+					$validator.escapeHtml($!siteTitle) $tlang.getString("sitegen.siteinfolist.part") ($tlang.getFormattedMessage("sinfo.list.participantListSize", $!participantListSize))
+
+			 	</h4>
+			</div>
+			<div class="listNav">
+					<div class="instruction">$tlang.getString("sitegen.siteinfolist.view") $topMsgPos - $btmMsgPos $tlang.getString("sitegen.siteinfolist.of") $allMsgNumber $tlang.getString("sitegen.siteinfolist.items")</div>
+					#if ($pagesize != 0)
+						#if ($goFPButton == "true")
+							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString("gen.first")</legend>
+								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#else
+							<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString("gen.first")</legend>
+								<input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#end
+						#if ($goPPButton == "true")
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
+								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#else
+							<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend>
+								<input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#end
+					#end
+					<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+						<label for="selectPageSize" class="skip">$tlang.getString("sitegen.siteinfolist.view.pagesize")</label>
+						<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
+							#foreach ($i in $!pagesizes)
+								<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("sitegen.siteinfolist.show") $i $tlang.getString("sitegen.siteinfolist.itemspage")</option>
+							#end
+						</select>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+					#if ($pagesize != 0)
+						#if ($goNPButton == "true")
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString('gen.next') $pagesize</legend>
+								<input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#else
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString('gen.next') $pagesize</legend>
+								<input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#end
+						#if ($goLPButton == "true")
+							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString('gen.last')</legend>
+								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#else
+							<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString('gen.last')</legend>
+								<input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#end
+					#end
+				</div>
+			</div>
+		#end
+		## download link for print out participant list
+		<a href="$printParticipantUrl" title="$!tlang.getString('print')">$!tlang.getString('print')</a>
+		<hr />
+		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
+			<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
+				<tr>
+					<th id="name">
+						<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_name")" title ="$tlang.getString("sitegen.siteinfolist.sortname")"> 
+							$tlang.getString("sitegen.siteinfolist.name")
+							#if ($currentSortedBy.equals("participant_name")) 
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortnameas")" alt ="$tlang.getString("sitegen.siteinfolist.sortnameas")" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortnamedes")" alt ="$tlang.getString("sitegen.siteinfolist.sortnamedes")" /> 
+								#end 
+							#end 
+						</a>
+					</th>
+					#if ($hasProviderSet)
+						<th id="coursename">
+							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_course")" title ="$tlang.getString("sitegen.siteinfolist.sortname1")"> 
+								$tlang.getString("sitegen.siteinfolist.enrolled")
+								#if ($currentSortedBy.equals("participant_course")) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortnameas1")" alt ="$tlang.getString("sitegen.siteinfolist.sortnameas1")" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortnamedes1")" alt ="$tlang.getString("sitegen.siteinfolist.sortnamedes1")" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+					#end
+					#if ($!isCourseSite)
+						<th id="id">
+							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_id")" title ="$tlang.getString("sitegen.siteinfolist.sortid")"> 
+								$tlang.getString("sitegen.siteinfolist.id")
+								#if ($currentSortedBy.equals("participant_id")) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortidas")" alt ="$tlang.getString("sitegen.siteinfolist.sortidas")" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortiddes")" alt ="$tlang.getString("sitegen.siteinfolist.sortiddes")" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+						<th id="credits">
+							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_credits")" title ="$tlang.getString("sitegen.siteinfolist.sortcred")"> 
+								$tlang.getString("sitegen.siteinfolist.credits")
+								#if ($currentSortedBy.equals("participant_credits")) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortcredas")" alt ="$tlang.getString("sitegen.siteinfolist.sortcredas")" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortcreddes")" alt ="$tlang.getString("sitegen.siteinfolist.sortcreddes")" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+					#end
+					<th id="role">
+						<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_role")" title ="$tlang.getString("sitegen.siteinfolist.sortrole")"> 
+							$tlang.getString("sitegen.siteinfolist.role")
+							#if ($currentSortedBy.equals("participant_role")) 
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortroleas")" alt ="$tlang.getString("sitegen.siteinfolist.sortroleas")" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortroledes")" alt ="$tlang.getString("sitegen.siteinfolist.sortroledes")" /> 
+								#end 
+							#end
+						</a>	
+					</th>
+					#if ($allowUpdateSiteMembership)
+						#if ($!activeInactiveUser && !$!isMyWorkspace)
+							<th id="status">
+								<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_status")" title ="$tlang.getString("sitegen.siteinfolist.sortstatus")"> 
+								$tlang.getString("sitegen.siteinfolist.status")
+								#if ($currentSortedBy.equals("participant_status")) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortstatusas")" alt ="$tlang.getString("sitegen.siteinfolist.sortstatusas")" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString("sitegen.siteinfolist.sortstatusdes")" alt ="$tlang.getString("sitegen.siteinfolist.sortstatusdes")" /> 
+									#end 
+								#end 
+							</a>
+							</th>
+						#end
+						<th id="remove" class="screenOnly attach" align="center" >
+							<label for="toggleAllSelected">$tlang.getString('sitegen.siteinfolist.remove')</label>
+							<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" onclick="javascript:toggleSelectAll(this, 'selectedUser')" title="$tlang.getString('sitegen.siteinfolist.remove')"/>
+						</th>
+					#end
+				</tr>
+				#foreach($participant in $participantList)
+					#set($uniqname = $participant.getUniqname())
+					<tr #if(!$!participant.isActive())class="inactive inactiveBack"#end>
+						<td headers="name">
+							<h5>
+								#set ($participantName=$participant.getName())
+								#if ($participantName ==", ") 	
+								#else
+									$validator.escapeHtml($participantName)
+								#end
+								(#set($displayId=false)
+								#set($displayId = $participant.getDisplayId())
+								#if ($!displayId)
+									## for those internal users as Participant objects
+									$displayId
+								#end)
+							</h5>
+						</td>
+						#if ($hasProviderSet)
+							<td headers="coursename">
+								#set($partSection = "")
+								#set($partSection = $participant.getSection())
+								$partSection
+							</td>
+						#end
+						#if ($!isCourseSite)
+							<td headers="id">
+								#set($partId = "")
+								#set($partId = $participant.getRegId())
+								$!partId
+							</td>
+							<td headers="credits">
+								#set($partCredits = "")
+								#set($partCredits = $participant.getCredits())
+								$!partCredits
+							</td>
+						#end
+						<td headers="role">
+							#set($uRole = "")
+							#set($uRole = $participant.getRole())
+							#if ($!isMyWorkspace)
+								$uRole
+							#elseif ($allowUpdateSiteMembership)
+								#set( $hasAllowedRole = "false" )
+								#foreach( $role in $allowedRoles )
+									#if( $role.Id == $uRole )
+										#set( $hasAllowedRole = "true" )
+									#end
+								#end
+							
+								#if( $hasAllowedRole == "true" )
+									<label class="skip" for="role$uniqname">$tlang.getString( "sitegen.siteinfolist.role.select" )  $participant.getDisplayId()</label>
+								<select id="role$uniqname" name="role$uniqname">
+									    #set( $hasRestrictedRole = "false" )
+									    #foreach( $role in $allowedRoles )
+									        #if( ($role.Id == $uRole) && $role.isProviderOnly() )
+									            #set( $hasRestrictedRole = "true" )
+								        #end
+								    #end
+										#foreach( $r in $allowedRoles )
+											#if( $r.Id == $uRole )
+										<option value ="$r.Id" selected>
+											$r.Id
+										</option>
+										#else
+												#if( !($r.isProviderOnly() || ($hasRestrictedRole == "true")) )
+											<option value ="$r.Id">
+												$r.Id 
+											</option>
+											#end
+										#end
+									#end
+								</select>
+									
+							#else
+									$uRole
+								#end
+							#else
+								$!uRole
+							#end
+						</td>
+						#if ($allowUpdateSiteMembership)
+							#if ($!activeInactiveUser && !$!isMyWorkspace)
+								<td>
+									<label class="skip" for="activeGrant$uniqname">$tlang.getString("sitegen.siteinfolist.status.select")  $participant.getDisplayId()</label>
+									<select id="activeGrant$uniqname" name="activeGrant$uniqname">
+										<option value="true" #if($!participant.isActive())selected="selected"#end >$tlang.getString("sitegen.siteinfolist.active")</option>
+										<option value="false" #if(!$!participant.isActive())selected="selected"#end>$tlang.getString("sitegen.siteinfolist.inactive")</option>
+									</select>
+								</td>
+							#end
+							<td class="screenOnly">
+								#if ($participant.isRemoveable())
+									## if in My Workspace site, cannot move the site user from it
+									#if (!$!isMyWorkspace || ($!isMyWorkspace && !$uniqname.equals($!siteUserId)))
+									<label  for="remove_$uniqname"><span class="skip">$tlang.getString("sitegen.siteinfolist.remove") $participant.getDisplayId()</span></label><input type="checkbox" name="selectedUser" value="$uniqname" id="remove_$uniqname"
+											#foreach($participantSelected in $selectedParticipants)
+												#if($participantSelected.getUniqname() == $uniqname)
+													checked="checked" 
+												#end
+											#end
+										/>
+									#end
+								#end
+							</td>
+						#end
+					</tr>
+				#end
+			</table>
+			<div class="act">
+				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" />
+				#if ($fromWSetup)
+					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" />
+				#end
+                                <div class="instruction" style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span>
+			</div>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
+			<dl>
+				#foreach( $role in $allowedRoles )
+					##		#set ($description = false)
+					<dt>
+						$role.Id
+					</dt>
+					<dd class="instruction indnt3">
+							#set($description = "")
+							#if ($role.Description)
+								#set($description = $role.Description)
+							#else
+								## search for internationalized description in bundle
+                                #set($propertiesKey = "sitegen.roledescription.")
+                                #set($RoleId = $role.Id)
+								#set($RoleId = $RoleId.replaceAll(" ",""))
+								#set($roleDesc="${propertiesKey}${RoleId}")
+                                #set($description = $tlang.getString($roleDesc,""))
+							#end
+							$validator.escapeHtml($!description)
+
+					</dd>
+				#end
+			</dl>	
+	#end
+</div>

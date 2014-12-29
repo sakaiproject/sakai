@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="messageSource"
+    class="org.sakaiproject.util.ResourceLoaderMessageSource"
+    depends-on="TLABPostProcessorLoader">
+    <property name="basename" value="classpath:org/sakaiproject/tool/pageorder/bundle/Messages"/>
+  </bean>
+
+  <bean parent="requestAddressibleParent">
+    <property name="value" value="SitePageEditHandler" />
+  </bean>
+
+  <bean parent="templateContributorParent">
+    <property name="templateNames" value="PageList"/>
+    <property name="baseDirectory" value="content/templates/" />
+  </bean>
+  
+  <bean id="ignoreFossilizedValues"
+    class="uk.org.ponder.springutil.BooleanFactory">
+    <property name="value" value="true" />
+  </bean>
+   
+</beans>

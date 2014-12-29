@@ -1,0 +1,42 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+	<title>Site Page Order</title>
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/PageList.css" rel="stylesheet" type="text/css" />
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+</head>
+<body>
+<div class="portletBody">
+	<form rsf:id="tools-form">
+		<h3 rsf:id="prompt">
+			Revising site tools for Test
+		</h3>
+		<p rsf:id="msg=add_inst" class="instruction">
+			Check boxes to add tools from your site.
+		</p>
+		<span rsf:id="select-tools"></span>
+		<table class="listHier lines nolines" style="width:auto" summary="Site tools list. Column 1: checkbox to add or drop tool from site. Column 2: tool name. Column 3: tool description.">
+			<tr>
+				<th rsf:id="msg=add_select-title" class="skip">Select</th>
+				<th rsf:id="msg=add_tool-title" class="skip">Tool</th>
+				<th rsf:id="msg=add_desc-title" class="skip">Tool description</th>
+			</tr>	
+			<tr rsf:id="tool-row:">
+				<td>
+				  <input rsf:id="tool-select" title="Select to add tool" type="checkbox" id="check-2" name="addTool" value=""/>
+				</td>
+				<td rsf:id="tool-name"/>
+				<td rsf:id="tool-description"/>					
+			</tr>
+		</table>
+		<p class="act">
+			<input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit"/>
+			<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+		</p>			
+	</form>
+</div>
+</body>
+</html>

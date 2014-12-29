@@ -1,0 +1,80 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_simpleSearch.vm,v 1.2 2005/05/19 19:53:16 gsilver.umich.edu Exp $ -->
+<script type="text/javascript" language="JavaScript">
+	focus_path = ["search"];
+</script>
+<script type="text/javascript" src="/library/js/jquery.js">
+    
+</script>
+<script type="text/javascript" language="JavaScript">
+    $(document).ready(function(){
+       if(!$('#selectTerm')[0]) {
+           // selectTerm element doesn't exist
+           return;
+       }
+       $("input:radio").click(function(){
+           if($(this).attr('class')=='siteTypeTerm') {
+               $('#selectTerm').attr('disabled','')
+           }
+           else {
+               $('#selectTerm').attr('disabled','disabled');
+               $('#selectTerm  option')[0].selected = true;
+               
+           }
+       })
+    });
+</script>
+<div class="portletBody">
+		<h3>$tlang.getString("se.search")</h3>
+		<p class="instruction">$tlang.getString("se.complete")</p>
+	
+		<form action="#toolForm("$action")" method="post">		
+		<fieldset style="margin-top:0"><legend>
+		<h4>$tlang.getString("se.type")</h4>
+        </legend>
+			#if ($siteTypes.size() > 0 )
+				#set($siteTypeCount=0)
+				#foreach ($type in $siteTypes)
+				#set($siteTypeCount=$siteTypeCount + 1)
+					#if ($type == $termSearchSiteType)
+						<input type="hidden" name="ClassSiteFromSystem" value="true" />
+						<div class="checkbox indnt1">
+							<input  type="radio" name="siteType" class="siteTypeTerm" id="siteType$siteTypeCount" value="$type" />
+							<label for="siteType$siteTypeCount"  style="text-transform: capitalize">$type</label>
+						</div>
+						<div class="indnt3" id="selectTermBlock">
+							<label for="selectTerm">$tlang.getString("se.term")</label>
+							<select name="selectTerm" id="selectTerm" disabled="disabled">
+							<option value="Any">$tlang.getString("se.any")</option>
+							#foreach ($term in $terms)
+							<option value="$term.eid">$term.title</option>
+							#end
+							</select>
+						</div>	
+					#else
+						<div class="checkbox indnt1">
+							<input type="radio" name="siteType" id="siteType$siteTypeCount" value="$type" />
+							<label for="siteType$siteTypeCount"  style="text-transform: capitalize">$type</label>
+						</div>
+					#end
+				#end
+			#end
+		
+			<div class="checkbox indnt1">
+				<input type="radio" name="siteType" id="siteTypeAny" value="Any" checked="checked" />
+				<label for="siteTypeAny">$tlang.getString("se.any")</label>
+			</div>
+            </fieldset>
+			<p class="instruction indnt1">$tlang.getString("se.instruction")</p>
+		<p class="shorttext indnt1">
+			<label for="searchbox">$tlang.getString("se.search1") </label>
+			<input type="text" name="search" id="searchbox" size="20" maxlength="50" value=""  />
+			<input type="hidden" name="eventSubmit_doSearch" id="eventSubmit_doSearch" value="Search for Sites" />
+		</p>
+		
+		<p class="act">
+			 <input type="submit" class="active"  name="eventSubmit_doSearch" value="$tlang.getString("se.search")" accesskey="s" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+
+</div>

@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title rsf:id="msg=group.autocreate.newgroups">Create New Group(s)</title>
+        <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" rsf:id="resize"/>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+        </script>
+        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
+        </script>
+    </head>
+    <body>
+        <div class="portletBody">
+            <form rsf:id="groups-form">
+            	<h3 rsf:id="prompt"></h3>
+				<p rsf:id="instructions" class="instruction"></p>
+				<div rsf:id="error-row:">
+	                <div class="alertMessage" rsf:id="error">
+	                    We Have Errors!
+	                </div>
+	            </div>
+				<br/>
+				<div id="groupFields" class="indnt1">
+					<table cellspacing="0" cellpadding="4px">
+						<tr>
+                			<td><p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-title-group">Set name:</label></p></td>
+                			<td><input rsf:id="groupTitle-group" id="groupTitle-group" type="text"/><span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span></td>
+                		</tr>
+                		<tr>
+                			<td style="vertical-align:top"><p class="shorttext"><label rsf:id="current-groups-title">Current Groups:</label></p></td>
+                			<td><p class="shorttext"><div rsf:id="current-groups-row:"><span rsf:id="current-group"><br/></span></div></p></td>
+                		</tr>
+                		<tr rsf:id="allowunjoinEdit-row:">
+            				<td colSpan="2">
+            					<span style="margin: .4em 1em">
+            						<input rsf:id="allowUnjoinEdit" id="allowUnjoinEdit" type="checkbox" /><label rsf:id="allowUnjoinEdit-label">Allow members to unjoinEdit (leave) groups in this set after joinEditing</label>
+            					</span>
+            				</td>
+            			</tr>
+                		<tr rsf:id="additional-title-row:">
+                			<td colspan="2">
+                				<p rsf:id="additional-title"></p>
+                			</td>
+                		</tr>
+                		<tr rsf:id="num-groups-row:">
+            				<td><p class="shorttext" style="border: none !important;"><span class="reqStar" style="border: none !important;">*</span><label rsf:id="group-unit" id="group-unit">Number of groups:</label></p></td>
+            				<td><input rsf:id="num-groups" id="num-groups" type="text" size="3"/><span class="validFMess" rsf:id="msg=numGroups.empty.alert">Need a number here</span></td>
+            			</tr>
+            			<tr rsf:id="max-members-row:">
+            				<td><p class="shorttext" style="border: none !important;"><span class="reqStar" style="border: none !important;">*</span><label rsf:id="group-max-members" id="group-max-members">Max members per group:</label></p></td>
+            				<td><input rsf:id="num-max-members" id="num-max-members" type="text" size="3"/><span class="validFMess" rsf:id="msg=maxMembers.empty.alert">Need a number here</span></td>
+            			</tr>
+            			<tr rsf:id="allowpreview-row:">
+            				<td colSpan="2">
+            					<input rsf:id="allowPreviewMembership" id="allowPreviewMembership" type="checkbox" /><label rsf:id="allowPreviewMembership-label">Allow users to see group membership before joining</label>
+            				</td>
+            			</tr>
+            			<tr rsf:id="allowview-row:">
+            				<td colSpan="2">
+            					<input rsf:id="allowViewMembership" id="allowViewMembership" type="checkbox" /><label rsf:id="allowViewMembership-label">Allow members to see the other members of these groups after joining</label>
+            				</td>
+            			</tr>
+            			<tr rsf:id="allowunjoin-row:">
+            				<td colSpan="2">
+            					<input rsf:id="allowUnjoin" id="allowUnjoin" type="checkbox" /><label rsf:id="allowUnjoin-label">Allow members to unjoin (leave) groups in this set after joining</label>
+            				</td>
+            			</tr>
+            			<tr rsf:id="generate-row:">
+                			<td colspan="2">
+                				<p>
+                                    <input accesskey ="g" rsf:id="generate" class="active" value="Generate" type="submit" id="generate" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'generateAdditionalSpinner');"/>
+                                    <img id="generateAdditionalSpinner" class="spinner" src="/library/image/indicator.gif" />
+                                </p>
+                			</td>
+                		</tr>
+            		</table>
+        		</div>
+                <div class="act">
+                    <div style="float:left">
+                        <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                        <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                    </div>
+                    <div style="float:right">
+                        <input accesskey ="d" rsf:id="delete" value="Delete Set" type="submit" id="delete" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
+                    </div>
+                    <img id="editJoinableGroupSpinner" class="spinner" src="/library/image/indicator.gif" />
+                </div>
+                <input type="hidden" rsf:id="groupTitle-group-orig"/>
+            </form>
+            
+         </div>
+     </body>
+</html>

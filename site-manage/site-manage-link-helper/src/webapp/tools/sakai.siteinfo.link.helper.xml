@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai-site-manage-link-helper"
+			title="Site Link Helper"
+			description="For setting parent/child links between sites.">
+
+		<configuration name="source" value="" />
+		<configuration name="height" value="600px" />
+
+		<configuration name="reset.button" value="true"/>
+
+		<category name="sakai.helper" />
+
+		<!-- Allow this to be set -->
+		<configuration name="functions.require" /> 
+		
+	</tool>
+
+</registration>

@@ -1,0 +1,10 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/chef_header.vm,v 1.1 2005/04/13 19:20:45 ggolden.umich.edu Exp $
+## This is here so that we can add extra bits to the <head> of the page.
+
+#header_prepend('<link type="text/css" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" media="screen" />')
+#header_prepend('<link type="text/css" href="/sakai-site-manage-tool/css/site-manage.css" rel="stylesheet" media="screen" />')
+#header_append('<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>')
+#header_append('<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>')
+#header_append('<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage.js"></script>')
+
+#chef_start()

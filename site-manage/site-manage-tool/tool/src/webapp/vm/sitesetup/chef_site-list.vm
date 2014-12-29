@@ -1,0 +1,350 @@
+##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitesetup/chef_site-list.vm,v 1.3 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
+<div id="dialog"></div>
+<script type="text/javascript">
+    $(document).ready(function(){
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+		sakai.setupSelectList('siteList','toggleAllSelected','selectedSelected');
+                setupRecentSite();
+		$('.siteSelectCheckbox, #toggleAllSelected').click(function(){
+			if($('.siteSelectCheckbox:checked').length >= 1){
+				$('#actionToolBar .realToolBarLink').show();
+				$('#actionToolBar .dummyToolBarLink').hide();
+			}
+			else{
+				$('#actionToolBar .realToolBarLink').hide();
+				$('#actionToolBar .dummyToolBarLink').show();
+			}
+		})
+    });
+</script>
+<div class ="portletBody">
+	<ul id="actionToolBar" class="navIntraTool actionToolBar">
+		#if($allowAddSite)
+			<li class="firstToolBarItem"><span><a href="#toolLink("$action" "doNew_site")" title="$tlang.getString('java.new')">$tlang.getString("java.new")</a></span></li>
+		#end
+		<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.revise")</span></li>
+		<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.delete")</span></li>
+		
+		#if($superUser)
+			<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.delete.hard")</span></li>
+		#end
+		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="document.getElementById('sakai_action').value='doGet_site';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.revise')">$tlang.getString("java.revise")</a></span></li>
+		<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete')">$tlang.getString("java.delete")</a></span></li>
+		
+		#if($superUser)
+			<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_hard_delete';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.delete.hard')">$tlang.getString("java.delete.hard")</a></span></li>
+		#end
+		#if($showRestore)
+			<li class="dummyToolBarLink"><span class="current">$tlang.getString("java.restore")</span></li>
+			<li style="display:none" class="realToolBarLink"><span><a href="" onclick="javascript:document.getElementById('sakai_action').value='doMenu_site_restore';document.getElementById('sitesForm').submit();return false;" title="$tlang.getString('java.restore')">$tlang.getString("java.restore")</a></span></li>
+		#end
+	</ul>
+
+	<div class="navIntraToolLink viewNav">
+		#if($linkList)
+			<span>
+				#set ($itemsOnLine = 0)
+				#foreach($link in $linkList)
+					#set($action = $listActions.get("$key"))
+					#if($itemsOnLine > 0)|#end
+					 <input  id="$link.getId()-link" type="button" #if ($link.getToggleable()) name="linkList" #end
+						onclick="$link.getLink()"
+						#if($link.getDisabled()) disabled="disabled" #end alt="$link.getLabel()" value="$link.getLabel()" />
+					#set ($itemsOnLine = $itemsOnLine + 1)
+				#end
+			</span>
+		#end
+	</div>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $alertMessage</div>#end
+	<div class="navPanel">
+		<div class="viewNav">
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+				<input type="hidden" name="eventSubmit_doView_sites" value="view" />
+				<label for="view">$tlang.getString("list.view")</label>
+				<select id="view" name="view" size="1" onchange="document.viewForm.submit();">
+					#foreach($view in $viewKeys)
+						<option value ="$view"
+						#if($view == $viewSelected) selected="selected" #end
+						> $views.get($view) </option>
+					#end
+				</select>
+				#if(!$hideTermFilter)
+					<br/>
+					<label for="termview">$tlang.getString("list.selectTerm")</label>
+					<select id="termview" name="termview" size="1" onchange="document.viewForm.submit();">
+						#foreach($view in $termViewKeys)
+							<option value ="$view"
+							#if($view == $viewTermSelected) selected="selected" #end
+							> $termViews.get($view) </option>
+						#end
+					</select>
+				#end
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+		<div class="searchNav">
+			#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
+				## hide search form when in normal user login and in my workspace sites view
+				<form name="searchForm" class="inlineForm" action="#toolForm("SiteAction")" method="post">
+					<input type="hidden" name="eventSubmit_doSite_search" value="null" />
+					<label for="$form_search" class="skip">$tlang.getString('list.search')</label>
+					<input size="20"  value="$validator.escapeHtml($!searchString)" name="$form_search" id="$form_search" type="text" class="searchField"  />
+					<input type="button" value="$tlang.getString('list.search')" onclick="location = '#toolLink($action "doSite_search")'+buildQueryString('searchForm');return false;" />
+					
+					#if (($!searchString) && (!$searchString.equals("")))
+						<input type="button" class="button" value="$tlang.getString("list.cls")" onclick="location = '#toolLink($action "doSite_search_clear")'+buildQueryString('searchForm');return false;" />
+					#end
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			#end
+		</div>
+	</div>	
+	<div class="navPanel">
+		#if ($sites.size() > 0)
+			#if ($!superUser || (!$!superUser && $viewSelected != $tlang.getString("java.my")))
+##				<div class="listNav">
+##				</div>
+				#if ($sites.size() > 0)
+					<div class ="viewNav">
+						#if (($!searchString) && (!$searchString.equals("")))
+						<span class="instruction highlight">#if($!allMsgNumber == "1") $tlang.getString("list.onesite")#else $allMsgNumber $tlang.getString("list.sites")#end $tlang.getString("list.found") $validator.escapeHtml($!searchString) $tlang.getString("list.inthe") "$!viewSelected".</span>
+						#end
+
+						<br /><span class="instruction">$tlang.getString("list.check")</span>
+					</div>
+				#end
+				<div class="listNav">
+					<div class="instruction">$tlang.getString("list.viewing") $topMsgPos - $btmMsgPos $tlang.getString("import.of") $allMsgNumber $tlang.getString("list.items")</div>
+					#if ($pagesize != 0)
+						#if ($goPPButton == "true")
+							<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+                            <fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
+							<input type="submit" name="eventSubmit_doList_prev" title="$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')" value="&lt;"  accesskey="p" />
+                            </fieldset>
+							</form>
+						#else
+							<fieldset><legend>$tlang.getString('list.previous') $pagesize $tlang.getString('list.items')</legend>
+                            <input type="submit" disabled="disabled" name="eventSubmit_doList_prev" value="&lt;" />
+                            </fieldset>
+						#end
+					#end
+					<form name="pagesizeForm"  class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
+							<label for="selectPageSize" class="skip">$tlang.getString("list.select.label")</label>
+						<select name="selectPageSize" id="selectPageSize" onchange="document.pagesizeForm.submit();">
+							#foreach ($i in $!pagesizes)
+								<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
+							#end
+						</select>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
+					#if ($pagesize != 0)
+						#if ($goNPButton == "true")
+							<form name="nextpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
+							    <fieldset><legend>$tlang.getString('list.next') $pagesize $tlang.getString('list.items')</legend>
+								<input type="submit" name="eventSubmit_doList_next" title="$tlang.getString('list.next') $pagesize $tlang.getString('list.items')" value="&gt;"  accesskey="n" />
+                                </fieldset>
+								<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+							</form>
+						#else
+                            <fieldset><legend>$tlang.getString('list.next') $pagesize $tlang.getString('list.items')</legend>
+							<input type="submit" disabled="disabled" name="eventSubmit_doList_next" value="&gt;" />
+                            </fieldset>
+						#end
+					#end
+				</div>
+			#end
+		</div>	
+	#end
+	<form id="sitesForm" name="sitesForm" action="#toolForm("SiteAction")" method="post">
+		<input type="hidden" name="sakai_action" id="sakai_action" value="" />
+		#if ($sites.size() > 0)
+			<table class ="listHier lines nolines" summary ="$tlang.getString('list.summary')" border ="0" id ="siteList" cellpadding="0" cellspacing="0">
+				<tr>
+					<th id="checkbox" class="screenOnly attach">
+						<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected"  title="$tlang.getString('check.all')" />
+					</th>
+					<th id="title">
+						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_title)")" title ="$tlang.getString('list.sortbytitle')"> 
+							$tlang.getString("list.worksite")
+							#if ($currentSortedBy.equals($sortby_title)) 
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
+								#end 
+							#end 
+						</a>
+					</th>
+					#if($show_id_column)
+						<th id="id">
+							<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_id)")" title ="$tlang.getString('list.sortbyid')"> 
+								$tlang.getString("list.id")
+								#if ($currentSortedBy.equals($sortby_id)) 
+									#if ($currentSortAsc.equals("true")) 
+										<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.stasc')" alt ="$tlang.getString('list.stasc')" /> 
+									#else 
+										<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stdesc')" alt ="$tlang.getString('list.stdesc')" /> 
+									#end 
+								#end 
+							</a>
+						</th>
+					#end
+					<th id="type">
+						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_type)")" title ="$tlang.getString('list.sortbytype')"> 
+							$tlang.getString("list.type")
+							#if ($currentSortedBy.equals($sortby_type)) 
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.styasc')" alt ="$tlang.getString('list.styasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stydesc')" alt ="$tlang.getString('list.stydesc')" /> 
+								#end 
+							#end 
+						</a>
+					</th>					
+					<th id="createdBy">
+						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdby)")" title ="$tlang.getString('list.sortbycreator')"> 
+							$tlang.getString("list.creator")
+							#if ($currentSortedBy.equals($sortby_createdby))
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.screatorasc')" alt ="$tlang.getString('list.screatorasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.screatordesc')" alt ="$tlang.getString('list.screatordesc')" /> 
+								#end 
+							#end 
+						</a>
+					</th>
+					<th id="term">
+						##<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=term")" title ="$tlang.getString('list.sortbyterm')"> 
+							$tlang.getString("list.term")
+							#*if ($currentSortedBy.equals("term")) 
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.steasc')" alt ="$tlang.getString('list.steasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.stedesc')" alt ="$tlang.getString('list.stedesc')" /> 
+								#end 
+							#end 
+						</a>*#
+					</th>
+					<th id="published">
+						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_publish)")" title ="$tlang.getString('list.sortbystatus')"> 
+							$tlang.getString("list.status")
+							#if ($currentSortedBy.equals($sortby_publish)) 
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.spasc')" alt ="$tlang.getString('list.ssasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.spdesc')" alt ="$tlang.getString('list.ssdesc')" /> 
+								#end 
+							#end 
+						</a>
+					</th>
+					<th id="createdOn">
+						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdon)")" title ="$tlang.getString('list.sortbycreation')"> 
+							$tlang.getString("list.creationdate")
+							#if ($currentSortedBy.equals($sortby_createdon))
+								#if ($currentSortAsc.equals("true")) 
+									<img src = "#imageLink("sakai/sortascending.gif")" border="0" title ="$tlang.getString('list.scasc')" alt ="$tlang.getString('list.scasc')" /> 
+								#else 
+									<img src = "#imageLink("sakai/sortdescending.gif")" border="0" title ="$tlang.getString('list.scdesc')" alt ="$tlang.getString('list.scdesc')" /> 
+								#end 
+							#end 
+						</a>
+					</th>
+				</tr>
+				#if($sites && $sites.size() != 0)
+					#set ($siteCount=0)
+					#foreach ($site in $sites)
+					#set ($siteCount=$siteCount + 1)
+						#set ($properties = $site.getProperties())
+
+						#if($site.SoftlyDeleted)
+							<tr class="siteListSoftlyDeleted">
+						#else
+							<tr>
+						#end							
+							<td headers="checkbox" class="screenOnly attach">
+								#if ($service.allowUpdateSite($site.Id))
+									<input type="checkbox" name="selectedMembers" value="$validator.escapeHtml($site.getId())" id="site$siteCount"  class="siteSelectCheckbox"  />
+									<label class="skip" for="site$siteCount">Select $validator.escapeHtml($site.getTitle())</label>
+								#end
+							</td>
+							<td headers="title">
+								<h4>
+									<a href="$site.Url" target="_top">
+									$validator.escapeHtml($site.getTitle())
+									</a>
+                                    <a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
+                                        <img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
+                                    </a>
+								</h4>
+							</td>
+							#if($show_id_column)
+								<td headers="id">
+									$validator.escapeHtml($site.getId())
+								</td>
+							#end
+							<td headers="type">
+								#set($type="")
+								#set($type = $site.getType())
+								$!type
+							</td>
+							<td headers="createdBy">
+								#if ($site.CreatedBy)
+									$validator.escapeHtml($site.CreatedBy.DisplayId)
+								#end
+							</td>
+							<td headers="term">
+								#if($!courseSiteTypeStrings.contains($site.getType()))
+									#set($term = "")
+									#set($term = $properties.getProperty('term'))
+									$!term
+								#else
+									
+								#end
+							</td>
+							<td headers="published">
+								#if($site.isSoftlyDeleted())
+									$tlang.getString("list.softlydeleted")
+								#elseif($site.isPublished())
+									$tlang.getString("list.publi")
+								#else
+									$tlang.getString("list.unpub")
+								#end
+							</td>
+							<td headers="createdOn">
+								#set($createdTime="")
+								#set($createdTime = $!site.getCreatedTime())
+								$!createdTime.toStringLocalFull()
+							</td>
+						</tr>
+					#end
+				#end
+			</table>
+	#else
+		<div class="instruction">
+		<br />
+			$tlang.getString("list.nosites") 
+			#if ($!searchString && !$searchString.equals(""))
+				$tlang.getString("list.thatmatch") $validator.escapeHtml($!searchString)
+			#end
+			$tlang.getString("list.inthe") $validator.escapeHtml($views.get($!viewSelected)).
+		</div>	
+	#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+    #if($newSiteStatusTitle)
+        <div id="newSiteAlert" class="$newSiteStatusID">
+            <span class="newSiteAlertMessage"><a title="$validator.escapeHtml($newSiteStatusTitle)" href="/portal/site/$newSiteStatusID" target="_top">$validator.escapeHtml($newSiteStatusTitle)</a> $tlang.getString("sitdup.hasbeedup") </span>
+            #if ($newSiteStatusIsPublished == false)
+                <div id="newSiteAlertActions" class="newSiteAlertActions">
+                    <a href="#" id="newSiteAlertPublish" class="$newSiteStatusID">$tlang.getString("sitetype.publishSite")</a>
+                    <span id="newSiteAlertPublishMess" class="messageSuccess" style="display:none">$tlang.getString("list.publi")</span>
+                </div>
+            #end
+            
+            <a href="#" class="newSiteAlertClose" title="$tlang.getString("sitetype.template.close.info")">&times;<span class="skip">$tlang.getString("sitetype.template.close.info")</span></a>    
+        </div>
+    #end    
+	</form>
+</div>
+		

@@ -1,0 +1,53 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+      "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+          "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+          
+<hibernate-mapping package="org.sakaiproject.sitemanage.impl" default-lazy="false">
+	<class name="SiteTypeQuestionsImpl"
+		table="SSQ_SITETYPE_QUESTIONS">
+		
+		<id name="id" length="99" column="ID">
+			<generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+		</id>
+		
+		<property name="siteType" type="string" not-null="true">
+            <column name="SITE_TYPE"/>
+        </property>
+        
+        <property name="instruction" type="string" not-null="false">
+            <column name="INSTRUCTION"/>
+        </property>
+        
+        <property name="url" type="string" not-null="false">
+            <column name="URL"/>
+        </property>
+        
+        <property name="urlLabel" type="string" not-null="false">
+            <column name="URL_LABEL"/>
+        </property>
+        
+        <property name="urlTarget" type="string" not-null="false">
+            <column name="URL_Target"/>
+        </property>
+        
+        <list name="questions" cascade="none" inverse="false">
+			<key column="SITETYPE_ID" />
+			<index column="ORDER_NUM" />
+			<one-to-many class="SiteSetupQuestionImpl" />
+		</list>
+    </class>
+    
+	<query name = "findQuestionsBySiteType">
+			<![CDATA[
+			from SiteTypeQuestionsImpl questions
+			where questions.siteType = :siteType
+		]]>
+	</query>
+	
+	<query name = "findAnySiteTypeQuestions">
+			<![CDATA[
+			from SiteTypeQuestionsImpl questions
+		]]>
+	</query>
+</hibernate-mapping>

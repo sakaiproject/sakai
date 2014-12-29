@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool id="sakai-site-pageorder-helper"
+		title="Page Order Helper"
+		description="Site Page Order Helper Tool">
+		<category name="sakai.helper" />
+		<configuration name="functions.require" value="site.upd" />
+	</tool>	
+</registration>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<emailTemplates>
+<emailTemplate>
+<subject>Site Request from ${currentUserDisplayName} for ${termTitle} </subject>
+<message>
+Hello, 
+
+You are receiving this message at the recommendation of ${currentUserDisplayName}, who has requested an official course website for the following class(es):
+
+${termTitle}
+
+${requestSectionInfo}
+
+Site title:	${siteTitle}
+Site id:	${siteId}
+
+Special Instruction:
+${specialInstruction}
+
+According to our data sources, ${currentUserDisplayName} is not the instructor of record. Can you verify that ${currentUserDisplayName} is associated with the class(es) listed above?
+
+Please respond to this message with information about ${currentUserDisplayName}'s appointment and the legitimacy of this site request. If you feel unable to respond, please forward this message to a departmental contact with the authority to approve or deny the request.
+
+Thank you,
+${serverName} Support Team
+
+</message>
+<locale></locale>
+</emailTemplate>
+</emailTemplates>

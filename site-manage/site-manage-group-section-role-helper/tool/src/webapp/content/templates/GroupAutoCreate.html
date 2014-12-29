@@ -1,0 +1,124 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+    <head>
+        <title rsf:id="msg=group.autocreate.newgroups">Create New Group(s)</title>
+        <link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+        <link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+        <script type="text/javascript" rsf:id="resize"/>
+        <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+        </script>
+        <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url">
+        </script>
+        <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
+        </script>
+    </head>
+    <body>
+        <div class="portletBody">
+            <div rsf:id="error-row:">
+                <div class="alertMessage" rsf:id="error">
+                    We Have Errors!
+                </div>
+            </div>
+            <form rsf:id="groups-form">
+                <h3 rsf:id="prompt"></h3>
+                <div rsf:id="roster_options:">
+                    <p rsf:id="instruction-roster" class="instruction">Select a course roster to create a separate group for that roster.</p>
+                    <table id="sectionList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines" summary="placeholder summary">
+                        <thead>
+                            <tr>
+                                <th class="attach">
+                                    <input id="rosterSelectAllNone" type="checkbox" /><span rsf:id="roster-select-header" class="skip">Select</span>
+                                </th>
+                                <th rsf:id="roster-title-header">
+                                    Course Roster
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr rsf:id="roster-row:">
+                                <td class="attach">
+                                    <input class="rostercheckbox " id="roster-checkbox" rsf:id="roster-checkbox" type="checkbox" />
+                                </td>
+                                <td>
+                                    <label rsf:id="roster-title">
+                                        Provider Title
+                                    </label>
+                                    <span rsf:id="exist-group-roster" class="highlight">
+                                        A site with this roster already exist
+                                    </span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div rsf:id="role_options:">
+                	<p rsf:id="msg=group.autocreate.instruction_role" class="instruction">Select roles</p>
+	                    <table id ="roleList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines labelizeMe" summary="placeholder summary">
+	                        <thead>
+	                            <tr>
+	                                <th class="attach">
+	                                    <input id="roleSelectAllNone" type="checkbox" /><span rsf:id="role-select-header" class="skip">Select</span>
+	                                </th>
+	                                <th rsf:id="role-title-header">
+	                                    Role
+	                                </th>
+	                            </tr>
+	                        </thead>
+	                        <tbody>
+	                            <tr rsf:id="role-row:">
+	                                <td class="attach">
+	                                    <input class="rolecheckbox " id="role-checkbox" rsf:id="role-checkbox" type="checkbox"/>
+	                                </td>
+	                                <td>
+	                                    <label rsf:id="role-title">
+	                                        Role Title
+	                                    </label>
+	                                    <span rsf:id="exist-group-role" class="highlight">
+	                                        A group with this role already exist
+	                                    </span>
+	                                </td>
+	                            </tr>
+	                        </tbody>
+	                    </table>
+                
+                    <fieldset class="fieldsetVis" id="roleOptionsFieldset" style="display:none">          
+	                	<span rsf:id="option-radios" />
+	                	<p class="checkbox"><input rsf:id="roleOption" id="roleOption" type="radio" name="optionRadio" value="1"/> <label for="roleOption" rsf:id="roleOptionLabel">Create a separate group for each role.</label></p>
+	                	<p class="checkbox"><input rsf:id="randomOption" id="randomOption" type="radio" name="optionRadio" value="2"/> <label for="randomOption" rsf:id="randomOptionLabel">Randomly create groups by number of groups or number of users per group.</label></p>                	     
+	                	                	
+	                	<div id="randomGroupCreateDiv"  style="display: none">
+	                		<span rsf:id="graded-radios" />
+		                	<p class="checkbox indnt2 optGroupSelect optGroupSelectSelected"><input rsf:id="groupSplit" id="groupSplit" type="radio" name="groupSplitRadio" value="1"/><label rsf:id="splitByGroupsLabel" for="groupSplit">Split by number of groups</label></p>
+		                	<div id="groupFields" class="indnt3">
+			                	<p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-title-group">Group Title</label><input rsf:id="groupTitle-group" id="groupTitle-group" type="text"/><span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span></p>
+		                		<p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-unit" id="group-unit">Number of groups</label><input rsf:id="numToSplit-group" id="numToSplit-group" type="text" size="3"/><span class="validFMess" rsf:id="msg=numToSplit.group.empty.alert">Need a number here</span></p>
+	                		</div>
+	                		
+		                	<p class="checkbox indnt2  optGroupSelect"><input rsf:id="userSplit" id="userSplit" type="radio" name="groupSplitRadio" value="2"/><label rsf:id="splitByUsersLabel" for="userSplit">Split by number of users per group</label></p>
+		                	<div style="display:none" id="userFields" class="indnt3">     
+			                	<p class="shorttext"><span class="reqStar">*</span><label rsf:id="group-title-user">Group Title</label><input rsf:id="groupTitle-user" id="groupTitle-user" type="text"/><span class="validFMess" rsf:id="msg=groupTitle.empty.alert">Need some text here</span></p>
+		                		<p class="shorttext"><span class="reqStar">*</span><label rsf:id="user-unit">Number of users in a group</label><input rsf:id="numToSplit-user" id="numToSplit-user" type="text" size="3"/><span class="validFMess" rsf:id="msg=numToSplit.user.notanumber.alert">Need a number here</span></p>
+	                		</div>     				                	           		
+	                	</div>
+	                	</fieldset>
+                </div>
+                <p class="act">
+                    <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="disableButtonsActivateSpinner('save', 'cancel', 'autoGroupsSpinner');" />
+                    <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="disableButtonsActivateSpinner('save', 'cancel', 'autoGroupsSpinner');" />
+                    <img id="autoGroupsSpinner" class="spinner" src="/library/image/indicator.gif" />
+                </p>
+            </form>
+        </div>
+        <script type="text/javascript">
+            $(document).ready(function(){
+                setupAutoCreate();
+                setupValidation();
+             });    
+        </script>
+    </body>
+</html>

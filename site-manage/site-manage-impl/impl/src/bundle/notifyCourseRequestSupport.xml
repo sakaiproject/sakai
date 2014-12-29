@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<emailTemplates>
+<emailTemplate>
+<subject>Site Request from ${currentUserDisplayName} for ${termTitle} </subject>
+<message>
+To:		${serverName} Support
+
+From:	${currentUserDisplayName}
+Subj:	Site Request
+Date:	${dateDisplay}
+
+I am requesting approval of a ${serverName} Course Site for  ${termTitle} for this section:
+
+${requestSectionInfo}
+
+Name:	${currentUserDisplayName} (uniqname ${currentUserDisplayId})
+Email:	${currentUserEmail}
+
+Site title:	${siteTitle}
+Site id:	${siteId}
+
+Special Instruction:
+${specialInstruction}
+
+&lt;#if requireAuthorizer="true"&gt;
+	&lt;#if authorizerNotified !=""&gt;
+		The site request authorization email has been sent successfully to username ${authorizerNotified} as requested.
+	&lt;/#if&gt;
+	&lt;#if authorizerNotNotified !=""&gt;
+		The site request authorization email could not be sent to username ${authorizerNotNotified} as requested.
+	&lt;/#if&gt;
+&lt;/#if&gt;
+</message>
+<locale></locale>
+</emailTemplate>
+</emailTemplates>

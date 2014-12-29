@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="siteId" factory-bean="sakai-Placement"
+    factory-method="getContext" />
+
+  <bean id="PageListProducer"
+      class="org.sakaiproject.site.tool.helper.order.rsf.PageListProducer">
+    <property name="handler" ref="SitePageEditHandler" />
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+  </bean>
+
+  <bean id="PageAddProducer"
+      class="org.sakaiproject.site.tool.helper.order.rsf.PageAddProducer">
+    <property name="handler" ref="SitePageEditHandler" />
+  </bean>
+
+  <bean id="PageEditProdcuer" 
+      class="org.sakaiproject.site.tool.helper.order.rsf.PageEditProducer">
+    <property name="handler" ref="SitePageEditHandler" />
+  </bean>
+
+  <bean id="PageDelProdcuer" 
+      class="org.sakaiproject.site.tool.helper.order.rsf.PageDelProducer">
+    <property name="handler" ref="SitePageEditHandler" />
+  </bean>
+
+  <bean id="SitePageEditHandler" init-method="init"
+      class="org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler">
+    <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+    <property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
+  </bean>
+</beans>
