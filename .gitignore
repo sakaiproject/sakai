@@ -1,0 +1,10 @@
+.idea
+.project
+.classpath
+.settings
+*.iml
+*.swp
+*.orig
+target
+sakai-demo.tar.gz
+sakai-demo.zip
