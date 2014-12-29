@@ -1,0 +1,58 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl"
+      table="MFR_MOVE_HISTORY_T"
+      optimistic-lock="version">
+
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_MOVE_HISTORY_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
+
+    <!-- MoveHistory fields -->
+    <property name="messageId" >
+      <column name="MESSAGE_ID" not-null="true"  />
+    </property>
+     
+    <property name="reminder">
+      <column name="REMINDER" not-null="false"  />
+    </property>      
+     
+    <property name="fromTopicId" >
+      <column name="FROM_TOPIC_ID" not-null="true"  />
+    </property>
+    
+    <property name="toTopicId" >
+      <column name="TO_TOPIC_ID" not-null="true"  />
+    </property>
+    
+  </class>
+
+	<database-object>
+		<create>create index MFR_MOVE_HISTORY_MSG_ID on MFR_MOVE_HISTORY_T (MESSAGE)</create>
+		<drop></drop>
+	</database-object>
+<!--  
+  <query name="findHistoryForMessage">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as us where us.messageId = :messageId ]]>
+  </query>
+  -->
+</hibernate-mapping>
+

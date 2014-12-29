@@ -1,0 +1,61 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.RankImageImpl"
+      table="MFR_RANKIMAGE_T" 
+      optimistic-lock="version">
+
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id" type="long" unsaved-value="0">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_RANKIMAGE_S</param>
+      </generator>
+    </id>
+        
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />       
+    <property name="created" column="CREATED" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="255" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="255" not-null="true" />
+ 
+    <!-- Attachment fields -->
+    <property name="attachmentId">
+      <column name="ATTACHMENT_ID" length="255" not-null="true" />
+    </property>
+    <property name="attachmentUrl">
+      <column name="ATTACHMENT_URL" length="255" not-null="true" />
+    </property>
+    <property name="attachmentName">
+      <column name="ATTACHMENT_NAME" length="255" not-null="true" />
+    </property>
+    <property name="attachmentSize">
+      <column name="ATTACHMENT_SIZE" length="255" not-null="true" />
+    </property>
+    <property name="attachmentType">
+      <column name="ATTACHMENT_TYPE" length="255" not-null="true" />
+    </property>
+
+    <many-to-one name="rank" cascade="none"
+                     column="RANKID"                     
+                     class="org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl"/>
+ 
+  </class>
+
+  <query name="findRankImageById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImageImpl as a where a.id = :id]]>
+  </query>
+
+  <query name="findRankImageByRankId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImageImpl as a where a.rank.id = :rankId]]>
+  </query>
+
+
+
+</hibernate-mapping>

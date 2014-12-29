@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project basedir="." default="default" name="sakai-mf">
+
+	<target name="default" depends="quick-deploy" description="Build" />
+            
+    <target name="quick-deploy" description="Hot deploy to the running server">
+        <copy flatten="false" todir="D:/java/sakai-servers/jakarta-tomcat-5.5.9/webapps/messageforums-tool/messageforums">
+            <fileset dir="D:/java/sakai/messageforums/messageforums-app/src/webapp/messageforums">
+                <include name="**/*.jsp" />
+            </fileset>
+        </copy>
+        <copy flatten="true" todir="D:/java/sakai-servers/jakarta-tomcat-5.5.9/webapps/messageforums-tool/WEB-INF/classes/org/sakaiproject/tool/messageforums/bundle">
+            <fileset dir="D:/java/sakai/messageforums/messageforums-app/src/bundle/org/sakaiproject/tool/messageforums/bundle">
+                <include name="**/*.properties" />
+            </fileset>
+        </copy>
+    </target>
+
+</project>

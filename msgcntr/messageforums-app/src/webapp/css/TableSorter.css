@@ -1,0 +1,22 @@
+
+.header {
+height:auto;
+padding-top:8px !important;
+cursor:pointer;
+}
+.headerSortUp {
+background: url(../images/sortascending.gif) no-repeat left;
+background-position: 85%;
+height:auto;
+padding-top:8px !important;
+}
+.headerSortDown {
+background: url(../images/sortdescending.gif) no-repeat left;
+background-position: 85%;
+height:auto;
+padding-top:8px !important;
+}
+
+.rightAlignColumn{
+	text-align: right;
+}

@@ -1,0 +1,81 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"
+      table="MFR_ATTACHMENT_T" 
+      optimistic-lock="version">
+
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_ATTACHMENT_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />       
+       
+    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="255" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="255" not-null="true" />
+ 
+    <!-- Attachment fields -->
+    <property name="attachmentId">
+      <column name="ATTACHMENT_ID" length="255" not-null="true" />
+    </property>
+    <property name="attachmentUrl">
+      <column name="ATTACHMENT_URL" length="255" not-null="true" />
+    </property>
+    <property name="attachmentName">
+      <column name="ATTACHMENT_NAME" length="255" not-null="true" />
+    </property>
+    <property name="attachmentSize">
+      <column name="ATTACHMENT_SIZE" length="255" not-null="true" />
+    </property>
+    <property name="attachmentType">
+      <column name="ATTACHMENT_TYPE" length="255" not-null="true" />
+    </property>
+
+    <many-to-one name="message" column="m_surrogateKey" lazy="proxy" 
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
+      not-null="false" index="MFR_ATTACHMENT_PARENT_I" cascade="none" />
+    <!-- <property name="mesindex" column="mes_index_col" type="int" update="true" insert="true"/> -->
+
+    <many-to-one name="openForum" column="of_surrogateKey" lazy="proxy" 
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+      not-null="false" index="MFR_ATTACHMENT_PARENT_I2" cascade="none" />
+    <!-- <property name="ofindex" column="of_index_col" type="int" update="true" insert="true"/> -->
+
+    <many-to-one name="privateForum" column="pf_surrogateKey" lazy="proxy" 
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"
+      not-null="false" index="MFR_ATTACHMENT_PARENT_I3" cascade="none" />
+    <!-- <property name="pfindex" column="pf_index_col" type="int" update="true" insert="true"/> -->
+
+    <many-to-one name="topic" column="t_surrogateKey"  lazy="proxy" 
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      not-null="false" index="MFR_ATTACHMENT_PARENT_I4" cascade="none" />
+    <!-- <property name="tindex" column="t_index_col" type="int" update="true" insert="true"/> -->
+
+  </class>
+
+  <query name="findAttachmentById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as a where a.id = :id]]>
+  </query>
+
+  <query name="findAttachmentByUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as a where a.uuid = :uuid]]>
+  </query>
+  
+  <query name="findTopicAttachments">
+  	<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl as a where a.topic = :topic]]>
+  </query>
+  
+</hibernate-mapping>

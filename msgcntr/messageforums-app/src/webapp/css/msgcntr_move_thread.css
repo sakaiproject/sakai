@@ -1,0 +1,206 @@
+/*
+Author:  Lydia Li,  lydial@Stanford.edu
+Modified based on CSS for the UC Berkeley's implementation of the Sakai Messages Tool
+
+Copyright 2009 University of California, Berkeley
+
+Licensed under the Educational Community License (ECL), Version 2.0 or the New
+BSD license. You may not use this file except in compliance with one these
+Licenses.
+*/
+
+.post_move_links {
+    margin-top: 10px;
+}
+
+.topic-picker{
+    display: none;
+    background-color: #FFF; 
+    width: 540px;
+    padding: 6px;
+}
+
+.topic-picker form {
+    margin: 0; 
+}
+
+.topic-picker .instructions {
+    font-style: italic;
+    padding-left: 0.2em;
+    margin-top: 0;
+}
+
+/* Filter Section */
+
+.topic-filter {
+    float: left;
+    top: 0;
+    display: inline;
+}
+
+.topic-num-filtered {
+}
+
+.topic-picker .header-title {
+    font-style: normal;
+    display: block;
+    font-size: 1.1em;
+    color: #000;
+}
+
+.topic-search-field {
+    margin: 0.1em 0 0.6em 0.4em;
+    width: 230px;
+}
+
+.topic-filter-fields {
+    border: 1px solid #D0D3D7;
+    padding: 0.4em 0.4em 0.4em 0.4em;
+}
+
+.topic-filter-fields label {
+    font-size: 1em !important;
+    margin-left: 0 !important;
+}
+
+/* lists */
+
+.topic-source {
+    margin-left: 10px;
+    float: left;
+    top: 0;
+    display: inline;
+}
+
+.topic-source, .topic-filter {
+    width: 318px;
+}
+
+.topic-filter, .topic-source {
+    display: block;
+    float: left;
+    clear: right;
+    position: relative;
+    margin-top: 1.5em;
+}
+
+.topic-source select {
+    font-size: 0.8em;
+}
+
+.topic-filter-header, .topic-source-picker {
+    border: 1px solid #D0D3D7;
+    padding: 1px 1px;
+    background-color: #EBECED;
+    margin-bottom: 1px;
+}
+
+.topic-filter-header {
+    padding: 3px 6px;    
+}
+
+.topic-filter-header h3 {
+    margin: 0;
+    font-size: 1em;
+}
+
+.topic-filter-header .topic-header-h3 {
+    margin: 0;
+    font-size: 1em;
+    font-weight: bold; 
+}
+
+.sourcetitle {
+    font-weight: bold; 
+}
+
+.topic-submit {
+    clear: both;
+    display:block;
+    padding-top: 1em;
+    padding-bottom: 1em;
+    text-align: right;
+}
+
+.topic-submit input[type="text"] {
+    margin-left: 6px;
+    width: 124px;
+}
+.topic-source-footer {
+    border-top: 1px solid #D0D3D7;
+    padding: 5px 12px;
+}
+
+.topic-source-list-header {
+    border-bottom: 1px solid #D0D3D7;
+    padding: 4px 6px;
+    font-size: 1.1em;
+}
+
+.topic-source-list-header .topic-num-filtered {
+    float: right;
+}
+
+/* Scroller */
+
+.topic-picker .scroller {
+    overflow: auto;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: white;
+    height: 270px;
+    margin: 0;
+    padding: 0;
+}
+
+.topic-source-list div {
+    cursor: pointer;
+    padding: 6px;
+    padding-left: 0.1em;
+    border-bottom: 1px solid #999;
+}
+
+.scroller div.even {
+    background-color: #F8F9FA;
+}
+
+.jsfFormTable td {
+    border-bottom: 1px solid #CCC;
+}
+
+.topic-source-counter, .topic-source-total {
+    font-weight: bold;
+}
+
+/* Overrides for jQuery UI Dialog styles */
+
+.ui-dialog {
+    margin-top: 2em;
+}
+
+.ui-dialog .ui-dialog-title {
+    font-size: 1.1em !important;
+} 
+
+.ui-dialog .ui-dialog-titlebar {
+    padding: 0.5em 0.3em 0.5em 1em !important;
+}
+
+.ui-widget-header {
+    background-image: url(../images/headerBg.jpg);
+    border: 0px;
+    background-repeat:repeat-x;
+    color: #404040;
+    font-weight: bold;
+}
+
+.threads-to-move {
+    margin-bottom: .4em;
+    margin-left: 2em;
+    font-weight: bold;
+    margin-top: .6em;
+}
+
+.checkbox-reminder{
+}
+

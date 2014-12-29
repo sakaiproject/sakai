@@ -1,0 +1,432 @@
+/*
+CSS for the UC Berkeley's implementation of the Sakai Messages Tool
+
+Copyright 2009 University of California, Berkeley
+
+Licensed under the Educational Community License (ECL), Version 2.0 or the New
+BSD license. You may not use this file except in compliance with one these
+Licenses.
+*/
+
+/* 
+ * Tab Selected Bkgrnd Color: #777F92
+ * Tab Unselected Bkgrnd Color: #8CA9C5
+ * Tab Unselected Border Color: #666
+ * Box Bkgrnd Color: #EBECED
+ * Box Border Color: #D0D3D7
+ */
+
+.sakai-ppkr {
+    display: none;
+    background-color: #FFF; 
+    width: 540px;
+    padding: 6px;
+}
+
+.sakai-ppkr form {
+    margin: 0; 
+}
+
+.sakai-ppkr .instructions {
+    font-style: italic;
+    padding-left: 0.2em;
+    margin-top: 0;
+}
+
+/* Filter Section */
+
+.sakai-ppkr-filter {
+    margin-bottom: 0.4em;
+}
+
+.sakai-ppkr .header-title {
+    font-style: normal;
+    display: block;
+    font-size: 1.1em;
+    color: #000;
+}
+
+.sakai-ppkr-search-field {
+    margin: 0.1em 0 0.6em 0.4em;
+    width: 430px;
+}
+
+.sakai-ppkr-filter-fields {
+    border: 1px solid #D0D3D7;
+    padding: 0.4em 0.6em;
+}
+
+.sakai-ppkr-filter-fields label {
+    font-size: 1em !important;
+    margin-left: 0 !important;
+}
+
+/* lists */
+
+.sakai-ppkr-source {
+    float: left;
+    top: 0;
+    display: inline;
+}
+
+.sakai-ppkr-collection {
+    margin-left: 16px;
+}
+
+.sakai-ppkr-collection, .sakai-ppkr-source {
+    width: 266px;
+}
+
+.sakai-ppkr-source, .sakai-ppkr-collection {
+    display: block;
+    float: left;
+    clear: right;
+    position: relative;
+}
+
+.sakai-ppkr-source select {
+    font-size: 0.8em;
+}
+
+.sakai-ppkr-header, .sakai-ppkr-source-picker, .sakai-ppkr-collection-picker {
+    border: 1px solid #D0D3D7;
+    background-color: #EBECED;
+    margin-bottom: 2px;
+}
+
+.sakai-ppkr-header {
+    padding: 3px 6px;    
+}
+
+.sakai-ppkr-header h3 {
+    margin: 0;
+    font-size: 1.3em;
+}
+
+.sakai-ppkr-submit {
+    display:block;
+    clear: both;
+    text-align: right;
+    padding-top: 0.4em;
+}
+
+.sakai-ppkr-submit input[type="text"] {
+    margin-left: 6px;
+    width: 124px;
+}
+.sakai-ppkr-source-footer, .sakai-ppkr-collection-footer {
+    border-top: 1px solid #D0D3D7;
+    padding: 5px 12px;
+}
+
+.sakai-ppkr-source-list-header, .sakai-ppkr-collection-list-header {
+    border-bottom: 1px solid #D0D3D7;
+    padding: 4px 6px;
+    font-size: 1em;
+}
+
+.sakai-ppkr-source-list-header .sakai-ppkr-num-filtered {
+    float: right;
+}
+
+/* Scroller */
+
+.sakai-ppkr .scroller {
+	overflow: auto;
+	overflow-x: hidden;
+	overflow-y: auto;
+	background-color: white;
+    height: 248px;
+    margin: 0;
+    padding: 0;
+}
+
+.sakai-ppkr-source-list div, .sakai-ppkr-collection-list div  {
+    cursor: pointer;
+    padding: 6px;
+    border-bottom: 1px solid #999;
+    background-repeat: no-repeat;
+    background-position: 6px 6px;
+}
+
+.sakai-ppkr-source-list div {
+    padding-left:  24px;
+}
+
+.sakai-ppkr-collection-list div {
+    padding-right: 24px;
+}
+
+.scroller div.even {
+    background-color: #F8F9FA;
+}
+
+.sakai-ppkr-source-list div.selected {
+	background-color: #FFD;
+}
+
+.sakai-ppkr-source-list div.key-highlight, #collection div.key-highlight {
+	background-color: #FFD;
+	color: #000;
+	border: 2px solid #333;
+	padding: 4px 4px 0 5px;
+}
+
+.sakai-ppkr-collection-list div.key-highlight {
+	padding: 4px 4px 0 19px;
+}
+
+.sakai-ppkr-collection-list div {
+	padding-right: 24px;
+}
+
+.sakai-ppkr-collection-list div:hover {
+}
+
+.sakai-ppkr-btn-add-all, .sakai-ppkr-btn-remove-all {
+    cursor: pointer;
+    text-decoration: underline !important;
+}
+
+.sakai-ppkr-btn-add-all {
+    margin: 0 3px;
+}
+
+.sakai-ppkr-btn-remove-all {
+    float: right;
+	margin-right: 14px;
+}
+
+.sakai-ppkr-item-indent {
+    padding-left: 18px;
+}
+
+.sakai-ppkr-to-container-scroller, .messages-to-field, .sakai-ppkr-to-choice {
+    width: 537px;
+}
+
+.sakai-ppkr-to-container-scroller, .messages-to-field {
+    margin-top: 2px;
+    border: 1px solid #CCC;
+    min-height: 34px;
+    overflow: auto;    
+    padding-bottom: 3px;
+}
+
+.messages-to-field { 
+    border-color: #D4DCE7;
+    max-height: 116px;
+    padding: 3px;
+}
+
+html>body .messages-to-field { 
+    max-height: 124px;
+    height: auto;
+}
+
+.sakai-ppkr-to-container p {
+    color: #666;
+    margin: 0.4em 0.6em 0.2em; 
+}
+
+.sakai-ppkr-to-choice {
+    float:left;
+    margin: 0.4em 0.6em;
+}
+
+.sakai-ppkr-to-choice a {
+    white-space: nowrap;
+}
+
+.display-sakai-ppkr {
+    display: block;
+    float: right !important;
+    color: #333 !important;
+}
+
+.sakai-ppkr-by-role input[type="checkbox"] {
+    float: left;
+    margin: 1px 0 0;
+}
+
+.sakai-ppkr-by-role label {
+    display: block;
+    margin-left: 0.4em;
+}
+
+.jsfFormTable td {
+    border-bottom: 1px solid #CCC;
+}
+
+.sakai-ppkr-token {
+    font-size: 0.9em;
+    display: block;
+    white-space: nowrap;
+    float: left;
+    background-color: #D8E2FF;
+    border-width: 1px;
+    border-style: solid;
+    border-color: #D8E2FF #BDC5DF #BDC5DF #D8E2FF;
+    margin: 2px 0 0 2px;
+    padding: 1px 1px 1px 4px;
+    -moz-border-radius: 0.3em;
+    -webkit-border-radius: 0.3em;
+}
+
+.token-all {
+    background-color: #ECD8FF;
+    border-color: #ECD8FF #CEBDDF #CEBDDF #ECD8FF;
+    font-style: italic;
+}
+
+.token-role-participates {
+     background-color: #FFD8D8;   
+}
+
+.token-hidden { 
+    display: none;
+}
+
+.token-inactive { 
+    color:gray
+}
+
+.ppkr-remove { 
+    cursor: pointer;
+    font-family: Tahoma, Arial, Helvetica, sans-serif;
+    color: rgb(102, 102, 102);
+    font-size: 90%;
+    font-weight: bold;
+    font-style: normal;
+    background-color: transparent;
+    padding: 0 4px 2px;
+    -moz-border-radius: 50%;
+    -webkit-border-radius: 50%;
+}
+
+.ppkr-remove:hover { 
+    color: #9F2A2A;
+    background-color: white;
+}
+
+.jsfFormTable td.sakai-ppkr-from {
+    vertical-align: middle;
+}
+
+.sakai-ppkr-collection-counter, .sakai-ppkr-source-counter, .sakai-ppkr-source-total {
+    font-weight: bolder;
+}
+
+/* Overrides for jQuery UI Dialog styles */
+
+.ui-dialog {
+    margin-top: 2em;
+} 
+
+
+.ui-dialog .ui-dialog-title {
+    font-size: 1.1em !important;
+    float:left;
+}
+
+.ui-dialog .ui-dialog-titlebar {
+    padding: 0.5em 0.3em 0.5em 1em !important;
+}
+
+/* overrides to tool_base.css */
+
+.jsfFormTable td .shorttext label {
+    width: auto !important;
+}
+
+.shorttext label, .filepicker label {
+    width: auto !important;
+}
+
+.title-text{
+    font-weight: bold;
+    font-size: 110%;
+}
+
+.forumsRankName {
+ color: #000000;
+ font-size: 0.95em;
+ font-weight: bold;
+ padding-bottom: 0 !important;
+ padding-left: 0 !important;
+ padding-right: 0 !important;
+ padding-top: 0 !important;
+ text-align: left;
+ white-space: nowrap;
+}
+
+.addrank_msgbox{
+        background-color: #FAFAD6;
+        border: 1px solid #F6D87D;
+        padding: 5px;
+        margin: 5px 10px 10px 10px;
+        border-radius: 5px;
+}
+.addrank_msgtext{
+	color: #404040;
+        font-size: 95%;
+}
+
+.ranktable-name {
+	width:250px;
+}
+.ranktable-image {
+	width:250px;
+}
+.ranktable-assignto {
+	width:250px;
+}
+.ranktable-minpost {
+	width:250px;
+}
+.ranktable-delete {
+	width:250px;
+}
+
+.rankeditor-col1 {
+	width:150px;
+}
+
+.ui-widget-header {
+    background-image: url(../images/headerBg.jpg);
+    border: 0px;
+    background-repeat:repeat-x;
+    color: #ffffff;
+    font-weight: bold; 
+}
+
+.section_header {
+font-size: 1em;
+font-weight: bold;
+margin-bottom: 0;
+margin-left: 0;
+margin-right: 0;
+margin-top: 0;
+}
+
+
+a:link{
+    color: #0080C0;
+    text-decoration: none;
+}
+
+a:visited{
+    color: #0080C0;
+    text-decoration: none;
+}
+
+a:hover,a:active{
+    color: #0080C0;
+    text-decoration: underline !important;
+}
+
+a:focus{
+    color: #0080C0;
+    text-decoration: underline !important;
+}
+

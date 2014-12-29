@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"
+      table="MFR_MEMBERSHIP_ITEM_T" 
+      optimistic-lock="version">
+
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_MEMBERSHIP_ITEM_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />       
+       
+    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="255" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="255" not-null="true" />
+ 
+    <!-- DBMembership Item Fields -->        
+    <property name="name" column="NAME" length="255" not-null="true"/>
+    <property name="type" column="TYPE" not-null="true"/>        
+    
+    <property name="permissionLevelName" column="PERMISSION_LEVEL_NAME" length="255" not-null="true" />
+    
+    <many-to-one name="permissionLevel" column="PERMISSION_LEVEL"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl"
+        not-null="false" cascade="save-update" unique="true"
+        lazy="false"/>
+     
+      <many-to-one name="topic" column="t_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+        not-null="false" cascade="save-update" unique="false"
+        lazy="false"
+        index="MFR_MEMBERSHIP_ITEM_I01_I"/>
+               
+      <many-to-one name="forum" column="of_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+        not-null="false" cascade="save-update" unique="false"
+        lazy="false"/>  
+
+      <many-to-one name="area" column="a_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
+        not-null="false" cascade="save-update" unique="false"
+        lazy="false"
+        index="MFR_MEMBERSHIP_ITEM_I02_I"/>  
+  </class>
+    
+   <query name="findAllMembershipItemsForForumsForSite">
+    <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+		    join membership.forum as forum
+		    join forum.area as area
+		    left join fetch membership.permissionLevel
+		    where
+		    area.id = :areaId
+		]]>
+  </query>
+ 
+  <query name="findAllTopicsForSite">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+		    join topic.openForum as forum
+		    join forum.area as area
+		    where
+		    area.id = :areaId
+		]]>
+  </query>
+
+   <query name="findAllMembershipItemsForTopicsForSite">
+     <![CDATA[select membership from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+		     join membership.topic as topic
+		     left join fetch membership.permissionLevel
+		     where
+		     topic.id in ( :topicIdList )
+		 ]]>
+  </query>
+  
+    <query name="findNumRoleWithPermissionInTopic">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl as membership
+             where membership.topic.id = :id and membership.name = :roleName and membership.permissionLevelName = :permissionLevelName
+    ]]>
+  </query>
+
+</hibernate-mapping>

@@ -1,0 +1,136 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"
+    table="MFR_PRIVATE_FORUM_T" optimistic-lock="version">
+
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_PRIVATE_FORUM_S</param>
+      </generator>
+    </id>
+
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+       
+    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" index="MFR_PRIVATE_FORUM_CREATED_I" />
+    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
+
+    <!-- BaseForum fields -->
+    <property name="title">
+      <column name="TITLE" length="255" not-null="true" />
+    </property>
+    <property name="shortDescription">
+      <column name="SHORT_DESCRIPTION" length="255" not-null="false" />
+    </property>
+    <property name="extendedDescription" type="materialized_clob" >
+      <column name="EXTENDED_DESCRIPTION" not-null="false" length="100000000"/>
+    </property>
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
+    <set name="attachmentsSet" lazy="true" cascade="all-delete-orphan"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc" batch-size="50">
+        <key column="pf_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
+    </set>
+<!--    <set name="topicsSet" lazy="true" order-by="created desc" cascade="save-update">
+        <key column="pf_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
+    </set>-->
+    <set name="topicsSet" lazy="true" cascade="save-update"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.TopicBySortIndexAscAndCreatedDateDesc" batch-size="50">
+        <key column="pf_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"/>            
+    </set>
+    
+   	<!-- 
+ 	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+	    <key column="pf_surrogateKey"/>
+	    <index column="f_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
+	</list>     
+	<list name="topics" lazy="false" table="MFR_TOPIC_T" cascade="all">
+	    <key column="pf_surrogateKey"/>
+	    <index column="bf_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl" />
+	</list> 
+	-->
+    <property name="sortIndex">
+      <column name="SORT_INDEX" not-null="true" />
+    </property>
+        
+    <!-- PrivateForum fields -->
+    <property name="owner" unique-key="uniquePFOwnerContext">
+      <column name="OWNER" length="255" not-null="true" index = "MFR_PRIVATE_FORUM_OWNER_I"/>
+    </property>
+    <property name="autoForward">
+      <column name="AUTO_FORWARD" not-null="false" />
+    </property>
+    <property name="autoForwardEmail">
+      <column name="AUTO_FORWARD_EMAIL" length="255" not-null="false" />
+    </property>
+    <property name="previewPaneEnabled">
+      <column name="PREVIEW_PANE_ENABLED" length="10" not-null="false" />
+    </property>
+ 
+    <many-to-one name="area" column="surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.AreaImpl"
+        not-null="false" index="MFR_PF_PARENT_BASEFORUM_I" cascade="none" unique-key="uniquePFOwnerContext"/>
+    <!-- <property name="areaindex" column="area_index_col" type="int" update="true" insert="true"/> -->
+      
+  </class>
+
+  <query name="findPrivateTopicsByForumId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl
+             where pf_surrogateKey = :id
+    ]]>
+  </query>
+
+  <query name="findPrivateForumByOwner">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.owner = :owner]]>
+  </query>
+
+  <query name="findPrivateForumById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.id = :id]]>
+  </query>
+
+  <query name="findPrivateForumByUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.uuid = :uuid]]>
+  </query>
+
+  <query name="findPrivateForumByOwnerArea">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.owner = :owner and pf.area = :area]]>
+  </query>
+
+  <query name="findPrivateForumByOwnerAreaNull">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.owner = :owner and pf.area is null]]>
+  </query>
+
+  <query name="findPrivateForumByOwnerAreaWithTopics">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf
+    	left join fetch pf.topicsSet as topic
+    	left join fetch topic.childrenFoldersSet
+      where 
+      pf.owner = :owner and pf.area = :area
+    ]]>
+  </query>
+
+  <query name="findPrivateForumByOwnerAreaNullWithAllTopics">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf 
+    	left join fetch pf.topicsSet as topic
+    	left join fetch topic.childrenFoldersSet
+    	where 
+    	pf.owner = :owner and pf.area is null
+    ]]>
+  </query>
+</hibernate-mapping>

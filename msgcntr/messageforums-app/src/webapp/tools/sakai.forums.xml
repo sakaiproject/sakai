@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+		id="sakai.forums"
+		title="Forums"
+		description="Display forums and topics of a particular site">
+		<category name="course" />
+		<category name="project" />	
+
+	</tool>
+
+</registration>

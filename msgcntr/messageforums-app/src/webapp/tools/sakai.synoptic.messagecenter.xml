@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+		id="sakai.synoptic.messagecenter"
+		title="Unread Messages and Forums"
+		description="Display unread discussion and forum topic messages for all sites or a site">
+
+		<configuration name="reset.button" value="false" type="final" />
+	</tool>
+
+</registration>

@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>msgcntr</artifactId>
+		<groupId>org.sakaiproject.msgcntr</groupId>
+		<version>11-SNAPSHOT</version>
+	</parent>
+	<name>Sakai Message Forums API</name>
+	<groupId>org.sakaiproject.msgcntr</groupId>
+	<artifactId>messageforums-api</artifactId>
+	<organization>
+		<name>Sakai Project</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2003</inceptionYear>
+	<packaging>jar</packaging>
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>commons-logging</groupId>
+			<artifactId>commons-logging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.entitybroker</groupId>
+			<artifactId>entitybroker-api</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+		  <groupId>org.sakaiproject.kernel</groupId>
+		  <artifactId>sakai-component-manager</artifactId>
+		</dependency>
+		<dependency>
+		  <groupId>org.sakaiproject.scheduler</groupId>
+		  <artifactId>scheduler-api</artifactId>
+		</dependency>
+	</dependencies>
+	<build>
+		<resources />
+	</build>
+</project>

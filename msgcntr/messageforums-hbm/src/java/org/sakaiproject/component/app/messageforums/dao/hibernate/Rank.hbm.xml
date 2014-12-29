@@ -1,0 +1,90 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class name="org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl"
+    table="MFR_RANK_T" optimistic-lock="version">
+
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id" type="long" unsaved-value="0" >
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_RANK_S</param>
+      </generator>
+    </id>
+        
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" />
+    <property name="createdBy" column="CREATED_BY" length="99" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="99" not-null="true" />
+
+
+    <!-- Rank fields -->
+    <property name="title">
+      <column name="TITLE" length="255" not-null="true" />
+    </property>
+    
+    <property name="type">
+      <column name="RANKTYPE" length="19" not-null="true" />
+    </property>
+    
+		<property name="assignTo">
+			<column name="ASSIGNTO" length="255"  />
+		</property> 
+
+		<property name="assignToDisplay">
+			<column name="ASSIGNTODISPLAY" length="255"  />
+		</property>
+
+		<property name="minPosts">
+			<column name="MIN_POST" length="19" />
+		</property>
+
+		<property name="contextId">
+			<column name="CONTEXT_ID" length="99" not-null="true" index="MFR_RANK_CONTEXT_ID_I" />
+		</property>
+
+       <many-to-one name="rankImage" cascade="all" lazy="false"
+                     class="org.sakaiproject.component.app.messageforums.dao.hibernate.RankImageImpl"/>
+
+  
+  </class>
+ 
+ <!-- 
+    <query name="findRankByUserIdContextId">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.userId = :userId and us.contextId = :contextId]]>
+	</query>
+ -->
+ 
+  	<query name="findRanksByContextIdBasedOnNumPost">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = 2 order by us.title]]>
+	</query>
+ 
+  	<query name="findRanksByContextIdBasedOnIndiv">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = 1 order by us.title]]>
+	</query>
+  
+   	<query name="findRanksByContextIdUserID">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and instr(assignto, :userId) >0]]>
+	</query>
+	
+ 	<query name="findRanksByContextId">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId order by us.title]]>
+	</query>
+ 
+  	<query name="findRanksByContextIdOrderByMinPostDesc">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and us.type = 2 order by us.minPosts desc]]>
+	</query>
+ 
+ 
+  	<query name="findRankByRankId">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.id = :rankId]]>
+	</query>
+  
+</hibernate-mapping>

@@ -1,0 +1,334 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      table="MFR_TOPIC_T" 
+      optimistic-lock="version" 
+      discriminator-value="TO">
+
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_TOPIC_S</param>
+      </generator>
+    </id>
+
+	<!--  Discriminator field used for polymophism in the database -->
+    <discriminator>
+      <column name="TOPIC_DTYPE" length="2" index="MRF_TOPIC_DTYPE_I"/>
+    </discriminator>
+    
+       
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <property name="uuid" column="UUID" length="36" not-null="true" index="MFR_TOPIC_T_UUID_I"/>
+    <property name="created" column="CREATED" not-null="true" index="MFR_TOPIC_CREATED_I"/>
+    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
+	<property name="defaultAssignName" column="DEFAULTASSIGNNAME" type="string" not-null="false"/>	
+
+    <!-- Topic fields -->
+    <property name="title">
+      <column name="TITLE" length="255" not-null="true" />
+    </property>
+    <property name="shortDescription">
+      <column name="SHORT_DESCRIPTION" length="255" not-null="false" />
+    </property>
+    <property name="extendedDescription" type="materialized_clob" >
+      <column name="EXTENDED_DESCRIPTION" not-null="false" length="100000000"/>
+    </property>
+    <set name="attachmentsSet" lazy="true" cascade="all-delete-orphan"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.AttachmentByCreatedDateDesc" batch-size="10">
+        <key column="t_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
+    </set>
+    <set name="messagesSet" lazy="true" cascade="save-update"
+      sort="org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.MessageByCreatedDateDesc" batch-size="100">
+        <key column="surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"/>            
+    </set>    
+     <set name="membershipItemSet" lazy="true" cascade="save-update" batch-size="50">
+        <key column="t_surrogateKey"/>
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl"/>
+    </set>
+
+	<property name="moderated">
+		<column name="MODERATED" not-null="true" />
+	</property>
+	
+	<property name="postFirst">
+      	<column name="POST_FIRST" not-null="true" />
+    </property>
+	
+	<property name="autoMarkThreadsRead" column="AUTO_MARK_THREADS_READ" not-null="true" />
+
+   	<!-- 
+ 	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+	    <key column="t_surrogateKey"/>
+	    <index column="t_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
+	</list>     
+	<list name="messages" lazy="false" table="MFR_MESSAGE_T" cascade="all-delete-orphan">
+	    <key column="surrogateKey"/>
+	    <index column="t_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl" />
+	</list>  
+	-->
+    <property name="mutable">
+      <column name="MUTABLE" not-null="true" />
+    </property>
+    <property name="sortIndex">
+      <column name="SORT_INDEX" length="10" not-null="true" />
+    </property>
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
+    
+    <property name="availabilityRestricted">
+      <column name="AVAILABILITY_RESTRICTED" not-null="true" default="0"/>
+    </property>
+    <property name="availability">
+      <column name="AVAILABILITY" not-null="true" default="1" />
+    </property>
+    <property name="openDate" column="OPEN_DATE" type="timestamp" />
+    <property name="closeDate" column="CLOSE_DATE" type="timestamp" /> 
+    
+    <many-to-one name="openForum" column="of_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenForumImpl"
+      not-null="false" index="MFR_TOPIC_PARENT_I1" cascade="none" />
+    <!-- <property name="ofindex" column="of_index_col" type="int" update="true" insert="true"/> -->
+
+    <many-to-one name="privateForum" column="pf_surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl"
+      not-null="false" index="MFR_TOPIC_PARENT_I2" cascade="none" />
+    <!-- <property name="pfindex" column="pf_index_col" type="int" update="true" insert="true"/> -->
+
+    <!-- PrivateTopic fields -->
+    <subclass 
+        name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl"
+        discriminator-value="PT">
+      <property name="userId">
+        <column name="USER_ID" not-null="false" />
+      </property>
+      <property name="contextId">
+        <column name="CONTEXT_ID" length="255" not-null="false" index="MFR_PT_CONTEXT_I"/>
+      </property>   
+      <!-- The list and many-to-one below are for the private folder parent/child relationship -->
+      <set name="childrenFoldersSet" lazy="false" order-by="created desc" cascade="all-delete-orphan">
+        <key column="pt_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl"/>            
+      </set> 
+	  <!-- 
+      <list name="childrenFolders" lazy="true" table="MFR_TOPIC_T" cascade="all">
+	    <key column="pt_surrogateKey"/>
+	    <index column="pt_index_col" />
+	    <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl" />
+  	  </list>    
+  	  --> 
+      <many-to-one name="parentTopic" column="pt_surrogateKey"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl"
+        not-null="false" index="MFR_TOPIC_PRI_PARENT_I" cascade="none" />
+      <!-- <property name="ptindex" column="pt_index_col" type="int" update="true" insert="true"/> -->
+	</subclass>
+          
+    <!-- OpenTopic fields -->
+    <subclass
+        name="org.sakaiproject.component.app.messageforums.dao.hibernate.OpenTopicImpl"
+        discriminator-value="OT">
+      <property name="locked">
+        <column name="LOCKED" not-null="false" />
+      </property>      
+      <property name="draft">
+        <column name="DRAFT" not-null="false" />
+      </property>      
+
+	  <!-- DiscussionTopic fields -->
+	  <subclass
+	      name="org.sakaiproject.component.app.messageforums.dao.hibernate.DiscussionTopicImpl"
+	      discriminator-value="DT">
+	    <property name="confidentialResponses">
+	      <column name="CONFIDENTIAL_RESPONSES" not-null="false" />
+	    </property>        
+	    <property name="mustRespondBeforeReading">
+	      <column name="MUST_RESPOND_BEFORE_READING" not-null="false" />
+	    </property>        
+	    <property name="hourBeforeResponsesVisible">
+	      <column name="HOUR_BEFORE_RESPONSES_VISIBLE" length="10" not-null="false" />
+	    </property>    
+	    <!-- 
+	    <many-to-one name="dateRestrictions" column="DATE_RESTRICTIONS"
+	      class="org.sakaiproject.component.app.messageforums.dao.hibernate.DateRestrictionsImpl"
+	      not-null="false" cascade="none" />
+	     -->
+	     <!-- 
+        <many-to-one name="actorPermissions" column="ACTOR_PERMISSIONS"
+        class="org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl"
+        not-null="false" cascade="save-update" unique="true"/>
+        -->
+        
+	    <list name="labels" lazy="true" table="MFR_LABEL_T" cascade="all">
+	        <key column="dt_surrogateKey"/>
+	        <index column="dt_index_col" />
+	        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.LabelImpl" />
+	    </list>
+	  </subclass>
+
+    </subclass>
+            
+  </class>
+  
+  <query name="findReceivedUuidByContextId">
+    <![CDATA[select a.contextId, topic.uuid from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl as topic
+    	left join topic.privateForum forum
+    	left join forum.area a 
+    	where a.contextId IN ( :siteList ) and
+    	    topic.title = 'pvt_received' and
+    	    owner = :userId
+    ]]>
+ </query>
+ 
+  <query name="findTopicByIdWithMessagesAndAttachments">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messagesSet message
+             left join fetch message.attachmentsSet
+             where topic.id = :id
+    ]]>
+  </query>    
+  
+  <query name="findTopicByIdWithAttachments">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.attachmentsSet attachment
+             where topic.id = :id
+    ]]>
+  </query>
+  
+  <query name="findTopicByIdWithMessages">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messagesSet message
+             where topic.id = :id
+    ]]>
+  </query>
+  
+  <query name="findTopicWithAttachmentsById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.messagesSet message
+             left join fetch topic.attachmentsSet
+             where topic.id = :id
+    ]]>
+  </query>
+  
+  <query name="findTopicsWithMessagesForForum">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.openForum forum
+             left join fetch topic.messagesSet message
+             where forum.id = :id
+    ]]>
+  </query>
+  
+  <query name="findTopicsWithMessagesAndAttachmentsForForum">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.openForum forum
+             left join fetch topic.messagesSet message
+             left join fetch message.attachmentsSet
+             where forum.id = :id
+    ]]>
+  </query>  
+  
+  <query name="findTopicsWithMessagesMembershipAndAttachmentsForForum">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.openForum forum
+             left join fetch topic.messagesSet message
+             left join fetch message.attachmentsSet
+             left join fetch topic.membershipItemSet
+             where forum.id = :id
+    ]]>
+  </query> 
+  
+  <query name="findTopicByUuidWithAttachments">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.attachmentsSet attachment
+             where topic.id = :id
+    ]]>
+  </query>
+
+  <query name="findTopicById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.id = :id]]>
+  </query>
+
+  <query name="findOpenTopicAndParentById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic 
+             join topic.openForum
+             left join fetch topic.attachmentsSet
+             where topic.id = :id ]]>
+  </query>
+  <query name="findPrivateTopicAndParentById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.privateForum
+             left join fetch topic.attachmentsSet
+             where topic.id = :id ]]>
+  </query>
+  <query name="findTopicByUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic where topic.uuid = :uuid]]>
+  </query>
+  
+    <query name="findAllModeratedTopicsForSite">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+		    join topic.openForum as forum
+		    join forum.area as area
+		    where
+		    area.contextId = :contextId and
+		    topic.moderated = true
+		]]>
+  </query>
+  
+  <!-- permissions are a little nasty...  b/c permission level  is null in the membershipItem
+  			if it is not custom, we need to	check for permission level that is custom and has same id 
+  			or that is not custom and has the same permission level name -->
+  			
+  <!--  first check by permissionLevel id -->
+  <query name="findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic,
+    			org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+		    join topic.openForum as forum
+		    join forum.area as area
+		    join topic.membershipItemSet as membershipItem  
+		    where area.contextId = :contextId and
+		    topic.moderated = true and
+		    membershipItem.name in ( :membershipList ) and
+		    pl.moderatePostings = true and
+		    membershipItem.permissionLevel = pl.id
+		]]>
+  </query>
+  
+  <!-- second check by permissionLevelName if permissionLevel id is null -->
+  <query name="findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelName">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic,
+    			org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+		    join topic.openForum as forum
+		    join forum.area as area
+		    join topic.membershipItemSet as membershipItem  
+		    where area.contextId = :contextId and
+		    topic.moderated = true and
+		    membershipItem.name in ( :membershipList ) and
+		    pl.moderatePostings = true and
+		    (pl.typeUuid != :customTypeUuid and 
+               pl.name = membershipItem.permissionLevelName)
+		]]>
+  </query>
+  
+  <query name="findTopicByIdWithMemberships">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             left join fetch topic.membershipItemSet
+             where topic.id = :id
+    ]]>
+  </query>
+ 
+</hibernate-mapping>

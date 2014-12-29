@@ -1,0 +1,665 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+<faces-config>
+    <application>
+        <message-bundle>org.sakaiproject.api.app.messagecenter.bundle.Messages</message-bundle>
+        <locale-config>
+            <default-locale>en</default-locale>
+            <supported-locale>de</supported-locale>
+            <supported-locale>fr</supported-locale>
+            <supported-locale>es</supported-locale>
+        </locale-config>
+    </application>
+
+	<!-- Sortout Ajax -->
+	<lifecycle>
+		<phase-listener>org.sakaiproject.tool.messageforums.jsf.AjaxPhaseListener</phase-listener>
+	</lifecycle>
+
+    <!-- =================== Custom JSF Tags ============== -->
+
+    <!-- hide division button bar -->
+    <component>
+	  <component-type>BarLink</component-type>
+      <component-class>org.sakaiproject.tool.messageforums.jsf.BarLinkComponent</component-class>
+    </component>
+	<component>
+      <component-type>HideDivision</component-type>
+      <component-class>org.sakaiproject.tool.messageforums.jsf.HideDivisionComponent</component-class>
+    </component>
+	<component>
+      <component-type>ShowArea</component-type>
+      <component-class>org.sakaiproject.tool.messageforums.jsf.ShowAreaComponent</component-class>
+	</component>
+    
+	<render-kit>
+    <renderer>
+      <component-family>HideDivision</component-family> 
+      <renderer-type>org.sakaiproject.HideDivision</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.HideDivisionRenderer</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Command</component-family>
+      <renderer-type>org.sakaiproject.tool.messageforums.jsf.BarLinkRenderer</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.BarLinkRenderer</renderer-class>
+    </renderer>    
+    <renderer>
+      <component-family>javax.faces.Data</component-family> 
+      <renderer-type>HierDataTableRender</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.HierDataTableRender</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>ShowArea</component-family>
+      <renderer-type>ShowAreaRender</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.ShowAreaRender</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Data</component-family> 
+      <renderer-type>HierPvtMsgDataTableRender</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.HierPvtMsgDataTableRender</renderer-class>
+    </renderer>
+    <renderer>
+      <component-family>javax.faces.Output</component-family>
+      <renderer-type>javax.faces.Link</renderer-type>
+      <renderer-class>org.sakaiproject.tool.messageforums.jsf.EscapedOutputLinkRenderer</renderer-class>
+    </renderer>
+    </render-kit>
+    <!-- =================== Validators ============== -->
+    <validator>
+    	<description>Required Validator that trims first</description>
+    	<validator-id>MessageTitle</validator-id>
+    	<validator-class>
+    		org.sakaiproject.tool.messageforums.jsf.MessageTitleValidator
+    	</validator-class>
+    </validator>
+    <!-- =================== Navigation ============== -->
+    <navigation-rule>
+        <from-view-id>/jsp/*</from-view-id>
+
+        <navigation-case>
+            <from-outcome>main</from-outcome>
+            <to-view-id>/jsp/main.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>compose</from-outcome>
+            <to-view-id>/jsp/compose.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>test</from-outcome>
+            <to-view-id>/jsp/test.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>showallmessages</from-outcome>
+            <to-view-id>/jsp/debug-showallmessages.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+    
+        <navigation-case>
+            <from-outcome>pvtMsgOrganize</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgOrganize.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgStatistics</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgStatistics.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgSettings</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsg</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsg.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>pvtMsgCompose</from-outcome>
+            <to-view-id>/jsp/compose.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgDetail</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgDetail.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgReply</from-outcome>
+            <to-view-id>/jsp/pvtMsgReply.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        
+        <!-- SAKAI-10505 -->
+          <navigation-case>
+            <from-outcome>pvtMsgForward</from-outcome>
+            <to-view-id>/jsp/pvtMsgForward.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        
+         <!-- SAKAI-huxt -->
+        <navigation-case>
+            <from-outcome>pvtMsgReplyAll</from-outcome>
+            <to-view-id>/jsp/pvtMsgReplyAll.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        
+        <navigation-case>
+            <from-outcome>pvtMsgDelete</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgDelete.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>removeAttachConfirm</from-outcome>
+            <to-view-id>/jsp/removeAttachConfirm.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgFolderSettings</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>   
+        <navigation-case>
+            <from-outcome>pvtMsgFolderAdd</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderAdd.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgFolderRevise</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderRevise.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgFolderDelete</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderDelete.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgEx</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgEx.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgHpView</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgHpView.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgMove</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgMove.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>pvtMsgFolderInFolderAdd</from-outcome>
+            <to-view-id>/jsp/privateMsg/pvtMsgFolderInFolderAdd.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                               
+        <!--******************* navigation cases for discussion forums***************************-->
+        <navigation-case>
+            <from-outcome>dfTemplateSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/area/dfTemplateSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfTemplateOrganize</from-outcome>
+            <to-view-id>/jsp/discussionForum/area/dfTemplateOrganize.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <!-- permissions -->
+        <navigation-case>
+          <from-outcome>addGroupsUsers</from-outcome>
+          <to-view-id>/jsp/discussionForum/permissions/addGroupsUsers.jsp</to-view-id>
+          <redirect/>
+        </navigation-case>
+        <!-- There was a syntax error on the previous line - PAFH 8/26/2006 -->
+        <!--forum -->
+        <navigation-case>
+            <from-outcome>dfForumSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/forum/dfForumSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfReviseForumSettings</from-outcome>
+            <to-view-id>/jsp/dfReviseForumSettingsAttach.jsp</to-view-id>
+<!--            <to-view-id>/jsp/discussionForum/forum/dfReviseForumSettings.jsp</to-view-id>-->
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfConfirmForumDelete</from-outcome>
+            <to-view-id>/jsp/discussionForum/forum/dfConfirmForumDelete.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfForumDetail</from-outcome>
+            <to-view-id>/jsp/discussionForum/forum/dfForumDetail.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <!--topic -->
+         <navigation-case>
+            <from-outcome>dfTopicSettings</from-outcome>
+            <to-view-id>/jsp/discussionForum/topic/dfTopicSettings.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfReviseTopicSettings</from-outcome>
+            <to-view-id>/jsp/dfReviseTopicSettingsAttach.jsp</to-view-id>
+<!--            <to-view-id>/jsp/discussionForum/topic/dfReviseTopicSettings.jsp</to-view-id>-->
+            <redirect/>
+        </navigation-case>
+        <!--messages -->
+        <navigation-case>
+            <from-outcome>dfCompose</from-outcome>
+            <to-view-id>/jsp/dfCompose.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfViewAllRanks</from-outcome>
+            <to-view-id>/jsp/discussionForum/area/dfViewAllRanks.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfAddRank</from-outcome>
+            <to-view-id>/jsp/discussionForum/area/dfAddRank.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfEditRank</from-outcome>
+            <to-view-id>/jsp/discussionForum/area/dfEditRank.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>  
+        <navigation-case>
+            <from-outcome>dfConfirmRemoveRanks</from-outcome>
+            <to-view-id>/jsp/discussionForum/area/dfConfirmRemoveRanks.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfMoveThreads</from-outcome>
+            <to-view-id>/jsp/dfMoveThreads.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfViewMessage</from-outcome>
+            <to-view-id>/jsp/discussionForum/message/dfViewMessage.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+        	<from-outcome>dfViewThread</from-outcome>
+        	<to-view-id>/jsp/discussionForum/message/dfViewThread.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfFlatView</from-outcome>
+        	<to-view-id>/jsp/discussionForum/message/dfFlatView.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>dfAllMessages</from-outcome>
+            <to-view-id>/jsp/discussionForum/message/dfAllMessages.jsp</to-view-id>
+            <redirect/>
+        </navigation-case> 
+        <navigation-case>
+            <from-outcome>dfThreadedView</from-outcome>
+            <to-view-id>/jsp/discussionForum/message/dfThreadedView.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
+        <navigation-case>
+            <from-outcome>dfMessageReply</from-outcome>
+            <to-view-id>/jsp/dfMessageReply.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>              
+        <navigation-case>
+        	<from-outcome>dfMessageReplyThread</from-outcome>
+        	<to-view-id>/jsp/dfMessageReplyThread.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>                                                       
+        <navigation-case>
+            <from-outcome>dfTopicReply</from-outcome>
+            <to-view-id>/jsp/dfTopicReply.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
+        <navigation-case>
+            <from-outcome>dfMsgRevise</from-outcome>
+            <to-view-id>/jsp/dfMsgRevise.jsp</to-view-id>
+            <redirect/>
+        </navigation-case>                                                                     
+	    <navigation-case> 
+            <from-outcome>dfMsgGrade</from-outcome> 
+            <to-view-id>/jsp/discussionForum/message/dfMsgGrade.jsp</to-view-id> 
+            <redirect/> 
+        </navigation-case>
+        <navigation-case> 
+            <from-outcome>dfMsgAddComment</from-outcome> 
+            <to-view-id>/jsp/discussionForum/message/dfMsgAddComment.jsp</to-view-id> 
+            <redirect/> 
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfStatisticsList</from-outcome>
+        	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsList.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfStatisticsListByAllTopics</from-outcome>
+        	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsListByAllTopics.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfStatisticsListByTopic</from-outcome>
+        	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsListByTopic.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfStatisticsUser</from-outcome>
+        	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsUser.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfPendingMessages</from-outcome>
+        	<to-view-id>/jsp/discussionForum/message/dfPendingMessages.jsp</to-view-id>
+        	<redirect/>
+        </navigation-case>
+        
+        
+        <!--******************* navigation cases for setting watch forums options ***************************-->
+        <navigation-case>
+        	<from-outcome>dfWatchSettings</from-outcome>
+        	<to-view-id>/jsp/discussionForum/area/dfWatchSettings.jsp</to-view-id>
+        	<redirect />
+        </navigation-case>
+        
+         
+        <!--******************* navigation cases for synoptic ***************************-->
+        <navigation-case>
+        	<from-outcome>synOptions</from-outcome>
+        	<to-view-id>/jsp/synoptic/synOptions.jsp</to-view-id>
+        	<redirect />
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>synMain</from-outcome>
+        	<to-view-id>/jsp/synoptic/synMain.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>synMainLite</from-outcome>
+        	<to-view-id>/jsp/synoptic/synMainLite.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>synPvtMsg</from-outcome>
+        	<to-view-id>/../privateMsg/pvtMsg.jsp</to-view-id>
+        </navigation-case>
+
+        <!--******************* navigation cases for Private Messages via synoptic ***************************-->
+<!--         <navigation-case>
+        	<from-outcome>mainviasyn</from-outcome>
+        	<to-view-id>/../../jsp/main.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>composeviasyn</from-outcome>
+        	<to-view-id>/../compose.jsp</to-view-id>
+        </navigation-case> -->
+
+        <!--******************* navigation cases for Private Messages via synoptic ***************************-->
+        <navigation-case>
+        	<from-outcome>forumsMain</from-outcome>
+        	<to-view-id>/jsp/discussionForum/forumsOnly/dfForums.jsp</to-view-id>
+        </navigation-case>
+           <navigation-case>
+        	<from-outcome>dfStatisticsAllAuthoredMessageForOneUser</from-outcome>
+        	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsAllAuthoredMsgForOneUser.jsp</to-view-id>
+        </navigation-case>
+         <navigation-case>
+        	<from-outcome>dfStatisticsFullTextForOne</from-outcome>
+        	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsFullTextForOne.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+        	<from-outcome>dfStatisticsDisplayInThread</from-outcome>
+        	<to-view-id>/jsp/discussionForum/statistics/dfStatisticsDisplayInThread.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+  
+    <!-- =================== Tool Beans ============== -->
+    <managed-bean>
+        <description>Discussion Forum Tool</description>
+        <managed-bean-name>ForumTool</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.DiscussionForumTool</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope> 
+         <managed-property>
+            <description>Discussion Forum Manager</description>
+            <property-name>forumManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"]}</value>
+        </managed-property>         
+        <managed-property>
+            <description>Message Manager</description>
+            <property-name>messageManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
+        </managed-property>
+         <managed-property>
+            <description>Message Type Manager</description>
+            <property-name>typeManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>UI Permissions Manager</description>
+            <property-name>uiPermissionsManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>PermissionLevel Manager</description>
+            <property-name>permissionLevelManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.PermissionLevelManager"]}</value>
+        </managed-property> 
+         <managed-property>
+            <description>Membership Manager</description>
+            <property-name>membershipManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MembershipManager"]}</value>
+        </managed-property> 
+ 
+        <managed-property>
+            <description>Area Manager</description>
+            <property-name>areaManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
+        </managed-property>  
+        
+         <managed-property>
+            <description>Email Notification Manager</description>
+            <property-name>emailNotificationManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.EmailNotificationManager"]}</value>
+        </managed-property>  
+        
+        <managed-property>
+         	<description>Synoptic Msgcntr Manager</description>
+         	<property-name>synopticMsgcntrManager</property-name>
+         	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Content Hosting Service</description>
+            <property-name>contentHostingService</property-name>
+            <value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Rank Manager</description>
+            <property-name>rankManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.RankManager"]}</value>
+        </managed-property>
+        
+        <managed-property>
+         	<description>User Preferences Manager</description>
+         	<property-name>userPreferencesManager</property-name>
+         	<value>#{Components["org.sakaiproject.api.app.messageforums.UserPreferencesManager"]}</value>
+        </managed-property>
+        
+    </managed-bean>
+    <managed-bean>
+        <description>Private Messages Tool</description>
+        <managed-bean-name>PrivateMessagesTool</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.PrivateMessagesTool</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <description>Message Manager</description>
+            <property-name>messageManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Membership Manager</description>
+            <property-name>membershipManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MembershipManager"]}</value>
+        </managed-property>        
+        <managed-property>
+            <description>Private Message Manager</description>
+            <property-name>prtMsgManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Message Type Manager</description>
+            <property-name>typeManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Message Forum Manager</description>
+            <property-name>forumManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>                         
+        <managed-property>
+            <description>Content Hosting Service</description>
+            <property-name>contentHostingService</property-name>
+            <value>#{Components["org.sakaiproject.content.api.ContentHostingService"]}</value>
+        </managed-property>
+        <managed-property>
+        	<description>Synoptic Msgcntr Manager</description>
+        	<property-name>synopticMsgcntrManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
+        </managed-property>
+        <managed-property>
+         	<description>User Preferences Manager</description>
+         	<property-name>userPreferencesManager</property-name>
+         	<value>#{Components["org.sakaiproject.api.app.messageforums.UserPreferencesManager"]}</value>
+        </managed-property>
+    </managed-bean>
+    
+    <!-- =================== Synoptic Managed Bean ============== -->
+
+   
+	<managed-bean>
+        <description>Synoptic Message Bean Lite</description>
+        <managed-bean-name>mfSynopticBeanLite</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBeanLite</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+        	<description>Synoptic Msgcntr Manager</description>
+        	<property-name>synopticMsgcntrManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.SynopticMsgcntrManager"]}</value>
+        </managed-property>  
+        <managed-property>
+        	<description>Forums Forum Manager</description>
+        	<property-name>forumsManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+                <managed-property>
+            <description>Area Manager</description>
+            <property-name>areaManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
+        </managed-property>  
+        <managed-property>
+            <description>Message Type Manager</description>
+            <property-name>typeManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
+        </managed-property>
+        <managed-property>
+        	<description>Private Message Manager</description>
+        	<property-name>pvtMessageManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
+        </managed-property>
+ 	</managed-bean>
+
+
+
+    <managed-bean>
+        <description>Synoptic Message Bean</description>
+        <managed-bean-name>mfSynopticBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.ui.MessageForumSynopticBean</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+        <managed-property>
+        	<description>Forums Forum Manager</description>
+        	<property-name>forumsManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsForumManager"]}</value>
+        </managed-property>
+        <managed-property>
+        	<description>Message Manager</description>
+        	<property-name>messageManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
+        </managed-property>
+        <managed-property>
+        	<description>Private Message Manager</description>
+        	<property-name>pvtMessageManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager"]}</value>
+        </managed-property>
+         <managed-property>
+        	<description>Forum Manager</description>
+        	<property-name>forumManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Area Manager</description>
+            <property-name>areaManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.AreaManager"]}</value>
+        </managed-property>  
+        <managed-property>
+            <description>Message Type Manager</description>
+            <property-name>typeManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsTypeManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>UI Permissions Manager</description>
+            <property-name>uiPermissionsManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"]}</value>
+        </managed-property>
+ 		<managed-property>
+			<description>API Dependency: preferences service</description>
+			<property-name>preferencesService</property-name>
+			<value>#{Components["org.sakaiproject.user.api.PreferencesService"]}</value>
+		</managed-property>
+ 	</managed-bean>
+ 
+ 	<!-- =================== Statistics Objects =============== -->
+ 	<managed-bean>
+ 		<description>Statistics Message Bean</description>
+        <managed-bean-name>mfStatisticsBean</managed-bean-name>
+        <managed-bean-class>org.sakaiproject.tool.messageforums.ui.MessageForumStatisticsBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+        	<description>Message Manager</description>
+        	<property-name>messageManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.MessageForumsMessageManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>Membership Manager</description>
+            <property-name>membershipManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.MembershipManager"]}</value>
+        </managed-property>
+         <managed-property>
+        	<description>Forum Manager</description>
+        	<property-name>forumManager</property-name>
+        	<value>#{Components["org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager"]}</value>
+        </managed-property>
+        <managed-property>
+            <description>UI Permissions Manager</description>
+            <property-name>uiPermissionsManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager"]}</value>
+        </managed-property>
+ 	</managed-bean>
+ 
+    <!-- =================== Application Objects ============== -->
+
+    <!-- 
+	<application>	
+		<navigation-handler>
+			org.sakaiproject.tool.messageforums.jsf.MessageForumsNavigationHandler
+		</navigation-handler>
+	</application>
+	-->
+    
+</faces-config>

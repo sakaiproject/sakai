@@ -1,0 +1,831 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+  <class 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
+      table="MFR_MESSAGE_T" 
+      optimistic-lock="version" 
+      discriminator-value="ME">
+    
+    <!-- Inherited fields from MutableEntity -->
+    <id name="id">
+      <column name="ID" not-null="true" length="19" />
+      <generator class="native">
+        <param name="sequence">MFR_MESSAGE_S</param>
+      </generator>
+    </id>
+
+	<!--  Discriminator field used for polymophism in the database -->
+    <discriminator>
+      <column name="MESSAGE_DTYPE" length="2" index="MFR_MESSAGE_DTYPE_I"/>
+    </discriminator>
+       
+	<!--  Version number used for optimistic locking -->
+    <version name="version" column="VERSION" />
+
+    <property name="uuid" column="UUID" length="36" not-null="true" />
+    <property name="created" column="CREATED" not-null="true" index="MFR_MESSAGE_CREATED_I"/>
+    <property name="createdBy" column="CREATED_BY" length="36" not-null="true" />
+    <property name="modified" column="MODIFIED" not-null="true" />
+    <property name="modifiedBy" column="MODIFIED_BY" length="36" not-null="true" />
+
+    <!-- Message fields -->
+    <property name="title">
+      <column name="TITLE" length="255" not-null="true" index="MFR_MESSAGE_TITLE_I"/>
+    </property>
+    <property name="body" type="materialized_clob">
+      <column name="BODY" not-null="false" />
+    </property>
+    <property name="author">
+      <column name="AUTHOR" length="255" not-null="true" index="MFR_MESSAGE_AUTHOR_I" />
+    </property>
+    <property name="hasAttachments">
+      <column name="HAS_ATTACHMENTS" not-null="true" index="MFR_MESSAGE_HAS_ATTACHMENTS_I"/>
+    </property>
+	<property name="gradeAssignmentName" column="GRADEASSIGNMENTNAME" type="string" not-null="false"/>
+	<property name="numReaders" column="NUM_READERS" type="integer"/>
+
+    
+    <set name="attachmentsSet" lazy="true" order-by="created desc" cascade="all-delete-orphan" batch-size="10">
+        <key column="m_surrogateKey"/>                        
+        <one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl"/>            
+    </set>
+  	<!-- 
+  	<list name="attachments" lazy="true" table="MFR_ATTACHMENT_T" cascade="all">
+		<key column="m_surrogateKey"/>
+		<index column="mes_index_col" />
+		<one-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.AttachmentImpl" />
+	</list> 
+	-->   
+    <property name="label">
+      <column name="LABEL" length="255" not-null="false" index="MFR_MESSAGE_LABEL_I" />
+    </property>
+    <many-to-one name="inReplyTo" column="IN_REPLY_TO"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl"
+      not-null="false" cascade="none" index="MFR_MESSAGE_T_IN_REPLY_TO_I"/>
+    <property name="threadId" column="THREADID" type="long" />
+  	<property name="dateThreadlastUpdated" column="LASTTHREADATE" type="timestamp" />
+  	<property name="threadLastPost" column="LASTTHREAPOST" type="long" />
+    <property name="typeUuid">
+      <column name="TYPE_UUID" length="36" not-null="true" />
+    </property>
+    <property name="approved">
+      <column name="APPROVED" not-null="false" />
+    </property>
+    <property name="draft">
+      <column name="DRAFT" not-null="true" />
+    </property>
+ 	<!-- added implementing delete from threaded view -->
+	<property name="deleted">
+		<column name="DELETED" not-null="true" index="MFR_MESSAGE_DELETED_I"/>
+	</property> 
+	
+    
+    <many-to-one name="topic" column="surrogateKey"
+      class="org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl"
+      not-null="false" index="MFR_MESSAGE_PARENT_TOPIC_I" cascade="none" />
+     <!-- <property name="tindex" column="t_index_col" type="int" update="true" insert="true"/> -->
+        
+    <!-- PrivateMessage fields -->
+    <subclass 
+      name="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl"
+      discriminator-value="PM">
+      <!-- enable list if joining with forum user -->
+	  <!-- <list name="recipients" lazy="true" table="MFR_MESSAGE_FORUMS_USER_MSG_T" cascade="all">	  
+	      <key column="messageSurrogateKey"/>
+	      <index column="user_index_col" />
+	      <many-to-many class="org.sakaiproject.component.app.messageforums.dao.hibernate.MessageForumsUserImpl"
+	                    column="userSurrogateKey"/>
+  	  </list>         
+  	  -->
+  	  <list name="recipients" lazy="true" table="MFR_PVT_MSG_USR_T" cascade="all">
+  	    <key column="messageSurrogateKey"/>
+  	    <index column="user_index_col"/>
+  	    <composite-element class="org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageRecipientImpl">
+          <property name="userId" >
+            <column name="USER_ID" not-null="true" index="MFR_PVT_MSG_USR_I1"/>                        
+          </property>
+          <property name="typeUuid">
+            <column name="TYPE_UUID" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
+          </property>
+          <property name="contextId">
+            <column name="CONTEXT_ID" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
+          </property>
+          <property name="read">
+            <column name="READ_STATUS" not-null="true" index="MFR_PVT_MSG_USR_I1"/>
+          </property>
+          <property name="bcc">
+            <column name="BCC" not-null="true"  default="0"/>
+          </property>
+		  <property name="replied">
+            <column name="REPLIED" not-null="true"/>
+          </property>
+  	    </composite-element>  	      	    
+  	  </list>
+  	  
+      <property name="externalEmail">
+        <column name="EXTERNAL_EMAIL" not-null="false" />
+      </property>        
+      <property name="externalEmailAddress">
+        <column name="EXTERNAL_EMAIL_ADDRESS" length="255" not-null="false" />
+      </property>
+      <property name="recipientsAsText" type="materialized_clob" not-null="false" >
+        <column name="RECIPIENTS_AS_TEXT"/>
+      </property>      
+      <property name="recipientsAsTextBcc" type="materialized_clob" not-null="false" >
+        <column name="RECIPIENTS_AS_TEXT_BCC"/>
+      </property> 
+    </subclass>
+    
+  </class>
+
+  <query name="findMessageById">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.id = :id]]>
+  </query>
+  
+  <query name="findMessageByIdWithAttachments">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+             left join fetch message.attachmentsSet
+             where message.id = :id]]>
+  </query>
+
+  <query name="findMessageByUuid">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.uuid = :uuid]]>
+  </query>
+  
+  <query name="findMessageCountByTopicId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false and message.deleted=false]]>
+  </query>
+  
+  <query name="findMessageCountByForumId">
+    <![CDATA[select message.topic.id, count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.openForum.id = :forumId and message.draft = false and message.deleted=false group by message.topic.id]]>
+  </query>
+
+  <query name="findMessageCountsForMainPage"><![CDATA[
+    select topic.id, count(msg)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+      left join topic.messagesSet msg
+        with msg.draft = false and msg.deleted = false
+    where topic.id in (:topicIds)
+    group by topic.id
+  ]]></query>
+  
+  <query name="findReadMessageCountsForMainPage"><![CDATA[
+    select topic.id, count(readMsg)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+      left join topic.messagesSet msg
+        with msg.draft = false and msg.deleted = false,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl readMsg
+    where topic.id in (:topicIds) and (msg.id = readMsg.messageId and readMsg.userId = :userId)
+    group by topic.id
+  ]]></query>
+  
+
+  <query name="findMessageCountTotal"><![CDATA[
+    select topic.id, count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false
+    group by topic.id
+  ]]></query>
+
+  <query name="findViewableMessageCountByTopicIdByUserId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message 
+    				where message.topic.id = :topicId and 
+    				message.draft = false and
+    				message.deleted = false and
+    				(message.approved = true or
+    				message.createdBy = :userId) 
+    ]]>
+  </query>
+
+  <query name="findReadMessageCountByTopicId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message, org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us where message.topic.id = :topicId and us.userId = :userId and message.id = us.messageId and us.read = true and message.draft = false and message.deleted = false]]>
+  </query>
+  
+  <query name="findReadMessageCountForStudent"><![CDATA[
+    select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+    org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where message.id = us.messageId and area.contextId = :contextId and us.userId = :userId and us.read = true and message.draft = false and message.deleted = false
+  ]]></query>
+  
+  <sql-query name="findReadStatsForStudent">
+	 <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+	    from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_UNREAD_STATUS_T must on must.MESSAGE_C = mmt.ID
+		inner join MFR_AREA_T mat on mat.ID = moft.surrogateKey
+		where mat.CONTEXT_ID=:contextId
+		and must.USER_C=:userId
+		and must.READ_C=1 
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0
+  </sql-query>
+  
+  <sql-query name="findReadStatsForStudentByTopicId">
+	 <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+	    from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_UNREAD_STATUS_T must on must.MESSAGE_C = mmt.ID
+		where mtt.ID=:topicId
+		and must.USER_C=:userId
+		and must.READ_C=1 
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0
+  </sql-query>
+  
+  <sql-query name="findReadStatsForStudentByForumId">
+	 <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+	    from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_UNREAD_STATUS_T must on must.MESSAGE_C = mmt.ID
+		where moft.ID=:forumId
+		and must.USER_C=:userId
+		and must.READ_C=1 
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0
+  </sql-query>
+  
+  <query name="findReadMessageCountForAllStudents"><![CDATA[
+    select us.userId, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where message.id = us.messageId 
+      and area.contextId = :contextId 
+      and us.read = true and message.draft = false and message.deleted = false
+    group by us.userId
+  ]]></query>
+  
+  <query name="findReadMessageCountForAllStudentsByTopicId"><![CDATA[
+    select us.userId, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where message.id = us.messageId 
+      and area.contextId = :contextId 
+      and us.read = true and message.draft = false and message.deleted = false
+      and topic.id = :topicId
+    group by us.userId
+  ]]></query>
+  
+  <query name="findReadMessageCountForAllStudentsByForumId"><![CDATA[
+    select us.userId, count(*)
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message,
+      org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl us
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where message.id = us.messageId 
+      and area.contextId = :contextId 
+      and us.read = true and message.draft = false and message.deleted = false
+      and forum.id = :forumId
+    group by us.userId
+  ]]></query>
+
+  <query name="findReadViewableMessageCountByTopicIdByUserId">
+    <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
+    				 org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us 
+    				 where message.topic.id = :topicId and 
+    				 us.userId = :userId and 
+    				 message.id = us.messageId and 
+    				 us.read = true and 
+    				 message.draft = false and 
+    				 message.deleted = false and
+    				 (message.approved = true or
+    				 message.createdBy = :userId)]]>
+  </query>
+  
+  <query name="findAuhtoredMessageCountByTopicId">
+  	<![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.draft = false and message.deleted = false and message.createdBy = :userId]]>
+  </query>
+
+  <query name="findAuthoredMessageCountForStudent"><![CDATA[
+    select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and message.createdBy = :userId
+  ]]></query>
+  
+  <query name="findAuthoredMessagesForStudent"><![CDATA[
+    select message
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join fetch message.topic topic join fetch topic.openForum openForum
+    where openForum.area.contextId = :contextId and message.createdBy = :userId 
+      and message.draft = false and message.deleted = false
+    order by message.created desc
+  ]]></query>
+  
+  <sql-query name="findAuthoredStatsForStudent"> 
+     <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+		from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		inner join MFR_AREA_T mat on moft.surrogateKey = mat.ID
+		where moft.surrogateKey=mat.ID 
+		and mat.CONTEXT_ID=:contextId
+		and mmt.CREATED_BY= :userId
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0 
+   </sql-query>
+  
+  <query name="findAuthoredMessagesForStudentByTopicId"><![CDATA[
+    select message
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join fetch message.topic topic join fetch topic.openForum openForum
+    where openForum.area.contextId = :contextId and message.createdBy = :userId 
+      and message.draft = false and message.deleted = false
+      and topic.id = :topicId
+    order by message.created desc
+  ]]></query>
+  
+   <sql-query name="findAuthoredStatsForStudentByTopicId"> 
+     <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+		from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		where mtt.ID=:topicId
+		and mmt.CREATED_BY= :userId
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0 
+   </sql-query>
+  
+  <query name="findAuthoredMessagesForStudentByForumId"><![CDATA[
+    select message
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join fetch message.topic topic join fetch topic.openForum openForum
+    where openForum.area.contextId = :contextId and message.createdBy = :userId 
+      and message.draft = false and message.deleted = false
+      and openForum.id = :forumId
+    order by message.created desc
+  ]]></query>
+  
+   <sql-query name="findAuthoredStatsForStudentByForumId"> 
+     <return-scalar column="forumTitle" type="java.lang.String"/>
+     <return-scalar column="topicTitle" type="java.lang.String"/>
+     <return-scalar column="msgCreated" type="java.util.Date"/> 
+     <return-scalar column="msgTitle" type="java.lang.String"/> 
+     <return-scalar column="msgId" type="java.lang.Integer"/>
+     <return-scalar column="topicId" type="java.lang.Integer"/>
+     <return-scalar column="forumId" type="java.lang.Integer"/>
+     select moft.TITLE forumTitle, mtt.TITLE topicTitle, mmt.CREATED msgCreated, mmt.TITLE msgTitle, mmt.ID msgId, mtt.ID topicId, moft.ID forumId
+		from MFR_MESSAGE_T mmt 
+		inner join MFR_TOPIC_T mtt on mmt.surrogateKey=mtt.ID 
+		inner join MFR_OPEN_FORUM_T moft on mtt.of_surrogateKey=moft.ID 
+		where moft.ID=:forumId
+		and mmt.CREATED_BY= :userId
+		and mmt.DRAFT=0 
+		and mmt.DELETED=0 
+   </sql-query>
+
+  <query name="findAuthoredMessageCountForAllStudents"><![CDATA[
+    select message.createdBy, count(*) 
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false
+    group by message.createdBy
+  ]]></query>
+  
+  <query name="findAuthoredMessageCountForAllStudentsByTopicId"><![CDATA[
+    select message.createdBy, count(*) 
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and topic.id = :topicId
+    group by message.createdBy
+  ]]></query>
+  
+  <query name="findAuthoredMessageCountForAllStudentsByForumId"><![CDATA[
+    select message.createdBy, count(*) 
+    from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl message
+      join message.topic topic
+      join topic.openForum forum
+      join forum.area area
+    where area.contextId = :contextId and message.draft = false and message.deleted = false and forum.id = :forumId
+    group by message.createdBy
+  ]]></query>
+
+  <query name="findMessagesByTopicId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId]]>
+  </query>
+  
+  <query name="findUndeletedMessagesByTopicId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message where message.topic.id = :topicId and message.deleted = false]]>
+  </query>
+  
+  <!-- ================ Gets count of all unread private messages ================= -->
+  <!--  NOTE: do not need site list since private message read status table only has entries for sites user is a part of -->
+  
+  <query name="findUnreadPvtMsgCntByUserForAllSites">
+    <![CDATA[select recipient.contextId, count(*) 
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join message.recipients recipient
+             where recipient.userId = :userId and
+                   recipient.read = false and
+                   message.draft = false and
+                   message.deleted = false
+             group by recipient.contextId
+    ]]>
+  </query>
+  
+<!-- Gets counts of messages user can access from sites with Forum topics
+	 that don't have membership items -->
+  <query name="findDiscussionForumMessageCountsForTopicsWithMissingPermsForAllSites">
+    <![CDATA[select a.contextId, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+               join topic.openForum as f
+               join f.area as a
+             where a.contextId in ( :siteList ) and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+              (messages.approved = true or
+               messages.createdBy = :userId) and
+              (topic not in (select distinct dbmi.topic from 
+               				 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl dbmi
+               				 where dbmi.topic = topic))
+             group by a.contextId
+    ]]>
+ 
+ </query>
+
+<!-- Gets counts of read messages user can access from sites with Forum topics
+	 that don't have membership items -->
+  <query name="findDiscussionForumReadMessageCountsForTopicsWithMissingPermsForAllSites">
+    <![CDATA[select a.contextId, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+             where a.contextId in ( :siteList ) and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+               us.userId = :userId and
+               us.read = true and
+               messages.id = us.messageId and
+              (messages.approved = true or
+               messages.createdBy = :userId) and
+              (topic not in (select distinct dbmi.topic from 
+               				 org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl dbmi
+               				 where dbmi.topic = topic))
+             group by a.contextId
+    ]]>
+ 
+ </query>
+
+<!--  Gets counts of message user can access grouped by site and role/group.
+	  Needed since user can have different roles in different sites -->
+	  
+  <!--  first test by custom permissions (permissionLevel id) -->
+  <query name="findDiscussionForumMessageCountsForAllSitesByPermissionLevelId">
+    <![CDATA[select a.contextId, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+    		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+             where a.contextId in ( :siteList ) and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+              membershipItem.name in ( :roleList ) and
+               membershipItem.permissionLevel = pl.id  and
+              (pl.read = true and 
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, membershipItem.name
+    ]]>
+ 
+ </query>
+
+  <!--  second test by non-custom permissions (permissionLevelName) -->
+  <query name="findDiscussionForumMessageCountsForAllSitesByPermissionLevelName">
+    <![CDATA[select a.contextId, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+    		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+             where a.contextId in ( :siteList ) and
+               f.draft = false and
+               topic.draft = false and
+               messages.draft = false and
+               messages.deleted = false and
+              membershipItem.name in ( :roleList ) and
+              (pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName)  and
+              (pl.read = true and 
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, membershipItem.name
+    ]]>
+ 
+ </query>
+
+
+<!-- Gets count of messages user has already read grouped by site and role/group.
+	 Needed since user can have different roles/groups in different sites or
+	 to deal with access allowed from different groups and/or overlapping
+	 access.  -->
+<query name="findDiscussionForumReadMessageCountsForAllSites">
+    <![CDATA[select a.contextId, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+    		   join messages.topic as topic
+    		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us
+             where a.contextId in ( :siteList ) and
+               membershipItem.name in ( :roleList ) and
+               us.userId = :userId and
+               us.read = true and
+               messages.id = us.messageId and
+               messages.deleted = false and
+               f.draft = false and
+               topic.draft = false and
+             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
+               membershipItem.permissionLevel = pl.id)  and
+              (pl.read = true and 
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, membershipItem.name
+    ]]>
+    
+ </query>
+
+<!--  Gets count of messages for each site grouped by topic and role/group name.
+		If user member of multiple role/groups, need to filter out overlapping permissions. -->
+<query name="findDiscussionForumMessageCountsForGroupedSitesByTopic">
+    <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+	 		   join messages.topic as topic
+     		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+             where a.contextId in ( :siteList ) and 
+               membershipItem.name in ( :roleList ) and
+               messages.draft = false and
+               messages.deleted = false and
+               f.draft = false and
+               topic.draft = false and
+             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
+               membershipItem.permissionLevel = pl.id)  and
+              (pl.read = true and
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, topic.id, membershipItem.name
+    ]]>
+    
+ </query>
+
+<!--  Gets count of read messages for each site grouped by topic and role/group name.
+		If user member of multiple role/groups, need to filter out overlapping permissions. -->
+<query name="findDiscussionForumReadMessageCountsForGroupedSitesByTopic">
+    <![CDATA[select a.contextId, topic.id, membershipItem.name, count(*)
+    		 from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as messages
+	 		   join messages.topic as topic
+     		   join topic.membershipItemSet as membershipItem
+               join topic.openForum as f
+               join f.area as a,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us,
+    		   org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+             where a.contextId in ( :siteList ) and 
+               membershipItem.name in ( :roleList ) and
+               us.userId = :userId and
+               us.read = true and
+               messages.id = us.messageId and
+               messages.deleted = false and
+               f.draft = false and
+               topic.draft = false and
+             ((pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) or
+               membershipItem.permissionLevel = pl.id)  and
+              (pl.read = true and
+              (pl.moderatePostings = true or 
+               messages.approved = true or
+               messages.createdBy = :userId))
+             group by a.contextId, topic.id, membershipItem.name
+    ]]>
+    
+ </query>
+
+<!--  
+  <query name="findAggregatePvtMsgCntForUserInContext">
+    <![CDATA[select recipient.read, recipient.typeUuid, count(*) 
+             from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join message.recipients recipient
+             where recipient.userId = :userId and                   
+                   recipient.contextId = :contextId
+             group by recipient.read, recipient.typeUuid
+    ]]>
+  </query>
+  -->
+  <sql-query name="findAggregatePvtMsgCntForUserInContext"> 
+     <return-scalar column="READ_STATUS" type="java.lang.Boolean"/> 
+     <return-scalar column="TYPE_UUID" type="java.lang.String"/> 
+     <return-scalar column="readCount" type="java.lang.Integer"/>
+     select READ_STATUS, TYPE_UUID, count(READ_STATUS) as readCount
+             from MFR_PVT_MSG_USR_T
+             where USER_ID = :userId and                   
+                   CONTEXT_ID = :contextId
+             group by READ_STATUS, TYPE_UUID
+   </sql-query>
+   
+  <query name="findPrvtMsgsByUserTypeContext">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join fetch message.recipients recipient
+             where recipient.userId = :userId and
+                   recipient.typeUuid = :typeUuid and                             
+                   recipient.contextId = :contextId
+    ]]>    
+  </query>
+  
+  <query name="findPrivateMessageByIdWithRecipients">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join fetch message.recipients recipient
+             where message.id = :id                        
+    ]]>    
+  </query>
+  
+  <query name="finalAllChildMessages">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+             where message.inReplyTo.id = :messageId
+    ]]>    
+  </query>
+  
+  <query name="findMessagesBySearchText">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+             where message.topic.id = :id and message.draft = false and (
+                     message.author like :searchByText or 
+                     message.title like :searchByText or
+                     message.body like :searchByText
+                   )
+    ]]>    
+  </query>
+
+  <query name="findPvtMsgsBySearchText">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateMessageImpl as message
+             left join fetch message.recipients recipient
+             where  (
+             				(((1 = :searchByAuthor and message.author like :searchText) )or 
+                    ((1 = :searchByText and message.title like :searchText) )or
+                    ((1 = :searchByBody and message.body like :searchText) )or
+                    ((1 = :searchByLabel and message.label like :searchText) ))and
+                    ((1 != :searchByDate or message.created between :searchFromDate and :searchToDate) ))
+                    and recipient.typeUuid = :typeUuid
+                    and recipient.userId = :userId
+                    and recipient.contextId = :contextId
+    ]]>    
+  </query>
+
+  <query name="findReadStatusByMsgIds">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.UnreadStatusImpl as us 
+    		where 
+    		us.userId = :userId and 
+    		us.messageId in ( :msgIds )
+    ]]>
+  </query>
+  <!-- permissions are a little nasty...  b/c permission level  is null in the membershipItem
+  			if it is not custom, we need to	check for permission level that is custom and has same id 
+  			or that is not custom and has the same permission level name -->
+  			
+  <!--  first check by permissionLevel (id) -->
+  <query name="findAllPendingMsgsByContextByMembershipByPermissionLevel">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
+    					org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    				 join message.topic as topic
+             join topic.openForum as forum
+             join forum.area as area
+             join topic.membershipItemSet as membershipItem   
+             where area.contextId = :contextId and
+             membershipItem.name in ( :membershipList ) and
+             message.deleted = false and
+             message.approved = null and
+             membershipItem.permissionLevel = pl.id and
+             pl.moderatePostings = true
+    ]]>    
+  </query>
+  
+  <!--  second check by permissionLevelName (non-custom permission) -->
+  <query name="findAllPendingMsgsByContextByMembershipByPermissionLevelName">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message,
+    					org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
+    				 join message.topic as topic
+             join topic.openForum as forum
+             join forum.area as area
+             join topic.membershipItemSet as membershipItem   
+             where area.contextId = :contextId and
+             membershipItem.name in ( :membershipList ) and
+             message.deleted = false and
+             message.approved = null and
+             (pl.typeUuid != :customTypeUuid and pl.name = membershipItem.permissionLevelName) and
+             pl.moderatePostings = true
+    ]]>    
+  </query>
+  
+  <query name="findPendingMsgsByTopicId">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message      
+    				 join message.topic as topic
+    				 join topic.openForum as forum    
+             where topic.id = :topicId and
+             topic.draft = false and
+             forum.draft = false and
+             message.deleted = false and
+             message.approved = null
+    ]]>    
+  </query>
+  
+    <query name="findDiscussionForumMessagesInSite">
+    <![CDATA[select message, topic, forum from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message
+                 join message.topic as topic
+             join topic.openForum as forum
+             join forum.area as area
+             where area.contextId = :contextId and
+             message.deleted = false]]>
+  </query>
+  
+  <!-- return all moved messages that need to be displayed as reminders -->
+<query name="findMovedMessagesByTopicId">
+    <![CDATA[select message from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageImpl as message ,     
+    				 org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as mhist      
+             where mhist.fromTopicId = :topicId and
+             message.id = mhist.messageId and
+             mhist.reminder = 1
+    ]]>    
+  </query>  
+  
+  <query name="findMovedHistoryByMessageId">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl as mhist      
+             where mhist.messageId = :messageId
+   	]]>    
+  </query>
+    
+</hibernate-mapping>
+
+
