@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+	
+	<name>External Calendaring Service</name>
+	<groupId>org.sakaiproject.calendaring</groupId>
+	<artifactId>external-calendaring-service</artifactId>
+	<packaging>pom</packaging>
+	<version>11-SNAPSHOT</version>
+	
+	<developers>
+		<developer>
+			<name>Steve Swinsburg</name>
+			<email>steve.swinsburg@gmail.com</email>
+			<timezone>10</timezone>
+		</developer>
+	</developers>
+    
+    <contributors>
+        <contributor>
+            <name>Anthony Whyte</name>
+            <email>arwhyte@umich.edu</email>
+        </contributor>
+    </contributors>
+    
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>pack</module>
+    </modules>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/external-calendaring-service/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/external-calendaring-service/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/external-calendaring-service/trunk</url>
+    </scm>
+	
+	<dependencyManagement>
+		<dependencies>	
+			<!-- project dependencies -->
+            <dependency>
+                <groupId>org.sakaiproject.calendar</groupId>
+                <artifactId>sakai-calendar-api</artifactId>
+                <version>${sakai.version}</version>
+                <scope>provided</scope>
+            </dependency>
+			<dependency>
+      			<groupId>org.sakaiproject.calendaring</groupId>
+      			<artifactId>external-calendaring-service-api</artifactId>
+      			<version>${project.version}</version>
+      			<scope>provided</scope>
+    		</dependency>
+    		<dependency>
+      			<groupId>org.sakaiproject.calendaring</groupId>
+      			<artifactId>external-calendaring-service-impl</artifactId>
+      			<version>${project.version}</version>
+      			<scope>runtime</scope>
+    		</dependency>
+			
+       	 	<!-- test dependencies -->
+    		<dependency>
+    			<groupId>org.sakaiproject.mock</groupId>
+    			<artifactId>sakai-mock</artifactId>
+   				<version>${sakai.version}</version>
+   				<scope>test</scope>
+    		</dependency>
+		</dependencies>
+	</dependencyManagement>	
+	
+	<!--  this is only currently setup for snapshot releases, no stable releases -->
+	<distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/external-calendaring-service/${project.version}</url>
+        </site>
+    </distributionManagement>
+    
+    <build/>
+</project>

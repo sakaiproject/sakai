@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	
+    <parent>
+        <artifactId>external-calendaring-service</artifactId>
+        <groupId>org.sakaiproject.calendaring</groupId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+    
+	<name>External Calendaring Service :: Components</name>
+	<groupId>org.sakaiproject.calendaring</groupId>
+	<artifactId>external-calendaring-service-pack</artifactId>
+	<packaging>sakai-component</packaging>
+
+	<properties>
+    	<deploy.target>components</deploy.target>
+  	</properties>
+  	
+  	<dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.calendaring</groupId>
+			<artifactId>external-calendaring-service-impl</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build />
+</project>
