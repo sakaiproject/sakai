@@ -1,0 +1,107 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar-subscriptions.vm,v 1.7 2005/06/07 17:16:08 gsilver.umich.edu Exp $
+
+<div class="portletBody">
+	<h3>
+		$tlang.getString('subs.subscriptions')
+	</h3>
+	<script type="text/javascript"> var a = document.MyCalendar; </script>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
+		<div style="display:block;clear:both"></div>
+	#end
+
+	<form name="Options" action="#toolForm("$action")" method="post" class="indnt1">
+	
+		#if ($institutionalSubscriptionsAvailable)
+			<br/>
+			<h4>$tlang.getString('subs.institutional')</h4>
+			<p class="instruction">
+				$tlang.getString('subs.institutional.instruction')
+			</p>
+				<table class="listHier lines nolines" style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.institutional.summary')">
+					<tr> 
+						<th scope="col" id="subscriptionName">$tlang.getString('subs.calendar.name')</th>
+						<th scope="col" id="checkbox">$tlang.getString('subs.calendar.sub')</th>
+					</tr>
+					#set ($num=0)
+					#foreach ($calendarEntry in $institutionalSubscriptionsCollection)
+						#if ($calendarEntry.isInstitutional())
+							#set ($num=$num + 1)
+							<tr> 
+								<td headers="subscriptionName"><label for="check_$num">$calendarEntry.getDisplayName()</label></td>
+								<td headers="checkbox">							
+									<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"
+									#if($calendarEntry.isSelected())
+									checked="checked"
+									#end
+									/>
+									</td>
+							</tr>
+						#end
+					#end
+				</table>
+		#end
+	
+		<br/>
+		<h4>$tlang.getString('subs.user')</h4>
+		<p class="instruction">
+			$tlang.getString('subs.user.instruction')
+		</p>
+			<table style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.user.instruction')">
+				<tr>
+					<td><label for="calendarName">$tlang.getString('subs.calendar.name'):</label></td>
+					<td>
+						<span class="shorttext">
+							<input type="text" name="calendarName" id="calendarName" maxlength="20" size="20" />
+						</span>
+					</td>
+					<td></td>
+				</tr>
+				<tr>
+					<td><label for="calendarUrl">$tlang.getString('subs.calendar.url'):</label></td>
+					<td>
+						<span class="shorttext">
+							<input type="text" name="calendarUrl" id="calendarUrl" size="20" />
+						</span>
+					</td>
+					<td>
+						<span class="act"><input type="submit" name="eventSubmit_doAddSubscription" value="$tlang.getString('subs.calendar.subscribe')" /></span>
+					</td>
+				</tr>
+			</table>
+			<table class="listHier lines nolines" style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.user.summary')">
+				<tr> 
+					<th scope="col" id="subscriptionName">$tlang.getString('subs.calendar.name')</th>
+					<th scope="col" id="checkbox">$tlang.getString('subs.calendar.sub')</th>
+					<th scope="col" id="subscriptionUrl">$tlang.getString('subs.calendar.url')</th>
+				</tr>
+				#set ($num=0)
+				#foreach ($calendarEntry in $userSubscriptionsCollection)
+					#if (! $calendarEntry.isInstitutional())
+						#set ($num=$num + 1)
+						<tr> 
+							<td headers="subscriptionName"><label for="check_$num">$validator.escapeHtml($calendarEntry.getDisplayName())</label></td>
+							<td headers="checkbox">							
+								<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"
+								#if($calendarEntry.isSelected())
+								checked="checked"
+								#end
+								/>
+							</td>
+							<td headers="subscriptionUrl"><label for="check_$num">$validator.escapeHtml($calendarEntry.getUrl())</label></td>
+						</tr>
+					#end
+				#end
+			</table>
+
+
+		<p class="act">
+				<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString('gen.save')" accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" accesskey="x" />
+		</p>
+		<input type="hidden" name="state" value="$state" />
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		
+	</form>
+</div>
+

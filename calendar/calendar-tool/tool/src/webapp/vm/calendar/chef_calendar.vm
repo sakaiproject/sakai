@@ -1,0 +1,122 @@
+#**
+calendar Portlet
+@author 
+@version 1.1 
+
+*#
+
+#* Calendar Event Legend macro
+*#
+
+#macro (eventLegend $tlang)
+
+<table style="margin-right:auto;margin-left:auto;margin-top:1em;width:80%" class="listHier" cellpadding="3" summary="$tlang.getString('gen.eventtype.list.summary')">
+<tr><th colspan="3" style="text-align:center">$tlang.getString('view.legend')</th></tr>
+<tr>
+<td><img src = "#imageLink("$config.getProperty('legend.icon1')")" border="0" alt="" /> $tlang.getString('legend.key1')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon2')")" border="0" alt="" /> $tlang.getString('legend.key2')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon3')")" border="0" alt="" /> $tlang.getString('legend.key3')</td>
+</tr>
+<tr>
+<td><img src = "#imageLink("$config.getProperty('legend.icon4')")" border="0" alt="" /> $tlang.getString('legend.key4')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon5')")" border="0" alt="" /> $tlang.getString('legend.key5')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon6')")" border="0" alt="" /> $tlang.getString('legend.key6')</td>
+</tr>
+<tr>
+<td><img src = "#imageLink("$config.getProperty('legend.icon7')")" border="0" alt="" /> $tlang.getString('legend.key7')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon8')")" border="0" alt="" /> $tlang.getString('legend.key8')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon9')")" border="0" alt="" /> $tlang.getString('legend.key9')</td>
+</tr>
+<tr>
+<td><img src = "#imageLink("$config.getProperty('legend.icon10')")" border="0" alt="" /> $tlang.getString('legend.key10')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon11')")" border="0" alt="" /> $tlang.getString('legend.key11')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon12')")" border="0" alt="" /> $tlang.getString('legend.key12')</td>
+</tr>
+<tr>
+<td><img src = "#imageLink("$config.getProperty('legend.icon13')")" border="0" alt="" /> $tlang.getString('legend.key13')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon14')")" border="0" alt="" /> $tlang.getString('legend.key14')</td>
+<td><img src = "#imageLink("$config.getProperty('legend.icon15')")" border="0" alt="" /> $tlang.getString('legend.key15')</td>
+</tr>
+<tr>
+<td><img src = "#imageLink("$config.getProperty('legend.icon16')")" border="0" alt="" /> $tlang.getString('legend.key16')</td>        
+</tr>
+</table>
+
+#end
+
+#* Calendar Event Icons macro
+*#
+
+#macro (iconImage $eventType)
+#if ($eventType=="Academic Calendar")
+<img src = "#imageLink("$config.getProperty('legend.icon1')")" alt="$tlang.getString('legend.key1')" border="0">
+#elseif ($eventType =="Activity")
+<img src = "#imageLink("$config.getProperty('legend.icon2')")" alt="$tlang.getString('legend.key2')" border="0">
+#elseif ($eventType =="Cancellation")
+<img src = "#imageLink("$config.getProperty('legend.icon3')")" alt="$tlang.getString('legend.key3')" border="0">
+#elseif ($eventType =="Class section - Discussion")
+<img src = "#imageLink("$config.getProperty('legend.icon4')")" alt ="$tlang.getString('legend.key4')" border="0">
+#elseif ($eventType =="Class section - Lab")
+<img src = "#imageLink("$config.getProperty('legend.icon5')")" alt="$tlang.getString('legend.key5')" border="0">
+#elseif ($eventType =="Class section - Lecture")
+<img src = "#imageLink("$config.getProperty('legend.icon6')")" alt="$tlang.getString('legend.key6')" border="0">
+#elseif ($eventType =="Class section - Small Group")
+<img src = "#imageLink("$config.getProperty('legend.icon7')")" alt="$tlang.getString('legend.key7')" border="0">
+#elseif ($eventType =="Class session")
+<img src = "#imageLink("$config.getProperty('legend.icon8')")" alt="$tlang.getString('legend.key8')" border="0">
+#elseif ($eventType =="Computer Session")
+<img src = "#imageLink("$config.getProperty('legend.icon9')")" alt="$tlang.getString('legend.key9')" border="0">
+#elseif ($eventType =="Deadline")
+<img src = "#imageLink("$config.getProperty('legend.icon10')")" alt="$tlang.getString('legend.key10')" border="0">
+#elseif ($eventType =="Exam")
+<img src = "#imageLink("$config.getProperty('legend.icon11')")" alt="$tlang.getString('legend.key11')" border="0">
+#elseif ($eventType =="Meeting")
+<img src = "#imageLink("$config.getProperty('legend.icon12')")" alt="$tlang.getString('legend.key12')" border="0">
+#elseif ($eventType =="Multidisciplinary Conference")
+<img src = "#imageLink("$config.getProperty('legend.icon13')")" alt="$tlang.getString('legend.key13')" border="0">
+#elseif ($eventType =="Quiz")
+<img src = "#imageLink("$config.getProperty('legend.icon14')")" alt="$tlang.getString('legend.key14')" border="0">
+#elseif ($eventType =="Special event")
+<img src = "#imageLink("$config.getProperty('legend.icon15')")" alt="$tlang.getString('legend.key15')" border="0">
+#elseif ($eventType =="Web Assignment")
+<img src = "#imageLink("$config.getProperty('legend.icon16')")" alt="$tlang.getString('legend.key16')" border="0">
+#end
+#end
+
+
+#if ($message=='new')
+        #parse("/vm/calendar/chef_calendar_new.vm")
+#elseif ($message=='icalEx')
+        #parse("/vm/calendar/chef_calendar_icalexport.vm")
+#elseif ($message=='scheduleImport')
+        #parse("/vm/calendar/chef_calendar_import_wizard.vm")
+#elseif ($message=='month')
+        #parse("/vm/calendar/chef_calendar_viewMonth.vm")
+#elseif ($message=='year')
+	#parse("/vm/calendar/chef_calendar_viewYear.vm")
+#elseif ($message=='day')
+	#parse("/vm/calendar/chef_calendar_viewDay.vm")
+#elseif ($message=='week')
+	#parse("/vm/calendar/chef_calendar_viewWeek.vm")
+#elseif ($message=='description')
+	#parse("/vm/calendar/chef_calendar_viewActivity.vm")
+#elseif ($message=='revise')
+	#parse("/vm/calendar/chef_calendar_revise.vm")
+#elseif ($message=='delete')
+	#parse("/vm/calendar/chef_calendar_delete.vm")
+#elseif ($message=='list')
+	#parse("/vm/calendar/chef_calendar_viewList.vm")
+#elseif ($message=='calendarSubscriptions')
+	#parse("/vm/calendar/chef_calendar-subscriptions.vm")
+#elseif ($message=='customizeCalendar')
+		#parse("/vm/calendar/chef_calendar-customize_fields.vm")
+#elseif ($message=='mergeCalendars')
+		#parse("/vm/calendar/chef_calendar-merge.vm")
+#elseif ($message=='setFrequency')
+        #parse("/vm/calendar/chef_calendar_setFrequency.vm")
+#elseif ($message=='opaqueUrlClean')
+        #parse("/vm/calendar/chef_calendar-opaqueUrlClean.vm")
+#elseif ($message=='opaqueUrlExisting')
+        #parse("/vm/calendar/chef_calendar-opaqueUrlExisting.vm")
+#end
+

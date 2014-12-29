@@ -1,0 +1,121 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_setFrequency.vm,v 1.3 2005/05/23 16:00:56 gsilver.umich.edu Exp $
+<div class="portletBody">
+	<h3>
+		$tlang.getString("set.setting")
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" />#end
+	<div class="instruction">
+		$tlang.getString("set.toset") <span class="reqStarInline">*</span>
+	</div>
+	<form name="setFrequencyForm" id="setFrequencyForm" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="eventSubmit_doChangefrequency" value="changefrequency" />
+		<p class="shorttext">
+			<span class="reqStar">*</span>
+			<label for="frequencySelect">$tlang.getString("set.select")</label>  
+			<select name="frequencySelect" id="frequencySelect" onchange="javascript:document.setFrequencyForm.submit();">
+				#if ($freq == "once") <option value="once" selected="selected">$tlang.getString("set.once")</option> #else <option value="once">$tlang.getString("set.once")</option> #end
+				#if ($freq == "day") <option value="day" selected="selected">$tlang.getString("set.daily")</option> #else <option value="day">$tlang.getString("set.daily")</option> #end
+				#if ($freq == "week") <option value="week" selected="selected">$tlang.getString("set.weekly")</option> #else <option value="week">$tlang.getString("set.weekly")</option> #end
+				#if ($freq == "SMW") <option value="SMW" selected="selected">$tlang.getFormattedMessage("set.SMW.fm", $cutil.getDayOfWeekName(0), $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(3))</option> #else <option value="SMW">$tlang.getFormattedMessage("set.SMW.fm", $cutil.getDayOfWeekName(0), $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(3))</option> #end
+				#if ($freq == "SMTW") <option value="SMTW" selected="selected">$tlang.getFormattedMessage("set.SMTW.fm", $cutil.getDayOfWeekName(0), $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(2), $cutil.getDayOfWeekName(3))</option> #else <option value="SMTW">$tlang.getFormattedMessage("set.SMTW.fm", $cutil.getDayOfWeekName(0), $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(2), $cutil.getDayOfWeekName(3))</option> #end
+				#if ($freq == "STT") <option value="STT" selected="selected">$tlang.getFormattedMessage("set.STT.fm", $cutil.getDayOfWeekName(0), $cutil.getDayOfWeekName(2), $cutil.getDayOfWeekName(4))</option> #else <option value="STT">$tlang.getFormattedMessage("set.STT.fm", $cutil.getDayOfWeekName(0), $cutil.getDayOfWeekName(2), $cutil.getDayOfWeekName(4))</option> #end
+				#if ($freq == "MW") <option value="MW" selected="selected">$tlang.getFormattedMessage("set.MW.fm", $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(3))</option> #else <option value="MW">$tlang.getFormattedMessage("set.MW.fm", $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(3))</option> #end
+				#if ($freq == "MWF") <option value="MWF" selected="selected">$tlang.getFormattedMessage("set.MWF.fm", $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(3), $cutil.getDayOfWeekName(5))</option> #else <option value="MWF">$tlang.getFormattedMessage("set.MWF.fm", $cutil.getDayOfWeekName(1), $cutil.getDayOfWeekName(3), $cutil.getDayOfWeekName(5))</option> #end
+				#if ($freq == "TTh") <option value="TTh" selected="selected">$tlang.getFormattedMessage("set.TTh.fm", $cutil.getDayOfWeekName(2), $cutil.getDayOfWeekName(4))</option> #else <option value="TTh">$tlang.getFormattedMessage("set.TTh.fm", $cutil.getDayOfWeekName(2), $cutil.getDayOfWeekName(4))</option> #end
+				#if ($freq == "month") <option value="month" selected="selected">$tlang.getString("set.monthly")</option> #else <option value="month">$tlang.getString("set.monthly")</option> #end 
+				#if ($freq == "year") <option value="year" selected="selected">$tlang.getString("set.yearly")</option> #else <option value="year">$tlang.getString("set.yearly")</option> #end
+			</select>
+		</p>	
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+	<form name="setFrequencyFormII" id="setFrequencyFormII" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="frequencySelect" value="$freq" />
+		#if ($freq == "once")
+			<p class="instruction">
+				$tlang.getString("set.theonly")
+				$freqOnceDate
+			</p>
+		#else ## for daily, weekly, and etc.
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="interval">
+					$tlang.getString("set.every")
+				</label>	
+				#set ($interval = $rule.Interval)
+				<select name="interval" id="interval">
+					#foreach($i in [1..31])
+						#if($interval == $i)
+							<option selected="selected">$i</option>
+						#else
+							<option >$i</option>
+						#end
+					#end
+				</select>
+				#if ($freq == "day")$tlang.getString("set.days")#end
+				#if ($freq == "week")$tlang.getString("set.weeks")#end
+				#if ($freq == "month")$tlang.getString("set.months")#end
+				#if ($freq == "year")$tlang.getString("set.years")#end
+				#if ($freq == "TTh")$tlang.getString("set.weeks")#end  ## TTH frequency is in weeks
+				#if ($freq == "MWF")$tlang.getString("set.weeks")#end  ## MWF frequency is in weeks
+				#if ($freq == "SMW")$tlang.getString("set.weeks")#end  ## SMW frequency is in weeks
+				#if ($freq == "SMTW")$tlang.getString("set.weeks")#end  ## SMTW frequency is in weeks
+				#if ($freq == "STT")$tlang.getString("set.weeks")#end  ## STT frequency is in weeks
+				#if ($freq == "MW")$tlang.getString("set.weeks")#end  ## MW frequency is in weeks
+
+			</p>
+			<h4>
+				$tlang.getString("set.ends")
+			</h4>
+				#if (!($rule.Count == 0))
+					#set($isCountChecked = "checked")
+					#set($month = $rule.Until.breakdownLocal().Month)
+					#set($day = $rule.Until.breakdownLocal().Day)
+					#set($year = $rule.Until.breakdownLocal().year)
+				#else
+					#set($isCountChecked = "")
+				#end
+				<p class="checkbox">
+					<input type="radio" name="CountOrTill" value="Count" id="count" $isCountChecked><label for="count"> $tlang.getString("set.after")</label>
+					<select name="count" id="selectCount">
+						#set ($count = $rule.Count)
+						#foreach($c in [1..100])
+							#if($count == $c)
+								<option selected="selected">$c</option>
+							#else
+								<option >$c</option>
+							#end
+						#end
+					</select> <label for="selectCount" style="float:none">$tlang.getString("set.times")</label>
+				</p>
+				#set($month = $savedData.getMonth())
+				#set ($day = $savedData.Day)
+				#set ($year = $savedData.Year)
+				#set ($yearInt = $savedData.getYearInt())
+				#if ($rule.Until)
+					#set($isTillChecked = "checked")
+					#set($month = $rule.Until.breakdownLocal().Month)
+					#set($day = $rule.Until.breakdownLocal().Day)
+					#set($year = $rule.Until.breakdownLocal().year)
+					#set($yearInt = $rule.Until.breakdownLocal().year)
+				#else
+					#set($isTillChecked = "")
+				#end
+				<p class="checkbox">
+					<input type="radio" name="CountOrTill" value="Till" id="till" $isTillChecked><label for="till">$tlang.getString("set.on")</label>
+					#set($todayYear = $realDate.breakdownLocal().Year)
+					#set($earliestYear = $todayYear - 3)
+					#set($latestYear = $todayYear + 4)
+					#chef_dateselectionwidget("endYear" "endMonth" "endDay" $earliestYear $latestYear $yearInt $month $day $dateFormat "")
+				</p>	
+				<p class="checkbox">
+					<input type="radio" name="CountOrTill" value="Never" id="never"
+					#if (($rule.Count == 0)&&(!($rule.Until)))checked="checked" #end/><label for="never"> $tlang.getString("set.never")</label>
+				</p>
+			#end ## end of if freq is only once
+			<p class="act">
+				<input type="submit" class="active" accesskey="s"  name="eventSubmit_doSavefrequency" value="$tlang.getString('gen.save')" />
+				<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+</div>

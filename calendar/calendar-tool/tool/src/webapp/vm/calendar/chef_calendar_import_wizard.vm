@@ -1,0 +1,226 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_import_wizard.vm,v 1.5 2005/06/03 15:22:28 gsilver.umich.edu Exp $
+
+<script type="text/javascript">
+  focus_path = [ "textfield" ];
+</script>
+<div class="portletBody"> 
+	<h3>
+		$tlang.getString("java.importcal")
+	</h3>
+	<p class="step">
+		#if ($importWizardState == "SELECT_TYPE")
+		$tlang.getString("imp.step1")
+		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
+		$tlang.getString("imp.step2")
+		#elseif ($importWizardState == "OTHER_SELECT_FILE")
+		$tlang.getString("imp.step2b")		
+		#elseif ($importWizardState == "CONFIRM_IMPORT")
+		$tlang.getString("imp.step3")		
+		#end
+	</p>
+		<script type="text/javascript"> var a = document.MyCalendar; </script>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>#end
+		#if ($importWizardState == "SELECT_TYPE")
+			<h4>$tlang.getString("imp.select")</h4>
+		#elseif ($importWizardState == "OTHER_SELECT_FILE")
+      			<p class="instruction">$tlang.getString("imp.mm.outlook")<br />
+
+		#elseif ($importWizardState == "ICAL_SELECT_FILE")
+      			<p class="instruction">$tlang.getString("imp.ical.todo")<br />
+      
+		#elseif ($importWizardState == "GENERIC_SELECT_FILE")
+			<p class="instruction">$tlang.getString("imp.todo")<br /><br />
+				<a href="#scheduleLink("CalendarTemplate.zip")" title="CalendarTemplate.zip" target="_blank">
+				<img src = "#imageLink("sakai/excel_sc.gif")" border="0" alt="$tlang.getString('imp.generic')" />
+				$tlang.getString("imp.generic")
+				</a><br /><br />
+			</p>	
+			<p class="instruction">$tlang.getString("imp.when")</p>
+			                                                                                                                                             
+		#elseif ($importWizardState == "OTHER_SELECT_FILE")
+##			$tlang.getString("imp.browse")
+		#elseif ($importWizardState == "CONFIRM_IMPORT")
+			$tlang.getString("imp.yourcustom") $wizardImportedEvents.size() $tlang.getString("imp.yourcustom2")<br /><br />
+		#end
+	
+	#if ($importWizardState == "SELECT_TYPE")
+		<form name="Options" action="#toolForm("$action")" method="post">
+			<p class="checkbox">
+				<input type="radio" name="importType" id="importType_Outlook" value="Outlook" /><label for="importType_Outlook">$tlang.getString("imp.micro")</label><br />
+				<input type="radio" name="importType" id="importType_MeetingMaker" value="MeetingMaker" /><label for="importType_MeetingMaker">$tlang.getString("imp.mmaker")</label><br />
+            #if ($icalEnable == "true")
+				<input type="radio" name="importType" id="importType_Icalendar" value="Icalendar" /><label for="importType_Icalendar">$tlang.getString("imp.ical")</label><br />
+            #end
+				<input type="radio" name="importType" id="importType_Generic" value="CSV" checked="checked" /><label for="importType_Generic">$tlang.getString("imp.gcalendar")</label><br />
+			</p>
+			<p class="act">
+				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"  accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  accesskey="x" />
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#elseif ($importWizardState == "GENERIC_SELECT_FILE")
+		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
+			<p class="shorttext"><label for="importFile">$tlang.getString("gen.file")</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
+			<p class="act">
+				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')" accesskey="s" />
+				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')" accesskey="b" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')" accesskey="x" />
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#elseif ($importWizardState == "OTHER_SELECT_FILE" || $importWizardState == "ICAL_SELECT_FILE")
+		<form name="Options" action="#toolForm("$action")" method="post" enctype="multipart/form-data">
+			<p class="shorttext"><label for="importFile">$tlang.getString("gen.file")</label> <input type="file" name="importFile" id="importFile" class="upload" /></p>
+			<p class="act">
+				<input type="submit" class="active" name="eventSubmit_doScheduleContinue" value="$tlang.getString('gen.continue')"   accesskey="s" />
+				<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"   accesskey="b" />
+				<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"   accesskey="x" />
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#elseif ($importWizardState == "CONFIRM_IMPORT")
+		<form name="Options" action="#toolForm("$action")" method="post" >
+				<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString('imp.list.summary')"> 
+					<tr>
+						<th scope="col">$tlang.getString("gen.date")</th>
+						<th scope="col">$tlang.getString("imp.actvtm")</th>
+						<th scope="col">$tlang.getString("imp.keep")</th>						
+					</tr>
+
+				#foreach($impEvent in $wizardImportedEvents)
+				  <tr>
+					<td nowrap="nowrap" >$impEvent.getDisplayStartDate()</td>
+					<td nowrap="nowrap" >
+						<label for="eventSelected$impEvent.getLineNumber()">
+							#iconImage( $impEvent.getType() )
+							&nbsp;$validator.escapeHtml($impEvent.getDisplayName())&nbsp;
+							($impEvent.getDisplayStartTime()&nbsp;-&nbsp;$impEvent.getDisplayEndTime())
+						</label>
+					</td>
+										<td nowrap="nowrap" ><span class="skip">$tlang.getString("imp.keep")</span><input name="eventSelected$impEvent.getLineNumber()" id="eventSelected$impEvent.getLineNumber()" type="checkbox" value="true" checked="checked" /></td>
+				  </tr>
+				#end
+				</table>
+				<br />
+				
+## Section awareness
+#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
+#if ($show_group =="false")
+	## no show this selection, but set default to site
+	<input type="hidden" name="scheduleTo" id="site" value="site" checked="checked" />
+#else
+#*	 #if ($allowAddEvent)
+		<p class="checkbox">
+			<input type="radio" name="scheduleTo" id="pubview" value="pubview" #if($!scheduleTo == "pubview" || $!pubview)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';" />
+			<label for="pubview">$tlang.getString("displayto.public")</label>
+		</p>
+		<p class="checkbox">
+			<input type="radio" name="scheduleTo" id="site" value="site" #if(!$!pubview && ($!scheduleTo == "site" || $!event.Access == $channelAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';" onkeypress="document.getElementById('groupTable').style.display = 'none';"/>
+			<label for="site">$tlang.getString("displayto.site")</label>
+		</p>	
+	## #else
+		#if ($!groups.size() >1)
+			<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+		#else
+			<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+		#end
+	#end
+*#
+	<p class="checkbox">
+		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
+		<label for="site">$tlang.getString("imp.forsite")</label>
+	</p>
+	#if ($!groups)
+		## added group awareness
+		<p class="checkbox">
+			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+			<label for="groups">$tlang.getString("imp.forgroup")</label>
+		</p>	
+		#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
+			#set ($listDisplay="block")
+		#else
+			#set ($listDisplay="none")
+		#end
+		<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt2" border="0" cellspacing="0" summary="$tlang.getString("viewl.group.list.summary")">
+		<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+			<tr>
+				<th id ="selectAllGroups" class="attach">
+					<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString("group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
+				</th>
+		 		<th id ="groupname">
+					#if (!$currentSortedBy.equals("grouptitle"))
+						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title")</a>
+					#else
+						#if ($currentSortAsc.equals("true"))
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.titlesortasc")" /></a>
+						#else
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.titlesortdesc")" /></a>
+						#end
+					#end
+				</th>
+				<th id ="groupdescription">
+					#if (!$currentSortedBy.equals("groupdescription"))
+						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr")</a>
+					#else
+						#if ($currentSortAsc.equals("true"))
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.descrsortasc")" /></a>
+						#else
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.descrsortdesc")" /></a>
+						#end
+					#end
+				</th>
+			</tr>
+			#foreach ($group in $!groups)
+				<tr>
+					<td headers="selected" class="attach">
+						#set($selected=false)
+						#foreach($aGroupRef in $scheduleToGroups)
+							#set($aGroup = $!site.getGroup($!aGroupRef))
+							#if ($!group.Id == $!aGroup.Id)
+								#set($selected = true)
+							#end
+						#end
+						<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+					</td>
+					<td headers="name" nowrap="nowrap">
+						<label for="$group.Id">
+							$validator.escapeHtml($group.Title)
+						</label>	
+					</td>
+					<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+						#set($description = "")
+						#set($description = $group.Description)
+						$validator.escapeHtml($!description)
+					</td>
+				</tr>
+			#end
+		</table>
+	#end
+#end
+			<p class="act">
+					<input type="submit" class="active"  name="eventSubmit_doScheduleContinue" value="$tlang.getString('imp.addeve')" accesskey="s" />
+					<input type="submit" name="eventSubmit_doScheduleBack" value="$tlang.getString('gen.back')"  accesskey="b" />
+					<input type="submit" name="eventSubmit_doCancelImportWizard" value="$tlang.getString('gen.cancel')"  accesskey="x" />
+			</p>
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	#end
+</div>
+<script language="JavaScript" type="text/JavaScript">
+	<!--
+		function toggleSelectAll(caller, elementName)
+		{
+			var newValue = caller.checked;
+			var elements = document.getElementsByName(elementName);
+			
+			if(elements)
+			{
+				for(var i = 0; i < elements.length; i++)
+				{
+					elements[i].checked = newValue;
+				}
+			}
+		}
+	-->
+</script>

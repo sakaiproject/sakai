@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<artifactId>calendar</artifactId>
+		<groupId>org.sakaiproject.calendar</groupId>
+		<version>11-SNAPSHOT</version>
+	</parent>
+	<groupId>org.sakaiproject.calendar</groupId>
+	<artifactId>sakai-calendar-hbm</artifactId>
+	<name>Sakai Calendar Hibernate</name>
+	<packaging>jar</packaging>
+	<properties>
+		<deploy.target>shared</deploy.target>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.calendar</groupId>
+			<artifactId>sakai-calendar-api</artifactId>
+		</dependency>
+	</dependencies>
+	<build>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<includes>
+					<include>**/*.xml</include>
+				</includes>
+			</resource>
+		</resources>
+		<sourceDirectory>src/main/java</sourceDirectory>
+	</build>
+</project>

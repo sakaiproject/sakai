@@ -1,0 +1,111 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar-customize_fields.vm,v 1.7 2005/06/07 17:16:08 gsilver.umich.edu Exp $
+
+<script type="text/javascript">
+  focus_path = [ "textfield" ];
+</script>
+<div class="portletBody">
+	<h3>
+		$tlang.getString('cust.addrev')
+	</h3>
+	<script type="text/javascript"> var a = document.MyCalendar; </script>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>
+		<div style="display:block;clear:both"></div>
+	#end
+	<p class="instruction">
+		$tlang.getString('cust.toadd')
+	</p>
+	<form name="Options" action="#toolForm("$action")" method="post">
+		<span class="shorttext">
+			<label for="textfield">
+				$tlang.getString('cust.fname'):
+			</label>	
+			<input type="text" name="textfield" id="textfield" maxlength="20" size="20" />
+		</span >
+		<span  class="act">
+			<input type="submit" name="eventSubmit_doAddfield" value="$tlang.getString('cust.add')" />
+		</span >
+
+			#if (!$addFieldsCalendarsCollectionIsEmpty)
+				<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString('cust.list')" style="width:75%">
+					<tr> 
+						<th id="fieldname">$tlang.getString('cust.fname')</th>
+						<th id="checkbox">$tlang.getString('cust.rem')</th>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="title">$tlang.getString("new.title")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="title" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="descr">$tlang.getString("new.descr")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="descr" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="date">$tlang.getString("new.date")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="date" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="start">$tlang.getString("rev.start")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="start" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="duration">$tlang.getString("new.duration")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="duration" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="end">$tlang.getString("new.end")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="end" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="freq">$tlang.getString("new.freq")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="freq" name="" value=""  disabled="disabled" style="border:none" /></td>
+					</tr>						
+					<tr>
+						<td headers="fieldname">
+							<label for="itemtype">$tlang.getString("new.itemtype")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="itemtype" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					<tr>
+						<td headers="fieldname">
+							<label for="location">$tlang.getString("new.location")</label>
+						</td>
+						<td headers="checkbox"><input type="checkbox" id="location" name="" value="" disabled="disabled" style="border:none" /></td>
+					</tr>
+					#set ($addedFieldsCount=0)
+					#foreach ($fieldEntry in $addFieldsCalendarsCollection)
+					#set ($addedFieldsCount=$addedFieldsCount + 1)
+						<tr> 
+							<td headers="fieldname">
+								<label for="addedFields$addedFieldsCount">$validator.escapeHtml($fieldEntry)</label>
+							</td>
+							<td headers="checkbox">
+								<input type="checkbox" id="addedFields$addedFieldsCount"  name="$fieldEntry" value="$tlang.getString('cust.true')"  style="border:none" />
+							</td>
+						</tr>
+					#end
+				</table>
+			#end
+		<p class="act">
+				<input type="submit" class="active" name="eventSubmit_doUpdate" value="$tlang.getString('cust.save')" accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" accesskey="x" />
+		</p>
+		<input type="hidden" name="state" value="$state" />
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

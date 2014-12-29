@@ -1,0 +1,40 @@
+<div class="portletBody"> 
+	<h3>
+		$tlang.getString('merge.merge')
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	<p class="instruction">
+		$tlang.getString('merge.select')
+	</p>
+	<form name="Options" action="#toolForm("$action")" method="post" style="margin-top:.5em">
+		<table class="listHier lines nolines" cellspacing="0" summary="$tlang.getString('merge.list.summary')">
+			<tr> 
+				<th scope="col" id="schedule">$tlang.getString('gen.site')</th>
+				<th scope="col" id="checkbox">$tlang.getString('merge.showsched')</th>
+			</tr>
+			#set ($num=0)
+			#foreach ($calendarEntry in $mergedCalendarsCollection)
+				#if ($calendarEntry.isVisible())
+					#set ($num=$num + 1)
+					<tr> 
+						<td headers="schedule"><label for="check_$num">$calendarEntry.getDisplayName()</label></td>
+						<td headers="checkbox">
+							
+							<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"
+							#if($calendarEntry.isMerged())
+							checked="checked"
+							#end
+							/>
+							</td>
+					</tr>
+				#end
+			#end
+		</table>
+		<div class="act">
+			<input type="submit" class="active" accesskey="s" name="eventSubmit_doUpdate" value="$tlang.getString('gen.save')" />
+			<input type="submit" accesskey="x" name="eventSubmit_doCancel" value="$tlang.getString('gen.cancel')" />
+		</div>
+		<input type="hidden" name="state" value="$state" />
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

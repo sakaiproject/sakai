@@ -1,0 +1,75 @@
+ 
+
+<script type="text/javascript">
+	focus_path = [ "$form-pagesize" ];
+</script>
+
+#if($optSize) #set($sizeValue=$optSize) #else #set($sizeValue=$pagesize) #end
+#if($optOpen) #set($openValue=$optOpen) #else #set($openValue=$channel.Open) #end
+#if($optAlias)
+	#set($aliasValue=$optAlias)
+#else
+	#if ($alias)
+		#set($aliasValue=$alias.Id)
+	#else
+		#set($aliasValue="")
+	#end
+#end
+
+<div class="portletBody">
+
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	
+	<h3>
+		$tlang.getString("ical.title")
+	</h3>
+	
+	<p class="messageInformation">
+		$tlang.getString("ical.info")<br/>
+	</p>
+	
+   <p/>
+
+#if ($allow_export == "true")
+	<form action="#toolForm($action)" method="post">
+		<p class="shorttext indnt2">
+			<label for ="$form-alias">
+				$tlang.getString("ical.schedname")
+			</label>
+			<input type="text" name="$form-alias" id="$form-alias" value="$!alias" /> .ics
+		</p>
+		
+		<p class="shorttext indnt2">
+			<label for ="$form-ical-enable">
+				$tlang.getString("ical.option")
+			</label>
+			<input type="checkbox" name="$form-ical-enable" id="$form-ical-enable" 
+					#if ($enable_export == "true") checked #end />
+		</p>
+
+		#if ($enable_export == "true")
+		<p class="shorttext indnt2">
+			<label for ="this-ical-url">
+				$tlang.getString("ical.url")
+			</label>
+		<a id="this-ical-url" href="$!icalUrl" target="_new_">$icalUrl</a>
+		</p>
+		#end
+      
+		<p class="act">
+			<input type="submit" accesskey="s" class="active" name="$form-submit" value="$tlang.getString("gen.save")" />
+			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.cancel")" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+#else
+	<form action="#toolForm($action)" method="post">
+
+		<p class="act">
+			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.back")" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+#end
+	
+</div>

@@ -1,0 +1,69 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-calendar base pom</name>
+    <groupId>org.sakaiproject.calendar</groupId>
+    <artifactId>calendar</artifactId>
+    <version>11-SNAPSHOT</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>calendar-api/api</module>
+        <module>calendar-bundles</module>
+        <module>calendar-hbm</module>
+        <module>calendar-impl/impl</module>
+        <module>calendar-impl/pack</module>
+        <module>calendar-summary-tool/tool</module>
+        <module>calendar-tool/tool</module>
+        <module>calendar-util/util</module>
+    </modules>
+    
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/calendar/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/calendar/trunk</url>
+    </scm>
+    
+    <distributionManagement>
+        <site>
+            <id>sakai-site</id>
+            <name>Sakai release Site</name>
+            <url>scpexe://source.sakaiproject.org/var/www/html/release/calendar/${project.version}</url>
+        </site>
+    </distributionManagement>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-calendar-bundles</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-calendar-api</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.calendar</groupId>
+                <artifactId>sakai-calendar-hbm</artifactId>
+                <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>sakai-calendar-util</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

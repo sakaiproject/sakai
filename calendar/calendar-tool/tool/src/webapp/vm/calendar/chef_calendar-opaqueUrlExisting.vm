@@ -1,0 +1,28 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar-opaqueUrl2.vm,v 1.5 2005/05/28 03:04:35 ggolden.umich.edu Exp $
+<div class="portletBody"> 
+	<h3>
+		$tlang.getString('ical_opaqueurl_header')
+	</h3>
+	#if (!$isMyWorkspace)
+		<p class="instruction">
+			<em>$tlang.getString('ical_opaqueurl_myworkspace')</em>
+		</p>
+	#end
+	<p class="shorttext indnt2">
+		$tlang.getString("ical_opaqueurl_webcal")<br/>
+		<a href="$!webcalUrl" target="_new_">$webcalUrl</a>
+	</p>
+	<p class="shorttext indnt2">
+		$tlang.getString("ical_opaqueurl_http")<br/>
+		<a href="$!opaqueUrl" target="_new_">$opaqueUrl</a>
+	</p>
+	<form action="#toolForm($action)" method="post">
+		<div class="act">
+			<input type="submit" class="active" accesskey="r" name="$form-regenerate" value="$tlang.getString('ical_opaqueurl_regenerate')" />
+			<input type="submit" class="active" accesskey="d" name="$form-delete" value="$tlang.getString('ical_opaqueurl_delete')" />
+			<input type="submit" accesskey="x" name="$form-cancel" value="$tlang.getString("gen.back")" />
+	  <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</div>
+		<input type="hidden" name="state" value="$state" />
+	</form>
+</div>

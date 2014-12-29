@@ -1,0 +1,121 @@
+<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewMonth.vm,v 1.7 2005/06/07 18:47:22 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)#toolbar($menu)#end
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+<!-- First table -->
+	<div class="clear"></div>
+
+<h3>$tlang.getString("view.calmonth")</h3>
+
+<!-- drop down menu for different views -->
+	<div class="navPanel">
+		<div class="viewNav">
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">
+				<input type="hidden" name="eventSubmit_doView" value="view" />
+				<label for="view">$tlang.getString("view.view")</label>
+				<span class="skip">$tlang.getString("view.listnavselect")</span>
+				<select name="view" id="view" size="1"  onchange="document.viewForm.submit();">
+					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+						#if ($selectedView.equals($view))
+							<option value="$view" selected="selected" >$view</option>
+						#else
+							<option value="$view" >$view</option>
+						#end
+					#end
+				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+		<div class="listNav">
+		 	<div class="instruction" style="margin-bottom:.3em">$viewingDate</div>
+			<form name="monthform" action="#toolForm("$action")" method="post">
+				 <input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewm.lasm')" title ="$tlang.getString('viewm.gotopm')" />
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>
+				 <input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexm')" title="$tlang.getString('viewm.gotonm')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>	
+	</div>
+	<div class="clear"></div>
+	
+		#toolbar($menu_PDF)
+	<div class="clear"></div>
+
+<!-- how to draw a month -->
+<table cellpadding="2" width="100%" border="0" cellspacing="0" class="calendar" summary="$tlang.getString('viewm.list.summary')">
+    <tr>
+       	## --- Modificado por la UPV - Begin
+    	##set ($day_of_Week = $calObj.getDay_Of_Week())
+    	#foreach ($dayname in $dayOfWeekNames)
+		<th align="center" width="14%" class="borderWhite">$dayname</th>
+    	#end
+	## --- Modificado por la UPV - End 
+    </tr>           
+        #set($row = $monthArray.getRow()) 
+        #foreach ($xn in [0..$row])   	
+        <tr>          			
+            #foreach($u in [0..6])                    
+                #set ($mu = $monthArray.getDay($xn,$u))		
+                #if ($mu.getFlag() == 1) ## today
+                    #set($eventsn = $mu.getEvents())   
+                    #set($eventsn = $eventsn1)
+                    #set($flag = "false")
+
+                    #foreach ($m in $eventsn)                       
+                        #set($flag = "true")
+                    #end
+                    #if ($flag == "true")
+                        <td align="right"  valign= "top" height="51" class="borderToday event" >			
+                    #else			
+                        <td align="right"  valign= "top" bgcolor="#ffffff" height="51" class="borderToday">
+                    #end
+                                                 
+                #elseif ($mu.getFlag() == 0)  ## days dropping out of the current month
+                    #set ($eventsn = $mu.getEvents())
+                    <td align="right"  valign= "top" bgcolor="#cccccc" height="51"  class="borderGrayMonth">
+                                
+                #else ## days in the current month, but not today
+                    #set ($eventsn = $mu.getEvents())   
+                    #set($eventsn = $eventsn1)
+                    #set($flag = "false")
+
+                    #foreach ($m in $eventsn)                       
+                    #set($flag = "true")
+                    #end
+                    #if ($flag == "true")
+                          <td align="right"  valign= "top"  height="51" class="borderGrayMonth event">
+                    #else
+                          <td align="right"  valign= "top" bgcolor="#ffffff" height="51" class="borderGrayMonth">
+                    #end
+
+                #end  ## -- end of if-elseif-else                          
+                                                                                                                                           				
+                <a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")"  style="padding:3px;margin:0;display:block;width:50%">
+                $mu.getDay()</a>
+
+                <div style="text-align:left;font-size:.9em;">
+                #foreach ($m in $eventsn)                    
+                    <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" 
+                       title="$validator.escapeHtml($m.getDisplayName()) - $validator.escapeHtml($m.getSiteName())" 
+                       style="	text-decoration: none !important">
+                    #set($size = $m.getDisplayName().length())
+						  #iconImage($m.getType())
+                    #set($size = $m.getDisplayName().length())                            
+                    #if ($size > 8)
+                        #set($stringa = $m.getDisplayName().substring(0,8))
+                        $validator.escapeHtml($stringa)...
+                    #else
+                        $validator.escapeHtml($m.getDisplayName())
+                    #end
+                    </a><br />
+                #end
+                </div>
+            </td>
+            #end  ## -- end of foreach
+        </tr>
+    #end  ## -- end of foreach
+</table>
+
+#eventLegend($tlang)
+
+</div>

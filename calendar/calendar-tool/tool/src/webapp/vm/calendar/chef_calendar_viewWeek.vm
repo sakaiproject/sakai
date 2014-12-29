@@ -1,0 +1,934 @@
+<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewWeek.vm,v 1.8 2005/06/07 18:47:22 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	<h3>$tlang.getString("view.calweek")</h3>
+		
+<!-- drop down menu for different views -->
+	<div class="navPanel">
+		<div class="viewNav">
+		<form name="viewForm"  method="post" action="#toolForm("CalendarAction")" class="inlineForm">
+				<input type="hidden" name="eventSubmit_doView" value="view" />
+				<label for="view">$tlang.getString("view.view")</label>
+				<span class="skip">$tlang.getString("view.listnavselect")</span>
+				<select name="view" id="view" size="1" onchange="document.viewForm.submit(this);">
+					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+						#if ($selectedView.equals($view))
+							<option value="$view" selected="selected" >$view</option>
+						#else
+							<option value="$view" >$view</option>
+						#end
+					#end
+				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>				
+		<div class="listNav">
+			<div class="instruction">$beginWeek - $endWeek $timezone</div>	
+			<form name="weekform" action="#toolForm("$action")" method="post" class="inlineForm">
+				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('vieww.laswk')" title="$tlang.getString('vieww.gotop')" />
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title ="$tlang.getString('view.gotoday')"/>
+			 	<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('vieww.nexwk')" title="$tlang.getString('vieww.goton')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+	</div>
+	<div class="clear"></div>
+		#toolbar($menu_PDF)
+	## the same part in 3 pages for calendar rendering
+	#macro (same)
+
+#foreach($n in [0..6])
+    #set ($mm = $week.getWeek($n))
+    #set($m = $mm.getEventsBerWeek($nx))
+    #set ($k=$n*2+1)
+    #if ($hm.put($n, 0)) #end ##to record how many sub-columns filled for each cell
+
+    #if($m.isEmpty()) ## if this cell has no any event
+        #if ($n==$todayIndex)
+            #if ($nx==19)
+                <td class="borderTodayBottom" colspan="$vec.elementAt($k)">&nbsp;</td>
+            #else
+                <td class="borderTodayCenter" colspan="$vec.elementAt($k)">&nbsp;</td>
+            #end
+        #else
+            <td class="borderFullGray" colspan="$vec.elementAt($k)">&nbsp;</td>
+        #end
+        #if ($hm.put($n, $vec.elementAt($k))) #end
+    #else
+        #if($m.size()>1)
+            #set($emptycounter = 0)
+            #set($nonemptycounter = 0)
+            #foreach ($x in $m)
+                    #if($x== "")
+                        #set($emptycounter = $emptycounter+1)
+                    #else
+                        #set($nonemptycounter = $nonemptycounter + 1)
+                    #end
+            #end
+            #set($result = $nonemptycounter - $emptycounter)
+
+            #foreach ($x in $m)
+                #set($event = $x.getEvent())
+                #set($eventD = $x)
+
+                #if($result >=1)
+                    #if ($eventD.getFlag()==false)
+                        #if ($n==$todayIndex)
+                            #set ($tempCol = $hm.get($n) + 1)
+
+                            #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                            #set ($LeftRight = "Left")
+                            #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                            #set ($LeftRight = "Right")
+                            #else   ## if this subcell in the middle, its borders are all gray
+                            #set ($LeftRight="Middle")
+                            #end
+                            #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+
+                            ## to calculate how many rows should be spanned
+                            #rowspans($event)
+                            #set ($heightPct = 5 * $rowspan)
+                            #set ($divHeight = 18 * $rowspan)
+
+                            #if ($event.getRange().isSingleTime())
+                                    <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
+                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                            #else  
+                                    <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0;">
+                            #end
+                            #if ($hm.put($n, $tempCol)) #end
+                        #else ## if ($n==$todayIndex) -> n != today
+                            #set ($colspan = 1)
+                            #if ($event.getRange().isSingleTime())
+                                <td height="5%" rowspan="1" colspan="1" align="center" class="borderGrayDayWeek">
+                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                            #else                                                            
+                                ## to calculate how many rows should be spanned
+                                #rowspans($event)
+                                #set ($heightPct = 5 * $rowspan)
+                                #set ($divHeight = 18 * $rowspan)
+                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
+                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                            #end
+                            #set ($tempCol = $hm.get($n) + $colspan)
+                            #if ($hm.put($n, $tempCol)) #end
+                        #end ## if ($n==$todayIndex)
+
+                        <a href="#" 
+                           onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" 
+                           title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
+                        #iconImage($event.Type)
+                        $validator.escapeHtml($event.getDisplayName())</a></div></td>
+
+                    #else   ## -> flag == true
+                            ## this cell is just expanding the above event
+                            #if ($n==$todayIndex)
+                                #if ($x=="")
+                                    #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                                    #set ($LeftRight = "Left")
+                                    #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                                    #set ($LeftRight = "Right")
+                                    #else   ## if this subcell in the middle, its borders are all gray
+                                    #set ($LeftRight="Middle")
+                                    #end
+                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    <td class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
+                                #else
+                                    ## no cell to be rendered 
+                                #end
+                            #else
+                                    ## 2 conditions to get here
+                                    ## 1st is there are multiple columns, although no event in this cell at this column
+                                    ## 2nd is extanding the above event, which has rowspaned. so this cell no need to be displayed
+                                    #if ($x == "")
+                                        <td class="borderGrayDayWeek">&nbsp;</td>
+                                    #else
+                                        ## expanding the above event
+                                    #end
+                            #end
+                            #set ($tempCol = $hm.get($n) + 1)
+                            #if ($hm.put($n, $tempCol)) #end
+                    #end
+                #else ## if($result >=1) -> result<1
+                                #if ($n==$todayIndex)
+                                    #if ($x == "")
+                                        #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                                        #set ($LeftRight = "Left")
+                                        #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                                        #set ($LeftRight = "Right")
+                                        #else   ## if this subcell in the middle, its borders are all gray
+                                        #set ($LeftRight="Middle")
+                                        #end
+                                        #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                        <td valign="top" class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
+                                    #else
+                                        #if ($eventD.Flag == false)
+                                            #if ($event.getRange().isSingleTime())
+                                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
+                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                            #else
+                                                ## to calculate how many rows should be spanned
+                                                #rowspans($event)
+                                                #set ($heightPct = 5 * $rowspan)
+                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
+                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                            #end  ## if ($event.getRange().isSingleTime())
+                                        #else   
+                                            ## no cell to be rendered, because of the above rowspan. but counter++
+                                        #end    ## if ($eventD.Flag == false)
+                                    #end    ## if x==""
+
+                                #else ## if n == today index -> not today
+                                    ## 3 conditions to get here
+                                    ## 1st is there are multiple columns, although no event in this cell at this column
+                                    ## 2nd is extanding the above event, which has rowspaned. so this cell no need to be displayed
+                                    ## 3rd is result < 0
+
+                                    #if ($x == "")
+                                        <td class="borderGrayDayWeek">&nbsp;</td>
+                                    #else
+                                        #if ($eventD.Flag == false)
+                                            #if ($event.getRange().isSingleTime())
+                                                <td height="100%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
+                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                            #else
+                                                ## to calculate how many rows should be spanned
+                                                #rowspans($event)
+                                                #set ($heightPct = 5 * $rowspan)
+                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
+                                                #set ($divHeight = 18 * $rowspan)
+                                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                            #end  ## if ($event.getRange().isSingleTime())
+                                        #else
+                                            ## no cell rendered, but counter++
+                                        #end
+                                    #end
+                                #end    ## if ($n==$todayIndex)
+
+                                #set ($tempCol = $hm.get($n) + 1)
+                                #if ($hm.put($n, $tempCol)) #end
+
+                    #end    ## if($result >=1)
+            #end ## the 2nd foreach x in m
+        #else ## corresponding to if($m.size()>1) -> m.size <=1
+                #foreach ($x in $m)
+                    #set($eventclass = $x)
+                    #set($event = $x.getEvent())
+                #end
+
+                #if($eventclass.getFlag()==false)
+                        ## to calculate how many columns should be spanned
+                        ## #colspan($conflictVec $eventclass $vec $k $hm $n)
+                        #set ($noConflict = "true")
+                        #foreach ($item in $conflictVec.iterator())
+                            #if ($eventclass.getEvent().Reference.equals($item))
+                            #set ($noConflict = "false")
+                            #set ($colspan = 1)
+                            #end
+                        #end
+                        #if ($noConflict == "true")
+                            #set ($colspan = $vec.elementAt($k))
+                        #end
+                        #set ($tempCol = $hm.get($n) + $colspan)
+
+                        #if ($n==$todayIndex)
+                            #if ($event.getRange().isSingleTime())
+                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayToday$BottomCenter">
+                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                            #else
+                                    #if ($noConflict == "true")
+                                            #set ($LeftRight = "")
+                                    #else
+                                        #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                                        #set ($LeftRight = "Left")
+                                        #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                                        #set ($LeftRight = "Right")
+                                        #end
+                                    #end
+                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+
+                                    ## to calculate how many rows should be spanned
+                                    #rowspans($event)
+                                    #set ($heightPct = 5 * $rowspan)
+                                    #set ($divHeight = 18 * $rowspan)
+                                    <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                            #end
+
+                        #else
+                            #if ($event.getRange().isSingleTime())
+                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
+                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white"> 
+                            #else
+                                ## to calculate how many rows should be spanned
+                                #rowspans($event)
+                                #set ($heightPct = 5 * $rowspan)
+                                #set ($divHeight = 18 * $rowspan)
+                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
+                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                            #end
+                        #end
+                        #if ($hm.put($n, $tempCol)) #end
+
+                        <a href="#" 
+                           onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")';return false;" 
+                           title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
+                        #iconImage($event.Type)
+                        $validator.escapeHtml($event.getDisplayName())</a></div></td>
+            #else ## corresponding to if($eventD.getFlag()==false)
+                    ## no cell to be rendered, because of the above rowspan. but column counter++
+                    ## to calculate how many rols should be spanned
+                    #set ($noConflict = "true")
+                    #foreach ($item in $conflictVec.iterator())
+                        #if ($eventclass.getEvent().Reference.equals($item))
+                            #set ($noConflict = "false")
+                            #set ($colspan = 1)
+                        #end
+                    #end
+                    #if (!($noConflict == "false"))
+                        #set ($colspan = $vec.elementAt($k))
+                    #end
+
+                    #set ($tempCol = $hm.get($n) + $colspan)
+                    #if ($hm.put($n, $tempCol)) #end
+            #end ## corresponding to if($eventD.getFlag()==false)
+        #end
+    #end ## if($m.isEmpty)
+
+    #set ($left = $vec.elementAt($k)-$hm.get($n))
+    #if ($left > 0)
+        #foreach ($ii in [1..$left])
+            #if ($n==$todayIndex)
+                #if ($ii == $left) ## rightmost subcell
+                #set ($LeftRight = "Right")
+                #else ## middle subcell
+                #set ($LeftRight = "middle")
+                #end
+                #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                <td class="borderGrayTodayEmpty$LeftRight$BottomCenter">&nbsp;</td>
+            #else
+                <td class="borderGrayDayWeek">&nbsp;</td>
+            #end
+        #end
+    #end
+#end ## foreach($n in [0..6])
+
+#end ## end of macro #same
+
+
+## to calculate how many rows need to be spanned
+#macro (rowspans $event)
+    #set ($startTime = $event.getRange().firstTime())
+    #if ($startTime.before($dStart.get($n)))
+        ## use the page start time as event's first time temporarily
+        #set ($startTime = $dStart.get($n))
+	#end
+
+    #set ($endTime = $event.getRange().lastTime(0))
+    #if ($endTime.after($dEnd.get($n)))
+        ## use the page end time as event's first time temporarily
+        #set ($endTime = $dEnd.get($n))
+	#end
+
+    #set ($du = $endTime.getTime().intValue() - $startTime.getTime().intValue())
+    #set($dhour = $helper.getduration($du.longValue(),3600000))
+    #set($dminute = $helper.getFractionIn($du.longValue(),$dhour))
+
+    ## if the duration minute ends with "9"
+    ## it needs to be formatted
+    #if ($dminute == 9) #set ($dminute = 10)
+    #elseif ($dminute == 19) #set ($dminute = 20)
+    #elseif ($dminute == 29) #set ($dminute = 30)
+    #elseif ($dminute == 39) #set ($dminute = 40)
+    #elseif ($dminute == 49) #set ($dminute = 50)
+    #elseif ($dminute == 59)  #set ($dminute = 0)
+    #if ($dhour == 12) #set ($dhour = 1) 
+    #else #set ($dhour = $dhour + 1) #end
+    #end
+
+    #set ($duMin = $dhour*60 + $dminute)
+
+    #set ($rowspan = 1)
+    #set ($startMinInt = $startTime.breakdownLocal().getMin())
+    #if ($startMinInt <30)
+    #set ($rowspan = $rowspan + (($duMin - (30 - $startMinInt))/30))
+    #set ($oneMore = ($duMin - (30 - $startMinInt))%30)
+    #else ## 60> startMinInt >=30
+    #set ($rowspan = $rowspan + (($duMin - (60 - $startMinInt))/30))
+    #set ($oneMore = ($duMin - (60 - $startMinInt))%30)
+
+    #end
+    ###set ($oneMore = ($duMin - (30 - $startMinInt))%30)
+    #if ($oneMore > 0)
+    #set ($rowspan = $rowspan + 1)
+    #end
+#end    ## endof macro-rowspan
+
+
+## to calculate how many columns need to be spanned
+#macro (colspan $conflictVec $eventclass $vec $k $hm $n)
+#set ($noConflict = "true")
+#foreach ($item in $conflictVec.iterator())
+    #if ($eventclass.getEvent().Reference.equals($item))
+    #set ($noConflict = "false")
+    #set ($colspan = 1)
+    #end
+#end
+#if ($noConflict == "true"))
+    #set ($colspan = $vec.elementAt($k))
+#end
+#set ($tempCol = $hm.get($n) + $colspan)
+#if ($hm.put($n, $tempCol)) #end
+#end
+
+
+<div class="viewLinkControl">
+	#if($page != "first")
+  		<a href="#" onclick="location='#toolLink("$action" "doPpagew")';return false;" title="$tlang.getString('vieww.gotoe')">$tlang.getString("vieww.gotoe")</a>
+  	#end
+</div>      
+
+#set ($weekCopy = $week)
+#foreach($day_span in [0..6])
+    #set ($colspan = 1)
+    #set ($mm_span = $weekCopy.getWeek($day_span))
+    #foreach($nx_span in [0..19])
+            #set($m_span = $mm_span.getEventsBerWeek($nx_span))
+## to work out how many sub-columns in each day column
+            #if ($m_span.size() > $colspan)
+                #set ($colspan = $m_span.size())
+            #end
+## if an event is part of a conflict, put its id into conflict vector
+            #if($m_span.size()>1)
+                #foreach ($x in $m_span)
+                    #set($event = $x.getEvent())
+                    ##""$event.Reference""
+                    #if($conflictVec.addElement($event.Reference)) #end
+                    
+                #end
+            #end
+    #end
+## use vector vec to record [which-day, how many columns] relationship
+    #if ($vec.addElement($day_span)) #end
+    #if ($vec.addElement($colspan)) #end
+#end
+
+## create a hashmap variables to recorder duration start & end times
+#set ($dStart = $hm.clone())
+#set ($dEnd = $hm.clone())
+
+
+## get the start & end time for each page
+#set ($dayCounter = 6)
+#foreach ($single in $pageStartTime)
+#if ($dStart.put($dayCounter, $single)) #end
+#set ($dayCounter = $dayCounter - 1)
+#end
+#set ($dayCounter = 6)
+#foreach ($single in $pageEndTime)
+#if ($dEnd.put($dayCounter, $single)) #end
+#set ($dayCounter = $dayCounter - 1)
+#end
+
+<!-- how to draw a week-->
+#set($todayIndex = -1)
+<table cellpadding="2" width="100%"  cellspacing="0" class="calendar" summary="$tlang.getString("vieww.summary")" style="height:370px">
+<tr>
+<th align="left" height="20" width="7%">&nbsp;</th>
+#set ($i=0)
+#foreach ($dayName in $dayOfWeekNames)
+    ## --- suppose the current date in schedule is not today, then all set as 0
+    #set ($dayEqual = 0)
+    #set ($monthEqual = 0)
+    #set ($yearEqual = 0)
+
+    ## --- get the local date of today
+    #set ($today = $realDate.breakdownLocal())
+    #if ($today.Day == $week.getWeek($i).Day)
+        #set ($dayEqual = 1)
+    #end
+    #if ($today.Month == $week.getWeek($i).Month)
+        #set ($monthEqual = 1)
+    #end
+    #if ($today.Year == $week.getWeek($i).Year)
+        #set ($yearEqual = 1)
+    #end
+
+    ## --- if the current date is today's date, 
+    ## --- then bold the date to indicate
+    #set ($dayMonthYear = $dayEqual + $monthEqual + $yearEqual)
+    #if ($dayMonthYear == 3)
+        #set ($border = "borderTodayTop" )
+        #set ($todayIndex = $i)
+    #else
+        #set ($border = "borderWhite")
+    #end
+
+    #set ($j=2*$i+1) 
+    <th align="right" height="20" width="13%" class="$border" colspan="$vec.elementAt($j)">$dayName
+    <a href="#toolLinkParam("$action" "doDay" "day=$week.getWeek($i).getDay()&month=$week.getWeek($i).getMonth()&year=$week.getWeek($i).getYear()")">
+    $week.getWeek($i).getDay()</a>
+	</th>
+    #set ($i=$i+1)
+#end
+
+</tr>
+
+#if($page== "second")
+        #set($timer = 8)
+        #set($fractiontime ="false")
+
+        #set($e = $timer - 3)
+        #set($e = $e * 2)
+        #set($e = $e + 4)
+
+        #foreach($nx in [0..19])
+            <tr valign="top" bgcolor="#FFFFFF" >
+            #if($fractiontime == "false")
+                #if($timer == 12)
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $pmString
+                        #elseif ($format == "H")
+                            ${timer}:00
+                        #end
+                    #end
+                    </td>
+                #elseif($timer<=11)
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $amString
+                        #elseif ($format == "H")
+                            ${timer}:00
+                        #end
+                    #end
+                    </td>
+                #else
+                    #set($temp = $timer)
+                    #set($timer = $timer - 12)
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $pmString
+                        #elseif ($format == "H")
+                            ${temp}:00
+                        #end
+                    #end
+                    </td>
+                    #set($timer = $temp)
+                #end
+                #set($fractiontime ="true")
+            #else
+                #set($fractiontime = "false")
+                #set($timer = $timer+1)
+            #end
+##            #same()
+#foreach($n in [0..6])
+    #set ($mm = $week.getWeek($n))
+    #set($m = $mm.getEventsBerWeek($nx))
+    #set ($k=$n*2+1)
+    #if ($hm.put($n, 0)) #end ##to record how many sub-columns filled for each cell
+
+    #if($m.isEmpty()) ## if this cell has no any event
+        #if ($n==$todayIndex)
+            #if ($nx==19)
+                <td class="borderTodayBottom" colspan="$vec.elementAt($k)">&nbsp;</td>
+            #else
+                <td class="borderTodayCenter" colspan="$vec.elementAt($k)">&nbsp;</td>
+            #end
+        #else
+            <td class="borderFullGray" colspan="$vec.elementAt($k)">&nbsp;</td>
+        #end
+        #if ($hm.put($n, $vec.elementAt($k))) #end
+    #else
+        #if($m.size()>1)
+            #set($emptycounter = 0)
+            #set($nonemptycounter = 0)
+            #foreach ($x in $m)
+                    #if($x== "")
+                        #set($emptycounter = $emptycounter+1)
+                    #else
+                        #set($nonemptycounter = $nonemptycounter + 1)
+                    #end
+            #end
+            #set($result = $nonemptycounter - $emptycounter)
+
+            #foreach ($x in $m)
+                #set($event = $x.getEvent())
+                #set($eventD = $x)
+
+                #if($result >=1)
+                    #if ($eventD.getFlag()==false)
+                        #if ($n==$todayIndex)
+                            #set ($tempCol = $hm.get($n) + 1)
+
+                            #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                            #set ($LeftRight = "Left")
+                            #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                            #set ($LeftRight = "Right")
+                            #else   ## if this subcell in the middle, its borders are all gray
+                            #set ($LeftRight="Middle")
+                            #end
+                            #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+
+                            ## to calculate how many rows should be spanned
+                            #rowspans($event)
+                            #set ($heightPct = 5 * $rowspan)
+                            #set ($divHeight = 18 * $rowspan)
+
+                            #if ($event.getRange().isSingleTime())
+                                    <td height="$heightPct%" rowspan="1" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter">                                    
+                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                            #else  
+                                    <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                            #end
+                            #if ($hm.put($n, $tempCol)) #end
+                        #else ## if ($n==$todayIndex) -> n != today
+                            #set ($colspan = 1)
+                            #if ($event.getRange().isSingleTime())
+                                <td height="5%" rowspan="1" colspan="1" align="center" class="borderGrayDayWeek">
+                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                            #else                                                            
+                                ## to calculate how many rows should be spanned
+                                #rowspans($event)
+                                #set ($heightPct = 5 * $rowspan)
+                                #set ($divHeight = 18 * $rowspan)
+                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
+                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                            #end
+                            #set ($tempCol = $hm.get($n) + $colspan)
+                            #if ($hm.put($n, $tempCol)) #end
+                        #end ## if ($n==$todayIndex)
+
+                        <a href="#" 
+                           onclick="location='#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($event.getReference())")';return false;" 
+                           title="$validator.escapeHtml($event.getDisplayName()) - $validator.escapeHtml($event.getSiteName())">
+                        #iconImage($event.Type)
+                        $validator.escapeHtml($event.getDisplayName())</a></div></td>
+
+                    #else   ## -> flag == true
+                            ## this cell is just expanding the above event
+                            #if ($n==$todayIndex)
+                                #if ($x=="")
+                                    #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                                    #set ($LeftRight = "Left")
+                                    #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                                    #set ($LeftRight = "Right")
+                                    #else   ## if this subcell in the middle, its borders are all gray
+                                    #set ($LeftRight="Middle")
+                                    #end
+                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    <td class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp; </td>
+                                #else
+                                    ## no cell to be rendered 
+                                #end
+                            #else
+                                    ## 2 conditions to get here
+                                    ## 1st is there are multiple columns, although no event in this cell at this column
+                                    ## 2nd is extanding the above event, which has rowspaned. so this cell no need to be displayed
+                                    #if ($x == "")
+                                        <td class="borderGrayDayWeek">&nbsp;</td>
+                                    #else
+                                        ## expanding the above event
+                                    #end
+                            #end
+                            #set ($tempCol = $hm.get($n) + 1)
+                            #if ($hm.put($n, $tempCol)) #end
+                    #end
+                #else ## if($result >=1) -> result<1
+                                #if ($n==$todayIndex)
+                                    #if ($x == "")
+                                        #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                                        #set ($LeftRight = "Left")
+                                        #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                                        #set ($LeftRight = "Right")
+                                        #else   ## if this subcell in the middle, its borders are all gray
+                                        #set ($LeftRight="Middle")
+                                        #end
+                                        #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                        <td valign="top" class="borderGrayToday$LeftRight$BottomCenter" bgcolor="white">&nbsp;</td>
+                                    #else
+                                        #if ($eventD.Flag == false)
+                                            #if ($event.getRange().isSingleTime())
+                                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
+                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                            #else
+                                                ## to calculate how many rows should be spanned
+                                                #rowspans($event)
+                                                #set ($heightPct = 5 * $rowspan)
+                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
+                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                            #end  ## if ($event.getRange().isSingleTime())
+                                        #else   
+                                            ## no cell to be rendered, because of the above rowspan. but counter++
+                                        #end    ## if ($eventD.Flag == false)
+                                    #end    ## if x==""
+
+                                #else ## if n == today index -> not today
+                                    ## 3 conditions to get here
+                                    ## 1st is there are multiple columns, although no event in this cell at this column
+                                    ## 2nd is extanding the above event, which has rowspaned. so this cell no need to be displayed
+                                    ## 3rd is result < 0
+
+                                    #if ($x == "")
+                                        <td class="borderGrayDayWeek">&nbsp;</td>
+                                    #else
+                                        #if ($eventD.Flag == false)
+                                            #if ($event.getRange().isSingleTime())
+                                                <td height="100%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
+                                                <div style="position: relative; overflow: hidden; top: 0px; left: 0px; height: 18px; border-style: solid; border-width: 0; background-color: white">&nbsp;</td>
+                                            #else
+                                                ## to calculate how many rows should be spanned
+                                                #rowspans($event)
+                                                #set ($heightPct = 5 * $rowspan)
+                                                <td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center">
+                                                #set ($divHeight = 18 * $rowspan)
+                                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">&nbsp;</td>
+                                            #end  ## if ($event.getRange().isSingleTime())
+                                        #else
+                                            ## no cell rendered, but counter++
+                                        #end
+                                    #end
+                                #end    ## if ($n==$todayIndex)
+
+                                #set ($tempCol = $hm.get($n) + 1)
+                                #if ($hm.put($n, $tempCol)) #end
+
+                    #end    ## if($result >=1)
+            #end ## the 2nd foreach x in m
+        #else ## corresponding to if($m.size()>1) -> m.size <=1
+                #foreach ($x in $m)
+                    #set($eventclass = $x)
+                    #set($event = $x.getEvent())
+                #end
+
+                #if($eventclass.getFlag()==false)
+                        ## to calculate how many columns should be spanned
+                        ## #colspan($conflictVec $eventclass $vec $k $hm $n)
+                        #set ($noConflict = "true")
+                        #foreach ($item in $conflictVec.iterator())
+                            #if ($eventclass.getEvent().Reference.equals($item))
+                            #set ($noConflict = "false")
+                            #set ($colspan = 1)
+                            #end
+                        #end
+                        #if ($noConflict == "true")
+                            #set ($colspan = $vec.elementAt($k))
+                        #end
+                        #set ($tempCol = $hm.get($n) + $colspan)
+
+                        #if ($n==$todayIndex)
+                            #if ($event.getRange().isSingleTime())
+                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                                    <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayToday$BottomCenter">
+                                    <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                            #else
+                                    #if ($noConflict == "true")
+                                            #set ($LeftRight = "")
+                                    #else
+                                        #if ($hm.get($n)==0) ## the leftmost conflict sub-cell
+                                        #set ($LeftRight = "Left")
+                                        #elseif ($tempCol == $vec.elementAt($k)) ## the rightmost conflict sub-cell
+                                        #set ($LeftRight = "Right")
+                                        #end
+                                    #end
+                                    #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+
+                                    ## to calculate how many rows should be spanned
+                                    #rowspans($event)
+                                    #set ($heightPct = 5 * $rowspan)
+                                    #set ($divHeight = 18 * $rowspan)
+                                    <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="left" class="borderGrayToday$LeftRight$BottomCenter event">
+                                    <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                            #end
+
+                        #else
+                            #if ($event.getRange().isSingleTime())
+                                <td height="5%" rowspan="1" colspan="$colspan" valign="top" class="borderGrayDayWeek">
+                                <div style="position: relative; overflow: hidden; height: 18px; border-style: solid; border-width: 0; background-color: white">
+                            #else
+                                ## to calculate how many rows should be spanned
+                                #rowspans($event)
+                                #set ($heightPct = 5 * $rowspan)
+                                #set ($divHeight = 18 * $rowspan)
+                                <td height="$heightPct%" rowspan="$rowspan" colspan="$colspan" align="center" class="borderGrayBackground">
+                                ##<td height="$heightPct%" rowspan="$rowspan" colspan="1" align="center" class="borderGrayBackground">
+                                <div style="position: relative; overflow: hidden; height: ${divHeight}px; border-style: solid; border-width: 0; background-color: transparent">
+                            #end
+                        #end
+                        #if ($hm.put($n, $tempCol)) #end
+
+                        <a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($eventclass.getEvent().getReference())")" 
+                           title="$validator.escapeHtml($eventclass.getEvent().getDisplayName()) - $validator.escapeHtml($eventclass.getEvent().getSiteName())">
+                        #iconImage($event.Type)
+                        $validator.escapeHtml($event.getDisplayName())</a></div></td>
+            #else ## corresponding to if($eventD.getFlag()==false)
+                    ## no cell to be rendered, because of the above rowspan. but column counter++
+                    ## to calculate how many rols should be spanned
+                    #set ($noConflict = "true")
+                    #foreach ($item in $conflictVec.iterator())
+                        #if ($eventclass.getEvent().Reference.equals($item))
+                            #set ($noConflict = "false")
+                            #set ($colspan = 1)
+                        #end
+                    #end
+                    #if (!($noConflict == "false"))
+                        #set ($colspan = $vec.elementAt($k))
+                    #end
+
+                    #set ($tempCol = $hm.get($n) + $colspan)
+                    #if ($hm.put($n, $tempCol)) #end
+            #end ## corresponding to if($eventD.getFlag()==false)
+        #end
+    #end ## if($m.isEmpty)
+
+    #set ($left = $vec.elementAt($k)-$hm.get($n))
+    #if ($left > 0)
+        #foreach ($ii in [1..$left])
+            #if ($n==$todayIndex)
+                #if ($ii == $left) ## rightmost subcell
+                #set ($LeftRight = "Right")
+                #else ## middle subcell
+                #set ($LeftRight = "Middle")
+                #end
+                #if ($nx==19) #set ($BottomCenter="Bottom") #else #set ($BottomCenter="Center") #end
+                <td class="borderGrayTodayEmpty$LeftRight$BottomCenter">&nbsp;</td>
+            #else
+                <td class="borderGrayDayWeek">&nbsp;</td>
+            #end
+        #end
+    #end
+#end ## foreach($n in [0..6])
+
+
+
+            #set($e = $e +1)
+            </tr>
+    #end ## #foreach($nx in [0..19])
+
+#elseif($page== "third" )
+        ## JS -- set start time to be 2 PM 
+        #set($timer = 14)
+
+        #set($fractiontime ="false")
+        #set($e = $timer - 3)
+        #set($e = $e * 2)
+        #set($e = $e + 4)
+
+        #foreach($nx in [0..19])
+            <tr valign="top" bgcolor="#FFFFFF"> 
+            #if($fractiontime == "false")
+                    #set($temp = $timer)
+                    #set($timer = $timer - 12)
+                #if($timer<12)
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $pmString
+                        #elseif ($format == "H")
+                            ${temp}:00
+                        #end
+                    #end
+                    </td>
+                    #set($timer = $temp)
+                #elseif($timer ==12)
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">$timer AM </td>
+                    #set($timer = $temp)
+                #elseif($timer >12)
+                    #set($temp = $timer)
+                    #set($timer = $timer - 12)
+                    <td align="right" bgcolor="#eeeeee" rowspan="2" class="borderWhite">$timer AM </td>
+                    #set($timer = $temp)
+                #end
+                #set($fractiontime ="true")
+            #else
+                #set($fractiontime = "false")
+                #set($timer = $timer+1)
+            #end
+            #same()
+            #if($e == 47)
+                #set($e = 0)
+            #else
+                #set($e = $e +1)
+            #end
+            </tr>
+        #end
+
+#elseif($page== "first" )
+        #set($timer = 12)
+        #set($e = 24 - 3)
+        #set($e = $e * 2)
+        #set($e = $e + 4)
+        #set($fractiontime ="false")
+
+        #foreach($nx in [0..19])
+            <tr valign="top" bgcolor="#FFFFFF"> 
+            #if($fractiontime == "false")
+                #if($timer == 12)
+                    <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $amString
+                        #elseif ($format == "H")
+                            0:00
+                        #end
+                    #end
+                    </td>
+                #elseif($timer>12)
+                    #set($temp = $timer)
+                    #set($timer = $timer - 12)
+                    <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">
+                    #foreach ($format in $timeFormat)
+                        #if ($format == "h")
+                            $timer
+                        #elseif ($format == "a")
+                            $amString
+                        #elseif ($format == "H")
+                            ${timer}:00
+                        #end
+                    #end
+                    </td>
+                    #set($timer = $temp)
+                #else
+                    <td align="right" bgcolor="#eeeeee" rowspan=2 class="borderWhite">$timer PM </td>
+                #end
+                #set($fractiontime ="true")
+            #else
+                #set($fractiontime = "false")
+                #set($timer = $timer+1)
+            #end
+            #same()
+            #if($e == 47)
+                #set($e = 0)
+            #else
+                #set($e = $e +1)
+            #end
+            </tr>
+        #end
+#end ## if the page is second, third or first
+</table>
+
+<div class="viewLinkControl">
+#if($page != "third")
+		<a href="#" onclick="location='#toolLink("$action" "doNpagew")';return false;" title="$tlang.getString('vieww.gotol')">$tlang.getString("vieww.gotol")</a>
+	#end
+</div>
+#eventLegend($tlang)
+
+</div>

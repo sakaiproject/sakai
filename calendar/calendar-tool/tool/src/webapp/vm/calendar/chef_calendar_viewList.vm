@@ -1,0 +1,377 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewList.vm,v 1.9 2005/05/31 19:04:02 suiyy.umich.edu Exp $
+
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	function openCopyrightWindow(theURL,winName,winSettings) 
+	{ 
+	  window.open(theURL,winName,winSettings);
+	  return false;
+	}
+//-->
+</script>
+
+<div class="portletBody">
+	#if($menu)#toolbar($menu)#end
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+	#set ($counter = 1 )
+	<div class="navPanel">
+		<div class="viewNav">
+			<div class="shorttext">
+				<form name="viewForm" class="inlineForm" action="#toolForm("$action")" method="post">
+					<input type="hidden" name="eventSubmit_doView" value="view" />
+					<label for="view">$tlang.getString('view.view')</label>
+					<select name="view" size="1"  onchange="document.viewForm.submit();" id="view">
+						#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+							#if ($selectedView.equals($view))
+								<option value="$view" selected="selected" >$view</option>
+							#else
+								<option value="$view" >$view</option>
+							#end
+						#end
+					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			</div>	
+			<div class="shorttext">
+				<form name="listform2" class="inlineForm" method="post" action="#toolForm("$action")">
+					<input type="hidden" value="$tlang.getString('view.gotoday')" name="eventSubmit_doFilter" />
+					<label for="timeFilterOption">$tlang.getString('view.show')</label>
+					<select name="timeFilterOption" onchange="document.listform2.submit();" id="timeFilterOption">
+						<option value="SHOW_ALL" #if ($timeFilterOption == "SHOW_ALL") selected="selected" #end >$tlang.getString('view.all')</option>
+						<option value="SHOW_DAY" #if ($timeFilterOption == "SHOW_DAY") selected="selected" #end >$tlang.getString('view.activ')</option>
+						<option value="SHOW_WEEK" #if ($timeFilterOption == "SHOW_WEEK") selected="selected" #end >$tlang.getString('view.activw')</option>
+						<option value="SHOW_MONTH" #if ($timeFilterOption == "SHOW_MONTH") selected="selected" #end >$tlang.getString('view.activm')</option>
+						<option value="SHOW_YEAR" #if ($timeFilterOption == "SHOW_YEAR") selected="selected" #end >$tlang.getString('view.activy')</option>
+						<option value="SHOW_CUSTOM_RANGE" #if ($timeFilterOption == "SHOW_CUSTOM_RANGE") selected="selected" #end >$tlang.getString('view.custom')</option>
+					</select>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+			</div>	
+			#if ($timeFilterOption == "SHOW_CUSTOM_RANGE")
+				<form name="listform1" method="post" action="#toolForm("$action")">
+					<div class="shorttext">
+						<label for="customStartMonth">$tlang.getString('viewl.st')</label>
+						#chef_dateselectionwidget("customStartYear" "customStartMonth" "customStartDay" $ddStartYear $ddEndYear $customStartYear $customStartMonth $customStartDay $dateFormat "")
+					</div>	
+					<div class="shorttext">
+					<label for="customEndMonth">$tlang.getString('viewl.ed')&nbsp;</label>
+					#chef_dateselectionwidget("customEndYear" "customEndMonth" "customEndDay" $ddStartYear $ddEndYear $customEndYear $customEndMonth $customEndDay $dateFormat "")
+				</div>	
+				<p class="labelindnt">	<input name="eventSubmit_doCustomdate" type="submit" value="$tlang.getString('view.apply')" /></p>
+					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				</form>
+
+			#end
+		</div>
+		<div class="listNav">
+			<form name="todayForm" action="#toolForm("$action")" method="post">
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.gotoday')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+	</div>
+	<div class="clear"></div>
+	#toolbar($menu_PDF)
+	
+
+
+	#set ($showLegned = "false")
+	<form name="listform" action="#toolForm("$action")" method="post">
+		<input type="hidden" name="source" value="0" />
+
+#* 		Joanne: need a check here - if messages, display, otherwise do not.
+		Not sure what was available in the context to do this. (gsilver) *#
+
+			<table class="listHier lines nolines" cellspacing="0" cellpadding="0" border="0" summary="$tlang.getString('viewl.list.summary')">
+				<tr>
+					<th>
+						#if ($currentDateSortAsc)
+							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="$tlang.getString('viewl.sortdateasc')">
+							$tlang.getString('viewl.date')
+							<img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString('viewl.sortdateasc')" />
+							</a>
+						#else
+							<a href="#" onclick="location='#toolLink("$action" "doSort_by_date_toggle")';return false;" title ="$tlang.getString('viewl.sortdatedesc')">
+							$tlang.getString('viewl.date')
+							<img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString('viewl.sortdatedesc')"/>
+							</a>
+						#end
+					</th>
+					<th>
+						$tlang.getString("viewl.time")
+					</th>
+					<th>$tlang.getString("view.for")</th>
+					#if ($fromColExist) <th>$tlang.getString("gen.from")</th> #end
+					<th>
+						$tlang.getString("viewl.desc")
+					</th>
+				</tr>
+				#foreach ($key in $yearMap.keySet())  ##foreach--1
+						#set ($thisYear = $key)
+						#set ($theseMonths = $yearMap.get($key))
+						#set ($yearShown = "false") ## false - the current year is not shown in the list
+
+						#foreach ($aMonth in $theseMonths)  ##foreach--2
+								#set ($monthShown = "false") ## when false, the current month is not shown in the list
+								#set($row = $aMonth.getRow())
+
+								#if($currentDateSortAsc)
+									#set ($rowStart = 0)
+									#set ($rowEnd = $row)
+									#set ($uStart = 0)
+									#set ($uEnd = 6)
+								#else
+									#set ($rowStart = $row)
+									#set ($rowEnd = 0)
+									#set ($uStart = 6)
+									#set ($uEnd = 0)
+								#end
+								
+									#foreach ($xn in [$rowStart..$rowEnd])  ##foreach--3
+										#foreach ($u in [$uStart..$uEnd])  ##foreach--4
+												#set ($dayShown = "false") ## when false, the number of current day is not shown in the list
+												#set ($mu = $aMonth.getDay($xn,$u))
+												#if (!($mu.getFlag() == 0)) ## only include the days inside this month
+														#set ($eventsn = $mu.getEvents())
+
+														#set($noEvent = "true")
+														#set($eventNumber=0)
+														#foreach ($m in $eventsn)  ##foreach--5
+																#set ($noEvent = "false")
+																#set ($eventNumber = $eventNumber +1)
+																#set ($showLegend = "true")
+														#end  ##foreach--5
+
+														#if ($noEvent == "false")
+																#foreach ($m in $eventsn)  ##foreach--6
+																		<tr>
+																		<td style="white-space:nowrap;vertical-align:top"  #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
+																		#if ($dayShown == "false")
+																				#set ($monthNumber = $m.Range.firstTime().breakdownLocal().Month - 1)
+				## (gsilver: not sure what this </a> is doing here, comment for now - as it does not validate </a>
+																				<a href="#toolLinkParam("$action" "doGomonth" "month=$monthNumber&year=$thisYear")">$aMonth.MonthName</a>
+																				<a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.Month&year=$mu.Year")">$mu.Day</a>, 
+																				<a href="#toolLinkParam("$action" "doGoyear" "year=$thisYear")">$thisYear</a>
+																		#else
+																			&nbsp;
+																		#end
+																		</td>
+																		
+																		## Time column
+																		<td  #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
+																		#set ($startTime = $m.getRange().firstTime().toStringLocalShort())
+																		#set ($endTime = $m.getRange().lastTime(0).toStringLocalShort())
+
+																		#if ($startTime == $endTime)
+																				$startTime
+																		#else
+																				$startTime - $endTime
+																		#end
+                                                      $timezone
+																		</td>
+
+## For Column																	
+<td>
+#set ($dr = $m.getGroupRangeForDisplay($cal))
+#if ($!dr && ($dr.equals(""))) $tlang.getString("gen.site") #else $validator.escapeHtml($dr) #end
+</td>
+## From Column
+#if ($fromColExist)
+#set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
+## #if ($calObj.getContext() != $PortalService.CurrentSiteId )
+#set ($site = $SiteService.getSite($calObj.getContext()))
+<td>$!site.Title</td>
+#end
+																		
+																		## description column
+																		<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
+																			#set ($dayShown = "true")
+																				<a href="#toolLinkParam("$action" "doDescription" "eventReference=$validator.escapeUrl($m.getReference())")" title="$validator.escapeHtml($m.getDisplayName())">
+																				#iconImage( $m.getType() )
+																			 $validator.escapeHtml($m.getDisplayName())</a>              
+
+																		#set ($counter= $counter + 1)
+
+																		<div style="margin:.5em 2em">
+																		#set ($desc = $validator.escapeHtmlFormattedText($m.DescriptionFormatted))
+																		
+																		#if ($desc.length() > 50)
+																			$calendarFormattedText.trimFormattedText($desc, 50) ...
+																		#else
+																			$desc
+																		#end
+																		</div>
+																		
+																		
+																		#set ($size = 0)
+																		#if (!$m.Attachments.isEmpty())
+																			<ul class="attachList" style="margin:1em 2em">
+																			#set ($props = false)
+																			#set ($size = $m.Attachments.size())
+																			#foreach ($attachment in $m.Attachments)
+																					#set ($props = $attachment.Properties)
+																					#if (!$props)
+																							#if ($size > 0) #set ($size = $size - 1) #end
+																					#else
+																							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+																									<li><img src = "#imageLink("sakai/attachments.gif")" alt="$tlang.getString('viewl.folder')" border="0" />
+																									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" alt="folder" border="0" />
+																							#else
+																									<li><img src = "#imageLink("sakai/attachments.gif")" alt="$tlang.getString('viewl.attach')"  border="0" />
+																									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" alt="$tlang.getString('viewl.attach')"  border="0" />
+																							#end
+																							
+																							#set ($copyflag = false)
+																							#if ($props.getProperty("CHEF:copyrightalert"))
+																								#if ($props.getBooleanProperty("CHEF:copyrightalert"))
+																									#set ($copyflag = true)
+																								#end
+																							#end
+																							
+																							#if ($copyflag)
+																								## if there is a copyright alert, show the alert page first
+																								<a href="" onclick="openCopyrightWindow('${attachment.url}','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false">
+																								$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>&#169;
+																							#else
+																								<a href="$attachment.Url" target="_blank">
+																								$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+																							#end
+																							
+																							#if (!$props.getBooleanProperty($props.NamePropIsCollection))
+																											($props.getPropertyFormatted($props.NamePropContentLength))
+																							#end
+																							</li>
+																					#end
+																			#set ($props = false)
+																			#end
+																			</ul>
+																		#end
+																</td>
+																</tr>
+
+																#set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
+																#if ($calObj.getContext() != $PortalService.CurrentSiteId )
+																<tr>
+																	<td>&nbsp;</td>
+																	#set ($siteDisplay = $SiteService.getSiteDisplay($calObj.getContext()))
+																	#set ($leftBrkIndex = $siteDisplay.indexOf('('))
+																	<td>$tlang.getString('viewl.froms') $siteDisplay.substring(0, $leftBrkIndex)</td>
+																</tr>
+																#end
+
+														#end   ##foreach--6
+														#end ##if ($noEvent == "false")
+												#end  ## -- end of if
+										#end   ##foreach--4
+								#end  ##foreach--3
+						#end  ##foreach--2
+				 #end  ##foreach--1
+	</table>
+	
+## Section awareness
+#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
+#if ($show_group =="false")
+	## no show this selection, but set default to site
+	<input type="hidden" name="scheduleTo" id="site" value="site" checked="checked" />
+#else
+	<p class="checkbox">
+		<input type="radio" name="scheduleTo" id="site" value="site" #if ($!scheduleTo == "site" || $!event.Access == $channelAccess)checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'none';"  />
+		<label for="site">$tlang.getString("displayfrom.site")</label>
+	</p>
+	#if ($!groups)
+		## added group awareness
+		<p class="checkbox">
+			<input type="radio" name="scheduleTo" id="groups" value="groups" #if(!$!pubview && ($!scheduleTo == "groups" || $!event.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+			<label for="groups">$tlang.getString("displayfrom.selected")</label>
+		</p>	
+		#if($!scheduleTo == "groups" || $!event.Access == $groupAccess)
+			#set ($listDisplay="block")
+		#else
+			#set ($listDisplay="none")
+		#end
+		<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("viewl.group.list.summary")">
+		<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+			<tr>
+				<th id ="selectAllGroups" class="attach">
+					<input type="checkbox" name="selectall" id="selectall" title="$tlang.getString("group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
+				</th>
+		 		<th id ="groupname">
+					#if (!$currentSortedBy.equals("grouptitle"))
+						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesort")">$tlang.getString("group.list.title")</a>
+					#else
+						#if ($currentSortAsc.equals("true"))
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortasc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.titlesortasc")" /></a>
+						#else
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygrouptitle';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.titlesortdesc")">$tlang.getString("group.list.title") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.titlesortdesc")"/></a>
+						#end
+					#end
+				</th>
+				<th id ="groupdescription">
+					#if (!$currentSortedBy.equals("groupdescription"))
+						<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsort")">$tlang.getString("group.list.descr")</a>
+					#else
+						#if ($currentSortAsc.equals("true"))
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortasc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortascending.gif")" border="0" alt="$tlang.getString("group.list.descrsortasc")" /></a>
+						#else
+							<a href="#" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='sortbygroupdescription';document.reviseForm.submit();return false;" title ="$tlang.getString("group.list.descrsortdesc")">$tlang.getString("group.list.descr") <img src = "#imageLink("sakai/sortdescending.gif")" border="0" alt="$tlang.getString("group.list.descrsortdesc")"/></a>
+						#end
+					#end
+				</th>
+			</tr>
+			#foreach ($group in $!groups)
+				<tr>
+					<td headers="selected" class="attach">
+						#set($selected=false)
+						#foreach($aGroupRef in $scheduleToGroups)
+							#if ($!group.Id == $!aGroupRef)
+								#set($selected = true)
+							#end
+						#end
+						<input type="checkbox" name="selectedGroups" id="$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end />
+					</td>
+					<td headers="name" nowrap="nowrap">
+						<label for="$group.Id">
+							$validator.escapeHtml($group.Title)
+						</label>	
+					</td>
+					<td headers="description" width="100%"> ##mozilla does not resize table children dynamically , so set here
+						#set($description = "")
+						#set($description = $group.Description)
+						$validator.escapeHtml($!description)
+					</td>
+				</tr>
+			#end
+		</table>
+	#end
+<p class="act">
+<input type="submit" class="active"  name="eventSubmit_doUpdateGroupView" value="$tlang.getString('viewl.update')" />
+</p>
+#end
+
+## if there is at least one event shown, then the legend should be shown too
+#if ($showLegend == "true")
+	#eventLegend($tlang)
+#end
+
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+
+<script language="JavaScript" type="text/JavaScript">
+	<!--
+		function toggleSelectAll(caller, elementName)
+		{
+			var newValue = caller.checked;
+			var elements = document.getElementsByName(elementName);
+			
+			if(elements)
+			{
+				for(var i = 0; i < elements.length; i++)
+				{
+					elements[i].checked = newValue;
+				}
+			}
+		}
+	-->
+</script>
+

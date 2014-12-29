@@ -1,0 +1,129 @@
+<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_viewYear.vm,v 1.6 2005/06/07 18:47:22 gsilver.umich.edu Exp $ -->
+<div class="portletBody">
+#if($menu)#toolbar($menu)#end
+
+		#if ($alertMessage)<div class="alertMessage">$tlang.getString('gen.alert') $validator.escapeHtml($alertMessage)</div>#end
+
+<h3>$tlang.getString("view.calyear")</h3>
+	<div class="navPanel">
+		<div class="viewNav">
+		<!-- drop down menu for different views -->
+			<form name="viewForm" class="inlineForm" method="post" action="#toolForm("CalendarAction")">
+				<input type="hidden" name="eventSubmit_doView" value="view" />
+				<label for="view">$tlang.getString("view.view")</label>
+				<span class="skip">$tlang.getString("view.listnavselect")</span>
+				<select name="view" id="view" size="1" tabindex="3" onchange="document.viewForm.submit();">
+					#foreach ($view in ["$tlang.getString('java.byday')", "$tlang.getString('java.byweek')", "$tlang.getString('java.bymonth')", "$tlang.getString('java.byyear')", "$tlang.getString('java.listeve')"])
+						#if ($selectedView.equals($view))
+							<option value="$view" selected="selected" >$view</option>
+						#else
+							<option value="$view" >$view</option>
+						#end
+					#end
+				</select>
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			</form>
+		</div>
+		<div class="listNav">
+			<div class="instruction">$year</div>
+			<form action="#toolForm("$action")" method="post">
+				<input type="submit" name="eventSubmit_doPrev" value="$tlang.getString('viewy.lasy')" title="$tlang.getString('viewy.gotop')" />
+				<input type="submit" name="eventSubmit_doToday" value="$tlang.getString('view.today')" title="$tlang.getString('view.gotoday')" />
+				<input type="submit" name="eventSubmit_doNext" value="$tlang.getString('viewy.nexy')" title="$tlang.getString('viewy.goton')" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			 </form>
+		 </div>
+	 </div>	
+	<div class="clear"></div>
+			#toolbar($menu_PDF)	
+<!-- how to draw a year-->
+<table width="100%" cellspacing="5" summary="$tlang.getString('viewm.list.summary')">
+   #foreach ($xn in [0..3])
+    <tr>
+        #foreach ($mn in [0..2])
+            <td>
+                <!--<table>-->
+                #set ($mm = $yearArray.getMonth($xn,$mn))
+                <table width="100%" cellspacing="0" class="calendar"  summary="$tlang.getString('viewy.list.summary2') $mm.MonthName $tlang.getString('viewy.list.summary3')">
+                        <tr>
+                            ##<td colspan="7" class="borderWhiteYear">
+                            <th colspan="7">
+                                #set ($monthNumber = $xn*3 + $mn)
+                                <a href="#toolLinkParam("$action" "doGomonth" "month=$monthNumber")">
+                                $mm.MonthName</a>
+                            </th>
+                        </tr>
+
+                        ## JS -----  add new line to show dates
+                        <tr>
+                           #foreach ($dayname in $dayOfWeekNames)
+				<th align="center" width="14%" class="borderWhite">$dayname</th>
+    			   #end
+                         </tr>
+                        ## JS -----  add new line to show dates
+
+                        #set ($row = $mm.getRow())
+                        #foreach($n in [0..$row])
+                        <tr>
+                              #foreach($u in [0..6])    
+                                #set ($mu = $mm.getDay($n,$u))
+				#set($flag = "false")
+				
+				#set($eventsn = $mu.getEvents())
+				#if ($eventsn.size()!=0)     
+				    #set($flag = "true")
+				#end
+
+                                #if ($mu.getFlag() == 1)   ## JS comment -- it is today
+                                    ## If there is at least one activity, then the background is yellow
+				    #if ($flag == "true")
+					<td class="borderTodayWithActivity">
+                                           <a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")">
+					    <b>$mu.getDay()</b>
+					    </a>
+					</td>                
+				    #else
+					<td class="borderTodayWithoutActivity">
+                                            <a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")">
+					    <b>$mu.getDay()</b>
+					    </a>
+					</td>
+				    #end
+                                #elseif ($mu.getFlag()== 0)    ## JS comment -- it is out of this month
+                                    ##<td align="right"  bgcolor=#cccccc >
+                                    <td class="borderGrayYear">
+                                        <a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")">
+                                        $mu.getDay()</a>
+                                   </td>
+                                #else   ## JS comment -- it is within this month
+				    #if ($flag == "true")
+					<td class="bgActivity">
+                                            <a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")">
+					    $mu.getDay()
+					    </a>
+					</td> 
+				    #else
+					<td class="bgWithoutActivity">
+                                            <a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.getMonth()&year=$mu.getYear()")">
+					    $mu.getDay()
+					    </a>
+					</td> 
+				    #end
+                                #end
+                              #end
+                        </tr>
+                        #end
+                 #if ($row == 4)
+                 		<tr>
+                    #foreach($u in [0..6])
+                             <td align="right"  class="borderGrayYear" >&nbsp;</td>
+                    #end
+							</tr>
+                 #end
+                </table>
+            </td>
+        #end
+    </tr>
+   #end
+</table>
+</div>
