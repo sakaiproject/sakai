@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>master</artifactId>
+      <version>11-SNAPSHOT</version>
+      <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+  <name>Sakai Content Project</name>
+  <groupId>org.sakaiproject.content</groupId>
+  <artifactId>content</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <profiles>
+    <profile>
+      <id>framework</id>
+      <modules>
+        <module>content-tool/tool</module>
+	<module>content-bundles</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>framework-jcr</id>
+      <modules>
+        <module>content-tool/tool</module>
+	<module>content-bundles</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>full-jcr</id>
+      <modules>
+        <module>content-impl-providers/impl</module>
+        <module>content-impl-providers/pack</module>
+        <module>content-tool/tool</module>
+	<module>content-bundles</module>
+	<module>content-types</module>
+      </modules>
+    </profile>
+    <profile>
+      <id>full</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <modules>
+        <module>content-copyright/api</module>
+        <module>content-copyright/impl</module>
+        <module>content-copyright/pack</module>
+        <module>content-impl-providers/impl</module>
+        <module>content-impl-providers/pack</module>
+        <module>content-tool/tool</module>
+	<module>content-bundles</module>
+	<module>content-types</module>
+	<module>content-types-pack</module>
+	<module>content-cleanup</module>
+      </modules>
+    </profile>
+  </profiles>
+
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/content/trunk</url>
+  </scm>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+  	<groupId>org.sakaiproject.content</groupId>
+  	<artifactId>content-copyright-api</artifactId>
+	<version>${project.version}</version>
+    <scope>provided</scope>
+      </dependency>
+      <dependency>
+  	<groupId>org.sakaiproject.content</groupId>
+  	<artifactId>content-bundles</artifactId>
+	<version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.content</groupId>
+        <artifactId>content-providers-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

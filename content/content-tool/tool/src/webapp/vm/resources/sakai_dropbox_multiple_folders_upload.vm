@@ -1,0 +1,141 @@
+<!-- resources/sakai_dropbox_multiple_folders_upload.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<script type="text/javascript" src="#libraryLink('js/jquery/jquery-1.9.1.min.js')"></script>
+
+<div class="portletBody specialLink">
+	<h3>
+		$tlang.getString("multiple.file.upload")
+	</h3>
+	#if ($alertMessage)
+		<br /><div class="alertMessage">$clang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
+	#end
+	<p class="instruction">
+		$tlang.getString("instr.upload")
+	</p>
+	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesAction")"  enctype="multipart/form-data">
+		<div id="fileInputDiv">
+		<p class="shorttext" style="border:none">
+			<label>$tlang.getString("label.upload")</label>
+			<input type="file" name="MultipleFolderContent" id="MultipleFolderContent" class="upload" onChange="fillDisplayName()"/>
+		</p>
+		<p class="shorttext" style="border:none">
+			<label for="displayName">$tlang.getString("label.display")</label> 
+			<input type="text" id="MultipleFolderDisplayName" name="MultipleFolderDisplayName" style="width:30em"/>  
+		</p>
+		<table class="sidebyside" cellpadding="0" cellspacing="0" style="margin:0">
+			<tr>
+				<td style="padding:0">
+					<h4>$tlang.getString("multiple.file.upload.siteusers")</h4>
+					<select style="width:auto" multiple="multiple" size="10" id="siteMembers-selection" name="siteMembers-selection">
+					#foreach($userDropbox in $usersDropboxList)
+					<option value="$userDropbox.get(0)" class="$userDropbox.get(2)">$userDropbox.get(1)</option>
+					#end
+					</select>
+				</td>
+				<td style="padding:.3em;text-align:center;vertical-align:bottom">
+					<input type="button" name="right" value="&gt;"title="$tlang.getString("multiple.file.upload.usersMoveSelected")"/><br /><br />
+					<input type="button" name="dbright" value="&gt;&gt;"title="$tlang.getString("multiple.file.upload.usersMoveAll")"/><br /><br />
+					<input type="button" name="left" value="&lt;" title="$tlang.getString("multiple.file.upload.usersMoveSelected")"/><br /><br />
+					<input type="button" name="dbleft" value="&lt;&lt;" title="$tlang.getString("multiple.file.upload.usersMoveAll")"/>
+				</td>
+				<td valign="top" style="padding:0">
+					<h4>$tlang.getString("multiple.file.upload.usersselected")</h4>
+					<select style="width:auto"  multiple="multiple" id="usersDropbox-selection" name="usersDropbox-selection" size="10"  >
+					</select>
+				</td>
+			</tr>
+		</table>
+		</div>
+		
+		<p class="act">
+			<input type="checkbox" name="notify_dropbox" id="notify_dropbox" value="true" /> 
+			<label for="notify_dropbox">
+				#if ($isCourseSite)				
+					$tlang.getString("notify.student")
+				#else
+					$tlang.getString("notify.access")
+				#end
+			</label>
+		</p>
+		
+		<p class="act">
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+			
+	</form>
+</div>
+
+<script type="text/javascript" language="JavaScript">
+	$(document).ready (function (){
+		/*Sort by name*/
+
+		$("#siteMembers-selection option.group").sort(orderByName).appendTo("#siteMembers-selection");
+		$("#siteMembers-selection option.user").sort(orderByName).appendTo("#siteMembers-selection");
+
+		/*Setup the buttons events*/
+		
+		$("input[name=right]").click (function(){
+			$("#siteMembers-selection option:selected").each(function () {
+				$("#usersDropbox-selection").append(this);
+				$(this).removeAttr("selected");
+			});
+			$("#usersDropbox-selection option.group").sort(orderByName).appendTo("#usersDropbox-selection");
+			$("#usersDropbox-selection option.user").sort(orderByName).appendTo("#usersDropbox-selection");
+		});
+		
+		$("input[name=dbright]").click (function(){
+			$("#siteMembers-selection option").each(function () {
+				$("#usersDropbox-selection").append(this);
+			});
+			$("#siteMembers-selection").empty();
+			$("#usersDropbox-selection option.group").sort(orderByName).appendTo("#usersDropbox-selection");
+			$("#usersDropbox-selection option.user").sort(orderByName).appendTo("#usersDropbox-selection");
+		});
+		
+		$("input[name=left]").click (function(){
+			$("#usersDropbox-selection option:selected").each(function () {
+				$("#siteMembers-selection").append(this);
+				$(this).removeAttr("selected");
+			});
+			$("#siteMembers-selection option.group").sort(orderByName).appendTo("#siteMembers-selection"); 
+			$("#siteMembers-selection option.user").sort(orderByName).appendTo("#siteMembers-selection");
+		});
+		
+		$("input[name=dbleft]").click (function(){
+			$("#usersDropbox-selection option").each(function () {
+				$("#siteMembers-selection").append(this);
+			});
+			$("#usersDropbox-selection").empty();
+			$("#siteMembers-selection option.group").sort(orderByName).appendTo("#siteMembers-selection"); 
+			$("#siteMembers-selection option.user").sort(orderByName).appendTo("#siteMembers-selection");
+		});
+	});
+	
+	function orderByName (a,b){
+		return a.innerHTML.toLowerCase().localeCompare(b.innerHTML.toLowerCase());
+ 	}
+	
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		var usersDropbox = document.getElementById('usersDropbox-selection');
+		for (var i = 0; i < usersDropbox.options.length; i++) {
+		  usersDropbox.options[i].selected = true;
+		}
+		if(theForm && theForm.onsubmit) {
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit) {
+			theForm.submit();
+		}
+	}
+	
+	function fillDisplayName()
+	{
+		var fileField = document.getElementById('MultipleFolderContent');
+		var nameField = document.getElementById('MultipleFolderDisplayName');
+		nameField.value = fileField.files[0].name;
+	}
+</script>

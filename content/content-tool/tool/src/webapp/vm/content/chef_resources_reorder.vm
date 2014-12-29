@@ -1,0 +1,377 @@
+## version: $Id:  $
+<!-- chef_resources_reorder.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<!-- this is the reorder template -->
+<script type="text/javascript" src="/library/js/fluid/1.4/MyInfusion.js"></script>
+<script type="text/javascript" src="/library/js/reorderer.js"></script>
+
+<div class="portletBody specialLink">
+	<form name="reorderForm" id="reorderForm" action="#toolForm("ResourcesAction")" method="post">
+		<input name="folderId" id="folderId" value="$folderId" type="hidden" />
+		<input name="sakai_action" id="sakai_action" value="doSaveOrder" type="hidden" />
+		<input name="flow" id="flow" value="save" type="hidden" />
+		<div class ="breadCrumb specialLink">
+			<h3>
+				$tlang.getString("sort.title")
+				<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="folder" />
+				#foreach ($item in $collectionPath)
+					$validator.escapeHtml("$item.name")
+					#if(! $item.isLast()) / #end
+				#end
+			</h3>
+		</div>
+		<div class="instruction">
+			$tlang.getString("sort.instruction.general")
+				<span id="inputFieldMessage" style="display:none">$tlang.getString('sort.instruction.input')</span>
+				<span id="inputKbdMessage" class="skip">$tlang.getString('sort.instruction.general.hidden')</span>
+			
+		</div>
+		
+		<ul class="itemAction noPrint">
+			<li style="display:inline">
+				<span id="undo-last-inact" style="padding:0 .3em 0 0;border:none">$tlang.getString("sort.undo.last.label")</span>
+				<a href="#" id="undo-last"  style="display:none">$tlang.getString("sort.undo.last.label")</a>
+			</li>
+			<li style="display:inline;border-left:1px solid #ccc;padding-left:1em">
+				<span id="undo-all-inact"  style="padding:0 .3em 0 0;border:none">$tlang.getString("sort.undo.all.label")</span>
+					<a id="undo-all" href="#"  style="display:none">$tlang.getString("sort.undo.all.label")</a>
+			</li>
+			<li style="display:inline;color:#000">
+				<span id="failedValidMessage" style="display:none">$tlang.getString("sort.fail.valid.message")</span>
+				<span id="messageHolder" class="messageSuccess" style="display:none"></span>
+			</li>
+		</ul>	
+		<span id="lastMoveArray" style="display:none"></span>
+		<span id="lastMoveArrayInit" style="display:none"></span>
+		<span id="lastItemMoved"  style="display:none"></span>
+		
+
+		
+		<ul id="reorder-list">
+			#foreach($root in $this_site)
+				#set($collectionMembers = $root.members)
+				#set($count = 1)
+				#foreach($member in $collectionMembers)
+					<li class="sortable"  id="listitem.orderable$count">
+						<span style="display:none" class="grabHandle">
+							<input type="text" size="3" value="$count" id="index$count"/>
+							<input type="hidden"  size="3" id="holder$count"  value="$count" tabindex="-2"/>
+						</span>
+						<span title="$member.name" class="title">
+								#if($member.isFolder())
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0">
+								#else
+									<img src="#imageLink($contentTypeImageService.getContentTypeImage("$member.type"))" border="0">
+								#end
+								$validator.escapeHtml($member.name)
+						</span>
+						<span headers="creator">
+							$validator.escapeHtml($member.createdBy)
+						</span>
+						<span headers="modified">
+							$member.ModifiedTime
+						</span>
+						<span headers="position" style="display:none">
+							<select name="position_$validator.escapeUrl("$member.id")" class="selectSet" style="display:none" tabindex="-1">
+								#foreach($i in [1..$collectionMembers.size()])
+									<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
+								#end
+							</select>
+						</span>
+					</li>
+					#set($count = $count + 1)
+				#end
+			#end
+		</ul>
+		<p class="act" style="margin:0;padding:.3em 0;">
+			<input id="save" value="$tlang.getString("sort.save")" type="button" class="active" onclick="submitThis('reorderForm','save');" /> 
+			<input id="cancel" value="$tlang.getString("sort.cancel")" type="button" onclick="submitThis('reorderForm','cancel');" />																			
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>						
+.
+</div>
+<script language="JavaScript" type="text/javascript">
+	<!--
+		function submitform(id)
+		{
+			var theForm = document.getElementById(id);
+			if(theForm && theForm.onsubmit)
+			{
+				theForm.onsubmit();
+			}
+			if(theForm && theForm.submit)
+			{
+				theForm.submit();
+			}
+		}
+		function submitThis(id, flow)
+		{
+			document.getElementById("flow").value = flow;
+			submitform(id);
+		}
+		function moveRow (clickedObj, destination) {
+			
+			var row = clickedObj.parentNode;
+			// Finding the nearest containing TR element
+			while (row.parentNode && row.tagName != "TR") {
+				row = row.parentNode;
+			}
+
+			var rowParent = row.parentNode;
+			var childNodes = rowParent.childNodes;
+			
+			var childTrs = new Array();
+			for (var i=0; i < childNodes.length; i++){
+				if (childNodes[i].tagName == "TR" && childNodes[i].className == "sortable"){
+					childTrs[childTrs.length] = childNodes[i];
+				}
+			}
+			var curRowPos = getRowPosition(row,childTrs);
+			/*
+				NOTE: first condition of if blocks does boundary checking to make sure we don't 
+				move out of the bounds
+			*/
+			var destIndex = null;
+			if ((curRowPos < childTrs.length-1) && destination && destination.toLowerCase() == "down") {
+				destIndex = curRowPos + 1;
+				// Set the destination integer for consumption below
+				destination = destIndex+1;
+				} else 
+			if ((curRowPos > 0) && destination && destination.toLowerCase() == "up") {
+				destIndex = curRowPos - 1;
+				// Set the destination integer for consumption below
+				destination = destIndex+1;
+			}
+			if (destination && ("" + destination).match(/^[0-9]+$/) && destination > 0 && destination <= childTrs.length) {
+
+				destIndex = destination-1;
+				
+
+				if (curRowPos < destIndex) {
+					/*
+						"insertAfter" functionality as per:
+						http://developer.mozilla.org/en/docs/DOM:element.insertBefore
+					*/
+					rowParent.insertBefore(row,childTrs[destIndex].nextSibling);
+				} else {
+					rowParent.insertBefore(row,childTrs[destIndex]);
+				}
+				
+			}
+			
+			var newChildTrs = new Array();
+			for (var i=0; i < childNodes.length; i++){
+				if (childNodes[i].tagName == "TR" && childNodes[i].className == "sortable"){
+					newChildTrs[newChildTrs.length] = childNodes[i];
+				}
+			}
+			updateUserInterface(newChildTrs,destIndex);
+		}
+		
+		function getRowPosition(currentRow,rowsArray) {
+			for (var i=0; i < rowsArray.length; i++){
+				if (rowsArray[i] == currentRow){
+					return i;
+				}
+			}
+			return "cat";
+		}
+
+		function updateUserInterface(rowsArray,targetRow) {
+			for (var curRow=0; curRow < rowsArray.length; curRow++){
+				var rowChildNodes = rowsArray[curRow].childNodes;
+				
+				if (rowsArray[curRow].tagName == "TR") {
+					if (curRow == targetRow) {
+						rowsArray[curRow].id = "selectedReorder";
+						rowsArray[curRow].cells[0].className = "arrowHere";
+						
+					} else {
+							rowsArray[curRow].id = "sortable";		
+					}
+				}
+				
+				for (var curRowChild=0; curRowChild < rowChildNodes.length; curRowChild++){
+					
+					var hasHeaders = false;
+					if (rowChildNodes[curRowChild].hasAttribute) {
+						hasHeaders = rowChildNodes[curRowChild].hasAttribute("headers");
+					} else {
+						/* 
+						Coping with lack of hasAttribute() method in IE	
+						*/
+						if(rowChildNodes[curRowChild].headers != "") {
+							hasHeaders = true;
+						}
+					}
+
+					if (rowChildNodes[curRowChild].tagName == "TD" && hasHeaders) {
+						
+					var cellChildNodes = rowChildNodes[curRowChild].childNodes;
+						for (var curCellChild=0; curCellChild < cellChildNodes.length; curCellChild++) {
+							if (cellChildNodes[curCellChild].tagName == "A") {
+								if ((curRow == 0 && rowChildNodes[curRowChild].getAttribute("headers") == "moveUp") || (curRow == rowsArray.length-1 && rowChildNodes[curRowChild].getAttribute("headers") == "moveDown")) {
+									cellChildNodes[curCellChild].style.display = "none";
+								} else {
+									cellChildNodes[curCellChild].style.display = "inline";
+								}
+							}
+							if (cellChildNodes[curCellChild].tagName == "SELECT") {
+								cellChildNodes[curCellChild].selectedIndex = curRow;
+							}
+							
+							if (cellChildNodes[curCellChild].tagName == "H4") {
+								if (curRow == targetRow) {
+##									cellChildNodes[curCellChild].style.color = "white";
+								} else {
+##									cellChildNodes[curCellChild].style.color = "black";
+								}
+							}
+
+						}
+					}
+					
+				}
+			}
+		}
+#*	gsilver - comment this out - leave here for later (makes reference to elements that do not exist in this context)
+		function setVisibility(thisInt) {
+			var radioElements = document.getElementsByName("selectedMembers");
+			
+			for(var i = 0; i < radioElements.length; i++) {
+				if (i != thisInt) {
+					document.getElementById("buttons"+i).style.display="none";
+					document.getElementById("radio"+i).style.display="block";
+				} else {
+					document.getElementById("buttons"+i).style.display="block";
+				    document.getElementById("radio"+i).style.display="none";
+					if (i == 0) {
+					  document.getElementById("upbutton"+i).disabled=true;
+					}
+					if (i == radioElements.length-1) {
+					  document.getElementById("downbutton"+i).disabled=true;
+					}
+					
+				}
+			}
+		}
+				document.getElementById("selectall").disabled = false;			
+				function openCopyrightWindow(theURL,winName,winSettings) 
+		{ 
+		  window.open(theURL,winName,winSettings);
+		  return false;
+		}
+		function toggleSelectAll(caller, elementName)
+		{
+			var newValue = caller.checked;
+			var elements = document.getElementsByName(elementName);
+			
+			if(elements)
+			{
+				for(var i = 0; i < elements.length; i++)
+				{
+					elements[i].checked = newValue;
+				}
+			}
+			
+			if(newValue == true)
+			{
+				caller.title = "Uncheck All";
+				var copyButton = document.getElementById("copyButton");
+				if(copyButton)
+				{
+					copyButton.disabled = false;
+					copyButton.className='enabled';
+				}
+				var moveButton = document.getElementById("moveButton");
+				if(moveButton)
+				{
+					moveButton.disabled = false;
+					moveButton.className = 'enabled';
+				}
+				var removeButton = document.getElementById("removeButton");
+				if(removeButton)
+				{
+					removeButton.disabled = false;
+					removeButton.className = 'enabled';
+				}
+				document.getElementById("copyCount").value = "3";
+				document.getElementById("moveCount").value = "0";
+				document.getElementById("removeCount").value = "0";
+			}
+			else
+			{
+				caller.title = "Check All";
+				var copyButton = document.getElementById("copyButton");
+				if(copyButton)
+				{
+					copyButton.disabled = true;
+					copyButton.className='disabled';
+				}
+				var moveButton = document.getElementById("moveButton");
+				if(moveButton)
+				{
+					moveButton.disabled = true;
+					moveButton.className = 'disabled';
+				}
+				var removeButton = document.getElementById("removeButton");
+				if(removeButton)
+				{
+					removeButton.disabled = true;
+					removeButton.className = 'disabled';
+				}
+				document.getElementById("removeCount").value = "0";
+				document.getElementById("moveCount").value = "0";
+				document.getElementById("copyCount").value = "0";
+			}
+		}
+		
+		function adjustCount(caller, countName, buttonName)
+		{
+			var counter = document.getElementById(countName);
+			var button = document.getElementById(buttonName);
+			
+			if(caller && caller.checked && caller.checked == true)
+			{
+				counter.value = parseInt(counter.value) + 1;
+			}
+			else
+			{
+				counter.value = parseInt(counter.value) - 1;
+			}
+	
+			if(button)
+			{
+				if(counter.value > 0)
+				{
+					button.disabled = false;
+					button.className='enabled';
+				}
+				else
+				{
+					button.disabled = true;
+					button.className='disabled';
+				}
+			}
+		}
+		
+		function disableLinks()
+		{
+			if(document.getElementsByName)
+			{
+				var enabledLinks = document.getElementsByName("enabledActionLinks");
+				var disabledLinks = document.getElementsByName("disabledActionLinks");
+				if(enabledLinks)
+				{
+					for(var i = 0; i < enabledLinks.length; i++)
+					{
+						//enabledLinks[i].innerHTML = disabledLinks[i].innerHTML;
+						enabledLinks[i].style.display="none";
+						disabledLinks[i].style.display="block";
+					}
+				}			
+			}
+		}
+	*#	
+	//-->
+</script>

@@ -1,0 +1,101 @@
+		######################## ================ Optional Properties of Item ================ ########################
+		<input type="hidden" name="metadataGroup${DOT}$i" id="metadataGroup${DOT}$i" value="" />
+		#if(!$item && $model)#set($item = $model)#end
+		#if($item && $item.metadataGroups)
+		## && $type.hasOptionalPropertiesDialog())
+			#foreach($group in $item.metadataGroups)	
+				<p class="discTria" id="metadataShown_$validator.escapeJavascript($group.name)${DOT}${i}"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
+					<a id="hideMetadata_$validator.escapeJavascript($group.name)${DOT}${i}" href="#" title="$group.hideLabel">
+						<img id="hideMetadataImage_$validator.escapeJavascript($group.name)${DOT}${i}" src="#imageLink("sakai/collapse.gif")" alt="$group.hideLabel" border="0" width="13" height="13" align="top" />
+						$validator.escapeHtml($group.name)
+					</a>
+				</p>
+				<p class="discTria" id="metadataHidden_$validator.escapeJavascript($group.name)${DOT}${i}"#if ($group.isShowing()) style="display:none;"#else style="display:block;"#end>
+					<a id="showMetadata_$validator.escapeJavascript($group.name)${DOT}${i}" href="#" title="$group.showLabel">
+						<img id="showMetadataImage_$validator.escapeJavascript($group.name)${DOT}${i}" src="#imageLink("sakai/expand.gif")" alt="$group.showLabel" border="0" width="13" height="13" align="top" />
+						$validator.escapeHtml($group.name)
+					</a>
+				</p>
+				<div id="metadataDiv_$validator.escapeJavascript($group.name)${DOT}${i}"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
+					#foreach($tag in $group)
+						<p class="shorttext">
+							#if("$!tag.widget" == "$!STRING")
+			 					<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i">
+									$tag.label
+								</label>
+								<input type="text" size="40"
+									name="$!{tag.fullname}${DOT}$i" 
+									id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i" 
+									value="$validator.escapeHtml("$!tag.value")" 
+								/>
+							#elseif("$!tag.widget" == "$!TEXTAREA")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								<textarea rows="4" cols="30" 
+									name="$!{tag.fullname}${DOT}$i" 
+									id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i" >$validator.escapeHtmlTextarea("$!tag.value")</textarea>
+							#elseif("$!tag.widget" == "$!DATE")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}$i">
+									$tag.label
+								</label>
+								#if($!tag.value)
+									#set($theValue = $validator.escapeHtml("$!tag.value"))
+								#else
+									#set($theValue = $today)
+								#end 
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue $dateFormat)
+							#elseif("$!tag.widget" == "$!DATETIME")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								#if($!tag.value)
+									#set($theValue = $validator.escapeHtml("$!tag.value"))
+								#else
+									#set($theValue = $today)
+								#end 
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_dateselectionwidget("$!{tag.fullname}" "${i}" $theValue $dateFormat)
+								#resources_timeSelectionWidget("$!{tag.fullname}" "${i}" $theValue)
+							#elseif("$!tag.widget" == "$!TIME")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								#if($!tag.value)
+									#set($theValue = $validator.escapeHtml("$!tag.value"))
+								#else
+									#set($theValue = $today)
+								#end 
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_timeSelectionWidget("$!{tag.fullname}" "${i}" $theValue)
+								
+							#elseif("$!tag.widget" == "$!DURATION")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_durationSelectionWidget("$!{tag.fullname}" "${i}" $!tag.value)
+								
+								
+							#elseif("$!tag.widget" == "$!DROPDOWN")
+								<label for ="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}">
+									$tag.label
+								</label>
+								
+								<input type="hidden" name="$!{tag.fullname}${DOT}${i}" id="$validator.escapeJavascript("$!{tag.fullname}")${DOT}${i}" value="$!theValue" />
+								#resources_dropdownSelectionWidget("$!{tag.fullname}" "$!{tag.localname}" $validator.escapeHtml($!tag.value))
+	
+							#else
+								$tag.fullname<br />
+								$tag.widget<br />
+								$validator.escapeHtml("$!tag.value")<br />
+							#end
+						</p>
+					#end
+				</div>			  
+			#end
+		#end
+		############################################# end of section to show metadata 
+

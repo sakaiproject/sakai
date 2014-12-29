@@ -1,0 +1,97 @@
+#navigatePanel {
+	height:388px;
+    width:auto;auto;z-index:100000;
+    min-width:300px;
+}
+
+#navigatePanelInner {
+    height:350px;
+    overflow:auto
+}
+#navigatePanel p.close{
+	margin:0 5px;
+}
+
+.navigatePanelControls{
+    padding:0 10px 5px 5px;
+    border-bottom:1px solid #ccc
+}
+#navigatePanelSearch {
+   font-size: 12px;
+    height: 23px;
+    margin-top: -1px;
+    width: 201px;
+}
+.jstree-search {
+    border:1px solid #ffe4bb;
+    background:#ffe;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+}
+.jstree-anchor:hover {
+    text-decoration:none !important;
+}
+#spinner {
+    background: transparent url("../images/ajax_loader_blue_128.gif") top left no-repeat;
+    width:128px;
+    height:128px;
+    position: absolute;
+    top:20%;
+    left:33%;
+}
+li[data_visible="false" ] *{
+    opacity:0.7;
+    color:#555 !important
+}
+/* move this one to tool-base.css as it goes along*/
+.table th h3, .table th h4, .table th h5, .table th h6, .table td h3, .table td h4, .table td h5, .table td h6 {
+    display: inline;
+    font-size:1em;
+}
+.table .attach {
+    width:20px !important;
+}
+td.actions2 .dropdown-toggle {
+    padding: 2px 6px !important;
+}
+td.actions2 .dropdown-header {
+    padding: 0 21px;
+}
+.table tr{
+    border-bottom: 1px solid #ddd;
+}
+
+.breadCrumb .btn-group button.breadProp {
+     padding-left:25px;
+    -webkit-border-radius: 3px !important;
+    -webkit-border-top-right-radius: 25px !important;
+    -webkit-border-bottom-right-radius: 25px !important;
+    -moz-border-radius: 3px !important;
+    -moz-border-radius-topright: 25px !important;
+    -moz-border-radius-bottomright: 25px !important;
+    border-radius: 3px !important;
+    border-top-right-radius: 25px !important;
+    border-bottom-right-radius: 25px !important;
+    margin-left: -20px !important;
+}
+
+#navigate {
+    margin-right:30px !important;
+    -webkit-border-radius: 3px !important;
+    -moz-border-radius: 3px !important;
+    border-radius: 3px !important;
+}
+.breadCrumb #navigatePanel + button {
+    padding-left:10px;
+}
+.inactive button {
+    color: #000 !important;
+    border:1px solid #ccc !important;
+}
+.inactive button span {
+    color: #000 !important;
+}
+.inactive .dropdown-menu a {
+    color:#000 !important;
+}

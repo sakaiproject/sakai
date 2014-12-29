@@ -1,0 +1,31 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.content</groupId>
+        <artifactId>content</artifactId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Content Types Component Package</name>
+    <groupId>org.sakaiproject.content</groupId>
+    <artifactId>content-types-pack</artifactId>
+    <packaging>sakai-component</packaging>
+
+    <description>
+    This project creates the pack used by the Sakai Content Types
+    </description>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>content-types</artifactId>
+	    <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+</project>

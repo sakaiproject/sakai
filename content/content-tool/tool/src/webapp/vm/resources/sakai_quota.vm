@@ -1,0 +1,19 @@
+<!-- sakai_quota.vm, version: $Revision$, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<div class="portletBody specialLink">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+	<h3>
+		$tlang.getString("quota.quota")
+	</h3>
+	<div class="instruction">
+		$tlang.getString("quota.instr")
+	</div>
+	<div class="highlightPanel">
+	$tlang.getFormattedMessage("quota.using.param", $usagePercent, $usage, $quota)
+	</div>
+	<form action="#toolForm("ResourcesAction")" name="quotaForm" method="post" >
+		<p class ="act">
+			<input type="submit" class="active"  name="eventSubmit_doCancel" value="$tlang.getString("gen.back")" accesskey="x" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

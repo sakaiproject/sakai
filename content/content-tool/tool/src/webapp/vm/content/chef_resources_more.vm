@@ -1,0 +1,252 @@
+<!-- chef_resources_more.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<div class="portletBody specialLink">
+	<h3>
+		$tlang.getString("more.view")
+	</h3>
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div>
+		<div style="display:block;clear:both"></div>
+	#end
+	<div class ="breadCrumb specialLink">
+		<h3>
+			$tlang.getString("gen.location")
+			<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" />
+			#foreach ($i in $item.collectionPath)
+				#if($velocityCount > 1)
+					/
+				#end
+				$validator.escapeHtml("$i.name")
+			#end
+		</h3>
+	</div>		
+
+	#if (!$notExistFlag)
+		<table class="itemSummary" cellspacing="0">
+			<tr> 
+				<th> 
+					$tlang.getString("gen.title")
+				</th>
+				<td>
+					#if ($dropboxMode && $homeCollectionId.equals($id))
+						$siteTitle Drop Box
+					#elseif ($item.isFolder())
+						#if ($item.hasCopyrightAlert()) ## if there is a copyright alert, show the alert page first
+							<a href="" onclick="openCopyrightWindow('$item.url','copyrightAlertWindow','scrollbars=yes,menubar=yes,height=600,width=800,resizable=yes,toolbar=yes,location=yes,status=yes');return false;">
+								$validator.escapeHtml($item.name))
+							</a>
+							&#169;
+						#else
+							<a href="$item.url" target="_blank">$validator.escapeHtml($item.name)</a>
+						#end
+					#else
+						$validator.escapeHtml($item.name)
+					#end
+				</td>
+			</tr>
+			<tr> 
+				<th> 
+					$tlang.getString("gen.description")
+				</th>
+				<td>
+					<span class="chefPre">$validator.escapeHtml($item.description)</span>
+				</td>
+			</tr>
+			#if (! $item.isFolder() && $!copyrightTypes)
+				## don't show copyright info for collection
+				<tr> 
+					<th> 
+						$tlang.getString("gen.cpr")
+					</th>
+					<td>
+## special escape to fix the &#169; copyright symbol placed by ResourcesAction before 1.1.05 -ggolden
+						<span class="chefPre">$validator.escapeHtmlFixCopyright($item.copyrightInfo)</span>
+					</td>
+				</tr>
+			#end
+			#if (!$dropboxMode)
+				## do not show the access in dropbox 
+				<tr> 
+					<th> 
+						$tlang.getString("edit.access1")
+					</th>
+					<td>
+						<span class="chefPre">
+							#if($pubview) 
+								$tlang.getString("more.yes") 
+							#else
+								$item.effectiveGroupsLabel
+							#end
+						</span>
+					</td>
+				</tr>
+			#end
+			#if (!($dropboxMode && $collectionId==$homeCollection))
+				<tr> 
+					<th> 
+						$tlang.getString("gen.created")
+					</th>
+					<td> 
+						$validator.escapeHtml($item.createdBy)
+					</td>
+				</tr>
+			#end
+			<tr> 
+				<th> 
+					$tlang.getString("gen.creatime")
+				</th>
+				<td>
+					$item.createdTime
+				</td>
+			</tr>
+			<tr> 
+				<th> 
+					$tlang.getString("gen.lastmod")
+				</th>
+				<td>
+					$item.modifiedTime
+				</td>
+			</tr>
+			#if (!($dropboxMode && $collectionId==$homeCollection))
+				<tr> 
+					<th> 
+						$tlang.getString("gen.lastby")
+					</th>
+					<td>
+						$validator.escapeHtml($item.modifiedBy)
+					</td>
+				</tr>
+			#end
+			#if(! $item.isUrl() && ! $item.isCollection() && "$!{item.mimetype}" != "")
+				<tr> 
+					<th> 
+						$tlang.getString("gen.type")
+					</th>
+					<td>
+						$item.mimetype
+					</td>
+				</tr>
+			#end
+			<tr> 
+				<th> 
+					$tlang.getString("gen.size")
+				</th>
+				<td>
+					$item.sizzle
+				</td>
+			</tr>
+			#if ($item.isUrl())
+				<tr> 
+					<th> 
+						$tlang.getString("gen.original")
+					</th>
+					<td>
+						$contentString
+					</td>
+				</tr>
+			#end
+			<tr>
+				<th> 
+					$tlang.getString("gen.stored")
+				</th>
+				<td>
+					<a href="$item.accessUrl" target="$item.target">
+						$item.accessUrl
+					</a>
+				</td>
+			</tr>
+		</table>
+	#end
+	#if($item && $item.metadataGroups)
+		#foreach($group in $item.metadataGroups)	
+			<p class="discTria" id="metadataShown_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
+				<a id="hideMetadata_$validator.escapeJavascript($group.name)" href="#" title="$group.hideLabel" onclick="javascript:hideOptionalProperties('$validator.escapeJavascript($group.name)')">
+					<img id="hideMetadataImage_0_$validator.escapeJavascript($group.name)" src="#imageLink("sakai/collapse.gif")" alt="$group.hideLabel" border="0" width="13" height="13" align="top" />
+					$validator.escapeHtml($group.name)
+				</a>
+			</p>
+			<p class="discTria" id="metadataHidden_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:none;"#else style="display:block;"#end>
+				<a id="showMetadata_$validator.escapeJavascript($group.name)" href="#" title="$group.showLabel" onclick="javascript:showOptionalProperties('$validator.escapeJavascript($group.name)')">
+					<img id="showMetadataImage_$validator.escapeJavascript($group.name)" src="#imageLink("sakai/expand.gif")" alt="$group.showLabel" border="0" width="13" height="13" align="top" />
+					$validator.escapeHtml($group.name)
+				</a>
+			</p>
+			<div id="metadataDiv_$validator.escapeJavascript($group.name)"#if ($group.isShowing()) style="display:block;"#else style="display:none;"#end>
+				<table class="itemSummary" cellspacing="0">
+					#foreach($tag in $group)
+						<tr>
+							<td>
+								$tag.label
+							</td>
+							<td>
+								 $validator.escapeHtml($!tag.value) 
+							</td>
+						</tr>
+					#end
+				</table>
+			</div>			  
+		#end
+	#end
+	
+	<form name="moreForm" action="#toolForm("ResourcesAction")" method="post" >
+		<p class="act">
+			<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+			<input type="hidden" name="id" value="$id" />
+			<input type="hidden" name="from" value = "list" />
+			<input type="hidden" name="view" value="general" />
+			<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("more.cancel")" accesskey="x" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+<script type="text/javascript" src="#libraryLink('js/jquery/jquery-1.9.1.min.js')">
+</script>
+<script type="text/javascript">
+	function openCopyrightWindow(theURL,winName,winSettings) 
+	{ 
+		window.open(theURL,winName,winSettings);
+		return false;
+	}
+	function hideOptionalProperties(metadataGroup)
+	{
+		var shownBar = document.getElementById("metadataShown_" + metadataGroup);
+		var hiddenBar = document.getElementById("metadataHidden_" + metadataGroup);
+		var metadataDiv = document.getElementById("metadataDiv_" + metadataGroup);
+		shownBar.style.display = "none";
+		hiddenBar.style.display = "block";
+		metadataDiv.style.display = "none";
+		resizeFrame('grow');
+	}
+	function showOptionalProperties(metadataGroup)
+	{
+		var shownBar = document.getElementById("metadataShown_" + metadataGroup);
+		var hiddenBar = document.getElementById("metadataHidden_" + metadataGroup);
+		var metadataDiv = document.getElementById("metadataDiv_" + metadataGroup);
+		shownBar.style.display = "block";
+		hiddenBar.style.display = "none";
+		metadataDiv.style.display = "block";
+		resizeFrame('grow');
+	}
+	//this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
+	function resizeFrame(updown) 
+	{
+		var frame = parent.document.getElementById( window.name );
+	
+		if( frame ) 
+		{
+			if(updown=='shrink')
+			{
+				var clientH = document.body.clientHeight - 30;
+			}
+			else
+			{
+				var clientH = document.body.clientHeight + 30;
+			}
+			$( frame ).height( clientH );
+		} 
+		else 
+		{
+			throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
+		}
+	}
+</script>
+

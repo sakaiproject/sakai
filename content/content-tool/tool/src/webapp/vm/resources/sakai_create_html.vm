@@ -1,0 +1,53 @@
+<!-- resources/sakai_create_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<div class="portletBody specialLink">
+	<h3>
+		$tlang.getString("create.html")
+	</h3>
+	#if ($itemAlertMessage)
+		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div style="display:block;clear:both" ></div>
+	#end
+	<p class="instruction">
+		$tlang.getString("instr.html")
+	</p>
+	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" >
+		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
+		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+		#if($!{item.isMissing("content")})
+			<p class="longtext validation">
+		#else
+			<p class="longtext">
+		#end
+			<table border="0">
+				<tr>
+					<td>
+						<textarea name="content" id="content" rows="30" cols="80" wrap="virtual">$validator.escapeHtmlTextarea("$!{pipe.contentstring}")</textarea>
+						#chef_setupformattedtextarea("content")
+					</td>
+				</tr>
+			</table>
+		</p>
+		<p class="act">
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doContinue")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<span id="submitnotifxxx" class="messageProgress"  style="visibility:hidden">$tlang.getString("processmessage.html")</span>
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+<script type="text/javascript" language="JavaScript">
+	<!--
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+	-->
+</script>

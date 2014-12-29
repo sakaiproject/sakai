@@ -1,0 +1,57 @@
+<!-- chef_resources_deleteConfirm.vm, version: $Revision:  $, use with org.sakaiproject.tool.content.ResourcesAction.java -->
+<div class="portletBody specialLink">
+	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>#end
+	<div class="alertMessage">$tlang.getString("del.sure")</div><div style="display:block;clear:both" ></div>
+	<h3>
+		$tlang.getString("del.del")
+	</h3>
+	<form action="#toolForm("ResourcesAction")" name="deleteFileForm" method="post" >
+		<input type="hidden" name="deleteResourceIds" value="$deleteResourceIds" />
+		<input type="hidden" name="view" value="general" />
+		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
+		#if ($deleteItems.size()>0)
+			<table class ="listHier lines" cellspacing="0" summary="$tlang.getString("del.table")" border="0" cellpadding="0">
+				<tr>
+					<th id="title">
+						$tlang.getString("gen.title")
+					</th>
+					<th id="size">
+						$tlang.getString("gen.size")
+					</th>
+					<th id="created">
+						$tlang.getString("gen.created")
+					</th>
+					<th id="last">
+						$tlang.getString("gen.lastmod")
+					</th>
+				</tr>
+				#foreach ($member in $deleteItems)
+					<tr>
+						<td headers="title">
+							<h4>
+								<img src = "#imageLink($member.iconLocation)" alt ="$member.label" />
+								<a href="$member.url" target="_blank">
+									$validator.escapeHtml($member.name)
+								</a>
+							</h4>
+						</td>
+						<td headers="size">
+							$member.size
+						</td>
+						<td headers="created">
+							$member.createdBy
+						</td>
+						<td headers="last">
+							$member.modifiedTime
+						</td>
+					</tr>
+				#end
+			</table>
+			<p class ="act">
+				<input type="submit" class="active"  name="eventSubmit_doDelete" value="$tlang.getString("del.del1")" accesskey="s" />
+				<input type="submit" name="eventSubmit_doCancel" value="$tlang.getString("gen.cancel")" accesskey="x" />
+			</p>
+		#end
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

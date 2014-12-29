@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>content</artifactId>
+    <groupId>org.sakaiproject.content</groupId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-content-copyright-pack</name>
+  <groupId>org.sakaiproject.content</groupId>
+  <artifactId>content-copyright-pack</artifactId>
+  <organization>
+  	<name>Sakai Spanish Universities</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2011</inceptionYear>
+  <packaging>sakai-component</packaging>
+  <properties>
+    <deploy.target>components</deploy.target>
+  </properties>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.content</groupId>
+      <artifactId>content-copyright-impl</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+  <build>
+    <resources />
+<!-- java source -->
+  </build>
+</project>

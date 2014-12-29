@@ -1,0 +1,59 @@
+<!-- sakai_resources_options.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
+
+<script type="text/javascript" language="JavaScript">
+	<!--
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+	//-->
+</script>
+<div class="portletBody specialLink">
+	<form name="optionsForm" id="optionsForm" action="#toolForm("ResourcesAction")" method="post" >
+		<input type="hidden" name="sakai_action" id="sakai_action" value="doUpdateOptions" />
+		<input type="hidden" name="siteId" id="siteId" value="$siteId" />
+		######################## ================ Title Bar for Item ================ ########################
+		<h4>
+			$validator.escapeHtml($title)
+		</h4>
+		#if ($itemAlertMessage)
+			<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+			<div style="display:block;clear:both" ></div>
+		#end
+		<p class="instruction">
+			$tlang.getString("instr.options") 
+		</p>
+		<table>
+			#foreach($type in $types)
+				<tr>
+					<td>
+						#if($statusMap.containsKey($type.id))
+							<input type="checkbox" name="types" id="types_${type.id}" title="" value="$type.id" #if($statusMap.get("$type.id").booleanValue()) checked="checked"#end />
+						#else
+							<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+						#end
+					</td>
+					<td>
+						<label for="types_${type.id}">
+							$type.label
+						</label>
+					</td>
+				</tr>
+			#end
+		</table>
+		<p class="act">
+				<input type="button" class="active" name="savechanges" onclick="javascript:submitform('optionsForm');"  value="$tlang.getString("label.update")" accesskey="s" />
+				<input type="button" name="cancel" onclick="javascript:document.getElementById('sakai_action').value='doCancelOptions';submitform('optionsForm');"   value="$tlang.getString("label.cancel")" accesskey="x" />
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+

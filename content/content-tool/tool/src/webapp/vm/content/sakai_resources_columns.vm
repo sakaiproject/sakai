@@ -1,0 +1,123 @@
+<!-- sakai_resources_columns.vm use with ResourcesAction.java -->
+<script type="text/javascript">
+	focus_path = [ "selected-item" ];
+</script>
+<script type="text/javascript" language="JavaScript">
+	<!--
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+	//-->
+</script>
+<div class="portletBody specialLink">
+	#set($itemsOnLine = 0)
+	<div class="navIntraTool">
+		$tlang.getString("list.site")
+		#if($showWebdavLink)
+		| <a href="#toolLink("ResourcesAction" "doShow_webdav")" title="$tlang.getString('dav.webdav')">$tlang.getString("dav.webdav")</a> 
+		#end
+		#if($showPermissions)
+		| <a href="#toolLinkParam("ResourcesAction" "doPermissions" "collectionId=$validator.escapeUrl(${site.id})")" title="$tlang.getString('list.sPerm')">$tlang.getString("list.sPerm")</a>
+		#end
+		| <a href="#toolLink("ResourcesAction" "doHierarchy")" title="$tlang.getString('list.hierarchy')">$tlang.getString("list.hierarchy")</a> 
+	</div>
+	#if ($alertMessage)
+		<br /><div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear" ></div>
+	#end
+	<div>
+		<form id="actionForm" name="actionForm" action="#toolLink("ResourcesAction" "doDispatchAction")" method="post">
+			<select name="action" id="action" onchange="submitform('actionForm');">
+				<option value="">$tlang.getString("action.select")</option>
+				#foreach($action in $actions)
+					<option value="${action.typeId}${ACTION_DELIMITER}$action.id">$labeler.getLabel($action)</option>
+				#end
+			</select>
+			<input type="hidden" id="selectedItemId" name="selectedItemId" value="$selectedItemId" />
+			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+		</form>
+	</div>
+	
+	<table cellspacing="10" height="500">
+		<tr>
+			<td width="160" valign="top">
+				<div style="overflow:auto;">
+					<table>
+						#foreach($root in $roots)
+							<tr>
+								<td #if($root.isSelected())bgcolor="yellow"#end onclick="selectItem('$root.id');" valign="top" title="$item.hoverText">
+									#if("$selectedItemId" == "$root.id")
+										<a href="$root.accessUrl" target="_blank">
+											<img src="#imageLink($root.iconLocation)" alt="$root.label" />
+											&nbsp;
+											$root.name
+										</a>
+									#else
+										<img src="#imageLink($root.iconLocation)" alt="$root.label" />
+										&nbsp;
+										$root.name
+									#end
+								</td>
+							</tr>
+						#end
+					</table>
+				</div>
+			</td>
+			<td width="80%" valign="top">
+				<div style="overflow:auto;">
+					<table>
+						<tr>
+							#foreach($folder in $folders)
+								<td valign="top" width="160">
+									<div style="overflow:auto;">
+										<table>
+											#foreach($item in $folder)
+												<tr>
+													<td #if($item.isSelected())bgcolor="yellow"#end onclick="selectItem('$item.id');" valign="top" title="$item.hoverText">
+														#if("$selectedItemId" == "$item.id")
+															<a href="$item.accessUrl" target="_blank">
+																<img src="#imageLink($item.iconLocation)" alt="$item.label" />
+																&nbsp;
+																$item.name
+															</a>
+														#else
+															<img src="#imageLink($item.iconLocation)" alt="$item.label" />
+															&nbsp;
+															$item.name
+														#end
+													</td>
+												</tr>
+											#end
+										</table>
+									</div>
+								</td>
+							#end
+						</tr>
+					</table>
+				</div>
+			</td>
+		</tr>
+	</table>
+	<script type="text/javascript">
+		function selectItem(id)
+		{
+			var theItem = document.getElementById("item");
+			var theForm = document.getElementById("selectionForm");
+			theItem.value = id;
+			theForm.submit();
+		}
+	</script>
+	<form id="selectionForm" name="selectionForm" action="#toolForm("ResourcesAction")" method="post">
+		<input type="hidden" name="sakai_action" id="sakai_action" value="doShowMembers" />
+		<input type="hidden" name="item" id="item" value="" />
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>

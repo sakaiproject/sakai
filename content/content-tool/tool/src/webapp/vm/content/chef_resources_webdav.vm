@@ -1,0 +1,150 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/content/chef_resources_webdav.vm,v 1.7 2005/06/08 15:19:32 gsilver.umich.edu Exp $
+<!-- chef_resources_webdav.vm, use with org.chefproject.ContentListAction.java -->
+<script language="JavaScript" type="text/JavaScript">
+<!--
+	function openCopyrightWindow(theURL,winName,winSettings) 
+	{ 
+	  window.open(theURL,winName,winSettings);
+	  return false;
+	}
+	function setFrameHeight(frame)
+	{
+		var doc = frame.contentWindow.document;
+		//alert("doc == " + doc)
+		var height; 
+		
+		var scrollH = doc.body.scrollHeight;
+		var offsetH = doc.body.offsetHeight;
+		var clientH = doc.body.clientHeight;
+		var innerDocScrollH = null;
+
+		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		{
+			// very special way to get the height from IE on Windows!
+			// note that the above special way of testing for undefined variables is necessary for older browsers
+			// (IE 5.5 Mac) to not choke on the undefined variables.
+ 			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
+			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+		}
+		//alert("After innerDocScrollH");
+		
+		if (document.all && innerDocScrollH != null)
+		{
+			// IE on Windows only
+			height = innerDocScrollH;
+		}
+		else
+		{
+			// every other browser!
+			height = offsetH;
+		}
+
+		// here we fudge to get a little bigger
+		var newHeight = height + 100;
+		
+		// no need to be smaller than...
+		//if (height < 200) height = 200;
+		frame.height=newHeight + "px";
+		
+		
+		//var s = " scrollH: " + scrollH + " offsetH: " + offsetH + " clientH: " + clientH + " innerDocScrollH: " + innerDocScrollH + " Read height: " + height + " Set height to: " + newHeight;
+//		window.status = s;
+		//alert(s);
+	}
+//-->
+</script>
+## to prevent horiz scroll on IE
+<!--[if IE]>
+	<script type="text/javascript" language="JavaScript">
+		document.body.style.width='96%'
+	</script>
+<![endif]--> 
+<style>
+.ahref{behavior:url(#default#AnchorClick);}
+</style>
+
+<div class="portletBody specialLink">
+	<ul class="navIntraTool actionToolBar">
+		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
+		<li><span class="current">$tlang.getString('dav.webdav')</span></li>
+	</ul>
+	#if($menu)#toolbar($menu)#end
+	<div id="davdocs_intro">
+		<h3>$tlang.getString("dav.webdav")</h3>
+		<p>$tlang.getString("dav.graf1").</p>
+		<p>$tlang.getString("dav.graf2") <strong>$tlang.getString("dav.graf3")</strong>. $tlang.getString("dav.graf4").</p>
+		<p>$tlang.getString("dav.graf5") <strong>$tlang.getString("dav.graf6")</strong> $tlang.getString("dav.graf7") <strong>$tlang.getString("dav.graf8")</strong> $tlang.getString("dav.graf9").</p>
+		<div id="davdocs_step1">
+			<p><strong>$tlang.getString("dav.graf10") - </strong> $tlang.getString("dav.graf11"):</p>
+
+	<p class="indnt3">
+<input id="webDavUrl" type="text" size="80" value="
+#if("$!inMyWorkspace" == "true")
+${server_url}${dav_user}$user_id
+#elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
+${server_url}${dav_group_user}$site_id
+#elseif("$!dropboxMode" == "true")
+${server_url}${dav_group_user}$site_id/$user_id
+#elseif("${site_alias}" != "")
+${server_url}${dav_group}${site_alias}
+#else
+${server_url}${dav_group}$site_id
+#end
+" readonly />
+	</p>
+	
+	<script type="text/javascript">
+		function IEVersion8(){
+			if (document.documentMode){ 
+				document.getElementById('webdavLinkIE').style.display='none';
+			}
+		}
+	</script>
+	
+	<div id="webdavLinkIE">
+	<!--[if lt IE 8]>
+	
+	#if($isWinIEBrowser)
+		<p class="shorttext">
+			$tlang.getString("dav.xpie")
+		</p>
+		<p class="indnt3">
+			#if("$!inMyWorkspace" == "true")
+				<a href="${server_url}${dav_user}$user_id" folder="${server_url}${dav_user}$user_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_user}$user_id</strong>
+				</a>
+			#elseif("$!dropboxMode" == "true" && "$!maintainer" == "true")
+				<a href="${server_url}${dav_group_user}$site_id" folder="${server_url}${dav_group_user}$site_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_group_user}$site_id</strong>
+				</a>
+			#elseif("$!dropboxMode" == "true")
+				<a href="${server_url}${dav_group_user}$site_id/$user_id" folder="${server_url}${dav_group_user}$site_id/$user_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_group_user}$site_id/$user_id</strong>
+				</a>
+			#else
+				<a href="${server_url}${dav_group}$site_id" folder="${server_url}${dav_group}$site_id" target="_blank" class="ahref">
+					<strong>${server_url}${dav_group}$site_id</strong>
+				</a>
+			#end
+		</p>
+	#end
+	<![endif]-->
+	</div>
+        <p><strong>$tlang.getString("dav.graf12") - </strong> $tlang.getString("dav.graf13")</p>
+</div>
+	<iframe src="$webdav_instructions"
+		width="100%"
+		name="webdav_instructions_inner"
+		id="webdav_instructions_inner"
+		height="400px"
+		frameborder="0"
+		onload="javascript:setFrameHeight(this);">
+	</iframe>
+	<script type="text/javascript">
+		IEVersion8();
+	</script>	
+		
+	<div class="act">
+		<input type="button" class="active" value="$tlang.getString("dav.cancel")" onclick="window.location='#toolLink("ResourcesAction" "doCancel")'" />
+	</div>
+</div>

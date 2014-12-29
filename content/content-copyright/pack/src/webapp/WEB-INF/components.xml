@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+
+	<!-- 
+	Create Copyright Manager 
+	-->
+	<bean id="org.sakaiproject.content.copyright.api.CopyrightManager"
+			class="org.sakaiproject.content.copyright.CopyrightManager" singleton="true">
+		<property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    </bean>
+
+</beans>

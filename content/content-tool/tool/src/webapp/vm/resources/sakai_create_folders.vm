@@ -1,0 +1,79 @@
+<!-- resources/sakai_create_folders.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<div class="portletBody specialLink">
+	<h3>
+		$tlang.getString("create.folder")
+	</h3>
+	#if ($itemAlertMessage)
+		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div style="display:block;clear:both" ></div>
+	#end
+	<p class="instruction">
+		$tlang.getString("instr.folders")
+	</p>
+	<div class="breadCrumb">
+		<h4>
+		$tlang.getString("gen.location")
+		##<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0"  alt="$tlang.getString("gen.folder")" />
+		#foreach ($item in $model.collectionPath)
+			$validator.escapeHtml($item.name) /
+		#end
+		</h4>
+	</div>
+	<form name="addFolderForm" id="addFolderForm" method="post" action="#toolForm("ResourcesHelperAction")">
+		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
+		<input type="hidden" name="fileCount" id="fileCount" value="$pipes.size()" />
+		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+		#set($lastIndex = $pipes.size() - 1)
+		<input type="hidden" name="lastIndex" id="lastIndex" value="$lastIndex" />
+		<div id="fileInputDiv">
+			#set($i = -1)
+			#foreach($pipe in $pipes)
+				#set($prev = $i)
+				#set($i = $i + 1)
+				#set($next = $i + 1)
+				<div id="contentDiv${DOT}$i" class="actionitem highlightPanel">
+					<input type="hidden" name="exists${DOT}$i" id="exists${DOT}$i" value="true" />
+					<p class="shorttext" style="border:none">
+						<label for="content${DOT}$i">$tlang.getString("label.folder")</label>
+						<input type="text" name="content${DOT}$i" id="content${DOT}$i" />
+						##  onkeypress="return handleEnterKey(this, event)"
+						<a class="indnt2" href="#" id="propsTrigger${DOT}$i">$tlang.getString("edit.show")</a>
+						<a class="indnt2 remove" style="display:none" href="#" id="removeTrigger${DOT}$i" title="$tlang.getString("edit.remove")">
+							<img src="#imageLink("sakai/cross.png")"  alt="x" />
+						</a>
+					</p>
+					<input type="hidden" id="prev${DOT}$i" name="prev${DOT}$i" value="#if($prev >= 0)${prev}#end" />
+					<input type="hidden" id="next${DOT}$i" name="next${DOT}$i" value="#if($next < $pipes.size())${next}#end" />
+				</div>
+				<div id="propertiesDiv${DOT}$i" style="display:none;">
+#parse("/vm/resources/sakai_properties.vm")
+					<hr class="itemSeparator" />
+				</div>
+			#end
+		</div>
+		<p class="act">
+			<a href="#" onclick="javascript:addFileInput();return false">$tlang.getString("label.addFolder")</a>
+		</p>
+#*
+		#if ($model.resourceTypeDef.hasNotificationDialog())
+			<p class="shorttext">
+				<label for="notify">
+					$tlang.getString("gen.email1")
+				</label>	
+				<select name="notify" id="notify">
+					<option value="r">$tlang.getString("gen.email2")</option>
+					<option value="o">$tlang.getString("gen.email3")</option>
+					<option value="n" selected="selected">$tlang.getString("gen.email4")</option>
+				</select>
+			</p>	
+		#end
+*#
+		<p class="act">
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotif03','saveChanges','addFolderForm');document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCreateFolders")&flow=save';submitform('addFolderForm');" value="$tlang.getString("label.finfldr")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addFolderForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addFolderForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<span class="messageProgress"  id="submitnotif03" style="visibility:hidden">$tlang.getString("processmessage.folders")</span>
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+#parse("/vm/resources/sakai_properties_scripts.vm")

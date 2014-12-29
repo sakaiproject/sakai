@@ -1,0 +1,47 @@
+<!-- resources/sakai_create_text.vm, use with org.sakaiproject.tool.content.ResourcesHelperAction.java -->
+<div class="portletBody specialLink">
+	<h3>
+		$tlang.getString("create.uploads")
+	</h3>
+	#if ($itemAlertMessage)
+		<div class="alertMessage">$tlang.getString("label.alert") $validator.escapeHtml($itemAlertMessage)</div>
+		<div style="display:block;clear:both" ></div>
+	#end
+	<p class="instruction">
+		$tlang.getString("instr.upload")
+	</p>
+	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")"  enctype="multipart/form-data">
+		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
+		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
+		#if($!{item.isMissing("content$i")})
+			<p class="shorttext validation">
+		#else
+			<p class="shorttext">
+		#end
+			<label for="content$i">$tlang.getString("label.upload")</label>
+			<input type="text" name="content$i" id="content$i" size="60" value="$!validator.escapeHtml("$!pipe.contentstring")"  />
+		</p>
+		<p class="act">
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doUpload")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesHelperAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+<script type="text/javascript" language="JavaScript">
+	<!--
+	function submitform(id)
+	{
+		var theForm = document.getElementById(id);
+		if(theForm && theForm.onsubmit)
+		{
+			theForm.onsubmit();
+		}
+		if(theForm && theForm.submit)
+		{
+			theForm.submit();
+		}
+	}
+	-->
+</script>
