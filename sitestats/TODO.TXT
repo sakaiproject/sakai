@@ -1,0 +1,3 @@
+Please see SiteStats JIRA page for development tasks. Select future versions with suffix "[Tentative]":
+
+http://jira.sakaiproject.org/jira/browse/STAT?report=com.atlassian.jira.plugin.system.project:versions-panel

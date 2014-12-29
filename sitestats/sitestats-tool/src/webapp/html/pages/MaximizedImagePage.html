@@ -1,0 +1,48 @@
+<!--
+
+    $URL:$
+    $Id:$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+	<body>
+		<wicket:extend>
+		    <div style="width: 99%; text-align: center;">
+		      <img wicket:id="image"></img>
+		    </div>
+		    <form wicket:id="form">
+			    <p class="act">
+	                <input type="submit" wicket:id="back" wicket:message="value:back" class="active"/>
+			    </p>
+			</form>
+		</wicket:extend>
+		<script type="text/javascript">
+		  jQuery(document).ready(function(){
+		    setTimeout('setMainFrameHeightNoScroll(window.name, 1000)', 500);
+		  });
+		</script>
+	</body>
+</html>

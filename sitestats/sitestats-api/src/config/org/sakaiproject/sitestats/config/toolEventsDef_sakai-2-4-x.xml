@@ -1,0 +1,268 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<!-- 
+	Description: this file specifies all the tool events processed by SiteStats.
+	Customization:
+				- Institutions can remove/add support for existing/new tool events
+					 by editing a copy of this file in ${sakai.home}/toolEventsDef.xml
+				- A different location for this file can be specified in sakai.properties:
+					 	toolEventsDefinitionFile@StatsManager={full_file_pathname}
+					 
+					 <tool><toolId> ==> tool id (title retrieved using the ToolManager API)
+					 <tool><additionalToolIds> ==> additional tool ids that share same events (eg. additionalToolIds="sakai.resources,sakai.dropbox")
+					 <tool><selected> ==> select by default on new sites to be processed as activity
+					 <tool><parsingtip> ==> select by default on new sites to be processed as activity
+					 <tool><event><eventId> ==> event id from SAKAI_EVENT.EVENT (translated using bundle
+					 					in sitestats/sitestats-impl/impl/src/bundle/org/sakaiproject/sitestats/impl/bundle/)
+					 <tool><event><selected> ==> select by default on new sites to be processed as activity
+ -->
+<toolEventsDef>
+
+
+	<!-- announcements -->
+	<tool 
+		toolId="sakai.announcements"
+		selected="true">
+		<event eventId="annc.new" selected="true"/>
+		<event eventId="annc.revise.own" selected="true"/>
+		<event eventId="annc.revise.any" selected="true"/>
+		<event eventId="annc.delete.own" selected="true"/>
+		<event eventId="annc.delete.any" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+			
+			
+	<!-- assignments -->
+	<!-- (see SAK-10806) -->
+	<tool 
+		toolId="sakai.assignment.grades"
+		selected="true">
+		<event eventId="asn.read" selected="true"/> <!-- available in sakai 2.3+ (see SAK-10806) -->
+		<event eventId="asn.new.assignment" selected="true"/>
+		<event eventId="asn.revise.assignment" selected="true"/>
+		<event eventId="asn.delete.assignment" selected="true"/>
+		<event eventId="asn.submit.submission" selected="true"/>
+		<event eventId="asn.save.submission" selected="true"/>
+		<event eventId="asn.grade.submission" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+
+
+	<!-- chat -->
+	<tool 
+		toolId="sakai.chat"
+		selected="true">
+		<event eventId="chat.new" selected="true"/>
+		<event eventId="chat.delete.any" selected="true"/>
+		<event eventId="chat.delete.own" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+
+
+	<!-- discussion -->
+	<tool 
+		toolId="sakai.discussion"
+		selected="true">
+		<event eventId="disc.new" selected="true"/>
+		<event eventId="disc.new.category" selected="true"/>
+		<event eventId="disc.delete.any" selected="true"/>
+		<event eventId="disc.delete.own" selected="true"/>
+		<event eventId="disc.delete.category" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+
+
+	<!-- gradebook (available in sakai 2.4+) -->
+	<!-- (see SAK-6207 and SAK-10802) -->
+	<tool 
+		toolId="sakai.gradebook.tool"
+		selected="true">
+		<event eventId="gradebook.newItem" selected="true"/>
+		<event eventId="gradebook.deleteItem" selected="true"/>
+		<event eventId="gradebook.updateItemScores" selected="true"/>
+		<event eventId="gradebook.updateCourseGrades" selected="true"/>
+		<event eventId="gradebook.comment" selected="true"/>
+		<event eventId="gradebook.downloadRoster" selected="true"/>
+		<event eventId="gradebook.downloadCourseGrade " selected="true"/>
+		<event eventId="gradebook.importItem" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
+
+
+	<!-- mail -->
+	<tool 
+		toolId="sakai.mailbox"
+		selected="true">
+		<event eventId="mail.new" selected="true"/>
+		<event eventId="mail.delete.any" selected="true"/>
+		<event eventId="mail.delete.own" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+
+
+	<!-- news -->
+	<tool 
+		toolId="sakai.news"
+		selected="true">
+		<event eventId="news.read" selected="true"/>
+		<event eventId="news.revise" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+
+
+	<!-- message center: uncomment only the selected message center behavior
+	 configured for your installation -->
+	<!-- message center (single tool - available in sakai 2.3+) -->
+	<!-- <tool 
+		toolId="sakai.messagecenter"
+		selected="true">
+		<event eventId="msgcntr.new" selected="true"/>
+		<event eventId="msgcntr.read" selected="true"/>
+		<event eventId="msgcntr.revise" selected="true"/>
+		<event eventId="msgcntr.delete" selected="true"/>
+		<event eventId="msgcntr.response" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool> -->
+	
+	<!-- forums (message center - available in sakai 2.4+) -->
+	<tool 
+		toolId="sakai.forums"
+		additionalToolIds="sakai.messages"
+		selected="true">
+		<event eventId="msgcntr.new" selected="true"/>
+		<event eventId="msgcntr.read" selected="true"/>
+		<event eventId="msgcntr.revise" selected="true"/>
+		<event eventId="msgcntr.delete" selected="true"/>
+		<event eventId="msgcntr.response" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+	
+	
+	<!-- podcasts (available in sakai 2.4+) -->
+	<!-- (see SAK-10807) -->
+	<tool 
+		toolId="sakai.podcasts"
+		selected="true">
+		<event eventId="podcast.add" selected="true"/> <!-- (see SAK-10807) -->
+		<event eventId="podcast.revise" selected="true"/>
+		<event eventId="podcast.delete" selected="true"/>
+		<event eventId="podcast.generate.public" selected="true"/>
+		<event eventId="podcast.generate.private" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>	
+	
+	
+	<!-- poll (available in sakai 2.3+) -->
+	<!-- (see SAK-10410) -->
+	<tool 
+		toolId="sakai.poll"
+		selected="true">
+		<event eventId="poll.vote" selected="true"/>
+		<event eventId="poll.add" selected="true"/>
+		<event eventId="poll.update" selected="true"/>
+		<event eventId="poll.delete" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>	
+
+
+	<!-- resources and dropbox -->
+	<tool 
+		toolId="sakai.resources"
+		additionalToolIds="sakai.dropbox"
+		selected="true">
+		<event eventId="content.new" selected="true"/>
+		<event eventId="content.read" selected="true"/>
+		<event eventId="content.revise" selected="true"/>
+		<event eventId="content.delete" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+	
+	
+	<!-- scheduler -->
+	<tool 
+		toolId="sakai.schedule"
+		selected="true">
+		<event eventId="calendar.new" selected="true"/>
+		<event eventId="calendar.revise" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+	
+	
+	<!-- section info (available in sakai 2.3+) -->
+	<tool 
+		toolId="sakai.sections"
+		selected="true">
+		<event eventId="section.student.join" selected="true"/>
+		<event eventId="section.student.unjoin" selected="true"/>
+		<event eventId="section.student.switch" selected="true"/>
+		<event eventId="section.add.ta" selected="true"/>
+		<event eventId="section.add.student" selected="true"/>
+		<event eventId="section.members.reset" selected="true"/>
+		<event eventId="section.student.drop" selected="true"/>
+		<event eventId="section.student.drop.category" selected="true"/>
+		<event eventId="section.add" selected="true"/>
+		<event eventId="section.update" selected="true"/>
+		<event eventId="section.disband" selected="true"/>
+		<event eventId="section.student.reg" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
+	
+	
+	<!-- syllabus -->
+	<tool 
+		toolId="sakai.syllabus"
+		selected="true">
+		<event eventId="syllabus.post.new" selected="true"/>
+		<event eventId="syllabus.post.change" selected="true"/>
+		<event eventId="syllabus.read" selected="true"/>
+		<event eventId="syllabus.delete" selected="true"/>
+		<event eventId="syllabus.draft.new" selected="true"/>
+		<event eventId="syllabus.draft.change" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
+	
+	
+	<!-- tasklist -->
+	<tool 
+		toolId="sakai.tasklist"
+		selected="true">
+		<event eventId="tasklist.create" selected="true"/>
+		<event eventId="tasklist.view" selected="true"/>
+		<event eventId="tasklist.mark.complete" selected="true"/>
+		<event eventId="tasklist.mark.incomplete" selected="true"/>
+		<event eventId="tasklist.delete.own" selected="true"/>
+		<event eventId="tasklist.delete.all" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
+	
+	
+	<!-- todolist -->
+	<tool 
+		toolId="sakai.todolist"
+		selected="true">
+		<event eventId="todolist.create" selected="true"/>
+		<event eventId="todolist.view" selected="true"/>
+		<event eventId="todolist.mark.complete" selected="true"/>
+		<event eventId="todolist.mark.incomplete" selected="true"/>
+		<event eventId="todolist.delete.own" selected="true"/>
+		<event eventId="todolist.delete.all" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="2"/>
+	</tool>
+	
+	
+	<!-- wiki (available in sakai 2.3+) -->
+	<tool 
+		toolId="sakai.rwiki"
+		selected="true">
+		<event eventId="wiki.new" selected="true"/>
+		<!--
+			"wiki.read" requires the following on sakai.properties:
+				trackReads@uk.ac.cam.caret.sakai.rwiki.tool.service.api.CommandService=true
+			IMPORTANT: please track SAK-6851 before enabling this event.
+		 -->
+		<!-- <event eventId="wiki.read" selected="true"/> -->
+		<event eventId="wiki.revise" selected="true"/>
+		<eventParserTip for="contextId" separator="/" index="3"/>
+	</tool>
+
+</toolEventsDef>

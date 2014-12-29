@@ -1,0 +1,48 @@
+<!--
+
+    $URL:$
+    $Id:$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<wicket:panel>
+    <a wicket:id="link">
+        <img wicket:id="content" style="display: none;"></img>
+    </a>
+        
+    <script type="text/javascript">
+        Wicket.Event.add(window, "domready", function() {
+            // calculate full frame size
+        	var fullscreenWidth = 0;
+            var fullscreenHeight = 0;
+            var obj = document.body;
+            if (document.all) {
+                fullscreenHeight = obj.scrollHeight; // IE
+                fullscreenWidth = obj.scrollWidth; 
+            }else{
+                fullscreenHeight = obj.clientHeight; // other browser!
+                fullscreenWidth = obj.clientWidth;
+            }
+            jQuery('.maxWidth').val(fullscreenWidth);
+            jQuery('.maxHeight').val(fullscreenHeight);
+        });
+    </script>
+    
+    <form wicket:id="chartForm">
+	    <input type="hidden" wicket:id="maxWidth" class="maxWidth"/>
+	    <input type="hidden" wicket:id="maxHeight" class="maxHeight"/>
+    </form>
+</wicket:panel>

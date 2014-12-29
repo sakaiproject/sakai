@@ -1,0 +1,531 @@
+/**
+ * $URL:$
+ * $Id:$
+ *
+ * Copyright (c) 2006-2009 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://www.osedu.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+/** (NEW) Overview page */
+
+/** WIDGET *************** */
+/** STAT WIDGET: Top */
+.widget {
+    width: 99.5%;
+    height: auto;
+    margin: 0 auto 20px auto;
+    padding: 0;
+    background: #FAFAFA;
+    clear: both;
+    border: 1px solid #DDD;
+    -moz-border-radius: 4px;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    /*behavior: url(/sitestats-tool/script/border-radius.htc);*/
+}
+.widget .top {
+    width: auto;
+    height: 100%;
+    min-height: 60px;
+    margin: 10px 10px 10px 0px;
+    padding: 0;
+    display: inline-block;
+    text-align: center;
+}
+.widget .header {
+    min-width: 40px;
+    max-width: 150px;
+    width: auto;
+    width: expression(this . clientWidth <   102 ?   "100px" :   this . clientWidth > 152 ?   "150px" :   "auto");
+    height: 60px;
+    padding: 0;
+    text-align: center;
+    float: left;
+    line-height: 13px;
+    margin: 0 auto;
+}
+.widget .header img {
+    margin: 0 auto;
+    text-align: center;
+}
+.widget .header .title {
+    font-size: 14px;
+    font-weight: bold;
+    width: 100px !important;
+    margin: 0 auto;
+}
+.widget .header .bottom {
+    padding-top: 5px;
+    width: 100px;
+    max-width: 100px;
+    width: expression(this . clientWidth <   102 ?   "100px" :   this . clientWidth > 102 ?   "100px" :   "auto");
+}
+.widget .header .bottom a {
+    font-size: 10px;
+    /*color: #777;*//* STAT-224 */
+    text-decoration: none !important;
+    outline: none !important;
+}
+.widget .header .bottom a:hover,
+.widget .header .bottom a:hover .showText {
+    text-decoration: underline !important;
+}
+
+/** STAT WIDGET: Mini panels */
+.widget .ministatContainer {
+    margin-left: 100px;
+}
+.widget .ministat {
+    min-width: 60px;
+    max-width: 120px;
+    width: auto;
+    width: expression(this.clientWidth<62 ? "60px" :   this.clientWidth>122 ? "120px" : "auto");
+    min-height: 60px;
+    max-height: 60px;
+    height: auto;
+    height: expression(this.clientHeight<62 ? "60px" : "auto");
+    padding: 0 10px;
+    border-left: 1px solid #CCC;
+    text-align: center;
+    float: left;
+}
+.widget .load {
+    text-align: center;
+    vertical-align: middle;
+}
+.widget .load img {
+    margin-top: 20px;
+}
+.widget .wider {
+    max-width: 250px !important;
+    width: expression(this . clientWidth >   252 ?   "250px" :   "auto") !important;
+}
+.widget .ministat .value {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    min-height: 30px; height: auto;
+    height: expression(this.clientHeight<32 ? "30px" : "auto");
+}
+.widget .ministat .valueText {
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 24px;
+    min-height: 30px;
+    cursor: help;
+}
+.widget .ministat .secvalue {
+    font-size: 10px;
+    color: #777;
+    padding-left: 2px;
+}
+.widget .ministat em {
+    line-height: 13px !important;
+    font-size: 12px;
+    font-style: normal;
+}
+.widget .ministat .label {
+    font-size: 12px;
+    font-style:normal;
+    /*color: #777;*//* STAT-224 */
+}
+.widget .ministat a {
+    text-decoration: none !important;
+    /*color: #777;*//* STAT-224 */
+    line-height: 13px !important;
+}
+.widget .ministat a.extlink,
+.widget .ministat a.extlink span {
+	/*color: #000 !important;*/
+}
+.widget .ministat a:hover {
+    text-decoration: underline !important;
+}
+
+/** STAT WIDGET: Content */
+.widget .middle {
+    width: auto;
+    padding: 0 0 0px 0;
+    margin: 1px;
+    display: none;
+    text-align: left;
+}
+* html .widget .middle {
+    margin: 0px 0px 12px 1px;
+    border-bottom: 1px solid #DDD;
+}
+.widget .middle .filters {
+    margin: 10px 0;
+}
+.widget .middle .tabContents {
+    padding: 5px 10px 10px 10px;
+    background: #FFF;
+    height: auto;
+}
+.widget .middle .tabContents .tableTd,
+.widget .middle .tabContents .chartTd {
+	padding: 0;
+    vertical-align: top;
+    width: 50%;
+}
+.widget .middle .tabContents .chartTd {
+    height: 200px;
+    width: 60%;
+    padding-right: 10px;
+}
+.widget .middle .tabContents .tableTd {
+    width: 40%;
+    padding: 1px 0 0 0;
+}
+.widget .middle .tabContents .table {
+    margin: 0;
+}
+.widget .middle .tabContents .showAll {
+    padding-top: 10px;
+    text-align: center;
+}
+.widget .middle .tabContents select {
+    margin: 0.1em 0.3em 0.1em 0;
+    border:1px solid #888888;
+}
+
+
+/** WIDGET TABS ***************** */
+/** TABS: General settings */
+ul.tabnav {
+    margin: 0;
+    font-size: 11px;
+    font-family: verdana, arial, sans-serif;
+    border-bottom: 1px solid #DDDFE1;
+    list-style-type: none;
+    padding: 3px 10px 3px 10px; /* third number with respect to padding-top (X) below in {ul.tabnav li.tabsel a} */
+    position: relative;  
+}
+ul.tabnav li {
+    display: inline;
+    white-space: nowrap;
+    margin: 0;
+    float: none;
+    width: auto;
+}
+/** TABS: Selected tab */
+ul.tabnav li.tabsel {
+    border-bottom: 1px solid #fff;
+    background-color: #fff;
+}
+ul.tabnav li.tabsel a {
+    background-color: #fff;
+    color: #000;
+    position: relative;
+    top: 0px; /* with respect to border width */
+    padding-top: 3px; /* with respect to padding (X) above {ul.tabnav} and below {ul.tabnav li a} */
+    font-weight: bold;
+    border: 1px solid #DDDFE1;
+    border-bottom: 1px solid #fff;
+}
+/** TABS: All tabs */
+ul.tabnav li a {
+    padding: 3px 7px; /* first number with respect to padding-top (X) above {ul.tabnav li.tabsel a} */
+    background-color: #eee;
+    color: #666;
+    margin-right: 0px;
+    text-decoration: none !important;
+    border: 1px solid #DDDFE1; /* usually matches border color specified in #tabnav */
+    -moz-border-radius-topleft:4px;
+    -moz-border-radius-topright:4px;
+    -webkit-border-top-left-radius:4px;
+    -webkit-border-top-right-radius:4px;
+    /*behavior: url(/sitestats-tool/script/border-radius.htc);*/
+    border-top-left-radius:4px;
+    border-top-right-radius:4px;
+}
+/** TABS: Tab hover effect */
+ul.tabnav a:hover {
+    background: #fff;
+    color: #333;
+}
+/** TABS: Ajax Indicator */
+ul.tabnav li .wicket-ajax-indicator img{
+  margin: -5px 0 0 4px;
+}
+/** TABS: Content */
+.tabContents {
+    background-color: #fff;
+}
+.tabContents .fake {
+    width: 30px;
+    text-align: center;
+    vertical-align: middle;
+    background-color: #fff;
+    height: 20px;
+}
+
+
+/** Positioning: Common */
+.halfSize {
+    vertical-align: top;
+    text-align: left;
+    width: 50%;
+}
+
+
+/** Hidden report */
+.hiddenReport {
+    background-color: #F8F8F8;	
+}
+.hiddenReport a, .hiddenReport a:link{
+    color: #777;  
+}
+
+
+/** Tool icon */
+.toolIcon {
+    padding-left: 23px;
+    background-repeat: no-repeat;
+    background-position: left center;  
+}
+
+
+/** Summary Header separator */
+.summaryHeader {
+	border-bottom: 2px solid #DDDFE1;
+	color: #333;
+	margin: 5px 0 0 0;
+	padding: 5px 0 1px 2px;
+	font-size: 15px;
+	font-weight: bold;
+}
+.summaryInstruction {
+    padding: 4px;
+    color: #555;
+    font-size: 11px;
+    font-weight: normal;	
+}
+.summaryHeader span.itemAction {
+    font-size: 11px;	
+}
+
+
+/** Form */
+.formContainer {
+    padding-left: 2px;
+    margin: 0;
+}
+table.formContainer  {
+    margin: 12px 0 12px 0;
+    padding-left: 0px;
+}
+.formContainer td {
+    display: table-cell;
+    line-height: 24px;
+    margin: 0;
+    padding: 2px 0px 2px 0px;
+}
+.formContainer td.lbl {
+    padding: 0px 16px 0px 0px;
+    font-weight: bold;
+    text-align: right;
+    width: 150px;
+    vertical-align:top;
+}
+.formContainer select{
+    margin: 0.1em 0.3em;
+    border:1px solid #888888;
+}
+.formContainer input[type="text"], .formContainer textarea {
+    padding:0.1em 0.3em;
+    margin: 0.1em 0.3em;
+    border:1px solid #888888;
+}
+
+
+/** Summary Table */
+.summaryTable {
+	/*border: 1px dashed #cccccc;*/
+	text-align: left;
+	/*margin-top: 20px;*/
+	width: 100%;
+}
+.summaryTable .labelColumn {
+    min-width: 150px;
+    /* IE Dynamic Expression to set the width, ignored by other browsers */
+    width: expression(document.body.clientWidth < 300 ? "150px" : "auto" );	
+}
+label.indnt0 {
+	font-weight: bold;
+}
+label.indnt1 {
+	font-weight: normal;
+}
+.selector {
+	color: #555555;
+	font-size: 85%;
+	font-weight: normal;
+	margin: 0pt;
+}
+.additionalInfo {
+	color: #555555;
+	font-size: 85%;
+	font-weight: normal;
+	margin: 0pt;
+	margin-top: 3px;
+	float: right;
+}
+.description {
+	color: #333333;
+	font-size: 100%;
+	font-weight: normal;
+	margin: 0pt;
+}
+.notes {
+	color: #333333;
+	font-size: 90%;
+	font-weight: normal;
+	margin: 0pt;
+}
+ 
+ 
+/** Ajax loading */
+.ajaxLoading {
+	background: #ffffff url(/sitestats-tool/images/ajaxload.gif) no-repeat;
+	color: window;
+}
+
+
+/** Tool/Event tree nodes in preferences (for Tomahawk tree2) */
+.nodeToolSelected,.nodeEventSelected  {
+	/*font-weight: bold;*/
+    vertical-align:top;
+}
+.nodeToolUnselected,.nodeEventUnselected {
+    vertical-align:top;
+	font-weight: normal;
+	font-style: italic;
+	text-decoration: line-through;
+	color: #888888;
+}
+.nodeToolPartialSelected{
+    vertical-align:top;
+	font-weight: normal;
+	font-style: italic;
+	color: #555555;
+}
+.eventTree ul {
+	padding-left: 0;
+	margin-left: 0;
+}
+.eventTree li {
+    list-style: none;	
+}
+.navIcon {
+    cursor: pointer;
+    float: left;
+}
+.nodeIcon {
+	/*vertical-align: bottom;*/
+}
+.childCount {
+	display: none;
+	color: #555555;
+	font-weight: normal;
+}
+
+
+/** Wicket table sorting indicator */
+.wicket_orderUp a span {
+    background-image: url('/library/image/sakai/sortascending.gif');
+    background-repeat: no-repeat;
+    background-position:right center;
+    padding-right: 16px;
+}
+.wicket_orderDown a span {
+    background-image: url('/library/image/sakai/sortdescending.gif');
+    background-repeat: no-repeat;
+    background-position: right center;
+    padding-right: 16px;
+}
+
+
+/** Simple charts */
+.simpleChart {
+    position: relative;
+    display: inline-block;
+    height: 15px;
+    width: 100%;
+    border: 1px solid #777;
+    text-align: center;
+    vertical-align: middle;
+    font-family:Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+}
+.barLeft  {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    margin: 1px;
+    height: 13px;
+    background-color: #00A5E3;
+    z-index: 1;
+}
+.barRight  {
+    position: absolute;
+    top: 1px;
+    right: 1px;
+    height: 13px;
+    background-color: #9BBD02;
+    z-index: 1;
+}
+.valueCenter {
+    position: absolute;
+    top: 1px;
+    left: 2%;
+    width: 98%;  
+    height: 100%;
+    z-index: 2;
+}
+.valueLeft {
+    position: absolute;
+    top: 1px;
+    left: 5px;
+    width: auto;
+    height: 100%;
+    z-index: 2;
+}
+.valueRight {
+    position: absolute;
+    top: 1px;
+    right: 5px;
+    width: auto;
+    height: 100%;
+    z-index: 2;
+}
+.legendLeft {
+    font-family:Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+  position: absolute;
+  left: 5px;
+  text-align: left;
+  width: 49%;
+}
+.legendRight {
+    font-family:Arial,Helvetica,sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    color: #000;
+  position: absolute;
+  right: 5px;
+  text-align: right;
+  width: 49%;
+}

@@ -1,0 +1,3 @@
+Please see SiteStats JIRA page for release changes per version:
+
+http://jira.sakaiproject.org/jira/browse/STAT?report=com.atlassian.jira.plugin.system.project:changelog-panel

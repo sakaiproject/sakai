@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC
+		"-//Hibernate/Hibernate Configuration DTD 3.0//EN"
+		"http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+    <session-factory>
+    	<mapping resource="org/sakaiproject/sitestats/impl/hbm/PrefsImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/EventStatImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/ResourceStatImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/SitePresenceImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml" />
+        <mapping resource="org/sakaiproject/sitestats/impl/hbm/ReportDef.hbm.xml" />
+    </session-factory>
+</hibernate-configuration>

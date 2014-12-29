@@ -1,0 +1,366 @@
+<!--
+
+    $URL$
+    $Id$
+
+    Copyright (c) 2006-2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+                http://www.osedu.org/licenses/ECL-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html  
+      xmlns="http://www.w3.org/1999/xhtml"  
+      xmlns:wicket="http://wicket.sourceforge.net/"  
+      xml:lang="en"  
+      lang="en">
+    <head>        
+        <wicket:head></wicket:head>
+    </head>
+	<body>
+		<wicket:extend>
+		    
+            <!-- Menu -->
+            <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
+		
+            <!-- Page title -->
+            <h2>
+                <span wicket:id="reportAction"></span>
+            </h2>
+            
+		    <!-- Last Job run -->
+            <span wicket:id="lastJobRun"></span>
+		    
+		    <form wicket:id="reportsForm">
+		        <!-- Feedback panel (messages) -->
+		        <span wicket:id="messages"></span>
+		                      
+                
+                <!-- REPORT DETAILS -->
+                <span wicket:id="reportDetailsTop">
+                    <h4 class="summaryHeader">
+                            <img src="/library/image/silk/information.png" border="0" alt="Report details"/>
+                            <wicket:message key="report_details">[report_details]</wicket:message>
+                            <span class="summaryInstruction">
+                                <wicket:message key="report_details_instructions">[report_details_instructions]</wicket:message>
+                            </span>
+                            <span wicket:id="reportDetailsShow" class="itemAction reportDetailsShow">
+                                <a href="#" onclick="jQuery('.fakeReportDetails').hide();jQuery('.reportDetails').slideDown(function(){jQuery('.reportDetailsShow').hide(); setMainFrameHeightNoScroll(window.name);}); return false" class="itemAction" style="margin:0; padding:0;"><wicket:message key="report_details_show">[report_details_show]</wicket:message></a>
+                            </span>
+                    </h4>
+                <div wicket:id="fakeReportDetails" class="fakeReportDetails" style="margin-bottom: 20px;"></div>
+                </span>
+                <span wicket:id="reportDetails" class="reportDetails">
+                    <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
+                        <tr>
+                            <td class="lbl">
+                                <wicket:message key="report_reporttitle">[title]</wicket:message>
+                            </td>
+                            <td>
+                                <input type="text" wicket:id="reportDef.title" style="width: 300px;"/>
+                            </td>
+                        </tr>
+                        <tr wicket:id="titleLocalizedContainer">
+                            <td class="lbl">
+                                <wicket:message key="report_reporttitle_localized">[localized_title]</wicket:message>
+                            </td>
+                            <td>
+                                <span wicket:id="titleLocalized" style="width: 300px;"></span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="lbl">
+                                <wicket:message key="report_reportdescription">[description]</wicket:message>
+                            </td>
+                            <td>
+                                <textarea wicket:id="reportDef.description" cols="30" rows="4" style="width: 300px;"></textarea>
+                            </td>
+                        </tr>
+                        <tr wicket:id="descriptionLocalizedContainer">
+                            <td class="lbl">
+                                <wicket:message key="report_reportdescription_localized">[localized_description]</wicket:message>
+                            </td>
+                            <td>
+                                <textarea wicket:id="descriptionLocalized" disabled="disabled" cols="30" rows="4" style="width: 300px;"></textarea>
+                            </td>                            
+                        </tr>
+                    </table>
+                </span>
+                
+                
+                <!-- WHAT? -->
+		        <h4 class="summaryHeader">
+		          <img src="/library/image/silk/application_view_tile.png" border="0" alt="What?"/>
+		          <wicket:message key="report_what">[report_what]</wicket:message>
+                  <span class="summaryInstruction">
+                      <wicket:message key="report_what_instructions">[report_what_instructions]</wicket:message>
+                  </span>
+		        </h4>
+                <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
+				        <tr>
+				            <!-- Activity -->                        
+				            <td class="lbl">
+				                <wicket:message key="report_what_activity">[Activity:]</wicket:message>
+				            </td>
+				            <td>
+				                <select wicket:id="reportParams.what" class="what" style="width: 300px; margin-right: 0; " onchange="checkWhatSelection();"/>
+				                <!-- Event selection type -->
+                                <select wicket:id="reportParams.whatEventSelType" class="what-events-selection-type" style="width: 173px; margin-left: 0; display:none" onchange="checkWhatSelection();"/>
+				            </td>
+				        </tr>
+                        <tr>
+                            <!-- Selection -->
+                            <td class="lbl">
+                                <span id="what-selection-label" style="display:none">
+                                    <wicket:message key="report_what_selection">[Selection:]</wicket:message>
+                                </span>
+                            </td>
+                            <td>
+                                <!-- Tool selection -->
+                                <div id="what-tools-select" style="display:none">
+	                               <select wicket:id="reportParams.whatToolIds" style="width: 300px; overflow: auto;" size="7" multiple="multiple" class="what-tools-select-component">
+	                                   <span wicket:id="selectOptionsRV1">
+	                                       <span wicket:id="selectOptions">
+	                                           <option wicket:id="option"></option>
+	                                       </span>
+	                                   </span>
+	                               </select>
+                                </div>
+                                <!-- Event selection -->
+                                <div id="what-events-select" style="display:none">
+	                               <select wicket:id="reportParams.whatEventIds" style="width: 300px; overflow: auto;" size="7" multiple="multiple">
+	                                   <span wicket:id="selectOptionsRV2">
+	                                       <span wicket:id="group">
+			                                   <span wicket:id="selectOptions">
+			                                     <option wicket:id="option"></option>
+			                                   </span>
+		                                   </span>
+	                                   </span>
+	                               </select>
+                                </div>
+                                <!-- Resources selection -->
+                                <div id="what-resources-options" style="display:none">
+                                    <span>
+                                        <input type="checkbox" wicket:id="reportParams.whatLimitedAction" class="whatLimitedAction" onclick="checkWhatSelection();"/>
+                                        <wicket:message key="report_what_resource_action">[report_what_resource_action]</wicket:message>
+                                    </span>
+                                    <select wicket:id="reportParams.whatResourceAction" class="whatResourceAction" style="margin-top: 5px" onclick="checkWhatSelection();"/>
+                                    <div style="width: 300px;">
+                                        <input type="checkbox" wicket:id="reportParams.whatLimitedResourceIds" class="whatLimitedResourceIds" onclick="checkWhatSelection();"/>
+                                        <wicket:message key="report_what_sel_resources">[report_what_sel_resources]</wicket:message>
+                                    </div>
+                                    <span wicket:id="reportParams.whatResourceIds" class="whatResourceIds" name="whatResourceIds"></span>                                                                        
+                                </div>
+                             </td>
+                        </tr>
+			    </table>
+
+                
+                <!-- WHEN? -->
+                <h4 class="summaryHeader">
+                    <img src="/library/image/silk/date.png" border="0" alt="When?"/>
+                    <wicket:message key="report_when">[report_when]</wicket:message>
+	                <span class="summaryInstruction">
+	                    <wicket:message key="report_when_instructions">[report_when_instructions]</wicket:message>
+	                </span>
+                </h4>
+                <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
+                    <tr>
+                        <td class="lbl">
+                            <wicket:message key="report_when_period">[report_when_period]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.when" class="when" style="width: 300px;" onchange="checkWhenSelection();"/>
+                        </td>
+                    </tr>
+                    <tr id="when-custom-from" style="display: none">
+                        <td class="lbl">
+                            <wicket:message key="report_when_from_date">[From:]</wicket:message>
+                        </td>
+                        <td>
+                            <span wicket:id="reportParams.whenFrom" />
+                        </td>
+                    </tr>
+                    <tr id="when-custom-to" style="display: none">
+                        <td class="lbl">
+                            <wicket:message key="report_when_to_date">[To:]</wicket:message>
+                        </td>
+                        <td>
+                            <span wicket:id="reportParams.whenTo" />
+                        </td>
+                    </tr>
+                </table>
+                
+                
+                <!-- WHO? -->
+                <span id="whoSection">
+                <h4 class="summaryHeader">
+                    <img src="/library/image/silk/user_suit.png" border="0" alt="Who?"/>
+                    <wicket:message key="report_who">[report_who]</wicket:message>
+                    <span class="summaryInstruction">
+                        <wicket:message key="report_who_instructions">[report_who_instructions]</wicket:message>
+                    </span>
+                </h4>
+                <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
+                    <tr>
+                        <td class="lbl">
+                            <wicket:message key="report_who_users">[report_who_users]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.who" class="who" style="width: 300px;" onchange="checkWhoSelection();"/>
+                        </td>
+                    </tr>
+                    <tr id="whoRole" style="display: none">
+                        <td class="lbl">
+                            <wicket:message key="report_who_role_sel">[report_who_role]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.whoRoleId" class="who-role-select" style="width: 300px;"/>
+                        </td>
+                    </tr>
+                    <tr id="whoGroup" wicket:id="who-groups-tr" style="display: none">
+                        <td class="lbl">
+                            <wicket:message key="report_who_group_sel">[report_who_group]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.whoGroupId" class="who-group-select" style="width: 300px;"/>
+                        </td>
+                    </tr>
+                    <tr id="whoCustom" style="display: none">
+                        <td class="lbl">
+                            <wicket:message key="report_who_custom_sel">[report_who_custom]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.whoUserIds" style="width: 300x;" size="7" multiple="multiple">
+                                <span wicket:id="selectOptionsRV">
+                                    <span wicket:id="selectOptions">
+                                        <option wicket:id="option"></option>
+                                    </span>
+                                </span>
+                            </select>
+                        </td>
+                    </tr>
+                </table>
+                </span>
+                
+                
+                <!-- HOW? -->
+                <h4 class="summaryHeader">
+                    <img src="/library/image/silk/chart_bar_edit.png" border="0" alt="When?"/>
+                    <wicket:message key="report_how">[report_how]</wicket:message>
+                    <span class="summaryInstruction">
+                        <wicket:message key="report_how_instructions">[report_how_instructions]</wicket:message>
+                    </span> 
+                </h4>
+                <table cellpadding="0" cellspacing="0" border="0" class="formContainer">
+                    <tr wicket:id="siteContainer">
+                        <td class="lbl">
+                            <wicket:message key="report_reportsite">[site_to_report]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportSite" class="reportSite" style="width: 300px;" onchange="checkReportDetails()"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">
+                           <wicket:message key="report_howtotalsby">[report_howtotalsby]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.howTotalsBy" class="howTotalsBy" style="width: 300px;" multiple="multiple" size="6" onchange="checkHowTotalsBySelection(); checkHowChartSelection();">
+                                <span wicket:id="howTotalsByOptions">
+                                    <span wicket:id="selectOptions">
+                                        <option wicket:id="option"></option>
+                                    </span>
+                                </span>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr wicket:id="trSortBy">
+                        <td class="lbl">
+                           <wicket:message key="report_howsorting">[report_howsorting]</wicket:message>
+                        </td>
+                        <td>
+                            <input type="checkbox" wicket:id="reportParams.howSort" class="howSortCheck" onclick="checkHowSelection()"/>
+                            <wicket:message key="report_howsorting_enable">[Specify sorting field]</wicket:message>
+                            <br/>
+                            <select wicket:id="reportParams.howSortBy" class="howSortBy" style="width: 125px"/>
+                            <span>
+	                            <input type="checkbox" wicket:id="reportParams.howSortAscending" class="howSortAscending"/>
+	                            <wicket:message key="report_howsorting_asc">[report_howsorting_asc]</wicket:message>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">
+                           <wicket:message key="report_howmaxresults_sel">[report_howmaxresults_sel]</wicket:message>
+                        </td>
+                        <td>
+                            <div style="float: left">
+                                <input type="checkbox" wicket:id="reportParams.howLimitedMaxResults" class="howMaxResultsCheck" onclick="checkHowSelection()"/>
+                                <wicket:message key="report_howmaxresults">[report_howmaxresults]</wicket:message>
+                            </div>
+                            <input type="text" wicket:id="reportParams.howMaxResults" style="text-align: right; width: 30px; margin-left: 10px;" class="howMaxResults"/>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="lbl">
+                           <wicket:message key="report_howpresentation">[report_howpresentation]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.howPresentationMode" class="howPresentation" style="width: 300px; margin-right: 0; " onchange="checkHowChartSelection()"/>                                
+                        </td>
+                    </tr>
+                    <tr id="chartTypeTr">
+                        <td class="lbl">
+                           <wicket:message key="report_howcharttype">[report_howcharttype]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.howChartType" class="howChartType" style="width: 300px; margin-right: 0; " onchange="checkHowChartSelection()"/>                                
+                        </td>
+                    </tr>
+                    <tr id="chartDataSourceTr">
+                        <td class="lbl">
+                           <wicket:message key="report_howdatasource">[report_howdatasource]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.howChartSource" class="howChartSource" style="width: 100px;" onchange="checkHowChartSelection()"/>                                
+                            <span id="howChartCategorySourceContainer" style="margin: 0.1em 0.3em;">
+                                <wicket:message key="report_howdatasource_grouped">[report_howdatasource_grouped]</wicket:message>
+                                <select wicket:id="reportParams.howChartCategorySource" class="howChartCategorySource" style="width: 100px;" onchange="checkHowChartSelection()"/>
+                            </span>
+                        </td>
+                    </tr>
+                    <tr id="chartSeriesSourceTr">
+                        <td class="lbl">
+                           <wicket:message key="report_howdatasource_series">[report_howdatasource_series]</wicket:message>
+                        </td>
+                        <td>
+                            <select wicket:id="reportParams.howChartSeriesSource" class="howChartSeriesSource" style="width: 100px;" onchange="checkHowChartSelection()"/>
+                        </td>
+                    </tr>
+                </table>
+                    
+                
+                
+                <!-- BUTTONS -->
+                <p class="act">
+                    <input type="submit" wicket:id="generateReport" wicket:message="value:report_generate" class="active generateReport"/>
+                    <input type="submit" wicket:id="saveReport" wicket:message="value:report_save" class="saveReport"/>
+                    <input type="submit" wicket:id="back" wicket:message="value:report_back" class="back"/>
+                </p>
+
+		    </form>
+		</wicket:extend>
+	</body>
+</html>
