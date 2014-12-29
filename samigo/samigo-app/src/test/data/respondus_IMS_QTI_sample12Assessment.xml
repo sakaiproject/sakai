@@ -1,0 +1,332 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- for debugging -->
+<?xml-stylesheet type="text/xml"
+href="..\..\..\webapp.war\xml\xsl\dataTransform\import\v1p2\extractAssessment.xsl"?>
+<!--
+<?xml-stylesheet type="text/xml"
+href="..\..\..\webapp.war\xml\xsl\dataTransform\import\v1p2\extractSection.xsl"?>-->
+<!--<?xml-stylesheet type="text/xml"
+href="..\..\..\webapp.war\xml\xsl\dataTransform\import\v1p2\extractItem.xsl"?>-->
+
+<questestinterop>
+
+<assessment title="respondus_IMS_QTI" ident="A1001">
+<section title="Main" ident="S1002">
+
+<item title="Multiple Choice" ident="QUE_1003">
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[W&auml;hlen Sie die richtige Antwort ]]></mattext>
+</material>
+<response_lid ident="QUE_1004_RL" rcardinality="Single" rtiming="No">
+<render_choice>
+<response_label ident="QUE_1005_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[Multiple Choice: Diese ist falsch ]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1006_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[Diese ist falsch]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1007_A3">
+<material>
+<mattext texttype="text/html"><![CDATA[Diese ist  richtig ]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+</presentation>
+<resprocessing>
+<outcomes>
+  <decvar vartype="Integer" defaultval="0" varname="que_score"/>
+</outcomes>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1004_RL">QUE_1005_A1</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">0</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1004_RL">QUE_1006_A2</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">0</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1004_RL">QUE_1007_A3</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Set">1</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+<item title="True-False" ident="QUE_1008">
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[True-False: Ist diese Frage richtig oder falsch? (Richtig) ]]></mattext>
+</material>
+<response_lid ident="QUE_1009_RL" rcardinality="Single" rtiming="No">
+<render_choice>
+<response_label ident="QUE_1010_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[True]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1011_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[False]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+</presentation>
+<resprocessing>
+<outcomes>
+  <decvar vartype="Integer" defaultval="0" varname="que_score"/>
+</outcomes>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1009_RL">QUE_1010_A1</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Set">1</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1009_RL">QUE_1011_A2</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">0</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+<item title="Essay" ident="QUE_1012">
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[Essay: Schreiben Sie was, maximal 5 Zeilen ]]></mattext>
+</material>
+<response_str ident="QUE_1013_RS">
+<render_fib fibtype="String" prompt="Box" rows="5" columns="50">
+<response_label ident="QUE_1014_ANS">
+</response_label>
+</render_fib>
+</response_str>
+</presentation>
+</item>
+
+<item title="Matching" ident="QUE_1015">
+<itemmetadata>
+<qmd_itemtype>Matching</qmd_itemtype>
+</itemmetadata>
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[Matching: Ordnen Sie zu: ]]></mattext>
+</material>
+<response_lid ident="QUE_1016_RL">
+<material>
+<mattext texttype="text/html"><![CDATA[Welche OSI-Schicht ist die Transport-Schicht?]]></mattext>
+</material>
+<render_choice shuffle="Yes">
+<response_label ident="QUE_1017_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 5-7]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1018_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 4]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1019_A3">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 3]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1020_A4">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 1-2]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+<response_lid ident="QUE_1021_RL">
+<material>
+<mattext texttype="text/html"><![CDATA[Welche OSI-Schicht ist die Vermittlungs-Schicht?]]></mattext>
+</material>
+<render_choice shuffle="Yes">
+<response_label ident="QUE_1017_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 5-7]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1018_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 4]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1019_A3">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 3]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1020_A4">
+<material>
+<mattext texttype="text/html"><![CDATA[Schicht 1-2]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+</presentation>
+<resprocessing>
+<outcomes>
+<decvar vartype="Integer" defaultval="0" varname="Respondus_Correct" minvalue="0" maxvalue="2"/>
+<decvar vartype="Integer" defaultval="0" varname="Respondus_Incorrect" minvalue="0" maxvalue="2"/>
+<decvar vartype="Decimal" defaultval="0" varname="que_score" minvalue="0" maxvalue="100"/>
+</outcomes>
+<respcondition title="Matching QUE_1016_RL Resp Condition 1">
+<conditionvar>
+<varequal respident="QUE_1016_RL">QUE_1017_A1</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">1</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1016_RL Resp Condition 2">
+<conditionvar>
+<varequal respident="QUE_1016_RL">QUE_1018_A2</varequal>
+</conditionvar>
+<setvar varname="Respondus_Correct" action="Add">1</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1016_RL Resp Condition 3">
+<conditionvar>
+<varequal respident="QUE_1016_RL">QUE_1019_A3</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">1</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1016_RL Resp Condition 4">
+<conditionvar>
+<varequal respident="QUE_1016_RL">QUE_1020_A4</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">1</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1021_RL Resp Condition 1">
+<conditionvar>
+<varequal respident="QUE_1021_RL">QUE_1017_A1</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">1</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1021_RL Resp Condition 2">
+<conditionvar>
+<varequal respident="QUE_1021_RL">QUE_1018_A2</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">1</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1021_RL Resp Condition 3">
+<conditionvar>
+<varequal respident="QUE_1021_RL">QUE_1019_A3</varequal>
+</conditionvar>
+<setvar varname="Respondus_Correct" action="Add">1</setvar>
+</respcondition>
+<respcondition title="Matching QUE_1021_RL Resp Condition 4">
+<conditionvar>
+<varequal respident="QUE_1021_RL">QUE_1020_A4</varequal>
+</conditionvar>
+<setvar varname="Respondus_Incorrect" action="Add">1</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+<and> <other/> <not><other/></not> </and>
+</conditionvar>
+<setvar varname="que_score" action="Set">0</setvar>
+<setvar varname="que_score" action="Add">Respondus_Correct</setvar>
+<setvar varname="que_score" action="Divide">2</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+<item title="fill_in_the_blank" ident="QUE_1022">
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[Fill in the blank: Welches ist die gr&ouml;&szlig;te Stadt Deutschlands? (Berlin, B&auml;rlin)]]></mattext>
+</material>
+<response_str ident="QUE_1023_RS">
+<render_fib fibtype="String" prompt="Box">
+<response_label ident="QUE_1024_ANS">
+</response_label>
+</render_fib>
+</response_str>
+</presentation>
+<resprocessing>
+<outcomes>
+  <decvar vartype="Integer" defaultval="0" varname="que_score" maxvalue="100" minvalue="0"/>
+</outcomes>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1023_RS">Berlin</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">100</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1023_RS">Bärlin</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">100</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+<item title="Multiple_Response" ident="QUE_1025">
+<presentation>
+<material>
+<mattext texttype="text/html"><![CDATA[Multiple Response: Welche Fragen sind richtig? ]]></mattext>
+</material>
+<response_lid ident="QUE_1026_RL" rcardinality="Multiple" rtiming="No">
+<render_choice>
+<response_label ident="QUE_1027_A1">
+<material>
+<mattext texttype="text/html"><![CDATA[Die USA sind die Gr&ouml;&szlig;ten]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1028_A2">
+<material>
+<mattext texttype="text/html"><![CDATA[Deutschland ist gr&ouml;&szlig;er als die USA]]></mattext>
+</material>
+</response_label>
+<response_label ident="QUE_1029_A3">
+<material>
+<mattext texttype="text/html"><![CDATA[Die USA sind gr&ouml;&szlig;er als Gr&ouml;nland (richtig)]]></mattext>
+</material>
+</response_label>
+</render_choice>
+</response_lid>
+</presentation>
+<resprocessing>
+<outcomes>
+  <decvar vartype="Integer" defaultval="0" varname="que_score" maxvalue="100" minvalue="0"/>
+</outcomes>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1026_RL">QUE_1027_A1</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">-50.00</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1026_RL">QUE_1028_A2</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">-50.00</setvar>
+</respcondition>
+<respcondition>
+<conditionvar>
+  <varequal respident="QUE_1026_RL">QUE_1029_A3</varequal>
+</conditionvar>
+<setvar varname="que_score" action="Add">100.00</setvar>
+</respcondition>
+</resprocessing>
+</item>
+
+
+</section>
+</assessment>
+
+</questestinterop>

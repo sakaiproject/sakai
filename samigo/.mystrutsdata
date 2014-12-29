@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<MyEclipseStrutsProperties>
+    <strutsConfig>/WEB-INF/struts-config.xml</strutsConfig>
+    <strutsVersion>1</strutsVersion>
+    <basePackage>/webapp</basePackage>
+    <strutsRootDir>org.navigoproject.ui.web</strutsRootDir>
+    <strutsApplicationResources>org.navigoproject.ApplicationResources</strutsApplicationResources>
+    <strutsPattern>0</strutsPattern>
+    <webVersion>3</webVersion>
+    <servletName>action</servletName>
+</MyEclipseStrutsProperties>

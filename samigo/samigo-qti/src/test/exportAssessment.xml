@@ -1,0 +1,744 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<item ident="239" label="Grading A" title="Extended Matching Items">
+	<qticomment>
+		This is a QTI implementation for Extended Matching Items (EMIs).
+		Note that this is only valid for Samigo's import export of EMI's.
+		This is not FULL QTI Standard
+	</qticomment>
+	<itemmetadata>
+		<qtimetadata>
+			<qtimetadatafield>
+				<fieldlabel>qmd_itemtype</fieldlabel>
+				<fieldentry>Extended Matching Items</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>TEXT_FORMAT</fieldlabel>
+				<fieldentry>HTML</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ITEM_KEYWORD</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ITEM_RUBRIC</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>ATTACHMENT</fieldlabel>
+				<fieldentry />
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>hasRationale</fieldlabel>
+				<fieldentry>false</fieldentry>
+			</qtimetadatafield>
+			<qtimetadatafield>
+				<fieldlabel>RANDOMIZE</fieldlabel>
+				<fieldentry>false</fieldentry>
+			</qtimetadatafield>
+		</qtimetadata>
+	</itemmetadata>
+	<rubric view="All">
+		<material>
+			<mattext charset="ascii-us" texttype="text/plain" xml:space="default" />
+		</material>
+	</rubric>
+	<presentation label="Simple">
+		<flow class="Options">
+			<material>
+				<mattext charset="ascii-us" texttype="text/plain" xml:space="default" />
+			</material>
+			<response_lid ident="EMI1" rcardinality="Multiple"
+				rtiming="No">
+				<render_choice shuffle="No">
+					<response_label ident="A" rarea="Ellipse" rrange="Exact"
+						rshuffle="Yes">
+						<material>
+							<mattext charset="ascii-us" texttype="text/plain"
+								xml:space="default">
+								a
+							</mattext>
+						</material>
+					</response_label>
+					<response_label ident="B" rarea="Ellipse" rrange="Exact"
+						rshuffle="Yes">
+						<material>
+							<mattext charset="ascii-us" texttype="text/plain"
+								xml:space="default">
+								b
+							</mattext>
+						</material>
+					</response_label>
+					<response_label ident="C" rarea="Ellipse" rrange="Exact"
+						rshuffle="Yes">
+						<material>
+							<mattext charset="ascii-us" texttype="text/plain"
+								xml:space="default">
+								c
+							</mattext>
+						</material>
+					</response_label>
+					<response_label ident="D" rarea="Ellipse" rrange="Exact"
+						rshuffle="Yes">
+						<material>
+							<mattext charset="ascii-us" texttype="text/plain"
+								xml:space="default">
+								d
+							</mattext>
+						</material>
+					</response_label>
+					<response_label ident="E" rarea="Ellipse" rrange="Exact"
+						rshuffle="Yes">
+						<material>
+							<mattext charset="ascii-us" texttype="text/plain"
+								xml:space="default">
+								e
+							</mattext>
+						</material>
+					</response_label>
+					<response_label ident="F" rarea="Ellipse" rrange="Exact"
+						rshuffle="Yes">
+						<material>
+							<mattext charset="ascii-us" texttype="text/plain"
+								xml:space="default">
+								f
+							</mattext>
+						</material>
+					</response_label>
+				</render_choice>
+			</response_lid>
+		</flow>
+		<flow class="Leadin">
+			<material>
+				<mattext charset="ascii-us" texttype="text/plain" xml:space="default"><![CDATA[The Leadin Text.]]></mattext>
+			</material>
+		</flow>
+	</presentation>
+	<resprocessing>
+		<qticomment>Overall Score</qticomment>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="48.0" minvalue="0.0" varname="SCORE"
+				vartype="Integer" />
+		</outcomes>
+		<respcondition continue="Yes" title="Score">
+			<conditionvar>
+				<unanswered respident="SCORE" />
+			</conditionvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[1]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[2]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[3]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[4]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[5]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[6]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[7]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[8]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[9]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[10]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[11]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+	<resprocessing>
+		<outcomes>
+			<decvar defaultval="0" maxvalue="4.0" minvalue="0" varname="SCORE"
+				vartype="Float" />
+			<decvar defaultval="2" maxvalue="4" minvalue="0"
+				varname="requiredOptionsCount" vartype="Integer" />
+			<decvar defaultval="user" varname="scoreUserSet" vartype="String" />
+			<interpretvar varname="SCORE" view="All">
+				<material>
+					<mattext charset="ascii-us" texttype="text/plain"
+						xml:space="default"><![CDATA[12]]></mattext>
+				</material>
+			</interpretvar>
+		</outcomes>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">A</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="CORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">B</varequal>
+			</conditionvar>
+			<setvar action="Add" varname="SCORE">2.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">C</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">D</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">E</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+		<respcondition continue="Yes" title="INCORRECT">
+			<conditionvar>
+				<varequal case="Yes" respident="EMI1">F</varequal>
+			</conditionvar>
+			<setvar action="Subtract" varname="SCORE">1.0</setvar>
+		</respcondition>
+	</resprocessing>
+</item>

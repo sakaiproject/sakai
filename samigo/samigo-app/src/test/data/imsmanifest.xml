@@ -1,0 +1,53 @@
+<manifest xmlns = "http://www.imsglobal.org/xsd/imscp_v1p1"
+   xmlns:imsmd = "http://www.imsglobal.org/xsd/imsmd_v1p2"
+   xmlns:xsi = "http://www.w3.org/2001/XMLSchema-instance"
+   xsi:schemaLocation = "http://www.imsglobal.org/xsd/imscp_v1p1
+      http://www.imsglobal.org/xsd/imscp_v1p1.xsd
+      http://www.imsglobal.org/xsd/imsmd_v1p2
+      http://www.imsglobal.org/xsd/imsmd_v1p2.xsd "
+      identifier="Manifest1-AAFFDDCC-3201-DF8E-8F42-3CEED12F4198"
+       version="IMS CP 1.1.4">
+
+   <metadata>
+      <schema>IMS Content</schema>
+      <schemaversion>1.1</schemaversion>
+      <imsmd:lom>
+         <imsmd:general>
+            <imsmd:title>
+               <imsmd:langstring xml:lang="en_US">Sakai Assessment Manager - IMS Content Packaging - Type=Questions
+</imsmd:langstring>
+            </imsmd:title>
+         </imsmd:general>
+      </imsmd:lom >
+   </metadata>
+   <organizations default="sam">
+      <organization identifier="sam">
+         <item identifier="ITEM1" identifierref="RESOURCE1">
+            <title>Question 1</title>
+         </item>
+         <item identifier="ITEM2" identifierref="RESOURCE2">
+            <title>Question 2</title>
+         </item>
+         <item identifier="ITEM3" identifierref="RESOURCE3">
+            <title>Question 3</title>
+         </item>
+      </organization>
+   </organizations>
+   <resources>
+      <resource identifier="RESOURCE1" type="imsqti_xmlv1p2" href="q1.xml" xml:base="1p2/">
+         <file href="q1.xml"/>
+         <file href="picture1.gif"/>
+      </resource>
+      <resource identifier="RESOURCE2" type="imsqti_xmlv1p2" href="q2.xml" xml:base="1p2/">
+         <file href="q2.xml"/>
+         <file href="picture2.gif"/>
+      </resource>
+      <resource identifier="RESOURCE3" type="imsqti_xmlv2p0" href="q3.xml" xml:base="2p0/">
+         <file href="q3.xml"/>
+         <file href="audio1.wav"/>
+         <file href="picture3.gif"/>
+         <file href="picture4.gif"/>
+         <file href="picture5.gif"/>
+      </resource>
+   </resources>
+</manifest>

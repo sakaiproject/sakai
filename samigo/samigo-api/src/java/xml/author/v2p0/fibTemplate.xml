@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_item_v2p0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_item_v2p0 ../imsqti_item_v2p0.xsd"
+  identifier="textEntry" title="Richard III (Take 3)" adaptive="false" timeDependent="false">
+  <responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="string">
+    <correctResponse>
+      <value><!-- SET MULTIPLE CORRECT_RESPONSE--></value>
+    </correctResponse>
+    <mapping lowerBound="0" upperBound="0" defaultValue="0"><!-- SET -->
+      <mapEntry mapKey="CORRECT_RESPONSE" mappedValue="0"/><!-- SET -->
+    </mapping>
+  </responseDeclaration>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+        <defaultValue>
+            <value>0</value><!-- SET -->
+        </defaultValue>
+    </outcomeDeclaration>
+  <itemBody>
+     <!-- SET -->
+     <!-- e.g.,
+      <p>Identify the missing word in this famous quote from Shakespeare's Richard III.</p>
+      <blockquote>
+          <p>Now is the winter of our discontent<br/> Made glorious summer by this sun of
+                  <textEntryInteraction responseIdentifier="RESPONSE" expectedLength="15"/>;<br/>
+              And all the clouds that lour'd upon our house<br/> In the deep bosom of the ocean buried.</p>
+      </blockquote>
+      -->
+  </itemBody>
+  <responseProcessing xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p0 imsqti_v2p0.xsd">
+    <responseCondition>
+      <responseIf>
+        <match>
+          <variable identifier="RESPONSE"/>
+          <correct identifier="RESPONSE"/>
+        </match>
+        <setOutcomeValue identifier="SCORE">
+          <baseValue baseType="float">1<!-- SET MAX--></baseValue>
+        </setOutcomeValue>
+      </responseIf>
+      <responseElse>
+        <setOutcomeValue identifier="SCORE">
+          <baseValue baseType="float">0<!-- SET MIN--></baseValue>
+        </setOutcomeValue>
+      </responseElse>
+    </responseCondition>
+  </responseProcessing>
+</assessmentItem>

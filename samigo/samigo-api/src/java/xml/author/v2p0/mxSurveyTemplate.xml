@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_item_v2p0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_item_v2p0 ../imsqti_item_v2p0.xsd"
+    identifier="choice" title="Matrix Choice Survey" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier"/>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"/>
+    <itemBody>
+<choiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+          <prompt></prompt>
+	<simpleChoice>
+	</simpleChoice>
+</choiceInteraction>
+    </itemBody>
+</assessmentItem>
+

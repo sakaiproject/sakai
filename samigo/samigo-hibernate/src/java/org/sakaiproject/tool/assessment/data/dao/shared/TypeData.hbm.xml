@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+<class name="org.sakaiproject.tool.assessment.data.dao.shared.TypeD" table="SAM_TYPE_T">
+  <id name="typeId" column="TYPEID" type="java.lang.Long" unsaved-value="0">
+      <generator class="native">
+        <param name="sequence">SAM_TYPE_ID_S</param>
+      </generator>
+  </id>
+  <property name="authority" type="string" length="255" column="AUTHORITY" not-null="false" />
+  <property name="domain" type="string" length="255" column="DOMAIN" not-null="false" />
+  <property name="keyword" type="string" length="255" column="KEYWORD" not-null="false" />
+  <property name="description" type="string" length="4000" column="DESCRIPTION" not-null="false" />
+  <property name="status" type="integer" column="STATUS" not-null="true" />
+  <property name="createdBy" type="string" length="255" column="CREATEDBY" not-null="true" />
+  <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
+  <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
+  <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
+</class>
+
+</hibernate-mapping>

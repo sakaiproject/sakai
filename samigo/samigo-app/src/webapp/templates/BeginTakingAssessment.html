@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
+	<link href="/samigo-app/css/tool_sam.css" type="text/css" rel="stylesheet" media="all" />
+	<script src="/library/js/headscripts.js" type="text/javascript"></script>
+	<title rsf:id="assessmentTitle">Assessment Title</title>
+</head>
+<body onload="setMainFrameHeight(window.frameElement.id);" rsf:id="scr=sakai-body">
+	<!--div class="portletBody"-->
+	<div class='portletBody' style='background:transparent;'>
+		<!-- content... -->
+		<form rsf:id="takeAssessmentForm:">
+	
+			<h3>Begin Assessment</h3>
+			<div class="tier1">
+				<h4><span rsf:id="assessmentTitle">Assessment Title</span></h4>
+				<div class="tier2">
+					<p></p> 
+					<div class="tier1">
+						<br/>
+					</div>
+					<table cellpadding="2"><tbody>
+						<tr>
+							<td><label rsf:id="msg=course">Course</label></td>
+							<td><span rsf:id="courseName">some course</span></td>
+						</tr>
+						<tr>
+							<td><label rsf:id="msg=creator">Creator</label></td>
+							<td><span rsf:id="creatorName">Mr. Ryan</span></td>
+						</tr>
+						<tr>
+							<td><label rsf:id="msg=assessment_title">Assessment Title</label></td>
+							<td><span rsf:id="assessmentTitle">Aseessment</span></td>
+						</tr>
+						<tr>
+							<td><label rsf:id="msg=time_limit">Time Limit</label></td>
+							<td rsf:id="timeLimit:">
+								<span rsf:id="timeLimit"> Time Limit</span>
+								<span rsf:id="timeLimitHour">1</span><span rsf:id="msg=time_limit_hour"></span>
+								<span rsf:id="timeLimitMin">15</span><span rsf:id="msg=time_limit_minute"></span>
+							</td>
+							<td rsf:id="noTimeLimit:"><span rsf:id="msg=no_time_limit">No Time Limit</span></td>
+						</tr>
+						<tr rsf:id="limited:">
+							<td><label rsf:id="msg=num_subs">Number of submissions allowed</label></td>
+							<td><span rsf:id="maxAttempts">3</span>(<span rsf:id="remaining">1</span><span rsf:id="msg=remaining">remaining</span>)</td>
+						</tr>
+						<tr rsf:id="unlimited:">
+							<td><label rsf:id="msg=num_subs">Number of submissions allowed</label></td>
+							<td><span rsf:id="msg=unlimited_">Unlimited</span></td>
+						</tr>
+						<tr rsf:id="duedate:">
+							<td><label rsf:id="msg=due_date">Due Date</label></td>
+							<td><span rsf:id="duedate">Right now</span></td>
+						</tr>
+					</tbody></table>
+				</div>
+			</div>
+			<input type="hidden" name="pubId" rsf:id="pubId"/>
+			<p class="act">
+				<!-- BEGIN ASSESSMENT LINK -->
+				<input type="button" rsf:id="takeAssessment" class="active" />
+			</p>
+		</form>
+		<div rsf:id="assessmentNotAvailable:">
+			<span rsf:id="msg=assessment_not_available">Assessment Not Available</span>
+			<div class="validation" rsf:id="msg=assessment_not_available_message"></div>
+		</div>
+		<div rsf:id="accessDenied:">
+			<h3 rsf:id="msg=access_denied"></h3>
+			<div class="validation" rsf:id="msg=access_denied_message"></div>
+		</div>
+	</div>
+</body>
+</html>
+  

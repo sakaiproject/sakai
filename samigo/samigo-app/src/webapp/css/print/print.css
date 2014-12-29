@@ -1,0 +1,231 @@
+/* Reseteamos casi todos los css */
+/*
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p,
+blockquote, pre, a, abbr, acronym, address, big,
+cite, code, del, dfn, em, font, img,
+ins, kbd, q, s, samp, small, strike,
+strong, sub, sup, tt, var, dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+center, u, b, i {
+     margin: 0;
+     padding: 0;
+     border: 0;
+     outline: 0;
+     font-weight: normal;
+     font-style: normal;
+     font-size: 100%;
+     font-family: inherit;
+     vertical-align: baseline
+}*/
+
+body {
+     line-height: 1
+}
+
+:focus {
+     outline: 0
+}
+
+ol, ul {
+     list-style: none
+}
+
+table {
+     border-collapse: collapse;
+     border-spacing: 0
+}
+
+blockquote:before, blockquote:after, q:before, q:after {
+     content: ""
+}
+
+blockquote, q {
+     quotes: "" ""
+}
+
+input, textarea {
+     margin: 0;
+     padding: 0
+}
+
+hr {
+     margin: 0;
+     padding: 0;
+     border: 0;
+     color: #000;
+     background-color: #000;
+     height: 1px
+}
+	
+/* ESTILOS */
+
+strong {
+  font-weight:bold;
+}
+
+em {
+  font-style:italic;
+}
+
+blockquote {
+  margin:1.12em 40px;
+}
+
+.hidden {
+  display:none;
+}
+
+
+
+#qb_print {
+	background-color:#eeeeee;
+}
+
+#qb_print #header {
+	text-align:center;
+	padding:2px;
+}
+
+#qb_print #quizWrapper {
+	border:1px solid #999999;
+	background-color:#ffffff;
+	margin:25px;
+	padding:25px;
+	font-size:16px;
+}
+
+#qb_print .navModeAction {
+	padding:5px;
+	line-height:2.5em;
+	background: #fff;
+	margin: 0 1.5em;
+	border: 1px solid #999;
+}
+
+#qb_print .assessment_meta {
+  line-height:1.5em;
+  margin-bottom:1em;
+}
+
+#qb_print .assessment_title {
+    font-size:1.2em;
+    padding:1em 3em 1em 1em;
+    margin-bottom:0em;
+    color:#01a5cb;
+    font-weight:normal;
+    background-color:transparent !important;
+}
+
+
+#qb_print .assessment_intro {
+    padding: 0em 3em 1em 1em;
+    font-weight: normal;
+}
+
+.quiz{
+    margin-bottom:.5em;
+	margin-left:3em;
+}
+
+#qb_print .part_title_text {
+    font-size: 1.2em;
+    color: #01a5cb;
+    padding: 3em 0em 1em 1em;
+    font-weight: normal;
+}
+
+#qb_print .part_title {
+    font-size: 1.2em;
+    color: #01a5cb;
+    font-weight: normal;
+
+}
+
+#qb_print .part_info {
+    font-weight: normal;
+    padding: 2em;
+}
+
+#qb_print .quiz {
+    padding-bottom:1em;
+
+}
+#qb_print.quiz tr.part td{
+    vertical-align:top;
+    padding:5px 10px 5px 0;
+}
+
+#qb_print .question {
+    padding: 1.5em 0 0 0;
+}
+
+#qb_print .col-printQNum {
+    width:3em;
+    text-align:right;
+    vertical-align:top;
+    padding-right:10px;
+}
+
+#qb_print .col-printQNum h3 {
+    margin: 0 0 0 0;
+    font-size: 1.5em;
+    color: #cccccc;
+}
+
+#qb_print .answerBlock{
+    font-size: 0.85em;
+    font-style: italic;
+}
+
+#qb_print .feedbackBlock {
+  margin:3em;
+  font-size:0.85em;
+  font-style:italic;
+}
+
+#qb_print .question {
+    padding: 0.75em 0 0 0;
+
+}
+
+#qb_print .column1 {
+	width:20%;
+}
+#qb_print .column2 {
+	width:80%;
+}
+
+hr{
+    margin-top:1em;
+    margin-bottom:1em;
+}
+
+table{
+    margin-bottom:0.5em;
+}
+
+/**
+* Style for printer
+**/
+@media print {
+	#qb_print .navIntraTool {
+		display:none;
+	}
+	
+	#qb_print #header {
+		display:none;
+	}
+	
+	#qb_print #quizWrapper {
+		margin:0;
+		padding:0;
+		border:none;
+	}
+	
+	#qb_print #resourcesBlock {
+		display: none;
+	}
+}
+

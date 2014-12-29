@@ -1,0 +1,515 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!--
+  Description: Faces Component Tag Library for Samigo Assessment Tool
+  Copyright: Copyright (c) 2004
+  Organization: Sakai Project
+  Author: Ed Smiley
+  @version $Id: samigo.tld,v 1.21 2004/12/15 17:35:34 esmiley.stanford.edu Exp $
+-->
+
+<!DOCTYPE taglib
+  PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.2//EN"
+  "http://java.sun.com/dtd/web-jsptaglibrary_1_2.dtd">
+<taglib>
+
+  <!-- ============== Tag Library Description Elements ============= -->
+<!--  <tlib-version>$Revision: 1.21 $</tlib-version> -->
+  <tlib-version>1.0</tlib-version>
+  <jsp-version>1.2</jsp-version>
+  <short-name>Samigo Taglib</short-name>
+  <uri>http://www.sakaiproject.org/samigo</uri>
+  <description>
+    This tag library contains JSF tags needed by the Samigo Assessment Tool
+    for the Sakai project over and above the core Sakai JSF taglib.
+  </description>
+
+  <!-- Custom Tags -->
+
+  <!-- ==== display a script tag (default text/javascript) ==== -->
+  <tag>
+  <name>script</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.ScriptTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>path</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>type</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  </tag>
+
+  <!-- ==== display a stylesheet link tag (CSS)  ============= -->
+  <tag>
+  <name>stylesheet</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.StylesheetTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>path</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  </tag>
+
+  <!-- ==== display a color picker control ===================== -->
+  <tag>
+  <name>colorPicker</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.ColorPickerTag</tag-class>
+  <body-content>JSP</body-content>
+    <attribute>
+      <name>value</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>size</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <!-- helper: display the HTML for color picker popup -->
+  <tag>
+  <name>colorPickerPopup</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.ColorPickerPopupTag</tag-class>
+  <body-content>JSP</body-content>
+  </tag>
+
+  <!-- ==== display a date picker control ===================== -->
+  <tag>
+  <name>datePicker</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.DatePickerTag</tag-class>
+  <body-content>JSP</body-content>
+    <attribute>
+      <name>value</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>id</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>size</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+  </tag>
+
+  <!-- helper: display the HTML for date picker popup -->
+  <tag>
+  <name>datePickerPopup</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.DatePickerPopupTag</tag-class>
+  <body-content>JSP</body-content>
+  </tag>
+
+  <!-- ==== display a hidable division control ================ -->
+  <tag>
+  <name>hideDivision</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.HideDivisionTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>id</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>title</name>
+    <required>true</required>
+    <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  </tag>
+<!-- ==== display an alphabetic index ========================== -->
+  <tag>
+  <name>alphaIndex</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.AlphaIndexTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>initials</name>
+    <required>false</required>
+    <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  </tag>
+  <!-- ==== display a timer progress bar  ============= -->
+  <tag>
+  <name>timerBar</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.TimerBarTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>height</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>width</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>wait</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>elapsed</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>expireScript</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  </tag>
+
+  <!-- we may obsolete this tag -->
+  <tag>
+  <name>pager</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.PagerTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>controlId</name>
+  </attribute>
+  <attribute>
+    <name>dataTableId</name>
+  </attribute>
+  <attribute>
+    <name>showpages</name>
+  </attribute>
+  <attribute>
+    <name>styleClass</name>
+  </attribute>
+  <attribute>
+    <name>selectedStyleClass</name>
+  </attribute>
+  <attribute>
+    <name>showLinks</name>
+  </attribute>
+  </tag>
+
+  <!-- we may obsolete this tag -->
+  <tag>
+  <name>pagerButtonControl</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.PagerButtonControlTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>controlId</name>
+    <required>true</required>
+  </attribute>
+  <attribute>
+    <name>formId</name>
+    <required>true</required>
+  </attribute>
+  </tag>
+  <!-- new pager button tag -->
+  <tag>
+    <name>pagerButtons</name>
+    <tag-class>org.sakaiproject.tool.assessment.jsf.tag.PagerButtonTag</tag-class>
+    <body-content>JSP</body-content>
+    <attribute>
+      <name>formId</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>dataTableId</name>
+      <required>true</required>
+      <rtexprvalue>false</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>firstItem</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>lastItem</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>prevText</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>nextText</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>numItems</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>totalItems</name>
+      <required>true</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>prevDisabled</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+    <attribute>
+      <name>nextDisabled</name>
+      <required>false</required>
+      <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
+  <tag>
+    <name>wysiwyg</name>
+    <tag-class>org.sakaiproject.jsf.tag.RichTextEditArea</tag-class>
+    <body-content>JSP</body-content>
+    <description>
+    </description>
+    
+    <attribute>
+      <name>identity</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>a identity for the textarea field</description>
+    </attribute>
+
+    <attribute>
+      <name>value</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>columns</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        int value. in unit of px.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>rows</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        int value. in unit of px.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>justArea</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        disables input. if set to "yes", it's just an output pattern.
+      </description>
+    </attribute>
+
+    <attribute>
+      <name>hasToggle</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        starts rich text editor out as a plain text editor with a action link above it to enable the rich text functionality (speeds page load in browser)
+      </description>
+    </attribute>	
+
+    <attribute>
+      <name>reset</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+        reset the value field to null
+      </description>
+    </attribute>	
+
+    <attribute>
+      <name>binding</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+      </description>
+    </attribute>
+  </tag>
+
+  <!-- ==== OBSOLETE display a tag for a set of navigation links ==== -->
+  <tag>
+  <name>navigationMap</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.NavigationMapTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>map</name>
+    <required>true</required>
+    <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>separator</name>
+    <required>false</required>
+    <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>style</name>
+    <required>false</required>
+    <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>linkStyle</name>
+    <required>false</required>
+    <rtexprvalue>true</rtexprvalue>
+  </attribute>
+  </tag>
+  <!-- ==== display like a dataTable, but horizontally, e.g. set of navigation links ==== -->
+  <tag>
+  <name>dataLine</name>
+  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.DataLineTag</tag-class>
+  <body-content>JSP</body-content>
+  <attribute>
+    <name>id</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>binding</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>rendered</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>first</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>rows</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>value</name>
+    <required>true</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>var</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  <attribute>
+    <name>separator</name>
+    <required>false</required>
+    <rtexprvalue>false</rtexprvalue>
+  </attribute>
+  </tag>
+
+<!-- ==== for sam-939 ===-->
+  <tag>
+	<name>radioButton</name>
+	<tag-class>org.sakaiproject.jsf.tag.CustomSelectOneRadioTag</tag-class>
+	<body-content>empty</body-content>   
+	<attribute>
+		<name>name</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>overrideName</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+	<name>id</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>value</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>styleClass</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>style</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>disabled</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>rendered</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>Boolean</type>
+	</attribute>
+	<attribute>
+		<name>itemLabel</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>	
+	<attribute>
+		<name>itemValue</name>
+		<required>true</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>onClick</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>onMouseOver</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>onMouseOut</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>onFocus</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+	<attribute>
+		<name>onBlur</name>
+		<required>false</required>
+		<rtexprvalue>false</rtexprvalue>
+		<type>String</type>
+	</attribute>
+   </tag>
+
+</taglib>

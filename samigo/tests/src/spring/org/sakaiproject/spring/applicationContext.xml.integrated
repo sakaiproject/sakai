@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+<bean id="UnitTestDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+  <property name="driverClassName">
+    <value>xxxxxxxxx</value>
+  </property>
+  <property name="url">
+    <value>xxxxxxxxx</value>
+  </property>
+  <property name="username">
+    <value>xxxxxxxxx</value>
+  </property>
+  <property name="password">
+    <value>xxxxxxxxx</value>
+  </property>
+</bean>
+
+  <!-- Use the Sakai session factory, pre-configured, instead of one local to Samigo -->
+  <bean id="sakai-sam.sessionFactory"
+    class="org.springframework.orm.hibernate3.LocalSessionFactoryBean"
+    parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+
+    <property name="dataSource">
+      <ref local="UnitTestDataSource"/>
+    </property>
+
+    <property name="hibernateProperties">
+      <props>
+        <prop key="hibernate.dialect">org.hibernate.dialect.xxxxxxxxx</prop>
+        <prop key="hibernate.show_sql">false</prop>
+        <prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
+        <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+        <prop key="hibernate.cache.use_query_cache">false</prop>
+        <prop key="hibernate.cache.provider_class">org.hibernate.cache.EhCacheProvider</prop>
+        <prop key="hibernate.jdbc.batch_size">0</prop>
+      </props>
+    </property>
+
+    <property name="mappingResources">
+      <list>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/AssessmentBase.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/ItemData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/shared/TypeData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/questionpool/QuestionPoolData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/PublishedAssessment.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/PublishedItemData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/grading/GradingData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/grading/MediaData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/authz/AuthorizationData.hbm.xml</value>
+      </list>
+    </property>
+
+  </bean>
+
+  <bean id="sakai-sam.transactionManager"
+    class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory">
+      <ref local="sakai-sam.sessionFactory" />
+    </property>
+  </bean>
+
+
+</beans>
+
+
+

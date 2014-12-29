@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE taglib PUBLIC "-//Sun Microsystems, Inc.//DTD JSP Tag Library 1.1//EN"
+"http://java.sun.com/j2ee/dtds/web-jsptaglibrary_1_1.dtd">
+
+<taglib>
+	<tlibversion>1.0</tlibversion>
+	<jspversion>1.1</jspversion>
+	<shortname>asi</shortname>
+	<uri>http://oncourse.iu.edu</uri>
+	<info> ASI Tags Library</info>
+
+	<tag>
+		<name>item</name>
+		<tagclass>org.navigoproject.ui.web.asi.delivery.ItemTag</tagclass>
+		<bodycontent>empty</bodycontent>
+		<attribute>
+		  <name>name</name>
+		  <required>true</required>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+		  <name>property</name>
+		  <required>false</required>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+		  <name>scope</name>
+	  	  <required>false</required>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+	<tag>
+		<name>displayIndex</name>
+		<tagclass>org.navigoproject.ui.web.asi.delivery.DisplayIndexTag</tagclass>
+		<attribute>
+		  <name>name</name>
+		  <required>true</required>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+		  <name>property</name>
+		  <required>false</required>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+		<attribute>
+		  <name>scope</name>
+	  	  <required>false</required>
+		  <rtexprvalue>true</rtexprvalue>
+		</attribute>
+	</tag>
+</taglib>

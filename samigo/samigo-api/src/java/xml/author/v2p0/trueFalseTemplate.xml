@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_item_v2p0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_item_v2p0 ../imsqti_item_v2p0.xsd"
+  identifier="choice" title="True False" adaptive="false" timeDependent="false">
+  <responseDeclaration identifier="RESPONSE" cardinality="single" baseType="identifier">
+    <correctResponse>
+        <value>T</value><!-- SET -->
+    </correctResponse>
+  </responseDeclaration>
+  <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float">
+    <defaultValue>
+        <value>0</value><!-- SET -->
+    </defaultValue>
+  </outcomeDeclaration>
+  <itemBody>
+    <!-- SET ITEM_TEXT -->
+    <choiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+        <prompt></prompt>
+        <simpleChoice identifier="T">
+          True
+          <feedbackInline outcomeIdentifier="FEEDBACK" identifier="T" showHide="show">
+           <!-- SET FEEDBACK_TEXT-->
+          </feedbackInline>
+        </simpleChoice>
+        <simpleChoice identifier="F">
+          False
+          <feedbackInline outcomeIdentifier="FEEDBACK" identifier="F" showHide="show">
+           <!-- SET FEEDBACK_TEXT-->
+          </feedbackInline>
+        </simpleChoice>
+    </choiceInteraction>
+  </itemBody>
+  <responseProcessing xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p0 imsqti_v2p0.xsd">
+    <responseCondition>
+      <responseIf>
+        <match>
+          <variable identifier="RESPONSE"/>
+          <correct identifier="RESPONSE"/>
+        </match>
+        <setOutcomeValue identifier="SCORE">
+          <baseValue baseType="float">1<!-- SET MAX--></baseValue>
+        </setOutcomeValue>
+      </responseIf>
+      <responseElse>
+        <setOutcomeValue identifier="SCORE">
+          <baseValue baseType="float">0<!-- SET MIN--></baseValue>
+        </setOutcomeValue>
+      </responseElse>
+    </responseCondition>
+  </responseProcessing>
+</assessmentItem>

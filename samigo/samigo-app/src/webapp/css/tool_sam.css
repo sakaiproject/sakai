@@ -1,0 +1,1040 @@
+.samigo-subheading {
+  font-weight: 400;
+  border-bottom: 1px solid #999;
+  font-size: 1.1em;
+  margin: 8px 0;
+}
+h4.samigo-category-subhead {
+  font-weight: bold;
+  padding-bottom: 8px;
+  color: black;
+}
+
+h4.samigo-category-subhead-2 {
+  font-weight: bold;
+  margin-top: -2px;
+  color: black;
+}
+
+.treefolder {
+ background-repeat: no-repeat;
+ height: 17px;
+ width: 26px;
+}
+
+.treedoc {
+ background-image: url(../images/file.gif);
+ background-repeat: no-repeat;
+ height: 17px;
+ width: 26px;
+}
+
+.actionHeader{
+  overflow: hidden;
+  width:100%;
+  background:#eec;
+  padding:0
+
+ }
+.actionHeader h3 h4 h5{
+  float:left;
+  margin:.3em
+ }
+
+.actionHeader div{
+  float:right;
+  padding:.3em
+}
+
+/*
+.navModeQuestion
+{background-color:#CCC;text-align:left;padding:.3em;vertical-align:middle font-size:1.2ems}
+*/
+.navViewAction {
+background-color:#CCC;
+text-align:left;
+padding:.3em;
+vertical-align: bottom;
+font-size:1.2em
+}
+
+.textTable
+{vertical-align:top;margin-left:2em}
+
+.number {
+  width:23px;
+  height:23px;
+        FONT-WEIGHT: bold;
+        COLOR:#FFFFFF;
+        background-image: url(../images/circle.gif);
+        vertical-align: middle;
+        background-repeat: no-repeat;
+        padding-left: 7px;
+        padding-right: 2px;
+        height: 32px;
+        width: 32px;
+        float: left;
+}
+
+
+/* moved h#text,alignRight from main.css  */
+.h3text {
+ font-size: 1.2em;
+ font-weight: bold;
+}
+.h4text {
+ font-size: 1.0em;
+ font-weight: bold;
+}
+.h5text {
+ font-size: 0.8em;
+ font-weight: bold;
+}
+
+
+.navList{
+        text-align: right;
+}
+.navView{
+        text-align: left;
+}
+
+.validate{
+	color:red;
+}
+
+.toggle_link_container{
+	text-align:right;
+}
+.toggle_link{
+	font-size:85%;
+	border-right:1px solid #ddd;
+	border-left:1px solid #ddd;
+	border-top:1px solid #ddd;
+	margin-bottom:0px;
+}
+
+.simple_text_area{
+	margin-top:0px;
+}
+/*
+	OVERRIDE NAV CONTROL SAKAI CSS DEFINITIONS FOR NOW.
+	They don't handle our situation, with search filters bottom-aligned
+	on the left and paging controls on the right.
+*/
+.samLeftNav  {
+	vertical-align:bottom;
+    text-align:left;
+}
+
+.samLeftTopNav  {
+	vertical-align:top;
+    text-align:top;
+}
+
+.samRightNav  {
+	vertical-align:bottom;
+    text-align:right;
+}
+
+.detailedStatsCorrectAnswerText {
+    font-weight: bold;
+}
+
+.new_assessment
+{
+	color: #555555;
+	font-weight: bold;
+}
+
+.detailedStatsCorrectAnswerText {
+    font-weight: bold;
+}
+
+.prePopulateText
+{
+	color:gray;
+}
+
+.textBelowHeader {
+	padding: .3em 0 0 0;
+}
+
+.selectAction {
+	width: 10%;
+}
+
+.titlePending {
+	width: 67%;
+}
+
+.titlePub {
+	width: 30%;
+}
+
+.lastModified {
+	width: 23%;
+}
+
+.releaseTo {
+	width: 11%;
+}
+
+.status {
+	width: 8%;
+}
+
+.inProgress {
+	width: 6%;
+}
+
+.submitted {
+	width: 6%;
+}
+
+.releaseDate {
+	width: 8%;
+}
+
+.dueDate {
+	width: 8%;
+}
+
+.listAssessments th{
+	background-color: #ddd;
+	border: 1px solid #999;
+}
+
+.makeInfo {
+	border: 1px solid #666;
+	background-color: #FFFDD2;
+	position: absolute;
+	top: 0px;
+	left: 30px;
+	text-indent: 0em;
+	margin-top: 0.4em;
+	margin-left: -1.2em;
+	max-height: 250px; /* if div >= to this max-height value, will override with scrollDescription class b/c IE scrollbar issues */
+	white-space: nowrap;
+}
+
+.makeLogInfo {
+	border: 1px solid #003366;
+	background-color: #FFFFCC;
+	left: 30px;
+	position: absolute;
+	top: -10px;
+	height: auto !important;
+            padding:6px;
+            font-size:1.1em;
+            color:#333;
+	text-indent: 0em;
+	margin-top: 0.6em;
+	margin-left: -1.5em;
+	max-height: 250px;  
+	white-space: nowrap;
+	overflow: scroll; /* for browsers that don't support overflow-y */
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+
+.itemLogInfo {
+	border: 1px solid #003366;
+	background-color: #FFFFCC;
+	position: absolute;
+	top: -10px;
+	left: 20px;
+	height: auto !important;
+	padding: 3px 3px 3px 3px;
+	text-indent: 0em;
+	margin-top: 0.6em;
+	margin-left: -2.5em;
+	max-height: 100px;
+	max-width: 100px;
+	white-space: nowrap;
+	overflow: auto; /* for browsers that don't support overflow-y */
+}
+
+.scrollDescription {
+	height: 700px;
+	overflow: scroll; /* for browsers that don't support overflow-y */
+	overflow-x: auto;
+	overflow-y: scroll;
+}
+
+.info {
+	position: relative;
+}
+
+.whiteSpaceNoWrap {
+	white-space: nowrap;
+}
+
+table.settings {
+    border: 1px solid #bbb;
+}
+
+.notification {
+    color: #555;
+    font-size: 110%;
+    font-weight: bold;
+}
+
+/* Nav ========================================*/
+
+.navIntraTool li, .itemAction li {
+        display: inline;
+        margin: 0;
+        margin-left: -.5em;
+        padding: 0 1em;
+}
+
+.navIntraTool li span.separator {
+    margin-left: 1em;
+    margin-right: -1.5em;
+}
+
+.itemAction li {
+        margin-left: 0;
+        padding: 0 .3em;
+}
+
+.navIntraTool a, .navIntraTool a:link{
+        margin: 0;
+        padding: 0;
+}
+
+li.last {
+        border: 0 none;
+}
+
+/* Simple Borders for EMI Tables=====================*/
+table.simpleBorder {
+	border-bottom: 1px solid #ccc;
+	background-color: white;
+	vertical-align: top; 
+}
+table.simpleBorder td {
+	padding: 4px;
+	border-top: 1px solid #ccc;
+	background-color: white;
+	vertical-align: top; 
+}
+table.noBorder {
+	background-color: white;
+	vertical-align: top; 
+	border: 1px solid #fff;
+}
+table.noBorder td {
+	padding: 4px;
+	background-color: white;
+	vertical-align: top; 
+	border: 1px solid #fff;
+}
+
+#samigo-create-container {
+	margin-bottom: 20px;
+}
+#samigo-create-new {
+	display: table-cell;
+	background-color: #F0F0F0;
+	width: 40%;
+	padding: 12px;
+}
+#samigo-create-new h4 {
+	margin: 0 0 8px;
+}
+#samigo-create-or {
+	display: table-cell;
+	width: 10%;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 140px;
+}
+#samigo-create-import {
+	display: table-cell;
+	background-color: #F3F3F3;
+	width: 40%;
+	padding: 20px;
+}
+#tabs {
+	padding: 0;
+	min-height: 300px;
+	overflow: auto;
+}
+ul.ui-tabs-nav {
+	border-bottom: 2px solid #828282;
+}
+ul.ui-tabs-nav li span.samigo-tab-sub {
+	text-decoration: none !important;
+	font-weight: normal !important;
+	color: #000000;
+}
+ul.ui-tabs-nav li a {
+	text-decoration: none !important;
+	color: #0A72AE;
+}
+ul.ui-tabs-nav li.ui-tabs-selected a {
+	color: #000000;
+}
+#authorIndexForm\:import {
+	display: block;
+	margin-top: 12px;
+}
+#authorIndexForm\:createnew {
+	margin-top: 12px;
+}
+tr.list-row-even td, tr.list-row-odd td {
+	border-bottom: 1px solid #C6C6C6;
+	padding-top: 8px;
+}
+#assessment-status-limiter {
+	margin-bottom: 12px;
+}
+#tabs #assessment-status-limiter a.active {
+	font-weight: bold;
+	text-decoration: none !important;
+	color: #000000;
+}
+#tabs, #tabs .ui-widget-content {
+	border-width: 0;
+	background: none;
+}
+#tabs .ui-widget-content a {
+	color: #0080C0;
+	text-decoration: none;
+}
+#tabs .ui-widget-content a:hover {
+	text-decoration: underline;
+}
+#divider {
+	background: none repeat scroll 0 0 #88D0E8;
+	height: 150px;
+	width: 1px;
+	margin-left: 2px;
+	margin-right: 5px;
+}
+.iconAdd {
+      background: url("/library/image/silk/add.png") no-repeat scroll 0 0 transparent;
+      padding-left: 20px;
+}
+.iconAttach {
+      background: url("/library/image/silk/attach.png") no-repeat scroll 0 0 transparent;
+      padding-left: 20px;
+}
+.greyBox {
+      background: none repeat-x scroll 50% 50% #F6F6F6;
+      border: 1px solid #eee;
+      padding: 8px;
+}
+.alignTop {
+      vertical-align: top;
+}
+
+tbody tr td.center{
+    text-align: center; /*centers radio buttons beneath column headings in matrix type survey questions */
+}
+
+a.hideDivision {
+    color: inherit;
+    text-decoration: none;
+}
+
+.answerkeyFeedbackCommentLabel {
+	FONT-WEIGHT: bold;
+    COLOR:#860000;
+} 
+
+.messageSamigo {
+	background: #FFEEEE url(../images/exclamation.png) 5px 4px no-repeat;
+	border: 1px solid #b11;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: black;
+	margin: 5px 0;
+	padding: 1px 5px 1px 25px;
+}
+
+.messageSamigo2 {
+	background: #FFEEEE url(../images/error.png) 5px 5px no-repeat;
+	border: 1px solid #b11;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: black;
+	margin: 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+
+.messageSamigo3 {
+	background: #FFEEEE url(../images/exclamation.png) 5px 2px no-repeat;
+	border: 1px solid #b11;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: black;
+	margin: 5px 0;
+	padding: 3px 5px 3px 25px;
+}
+
+
+.previewMessage {
+	background: url(../images/info.gif) 5px 5px no-repeat;
+	border: 1px solid grey;
+	display: block;
+	width: 80%;
+	font-size: 1em;
+	clear: both;
+	color: grey;
+	margin: 5px 0;
+	padding: 5px 5px 5px 25px;
+}
+
+.saCharCount {
+    border: 1px solid #bbb;
+}
+
+.samigo-linear-access-warning {
+    background-color: #FAFAD6;
+    border: 1px solid #F6D87D;
+    margin: 0px 10px 10px 10px;
+    padding: 5px;
+    border-radius: 5px;
+    color: #404040;
+    font-family: Arial,Helvetica,sans-serif;
+}
+.placeholder
+{
+  color: #aaa;
+}
+.submissionInfoCol1{
+    width: 200px; 
+}
+
+.submissionInfoCol2{
+    width: 650px; 
+}
+
+.mcAnswerText {
+	/*display:inline-table;*/
+	width: 80%;
+	float:unset;
+}
+
+.mcColumn1 {
+  	width: 40px;
+}
+
+#jqueryui-accordion .ui-accordion-content {
+    background-color: #efefef;
+}
+#jqueryui-accordion .ui-accordion-header {
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border: 1px solid #ddd;
+}
+table.listHierEventLog {
+    margin-top: 0em !important;
+}
+
+.divContainer {
+    width: 100%;
+    background-color: #EEEEEE;
+    padding-top: 0.5em;
+    padding-bottom: 0.5em;
+    height: 1.5em;
+}
+
+.divLeft {
+    float: left;
+    vertical-align: middle;
+    padding-left: 0.5em;
+}
+
+.divRight {
+    float: right;
+    vertical-align: middle;
+    padding-right: 0.5em;
+}
+
+.html {
+	overflow: hidden;
+	height: 100%;
+}
+.body {
+	overflow: auto;
+	height: 100%;
+}
+
+
+.mcAnswerText:hover {
+    background-color: #009dce;
+}
+
+#timer-expired-warning{
+	text-align: center;	
+}
+
+#audio-recorder-header {
+    text-align: center;
+    border-bottom: 1px solid black;
+    font-size: 1.1em;
+    padding: 4px 0;
+    margin-bottom: 8px;
+}
+#audio-recorder-container {
+    padding: 0 8px;
+}
+#audio-popup-question {
+    font-size: 1.1em;
+    font-weight: bold;
+    padding-bottom: 12px;
+}
+#audio-recorder-intro div {
+    padding-bottom: 12px;
+}
+#audio-visual-container {
+    width: 778px;
+    height: 300px;
+    padding: 2px;
+    border: 1px solid black;
+    background-color: #ccc;
+}
+#audio-analyzer {
+    height: 180px;
+    width: 778px;
+    background-color: black;
+}
+#audio-timer-wrapper {
+    width: 776px;
+    height: 60px;
+    background-color: #333;
+    margin: 0 auto;
+    position: relative;
+    color: white;
+}
+#audio-scrubber {
+    width: 704px;
+    height: 12px;
+    border-radius: 4px;
+    background-color: #ccc;
+    border: 1px solid #ddd;
+    position: absolute;
+    top: 30px;
+    right: 50px;
+}
+#audio-timer {
+    position: absolute;
+    top: 14px;
+    left: 12px;
+    width: 26px;
+    height: 14px;
+    background-color: #858585;
+    border: 1px solid #333;
+    border-radius: 3px;
+    text-align: center;
+    font-size: 0.9em;
+    z-index: 999;
+}
+#audio-timer:after, #audio-timer:before {
+	top: 100%;
+	border: solid transparent;
+	content: " ";
+	height: 0;
+	width: 0;
+	position: absolute;
+	pointer-events: none;
+}
+
+#audio-timer:after {
+	border-color: rgba(133, 133, 133, 0);
+	border-top-color: #858585;
+	border-width: 4px;
+	left: 50%;
+	margin-left: -4px;
+}
+#audio-timer:before {
+	border-color: rgba(153, 153, 153, 0);
+	border-top-color: #999;
+	border-width: 5px;
+	left: 50%;
+	margin-left: -5px;
+}
+#audio-max-time {
+    position: absolute;
+    right: 8px; 
+    top: 30px;
+    width: 30px;
+    text-align: right;
+    font-size: 0.9em;
+}
+#audio-visual-container button {
+    height: 56px;
+    width: 60px;
+    padding-top: 32px;
+    margin-top: 2px;
+    color: black;
+}
+#audio-record {
+    background: transparent url(/library/image/record.png) no-repeat center 2px;
+}
+#audio-stop {
+    background: transparent url(/library/image/stop.png) no-repeat center 2px;
+}
+#audio-play {
+    background: transparent url(/library/image/play.png) no-repeat center 2px;
+}
+#audio-visual-container #audio-upload {
+    margin-left: 300px;
+    width: 140px;
+    border-radius: 5px;
+    height: 40px;
+    padding:0;
+    margin-top: 8px;
+    vertical-align: top;
+}
+#audio-posting, #audio-finished, #audio-browser-plea {
+    height: 200px;
+    font-size: 28px;
+    font-weight: bold;
+    text-align: center;
+    width: 100%;
+}
+div.attempts-remaining {
+    font-weight: bold;
+}
+#audio-mic-check {
+  padding: 8px 0;
+}
+#audio-last-attempt {
+  font-style: italic;
+  font-weight: normal;
+  padding-left: 100px;
+}
+#mic-check {
+    background: transparent url(/library/image/mic-check.png) no-repeat center center;
+}
+
+#squaresWaveG{
+position:relative;
+width:124px;
+height:15px;
+margin-left:auto;
+margin-right:auto;
+}
+
+.squaresWaveG{
+position:absolute;
+top:0;
+background-color:#2E2323;
+width:15px;
+height:15px;
+-moz-animation-name:bounce_squaresWaveG;
+-moz-animation-duration:1.9s;
+-moz-animation-iteration-count:infinite;
+-moz-animation-direction:linear;
+-webkit-animation-name:bounce_squaresWaveG;
+-webkit-animation-duration:1.9s;
+-webkit-animation-iteration-count:infinite;
+-webkit-animation-direction:linear;
+-ms-animation-name:bounce_squaresWaveG;
+-ms-animation-duration:1.9s;
+-ms-animation-iteration-count:infinite;
+-ms-animation-direction:linear;
+-o-animation-name:bounce_squaresWaveG;
+-o-animation-duration:1.9s;
+-o-animation-iteration-count:infinite;
+-o-animation-direction:linear;
+animation-name:bounce_squaresWaveG;
+animation-duration:1.9s;
+animation-iteration-count:infinite;
+animation-direction:linear;
+}
+
+#squaresWaveG_1{
+left:0;
+-moz-animation-delay:0.76s;
+-webkit-animation-delay:0.76s;
+-ms-animation-delay:0.76s;
+-o-animation-delay:0.76s;
+animation-delay:0.76s;
+}
+
+#squaresWaveG_2{
+left:16px;
+-moz-animation-delay:0.95s;
+-webkit-animation-delay:0.95s;
+-ms-animation-delay:0.95s;
+-o-animation-delay:0.95s;
+animation-delay:0.95s;
+}
+
+#squaresWaveG_3{
+left:32px;
+-moz-animation-delay:1.14s;
+-webkit-animation-delay:1.14s;
+-ms-animation-delay:1.14s;
+-o-animation-delay:1.14s;
+animation-delay:1.14s;
+}
+
+#squaresWaveG_4{
+left:48px;
+-moz-animation-delay:1.33s;
+-webkit-animation-delay:1.33s;
+-ms-animation-delay:1.33s;
+-o-animation-delay:1.33s;
+animation-delay:1.33s;
+}
+
+#squaresWaveG_5{
+left:64px;
+-moz-animation-delay:1.52s;
+-webkit-animation-delay:1.52s;
+-ms-animation-delay:1.52s;
+-o-animation-delay:1.52s;
+animation-delay:1.52s;
+}
+
+#squaresWaveG_6{
+left:80px;
+-moz-animation-delay:1.71s;
+-webkit-animation-delay:1.71s;
+-ms-animation-delay:1.71s;
+-o-animation-delay:1.71s;
+animation-delay:1.71s;
+}
+
+#squaresWaveG_7{
+left:96px;
+-moz-animation-delay:1.9s;
+-webkit-animation-delay:1.9s;
+-ms-animation-delay:1.9s;
+-o-animation-delay:1.9s;
+animation-delay:1.9s;
+}
+
+#squaresWaveG_8{
+left:112px;
+-moz-animation-delay:2.09s;
+-webkit-animation-delay:2.09s;
+-ms-animation-delay:2.09s;
+-o-animation-delay:2.09s;
+animation-delay:2.09s;
+}
+
+@-moz-keyframes bounce_squaresWaveG{
+0%{
+background-color:#2E2323;
+}
+
+100%{
+background-color:#DBDBDB;
+}
+
+}
+
+@-webkit-keyframes bounce_squaresWaveG{
+0%{
+background-color:#2E2323;
+}
+
+100%{
+background-color:#DBDBDB;
+}
+
+}
+
+@-ms-keyframes bounce_squaresWaveG{
+0%{
+background-color:#2E2323;
+}
+
+100%{
+background-color:#DBDBDB;
+}
+
+}
+
+@-o-keyframes bounce_squaresWaveG{
+0%{
+background-color:#2E2323;
+}
+
+100%{
+background-color:#DBDBDB;
+}
+
+}
+
+@keyframes bounce_squaresWaveG{
+0%{
+background-color:#2E2323;
+}
+
+100%{
+background-color:#DBDBDB;
+}
+
+}
+
+.downloanQuestionCheckbox {
+	vertical-align:top;
+}
+
+.downloanQuestionDescription {
+	vertical-align:top;
+}
+
+.alignBottom {
+    vertical-align: bottom;
+}
+
+.alignTop {
+    vertical-align: top;
+}
+
+.submissionAllowed {
+    margin-top: 3px;
+}
+
+.groupTable {
+	margin-top: 4px;
+    margin-left: 150px;
+}
+
+label.inactive
+{
+    color: #999999 !important;
+}
+
+#modifyPartForm
+{
+    margin-top: 1em;
+}
+
+#modifyPartForm fieldset.roundedBorder
+{
+    border: 2px solid #c8c8c8;
+    border-radius: 5px;
+    padding: 1em;
+    margin-bottom: 1em;
+}
+
+#modifyPartForm fieldset.roundedBorder legend
+{
+    padding-left: 6px;
+    padding-right: 6px;
+    background: rgba(255, 255, 255, 0);
+    color: #444444;
+}
+
+#modifyPartForm fieldset.roundedBorder input[type="text"]
+{
+    width: 30px;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+#modifyPartForm\:pointsOption, #modifyPartForm\:drawOption
+{
+    margin-bottom: 0.5em;
+}
+
+#modifyPartForm select
+{
+    margin-left: 5px;
+}
+
+.titleEditor label, .infoEditor label, .titleEditor input, .infoEditor input
+{
+    display: block;
+}
+
+.infoEditor textarea
+{
+    width: 100%;
+    min-width: 200px;
+}
+
+.infoEditor
+{
+    width: 50%;
+}
+
+.titleEditor label
+{
+    width: 100%;
+}
+
+.titleEditor label, .infoEditor label
+{
+    font-weight: bold;
+    color: #000;
+    font-size: 100%;
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+#modifyPartForm fieldset
+{
+    padding: 1em 0 1em 0;
+    margin: 0;
+}
+
+#modifyPartForm fieldset.addEditPartOptions
+{
+    padding: 1em 0 0 0;
+    margin: 0;
+}
+
+.titleEditor, .infoEditor
+{
+    margin: 0.4em 1em 1em 0;
+}
+
+.titleEditor input
+{
+    margin: 0.4em 0 0.4em 0;
+    width: 50%;
+    min-width: 200px;
+}
+
+.attachmentEditor .act
+{
+    margin-bottom: 0;
+    padding: 0;
+}
+
+div.expand, div.collapse {
+    cursor: pointer !important;
+    padding-left: 1em !important;
+}
+
+div.expand {
+    background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
+}
+
+div.collapse {
+    background: url('/library/image/sakai/expand.gif') no-repeat left !important;
+}
+
+td.releaseTo div.alertMessage {
+    width: auto;
+}
+
+.qtipBodyContent{
+   font-family: 'Helvetica Neue', Arial,sans-serif !important;
+   font-size: 1.3em !important;
+   min-width: 800px !important;
+}
+
+.qtip{
+    font-size: inherit !important;
+    line-height: inherit !important;
+    font-family: inherit !important;
+}

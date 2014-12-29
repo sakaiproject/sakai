@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  author: <a href="mailto:lance@indiana.edu">Lance Speelmon</a>
+  author: <a href="mailto:rpembry@indiana.edu">Randall P. Embry</a>
+  author: <a href="mailto:rgollub@stanford.edu">Rachel Gollub</a>
+  Version: $Id: build.xml,v 1.19 2005/05/26 20:05:49 daisyf.stanford.edu Exp $
+-->
+
+<project name="Samigo" default="schemaexport" basedir=".">
+  <target name="changelog" description="CVS changes today">
+    <cvschangelog dir="." destfile="changelog.xml" daysinpast="4" />
+    <style in="changelog.xml" out="changelog.html" style="conf/changelog.xsl">
+      <param name="title" expression="Ant ChangeLog" />
+      <param name="module" expression="ant" />
+      <param name="cvsweb" expression="http://cvs.apache.org/viewcvs/" />
+    </style>
+  </target>
+
+  <!-- build from target/ created by maven -->
+  <target name="schemaexport" >
+	<taskdef name="schemaexport"
+	         classname="org.hibernate.tool.hbm2ddl.SchemaExportTask">
+	  <classpath>
+		<fileset dir="../../tomcat/shared/lib">
+		  <include name="*.jar"/>
+		</fileset>
+		<pathelement location="${basedir}/component/target/classes"/>
+		<pathelement location="../../.maven/repository/dom4j/jars/dom4j-1.6.1.jar"/>
+		<pathelement location="../../.maven/repository/log4j/jars/log4j-1.2.9.jar"/>
+	  </classpath>
+	</taskdef>
+
+        <property name="hibernate.dialect" value="org.hibernate.dialect.MySQLDialect" /> 
+<!--
+        <property name="hibernate.dialect" value="org.hibernate.dialect.Oracle9Dialect" /> 
+        <property name="hibernate.dialect" value="org.hibernate.dialect.HSQLDialect" /> 
+-->
+	<schemaexport     quiet="no"
+		  	  text="yes"
+		  	  drop="no"
+		  	  delimiter=";"
+		  	  output="schema-export.sql">
+
+	  <fileset dir="${basedir}/samigo-hibernate/src/java/org/sakaiproject/tool/assessment/data/dao">
+		<include name="assessment/AssessmentBase.hbm.xml" />
+		<include name="assessment/ItemData.hbm.xml" />
+		<include name="assessment/PublishedAssessment.hbm.xml" />
+		<include name="assessment/PublishedItemData.hbm.xml" />
+		<include name="authz/AuthorizationData.hbm.xml" />
+		<include name="grading/GradingData.hbm.xml" />
+ 		<include name="grading/MediaData.hbm.xml" />
+		<include name="questionpool/QuestionPoolData.hbm.xml" />
+		<include name="shared/TypeData.hbm.xml" />
+	  </fileset>  	        
+	</schemaexport>
+  </target>
+
+</project>
+
+
+

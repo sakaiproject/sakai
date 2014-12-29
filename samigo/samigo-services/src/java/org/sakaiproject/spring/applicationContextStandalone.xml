@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+<!-- Configurer that replaces ${...} placeholders with values from properties files -->
+  <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="locations">
+      <list>
+        <value>file:/opt/sa_forms/java/dev/org/sakaiproject/security/sam/samigo.properties</value>
+      </list>
+    </property>
+  </bean>
+
+<bean id="MyDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+  <property name="driverClassName">
+    <value>${db.driverClassName}</value>
+  </property>
+  <property name="url">
+    <value>${db.url}</value>
+  </property>
+  <property name="username">
+    <value>${db.username}</value>
+  </property>
+  <property name="password">
+    <value>${db.password}</value>
+  </property>
+</bean>
+
+  <bean id="sessionFactory" 
+    class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">  
+    <property name="dataSource">
+      <ref local="MyDataSource"/>
+    </property>    
+
+    <property name="mappingResources">
+      <list>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/AssessmentBase.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/ItemData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/shared/TypeData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/questionpool/QuestionPoolData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/PublishedAssessment.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/assessment/PublishedItemData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/grading/GradingData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/grading/MediaData.hbm.xml</value>
+        <value>/org/sakaiproject/tool/assessment/data/dao/authz/AuthorizationData.hbm.xml</value>
+      </list>
+    </property>
+    
+    <property name="hibernateProperties">
+      <props>
+        <prop key="hibernate.dialect">${hibernate.dialect}</prop>
+        <prop key="hibernate.show_sql">${hibernate.show_sql}</prop>
+        <prop key="hibernate.query.substitutions">true 1, false 0, yes 'Y', no 'N'</prop>
+        <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+        <prop key="hibernate.cache.use_query_cache">false</prop>
+        <prop key="hibernate.cache.provider_class">${hibernate.cache.provider_class}</prop>
+        <prop key="hibernate.jdbc.batch_size">${hibernate.jdbc.batch_size}</prop>
+      </props>
+    </property>
+
+    <!--  update the database schema when starting -->
+    <property name="schemaUpdate">
+      <value>true</value>
+    </property>
+
+  </bean>
+  
+  <bean id="transactionManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+    <property name="sessionFactory">
+      <ref local="sessionFactory"/>
+    </property>
+  </bean>
+  
+</beans>
+
+
+

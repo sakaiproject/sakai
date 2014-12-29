@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<!-- this file holds the behavior-helper classes for the standalone version -->
+<beans>
+
+<!-- behavior-helper factory implementation injected for the standalone version -->
+<bean name="integrationContextFactory"
+    class="org.sakaiproject.tool.assessment.integration.context.spring.IntegrationContext"
+    singleton="true">
+
+   <property name="integrated">
+        <value>false</value>
+   </property>
+
+   <property name="agentHelper">
+     <ref bean="agentHelper"/>
+   </property>
+
+   <property name="gradebookHelper">
+     <ref bean="gradebookHelper"/>
+   </property>
+
+   <property name="publishingTargetHelper">
+     <ref bean="publishingTargetHelper"/>
+   </property>
+
+   <property name="gradebookServiceHelper">
+     <ref bean="gradebookServiceHelper"/>
+   </property>
+
+   <property name="sectionAwareServiceHelper">
+     <ref bean="sectionAwareServiceHelper"/>
+   </property>
+
+   <property name="serverConfigurationServiceHelper">
+     <ref bean="serverConfigurationServiceHelper"/>
+   </property>
+
+   <property name="calendarServiceHelper">
+     <ref bean="calendarServiceHelper"/>
+   </property>
+</bean>
+
+<!-- context-sensitive agent behavior -->
+<bean name="agentHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.AgentHelperImpl">
+</bean>
+
+<!-- context-sensitive gradebook behavior -->
+<bean name="gradebookHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.GradebookHelperImpl">
+</bean>
+
+<!-- context-sensitive publishing target behavior -->
+<bean name="publishingTargetHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.PublishingTargetHelperImpl">
+</bean>
+
+<!-- context-sensitive gradebook service helper -->
+<bean name="gradebookServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.GradebookServiceHelperImpl">
+</bean>
+
+<!-- context-sensitive sectionAware service helper -->
+<bean name="sectionAwareServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.SectionAwareServiceHelperImpl">
+</bean>
+
+<bean name="serverConfigurationServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.standalone.ServerConfigurationServiceHelperImpl">
+</bean>
+
+<bean name="calendarServiceHelper" 
+ 	class="org.sakaiproject.tool.assessment.integration.helper.standalone.CalendarServiceHelperImpl">	
+</bean>
+
+</beans>
+
+
+

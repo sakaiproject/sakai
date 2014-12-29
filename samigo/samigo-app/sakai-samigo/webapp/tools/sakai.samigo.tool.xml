@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<registration>
+  <tool id="sakai.samigo"
+        title="Tests &amp; Quizzes"
+        description="For creating and taking online tests and quizzes.">
+     <category name="course" />
+     <category name="project" />
+  </tool>
+
+        <function name="assessment.takeAssessment" />
+        <function name="assessment.submitAssessmentForGrade" />
+        <function name="assessment.createAssessment" />
+        <function name="assessment.editAssessment.any" />
+        <function name="assessment.editAssessment.own" />
+        <function name="assessment.deleteAssessment.any" />
+        <function name="assessment.deleteAssessment.own" />
+        <function name="assessment.publishAssessment.any" />
+        <function name="assessment.publishAssessment.own" />
+        <function name="assessment.gradeAssessment.any" />
+        <function name="assessment.gradeAssessment.own" />
+        <function name="assessment.questionpool.create" />
+        <function name="assessment.questionpool.edit.own" />
+        <function name="assessment.questionpool.delete.own" />
+        <function name="assessment.questionpool.copy.own" />
+        <function name="assessment.template.create" />
+        <function name="assessment.template.edit.own" />
+        <function name="assessment.template.delete.own" />
+
+</registration>

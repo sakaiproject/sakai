@@ -1,0 +1,893 @@
+<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xml" href="c:\Navigo\webapp\xml\xsl\dataTransform\result\extractGrades.xsl"?>
+<assessment_taken>
+  <assessment ident="4bfe81f3-60d3-4d3d-0054-5426dfbb89c8"
+  title="Ed's Test Assessment: Do Not Delete">
+    <qticomment />
+    <duration>PT0H0M</duration>
+    <qtimetadata>
+      <!--****************Assessment Introduction******************* -->
+      <qtimetadatafield>
+        <fieldlabel>AUTHORS</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>CREATOR</fieldlabel>
+        <fieldentry>Ed Smiley</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA (Instructor for now)-->
+      <qtimetadatafield>
+        <fieldlabel>SHOW_CREATOR</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTHORS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_DESCRIPTION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- **************************** Delivery Dates  ******************************************* -->
+      <qtimetadatafield>
+        <fieldlabel>START_DATE</fieldlabel>
+        <fieldentry>2004-06-07T17:33:00</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
+      <qtimetadatafield>
+        <fieldlabel>END_DATE</fieldlabel>
+        <fieldentry>2005-06-07T17:33:00</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format example 2003-12-12T09:20:00-->
+      <qtimetadatafield>
+        <fieldlabel>RETRACT_DATE</fieldlabel>
+        <fieldentry>0000-00-00T00:00:00</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_START_DATE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_END_DATE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_RETRACT_DATE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_END_DATE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_RETRACT_DATE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- *********************************Assessment released to:**************************** -->
+      <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_RELEASED_TO</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA-->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_PUBLISH_ANONYMOUS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTHENTICATED_USERS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- *************************** High Security******************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>ALLOW_IP</fieldlabel>
+        <fieldentry></fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- #PCDATA-->
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_ALLOW_IP</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_USERID</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>USERID</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>PASSWORD</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ALLOW_IP</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_USERID</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- ********************************Timed Assessment************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>CONSIDER_DURATION</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <qtimetadatafield>
+        <fieldlabel>AUTO_SUBMIT</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_DURATION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTO_SUBMIT</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- ************************* Assessment Organization ********************************** -->
+      <qtimetadatafield>
+        <fieldlabel>NAVIGATION</fieldlabel>
+        <fieldentry>RANDOM</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- RANDOM, LINEAR-->
+      <qtimetadatafield>
+        <fieldlabel>QUESTION_LAYOUT</fieldlabel>
+        <fieldentry>I</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- A, S, I-->
+      <qtimetadatafield>
+        <fieldlabel>QUESTION_NUMBERING</fieldlabel>
+        <fieldentry>CONTINUOUS</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--CONTINUOUS or RESTART -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_NAVIGATION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_QUESTION_LAYOUT</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_QUESTION_NUMBERING</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- *****************************************Submissions  ****************************** -->
+      <qtimetadatafield>
+        <fieldlabel>LATE_HANDLING</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>MAX_ATTEMPTS</fieldlabel>
+        <fieldentry>1</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- 0 = unlimited-->
+      <!-- 0, 1,2........... -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_LATE_HANDLING</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_MAX_ ATTEMPTS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>AUTO_SAVE</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_AUTO_SAVE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- ******************************Submission Message ***************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ASSESSFEEDBACK</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FINISH_URL</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_FINISH_URL</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- *******************************Feedback**************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_DELIVERY</fieldlabel>
+        <fieldentry>NONE</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- IMMEDIATE, DATED, NONE-->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_DELIVERY_DATE</fieldlabel>
+        <fieldentry>0000-00-00T00:00:00</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- ISO8601 Date Format ex 2003-12-12T09:20:00-->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_FEEDBACK_DELIVERY</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_FEEDBACK_COMPONENTS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_CORRECT_RESPONSE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_STUDENT_SCORE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_ITEM_LEVEL</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_SELECTION_LEVEL</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_GRADER_COMMENT</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_STATS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_QUESTION</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>FEEDBACK_SHOW_RESPONSE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- ******************************Grading***************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>ANONYMOUS_GRADING</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>GRADE_SCORE</fieldlabel>
+        <fieldentry>HIGHEST</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--HIGHEST, AVAERAGE -->
+      <qtimetadatafield>
+        <fieldlabel>GRADEBOOK_OPTIONS</fieldlabel>
+        <fieldentry>DEFAULT</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--DEFAULT, SELECTED -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_GRADEBOOK_OPTIONS</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ANONYMOUS_GRADING</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_GRADE_SCORE</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!-- ********************************Graphics*************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>BGCOLOR</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>BGIMG</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <!-- ********************************Metadata*************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_ASSESSMENT_METADATA</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_COLLECT_SECTION_METADATA</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>EDIT_COLLECT_ITEM_METADATA</fieldlabel>
+        <fieldentry>True</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_KEYWORDS</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_OBJECTIVES</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>ASSESSMENT_RUBRICS</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--#PCDATA -->
+      <qtimetadatafield>
+        <fieldlabel>COLLECT_SECTION_METADATA</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <qtimetadatafield>
+        <fieldlabel>COLLECT_ITEM_METADATA</fieldlabel>
+        <fieldentry>False</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!--True, False -->
+      <!--****************************************************************** -->
+      <qtimetadatafield>
+        <fieldlabel>LAST_MODIFIED_ON</fieldlabel>
+        <fieldentry>2004-06-07 17:34:01</fieldentry>
+      </qtimetadatafield>
+      <!--Possible Values -->
+      <!-- Date mm/dd/yyyy-->
+      <qtimetadatafield>
+        <fieldlabel>LAST_MODIFIED_BY</fieldlabel>
+        <fieldentry />
+      </qtimetadatafield>
+    </qtimetadata>
+    <!--Possible Values -->
+    <!--#PCDATA -->
+    <!--****************************************************************** -->
+    <assessmentcontrol feedbackswitch="No" solutionswitch="Yes" />
+    <rubric>
+      <material>
+        <mattext />
+      </material>
+    </rubric>
+    <presentation_material>
+      <flow_mat>
+        <material>
+          <mattext />
+        </material>
+      </flow_mat>
+    </presentation_material>
+    <assessfeedback ident="Feedback" title="Feedback">
+      <flow_mat>
+        <material>
+          <mattext />
+        </material>
+      </flow_mat>
+    </assessfeedback>
+    <section ident="ed63a13c-3926-4cb8-0025-bf464965b85b" title="Default">
+      <qtimetadata>
+        <!--metadata for Section new UI -->
+        <qtimetadatafield>
+          <fieldlabel>SECTION_OBJECTIVE</fieldlabel>
+          <fieldentry />
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>SECTION_KEYWORD</fieldlabel>
+          <fieldentry />
+        </qtimetadatafield>
+        <qtimetadatafield>
+          <fieldlabel>SECTION_RUBRIC</fieldlabel>
+          <fieldentry />
+        </qtimetadatafield>
+      </qtimetadata>
+      <presentation_material>
+        <flow_mat>
+          <material>
+            <mattext />
+          </material>
+          <material>
+            <matimage imagtype="text/html" uri="" />
+          </material>
+        </flow_mat>
+      </presentation_material>
+      <selection_ordering sequence_type="Normal">
+        <selection>
+          <sourcebank_ref />
+          <selection_number />
+        </selection>
+        <order order_type="Sequential" />
+      </selection_ordering>
+      <item continueNumber="1" displayIndex="1"
+      ident="d9de4292-29d9-47d0-804b-c7a56f93b87f" title="Multiple Choice">
+        <duration />
+        <itemmetadata>
+          <qtimetadata>
+            <qtimetadatafield>
+              <fieldlabel>qmd_itemtype</fieldlabel>
+              <fieldentry>Multiple Choice</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>TEXT_FORMAT</fieldlabel>
+              <fieldentry>HTML</fieldentry>
+            </qtimetadatafield>
+            <!--NOT USED BY AUTHORING BUT DELIVERY  -->
+            <qtimetadatafield>
+              <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+              <fieldentry />
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>ITEM_KEYWORD</fieldlabel>
+              <fieldentry />
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>ITEM_RUBRIC</fieldlabel>
+              <fieldentry />
+            </qtimetadatafield>
+          </qtimetadata>
+        </itemmetadata>
+        <rubric>
+          <material>
+            <mattext />
+          </material>
+        </rubric>
+        <presentation label="Resp003">
+          <flow>
+            <material>
+              <mattext>
+                <!--<p>The indefinite integral of</p><p><em><font size="4">4x<sup>7</sup> + 3x<sup>2</sup></font></em></p><p>is:</p>-->
+              </mattext>
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+            <response_lid ident="MCSC" rcardinality="Single">
+              <render_choice shuffle="No">
+                <response_label ident="A">
+                  <material>
+                    <mattext>
+                      <!--<em><font size="4">4x<sup>7</sup> + 3x<sup>2</sup></font></em> -->
+                    </mattext>
+                  </material>
+                  <material>
+                    <matimage imagtype="text/html" uri="" />
+                  </material>
+                </response_label>
+                <response_label ident="B">
+                  <material>
+                    <mattext>
+                      <!--<em><font size="4">28x<sup>7</sup> + 6x3 + C</font></em> -->
+                    </mattext>
+                  </material>
+                  <material>
+                    <matimage imagtype="text/html" uri="" />
+                  </material>
+                </response_label>
+                <response_label ident="C">
+                  <material>
+                    <mattext>
+                      <!--<em><font size="4">28x<sup>6</sup> + 6x + C</font></em> -->
+                    </mattext>
+                  </material>
+                  <material>
+                    <matimage imagtype="text/html" uri="" />
+                  </material>
+                </response_label>
+                <response_label ident="D">
+                  <material>
+                    <mattext>
+                      <!--<p><font size="4"><sup>4/<sub>7 </sub></sup>x<sup>8</sup> + <sup>3/<sub>2 </sub></sup>x<sup>3</sup> + C</font></p>-->
+                    </mattext>
+                  </material>
+                  <material>
+                    <matimage imagtype="text/html" uri="" />
+                  </material>
+                </response_label>
+              </render_choice>
+            </response_lid>
+          </flow>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar defaultval="0" maxvalue="1000.0" minvalue="1000"
+            varname="SCORE" />
+          </outcomes>
+          <respcondition continue="No">
+            <conditionvar>
+              <varequal case="Yes" respident="MCSC">A</varequal>
+            </conditionvar>
+            <setvar action="Add" varname="SCORE">0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="InCorrect" />
+            <displayfeedback feedbacktype="Response" linkrefid="A1" />
+          </respcondition>
+          <respcondition continue="No">
+            <conditionvar>
+              <varequal case="Yes" respident="MCSC">B</varequal>
+            </conditionvar>
+            <setvar action="Add" varname="SCORE">0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="InCorrect" />
+            <displayfeedback feedbacktype="Response" linkrefid="B1" />
+          </respcondition>
+          <respcondition continue="No">
+            <conditionvar>
+              <varequal case="Yes" respident="MCSC">C</varequal>
+            </conditionvar>
+            <setvar action="Add" varname="SCORE">0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="InCorrect" />
+            <displayfeedback feedbacktype="Response" linkrefid="C1" />
+          </respcondition>
+          <respcondition continue="No">
+            <conditionvar>
+              <varequal case="Yes" respident="MCSC">D</varequal>
+            </conditionvar>
+            <setvar action="Add" varname="SCORE">1000</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="Correct" />
+            <displayfeedback feedbacktype="Response" linkrefid="D1" />
+          </respcondition>
+        </resprocessing>
+        <itemfeedback ident="A1" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+        <itemfeedback ident="B1" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+        <itemfeedback ident="C1" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+        <itemfeedback ident="D1" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+        <itemfeedback ident="Correct" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+        <itemfeedback ident="InCorrect" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+      </item>
+      <item continueNumber="2" displayIndex="2"
+      ident="58f46c19-a880-4301-007c-62e9f2b3c4d3" title="True - False">
+        <qticomment>This is a simple True/False multip INFO 2004-06-09
+        16:49:57,601 [Ed Smiley:69.111.198.149:/asi/delivery/xmlAction.do]
+        STDOUT - le-choice example using V1.2. The rendering is a standard
+        radio button style. Response processing is incorporated.</qticomment>
+        <duration />
+        <itemmetadata>
+          <qtimetadata>
+            <qtimetadatafield>
+              <fieldlabel>qmd_itemtype</fieldlabel>
+              <fieldentry>True False</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>TEXT_FORMAT</fieldlabel>
+              <fieldentry>HTML</fieldentry>
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>ITEM_OBJECTIVE</fieldlabel>
+              <fieldentry />
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>ITEM_KEYWORD</fieldlabel>
+              <fieldentry />
+            </qtimetadatafield>
+            <qtimetadatafield>
+              <fieldlabel>ITEM_RUBRIC</fieldlabel>
+              <fieldentry />
+            </qtimetadatafield>
+          </qtimetadata>
+        </itemmetadata>
+        <rubric>
+          <material>
+            <mattext />
+          </material>
+        </rubric>
+        <presentation label="Resp001">
+          <flow>
+            <material>
+              <mattext>
+                <!--If this sentence is false then pigs have wings.-->
+              </mattext>
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+            <response_lid ident="TF02" rcardinality="Single">
+              <render_choice shuffle="No">
+                <response_label ident="A">
+                  <material>
+                    <mattext>
+                      <!--True-->
+                    </mattext>
+                  </material>
+                </response_label>
+                <response_label ident="B">
+                  <material>
+                    <mattext>
+                      <!--False-->
+                    </mattext>
+                  </material>
+                </response_label>
+              </render_choice>
+            </response_lid>
+          </flow>
+        </presentation>
+        <resprocessing>
+          <outcomes>
+            <decvar defaultval="0" maxvalue="1000.0" minvalue="1000"
+            varname="SCORE" />
+          </outcomes>
+          <respcondition continue="No" title="Correct">
+            <conditionvar>
+              <varequal case="Yes" respident="TF02">A</varequal>
+            </conditionvar>
+            <setvar action="Add" varname="SCORE">1000</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="Correct" />
+          </respcondition>
+          <respcondition continue="No" title="InCorrect">
+            <conditionvar>
+              <varequal case="Yes" respident="TF02">B</varequal>
+            </conditionvar>
+            <setvar action="Add" varname="SCORE">0</setvar>
+            <displayfeedback feedbacktype="Response" linkrefid="InCorrect" />
+          </respcondition>
+        </resprocessing>
+        <itemfeedback ident="Correct" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+        <itemfeedback ident="InCorrect" view="All">
+          <flow_mat>
+            <material>
+              <mattext />
+            </material>
+            <material>
+              <matimage imagtype="text/html" uri="" />
+            </material>
+          </flow_mat>
+        </itemfeedback>
+      </item>
+    </section>
+  </assessment>
+  <qti_result_report>
+    <result>
+      <context>
+        <name>Ed Smiley</name>
+        <generic_identifier>
+          <type_label>userId</type_label>
+          <identifier_string>edsmiley</identifier_string>
+        </generic_identifier>
+        <generic_identifier>
+          <type_label>coreId</type_label>
+          <identifier_string>
+          dc0a6a6b-7d65-499f-80a4-97b659508f47</identifier_string>
+        </generic_identifier>
+        <generic_identifier>
+          <type_label>publishedId</type_label>
+          <identifier_string>
+          56cb17f1-172f-4402-8056-875f5e1b3775</identifier_string>
+        </generic_identifier>
+        <date>
+          <type_label />
+          <datetime />
+        </date>
+      </context>
+      <assessment_result ident_ref="4bfe81f3-60d3-4d3d-0054-5426dfbb89c8">
+        <asi_metadata>
+          <asi_metadatafield>
+            <field_name>ASSESSMENT_RELEASED_TO</field_name>
+            <field_value />
+          </asi_metadatafield>
+          <asi_metadatafield>
+            <field_name>ANONYMOUS_GRADING</field_name>
+            <field_value>False</field_value>
+          </asi_metadatafield>
+        </asi_metadata>
+        <outcomes>
+          <score>
+            <score_value>NaN</score_value>
+            <score_max>NaN</score_max>
+          </score>
+        </outcomes>
+        <section_result ident_ref="ed63a13c-3926-4cb8-0025-bf464965b85b">
+          <outcomes>
+            <score>
+              <score_value>2000</score_value>
+              <score_max>2000</score_max>
+            </score>
+          </outcomes>
+          <item_result ident_ref="d9de4292-29d9-47d0-804b-c7a56f93b87f">
+            <response ident_ref="MCSC">
+              <response_form>
+                <correct_response>D</correct_response>
+              </response_form>
+              <num_attempts>0</num_attempts>
+              <response_value>D</response_value>
+            </response>
+            <outcomes>
+              <score varname="SCORE">
+                <score_value>1000</score_value>
+                <score_max>1000.0</score_max>
+              </score>
+            </outcomes>
+            <feedback_displayed ident_ref="Correct" />
+            <feedback_displayed ident_ref="D1" />
+            <extension_item_result />
+          </item_result>
+          <item_result ident_ref="58f46c19-a880-4301-007c-62e9f2b3c4d3">
+            <response ident_ref="TF02">
+              <response_form>
+                <correct_response>A</correct_response>
+              </response_form>
+              <num_attempts>0</num_attempts>
+              <response_value>A</response_value>
+            </response>
+            <outcomes>
+              <score varname="SCORE">
+                <score_value>1000</score_value>
+                <score_max>1000.0</score_max>
+              </score>
+            </outcomes>
+            <feedback_displayed ident_ref="Correct" />
+            <extension_item_result />
+          </item_result>
+          <extension_section_result />
+        </section_result>
+        <extension_assessment_result />
+      </assessment_result>
+    </result>
+  </qti_result_report>
+</assessment_taken>

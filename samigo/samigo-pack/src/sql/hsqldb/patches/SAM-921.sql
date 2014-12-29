@@ -1,0 +1,1 @@
+UPDATE SAM_ASSESSMETADATA_T SET ENTRY='true' WHERE ENTRY='false' AND LABEL LIKE '%isInstructorEditable';

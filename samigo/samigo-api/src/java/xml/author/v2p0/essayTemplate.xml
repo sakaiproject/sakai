@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_item_v2p0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_item_v2p0 ../imsqti_item_v2p0.xsd"
+    identifier="extendedText" title="Short Answer/Essay" adaptive="false" timeDependent="false">
+    <responseDeclaration identifier="RESPONSE" cardinality="single" baseType="string"/>
+    <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer"/>
+    <itemBody>
+      ITEM_TEXT<!-- SET -->
+      <extendedTextInteraction responseIdentifier="RESPONSE" expectedLength="4000">
+          <prompt></prompt>
+      </extendedTextInteraction>
+    </itemBody>
+</assessmentItem>

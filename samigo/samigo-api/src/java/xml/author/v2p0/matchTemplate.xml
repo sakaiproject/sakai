@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_item_v2p0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_item_v2p0 ../imsqti_item_v2p0.xsd"
+  identifier="match" title="Matching" adaptive="false" timeDependent="false">
+  <responseDeclaration identifier="RESPONSE" cardinality="multiple" baseType="directedPair">
+      <correctResponse>
+          <value><!-- SET MULTIPLE, e.g.  "A 1"--></value>
+      </correctResponse>
+      <mapping defaultValue="0">
+          <mapEntry mapKey="A 1" mappedValue="0"/><!-- SET MULTIPLE e.g. A 1-->
+      </mapping>
+  </responseDeclaration>
+  <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="float"/>
+  <itemBody><!-- SET ITEM_TEXT-->
+    <matchInteraction responseIdentifier="RESPONSE" shuffle="true" maxAssociations="4">
+      <prompt></prompt>
+      <simpleMatchSet><!-- SET ALL THESE, MULTIPLE -->
+        <simpleAssociableChoice identifier="A" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+        <simpleAssociableChoice identifier="B" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+        <simpleAssociableChoice identifier="C" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+        <simpleAssociableChoice identifier="D" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+      </simpleMatchSet>
+      <simpleMatchSet><!-- SET ALL THESE, MULTIPLE -->
+        <simpleAssociableChoice identifier="1" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+        <simpleAssociableChoice identifier="2" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+        <simpleAssociableChoice identifier="3" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+        <simpleAssociableChoice identifier="4" matchMax="1">CHOICE_TEXT</simpleAssociableChoice>
+      </simpleMatchSet>
+    </matchInteraction>
+  </itemBody>
+  <responseProcessing xmlns="http://www.imsglobal.org/xsd/imsqti_v2p0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_v2p0 imsqti_v2p0.xsd">
+    <responseCondition>
+      <responseIf>
+        <match>
+          <variable identifier="RESPONSE"/>
+          <correct identifier="RESPONSE"/>
+        </match>
+        <setOutcomeValue identifier="SCORE">
+          <baseValue baseType="float">1<!-- SET MAX--></baseValue>
+        </setOutcomeValue>
+      </responseIf>
+      <responseElse>
+        <setOutcomeValue identifier="SCORE">
+          <baseValue baseType="float">0<!-- SET MIN--></baseValue>
+        </setOutcomeValue>
+      </responseElse>
+    </responseCondition>
+  </responseProcessing>
+</assessmentItem>

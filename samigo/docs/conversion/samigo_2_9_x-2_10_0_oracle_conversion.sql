@@ -1,0 +1,61 @@
+-- SAM-2063
+alter table SAM_ASSESSMENTGRADING_T add HASAUTOSUBMISSIONRUN number(1,0) default 0 not null;
+
+-- Start SAM-2087
+alter table SAM_ANSWER_T modify SCORE double precision;
+alter table SAM_ANSWER_T modify DISCOUNT double precision;
+alter table SAM_ANSWER_T modify PARTIAL_CREDIT double precision;
+
+alter table SAM_ASSESSMENTGRADING_T modify TOTALAUTOSCORE double precision;
+alter table SAM_ASSESSMENTGRADING_T modify TOTALOVERRIDESCORE double precision;
+alter table SAM_ASSESSMENTGRADING_T modify FINALSCORE double precision;
+
+alter table SAM_GRADINGSUMMARY_T modify SUMOF_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify AVERAGE_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify HIGHEST_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LOWEST_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LAST_AUTOSCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify SUMOF_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify AVERAGE_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify HIGHEST_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LOWEST_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify LAST_OVERRIDESCOREFORGRADE double precision;
+alter table SAM_GRADINGSUMMARY_T modify FINALASSESSMENTSCORE double precision;
+
+alter table SAM_ITEMGRADING_T modify AUTOSCORE double precision;
+alter table SAM_ITEMGRADING_T modify OVERRIDESCORE double precision;
+
+alter table SAM_ITEM_T modify SCORE double precision;
+alter table SAM_ITEM_T modify DISCOUNT double precision;
+
+alter table SAM_PUBLISHEDANSWER_T modify SCORE double precision;
+alter table SAM_PUBLISHEDANSWER_T modify DISCOUNT double precision;
+alter table SAM_PUBLISHEDANSWER_T modify PARTIAL_CREDIT double precision;
+
+alter table SAM_PUBLISHEDITEM_T modify SCORE double precision;
+alter table SAM_PUBLISHEDITEM_T modify DISCOUNT double precision;
+-- End SAM-2087
+
+-- SAM-1943
+alter table SAM_ATTACHMENT_T add ITEMTEXTID number(20,0) DEFAULT NULL;
+alter table SAM_ITEMTEXT_T add REQUIRED_OPTIONS_COUNT number(11,0) DEFAULT NULL;
+alter table SAM_ITEM_T add ANSWER_OPTIONS_RICH_COUNT number(11,0) DEFAULT NULL;
+alter table SAM_ITEM_T add ANSWER_OPTIONS_SIMPLE_OR_RICH number(11,0) DEFAULT NULL;
+
+create index SAM_ATTACH_ITEMTEXTID_I ON SAM_ATTACHMENT_T (ITEMTEXTID);
+alter table SAM_ATTACHMENT_T add CONSTRAINT FK_SAM_ATTACH_ITEMTEXT FOREIGN KEY (ITEMTEXTID) REFERENCES SAM_ITEMTEXT_T (ITEMTEXTID);
+
+alter table SAM_PUBLISHEDATTACHMENT_T add ITEMTEXTID number(20,0) DEFAULT NULL;
+alter table SAM_PUBLISHEDITEMTEXT_T add REQUIRED_OPTIONS_COUNT number(11,0) DEFAULT NULL;
+alter table SAM_PUBLISHEDITEM_T add ANSWER_OPTIONS_RICH_COUNT number(11,0) DEFAULT NULL;
+alter table SAM_PUBLISHEDITEM_T add ANSWER_OPTIONS_SIMPLE_OR_RICH number(11,0) DEFAULT NULL;
+
+create index SAM_PUBATTACH_ITEMTEXTID_I ON SAM_PUBLISHEDATTACHMENT_T (ITEMTEXTID);
+alter table SAM_PUBLISHEDATTACHMENT_T add CONSTRAINT FK_SAM_PATTACH_PITEMTEXT FOREIGN KEY (ITEMTEXTID) REFERENCES SAM_PUBLISHEDITEMTEXT_T (ITEMTEXTID);
+
+INSERT INTO SAM_TYPE_T ("TYPEID" ,"AUTHORITY" ,"DOMAIN" ,"KEYWORD",
+    "DESCRIPTION" ,
+    "STATUS" ,"CREATEDBY" ,"CREATEDDATE" ,"LASTMODIFIEDBY" ,
+    "LASTMODIFIEDDATE" )
+    VALUES (14 , 'stanford.edu' ,'assessment.item' ,'Extended Matching_Items' ,NULL ,1 ,1 ,
+    SYSDATE ,1 ,SYSDATE); 

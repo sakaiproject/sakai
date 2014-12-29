@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Thie example adapted from the PET Handbook, copyright University of Cambridge ESOL Examinations -->
+<assessmentItem xmlns="http://www.imsglobal.org/xsd/imsqti_item_v2p0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.imsglobal.org/xsd/imsqti_item_v2p0 ../imsqti_item_v2p0.xsd"
+  identifier="choice" title="Unattended Luggage" adaptive="false" timeDependent="false">
+  <outcomeDeclaration identifier="SCORE" cardinality="single" baseType="integer">
+    <defaultValue>
+      <value>0</value><!-- THIS IS NOT SET, NO POINTS -->
+    </defaultValue>
+  </outcomeDeclaration>
+  <itemBody>
+    ITEM_TEXT<!-- SET -->
+    <choiceInteraction responseIdentifier="RESPONSE" shuffle="false" maxChoices="1">
+      <prompt></prompt>
+      <simpleChoice identifier="A" fixed="false">Below Average</simpleChoice>
+      <simpleChoice identifier="B" fixed="false">Average</simpleChoice>
+      <simpleChoice identifier="C" fixed="false">Above Average</simpleChoice>
+    </choiceInteraction>
+  </itemBody>
+</assessmentItem>

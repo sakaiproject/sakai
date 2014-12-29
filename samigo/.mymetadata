@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project-module context-root="/Navigo" name="Navigo"
+    archive="Navigo.war" type="WEB" id="myeclipse.1059275657820">
+    <attributes>
+        <attribute name="webrootdir" value="/webapp"/>
+    </attributes>
+</project-module>
