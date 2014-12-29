@@ -181,9 +181,9 @@
                 <module>rss</module>
                 <module>rwiki</module>
                 <module>sakai-mock</module>
-		<module>samigo</module>
-		<module>search</module>
-		<module>sections</module>
+                <module>samigo</module>
+                <module>search</module>
+                <module>sections</module>
                 <module>shortenedurl</module>
                 <module>signup</module>
                 <module>site</module>
@@ -208,14 +208,14 @@
         <profile>
             <id>pack</id>
             <modules>
-				<module>master</module>
+                <module>master</module>
                 <module>pack</module>
             </modules>
         </profile>
         <profile>
             <id>pack-bin</id>
             <modules>
-				<module>master</module>
+                <module>master</module>
                 <module>pack/pack-bin</module>
             </modules>
         </profile>
