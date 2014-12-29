@@ -1,0 +1,134 @@
+<?xml version="1.0"?>
+<project name="package.source">
+	
+	<!-- Main target -->
+	<target name="pack.src" depends="prep,install,copy,tar,zip,cleanup" />
+	
+	<target name="prep" description="Delete target directories.">
+		<echo message="[INFO] prep for sakai-src-${sakai.version} archive creation." />
+		<!-- Property check -->
+		<echo message="basedir=${basedir}" />
+		<echo message="sakai.skip.tests=${sakai.skip.tests}" />
+		<echo message="sakai.version=${sakai.version}" />
+		
+	    <echo message="[INFO] Clear the deploy area." />
+	    <delete dir="${basedir}/target/pack" />
+	    <delete dir="${basedir}/target/pack-stage/" />
+		
+		<echo message="[INFO] Clear out old artifacts." />
+		<delete file="${basedir}/sakai-src-${sakai.version}.tar.gz" />
+		<delete file="${basedir}/sakai-src-${sakai.version}.zip" />
+		<delete file="${basedir}/sakai-src-${sakai.version}.tar.gz.MD5" />
+		<delete file="${basedir}/sakai-src-${sakai.version}.tar.gz.SHA1" />
+		<delete file="${basedir}/sakai-src-${sakai.version}.zip.MD5" />
+		<delete file="${basedir}/sakai-src-${sakai.version}.zip.SHA1" />
+	</target>
+	
+	<target name="install" depends="prep" description="Build and deploy to target directory.">
+	    <echo message="[INFO] mvn clean install -Dmaven.tests.skip=${sakai.skip.tests}." />
+	    <exec dir="../../" executable="mvn" failonerror="true">
+	        <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
+	        <!-- 
+	        <arg value="-Dkeystore=${keystore}" />
+	        <arg value="-Dalias=${alias}" /> 
+	        <arg value="-Dstorepass=${storepass}" /> 
+	        -->
+	        <arg value="clean" />
+	        <arg value="install" />
+	    </exec>
+	</target>
+	
+	<target name="copy" depends="install" description="Copy Sakai source files.">
+	    <echo message="[INFO] Copy Sakai source files." />
+	    <copy todir="${basedir}/target/pack/">
+	        <fileset dir="${basedir}/../../">
+	    		<exclude name="**/bin/**" />
+	        	<exclude name="**/target/**" />
+	        	<exclude name="**/m2-target/**" />
+	        	<exclude name="**/.svn/**" />
+	        	
+	        	<!-- Exclude other /pack artifacts -->
+	        	<exclude name="**/pack*/*.tar.gz" />
+	        	<exclude name="**/pack*/*.zip" />
+	        	<exclude name="**/pack*/*.MD5" />
+	        	<exclude name="**/pack*/*.SHA1" />
+	        </fileset>
+	    </copy>
+	</target>
+
+	<target name="tar" depends="copy" description="Tar sakai-src-${sakai.version}.tar.gz.">
+	    <echo message="[INFO] Tar sakai-src-${sakai.version}.tar.gz." />
+	    <delete file="sakai-src-${sakai.version}.tar.gz" />
+		<delete file="sakai-src-${sakai.version}.tar.gz.MD5" />
+		<delete file="sakai-src-${sakai.version}.tar.gz.SHA1" />
+		
+	    <tar destfile="sakai-src-${sakai.version}.tar.gz" longfile="gnu" compression="gzip">
+	        <tarfileset
+	            dir="${basedir}/target/pack/"
+	            mode="755"
+	            prefix="sakai-src-${sakai.version}">
+	        	<include name="**/*.sh" />
+	        	<exclude name="**/bin/**" />
+	        	<exclude name="**/pack*/*.tar.gz" />
+	        	<exclude name="**/pack*/*.zip" />
+	        	<exclude name="**/pack*/*.MD5" />
+	        	<exclude name="**/pack*/*.SHA1" />
+	        	<exclude name="**/m2-target/**" />
+	        	<exclude name="**/target/**" />
+	        	<exclude name="**/.svn/**" />
+	        </tarfileset>
+	        <tarfileset
+	            dir="${basedir}/target/pack/"
+	            prefix="sakai-src-${sakai.version}">
+	            <exclude name="**/*.sh" />
+	        	<exclude name="**/bin/**" />
+	        	<exclude name="**/pack*/*.tar.gz" />
+	        	<exclude name="**/pack*/*.zip" />
+	        	<exclude name="**/pack*/*.MD5" />
+	        	<exclude name="**/pack*/*.SHA1" />
+	        	<exclude name="**/m2-target/**" />
+	        	<exclude name="**/target/**" />
+	        	<exclude name="**/.svn/**" />
+	        </tarfileset>
+	    </tar>
+	    
+	    <echo message="[INFO] create sakai-src-${sakai.version}.tar.gz md5 and SHA1 checksums." />
+	    <checksum file="sakai-src-${sakai.version}.tar.gz" forceOverwrite="true" />
+	    <checksum file="sakai-src-${sakai.version}.tar.gz" forceOverwrite="true" algorithm="SHA1" />
+	</target>
+	
+	<target name="zip" depends="tar" description="Zip sakai-src-${sakai.version}.zip.">
+	    <echo message="[INFO] Zip sakai-src-${sakai.version}.zip." />
+	    <delete file="sakai-src-${sakai.version}.zip" />
+		<delete file="sakai-src-${sakai.version}.zip.MD5" />
+		<delete file="sakai-src-${sakai.version}.zip.SHA1" />
+		
+	    <zip destfile="sakai-src-${sakai.version}.zip" compress="yes">
+	        <zipfileset dir="${basedir}/target/pack/" prefix="sakai-src-${sakai.version}" >
+	        	<exclude name="**/bin/**" />
+	        	<exclude name="**/pack*/*.tar.gz" />
+	        	<exclude name="**/pack*/*.zip" />
+	        	<exclude name="**/pack*/*.MD5" />
+	        	<exclude name="**/pack*/*.SHA1" />
+	        	<exclude name="**/m2-target/**" />
+	        	<exclude name="**/target/**" />
+	        	<exclude name="**/.svn/**" />
+	        </zipfileset>
+	    </zip>
+		
+	    <echo message="[INFO] create sakai-src-${sakai.version}.zip md5 and SHA1 checksums." />
+	    <checksum file="sakai-src-${sakai.version}.zip" forceOverwrite="true" />
+	    <checksum file="sakai-src-${sakai.version}.zip" forceOverwrite="true" algorithm="SHA1" />
+	</target>
+	
+	<target name="cleanup" depends="tar,zip" description="Delete target directories.">
+		<echo message="[INFO] moving SRC artifacts to /pack-stage." />
+		<move file="${basedir}/target/pack" tofile="${basedir}/target/pack-stage" overwrite="true" />
+		
+	    <echo message="[INFO] Delete target directories." />
+	    <delete dir="${basedir}/target/pack/" />
+	    <delete dir="${basedir}/target/pack-stage/" />
+		
+		<echo message="[INFO] sakai-src-${sakai.version} archives created." />
+	</target>
+</project>
