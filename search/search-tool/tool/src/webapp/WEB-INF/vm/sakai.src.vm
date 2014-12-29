@@ -1,0 +1,36 @@
+# Status: working beta
+# Mozilla/Netscape 6+ plugin for Sakai search tool
+# by <ian@__NOSPAMPLEASE_caret.cam.ac.uk>
+#  
+# Created: Nov 13, 2006
+# Last updated: Nov 13, 2006
+#
+# Known issues:
+#
+# 1. Something doesn't always work
+# 2. Something isn't supported
+# 3. Any notes you may have.
+<search 
+   name="${sherlockModel.systemName}: ${sherlockModel.siteName}"
+   description="${rlb.jsp_sakai_search_for_site} ${sherlockModel.siteName}"
+   method="GET"
+   action="${sherlockModel.searchURL}"
+   queryCharset="UTF-8"
+>
+<input name="search" user>
+<input name="sourceid" value="Mozilla-search">
+<input name="panel" value="Main" >
+<interpret 
+    browserResultType="result" 
+    resultListStart="<!--ls-->" 
+    resultListEnd="<!--le-->" 
+    resultItemStart="<!--is-->" 
+    resultItemEnd="<!--ie-->"
+>
+</search>
+
+<BROWSER
+   update="${sherlockModel.updateURL}" 
+   updateIcon="${sherlockModel.updateIcon}" 
+   updateCheckDays="7"
+>

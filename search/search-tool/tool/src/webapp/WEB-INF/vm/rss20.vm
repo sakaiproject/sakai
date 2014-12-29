@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+     <title>
+      ${searchModel.systemName} ${rlb.jsp_search_rss_feed} ${searchModel.searchTitle}
+     </title>
+     <description>
+      ${searchModel.systemName} ${rlb.jsp_search_rss_feed} ${searchModel.searchTitle}
+     </description>
+     <link>
+      ${searchModel.requestUrl} 
+     </link>
+     <lastBuildDate>
+      ${searchModel.dateNow} 
+     </lastBuildDate>
+     <generator>${searchModel.systemName} ${rlb.jsp_search_rss_generator}</generator>
+  #if ( ${searchModel.hasError} ) 
+	  <item><title>Error</title><description> 
+		  	<div class=\"alertMessage\" >${searchModel.errorMessage}</div>
+			</description>
+	  </item>
+  #else
+    #foreach ( $result in ${searchModel.results} ) 
+	  	     <item>
+	  	     <title>${result.tool}: ${result.title}</title>
+	  	     <link>${serverurl}${result.url}</link>
+	  	     <description> 
+	        <div class="searchItem" > 
+	        <span class="searchTool">${result.tool}:</span>
+	        <a href="${serverurl}${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+			      <div class="searchItemBody" >${result.searchResult}</div>
+			      <a href="${serverurl}${result.url}" target="searchresult" class="searchBottonLink" >${serverurl}${result.url}</a>
+			      </div>
+			  				</description> 
+			  				</item>
+	   #end
+	  #end
+  </channel>
+</rss>
+

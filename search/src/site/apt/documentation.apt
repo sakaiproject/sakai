@@ -1,0 +1,14 @@
+                       -------------
+                       Documentation
+                       -------------
+			Ian Boston
+		       -------------
+			8 Feb 2008
+		       -------------
+
+
+Project Documentation.
+
+ Project Documentation is maintained in the root project file in APT source files.
+This file is at http://source.sakaiproject.org/svn/kernel/trunk/src/site/apt/documentation.apt
+

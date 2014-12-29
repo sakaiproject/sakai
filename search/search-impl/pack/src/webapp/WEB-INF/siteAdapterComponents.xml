@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *       http://www.opensource.org/licenses/ECL-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+<beans>
+ 
+ 
+  <bean id="siteAdapter" 
+    class="org.sakaiproject.search.component.adapter.site.SiteContentProducer"
+    singleton="true"
+    init-method="init" >
+    <property name="siteService" ><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+    
+     <property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager" /></property>    
+	 <property name="searchService"><ref bean="org.sakaiproject.search.api.SearchService"/></property>
+     <property name="searchIndexBuilder"><ref bean="org.sakaiproject.search.api.SearchIndexBuilder" /></property>
+     <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
+    
+  </bean>
+  
+      <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+            class="org.sakaiproject.search.entitybroker.SearchEntityProvider">
+        <property name="searchService" ref="org.sakaiproject.search.api.SearchService" />
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+        <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
+</beans>

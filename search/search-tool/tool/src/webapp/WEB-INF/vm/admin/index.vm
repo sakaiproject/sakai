@@ -1,0 +1,96 @@
+#header(false ${adminModel.title})
+    	<div class="portletBody">    		
+    	
+    <div class="navIntraTool">
+	    <!-- Home Link -->
+	    <a href="../index">${rlb.searchadmin_index_search}</a>
+	    #if ( ${adminModel.enabled} )
+	    	#foreach( $option in ${adminModel.optons} )
+	    			<a href="${option.url}" ${option.attributes} >${option.name}</a>
+	    	#end
+	    #end
+    </div>
+    
+#if ( ${adminModel.enabled} )
+    <p>
+ #set( $searchStatus = ${adminModel.getSearchStatus()} )
+	${rlb.vm_searchadmin_last_loaded} ${adminModel.searchStatus.lastLoad} ${rlb.vm_searchadmin_in} ${searchStatus.loadTime} <br /> 
+	${rlb.vm_searchadmin_being_indexed} ${searchStatus.currentWorker} ${rlb.vm_searchadmin_expected_before} ${searchStatus.currentWorkerETC} <br /> 
+	${rlb.vm_searchadmin_index_contains} ${searchStatus.nDocuments} ${rlb.vm_searchadmin_documents} ${searchStatus.pDocuments} ${rlb.vm_searchadmin_pending}
+    </p>
+	
+	<table summary="${rlb.searchadmin_index_master_control_records}" >
+	<tr><th colspan="4">${rlb.searchadmin_index_master_control_records}</th></tr>
+	<tr>
+	 <td>${rlb.searchadmin_index_context}</td>
+	 <td>${rlb.searchadmin_index_operation}</td>
+	 <td>${rlb.searchadmin_index_current_status}</td>
+	 <td>${rlb.searchadmin_index_last_update}</td>
+	</tr>
+#foreach( $record in ${adminModel.globalMasterRecords} )
+	<tr>
+		<td>${record.context}</td>
+		<td>${record.operation}</td>
+		<td>${record.status}</td>
+		<td>${record.lastUpdate}</td>
+	</tr>
+#end
+	</table>
+	<table summary="${rlb.searchadmin_index_site_control_records}">
+	<tr><th colspan="4">${rlb.searchadmin_index_site_control_records}</th></tr>
+	<tr>
+	 <td>${rlb.searchadmin_index_context}</td>
+	 <td>${rlb.searchadmin_index_operation}</td>
+	 <td>${rlb.searchadmin_index_current_status}</td>
+	 <td>${rlb.searchadmin_index_last_update}</td>
+	</tr>
+#foreach( $record in ${adminModel.siteMasterRecords} )
+	<tr>
+		<td>${record.context}</td>
+		<td>${record.operation}</td>
+		<td>${record.status}</td>
+		<td>${record.lastUpdate}</td>
+	</tr>
+#end
+	</table>
+	<table summary="${rlb.searchadmin_index_list_index}">
+	<tr>
+		<th colspan="3">${rlb.searchadmin_index_indexer_workers}</th>
+	</tr>
+	<tr>
+		<td>${rlb.searchadmin_index_worker_thread}</td>
+		<td>${rlb.searchadmin_index_due_before}</td>
+		<td>${rlb.searchadmin_index_status}</td>
+	</tr>
+#foreach( $thread in ${adminModel.workerThreads} )
+	<tr>
+		<td>${thread.name}</td>
+		<td>${thread.eta}</td>
+		<td>${thread.status}</td>
+	</tr>
+#end
+	</table>
+	<table summary="${rlb.searchadmin_index_list_segments}" >
+	<tr>
+		<th colspan="3">${rlb.searchadmin_index_segments}</th>
+	</tr>
+	<tr>
+		<td>${rlb.searchadmin_index_segment_name}</td>
+		<td>${rlb.searchadmin_index_segment_size}</td>
+		<td>${rlb.searchadmin_index_segment_last_update}</td>
+	</tr>
+#foreach( $thread in ${adminModel.segments} )
+	<tr>
+		<td>${thread.name}</td>
+		<td>${thread.size}</td>
+		<td>${thread.lastUpdate}</td>
+	</tr>
+#end
+	</table>
+    </div>
+#else
+    <p>
+    ${rlb.jsp_search_off_msg}
+    </p>
+#end
+#footer()

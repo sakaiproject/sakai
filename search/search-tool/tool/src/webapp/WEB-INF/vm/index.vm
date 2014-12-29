@@ -1,0 +1,167 @@
+#header(true ${searchModel.searchTitle} )
+
+<script>
+  jQuery(document).ready(function() {
+
+      jQuery('#search').autocomplete({
+          source: function(request, response) {
+              jQuery.ajax({
+                  url: "/sakai-search-tool/xmlsearch/suggestion",
+                  dataType: "json",
+                  data: {
+                      term : request.term,
+                      s : 0,
+                      e : 10,
+                      ctx : '${currentSiteId}',
+                      q : jQuery('#search').val(),
+                      scope : jQuery('input:radio[name=scope]:checked').val()
+                  },
+                  success: function(data) { response(data); }
+              });
+          },
+          minLength: 2,
+          open: function(event, ui) { setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); }
+
+      });
+  });
+
+
+</script>
+
+<div class="portletBody">
+#if ( ${searchModel.hasAdmin()} && ${searchModel.searchServer} )  	
+   <div class="navIntraTool">
+	  <span class="rwiki_pageLinks">
+	    <a href="${searchModel.toolUrl}/admin/index">${rlb.jsp_admin}</a>
+	  </span>
+   </div>
+#end
+#if (${searchModel.enabled} )
+	<div class="navPanel">
+		<div class="searchBox">
+			<form action="?#" method="get" class="inlineForm"  >  
+				<label for="search">
+					${rlb.jsp_search}  
+				</label>
+				<input type="hidden" name="panel" value="Main" />
+				<input type="text" id="search"  name="search" size="42" maxlength="1024" value="${searchModel.search}"/>
+				<input type="submit" name="sb" value="${rlb.jsp_search}" />
+				<br/>
+				<input id="searchSite" type="radio" name="scope" value="SITE" #if($searchModel.isScope('SITE')) checked="true" #end "/>
+				<label for="searchSite">${rlb.jsp_current_site}</label>
+				<input id="searchMine" type="radio" name="scope" value="MINE" #if($searchModel.isScope('MINE')) checked="true" #end "/>
+				<label for="searchMine">${rlb.jsp_all_my_sites}</label>
+			</form>
+			#if (${searchModel.hasSuggestion()})
+				<div>${rlb.jsp_did_u_mean}:  <a href="${searchModel.getSuggestionUrl()}">${searchModel.getSuggestion()}</a></div>
+			#end
+		</div>
+	</div>
+	<div class="searchHeader">
+	<span id="sherlockButtonHolder" >
+<!--
+	    <a href="#" id="addSherlockButton" >
+	    	<img src="/library/image/transparent.gif" 
+	    		border="0"   
+	    		title="${rlb.jsp_install_plugin}" 
+	    		alt="${rlb.jsp_install_plugin}" />
+	    </a>
+-->
+	</span>
+	
+ #if ( ${searchModel.hasResults()} ) 
+	<a href="${searchModel.rssURL}" target="rss" id="rssLink" >
+	     <img src="/library/image/transparent.gif" title="RSS" alt="RSS" border="0" />
+	</a>
+	${searchModel.searchFound}
+ #end
+
+	</div>
+
+ #if ( ${searchModel.hasResults()} ) 
+    <div class="searchPageContainer" >
+  #foreach ( $page in ${searchModel.pages} )
+							<a href="${page.url}" class="searchPage" >${page.name}</a>
+  #end
+    </div>
+    <div class="searchTabsContainer" >
+	   <div id="results" class="tabHeadOn" >        	
+		  <p class="tabhead" title="${rlb.jsp_results}" ><a href="#" onclick="selectTabs('tagsTab','tabOn','tabOff','resultsTab','tabOff','tabOn','tags','tabHeadOn','tabHeadOff','results','tabHeadOff','tabHeadOn'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_results}</a></p>
+       </div>
+	   <div id="tags" class="tabHeadOff" >        	
+		  <p class="tabhead" title="${rlb.jsp_tags}" ><a href="#" onclick="selectTabs('tagsTab','tabOff','tabOn','resultsTab','tabOn','tabOff','tags','tabHeadOff','tabHeadOn','results','tabHeadOn','tabHeadOff'); setMainFrameHeightNoScroll('${sakai_tool_placement_id}'); return false;" >${rlb.jsp_tags}</a></p>
+    	</div>
+    </div>
+    <div class="searchResultsContainer" >
+		  <div id="resultsTab" class="tabOn" >
+
+	
+  #if ( ${searchModel.hasError()} ) 
+		  	<div class=\"alertMessage\" >${searchModel.errorMessage}</div>
+  #else
+  #if (${searchModel.getCensoredResultCount()} > 0) 
+  	<div class="searchItemsUnavailable">${searchModel.searchFoundCensored}</div> 
+  #end
+
+ 	   <!--ls--> 
+   #foreach ( $result in ${searchModel.results} ) 
+	        <!--is-->
+	        <div class="searchItem" > 
+			#if (${result.isVisible()})
+	        <span class="searchTool">${result.tool}:</span>
+	 	     #if (${result.hasPortalUrl()})
+	        	<a href="${result.url}" target="_top" class="searchTopLink" >${result.title}</a>
+	        #else
+	        	<a href="${result.url}" target="searchresult" class="searchTopLink" >${result.title}</a>
+	        #end
+			      <div class="searchItemBody" >${result.searchResult}</div>
+             #if (${result.hasPortalUrl()})			      
+			      <a href="${result.url}" target="_top" class="searchBottonLink" >${result.url}</a>
+            #else
+                  <a href="${result.url}" target="searchresult" class="searchBottonLink" >${result.url}</a>
+            #end
+			 #if($searchModel.isScope('MINE'))
+	    			<br/><span class="searchSite">${rlb.jsp_site}: <a href="$result.siteURL" target="_top">${result.siteTitle}</a><span>
+	    		#end
+	    	 #else
+	    	 	<span class="searchTool">${result.title}</span>
+	    	 #end 
+			      </div>
+			
+			 	
+
+			      <!--ie-->
+	  #end
+   <!--le--> 
+  #end
+  
+     </div>
+		  <div id="tagsTab" class="tabOff" >
+		  <div id="aboutTabs" >
+		     ${rlb.jsp_about_tags} 
+		  </div>
+		  
+  #foreach( $term in ${searchModel.terms} )
+		  <span style="font-size:${term.weight}em;" ><a href="${term.url}" >${term.name}</a></span>
+  #end    
+    </div>
+    </div>
+    <div class="searchPageContainer" >
+  #foreach ( $page in ${searchModel.pages} )
+		     <a href="${page.url}" class="searchPage" >${page.name}</a>
+  #end
+    </div>
+  #else
+   #if ( ${searchModel.foundNoResults()} )
+    <div class="searchResultsContainer" >
+		     ${rlb.jsp_no_results} 
+    </div>
+   #end
+ #end
+#else
+    <p>
+    ${rlb.jsp_search_off_msg}
+    </p>
+#end
+</div>
+#footer()

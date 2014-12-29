@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+
+<registration>
+
+<!--
+	<function name="search.create" />
+	<function name="search.read" />
+	<function name="search.update" />
+	<function name="search.delete" />
+	<function name="search.admin" />
+	<function name="search.superadmin" />
+-->
+	<tool
+			id="sakai.search"
+			title="Search"
+		description="For searching content">
+			
+		<category name="course" />
+         <category name="project" />
+         <category name="myworkspace" />
+         
+         <!--  placeholder to allow specifing additional sites to search. -->
+		<configuration name="search_site_ids" value="" />
+		<configuration name="search_all_sites" value="" />
+
+	</tool>
+
+</registration>

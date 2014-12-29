@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <name>Sakai Search Project</name>
+  <groupId>org.sakaiproject.search</groupId>
+  <artifactId>search</artifactId>
+  <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>search-api/api</module>
+    <module>search-test</module>
+    <module>search-impl/impl</module>
+    <module>search-impl/pack</module>
+    <module>search-integration-test</module>
+    <module>search-model</module>
+    <module>search-util</module>
+    <module>search-tool/tool</module>
+    <module>elasticsearch</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/search/trunk</url>
+  </scm>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>search-model</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>search-impl</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>search-adapters-impl</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/search/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+</project>

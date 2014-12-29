@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <artifactId>search</artifactId>
+        <groupId>org.sakaiproject.search</groupId>
+        <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+    <groupId>org.sakaiproject.search.elasticsearch</groupId>
+    <artifactId>elasticsearch-base</artifactId>
+    <packaging>pom</packaging>
+    <name>ElasticSearch Base</name>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- maven-compiler-plugin config -->
+        <maven.compiler.source>${sakai.jdk.version}</maven.compiler.source>
+        <maven.compiler.target>${sakai.jdk.version}</maven.compiler.target>
+    </properties>
+
+
+
+    <modules>
+        <module>impl</module>
+        <module>pack</module>
+    </modules>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Internal dependencies -->
+            <dependency>
+                <groupId>org.elasticsearch</groupId>
+                <artifactId>elasticsearch</artifactId>
+                <version>${sakai.elasticsearch.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>11.0.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>1.9.5</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+</project>

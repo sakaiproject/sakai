@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configs>
+		<config>pack/src/webapp/WEB-INF/parallelIndexComponents.xml</config>
+		<config>pack/src/webapp/WEB-INF/contentAdapterComponents.xml</config>
+		<config>pack/src/webapp/WEB-INF/messageAdapterComponents.xml</config>
+		<config>pack/src/webapp/WEB-INF/coreSearchComponents.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>
