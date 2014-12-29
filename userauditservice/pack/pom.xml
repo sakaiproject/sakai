@@ -1,0 +1,41 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.userauditservice</groupId>
+        <artifactId>userauditservice</artifactId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Userauditservice Components Package (userauditservice-pack)</name>
+    <groupId>org.sakaiproject.userauditservice</groupId>
+    <artifactId>userauditservice-pack</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2013</inceptionYear>
+    <description>
+        Userauditservice components pack (special Sakai convention).
+    </description>
+    <packaging>sakai-component</packaging>
+
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>userauditservice-impl</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>userauditservice-util</artifactId>
+            <scope>runtime</scope>
+        </dependency>
+    </dependencies>
+
+    <build />
+</project>

@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+
+<registration>
+  <tool
+    id="sakai.useraudit"
+    title="Site User Audit Event Log"
+    description="For showing changes to user membership in a site">
+    <category name="sakai.helper" />
+    <configuration name="functions.require" value="site.upd" />
+  </tool>	
+</registration>
