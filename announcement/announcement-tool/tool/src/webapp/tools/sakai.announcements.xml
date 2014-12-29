@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.announcements"
+			title="Announcements"
+			description="For posting current, time-critical information.">
+
+		<configuration name="channel" value="" />
+		<configuration name="pagesize" value="10" />
+		<configuration name="enableReorder" value="true" />
+
+		<category name="course" />
+		<category name="project" />
+		<category name="portfolio" />
+		<category name="myworkspace" />
+		<category name="GradToolsStudent" />
+		<category name="GradToolsDepartment" />
+		<category name="GradToolsRackham" />
+
+		<configuration name="functions.require" value="annc.read" /> 
+
+		<configuration name="groupAware" value="true" />
+	</tool>
+
+</registration>

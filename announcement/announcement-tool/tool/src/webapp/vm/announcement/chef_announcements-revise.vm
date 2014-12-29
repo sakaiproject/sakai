@@ -1,0 +1,525 @@
+## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/announcement/chef_announcements-revise.vm,v 1.4 2005/05/15 04:54:19 gsilver.umich.edu Exp $ 
+
+<script type="text/javascript">
+  focus_path = ["subject"];
+  
+function resizeFrame(){
+    // check needed as getElementById in IE doesn't like an empty parameter so the var
+    // frame line returns an error. Firefox appears to be okay with it
+    if (window.name != "") {
+        var frame = parent.document.getElementById(window.name);
+        if (frame) {
+            var clientH = document.body.clientHeight + 10;
+            $(frame).height(clientH);
+        }
+    }
+}
+</script>
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">
+	$(document).ready(function() {
+		$('#notiHistoryToggle').click(function(e){
+			e.preventDefault();
+			$('#notiHistory').toggle();
+			resizeFrame('grow')
+		})
+		#if($specify) 
+			$('.showHideDates').show()
+		#else
+			$('.showHideDates').hide()
+		#end
+		$('.showHide').click(function(){
+			if ($('.showHide:checked')){
+				$('.showHideDates').fadeOut('slow')
+			}
+		});	
+		$('#hidden_specify').click(function(){
+			if ($('#hidden_specify:checked')){
+				$('.showHideDates').fadeIn ('slow');
+				resizeFrame('grow')
+				
+			}
+		});	
+
+		$('.beginEnd').click(function(){
+			if ($('.beginEnd:checked')){
+				//uncheck show hide radios
+				$('.showHide').prop({checked:''});
+				$('#hidden_specify').prop({checked:'checked'});
+			}
+		});
+
+		updateEmailDropdownOptions();
+		
+	});
+</script>	
+<div class="portletBody">
+	<h3>
+		#if ( $newAnn =="true")
+			$tlang.getString("revise.add")
+		#else
+			$tlang.getString("revise.revise")
+		#end
+	</h3>
+	#if ($alertMessage)<div class="alertMessage">$tlang.getFormattedMessage("gen.alert.message", $alertMessage)</div><div class="clear"></div>#end
+	<div class="indnt1">
+		<p class="instruction">
+				#if ( $newAnn =="true")
+					$tlang.getString("revise.complete")<br /><br /> $tlang.getString("revise.required.star")
+				#else
+					$tlang.getString("revise.update") <br /><br /> $tlang.getString("revise.required.star")
+				#end
+		</p>
+	</div>	
+		<form name="reviseForm" action="#toolForm("AnnouncementAction")" method="post" onsubmit="return true;" >
+				<input type="hidden" name="eventSubmit_doAnnouncement_form" value="" />
+				<input type="hidden" name="option" id="option" value="" />
+			<div class="indnt1">
+			<input type="hidden" name="fromInterface" value="revise" />
+			<p class="shorttext">
+				<span class="reqStar">*</span>
+				<label for="subject">
+					$tlang.getString("revise.subject") 
+				</label>
+				#if ($new=="true")
+					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($tempSubject)" />                
+				#else
+					<input type="text" size="45" name="subject" id="subject" value="$validator.escapeHtml($message.Header.subject)" />
+				#end
+			</p>
+			<div class="longtext">
+				<label for="body" class="block">
+					$tlang.getString("revise.announcement.star")
+				</label>
+				<table border="0" cellpadding="0" cellspacing="0" >
+					<tr>
+						<td>
+							#if ($new=="true")
+								#if ($!tempBody.length() != 0)
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($tempBody)</textarea>
+								#else
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
+								#end
+							#else
+								#set($messageBody = $message.body)
+								#if ($!messageBody.length() != 0)
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual">$validator.escapeHtmlFormattedTextarea($message.body)</textarea>
+								#else
+									<textarea name="body" class="block" id="body" cols="65" rows="30" wrap="virtual"></textarea>
+								#end
+							#end
+							#chef_setupformattedtextarea("body")
+						</td>
+					</tr>
+				</table>
+			</div>
+			<fieldset><legend><h4>$tlang.getString("displayto.access")</h4></legend>
+		#if ($!groups || ($!groups.size()>1)) #set ($show_group = "true") #else #set ($show_group = "false") #end
+		#if ( $motd )
+			## no show this selection, but set default to public
+			<input type="hidden" name="announceTo" id="pubview" value="pubview" checked="checked" onclick="updateEmailDropdownOptions()" />
+		#elseif (($!publicDisable && ($show_group =="false")) || $pubviewset)
+			## no show this selection, but set default to site
+			<input type="radio" name="announceToDisabled" id="site" value="site" checked="checked" disabled="true" onclick="updateEmailDropdownOptions()"/>
+			<input type="hidden" name="announceTo" value="site" checked="checked" onclick="updateEmailDropdownOptions()"/>
+			#if ($pubviewset)
+				## If the channel is public save it as site view, but show that we will display to public.
+				## This means if channel is un-made public announcement will revert to site access (correctly).
+				<label for="site">$tlang.getString("displayto.public")</label>
+			#else
+				<label for="site">$tlang.getString("displayto.site")</label>
+			#end
+		#else
+			#if ($allowAddChannelMessage)
+				<p class="checkbox">
+					<input type="radio" name="announceTo" id="site" 
+						value="site" #if(!$!pubview && ($!announceTo == "site" || $!message.AnnouncementHeader.Access == $channelAccess))checked="checked"#end 
+						onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"/>
+					<label for="site">$tlang.getString("displayto.site")</label>
+				</p>	
+				#if (!$!publicDisable)
+				<p class="checkbox">
+					<input type="radio" name="announceTo" id="pubview" 
+						value="pubview" #if($!announceTo == "pubview" || $!pubview)checked="checked"#end 
+						onclick="$('#groupTable').fadeOut('slow');resizeFrame();updateEmailDropdownOptions()"   />
+					<label for="pubview">$tlang.getString("displayto.public")</label>
+				</p>
+				#end
+			#else
+				#if ($!groups.size() >1)
+					<label for="$tlang.getString('groups')">$tlang.getString("groups")</label>
+				#else
+					<label for="$tlang.getString('group')">$tlang.getString("group")</label>
+				#end
+			#end
+			#if ($!groups)
+				## added group awareness
+				<p class="checkbox">
+					<input type="radio" name="announceTo" id="groups" 
+					value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end 
+					onclick="$('#groupTable').fadeIn('slow');resizeFrame(); updateEmailDropdownOptions()"  />
+					##<input type="radio" name="announceTo" id="groups" value="groups" #if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))checked="checked"#end onclick="document.getElementById('groupTable').style.display = 'block';document.getElementById('groupTable').style.width = '80%';"  />
+
+					<label for="groups">$tlang.getString("displayto.selected")</label>
+				</p>	
+				#if(!$!pubview && ($!announceTo == "groups" || $!message.AnnouncementHeader.Access == $groupAccess))
+					#set ($listDisplay="block")
+				#else
+					#set ($listDisplay="none")
+				#end
+					<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellspacing="0" summary="$tlang.getString("revise.group.list.summary")">
+					<caption class="skip" style="display:none">$tlang.getString("displayto.selected")</caption>
+						<tr>
+							<th id ="selectAllGroups" class="attach">
+								<input type="checkbox" name="selectall" value="" id="selectall" title="$tlang.getString("revise.group.list.toggle")" onclick="javascript:toggleSelectAll(this, 'selectedGroups')"  />
+							</th>
+					 		<th id ="groupname">
+								$tlang.getString("revise.group.list.title")
+							</th>
+							<th id ="groupdescription">
+								$tlang.getString("revise.group.list.desc")
+							</th>
+						</tr>
+						#foreach ($group in $!groups)
+							<tr>
+								<td headers="selectAllGroups" class="attach">
+									#set($selected=false)
+									#foreach($aGroupRef in $announceToGroups)
+										#set($aGroup = $!site.getGroup($!aGroupRef))
+										#if ($!group.Id == $!aGroup.Id)
+											#set($selected = true)
+										#end
+									#end
+									#if($groups.size() == 1) #set($selected=true) #end
+									#set($disabled=true)
+##									#if($allowedRemoveGroups.contains($group)) 
+										<input type="checkbox" name="selectedGroups" id="group-$group.Id" title="$validator.escapeHtml($group.title)" value="$group.Id" #if($selected) checked="checked"#end />
+##									#else
+##										<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
+##									#end
+									
+##									<input #if($disabled) type="hidden" #else type="checkbox" #end name="selectedGroups" id="group-$group.Id" title="$group.Title" value="$group.Id" #if($selected) checked="checked"#end/>
+##									#if($disabled && $selected)<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />#end
+								</td>
+								<td headers="groupname" nowrap="nowrap">
+									<label for="group-$group.Id">
+										$validator.escapeHtml($group.Title)
+									</label>	
+								</td>
+								<td headers="groupdescription" width="100%"> ##mozilla does not resize table children dynamically , so set here
+									#set($description = "")
+									#set($description = $group.Description)
+									$validator.escapeHtml($!description)
+								</td>
+							</tr>
+						#end
+					</table>
+			#end
+		#end
+        </fieldset>
+##
+################### AVAILABLE section (to show/hide and set release/retract dates)
+			<fieldset><legend><h4>$tlang.getString("avail.title")</h4></legend>
+			<table border="0" cellpadding="0">
+				<tr>
+					<td style="padding:1px 0">
+						<input type="radio" class="showHide" name="hidden" id="hidden_false" value="false" #if(!$hidden)checked="checked" #end/>
+					</td>
+					<td style="padding:1px 0"  colspan="4">
+						<label for="hidden_false">
+							$tlang.getString("avail.show.withtips")
+                        </label>
+					</td>
+				</tr>
+				<tr>
+					<td  style="padding:1px 0">
+						<input type="radio" class="showHide" name="hidden" id="hidden_true" value="true" #if($hidden)checked="checked" #end/>
+					</td>
+					<td colspan="4"  style="padding:1px 0">
+						<label for="hidden_true">
+                            $tlang.getString("avail.hide.withtips")
+						</label>
+					</td>
+				</tr>
+				<tr>
+					<td  style="padding:1px 0">
+						<input type="radio" name="hidden" id="hidden_specify" value="specify" #if($specify)checked="checked" #end/>
+					</td>
+					<td colspan="4"  style="padding:1px 0">
+						<label for="hidden_specify">
+							$tlang.getString("avail.specify.withtips")
+						</label>
+					</td>
+				</tr>
+				<tr class="showHideDates">
+					<td  style="padding:1px 0"></td>
+					<td  style="padding:1px 0">
+						<input type="checkbox" class="beginEnd"  name="use_start_date" id="use_start_date" value="true" #if($useReleaseDate == true)checked="checked" #end/>
+					</td>
+					<td colspan="3"  style="padding:1px 0">
+						<label for="use_start_date">$tlang.getString("avail.release")</label>
+					</td>
+				</tr>
+				<tr class="showHideDates">
+					<td colspan="3"  style="padding:1px 0"></td>
+					<td  style="padding:1px 0"><label for="release_year">$tlang.getString("widget_date")</label></td>
+				</tr>
+                
+                #set($release_year = $releaseDate.breakdownLocal().year)
+                #set($release_month = $releaseDate.breakdownLocal().month)
+                #set($release_day = $releaseDate.breakdownLocal().day)
+
+                #set($release_hour = $releaseDate.breakdownLocal().hour)
+                #set($release_minute = $releaseDate.breakdownLocal().min)
+
+				<tr class="showHideDates">
+					<td colspan="3"  style="padding:1px 0"></td>
+					<td  style="padding:1px 0">
+                         <input type="text" id="opendate">
+					</td>
+				</tr>
+				<tr class="showHideDates">
+					<td  style="padding:1px 0"></td>
+					<td  style="padding:1px 0">
+						<input type="checkbox" class="beginEnd"  name="use_end_date" id="use_end_date" value="true" #if($useRetractDate == true)checked="checked" #end/>
+					</td>
+					<td colspan="4"  style="padding:1px 0">
+						<label for="use_end_date">$tlang.getString("avail.retract")</label>
+					</td>
+				</tr>
+				<tr class="showHideDates">
+					<td colspan="3"  style="padding:1px 0"></td>
+					<td  style="padding:1px 0"><label for="retract_year">$tlang.getString("widget_date")</label></td>
+				</tr>
+                            
+                #set($retract_year = $retractDate.breakdownLocal().year)
+                #set($retract_month = $retractDate.breakdownLocal().month)
+                #set($retract_day = $retractDate.breakdownLocal().day)
+
+                #set($retract_hour = $retractDate.breakdownLocal().hour)
+                #set($retract_minute = $retractDate.breakdownLocal().min)
+
+				<tr class="showHideDates">
+					<td colspan="3"></td>
+					<td>
+                        <input type="text" id="closedate">
+					</td>
+				</tr>
+			</table>
+            </fieldset>
+            
+            <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+
+            #set( $H = '-' )
+            <script type="text/javascript">
+                localDatePicker({
+                    input:'#opendate',
+                    useTime:1,
+                    val:"$release_year$H$release_month$H$release_day $release_hour:$release_minute",
+                    parseFormat: 'YYYY-MM-DD HH:mm',
+                    ashidden:{
+                        month:"release_month",
+                        day:"release_day",
+                        year:"release_year",
+                        hour:"release_hour",
+                        minute:"release_minute",
+                        ampm:"release_ampm"
+                    }
+                });
+
+                localDatePicker({
+                    input:'#closedate',
+                    useTime:1,
+                    val:"$retract_year$H$retract_month$H$retract_day $retract_hour:$retract_minute",
+                    parseFormat: 'YYYY-MM-DD HH:mm',
+                    ashidden:{
+                        month:"retract_month",
+                        day:"retract_day",
+                        year:"retract_year",
+                        hour:"retract_hour",
+                        minute:"retract_minute",
+                        ampm:"retract_ampm"
+                    }
+                });
+            </script>
+
+################### End Start and end date selectors
+##
+			<h4>
+			$tlang.getString("revise.attachments")
+			</h4>	
+			#set ($size = 0)
+			#if (!$attachments.isEmpty())
+				 #set ($props = false)
+				 #set ($size =  $attachments.size())
+				 <ul class="attachList">
+					 #foreach ($attachment in $attachments)
+						#set ($props = $attachment.Properties)
+						#if (!$props)
+							#if ($size > 0) #set ($size = $size - 1) #end
+						#else
+							#if ($props.getBooleanProperty($props.NamePropIsCollection))
+								<li>
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage("folder"))" border="0" alt="folder" />
+							#else
+								<li>
+									<img src = "#imageLink($contentTypeImageService.getContentTypeImage($props.getProperty($props.NamePropContentType)))" border="0" alt ="$props.getProperty($props.NamePropContentType)" />
+							#end
+							<a href="$attachment.Url" target="_blank">
+							$validator.escapeHtml($attachment.Properties.getPropertyFormatted("DAV:displayname"))</a>
+							#if (!$props.getBooleanProperty($props.NamePropIsCollection) && $props.getProperty("DAV:getcontenttype") != "text/url")
+								($props.getPropertyFormatted($props.NamePropContentLength))
+							#end
+							</li>
+						#end
+						#set ($props = false)
+					#end
+				</ul>	
+			#end
+			#if ($size == 0) <p class="instruction">$tlang.getString("revise.noattach")</p>
+				<div class="act">
+					 <input type="button" name="attach" value="$tlang.getString("revise.addatt")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
+				</div>
+			#else
+				<div class="act">
+					 <input type="button" name="attach" value="$tlang.getString("revise.addrem")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='attach';document.reviseForm.submit();return false;" />
+				</div>
+			#end
+
+			#if ($notification)
+				<hr class="itemSeparator" />
+				<p class="shorttext">
+					<label for="notify">
+      				$tlang.getString("revise.notify")
+					</label>
+					<select name="notify" id="notify">
+						#if ($noti)
+							<option value="r" #if($noti=="r") selected="selected" #end>$tlang.getString("revise.notify_high")</option>
+							<option value="o" #if($noti=="o") selected="selected" #end>$tlang.getString("revise.notify_low")</option>
+							<option value="n" #if($noti=="n") selected="selected" #end>$tlang.getString("revise.notify_none")</option>
+						#else	
+							<option value="r">$tlang.getString("revise.notify_high")</option>
+							<option value="o">$tlang.getString("revise.notify_low")</option>
+							<option value="n" selected="selected">$tlang.getString("revise.notify_none")</option>
+						#end
+					</select>
+				</p>	
+			#end
+		</div>	
+		
+		#if ($notiHistory)
+			<div class="specialLink"><a href="#" class="indnt2 specialLink" id="notiHistoryToggle">$tlang.getString("revise.notify.ver_link")</a></div>
+			<table class="listHier indnt2" id="notiHistory" border="0" style="width:auto;display:none" cellpadding="0" cellspacing="0" summary="$tlang.getString("revise.notify.ver_summary")">
+				<thead>
+					<tr><th scope="col">$tlang.getString("revise.notify.ver_daterevisedtitle")</th><th scope="col">$tlang.getString("revise.notify.ver_typetitle")</th><th scope="col">$tlang.getString("revise.notify.ver_datereleasedtitle")</th></tr>
+				</thead>
+				<tbody> 
+					#set($notiEventCount = 1)
+					#foreach ($notiEvent in $notiHistory)
+						#if($notiEventCount == $notiHistory.size())
+							<tr style="font-weight:bold;font-size:1.1em">
+						#else
+							<tr>
+						#end	
+							#set($notiEventItemCount = 0)
+							#foreach ($notiEventItem in $notiEvent)
+								#if ($notiEventItemCount ==0)
+									<td>$notiEventItem</td>
+								#elseif ($notiEventItemCount ==1)
+									<td>
+										#if($notiEventItem =="0")
+											$tlang.getString("revise.notify.short_none")
+											#set($notiEventType = 0)
+										#elseif($notiEventItem =="1")
+											$tlang.getString("revise.notify.short_high")
+											#set($notiEventType = 1)
+										#elseif($notiEventItem =="2")
+											$tlang.getString("revise.notify.short_low")
+											#set($notiEventType = 2)
+										#else
+											<span class="highlight">$tlang.getString("revise.notify.draft")</span>
+											#set($notiEventType = 3)
+										#end
+									</td>
+								#else 
+									<td>
+										#if($notiEventType == 0)
+											$tlang.getFormattedMessage("revise.notify.ver.dated_future.date", $notiEventItem)
+										#elseif($notiEventType == 1 || $notiEventType == 2)
+											$tlang.getFormattedMessage("revise.notify.ver.dateds_future.date", $notiEventItem)
+										#end
+									</td>
+								#end	
+								#set($notiEventItemCount = $notiEventItemCount + 1)
+							#end
+						</tr>	
+						#set($notiEventCount = $notiEventCount + 1)
+					 #end	
+				</tbody>	
+			</table>
+		#end
+		<p class="act">
+				<input type="button" class="active" name="post" accesskey="s"  id="saveChanges"  value=
+					#if ( $newAnn =="true")				
+						"$tlang.getString("revise.add")"
+					#else
+						"$tlang.getString("revise.savechanges")"
+					#end
+				 onclick="javascript:showNotif('submitnotif','saveChanges','reviseForm');document.reviseForm.onsubmit();document.getElementById('option').value='post';document.reviseForm.submit();return false;" />
+				<input type="button" accesskey="v" name="preview" value="$tlang.getString("revise.preview")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='preview';document.reviseForm.submit();return false;" />
+				<input type="button" accesskey="x" name="cancel" value="$tlang.getString("gen.cancel")" onclick="javascript:document.reviseForm.onsubmit();document.getElementById('option').value='cancel';document.reviseForm.submit();return false;" />   
+				<span id="submitnotif" style="visibility:hidden" >$tlang.getString("label.proces")</span>
+		</p>
+		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+</div>
+<script type="text/JavaScript">
+	<!--
+		function toggleSelectAll(caller, elementName)
+		{
+			var newValue = caller.checked;
+			var elements = document.getElementsByName(elementName);
+			
+			if(elements)
+			{
+				for(var i = 0; i < elements.length; i++)
+				{
+					elements[i].checked = newValue;
+				}
+			}
+		}
+
+		function updateEmailDropdownOptions() {
+			var defaultText = "$tlang.getString("revise.notify_high")";
+			var groupsText  = "$tlang.getString("revise.notify_high_groups")";
+
+			var options = document.getElementById('notify').children;
+			for (var i = 0; i < options.length; i++) {
+				if (options[i].text == defaultText || options[i].text == groupsText) {
+					var highOption = options[i];
+					break;
+				}
+			}
+
+			if (theAnnouncementIsForGroups()) {
+				highOption.text = groupsText;
+			} else {
+				highOption.text = defaultText;
+			}
+		}
+
+		function theAnnouncementIsForGroups() {
+			var isForGroups = false;
+			var recipientOptions = document.getElementsByName('announceTo');
+			for (var i = 0; i < recipientOptions.length; i++) {
+				if (recipientOptions[i].checked && recipientOptions[i].value == 'groups') {
+					isForGroups = true;
+					break;
+				}
+			}
+			return isForGroups;
+		}
+	-->
+</script>
