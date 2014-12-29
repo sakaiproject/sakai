@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool
+			id="sakai.memory"
+			title="Memory"
+			description="An administration tool to view the JVM memory and reset the system caches.">
+
+	</tool>
+
+</registration>

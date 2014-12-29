@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>master</artifactId>
+      <version>11-SNAPSHOT</version>
+      <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+  <name>Sakai Memory Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>memory-base</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>memory-tool/tool</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/memory/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/memory/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/memory/trunk</url>
+  </scm>
+
+</project>
