@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <name>sakai-content-review-pack</name>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>sakai-content-review-pack-federated</artifactId>
+    <packaging>sakai-component</packaging>
+    <properties>
+        <deploy.target>components</deploy.target>
+    </properties>
+
+    <parent>
+        <artifactId>content-review-impl-base-federated</artifactId>
+        <groupId>org.sakaiproject.contentreview</groupId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>org.sakaiproject.contentreview</groupId>
+            <artifactId>sakai-contentreview-impl-federated</artifactId>
+			<version>${project.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+
+   </dependencies>
+
+    <build />
+
+</project>

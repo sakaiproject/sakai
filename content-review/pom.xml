@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <groupId>org.sakaiproject.contentreview</groupId>
+  <artifactId>contentreview</artifactId>
+  <name>Sakai Content Review API</name>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>content-review-api/model</module>
+    <module>content-review-api/public</module>
+    <module>contentreview-federated</module>
+  </modules>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/content-review/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/content-review/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/content-review/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject.contentreview</groupId>
+        <artifactId>contentreview-model-api</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>
