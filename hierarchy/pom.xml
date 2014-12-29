@@ -1,0 +1,99 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>Sakai Hierarchy</name>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>hierarchy</artifactId>
+    <version>11-SNAPSHOT</version>
+
+    <packaging>pom</packaging>
+
+    <organization>
+        <name>Apereo Foundation</name>
+        <url>http://apereo.org</url>
+    </organization>
+    <inceptionYear>2007</inceptionYear>
+
+    <description>
+        Hierarchy is meant to provide a high performance basic hierarchy to associate data
+        with, no data is stored in the hierarchy itself, it is simply there to allow you
+        to maintain the hierarchical structure and to provide methods to manipulate it and
+        query it
+    </description>
+
+    <profiles>
+        <profile>
+            <id>full</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <modules>
+                <module>api</module>
+                <module>impl</module>
+                <module>pack</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>api</id>
+            <modules>
+                <module>api</module>
+            </modules>
+        </profile>
+        <profile>
+            <id>ddl</id>
+            <modules>
+                <module>impl/src/ddl</module>
+            </modules>
+        </profile>
+    </profiles>
+
+    <developers>
+        <developer>
+            <id>aaronz</id>
+            <name>Aaron Zeckoski</name>
+            <email>azeckoski@unicon.net</email>
+            <roles>
+                <role>Project Manager</role>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>0</timezone>
+        </developer>
+    </developers>
+
+    <contributors>
+        <contributor>
+            <name>Anthony Whyte</name>
+            <email>arwhyte@umich.edu</email>
+        </contributor>
+    </contributors>
+
+    <scm>
+        <connection>scm:svn:https://source.sakaiproject.org/svn/hierarchy/trunk</connection>
+        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/hierarchy/trunk</developerConnection>
+        <url>https://source.sakaiproject.org/svn/hierarchy/</url>
+    </scm>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                 <groupId>org.sakaiproject.hierarchy</groupId>
+                 <artifactId>hierarchy-api</artifactId>
+                 <version>${project.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <dependency>
+                 <groupId>org.sakaiproject.hierarchy</groupId>
+                 <artifactId>hierarchy-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

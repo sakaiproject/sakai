@@ -1,0 +1,29 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>hierarchy</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+   <name>Sakai Hierarchy Components Pack</name>
+   <groupId>org.sakaiproject.hierarchy</groupId>
+   <artifactId>hierarchy-pack</artifactId>
+
+   <packaging>sakai-component</packaging>
+
+   <properties>
+      <deploy.target>components</deploy.target>
+   </properties>
+
+   <dependencies>
+      <dependency>
+         <groupId>org.sakaiproject.hierarchy</groupId>
+         <artifactId>hierarchy-impl</artifactId>
+         <scope>runtime</scope>
+      </dependency>
+   </dependencies>
+
+   <build />
+</project>

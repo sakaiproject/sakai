@@ -1,0 +1,43 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>hierarchy</artifactId>
+        <groupId>org.sakaiproject</groupId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Hierarchy API</name>
+    <groupId>org.sakaiproject.hierarchy</groupId>
+    <artifactId>hierarchy-api</artifactId>
+    <packaging>jar</packaging>
+
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
+    <build>
+        <resources>
+            <!-- HBM files -->
+            <resource>
+                <directory>${basedir}/src/java</directory>
+                <includes>
+                    <include>**/*.xml</include>
+                </includes>
+            </resource>
+            <!-- include the readme.txt file and the java source files -->
+            <resource>
+                <directory>${basedir}</directory>
+                <includes>
+                    <include>*.txt</include>
+                    <include>src/**/*.java</include>
+                    <include>src/**/*.html</include>
+                    <include>src/**/*.xml</include>
+                    <include>src/**/*.properties</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+    </build>
+
+</project>
