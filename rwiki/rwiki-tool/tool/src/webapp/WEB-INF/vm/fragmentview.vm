@@ -1,0 +1,1 @@
+${requestScope.renderBean.renderedPage}

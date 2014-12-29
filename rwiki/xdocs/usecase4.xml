@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="gdoyle@its.uct.ac.za"> Greg Doyle</author>
+        <title>Role playing in an undergraduate course</title>
+    </properties>
+    <body>
+        <section name="Actors">
+            <ul>
+                <li>  Frank is the course convenor for a 3rd-year undergraduate course</li>
+            </ul>
+        </section>
+        <section name="Use Case">
+            <subsection name="Setup" >
+                <p>
+                    Students are allocated different country names, one of eight 
+                    different issues they need to look at as well as belonging to 
+                    one of two sub-committees.
+                    They each have to a central online course environment as well 
+                    as 1 of 8 different environments depending which issue they need 
+                    to look at.
+                    In each of the 2 environments they belong to their country name 
+                    and which sub-committee they are members of need to be displayed
+                     and not their real names/ids.
+                 </p>
+            </subsection>
+            <subsection name="Task" >
+                <p>
+                    Frank requires the students to make available, in the central 
+                    course, information regarding their country. This counts towards
+                     their final mark.
+                </p>
+                <p>
+                    They also need to interact with other countries on a global 
+                    scale, those looking at the same issue they are as well as with 
+                    countries in the same sub-committee.
+                    They therefore heavily utilised the communication tools 
+                    (forum and chat) made available in the 2 course environments to 
+                    interact with one another.
+                </p>
+                <p>                    
+                    The course environment also keeps track of the number of 
+                    postings made by each student which is used in allocating 
+                    a mark. The students also have access to the log files of 
+                    the chat sessions which acts as the minutes of their meetings.
+                </p>
+            </subsection>
+        </section>
+        <section name="Comments" >
+            <p>                
+            Although this use case adds requirements to collaboration in general 
+            ( discussion, chat ), and I believe that any tools of that type should
+             address the issues raised, however I am not certain that a Wiki is the
+              best tool for this purpose since it provides a very unstructured 
+              environment. If anyone feels that I have got this wrong, and the use 
+              case outlines requirements for a wiki, please say.
+            </p>
+        </section>
+    </body>
+    <!--    
+        <body>
+        <section name="Actors">
+        </section>
+        <section name="Use Case">
+        </section>
+        </body>
+    -->
+</document>

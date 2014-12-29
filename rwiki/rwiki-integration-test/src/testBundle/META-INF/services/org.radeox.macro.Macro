@@ -1,0 +1,6 @@
+# Additional Custom Macros for RWiki
+uk.ac.cam.caret.sakai.rwiki.component.macros.RecentChangesMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.ImageMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.MathMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.IndexMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.SakaiLinkMacro

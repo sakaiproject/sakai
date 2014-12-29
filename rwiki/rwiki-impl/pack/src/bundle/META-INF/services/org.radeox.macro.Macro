@@ -1,0 +1,16 @@
+# Additional Custom Macros for RWiki
+uk.ac.cam.caret.sakai.rwiki.component.macros.RecentChangesMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.ImageMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.MathMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.CommentMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.IndexMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.SakaiLinkMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.BlockMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.StyleMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.AnchorMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.SectionsMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.ColorMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.BackgroundColorMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.SpanMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.WorksiteInfoMacro
+uk.ac.cam.caret.sakai.rwiki.component.macros.PreMacro

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="ian@caret.cam.ac.uk">Ian Boston</author>
+        <title>RWiki Software Requirements Specification</title>
+    </properties>
+    <body>
+        <section name="Actors">
+            <ul>
+                <li> Harry is the leader of a research group</li>
+                <li> Judy is a researcher</li>
+                <li> Roberta is a reasearch group leader in a Italian University</li>
+                <li> James is a copyright and IPR lawyer used by the organisation</li>
+            </ul>
+        </section>
+        <section name="Use Case">
+            <p> Harry has identified an opportunity for his research group with one of the EU
+                funding bodies. To build a better case for funding his research he decides to
+                collaborate with an Intalian University and agrees with a colleague in that
+                University, Roberta. Harry sets up a worksite in the Sakai and adds a Discussion
+                Tool, a Resources Tool and an Wiki Tool. Since they need to explore the outline
+                agreement of their collaboration, Harry creates a workspace within the Wiki and
+                gives members of the worksite access to the collaboration space. He then sends an
+                email to Roberta inviting her to join the worksite. </p>
+            <p> She joins the worksite and begins to outline what her research group has to offer in
+                the area, and what her research group has done in the past that is relevant to this
+                proposal. Together they begin to build a Wiki space that contains the basis for
+                their propsal. After several days they have an issue over shared copyright. They
+                bring together some of the documents and publish them as PDF's using the Wiki PDF
+                tool. They put these into the Sakai resources area and send them to James to answer
+                the questions about shared copyright and IPR. It becomes clear that James needs more
+                information and the email exchanges are getting in the way of collaboration. James
+                joins the worksite in Sakai and is given access to the Wiki workspace by virtue of
+                his membership of the worksite. He reviews the source documentation and makes some
+                changes to specific wording. Harry and Roberto are monitoring the pages for changes
+                by email notification so are aware of all the changes that have been made. </p>
+            <p> As the detail of the workschedule is being developed the core team need to ask for
+                the opinion of Judy. Harry changes the permissions on some sensitive documents and
+                invites Judy to join the Sakai worksite. Judy reviews the areas that concern certain
+                aspects of the research. Judy references some content from previous research work
+                sites and copies some of the supporting material into the resources area. </p>
+            <p> Finally the team build a proposal document that is converted to PDF and delivered as
+                the final proposal. </p>
+            <p>Alternatives would include: <ul class="star">
+                <li> the draft proposal is converted to Open Office document format or Microsoft
+                    Word and final editing is done within version control in that application</li>
+                <li> sections of the draft proposal are cut and pasted into a Word application
+                    form supplied by the funding agency</li>
+            </ul>
+            </p>
+            <p> 3 months later the grant is awarded, Harry and Roberto create a new Wiki space
+                within the Sakai Workspace and begin planning the implementation. The original
+                proposal workspace is restricted to the members of the management committee. </p>
+        </section>
+    </body>
+    <!--    
+        <body>
+        <section name="Actors">
+        </section>
+        <section name="Use Case">
+        </section>
+        </body>
+    -->
+</document>

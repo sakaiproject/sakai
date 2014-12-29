@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="ian@caret.cam.ac.uk">Ian Boston</author>
+        <title>RWiki Design Issues</title>
+    </properties>
+    <body>
+        <section name="Component Preparation" >
+            <p>
+                When the code was added to the 2.1 Sakai release, it became apparent that
+                it would be difficult to extract a clean component/service/api layered structure.
+                If we use any hibernate based components that are loaded from the component, shared
+                or server class loaders in the request cycle it will become necessary to complete this
+                refactor.
+            </p>
+            <subsection name=" Package Sub Tree: uk.ac.cam.caret.sakai.rwiki.service" >
+                <p>
+                    All packages in this subtree are pure API, that can be placed in the shared area. 
+                    They do not depend on components or tool.
+                </p>
+            </subsection>
+            <subsection name=" Package Sub Tree: uk.ac.cam.caret.sakai.rwiki.component" >
+                <p>
+                    All packages in this subtree are pure Component. They depend on the service
+                    api. They are used by the tool. It is expected that this super component will
+                    be deployed under the components class loaded in the future. All Hibernate DAO's and related
+                    POJO implementations are at this level. There is nothing specific to the tool at this
+                    level.
+                </p>
+            </subsection>
+            <subsection name=" Package Sub Tree: uk.ac.cam.caret.sakai.rwiki.tool" >
+                <p>
+                    The tool implementation is located in this package, which will in the future be
+                    deployed in the war.
+                </p>
+            </subsection>
+            <subsection name="Status" >
+                <p>
+                    Currently this code is only available under the Sakai 2.1 local branch which mirrors 
+                    the main Sakai 2.1 Trunk work. We have not separated the deployment descriptors, so the
+                    application is still stove pipe in nature.
+                </p>
+            </subsection>
+        </section>
+        <section name="Model Implementation">
+            <subsection name="Seperated History">
+                <p>
+                    We have now separated the Current wiki objects from the historical
+                    or versioned wiki objects. They are no longer linked at the hibernate
+                    level but are linked at a higher level.
+                </p>
+                <p>
+                   The aim of this approach is to avoid loading all the history content when
+                   a page is accessed. Lazy loading would have performed this, however the
+                   implementation of Lazy loading in Hibernate is such that we loose some 
+                   control and often see multiple statements issued for each lazy object. 
+                   The code now contains RWikiCurrentObject to represent the current objects
+                   in the model, and RWikiHistoryObject to represent the versioned objects.
+                </p>
+                <p>
+                    <ul>
+                        <li>Status: Implemented and tested</li>
+                        <li>Loacation: In Trunk </li>
+                    </ul>
+                </p>
+            </subsection>
+            <subsection name="Unlinked content" >
+                <p>
+                    Even with the above restructure, Hibernate loads the content of each
+                    page when any field in the page is accessed. Hence the service method
+                    getRWikiCurrentObject will cause the whole of the content of the object to 
+                    be loaded regardless of if we wanted to use the content or not.
+                </p>
+                <p>
+                    In effect this means as a page is rendered, and the exists() method 
+                    on the service is invoked, potential all the linked content could be 
+                    loaded. It would be far better if a lightweight index object was available
+                    that contained the smaller fields and a lazy loaded content field was 
+                    present in the RWikiObject (Current and History) to ensure that the 
+                    content was only loaded when the content was required. 
+                </p>
+                <p>
+                    I don't know if you can have lazy loaded one-to-one relationships in the 
+                    same table. If you can, then that will address the issue. If not then
+                    we will need a separate table with a one-to-one relationship with the 
+                    'index' table.
+                </p>
+                <p>
+                    On further investigation one-to-one lazy loading in hibernate is not possible, 
+                    we could use one-to-many lazy loading, but only ever have one.
+                </p>
+                <p>
+                    One to many lazy loading does not make sense, so we have implemented explicit lazy loading 
+                    with an object proxy to inject the necessary DAO objects so that loading can take place. 
+                    This approach works quite well but has the drawback that we have to proxy the object,
+                    and that Lists need a proxy implementation, however this is far faster than using an AOP
+                    or introspection based proxy, as its direct method to method calls.
+                </p>
+                <p>
+                    <ul>
+                        <li>Status: Implemented and tested</li>
+                        <li>Loacation:  In trunk</li>
+                    </ul>
+                </p>
+            </subsection> 
+            <subsection name="Data Migration">
+                <p>
+                    The above generates a problem. When someone updates the wiki, changes in 
+                    schema will cause and apparent loss of functionality and content. Hibernate
+                    will perform the schema update, but it will not migrate content to the new
+                    scheama. So objects derived from the new schema will be missing data.
+                </p>
+                <p>
+                    We need a mechanism, hooked into the last ContextListener that tomcat 
+                    invokes that will migrate the data. This could be a simple SQL statement 
+                    that is run against the schema, or it could use the objects present
+                    in RWiki to do more complex transformations.
+                </p>
+                <p>
+                    RWiki not has a context listener that loads an injected DataMigrationSpecification from spring.
+                    This Specification contains a list of DataMigrationAgents, which it uses, insequence
+                    to migrate the data between schema version. To perform the above migrations we have
+                    a sql script migration agent, that runs sql script against the database. This is almost
+                    the same as the update schema mechinsim in hibernate.
+                </p>
+                <p>
+                    Since we have added SHA1 hashes against the content, we have also added a SHAHashMigration
+                    component that extracts all objects of a type from the database using hibernate, and then computes
+                    the SHA1 hash of the content before updating them. This is configred in components.xml
+                </p>
+                <p>
+                    We have tested this on our content in sakai-beta, which contains about 200 pages with an average of 20 versions 
+                    per page. On a G4 1.3 the migration process, on startup takes 27 seconds.
+                </p>
+                <p>
+                    <ul>
+                        <li>Status: Implemented and Tested</li>
+                        <li>Loacation:  trunk</li>
+                    </ul>
+                </p>
+                
+            </subsection>
+            <subsection name="Schema Version Control">
+                <p>
+                    In order to be able to perform schema data migration, we need to know 
+                    which version the code is and which version the database is at, independant
+                    of Hibernate. A sepeperate object that stored persisntat site wide properties
+                    will be created. This object will store, amongst other things, version numbers.
+                    Once of these version numbers will be the database scheam version number.
+                    This will enable the data migration listener to invoke the correct sequence of 
+                    sql data migration statements on startup. 
+                </p>
+                <p>
+                    If any of the statements fail, this operation will fail and refuse to 
+                    allow the Tool to start.
+                </p>
+                <p>
+                    See data migration above
+                </p>
+                <p>
+                    <ul>
+                        <li>Status: Implemented and tested</li>
+                        <li>Loacation:  Trunk</li>
+                    </ul>
+                </p>
+           
+            </subsection>
+            <subsection name="SHA Hash of Content" >
+                <p>
+                    Since we now version every change to the page including history, we need a fast
+                    way of determining if the page has changed or not. We have added a SHA hash to the content
+                    that can be used for this purpose, without going to the expense of loading all the content.
+                    We still need to modify the History page to indicate where no content has been changed between pages.
+                    At the moment it just displays the hash.
+                </p>
+                <p>
+                    <ul>
+                        <li>Status: Implemented and tested</li>
+                        <li>Loacation:  Trunk</li>
+                    </ul>
+                </p>                
+            </subsection>
+            <subsection name="Diagrams" >
+                <p>
+                    Info Page
+                </p>
+                
+                    <ul>
+                        <li><a href="infopagewireframe.pdf" >Info Page Wireframe</a></li>
+                        <li><a href="infopage2.png" >Info Page Wireframe v2</a></li>
+                    </ul>
+                <p>
+                    Permissions Rules Diagrams
+                </p>
+                    <ul>
+                        <li><a href="canadminaction.pdf" >Can Admin a page</a></li>
+                        <li><a href="cancreateaction.pdf" >Can Create a page</a></li>
+                        <li><a href="canreadaction.pdf" >Can Read a page</a></li>
+                        <li><a href="canwriteaction.pdf" >Can Update a page</a></li>
+                    </ul>
+                <p>
+                    Code Sequence
+                </p>
+                <ul>
+                    <li><a href="requestprocessing.pdf" >Request Processing sequence</a></li>
+                </ul>
+            </subsection>
+        </section>
+    </body>
+</document>

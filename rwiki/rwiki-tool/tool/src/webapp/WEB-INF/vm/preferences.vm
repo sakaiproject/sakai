@@ -1,0 +1,123 @@
+#set( $viewBean = ${requestScope.ViewBean} )  
+#set( $homeBean = ${requestScope.HomeBean} )
+#set( $preferencesBean = ${requestScope.preferencesBean})
+#set( $realmBean = ${requestScope.realmBean})
+#set( $rlb = ${requestScope.ResourceLoaderBean} )
+
+#set( $title = "${rlb.jsp_info}: ${util.escapeHtml($realmBean.localName)}" )
+#header(${title} ${viewBean} "" )  
+<div id="rwiki_container">
+  <div class="portletBody">
+<script type="text/javascript">
+    $(document).ready(function(){
+
+	setupSelectList = function(list,highlightClass){
+    	$('#' + list + ' :checked').parent("li").addClass(highlightClass);
+	    $('#' + list + ' :radio').click(function(){
+		    $('#' + list + ' li').removeClass(highlightClass);
+			var whatRadio = $(this).attr('value');
+	    	$('#' + whatRadio).addClass(highlightClass);
+	  });
+	  }; 
+	setupSelectList('selectList','selectedSelected');
+	  });
+	  
+</script>
+
+	  <form action="?#" method="get" class="rwiki_searchForm">
+		<ul class="navIntraTool actionToolBar">
+	    ##  $useHomeLink $usePrinterLink $useViewLink $viewLinkName 
+	    ##  $useEditLink $useInfoLink $useHistoryLink $useWatchLink $withNotification 
+	    ##  $homeBean $viewBean $resourceLoaderBean )
+	    ##            uhl  upl  uvl  vln    uel   uil  uhl  uwl  wn
+	  	 #commandlinks(true true true ${rlb.jsp_view}	true  true true true ${requestScope.Withnotification}	${homeBean} ${viewBean} ${rlb} ) 
+	    <li class="rwiki_searchBox">
+		  <label for="searchField">${rlb.jsp_search}:</label>
+	      <input type="hidden" name="action" value="${util.escapeHtml($requestScope.SearchTarget)}" />
+	      <input type="hidden" name="panel" value="Main" />
+	      <input type="text" id="searchField" name="search" />
+	    </li>
+		</ul>
+	  </form>
+
+	
+	#if (${rightRenderBean.hasContent})
+		#set( $rwikiContentStyle = "withsidebar" )
+	#else
+		#set( $rwikiContentStyle = "nosidebar" )
+	#end
+
+			<div class="navPanel">
+			<div class="viewNav">
+				<h3 class="breadcrumb">
+					## note - need to put the current page name in the context (see ${util.escapeHtml($renderBean.localisedPageName)} )
+					<span id="breadPref">${rlb.jsp_watch}:&nbsp;</span><span id="breadCurr">${util.escapeHtml($renderBean.localisedPageName)}</span>
+				</h3>
+			</div>	
+			<div class="listNav specialLink">
+				<a href="#" class="visitedPagesOn" id="visitedPages" style="display:none">${rlb.jsp_visited_pages_link}</a>
+				<ul id="wikiCrumb" style="display:none">#breadcrumbs()</ul>
+			</div>
+		</div>
+
+	<script type="text/javascript">
+		$(document).ready(function(){
+			rearrangeBreadCrumb();
+		})
+	</script>
+
+	<div id="rwiki_head" class="${rwikiContentStyle}-head" >				    
+		#sidebar_switcher()
+	</div>
+	<div id="rwiki_content" class="${rwikiContentStyle}" >
+	    <h3 style="margin-top:0">${rlb.jsp_notifications_for}: ${util.escapeHtml($viewBean.localSpace)}</h3>
+	    <form action="?#" method="post">
+	    <ul id="selectList">
+	     <li class="checkbox" id="separate">
+		     #if ( ${preferencesBean.notificationLevel} == "separate") 
+		     		<input type="radio" name="notificationLevel" id="notificationSeparate" value="separate" checked="checked"/>
+		     #else
+		       <input type="radio" name="notificationLevel" id="notificationSeparate" value="separate"/>
+		     #end
+		       <label for="notificationSeparate">${rlb.jsp_notify_seperate}</label>
+	     </li>
+	     <li class="checkbox" id="digest">
+			#if (${preferencesBean.notificationLevel} == "digest")
+					<input type="radio" name="notificationLevel" value="digest" id="notificationDigest" checked="checked"/>
+			#else
+					<input type="radio" name="notificationLevel" value="digest" id="notificationDigest"/>
+			#end<label for="notificationDigest">${rlb.jsp_notify_summary}</label>
+	     </li>
+	     <li class="checkbox" id="none">
+		     #if (${preferencesBean.notificationLevel} == "none")
+		       <input type="radio" name="notificationLevel" value="none" id="notificationNone" checked="checked"/>
+		     #else
+		     		<input type="radio" name="notificationLevel" value="none" id="notificationNone"/>
+		     #end
+		       <label for="notificationNone">${rlb.jsp_notify_none}</label>
+	     </li>
+	     <li class="checkbox" id="nopreference">
+		     #if (${preferencesBean.notificationLevel} == "nopreference")
+		       <input type="radio" name="notificationLevel" value="nopreference" id="notificationNoPreference" checked="checked"/>
+		     #else
+									<input type="radio" name="notificationLevel" value="nopreference" id="notificationNoPreference"/>
+							#end
+						 <label for="notificationNoPreference">${rlb.jsp_notify_no_preference}</label>
+	     </li>
+		 </ul>	
+		 <p class="act">
+	     <input type="submit" name="command_save" value="${rlb.jsp_button_save}" class="active"/>
+	     <input type="submit" name="command_cancel" value="${rlb.jsp_button_cancel}"/>
+	     <input type="hidden" name="action" value="updatePreferences" />
+	     <input type="hidden" name="pageName" value="${util.escapeHtml($viewBean.pageName)}"/>
+		 </p>
+	    </form>
+	 #sidebar()
+	 
+  </div>
+</div>
+#footer()
+  
+	  
+	  
+	

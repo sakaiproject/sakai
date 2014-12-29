@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  ** @author Stephan J. Schmidt
+  ** @version $Id: build.xml 155 2005-08-31 09:32:45Z andrew $
+  -->
+ <project basedir="." default="compile" name="Radeox Examples">
+
+   <target name="init">
+     <property name="testTarget" value="AllTests"/>
+     <property name="debug" value="true"/>
+     <property name="out" value="./cls"/>
+     <property name="pre-out" value="${out}/groovy"/>
+     <property name="src" value="./"/>
+   </target>
+
+  <path id="classpath">
+    <pathelement location="../../lib/picocontainer.jar"/>
+    <pathelement location="../../lib/commons-logging.jar"/>
+    <pathelement location="../../lib/junit.jar"/>
+    <pathelement location="../../lib/groovy.jar"/>
+    <pathelement location="../../lib/radeox.jar"/>
+    <pathelement location="../../lib/asm.jar"/>
+    <pathelement location="../../lib/asm-util.jar"/>
+    <pathelement location="./cls/groovy"/>
+  </path>
+
+  <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpathref="classpath"/> 
+
+
+   <target name="prepare" depends="init">
+      <mkdir dir="${out}"/>
+      <mkdir dir="${out}/groovy"/>
+   </target>
+
+   <target name="compile-groovy" depends="prepare">
+     <groovyc destdir="${pre-out}" srcdir="${src}" listfiles="true">
+         <classpath refid="classpath"/>
+     </groovyc>
+   </target>
+
+   <target name="compile" depends="prepare, compile-groovy">
+     <javac srcdir="${src}" destdir="${out}" classpathref="classpath" debug="${debug}"/>
+   </target>
+
+  <target name="test" depends="compile" description="run compliance tests">
+    <junit printsummary="true">
+       <formatter usefile="false" type="plain"/>
+       <test name="examples.AllTests"/>
+       <classpath refid="classpath"/>
+       <classpath location="."/>
+       <classpath location="${out}"/>
+    </junit>
+  </target>
+
+  <target description="clean up compiled code" depends="init" name="clean">
+    <delete failonerror="false">
+      <fileset dir="${out}" includes="**" excludes="CVS"/>
+    </delete>
+  </target>
+
+</project>

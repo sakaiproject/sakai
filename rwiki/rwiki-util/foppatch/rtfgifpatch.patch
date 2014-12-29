@@ -1,0 +1,70 @@
+Index: src/java/org/apache/fop/render/rtf/rtflib/rtfdoc/RtfExternalGraphic.java
+===================================================================
+--- src/java/org/apache/fop/render/rtf/rtflib/rtfdoc/RtfExternalGraphic.java	(revision 391576)
++++ src/java/org/apache/fop/render/rtf/rtflib/rtfdoc/RtfExternalGraphic.java	(working copy)
+@@ -31,6 +31,9 @@
+ //import org.apache.fop.render.rtf.rtflib.tools.jpeg.Encoder;
+ //import org.apache.fop.render.rtf.rtflib.tools.jpeg.JPEGException;
+ 
++import java.awt.image.BufferedImage;
++import java.io.ByteArrayInputStream;
++import java.io.ByteArrayOutputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
+ import java.io.Writer;
+@@ -39,6 +42,9 @@
+ import java.net.URL;
+ import java.net.MalformedURLException;
+ 
++import javax.imageio.IIOImage;
++import javax.imageio.ImageIO;
++
+ /**
+  * Creates an RTF image from an external graphic file.
+  * This class belongs to the <fo:external-graphic> tag processing. <br>
+@@ -137,6 +143,9 @@
+         public String getRtfTag() {
+             return "";
+         }
++        public byte[] getContvertedBytes(byte[] data) {
++        	 return data;
++        }
+     }
+     
+     private static class FormatGIF extends FormatBase {
+@@ -147,9 +156,24 @@
+             return ImageUtil.compareHexValues(pattern, data, 0, true);
+         }
+         
++        public FormatBase convert(FormatBase format, byte[] data) {
++            return new FormatPNG();
++        }
++        public byte[] getConvertedBytes(byte[] data) {
++        	    try {
++        	    		BufferedImage image = ImageIO.read(new ByteArrayInputStream(data));
++        	    		ByteArrayOutputStream baos = new ByteArrayOutputStream();
++        	    		ImageIO.write(image,"png",baos);
++        	    		return baos.toByteArray();
++        	    } catch ( Exception ex) {
++        	    	   throw new RuntimeException("Failed to covert GIF to PNG",ex);
++        	    }
++        }
++        
+         public int getType() {
+             return ImageConstants.I_GIF;
+         }
++
+     }
+     
+     private static class FormatEMF extends FormatBase {
+@@ -382,7 +406,9 @@
+         String file = url.getFile ();
+         imageformat = FormatBase.determineFormat(imagedata);
+         if (imageformat != null) {
+-            imageformat = imageformat.convert(imageformat, imagedata);
++            FormatBase newImageFormat = imageformat.convert(imageformat, imagedata);
++            imagedata = imageformat.getContvertedBytes(imagedata);
++            imageformat = newImageFormat;
+         }
+         
+         if (imageformat == null 

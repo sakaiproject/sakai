@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+<beans>
+  <!-- components context -->
+
+  <!-- Data migration access proxy -->
+  <bean id="rwikiDataMigration"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+    <property name="target"><ref bean="rwikiDataMigrationImpl"/></property>
+  </bean>
+
+  <!-- Data migration sepecification, containing the steps to get the target schema -->
+  <bean id="rwikiDataMigrationImpl" 
+    class="uk.ac.cam.caret.sakai.rwiki.component.model.impl.DataMigrationSpecification" >
+    <property name="targetVersion"  ><ref bean="rwikiCurrentSchemaVersion" /></property>
+    <property name="migrationAgents">
+      <list>
+	<ref bean="rwiki-data-migrate-noneTo20051017" />
+	<ref bean="rwiki-data-migrate-applyCurrentSHA1" />
+	<ref bean="rwiki-data-migrate-applyHistorySHA1" />
+	<ref bean="rwiki-data-migrate-noneTo20051026" />
+	<ref bean="rwiki-data-migrate-20051026To20051107" />
+      </list>
+    </property>
+    <property name="propertyDao"><ref bean="rwikiPropertyDaoImpl" /></property>
+    <property name="performDataMigrations"><value>${auto.ddl}</value></property>
+  </bean>
+
+  <!-- propery prototype for the target schema version -->
+  <bean id="rwikiCurrentSchemaVersion" 
+    class="uk.ac.cam.caret.sakai.rwiki.model.RWikiPropertyImpl">
+    <property name="name"><value>schema-version</value></property>
+    <property name="value"><value>20051107</value></property>
+  </bean>
+
+  <!-- data migration step from null to version 20051017 step 1, split of current and history ojects, and explicit content lazy load -->
+  <bean id="rwiki-data-migrate-noneTo20051017"
+    class="uk.ac.cam.caret.sakai.rwiki.component.model.impl.SQLScriptMigration" >
+    <property name="to"><value>20051017-S1</value></property>
+    <property name="scriptPattern">
+      <value>/uk/ac/cam/caret/sakai/rwiki/model/bundle/{0}/migrateTo20051017.sql</value>			
+    </property>
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+  </bean>
+
+  <!-- computation for the current objects, migrates from 20051017-S1 to 20051017-S2 -->
+  <bean id="rwiki-data-migrate-applyCurrentSHA1"
+    class="uk.ac.cam.caret.sakai.rwiki.component.model.impl.SHAHashMigration" >
+    <property name="from"><value>20051017-S1</value></property>
+    <property name="to"><value>20051017-S2</value></property>
+    <property name="rwikiObjectDao"><ref bean="rwikiCurrentObjectDaoImpl"/></property>
+  </bean>
+  <!-- computation for the current objects, migrates from 20051017-S2 to 20051017 -->
+  <bean id="rwiki-data-migrate-applyHistorySHA1"
+    class="uk.ac.cam.caret.sakai.rwiki.component.model.impl.SHAHashMigration" >
+    <property name="from"><value>20051017-S2</value></property>
+    <property name="to"><value>20051017</value></property>
+    <property name="rwikiObjectDao"><ref bean="rwikiHistoryObjectDaoImpl"/></property>
+  </bean>
+  <!-- schema migration 20051017 to 20051026, oracle user to userid -->
+  <bean id="rwiki-data-migrate-noneTo20051026"
+    class="uk.ac.cam.caret.sakai.rwiki.component.model.impl.SQLScriptMigration" >
+    <property name="from"><value>20051017</value></property>
+    <property name="to"><value>20051026</value></property>
+    <property name="scriptPattern">
+      <value>/uk/ac/cam/caret/sakai/rwiki/model/bundle/{0}/migrateTo20051026.sql</value>			
+    </property>
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+  </bean>
+  <!-- schema migration 20051026 to 20051107, change the subspace separator to / -->
+  <bean id="rwiki-data-migrate-20051026To20051107"
+    class="uk.ac.cam.caret.sakai.rwiki.component.model.impl.SQLScriptMigration" >
+    <property name="from"><value>20051026</value></property>
+    <property name="to"><value>20051107</value></property>
+    <property name="scriptPattern">
+      <value>/uk/ac/cam/caret/sakai/rwiki/model/bundle/{0}/migrateTo20051107.sql</value>			
+    </property>
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+  </bean>
+
+</beans>

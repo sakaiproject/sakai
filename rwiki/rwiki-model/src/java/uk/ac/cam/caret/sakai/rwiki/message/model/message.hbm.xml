@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+  "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+  "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+  <!-- 
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+  -->
+  <hibernate-mapping package="uk.ac.cam.caret.sakai.rwiki.component">
+      <!-- 
+      This represents a sessions presence on a wiki page. One record per session, ideally removed when the 
+      session disappears, updated when the user moves from page to page
+       -->
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.PagePresenceImpl"
+          table="rwikipagepresence" >
+          <id name="id" unsaved-value="null" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <property name="sessionid" column="sessionid" index="irwikipp_sessionid" />
+          <property name="user" column="userid" not-null="true" index="irwikipp_user" type="string" length="64" />
+          <property name="pagespace" column="pagespace" type="string" length="255"/>
+          <property name="pagename" column="pagename" type="string" length="255" />
+          <property name="lastseen" column="lastseen" type="timestamp" />
+      </class>
+      <!-- 
+      Preferences as an XML blob. One record per user, updated when the user wants to update
+       -->
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.PreferenceImpl"
+          table="rwikipreference" >
+          <id name="id" unsaved-value="null" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <property name="userid" column="userid" not-null="true" index="irwikipr_userid" type="string" length="64" />
+          <property name="lastseen" column="lastseen" type="timestamp" />
+          <property name="prefcontext" column="prefcontext" type="string" length="255" />
+          <property name="preftype" column="preftype" type="string"  length="64" />
+          <property name="preference" column="preference" type="materialized_clob" />
+      </class>
+      <!-- 
+      Chat message sent, page, space, user and session.
+      Added as a user submits chats.
+      These are kept
+       -->
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiMessageImpl"
+          table="rwikipagemessage" >
+          <id name="id" unsaved-value="null" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <property name="sessionid" column="sessionid"  index="irwikipm_sessionid" />
+          <property name="user" column="userid" not-null="true" index="irwikipm_user" type="string" length="64" />
+          <property name="pagespace" column="pagespace" type="string" index="irwikipm_pagespace" length="255"/>
+          <property name="pagename" column="pagename" type="string"  index="irwikipm_pagename" length="255" />
+          <property name="lastseen" column="lastseen" type="timestamp" />
+          <property name="message" type="materialized_clob" />
+      </class>
+      
+      <class name="uk.ac.cam.caret.sakai.rwiki.message.model.RwikiTriggerImpl"
+          table="rwikipagetrigger" >
+          <id name="id" unsaved-value="null" >
+              <column name="id" length="36" not-null="true"/>
+              <generator class="uuid.hex" />
+          </id>
+          <property name="user" column="userid" not-null="true" index="irwikipt_user" type="string" length="64" />
+          <property name="pagespace" column="pagespace" type="string" index="irwikipt_pagespace" length="255"/>
+          <property name="pagename" column="pagename" type="string"  index="irwikipt_pavename" length="255" />
+          <property name="lastseen" column="lastseen" type="timestamp" />
+          <property name="triggerspec" type="materialized_clob" />
+      </class>
+      
+      
+  </hibernate-mapping>
+  

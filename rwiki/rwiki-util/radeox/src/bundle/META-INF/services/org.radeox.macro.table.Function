@@ -1,0 +1,5 @@
+# all default macros
+org.radeox.macro.table.SumFunction
+org.radeox.macro.table.AvgFunction
+org.radeox.macro.table.MaxFunction
+org.radeox.macro.table.MinFunction

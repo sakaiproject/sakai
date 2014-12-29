@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faqs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="http://maven.apache.org/reference/plugins/faq/faq.xsd"
+ title="Frequently Asked Questions">
+
+  <part id="general">
+    <title>General</title>
+    <faq id="whatisrwiki">
+      <question>
+      What is RWiki ?
+      </question>
+      <answer>
+      RWiki is a Wiki tool for Sakai that gives worksite members the ability to create and update
+      wiki pages within the worksite. 
+      </answer>
+    </faq>
+    <faq id="wikisites">
+      <question>How does RWiki work with Worksites ?</question>
+      <answer>
+        When you create a worksite (or course site) you can add an RWiki tool. That tool then creates 
+        an access controlled wiki space dedicated to that work site. All pages that you create 
+        are members of that space.
+      </answer>
+    </faq>
+    <faq id="wikisites">
+      <question>I can see the Home Page, how to I create annother page ?</question>
+      <answer>
+        When you edit a page, you can create a new page by entering a Wiki link eg [NewPage] into the existing page.
+        Once that page is saved you can click on he link and edit it. This will automatically create the new page
+        for you. 
+      </answer>
+    </faq>
+    
+  </part>
+      
+  <part id="permissions">
+    <title>Permissions</title>
+
+  </part>
+
+  <part id="markup">
+    <title>Wiki Markup</title>
+    <faq id="whichwikimarkup">
+      <question>Which Wiki Markup are you using ?</question>
+      <answer>
+        RWiki is based on the Radeox Wiki engine. This engine is also used by SnipSnap, Confluence and others.
+        The basig markup is simular to those wikis. You will find a complete set of markup on the 
+        HelpPage that is present in every wiki space.
+      </answer>
+    </faq>
+  </part>
+  <part id="pages">
+    <title>Wiki Pages</title>
+    <faq id="whichwikimarkup">
+      <question>How do I make a sidebar appear ?</question>
+      <answer>
+        On most pages there is a side bar. This is controlled by a wiki page. If the wiki page
+        exists, the side bar will appear. If the wiki page does not exist, the side bar will
+        not appear. So to make a side bar appear, you have to create a wiki page with the 
+        correct name, eg view_right, search_right, edit_right, info_right (TODO./.. needs a full list)
+      </answer>
+    </faq>
+  </part>
+  
+
+  <!--
+    <faq id="">
+      <question></question>
+      <answer>
+      </answer>
+    </faq>
+  -->
+</faqs>

@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+
+<registration>
+
+<!--
+	<function name="rwiki.create" />
+	<function name="rwiki.read" />
+	<function name="rwiki.update" />
+	<function name="rwiki.delete" />
+	<function name="rwiki.admin" />
+	<function name="rwiki.superadmin" />
+-->
+	<tool
+			id="sakai.rwiki"
+			title="Wiki"
+		description="For collaborative editing of pages and content">
+<!--
+           <configuration name="experimintal" value="false" />
+           <configuration name="skinning" value="true" />
+           <configuration name="base-page" value="true" />
+           <configuration name="advanced-search" value="true" />
+-->
+           <configuration name="home-page" value="Home" />
+           <configuration name="home-page-friendly-name" value="" />
+
+			
+		<category name="course" />
+         	<category name="project" />
+         	<category name="myworkspace" />
+		
+		<configuration name="functions.require" value="rwiki.read" /> 
+
+	</tool>
+
+</registration>

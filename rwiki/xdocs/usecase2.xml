@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document>
+    <properties>
+        <author email="marquard@ched.uct.ac.za">Stephen Marquard</author>
+        <title>Collaborative writing exercise in an undergraduate course</title>
+    </properties>
+    <body>
+        <section name="Actors">
+            <ul>
+                <li> Phumzile is the course convenor for a 3rd-year undergraduate course in Economics of Developing Countries.</li>
+                <li> Reza is one of 10 tutors teaching on the course, responsible for a tutor group of 12 students.</li>
+                <li> Susan, Bongani and Jonathan are students in Reza’s tutor group.</li>
+            </ul>
+        </section>
+        <section name="Use Case">
+            <subsection name="Task" >
+                <p>
+                    Phumzile requires students, working in groups of 3, to choose one of 4
+                    developing countries (Brazil, India, Nigeria and South Africa) and
+                    write together an assessment of that country’s economic development
+                    over the last 3 decades.  
+                </p>
+                <p>
+                    Phumzile
+                    decides that a wiki would be an appropriate tool to facilitate students
+                    collaboratively writing their assessments. Previously this type of
+                    exercise had been done with Word documents using track changes, but
+                    that required lots of emailing revised documents around, and made it
+                    hard for students to work on their group assignments at the same
+                    time.
+                </p>
+            </subsection>
+            <subsection name="Setup" >
+                <p>
+                    As the course already has a course site created for it in the Sakai
+                    environment, Phumzile creates a template wiki with some instructions
+                    about the assignment on the home page, and then creates 12 wikis (one
+                    for each tutor group) from the template wiki.</p>
+                <p>Phumzile
+                    would like to discourage students borrowing work from other groups, so
+                    the wikis are configured by default so that no students have access to
+                    any wiki. Phumzile assigns administration rights for each wiki to the
+                    respective tutor for that tutor group.
+                </p>
+                <p>Reza
+                    prepares for the first tutorial session with his tutor group by logging
+                    into the Sakai environment, and granting students in his tutor group
+                    read and update permissions to the tutor group’s wiki.
+                </p>
+                <p>Reza explains
+                    the assignment to the students, who organize themselves into 4 project
+                    groups of 4 students. Each project group chooses a different country.
+                    All students in the tutor group will use the same wiki for their work,
+                    although each project group will be working on a different country in
+                    different pages of the wiki.
+                </p>
+            </subsection>
+            <subsection name="Collaboration" >
+                <p>
+                    Susan, Bongani and Jonathan login to the course site, where they see 
+                    the wiki for their tutor group appear. Over a period of several weeks, 
+                    they each write a section of the assignment, then collate them together, 
+                    and do some editing of each others’ work to create a coherent composite
+                    document.
+                </p>
+                <p>
+                    They find it useful to look at how the other project groups in their 
+                    tutorial groups are tackling their assignments on other countries,
+                    but do not have access to the work of students in other tutorial
+                    groups, so cannot compare their own work with any other students 
+                    working on the same country.
+                </p>
+            </subsection>
+            <subsection name="Assesment" >
+                <p>
+                    On the due date for the assignment to be handed in, Susan creates a 
+                    PDF of their set of pages from the wiki, and submits the PDF for 
+                    assessment using the Assignment handin tool.
+                </p>
+                <p>                    
+                    Reza assesses the assignment, and allocates it a mark. However, 
+                    because a component of the final mark for each student is based on
+                    his or her respective contribution to the project group’s effort,
+                    Reza also logs into the course environment, and views the wiki 
+                    contribution history of each student in turn.
+                </p>
+                <p>                    
+                    The contribution history shows the changes and additions that the 
+                    student made to the wiki. Reza notices that Susan and Bongani made 
+                    extensive input and contributions, whereas Jonathan's changes were 
+                    less frequent and of a less substantive nature, so awards a higher 
+                    contribution mark to Susan and Bongani than to Jonathan.
+                </p>
+            </subsection>
+        </section>
+        <section name="Comments" >
+            <ol>
+                <li> Limiting access to a group of users witin a Worksite will
+                    require an ACL structure to the Wiki pages within the Worksite. When
+                    Hierachy and Super Structure services appear in 2.1.<ol>
+                        <li> In 2.0 this could be achieve by seperate worksited for each group, linked when required into the course site.</li>
+                    </ol></li>
+                <li> There are no new requirements from Collaboration that cant be handled by the 2.0 release</li>
+                <li> Assessment<ol>
+                    <li> Need for a PDF export of a group of pages.</li>
+                </ol></li>
+                
+            </ol><br/>
+            Please say if my interpretation of the use case is correct ?
+        </section>
+    </body>
+    <!--    
+        <body>
+        <section name="Actors">
+        </section>
+        <section name="Use Case">
+        </section>
+        </body>
+    -->
+</document>

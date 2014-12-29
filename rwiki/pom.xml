@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+Copyright (c) 2003, 2004, 2005, 2006, 2007 The Sakai Foundation.
+
+Licensed under the Educational Community License, Version 1.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+     http://www.opensource.org/licenses/ecl1.php
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>rwiki-base</artifactId>
+  <version>11-SNAPSHOT</version>
+  <name>Sakai RWiki Project</name>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/rwiki/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/rwiki/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/rwiki/trunk</url>
+  </scm>
+  <packaging>pom</packaging>
+  <modules>
+    <module>rwiki-api/api</module>
+    <module>rwiki-impl/impl</module>
+    <module>rwiki-integration-test</module>
+    <module>rwiki-model</module>
+    <module>rwiki-util/jrcs</module>
+    <module>rwiki-util/radeox</module>
+    <module>rwiki-util/util</module>
+    <module>rwiki-impl/pack</module>
+    <module>rwiki-tool/tool</module>
+    <module>rwiki-access-tool</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>was</id>
+      <modules>
+        <module>rwiki-impl/rwiki-shared-serializer</module>
+      </modules>
+    </profile>
+  </profiles>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-radeox</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-rwiki-model</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-rwiki-util</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-rwiki-diff</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-search-util</artifactId>
+        <version>${sakai.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-rwiki-impl</artifactId>
+        <version>${project.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xmlParserAPIs</artifactId>
+          <version>2.6.2</version>
+          <type>jar</type>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>xerces</groupId>
+          <artifactId>xercesImpl</artifactId>
+          <version>2.11.0</version>
+          <type>jar</type>
+          <scope>compile</scope>
+      </dependency>
+      <dependency>
+          <groupId>xalan</groupId>
+          <artifactId>xalan</artifactId>
+          <version>2.7.2</version>
+          <type>jar</type>
+          <scope>compile</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

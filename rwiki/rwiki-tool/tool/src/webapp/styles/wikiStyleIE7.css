@@ -1,0 +1,39 @@
+a.editToolBar, 
+a:visited.editToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;    
+    padding: 8px 8px 5px 8px;
+}
+a:hover.editToolBar, 
+    a:active.editToolBar     {
+	border: 1px solid #316ac5;	
+	background-color: #c1d2ee;
+    cursor: default;  
+    padding: 8px 8px 5px 8px;
+}
+a.previewToolBar, 
+a:visited.previewToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;    
+    padding: 8px 8px 5px 8px;
+}
+a:hover.previewToolBar, 
+    a:active.previewToolBar     {
+	border: 1px solid #316ac5;	
+	background-color: #c1d2ee;
+    cursor: default;  
+    padding: 8px 8px 5px 8px;
+}
+#rwiki_sidebar{
+	margin-top:-15px;
+}
+
+.rwikicommentarrow{
+	padding:0;
+	height:13px;
+	background:transparent url(../images/bubble-arrow.png) 3% 0  no-repeat;
+}
+
+.historyPage table{
+	width:80% !important
+}

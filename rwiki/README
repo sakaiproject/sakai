@@ -1,0 +1,106 @@
+2.5 2008-01-25
+
+TO Run RWiki you will need trunk +
+search 
+ which requires
+   mailarchive
+      announcements
+	 jobscheduler
+
+
+
+
+=========================================
+Corrections.
+
+wiki.comments=true
+This is now the default for 2.3 and later.
+
+
+
+Sakai Wiki for Sakai 2.1.2
+--------------------------
+
+Changes since 2.1
+-----------------
+Restructured into a service/component/tool structure to eliminate side effects with ehcache.
+Added a resources helper to make it easier to embed and link to files in Resources.
+Made Wiki Objects conform with the Sakai Entity Model
+Added Archive ability so that all Rwiki data appears in archives created by the Site Archive tool.
+Added Merge ability so that the Site Archive tool can merge archives into worksited
+Added RSS Feeds (0.92, 1.0, 2.0)
+Added Atom Feeds (0.3)
+Added a "really" public HTML page to remove issues with older public view page.
+Added wiki.experimental property to sakai.properties
+Added Email notification on Edit page to all worksite members
+Added wiki.comments to sakai.properties to enable Comments pages.
+
+
+Comments Pages
+--------------
+
+Prior to version 2.1.2 deployers had to edit the jsp files to enable the Page Comments UI. 
+We have moved this into sakai.properties
+
+To enable comments in the sakai instance, set
+
+wiki.comments=true
+
+in sakai.properties
+
+The default setting is wiki.comments=false
+
+Experimental Features
+---------------------
+Experimental features are not consided ready for mainstream release, but enable the deployer to
+try out features that are under active development.
+
+To enable experimental features, set
+ 
+wiki.experimental=true
+
+in sakai.properties
+
+If not present, the default is wiki.experimental=false
+
+Experimental Features in Sakai 2.1.2
+------------------------------------
+A UI to manage the Notification settings on a worksite by worksite basis.
+Section Support macro
+Section Support Permissions control UI.
+Site wide search integration.
+
+
+Sakai RWiki for Sakai 2
+-----------------------
+
+The provided war should be installed as sakai-rwiki.war in the webapps folder of a 
+sakai tomcat instance.
+
+How to Build
+------------
+
+There are several ways to build this project. The simplest is to do:
+
+maven sakai
+
+This should build and deploy the webapp to the correct place in your local sakai 
+instance.
+
+The other options are to build the following sub-projects separately: 
+radeox, jrcs, rwiki-service, and rwiki. Their default goals should be enough.
+Finally you would have to install the war created by the rwiki sub-project in
+your sakai-tomcat folder as sakai-rwiki.war
+
+Known Issues
+------------
+
+1. To install math support you should set the init-params headerScriptSrc and
+footerScript appropriately. We recommend that you keep these as the default and
+install an appropriate library in /library/jsMath. We suggest that you use
+jsMath (http://www.math.union.edu/~dpvc/jsMath/welcome.html) but cannot
+distribute it as it is GPL.
+
+2. Searching is restricted to the default permission realm, and doesn't check
+that the pages returned can actually be viewed by the searcher.
+

@@ -1,0 +1,76 @@
+
+a.editToolBar, 
+a:visited.editToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;   
+     
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}
+a:hover.editToolBar, 
+    a:active.editToolBar     {
+	border: 1px solid #316ac5;	
+    cursor: default;    
+    
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}
+a.previewToolBar, 
+a:visited.previewToolBar     {
+    border: 1px solid #efefde;	
+    cursor: default;   
+     
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}
+a:hover.previewToolBar, 
+    a:active.previewToolBar     {
+	border: 1px solid #316ac5;	
+    cursor: default;    
+    
+    padding-top: 8px;
+    padding-bottom: 5px;
+    padding-left: 8px;
+    padding-right: 8px;
+    
+}
+
+.renderedContent table {
+ table-layout: fixed;
+}
+
+.rwikicommentarrow{
+	display:none;
+}
+.commentHeader .itemAction li{
+	border:none !important;
+}
+
+.withsidebar{
+	width:73%;
+}
+
+#rwiki_sidebar {
+    width: 25%;
+    float:right;
+    padding:0;
+    margin:  -20px 0 0 0 ;
+    padding: 5px;
+    background:#eee;
+   -webkit-border-radius:5px ; 
+   -moz-border-radius:5px ; 
+
+}
+
+.historyPage table{
+	width:80% !important
+}

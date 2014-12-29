@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beansProjectDescription>
+	<configs>
+		<config>rwiki-component/src/webapp/WEB-INF/coreDaoComponents.xml</config>
+		<config>rwiki-component/src/webapp/WEB-INF/coreServiceComponents.xml</config>
+		<config>rwiki/src/webapp/WEB-INF/prepopulateComponents.xml</config>
+		<config>rwiki/src/webapp/WEB-INF/toolComponents.xml</config>
+		<config>rwiki-component/src/webapp/WEB-INF/datamigrationComponents.xml</config>
+		<config>rwiki-component/src/webapp/WEB-INF/components.xml</config>
+		<config>rwiki/src/webapp/WEB-INF/commandComponents.xml</config>
+		<config>rwiki-component/src/webapp/WEB-INF/messagingComponents.xml</config>
+		<config>rwiki/src/webapp/WEB-INF/components.xml</config>
+	</configs>
+	<configSets>
+	</configSets>
+</beansProjectDescription>

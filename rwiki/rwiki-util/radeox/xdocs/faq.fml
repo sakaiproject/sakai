@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<faqs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:noNamespaceSchemaLocation="http://maven.apache.org/reference/plugins/faq/faq.xsd"
+ title="Frequently Asked Questions">
+
+  <part id="general">
+    <title>General</title>
+    <faq id="needswriting">
+      <question>
+This FAQ Needs writing      </question>
+      <answer>
+      </answer>
+    </faq>
+    
+  </part>
+      
+
+
+  <!--
+    <faq id="">
+      <question></question>
+      <answer>
+      </answer>
+    </faq>
+  -->
+</faqs>

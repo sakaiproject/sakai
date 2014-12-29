@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<!--
+/**********************************************************************************
+ * $URL:  $
+ * $Id:  $
+ ***********************************************************************************
+ *
+ * Copyright (c) 2003, 2004, 2005, 2006 The Sakai Foundation.
+ *
+ * Licensed under the Educational Community License, Version 1.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.opensource.org/licenses/ecl1.php
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ **********************************************************************************/
+-->
+<beans>
+  <!-- components context -->
+
+  <!-- START NEW STUFF -->
+  <!-- Register the Data Access Object as a Transactional Interceptor -->
+  <bean id="rwikiCurrentObjectDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<!--
+	<prop key="exists">PROPAGATION_REQUIRED,readOnly</prop>
+	<prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+	-->
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+	<prop key="delete*">PROPAGATION_REQUIRED</prop>
+	<!--. not needed for this version of create .-->
+	<!--<prop key="create*">PROPAGATION_REQUIRED</prop>-->
+      </props>
+    </property>
+    <property name="target"><ref bean="rwikiCurrentObjectDaoImpl"/></property>
+  </bean>
+  <!-- DAO for current Object, acessed via Transaction Proxy -->
+  <bean id="rwikiCurrentObjectDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiCurrentObjectDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+    <property name="contentDAO"><ref bean="rwikiCurrentObjectContentDaoImpl" /></property>
+    <property name="historyDAO"><ref bean="rwikiHistoryObjectDaoImpl" /></property>		
+  </bean>
+
+  <!-- DAO for Current Object Content -->
+  <bean id="rwikiCurrentObjectContentDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiCurrentObjectContentDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+  </bean>
+
+  <!-- Transaction Proxy for the HistoryObject -->
+  <bean id="rwikiHistoryObjectDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<!--
+	<prop key="exists">PROPAGATION_REQUIRED,readOnly</prop>
+	<prop key="find*">PROPAGATION_REQUIRED,readOnly</prop>
+	-->
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+	<prop key="delete*">PROPAGATION_REQUIRED</prop>
+	<!--. not needed for this version of create .-->
+	<!--<prop key="create*">PROPAGATION_REQUIRED</prop>-->
+      </props>
+    </property>
+    <property name="target"><ref bean="rwikiHistoryObjectDaoImpl"/></property>
+  </bean>
+
+  <!-- DAO for the History Object -->
+  <bean id="rwikiHistoryObjectDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiHistoryObjectDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+    <property name="contentDAO"><ref bean="rwikiHistoryObjectContentDaoImpl" /></property>
+  </bean>
+
+  <!-- Content DAO of the history object -->
+  <bean id="rwikiHistoryObjectContentDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiHistoryObjectContentDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+  </bean>
+
+
+
+  <!-- Database storage for properties site wide -->
+  <bean id="rwikiPropertyDao"
+    class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+    <property name="transactionManager"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+    </property>
+    <property name="transactionAttributes">
+      <props>
+	<prop key="update*">PROPAGATION_REQUIRED</prop>
+	<prop key="delete*">PROPAGATION_REQUIRED</prop>
+      </props>
+    </property>
+    <property name="target"><ref bean="rwikiPropertyDaoImpl"/></property>
+  </bean>
+  <!-- DAO for current Object, acessed via Transaction Proxy -->
+  <bean id="rwikiPropertyDaoImpl"
+    class="uk.ac.cam.caret.sakai.rwiki.component.dao.impl.RWikiPropertyDaoImpl"
+    singleton="true">
+    <property name="sessionFactory"><ref
+	bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+    </property>
+  </bean>
+
+</beans>

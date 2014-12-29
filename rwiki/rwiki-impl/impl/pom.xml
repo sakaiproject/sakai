@@ -1,0 +1,198 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <artifactId>rwiki-base</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+  <name>sakai-rwiki-impl</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>sakai-rwiki-impl</artifactId>
+  <packaging>jar</packaging>
+  <properties>
+    <deploy.target />
+  </properties>
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/bundle</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/java</directory>
+        <includes>
+          <include>**/*.xml</include>
+          <include>**/*.xslt</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/sql</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+        <filtering>false</filtering>
+      </resource>
+    </resources>
+    <testResources>
+      <testResource>
+        <directory>${basedir}/src/testBundle</directory>
+        <includes>
+          <include>**/*.*</include>
+        </includes>
+        <filtering>false</filtering>
+      </testResource>
+<!--includes:  include: **/*Test -->
+    </testResources>
+<!-- other resources for the jar - the message bundles -->
+  </build>
+  <dependencies>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-util</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-kernel-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.kernel</groupId>
+      <artifactId>sakai-component-manager</artifactId>
+    </dependency>
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-entity-util-->
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-event-util-->
+<!--
+      This has been relocated to sakai-kernel-util
+      org.sakaiproject.kernel.utilsakai-util-->
+    <dependency>
+      <groupId>commons-logging</groupId>
+      <artifactId>commons-logging</artifactId>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>commons-lang</groupId>
+      <artifactId>commons-lang</artifactId>
+      <type>jar</type>
+    </dependency>
+<!--javax.servletservlet-api${sakai.servletapi.version}jar-->
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-radeox</artifactId>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-rwiki-api</artifactId>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-rwiki-model</artifactId>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>sakai-rwiki-util</artifactId>
+      <type>jar</type>
+    </dependency>
+<!--org.sakaiprojectsakai-tool-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-entity-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-site-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-event-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-event-util${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-component${sakai.version}jar-->
+<!--org.sakaiprojectsakai-email-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-user-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-content-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-util-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-db-api${sakai.version}jar-->
+<!--org.sakaiprojectsakai-alias-api${sakai.version}jar-->
+    <dependency>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-api</artifactId>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.sakaiproject.search</groupId>
+      <artifactId>search-util</artifactId>
+      <type>jar</type>
+    </dependency>
+<!--org.sakaiprojectsakai-util${sakai.version}jar-->
+<!--org.sakaiprojectsakai-authz-api${sakai.version}jar-->
+    <dependency>
+      <groupId>org.sakaiproject.edu-services.sections</groupId>
+      <artifactId>sections-api</artifactId>
+      <type>jar</type>
+    </dependency>
+<!--org.sakaiprojectsakai-entity-util${sakai.version}jar-->
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-core</artifactId>
+      <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-jdbc</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-orm</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-tx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>easymock</groupId>
+      <artifactId>easymock</artifactId>
+      <version>1.1</version>
+      <type>jar</type>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.xmlgraphics</groupId>
+      <artifactId>fop</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xmlParserAPIs</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>xerces</groupId>
+      <artifactId>xercesImpl</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>xalan</groupId>
+      <artifactId>xalan</artifactId>
+    </dependency>
+  </dependencies>
+</project>

@@ -1,0 +1,58 @@
+head	1.1;
+access;
+symbols
+	TILDE~NAME:1.1
+	LCB}NAME:1.1
+	BAR|NAME:1.1
+	RCBR{NAME:1.1
+	TICK`NAME:1.1
+	CARAT^NAME:1.1
+	LSBR]NAME:1.1
+	SLOSH\NAME:1.1
+	RSBR[NAME:1.1
+	QUESTION?NAME:1.1
+	LABR>NAME:1.1
+	EQUALS=NAME:1.1
+	RABR<NAME:1.1
+	SLASH/NAME:1.1
+	MINUS-NAME:1.1
+	PLUS+NAME:1.1
+	STAR*NAME:1.1
+	LRBR)NAME:1.1
+	RRBR(NAME:1.1
+	SQUOTE'NAME:1.1
+	AMP&NAME:1.1
+	PERCENT%NAME:1.1
+	HASH#NAME:1.1
+	DQUOTE"NAME:1.1
+	BANG!NAME:1.1
+	NAME1NAME:1.1
+	1NAME:1.1
+	NAME1:1.1
+	UNDERSCORE_NAME:1.1
+	MIXEDname:1.1
+	lowername:1.1
+	SIMPLENAME:1.1;
+locks; strict;
+comment	@# @;
+
+
+1.1
+date	2002.04.18.05.50.07;	author matt;	state Exp;
+branches;
+next	;
+
+
+desc
+@description
+@
+
+
+1.1
+log
+@blah
+@
+text
+@first version
+
+@
