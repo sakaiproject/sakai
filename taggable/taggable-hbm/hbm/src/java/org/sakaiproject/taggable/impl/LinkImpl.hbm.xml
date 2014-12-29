@@ -1,0 +1,96 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="org.sakaiproject.taggable.impl" default-lazy="true" auto-import="false">
+
+  <class name="LinkImpl" 
+    table="TAGGABLE_LINK" optimistic-lock="version">
+
+    <cache usage="nonstrict-read-write"/>
+
+    <id name="id" length="36" type="string" column="LINK_ID">
+      <generator class="org.sakaiproject.id.hbm.IdGenerator"/>
+    </id>
+
+    <version name="version" column="VERSION" unsaved-value="null" />
+    
+    <property name="activityRef" column="ACTIVITY_REF" length="255" not-null="true" />    
+     
+    <property name="tagCriteriaRef" column="TAG_CRITERIA_REF" length="255" not-null="true" />
+
+    <property name="rubric" column="RUBRIC" type="materialized_clob"/>
+
+    <property name="rationale" column="RATIONALE" type="materialized_clob"/>
+
+	<property name="exportString" column="EXPORT_STRING" not-null="true" />
+
+	<property name="visible" column="VISIBLE" not-null="true" />
+	
+	<property name="locked" column="LOCKED" not-null="true" />
+
+  </class>
+<!-- 
+  <query name="findGoalSetsByActivity">
+    <![CDATA[select gs from GoalSetImpl as gs, LinkImpl as link where 
+               link.activityRef = :activityRef and
+               link.goal.goalSet = gs and
+               gs.context = :context group by gs.id]]>
+  </query>
+
+  <query name="findLinksByGoal">
+    <![CDATA[select link from LinkImpl as link, GoalSetImpl as gs where
+               link.goal.id = :goalId and
+               link.goal.goalSet = gs and
+               gs.context = :context]]>
+  </query>
+
+  <query name="findLinksByGoalVisible">
+    <![CDATA[select link from LinkImpl as link, GoalSetImpl as gs where
+               link.goal.id = :goalId and
+               link.goal.goalSet = gs and
+               link.visible = true and
+               gs.context = :context]]>
+  </query>
+  Restrictions.eq(GOALSET_CONTEXT, context)).add(
+						Restrictions.eq(ACTIVITY_REF, activityRef)).add(
+						Restrictions.eq(VISIBLE, Boolean.TRUE)).list();
+ -->
+
+   <query name="findLinkByActivityRefTagCriteria">
+    <![CDATA[select link from org.sakaiproject.taggable.impl.LinkImpl as link where
+               link.activityRef = :activityRef and
+               link.tagCriteriaRef = :tagCriteriaRef]]>
+  </query>
+ 
+   <query name="findLinksByActivityRefContext">
+    <![CDATA[select link from org.sakaiproject.taggable.impl.LinkImpl as link where
+               link.activityRef = :activityRef and
+               link.tagCriteriaRef like :context]]>
+  </query>
+  
+  <query name="findLinksByActivityRefContextVisible">
+    <![CDATA[select link from org.sakaiproject.taggable.impl.LinkImpl as link where
+               link.activityRef = :activityRef and
+               link.visible = :visible and
+               link.tagCriteriaRef like :context]]>
+  </query>
+  
+  <query name="findLinksByCriteriaRef">
+    <![CDATA[select link from org.sakaiproject.taggable.impl.LinkImpl as link where
+               link.tagCriteriaRef = :tagCriteriaRef]]>
+  </query>
+
+  <query name="findLinksByCriteriaRefVisible">
+    <![CDATA[select link from org.sakaiproject.taggable.impl.LinkImpl as link where
+               link.tagCriteriaRef = :tagCriteriaRef and
+               link.visible = :visible]]>
+  </query>
+  
+  <query name="deleteLinksByActivityRef">
+  	<![CDATA[delete org.sakaiproject.taggable.impl.LinkImpl link where 
+  				link.activityRef = :activityRef]]>
+  </query>
+ 
+</hibernate-mapping>
