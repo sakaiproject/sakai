@@ -1,0 +1,237 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE faces-config PUBLIC
+  "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.0//EN"
+  "http://java.sun.com/dtd/web-facesconfig_1_0.dtd">
+
+<faces-config>
+
+	<application>
+		<message-bundle>
+			org.sakaiproject.tool.scheduler.bundle.Messages
+		</message-bundle>
+		<locale-config>
+			<default-locale>en</default-locale>
+			<supported-locale>de</supported-locale>
+			<supported-locale>fr</supported-locale>
+			<supported-locale>es</supported-locale>
+		</locale-config>
+	</application>
+	
+<managed-bean>
+      <description>
+         Dynamic Resource Bundle Loader
+      </description>
+      <managed-bean-name>msgs</managed-bean-name>
+      <managed-bean-class>org.sakaiproject.util.ResourceLoader</managed-bean-class>
+      <managed-bean-scope>session</managed-bean-scope>
+      <managed-property>
+         <description>Bundle baseName</description>
+         <property-name>baseName</property-name>
+         <value>org.sakaiproject.tool.scheduler.bundle.Messages</value>
+      </managed-property>
+</managed-bean>	
+	
+	<managed-bean>
+		<description>schedulerTool</description>
+		<managed-bean-name>schedulerTool</managed-bean-name>
+		<managed-bean-class>org.sakaiproject.tool.app.scheduler.SchedulerTool</managed-bean-class>
+		<managed-bean-scope>session</managed-bean-scope>
+		
+		<managed-property>
+			<description>schedulerManager</description>
+			<property-name>schedulerManager</property-name>
+			<value>#{Components["org.sakaiproject.api.app.scheduler.SchedulerManager"]}</value>
+		</managed-property>							    
+        <managed-property>
+            <description>triggerEventManager</description>
+            <property-name>triggerEventManager</property-name>
+            <value>#{Components["org.sakaiproject.api.app.scheduler.events.TriggerEventManager"]}</value>
+        </managed-property>
+	</managed-bean>
+		
+	<navigation-rule>
+    	<from-view-id>/scheduler/main.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>events</from-outcome>
+                <to-view-id>/scheduler/main.jsp</to-view-id>
+            </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>			    
+		    </navigation-case>
+            <navigation-case>
+                <from-outcome>filter</from-outcome>
+                <to-view-id>/scheduler/filter_events.jsp</to-view-id>
+            </navigation-case>
+		    <navigation-case>
+			    <from-outcome>runningJobs</from-outcome>
+			    <to-view-id>/scheduler/runningJobs.jsp</to-view-id>
+		    </navigation-case>	
+	</navigation-rule>
+  
+    <navigation-rule>
+        <from-view-id>/scheduler/filter_events.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>events</from-outcome>
+                  <to-view-id>/scheduler/main.jsp</to-view-id>			    
+            </navigation-case>
+    </navigation-rule>
+
+	<navigation-rule>
+    	<from-view-id>/scheduler/jobs.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>create_job</from-outcome>
+      			<to-view-id>/scheduler/create_job.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>main</from-outcome>
+      			<to-view-id>/scheduler/main.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>delete_jobs</from-outcome>
+      			<to-view-id>/scheduler/delete_jobs.jsp</to-view-id>
+		    </navigation-case>		    
+		    <navigation-case>
+		    	<from-outcome>edit_triggers</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>	
+		    <navigation-case>
+			    <from-outcome>runningJobs</from-outcome>
+			    <to-view-id>/scheduler/runningJobs.jsp</to-view-id>
+		    </navigation-case>	
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/create_job.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>create_job</from-outcome>
+                <to-view-id>/scheduler/create_job.jsp</to-view-id>
+            </navigation-case>
+            <navigation-case>
+                <from-outcome>edit_properties</from-outcome>
+                <to-view-id>/scheduler/edit_properties.jsp</to-view-id>
+            </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>main</from-outcome>
+      			<to-view-id>/scheduler/main.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+
+    <navigation-rule>
+        <from-view-id>/scheduler/edit_properties.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>edit_properties</from-outcome>
+            <to-view-id>/scheduler/edit_properties.jsp</to-view-id>
+        </navigation-case>
+        <navigation-case>
+            <from-outcome>jobs</from-outcome>
+            <to-view-id>/scheduler/jobs.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/delete_jobs.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/edit_triggers.jsp</from-view-id>
+		    <navigation-case>
+		    	<from-outcome>jobs</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+		    <navigation-case>
+		    	<from-outcome>create_trigger</from-outcome>
+      			<to-view-id>/scheduler/create_trigger.jsp</to-view-id>
+		    </navigation-case>
+   		    <navigation-case>
+		    	<from-outcome>delete_triggers</from-outcome>
+      			<to-view-id>/scheduler/delete_triggers.jsp</to-view-id>
+		    </navigation-case>
+            <navigation-case>
+                <from-outcome>edit_runnow_properties</from-outcome>
+                <to-view-id>/scheduler/edit_runnow_properties.jsp</to-view-id>
+            </navigation-case>
+   		    <navigation-case>
+		    	<from-outcome>run_job_confirm</from-outcome>
+      			<to-view-id>/scheduler/run_job_confirm.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+	
+    <navigation-rule>
+        <from-view-id>/scheduler/edit_trigger_properties.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>edit_triggers</from-outcome>
+            <to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/delete_triggers.jsp</from-view-id>
+   		    <navigation-case>
+		    	<from-outcome>edit_triggers</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/create_trigger.jsp</from-view-id>
+            <navigation-case>
+                <from-outcome>edit_trigger_properties</from-outcome>
+                <to-view-id>/scheduler/edit_trigger_properties.jsp</to-view-id>
+            </navigation-case>
+   		    <navigation-case>
+		    	<from-outcome>edit_triggers</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+	
+    <navigation-rule>
+        <from-view-id>/scheduler/edit_runnow_properties.jsp</from-view-id>
+        <navigation-case>
+            <from-outcome>run_now_confirm</from-outcome>
+            <to-view-id>/scheduler/run_job_confirm.jsp</to-view-id>
+        </navigation-case>
+         <navigation-case>
+            <from-outcome>cancel</from-outcome>
+            <to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+        </navigation-case>
+    </navigation-rule>
+
+	<navigation-rule>
+    	<from-view-id>/scheduler/run_job_confirm.jsp</from-view-id>
+   		    <navigation-case>
+		    	<from-outcome>cancel</from-outcome>
+      			<to-view-id>/scheduler/edit_triggers.jsp</to-view-id>
+		    </navigation-case>
+   		    <navigation-case>
+		    	<from-outcome>success</from-outcome>
+      			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		    </navigation-case>
+	</navigation-rule>
+	
+	<navigation-rule>
+    	<from-view-id>/scheduler/error.jsp</from-view-id>
+	</navigation-rule>
+  	
+	<navigation-rule>
+		<from-view-id>/scheduler/runningJobs.jsp</from-view-id>
+		<navigation-case>
+			<from-outcome>jobs</from-outcome>
+			<to-view-id>/scheduler/jobs.jsp</to-view-id>
+		</navigation-case>		
+		<navigation-case>
+			<from-outcome>main</from-outcome>
+			<to-view-id>/scheduler/main.jsp</to-view-id>
+		</navigation-case>
+	</navigation-rule>
+  
+</faces-config>

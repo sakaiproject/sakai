@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>org.sakaiproject.scheduler</groupId>
+        <artifactId>scheduler</artifactId>
+        <version>11-SNAPSHOT</version>
+    </parent>
+
+    <name>Sakai Job Scheduler Events Model</name>
+    <groupId>org.sakaiproject.scheduler</groupId>
+    <artifactId>scheduler-events-model</artifactId>
+    <organization>
+        <name>The Sakai Foundation</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>jar</packaging>
+
+    <properties>
+        <deploy.target>shared</deploy.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.scheduler</groupId>
+            <artifactId>scheduler-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-core</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+      <resources>
+        <resource>
+          <directory>${basedir}/src/hibernate</directory>
+        </resource>
+      </resources>
+    </build>
+
+</project>

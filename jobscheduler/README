@@ -1,0 +1,38 @@
+Scheduler is a thin wrapper around quartz developed as a Sakai JSF tool. There were a few steps taken
+to  Quartz up with Sakai. First in the component directory there is a quartz.properties file. This
+file has been modified to use a particular database vendor. On startup this scheduler tool will:
+
+1. Replace the instance name quartz uses in a cluster with the property serverId from a call
+   to ServerConfigurationService via a Spring MethodInvokingFactoryBean. This step ensures that
+   all nodes in a cluster will have a unique name. 
+   Note: when using scheduler in a cluster set the quartz property org.quartz.jobStore.isClustered = true
+   
+2. Quartz has been configured to use Sakai's datasource by implementing org.quartz.utils.ConnectionProvider.
+   To use an alternative data source:
+   
+   a.) remove property org.quartz.dataSource.myDS.connectionProvider.class=org.sakaiproject.component.app.scheduler.ConnectionProviderDelegate
+       from quartz.properties
+       
+   b.) specify datasource properties in sakai.properties to override properties in quartz.properties
+   
+2. Find all jobs specified in components.xml. If the classloader cannot find the job class, this job
+   is removed from the list of jobs in quartz.
+   
+   
+To specify a new job: 
+
+1. Implement the org.quartz.Job interface and place the job class somewhere in the components directory.
+2. In components.xml there is a managed bean called org.sakaiproject.api.app.scheduler.SchedulerManager
+   with a property qrtzJobs. Add the fully qualified class name of your job to this set.
+   
+
+Using the scheduler:
+
+1. Create a new job from the ui. Add a trigger to the job with a cron expression. The job is now
+   scheduled.
+   
+2. It is possible to unschedule a job by removing all associated triggers. When removing the job, all
+   associated triggers will also be removed.
+   
+
+   

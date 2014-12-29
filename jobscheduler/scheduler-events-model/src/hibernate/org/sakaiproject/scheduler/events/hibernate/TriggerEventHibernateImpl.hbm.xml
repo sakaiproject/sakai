@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 2.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd" >
+
+<hibernate-mapping>
+
+    <class name="org.sakaiproject.scheduler.events.hibernate.TriggerEventHibernateImpl"
+           table="scheduler_trigger_events" lazy="false">
+
+        <id name="id" length="36" type="java.lang.String" column="uuid">
+            <generator class="uuid.hex"/>
+        </id>
+
+        <property name="eventType" column="eventType"
+                  type="org.sakaiproject.scheduler.events.hibernate.TriggerEventEnumUserType" not-null="true"/>
+        <property name="jobName" column="jobName" type="string" not-null="true"/>
+        <property name="triggerName" column="triggerName" type="string"/>
+        <property name="time" column="eventTime" not-null="true" index="schdulr_trggr_vnts_eventTime"/>
+        <property name="message" column="message" type="materialized_clob"/>
+        <property name="serverId" column="serverId" type="string" />
+    </class>
+
+    <query name="purgeEventsBefore">
+        delete from TriggerEventHibernateImpl as evt
+            where evt.time &lt; ?
+    </query>
+
+    <!-- This doesn't work for anything other than a schemaexport due to sakai always going an update and
+         and updates not including database-objects or indexes. -->
+    <database-object>
+        <create>CREATE INDEX schdulr_trggr_vnts_eventTime ON scheduler_trigger_events(eventTime);</create>
+        <drop></drop>
+    </database-object>
+
+</hibernate-mapping>
