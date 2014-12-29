@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<name>dashboard - Base</name>
+	<groupId>org.sakaiproject.dash</groupId>
+	<artifactId>dashboard</artifactId>
+
+	<packaging>pom</packaging>
+	<version>11-SNAPSHOT</version>
+
+    	<parent>
+        	<groupId>org.sakaiproject</groupId>
+        	<artifactId>master</artifactId>
+        	<version>11-SNAPSHOT</version>
+        	<relativePath>../master/pom.xml</relativePath>
+    	</parent>
+	
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.sakaiproject.dash</groupId>
+				<artifactId>dashboard-api</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.dash</groupId>
+				<artifactId>dashboard-app</artifactId>
+				<version>${project.version}</version>
+				<scope>provided</scope>
+			</dependency>
+            <dependency>
+                <groupId>org.sakaiproject.dash</groupId>
+                <artifactId>dashboard-bundles</artifactId>
+                <version>${project.version}</version>
+                <scope>runtime</scope>
+            </dependency>
+			<dependency>
+				<groupId>org.sakaiproject.dash</groupId>
+				<artifactId>dashboard-impl</artifactId>
+				<version>${project.version}</version>
+				<scope>runtime</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.dash</groupId>
+				<artifactId>dashboard-util</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sakaiproject.dash</groupId>
+				<artifactId>dashboard-hbm</artifactId>
+				<version>${project.version}</version>
+                <scope>provided</scope>
+			</dependency>
+		</dependencies>
+	</dependencyManagement>
+
+<!--
+	<repositories>
+		<repository>
+			<id>sakai-maven</id>
+			<name>Sakai Maven Repo</name>
+			<layout>default</layout>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases> </releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>sakai-maven2-snapshots</id>
+			<name>Sakai Maven Repo</name>
+			<layout>default</layout>
+			<url>http://source.sakaiproject.org/maven2-snapshots</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots> </snapshots>
+		</repository>
+		<repository>
+			<id>default</id>
+			<name>Maven Repository Switchboard</name>
+			<layout>default</layout>
+			<url>http://repo1.maven.org/maven2</url>
+			<releases> </releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</repository>
+		<repository>
+			<id>projectlombok.org</id>
+			<url>http://projectlombok.org/mavenrepo</url>
+		</repository>
+		<repository>
+			<id>sonatype-nexus-snapshots</id>
+			<name>Sonatype Nexus Snapshots</name>
+			<url>
+			https://oss.sonatype.org/content/repositories/snapshots
+		</url>
+			<releases>
+				<enabled>false</enabled>
+			</releases>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>maven2-central-repo</id>
+			<name>Maven2 Central Repo</name>
+			<url>http://repo1.maven.org/maven2/</url>
+			<releases> </releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<id>Sakai Plugin Repo</id>
+			<url>http://source.sakaiproject.org/maven2</url>
+			<releases> </releases>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+		<pluginRepository>
+			<name>oss.sonatype.org - github-releases</name>
+			<id>oss.sonatype.org-github-releases</id>
+			<url>http://oss.sonatype.org/content/repositories/github-releases</url>
+		</pluginRepository>
+	</pluginRepositories>
+-->
+
+	<modules>
+		<module>app</module>
+		<module>bundles</module>
+		<module>tool</module>
+		<module>api</module>
+		<module>impl</module>
+		<module>util</module>
+		<module>pack</module>
+		<module>hbm</module>
+	</modules>
+</project>
