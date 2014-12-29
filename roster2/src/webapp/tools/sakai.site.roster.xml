@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<registration>
+    <tool id="sakai.site.roster2" title="Roster" description="For viewing the site participants list">
+        <category name="course" />
+		<category name="project" />
+       <category name="portfolio" />
+    </tool>
+</registration>
