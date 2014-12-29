@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk/rsf" xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<title rsf:id="page-title">Mail Sender</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
+	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all" />
+	<link href="../css/MailSender.css" type="text/css" rel="stylesheet" media="all" />
+	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" language="JavaScript" src="/library/js/jquery-latest.min.js"></script>
+	<script type="text/javascript" rsf:id="resize"/>
+	<script type="text/javascript" language="JavaScript" src="../js/mailsender.js"></script>
+</head>
+
+<body>
+<div class="portletBody">
+	<div rsf:id="navIntraTool:" class="navIntraTool">Menu items will show here</div>
+
+	<div rsf:id="message-for:*">Messages for the user show here</div>
+
+	<form rsf:id="mainForm" method="post" enctype="multipart/form-data">
+		<h3 rsf:id="msg=compose_toolbar" class="insColor insBak insBorder">Compose</h3>
+		<div class="section">
+			<div class="headerkeyholder">
+				<span rsf:id="msg=from" class="headerkey">From:</span>
+			</div>
+			<div class="headervalue">
+				<span rsf:id="from">Freeman, Douglas Stuart &lt;stuart.freeman@et.gatech.edu&gt;</span>
+			</div>
+		</div>
+		<div class="section">
+			<div class="headerkeyholder">
+				<span rsf:id="msg=select_rcpts" class="headerkey">Select recipients:</span>
+			</div>
+			<div class="headervalue">
+				<div class="rcpt_select">
+					<input rsf:id="mailsender-rcpt-all" type="checkbox" id="mailsender-rcpt-all"/>
+					<label rsf:id="msg=select_rcpts_all" for="mailsender-rcpt-all">All</label>
+				</div>
+				<span> | </span>
+				<div class="rcpt_select">
+					<a rsf:id="mailsender-rcpt-link-roles">Roles</a>
+				</div>
+				<span> | </span>
+				<div class="rcpt_select">
+					<a rsf:id="mailsender-rcpt-link-sections">Sections</a>
+				</div>
+				<span> | </span>
+				<div class="rcpt_select">
+					<a rsf:id="mailsender-rcpt-link-groups">Groups</a>
+				</div>
+				<div id="mailsender-roles" class="rolesArea"></div>
+				<div id="mailsender-sections" class="rolesArea"></div>
+				<div id="mailsender-groups" class="rolesArea"></div>
+			</div>
+			<div class="headervalue" id="otherRecipientsLink">
+				<a href="#" rsf:id="msg=addotherrecipients" onclick="RcptSelect.showOther();return false">Other Recipient(s):</a>
+			</div>
+		</div>
+		<div class="section" id="otherRecipientsDiv" style="display:none">
+			<div class="headervalue">
+				<span rsf:id="msg=otherrecipients">Other Recipients:</span>
+			</div>
+			<div class="headervalue" id="otherRecipientsValue">
+				<input rsf:id="otherRecipients" class="fullwidth" name="otherRecipients" value="" type="text" id="otherRecipients" />
+				<div rsf:id="msg=otherrecipients_instruction" class="instruction">Separate additional email addresses with commas or semicolons.</div>
+			</div>
+		</div>
+		<div class="section">
+			<div class="headerkeyholder">
+				<span class="headerkey"><label rsf:id="msg=message_subject" for="subject">Subject:</label></span>
+			</div>
+			<div class="headervalue">
+				<input rsf:id="subject" id="subject" class="fullwidth" name="subject" value="" type="text" />
+			</div>
+		</div>
+
+		<div class="section">
+			<div id="attachOuter" class="headerkeyholder" style="display:none">
+				<span class="headerkey"><img src="../images/paperclip.gif" alt="attachment_img" height="15" width="15" /></span>
+			</div>
+			<div id="attachInner" class="headervalue">
+				<div id="attachmentArea"/>
+				<div id="attachLink"><img src="../images/paperclip.gif" alt="attachment_img" height="15" width="15" /> <a href="#" onclick="MailSender.addAttachment('attachmentArea'); return false;" rsf:id="msg=attachlink">Attach a file</a></div>
+				<div id="attachMoreLink" style="display:none"><a href="#" onclick="MailSender.addAttachment('attachmentArea'); return false;" rsf:id="msg=attachmorelink">Attach another file</a></div>
+			</div>
+		</div>
+
+		<div class="section">
+			<div class="headervalue">
+				<textarea rsf:id="content" rows="20" cols="80" name="content"></textarea>
+				<div rsf:id="content-div:" />
+			</div>
+		</div>
+
+		<div class="section">
+			<div class="headervalue">
+				<input rsf:id="sendMeCopy" name="sendMeCopy" type="checkbox" id="sendMeCopy" />
+				<label rsf:id="msg=sendmeacopy" for="sendMeCopy">Send me a copy</label>
+			</div>
+			<div rsf:id="addToArchiveDiv" class="headervalue">
+				<input rsf:id="addToArchive" name="addToArchive" type="checkbox" id="addToArchive" />
+				<label rsf:id="msg=addtoemailarchive" for="addToArchive">
+					Add to Email Archive, visible to all site participants
+				</label>
+			</div>
+			<div class="headervalue">
+				<input rsf:id="appendRecipientList" name="appendRecipientList" type="checkbox" id="appendRecipientList" />
+				<label rsf:id="msg=appendrecipientlist" for="appendRecipientList">Append list of recipients to message</label>
+			</div>
+		</div>
+		<div class="section headervalue">
+			<input rsf:id="send-button" value="Send Mail" class="active" type="submit" />
+			<input rsf:id="cancel-button" value="Cancel" type="submit" />
+		</div>
+	</form>
+	<script rsf:id="init_js" type="text/javascript">
+	// a real function call with real values which come from the 
+	// "emitJavascriptCall" method will be placed here by RSF
+	</script>
+	<div class="cleaner" />
+</div>
+</body>
+</html>

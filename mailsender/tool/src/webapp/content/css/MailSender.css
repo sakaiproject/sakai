@@ -1,0 +1,131 @@
+.waiting {
+	position: absolute;
+	top: 100px;
+	left: 100px;
+	display: none;
+	z-index: 100;
+	width: 31px;
+	height: 31px;
+}
+
+#navCompose {
+	/*padding: 2px;*/
+	/* background: url(/sakai-mailsender-tool/content/images/page_white_edit.png) center left no-repeat; */
+}
+
+#navConfig {
+	/*padding: 2px;*/
+	/* background: url(/sakai-mailsender-tool/content/images/cog.png) center left no-repeat; */
+}
+
+.navIntraTool a, .navStatic {
+	margin-right: 0.5em !important;
+	margin-left: 0.5em;
+}
+
+.fullwidth {
+	width: 99%
+}
+
+.followUp {
+	margin-left: 2em;
+	display: none;
+}
+
+.headerkeyholder, .headervalue {
+	margin: .5em 0 .5em 0;
+}
+
+.headerkeyholder, .optionsheaderkeyholder {
+	padding: 0pt;
+	width: 8%;
+	float: left;
+}
+
+.optionsheaderkeyholder {
+	width: 20%;
+}
+
+.headerkey {
+	padding: 0 0.5em 0 0;
+	overflow: hidden;
+	height: 100%;
+	float: right;
+	font-weight: bold;
+	vertical-align: center;
+}
+
+.headervalue, .optionsheadervalue {
+	width: 90%;
+	float: right;
+}
+
+.optionsheadervalue {
+	width: 80%;
+}
+
+.inactive {
+	margin: 0.5em 0pt;
+	padding: 0pt;
+	overflow: hidden;
+	height: 100%;
+	color: #555555 ! important;
+	border: thin solid #555555;
+	float:left;
+	width: 60%;
+	background-color: #F0F0F0;
+	margin: 1em;
+	padding: 0.5em;
+}
+
+.section {
+	clear: both;
+	padding-bottom: 1em;
+}
+
+.removeAttachment {
+	margin-left: .5em;
+}
+
+#attachOuter, #attachInner > div {
+	float: left;
+}
+
+/**
+ * Special style to force divs to be able to work right when floating in all
+ * browsers
+ */
+.cleaner {
+	clear:both;
+	height:1px;
+	font-size:1px;
+	border:none;
+	margin:0; padding:0;
+	background:transparent;
+}
+
+.usersList {
+	padding: .25em 0 .25em 0;
+	margin: 0 0 .05em 15px;
+}
+
+.userGroupsList {
+	 padding: .25em 0 .25em 0
+}
+
+h3.insBorder {
+	visibility: hidden
+}
+
+.rcpt_select {
+	display: inline;
+}
+
+.invalid-user {
+	color: gray;
+	font-style: italic;
+}
+
+.navSeparator {
+	color: #ccc;
+}

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <groupId>org.sakaiproject.mailsender</groupId>
+  <artifactId>mailsender</artifactId>
+  <name>Sakai Mail Sender Project</name>
+  <version>11-SNAPSHOT</version><!-- ProjectVersion -->
+  <description>Mail Sender base pom.</description>
+  <organization>
+    <name>Sakai Project</name>
+    <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2007</inceptionYear>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>api</module>
+    <module>impl</module>
+    <module>pack</module>
+    <module>tool</module>
+  </modules>
+
+  <profiles>
+    <profile>
+      <id>default</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <properties>
+	<sakai.mailarchive.version>${sakai.version}</sakai.mailarchive.version><!-- needed to work with older versions -->
+        <!-- Versions for these are inherited from master -->
+        <sakai.mailarchive.groupId>org.sakaiproject.mailarchive</sakai.mailarchive.groupId>
+        <sakai.message.groupId>org.sakaiproject.message</sakai.message.groupId>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+      </properties>
+    </profile>
+    <profile>
+      <id>sakai-2.8</id>
+      <properties>
+        <sakai.mailarchive.groupId>org.sakaiproject</sakai.mailarchive.groupId>
+        <sakai.mailarchive.version>2.8.1</sakai.mailarchive.version>
+        <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
+        <sakai.message.version>2.8.1</sakai.message.version>
+        <rsfutil.version>0.7.5</rsfutil.version>
+        <sakairsf.components.version>0.7.5</sakairsf.components.version>
+        <sakairsf.version>0.7.5</sakairsf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+      </properties>
+    </profile>
+    <profile>
+      <id>sakai-2.7</id>
+      <properties>
+        <sakai.mailarchive.groupId>org.sakaiproject</sakai.mailarchive.groupId>
+        <sakai.mailarchive.version>2.7.2</sakai.mailarchive.version>
+        <sakai.message.groupId>org.sakaiproject</sakai.message.groupId>
+        <sakai.message.version>2.7.2</sakai.message.version>
+        <rsfutil.version>0.7.5</rsfutil.version>
+        <sakairsf.components.version>0.7.5</sakairsf.components.version>
+        <sakairsf.version>0.7.5</sakairsf.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <url.localsite>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url.localsite>
+      </properties>
+    </profile>
+  </profiles>
+
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
+  </scm>
+
+  <distributionManagement>
+    <site>
+      <id>sakai-site</id>
+      <name>Sakai release Site</name>
+      <url>scpexe://source.sakaiproject.org/var/www/html/release/mailsender/${project.version}</url>
+    </site>
+  </distributionManagement>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>mailsender-api</artifactId>
+        <version>${project.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>${project.groupId}</groupId>
+        <artifactId>mailsender-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <!-- RSF -->
+      <dependency>
+        <groupId>uk.org.ponder.sakairsf</groupId>
+        <artifactId>sakairsf</artifactId>
+        <version>${sakairsf.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>uk.org.ponder.sakairsf</groupId>
+        <artifactId>SakaiRSFComponents-evolvers</artifactId>
+        <version>${sakairsf.components.version}</version>
+        <type>jar</type>
+      </dependency>
+      <dependency>
+        <groupId>uk.org.ponder.sakairsf</groupId>
+        <artifactId>SakaiRSFComponents-templates</artifactId>
+        <version>${sakairsf.components.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>uk.org.ponder.rsfutil</groupId>
+        <artifactId>RSFComponents-templates</artifactId>
+        <version>${rsfutil.version}</version>
+        <type>war</type>
+      </dependency>
+      <!-- TESTING -->
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-core</artifactId>
+        <version>1.8.5</version>
+        <scope>test</scope>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+
+</project>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<registration>
+
+	<tool id="sakai.mailtool"
+		title="Email"
+		description="Send mail to participants in your site.">
+
+		<category name="course" />
+		<category name="project" />
+
+		<configuration name="help.id" value="sakai.mailsender" />
+		<!-- 
+			see http://bugs.sakaiproject.org/jira/browse/SAK-4120
+			for the following "functions.require" parameter
+		-->
+		<configuration name="functions.require" value="mailtool.send" />
+
+		<!--
+			these values can be set here or on the options screen.  the
+			possible values are shown and delineated by a pipe (|).  Common
+			multiple values are grouped and separated by a comma (,).
+		-->
+		<configuration name="subjectprefix" value="" />
+		<!--
+		<configuration name="replyto" value="(yes,sender)|(no,no_reply_to)" />
+		<configuration name="sendmecopy" value="(true,yes)|(false,no)" />
+		<configuration name="appendrecipientlist" value="(true,yes)|(false,no)" />
+		<configuration name="emailarchive" value="(true,yes)|(false,no)" />
+		<configuration name="displayinvalidemailaddrs" value="(true,yes)|(false,no)" />
+		-->
+	</tool>
+
+	<!-- Functions are registered in ExternalLogicImpl.init() -->
+	<!--
+	<function name="mailtool.admin" />
+	<function name="mailtool.send" />
+	-->
+</registration>
