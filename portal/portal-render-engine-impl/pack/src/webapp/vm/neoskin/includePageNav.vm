@@ -1,0 +1,114 @@
+<!-- START from includePageNav.vm -->
+		<!-- start includePageNav -->
+			<div class="divColor" id="toolMenuWrap">
+				<div id="worksiteLogo">
+			#if (${sitePages.softlyDeleted})
+					<p id="siteStatusSoftlyDeleted">${rloader.site_softly_deleted}</p>
+			#elseif (!${sitePages.pageNavPublished})
+					<p id="siteStatus">${rloader.sit_unpublished} <br/><a href="javascript:;" onclick="publishSite('${sitePages.siteId}');">${rloader.sit_publish_now}</a></p>
+			#end
+			#if ($sitePages.pageNavType && $sitePages.pageNavType != "project" )
+					<p id="siteType">$sitePages.pageNavType</p>
+			#end
+			#if ($sitePages.pageNavIconUrl && $sitePages.pageNavIconUrl != "")
+					<img src="$sitePages.pageNavIconUrl" border="0" alt="Worksite Logo" />
+			#end
+				</div>
+                        #if ($sitePages.siteHTMLInclude)
+                                <div id="siteHTMLInclude">
+                                   $sitePages.siteHTMLInclude
+                                </div>
+                        #end
+				<h1 class="skip" id="totoolmenu">${rloader.sit_toolshead}</h1>
+				<div id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}">
+					<ul>
+			#foreach( $page in $sitePages.pageNavTools )
+		  		#if (${page.current})
+						<li class="selectedTool">
+							<a class="toolMenuLink #if(${page.hidden})hidden#end" title="${page.pageTitle}" role="presentation" aria-disabled="true">
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"> </span><span class="menuTitle">${page.pageTitle}</span>
+							</a>
+						</li>
+		  		#else
+		  			 #if (${page.toolpopup})
+						<li>
+							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="${page.pageRefUrl}?sakai.popup=yes" title="${page.description}" 
+							onclick="window.open('${page.toolpopupurl}');">
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"></span><span class="menuTitle">${page.pageTitle}</span>
+							</a>
+						</li>
+					 #else
+		  			 #if (${page.ispopup})
+						<li>
+							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="javascript:;" title="${page.pageTitle}" onclick="window.open('${page.pagePopupUrl}${page.pageId}','${page.jsPageTitle}','resizable=yes,toolbar=no,scrollbars=yes, width=1024,height=768')">
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"> </span><span class="menuTitle">${page.pageTitle}</span>
+							</a>
+						</li>
+		   			#else
+						<li>
+							<a class="toolMenuLink #if(${page.hidden})hidden#end" href="${page.pageRefUrl}" title="${page.description}">
+							<span class="toolMenuIcon ${page.menuClass} $!{page.menuClassOverride}"></span><span class="menuTitle">${page.pageTitle}</span>
+							</a>
+						</li>
+		   			#end
+				    #end
+		  		#end
+			#end
+			#if ( $subSites && $showSubsitesAsFlyout ) 
+                        <li>
+							<a id="toggleSubsitesLink" class="toolMenuLink" href="javascript:;" title="${rloader.subsitesTitle}" aria-haspopup="true">
+							    <span  class="toolMenuIcon icon-sakai-subsite"> </span><span class="menuTitle">${rloader.subsites}</span>
+							</a>
+						</li>
+			#end
+			#if (${sitePages.pageNavShowHelp})
+						 <li>
+								<a class="toolMenuLink" accesskey="6" href="${sitePages.pageNavHelpUrl}" target="_blank" 
+									onclick="openWindow('${sitePages.pageNavHelpUrl}', 
+									'Help', 'resizable=yes,toolbar=no,scrollbars=yes,menubar=yes,width=1024,height=768'); 
+									return false" title="${rloader.sit_help}">
+								<span  class="toolMenuIcon ${sitePages.helpMenuClass}"> </span><span class="menuTitle">${rloader.sit_help}</span>
+								<span class="skip">${rloader.site_newwindow}</span> </a>
+								</a>
+						 </li>
+			#end
+#if (${sitePages.pageNavCanAddMoreTools}) 
+			<li>
+            	<a class="toolMenuLink" href="${sitePages.pageNavAddMoreToolsUrl}">
+            	    <span class="toolMenuIcon icon-sakai-add-tool"> </span>
+					<span class="menuTitle">${rloader.sit_addmoretools}</span>
+				</a>
+#end	
+					</ul>
+				</div>
+				
+			<!-- Add subsite lists -->
+			#if ( $subSites ) 
+				<div id="subSites" #if ($showSubsitesAsFlyout)style="display: none;"#end>
+					<ul role="menu">
+				#foreach ( $site in $subSites ) 
+						<li>
+							<a href="${site.siteUrl}" title="${rloader.subsite} ${site.fullTitle}" role="menuitem">
+							<span class="toolMenuIcon ${sitePages.subsiteClass}"></span><span class="menuTitle">${rloader.subsite} ${site.siteTitle}</span>
+							</a>
+						</li>
+				#end
+					</ul>
+				</div>
+			#end
+
+
+			</div>
+			<div id="togglebar">
+#if ( $loggedIn ) 
+	<a id="toggleToolMenu" onmouseup="blur()" href="#" title="#if (${sakai_nav_minimized})${rloader.sit_toggle_nav_exp}#else${rloader.sit_toggle_nav_min} #end">
+		<span id="toggleToolMax" #if (${sakai_nav_minimized}) style="display:none"#end><em class="skip">${rloader.sit_toggle_nav_min}</em>&nbsp;</span>
+		<span id="toggleNormal" #if (! ${sakai_nav_minimized}) style="display:none"#end><em class="skip">${rloader.sit_toggle_nav_exp}</em>&nbsp;</span>
+	</a>
+#end	
+			</div>
+			<h1 class="skip" id="tocontent">${rloader.sit_contentshead}</h1>
+		<!-- end includePageNav -->
+		<!-- end page nav -->
+<!-- END from includePageNav.vm -->
+

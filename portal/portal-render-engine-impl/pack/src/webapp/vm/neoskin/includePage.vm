@@ -1,0 +1,15 @@
+##
+## the Page part of the standard view, with no page navigation
+##
+##
+<!-- START from includePage.vm -->
+		<!-- start includePage -->		
+#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
+		<div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
+#else
+		<div id="container" $pageSiteType >
+#end
+#parse("/vm/neoskin/includePageBody.vm")
+	        </div>
+		<!-- end includePage -->
+<!-- END from includePage.vm -->

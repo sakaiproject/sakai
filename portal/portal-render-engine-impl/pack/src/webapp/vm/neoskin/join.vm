@@ -1,0 +1,84 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<link href="${pageSkinRepo}/tool_base.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
+    <link href="${pageSkinRepo}/${pageSkin}/portal.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
+<!-- this caises problems for layout nneds investihating -->
+    <link href="$!{portalCDNPath}/portal/styles/portalstyles.css$!{portalCDNQuery}" type="text/css" rel="stylesheet" media="all" />
+<!--[if gte IE 5]><![if lt IE 7]>
+    <link href="/portal/styles/portalstyles-ie5.css" type="text/css" rel="stylesheet" media="all" />
+<![endif]><![endif]-->
+
+    <meta http-equiv="Content-Style-Type" content="text/css" />
+#if (! $currentPlacement && $isPDA )
+    <meta name="viewport" content="width=320, user-scalable=no" />
+#end
+ 
+    <title>${pageTitle}</title>
+     <script type="text/javascript" src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
+     <script type="text/javascript" src="${pageScriptPath}jquery.js$!{portalCDNQuery}"></script>
+<script type="text/javascript" src="$!{portalCDNPath}/portal/scripts/portalscripts.js$!{portalCDNQuery}"></script>
+
+#if ( ${styleable} )
+<script type="text/javascript" 
+    	
+    	src="$!{portalCDNPath}/sakai-preferable-tool/js/styleable.js$!{portalCDNQuery}" >
+    </script>
+    
+    <script type="text/javascript" 
+           >
+    window.onload = insertStyleAbleStyles;
+    </script>
+    #if ( ${styleableStyleSheet} )
+	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
+    #end
+    #if ( ${styleableJS} )
+	<script type="text/javascript">
+	${styleableJS} 
+	</script>
+    #end
+#end
+</head>
+<body class="portalBody">
+#if ( $pageTop )
+	<script type="text/javascript">
+	var sakaiPortalWindow = "";
+	</script>
+#end
+<!-- END Header -->
+<!-- join.vm -->
+
+	<table class="join" cellpadding="0" cellspacing="0" border="0" summary="layout"> 
+		<tr> 
+			<th colspan="2">${uiService} : ${rloader.getString("join_title")}</th> 
+		</tr> 
+		<tr> 
+			<td class="logo"></td>
+			<td class="form">
+				<table border="0" class="joinform" summary="layout" style="text-align: center" 
+					<tr>
+						<td>
+						<div class="instruction">
+						 ${rloader.getString("join_instr")} <em>${currentSite.siteTitle}</em>
+						</div> 
+						</td> 
+					</tr> 
+					<tr> 
+						<td>${rloader.getString("join_question")}</td> 
+					</tr> 
+					<tr> 
+						<td>
+							<form method="POST">
+								<input type="submit" name="join" value="${rloader.getString("yes")}"/>
+								<input type="submit" name="reject" value="${rloader.getString("no")}"/>
+							</form>
+						</td> 
+					</tr> 
+				</table> 
+			</td> 
+		</tr> 
+	</table> 
+</body>
+</html>

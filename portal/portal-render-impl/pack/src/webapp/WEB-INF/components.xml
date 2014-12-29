@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="org.sakaiproject.portal.render.api.ToolRenderService"
+          class="org.sakaiproject.portal.render.compat.CompatibilityToolRenderService"
+          singleton="true">
+        <property name="renderServices">
+            <list>
+                <ref local="portletRenderService"/>
+                <ref local="fragmentRenderService"/>
+                <ref local="iframeRenderService"/>
+            </list>
+        </property>
+    </bean>
+    <bean id="fragmentRenderService" name="fragmentRenderService"
+                class="org.sakaiproject.portal.render.fragment.FragmentToolRenderService" >
+        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
+    </bean>
+    <bean id="iframeRenderService" name="iframeRenderService"
+          class="org.sakaiproject.portal.render.iframe.IFrameToolRenderService" >
+        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
+    </bean>
+
+
+    <bean id="portletRenderService" name="portletRenderService"
+          class="org.sakaiproject.portal.render.portlet.PortletToolRenderService">
+        <property name="portletStateEncoder">
+            <ref local="portletStateEncoder"/>
+        </property>
+        <property name="portalService" ><ref bean="org.sakaiproject.portal.api.PortalService" /></property>
+    </bean>
+
+    <bean id="portletStateEncoder"
+          class="org.sakaiproject.portal.render.portlet.services.state.EnhancedPortletStateEncoder">
+        <property name="urlSafeEncoder">
+            <ref local="urlSafeEncoder"/>
+        </property>
+    </bean>
+
+    <bean id="urlSafeEncoder"
+          class="org.sakaiproject.portal.render.portlet.services.state.Base64Recoder"/>
+
+</beans>

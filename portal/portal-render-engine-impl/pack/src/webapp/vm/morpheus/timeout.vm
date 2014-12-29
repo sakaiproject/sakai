@@ -1,0 +1,6 @@
+<div id="timeout_alert_body" title="${rloader.timeout_dialog_title}" class="Mrphs-messagePanel__warning Mrphs-messagePanel__warning--timeout">
+    <p>${rloader.timeout_dialog_warning_message}</p>
+
+    <input type="button" value="${rloader.timeout_dialog_keepalive}" onclick="keep_session_alive()" class=""Mrphs-button Mrphs-button--active">
+
+</div>

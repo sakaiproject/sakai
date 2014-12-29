@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="$!{locale}">
+    <head>
+        <meta charset="utf-8">
+        <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
+        <script>
+            portalWindowRefresh('$redirectUrl');
+        </script>
+    </head>
+    <body>
+        <!-- Only seen by people without Javascript, but this won't break out of frames. -->
+        <a href="$redirectUrl">$redirectUrl</a>
+    </body>
+</html>

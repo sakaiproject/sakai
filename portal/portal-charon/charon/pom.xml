@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <artifactId>portal</artifactId>
+        <groupId>org.sakaiproject.portal</groupId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
+    </parent>
+
+    <name>sakai-portal (charon)</name>
+    <groupId>org.sakaiproject.portal</groupId>
+    <artifactId>portal-charon</artifactId>
+    <organization>
+        <name>Sakai Project</name>
+        <url>http://sakaiproject.org/</url>
+    </organization>
+    <inceptionYear>2003</inceptionYear>
+    <packaging>war</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>sakai-portal-impl</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+		<plugins>
+			<plugin>
+				<inherited>true</inherited>
+				<groupId>org.sakaiproject.maven.plugins</groupId>
+				<artifactId>sakai</artifactId>
+				<extensions>true</extensions>
+				<configuration>
+					<deployId>portal</deployId>
+				</configuration>
+			</plugin>
+		</plugins>
+        <resources />
+        <sourceDirectory>src/java</sourceDirectory>
+        <finalName>portal</finalName>
+    </build>
+</project>

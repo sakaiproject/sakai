@@ -1,0 +1,46 @@
+.toolSubMenuHolder {
+	/*background-color:#F0F0F0;*/ 
+	position: relative;
+	top: 4px;
+	border:1px solid #c0c0c0;
+	margin-top: 3px;
+	margin-bottom: 3px;
+}
+.toolSubMenuHolder_top {
+}
+.toolSubMenuHolder_bottom {
+}
+.toolSubMenuHolder_bottom div {
+}
+.toolSubMenuHolder_content {
+}
+
+.toolSubMenuHolder_top div,.toolSubMenuHolder_top,
+.toolSubMenuHolder_bottom div, .toolSubMenuHolder_bottom {
+	width: 100%;
+	height: 8px;
+	font-size: 1px;
+}
+.toolSubMenuHolder_content, .toolSubMenuHolder_bottom {
+	margin-top: -5px;
+}
+.toolSubMenuHolder_content { padding: 0px; }
+
+.toolSubMenuHeading {
+	text-align: left;
+	padding-left: 2px;
+   background-color:#F0F0F0;
+   margin: 3px;
+}
+.toolSubMenuHolder_tools {
+	padding-left: 7px;
+	padding-right: 3px;
+}
+.toolSubMenuSpacer {
+	/* Uncomment the following if curvyCorners are not used */
+	display: none;
+	line-height: 6px;
+}
+
+
+

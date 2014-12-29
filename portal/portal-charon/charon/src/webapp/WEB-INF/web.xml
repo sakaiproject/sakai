@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+	<display-name>portal</display-name>
+	<description>port</description>
+
+	<!-- the tool listener is to register portlets -->
+	<listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+
+	<filter>
+		<filter-name>sakai.request</filter-name>
+		<filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+		<!-- Portal URLs encode the placement, so we don't need it added -->
+		<init-param>
+			<param-name>tool.placement</param-name>
+			<param-value>none</param-value>
+		</init-param>
+		<!--
+			Don't parse file uploads in the portal, since a tool may handle this
+			itself.
+		-->
+		<init-param>
+			<param-name>upload.enabled</param-name>
+			<param-value>false</param-value>
+		</init-param>
+		<!--
+			MUST set character encoding in the portal, before parameters are
+			read.
+		-->
+		<init-param>
+			<param-name>encoding.enabled</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+
+	<!-- Definition of the cache for static response. The age is set to one week -->
+	<filter>
+		<description>Response Header Filter to enable caching</description>
+		<display-name>Cache Filter For One Week</display-name>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<filter-class>org.sakaiproject.util.ResponseHeaderFilter</filter-class>
+		<init-param>
+			<param-name>Cache-Control</param-name>
+			<param-value>max-age=2678400, public</param-value>
+		</init-param>
+	</filter>
+	
+	<filter-mapping>
+		<filter-name>sakai.request</filter-name>
+		<servlet-name>sakai.portal.charon</servlet-name>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+		<dispatcher>INCLUDE</dispatcher>
+	</filter-mapping>
+
+	<!-- Add the public cache header to all responses for styles and scripts -->
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/styles/*</url-pattern>
+	</filter-mapping>	
+	<filter-mapping>
+		<filter-name>CacheFilterForWeek</filter-name>
+		<url-pattern>/scripts/*</url-pattern>
+	</filter-mapping>	
+
+
+	<servlet>
+		<servlet-name>sakai.portal.charon</servlet-name>
+		<servlet-class>org.sakaiproject.portal.charon.SkinnableCharonPortal</servlet-class>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+
+	<servlet-mapping>
+		<servlet-name>sakai.portal.charon</servlet-name>
+		<url-pattern>/*</url-pattern>
+	</servlet-mapping>
+
+</web-app>

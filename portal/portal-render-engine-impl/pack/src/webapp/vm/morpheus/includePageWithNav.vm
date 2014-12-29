@@ -1,0 +1,65 @@
+##
+## the Page part of the standard view, with page navigation
+##
+<!-- START VM includePageWithNav.vm -->
+
+#if ( $portalBreadCrumbs or $portalPwd ) 
+
+    <ul id="siteHierarchy" class="Mrphs-breadCrumbs"> 
+        #set ($tabTotal = 0)
+
+        #foreach ( $pwd in $portalPwd )
+
+            #set ($tabTotal = $tabTotal + 1)
+
+        #end ## END of FOREACH ( $pwd in $portalPwd )
+        
+        #foreach ( $crumb in $portalBreadCrumbs )
+
+            #set ($tabTotal = $tabTotal + 1)
+
+        #end ## END of FOREACH ( $crumb in $portalBreadCrumbs )
+       
+            #set ($tabCountBread = 0)
+        
+        #foreach ( $pwd in $portalPwd )
+
+            #set ($tabCountBread = $tabCountBread + 1)
+            <li class="Mrphs-breadCrumbs--$tabCountBread">
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
+            </li>
+
+        #end ## END of FOREACH ( $pwd in $portalPwd )
+        
+        #foreach ( $pwd in $portalBreadCrumbs )
+
+            #set ($tabCountBread = $tabCountBread + 1)
+            <li class="Mrphs-breadCrumbs--$tabCountBread">
+                <a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="Mrphs-breadCrumbs--link"><span class="Mrphs-breadCrumbs--title">${pwd.siteTitle}</span></a>
+            </li>
+
+        #end ## END of FOREACH ( $pwd in $portalBreadCrumbs )
+        
+    </ul>
+
+#end ## END of IF ( $portalBreadCrumbs or $portalPwd )
+
+<div id="container" class="Mrphs-container Mrphs-container--site" $pageSiteType>
+
+    #if ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
+        #parse("/vm/morpheus/includePageNav.vm")
+
+    #else 
+
+        <!-- no page nav requested -->
+
+    #end ## END of IF ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle )
+
+    #parse("/vm/morpheus/includePageBody.vm")
+    
+</div>
+
+    #parse("/vm/morpheus/includeFooter.vm")
+    
+<!-- END VM includePageWithNav.vm -->

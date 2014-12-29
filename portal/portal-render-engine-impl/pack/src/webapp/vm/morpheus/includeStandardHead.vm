@@ -1,0 +1,27 @@
+##
+## Standard Header used by all portal views
+## Don't put anything before the <!DOCTYPE or it breaks IE9
+## DOCTYPE detection and puts it in quirks mode.
+##
+
+<!DOCTYPE html>
+<html lang="$!{locale}">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        #parse("/vm/morpheus/snippets/title-snippet.vm")
+
+        #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
+
+        #if ( $neoChat && $loggedIn )
+
+            <link href="${pageSkinRepo}/${pageSkin}/portalchat.css$!{portalCDNQuery}" rel="stylesheet">
+
+        #end ## END of IF ( $neoChat && $loggedIn )
+
+        <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
+        <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
+
+        <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+    </head>

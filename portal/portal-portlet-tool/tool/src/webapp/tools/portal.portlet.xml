@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+
+<registration>
+
+	<tool id="portal.portlet.tool"
+		  title="Portlet Placement Tool"
+		  description="to Add a Portlet to the worksite.">
+
+      <configuration name="portlet-context" value="/sakai-portlet-tool" />
+      <configuration name="portlet-name" value="PlacementPortlet" />
+
+      <category name="course" />
+      <category name="project" />
+      <category name="myworkspace" />
+
+    </tool>
+
+</registration>

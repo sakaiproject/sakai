@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="org.sakaiproject.portal.api.PortalService"
+          class="org.sakaiproject.portal.service.PortalServiceImpl"
+          singleton="true"
+          init-method="init"
+          >
+	       <property name="siteNeighbourhoodService" ><ref bean="org.sakaiproject.portal.api.SiteNeighbourhoodService" /></property>
+	       <property name="editorRegistry"><ref bean="org.sakaiproject.portal.api.EditorRegistry" /></property>
+          <property name="portalLinks"><value></value></property>
+	       <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService" /></property>
+    </bean>
+    <bean id="org.sakaiproject.portal.api.PortalService.portletRegistryListener"
+          class="org.sakaiproject.portal.service.SakaiPortletRegistryListener"
+          singleton="true"
+          init-method="init"
+          destroy-method="destroy" >
+       <property name="activeToolManager" ><ref bean="org.sakaiproject.tool.api.ActiveToolManager" /></property>
+    </bean>
+    
+    <bean id="org.sakaiproject.portal.api.SiteNeighbourhoodService"
+          class="org.sakaiproject.portal.service.SiteNeighbourhoodServiceImpl"
+          singleton="true"
+          init-method="init"
+          destroy-method="destroy" >
+	       <property name="siteService" ><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+	       <property name="preferencesService" ><ref bean="org.sakaiproject.user.api.PreferencesService" /></property>
+	       <property name="userDirectoryService" ><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+	       <property name="serverConfigurationService" ><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+	       <property name="aliasService"><ref bean="org.sakaiproject.alias.api.AliasService" /></property>
+    </bean>
+    
+    <bean id="org.sakaiproject.portal.service.AliasingSiteAdvisor"
+          class="org.sakaiproject.portal.service.AliasingSiteAdvisor" singleton="true" init-method="init" lazy-init="false">
+        <property name="siteService">
+            <ref bean="org.sakaiproject.site.api.SiteService" />
+        </property>
+        <property name="aliasService">
+            <ref bean="org.sakaiproject.alias.api.AliasService" />
+        </property>
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
+        </property>
+        <property name="entityManager">
+            <ref bean="org.sakaiproject.entity.api.EntityManager"/>
+        </property>
+        <property name="eventTrackingService">
+            <ref bean="org.sakaiproject.event.api.EventTrackingService"/>
+        </property>
+        <property name="maxLength" value="15"/>
+    </bean>
+    
+    <bean id="org.sakaiproject.portal.api.EditorRegistry"
+    	class="org.sakaiproject.portal.service.EditorRegistryImpl" singleton="true" init-method="init" lazy-init="false" destroy-method="destroy">
+    </bean>
+
+	<bean id="org.sakaiproject.portal.api.PortalChatPermittedHelper"
+    	class="org.sakaiproject.portal.service.PortalChatPermittedHelperImpl"
+        singleton="true" init-method="init">
+		<property name="securityService" ><ref bean="org.sakaiproject.authz.api.SecurityService" /></property>
+	    <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+	    <property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager" /></property>
+	    <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+	</bean>
+</beans>

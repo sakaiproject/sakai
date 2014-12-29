@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="$!{locale}">
+    <head>
+        <!-- START VM error.vm -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        #parse("/vm/morpheus/snippets/title-snippet.vm")
+
+        #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
+
+        <script src="${pageScriptPath}jquery.js"></script>
+        <script src="/portal/scripts/portalscripts.js"></script>
+        <script src="${pageScriptPath}headscripts.js"></script>
+            
+        #parse("/vm/morpheus/snippets/styleable-snippet.vm")
+
+    </head>
+    <body class="portalBody Mrphs-portalBody">
+        #if ( $pageTop )
+            <script>
+                var sakaiPortalWindow = "";
+            </script>
+        #end
+    <!-- END Header -->
+        <h2>Session</h2>
+        #if ($s)
+            <p>
+                session:  ${s.getId()} user id: ${s.getUserId()} enterprise id: ${s.getUserEid()} started: ${s.getCreationTime()} accessed: ${s.getLastAccessedTime()} inactive after: ${s.getMaxInactiveInterval()}
+            </p>
+        #else
+            <p>
+                no session established
+            </p>
+        #end
+        
+        #if ($ts)
+            <p>
+                tool session: ${ts.getId()} started: ${ts.getCreationTime()} accessed: ${ts.getLastAccessedTime()}
+            </p>
+        #else
+            <p>
+                no tool session established
+            </p>
+        #end
+        
+        <h2>Unknown Request</h2>
+        <h1>Snoop for request</h1>
+        ${req.toString()}
+
+        #if (${config})
+            <h1>Init Parameters</h1>
+            <pre>
+                #foreach( $param in $params ) 
+                    ${param.name} : ${param.value}
+                #end
+            </pre>
+            
+            <h1>Request information:</h1>
+            <pre>
+                Request method ${req.getMethod()}
+                Request URI requestUri
+                requestUriChars
+                Request protocol ${req.getProtocol()}
+                Servlet path servletPath
+                servletPathChars
+                Context path contextPath
+                contextPathChars
+                Path info pathInfo
+                pathInfoChars
+                Path translated ${req.getPathTranslated()}
+                Query string ${req.getQueryString()}
+                Content length ${req.getContentLength()}
+                Content type ${req.getContentType()}
+                Server name ${req.getServerName()}
+                Server port ${req.getServerPort()}
+                Remote user ${req.getRemoteUser()}
+                Remote address ${req.getRemoteAddr()}
+                Authorization scheme ${req.getAuthType()}
+            </pre>
+        #end
+        
+        <h1>Request headers</h1>
+        <pre>
+            #foreach( $header in $headers )
+                ${header.name} : ${header.value}
+            #end
+        </pre>
+        
+        <h1>Servlet parameters (Single Value style):</h1>
+        <pre>
+            #foreach( $prameter in $parameters )
+                ${parameter.name} = ${parameter.name}
+            #end
+        </pre>
+        
+        <h1>Servlet parameters (Multiple Value style):</h1>
+        <pre>
+            #foreach( $parameter in $parameters ) 
+                ${parameter.name} = ${parameter.name}
+            #end
+        </pre>
+        
+        <h1>Request Attributes:</h1>
+        <pre>
+            #foreach( $attribute in $attributes ) 
+                ${attribute.name} = ${attribute.value}
+            #end
+        </pre>
+    <!-- END VM error.vm -->
+    </body>
+</html>

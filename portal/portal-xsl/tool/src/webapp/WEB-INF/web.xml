@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="WebApp_9" version="2.4" xmlns="http://java.sun.com/xml/ns/j2ee" 
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd">
+
+   <context-param>
+      <param-name>contextConfigLocation</param-name>
+      <param-value>/WEB-INF/components.xml</param-value>
+   </context-param>
+   
+    <display-name>xslt portal</display-name>
+    <description>xslt rendered portal</description>
+
+    <!-- the tool listener is to register portlets -->
+    <listener>
+		<listener-class>org.sakaiproject.util.ToolListener</listener-class>
+	</listener>
+	
+   <listener>
+      <listener-class>org.sakaiproject.util.ContextLoaderListener</listener-class>
+   </listener>
+   
+    <filter>
+        <filter-name>sakai.request</filter-name>
+        <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+        <!-- Portal URLs encode the placement, so we don't need it added -->
+        <init-param>
+            <param-name>tool.placement</param-name>
+            <param-value>none</param-value>
+        </init-param>
+        <!-- Don't parse file uploads in the portal, since a tool may handle this itself. -->
+        <init-param>
+            <param-name>upload.enabled</param-name>
+            <param-value>false</param-value>
+        </init-param>
+        <!-- MUST set character encoding in the portal, before parameters are read. -->
+        <init-param>
+            <param-name>encoding.enabled</param-name>
+            <param-value>true</param-value>
+        </init-param>
+       
+       <init-param>
+          <param-name>context</param-name>
+          <param-value>xsl-portal</param-value>
+       </init-param>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>sakai.request</filter-name>
+        <servlet-name>sakai.portal.xsltcharon</servlet-name>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <dispatcher>INCLUDE</dispatcher>
+    </filter-mapping>
+
+   <servlet>
+      <servlet-name>sakai.portal.xsltcharon</servlet-name>
+      <servlet-class>org.sakaiproject.portal.charon.SkinnableCharonPortal</servlet-class>
+      <init-param>
+         <param-name>portal.context</param-name>
+         <param-value>xsltCharon</param-value>
+      </init-param>
+      <load-on-startup>1</load-on-startup>
+   </servlet>
+
+    <servlet-mapping>
+        <servlet-name>sakai.portal.xsltcharon</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-app>

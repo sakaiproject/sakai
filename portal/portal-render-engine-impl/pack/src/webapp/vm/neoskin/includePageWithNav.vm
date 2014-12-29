@@ -1,0 +1,62 @@
+##
+## the Page part of the standard view, with page navigation
+##
+##
+<!-- START from includePageWithNav.vm -->
+#if ( $portalBreadCrumbs or $portalPwd ) 
+	<ul id="siteHierarchy"> 
+			#set ($tabTotal =0)
+			#foreach ( $pwd in $portalPwd )
+				#set ($tabTotal =$tabTotal + 1)       
+                            #end
+			#foreach ( $crumb in $portalBreadCrumbs )
+				#set ($tabTotal = $tabTotal + 1)       
+                            #end
+		 	#set ($tabCountBread =0)
+			#foreach ( $pwd in $portalPwd )
+				#set ($tabCountBread =$tabCountBread + 1)       
+		<li class="crumb-$tabCountBread">
+				#if ($tabCountBread > 1)
+    		<span class="breadSeparator">${rloader.bread_separator}</span>
+				#end
+				## note: keep all the tags in this block in the same line 
+			#if ($tabCountBread == $tabTotal )
+    		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="lastBreadCrumb"><span>${pwd.siteTitle}</span></a>
+			#else
+    		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+			#end
+      	</li>
+			#end
+			#foreach ( $pwd in $portalBreadCrumbs )
+				#set ($tabCountBread =$tabCountBread + 1)       
+		<li>
+				#if ($tabCountBread > 1)
+    		<span class="breadSeparator">${rloader.bread_separator}</span>
+				#end
+				## note: keep all the tags in this block in the same line 
+			#if ($tabCountBread == $tabTotal )
+    		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}" class="lastBreadCrumb"><span>${pwd.siteTitle}</span></a>
+			#else
+    		<a href="${pwd.siteUrl}" title="${pwd.siteTitle}"><span>${pwd.siteTitle}</span></a>
+			#end
+      	</li>
+		#end
+	</ul>
+#end
+
+#if (${sakai_nav_minimized} && ${portal_allow_minimize_tools})
+<div id="container" class="sakaiMinimizePageNavigation" $pageSiteType >
+#else
+<div id="container" $pageSiteType >
+#end
+
+
+#if ( ( $sitePages.pageNavToolsCount > 1 || ! $sitePages.pageMaxIfSingle ) ) 
+	#parse("/vm/neoskin/includePageNav.vm")
+#else 
+	<!-- no page nav requested -->
+#end
+
+#parse("/vm/neoskin/includePageBody.vm")
+	</div>
+<!-- END from includePageWithNav.vm -->
