@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class
+        name="org.sakaiproject.component.app.syllabus.SyllabusAttachmentImpl"
+        table="SAKAI_SYLLABUS_ATTACH" optimistic-lock="version">
+        
+        <id name="syllabusAttachId" type="long">
+            <column name="syllabusAttachId" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">SyllabusAttachImpl_SEQ</param>
+            </generator>
+        </id>
+        
+        <version name="lockId" />               
+
+        <property name="attachmentId">
+            <column name="attachmentId" length="256" not-null="true"/>
+        </property>
+        
+        <property name="name">
+            <column name="syllabusAttachName" length="256" not-null="true"/>
+        </property>
+        
+        <property name="size">
+            <column name="syllabusAttachSize" length="256" not-null="false"/>
+        </property>
+
+        <property name="type">
+            <column name="syllabusAttachType" length="256" not-null="false"/>
+        </property>
+
+        <property name="createdBy">
+            <column name="createdBy" length="256" not-null="false"/>
+        </property>
+        
+        <property name="url">
+        	<column name="syllabusAttachUrl" length="256" not-null="true"/>
+        </property>
+
+        <property name="lastModifiedBy">
+            <column name="lastModifiedBy" length="256" not-null="false"/>
+        </property>
+        
+        <many-to-one name="syllabusData"
+                     column="syllabusId"                     
+                     class="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"
+                     index="SYLLABUS_ATTACH_ID_I"/>
+                            
+
+    </class>
+</hibernate-mapping>

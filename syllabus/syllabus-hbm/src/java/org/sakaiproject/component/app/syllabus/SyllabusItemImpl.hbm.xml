@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class
+        name="org.sakaiproject.component.app.syllabus.SyllabusItemImpl"
+        table="SAKAI_SYLLABUS_ITEM" optimistic-lock="version">
+
+        <!-- A 36 hex character is our surrogate key.  -->
+        <id name="surrogateKey" type="long">
+            <column name="id" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">SyllabusItemImpl_SEQ</param>
+            </generator>
+        </id>
+        
+        <version name="lockId" />
+        
+        <property name="userId">
+            <column name="userId" unique-key="uniqueSyllabus" length="36"
+                not-null="true" index="syllabus_userId" />
+        </property>       
+
+        <property name="contextId">
+            <column name="contextId" unique-key="uniqueSyllabus" length="255"
+                not-null="true" index="syllabus_contextId" />
+        </property>
+
+        <property name="redirectURL">
+            <column name="redirectURL" not-null="false" length="512"/>
+        </property>
+
+        <property name="openInNewWindow" not-null="false" type="boolean"/>
+
+        <set name="syllabi" lazy="true" sort="natural"
+             order-by="position_c asc" cascade="all-delete-orphan" batch-size="50">
+            <key column="surrogateKey"/>                        
+            <one-to-many class="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"/>            
+        </set>                
+        
+
+    </class>
+    
+    <query name="findSyllabusItemByUserAndContextIds">
+        <![CDATA[from org.sakaiproject.component.app.syllabus.SyllabusItemImpl as item where item.userId = :userId and item.contextId = :contextId]]>
+    </query>    
+    
+    <query name="findSyllabusItemByContextId">
+        <![CDATA[from org.sakaiproject.component.app.syllabus.SyllabusItemImpl as item where item.contextId = :contextId]]>
+    </query>    
+
+</hibernate-mapping>

@@ -1,0 +1,85 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping>
+
+    <class
+        name="org.sakaiproject.component.app.syllabus.SyllabusDataImpl"
+        table="SAKAI_SYLLABUS_DATA" optimistic-lock="version">
+        
+        <!-- A 36 hex character is our surrogate key.  -->
+        <id name="syllabusId" type="long" unsaved-value="0">
+            <column name="id" not-null="true" length="19" />
+            <generator class="native">
+                <param name="sequence">SyllabusDataImpl_SEQ</param>
+            </generator>
+        </id>
+        
+        <version name="lockId" />               
+
+        <property name="asset" type="materialized_clob">
+            <column name="asset" not-null="false" length="16777215"/>
+        </property>
+
+        <property name="position">
+            <column name="position_c" not-null="true" index="syllabus_position"/>
+        </property>
+        
+        <property name="title">
+            <column name="title" length="256" not-null="false"/>
+        </property>
+        
+        <property name="view">
+            <column name="xview" length="16" not-null="false"/>
+        </property>
+        
+        <property name="status">
+            <column name="status" length="64" not-null="false"/>
+        </property>
+        
+        <property name="emailNotification">
+            <column name="emailNotification" length="128" not-null="false"/>
+        </property>                        
+        
+        <property name="startDate" type="java.util.Date">
+        	<column name="START_DATE"/>
+        </property>
+        
+        <property name="endDate" type="java.util.Date">
+        	<column name="END_DATE"/>
+        </property>
+        
+        <property name="linkCalendar" type="java.lang.Boolean">
+        	<column name="LINK_CALENDAR"/>
+        </property>
+        
+        <property name="calendarEventIdStartDate">
+        	<column name="CALENDAR_EVENT_ID_START" length="99"/>
+        </property>
+        
+        <property name="calendarEventIdEndDate">
+        	<column name="CALENDAR_EVENT_ID_END" length="99"/>
+        </property>
+        
+        <set name="attachments" lazy="true" sort="natural"
+             cascade="all-delete-orphan" batch-size="50">
+            <key column="syllabusId"/>                        
+            <one-to-many class="org.sakaiproject.component.app.syllabus.SyllabusAttachmentImpl"/>            
+        </set>                
+        
+        <many-to-one name="syllabusItem"        
+                     column="surrogateKey"                     
+                     class="org.sakaiproject.component.app.syllabus.SyllabusItemImpl"
+                     index="SYLLABUS_DATA_SURRO_I"/>
+                            
+
+    </class>
+    
+    <query name="findLargestSyllabusPosition">
+        <![CDATA[select max(data.position) from org.sakaiproject.component.app.syllabus.SyllabusDataImpl as data where data.syllabusItem = :foreignKey]]>
+    </query>    
+    
+    
+</hibernate-mapping>

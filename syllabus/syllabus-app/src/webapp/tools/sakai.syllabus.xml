@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool
+			id="sakai.syllabus"
+			title="Syllabus"
+			description="For posting a summary outline and/or requirements for a site.">
+			
+		<category name="course" />
+		<category name="project" />
+	</tool>	
+</registration>
