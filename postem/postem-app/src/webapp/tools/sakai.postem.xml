@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<registration>
+	<tool
+			id="sakai.postem"
+			title="Post'Em"
+			description="For uploading .csv formatted file to display feedback (e.g., comments, grades) to site participants.">
+			
+		<category name="course" />
+		<category name="project" />
+
+	</tool>	
+</registration>

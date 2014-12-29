@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+    <parent>
+      <groupId>org.sakaiproject</groupId>
+      <artifactId>master</artifactId>
+      <version>11-SNAPSHOT</version>
+      <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+  <name>Sakai Postem Project</name>
+  <groupId>org.sakaiproject</groupId>
+  <artifactId>postem-base</artifactId>
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <modules>
+    <module>components</module>
+    <module>postem-api</module>
+    <module>postem-app</module>
+    <module>postem-hbm</module>
+    <module>postem-impl</module>
+  </modules>
+
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-postem-impl</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>sakai-postem-hbm</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+  <scm>
+    <connection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</connection>
+    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</developerConnection>
+    <url>https://source.sakaiproject.org/svn/postem/trunk</url>
+  </scm>
+</project>

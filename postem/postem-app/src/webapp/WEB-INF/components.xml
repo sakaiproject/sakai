@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+       
+    <!-- Base Hibernate SessionFactory -->
+    <bean id="org.springframework.orm.hibernate.PostemSessionFactory" 
+        class="org.springframework.orm.hibernate.LocalSessionFactoryBean">
+        <!-- The reference does not exist - commmented out - PAFH 8/30/2006 -->
+        <!-- property name="dataSource">
+            <ref local="postem.javax.sql.DataSource" />
+        </property -->
+        <property name="mappingResources">
+            <list>            	
+            	<value>org/sakaiproject/component/postem/data/GradebookImpl.hbm.xml</value>
+            	<value>org/sakaiproject/component/postem/data/StudentGradesImpl.hbm.xml</value>
+            </list>
+        </property>        
+                   
+        <property name="hibernateProperties">        
+            <props>
+                <prop key="hibernate.dialect">net.sf.hibernate.dialect.HSQLDialect</prop>
+                 <!-- <prop key="hibernate.dialect">net.sf.hibernate.dialect.MySQLDialect</prop> -->
+<!--                 <prop key="hibernate.dialect">net.sf.hibernate.dialect.Oracle9Dialect</prop> -->
+                <prop key="hibernate.show_sql">false</prop>
+                <prop key="hibernate.query.substitutions">
+                    true 1, false 0, yes 'Y', no 'N'
+                </prop>
+                <prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
+                <prop key="hibernate.cache.use_query_cache">true</prop>
+                <prop key="hibernate.cache.provider_class">
+                    net.sf.ehcache.hibernate.Provider
+                </prop>
+            </props>
+        </property>
+        
+        <!--  update the database schema when starting -->
+        <property name="schemaUpdate">
+            <value>false</value>
+        </property>        
+        
+    </bean>
+
+    <bean id="org.sakaiproject.service.postem.data.GradebookManager"
+        class="org.sakaiproject.component.postem.data.GradebookManagerImpl"
+        singleton="true">
+        <property name="sessionFactory">
+            <ref bean="org.springframework.orm.hibernate.PostemSessionFactory" />
+        </property>
+    </bean>
+
+</beans>

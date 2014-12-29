@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+	<bean id="postemOverview" class="org.sakaiproject.component.help.model.ResourceBean">
+		<property name="docId">
+			<value>postem_overview</value>
+		</property>
+		<property name="name">
+			<value>Postem Overview</value>
+		</property>
+		<property name="location">
+			<value>/tunnel/sakai-postem/helpDocs/aqck.htm</value>
+		</property>
+	</bean>
+	<bean id="org.sakaiproject.service.help.TableOfContents" class="org.sakaiproject.component.help.model.TableOfContentsBean">
+		<property name="name">
+			<value>root</value>
+		</property>
+		<property name="categories">
+			<list>
+				<bean id="postemCategory" class="org.sakaiproject.component.help.model.CategoryBean">
+					<property name="name">
+						<value>Postem Tool</value>
+					</property>
+					<property name="resources">
+						<list>
+							<ref bean="postemOverview" />
+							<!--<ref bean="creatingSyllabusAsWebpage"/>
+								<ref bean="addingSyllabusItem"/>
+								<ref bean="editingSyllabusItem"/>
+								<ref bean="deletingSyllabusItem"/>
+								<ref bean="creatingSyllabus"/>
+								<ref bean="creatingSequence"/>-->
+						</list>
+					</property>
+				</bean>
+			</list>
+		</property>
+	</bean>
+</beans>
