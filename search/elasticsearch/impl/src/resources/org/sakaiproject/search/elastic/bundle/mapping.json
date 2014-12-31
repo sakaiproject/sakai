@@ -52,6 +52,12 @@
                 "index": "not_analyzed",
                 "store": "yes"
             },
+            "indexed": {
+                "type": "boolean",
+                "index": "not_analyzed",
+                "null_value": "false",
+                "store": "no"
+            },
             "contents": {
                 "type": "string",
                 "analyzer": "standard",

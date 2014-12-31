@@ -119,8 +119,10 @@ public interface SearchService extends Diagnosable
 	
 	
 	public static final String FIELD_DIGEST_COUNT = "digestCount";
-
+	
 	public static final String DATE_STAMP = "indexdate";
+
+	public static final String FIELD_INDEXED = "indexed";
 
 	/**
 	 * Perform a search, return results in a list.
