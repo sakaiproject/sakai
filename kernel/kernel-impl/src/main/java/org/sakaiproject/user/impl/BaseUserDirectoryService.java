@@ -34,7 +34,6 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionBindingEvent;
@@ -512,11 +511,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	protected abstract EventTrackingService eventTrackingService();
 
 	/**
-	 * @return the ThreadLocalManager collaborator.
-	 */
-	protected abstract ThreadLocalManager threadLocalManager();
-
-	/**
 	 * @return the AuthzGroupService collaborator.
 	 */
 	protected abstract AuthzGroupService authzGroupService();
@@ -953,9 +947,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	{
 		String id = sessionManager().getCurrentSessionUserId();
 
-		// check current service caching - discard if the session user is different
-		User rv = (User) threadLocalManager().get(M_curUserKey);
-		if ((rv != null) && (rv.getId().equals(id))) return rv;
+		User rv = null;
 
 		try
 		{
@@ -965,9 +957,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		{
 			rv = getAnonymousUser();
 		}
-
-		// cache in the current service
-		threadLocalManager().set(M_curUserKey, rv);
 
 		return rv;
 	}
@@ -1240,11 +1229,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 
 		// Update the caches to match any changed data.
 		putCachedUser(ref, user);
-		
-		// update in the threadLocal cache if this is the current user
-		if (user.getId().equals(sessionManager().getCurrentSessionUserId())) {
-			threadLocalManager().set(M_curUserKey, user);
-		}
 
 	}
 
@@ -1773,27 +1757,30 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
         return eid;
 	}
 
-	protected UserEdit getCachedUser(String ref)
-	{
-		UserEdit user = (UserEdit)threadLocalManager().get(ref);
-		if ((user == null) && (m_callCache != null))
-		{
-			user = (UserEdit)m_callCache.get(ref);
-		}
-		return user;
-	}
+    protected UserEdit getCachedUser(String ref) {
+        // KNL-1241 removed caching in threadlocal
+        UserEdit userEdit = null;
+        if (m_callCache != null) {
+            Object cachedRef = m_callCache.get(ref);
+            if (cachedRef != null) {
+                userEdit = (UserEdit) cachedRef;
+            }
+        }
+        return userEdit;
+    }
 
-	protected void putCachedUser(String ref, UserEdit user)
-	{
-		threadLocalManager().set(ref, user);
-		if (m_callCache != null) m_callCache.put(ref, user);
-	}
+    protected void putCachedUser(String ref, UserEdit user) {
+        // KNL-1241 removed caching in threadlocal
+        if (m_callCache != null) {
+            m_callCache.put(ref, user);
+        }
+    }
 
-	protected void removeCachedUser(String ref)
-	{
-		threadLocalManager().set(ref, null);
-		if (m_callCache != null) m_callCache.remove(ref);
-	}
+    protected void removeCachedUser(String ref) {
+        if (m_callCache != null) {
+            m_callCache.remove(ref);
+        }
+    }
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * EntityProducer implementation
