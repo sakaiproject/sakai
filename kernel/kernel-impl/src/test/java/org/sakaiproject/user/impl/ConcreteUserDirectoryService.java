@@ -65,12 +65,6 @@ public class ConcreteUserDirectoryService extends BaseUserDirectoryService {
 	}
 
 	@Override
-	protected ThreadLocalManager threadLocalManager() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
 	protected AuthzGroupService authzGroupService() {
 		// TODO Auto-generated method stub
 		return null;
