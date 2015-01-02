@@ -544,7 +544,7 @@ public class ElasticSearchService implements SearchService {
     public int getNDocs() {
         indexBuilder.assureIndex();
         CountResponse response = client.prepareCount(indexName)
-                .setQuery(filteredQuery(matchAllQuery(),existsFilter(SearchService.FIELD_CONTENTS)))
+                .setQuery(filteredQuery(matchAllQuery(),termFilter(SearchService.FIELD_INDEXED, true)))
                 .execute()
                 .actionGet();
         return (int) response.getCount();

@@ -429,9 +429,12 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         if (includeContent) {
             String content = ecp.getContent(resourceName);
             // some of the ecp impls produce content with nothing but whitespace, its waste of time to index those
-            // add the trim check to remove those
-            if (StringUtils.isNotEmpty(content) && StringUtils.isNotEmpty(content.trim())) {
-                xContentBuilder.field(SearchService.FIELD_CONTENTS, content);
+            if (StringUtils.isNotBlank(content)) {
+                xContentBuilder
+                	// cannot rely on ecp for providing something reliable to maintain index state 
+                	// indexed indicates if the document was indexed
+                	.field(SearchService.FIELD_INDEXED, true)
+                	.field(SearchService.FIELD_CONTENTS, content);
             } else {
                 throw new NoContentException(ecp.getId(resourceName), resourceName, ecp.getSiteId(resourceName));
             }
@@ -464,7 +467,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
                     if (bulkRequest.numberOfActions() < bulkRequestSize) {
                         String reference = i.next();
 
-                        if (StringUtils.isNotEmpty(ecp.getContent(reference))) {
+                        if (StringUtils.isNotBlank(ecp.getContent(reference))) {
                             //updating was causing issues without a _source, so doing delete and re-add
                             try {
                                 deleteDocument(ecp.getId(reference), ecp.getSiteId(reference));
@@ -605,7 +608,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     }
 
     /**
-     * Searches for any docs in the search index that do not have content yet,
+     * Searches for any docs in the search index that have not been indexed yet,
      * digests the content and loads it into the index.  Any docs with empty content will be removed from
      * the index.
      */
@@ -624,7 +627,9 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         SearchResponse response = client.prepareSearch(indexName)
                 .setQuery(matchAllQuery())
                 .setTypes(ElasticSearchService.SAKAI_DOC_TYPE)
-                .setPostFilter(missingFilter(SearchService.FIELD_CONTENTS))
+                .setPostFilter( orFilter( 
+                	missingFilter(SearchService.FIELD_INDEXED), 
+                	termFilter(SearchService.FIELD_INDEXED, false)))
                 .setSize(contentIndexBatchSize)
                 .addFields(SearchService.FIELD_REFERENCE, SearchService.FIELD_SITEID)
                 .execute().actionGet();
@@ -804,7 +809,9 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     public int getPendingDocuments() {
         try {
             CountResponse response = client.prepareCount(indexName)
-                    .setQuery(filteredQuery(matchAllQuery(), missingFilter(SearchService.FIELD_CONTENTS)))
+                    .setQuery(filteredQuery(matchAllQuery(), orFilter( 
+                    	missingFilter(SearchService.FIELD_INDEXED), 
+                    	termFilter(SearchService.FIELD_INDEXED, false))))
                     .execute()
                     .actionGet();
             return (int) response.getCount();
