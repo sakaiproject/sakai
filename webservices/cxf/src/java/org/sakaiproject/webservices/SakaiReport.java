@@ -516,6 +516,7 @@ public class SakaiReport extends AbstractWebService {
         ResultSet rs = null;
         try {
             conn = sqlService.borrowConnection();
+            conn.setReadOnly(true);
 
             ps = conn.prepareStatement(query, ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 
