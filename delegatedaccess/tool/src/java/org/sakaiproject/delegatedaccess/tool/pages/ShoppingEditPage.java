@@ -26,6 +26,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ResourceReference;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -195,6 +196,15 @@ public class ShoppingEditPage extends BaseTreePage{
 				}else{
 					return super.getNodeIcon(node);
 				}
+			}
+			@Override
+			protected MarkupContainer newNodeLink(MarkupContainer parent, String id, TreeNode node) {
+				try{
+					parent.add(new AttributeAppender("title", new Model(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNode().description), " "));
+				}catch(Exception e){
+					log.error(e.getMessage(), e);
+				}
+				return super.newNodeLink(parent, id, node);
 			}
 		};
 		if(singleRoleOptions){
