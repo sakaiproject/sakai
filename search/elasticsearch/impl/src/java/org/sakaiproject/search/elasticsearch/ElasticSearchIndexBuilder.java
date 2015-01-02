@@ -130,9 +130,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
     /**
      * indexing thread that performs loading the actual content into the index.
      */
-    private Timer contentIndexTimer = new Timer("[elasticsearch content indexer (event driven)]",true);
-
-    private Timer bulkContentIndexTimer = new Timer("[elasticsearch bulk content indexer (refresh/rebuild)]", true);
+    private Timer contentIndexTimer = new Timer("[elasticsearch content indexer]", true);
 
     /**
      * number seconds of wait after startup before starting the BulkContentIndexerTask (defaults to 3 minutes)
@@ -249,7 +247,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
         }
 
         if (!testMode) {
-            bulkContentIndexTimer.schedule(new BulkContentIndexerTask(), (delay * 1000), (period * 1000));
+            contentIndexTimer.schedule(new BulkContentIndexerTask(), (delay * 1000), (period * 1000));
         } else {
             log.warn("IN TEST MODE. DO NOT enable this in production !!!");
         }
@@ -321,7 +319,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
 
         switch (action) {
             case ADD:
-                scheduleIndexAdd(resourceName, ecp);
+                indexAdd(resourceName, ecp);
                 break;
             case DELETE:
                 deleteDocument(id, siteId);
@@ -392,12 +390,14 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
      * @param ecp
      * @return
      */
-    protected void scheduleIndexAdd(String resourceName, EntityContentProducer ecp) {
-        if (testMode) {
-            indexContent(ecp, resourceName);
-            return;
+    protected void indexAdd(String resourceName, EntityContentProducer ecp) {
+        try {
+            prepareIndexAdd(resourceName, ecp, false);
+        } catch (NoContentException e) {
+            deleteDocument(e);
+        } catch (Exception e) {
+            log.error("problem updating content indexing for entity: " + resourceName + " error: " + e.getMessage());
         }
-        contentIndexTimer.schedule(new ContentIndexerTask( resourceName,  ecp), 0);
     }
 
     /**
@@ -426,7 +426,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
             xContentBuilder.field(entry.getKey(), entry.getValue());
         }
 
-        if (includeContent) {
+        if (includeContent || testMode) {
             String content = ecp.getContent(resourceName);
             // some of the ecp impls produce content with nothing but whitespace, its waste of time to index those
             if (StringUtils.isNotBlank(content)) {
@@ -549,39 +549,6 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
             } catch (Exception e) {
                 log.error("problem queuing content indexing for site: " + siteId + " error: " + e.getMessage());
             }
-        }
-
-    }
-
-    protected void indexContent(EntityContentProducer ecp, String reference){
-        try {
-            prepareIndexAdd(reference, ecp, true);
-        } catch (NoContentException e) {
-            deleteDocument(e);
-        } catch (Exception e) {
-            log.error("problem updating content indexing for entity: " + reference + " error: " + e.getMessage());
-        }
-    }
-
-
-    protected class ContentIndexerTask extends TimerTask {
-        String reference;
-        EntityContentProducer ecp;
-
-        public ContentIndexerTask(String reference, EntityContentProducer ecp) {
-            this.reference = reference;
-            this.ecp = ecp;
-        }
-
-        public void run() {
-            log.debug("running content indexing task");
-            enableAzgSecurityAdvisor();
-            try {
-                indexContent(ecp, reference);
-            } finally {
-                disableAzgSecurityAdvisor();
-            }
-
         }
 
     }
@@ -877,7 +844,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
             return;
         }
 
-        bulkContentIndexTimer.schedule(new RebuildIndexTask(), 0);
+        contentIndexTimer.schedule(new RebuildIndexTask(), 0);
     }
 
     /**
@@ -999,7 +966,7 @@ public class ElasticSearchIndexBuilder implements SearchIndexBuilder {
             rebuildSiteIndex(siteId);
             return;
         }
-        bulkContentIndexTimer.schedule(new RebuildSiteTask(siteId), 0);
+        contentIndexTimer.schedule(new RebuildSiteTask(siteId), 0);
     }
 
     protected void deleteAllDocumentForSite(String siteId) {
