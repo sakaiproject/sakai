@@ -28,6 +28,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AttributeAppender;
@@ -47,7 +48,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
-import org.sakaiproject.delegatedaccess.model.SearchResult;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAdvancedUserOptions;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
@@ -198,6 +198,15 @@ public class UserEditPage  extends BaseTreePage{
 			protected boolean isForceRebuildOnSelectionChange() {
 				return true;
 			};
+			@Override
+			protected MarkupContainer newNodeLink(MarkupContainer parent, String id, TreeNode node) {
+				try{
+					parent.add(new AttributeAppender("title", new Model(((NodeModel) ((DefaultMutableTreeNode) node).getUserObject()).getNode().description), " "));
+				}catch(Exception e){
+					log.error(e.getMessage(), e);
+				}
+				return super.newNodeLink(parent, id, node);
+			}
 		};
 		if(singleRoleOptions){
 			tree.add(new AttributeAppender("class", new Model("noRoles"), " "));
