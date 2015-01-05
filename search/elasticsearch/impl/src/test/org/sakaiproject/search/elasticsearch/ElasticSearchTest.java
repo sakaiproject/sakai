@@ -425,7 +425,7 @@ public class ElasticSearchTest {
 
         elasticSearchIndexBuilder.refreshIndex();
 
-        System.out.println(elasticSearchService.getNDocs());
+        System.out.println("testRebuildSiteIndex: " + elasticSearchService.getNDocs());
         assertTrue(elasticSearchService.getNDocs() == 106);
     }
 
