@@ -6,34 +6,44 @@ Additional information on changing the Dashboard default configuration is availa
 
 ## Quartz Job Configuration
 
-The Dashboard can optionally be configured to allow event processing to be scheduled, instead of in real time, for performance concerns (DASH-256). Here are the steps to config and start that quartz job:
+There are several Dashboard Quartz Scheduler jobs that can be configured as follows:
 
-1. Disable default dashboard processing
-   disable.dashboard.eventprocessing=true 
-
-2. Configure one or more of the following Quartz Scheduler jobs:
    * Select the "Job Scheduler" Admin tool
    * Select Jobs -> New Job, select the desired job and enter a name
-   * Select Triggers -> New Trigger and enter a name and a cron expression, for example the following will run every 15 minutes:
+   * Select Triggers -> New Trigger and enter a name and a cron expression, for example the following will run every 30 minutes:
    
-       0 0/15 * * * ?
+       0 0/30 * * * ?
 
 
 ### Dashboard Aggregate Job
 
-DASH-256 Instead of running dashboard event processing thread on each server, this quartz job can be optionally enabled on several or one specific server, run at a specified time and process certain amount of events since the last time it was run. It behaves like SiteStats jobs as far as the event aggregation goes.
+This scheduled quartz job is *optional*.
+
+The Dashboard can be configured to allow event processing to be scheduled, instead of in real time, for performance concerns (DASH-256). Regular dashboard event processing should be disabled before scheduling this quartz job:
+
+   disable.dashboard.eventprocessing=true 
+
+Instead of running dashboard event processing thread on each server, this quartz job can be optionally enabled on several or one specific server, run at a specified time and process certain amount of events since the last time it was run. It behaves like SiteStats jobs as far as the event aggregation goes.
    
 ### Dashboard Check Admin Configuration Changes Job
 
-The quartz job checks the setting of “PROP_LOOP_TIMER_ENABLED” in the DASH_CONFIG database table.
+This scheduled quartz job is *optional*.
+
+This quartz job checks the setting of “PROP_LOOP_TIMER_ENABLED” in the DASH_CONFIG database table. If the setting is enabled, and this quartz job is scheduled or executed, diagnostic logging will be generated.
 
 ### Dashboard Check Availability Job
 
-Many Sakai items (resources, assignment, announcement, etc) have release/availability date settings, and are not shown to users in Dashboard tool before the release dates. This quartz job periodically compares the current system date with the dashboard item release dates, and creates dashboard item links for those items if the release date is reached. 
+This scheduled quartz job is __recommended__.
+
+Many Sakai items (resources, assignment, announcement, etc) have release/availability date settings, and are not shown to users in Dashboard tool before the release dates. 
+
+This quartz job periodically compares the current system date with the dashboard item release dates, and creates dashboard item links for those items if the release date is reached. 
 
 ### Dashboard Expire Purge Job
 
-This quartz job periodically cleans the DASH_NEWS_LINK and DASH_CALENDAR_LINK tables depending on 
+This scheduled quartz job is __recommended__.
+
+This quartz job will periodically cleans the DASH_NEWS_LINK and DASH_CALENDAR_LINK tables depending on 
 
 1) the following config variable in DASH_CONFIG table
 
@@ -56,9 +66,13 @@ Notice the starred or hidden dashboard items have different removal date setting
 
 ### Dashboard Repeat Event Job
 
+This scheduled quartz job is __recommended__.
+
 This job deals with a special type of calendar item, a.k.a. the repeating Sakai schedule event, with frequency setting for more than once. It periodically checks the frequency settings, creating new instances into the future date (based on PROP_WEEKS_TO_HORIZON setting).
 
 ### Dashboard Synchronize Dashboard Link Users with Site Users Job
+
+This scheduled quartz job is __recommended__.
 
 DASH-324 The quartz job constructs a hashmap (key=sakai site id, and value=site membership set) from dashboard link tables. It then consults the AuthzGroupService for the current Sakai site membership set. Comparing the two membership sets, this quartz job drops dashboard item link(s) if the user is no longer in site, or add dashboard item link(s) if the user is present.
 
