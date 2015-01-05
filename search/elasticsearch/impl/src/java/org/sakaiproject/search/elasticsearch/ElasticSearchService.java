@@ -92,6 +92,13 @@ public class ElasticSearchService implements SearchService {
     private ElasticSearchIndexBuilder indexBuilder;
     private SiteService siteService;
     private boolean localNode = false;
+
+    /**
+     * set this to true if you intend to run an ElasticSearch cluster that is external to Sakai
+     * this instructs ES to not store any data on the local node but only act as a client
+     */
+    private boolean clientNode = false;
+
     private boolean useSiteFilters = false;
 
     /**
@@ -228,6 +235,7 @@ public class ElasticSearchService implements SearchService {
         ImmutableSettings.Builder settings = settingsBuilder().put(properties);
 
         node = nodeBuilder()
+                .client(clientNode)
                 .settings(settings)
                 .local(localNode).node();
 
@@ -854,6 +862,10 @@ public class ElasticSearchService implements SearchService {
 
     public void setLocalNode(boolean localNode) {
         this.localNode = localNode;
+    }
+
+    public void setClientNode(boolean clientNode) {
+        this.clientNode = clientNode;
     }
 
     public void setUseSiteFilters(boolean useSiteFilters) {
