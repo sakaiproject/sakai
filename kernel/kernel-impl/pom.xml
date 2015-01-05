@@ -108,7 +108,17 @@
 			</exclusion>
 		</exclusions>
 	</dependency>
-    
+     <!-- https://jira.sakaiproject.org/browse/KNL-1320 -DH -->
+         <dependency>
+          <groupId>org.apache.poi</groupId>
+          <artifactId>poi</artifactId>
+          <version>3.10.1</version>
+        </dependency>
+        <dependency>
+         <groupId>org.apache.poi</groupId>
+         <artifactId>poi-ooxml</artifactId>
+         <version>3.10.1</version>
+        </dependency>
     <!--  needed to make the tests work as we need to bring up the Component Manager -->
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
