@@ -1221,18 +1221,18 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 */
 	private class NodeListComparator implements Comparator<List>{
 		public int compare(List o1, List o2) {
-			if(((HierarchyNodeSerialized) o1.get(0)).title == null
-                                && ((HierarchyNodeSerialized) o2.get(0)).title == null){
+			if(((HierarchyNodeSerialized) o1.get(0)).description == null
+                                && ((HierarchyNodeSerialized) o2.get(0)).description == null){
                                 //nothing to compare
                                 return 0;
-                        }else if(((HierarchyNodeSerialized) o1.get(0)).title != null
-                                && ((HierarchyNodeSerialized) o2.get(0)).title  == null){
+                        }else if(((HierarchyNodeSerialized) o1.get(0)).description != null
+                                && ((HierarchyNodeSerialized) o2.get(0)).description  == null){
                                 return 1;
-                        }else if(((HierarchyNodeSerialized) o1.get(0)).title == null
-                                && ((HierarchyNodeSerialized) o2.get(0)).title != null){
+                        }else if(((HierarchyNodeSerialized) o1.get(0)).description == null
+                                && ((HierarchyNodeSerialized) o2.get(0)).description != null){
                                 return -1;
                         }else{
-                                return ((HierarchyNodeSerialized) o1.get(0)).title.compareToIgnoreCase(((HierarchyNodeSerialized) o2.get(0)).title);
+                                return ((HierarchyNodeSerialized) o1.get(0)).description.compareToIgnoreCase(((HierarchyNodeSerialized) o2.get(0)).description);
                         }
 		}
 	}
