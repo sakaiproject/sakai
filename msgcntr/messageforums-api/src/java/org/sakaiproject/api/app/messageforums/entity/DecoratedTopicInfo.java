@@ -18,6 +18,7 @@ public class DecoratedTopicInfo {
 	private Long openDate; // An epoch date in seconds. NOT milliseconds.
 	private Long closeDate; // An epoch date in seconds. NOT milliseconds.
 	private String gradebookItemName;
+	private Long gradebookItemId;
 
 	public DecoratedTopicInfo(Long topicId, String topicTitle,
 			int unreadMessagesCount, int messagesCount, String typeUuid,
@@ -39,7 +40,7 @@ public class DecoratedTopicInfo {
 			List<DecoratedAttachment> attachments, String shortDescription,
 			String description, Boolean isLocked, Boolean isPostFirst,
 			Boolean isAvailabilityRestricted, Long openDate, Long closeDate,
-			String gradebookItemName) {
+			String gradebookItemName, Long gradebookItemId) {
 
 		this(topicId, topicTitle, unreadMessagesCount, messagesCount, typeUuid,
 				attachments, shortDescription, description);
@@ -49,6 +50,7 @@ public class DecoratedTopicInfo {
 		this.openDate = openDate;
 		this.closeDate = closeDate;
 		this.gradebookItemName = gradebookItemName;
+		this.gradebookItemId = gradebookItemId;
 	}
 
 	public String getTypeUuid() {
@@ -137,6 +139,14 @@ public class DecoratedTopicInfo {
 
 	public void setGradebookItemName(String gradebookItemName) {
 		this.gradebookItemName = gradebookItemName;
+	}
+
+	public Long getGradebookItemId() {
+	    return gradebookItemId;
+	}
+
+	public void setGradebookItemId(Long gradebookItemId) {
+	    this.gradebookItemId = gradebookItemId;
 	}
 
 	public List<DecoratedAttachment> getAttachments() {
