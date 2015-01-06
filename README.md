@@ -15,12 +15,15 @@ mvn install
 Sakai runs on Apache Tomcat 7. Download the latest version from http://tomcat.apache.org and extract the archive.
 *Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
 
-Deploy Sakai to Maven:
+You **must** configure Tomcat according to the instrcutions on this page:
+https://confluence.sakaiproject.org/display/BOOT/Install+Tomcat+7
+
+When you are done, deploy Sakai to Tomcat:
 ```
 mvn clean install sakai:deploy -Dmaven.tomcat.home=/path/to/your/tomcat
 ```
 
-Start Tomcat:
+Now start Tomcat:
 ```
 cd /path/to/your/tomcat/bin
 ./startup.sh && tail -f ../logs.catalina.out
