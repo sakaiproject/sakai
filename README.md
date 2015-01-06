@@ -15,7 +15,7 @@ mvn install
 Sakai runs on Apache Tomcat 7. Download the latest version from http://tomcat.apache.org and extract the archive.
 *Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
 
-You **must** configure Tomcat according to the instrcutions on this page:
+You **must** configure Tomcat according to the instructions on this page:
 https://confluence.sakaiproject.org/display/BOOT/Install+Tomcat+7
 
 When you are done, deploy Sakai to Tomcat:
