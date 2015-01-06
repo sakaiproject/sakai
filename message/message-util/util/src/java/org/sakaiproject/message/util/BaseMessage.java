@@ -2712,6 +2712,8 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 			// clear out any thread local caching of this message, since it has just changed
 			m_threadLocalManager.set(edit.getReference(), null);
+			// clear out this messasge in the threadLocalManager findMessages cache
+			removeFromFindMessagesCache(edit);
 
 			// track event
 			Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
@@ -2729,6 +2731,17 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		} // commitMessage
 		
+
+		public void removeFromFindMessagesCache (MessageEdit messageReference) {
+			List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
+			if (msgs != null)
+			{
+				//Attempt to remove this message
+				msgs.remove(messageReference);
+				m_threadLocalManager.set(getReference() + ".msgs", msgs);
+			}
+		}
+
 		/**
 		 * Commit the draft changes made to a MessageEdit object. The MessageEdit is disabled, and not to be used after this call.
 		 * This is mainly used to commit draft changes for messages, which are associated with non-existing groups.	
