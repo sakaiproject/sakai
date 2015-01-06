@@ -1828,6 +1828,58 @@
                     <regexp name="flashSites" />
                 </regexp-list>
             </attribute>
+            <attribute name="name">
+                <regexp-list>
+                    <regexp name="anything" />
+                </regexp-list>
+            </attribute>
+            <attribute name="resource" onInvalid="removeTag">
+                <regexp-list>
+                    <regexp name="flashSites" />
+                </regexp-list>
+            </attribute>
+            <attribute name="allowfullscreen">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="webkitallowfullscreen">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="mozallowfullscreen">
+                <regexp-list>
+                    <regexp name="boolean"/>
+                </regexp-list>
+            </attribute>
+            <attribute name="allownetworking">
+                <literal-list>
+                    <literal value="all" />
+                </literal-list>
+            </attribute>
+            <attribute name="xmlns:dc">
+              <regexp-list>
+                <regexp name="offsiteURL"/>
+              </regexp-list>
+            </attribute>
+            <attribute name="xmlns:media">
+              <regexp-list>
+                <regexp name="offsiteURL"/>
+              </regexp-list>
+            </attribute>
+            <attribute name="rel">
+                <literal-list>
+                    <literal value="media:video"/>
+                    <literal value="media:audio"/>
+                </literal-list>
+            </attribute>
+            <attribute name="allowscriptaccess">
+                <literal-list>
+                    <literal value="always" />
+                    <literal value="samedomain" />
+                </literal-list>
+            </attribute>
             <attribute name="align" />
             <attribute name="height" />
             <attribute name="width" />
