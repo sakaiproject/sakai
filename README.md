@@ -37,6 +37,6 @@ https://confluence.sakaiproject.org/display/SAKDEV/Git+Setup
 
 For filing bugs against Sakai please use our Jira instance: https://jira.sakaiproject.org/
 
-# Get in touch
+## Get in touch
 
 If you have any questions, please join the Sakai developer mailing list: http://collab.sakaiproject.org/mailman/listinfo/sakai-dev
