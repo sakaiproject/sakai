@@ -76,6 +76,12 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
+    <jaxrs:server id="SakaiConfigurationRS" address="/rest/configuration">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiConfiguration"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
                     address="/soap/job"/>
@@ -116,6 +122,10 @@ http://cxf.apache.org/schemas/jaxws.xsd">
                     implementor="#org.sakaiproject.webservices.SakaiReport"
                     address="/soap/report"/>
 
+    <jaxws:endpoint id="SakaiConfiguration"
+                        implementor="#org.sakaiproject.webservices.SakaiConfiguration"
+                        address="/soap/configuration"/>
+
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
@@ -155,4 +165,5 @@ http://cxf.apache.org/schemas/jaxws.xsd">
     <bean id="org.sakaiproject.webservices.SakaiReport" class="org.sakaiproject.webservices.SakaiReport" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" >
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
     </bean>
+    <bean id="org.sakaiproject.webservices.SakaiConfiguration" class="org.sakaiproject.webservices.SakaiConfiguration" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
 </beans>
