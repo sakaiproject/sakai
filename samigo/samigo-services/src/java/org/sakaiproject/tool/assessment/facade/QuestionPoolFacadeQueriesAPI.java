@@ -213,6 +213,8 @@ public interface QuestionPoolFacadeQueriesAPI
 
   public Integer getCountItemFacades(Long questionPoolId);
   
+  public HashMap<Long, Integer> getCountItemFacadesForUser(String agentId);	  
+  
   /**
    * Shared Pools with other user
    */
