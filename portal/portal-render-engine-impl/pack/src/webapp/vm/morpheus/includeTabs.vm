@@ -28,10 +28,6 @@
 
 <!-- START VM includeTabs.vm -->
     <div class="${tabsCssClass} Mrphs-container Mrphs-container--navs">
-    
-        ## What does this do? Mark Reilly 2014-12-10
-        <span id="maxToolsInt" class="Mrphs-maxTools__integer is-hidden">$maxToolsInt</span>
-        <span id="maxToolsAnchor" class="Mrphs-maxTools__anchor is-hidden">${rloader.sit_alltools}</span>
 
         #parse("/vm/morpheus/includeLoginNav.vm")
 

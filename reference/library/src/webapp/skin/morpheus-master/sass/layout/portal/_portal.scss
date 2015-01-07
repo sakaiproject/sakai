@@ -6,17 +6,18 @@
 
 .Mrphs- {
 
-  // Menus and Content area
+  //// Menus and Content area
   &container--site {
     display: table;
     width: 100%;
     border-collapse: collapse;
+    background: $portal__background;
   }
-  // Responsive Menus 
 
   //// Jump/Skip Menu
   &skipNav {
 
+    // hide on desktop
     @include respond-to('full navigation') {
       display: none;
     }
@@ -26,35 +27,76 @@
   //// Sites Menu
   &sitesNav {
 
+    // position offscreen for narrow screens
     @include respond-to('narrow navigation') {
       margin-top: -100%;
       z-index: 9;
       position: relative;
-        
-     .nav-sites-displayed & {
+
+      // position onscreen when clicked
+      .sitesNav--displayed & {
         margin-top: 0;
       }
     }
 
+    // display for larger screens
     @include respond-to('full navigation') {
       display: block;
     }
   }
 
+  //// User Nav
+  &userNav {
+
+    @include respond-to('full navigation') {
+
+      &__popup {
+        position: relative;
+        display: inline-block;
+      }
+    
+      &__subnav {
+        position: absolute;
+        top: 2.75em;
+        right: 0;
+        z-index: 1002;
+      }
+    }
+
+    @include respond-to('narrow navigation') {
+      // Hide by default
+      display: none;
+      
+      // show when sitesNav is clicked
+      .sitesNav--displayed & {
+        display: table-cell;
+      }
+      
+      &__popup {
+      
+
+        > .Mrphs-userNav__drop {
+          float: left;
+        }
+      }
+    }
+  }
 
   //// Tools Menu
   &container--nav-tools {
-    
-      background: $nav-tools__background;
+
+    // position offscreen for narrow screens
     @include respond-to('narrow navigation') {
       margin-left: -100%;
       float: left;
 
-     .nav-tools-displayed & {
-      margin-left: 0;
-      }
+      // position onscreen when clicked
+     .toolsNav--displayed & {
+       margin-left: 0;
+     }
     }
 
+    // display for larger screens
     @include respond-to('full navigation') {
       width: 20%;
       display: table-cell;
@@ -65,6 +107,7 @@
   // adds the title to the tool nav of the currently selected site
   &navTools__title--current-site {
 
+    // display the title on narrow screens where the sites nav is not always displayed
     @include respond-to('narrow navigation') {
       font-size: 1.2em;
       margin: .25em;
@@ -75,7 +118,7 @@
       display: inline;
     }
 
-    // hide title in the full nav view
+    // hide the title on larger screens where the sites nav is always displayed
     @include respond-to('full navigation') {
       display: none;
     }
@@ -85,13 +128,15 @@
   //// Main Content 
   &mainContent {
 
+    // content is full width for narrow screens
     @include respond-to('narrow navigation') {
       position: relative;
       float: left;
       width: 100%;
       margin-right: 0; 
-    
-      .nav-tools-displayed & {
+
+    // position offscreen on narrow screens when tool nav is displayed
+      .toolsNav--displayed & {
         margin-right: -100%;
       }
     }
@@ -102,32 +147,19 @@
     }
   }
 
-
-  //// Menu transitions
-  .jump--tools,
-  .nav-tools,
-  .nav-sites,
-  main {
-    @include transition(.25s all ease-in-out);
-  }
-
-  &pageColumns {
-   background: #fff;
-  }
-
   // Columns
+  &pageColumns {
 
-  @include respond-to('narrow navigation') {
+    // flow into one column for narrow screens
+    @include respond-to('narrow navigation') {
 
-    &pageColumns {
       width: calc(100% - 1em);
       margin: .5em;
     }
-  }
 
-  @include respond-to('full navigation') {
+    // uses two colums on larger screens
+    @include respond-to('full navigation') {
 
-    &pageColumns {
       margin: 1em;
 
       &--first,
@@ -135,7 +167,7 @@
         width: calc(50% - 1.5em);
         float: left;
       }
-      
+    
       &--second {
         margin-left: 0;
       }
@@ -146,15 +178,11 @@
     }
   }
 
-
-  // Footer app tray
-  //// hide for now 2014-09-25 
-  .box.extras {
-    //display: none;
-  }
-
-  ul.navIntraTool.actionToolBar {
-    padding: 0;
-    margin: .5em 0;
+  //// Menu transitions
+  &sitesNav, 
+  &container--nav-tools, 
+  &mainContent,
+  &userNav {
+    @include transition(.25s margin ease-in-out);
   }
 }

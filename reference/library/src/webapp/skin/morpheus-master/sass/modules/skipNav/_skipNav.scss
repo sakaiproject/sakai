@@ -17,7 +17,7 @@
       font-size: $sakai-logo-mobile__font-size;
       position: absolute;
       left: calc( 50% - ( #{$sakai-logo-mobile__font-size} / 2 ) ); // http://caniuse.com/calc (this is only visible on mobile so no need to support old IE)
-      padding-top: .275em;
+      padding: 0;
       color: nth($light-grey, 6);
     }
 
@@ -34,8 +34,10 @@
 
         a {
           color: nth($secondary, 1);
+          padding: 0;
 
-          &:hover {
+          &:hover,
+          &:focus {
             text-decoration: none;
             border: none;
           }
@@ -51,6 +53,10 @@
 
         &--worksite {
           float: right;
+
+          a:before {
+            margin: 0;
+          }
 
           .is-logged-out & {
             display: none;

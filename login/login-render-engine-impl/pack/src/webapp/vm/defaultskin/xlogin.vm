@@ -28,7 +28,7 @@
 			<td class="form">
 				<form method="post" action="${action}" enctype="application/x-www-form-urlencoded">
 				#if (${notify})
-					<div class="alertMessage">${notify}</div>
+					<div class="alertMessage" role="alert">${notify}</div>
 				#end
 					<table border="0" class="loginform">
 					<tr>
