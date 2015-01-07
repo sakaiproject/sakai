@@ -11,7 +11,7 @@
 
     CKEDITOR.plugins.add("autosave", {
         lang: 'ca,de,en,es,fr,ja,pl,pt-br,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
-        version: 0.10,
+        version: 0.11,
         init: function(editor) {
             CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'css/autosave.min.css'));
 
