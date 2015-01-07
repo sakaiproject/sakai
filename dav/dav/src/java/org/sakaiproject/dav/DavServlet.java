@@ -117,9 +117,9 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.catalina.util.DOMWriter;
-import org.sakaiproject.dav.MD5Encoder;
 import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.XMLWriter;
+import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.cover.AliasService;
@@ -1551,7 +1551,7 @@ public class DavServlet extends HttpServlet
 				modificationDate = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime();
 				eTag = modificationDate + "+" + eTag;
 				// SAK-26593 if you don't clean the eTag you may send invalid XML to client
-				eTag = MD5Encoder.encode(md5Helper.digest(eTag.getBytes()));
+				eTag = Hex.encodeHexString(md5Helper.digest(eTag.getBytes()));
 				if (M_log.isDebugEnabled()) M_log.debug("Path=" + path + " eTag=" + eTag);
 				creationDate = props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime();
 				resourceLink = mbr.getUrl();
@@ -3205,7 +3205,7 @@ public class DavServlet extends HttpServlet
 			String lockTokenStr = req.getServletPath() + "-" + lock.type + "-" + lock.scope + "-" + req.getUserPrincipal() + "-"
 					+ lock.depth + "-" + lock.owner + "-" + lock.tokens + "-" + lock.expiresAt + "-" + System.currentTimeMillis()
 					+ "-" + secret;
-			lockToken = MD5Encoder.encode(md5Helper.digest(lockTokenStr.getBytes()));
+			lockToken = Hex.encodeHexString(md5Helper.digest(lockTokenStr.getBytes()));
 
 			if ((exists) && (object instanceof DirContext) && (lock.depth == INFINITY))
 			{
