@@ -37,6 +37,10 @@
             <groupId>org.sakaiproject</groupId>
             <artifactId>sakai-dav-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>commons-codec</groupId>
+            <artifactId>commons-codec</artifactId>
+        </dependency>
         <!-- in tomcat common, so no need to bundle -->
 <!--
         <dependency>
