@@ -650,23 +650,23 @@ public class EmailNotification implements NotificationAction
 		String type = getType(resourceFilter);
 		if (type != null)
 		{
-            // First, check the overrides.
-            String eventContext = event.getContext();
-            if (eventContext != null) {
-                props = prefs.getProperties(NotificationService.PREFS_TYPE + type + NotificationService.NOTI_OVERRIDE_EXTENSION);
-                Iterator<String> i = props.getPropertyNames();
-                while (i.hasNext()) {
-                    String name = i.next();
-                    if (eventContext.equals(name)) {
-                        try {
-                            int option = Integer.parseInt(props.getProperty(name));
-                            if (option != NotificationService.PREF_NONE) return option;
-                        } catch (NumberFormatException nfe) {
-                            M_log.error("Property '" + name + "' is not a number. The site overrides check has failed");
-                        }
-                    }
-                }
-            }
+			// First, check the overrides.
+			String eventContext = event.getContext();
+			if (eventContext != null) {
+				props = prefs.getProperties(NotificationService.PREFS_TYPE + type + NotificationService.NOTI_OVERRIDE_EXTENSION);
+				Iterator<String> i = props.getPropertyNames();
+				while (i.hasNext()) {
+					String name = i.next();
+					if (eventContext.equals(name)) {
+						try {
+							int option = Integer.parseInt(props.getProperty(name));
+							if (option != NotificationService.PREF_NONE) return option;
+						} catch (NumberFormatException nfe) {
+							M_log.error("Property '" + name + "' is not a number. The site overrides check has failed");
+						}
+					}
+				}
+			}
 
 			props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
 			try
