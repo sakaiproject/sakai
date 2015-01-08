@@ -28,7 +28,7 @@
          <filter-class>org.sakaiproject.login.springframework.SafeDelegatingFilterProxy</filter-class>
          <init-param>
              <param-name>targetBeanName</param-name>
-             <param-value>org.springframework.security.util.FilterChainProxy</param-value>
+             <param-value>org.springframework.security.web.FilterChainProxy</param-value>
          </init-param>
      </filter>
 
