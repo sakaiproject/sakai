@@ -74,14 +74,21 @@ public class StatsAggregateJobImpl implements StatefulJob {
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where EVENT_ID >= ? and EVENT_ID < ? " +
 														"order by EVENT_ID asc ";
-	private String ORACLE_GET_EVENT					= "SELECT * FROM ( " +
+	
+	// SAK-28967 - this query is very slow, replace it with the one below
+	/*private String ORACLE_GET_EVENT					= "SELECT * FROM ( " +
 														"SELECT " +
 															" ROW_NUMBER() OVER (ORDER BY EVENT_ID ASC) AS rn, " +
 															ORACLE_DEFAULT_COLUMNS + ORACLE_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where EVENT_ID >= ? " +
 														") " +
-														"WHERE rn BETWEEN ? AND  ?";
+														"WHERE rn BETWEEN ? AND  ?";*/
+	
+	private String ORACLE_GET_EVENT = "SELECT " + ORACLE_DEFAULT_COLUMNS + ORACLE_CONTEXT_COLUMN +
+				" FROM sakai_event e JOIN sakai_session s ON e.session_id = s.SESSION_ID" +
+				" WHERE event_id >= ? AND event_id < ? ORDER BY event_id ASC";
+	
 	private String MYSQL_PAST_SITE_EVENTS			= "select " + MYSQL_DEFAULT_COLUMNS + MYSQL_CONTEXT_COLUMN + " " +
 														"from SAKAI_EVENT e join SAKAI_SESSION s on e.SESSION_ID=s.SESSION_ID " +
 														"where (CONTEXT = ? or (EVENT in ('pres.begin','pres.end') and REF = ?)) " +
@@ -262,17 +269,15 @@ public class StatsAggregateJobImpl implements StatefulJob {
 			
 			while(!abortIteration) {
 				abortIteration = true;
-				st.clearParameters();		
-				if(!isOracle){
-					if(firstEventIdProcessed == -1)
-						offset = eventIdLowerLimit;
-					st.setLong(1, offset);					// MySQL >= startId	
-					st.setLong(2, sqlBlockSize + offset);	// MySQL < endId
-				}else{
-					st.setLong(1, eventIdLowerLimit);		// Oracle lower limit	
-					st.setLong(2, offset);					// Oracle offset
-					st.setLong(3, sqlBlockSize + offset);	// Oracle limit	
+				
+				// SAK-28967
+				if( firstEventIdProcessed == -1 )
+				{
+					offset = eventIdLowerLimit;
 				}
+				st.setLong( 1, offset );
+				st.setLong( 2, offset + sqlBlockSize );
+				
 				rs = st.executeQuery();
 				
 				while(rs.next()){
