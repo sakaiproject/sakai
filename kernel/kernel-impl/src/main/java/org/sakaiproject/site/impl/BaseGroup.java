@@ -302,7 +302,7 @@ public class BaseGroup implements Group, Identifiable
 		if (obj == this) return 0;
 
 		// start the compare by comparing their title
-		int compare = getTitle().compareTo(((Site) obj).getTitle());
+		int compare = getTitle().compareTo(((Group) obj).getTitle());
 
 		// if these are the same
 		if (compare == 0)
