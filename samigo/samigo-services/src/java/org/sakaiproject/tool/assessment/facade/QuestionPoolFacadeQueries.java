@@ -210,7 +210,7 @@ public class QuestionPoolFacadeQueries
 	  return new QuestionPoolIteratorFacade(qpList);
   }
   
-  public ArrayList getBasicInfoOfAllPools(final String agentId) {
+  public ArrayList<QuestionPoolFacade> getBasicInfoOfAllPools(final String agentId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
@@ -221,15 +221,10 @@ public class QuestionPoolFacadeQueries
 	    };
 	    List list = getHibernateTemplate().executeFind(hcb);
 
-//	  List list = getHibernateTemplate().find(
-//        "select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.ownerId= ? ",
-//        new Object[] {agentId}
-//        , new org.hibernate.type.Type[] {Hibernate.STRING});
-    ArrayList poolList = new ArrayList();
+    ArrayList<QuestionPoolFacade> poolList = new ArrayList<QuestionPoolFacade>();
     for (int i = 0; i < list.size(); i++) {
       QuestionPoolData a = (QuestionPoolData) list.get(i);
-      QuestionPoolFacade f = new QuestionPoolFacade(a.getQuestionPoolId(),
-          a.getTitle(), a.getParentPoolId());
+      QuestionPoolFacade f = new QuestionPoolFacade(a.getQuestionPoolId(), a.getTitle(), a.getParentPoolId());
       poolList.add(f);
     }
     return poolList;
@@ -1406,12 +1401,36 @@ public class QuestionPoolFacadeQueries
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 			  Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
 			  q.setLong(0, questionPoolId.longValue());
+			  q.setCacheable(true);
 			  return q.uniqueResult();
 		  };
 	  };
 	  	    
 	  Integer count = (Integer)getHibernateTemplate().execute(hcb);	    
 	  return count;
+  }
+  
+  public HashMap<Long, Integer> getCountItemFacadesForUser(final String agentId) {	    
+	  final HibernateCallback hcb = new HibernateCallback(){
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd " + 
+					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.ownerId=? group by qpi.questionPoolId");
+			  q.setString(0, agentId);
+			  q.setCacheable(true);
+			  return q.list();
+		  };
+	  };
+
+	  HashMap<Long, Integer> counts = new HashMap<Long, Integer>();
+	  List list = getHibernateTemplate().executeFind(hcb);
+
+	  Iterator i1 = list.iterator();
+	  while (i1.hasNext()) {
+		  Object[]result = (Object [])i1.next();
+		  counts.put((Long) result[0], (Integer)result[1]);
+	  }
+
+	  return counts;
   }
 
   /**

@@ -326,18 +326,14 @@ private List attachmentList;
   public ArrayList getPoolsAvailable()
   {
     ArrayList resultPoolList= new ArrayList();  
-    /*if (this.getType() != null && this.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
-        this.setSelectedPool("");
-        this.setNumberSelected("");
-        return resultPoolList;
-    }*/
 
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
-    //ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 
     QuestionPoolService delegate = new QuestionPoolService();
     
-    ArrayList allpoollist = delegate.getBasicInfoOfAllPools(AgentFacade.getAgentString());
+    String agentId = AgentFacade.getAgentString();
+    
+    ArrayList allpoollist = delegate.getBasicInfoOfAllPools(agentId);
 
     HashMap allPoolsMap= new HashMap();
     for (int i=0; i<allpoollist.size();i++){
@@ -372,14 +368,17 @@ private List attachmentList;
 	}
       }
     }
+    
+    // SAM-2463: Fetch the count of questions for each pool in one query instead of hundreds
+    HashMap<Long, Integer> poolQuestionCounts = delegate.getCountItemsForUser(agentId);
 
     Iterator pooliter = allPoolsMap.keySet().iterator();
     while (pooliter.hasNext()) {
       QuestionPoolFacade pool = (QuestionPoolFacade) allPoolsMap.get(pooliter.next());
-      //Huong's new
-      int items = delegate.getCountItems(pool.getQuestionPoolId() );	
+      Long poolId = pool.getQuestionPoolId();
+      int items = poolQuestionCounts.containsKey(poolId) ? poolQuestionCounts.get(poolId) : 0;
       if(items>0){
-    	  resultPoolList.add(new SelectItem((pool.getQuestionPoolId().toString()), getPoolTitleValueForRandomDrawDropDown(pool, items, allpoollist, delegate)));
+    	  resultPoolList.add(new SelectItem((poolId.toString()), getPoolTitleValueForRandomDrawDropDown(pool, items, allpoollist, delegate)));
       }
     }
     //  add pool which is currently used in current Part for modify part
@@ -434,7 +433,7 @@ private List attachmentList;
         if(parentPoolID > 0) {
             for(QuestionPoolFacade qp : allPools) {
                 if(parentPoolID.equals(qp.getQuestionPoolId())) {
-                    return formatPoolDisplayName( qp.getDisplayName(), qps.getCountItems( qp.getQuestionPoolId() ) ) + ": " + original;
+                    return qp.getDisplayName() + ": " + original;
                 }
             }
         }
