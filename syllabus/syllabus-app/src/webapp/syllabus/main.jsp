@@ -48,6 +48,7 @@
 	$(function() {
 		msgs = {
 				syllabus_title: $("#messages #syllabus_title").html(),
+				syllabus_content: $("#messages #syllabus_content").html(),
 				clickToAddTitle: $("#messages #clickToAddTitle").html(),
 				startdatetitle: $("#messages #startdatetitle").html(),
 				clickToAddStartDate: $("#messages #clickToAddStartDate").html(),
@@ -349,7 +350,7 @@
 					</h:outputFormat>
 				</syllabus:syllabus_ifnot>
 		</f:verbatim>
-
+        <f:verbatim><div style="padding-top: 600px" frameborder="0"></div></f:verbatim>
 		</h:form>
 		
 		<!-- This section is used for internationalization for JS files
@@ -361,6 +362,7 @@
 		<f:verbatim>
 			<span id="messages" style="display:none">
 				<span id="syllabus_title"></f:verbatim><h:outputText value="#{msgs.syllabus_title}"/><f:verbatim></span>
+                <span id="syllabus_content"></f:verbatim><h:outputText value="#{msgs.syllabus_content}"/><f:verbatim></span>
 				<span id="clickToAddTitle"></f:verbatim><h:outputText value="#{msgs.clickToAddTitle}"/><f:verbatim></span>
 				<span id="startdatetitle"></f:verbatim><h:outputText value="#{msgs.startdatetitle}"/><f:verbatim></span>
 				<span id="clickToAddStartDate"></f:verbatim><h:outputText value="#{msgs.clickToAddStartDate}"/><f:verbatim></span>

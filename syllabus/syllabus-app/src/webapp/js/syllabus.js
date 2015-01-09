@@ -503,12 +503,24 @@ function showConfirmDelete(deleteButton, msgs, event){
 }
 
 function showConfirmAdd(msgs, mainframeId){
+	$('#container', this.top.document).append("<div></div>");
+	var emptyDiv = $('<div></div>', this.top.document);
 	$('<div></div>').appendTo('body')
-		.html('<div><h6>' + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>")
+		.html("<div><h6>" + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>" +
+				"<h6>" + msgs.syllabus_content + "</h6><div class='editItem bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
 		.dialog({
-			position: { my: 'center top', at: 'center top', of: $(document)},
-			modal: true, title: msgs.addItemTitle, zIndex: 10000, autoOpen: true,
-			width: 'auto', resizable: true,
+			position: {
+				my: 'center top',
+				at: 'center top',
+				of: $(this.top.document)
+			},
+			modal: true,
+			title: msgs.addItemTitle,
+			zIndex: 11100,
+			autoOpen: true,
+			width: 'auto',
+			height: 'auto',
+			resizable: true,
 			buttons: [
 				{
 					text: msgs.bar_new,
@@ -516,13 +528,22 @@ function showConfirmAdd(msgs, mainframeId){
 						var title = $("#newTitle").val();
 						if(!title || "" == title.trim()){
 							$("#requiredTitle").show();
-							setTimeout(function(){$("#requiredTitle").fadeOut();}, 5000);
+							setTimeout(
+								function(){
+									$("#requiredTitle").fadeOut();
+								},
+								5000
+							);
 						}else{
-							//id doesn't exist since we are adding a new one
+							$("#newContentTextAreaWysiwyg").val($('#newContentDiv').find('iframe').contents().find('body').html()).change();
+							// id doesn't exist since we are adding a new one
 							var id = "0";
-							params = {"add" : true,
-										"title": title,
-										"siteId": $("#siteId").val()};
+							params = {
+								"add" : true,
+								"title": title,
+								"siteId": $("#siteId").val(),
+								"content": $("#newContentTextAreaWysiwyg").val()
+							};
 							postAjax(id, params, msgs);
 							if($("#successInfo").is(":visible")){
 								location.reload();
@@ -543,12 +564,13 @@ function showConfirmAdd(msgs, mainframeId){
 				return false;
 			},
 			open: function(event){
-				if($( "#accordion .group" ).children("h3").size() <= 1){
-					//we have 1 or 0 items, so make sure the window size is large enough
+				if($("#accordion .group").children("h3").size() <= 1){
+					// we have 1 or 0 items, so make sure the window size is large enough
 					mySetMainFrameHeight(mainframeId);
 				}
 			}
-	});
+		});
+	sakai.editor.launch("newContentTextAreaWysiwyg", {}, 900, 300);
 }
 
 if(typeof String.prototype.trim !== 'function') {
