@@ -289,6 +289,22 @@ public class SyllabusEntityProvider extends AbstractEntityProvider implements En
 						String published = ServerConfigurationService.getBoolean("syllabus.new.published.default", false) ? SyllabusData.ITEM_POSTED : SyllabusData.ITEM_DRAFT; 
 						SyllabusData data = syllabusManager.createSyllabusDataObject(title, new Integer(initPosition), null, null, published, "none", null, null, Boolean.FALSE, null, null);
 						data.setView("no");
+						try {
+							String content = (String) params.get("content");
+							if (StringUtils.isNotBlank(content)) {
+								StringBuilder alertMsg = new StringBuilder();
+								String cleanedText = FormattedText.processFormattedText(content, alertMsg);
+								if (alertMsg.length() > 0) {
+									throw new IllegalArgumentException("Error formatting body text: " + alertMsg);
+								} else {
+									if (StringUtils.isNotEmpty(cleanedText)) {
+										data.setAsset(cleanedText);
+									}
+								}
+							}
+						} catch(Exception e) {
+							log.error(e.getMessage(), e);
+						}
 						syllabusManager.addSyllabusToSyllabusItem(item, data);
 					}
 				}
