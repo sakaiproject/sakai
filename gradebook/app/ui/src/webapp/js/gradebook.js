@@ -531,11 +531,16 @@ function assignmentReleased(myForm, releasedChanged) {
 
 // if categories are enabled, we don't want to be able to check the calculate box 
 // for unassigned items.  This function will ensure this happens in the UI
-function categorySelected(myForm)
+function categorySelected(myForm, extraCreditCategories)
 {
+	var extraCreditCatsArr = new Array();
+	if(typeof extraCreditCategories === 'string'){
+		extraCreditCatsArr = extraCreditCategories.split(",");
+	}
 	var categoryDDEl = getTheElement(myForm + ':selectCategory');
 	var countedCheckboxEl = getTheElement(myForm + ':countAssignment');
 	var releasedCheckboxEl =  getTheElement(myForm + ':released');
+	var extraCreditCheckboxEl =  getTheElement(myForm + ':extraCredit');
 	if (undefined != categoryDDEl)
 	{
 		if (categoryDDEl.options[categoryDDEl.selectedIndex].value == "unassigned")
@@ -556,6 +561,13 @@ function categorySelected(myForm)
 			{
 				countedCheckboxEl.disabled = false;
 			}
+		}
+		//check if category is EC, if so, disable EC item checkbox:
+		if(extraCreditCatsArr.indexOf(categoryDDEl.options[categoryDDEl.selectedIndex].value) > -1){
+			extraCreditCheckboxEl.disabled = true;
+			extraCreditCheckboxEl.checked = false;
+		}else{
+			extraCreditCheckboxEl.disabled = false;
 		}
 	}
 	return;
