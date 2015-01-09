@@ -215,7 +215,7 @@ if ( inIframe() ) {
 		</t:dataList>
                 <f:verbatim></div></f:verbatim>
                 <f:verbatim></div></div>
-<div style="float:none;clear:both;margin:2em 0">
+<div class="act">
 </f:verbatim>
 
 <%-- ## SAK-23895 :Display full name of course, not just code, in site tab  --%>
