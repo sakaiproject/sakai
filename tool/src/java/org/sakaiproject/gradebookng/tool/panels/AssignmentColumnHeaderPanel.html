@@ -4,11 +4,11 @@
 <body>
 <wicket:panel>
 	
-	<div wicket:id="title"></div>
-	<div wicket:id="averageGradeSection">
+	<div wicket:id="title" class="title"></div>
+	<div wicket:id="averageGradeSection" class="average">
 		<span wicket:message="value:label.avg">Avg: </span><span wicket:id="averagePoints">72</span> / <span wicket:id="totalPoints">100</span>
 	</div>
-	<div wicket:id="dueDate">23/5/2014</div>
+	<div wicket:id="dueDate" class="due-date">23/5/2014</div>
 	
 	<!--  this comes from the wicket bootstrap module, needs to be sorted out. -->
 	<div class="btn-group">

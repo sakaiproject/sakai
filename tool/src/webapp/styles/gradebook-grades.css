@@ -1,0 +1,106 @@
+/* **************************************************************** *
+ *                      Gradebook Grades styles                     *
+ * **************************************************************** */
+ 
+ /* Fonts */
+ @font-face {
+    font-family:"gradebook-icons";
+    src:url(../fonts/gradebook-icons.eot);
+    src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
+    font-weight:400;
+    font-style:normal
+}
+ 
+ 
+ /* Container */
+ #gradebookGrades {
+   margin-top: 10px;
+ }
+
+ /* Table */
+#gradebookGrades th,
+#gradebookGrades td {
+  padding: 4px;
+}
+#gradebookGrades fieldset td {
+  height: 2em;
+  line-height: 2em;
+}
+#gradebookGrades .imxt-empty-row td {
+  height: 0px;
+}
+ 
+ /* Table Header */
+#gradebookGrades .imxt-head th {
+  vertical-align: top;
+  background: #FAFAFA;
+  text-shadow: 1px 1px 0 #FFF;
+}
+#gradebookGrades .imxt-head .average,
+#gradebookGrades .imxt-head .due-date {
+  font-size: 0.9em;
+  color: #999;
+}
+
+
+/* Dropdown Menus */
+#gradebookGrades th, 
+#gradebookGrades td {
+  position: relative;
+}
+#gradebookGrades .btn.dropdown-toggle {
+  text-decoration: none;
+  position: absolute;
+  bottom: 1px;
+  right: 6px;
+  border: 1px solid transparent;
+  padding: 2px 3px;
+  height: 10px;
+  line-height: 8px;
+  border-radius: 4px;
+}
+#gradebookGrades th .btn.dropdown-toggle {
+  right: 10px;
+}
+#gradebookGrades .btn.dropdown-toggle.on,
+#gradebookGrades .btn.dropdown-toggle:hover {
+  background: #FFF;
+  border-color: #E0E0E0;
+}
+#gradebookGrades .btn.dropdown-toggle.on {
+  border-radius: 4px 4px 0 0;
+}
+#gradebookGrades .btn.dropdown-toggle .caret:before {
+  font-family: 'gradebook-icons';
+  content: '\f078';
+  font-size: 8px;
+  color: #CCC;
+}
+#gradebookGrades .btn.dropdown-toggle.on .caret:before {
+  content: '\f077';
+}
+#gradebookGrades table table td:hover .btn.dropdown-toggle .caret:before,
+#gradebookGrades table table th:hover .btn.dropdown-toggle .caret:before {
+  color: inherit;
+}
+#gradebookGrades ul.dropdown-menu {
+  display: none;
+}
+ul.dropdown-menu.gradebook-menu {
+  position: absolute;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  background: #FFF;
+  border: 1px solid #CCC;
+}
+ul.dropdown-menu.gradebook-menu a {
+  display: block;
+  padding: 4px;
+  text-align: right;
+  text-decoration: none;
+  font-size: 0.9em;
+}
+ul.dropdown-menu.gradebook-menu a:hover {
+  background-color: #F0F0F0;
+}
