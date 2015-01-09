@@ -507,7 +507,7 @@ function showConfirmAdd(msgs, mainframeId){
 	var emptyDiv = $('<div></div>', this.top.document);
 	$('<div></div>').appendTo('body')
 		.html("<div><h6>" + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>" +
-				"<h6>" + msgs.syllabus_content + "</h6><div class='editItem bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
+				"<h6>" + msgs.syllabus_content + "</h6><div class='bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
 		.dialog({
 			position: {
 				my: 'center top',
