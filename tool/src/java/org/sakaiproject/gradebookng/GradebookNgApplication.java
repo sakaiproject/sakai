@@ -39,6 +39,7 @@ public class GradebookNgApplication extends WebApplication {
 		//getApplicationSettings().setPageExpiredErrorPage(FirstPage.class);
 		//getApplicationSettings().setAccessDeniedPage(FirstPage.class);
 
+		/* this is mucking up the exception handling in Sakai and thorinw to a portalless page. Fix it.
         getRequestCycleListeners().add(new IRequestCycleListener() {
 
             //public void onBeginRequest() {
@@ -89,6 +90,7 @@ public class GradebookNgApplication extends WebApplication {
             public void onUrlMapped(RequestCycle arg0,IRequestHandler arg1, Url arg2) {
             }
         });
+        */
         
         // bootstrap
         //BootstrapSettings settings = new BootstrapSettings();

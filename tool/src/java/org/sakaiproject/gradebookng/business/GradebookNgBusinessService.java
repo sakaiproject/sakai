@@ -13,13 +13,18 @@ import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Enrollment;
+import org.sakaiproject.coursemanagement.api.EnrollmentSet;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
-import org.sakaiproject.gradebookng.tool.model.StudentGrades;
+import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -55,6 +60,9 @@ public class GradebookNgBusinessService {
 	
 	@Setter
 	private GradebookService gradebookService;
+	
+	@Setter
+	private CourseManagementService courseManagementService;
 	
 	
 	/**
@@ -184,7 +192,7 @@ public class GradebookNgBusinessService {
 	 * In the future this can be expanded to be given a list of students so we can do scrolling
 	 * @return
 	 */
-	public List<StudentGrades> buildGradeMatrix() {
+	public List<StudentGradeInfo> buildGradeMatrix() {
 		
 		List<User> students = this.getGradeableUsers();
 		List<Assignment> assignments = this.getGradebookAssignments();
@@ -194,7 +202,7 @@ public class GradebookNgBusinessService {
 		//NOTES:
 		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
 		
-		List<StudentGrades> rval = new ArrayList<StudentGrades>();
+		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
@@ -202,19 +210,25 @@ public class GradebookNgBusinessService {
 		}
 		
 		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
-		//however the logic needs to be reqorked so we can capture the user info
+		//however the logic needs to be reworked so we can capture the user info
 		//currently storing the full grade definition too, this may be unnecessary
+		//NOT a high priority unless performance issue deems it to be
 		
 		for(User student: students) {
 			
-			StudentGrades sg = new StudentGrades(student);
+			StudentGradeInfo sg = new StudentGradeInfo(student);
 			
+			//add the assignment grades
 			for(Assignment assignment: assignments) {
 				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
 				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
 			}
 			
+			//add the course grade
 			sg.setCourseGrade(courseGrades.get(student.getId()));
+			
+			//add the section info
+			//this.courseManagementService.getSe
 			
 			rval.add(sg);
 			
@@ -272,6 +286,51 @@ public class GradebookNgBusinessService {
 			e.printStackTrace();
 		}
 		 
+	}
+	
+	/**
+	 * Get a list of sections
+	 * 
+	 * @return
+	 */
+	public List<Section> getSiteSections() {
+		String siteId = this.getCurrentSiteId();
+		
+		try {
+			Set<Section> sections = courseManagementService.getSections(siteId);
+			return new ArrayList<Section>(sections);
+		} catch (IdNotFoundException e) {
+			//if not a course site or no sections
+			return Collections.emptyList();
+		}
+		
+		
+	}
+	
+	/**
+	 * Get a list of section memberships for the users in the site
+	 * @return
+	 */
+	public List<String> getSectionMemberships() {
+		
+		List<Section> sections = getSiteSections();
+		for(Section s: sections) {
+			EnrollmentSet enrollmentSet = s.getEnrollmentSet();
+			
+			Set<Enrollment> enrollments = courseManagementService.getEnrollments(enrollmentSet.getEid());
+			for(Enrollment e: enrollments) {
+				
+				//need to create a DTO for this
+				
+				//a user can be in multiple sections, need a list of sections per user
+				
+				//s.getTitle(); section title
+				//e.getUserId(); user uuid
+			}
+		}
+		
+		return null;
+		
 	}
 	
 	

@@ -11,6 +11,7 @@
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="gradebookService" ref="org_sakaiproject_service_gradebook_GradebookService" />
+		<property name="courseManagementService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
 		<!--  <property name="xmlMarshaller" ref="org.sakaiproject.gradebookng.business.XmlMarshaller" />-->
 	</bean>
 	

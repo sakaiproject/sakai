@@ -7,13 +7,17 @@ import org.apache.wicket.Component;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
+import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
-import org.sakaiproject.gradebookng.tool.model.StudentGrades;
-import org.sakaiproject.gradebookng.tool.panels.AssignmentHeaderPanel;
+import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
+import org.sakaiproject.gradebookng.tool.panels.SectionColumnHeaderPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import com.inmethod.grid.DataProviderAdapter;
@@ -47,14 +51,40 @@ public class GradebookPage extends BasePage {
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
         
         //get the grade matrix
-        final List<StudentGrades> grades = businessService.buildGradeMatrix();
+        final List<StudentGradeInfo> grades = businessService.buildGradeMatrix();
         
-        final ListDataProvider<StudentGrades> listDataProvider = new ListDataProvider<StudentGrades>(grades);
+        //get the list of sections
+        final List<Section> sections = this.businessService.getSiteSections();
+        
+        final ListDataProvider<StudentGradeInfo> listDataProvider = new ListDataProvider<StudentGradeInfo>(grades);
         List<IGridColumn> cols = new ArrayList<IGridColumn>();
         
-        //these properties need to match the studentgrades model
+        // match the studentgrades model
         cols.add(new PropertyColumn(new Model("Student Name"), "studentName", SortOrder.ASCENDING).setReorderable(false));
         cols.add(new PropertyColumn(new Model("Student ID"), "studentEid").setReorderable(false));
+        
+        //section column (only rendered if we have sections)
+        if(!sections.isEmpty()){
+	        AbstractColumn sectionColumn = new AbstractColumn("SECTION_COLUMN", new ResourceModel("column.header.section")) {
+	
+	        	@Override
+	        	public Component newHeader(String componentId) {
+	        		SectionColumnHeaderPanel panel = new SectionColumnHeaderPanel(componentId, sections);
+					return panel;
+	        		
+	        	}
+	        	
+				@Override
+				public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
+					return new EmptyPanel(componentId); //TODO
+				}			
+	        };
+	        
+	        cols.add(sectionColumn);
+        }
+        
+        
+        // match the studentgrades model
         cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade").setReorderable(false));
         
         
@@ -65,14 +95,14 @@ public class GradebookPage extends BasePage {
 
             	@Override
             	public Component newHeader(String componentId) {
-            		AssignmentHeaderPanel panel = new AssignmentHeaderPanel(componentId, assignment);
+            		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, assignment);
     				return panel;
             		
             	}
             	
     			@Override
     			public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
-    				StudentGrades studentsGrades = (StudentGrades) rowModel.getObject();
+    				StudentGradeInfo studentsGrades = (StudentGradeInfo) rowModel.getObject();
     				GradeItemCellPanel panel = new GradeItemCellPanel(componentId, assignment.getId(), studentsGrades);
     				return panel;
     			}

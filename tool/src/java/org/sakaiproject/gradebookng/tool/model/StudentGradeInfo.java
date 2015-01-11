@@ -12,12 +12,12 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.user.api.User;
 
 /**
- * Model for storing the grades for a student
+ * Model for storing the grade info for a student
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class StudentGrades implements Serializable
+public class StudentGradeInfo implements Serializable
 {
 	private static final long serialVersionUID = 1L;
 	
@@ -35,11 +35,14 @@ public class StudentGrades implements Serializable
 	
 	@Getter
 	private Map<Long,GradeInfo> grades;
+	
+	@Getter @Setter
+	private String sectionId;
 		
-	public StudentGrades(){
+	public StudentGradeInfo(){
 	}
 	
-	public StudentGrades(User u) {
+	public StudentGradeInfo(User u) {
 		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();
 		this.studentName = u.getDisplayName();

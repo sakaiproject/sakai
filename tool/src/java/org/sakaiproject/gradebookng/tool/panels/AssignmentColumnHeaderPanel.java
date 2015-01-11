@@ -17,12 +17,12 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class AssignmentHeaderPanel extends Panel {
+public class AssignmentColumnHeaderPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
 
-	public AssignmentHeaderPanel(String id, Assignment assignment) {
+	public AssignmentColumnHeaderPanel(String id, Assignment assignment) {
 		super(id);
 		
 		add(new Label("title", new Model<String>(assignment.getName())));
@@ -30,6 +30,7 @@ public class AssignmentHeaderPanel extends Panel {
 		WebMarkupContainer averageGradeSection = new WebMarkupContainer("averageGradeSection");
 		averageGradeSection.add(new Label("averagePoints", new Model("TODO")));
 		averageGradeSection.add(new Label("totalPoints", new Model<Double>(assignment.getPoints())));
+		averageGradeSection.setVisible(true);
 		add(averageGradeSection);
 		
 		add(new Label("dueDate", new Model<String>(getDueDate(assignment.getDueDate()))));
