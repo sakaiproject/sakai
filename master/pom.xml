@@ -95,6 +95,7 @@
     <sakai.jstl.version>1.1.2</sakai.jstl.version>
     <sakai.jts.version>1.13</sakai.jts.version>
     <sakai.lombok.version>1.12.4</sakai.lombok.version>
+    <sakai.jackson.version>2.3.4</sakai.jackson.version>
     <sakai.lucene.version>4.7.2</sakai.lucene.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>1.8.6</sakai.quartz.version>
@@ -444,6 +445,21 @@
         <artifactId>spring-webmvc</artifactId>
         <version>${kernel.spring.version}</version>
       </dependency>
+	  <dependency>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-core</artifactId>
+		<version>${sakai.jackson.version}</version>
+	  </dependency>
+	  <dependency>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-annotations</artifactId>
+		<version>${sakai.jackson.version}</version>
+	  </dependency>
+	  <dependency>
+		<groupId>com.fasterxml.jackson.core</groupId>
+		<artifactId>jackson-databind</artifactId>
+		<version>${sakai.jackson.version}</version>
+	  </dependency>
       <dependency>
         <groupId>javax.activation</groupId>
         <artifactId>activation</artifactId>

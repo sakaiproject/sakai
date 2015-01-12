@@ -197,5 +197,24 @@
         	<version>${sakai.elasticsearch.version}</version>
         	<scope>compile</scope>
         </dependency>
+        <!-- jackson libs need to be in shared with spring -->
+        <dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-core</artifactId>
+			<version>${sakai.jackson.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-annotations</artifactId>
+			<version>${sakai.jackson.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+			<version>${sakai.jackson.version}</version>
+			<scope>compile</scope>
+		</dependency>
     </dependencies>
 </project>
