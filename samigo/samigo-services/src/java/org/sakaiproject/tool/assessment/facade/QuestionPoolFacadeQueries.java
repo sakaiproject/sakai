@@ -1123,8 +1123,7 @@ public class QuestionPoolFacadeQueries
       }
 
       if (haveCommonRoot &&
-          (tree.poolLevel(sourceId) <=
-           tree.poolLevel(destId))) {
+          (tree.isDescendantOf(destId,sourceId))) {
         return; // Since otherwise it would cause an infinite loop.
         // We should revisit this.
       }
