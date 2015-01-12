@@ -159,7 +159,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		
 		for(DiscussionForum fatForum : fatFora) {
 			
-			if( ! checkAccess(fatForum,userId)) {
+			if( ! checkAccess(fatForum,userId,siteId)) {
 				LOG.warn("Access denied for user id '" + userId + "' to forum '" + fatForum.getId()
 							+ "'. This forum will not be returned.");
 				continue;
@@ -205,7 +205,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		
 		DiscussionForum fatForum = forumManager.getForumByIdWithTopicsAttachmentsAndMessages(forumId);
 		
-		if(checkAccess(fatForum,userId)) {
+		if(checkAccess(fatForum,userId,siteId)) {
 			
 			SparseForum sparseForum = new SparseForum(fatForum,developerHelperService);
 			
@@ -356,12 +356,12 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		
 	}
 	
-	private boolean checkAccess(BaseForum baseForum, String userId) {
+	private boolean checkAccess(BaseForum baseForum, String userId, String siteId) {
 		
 		if(baseForum instanceof OpenForum) {
 			
-			// If the supplied user is the super user, return true.
-			if(securityService.isSuperUser(userId)) {
+			// If the supplied user is the super user or an instructor, return true.
+			if(securityService.isSuperUser(userId) || forumManager.isInstructor(userId, "/site/" + siteId)) {
 				return true;
 			}
 			
