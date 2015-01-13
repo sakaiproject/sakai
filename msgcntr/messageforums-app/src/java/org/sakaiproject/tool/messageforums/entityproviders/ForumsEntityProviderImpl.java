@@ -19,6 +19,7 @@ import org.sakaiproject.api.app.messageforums.Topic;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.*;
@@ -361,7 +362,7 @@ public class ForumsEntityProviderImpl extends AbstractEntityProvider implements 
 		if(baseForum instanceof OpenForum) {
 			
 			// If the supplied user is the super user or an instructor, return true.
-			if(securityService.isSuperUser(userId) || forumManager.isInstructor(userId, "/site/" + siteId)) {
+			if(securityService.isSuperUser(userId) || forumManager.isInstructor(userId, Entity.SEPARATOR + SiteService.SITE_SUBTYPE + Entity.SEPARATOR + siteId)) {
 				return true;
 			}
 			
