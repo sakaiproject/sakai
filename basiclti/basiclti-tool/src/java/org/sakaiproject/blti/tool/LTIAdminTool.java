@@ -20,33 +20,22 @@
 
 package org.sakaiproject.blti.tool;
 
-import java.io.Writer;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-
-import java.util.HashSet;
-import java.util.Properties;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.HashMap;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Set;
+import java.util.Properties;
 import java.util.UUID;
 
-import javax.servlet.http.HttpServletRequest;
-
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.lang.StringUtils;
-
-import org.json.simple.JSONValue;
+import org.imsglobal.basiclti.BasicLTIUtil;
+import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Util;
 import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
-
+import org.json.simple.JSONValue;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
@@ -55,38 +44,24 @@ import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
-import org.sakaiproject.event.api.SessionState;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.tool.api.Placement;
-import org.sakaiproject.tool.api.ToolManager;
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.event.api.SessionState;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.lti2.SakaiLTI2Config;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ToolUtils;
-
-import org.sakaiproject.portal.util.URLUtils; // REMOVE AFTER TESTING
-
-// TODO: FIX THIS
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.cover.SessionManager;
-
-import org.sakaiproject.lti.api.LTIService;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
-
-import org.imsglobal.basiclti.BasicLTIUtil;
-import org.imsglobal.lti2.LTI2Config;
-import org.imsglobal.lti2.LTI2Util;
-import org.sakaiproject.lti2.SakaiLTI2Config;
-
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
-
 import org.sakaiproject.util.foorm.SakaiFoorm;
+// REMOVE AFTER TESTING
+// TODO: FIX THIS
 
 /**
  * <p>

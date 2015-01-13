@@ -21,63 +21,39 @@ package org.sakaiproject.lti2;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Collections;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.Properties;
+import java.util.TreeMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
-import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.oauth.OAuthAccessor;
-import net.oauth.OAuthConsumer;
-import net.oauth.OAuthMessage;
-import net.oauth.OAuthValidator;
-import net.oauth.SimpleOAuthValidator;
-import net.oauth.server.OAuthServlet;
-import net.oauth.signature.OAuthSignatureMethod;
-
-import org.json.simple.JSONValue;
-import org.json.simple.JSONObject;
-import org.json.simple.JSONArray;
-
-import org.sakaiproject.component.cover.ComponentManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.imsglobal.basiclti.BasicLTIUtil;
-import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.util.ResourceLoader;
-import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
-import org.imsglobal.lti2.LTI2Constants;
-import org.imsglobal.lti2.LTI2Config;
-import org.imsglobal.lti2.LTI2Util;
-import org.imsglobal.lti2.objects.*;
-import org.sakaiproject.lti2.SakaiLTI2Services;
-import org.sakaiproject.lti2.SakaiLTI2Config;
-import org.sakaiproject.lti2.SakaiLTI2Base;
-
 import org.imsglobal.json.IMSJSONRequest;
-
+import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Constants;
+import org.imsglobal.lti2.LTI2Util;
+import org.imsglobal.lti2.objects.Service_offered;
+import org.imsglobal.lti2.objects.StandardServices;
+import org.imsglobal.lti2.objects.ToolConsumer;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.JSONValue;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.foorm.SakaiFoorm;
-import org.sakaiproject.util.foorm.FoormUtil;
 
-import org.codehaus.jackson.JsonGenerationException;
-import org.codehaus.jackson.map.JsonMappingException;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 /**
  * Notes:
@@ -211,7 +187,7 @@ public class LTI2Service extends HttpServlet {
 		ObjectMapper mapper = new ObjectMapper();
 		try {
 			// http://stackoverflow.com/questions/6176881/how-do-i-make-jackson-pretty-print-the-json-content-it-generates
-			ObjectWriter writer = mapper.defaultPrettyPrintingWriter();
+			ObjectWriter writer = mapper.writerWithDefaultPrettyPrinter();
 			// ***IMPORTANT!!!*** for Jackson 2.x use the line below instead of the one above: 
 			// ObjectWriter writer = mapper.writer().withDefaultPrettyPrinter();
 			// System.out.println(mapper.writeValueAsString(consumer));
