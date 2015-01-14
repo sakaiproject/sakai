@@ -28,8 +28,8 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, csr
 		var jsId = results.EL[elBinding][1];
 		var points = results.EL[elBinding][2];
 		
-		if(status == "success") {
-			if (gradingReturnHook != null)
+		if(status === "success") {
+			if (gradingReturnHook !== null)
 			    window.location = gradingReturnHook;
 
 			var jsObj = $("#" + jsId);
@@ -43,10 +43,10 @@ function initGradingForm(idFieldId, pointsFieldId, jsIdFieldId, typeFieldId, csr
 		}else {
 			$("#" + jsId).attr("src", getStrippedImgSrc(jsId) + "failed.png");
 		}
-		if (gradingDoneHook != null) {
+		if (gradingDoneHook !== null) {
 		    gradingDoneHook.call();
 		}
-	}
+	};
 
 	// setup the function which initiates the AJAX request
 	var updater = RSF.getAJAXUpdater([idField, pointsField, jsIdField, typeField, csrfField], ajaxUrl, [elBinding], callback);

@@ -20,7 +20,7 @@
       try {
         console.log(msg);
       } catch(err) {}
-    }
+    };
 
     // Now back to our regularly scheduled work
     $.PeriodicalUpdater = function(url, options, callback, autoStopCallback){
@@ -46,13 +46,13 @@
         var originalMaxCalls = maxCalls;
 
         var reset_timer = function(interval) {
-          if (timer != null) {
+          if (timer !== null) {
             clearTimeout(timer);
           }
           timerInterval = interval;
           pu_log('resetting timer to '+ timerInterval +'.');
           timer = setTimeout(getdata, timerInterval);
-        }
+        };
 
         // Function to boost the timer 
         var boostPeriod = function() {
@@ -93,17 +93,17 @@
         // TODO It'd be nice to do the options.data check once (a la boostPeriod)
         function getdata() {
           var toSend  = jQuery.extend(true, {}, ajaxSettings); // jQuery screws with what you pass in
-          if(typeof(options.data) == 'function') {
+          if(typeof(options.data) === 'function') {
             toSend.data = options.data();
             if(toSend.data) {
               // Handle transformations (only strings and objects are understood)
-              if(typeof(toSend.data) == "number") {
+              if(typeof(toSend.data) === "number") {
                 toSend.data = toSend.data.toString();
               }
             }
           }
 
-          if(maxCalls == 0) {
+          if(maxCalls === 0) {
             $.ajax(toSend);
           } else if(maxCalls > 0 && calls < maxCalls) {
             $.ajax(toSend);
@@ -123,17 +123,17 @@
 
         ajaxSettings.complete = function(xhr, success) {
           //pu_log("Status of call: " + success + " (In 'complete')");
-          if(maxCalls == -1) return;
-          if(success == "success" || success == "notmodified") {
+          if(maxCalls === -1) return;
+          if(success === "success" || success === "notmodified") {
             var rawData = $.trim(xhr.responseText);
-            if(rawData == 'STOP_AJAX_CALLS') {
+            if(rawData === 'STOP_AJAX_CALLS') {
 							handle.stop();
               return;
             }
-            if(prevData == rawData) {
+            if(prevData === rawData) {
               if(autoStop > 0) {
                 noChange++;
-                if(noChange == autoStop) {
+                if(noChange === autoStop) {
 									handle.stop();
                   if(autoStopCallback) autoStopCallback(noChange);
                   return;
@@ -144,10 +144,10 @@
               noChange        = 0;
               reset_timer(settings.minTimeout);
               prevData        = rawData;
-              if(remoteData == null) remoteData = rawData;
+              if(remoteData === null) remoteData = rawData;
               // jQuery 1.4+ $.ajax() automatically converts "data" into a JS Object for "type:json" requests now
               // For compatibility with 1.4+ and pre1.4 jQuery only try to parse actual strings, skip when remoteData is already an Object
-              if((ajaxSettings.dataType === 'json') && (typeof(remoteData) === 'string') && (success == "success")) {
+              if((ajaxSettings.dataType === 'json') && (typeof(remoteData) === 'string') && (success === "success")) {
                 remoteData = JSON.parse(remoteData);
               }
               if(settings.success) { settings.success(remoteData, success, xhr, handle); }
@@ -155,12 +155,12 @@
             }
           }
           remoteData = null;
-        }
+        };
 
 
         ajaxSettings.error = function (xhr, textStatus) {
           //pu_log("Error message: " + textStatus + " (In 'error')");
-          if(textStatus != "notmodified") {
+          if(textStatus !== "notmodified") {
             prevData = null;
             reset_timer(settings.minTimeout);
           }

@@ -247,18 +247,20 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 }
 .mainList li {
     position: relative;
-#    border:1px solid transparent
-#    padding:26px;
-#    margin: 15px 0;
-#    -webkit-border-radius: 3px;
-#    -moz-border-radius: 3px;
-#    border-radius: 3px;
-#    border: 1px solid #ccc;
+/*
+    border:1px solid transparent
+    padding:26px;
+    margin: 15px 0;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+    border-radius: 3px;
+    border: 1px solid #ccc;
+*/
 }
-.mainList li:hover {
-#    border: 1px solid #B3B3B3;
+/*.mainList li:hover {
+    border: 1px solid #B3B3B3;
 }
-/*.mainList li.canEdit > div {
+.mainList li.canEdit > div {
     position: relative;
     padding-left: 40px
 }*/
@@ -309,11 +311,12 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 
 .statusCol,.contentCol {
  display: inline-block;
-
-#    position: absolute;
-#    top:2px;
-#    left:2px;
-#    z-index:2;
+/*
+    position: absolute;
+    top:2px;
+    left:2px;
+    z-index:2;
+*/
 }
 .contentCol {
     width:95%;
@@ -546,11 +549,13 @@ h3.author {
     padding:5px;
 }
 .commentGradePanel {
-float:right;
-vertical-align:top;
-#    position: absolute;
-#    top: 10px;
-#    right: 0;
+    float:right;
+    vertical-align:top;
+/*
+    position: absolute;
+    top: 10px;
+    right: 0;
+*/
 }
 .commentDiv .editLink:hover, .commentDiv .deleteLink:hover,  .commentDiv .replyLink:hover {
     cursor:pointer;

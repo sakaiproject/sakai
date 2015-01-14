@@ -13,10 +13,10 @@ var ckEditor = false;
 
 $(function() {
 	
-	noEditor = ($(".using-editor").size() == 0);
+	noEditor = ($(".using-editor").size() === 0);
 	if (!noEditor) {
 	    try {
-		if (sakai.editor.editors.ckeditor==undefined)
+		if (sakai.editor.editors.ckeditor===undefined)
 		    fckEditor = true;
 	    } catch (err) {
 		fckEditor = true;
@@ -42,7 +42,7 @@ $(function() {
 	});
 	
 	$.ajaxSetup ({
-		cache: false,
+		cache: false
 	});
 	
 	$(".replaceWithComments").each(function(index) {
@@ -66,7 +66,7 @@ $(function() {
 		resizable: false,
 		buttons: {
 			"Cancel": function() {
-				if(originalDeleteDialogText != null) {
+				if(originalDeleteDialogText !== null) {
 					$("#delete-comment-confirm").text(originalDeleteDialogText);
 				}
 				
@@ -97,7 +97,7 @@ function commentsLoaded() {
 	});
 	
 	$(".pointsBox").keyup(function(event){
-		if(event.keyCode == 13) {
+		if(event.keyCode === 13) {
 			var img = $(this).parent().children("img");
 			
 			$(this).removeClass("unsubmitted");
@@ -115,7 +115,7 @@ function commentsLoaded() {
 
 function loadMore(link) {
 	$.ajaxSetup ({
-		cache: false,
+		cache: false
 	});
 	
 	var pageToRequest = $(link).parent().parent().find(".to-load").attr("href");
@@ -173,7 +173,7 @@ function replyToComment(link, replytext) {
 
 
 function switchEditors(link, show) {
-	if(show==undefined) show = true;
+	if(show===undefined) show = true;
 	
 	var evolved;
 	
@@ -201,13 +201,13 @@ function switchEditors(link, show) {
  		    var frame = $(link).parents(".commentsDiv").find("iframe");
  
  		    // the builtin title is grossly too long, and not internationalized
- 		    if (frame != null) {
+ 		    if (frame !== null) {
  		    	frame.attr("title", msg("simplepage.ckeditor"));
 		    }
  
  		    // seem to need this to make focus show up in VoiceOver. Looks like it's
  		    // not seeing into the iframe, although Safari shows it as selected
- 		    if (frame != null) {
+ 		    if (frame !== null) {
  			frame.focus();
  		    }
  		    CKEDITOR.instances[evolved.children("textarea").attr("name")].focus();
@@ -263,7 +263,7 @@ function switchEditors(link, show) {
 
 function deleteComment(link) {
 	$.ajaxSetup ({
-		cache: false,
+		cache: false
 	});
 	
 	deleteDialogCommentURL = $(link).parent().children(".deleteComment").attr("href");
