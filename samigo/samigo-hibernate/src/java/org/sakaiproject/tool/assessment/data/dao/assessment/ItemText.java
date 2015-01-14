@@ -128,6 +128,10 @@ public class ItemText
 		return itemTextAttachmentSet;
 	}
 
+	public List<ItemTextAttachmentIfc> getItemTextAttachmentList() {
+		return new ArrayList<ItemTextAttachmentIfc>(itemTextAttachmentSet);
+	}
+
 	public void setItemTextAttachmentSet(Set<ItemTextAttachmentIfc> itemTextAttachmentSet) {
 		this.itemTextAttachmentSet = itemTextAttachmentSet;
 	}
