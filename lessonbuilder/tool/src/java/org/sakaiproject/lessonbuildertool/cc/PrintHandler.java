@@ -473,8 +473,6 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	          else
 	              html = FormattedText.processHtmlDocument(html, error);
 	          item.setHtml(html);
-	          //Clear the roles so it's not written out later
-	          roles.clear();
 	      }
 	      else  {
 	          item = simplePageToolDao.makeItem(page.getPageId(), seq, SimplePageItem.RESOURCE, sakaiId, title);
@@ -963,6 +961,17 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
   public void setWebLinkXml(Element the_link) {
       if (all)
 	  System.err.println("weblink xml: "+the_link);
+  }
+
+  public void addFile(Element elem) {
+      //These are processed as standard text
+       String href = elem.getAttributeValue(HREF);
+       String sakaiId = baseName + elem.getAttributeValue(HREF);
+       String extension = Validator.getFileExtension(sakaiId);
+       String mime = ContentTypeImageService.getContentType(extension);
+       if (mime != null && mime.startsWith("text/"))
+           return;
+       addFile(href);
   }
 
   public void addFile(String the_file_id) {
