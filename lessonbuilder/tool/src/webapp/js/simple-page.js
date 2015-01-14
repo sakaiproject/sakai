@@ -10,7 +10,7 @@ function spiffyUp() {
  * insted of opening in a popup like things cleaned with FormattedText want to do
  */
 function portalClick(link) {
-  if ($(link).attr('target') == '_blank') {
+  if ($(link).attr('target') === '_blank') {
     $(link).removeAttr('target');
   }
 }

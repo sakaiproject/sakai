@@ -13,7 +13,7 @@ SakaiProject.fckeditor = function() {
       
       var oFCKeditor = new FCKeditor(textarea_id);
       oFCKeditor.BasePath = basepath;
-      if (collection_id != "") {
+      if (collection_id !== "") {
         oFCKeditor.Config['ImageBrowserURL'] = browsePrefix + "Type=Image&CurrentFolder=" + collection_id;
         oFCKeditor.Config['LinkBrowserURL'] = browsePrefix + "Type=Link&CurrentFolder=" + collection_id;
         oFCKeditor.Config['FlashBrowserURL'] = browsePrefix + "Type=Flash&CurrentFolder=" + collection_id;
