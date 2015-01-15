@@ -20,7 +20,7 @@ $(window).load(function () {
 
 function msg(s) {
     var m = document.getElementById(s);
-    if (m == null) {
+    if (m === null) {
        return s;
     }  else 
        return m.innerHTML;;
@@ -40,7 +40,7 @@ function checkgroups(elt, groups) {
     elt.find('input').prop('checked', false);
     for (i = 0; i < groupar.length; i++) {
 	var inp = elt.find('input[value="' + groupar[i] + '"]');
-	if (inp != null)
+	if (inp !== null)
 	    inp.prop('checked', true);
     }
 }
@@ -229,7 +229,7 @@ $(function() {
 			$('#edit-title-error-container').hide();
 			var position =  $(this).position();
 			$("#edit-title-dialog").dialog("option", "position", [position.left, position.top]);
-			if ($("#page-points").val() == '') {
+			if ($("#page-points").val() === '') {
 				$("#page-gradebook").prop("checked", false);
 				$("#page-points").prop("disabled", true);
 			} else { 
@@ -243,7 +243,7 @@ $(function() {
 				    val: $("#currentReleaseDate").text(),
 				    ashidden: { iso8601: 'releaseDateISO8601' }
 			    });
-			if ($("#currentReleaseDate").text() == '')
+			if ($("#currentReleaseDate").text() === '')
 			    $("#page-releasedate").prop('checked', false);
 
 			oldloc = $(".dropdown a");
@@ -324,8 +324,8 @@ $(function() {
 			// mm-display-type is 1 -- embed code, 2 -- av type, 3 -- oembed, 4 -- iframe
 			
 			var url = $('#mm-url').val();
-			if (url != '' && $('#mm-is-mm').val() == 'true') {
-			    if (mm_testing == 0) {
+			if (url !== '' && $('#mm-is-mm').val() === 'true') {
+			    if (mm_testing === 0) {
 				// initial submit for URL. see what we've got
 				if (url.indexOf('<') >= 0) {
 				    // < in the field, it's embed. just show it after filtering
@@ -339,7 +339,7 @@ $(function() {
 				// not embed. Treat as a url
 				// first normalize it
 
-				if (document.URL.indexOf("https:") == 0 && url.trim().match('^http:')) {
+				if (document.URL.indexOf("https:") === 0 && url.trim().match('^http:')) {
 				    // using https: to display and URL starts with http, use warning
 				    alert('Please use URLs starting with https:. URLs starting with http: will not work with some browsers, e.g. Firefox.');
 				}
@@ -400,7 +400,7 @@ $(function() {
 		// button lets us try an iframe
 		$('#mm-test-tryother').click(function() {
 			var url = $('#mm-url').val();
-			if (mm_testing == 1) {
+			if (mm_testing === 1) {
 			    $('#mm-test-oembed-results').hide();
 			    $('#mm-test-iframe-results').show();
 			    $('#mm-test-iframe-iframe').attr('src', url);
@@ -438,7 +438,7 @@ $(function() {
 		
 		$("#page-gradebook").click(function(){
 			if ($("#page-gradebook").prop("checked")) {
-				if ($("#page-points").val() == '')
+				if ($("#page-points").val() === '')
 					$("#page-points").val('1');
 				$("#page-points").prop("disabled", false);
 			} else {
@@ -509,7 +509,7 @@ $(function() {
 			if ($('#grouplist input').size() > 0) {
 			    $("#editgroups-youtube").show();
 			    $("#grouplist").show();
-			    if (groups != null) {
+			    if (groups !== null) {
 				checkgroups(grouplist, groups);
 			    }
 			}
@@ -574,7 +574,7 @@ $(function() {
 			if ($('#grouplist input').size() > 0) {
 			    $("#editgroups-movie").show();
 			    $("#grouplist").show();
-			    if (groups != null) {
+			    if (groups !== null) {
 				checkgroups(grouplist, groups);
 			    }
 			}
@@ -585,7 +585,7 @@ $(function() {
 			$("#movie-height").val(row.find(".mm-height").text());
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
-			if (row.find(".movie-prerequisite").text() == 'true') {
+			if (row.find(".movie-prerequisite").text() === 'true') {
 			    $('#movie-prerequisite').prop('checked', true);
 			} else {
 			    $('#movie-prerequisite').prop('checked', false);
@@ -617,7 +617,7 @@ $(function() {
 			if ($('#grouplist input').size() > 0) {
 			    $("#editgroups-comments").show();
 			    $("#grouplist").show();
-			    if (groups != null) {
+			    if (groups !== null) {
 				checkgroups(grouplist, groups);
 			    }
 			}
@@ -627,37 +627,37 @@ $(function() {
 			$("#commentsEditId").val(itemId);
 			
 			var anon = row.find(".commentsAnon").text();
-			if(anon == "true") {
+			if(anon === "true") {
 				$("#comments-anonymous").prop("checked", true);
-				$("#comments-anonymous").attr("defaultChecked", true)
+				$("#comments-anonymous").attr("defaultChecked", true);
 			}else {
 				$("#comments-anonymous").prop("checked", false);
 			}
 			
 			var required = row.find(".commentsitem-required").text();
-			if(required == "true") {
+			if(required === "true") {
 				$("#comments-required").prop("checked", true);
 			}else {
 				$("#comments-required").prop("checked", false);
 			}
 			
 			var prerequisite = row.find(".commentsitem-prerequisite").text();
-			if(prerequisite == "true") {
+			if(prerequisite === "true") {
 				$("#comments-prerequisite").prop("checked", true);
 			}else {
 				$("#comments-prerequisite").prop("checked", false);
 			}
 			
 			var grade = row.find(".commentsGrade").text();
-			if(grade == "true") {
+			if(grade === "true") {
 				$("#comments-graded").prop("checked", true);
-				$("#comments-graded").attr("defaultChecked", true)
+				$("#comments-graded").attr("defaultChecked", true);
 			}else {
 				$("#comments-graded").prop("checked", false);
 			}
 			
 			$("#comments-max").val(row.find(".commentsMaxPoints").text());
-			if($("#comments-max").val() == "null") {
+			if($("#comments-max").val() === "null") {
 				$("#comments-max").val("");
 			}
 			
@@ -694,7 +694,7 @@ $(function() {
 			if ($('#grouplist input').size() > 0) {
 			    $("#editgroups-student").show();
 			    $("#grouplist").show();
-			    if (groups != null) {
+			    if (groups !== null) {
 				checkgroups(grouplist, groups);
 			    }
 			}
@@ -703,13 +703,13 @@ $(function() {
 			var grouplist = $("#student-grouplist");
 			if ($('#student-grouplist input').size() > 0) {
 			    $("#student-grouplist").show();
-			    if (groups != null) {
+			    if (groups !== null) {
 				checkgroups(grouplist, groups);
 			    }
 			}
 			var groupOwned = row.find(".student-group-owned").text();
-			$("#student-group-owned").prop("checked",(groupOwned == "true"));
-			if (groupOwned == "true")
+			$("#student-group-owned").prop("checked",(groupOwned === "true"));
+			if (groupOwned === "true")
 			    $("#student-group-show").show();
 
 			var itemId = row.find(".student-id").text();
@@ -717,17 +717,17 @@ $(function() {
 			$("#studentEditId").val(itemId);
 			
 			var anon = row.find(".studentAnon").text();
-			if(anon == "true") {
+			if(anon === "true") {
 				$("#student-anonymous").prop("checked", true);
-				$("#student-anonymous").attr("defaultChecked", true)
+				$("#student-anonymous").attr("defaultChecked", true);
 			}else {
 			        $("#student-anonymous").prop("checked", false);
 			}
 			
 			var comments = row.find(".studentComments").text();
-			if(comments == "true") {
+			if(comments === "true") {
 				$("#student-comments").prop("checked", true);
-				$("#student-comments").attr("defaultChecked", true)
+				$("#student-comments").attr("defaultChecked", true);
 			}else {
 				$("#student-comments").prop("checked", false);
 			}
@@ -736,7 +736,7 @@ $(function() {
 			//Because all Student Content boxes use the same dialog, the settings are applied when Edit is clicked. 
 			//The following decides whether to have the box already checked when it is first opened.
 			var peerReview = row.find(".peer-eval").text();
-			if(peerReview == "true") {
+			if(peerReview === "true") {
 				$("#peer-eval-check").prop("checked", true);
 				$("#peer-eval-check").attr("defaultChecked", true);
 			}else {
@@ -767,21 +767,21 @@ $(function() {
 			//console.log(rubric);
 			
 			var forcedAnon = row.find(".forcedAnon").text();
-			if(forcedAnon == "true") {
+			if(forcedAnon === "true") {
 				$("#student-comments-anon").prop("checked", true);
-				$("#student-comments-anon").attr("defaultChecked", true)
+				$("#student-comments-anon").attr("defaultChecked", true);
 			}else {
 				$("#student-comments-anon").prop("checked", false);
 			}
 			
 			var required = row.find(".studentitem-required").text();
-			if(required == "true") {
+			if(required === "true") {
 				$("#student-required").prop("checked", true);
 			}else {
 				$("#student-required").prop("checked", false);
 			}
 			var prerequisite = row.find(".studentitem-prerequisite").text();
-			if(prerequisite == "true") {
+			if(prerequisite === "true") {
 				$("#student-prerequisite").prop("checked", true);
 			}else {
 				$("#student-prerequisite").prop("checked", false);
@@ -834,35 +834,35 @@ $(function() {
 			}
 			var selfEval = row.find(".peer-eval-allow-self").text();
 			
-			if(selfEval == "true") {
+			if(selfEval === "true") {
 				$("#peer-eval-allow-selfgrade").prop("checked", true);
 	 			$("#peer-eval-allow-selfgrade").attr("defaultChecked", true);
 			}else {
 				$("#peer-eval-allow-selfgrade").prop("checked", false);
 			}
 			var grade = row.find(".studentGrade").text();
-			if(grade == "true") {
+			if(grade === "true") {
 				$("#student-graded").prop("checked", true);
-				$("#student-graded").attr("defaultChecked", true)
+				$("#student-graded").attr("defaultChecked", true);
 			}else {
 				$("#student-graded").prop("checked", false);
 			}
 			
 			$("#student-max").val(row.find(".studentMaxPoints").text());
-			if($("#student-max").val() == "null") {
+			if($("#student-max").val() === "null") {
 				$("#student-max").val("");
 			}
 			
 			grade = row.find(".studentGrade2").text();
-			if(grade == "true") {
+			if(grade === "true") {
 				$("#student-comments-graded").prop("checked", true);
-				$("#student-comments-graded").attr("defaultChecked", true)
+				$("#student-comments-graded").attr("defaultChecked", true);
 			}else {
 				$("#student-comments-graded").prop("checked", false);
 			}
 			
 			$("#student-comments-max").val(row.find(".studentMaxPoints2").text());
-			if($("#student-comments-max").val() == "null") {
+			if($("#student-comments-max").val() === "null") {
 				$("#student-comments-max").val("");
 			}
 			
@@ -889,7 +889,7 @@ $(function() {
 				groups = groups.substring(1);
 			    }
 			    var errors = getGroupErrors(groups);
-			    if (errors != "ok") {
+			    if (errors !== "ok") {
 				$("#student-group-errors").text(errors);
 				$("#student-group-errors-container").show();
 				insist = true;
@@ -944,7 +944,7 @@ $(function() {
 			}
 		});
 		
-		$("#student-peer-review-create").hover(function(){$(this).css("cursor", "default")});
+		$("#student-peer-review-create").hover(function(){$(this).css("cursor", "default");});
 		$("#student-peer-review-create").click(function(){
 			if(!$("#peer-eval-check").prop("checked")) {
 				$("#peer-eval-check").prop("checked", true);
@@ -1032,7 +1032,7 @@ $(function() {
 			if ($('#grouplist input').size() > 0) {
 			    $("#question-editgroups").show();
 			    $("#grouplist").show();
-			    if (groups != null) {
+			    if (groups !== null) {
 				checkgroups(grouplist, groups);
 			    }
 			}
@@ -1059,7 +1059,7 @@ $(function() {
 				var questionAnswers = row.find(".questionAnswer").text().split("\n");
 				for(var index = 0; index < questionAnswers.length - 1; index++) {
 					var answerSlot;
-					if(index == 0) {
+					if(index === 0) {
 						answerSlot = $("#copyableShortanswerDiv").first();
 					}else {
 						answerSlot = addShortanswer();
@@ -1078,7 +1078,7 @@ $(function() {
 					var correct = $(el).find(".questionMultipleChoiceAnswerCorrect").text();
 					
 					var answerSlot;
-					if(index == 0) {
+					if(index === 0) {
 						answerSlot = $("#copyableMultipleChoiceAnswerDiv").first();
 					}else {
 						answerSlot = addMultipleChoiceAnswer();
@@ -1086,7 +1086,7 @@ $(function() {
 					
 					answerSlot.find(".question-multiplechoice-answer-id").val(id);
 					answerSlot.find(".question-multiplechoice-answer").val(text);
-					if(correct == "true") {
+					if(correct === "true") {
 						answerSlot.find(".question-multiplechoice-answer-correct").prop("checked", true);
 					}else {
 						answerSlot.find(".question-multiplechoice-answer-correct").prop("checked", false);
@@ -1094,7 +1094,7 @@ $(function() {
 				});
 				
 				var questionShowPoll = row.find(".questionShowPoll").text();
-				if(questionShowPoll == "true") {
+				if(questionShowPoll === "true") {
 					$("#question-show-poll").prop("checked", true);
 				}else {
 					$("#question-show-poll").prop("checked", false);
@@ -1106,7 +1106,7 @@ $(function() {
 			$("#shortanswerSelect").prop("disabled", true);
 			
 			var questionGraded = row.find(".questionGrade").text();
-			if(questionGraded == "true") {
+			if(questionGraded === "true") {
 				$("#question-graded").prop("checked", true);
 			}else {
 				$("#question-graded").prop("checked", false);
@@ -1115,14 +1115,14 @@ $(function() {
 			checkQuestionGradedForm();
 			
 			var gradebookTitle = row.find(".questionGradebookTitle").text();
-			if(gradebookTitle == "null") {
+			if(gradebookTitle === "null") {
 				$("#question-gradebook-title").val("");
 			}else {
 				$("#question-gradebook-title").val(gradebookTitle);
 			}
 			
 			var maxPoints = row.find(".questionMaxPoints").text();
-			if(maxPoints == "null") {
+			if(maxPoints === "null") {
 				$("#question-max").val("");
 			}else {
 				$("#question-max").val(maxPoints);
@@ -1135,14 +1135,14 @@ $(function() {
 			$("#question-incorrect-text").val(questionIncorrectText);
 			
 			var required = row.find(".questionitem-required").text();
-			if(required == "true") {
+			if(required === "true") {
 				$("#question-required").prop("checked", true);
 			}else {
 				$("#question-required").prop("checked", false);
 			}
 			
 			var prerequisite = row.find(".questionitem-prerequisite").text();
-			if(prerequisite == "true") {
+			if(prerequisite === "true") {
 				$("#question-prerequisite").prop("checked", true);
 			}else {
 				$("#question-prerequisite").prop("checked", false);
@@ -1254,7 +1254,7 @@ $(function() {
 					      
 			var prereq = row.find(".prerequisite-info").text();
 
-			if(prereq == "true") {
+			if(prereq === "true") {
 				$("#item-prerequisites").prop("checked", true);
 				$("#item-prerequisites").attr("defaultChecked", true);
 			}else {
@@ -1262,8 +1262,8 @@ $(function() {
 			}
 			
 	                var samewindow = row.find(".item-samewindow").text();
-	                if (samewindow != '') {
-	                    if (samewindow == "true")
+	                if (samewindow !== '') {
+	                    if (samewindow === "true")
 	                        $("#item-newwindow").prop("checked", false);
 	                    else
 	                        $("#item-newwindow").prop("checked", true);
@@ -1277,10 +1277,10 @@ $(function() {
 			var editurl = row.find(".edit-url").text();
 			var editsettingsurl = row.find(".edit-settings-url").text();
 			
-			if(type == 'page') {
+			if(type === 'page') {
 	                    $("#pagestuff").show();
 			    var pagenext = row.find(".page-next").text();
-			    if(pagenext == "true") {
+			    if(pagenext === "true") {
 				$("#item-next").prop("checked", true);
 				$("#item-next").attr("defaultChecked", true);
 			    }else {
@@ -1288,7 +1288,7 @@ $(function() {
 			    }
 
 			    var pagebutton = row.find(".page-button").text();
-			    if(pagebutton == "true") {
+			    if(pagebutton === "true") {
 				$("#item-button").prop("checked", true);
 				$("#item-button").attr("defaultChecked", true);
 			    }else {
@@ -1304,12 +1304,12 @@ $(function() {
 			    if ($('#grouplist input').size() > 0) {
 				$("#editgroups").show();
 				$("#grouplist").show();
-				if (groups != null) {
+				if (groups !== null) {
 				    checkgroups(grouplist, groups);
 				}
 			    }
 
-			} else if(type != '') {
+			} else if(type !== '') {
 				// Must be an assignment, assessment, forum
 
 				var groups = row.find(".item-groups").text();
@@ -1317,12 +1317,12 @@ $(function() {
 				if ($('#grouplist input').size() > 0) {
 				    $("#editgroups").show();
 				    $("#grouplist").show();
-				    if (groups != null) {
+				    if (groups !== null) {
 					checkgroups(grouplist, groups);
 				    }
 				}
 
-				if(type == 6) {
+				if(type === 6) {
 					$("#change-quiz-p").show();
 					$("#change-quiz").attr("href", 
 					      $("#change-quiz").attr("href").replace("itemId=-1", "itemId=" + itemid));
@@ -1336,7 +1336,7 @@ $(function() {
 						$("#edit-item-settings").attr("href").replace(/(source=).*?(&)/, '$1' + escape(editsettingsurl) + '$2'));
 					$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
 
-				}else if (type == 8){
+				}else if (type === 8){
 					$("#change-forum-p").show();
 					$("#change-forum").attr("href", 
 					      $("#change-forum").attr("href").replace("itemId=-1", "itemId=" + itemid));
@@ -1346,7 +1346,7 @@ $(function() {
 						$("#edit-item-object").attr("href").replace(/(source=).*?(&)/, '$1' + escape(editurl) + '$2'));
 					$("#edit-item-text").text(msg("simplepage.edit_topic"));
 
-				}else if (type == 'b'){
+				}else if (type === 'b'){
 					var height = row.find(".item-height").text();
 					$("#edit-height-value").val(height);
 					$("#edit-height").show();				
@@ -1354,7 +1354,7 @@ $(function() {
 					$("#change-blti").attr("href", 
 					      $("#change-blti").attr("href").replace("itemId=-1", "itemId=" + itemid));
 					$("#require-label").text(msg("simplepage.require_submit_blti"));
-					if (format == '')
+					if (format === '')
 					    format = 'page';
 					$(".format").prop("checked", false);
 					$("#format-" + format).prop("checked", true);
@@ -1374,14 +1374,14 @@ $(function() {
 
 				}
 				
-				if(type == 3 || type == 6) {
+				if(type === 3 || type === 6) {
 					// Points or Assessment
 					
 					$("#require-label2").show();
 					$("#require-label2").html(msg("simplepage.require_receive") + " ");
-					if(type == 3) {
+					if(type === 3) {
 					    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assignment"));
-					}else if(type == 6) {
+					}else if(type === 6) {
 					    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assessment"));
 					}
 					
@@ -1390,7 +1390,7 @@ $(function() {
 					$("#assignment-points").show();
 					$("#assignment-points-label").show();
 					
-					if(req == "false") {
+					if(req === "false") {
 						$("#item-required2").prop("checked", false);
 					}else {
 						// Need both of these statements, because of a stupid
@@ -1400,13 +1400,13 @@ $(function() {
 						
 						$("#assignment-points").val(req);
 					}
-				}else if(type == 4) {
+				}else if(type === 4) {
 					// Pass / Fail
 					$("#require-label2").show();
 					$("#require-label2").html(msg("simplepage.require_pass_assignment"));
 					$("#item-required2").show();
 					
-					if(req == "true") {
+					if(req === "true") {
 						// Need both of these statements, because of a stupid
 						// little IE bug.
 						$("#item-required2").prop("checked", true);
@@ -1414,7 +1414,7 @@ $(function() {
 					}else {
 						$("#item-required2").prop("checked", false);
 					}
-				}else if(type == 2) {
+				}else if(type === 2) {
 					// Letter Grade
 					
 					$("#require-label2").show();
@@ -1422,7 +1422,7 @@ $(function() {
 					$("#item-required2").show();
 					$("#assignment-dropdown-selection").show();
 					
-					if(req == "false") {
+					if(req === "false") {
 						$("#item-required2").prop("checked", false);
 					}else {
 						// Need both of these statements, because of a stupid
@@ -1432,16 +1432,16 @@ $(function() {
 						
 						$("#assignment-dropdown-selection").val(req);
 					}
-				}else if(type == 1) {
+				}else if(type === 1) {
 					// Ungraded
 					// Nothing more that we need to do
-				}else if(type == 5) {
+				}else if(type === 5) {
 					// Checkmark
 					$("#require-label2").show();
 					$("#require-label2").text(msg("simplepage.require_checkmark"));
 					$("#item-required2").show();
 					
-					if(req == "true") {
+					if(req === "true") {
 						// Need both of these statements, because of a stupid
 						// little IE bug.
 						$("#item-required2").prop("checked", true);
@@ -1457,13 +1457,13 @@ $(function() {
 			        $("#change-resource").attr("href").replace("pageItemId=-1", "pageItemId=" + itemid));
 			    var groups = row.find(".item-groups").text();
 			    var grouplist = $("#grouplist");
-			    if (groups == "--inherited--")
+			    if (groups === "--inherited--")
 				$("#resource-group-inherited").show();
 			    else if ($('#grouplist input').size() > 0) {
 				$("#editgroups").show();
 				$("#grouplist").show();
 				$("#select-resource-group").show();
-				if (groups != null) {
+				if (groups !== null) {
 				    checkgroups(grouplist, groups);
 				}
 			    }
@@ -1472,7 +1472,7 @@ $(function() {
 
 			}
 
-			if(row.find(".status-image").attr("src") == undefined) {
+			if(row.find(".status-image").attr("src") === undefined) {
 			    $("#item-required").prop("checked", false);
 			} else if (row.find(".status-image").attr("src").indexOf("not-required.png") > -1) {
 				$("#item-required").prop("checked", false);
@@ -1643,7 +1643,7 @@ $(function() {
 			var row = $(this).parent().parent().parent();
 
 			var itemPath = row.find(".item-path");
-			if (itemPath != null && itemPath.size() > 0) {
+			if (itemPath !== null && itemPath.size() > 0) {
 			    row.find(".path-url").attr("href", row.find(".multimedia").attr("src"));
 			    $("#mm-path").html(itemPath.html());
 			    $(".mm-path").show();
@@ -1656,7 +1656,7 @@ $(function() {
 			if ($('#grouplist input').size() > 0) {
 			    $("#editgroups-mm").show();
 			    $("#grouplist").show();
-			    if (groups != null) {
+			    if (groups !== null) {
 				checkgroups(grouplist, groups);
 			    }
 			}
@@ -1669,7 +1669,7 @@ $(function() {
 
 			$("#height").val(row.find(".mm-height").text());
 			$("#width").val(row.find(".mm-width").text());
-			if (row.find(".mm-embedtype").text() == '1') {
+			if (row.find(".mm-embedtype").text() === '1') {
 			    // embed code, can't edit size
 			    $('#width-p').hide();
 			    $('#height-p').hide();
@@ -1680,7 +1680,7 @@ $(function() {
 			$("#description2").val(row.find(".description").text());
 			$("#mimetype").val(row.find(".mm-type").text());
 			var tagname = row.find(".multimedia").get(0).nodeName.toLowerCase();
-			if (tagname == "img") {
+			if (tagname === "img") {
 			    $("#alt").val(row.find(".multimedia").attr("alt"));
 			    $("#alt").parent().show();
 			    // $("#tagnameused").html(msg("simplepage.tag_img"));
@@ -1690,7 +1690,7 @@ $(function() {
 			    //			    $("#tagnameused").html(msg("simplepage.tag_iframe"));
 			    //			    $("#iframe-note").show();
 			    //}
-			} else if (tagname == "iframe") {
+			} else if (tagname === "iframe") {
 			    $("#alt").parent().hide();
 			    // $("#tagnameused").html(msg("simplepage.tag_iframe"));
 			    $("#iframe-note").show();
@@ -1780,7 +1780,7 @@ $(function() {
 		$('#delete-comments-item').click(function(event) {
 			// edit row is set by edit-comments. We're current in the dialog. need
 			// to look in the actual page row.
-			if (editrow.find('.commentDiv').size() == 0)
+			if (editrow.find('.commentDiv').size() === 0)
 			    return true;
 			delbutton = $('#delete-comments-item');
 			return delete_confirm(event, msg("simplepage.deletecommentsubmissionexist"));
@@ -1789,7 +1789,7 @@ $(function() {
 		$('#delete-student-item').click(function(event) {
 			// edit row is set by edit-comments. We're current in the dialog. need
 			// to look in the actual page row.
-			if (editrow.find('.studentLink').size() == 0)
+			if (editrow.find('.studentLink').size() === 0)
 			    return true;
 			delbutton = $('#delete-student-item');
 			return delete_confirm(event, msg("simplepage.deletestudentsubmissionexist"));
@@ -1817,7 +1817,7 @@ $(function() {
 				$('#question-dialog').dialog('isOpen')) {
 		    unhideMultimedia();
                     $('.edit-col').removeClass('edit-colHidden');
-                    $('li').removeClass('editInProgress')
+                    $('li').removeClass('editInProgress');
 				}
 		});
 		 
@@ -1834,7 +1834,7 @@ $(function() {
 		});
 		
 		$("#studentPointsBox").keyup(function(event){
-			if(event.keyCode == 13) {
+			if(event.keyCode === 13) {
 			    submitgrading($(this));
 			    return false;
 			}
@@ -1890,7 +1890,7 @@ $(function() {
 	});
 	
 	// don't do this twice. if portal is loaded portal will do it
-        if(typeof portal == 'undefined')
+        if(typeof portal === 'undefined')
 	$('a.tool-directurl').cluetip({
 		local: true,
 		    arrows: true,
@@ -1937,11 +1937,11 @@ $(function() {
 
 	function fixitemshows(){
 		var val = $(".format:checked").val();
-		if (val == "window")
+		if (val === "window")
 		    $("#edit-height").hide();
 		else
 		    $("#edit-height").show();
-		if (val == "inline") {
+		if (val === "inline") {
 		    $("#prereqstuff").hide();
 		} else {
 		    $("#prereqstuff").show();
@@ -1950,7 +1950,7 @@ $(function() {
 
 	$('.textbox a[class!=itemcopylink]').each(function(index) {
 		try {
-		    if ($(this).attr('href').match("^http://lessonbuilder.sakaiproject.org/") != null) {
+		    if ($(this).attr('href').match("^http://lessonbuilder.sakaiproject.org/") !== null) {
 			var item = $(this).attr('href').substring(38).replace('/','');
 			var a = $('a[lessonbuilderitem=' + item + ']').first();
 			$(this).replaceWith(a);
@@ -2124,7 +2124,7 @@ function closePeerReviewDialog() {
 }
 
 function checkEditTitleForm() {
-	if($('#pageTitle').val() == '') {
+	if($('#pageTitle').val() === '') {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
 		$('#edit-title-error-container').show();
 		return false;
@@ -2143,12 +2143,12 @@ function checkEditTitleForm() {
 
 // these tests assume \d finds all digits. This may not be true for non-Western charsets
 function checkNewPageForm() {
-    if($('#newPage').val() == '') {
+    if($('#newPage').val() === '') {
         $('#new-page-error').text(msg("simplepage.title_notblank"));
         $('#new-page-error-container').show();
         return false;
     }
-    if($('#new-page-number').val() != '') {
+    if($('#new-page-number').val() !== '') {
         if(! $('#new-page-number').val().match('^\\d*$')) {
             $('#new-page-error').text(msg("simplepage.number_pages_not_number"));
             $('#new-page-error-container').show();
@@ -2197,11 +2197,11 @@ function checkMovieForm(w, h, y) {
 		eitem = $(pre + '-error');
 		econtainer = $(pre + '-error-container');
 
-		if (w.trim() == "") {			// empty input is ok
+		if (w.trim() === "") {			// empty input is ok
 			wvalid = true;
 		} 
 
-		if (h.trim() == "") {
+		if (h.trim() === "") {
 			hvalid = true;
 		}
 
@@ -2232,14 +2232,14 @@ function checkMovieForm(w, h, y) {
 		wmatch = checkWidthHeight(w);	// if it's not a percentage, check to make sure it's of the form ### or ###px
 		hmatch = checkWidthHeight(h);
 
-		if (wmatch == null && !wvalid) {
+		if (wmatch === null && !wvalid) {
 			// paint error message
 			eitem.text(msg("simplepage.width-height"));
 			econtainer.show();
 			return false;
 		}
 
-		if (hmatch == null && !hvalid) {
+		if (hmatch === null && !hvalid) {
 			// paint error message
 			eitem.text(msg("simplepage.width-height"));
 			econtainer.show();
@@ -2264,11 +2264,11 @@ function checkCommentsForm() {
 }
 
 function checkEditItemForm() {
-	if($('#name').val() == '') {
+	if($('#name').val() === '') {
 		$('#edit-item-error').text(msg("simplepage.item_notblank"));
 		$('#edit-item-error-container').show();
 		return false;
-        } else if ((requirementType == 3 || requirementType == 6) && 
+        } else if ((requirementType === 3 || requirementType === 6) && 
 		   $("#item-required2").prop("checked") && !isFinite(parseFloat($("#assignment-points").val()))) {
 		$('#edit-item-error').text(msg("simplepage.integer-expected"));
 		$('#edit-item-error-container').show();
@@ -2280,7 +2280,7 @@ function checkEditItemForm() {
 }
 
 function checkSubpageForm() {
-	if($('#subpage-title').val() == '') {
+	if($('#subpage-title').val() === '') {
 		$('#subpage-error').text(msg("simplepage.page_notblank"));
 		$('#subpage-error-container').show();
 		return false;
@@ -2325,7 +2325,7 @@ function setUpRequirements() {
  */
 $(function() {
 	$(".edit-multimedia-input").keypress(function (e) { 
-	    if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {  
+	    if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {  
 	        $('#edit-multimedia-item').click();  
 	        return false;  
 	    } else {  
@@ -2334,7 +2334,7 @@ $(function() {
 	});  
 	
 	$(".edit-form-input").keypress(function (e) {  
-		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {  
+		if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {  
 	        $('#edit-item').click();  
 	        return false;  
 	    } else {  
@@ -2343,7 +2343,7 @@ $(function() {
 	});
 	
 	$(".edit-youtube-input").keypress(function (e) {  
-		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {  
+		if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {  
 	        $('#update-youtube').click();  
 	        return false;  
 	    } else {  
@@ -2352,7 +2352,7 @@ $(function() {
 	});
 	
 	$(".edit-movie-input").keypress(function (e) {  
-		if ((e.which && e.which == 13) || (e.keyCode && e.keyCode == 13)) {  
+		if ((e.which && e.which === 13) || (e.keyCode && e.keyCode === 13)) {  
 	        $('#update-movie').click();  
 	        return false;  
 	    } else {  
@@ -2616,21 +2616,21 @@ function prepareQuestionDialog() {
 	    $('#question-error').text(msg("simplepage.integer-expected"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if($("#question-graded").prop("checked") && $("#question-gradebook-title").val() == '') {
+	} else if($("#question-graded").prop("checked") && $("#question-gradebook-title").val() === '') {
 	    $('#question-error').text(msg("simplepage.gbname-expected"));
 	    $('#question-error-container').show();
 	    return false;
-	} else if ($("#question-text-input").val() == '') {
+	} else if ($("#question-text-input").val() === '') {
 	    $('#question-error').text(msg("simplepage.missing-question-text"));
 	    $('#question-error-container').show();
 	    return false;
 	} else if ($("#multipleChoiceSelect").prop("checked") && 
-		   $(".question-multiplechoice-answer").filter(function(index){return $(this).val() != '';}).length < 2) {
+		   $(".question-multiplechoice-answer").filter(function(index){return $(this).val() !== '';}).length < 2) {
 	    $('#question-error').text(msg("simplepage.question-need-2"));
 	    $('#question-error-container').show();
 	    return false;
 	} else if ($("#shortanswerSelect").prop("checked") && $("#question-graded").prop("checked") &&
-		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!="";}).length < 1) {
+		   $(".question-shortanswer-answer").filter(function(index){return $(this).val()!=="";}).length < 1) {
 	    $('#question-error').text(msg("simplepage.question-need-1"));
 	    $('#question-error-container').show();
 	    return false;
@@ -2720,7 +2720,7 @@ function mm_test_reset() {
 resizeFrame = function (updown) {
       var frame = parent.document.getElementById( window.name );
       if( frame ) {
-        if(updown=='shrink')
+        if(updown==='shrink')
         {
         var clientH = document.body.clientHeight + 30;
       }
