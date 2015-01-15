@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.email.cover.DigestService;
@@ -70,6 +72,9 @@ import org.w3c.dom.Element;
 @SuppressWarnings({"deprecation","rawtypes","unchecked"})
 public class EmailNotification implements NotificationAction
 {
+    // Our logger
+    private static Log M_log = LogFactory.getLog(EmailNotification.class);
+
 	protected final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
 	protected final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
 	protected final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
@@ -645,6 +650,24 @@ public class EmailNotification implements NotificationAction
 		String type = getType(resourceFilter);
 		if (type != null)
 		{
+			// First, check the overrides.
+			String eventContext = event.getContext();
+			if (eventContext != null) {
+				props = prefs.getProperties(NotificationService.PREFS_TYPE + type + NotificationService.NOTI_OVERRIDE_EXTENSION);
+				Iterator<String> i = props.getPropertyNames();
+				while (i.hasNext()) {
+					String name = i.next();
+					if (eventContext.equals(name)) {
+						try {
+							int option = Integer.parseInt(props.getProperty(name));
+							if (option != NotificationService.PREF_NONE) return option;
+						} catch (NumberFormatException nfe) {
+							M_log.error("Property '" + name + "' is not a number. The site overrides check has failed");
+						}
+					}
+				}
+			}
+
 			props = prefs.getProperties(NotificationService.PREFS_TYPE + type);
 			try
 			{
