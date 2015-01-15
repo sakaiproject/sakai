@@ -41,7 +41,7 @@ $(function() {
 	
 	// cr on individual box, update that box
 	$(".pointsBox").keyup(function(event){
-		if(event.keyCode == 13)
+		if(event.keyCode === 13)
 		    updateGrade($(this));
         });
 

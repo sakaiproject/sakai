@@ -36,7 +36,7 @@ $(function() {
 			if($(value).is(":visible")) {
 				$(value).hide();
 			}else if(!$(value).is(":visible") && $(value).attr("id") === $(firstRow).next().attr("id")) {
-				if($(value).find(".replaceWithComments").children().length == 0) {
+				if($(value).find(".replaceWithComments").children().length === 0) {
 					var oldSrc = $(firstRow).find(".toggleStatus").attr("src");
 					oldSrc = oldSrc.replace("loading.gif", "");
 					oldSrc = oldSrc.replace("no-status.png", "");
@@ -90,7 +90,7 @@ $(function() {
 	
 	// cr on individual box, update that box
 	$(".pointsBox").keyup(function(event){
-		if(event.keyCode == 13)
+		if(event.keyCode === 13)
 		    updateGrade($(this));
         });
 
@@ -129,7 +129,7 @@ function updateGrade(item) {
 
 function prefetchComments(value) {
 	// Prefetch the next one as well, so that it's ready when they need it.
-	if($(value).length > 0 && $(value).find(".replaceWithComments").children().length == 0) {
+	if($(value).length > 0 && $(value).find(".replaceWithComments").children().length === 0) {
 		var href=$(value).find(".commentsLink").attr("href");
 		var ci = href.indexOf("Comment");
 		href = "/lessonbuilder-tool/faces/" + href.substring(ci);
