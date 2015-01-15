@@ -6,8 +6,8 @@ $(function() {
 	if ($(".studentContentType").length > 0) {
 		//nextNumber has been negated...
 		addEmptyCategoryRow = function(tableSelector, customId) {
-			var nextNumber = (customId != -1) ? customId : ($(tableSelector + " .newRow").length + 1) * -1;
-			var newRow = (customId == -1) ? "newRow" : "";
+			var nextNumber = (customId !== -1) ? customId : ($(tableSelector + " .newRow").length + 1) * -1;
+			var newRow = (customId === -1) ? "newRow" : "";
 
 			$(tableSelector + " tbody").append('<tr><td><span class="rubricRowIndex ' + newRow + '" style="display:none;">' + nextNumber + '</span>' + blankRubricRow + '</td><td></td><td></td><td></td><td></td><td></td></tr>');
 			$firstInput = $(tableSelector + " tbody tr:last input:first");
@@ -141,9 +141,9 @@ $(function() {
 		getGradeeByUserId = function(userId) {
 			//console.log('getGradeeByUserId(' + userId + ')');
 			for (w in gradees) {
-				if (gradees[w].userid == userId) return gradees[w];
-			}
+				if (gradees[w].userid === userId) return gradees[w];
 		}
+		};
 
 		//Build the JSON Object.
 		$(".peer-eval-gradee-branch").each(function() {
@@ -190,7 +190,7 @@ $(function() {
 			$(".peer-eval-gradee-branch").each(function() {
 				var countPerGradee = 0;
 				$(".peer-eval-grader-id", this).each(function() {
-					if ($(this).text() == target) countPerGradee++;
+					if ($(this).text() === target) countPerGradee++;
 				});
 				if (countPerGradee > (numCategories / 2)) gradees[x].activity++;
 			});
@@ -213,7 +213,7 @@ $(function() {
 
 				var isValidGrade = false;
 				$(".peer-eval-rubric-table:last .peer-eval-row").each(function() {
-					if ($("td:first", this).text().trim() == text) {
+					if ($("td:first", this).text().trim() === text) {
 						isValidGrade = true;
 						var graderString = [];
 						for (z in gradees[x].grades[y].graders) {
@@ -281,7 +281,7 @@ $(function() {
 						$(this).parent().css("background-color", "");
 						var htmlSS = $(this).html();
 						//console.log(userid);
-						if (htmlSS.indexOf(userid) != -1) {
+						if (htmlSS.indexOf(userid) !== -1) {
 							$(this).parent().css("background-color", CELL_SELECTED_BACKGROUND_COLOR);
 						}
 					});
@@ -328,7 +328,7 @@ $(function() {
 				var count = $(".peer-eval-count", this).text();
 
 				$(".peer-eval-row").each(function() {
-					if ($(".peerReviewText", this).text() == text) $("." + grade, this).text(count);
+					if ($(".peerReviewText", this).text() === text) $("." + grade, this).text(count);
 				});
 			});
 		}
@@ -356,7 +356,7 @@ $(function() {
 				var grade = $(".peer-eval-grade", this).text();
 
 				$(".peer-eval-row").each(function() {
-					if ($(".peerReviewText", this).text() == text) $("." + grade, this).css("background-color", "lightblue");
+					if ($(".peerReviewText", this).text() === text) $("." + grade, this).css("background-color", "lightblue");
 				});
 			});
 
@@ -372,7 +372,7 @@ function initialSetupForGrading() {
 		var grade = $(".peer-eval-grade", this).text();
 
 		$(".peer-eval-row").each(function() {
-			if ($(".peerReviewText", this).text() == text) $("." + grade, this).click();
+			if ($(".peerReviewText", this).text() === text) $("." + grade, this).click();
 		});
 	});
 }

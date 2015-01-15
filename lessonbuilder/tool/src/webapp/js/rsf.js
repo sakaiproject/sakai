@@ -36,14 +36,14 @@ var RSF = RSF || {};
     }
 
   function isFossil(element, input) {
-    if (element.id && input.id == element.id + "-fossil") return true;
-    return (input.name == element.name + "-fossil");
+    if (element.id && input.id === element.id + "-fossil") return true;
+    return (input.name === element.name + "-fossil");
     }
     
   function normaliseBinding(element) {
     RSF.log("normaliseBinding name " + element.name + " id " + element.id);
     if (!element.name) return element.id;
-    else return element.name == "virtual-el-binding"? "el-binding" : element.name;
+    else return element.name === "virtual-el-binding"? "el-binding" : element.name;
     }
 
   var requestactive = false;
@@ -89,11 +89,11 @@ var RSF = RSF || {};
     
   fixEvent.preventDefault = function() {
     this.returnValue = false;
-    }
+    };
     
   fixEvent.stopPropagation = function() {
     this.cancelBubble = true;
-    }
+    };
   
   function getEventFirer() {
     var listeners = {};
@@ -175,8 +175,8 @@ var RSF = RSF || {};
             clearObject(primaryElements, elementscopy);
             RSF.log("Restoration cleared");
             }
-          }
-        }
+          };
+        };
       }
  // A "ClassLoader"-wide cache of scripts which have been loaded, to avoid
  // duplicate fetches
@@ -204,7 +204,7 @@ var RSF = RSF || {};
       });
       
       return uri;
-   }
+   };
    parseUri.options = {
       strictMode: false,
       key: ["source","protocol","authority","userInfo","user","password","host","port","relative","path","directory","file","query","anchor"],
@@ -216,10 +216,10 @@ var RSF = RSF || {};
          strict: /^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/,
          loose: /^(?:(?![^:@]+:[^:@\/]*@)([^:\/?#.]+):)?(?:\/\/)?((?:(([^:@]*):?([^:@]*))?@)?([^:\/?#]*)(?::(\d*))?)(((\/(?:[^?#](?![^?#\/]*\.[^?#\/.]+(?:[?#]|$)))*\/?)?([^?#\/]*))(?:\?([^#]*))?(?:#(.*))?)/
       }
-   }
+   };
 
     function ignorableNode(node) {
-      return node.tagName.toLowerCase() == 'select';
+      return node.tagName.toLowerCase() === 'select';
       }
 
     function getNextNode(iterator) {
@@ -267,7 +267,7 @@ var RSF = RSF || {};
   RSF.computeDocumentHeight = function (dokkument) {
     var currentNode = {node: dokkument.body, depth: 0};
     var biggestOffset = 0;
-    while (currentNode.node != null && currentNode.depth >= 0 && currentNode.depth < RSF.DOM_BAIL_DEPTH) {
+    while (currentNode.node !== null && currentNode.depth >= 0 && currentNode.depth < RSF.DOM_BAIL_DEPTH) {
       if (currentNode.node.offsetHeight) {
         var tempOffset = RSF.computeCorrectedHeight(currentNode.node);
         if (tempOffset > biggestOffset) {
@@ -298,11 +298,11 @@ var RSF = RSF || {};
    /** method to handle logging, logging is off by default so you may need to turn it on */
   RSF.log = function(message) {
     if (logging) {
-      if (typeof(YAHOO) != "undefined") {
+      if (typeof(YAHOO) !== "undefined") {
         YAHOO.log(message);
-      } else if (typeof(console) != "undefined") {
+      } else if (typeof(console) !== "undefined") {
         console.log(message);
-      } else if (typeof(opera) != "undefined") {
+      } else if (typeof(opera) !== "undefined") {
         opera.postError(message);
         }
       }
@@ -323,7 +323,7 @@ var RSF = RSF || {};
 
    /** method to allow user to enable logging (off by default) */
   RSF.setLogging = function(enabled) {
-    if (typeof enabled == "boolean") {
+    if (typeof enabled === "boolean") {
       logging = enabled;
       } else {
       logging = false;
@@ -336,7 +336,7 @@ var RSF = RSF || {};
     if (typeof jQuery !== "undefined") {
       return jQuery.data(elem, name, value);
       }
-    }
+    };
   
   /** Recursively find any data stored under a given name from a node upwards
    * in its DOM hierarchy **/
@@ -347,7 +347,7 @@ var RSF = RSF || {};
       if (data) return data;
       elem = elem.parentNode;
       }
-    }
+    };
    /**
     * This is a set of three methods to easily accumulate events on elements
     */
@@ -357,14 +357,14 @@ var RSF = RSF || {};
     * RETURN: the return of the final function is sent back, other returns are discarded
     */
   RSF.addEventToElement = function(element, event, newFunction) {
-    if (typeof newFunction == "function") {
+    if (typeof newFunction === "function") {
       var origEvent = element["on" + event];
-      if (typeof origEvent == "function") {
+      if (typeof origEvent === "function") {
         element["on" + event] = function() {
           var result = false;
           try {
             var r = origEvent();
-            if (r != null && typeof r != 'undefined') {
+            if (r !== null && typeof r !== 'undefined') {
               result = r;
               }
             } 
@@ -373,7 +373,7 @@ var RSF = RSF || {};
             }
           try {
             var r = newFunction();
-            if (r != null && typeof r != 'undefined') {
+            if (r !== null && typeof r !== 'undefined') {
               result = r;
               }
             } 
@@ -381,14 +381,14 @@ var RSF = RSF || {};
             alert("function ("+newFunction+") failure occurred: " + e.message);
             }
           return result;
-          }
+          };
         } 
       else {
         element["on" + event] = function() {
           var result = false;
           try {
             var r = newFunction();
-            if (r != null && typeof r != 'undefined') {
+            if (r !== null && typeof r !== 'undefined') {
               result = r;
               }
             } 
@@ -396,7 +396,7 @@ var RSF = RSF || {};
             alert("function ("+newFunction+") failure occurred: " + e.message);
             }
           return result;
-          }
+          };
         }
       }
     };
@@ -455,9 +455,9 @@ var RSF = RSF || {};
         RSF.log("Censored model fire for non-primary element " + element.id);
         return;
         }
-      var actualold = arguments.length == 3? oldvalue : element.value;
+      var actualold = arguments.length === 3? oldvalue : element.value;
       RSF.log("Actual old value " + actualold);
-      if (newvalue != actualold) {
+      if (newvalue !== actualold) {
         if (primary) {
           RSF.log("Set primary element for " + element.id);
           primaryElements[element.id] = true;
@@ -475,7 +475,7 @@ var RSF = RSF || {};
             }
           }
         }
-      }
+      };
     };
     /** target is the element on which the listener is to be attached.
      */
@@ -524,8 +524,8 @@ var RSF = RSF || {};
     options = options || {};
     var is_http_request = url.indexOf("http") === 0;
     var readyCallback = function() {
-      if (http_request.readyState == 4) {
-        if (http_request.status == 200 || !is_http_request) {
+      if (http_request.readyState === 4) {
+        if (http_request.status === 200 || !is_http_request) {
           RSF.log("AJAX request success status: " + http_request.status);
           if (callback && callback.success) {
             callback.success(http_request);
@@ -539,11 +539,11 @@ var RSF = RSF || {};
           RSF.log("AJAX request error status: " + http_request.status);
           }
         }
-      }
+      };
     var http_request = false;
     if (window.XMLHttpRequest) { // Mozilla, Safari,...
       http_request = new XMLHttpRequest();
-      if (method == "POST" && http_request.overrideMimeType) {
+      if (method === "POST" && http_request.overrideMimeType) {
          // set type accordingly to anticipated content type
           //http_request.overrideMimeType('text/xml');
         http_request.overrideMimeType('text/xml');
@@ -565,11 +565,11 @@ var RSF = RSF || {};
        }
        
        http_request.onreadystatechange = readyCallback;
-       if (method == "GET") {
+       if (method === "GET") {
           url = url + "?" + parameters;
        }
        http_request.open(method, url, true);
-       if (method == "GET") {
+       if (method === "GET") {
           http_request.send(null);
        } else { // assume POST
           var contentType = "application/x-www-form-urlencoded";
@@ -596,7 +596,7 @@ var RSF = RSF || {};
     fossilex = /(.)(.*)#\{(.*)\}(.*)/;
     var matches = fossil.match(fossilex);
     var togo = new Object();
-    togo.input = matches[1] != 'o';
+    togo.input = matches[1] !== 'o';
     togo.uitype = matches[2];
     togo.lvalue = matches[3];
     togo.oldvalue = matches[4];
@@ -607,10 +607,10 @@ var RSF = RSF || {};
     bindingex = /(.)#\{(.*)\}(.*)/;
     var matches = binding.match(bindingex);
     var togo = new Object();
-    togo.EL = matches[1] == 'e';
+    togo.EL = matches[1] === 'e';
     togo.lvalue = matches[2];
     togo.rvalue = matches[3];
-    togo.isdeletion = deletion == "deletion";
+    togo.isdeletion = deletion === "deletion";
     return togo;
     };
 
@@ -664,9 +664,9 @@ var RSF = RSF || {};
     var elements = form.elements;
     for (var i = 0; i < elements.length; i++) {
       var element = elements[i];
-      if (submittingel != null && typeof (submittingel) != "undefined") {
-        if (element.nodeName.toLowerCase() == "input" &&
-          element.getAttribute("type") == "submit" && element != submittingel) 
+      if (submittingel !== null && typeof (submittingel) !== "undefined") {
+        if (element.nodeName.toLowerCase() === "input" &&
+          element.getAttribute("type") === "submit" && element !== submittingel) 
           continue;
         }
       queries.push(RSF.encodeElement(element.name, element.value));
@@ -677,7 +677,7 @@ var RSF = RSF || {};
   RSF.hasUVBError = function(UVB, namebase) {
     for (var i = 0; i < UVB.message.length; ++ i) {
       var message = UVB.message[i];
-      if (message.severity == "error" && message.target.indexOf(namebase) == 0) return true;
+      if (message.severity === "error" && message.target.indexOf(namebase) === 0) return true;
       }
       return false;
     };  
@@ -700,11 +700,11 @@ var RSF = RSF || {};
       var id = value.getAttribute("id");
       var text = RSF.getElementText(value);
       RSF.log("Value id " + id + " text " + text);
-      if (id.substring(0, 4) == "tml:") {
+      if (id.substring(0, 4) === "tml:") {
         var target = value.getAttribute("target");
         var severity = value.getAttribute("severity");
         togo.message.push( {target: target, severity: severity, text: text});
-        if (severity == "error") {
+        if (severity === "error") {
           togo.isError = true;
           }
         }
@@ -722,7 +722,7 @@ var RSF = RSF || {};
     var text = "";
     for (var i = 0; i < nodes.length; ++ i) {
       var child = nodes[i];
-      if (child.nodeType == 3) {
+      if (child.nodeType === 3) {
         text = text + child.nodeValue;
         }
       }
@@ -731,7 +731,7 @@ var RSF = RSF || {};
     
   RSF.findForm = function (element) {
     while(element) {
-    if (element.nodeName.toLowerCase() == "form") return element;
+    if (element.nodeName.toLowerCase() === "form") return element;
       element = element.parentNode;
       }
     };  
@@ -743,7 +743,7 @@ var RSF = RSF || {};
     togo.push(EL);
     while (true) {
       var lastdotpos = EL.lastIndexOf(".");
-      if (lastdotpos == -1) break;
+      if (lastdotpos === -1) break;
       EL = EL.substring(0, lastdotpos);
       togo.push(EL);
       }
@@ -777,7 +777,7 @@ var RSF = RSF || {};
           RSF.log("Own Fossil " + fossil.lvalue + " oldvalue " + fossil.oldvalue);
           }
         var matches = name.match(bindingex);
-        if (matches != null) {
+        if (matches !== null) {
           var binding = RSF.parseBinding(input.value, matches[0]);
           RSF.log("Binding lvalue " + binding.lvalue + " " + binding.rvalue);
           binding.element = input;
@@ -871,9 +871,9 @@ var RSF = RSF || {};
     var elid = element.getAttribute('id');
     if (elid) {
     //      nameBase:dynamic-list-input-row::1:remove
-      if (elid.indexOf(nameBase) == 0) {
+      if (elid.indexOf(nameBase) === 0) {
         var colpos = elid.indexOf(':', nameBase.length);
-        var newid = nameBase + localID + (colpos == -1? "" : elid.substring(colpos + 1));
+        var newid = nameBase + localID + (colpos === -1? "" : elid.substring(colpos + 1));
         element.setAttribute('id', newid);
       }
     }
@@ -881,7 +881,7 @@ var RSF = RSF || {};
     if (element.childNodes) {
       for (var i = 0; i < element.childNodes.length; ++ i) {
         var child = element.childNodes[i];
-        if (child.nodeType == 1) {
+        if (child.nodeType === 1) {
           RSF.rewriteIDs(child, newBranchId);
           }
         }
@@ -898,7 +898,7 @@ var RSF = RSF || {};
 
   RSF.getBaseID = function(id) {
     colpos = id.lastIndexOf(':');
-    return id.substring(0, colpos + 1)
+    return id.substring(0, colpos + 1);
     };
 
 
@@ -921,12 +921,12 @@ var RSF = RSF || {};
         RSF.log("Accumulated " + UVB);
         callback(UVB);
         }
-      }
+      };
     return function() {
       var body = RSF.getUVBSubmissionBody(sourceFields, bindings);
       RSF.log("Firing AJAX request " + body);
       RSF.queueAJAXRequest(bindings[0], "POST", AJAXURL, body, AJAXcallback);
-    }
+    };
   };
 
  /** Submit a form via AJAX, the results of the submit are returned in the 
@@ -953,7 +953,7 @@ var RSF = RSF || {};
        RSF.queueAJAXRequest(form, form.method, ajaxUrl, body, AJAXcallback);
        // ensure the non-ajax action does not fire
        return false;
-    }
+    };
   };
 
  /** Submit a link (anchor) via AJAX,
@@ -983,7 +983,7 @@ var RSF = RSF || {};
        RSF.queueAJAXRequest(link, "get", ajaxUrl, body, AJAXcallback);
        // ensure the non-ajax action does not fire
        return false;
-    }
+    };
   };
 
  /** Submit part of a form via AJAX,
@@ -1009,14 +1009,14 @@ var RSF = RSF || {};
        RSF.queueAJAXRequest(sourceFields[0], form.method, ajaxUrl, body, AJAXcallback);
        // ensure the non-ajax action does not fire
        return false;
-    }
+    };
   };
   RSF.parseUri = function(URI) {
     return parseUri(URI);
     };
 
   RSF.hasCSSClass = function(element, cssClass) {
-    return new RegExp('\\b'+ cssClass +'\\b').test(element.className)
+    return new RegExp('\\b'+ cssClass +'\\b').test(element.className);
     };
   RSF.addCSSClass = function(element, cssClass) {
     if (!RSF.hasCSSClass(element, cssClass)) {
@@ -1040,7 +1040,7 @@ var RSF = RSF || {};
 
   RSF.getRequiredFirer = function(element, invalidCSSClass, packageBase) {
     return function() {
-      var isBlank = !element.value || element.value == "";
+      var isBlank = !element.value || element.value === "";
       if (isBlank) {
         RSF.addCSSClass(element, invalidCSSClass);
         }
@@ -1075,7 +1075,7 @@ var RSF = RSF || {};
       var element = form.elements[i];
       var valid = element.getAttribute("rsf:valid");
       if (!valid) continue;
-      if (valid.indexOf("required") != -1) {
+      if (valid.indexOf("required") !== -1) {
         RSF.setRequiredStyle(element, requiredCSSClass);
         
         RSF.addRequiredValidator(element, invalidCSSClass, packageBase);
@@ -1162,7 +1162,7 @@ var RSF = RSF || {};
   * RETURN: the list of updated action elements
   */
   RSF.transformActionDomToAJAX = function (parentNode, targetNode) {
-    if (typeof(targetNode) == "undefined" || targetNode == null) {
+    if (typeof(targetNode) === "undefined" || targetNode === null) {
       targetNode = parentNode;
       }
     RSF.log("transformActionDomToAJAX: node=" + parentNode);
@@ -1183,12 +1183,12 @@ var RSF = RSF || {};
        RSF.getDOMModifyFirer().fireEvent();
        // rerun the dom transformer on the replacement xhtml
        RSF.transformActionDomToAJAX(targetNodeRes, targetNodeRes);
-    }
+    };
 
     var inputs = parentNode.getElementsByTagName("input");
     for (var i = 0; i < inputs.length; ++ i) {
       var input = inputs[i];
-      if (input.getAttribute("type").toLowerCase() != "submit") continue;
+      if (input.getAttribute("type").toLowerCase() !== "submit") continue;
       var updater = RSF.getAJAXFormUpdater(input.form, callback, null, input);
       RSF.addEventToElement(input, "click", updater);
       updatedElements.push(input);
@@ -1212,13 +1212,13 @@ var RSF = RSF || {};
     for (var i = 0; i < links.length; i++) {
       var link = links[i];
 
-      if (!link.href || link.href.length == 0) {
+      if (!link.href || link.href.length === 0) {
         RSF.log("link is empty or appears to be invalid so skipping it: " + link.href);
         continue;            
       }
        
       var parsed = parseUri(link.href);
-      if (parsed.host == "" || parsed.host == document.domain) {
+      if (parsed.host === "" || parsed.host === document.domain) {
         var updater = RSF.getAJAXLinkUpdater(link, callback);
  
         RSF.addEventToElement(link, "click", updater);
