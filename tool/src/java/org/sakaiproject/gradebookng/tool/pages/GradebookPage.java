@@ -13,18 +13,18 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
+import org.sakaiproject.gradebookng.business.StudentSortOrder;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.SectionColumnHeaderPanel;
+import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import com.inmethod.grid.DataProviderAdapter;
 import com.inmethod.grid.IGridColumn;
 import com.inmethod.grid.column.AbstractColumn;
 import com.inmethod.grid.column.PropertyColumn;
-import com.inmethod.grid.column.editable.EditablePropertyColumn;
 import com.inmethod.grid.datagrid.DataGrid;
 import com.inmethod.grid.datagrid.DefaultDataGrid;
 
@@ -63,6 +63,33 @@ public class GradebookPage extends BasePage {
         cols.add(new PropertyColumn(new Model("Student Name"), "studentName", SortOrder.ASCENDING).setReorderable(false));
         cols.add(new PropertyColumn(new Model("Student ID"), "studentEid").setReorderable(false));
         
+        AbstractColumn studentNameColumn = new AbstractColumn("STUDENT_NAME_COLUMN", null) {
+
+        	@Override
+        	public Component newHeader(String componentId) {
+        		StudentNameColumnHeaderPanel panel = new StudentNameColumnHeaderPanel(componentId, StudentSortOrder.LAST_NAME);
+				return panel;
+        		
+        	}
+        	
+			@Override
+			public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
+				//StudentGradeInfo studentsGrades = (StudentGradeInfo) rowModel.getObject();
+				//GradeItemCellPanel panel = new GradeItemCellPanel(componentId, assignment.getId(), studentsGrades);
+				
+				return new EmptyPanel(componentId);
+			}
+			
+			//TODO since we are now using a custom cell, we still need this to be editable, it will be done in the panel itself.
+
+			
+        	
+        };
+        
+        cols.add(studentNameColumn);
+        
+        
+        
         //section column (only rendered if we have sections)
         if(!sections.isEmpty()){
 	        AbstractColumn sectionColumn = new AbstractColumn("SECTION_COLUMN", new ResourceModel("column.header.section")) {
@@ -84,7 +111,7 @@ public class GradebookPage extends BasePage {
         }
         
         
-        // match the studentgrades model
+        // pull from the studentgrades model
         cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade").setReorderable(false));
         
         

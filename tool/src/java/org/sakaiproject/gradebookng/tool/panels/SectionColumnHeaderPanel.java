@@ -28,8 +28,8 @@ public class SectionColumnHeaderPanel extends Panel {
 		//title
 		add(new Label("title", new ResourceModel("column.header.section")));
 		
-		//renderer
-		ChoiceRenderer<Section> choiceRenderer = new ChoiceRenderer<Section>() {
+		//dropdown
+		DropDownChoice<Section> sectionList = new DropDownChoice<Section>("sectionList", sections, new ChoiceRenderer<Section>() {
 			
 			private static final long serialVersionUID = 1L;
 
@@ -43,10 +43,7 @@ public class SectionColumnHeaderPanel extends Panel {
 				return s.getEid();
 			}
 			
-		};
-		
-		//dropdown
-		DropDownChoice<Section> sectionList = new DropDownChoice<Section>("sectionList", sections, choiceRenderer);
+		});
 		add(sectionList);
 		
 	}
