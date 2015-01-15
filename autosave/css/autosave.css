@@ -70,6 +70,8 @@ table.diff .replace {
 }
 table.diff .delete {
 	background-color:#FCC;
+        width: 380px;
+        word-break: break-word;
 }
 table.diff .skip {
 	background-color:#EFEFEF;
@@ -78,6 +80,8 @@ table.diff .skip {
 }
 table.diff .insert {
 	background-color:#CFC
+        width: 380px;
+        word-break: break-word;
 }
 table.diff th.author {
 	text-align:right;
