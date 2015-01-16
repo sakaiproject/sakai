@@ -788,6 +788,10 @@ public class SiteAction extends PagedResourceActionII {
 	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
 	
 	private PrivacyManager privacyManager = (PrivacyManager) ComponentManager.get(PrivacyManager.class);
+	
+	// SAK-28990 - enable/disable continue with no roster
+	private static final String VM_CONT_NO_ROSTER_ENABLED = "contNoRosterEnabled";
+	private static final String SAK_PROP_CONT_NO_ROSTER_ENABLED = "sitemanage.continueWithNoRoster";
 
 	/**
 	 * what are the tool ids within Home page?
@@ -3180,6 +3184,16 @@ public class SiteAction extends PagedResourceActionII {
 					ServerConfigurationService.getBoolean( SAK_PROP_SKIP_MANUAL_COURSE_CREATION, Boolean.FALSE ) );
 			
 			context.put("siteType", state.getAttribute(STATE_TYPE_SELECTED));
+			
+			// SAK-28990 remove continue with no roster
+			if( "true".equalsIgnoreCase( ServerConfigurationService.getString( SAK_PROP_CONT_NO_ROSTER_ENABLED, "true" ) ) )
+			{
+				context.put( VM_CONT_NO_ROSTER_ENABLED, Boolean.TRUE );
+			}
+			else
+			{
+				context.put( VM_CONT_NO_ROSTER_ENABLED, Boolean.FALSE);
+			}
 			
 			return (String) getContext(data).get("template") + TEMPLATE[36];
 		case 37:
