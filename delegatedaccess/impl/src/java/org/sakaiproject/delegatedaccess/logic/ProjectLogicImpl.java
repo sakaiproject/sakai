@@ -1806,9 +1806,9 @@ public class ProjectLogicImpl implements ProjectLogic {
 			}else{
 				//set default to no access and override it if the user does have access
 				//this is so we don't have to keep looking up their access for the same site:
-				deniedAuthToolsMap.put(siteRef, null);
-				deniedPublicToolsMap.put(siteRef, null);
-				accessMap.put(siteRef, null);
+				deniedAuthToolsMap.put(siteRef, new String[0]);
+				deniedPublicToolsMap.put(siteRef, new String[0]);
+				accessMap.put(siteRef, new String[0]);
 			}
 		}
 		//Set user Id and hierarchy id
