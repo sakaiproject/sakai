@@ -866,6 +866,8 @@ public class CCExport {
 			ititle = messageLocator.getMessage("simplepage.importcc-texttitle");
 		}
 		outputIndent(out, indent + 4); out.println("<title>" + StringEscapeUtils.escapeXml(ititle) + "</title>");
+		// output Sakai-specific information, if any
+		outputItemMetadata(out, indent, item);
 		outputIndent(out, indent + 2); out.println("</item>"); 
 	    }
 	}
@@ -875,6 +877,41 @@ public class CCExport {
 	}
 	return next;
     }
+
+    public void	outputItemMetadata(ZipPrintStream out, int indent, SimplePageItem item) {
+	// inline types
+	switch (item.getType()) {
+	case SimplePageItem.MULTIMEDIA:
+	    String mmDisplayType = item.getAttribute("multimediaDisplayType");
+	    if (mmDisplayType == null || mmDisplayType.equals(""))
+		mmDisplayType = "2";
+	    outputIndent(out, indent +4); out.println("<metadata>");
+	    outputIndent(out, indent +6); out.println("<lom:lom>");
+	    outputIndent(out, indent +8); out.println("<lom:general>");
+	    outputIndent(out, indent +10); out.println("<lom:structure>");
+	    outputIndent(out, indent +12); out.println("<lom:source>inline.lessonbuilder.sakaiproject.org</lom:source>");
+	    outputIndent(out, indent +12); out.println("<lom:value>true</lom:value>");
+	    outputIndent(out, indent +12); out.println("<lom:source>mmDisplayType.lessonbuilder.sakaiproject.org</lom:source>");
+	    outputIndent(out, indent +12); out.println("<lom:value>" + mmDisplayType + "</lom:value>");
+	    outputIndent(out, indent +10); out.println("</lom:structure>");
+	    outputIndent(out, indent +8); out.println("</lom:general>");
+	    outputIndent(out, indent +6); out.println("</lom:lom>");
+	    outputIndent(out, indent +4); out.println("</metadata>");
+	    break;
+	case SimplePageItem.TEXT:
+	    outputIndent(out, indent +4); out.println("<metadata>");
+	    outputIndent(out, indent +6); out.println("<lom:lom>");
+	    outputIndent(out, indent +8); out.println("<lom:general>");
+	    outputIndent(out, indent +10); out.println("<lom:structure>");
+	    outputIndent(out, indent +12); out.println("<lom:source>inline.lessonbuilder.sakaiproject.org</lom:source>");
+	    outputIndent(out, indent +12); out.println("<lom:value>true</lom:value>");
+	    outputIndent(out, indent +10); out.println("</lom:structure>");
+	    outputIndent(out, indent +8); out.println("</lom:general>");
+	    outputIndent(out, indent +6); out.println("</lom:lom>");
+	    outputIndent(out, indent +4); out.println("</metadata>");
+	    break;
+	}
+    };
 
     public boolean outputManifest(ZipPrintStream out) {
 	    
