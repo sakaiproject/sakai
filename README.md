@@ -35,7 +35,7 @@ Once Sakai has started up (it usually takes around 30 seconds), open your browse
 
 Sakai is licensed under the [Educational Community License version 2.0](http://opensource.org/licenses/ECL-2.0) 
 
-Sakai is an [Apereo Foundation](http://www.apereo.org) project and follows its guidelines and requirements for [Contributor License Agreements](https://www.apereo.org/licensing).
+Sakai is an [Apereo Foundation](http://www.apereo.org) project and follows the Foundation's guidelines and requirements for [Contributor License Agreements](https://www.apereo.org/licensing).
 
 ## Contributing
 
