@@ -65,6 +65,13 @@ public interface LTIService {
     public Object insertMembershipsJob(String siteId, String membershipsId, String membershipsUrl, String consumerKey, String ltiVersion);
 
     /**
+     * Gets the memberships job for a site.
+     *
+     * @return A single row mapping, or null if none exists yet.
+     */
+    public Map<String, Object> getMembershipsJob(String siteId);
+
+    /**
      * Gets all the memberships jobs. Quartz uses these to sync memberships for LTI
      * sites
      *
