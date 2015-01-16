@@ -925,6 +925,8 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
                 s.setSkin(site.getSkin());
             if (site.getTitle() != null)
                 s.setTitle(site.getTitle());
+            if (site.getInfoUrl() != null) 
+            	s.setInfoUrl(site.getInfoUrl());
 
             // put in properties if admin, otherwise ignore
             if (admin) {

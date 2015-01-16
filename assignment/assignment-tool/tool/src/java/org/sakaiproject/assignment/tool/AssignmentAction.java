@@ -4043,13 +4043,25 @@ public class AssignmentAction extends PagedResourceActionII
 				//scores are saved as whole values
 				//so a score of 1.3 would be stored as 13
 				//so a DB score of 13 needs to be 1.3:
+				String decSeparator = FormattedText.getDecimalSeparator();
 				if(peerAssessmentItem.getScore() != null){
 					double score = peerAssessmentItem.getScore()/10.0;
-					context.put("value_grade", score);
+					try {
+							String rv = StringUtils.replace(Double.toString(score), (",".equals(decSeparator)?".":","), decSeparator);
+							NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);
+							DecimalFormat dcformat = (DecimalFormat) nbFormat;
+							Double dblGrade = dcformat.parse(rv).doubleValue();
+							rv = nbFormat.format(dblGrade);
+							context.put("value_grade", rv);
+							context.put("display_grade", rv);
+					}
+					catch(Exception e){
+						M_log.warn(this + ":build_student_review_edit_context: Parse Error in display_Grade peerAssesmentItem" + e.getMessage());
+				}
 				}else{
 					context.put("value_grade", null);
+					context.put("display_grade", "");
 				}
-				context.put("display_grade", peerAssessmentItem.getScoreDisplay());
 				context.put("item_removed", peerAssessmentItem.isRemoved());
 				context.put("value_feedback_comment", peerAssessmentItem.getComment());
 				

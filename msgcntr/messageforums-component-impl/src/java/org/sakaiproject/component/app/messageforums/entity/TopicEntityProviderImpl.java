@@ -29,6 +29,7 @@ import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.PrivateMessageManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateTopicImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -48,6 +49,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestStorage;
 import org.sakaiproject.entitybroker.entityprovider.search.Restriction;
 import org.sakaiproject.entitybroker.entityprovider.search.Search;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
@@ -353,6 +357,22 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				}else{
 					forums = forumManager.getDiscussionForumsWithTopics(siteId);
 				}
+				
+				// retrieve all of the gradebook items here so we aren't checking repeatedly
+				Map<String, Long> gbItemNameToId = new HashMap<String, Long>();
+				try {
+				    GradebookService gradebookService = (GradebookService)ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+				    List<Assignment> gbItems = gradebookService.getAssignments(siteId);
+				    if (gbItems != null) {
+				        for (Assignment gbItem : gbItems) {
+				            gbItemNameToId.put(gbItem.getName(), gbItem.getId());
+				        }
+				    }
+				} catch (GradebookNotFoundException gnfe) {
+				    LOG.debug("No gradebook exists for site " + siteId + ". No gb item ids will be included.", gnfe);
+				} catch (Exception e) {
+				    LOG.debug("Exception attempting to retrieve gradebook information for site " + siteId + ". ", e);
+				}
 
 				for (DiscussionForum forum : forums) {
 					if(forum.getDraft().equals(Boolean.FALSE)){
@@ -363,9 +383,15 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					            forumOpenDate = forum.getOpenDate() != null ? forum.getOpenDate().getTime()/1000 : null; 
 					            forumCloseDate = forum.getCloseDate() != null ? forum.getCloseDate().getTime()/1000 : null;
 					        }
+					        
+					        Long forumGbItemId = null;
+					        if (forum.getDefaultAssignName() != null && !forum.getDefaultAssignName().isEmpty() &&
+					                gbItemNameToId.containsKey(forum.getDefaultAssignName())) {
+					            forumGbItemId = gbItemNameToId.get(forum.getDefaultAssignName());
+					        }
 					             
 					        DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle(), forumAttachments, forum.getShortDescription(), forum.getExtendedDescription(), forum.getLocked(), 
-                                    forum.getPostFirst(), forum.getAvailabilityRestricted(), forumOpenDate, forumCloseDate, forum.getDefaultAssignName());
+                                    forum.getPostFirst(), forum.getAvailabilityRestricted(), forumOpenDate, forumCloseDate, forum.getDefaultAssignName(), forumGbItemId);
 						List<DiscussionTopic> topics = forum.getTopics();
 						int viewableTopics = 0;
 
@@ -398,9 +424,16 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 									    topicOpenDate = topic.getOpenDate() != null ? topic.getOpenDate().getTime()/1000 : null; 
 									    topicCloseDate = topic.getCloseDate() != null ? topic.getCloseDate().getTime()/1000 : null;
 									}
+									
+									Long topicGbItemId = null;
+									if (topic.getDefaultAssignName() != null && !topic.getDefaultAssignName().isEmpty() &&
+											gbItemNameToId.containsKey(topic.getDefaultAssignName())) {
+										topicGbItemId = gbItemNameToId.get(topic.getDefaultAssignName());
+									}
+									
 									dForum.addTopic(new DecoratedTopicInfo(topic.getId(), topic.getTitle(), unreadMessages, 
 											totalMessages, "", attachments, topic.getShortDescription(), topic.getExtendedDescription(), topic.getLocked(), topic.getPostFirst(), topic.getAvailabilityRestricted(), 
-                                            topicOpenDate, topicCloseDate, topic.getDefaultAssignName()));
+                                            topicOpenDate, topicCloseDate, topic.getDefaultAssignName(), topicGbItemId));
 									viewableTopics++;
 								}						  
 							}

@@ -3517,7 +3517,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					name = basename + "-" + attempts + extension;
 					id = collectionId + name;
 
-					if (attempts > maximum_tries)
+					if (attempts >= maximum_tries)
 					{
 						throw new IdUniquenessException(id);
 					}

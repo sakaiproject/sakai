@@ -107,5 +107,5 @@
 
 <script type="text/javascript">
 	assignmentReleased('gbForm', false);
-	categorySelected('gbForm');
+	categorySelected('gbForm', '<h:outputText value="#{bean.extraCreditCategories}"/>');
 </script>

@@ -518,7 +518,7 @@ public class QuestionPoolService
 	 }
  
  /**
-  * Get the count of items for a published assessment from the back end.
+  * Get the count of items for one poolId from the back end.
   */
   public int getCountItems(Long poolId)
   {
@@ -528,10 +528,24 @@ public class QuestionPoolService
          PersistenceService.getInstance().
             getQuestionPoolFacadeQueries().getCountItemFacades(poolId);
      } catch (Exception e) {
-       e.printStackTrace();
+    	 log.error("getCountItems", e);
      }
      return result.intValue();
   }
+  
+  /**
+   * Get the count of items for all pools for one user
+   */
+   public HashMap<Long, Integer> getCountItemsForUser(String agentId)
+   {
+      HashMap<Long, Integer> result = new HashMap<Long, Integer>();
+      try {
+        result = PersistenceService.getInstance().getQuestionPoolFacadeQueries().getCountItemFacadesForUser(agentId);
+      } catch (Exception e) {
+        log.error("getCountItemsForUser", e);
+      }
+      return result;
+   }
 
   /**
    * Shared Pools with other user

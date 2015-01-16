@@ -33,8 +33,8 @@
 						<h:outputText id="pointsDropScores" value="#{spreadsheetUploadBean.assignmentCategory.itemValue}" rendered="#{spreadsheetUploadBean.selectedCategoryDropsScores && !empty spreadsheetUploadBean.assignmentCategory.assignmentList && (spreadsheetUploadBean.assignment.selectedGradeEntryValue != msgs.add_assignment_type_adjustment)}" />
 					</h:panelGroup>
 					
-					<h:outputText value=""/>
-					<h:panelGrid columns="2" columnClasses="prefixedCheckbox">
+					<h:outputText value=""  rendered="#{!spreadsheetUploadBean.extraCreditCatSelected}"/>
+					<h:panelGrid columns="2" columnClasses="prefixedCheckbox" rendered="#{!spreadsheetUploadBean.extraCreditCatSelected}">
 						<h:selectBooleanCheckbox id="extraCredit" value="#{spreadsheetUploadBean.assignment.isExtraCredit}" onkeypress="return submitOnEnter(event, 'gbForm:saveButton');"/>
 						<h:outputLabel for="extraCredit" value="#{msgs.extra_credit}" />
 					</h:panelGrid>

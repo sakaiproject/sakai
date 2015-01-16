@@ -17,6 +17,7 @@ public class DecoratedForumInfo {
 	private Long openDate; // An epoch date in seconds. NOT milliseconds.
 	private Long closeDate; // An epoch date in seconds. NOT milliseconds.
 	private String gradebookItemName;
+	private Long gradebookItemId;
 
 	public DecoratedForumInfo(Long forumId, String forumTitle,
 			List<DecoratedAttachment> attachments, String shortDescription,
@@ -32,7 +33,7 @@ public class DecoratedForumInfo {
 			List<DecoratedAttachment> attachments, String shortDescription,
 			String description, Boolean isLocked, Boolean isPostFirst,
 			Boolean isAvailabilityRestricted, Long openDate, Long closeDate,
-			String gradebookItemName) {
+			String gradebookItemName, Long gradebookItemId) {
 		this(forumId, forumTitle, attachments, shortDescription, description);
 		this.isLocked = isLocked;
 		this.isPostFirst = isPostFirst;
@@ -40,6 +41,7 @@ public class DecoratedForumInfo {
 		this.openDate = openDate;
 		this.closeDate = closeDate;
 		this.gradebookItemName = gradebookItemName;
+		this.gradebookItemId = gradebookItemId;
 	}
 
 	public Long getForumId() {
@@ -116,6 +118,14 @@ public class DecoratedForumInfo {
 
 	public void setGradebookItemName(String gradebookItemName) {
 		this.gradebookItemName = gradebookItemName;
+	}
+	
+	public Long getGradebookItemId() {
+	    return gradebookItemId;
+	}
+
+	public void setGradebookItemId(Long gradebookItemId) {
+	    this.gradebookItemId = gradebookItemId;
 	}
 
 	public String getShortDescription() {

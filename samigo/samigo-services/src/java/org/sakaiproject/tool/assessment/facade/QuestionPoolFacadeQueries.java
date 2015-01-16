@@ -103,10 +103,6 @@ public class QuestionPoolFacadeQueries
 	    };
 	    List list = getHibernateTemplate().executeFind(hcb);
 
-//	  List list = getHibernateTemplate().find(
-//        "from QuestionPoolData a where a.ownerId= ? ",
-//        new Object[] {agentId}
-//        , new org.hibernate.type.Type[] {Hibernate.STRING});
     return list;
 
   }
@@ -188,33 +184,33 @@ public class QuestionPoolFacadeQueries
 
   public QuestionPoolIteratorFacade getAllPoolsWithAccess(String agentId) {
 	  ArrayList qpList = new ArrayList();
+	  HashMap<Long, Integer> counts = new HashMap<Long, Integer>();
+	  
+	  // First get the size of all pools in one query
+	  Iterator i1 = getSubPoolSizes(agentId).iterator();
+	  while (i1.hasNext()) {
+  		Object[]result = (Object [])i1.next();
+  		counts.put((Long) result[0], (Integer)result[1]);
+	  }
+
 	  List poolList = getAllPoolsByAgent(agentId); 
 
 	  try {
 		  Iterator j = poolList.iterator();
 		  while (j.hasNext()) {
 			  QuestionPoolData qpp = (QuestionPoolData) j.next();
-			  // I really wish we don't need to populate  the questionpool size & subpool size for JSF
-			  // watch this for performance. hope Hibernate is smart enough not to load the entire question
-			  // - daisy, 10/04/04
-
-			  // The comment below is to not recover all questions of items
-			  //populateQuestionPoolItemDatas(qpp);
-
-			  // I do this call, after it did in populateQuestionPoolItemData, to recover the number of subpools that will be show in the root of pools.
-			  qpp.setSubPoolSize( Integer.valueOf(getSubPoolSize(qpp.getQuestionPoolId())));
+			  qpp.setSubPoolSize(counts.get(qpp.getQuestionPoolId()));
 
 			  qpList.add(getQuestionPool(qpp));
 		  }
 	  }
 	  catch (Exception e) {
-		  log.warn(e.getMessage());
-		  log.warn(e.getStackTrace());
+		  log.warn("Error in getAllPoolsWithAccess: " + e.getMessage(), e);
 	  }
 	  return new QuestionPoolIteratorFacade(qpList);
   }
   
-  public ArrayList getBasicInfoOfAllPools(final String agentId) {
+  public ArrayList<QuestionPoolFacade> getBasicInfoOfAllPools(final String agentId) {
 	    final HibernateCallback hcb = new HibernateCallback(){
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	    		Query q = session.createQuery("select new QuestionPoolData(a.questionPoolId, a.title, a.parentPoolId)from QuestionPoolData a where a.questionPoolId  " +
@@ -225,15 +221,10 @@ public class QuestionPoolFacadeQueries
 	    };
 	    List list = getHibernateTemplate().executeFind(hcb);
 
-//	  List list = getHibernateTemplate().find(
-//        "select new QuestionPoolData(a.questionPoolId, a.title)from QuestionPoolData a where a.ownerId= ? ",
-//        new Object[] {agentId}
-//        , new org.hibernate.type.Type[] {Hibernate.STRING});
-    ArrayList poolList = new ArrayList();
+    ArrayList<QuestionPoolFacade> poolList = new ArrayList<QuestionPoolFacade>();
     for (int i = 0; i < list.size(); i++) {
       QuestionPoolData a = (QuestionPoolData) list.get(i);
-      QuestionPoolFacade f = new QuestionPoolFacade(a.getQuestionPoolId(),
-          a.getTitle(), a.getParentPoolId());
+      QuestionPoolFacade f = new QuestionPoolFacade(a.getQuestionPoolId(), a.getTitle(), a.getParentPoolId());
       poolList.add(f);
     }
     return poolList;
@@ -957,9 +948,9 @@ public class QuestionPoolFacadeQueries
   public List getSubPoolSizes(final String agent) {
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  //SQLQuery q = session.createSQLQuery("select a.QUESTIONPOOLID,(select count(*) from SAM_QUESTIONPOOL_T b where b.PARENTPOOLID=a.QUESTIONPOOLID) from SAM_QUESTIONPOOL_T a where a.OWNERID=?");
 			  Query q = session.createQuery("select a.questionPoolId, (select count(*) from QuestionPoolData b where b.parentPoolId=a.questionPoolId) " +
 			  		"from QuestionPoolData a where a.ownerId=?");
+			  q.setCacheable(true);
 			  q.setString(0, agent);
 			  return q.list();
 		  };
@@ -973,6 +964,7 @@ public class QuestionPoolFacadeQueries
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 			  Query q = session.createQuery("select count(qpp) from QuestionPoolData qpp where qpp.parentPoolId=?");
+			  q.setCacheable(true);
 			  q.setLong(0, poolId.longValue());
 			  return q.uniqueResult();
 		  };
@@ -1131,8 +1123,7 @@ public class QuestionPoolFacadeQueries
       }
 
       if (haveCommonRoot &&
-          (tree.poolLevel(sourceId) <=
-           tree.poolLevel(destId))) {
+          (tree.isDescendantOf(destId,sourceId))) {
         return; // Since otherwise it would cause an infinite loop.
         // We should revisit this.
       }
@@ -1409,12 +1400,36 @@ public class QuestionPoolFacadeQueries
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 			  Query q = session.createQuery("select count(ab) from ItemData ab, QuestionPoolItemData qpi where ab.itemId=qpi.itemId and qpi.questionPoolId = ?");
 			  q.setLong(0, questionPoolId.longValue());
+			  q.setCacheable(true);
 			  return q.uniqueResult();
 		  };
 	  };
 	  	    
 	  Integer count = (Integer)getHibernateTemplate().execute(hcb);	    
 	  return count;
+  }
+  
+  public HashMap<Long, Integer> getCountItemFacadesForUser(final String agentId) {	    
+	  final HibernateCallback hcb = new HibernateCallback(){
+		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
+			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd " + 
+					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.ownerId=? group by qpi.questionPoolId");
+			  q.setString(0, agentId);
+			  q.setCacheable(true);
+			  return q.list();
+		  };
+	  };
+
+	  HashMap<Long, Integer> counts = new HashMap<Long, Integer>();
+	  List list = getHibernateTemplate().executeFind(hcb);
+
+	  Iterator i1 = list.iterator();
+	  while (i1.hasNext()) {
+		  Object[]result = (Object [])i1.next();
+		  counts.put((Long) result[0], (Integer)result[1]);
+	  }
+
+	  return counts;
   }
 
   /**

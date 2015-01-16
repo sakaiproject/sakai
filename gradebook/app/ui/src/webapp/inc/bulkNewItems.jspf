@@ -162,7 +162,7 @@
 	for (i=0;i<=49;i++)
 	{
 		assignmentReleased(('gbForm:bulkNewAssignmentsTable:' + i), false);
-		categorySelected(('gbForm:bulkNewAssignmentsTable:' + i));
+		categorySelected(('gbForm:bulkNewAssignmentsTable:' + i), '<h:outputText value="#{bean.extraCreditCategories}"/>');
 	}
     
   </script>
