@@ -127,6 +127,10 @@ public class PublishedItemText
 		return itemTextAttachmentSet;
 	}
 
+	public List getItemTextAttachmentList() {
+		return new ArrayList(itemTextAttachmentSet);
+	}
+
 	public void setItemTextAttachmentSet(Set itemTextAttachmentSet) {
 		this.itemTextAttachmentSet = itemTextAttachmentSet;
 	}
