@@ -374,6 +374,8 @@ function redirectBasedOnSelection(){
 					value="$tlang.getString('gen.cancel')"
 					onclick="document.addCourseForm.option.value='cancel'; document.addCourseForm.submit(); return false;"
 					/>
+				## SAK-28990 controlled via sakai.property sitemanage.continueWithNoRoster.enabled
+				#if( $!contNoRosterEnabled )
 				<input
 					type="button" 
 					accesskey="x"
@@ -382,6 +384,7 @@ function redirectBasedOnSelection(){
 					value="$tlang.getString('nscourse.no_rosters')"
 					onclick="document.addCourseForm.option.value='norosters'; document.addCourseForm.submit(); return false;"
 					/>
+				#end
 					<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
 				</p>
 			#else
