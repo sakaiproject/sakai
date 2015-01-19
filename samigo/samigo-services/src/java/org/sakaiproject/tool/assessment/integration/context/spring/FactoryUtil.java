@@ -40,7 +40,7 @@ import org.sakaiproject.spring.SpringBeanLocator;
  */
 public class FactoryUtil
 {
-  private static Log log = LogFactory.getLog(FactoryUtil.class);
+  private Log log = LogFactory.getLog(FactoryUtil.class);
   private static boolean useLocator = false;
 //  private static boolean useLocator = true;
 

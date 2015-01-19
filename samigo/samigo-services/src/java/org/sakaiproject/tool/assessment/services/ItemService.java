@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
  */
 public class ItemService
 {
-  private static Log log = LogFactory.getLog(ItemService.class);
+  private Log log = LogFactory.getLog(ItemService.class);
 
   /**
    * Creates a new ItemService object.

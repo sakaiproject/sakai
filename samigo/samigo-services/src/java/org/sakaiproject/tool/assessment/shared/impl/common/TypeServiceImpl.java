@@ -39,7 +39,7 @@ import org.sakaiproject.tool.assessment.shared.api.common.TypeServiceAPI;
  */
 public class TypeServiceImpl implements TypeServiceAPI
 {
-  private static Log log = LogFactory.getLog(TypeServiceImpl.class);
+  private Log log = LogFactory.getLog(TypeServiceImpl.class);
 
   /**
    * Get type for id

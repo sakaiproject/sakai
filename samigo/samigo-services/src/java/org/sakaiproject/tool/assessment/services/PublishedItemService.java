@@ -6,7 +6,7 @@ import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 
 public class PublishedItemService extends ItemService {
-	private static Log log = LogFactory.getLog(PublishedItemService.class);
+	private Log log = LogFactory.getLog(PublishedItemService.class);
 
 	public ItemFacade getItem(Long itemId, String agentId) {
 		PublishedItemFacade item = null;

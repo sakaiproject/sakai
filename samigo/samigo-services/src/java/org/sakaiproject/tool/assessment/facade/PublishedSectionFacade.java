@@ -40,7 +40,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 public class PublishedSectionFacade extends SectionFacade implements Serializable, Comparable {
 
 	private static final long serialVersionUID = 5788637014806801101L;
-	private static Log log = LogFactory.getLog(PublishedSectionFacade.class);
+	private Log log = LogFactory.getLog(PublishedSectionFacade.class);
 	
   /**
    * This is a very important constructor. Please make sure that you have

@@ -56,7 +56,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * agreement.
  */
 public class ItemFacade implements Serializable, ItemDataIfc, Comparable<ItemDataIfc> {
-  private static Log log = LogFactory.getLog(ItemFacade.class);
+  private Log log = LogFactory.getLog(ItemFacade.class);
 
   private static final long serialVersionUID = 7526471155622776147L;
   protected org.osid.assessment.Item item;

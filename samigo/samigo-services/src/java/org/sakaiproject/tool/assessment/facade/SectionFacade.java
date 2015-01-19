@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.osid.assessment.impl.SectionImpl;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class SectionFacade implements Serializable, SectionDataIfc, Comparable {
-  private static Log log = LogFactory.getLog(SectionFacade.class);
+  private Log log = LogFactory.getLog(SectionFacade.class);
 
   private static final long serialVersionUID = 7526471155622776147L;
 

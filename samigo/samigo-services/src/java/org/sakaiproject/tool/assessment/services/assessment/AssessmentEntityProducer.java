@@ -54,7 +54,7 @@ public class AssessmentEntityProducer implements EntityTransferrer,
 
     private static final int QTI_VERSION = 1;
     private static final String ARCHIVED_ELEMENT = "assessment";
-    private static Log log = LogFactory.getLog(AssessmentEntityProducer.class);
+    private Log log = LogFactory.getLog(AssessmentEntityProducer.class);
     private QTIServiceAPI qtiService;
 
 	public void init() {

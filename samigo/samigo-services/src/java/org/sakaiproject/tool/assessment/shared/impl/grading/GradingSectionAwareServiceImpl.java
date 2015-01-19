@@ -36,7 +36,6 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingSectionAwareSe
 
 public class GradingSectionAwareServiceImpl implements GradingSectionAwareServiceAPI
 {
-  //private static Log log = LogFactory.getLog(GradingServiceImpl.class);
   private static final SectionAwareServiceHelper helper =
     IntegrationContextFactory.getInstance().getSectionAwareServiceHelper();
 

@@ -36,7 +36,7 @@ import org.sakaiproject.tool.assessment.shared.api.common.MediaServiceAPI;
  */
 public class MediaServiceImpl implements MediaServiceAPI
 {
-  private static Log log = LogFactory.getLog(MediaServiceImpl.class);
+  private Log log = LogFactory.getLog(MediaServiceImpl.class);
 
   public void remove(String mediaId)
   {

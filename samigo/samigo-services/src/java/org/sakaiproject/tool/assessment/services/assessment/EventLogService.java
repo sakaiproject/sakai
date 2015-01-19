@@ -9,7 +9,7 @@ import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class EventLogService{
-	private static Log log = LogFactory.getLog(EventLogService.class);
+	private Log log = LogFactory.getLog(EventLogService.class);
 
 	public EventLogService() {
 	}

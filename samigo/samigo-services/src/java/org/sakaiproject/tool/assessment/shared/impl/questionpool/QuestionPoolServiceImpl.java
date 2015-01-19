@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.services.QuestionPoolServiceException;
 public class QuestionPoolServiceImpl
   implements QuestionPoolServiceAPI
 {
-  private static Log log = LogFactory.getLog(QuestionPoolServiceImpl.class);
+  private Log log = LogFactory.getLog(QuestionPoolServiceImpl.class);
 
   /**
    * Creates a new QuestionPoolServiceImpl object.

@@ -56,7 +56,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class SortableDate
 {
-  private static Log log = LogFactory.getLog(SortableDate.class);
+  private Log log = LogFactory.getLog(SortableDate.class);
 
   /**
    * standard date format string used in AAM
@@ -95,17 +95,5 @@ public class SortableDate
     }
 
     return "unknown date";
-  }
-
-  /**
-   * Unit test only
-   *
-   * @param args not used
-   */
-  public static void main(String[] args)
-  {
-    Date d = new Date();
-    SortableDate sd = new SortableDate(d);
-    log.debug("debug: " + sd);
   }
 }

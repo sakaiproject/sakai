@@ -43,7 +43,7 @@ import org.sakaiproject.tool.assessment.services.assessment.AssessmentServiceExc
  */
 public class AssessmentServiceImpl implements AssessmentServiceAPI
 {
-  private static Log log = LogFactory.getLog(AssessmentServiceImpl.class);
+  private Log log = LogFactory.getLog(AssessmentServiceImpl.class);
 
   /**
    * Get assessment template from id string.
