@@ -770,7 +770,7 @@ public class PDFAssessmentBean implements Serializable {
 
 		input = input.replaceAll("</h.>", "</font></div>");
 		if(!input.startsWith("<div><font")){
-			input = "<div><font size='"+baseFontSize+"'>#</font></div>".replaceAll("#", input);
+			input = "<div><font size='"+baseFontSize+"'>#</font></div>".replace("#", input);
 		}
 
 		return input;
