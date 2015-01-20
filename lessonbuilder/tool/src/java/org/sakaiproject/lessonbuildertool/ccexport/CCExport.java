@@ -677,13 +677,6 @@ public class CCExport {
 		ZipEntry zipEntry = new ZipEntry(location);
 		out.putNextEntry(zipEntry);
 
-		out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
-		out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
-		out.println("<body>");
-		out.print(item.getHtml());
-		out.println("</body>");
-		out.println("</html>");
-
 		Resource res = new Resource();
 		res.sakaiId = ("/text/" + item.getId());
 		res.resourceId = getResourceId();
@@ -693,6 +686,14 @@ public class CCExport {
 		res.islink = false;
 		res.isbank = false;
 		fileMap.put(res.sakaiId, res);
+
+		out.println("<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"  \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">");
+		out.println("<html xmlns=\"http://www.w3.org/1999/xhtml\" lang=\"en\" xml:lang=\"en\">");
+		out.println("<body>");
+		out.print(relFixup(item.getHtml(), res, new StringBuilder()));
+		out.println("</body>");
+		out.println("</html>");
+
 	    }
 	} catch (Exception e) {
 	    log.error("Lessons export error outputting file, outputAllTexts " + e);
@@ -1318,7 +1319,8 @@ public class CCExport {
     }		
 
     // turns the links into relative links
-    public String relFixup (String s, Resource resource) {
+    // fixups will get a list of offsets where fixups were done, for loader to reconstitute HTML
+    public String relFixup (String s, Resource resource, StringBuilder fixups) {
 	// http://lessonbuilder.sakaiproject.org/53605/
 	StringBuilder ret = new StringBuilder();
 	String sakaiIdBase = "/group/" + siteId;
@@ -1379,6 +1381,13 @@ public class CCExport {
 		String thisref = sakaiId.substring(sakaiIdBase.length()+1);
 		String relative = relativize(thisref, base);
 		ret.append(s.substring(index, start));
+		// we're now at start of URL. save it for fixup list
+		if (fixups != null) {
+		    if (fixups.length() > 0)
+			fixups.append(",");
+		    fixups.append("" + ret.length());
+		}
+		// and now add the new relative URL
 		ret.append(relative.toString());
 		index = sakaiend;  // start here next time
 	    } else { // matched http://lessonbuilder.sakaiproject.org/
@@ -1402,6 +1411,13 @@ public class CCExport {
 			String base = getParent(resource.location);
 			String thisref = sakaiId.substring(sakaiIdBase.length()+1);
 			String relative = relativize(thisref, base);
+			// we're now at start of URL. save it for fixup list
+			if (fixups != null) {
+			    if (fixups.length() > 0)
+				fixups.append(",");
+			    fixups.append("" + ret.length());
+			}
+			// and now add the new relative URL
 			ret.append(relative);
 			if (s.charAt(endnum) == '/')
 			    endnum++;
@@ -1416,9 +1432,16 @@ public class CCExport {
 		}
 	    }
 	}
+	if (fixups != null && fixups.length() > 0) {
+	    return ("<!--fixups:" + fixups.toString() + "-->" + ret.toString());
+	}
 	return ret.toString();
     }		
 
+    public String relFixup (String s, Resource resource) {
+	return relFixup(s, resource, null);
+
+    }
     // return base directory of file, including trailing /
     // "" if it is in home directory
     public String getParent(String s) {
