@@ -510,12 +510,14 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	      boolean nofile = false;
 	      if (inline) {
 		  StringBuilder html = new StringBuilder();
+		  String htmlString = null;
 
 		  // type 3 is a link, so it's handled below
 		  // get contents of file for types where we don't need a file in contents
 		  if (mmDisplayType == null || "1".equals(mmDisplayType)) {
 		      nofile = true;
 
+		      // read the file containing the HTML
 		      String fileName = getFileName(resource);
 		      InputStream fileStream = null;
 
@@ -529,6 +531,40 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 				  html.append(new String(buffer, 0, n, "UTF-8"));
 			  }
 		      }
+
+		      htmlString = html.toString();
+
+		      // remove stuff the exporter added
+		      int off = htmlString.indexOf("<body>");
+		      if (off > 0)
+			  htmlString = htmlString.substring(off + 7);
+		      off = htmlString.lastIndexOf("</body>");
+		      if (off > 0)
+			  htmlString = htmlString.substring(0, off);
+
+		      // and fix relative URLs to absolute, since this is going to be inserted inline
+		      // in a page that's not in resources.
+		      if (htmlString.startsWith("<!--fixups:")) {
+			  int fixend = htmlString.indexOf("-->");
+			  String fixString = htmlString.substring(11, fixend);
+			  htmlString = htmlString.substring(fixend + 3);
+			  String[] fixups = fixString.split(",");
+			  // iterate backwards since once we fix something, offsets
+			  // further in the string are bad
+			  for (int i = (fixups.length-1); i >= 0; i--) {
+			      String fixup = fixups[i];
+			      // these are offsets of a URL. The URL is for a file in attachments, so we need
+			      // to map it to a full URL. The file should be attachments/item-xx.html in the
+			      // package. relFixup will have added ../ to it to get to the base.
+			      try {
+				  int offset = Integer.parseInt(fixup);
+				  htmlString = htmlString.substring(0, offset) + baseUrl + htmlString.substring(offset+3);
+			      } catch (Exception e) {
+				  System.out.println("exception " + e);
+			      }
+			  }
+		      }
+		      
 		  }
 
 		  // inline can be multimedia or text. If mmdisplaytype set, it's multimedia
@@ -537,13 +573,13 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 		      // 3 is output as a link, so it's handled below
 		      item.setType(SimplePageItem.MULTIMEDIA);
 		      if ("1".equals(mmDisplayType)) {
-			  item.setAttribute("multimediaEmbedCode", html.toString());
+			  item.setAttribute("multimediaEmbedCode", htmlString);
 		      }
 		      item.setAttribute("multimediaDisplayType", mmDisplayType);
 		  } else {
 		      // must be text item
 		      item.setType(SimplePageItem.TEXT);
-		      item.setHtml(html.toString());
+		      item.setHtml(htmlString);
 		  }
 	      }
 
