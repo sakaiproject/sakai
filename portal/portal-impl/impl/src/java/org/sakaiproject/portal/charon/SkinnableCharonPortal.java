@@ -1168,6 +1168,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("pageTop", Boolean.valueOf(true));
 		rcontext.put("rloader", rloader);
 		//rcontext.put("browser", new BrowserDetector(request));
+		// Allow for inclusion of extra header code via property
+		String includeExtraHead = ServerConfigurationService.getString("portal.include.extrahead", "");
+		rcontext.put("includeExtraHead",includeExtraHead);
 
 		String universalAnalyticsId =  ServerConfigurationService.getString("portal.google.universal_analytics_id", null);
 		if ( universalAnalyticsId != null ) {

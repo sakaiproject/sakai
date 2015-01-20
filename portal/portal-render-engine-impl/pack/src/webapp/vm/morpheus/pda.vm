@@ -41,6 +41,7 @@
             <title>${pageTitle}</title>
             <script src="${pageScriptPath}headscripts.js$!{portalCDNQuery}"></script>
         #end
+        ${includeExtraHead}
     </head>
     <body class="portalBodyPDA">
         <!-- START VM pda.vm -->
