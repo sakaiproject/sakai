@@ -248,6 +248,8 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             }
         }
 
+        site.removeMembers();
+
         for (POXMembershipsResponse.Member member : members) {
 
             Map map = new HashMap();
