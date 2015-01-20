@@ -2865,27 +2865,53 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			
-			// list of all tools that participate in the archive/merge process
-			List<String> allImportableToolIds = new ArrayList<String>(importTools());
+			// list of all tools that participate in the archive/merge process that are in the site selected to import from
+			List<Site> importSites = new ArrayList<Site>(((Hashtable) state.getAttribute(STATE_IMPORT_SITES)).keySet());
+			List<String> allImportableToolIdsInOriginalSites = getToolsInSitesAvailableForImport(importSites);
 			
 			context.put("existingSite", Boolean.valueOf(existingSite));
-			context.put(STATE_TOOL_REGISTRATION_LIST, state
-					.getAttribute(STATE_TOOL_REGISTRATION_LIST));
 			
-			//if option is enabled, import into ALL tools, not just the ones in this site
+			//sort the list of all tools by title and extract into a list of toolIds
+			//we then use this as the basis for sorting the other toolId lists
+			List<MyTool> allTools = (List<MyTool>)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+						
+			Collections.sort(allTools, new Comparator<MyTool>(){
+				public int compare(MyTool t1, MyTool t2) {
+					return t1.getTitle().compareTo(t2.getTitle());
+				}
+			});
+			
+			final List<String> sortedToolIds = new ArrayList<String>();
+			for(MyTool m: allTools) {
+				sortedToolIds.add(m.getId());
+			}
+			
+			//use the above sorted list as the basis to sort the following two toolId lists
+			Collections.sort(allImportableToolIdsInOriginalSites, new Comparator<String>() {
+			    public int compare(String s1, String s2) {
+			        return Integer.compare(sortedToolIds.indexOf(s1), sortedToolIds.indexOf(s2));
+			    }
+			});
+			
+			Collections.sort(importableToolsIdsInDestinationSite, new Comparator<String>() {
+			    public int compare(String s1, String s2) {
+			        return Integer.compare(sortedToolIds.indexOf(s1), sortedToolIds.indexOf(s2));
+			    }
+			});
+			
+			context.put(STATE_TOOL_REGISTRATION_LIST, allTools);
+
+			
+			//if option is enabled, show the import for all tools in the original site, not just the ones in this site
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = isAddMissingToolsOnImportEnabled();
 			if(addMissingTools) {
-				context.put("selectedTools", orderToolIds(state, site_type,
-						originalToolIds((List<String>) allImportableToolIds, state), false));
-				
-				//get tools in destination site so we can markup the lists
-				context.put("toolsInDestinationSite", orderToolIds(state, site_type,
-						originalToolIds((List<String>) importableToolsIdsInDestinationSite, state), false));
-				
+				context.put("selectedTools", allImportableToolIdsInOriginalSites);
+				//set tools in destination site into context so we can markup the lists and show which ones are new
+				context.put("toolsInDestinationSite", importableToolsIdsInDestinationSite);
 			} else {
-				context.put("selectedTools", orderToolIds(state, site_type,
-						originalToolIds((List<String>) importableToolsIdsInDestinationSite, state), false));
+				//just just the ones in the destination site
+				context.put("selectedTools", importableToolsIdsInDestinationSite);
 			}
 			
 			// set the flag for the UI
@@ -2896,7 +2922,7 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
-			context.put("importSupportedTools", importTools());
+			context.put("importSupportedTools", allImportableToolIdsInOriginalSites);
 			context.put("hideImportedContent", ServerConfigurationService.getBoolean("content.import.hidden", false));
 			
 			if(ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
@@ -2947,33 +2973,57 @@ public class SiteAction extends PagedResourceActionII {
 				importableToolsIdsInDestinationSite = (List<String>) state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST);
 			}
 			
-			// get list of all tools that participate in the archive/merge process
-			List<String> allImportableToolIds = new ArrayList<String>(importTools());
+			// list of all tools that participate in the archive/merge process that are in the site selected to import from
+			List<Site> importSites = new ArrayList<Site>(((Hashtable) state.getAttribute(STATE_IMPORT_SITES)).keySet());
+			List<String> allImportableToolIdsInOriginalSites = getToolsInSitesAvailableForImport(importSites);
 			
-			//ensure this is the original tool list
-			context.put(STATE_TOOL_REGISTRATION_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_LIST));
+			//sort the list of all tools by title and extract into a list of toolIds
+			//we then use this as the basis for sorting the other toolId lists
+			List<MyTool> allTools = (List<MyTool>)state.getAttribute(STATE_TOOL_REGISTRATION_LIST);
+						
+			Collections.sort(allTools, new Comparator<MyTool>(){
+				public int compare(MyTool t1, MyTool t2) {
+					return t1.getTitle().compareTo(t2.getTitle());
+				}
+			});
+				
+			final List<String> sortedToolIds = new ArrayList<String>();
+			for(MyTool m: allTools) {
+				sortedToolIds.add(m.getId());
+			}
+			
+			//use the above sorted list as the basis to sort the following two toolId lists
+			Collections.sort(allImportableToolIdsInOriginalSites, new Comparator<String>() {
+			    public int compare(String s1, String s2) {
+			        return Integer.compare(sortedToolIds.indexOf(s1), sortedToolIds.indexOf(s2));
+			    }
+			});
+			
+			Collections.sort(importableToolsIdsInDestinationSite, new Comparator<String>() {
+			    public int compare(String s1, String s2) {
+			        return Integer.compare(sortedToolIds.indexOf(s1), sortedToolIds.indexOf(s2));
+			    }
+			});
+			
+			//ensure this is the original tool list and set the sorted list back into context.
+			context.put(STATE_TOOL_REGISTRATION_LIST, allTools);
 			state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST));
+		
+			
 			
 			//if option is enabled, import into ALL tools, not just the ones in this site
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = isAddMissingToolsOnImportEnabled();
-			
-			List<String> selectedToolIds = new ArrayList<String>();
-			
 			if(addMissingTools) {
-				selectedToolIds = orderToolIds(state, site_type,
-						originalToolIds((List<String>) allImportableToolIds, state), false);
-				
-				//get tools in destination site so we can markup the lists
-				context.put("toolsInDestinationSite", orderToolIds(state, site_type,
-						originalToolIds((List<String>) importableToolsIdsInDestinationSite, state), false));
+				context.put("selectedTools", allImportableToolIdsInOriginalSites); 
+				//set tools in destination site into context so we can markup the lists and show which ones are new
+				context.put("toolsInDestinationSite", importableToolsIdsInDestinationSite);
 				
 			} else {
-				selectedToolIds = orderToolIds(state, site_type,
-						originalToolIds((List<String>) importableToolsIdsInDestinationSite, state), false);
+				//just just the ones in the destination site
+				context.put("selectedTools", importableToolsIdsInDestinationSite); 
 			}
 			
-			context.put("selectedTools", selectedToolIds); 
 						
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
@@ -2983,7 +3033,7 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_IMPORT_SITE_TOOL));
 			context.put("check_home", state
 					.getAttribute(STATE_TOOL_HOME_SELECTED));
-			context.put("importSupportedTools", importTools());
+			context.put("importSupportedTools", allImportableToolIdsInOriginalSites);
 
 			
 			
@@ -15138,5 +15188,28 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		
 		return site;
 	}
-
+	
+	/**
+	 * Get the list of tools that are in a list of sites that are available for import.
+	 * 
+	 * @param list of siteids to check, could be a singleton
+	 * @return a list of toolIds that are in the sites that are available for import
+	 * 
+	 */
+	private List<String> getToolsInSitesAvailableForImport(List<Site> sites) {
+		List<String> allImportToolIds = new ArrayList<String>(importTools());
+		
+		List<String> importToolsInSites = new ArrayList<String>(); 
+		
+		for(Site site: sites) {
+			for(String toolId: allImportToolIds) {
+				if(site.getToolForCommonId(toolId) != null) {
+					importToolsInSites.add(toolId);
+				}
+			}
+		}
+	
+		return importToolsInSites;
+	}
+	
 }
