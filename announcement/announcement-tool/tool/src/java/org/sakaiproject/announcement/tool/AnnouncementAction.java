@@ -284,7 +284,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			SecurityAdvisor advisor = new SecurityAdvisor() {
 				@Override
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (userId.equals(SessionManager.getCurrentSessionUserId()) && "annc.read".equals(function) && finalChannelReference.equals(reference)) {
+					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function) && finalChannelReference.equals(reference)) {
 						return SecurityAdvice.ALLOWED;
 					} else {
 						return SecurityAdvice.PASS;
@@ -384,7 +384,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			SecurityAdvisor advisor = new SecurityAdvisor() {
 				@Override
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (SessionManager.getCurrentSessionUserId().equals(userId) && "annc.read".equals(function) && reference.equals(finalRef)) {
+					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function) && reference.equals(finalRef)) {
 						return SecurityAdvice.ALLOWED;
 					} else {
 						return SecurityAdvice.PASS;
@@ -1626,7 +1626,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			SecurityAdvisor advisor = new SecurityAdvisor() {
 				@Override
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (SessionManager.getCurrentSessionUserId().equals(userId) && "annc.read".equals(function) && reference.equals(finalChannelReference)) {
+					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function) && reference.equals(finalChannelReference)) {
 						return SecurityAdvice.ALLOWED;
 					} else {
 						return SecurityAdvice.PASS;
@@ -2357,7 +2357,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			SecurityAdvisor advisor = new SecurityAdvisor() {
 				@Override
 				public SecurityAdvice isAllowed(String userId, String function, String reference) {
-					if (userId.equals(SessionManager.getCurrentSessionUserId()) && "annc.read".equals(function)
+					if (userId.equals(UserDirectoryService.getCurrentUser().getId()) && "annc.read".equals(function)
 						&& (finalMessageReference.equals(reference) || finalChannelReference.equals(reference))) {
 						return SecurityAdvice.ALLOWED;
 					} else {

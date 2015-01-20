@@ -5506,7 +5506,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		context.put("server_url", ServerConfigurationService.getServerUrl());
 		context.put("site_id", ToolManager.getCurrentPlacement().getContext());
 		context.put("site_title", state.getAttribute(STATE_SITE_TITLE));
-		context.put("user_id", UserDirectoryService.getCurrentUser().getEid().matches(".*(;|/|\\?|:|@|&|=|\\+).*")?UserDirectoryService.getCurrentUser().getId():UserDirectoryService.getCurrentUser().getEid());
+
+		String eid = UserDirectoryService.getCurrentUser().getEid();
+		// Check the user is logged in and doesn't have characters that cause problems in WebDAV urls.
+		String userUrlId = (eid != null && eid.matches(".*(;|/|\\?|:|@|&|=|\\+).*"))
+				? UserDirectoryService.getCurrentUser().getId() : eid;
+		context.put("user_id", userUrlId);
 		
 		if (ContentHostingService.isShortRefs())
 		{

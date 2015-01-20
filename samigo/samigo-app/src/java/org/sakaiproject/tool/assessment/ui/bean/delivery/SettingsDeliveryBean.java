@@ -152,6 +152,8 @@ public class SettingsDeliveryBean implements Serializable
    */
   public String getPassword()
   {
+    if (password == null)
+    	return "";	  
     return password;
   }
 

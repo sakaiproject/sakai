@@ -22,7 +22,7 @@
       // supply the standalone versions tool styles
       request.setAttribute("html.head",
          "<link href=\"/library/skin/tool_base.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
-         "<link href=\"/library/skin/default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
+         "<link href=\"/library/skin/neo-default/tool.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"/samigo-app/css/tool_sam.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<link href=\"/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n" +
          "<script type=\"text/javascript\" src=\"/library/js/jquery/jquery-1.9.1.min.js\"></script>\n" +

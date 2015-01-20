@@ -534,6 +534,12 @@ public abstract class BaseLTIService implements LTIService {
         return insertMembershipsJobDao(siteId, membershipsId, membershipsUrl, consumerKey, ltiVersion);
     }
 
+	protected abstract Map<String, Object> getMembershipsJobDao(String siteId);
+
+	public Map<String, Object> getMembershipsJob(String siteId) {
+		return getMembershipsJobDao(siteId);
+	}
+
 	protected abstract List<Map<String, Object>> getMembershipsJobsDao();
 
 	public List<Map<String, Object>> getMembershipsJobs() {

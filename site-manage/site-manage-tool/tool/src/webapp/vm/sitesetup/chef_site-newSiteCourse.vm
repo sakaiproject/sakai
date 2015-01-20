@@ -309,7 +309,9 @@ function redirectBasedOnSelection(){
 				
 
 		
-		#if ($termCourseList && $currentUserId != $userId)
+		## SAK-29000
+		#if ($authorizationRequired)
+			#if ($termCourseList && $currentUserId != $userId)
 					<div class="shorttext required">
 						<span class="reqStar">*</span>						
 						<label for="uniqname">		
@@ -329,6 +331,7 @@ function redirectBasedOnSelection(){
 					<p  class="instruction labelindnt">
 						$tlang.getString("man.please")
 					</p>
+			#end
 		#end
 		<p/>
 		<input type="hidden" name="back" value="$!backIndex" />
@@ -389,8 +392,11 @@ function redirectBasedOnSelection(){
 				</p>
 			#else
 				#if( !$skipCourseSectionSelection || !$skipManualCourseCreation)
-					<!-- Add Not Listed Courses -->
-					<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
+					## SAK-29000
+					#if( $authorizationRequired )
+						<!-- Add Not Listed Courses -->
+						<a href="#" onclick="javascript:submitFindCourse();">$tlang.getString('nscourse.add_course_not_listed')</a>
+					#end
 				#end
 				<p class="act">
 				<input type="hidden" name="option" id="option" value="x" />
