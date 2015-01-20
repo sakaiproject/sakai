@@ -1566,7 +1566,8 @@ public class ChatTool implements RoomObserver, PresenceObserver {
       try {
          sender = UserDirectoryService.getUser(message.getOwner());
       } catch(UserNotDefinedException e) {
-         logger.error(e);
+          // Expected some users will get deleted.
+         logger.debug("Failed to find user for ID: "+ message.getOwner(), e);
          return message.getOwner();
       }
       return sender.getDisplayName();
