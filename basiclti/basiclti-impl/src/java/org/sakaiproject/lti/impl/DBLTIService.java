@@ -138,8 +138,7 @@ public class DBLTIService extends BaseLTIService implements LTIService {
         }
 
         // First, check if there is already a job for this site.
-        List<Map<String, Object>> existing = getMembershipsJobsDao(siteId);
-        if (existing == null || existing.size() == 0) {
+        if (getMembershipsJobDao(siteId) == null) {
             Map<String, Object> props = new HashMap<String, Object>();
             props.put(LTI_SITE_ID, siteId);
             props.put("memberships_id", membershipsId);
@@ -159,11 +158,25 @@ public class DBLTIService extends BaseLTIService implements LTIService {
         return getThingsDao("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, null, null, null, null, null, 0, 0, null, true);
     }
 
-	private List<Map<String, Object>> getMembershipsJobsDao(String siteId) {
+	public Map<String, Object> getMembershipsJobDao(String siteId) {
 
-        M_log.debug("getMembershipsJobDao(" + siteId + ")");
+        if (M_log.isDebugEnabled()) {
+            M_log.debug("getMembershipsJobDao(" + siteId + ")");
+        }
 
-        return getThingsDao("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, null, null, "SITE_ID = '" + siteId + "'", null, null, 0, 0, siteId, true);
+        List<Map<String, Object>> rows
+            = getThingsDao("lti_memberships_jobs", LTIService.MEMBERSHIPS_JOBS_MODEL, null, null, "SITE_ID = '" + siteId + "'", null, null, 0, 0, siteId, true);
+
+        int size = rows.size();
+
+        if (size == 1) {
+            return rows.get(0);
+        } else if (size > 1) {
+            M_log.warn("Mutiple memberships jobs found for site '" + siteId + "'. Returning first ...");
+            return rows.get(0);
+        } else {
+            return null;
+        }
     }
 
 	/**

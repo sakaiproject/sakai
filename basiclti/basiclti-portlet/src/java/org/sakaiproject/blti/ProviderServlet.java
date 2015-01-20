@@ -878,8 +878,17 @@ public class ProviderServlet extends HttpServlet {
             return;
         }
 
-        String oauth_consumer_key = (String) payload.get(OAuth.OAUTH_CONSUMER_KEY);
         String siteId = site.getId();
+
+        // If this site has already been scheduled, then we do nothing.
+        if (ltiService.getMembershipsJob(siteId) != null) {
+            if (M_log.isDebugEnabled()) {
+                M_log.debug("Site '" + siteId + "' already scheduled for memberships sync. Doing nothing ...");
+            }
+            return;
+        }
+
+        String oauth_consumer_key = (String) payload.get(OAuth.OAUTH_CONSUMER_KEY);
         String callbackType = (String) payload.get(BasicLTIConstants.LTI_VERSION);
 
         String lms = (String) payload.get("ext_lms");
