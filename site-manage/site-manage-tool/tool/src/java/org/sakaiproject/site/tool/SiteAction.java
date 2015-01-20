@@ -792,6 +792,9 @@ public class SiteAction extends PagedResourceActionII {
 	// SAK-28990 - enable/disable continue with no roster
 	private static final String VM_CONT_NO_ROSTER_ENABLED = "contNoRosterEnabled";
 	private static final String SAK_PROP_CONT_NO_ROSTER_ENABLED = "sitemanage.continueWithNoRoster";
+	
+	private static final String SAK_PROP_ADD_ROSTER_AUTH_REQUIRED = "site.addroster.authorizationrequired";
+	private static final String VM_ADD_ROSTER_AUTH_REQUIRED = "authorizationRequired";
 
 	/**
 	 * what are the tool ids within Home page?
@@ -3214,6 +3217,10 @@ public class SiteAction extends PagedResourceActionII {
 			List ll = (List) state.getAttribute(STATE_TERM_COURSE_LIST);
 			context.put("termCourseList", state
 					.getAttribute(STATE_TERM_COURSE_LIST));
+
+			// SAK-29000
+			Boolean isAuthorizationRequired = ServerConfigurationService.getBoolean( SAK_PROP_ADD_ROSTER_AUTH_REQUIRED, Boolean.TRUE );
+			context.put( VM_ADD_ROSTER_AUTH_REQUIRED, isAuthorizationRequired );
 
 			// added for 2.4 -daisyf
 			context.put("campusDirectory", getCampusDirectory());
