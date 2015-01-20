@@ -45,8 +45,10 @@
 							<label for="selectTerm">$tlang.getString("se.term")</label>
 							<select name="selectTerm" id="selectTerm" disabled="disabled">
 							<option value="Any">$tlang.getString("se.any")</option>
-							#foreach ($term in $terms)
-							<option value="$term.eid">$term.title</option>
+
+							## SAK-28997
+							#foreach( $term in $terms.entrySet() )
+								<option value="$term.key">$term.value</option>
 							#end
 							</select>
 						</div>	

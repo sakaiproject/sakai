@@ -45,17 +45,27 @@
 					#else
 						#set($siteTypeDisplay=$siteType)
 					#end
-						#if ($termSelection)
-							#if ($termSelection == "Any")
-								#set ($termDisplay = $tlang.getString("se.any"))
-							#else
-								#set ($termDisplay = $termSelection)
-							#end
+					#if ($termSelection)
+						#if ($termSelection == "Any")
+							#set ($termDisplay = $tlang.getString("se.any"))
+						#else
+							#set( $termDisplay = $termsmap.get( $termSelection ) )
+						#end
+						## SAK-28997
+						#if( $searchText )
 							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
 						#else
-							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
 						#end
-					</p>	
+					#else
+						#set( $termDisplay = $tlang.getString( "list.noterm" ) )
+						#if( $searchText )
+							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+						#else
+							$allMsgNumber $tlang.getString("list.sites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+						#end
+					#end
+				</p>
 			</div>
 			<div class="listNav">
 				<div class="instruction">$tlang.getString("list.view") $topMsgPos - $btmMsgPos $tlang.getString("list.of") $allMsgNumber $tlang.getString("list.items")</div>
@@ -197,24 +207,17 @@
                         #end
                         </td>
 
-                        <td headers="term">
-             			#if ($termProp)
-             				#if ($site.getProperties().getProperty($termProp))
-                                #set ($termprop = $site.getProperties().getProperty($termProp).toString())
-                                #if ($termsmap.get($termprop))
-                                  $termsmap.get($termprop)
-                                #else
-                                  $termprop
-                                #end
+						<td headers="term">
+							## SAK-28997
+							#if( $termProp && $site.getProperties().getProperty( $termProp ) )
+								#set( $termprop = $site.getProperties().getProperty( $termProp ) )
+								#set( $termDisplay = $termsmap.get( $termprop ) )
+							#else
+								#set( $termDisplay = $tlang.getString( "list.noterm" ) )
+							#end
+							$termDisplay
+						</td>
 
-	                        #else
-	                        	$tlang.getString("list.noterm")
-	                        #end
-             			#else
-	                        n/a
-	                    #end
-                        </td>
-                                                
                         <td headers="description">
 													#set ($desc = $site.Description)
 													$siteBrowserTextEdit.doPlainTextAndLimit($desc,50,$tlang.getString("list.desc.ellipse")) 
@@ -244,10 +247,19 @@
                 #else
                     #set ($termDisplay = $termSelection)
                 #end
-                $tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($!termDisplay)" $tlang.getString("list.aca")
-            #else
-                $tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
-            #end
+				## SAK-28997
+				#if( $searchText )
+					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") "$validator.escapeHtml($!searchText)" $tlang.getString("list.text") "$validator.escapeHtml($termDisplay)" $tlang.getString("list.aca")
+				#else
+					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type2") $tlang.getString("list.text") $validator.escapeHtml("$termDisplay") $tlang.getString("list.aca")
+				#end
+			#else
+				#if( $searchText )
+					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type1") "$validator.escapeHtml($!searchText)".
+				#else
+					$tlang.getString("list.nosites") "$validator.escapeHtml($siteTypeDisplay)" $tlang.getString("list.type3")
+				#end
+			#end
 		</p>
 		#if ($helperMode)
 			<p class="act">
