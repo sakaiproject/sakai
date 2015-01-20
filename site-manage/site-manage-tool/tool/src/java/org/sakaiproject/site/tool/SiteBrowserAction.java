@@ -36,7 +36,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.sakaiproject.announcement.cover.AnnouncementService;
-import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -47,7 +46,6 @@ import org.sakaiproject.cheftool.menu.MenuImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.entity.api.Reference;
@@ -57,7 +55,6 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SiteService.SelectionType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.sitemanage.api.SiteHelper;
@@ -65,7 +62,6 @@ import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 import org.apache.commons.lang.StringUtils;
@@ -129,6 +125,12 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 	
 	private final static String SORT_KEY_SESSION = "worksitesetup.sort.key.session";
 	private final static String SORT_ORDER_SESSION = "worksitesetup.sort.order.session";
+	
+	// SAK-28997
+	private final static String SEARCH_TERM_DISPLAY = "sitebrowser.termsearch.display";
+	private final static String SEARCH_TERM_TITLE = "title";
+	private final static String SEARCH_TERM_EID = "eid";
+	private final static String SEARCH_TERM_DESCRIPTION = "description";
 
 	public SiteBrowserAction() {
 		 contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
@@ -351,20 +353,33 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 		// inform the observing courier that we just updated the page...
 		// if there are pending requests to do so they can be cleared
 		// justDelivered(state);
-        if (cms != null) 
-        {
-            Map<String, String> smap =new HashMap<String, String>();
-            Collection<AcademicSession> sessions = cms.getAcademicSessions();
-            for (AcademicSession s: sessions) {
-                smap.put(s.getEid(),s.getTitle());
-            } 
+		if (cms != null) 
+		{
+			Map<String, String> smap =new HashMap<String, String>();
+			Collection<AcademicSession> sessions = cms.getAcademicSessions();
+			
+			// SAK-28997
+			String searchTermDisplay = ServerConfigurationService.getString( SEARCH_TERM_DISPLAY, SEARCH_TERM_TITLE );
+			for( AcademicSession s : sessions )
+			{
+				if( SEARCH_TERM_TITLE.equalsIgnoreCase( searchTermDisplay ) )
+				{
+					smap.put( s.getEid(), s.getTitle() );
+				}
+				else if( SEARCH_TERM_EID.equalsIgnoreCase( searchTermDisplay ) )
+				{
+					smap.put( s.getEid(), s.getEid() );
+				}
+				else if( SEARCH_TERM_DESCRIPTION.equalsIgnoreCase( searchTermDisplay ) )
+				{
+					smap.put( s.getEid(), s.getDescription() );
+				}
+			}
 
-            context.put("termsmap", smap );
-        }
-
+			context.put("termsmap", smap );
+		}
 
 		return "_list";
-
 	} // buildListContext
 
 	/**
@@ -412,7 +427,27 @@ public class SiteBrowserAction extends PagedResourceActionII implements SiteHelp
 			context.put("termSearchSiteType", termSearchSiteType);
 			if (cms != null) 
 			{
-                context.put("terms", sortAcademicSessions( cms.getAcademicSessions()));
+				// SAK-28997
+				String searchTermDisplay = ServerConfigurationService.getString( SEARCH_TERM_DISPLAY, SEARCH_TERM_TITLE );
+				Map<String,String> termsMap = new HashMap<String,String>();
+				Collection<AcademicSession> academicSessions = sortAcademicSessions( cms.getAcademicSessions() );
+				for( AcademicSession as : academicSessions )
+				{
+					if( SEARCH_TERM_TITLE.equalsIgnoreCase( searchTermDisplay ) )
+					{
+						termsMap.put( as.getEid(), as.getTitle() );
+					}
+					else if( SEARCH_TERM_EID.equalsIgnoreCase( searchTermDisplay ) )
+					{
+						termsMap.put( as.getEid(),as.getEid() );
+					}
+					else if( SEARCH_TERM_DESCRIPTION.equalsIgnoreCase( searchTermDisplay ) )
+					{
+						termsMap.put( as.getEid(), as.getDescription() );
+					}
+				}
+				
+				context.put( "terms", termsMap );
 			}
 		}
 
