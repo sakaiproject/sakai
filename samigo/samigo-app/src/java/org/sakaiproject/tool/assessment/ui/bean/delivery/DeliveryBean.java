@@ -2082,22 +2082,31 @@ public class DeliveryBean
     log.debug("**** setting username=" + getSettings().getUsername());
     log.debug("**** setting password=" + getSettings().getPassword());
     
-    if (password == null || username == null)
+    if (password == null && username == null)
     {
     	return "passwordAccessError";
     }
-    if (password.equals(getSettings().getPassword()) &&
-        username.equals(getSettings().getUsername()))
+    if(!"".equals(getSettings().getUsername()))
     {
-      // in post 2.1, clicking at Begin Assessment takes users to the
-      // 1st question.
-      return "takeAssessment";
+    	if (username != null && !username.equals(getSettings().getUsername()))
+    	{
+    		return "passwordAccessError";
+    	}
     }
-    else
+    if(!"".equals(getSettings().getPassword()))
     {
-    	return "passwordAccessError";
+    	if (password != null && !password.equals(getSettings().getPassword()))
+    	{
+    		return "passwordAccessError";
+    	}
     }
+
+	// in post 2.1, clicking at Begin Assessment takes users to the
+	// 1st question.
+	return "takeAssessment";
+
   }
+
 
   public String validateIP()
   {
@@ -2135,7 +2144,7 @@ public class DeliveryBean
       EventLogData eventLogData = new EventLogData();
       
       // #1. check password
-      if (!getSettings().getUsername().equals(""))
+      if (!getSettings().getUsername().equals("") || !getSettings().getPassword().equals(""))
       {
         results = validatePassword();
         log.debug("*** checked password="+results);
