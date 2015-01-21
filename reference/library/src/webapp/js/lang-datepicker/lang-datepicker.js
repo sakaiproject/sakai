@@ -2082,6 +2082,7 @@ isRTL:false
 		var options = this.options,
 			cfg = {};
 
+		// This is the instance of the dateTimePicker
 		var localDTPicker;
 
 		cfg.showOn = (options.icon === 0) ? "focus" : "both";
@@ -2148,31 +2149,7 @@ isRTL:false
 				parseDate = d;
 			};
 
-			var roundDate = roundMinutes(parseDate)
-			window.console && console.log('parsed and rounded date: ' + roundDate);
-
-			return roundDate;
-		}
-
-
-		/**
-		 * Utility method to round a date object to the closest stepMinute (15 by default) minutes
-		 * 
-		 * @param  {object} date Javascript Date Object
-		 * @return {object}      rounded javascript date object
-		 */
-		function roundMinutes(date) {
-			var rounder = Math.floor(date.getMinutes()/options.stepMinute);
-
-			if (date.getMinutes()%options.stepMinute > (options.stepMinute/2)) {
-				rounder = rounder + 1;
-			}
-
-			var min = rounder*options.stepMinute;
-
-			date.setMinutes(min);
-
-			return date;
+			return parseDate;
 		}
 
 		/**
@@ -2256,7 +2233,8 @@ isRTL:false
 		}
 
 		/**
-		 * Initiallizes the base date for the picker
+		 * Initiallizes the base date for the picker.
+		 * This gets the date that should be displayed to the user.
 		 * 
 		 */
 		var initDateTime = function () {
@@ -2326,11 +2304,9 @@ isRTL:false
 		};
 
 		/**
-		 * Event handler for language ajax call, loading a particular language
-		 * 
-		 * @param  {object} ll 2 variables are loaded in to the scrip: lang and timeLang
+		 * Sets up the datetimepicker.
 		 */
-		var langLoaded = function(ll) {
+		var init = function() {
 
 			// set the initial date for the picker
 			initDateTime();
@@ -2341,6 +2317,8 @@ isRTL:false
 			// set the datepicker date if we've got a pre-set value
 			if (typeof options.val !== 'undefined' || typeof options.getval !== 'undefined' || typeof options.duration !== 'undefined') {
 				localDTPicker.datetimepicker("setDate", localDate);
+				// At this point we can go and ask the picker what it has rounded the time to.
+				localDate = localDTPicker.datetimepicker("getDate");
 				// Handle duration, which relies on the datepicker being set
 				handleDuration();
 			}
@@ -2380,7 +2358,7 @@ isRTL:false
            }
          }
 
-         langLoaded(true);
+         init();
 	};
 
 	// A really lightweight plugin wrapper around the constructor, 
