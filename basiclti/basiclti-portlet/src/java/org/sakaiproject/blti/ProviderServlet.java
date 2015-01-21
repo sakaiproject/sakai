@@ -298,14 +298,13 @@ public class ProviderServlet extends HttpServlet {
 
             site = siteMembershipUpdater.addOrUpdateSiteMembership(payload, isTrustedConsumer, user, site);
 
-            syncSiteMembershipsOnceThenSchedule(payload, site, isTrustedConsumer);
-
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterSiteMembership, user, site);
 
             String toolPlacementId = addOrCreateTool(payload, isTrustedConsumer, user, site);
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.beforeLaunch, user, site);
 
+            syncSiteMembershipsOnceThenSchedule(payload, site, isTrustedConsumer);
 
             // Construct a URL to this tool
             StringBuilder url = new StringBuilder();
@@ -862,7 +861,7 @@ public class ProviderServlet extends HttpServlet {
             return;
         }
 
-        String membershipsUrl = (String) payload.get("ext_ims_lis_memberships_url");
+        final String membershipsUrl = (String) payload.get("ext_ims_lis_memberships_url");
 
         if (!BasicLTIUtil.isNotBlank(membershipsUrl)) {
             M_log.info("LTI Memberships extension is not supported.");
@@ -871,14 +870,14 @@ public class ProviderServlet extends HttpServlet {
 
         if(M_log.isDebugEnabled()) M_log.debug("Memberships URL: " + membershipsUrl);
 
-        String membershipsId = (String) payload.get("ext_ims_lis_memberships_id");
+        final String membershipsId = (String) payload.get("ext_ims_lis_memberships_id");
 
         if (!BasicLTIUtil.isNotBlank(membershipsId)) {
             M_log.info("No memberships id supplied. Memberships will NOT be synchronized.");
             return;
         }
 
-        String siteId = site.getId();
+        final String siteId = site.getId();
 
         // If this site has already been scheduled, then we do nothing.
         if (ltiService.getMembershipsJob(siteId) != null) {
@@ -888,19 +887,37 @@ public class ProviderServlet extends HttpServlet {
             return;
         }
 
-        String oauth_consumer_key = (String) payload.get(OAuth.OAUTH_CONSUMER_KEY);
-        String callbackType = (String) payload.get(BasicLTIConstants.LTI_VERSION);
+        final String oauth_consumer_key = (String) payload.get(OAuth.OAUTH_CONSUMER_KEY);
+
+        // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
+        // a fix for this has been proposed at https://tracker.moodle.org/browse/MDL-41724. I don't
+        // think this will ever become core and the first time memberships will appear in core lti
+        // is with LTI2. At that point this code will be replaced with standard LTI2 JSON type stuff.
 
         String lms = (String) payload.get("ext_lms");
-        if (BasicLTIUtil.isNotBlank(lms) && lms.equals("moodle-2")) {
-            // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
-            // a fix for this has been proposed at https://tracker.moodle.org/browse/MDL-41724. I don't
-            // think this will ever become core and the first time memberships will appear in core lti
-            // is with LTI2. At that point this code will be replaced with standard LTI2 JSON type stuff.
-            callbackType = "ext-moodle-2";
-        }
+        final String callbackType
+            = (BasicLTIUtil.isNotBlank(lms) && lms.equals("moodle-2"))
+                ? "ext-moodle-2" : (String) payload.get(BasicLTIConstants.LTI_VERSION);
 
-        siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
+        (new Thread(new Runnable() {
+
+                public void run() {
+
+                    long then = 0L;
+
+                    if (M_log.isDebugEnabled()) {
+                        M_log.debug("Starting memberships sync.");
+                        then = (new Date()).getTime();
+                    }
+
+                    siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
+
+                    if (M_log.isDebugEnabled()) {
+                        long now = (new Date()).getTime();
+                        M_log.debug("Starting memberships sync. It took " + ((now - then)/1000) + " seconds.");
+                    }
+                }
+            }, "org.sakaiproject.blti.ProviderServlet.MembershipsSync")).start();
 
         ltiService.insertMembershipsJob(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
     }
