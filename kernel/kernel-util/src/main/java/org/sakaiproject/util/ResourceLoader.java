@@ -80,7 +80,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	private final static Object LOCK = new Object();
 
 	private static SessionManager sessionManager;
-	protected static SessionManager getSessionManager() {
+	protected SessionManager getSessionManager() {
         if (sessionManager == null) {
             synchronized (LOCK) {
                 sessionManager = (SessionManager) ComponentManager.get(SessionManager.class);
@@ -90,7 +90,7 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 	}
 
 	private static PreferencesService preferencesService;
-	protected static PreferencesService getPreferencesService() {
+	protected PreferencesService getPreferencesService() {
 	    if (preferencesService == null) {
 	        synchronized (LOCK) {
 	            preferencesService = (PreferencesService) ComponentManager.get(PreferencesService.class);
