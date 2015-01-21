@@ -3,14 +3,15 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.markup.html.link.DownloadLink;
-import org.apache.wicket.markup.html.link.ResourceLink;
 import org.apache.wicket.model.LoadableDetachableModel;
-import org.apache.wicket.request.resource.ByteArrayResource;
 import org.apache.wicket.util.time.Duration;
+import org.sakaiproject.gradebookng.tool.model.GradeInfo;
+import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.user.api.User;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,48 +25,31 @@ public class ImportExportPage extends BasePage {
 	
 	private static final long serialVersionUID = 1L;
 
+	final List<Assignment> assignments;
+	final List<StudentGradeInfo> grades;
+
 	public ImportExportPage() {
 
 		//get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
-		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
-		final List<User> users = this.businessService.getGradeableUsers();
+		assignments = this.businessService.getGradebookAssignments();
+
+		//get the grade matrix
+		grades = businessService.buildGradeMatrix();
 		
 		add(new DownloadLink("downloadBlankTemplate", new LoadableDetachableModel<File>() {
 
 			@Override
 			protected File load() {
-				File tempFile;
-				try {
-					//TODO - add the site name to the file?
-					tempFile = File.createTempFile("gradebookTemplate", ".csv");
-//					FileOutputStream fos = new FileOutputStream();
-					FileWriter fw = new FileWriter(tempFile);
-					//Create csv header
-					List<String> header = new ArrayList<String>();
-					header.add("studentId");
-					header.add("studentName");
+				return buildFile(false);
+//				return new File(new ByteArrayResource("", null));
+			}
+		}).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
 
-					for (Assignment assignment : assignments) {
-						header.add(assignment.getName());
-					}
-					String headerStr = StringUtils.join(header, ",");
-					fw.append(headerStr + "\n");
+		add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
 
-					List<String> line = new ArrayList<String>();
-
-					for (User user : users) {
-						line.add(wrapText(user.getEid()));
-						line.add(wrapText(user.getSortName()));
-						String lineStr = StringUtils.join(line, ",");
-						fw.append(lineStr + "\n");
-					}
-
-
-					fw.close();
-				} catch (IOException e) {
-					throw new RuntimeException(e);
-				}
-				return tempFile;
+			@Override
+			protected File load() {
+				return buildFile(true);
 //				return new File(new ByteArrayResource("", null));
 			}
 		}).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
@@ -75,7 +59,57 @@ public class ImportExportPage extends BasePage {
 
 	}
 
+	/**
+	 *
+	 * @param input
+	 * @return
+	 */
 	private String wrapText(String input) {
 		return "\"" + input + "\"";
+	}
+
+
+	private File buildFile(boolean includeGrades) {
+		File tempFile;
+		try {
+			//TODO - add the site name to the file?
+			tempFile = File.createTempFile("gradebookTemplate", ".csv");
+
+			FileWriter fw = new FileWriter(tempFile);
+			//Create csv header
+			List<String> header = new ArrayList<String>();
+			header.add(wrapText("Student ID"));
+			header.add(wrapText("Student Name"));
+
+			for (Assignment assignment : assignments) {
+				header.add(wrapText(assignment.getName() + " [" + assignment.getPoints() + "]"));
+				header.add(wrapText("*/ " + assignment.getName() + " Comments */"));
+			}
+			String headerStr = StringUtils.join(header, ",");
+			fw.append(headerStr + "\n");
+
+			List<String> line = new ArrayList<String>();
+
+			for (StudentGradeInfo studentGradeInfo : grades) {
+				line.add(wrapText(studentGradeInfo.getStudentEid()));
+				line.add(wrapText(studentGradeInfo.getStudentName()));
+				if (includeGrades) {
+					for (Assignment assignment : assignments) {
+						GradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
+						line.add(wrapText(gradeInfo.getGrade()));
+						line.add(wrapText(gradeInfo.getGradeComment()));
+					}
+				}
+				String lineStr = StringUtils.join(line, ",");
+				fw.append(lineStr + "\n");
+			}
+
+
+			fw.close();
+		} catch (IOException e) {
+			throw new RuntimeException(e);
+		}
+		return tempFile;
+
 	}
 }
