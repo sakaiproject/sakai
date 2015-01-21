@@ -110,4 +110,7 @@ ${includeLatestJQuery}
 	<style type="text/css" title="StyleAble">${styleableStyleSheet}</style>
     #end
 #end
+
+## If there's some extra header code defined, included it here
+${includeExtraHead}
 </head>

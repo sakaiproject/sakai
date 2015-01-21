@@ -76,7 +76,8 @@ ${responseHead}
         }
     };
 </script>
-
+## If there's some extra header code defined, included it here
+${includeExtraHead}
 </head>
 <body class="portalBodyPDA">
 #if ( $pageTop )
