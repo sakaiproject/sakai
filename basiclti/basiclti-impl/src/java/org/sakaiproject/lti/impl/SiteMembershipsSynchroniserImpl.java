@@ -1,5 +1,6 @@
 package org.sakaiproject.lti.impl;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -266,46 +267,42 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             siteMembershipUpdater.addOrUpdateSiteMembership(map, false, user, site);
         }
 
-        Collection sakaiGroups = site.getGroups();
+        // Do this so we don't get a concurrent mod exception
+        List groups = new ArrayList(site.getGroups());
+
+        // Remove the existing groups
+        for (Iterator i = groups.iterator(); i.hasNext(); ) {
+            site.removeGroup((Group) i.next());
+        }
 
         for (String consumerGroupTitle : consumerGroups.keySet()) {
-            M_log.debug("Processing consumer group '" + consumerGroupTitle + "' ...");
-            Group sakaiGroup = null;
-            // See if the group exists already
-            for (Iterator i = sakaiGroups.iterator();i.hasNext();) {
-                Group currentSakaiGroup = (Group) i.next();
-                if (consumerGroupTitle.equals(currentSakaiGroup.getTitle())) {
-                    sakaiGroup = currentSakaiGroup;
-                    break;
-                }
+            if (M_log.isDebugEnabled()) {
+                M_log.debug("Creating group with title '" + consumerGroupTitle + "' ...");
             }
 
-            if (sakaiGroup == null) {
-                // New group. Create it.
-                if (M_log.isDebugEnabled()) M_log.debug("Creating group with title '" + consumerGroupTitle + "' ...");
-                sakaiGroup = site.addGroup();
-                sakaiGroup.getProperties().addProperty(sakaiGroup.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
-                sakaiGroup.setTitle(consumerGroupTitle);
-
-            } else {
-                M_log.debug("Existing group. Removing current membership ...");
-                sakaiGroup.removeMembers();
-            }
+            Group sakaiGroup = site.addGroup();
+            sakaiGroup.getProperties().addProperty(sakaiGroup.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+            sakaiGroup.setTitle(consumerGroupTitle);
 
             for (POXMembershipsResponse.Member consumerGroupMember : consumerGroups.get(consumerGroupTitle)) {
-                if (M_log.isDebugEnabled()) M_log.debug("Adding '" + consumerGroupMember.firstName + " " + consumerGroupMember.lastName + "' to '" + consumerGroupTitle + "' ...");
-                sakaiGroup.addMember(consumerGroupMember.userId,consumerGroupMember.role,true,false);
-            }
+                if (M_log.isDebugEnabled()) {
+                    M_log.debug("Adding '" + consumerGroupMember.firstName + " " + consumerGroupMember.lastName + "' to '" + consumerGroupTitle + "' ...");
+                }
 
-            pushAdvisor();
-            try {
-                siteService.save(site);
-                M_log.info("Updated  site=" + site.getId() + " group=" + consumerGroupTitle);
-            } catch (Exception e) {
-                M_log.error("Failed to add group '" + consumerGroupTitle + "' to site", e);
-            } finally {
-                popAdvisor();
+                sakaiGroup.addMember(consumerGroupMember.userId, consumerGroupMember.role, true, false);
             }
+        }
+
+        pushAdvisor();
+        try {
+            siteService.save(site);
+            //M_log.info("Updated  site=" + site.getId() + " group=" + consumerGroupTitle);
+            M_log.info("Updated  site=" + site.getId());
+        } catch (Exception e) {
+            //M_log.error("Failed to add group '" + consumerGroupTitle + "' to site", e);
+            M_log.info("Failed to update site=" + site.getId());
+        } finally {
+            popAdvisor();
         }
     }
 }
