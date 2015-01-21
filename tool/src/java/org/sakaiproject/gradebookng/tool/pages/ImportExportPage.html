@@ -3,7 +3,29 @@
 
 <body>
 <wicket:extend>
-	
+	<div><wicket:message key="importExport.page.description" /></div>
+
+    <div>
+        <div><wicket:message key="importExport.step1.heading" /></div>
+        <div><wicket:message key="importExport.step1.description" /></div>
+        <div>
+            <a wicket:id="downloadBlankTemplate" wicket:message="title:importExport.step1.button.blankTemplate">
+                <wicket:message key="importExport.step1.button.blankTemplate" />
+            </a>
+            <!--<a wicket:id="downloadFullGradebook" wicket:message="title:importExport.step1.button.fullGradebook">-->
+                <!--<wicket:message key="importExport.step1.button.fullGradebook" />-->
+            <!--</a>-->
+        </div>
+    </div>
+
+    <div>
+        <div><wicket:message key="importExport.step2.heading" /></div>
+        <div><wicket:message key="importExport.step2.description" /></div>
+    </div>
+    <div>
+        <div><wicket:message key="importExport.step3.heading" /></div>
+        <div><wicket:message key="importExport.step3.description" /></div>
+    </div>
 	
 </wicket:extend>
 </body>
