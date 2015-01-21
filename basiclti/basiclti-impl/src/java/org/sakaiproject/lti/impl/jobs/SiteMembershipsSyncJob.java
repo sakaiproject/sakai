@@ -42,11 +42,7 @@ public class SiteMembershipsSyncJob implements StatefulJob {
             String consumerKey = (String) job.get("consumerkey");
             String ltiVersion = (String) job.get("lti_version");
 
-            try {
-                siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, consumerKey, ltiVersion);
-            } catch (LTIException ltie) {
-                M_log.error("Failed to synchronise memberships for site '" + siteId + "'.", ltie);
-            }
+            siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, consumerKey, ltiVersion);
         }
 	}
 }

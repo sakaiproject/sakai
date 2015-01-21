@@ -19,7 +19,6 @@ import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.SiteMembershipUpdater;
 import org.sakaiproject.lti.api.UserFinderOrCreator;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
@@ -81,14 +80,15 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 		SecurityService.popAdvisor();
 	}
 
-    public void synchroniseSiteMemberships(final String siteId, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, final String callbackType) throws LTIException {
+    public void synchroniseSiteMemberships(final String siteId, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, final String callbackType) {
 
         Site site = null;
 
         try {
             site = siteService.getSite(siteId);
         } catch (IdUnusedException iue) {
-            throw new LTIException("site.notfound", siteId, null);
+            M_log.error("site.notfound id: " + siteId + ". This site's memberships will NOT be synchronised.", iue);
+            return;
         }
 
         if (BasicLTIConstants.LTI_VERSION_1.equals(callbackType)) {
@@ -102,13 +102,14 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         }
     }
 
-    private final void synchronizeLTI1SiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key) throws LTIException {
+    private final void synchronizeLTI1SiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key) {
 
         // Lookup the secret
         final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
         final String oauth_secret = serverConfigurationService.getString(configPrefix+ "secret", null);
         if (oauth_secret == null) {
-            throw new LTIException( "launch.key.notfound", oauth_consumer_key, null);
+            M_log.error("launch.key.notfound " + oauth_consumer_key + ". This site's memberships will NOT be synchronised.");
+            return;
         }
 
         OAuthMessage om = new OAuthMessage("POST", membershipsUrl, null);
@@ -145,13 +146,14 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         }
     }
 
-    private final void synchronizeMoodleExtSiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key) throws LTIException {
+    private final void synchronizeMoodleExtSiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key) {
 
         // Lookup the secret
         final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
         final String oauth_secret = serverConfigurationService.getString(configPrefix+ "secret", null);
         if (oauth_secret == null) {
-            throw new LTIException( "launch.key.notfound", oauth_consumer_key, null);
+            M_log.error("launch.key.notfound " + oauth_consumer_key + ". This site's memberships will NOT be synchronised.");
+            return;
         }
 
         String type = "readMembershipsWithGroups";
