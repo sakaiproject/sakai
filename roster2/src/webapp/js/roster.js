@@ -129,6 +129,7 @@
                     membersTotal: roster.i18n.currently_displaying_participants.replace(/\{0\}/, roster.site.membersTotal),
                     roleFragments: roster.getRoleFragments(roster.site.roleCounts),
                     roles: roster.site.userRoles,
+                    checkOfficialPicturesButton: showOfficialPictures,
                     viewOfficialPhoto: roster.currentUserPermissions.viewOfficialPhoto },
                 'roster_content');
 
@@ -609,6 +610,8 @@
             }
         }
     });
+
+    roster.rosterOfficialPictureMode = roster.officialPicturesByDefault;
 
     // Setup the current user's permissions
     if (roster.userId === roster.ADMIN) {

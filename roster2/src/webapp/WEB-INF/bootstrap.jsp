@@ -39,6 +39,7 @@
                 firstNameLastName: ${firstNameLastName},
                 hideSingleGroupFilter: ${hideSingleGroupFilter},
                 viewUserDisplayId: ${viewUserDisplayId},
+                officialPicturesByDefault: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
                 superUser: ${superUser},
                 siteMaintainer: ${siteMaintainer},

@@ -632,12 +632,12 @@ templates['overview'] = template({"1":function(depth0,helpers,partials,data) {
   return escapeExpression(((helper = (helper = helpers.searchQuery || (depth0 != null ? depth0.searchQuery : depth0)) != null ? helper : helperMissing),(typeof helper === functionType ? helper.call(depth0, {"name":"searchQuery","hash":{},"data":data}) : helper)));
   },"9":function(depth0,helpers,partials,data) {
   var stack1, helperMissing=helpers.helperMissing, escapeExpression=this.escapeExpression, buffer = "    <input type=\"radio\" name=\"roster_picture_type\" value=\"official\" id=\"roster_official_picture_button\" ";
-  stack1 = helpers['if'].call(depth0, ((stack1 = (depth0 != null ? depth0.roster : depth0)) != null ? stack1.rosterOfficialPictureMode : stack1), {"name":"if","hash":{},"fn":this.program(10, data),"inverse":this.noop,"data":data});
+  stack1 = helpers['if'].call(depth0, (depth0 != null ? depth0.checkOfficialPicturesButton : depth0), {"name":"if","hash":{},"fn":this.program(10, data),"inverse":this.noop,"data":data});
   if (stack1 != null) { buffer += stack1; }
   buffer += "/><span>"
     + escapeExpression(((helpers.translate || (depth0 && depth0.translate) || helperMissing).call(depth0, "roster_show_official_pictures", {"name":"translate","hash":{},"data":data})))
     + "</span>\n    <input type=\"radio\" name=\"roster_picture_type\" value=\"profile\" id=\"roster_profile_picture_button\" ";
-  stack1 = helpers.unless.call(depth0, ((stack1 = (depth0 != null ? depth0.roster : depth0)) != null ? stack1.rosterOfficialPictureMode : stack1), {"name":"unless","hash":{},"fn":this.program(10, data),"inverse":this.noop,"data":data});
+  stack1 = helpers.unless.call(depth0, (depth0 != null ? depth0.checkOfficialPicturesButton : depth0), {"name":"unless","hash":{},"fn":this.program(10, data),"inverse":this.noop,"data":data});
   if (stack1 != null) { buffer += stack1; }
   return buffer + "/><span>"
     + escapeExpression(((helpers.translate || (depth0 && depth0.translate) || helperMissing).call(depth0, "roster_show_profile_pictures", {"name":"translate","hash":{},"data":data})))
