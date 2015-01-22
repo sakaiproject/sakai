@@ -914,7 +914,7 @@ public class ProviderServlet extends HttpServlet {
 
                     if (M_log.isDebugEnabled()) {
                         long now = (new Date()).getTime();
-                        M_log.debug("Starting memberships sync. It took " + ((now - then)/1000) + " seconds.");
+                        M_log.debug("Memberships sync finished. It took " + ((now - then)/1000) + " seconds.");
                     }
                 }
             }, "org.sakaiproject.blti.ProviderServlet.MembershipsSync")).start();
