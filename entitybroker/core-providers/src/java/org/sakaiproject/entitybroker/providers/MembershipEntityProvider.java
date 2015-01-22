@@ -20,6 +20,7 @@
 
 package org.sakaiproject.entitybroker.providers;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -63,6 +64,11 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
  * This provides access to memberships as entities
@@ -205,6 +211,7 @@ RESTful, ActionsExecutable {
                         "siteId must be set in order to get site memberships, set in params or in the URL /membership/site/siteId");
             }
         }
+        
         String locationReference = "/site/" + siteId;
 
         Map<String, String> extraResponseHeaders = null;
@@ -308,6 +315,113 @@ RESTful, ActionsExecutable {
     	}
         return getEntities(new EntityReference(PREFIX, ""), s);
         
+    }
+
+    /**
+     * Special handler for JSON uploads of site membership data. Takes a parameter 'json' which
+     * should contain json of the form:
+     * 
+     * [ {"id": "user1", "role": "access"},{"id": "user2","role": "maintain"} ]
+     */
+    @EntityCustomAction(action = "sitebyjson", viewKey = EntityView.VIEW_NEW)
+    public ActionReturn handleSiteJsonUpload(EntityView view, Map<String, Object> params) {
+
+        if (log.isDebugEnabled()) {
+            log.debug("handleSiteJsonUpload method=" + view.getMethod() + ", params=" + params);
+        }
+
+        String siteId = view.getPathSegment(2);
+        if (siteId == null) {
+            siteId = (String) params.get("siteId");
+            if (siteId == null) {
+                throw new IllegalArgumentException(
+                        "siteId must be set in order to get site memberships, set in params or in the URL /membership/site/siteId");
+            }
+        }
+        
+        String locationReference = "/site/" + siteId;
+        
+        String json = (String) params.get("json");
+        if (json == null) {
+        	throw new IllegalArgumentException(
+                        "The membership JSON data must be supplied as a POST parameter named 'json'.");
+        }
+        
+        Map<String, String> extraResponseHeaders = new HashMap<String, String>(3);
+        
+        ObjectMapper mapper = new ObjectMapper();
+        List<JsonUser> memberships;
+		
+        try {
+            memberships = mapper.readValue(json.getBytes(), new TypeReference<List<JsonUser>>() { });
+        } catch(JsonParseException jpe) {
+            throw new IllegalArgumentException("The supplied JSON was invalid. Have a look at http://www.json.org/.");
+        } catch(JsonMappingException jpe) {
+            throw new IllegalArgumentException("The supplied JSON was invalid. Take a look at /direct/membership/describe for the correct structure.");
+        } catch (IOException e) {
+            throw new IllegalArgumentException("Failed to read the supplied JSON.");
+        }
+		
+        // Collect the users into roles
+        Map<String, List<String>> usersToRoleMap = new HashMap<String, List<String>>();
+        for (JsonUser user : memberships) {
+            String id = user.getId();
+            String role = user.getRole();
+            
+            if (usersToRoleMap.containsKey(role)) {
+                usersToRoleMap.get(role).add(id);
+            } else {
+                List<String> users = new ArrayList<String>(20); // Prealloc space for 20 users in each role
+                users.add(id);
+                usersToRoleMap.put(role, users);
+            }
+        }
+		
+        Map<String, Object> localParams = new HashMap<String, Object>(2);
+            
+        // Compile results from createBatchMemberships. We'll return these in the response.
+        int successCount = 0;
+        StringBuilder notFoundBuilder = new StringBuilder();
+        StringBuilder alreadyMemberBuilder = new StringBuilder();
+            
+        Iterator<String> memberRoles = usersToRoleMap.keySet().iterator();
+        while (memberRoles.hasNext()) {
+            String memberRole = memberRoles.next();
+            localParams.put("userSearchValues", usersToRoleMap.get(memberRole));
+            localParams.put("memberRole", memberRole);
+            Map<String, String> response = createBatchMemberships(view, localParams, locationReference);
+            
+            String successCountString = response.get("x-success-count");
+            if (successCountString != null) {
+                try {
+                    successCount += Integer.parseInt(successCountString);
+                } catch (NumberFormatException nfe) {
+                    log.error("x-success-count was not a number. successCount was not increased.");
+                }
+            }
+                
+            String nf = response.get("x-warning-not-found");
+            if (nf != null) {
+                notFoundBuilder.append(nf);
+                if (memberRoles.hasNext()) {
+                    notFoundBuilder.append(", ");
+                }
+            }
+                
+            String am = response.get("x-warning-already-members");
+            if (am != null) {
+                alreadyMemberBuilder.append(am);
+                if (memberRoles.hasNext()) {
+                    alreadyMemberBuilder.append(", ");
+                }
+            }
+        }
+            
+        extraResponseHeaders.put("x-success-count", String.valueOf(successCount));
+        extraResponseHeaders.put("x-warning-not-found", notFoundBuilder.toString());
+        extraResponseHeaders.put("x-warning-already-members", alreadyMemberBuilder.toString());
+
+        return new ActionReturn("", extraResponseHeaders);
     }
  
     @EntityCustomAction(action = "group", viewKey = "")
@@ -954,6 +1068,8 @@ RESTful, ActionsExecutable {
                 stringList = Arrays.asList((String[]) paramValue);
             } else if (paramValue instanceof String) {
                 stringList.add((String) paramValue);
+            } else if(paramValue.getClass().isInstance(new ArrayList<String>())) {
+            	return (List<String>) paramValue;
             }
         }
         return stringList;
@@ -1109,6 +1225,27 @@ RESTful, ActionsExecutable {
         if (!allowAdminSiteChanges && ADMIN_SITE_ID.equals(siteId)) {
             throw new SecurityException("Admin site membership changes are disabled for security protection against CSRF, you must use the sakai admin UI or enable changes in your sakai config file using "+ADMIN_SITE_CHANGE_ALLOWED+"=true");
         }
+    }
+    
+    public static class JsonUser {
+    	private String id = "";
+    	private String role = "";
+    	
+    	public JsonUser() {}
+    	public JsonUser(String id, String role) {
+    		this.id = id;
+    		this.role = role;
+    	}
+    	
+    	public String getId() { return id; }
+    	public void setId(String id) {
+    		this.id = id;
+    	}
+    	
+    	public String getRole() { return role; }
+    	public void setRole(String role) {
+    		this.role = role;
+    	}
     }
 
 }
