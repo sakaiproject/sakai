@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.message.bundle.manager" 
+		title="Message Bundle Manager" 
+		description="Tool that allows editing localization (i18n) properties.">
+
+        <category name="sakai.admin" /> 
+		
+    </tool>
+</registration>
+

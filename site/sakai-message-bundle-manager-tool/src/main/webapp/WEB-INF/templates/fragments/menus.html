@@ -1,0 +1,12 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring3-3.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:dt="http://github.com/dandelion/datatables">
+<body>
+  <div th:fragment="main (active)">
+    <ul class="nav nav-pills">
+      <li role="presentation" th:class="${active}=='index'? 'active'"><a href="#" th:href="@{/index}" th:text="#{index.status}">Status</a></li>
+      <li role="presentation" th:class="${active}=='modified'? 'active'"><a href="#" th:href="@{/modified}" th:text="#{modified.modified}">Modified Messages</a></li>
+      <li role="presentation" th:class="${active}=='all'? 'active'"><a href="#" th:href="@{/all}" th:text="#{all.all}">All Messages</a></li>
+    </ul>
+  </div>
+</body>
+</html>

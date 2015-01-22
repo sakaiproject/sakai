@@ -97,13 +97,19 @@ public interface MessageBundleService {
      *
      * @return - list of known locales in the persistent store
      */
-    public List getLocales();
+    public List<String> getLocales();
 
     /**
      *
      * @return number of modified properties in the persistent store
      */
     public int getModifiedPropertiesCount();
+    
+    /**
+    *
+    * @return number of properties in the persistent store
+    */
+    public int getAllPropertiesCount();
 
     /**
      *
