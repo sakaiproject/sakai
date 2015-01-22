@@ -48,6 +48,13 @@ public class BaseShortenedUrlService implements ShortenedUrlService {
 		return service.resolve(key);
 	}
 	
+	/**
+	 * @{inheritDoc}
+	 */
+	public boolean shouldCopy(String url) {
+		return service.shouldCopy(url);
+	}
+
 	private ServerConfigurationService serverConfigurationService;
 	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
