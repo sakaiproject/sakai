@@ -4963,6 +4963,7 @@ extends VelocityPortletStateAction
 		CalendarActionState state = (CalendarActionState)getState(context, data, CalendarActionState.class);
 		
 		if (GENERIC_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState())
+			|| ICAL_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState())
 			|| OTHER_SELECT_FILE_IMPORT_WIZARD_STATE.equals(state.getImportWizardState()))
 		{
 			state.setImportWizardState(SELECT_TYPE_IMPORT_WIZARD_STATE);
