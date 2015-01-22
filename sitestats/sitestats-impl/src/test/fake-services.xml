@@ -5,8 +5,12 @@
 <beans>
 
     <!-- FAKE Services -->
-    <bean id="org.sakaiproject.mock.service.SiteService" class="org.sakaiproject.mock.service.SiteService"/>
-    <bean id="org.sakaiproject.mock.service.UserDirectoryService" class="org.sakaiproject.mock.service.UserDirectoryService"/>
+    <bean id="org.sakaiproject.mock.service.SiteService" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.sakaiproject.site.api.SiteService" />
+    </bean>
+    <bean id="org.sakaiproject.mock.service.UserDirectoryService" class="org.mockito.Mockito" factory-method="mock">
+        <constructor-arg value="org.sakaiproject.user.api.UserDirectoryService" />
+    </bean>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeToolManager" class="org.sakaiproject.sitestats.test.mocks.FakeToolManager"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService" class="org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService"/>
     <bean id="org.sakaiproject.sitestats.test.mocks.FakeAliasService" class="org.sakaiproject.sitestats.test.mocks.FakeAliasService"/>
