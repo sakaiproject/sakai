@@ -338,6 +338,11 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
         String query = "select count(*) from MessageBundleProperty where value != null";
         return executeCountQuery(query);
     }
+    
+    public int getAllPropertiesCount() {
+        String query = "select count(*) from MessageBundleProperty";
+        return executeCountQuery(query);
+    }
 
     @SuppressWarnings("unchecked")
     public List<MessageBundleProperty> getAllProperties(String locale, String module) {

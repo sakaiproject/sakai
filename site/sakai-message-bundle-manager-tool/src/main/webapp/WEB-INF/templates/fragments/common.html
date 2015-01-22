@@ -1,0 +1,35 @@
+<!DOCTYPE html SYSTEM "http://www.thymeleaf.org/dtd/xhtml1-strict-thymeleaf-spring3-3.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:dt="http://github.com/dandelion/datatables">
+<body>
+<head th:fragment="head">
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link media="all" href="/library/skin/tool_base.css" rel="stylesheet" type="text/css" />
+<link media="all" href="css/mbm.css" rel="stylesheet" type="text/css" />
+<link media="all" href="css/bootstrap.min.css" rel="stylesheet" />
+<script src="/library/js/headscripts.js" type="text/javascript"></script>
+<title th:text="#{common.title}">Message Bundle Manager</title>
+</head>
+<div th:fragment="bootstrap">
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="js/jquery-1.11.2.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="js/bootstrap.min.js"></script>
+</div>
+<div th:fragment="loadBundlesFromDb (enabled)">
+  <div th:unless="${enabled}">
+    <div class="alert alert-warning" role="alert" th:text="#{common.warning}">
+      Message bundle editing is not activated, please see your Administrator.
+    </div>
+    <p></p>
+  </div>
+</div>
+<div th:fragment="admin (admin)">
+  <div th:unless="${admin}">
+    <div class="alert alert-danger" role="alert" th:text="#{common.danger}">
+      You must be an admin to use this tool, please see your Administrator.
+    </div>
+    <p></p>
+  </div>
+</div>
+</body>
+</html>
