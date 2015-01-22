@@ -171,8 +171,10 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected boolean unlockCheck(String lock, String reference)
 	{
-		return m_securityService.unlock(lock, reference);
+		if (lock.equals(AUTH_READ_CALENDAR) &&  getExportEnabled(reference))
+			return true;
 
+		return m_securityService.unlock(lock, reference);
 	} // unlockCheck
 
 	/**
@@ -187,12 +189,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected void unlock(String lock, String reference) throws PermissionException
 	{
-		// check if publicly accessible via export
-		if ( getExportEnabled(reference) && lock.equals(AUTH_READ_CALENDAR) )
-			return;
-			
-		// otherwise check permissions
-		else if (!m_securityService.unlock(lock, reference))
+		if (!unlockCheck(lock, reference))
 			throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), lock, reference);
 
 	} // unlock
