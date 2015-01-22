@@ -68,13 +68,6 @@
       			<scope>runtime</scope>
     		</dependency>
 			
-       	 	<!-- test dependencies -->
-    		<dependency>
-    			<groupId>org.sakaiproject.mock</groupId>
-    			<artifactId>sakai-mock</artifactId>
-   				<version>${sakai.version}</version>
-   				<scope>test</scope>
-    		</dependency>
 		</dependencies>
 	</dependencyManagement>	
 	

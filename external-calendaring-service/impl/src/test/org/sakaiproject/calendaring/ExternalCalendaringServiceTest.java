@@ -40,7 +40,6 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.calendaring.api.ExternalCalendaringService;
 import org.sakaiproject.calendaring.mocks.MockCalendarEventEdit;
-import org.sakaiproject.calendaring.mocks.MockTimeService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeRange;
 import org.sakaiproject.time.api.TimeService;
@@ -52,6 +51,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 /**
  * Test class for the ExternalCalendaringService
@@ -67,8 +69,8 @@ public class ExternalCalendaringServiceTest {
 	private final String LOCATION = "Building 1";
 	private final String DESCRIPTION = "This is a sample event.";
 	private final String CREATOR="steve";
-	private final long START_TIME = 1336136400; // 4/May/2012 13:00 GMT
-	private final long END_TIME = 1336140000; // 4/May/2012 14:00 GMT
+	private final long START_TIME = 1336136400000l; // 4/May/2012 13:00 GMT
+	private final long END_TIME = 1336140000000l; // 4/May/2012 14:00 GMT
 
 	//for the test classes we can still use annotation based injection
 	@Resource(name="org.sakaiproject.calendaring.api.ExternalCalendaringService")
@@ -475,13 +477,17 @@ public class ExternalCalendaringServiceTest {
 		edit.setDescription(DESCRIPTION);
 		edit.setId(UUID.randomUUID().toString());
 		edit.setCreator(CREATOR);
+
+
+		Time start = mock(Time.class);
+		when(start.getTime()).thenReturn(START_TIME);
+		Time end = mock(Time.class);
+		when(end.getTime()).thenReturn(END_TIME);
+		TimeRange range = mock(TimeRange.class);
+		when(range.firstTime()).thenReturn(start);
+		when(range.lastTime()).thenReturn(end);
 		
-		TimeService timeService = new MockTimeService();
-		Time start = timeService.newTime(START_TIME);
-		Time end = timeService.newTime(END_TIME);
-		TimeRange timeRange = timeService.newTimeRange(start, end, true, false);
-		
-		edit.setRange(timeRange);
+		edit.setRange(range);
 		
 		//TODO set recurrencerule, then add to test above
 
@@ -500,10 +506,13 @@ public class ExternalCalendaringServiceTest {
 		List<User> users = new ArrayList<User>();
 		
 		for(int i=0;i<5;i++) {
-			
-			org.sakaiproject.mock.domain.User u = new org.sakaiproject.mock.domain.User(null, "user"+i, "user"+i, "user"+i, "user"+i+"@email.com", "User", String.valueOf(i),
-					null, null, null, null, null,null,null,null,null,null);
-			
+			User u = mock(User.class);
+			when(u.getId()).thenReturn("user"+i);
+			when(u.getEid()).thenReturn("user"+i);
+			when(u.getDisplayId()).thenReturn("user"+i);
+			when(u.getEmail()).thenReturn("user"+ i+ "@email.com");
+			when(u.getFirstName()).thenReturn("User");
+			when(u.getLastName()).thenReturn(String.valueOf(i));
 			users.add(u);
 		}
 		
