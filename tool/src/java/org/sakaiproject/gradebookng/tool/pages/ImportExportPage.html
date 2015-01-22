@@ -25,6 +25,17 @@
     <div>
         <div><wicket:message key="importExport.step3.heading" /></div>
         <div><wicket:message key="importExport.step3.description" /></div>
+
+        <form wicket:id="form">
+
+            <input type="file" wicket:id="upload" />
+
+            <div class="act">
+                <input type="submit" />
+                <input type="cancel" />
+            </div>
+        </form>
+
     </div>
 	
 </wicket:extend>
