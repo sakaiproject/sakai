@@ -1192,11 +1192,6 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
-        <groupId>org.sakaiproject.mock</groupId>
-        <artifactId>sakai-mock</artifactId>
-        <version>${sakai.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-news-api</artifactId>
         <version>${sakai.version}</version>
