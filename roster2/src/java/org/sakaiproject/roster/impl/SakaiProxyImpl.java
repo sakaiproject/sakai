@@ -261,6 +261,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getBoolean(
 				"roster.display.userDisplayId", DEFAULT_VIEW_USER_DISPLAY_ID);
 	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+    public Boolean getOfficialPicturesByDefault() {
+		return serverConfigurationService.getBoolean(
+				"roster.display.officialPicturesByDefault", true);
+    }
 	
 	public RosterMember getMember(String siteId, String userId, String enrollmentSetId) {
 
