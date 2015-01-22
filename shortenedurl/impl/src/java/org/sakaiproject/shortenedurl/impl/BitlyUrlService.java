@@ -179,4 +179,12 @@ public class BitlyUrlService implements ShortenedUrlService {
 		this.apiKey = apiKey;
 	}
 
+	/*
+	 * this is a placeholder until someone who understands bitly decides what the
+	 * right approach is
+	 */
+	public boolean shouldCopy(String url) {
+		return false;
+	}
+
 }
