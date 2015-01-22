@@ -23,6 +23,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -36,18 +37,17 @@ import org.sakaiproject.entitybroker.providers.model.EntityMember;
 import org.sakaiproject.entitybroker.providers.model.EntityUser;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
-import org.sakaiproject.mock.domain.*;
+import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.api.privacy.PrivacyManager;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -81,17 +81,17 @@ public class MembershipEntityProviderTest {
         EntityView entityView = new EntityView("/membership/site/site.with.dots.json");
         entityView.setMethod(EntityView.Method.GET);
 
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        Map<String,org.sakaiproject.authz.api.Member> members = new HashMap<String,org.sakaiproject.authz.api.Member>();
-        members.put("user-foo", member);
-        site.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
         when(siteService.getSite("site.with.dots")).thenReturn(site);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
         when(siteService.allowViewRoster("site.with.dots")).thenReturn(true);
@@ -110,17 +110,17 @@ public class MembershipEntityProviderTest {
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("siteId", "site.with.dots");
 
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        Map<String,org.sakaiproject.authz.api.Member> members = new HashMap<String,org.sakaiproject.authz.api.Member>();
-        members.put("user-foo", member);
-        site.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
         when(siteService.getSite("site.with.dots")).thenReturn(site);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
         when(siteService.allowViewRoster("site.with.dots")).thenReturn(true);
@@ -140,18 +140,18 @@ public class MembershipEntityProviderTest {
         params.put("memberRole", "role-foo");
         params.put("userSearchValues", "user-foo");
 
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         EntityUser user = new EntityUser();
         user.setEid("user-foo");
         user.setId("user-foo");
         user.setEmail("user-foo@school.edu");
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        Map<String,org.sakaiproject.authz.api.Member> members = new HashMap<String,org.sakaiproject.authz.api.Member>();
-        members.put("user-foo", member);
-        site.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
 
         when(siteService.getSite("site.with.dots")).thenReturn(site);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
@@ -176,18 +176,18 @@ public class MembershipEntityProviderTest {
         params.put("memberRole", "role-foo");
         params.put("userSearchValues", "user-foo");
 
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         EntityUser user = new EntityUser();
         user.setEid("user-foo");
         user.setId("user-foo");
         user.setEmail("user-foo@school.edu");
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        Map<String,org.sakaiproject.authz.api.Member> members = new HashMap<String,org.sakaiproject.authz.api.Member>();
-        members.put("user-foo", member);
-        site.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
 
         when(siteService.getSite("site.with.dots")).thenReturn(site);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
@@ -208,19 +208,20 @@ public class MembershipEntityProviderTest {
         EntityView entityView = new EntityView("/membership/group/group.with.dots.json");
         entityView.setMethod(EntityView.Method.GET);
 
-        Site site = new Site();
-        site.setId("site-foo");
-        Group group = new Group(site);
-        group.setId("group.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site-foo");
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group.with.dots");
+        when(group.getContainingSite()).thenReturn(site);
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Map<String, org.sakaiproject.authz.api.Member> members = new HashMap<String, org.sakaiproject.authz.api.Member>();
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        members.put("user-foo", member);
-        group.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(group.getMembers()).thenReturn(members);;
 
         when(siteService.findGroup("group.with.dots")).thenReturn(group);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
@@ -240,19 +241,20 @@ public class MembershipEntityProviderTest {
         Map<String,Object> params = new HashMap<String,Object>();
         params.put("groupId", "group.with.dots");
 
-        Site site = new Site();
-        site.setId("site-foo");
-        Group group = new Group(site);
-        group.setId("group.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site-foo");
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group.with.dots");
+        when(group.getContainingSite()).thenReturn(site);
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Map<String, org.sakaiproject.authz.api.Member> members = new HashMap<String, org.sakaiproject.authz.api.Member>();
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        members.put("user-foo", member);
-        group.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(group.getMembers()).thenReturn(members);
 
         when(siteService.findGroup("group.with.dots")).thenReturn(group);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
@@ -273,19 +275,20 @@ public class MembershipEntityProviderTest {
         params.put("action", "remove");
         params.put("userIds", "user-foo");
 
-        Site site = new Site();
-        site.setId("site-foo");
-        Group group = new Group(site);
-        group.setId("group.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site-foo");
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group.with.dots");
+        when(group.getContainingSite()).thenReturn(site);
         ResourceProperties groupProperties = new BaseResourceProperties();
         groupProperties.addProperty("group_prop_wsetup_created", "true");
-        group.setProperties(groupProperties);
-        Map<String, org.sakaiproject.authz.api.Member> members = new HashMap<String, org.sakaiproject.authz.api.Member>();
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        members.put("user-foo", member);
-        group.setMembers(members);
+        when(group.getProperties()).thenReturn(groupProperties);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
 
         when(siteService.findGroup("group.with.dots")).thenReturn(group);
         when(siteService.allowUpdateSite("site-foo")).thenReturn(true);
@@ -305,17 +308,18 @@ public class MembershipEntityProviderTest {
 
     @Test
     public void getEntityPreservesDotsInEntityIds() throws IdUnusedException {
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        Map<String,org.sakaiproject.authz.api.Member> members = new HashMap<String,org.sakaiproject.authz.api.Member>();
-        members.put("user-foo", member);
-        site.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
+        when(site.getMember("user-foo")).thenReturn(member);
 
         when(siteService.getSite("site.with.dots")).thenReturn(site);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
@@ -342,17 +346,17 @@ public class MembershipEntityProviderTest {
         // resolve, but nobody would actually do that b/c it doesn't affect the returned content type.
         search.addRestriction(new Restriction(CollectionResolvable.SEARCH_LOCATION_REFERENCE, "/site/site.with.dots"));
 
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        Map<String,org.sakaiproject.authz.api.Member> members = new HashMap<String,org.sakaiproject.authz.api.Member>();
-        members.put("user-foo", member);
-        site.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
 
         when(siteService.getSite("site.with.dots")).thenReturn(site);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
@@ -372,19 +376,20 @@ public class MembershipEntityProviderTest {
         // resolve, but nobody would actually do that b/c it doesn't affect the returned content type.
         search.addRestriction(new Restriction(CollectionResolvable.SEARCH_LOCATION_REFERENCE, "/group/group.with.dots"));
 
-        Site site = new Site();
-        site.setId("site-foo");
-        Group group = new Group(site);
-        group.setId("group.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site-foo");
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group.with.dots");
+        when(group.getContainingSite()).thenReturn(site);
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Map<String, org.sakaiproject.authz.api.Member> members = new HashMap<String, org.sakaiproject.authz.api.Member>();
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        members.put("user-foo", member);
-        group.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(group.getMembers()).thenReturn(members);
 
         when(siteService.findGroup("group.with.dots")).thenReturn(group);
         when(developerHelperService.getCurrentUserReference()).thenReturn("/user/me");
@@ -408,8 +413,8 @@ public class MembershipEntityProviderTest {
         member.setActive(true);
         member.setLocationReference("/site/site.with.dots");
 
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         site.setJoinable(true);
 
         when(siteService.getSite("site.with.dots")).thenReturn(site);
@@ -431,11 +436,12 @@ public class MembershipEntityProviderTest {
         member.setActive(true);
         member.setLocationReference("/group/group.with.dots");
 
-        Site site = new Site();
-        site.setId("site-foo");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site-foo");
         site.setJoinable(true);
-        Group group = new Group(site);
-        group.setId("group.with.dots");
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group.with.dots");
+        when(group.getContainingSite()).thenReturn(site);
 
 
         when(siteService.findGroup("group.with.dots")).thenReturn(group);
@@ -453,44 +459,44 @@ public class MembershipEntityProviderTest {
     public void deleteEntityPreservesDotsInSiteIds() throws IdUnusedException, PermissionException {
         EntityReference ref = new EntityReference("membership", "user-foo::site:site.with.dots");
 
-        Site site = new Site();
-        site.setId("site.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site.with.dots");
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        Map<String,org.sakaiproject.authz.api.Member> members = new HashMap<String,org.sakaiproject.authz.api.Member>();
-        members.put("user-foo", member);
-        site.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
 
         when(siteService.getSite("site.with.dots")).thenReturn(site);
 
         provider.deleteEntity(ref, new HashMap<String, Object>());
 
         verify(siteService).saveSiteMembership(site);
-        assertEquals(0, site.getMembers().size());
-
+        verify(site).removeMember("user-foo");
     }
 
     @Test
     public void deleteEntityPreservesDotsInGroupIds() throws PermissionException, IdUnusedException {
         EntityReference ref = new EntityReference("membership", "user-foo::group:group.with.dots");
 
-        Site site = new Site();
-        site.setId("site-foo");
-        Group group = new Group(site);
-        group.setId("group.with.dots");
+        Site site = mock(Site.class);
+        when(site.getId()).thenReturn("site-foo");
+        Group group = mock(Group.class);
+        when(group.getId()).thenReturn("group.with.dots");
+        when(group.getContainingSite()).thenReturn(site);
         EntityUser user = new EntityUser();
         user.setId("user-foo");
         user.setEid("user-foo");
-        Map<String, org.sakaiproject.authz.api.Member> members = new HashMap<String, org.sakaiproject.authz.api.Member>();
-        Member member = new Member();
-        member.setUserId("user-foo");
-        member.setUserEid("user-foo");
-        members.put("user-foo", member);
-        group.setMembers(members);
+        Member member = mock(Member.class);
+        when(member.getUserId()).thenReturn("user-foo");
+        when(member.getUserEid()).thenReturn("user-foo");
+        Set<Member> members = new HashSet<Member>();
+        members.add(member);
+        when(site.getMembers()).thenReturn(members);
 
         when(siteService.findGroup("group.with.dots")).thenReturn(group);
 
