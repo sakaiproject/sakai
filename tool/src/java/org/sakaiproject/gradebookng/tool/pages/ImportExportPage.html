@@ -12,9 +12,9 @@
             <a wicket:id="downloadBlankTemplate" wicket:message="title:importExport.step1.button.blankTemplate">
                 <wicket:message key="importExport.step1.button.blankTemplate" />
             </a>
-            <!--<a wicket:id="downloadFullGradebook" wicket:message="title:importExport.step1.button.fullGradebook">-->
-                <!--<wicket:message key="importExport.step1.button.fullGradebook" />-->
-            <!--</a>-->
+            <a wicket:id="downloadFullGradebook" wicket:message="title:importExport.step1.button.fullGradebook">
+                <wicket:message key="importExport.step1.button.fullGradebook" />
+            </a>
         </div>
     </div>
 
@@ -25,6 +25,17 @@
     <div>
         <div><wicket:message key="importExport.step3.heading" /></div>
         <div><wicket:message key="importExport.step3.description" /></div>
+
+        <form wicket:id="form">
+
+            <input type="file" wicket:id="upload" />
+
+            <div class="act">
+                <input type="submit" />
+                <input type="cancel" />
+            </div>
+        </form>
+
     </div>
 	
 </wicket:extend>
