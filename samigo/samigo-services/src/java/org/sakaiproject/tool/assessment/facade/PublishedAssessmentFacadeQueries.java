@@ -2272,20 +2272,16 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			
 		List l = getHibernateTemplate().executeFind(eval_model);
 		HashMap scoringTypeMap = new HashMap();
-		HashMap subissionAllowedMap = new HashMap();
 		Iterator iter = l.iterator();
 		while (iter.hasNext()) {
 			Object o[] = (Object[]) iter.next(); 
 			scoringTypeMap.put(o[0], o[1]);
-			subissionAllowedMap.put(o[0], o[2]);
 		}
 		
 		// The sorting for each column will be done in the action listener.
 		ArrayList assessmentList = new ArrayList();
 		Long currentid = new Long("0");
 		Integer scoringOption = EvaluationModelIfc.LAST_SCORE; // use Last as
-		Integer submissionAllowed = null;
-		boolean multiSubmissionAllowed = false;
 
 		// now go through the last_list, and get the first entry in the list for
 		// each publishedAssessment, if
@@ -2302,25 +2298,14 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				// I use Last as default because it is what set above
 				scoringOption = EvaluationModelIfc.LAST_SCORE; 
 			}
-			if (subissionAllowedMap.get(a.getPublishedAssessmentId()) != null) {
-				submissionAllowed = (Integer) subissionAllowedMap.get(a.getPublishedAssessmentId());
-			}
-			else {
-				submissionAllowed = null;
-			}
-			if (submissionAllowed != null) {
-				if (submissionAllowed.intValue() == 1) {
-					scoringOption = EvaluationModelIfc.LAST_SCORE;
-				}
-			}
 			
 			if (EvaluationModelIfc.LAST_SCORE.equals(scoringOption)) {
 				if (!a.getPublishedAssessmentId().equals(currentid) || allAssessments) {
-					AssessmentGradingData f = a;
+
 					if (!a.getPublishedAssessmentId().equals(currentid)) {
-						f.setIsRecorded(true);
+						a.setIsRecorded(true);
 					}
-					assessmentList.add(f);
+					assessmentList.add(a);
 					currentid = a.getPublishedAssessmentId();
 				}	
 			}
@@ -2329,6 +2314,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		// now go through the highest_list ,and get the first entry in the list
 		// for each publishedAssessment.
 
+		currentid = 0L;
 		for (int i = 0; i < highest_list.size(); i++) {
 			AssessmentGradingData a = (AssessmentGradingData) highest_list
 					.get(i);
@@ -2341,38 +2327,21 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 				// I use Last as default because it is what set above
 				scoringOption = EvaluationModelIfc.LAST_SCORE; 
 			}
-			if (subissionAllowedMap.get(a.getPublishedAssessmentId()) != null) {
-				submissionAllowed = (Integer) subissionAllowedMap.get(a.getPublishedAssessmentId());
-			}
-			else {
-				submissionAllowed = null;
-			}
-			if (submissionAllowed != null) {
-				if (submissionAllowed.intValue() > 1) {
-					multiSubmissionAllowed = true;
-				}
-				else {
-					multiSubmissionAllowed = false;
-				}
-			}
-			else {
-				multiSubmissionAllowed = true;
-			}
 			
-			if (multiSubmissionAllowed && (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption))) {
+			if (EvaluationModelIfc.HIGHEST_SCORE.equals(scoringOption)) {
 				if (!a.getPublishedAssessmentId().equals(currentid) || allAssessments) {
-					AssessmentGradingData f = a;
+					
 					if (!a.getPublishedAssessmentId().equals(currentid)) {
-						f.setIsRecorded(true);
+						a.setIsRecorded(true);
 					}
-					assessmentList.add(f);
+					assessmentList.add(a);
 					currentid = a.getPublishedAssessmentId();
 				}	
 			}
 
 			if (EvaluationModelIfc.AVERAGE_SCORE.equals(scoringOption)) {
-				AssessmentGradingData f = a;
-				assessmentList.add(f);
+				
+				assessmentList.add(a);
 			}
 
 		}
