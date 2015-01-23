@@ -237,7 +237,7 @@
                             <goal>precompile</goal>
                         </goals>
                         <configuration>
-                            <output>${project.build.directory}/${project.build.finalName}/templates.handlebars</output>
+                            <output>${project.build.directory}/${project.build.finalName}/templates.js</output>
                             <prefix>${basedir}/src/handlebars</prefix>
                             <suffix>.handlebars</suffix>
                             <handlebarsJsFile>/handlebars-v2.0.0.js</handlebarsJsFile>
