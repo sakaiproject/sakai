@@ -208,7 +208,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] html5Types = null;
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
-        SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
+	SimpleDateFormat isoDateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
     // WARNING: this must occur after memoryService, for obvious reasons. 
     // I'm doing it this way because it doesn't appear that Spring can do this kind of initialization
@@ -216,7 +216,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // an init method
 	private static Cache urlCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.producers.ShowPageProducer.url.cache");
         String browserString = ""; // set by checkIEVersion;
-
     	public static int majorVersion = getMajorVersion();
 
 	protected static final int DEFAULT_EXPIRATION = 10 * 60;
@@ -410,6 +409,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		boolean canSeeAll = simplePageBean.canSeeAll();  // always on if caneditpage
 		
 		boolean cameFromGradingPane = params.getPath().equals("none");
+
+		TimeZone localtz = timeService.getLocalTimeZone();
+		isoDateFormat.setTimeZone(localtz);
 
 		if (!canReadPage) {
 			// this code is intended for the situation where site permissions
@@ -2437,7 +2439,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							
 							if (peerEvalDate != null && peerDueDate != null) {
 								DateFormat df = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.SHORT, M_locale);
-								
 								//Open date from attribute string
 								peerevalcal.setTimeInMillis(Long.valueOf(peerEvalDate));
 								
@@ -2457,7 +2458,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								//Default open and due date
 								Date now = new Date();
 								peerevalcal.setTime(now);
-								
+
 								//Default open date: now
 								String dateStr = isoDateFormat.format(peerevalcal.getTime());
 								
