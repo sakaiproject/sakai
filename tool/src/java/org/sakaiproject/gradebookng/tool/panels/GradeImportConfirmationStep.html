@@ -2,5 +2,49 @@
 
     <div><wicket:message key="importExport.confirmation.heading" /></div>
     <div><wicket:message key="importExport.confirmation.description" /></div>
+    <div><wicket:message key="importExport.confirmation.note" /></div>
+
+    <!--<form wicket:id="form">-->
+        <!--<span wicket:id="group">-->
+            <!--<input type="checkbox" wicket:id="groupselector">check/uncheck all</input>-->
+            <!--<tr wicket:id="grades">-->
+                <!--<td><input type="checkbox" wicket:id="checkbox"/></td>-->
+                <!--<td><span wicket:id="studentId">[this is where name will be]</span></td>-->
+                <!--<td><span wicket:id="studentName">[this is where lastname will be]</span></td>-->
+            <!--</tr>-->
+        <!--</span>-->
+    <!--</form>-->
+
+    <form wicket:id="form">
+        <span wicket:id="group">
+            <table style="border: 2px dotted #fc0; width: 400px; padding: 5px;">
+                <tr>
+                    <td valign="top">Select grades</td>
+                    <td>
+                        <input type="checkbox" wicket:id="groupselector">check/uncheck all</input><br/>
+                        <table cellspacing="0" cellpadding="2">
+                            <tr>
+                                <td><b>Select</b></td>
+                                <td><b>Student ID</b></td>
+                                <td><b>Student Name</b></td>
+                            </tr>
+                            <tr wicket:id="grades">
+                                <td><input type="checkbox" wicket:id="checkbox"/></td>
+                                <td><span wicket:id="studentId">[this is where studentId will be]</span></td>
+                                <td><span wicket:id="studentName">[this is where studentName will be]</span></td>
+                            </tr>
+                        </table>
+                  <span valign="top">
+                  </span>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2" align="center">
+                        <input type="submit" value="submit" />
+                    </td>
+                </tr>
+            </table>
+        </span>
+    </form>
 
 </wicket:panel>

@@ -89,6 +89,7 @@ public class GradeImportUploadStep extends Panel {
     private File buildFile(boolean includeGrades) {
         File tempFile;
         try {
+            //TODO - Maybe use CSVWriter here?
             //TODO - add the site name to the file?
             tempFile = File.createTempFile("gradebookTemplate", ".csv");
 
@@ -164,7 +165,7 @@ public class GradeImportUploadStep extends Panel {
                         error(getString("error.parse.upload"));
                     } else {
                         //GO TO NEXT PAGE
-                        System.out.println(importedGrades.size());
+                        log.debug(importedGrades.size());
 
 						//repaint panel
 						Component newPanel = new GradeImportConfirmationStep(panelId, importedGrades);
