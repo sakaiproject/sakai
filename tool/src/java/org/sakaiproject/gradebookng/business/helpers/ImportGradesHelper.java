@@ -10,11 +10,15 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
+import org.sakaiproject.gradebookng.business.model.ImportedGradeItem;
+import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +31,9 @@ public class ImportGradesHelper extends BaseImportHelper {
 
     private static final String IMPORT_USER_ID="Student ID";
     private static final String IMPORT_USER_NAME="Student Name";
+
+    protected static final String ASSIGNMENT_HEADER_PATTERN = "{0} [{1}]";
+    protected static final String ASSIGNMENT_HEADER_COMMENT_PATTERN = "*/ {0} Comments */";;
 
 
     /**
@@ -65,6 +72,10 @@ public class ImportGradesHelper extends BaseImportHelper {
                 e.printStackTrace();
             }
         }
+
+        ImportedGradeWrapper importedGradeWrapper = new ImportedGradeWrapper();
+//        importedGradeWrapper.setAssignmentNames();
+        importedGradeWrapper.setImportedGrades(list);
 
         return list;
     }
@@ -107,6 +118,61 @@ public class ImportGradesHelper extends BaseImportHelper {
         return list;
     }
 
+    private static List<String> processAssignmentNames(Map<Integer,String> mapping) {
+        List<String> assignmentNames = new ArrayList<String>();
+        for(Map.Entry<Integer,String> entry: mapping.entrySet()) {
+            int i = entry.getKey();
+            //trim in case some whitespace crept in
+            String col = trim(entry.getValue());
+
+            //Find all columns that are not well known
+            if(!StringUtils.equals(col, IMPORT_USER_ID) && !StringUtils.equals(col, IMPORT_USER_NAME)) {
+
+                String assignmentName = parseHeaderForAssignmentName(col);
+                if (!assignmentNames.contains(assignmentName))
+                    assignmentNames.add(assignmentName);
+            }
+        }
+        return assignmentNames;
+    }
+
+    private static String parseHeaderForAssignmentName(String headerValue) {
+        MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_PATTERN);
+        Object[] parsedObject;
+        try {
+            parsedObject = mf.parse(headerValue);
+        } catch (ParseException e) {
+            mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_COMMENT_PATTERN);
+            try {
+                parsedObject = mf.parse(headerValue);
+            } catch (ParseException e1) {
+                throw new RuntimeException("Error parsing grade import");
+            }
+        }
+
+        return (String)parsedObject[0];
+    }
+
+    private static boolean isCommentsColumn(String headerValue) {
+        MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_COMMENT_PATTERN);
+        try {
+            mf.parse(headerValue);
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
+    }
+
+    private static boolean isGradeColumn(String headerValue) {
+        MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_PATTERN);
+        try {
+            mf.parse(headerValue);
+        } catch (ParseException e) {
+            return false;
+        }
+        return true;
+    }
+
     /**
      * Takes a row of data and maps it into the appropriate ImportedGrade properties
      * We have a fixed list of properties, anything else goes into ResourceProperties
@@ -124,19 +190,29 @@ public class ImportGradesHelper extends BaseImportHelper {
             //trim in case some whitespace crept in
             String col = trim(entry.getValue());
 
+
+
             //now check each of the main properties in turn to determine which one to set, otherwise set into props
             if(StringUtils.equals(col, IMPORT_USER_ID)) {
                 grade.setStudentId(trim(line[i]));
             } else if(StringUtils.equals(col, IMPORT_USER_NAME)) {
                 grade.setStudentName(trim(line[i]));
-//            } else if(StringUtils.equals(col, IMPORT_LAST_NAME)) {
-//                u.setLastName(trim(line[i]));
-//            } else if(StringUtils.equals(col, IMPORT_EMAIL)) {
-//                u.setEmail(trim(line[i]));
-//            } else if(StringUtils.equals(col, IMPORT_PASSWORD)) {
-//                u.setPassword(trim(line[i]));
-//            } else if(StringUtils.equals(col, IMPORT_TYPE)) {
-//                u.setType(trim(line[i]));
+            } else if(isGradeColumn(col)) {
+                String assignmentName = parseHeaderForAssignmentName(col);
+                ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
+                if (importedGradeItem == null) {
+                    importedGradeItem = new ImportedGradeItem();
+                    grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+                }
+                importedGradeItem.setGradeItemScore(trim(line[i]));
+            } else if(isCommentsColumn(col)) {
+                String assignmentName = parseHeaderForAssignmentName(col);
+                ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
+                if (importedGradeItem == null) {
+                    importedGradeItem = new ImportedGradeItem();
+                    grade.getGradeItemMap().put(assignmentName, importedGradeItem);
+                }
+                importedGradeItem.setGradeItemComment(trim(line[i]));
             } else {
 
                 //only add if not blank
@@ -148,5 +224,10 @@ public class ImportGradesHelper extends BaseImportHelper {
 
         grade.setProperties(p);
         return grade;
+    }
+
+
+    public static void processImportedGrades(List<ImportedGrade> importedGrades) {
+
     }
 }

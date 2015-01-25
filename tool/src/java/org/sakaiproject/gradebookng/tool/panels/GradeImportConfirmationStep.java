@@ -22,37 +22,11 @@ public class GradeImportConfirmationStep extends Panel {
 
     private static final Logger log = Logger.getLogger(GradeImportConfirmationStep.class);
 
-//    private List<ImportedGrade> grades;
-
     public GradeImportConfirmationStep(String id, List<ImportedGrade> grades) {
         super(id);
-//        this.grades = grades;
-
-//
-//        Form form = new Form("form");
-//        add(form);
-//        final CheckGroup<ImportedGrade> group = new CheckGroup<ImportedGrade>("group");
-//        form.add(group);
-//        group.add(new CheckGroupSelector("groupselector"));
-//        ListView<ImportedGrade> gradeList = new ListView<ImportedGrade>("grades", grades) {
-//            protected void populateItem(ListItem<ImportedGrade> item) {
-//                final ImportedGrade grade = item.getModelObject();
-//
-//
-//
-//
-//                item.add(new Check("checkbox", new PropertyModel(grade, "selected")));
-//                item.add(new Label("studentId", grade.getStudentId()));
-//                item.add(new Label("studentName", grade.getStudentName()));
-////                item.add(new Label("properties", u.propertiesToMap().toString()));
-//            }
-//        };
-//        gradeList.setReuseItems(true);
-//        group.add(gradeList);
-
-
 
         final CheckGroup<ImportedGrade> group = new CheckGroup<ImportedGrade>("group", new ArrayList<ImportedGrade>());
+
         Form<?> form = new Form("form")
         {
             @Override

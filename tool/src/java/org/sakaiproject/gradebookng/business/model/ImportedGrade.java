@@ -4,9 +4,9 @@ import lombok.Data;
 import org.sakaiproject.entity.api.ResourceProperties;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -18,7 +18,7 @@ public class ImportedGrade implements Serializable {
     private String studentId;
     private String studentName;
 
-    private List<ImportedGradeItem> gradeItems;
+    private Map<String, ImportedGradeItem> gradeItemMap = new HashMap<String, ImportedGradeItem>();
 
     private ResourceProperties properties;
 
