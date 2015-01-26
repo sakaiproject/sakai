@@ -9,7 +9,7 @@ public class EventLogFacade
 implements java.io.Serializable
 {
 	private static final long serialVersionUID = 1L;
-	private static Log log = LogFactory.getLog(EventLogFacade.class);
+	private Log log = LogFactory.getLog(EventLogFacade.class);
 
 	private EventLogData data;
 	

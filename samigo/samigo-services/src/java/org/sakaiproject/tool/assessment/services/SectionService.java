@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.facade.SectionFacade;
  */
 public class SectionService
 {
-  private static Log log = LogFactory.getLog(SectionService.class);
+  private Log log = LogFactory.getLog(SectionService.class);
 
   /**
    * Creates a new SectionService object.

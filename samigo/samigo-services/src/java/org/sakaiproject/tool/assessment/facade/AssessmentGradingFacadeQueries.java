@@ -100,7 +100,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 import org.sakaiproject.event.cover.EventTrackingService;
 
 public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implements AssessmentGradingFacadeQueriesAPI{
-  private static Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
+  private Log log = LogFactory.getLog(AssessmentGradingFacadeQueries.class);
 
   /**
    * Default empty Constructor

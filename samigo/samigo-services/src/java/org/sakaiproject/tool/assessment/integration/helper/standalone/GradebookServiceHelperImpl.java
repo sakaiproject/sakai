@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceH
  */
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-	private static Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
+	private Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
 
 	public boolean isAssignmentDefined(String assessmentTitle, GradebookExternalAssessmentService g)
 	{

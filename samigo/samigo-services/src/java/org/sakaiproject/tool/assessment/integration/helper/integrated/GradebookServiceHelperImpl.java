@@ -64,7 +64,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  */
 public class GradebookServiceHelperImpl implements GradebookServiceHelper
 {
-  private static Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
+  private Log log = LogFactory.getLog(GradebookServiceHelperImpl.class);
 
   /**
    * Does a gradebook exist?

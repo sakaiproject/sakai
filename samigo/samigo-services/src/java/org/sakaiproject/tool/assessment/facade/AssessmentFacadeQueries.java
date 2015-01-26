@@ -99,7 +99,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		AssessmentFacadeQueriesAPI {
-	private static Log log = LogFactory.getLog(AssessmentFacadeQueries.class);
+	private Log log = LogFactory.getLog(AssessmentFacadeQueries.class);
 
 	// private ResourceBundle rb =
 	// ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.Messages");

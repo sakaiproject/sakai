@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 public class QuestionPoolFacade
     implements java.io.Serializable, QuestionPoolDataIfc, Cloneable
 {
-  private static Log log = LogFactory.getLog(QuestionPoolFacade.class);
+  private Log log = LogFactory.getLog(QuestionPoolFacade.class);
   private static final long serialVersionUID = 7526471155622776147L;
 
   public static final Long ACCESS_DENIED =  Long.valueOf(30);

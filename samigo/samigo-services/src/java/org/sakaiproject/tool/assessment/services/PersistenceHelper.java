@@ -31,7 +31,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class PersistenceHelper {
 	
-	private static Log log = LogFactory.getLog(PersistenceHelper.class);
+	private Log log = LogFactory.getLog(PersistenceHelper.class);
 	
 	
 	private Integer deadlockInterval; // in ms

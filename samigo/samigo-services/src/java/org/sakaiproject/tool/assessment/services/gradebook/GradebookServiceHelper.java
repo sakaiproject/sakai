@@ -33,7 +33,7 @@ import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
  */
 public class GradebookServiceHelper
 {
-    private static Log log = LogFactory.getLog(GradebookServiceHelper.class);
+    private Log log = LogFactory.getLog(GradebookServiceHelper.class);
 
     public static boolean addToGradebook(PublishedAssessmentData publishedAssessment) throws Exception {
       return false;

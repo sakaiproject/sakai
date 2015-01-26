@@ -52,7 +52,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class ItemFacadeQueries extends HibernateDaoSupport implements ItemFacadeQueriesAPI {
-  private static Log log = LogFactory.getLog(ItemFacadeQueries.class);
+  private Log log = LogFactory.getLog(ItemFacadeQueries.class);
 
   public ItemFacadeQueries() {
   }

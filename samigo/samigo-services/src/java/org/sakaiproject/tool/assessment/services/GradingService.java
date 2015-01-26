@@ -115,7 +115,7 @@ public class GradingService
   final Pattern CALCQ_FORMULA_SPLIT_PATTERN = Pattern.compile("(" + OPEN_BRACKET + OPEN_BRACKET + CALCQ_VAR_FORM_NAME + CLOSE_BRACKET + CLOSE_BRACKET + ")");
   final Pattern CALCQ_CALCULATION_PATTERN = Pattern.compile("\\[\\[([^\\[\\]]+?)\\]\\]?"); // non-greedy
 
-  private static Log log = LogFactory.getLog(GradingService.class);
+  private Log log = LogFactory.getLog(GradingService.class);
 
   /**
    * Get all scores for a published assessment from the back end.

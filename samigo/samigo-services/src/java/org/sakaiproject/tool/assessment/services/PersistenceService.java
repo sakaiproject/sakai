@@ -49,7 +49,7 @@ import org.sakaiproject.tool.assessment.facade.util.PagingUtilQueriesAPI;
  */
 public class PersistenceService{
 
-	private static Log log = LogFactory.getLog(PersistenceService.class);
+	private Log log = LogFactory.getLog(PersistenceService.class);
 	private QuestionPoolFacadeQueriesAPI questionPoolFacadeQueries;
 	private TypeFacadeQueriesAPI typeFacadeQueries;
 	private SectionFacadeQueriesAPI sectionFacadeQueries;

@@ -33,7 +33,7 @@ import org.osid.assessment.Section;
 public class SectionIteratorImpl
   implements org.osid.assessment.SectionIterator
 {
-  private static Log log = LogFactory.getLog(SectionIteratorImpl.class);
+  private Log log = LogFactory.getLog(SectionIteratorImpl.class);
   private Iterator sectionIterator;
 
   private Iterator sectionIter;

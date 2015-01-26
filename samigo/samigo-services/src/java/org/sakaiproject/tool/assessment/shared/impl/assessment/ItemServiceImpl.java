@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.ItemServiceAPI;
 public class ItemServiceImpl implements ItemServiceAPI
 {
 
-  private static Log log = LogFactory.getLog(ItemServiceImpl.class);
+  private Log log = LogFactory.getLog(ItemServiceImpl.class);
 
  /**
  * Get a particular item.

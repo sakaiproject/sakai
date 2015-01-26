@@ -40,7 +40,7 @@ import org.apache.commons.logging.LogFactory;
  */
 public class TextFormat
 {
-  private static Log log = LogFactory.getLog(TextFormat.class);
+  private Log log = LogFactory.getLog(TextFormat.class);
   private static final String HTML;
   private static final String SMART;
   private static final String PLAIN;
@@ -317,26 +317,6 @@ public class TextFormat
     return min;
   }
 
-  /**
-   * test
-   *
-   * @param args
-   */
-  public static void main(String[] args)
-  {
-    TextFormat tf = new TextFormat();
-    log.info(
-      tf.formatText(
-        "www.cs.iupui.edu ui.edu dd dd dd:):-) ff telnet:dd dddddupui.edu",
-        "SMART", ("http://oncourse.iu.edu/images/icons/")));
-    log.info(
-      tf.formatText(
-        "http://www.iupui.edu:80 www.ui.edu :( ::-( ddd", "SMART",
-        ("http://oncourse.iu.edu/images/icons/")));
-
-    log.debug(String.valueOf(System.identityHashCode(tf)));
-  }
-  
   public static String convertPlaintextToFormattedTextNoHighUnicode(Log log, String value) {
 	  if (value == null) return "";
 

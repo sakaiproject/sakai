@@ -42,7 +42,7 @@ public class GradebookFacade implements Serializable
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-private static Log log = LogFactory.getLog(GradebookFacade.class);
+private Log log = LogFactory.getLog(GradebookFacade.class);
   private static final GradebookHelper helper =
       IntegrationContextFactory.getInstance().getGradebookHelper();
   private static final boolean integrated =

@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetH
 
 public class PublishingTargetHelperImpl implements PublishingTargetHelper
 {
-  private static Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
+  private Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
 
     //private org.sakaiproject.component.api.ComponentManager cm;
 

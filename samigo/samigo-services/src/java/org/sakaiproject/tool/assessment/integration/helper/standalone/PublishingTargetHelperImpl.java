@@ -50,7 +50,7 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 
 public class PublishingTargetHelperImpl implements PublishingTargetHelper
 {
-  private static Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
+  private Log log = LogFactory.getLog(PublishingTargetHelperImpl.class);
 
   /**
    * Gets to whom you can publish.

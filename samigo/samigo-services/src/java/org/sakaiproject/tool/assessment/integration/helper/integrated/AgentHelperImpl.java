@@ -63,7 +63,7 @@ import org.sakaiproject.user.cover.UserDirectoryService;
  */
 public class AgentHelperImpl implements AgentHelper
 {
-  private static Log log = LogFactory.getLog(AgentHelperImpl.class);
+  private Log log = LogFactory.getLog(AgentHelperImpl.class);
   AgentImpl agent;
 
   /**

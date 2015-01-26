@@ -119,7 +119,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		implements PublishedAssessmentFacadeQueriesAPI {
 
-	private static Log log = LogFactory
+	private Log log = LogFactory
 			.getLog(PublishedAssessmentFacadeQueries.class);
 
 	public static final String STARTDATE = "assessmentAccessControl.startDate";

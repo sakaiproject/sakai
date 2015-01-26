@@ -77,8 +77,6 @@ public class RecordingData
 	 */
 	private static final long serialVersionUID = 4398684269227144959L;
 
-private static Log log = LogFactory.getLog(RecordingData.class);
-
   //properties
   private String agentName;
   private String agentId;
@@ -390,6 +388,7 @@ private static Log log = LogFactory.getLog(RecordingData.class);
  */
 public Document getXMLDataModel()
 {
+  Log log = LogFactory.getLog(RecordingData.class);
   Document document = null;
   DocumentBuilderFactory builderFactory =
     DocumentBuilderFactory.newInstance();
@@ -463,6 +462,8 @@ public Document getXMLDataModel()
    */
   public static void unitTest()
   {
+    Log log = LogFactory.getLog(RecordingData.class);
+
     RecordingData rd =
       new RecordingData(
         "Ed Smiley", "esmiley", "Intro to Wombats 101", "10", "30");

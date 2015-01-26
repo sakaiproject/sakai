@@ -15,7 +15,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class PublishedItemFacadeQueries extends HibernateDaoSupport implements
 		PublishedItemFacadeQueriesAPI {
-	private static Log log = LogFactory
+	private Log log = LogFactory
 			.getLog(PublishedItemFacadeQueries.class);
 
 	public IdImpl getItemId(String id) {

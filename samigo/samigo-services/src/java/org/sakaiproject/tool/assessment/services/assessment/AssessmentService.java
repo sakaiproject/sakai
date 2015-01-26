@@ -84,7 +84,7 @@ import org.sakaiproject.tool.cover.ToolManager;
  * @author Rachel Gollub <rgollub@stanford.edu>
  */
 public class AssessmentService {
-	private static Log log = LogFactory.getLog(AssessmentService.class);
+	private Log log = LogFactory.getLog(AssessmentService.class);
 	public static final int UPDATE_SUCCESS = 0;
 	public static final int UPDATE_ERROR_DRAW_SIZE_TOO_LARGE = 1;
 
@@ -980,6 +980,7 @@ public class AssessmentService {
 		}
 		catch (Exception e)
 		{
+			Log log = LogFactory.getLog(AssessmentService.class);
 			log.warn("escapeResourceName: ", e);
 			return id;
 		}

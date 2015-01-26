@@ -17,7 +17,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class FavoriteColChoicesFacadeQueries extends HibernateDaoSupport 
 					implements FavoriteColChoicesFacadeQueriesAPI {
-	private static Log log = LogFactory.getLog(FavoriteColChoicesFacadeQueries.class);
+	private Log log = LogFactory.getLog(FavoriteColChoicesFacadeQueries.class);
 	 public FavoriteColChoicesFacadeQueries () {
 	  }
 

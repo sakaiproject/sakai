@@ -64,7 +64,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class QuestionPoolFacadeQueries
     extends HibernateDaoSupport implements QuestionPoolFacadeQueriesAPI {
-  private static Log log = LogFactory.getLog(QuestionPoolFacadeQueries.class);
+  private Log log = LogFactory.getLog(QuestionPoolFacadeQueries.class);
   
   // SAM-2049
   private static final String VERSION_START = " - ";

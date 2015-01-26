@@ -56,7 +56,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.PublishedAssessmen
  */
 public class PublishedAssessmentServiceImpl implements PublishedAssessmentServiceAPI
 {
-  private static Log log = LogFactory.getLog(PublishedAssessmentServiceImpl.class);
+  private Log log = LogFactory.getLog(PublishedAssessmentServiceImpl.class);
 
   /**
   * Get list of all active published assessments with basic info populated.

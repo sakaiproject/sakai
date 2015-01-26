@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHe
  */
 public class IntegrationContext extends IntegrationContextFactory
 {
-  private static Log log = LogFactory.getLog(IntegrationContext.class);
+  private Log log = LogFactory.getLog(IntegrationContext.class);
 
   private boolean integrated;
   private AgentHelper agentHelper;
