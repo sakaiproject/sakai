@@ -26,8 +26,7 @@
 						<h3 class="textPanelHeader">$validator.escapeHtml($item.Header.Subject)</h3>
 					<p class="textPanelFooter"> ($!{validator.escapeHtml($item.Header.From.DisplayName)} - $!{releasedate.toStringLocalFull()})</p>
 					#else
-						#set ($text=$item.Body)
-						<div class="textPanel">$!{validator.escapeHtmlFormattedText($validator.limitFormattedText($text,$length))}</div>
+                        <div class="textPanel">$item.Body</div>
 					#end
 					#set ($size = 0)
 					#if (!$item.Header.Attachments.isEmpty())
