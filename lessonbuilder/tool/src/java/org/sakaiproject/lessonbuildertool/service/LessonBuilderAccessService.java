@@ -583,9 +583,9 @@ public class LessonBuilderAccessService {
 
 					// we only do copyright on resources. I.e. not on inline things,which are MULTIMEDIA
 					if (item.getType() == SimplePageItem.RESOURCE && 
-					    needsCopyright(resource))
+					    needsCopyright(resource)) {
 					    throw new EntityCopyrightException(resource.getReference());
-  
+					}  
 					try {
 					    // following cast is redundant is current kernels, but is needed for Sakai 2.6.1
 						long len = (long)resource.getContentLength();
@@ -908,6 +908,14 @@ public class LessonBuilderAccessService {
 					    // throw new EntityNotDefinedException(ref.getReference(), t);
 					}
 					
+			// not sure why we're trapping exceptions and calling them not defined, but
+			// a few types are needed by the caller
+				} catch(EntityCopyrightException ce) {
+				    // copyright exception needs to go as is, to give copyright alert
+				    throw ce;
+				} catch(EntityPermissionException pe) {
+				    // also want permission exceptions; it will generate a login page
+				    throw pe;
 				} catch(Exception ex) {
 					throw new EntityNotDefinedException(ref.getReference());
 				}finally {
