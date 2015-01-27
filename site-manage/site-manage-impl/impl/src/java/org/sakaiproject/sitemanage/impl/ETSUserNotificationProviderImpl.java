@@ -67,11 +67,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
    private static final String SITE_IMPORT_EMAIL_TEMPLATE_VAR_INSTITUTION 	= "institution";
    private static final String SAK_PROP_UI_INSTITUTION						= "ui.institution";
 	
-	private EmailService emailService; 
-	
-    // email template sent during site join; see JoinSiteDelegate class in kernel
-   	private static final String JOIN_EMAIL_TEMPLATE_FILE_NAME = "joinNotification.xml";
-    private static final String JOIN_EMAIL_TEMPLATE_KEY = "sitemanage.joinNotification";    // The name (key) of the email template
+	private EmailService emailService;
 	
 	public void setEmailService(EmailService es) {
 		emailService = es;
@@ -131,9 +127,6 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
     	loadTemplate("notifyCourseRequestSupport.xml", NOTIFY_COURSE_REQUEST_SUPPORT);
     	loadTemplate("notifySiteCreation.xml", NOTIFY_SITE_CREATION);
     	loadTemplate("notifySiteCreationConfirmation.xml", NOTIFY_SITE_CREATION_CONFIRMATION);
-			
-        // email sent during site join; see JoinSiteDelegate class in kernel
-        loadTemplate(JOIN_EMAIL_TEMPLATE_FILE_NAME, JOIN_EMAIL_TEMPLATE_KEY);
 			
         loadTemplate(SITE_IMPORT_EMAIL_TEMPLATE_FILE_NAME, SITE_IMPORT_EMAIL_TEMPLATE_KEY);
 			
