@@ -24,7 +24,7 @@ import org.hibernate.Session;
 public class EventLogFacadeQueries extends HibernateDaoSupport
 implements EventLogFacadeQueriesAPI {
 
-	private static Log log = LogFactory
+	private Log log = LogFactory
 	.getLog(EventLogFacadeQueries.class);
 
 

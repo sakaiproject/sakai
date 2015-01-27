@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradingServiceAPI;
 
 public class GradingServiceImpl implements GradingServiceAPI
 {
-  private static Log log = LogFactory.getLog(GradingServiceImpl.class);
+  private Log log = LogFactory.getLog(GradingServiceImpl.class);
 
   /**
    * Get all scores for a published assessment from the back end.

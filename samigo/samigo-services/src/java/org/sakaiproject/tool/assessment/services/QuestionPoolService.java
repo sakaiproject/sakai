@@ -48,7 +48,7 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolIteratorFacade;
  */
 public class QuestionPoolService
 {
-    private static Log log = LogFactory.getLog(QuestionPoolService.class);
+    private Log log = LogFactory.getLog(QuestionPoolService.class);
 
   /**
    * Creates a new QuestionPoolService object.

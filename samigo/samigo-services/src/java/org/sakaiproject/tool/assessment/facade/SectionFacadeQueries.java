@@ -36,7 +36,7 @@ import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class SectionFacadeQueries  extends HibernateDaoSupport implements SectionFacadeQueriesAPI {
-  private static Log log = LogFactory.getLog(SectionFacadeQueries.class);
+  private Log log = LogFactory.getLog(SectionFacadeQueries.class);
 
   public SectionFacadeQueries () {
   }

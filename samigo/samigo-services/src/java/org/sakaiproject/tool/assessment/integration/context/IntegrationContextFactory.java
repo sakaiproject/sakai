@@ -41,7 +41,6 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHe
  */
 public abstract class IntegrationContextFactory
 {
-  private static Log log = LogFactory.getLog(IntegrationContextFactory.class);
   private static IntegrationContextFactory instance=null;
 
   /**
@@ -50,6 +49,7 @@ public abstract class IntegrationContextFactory
    */
   public static IntegrationContextFactory getInstance()
   {
+    Log log = LogFactory.getLog(IntegrationContextFactory.class);
     log.debug("IntegrationContextFactory.getInstance()");
     if (instance==null)
     {
@@ -69,6 +69,7 @@ public abstract class IntegrationContextFactory
   
   public static IntegrationContextFactory getTestInstance()
   {
+	    Log log = LogFactory.getLog(IntegrationContextFactory.class);
 	    log.debug("IntegrationContextFactory.getTestInstance()");
 	    if (instance==null)
 	    {

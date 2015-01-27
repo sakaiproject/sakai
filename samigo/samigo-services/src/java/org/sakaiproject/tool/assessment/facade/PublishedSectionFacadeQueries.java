@@ -7,7 +7,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 
 public class PublishedSectionFacadeQueries extends HibernateDaoSupport
 		implements PublishedSectionFacadeQueriesAPI {
-	private static Log log = LogFactory.getLog(PublishedSectionFacadeQueries.class);
+	private Log log = LogFactory.getLog(PublishedSectionFacadeQueries.class);
 
 	  public IdImpl getId(String id) {
 	    return new IdImpl(id);

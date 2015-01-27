@@ -46,7 +46,7 @@ import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
 public class AuthzQueriesFacade
           extends HibernateDaoSupport implements AuthzQueriesFacadeAPI
 {
-  private static Log log = LogFactory.getLog(AuthzQueriesFacade.class);
+  private Log log = LogFactory.getLog(AuthzQueriesFacade.class);
 
   // stores sql strings
   private static ResourceBundle res = ResourceBundle.getBundle(

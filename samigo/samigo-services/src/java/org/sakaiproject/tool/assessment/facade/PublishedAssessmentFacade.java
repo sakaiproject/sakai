@@ -49,7 +49,7 @@ public class PublishedAssessmentFacade
     implements java.io.Serializable, PublishedAssessmentIfc, Cloneable
 {
   private static final long serialVersionUID = 7526471155622776147L;
-  private static Log log = LogFactory.getLog(PublishedAssessmentFacade.class);
+  private Log log = LogFactory.getLog(PublishedAssessmentFacade.class);
   public static final Integer ACTIVE_STATUS =  Integer.valueOf(1);
   public static final Integer INACTIVE_STATUS = Integer.valueOf(0);
   public static final Integer ANY_STATUS = Integer.valueOf(2);

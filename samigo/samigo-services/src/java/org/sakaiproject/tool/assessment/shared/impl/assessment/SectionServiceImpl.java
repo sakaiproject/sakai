@@ -37,7 +37,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SectionServiceAPI;
  */
 public class SectionServiceImpl implements SectionServiceAPI
 {
-  private static Log log = LogFactory.getLog(SectionServiceImpl.class);
+  private Log log = LogFactory.getLog(SectionServiceImpl.class);
   public SectionServiceImpl()
   {
   }

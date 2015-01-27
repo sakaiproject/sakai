@@ -27,7 +27,6 @@ import java.io.File;
  
 public class MimeTypesLocator{
 
-  //private static Log log = LogFactory.getLog(MimeTypesLocator.class);
   private static MimeTypesLocator instance = null;
   private static MimetypesFileTypeMap map = null;
 

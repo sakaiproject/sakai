@@ -56,8 +56,6 @@ import org.sakaiproject.tool.assessment.util.StringParseUtils;
  */
 public class FileNamer
 {
-  private static Log log = LogFactory.getLog(RecordingData.class);
-
   // internals
   private static final int maxAgentName = 20;
   private static final int maxAgentId = 10;
@@ -118,6 +116,8 @@ public class FileNamer
    */
   public static void unitTest()
   {
+    Log log = LogFactory.getLog(RecordingData.class);
+
     String s;
     s = make("Ed Smiley", "esmiley", "Intro to Wombats 101");
     log.debug("esmiley file: " + s);

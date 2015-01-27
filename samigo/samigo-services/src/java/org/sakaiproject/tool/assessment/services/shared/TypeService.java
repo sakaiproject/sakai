@@ -38,7 +38,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  */
 public class TypeService
 {
-  private static Log log = LogFactory.getLog(TypeService.class);
+  private Log log = LogFactory.getLog(TypeService.class);
 
   /**
    * Creates a new QuestionPoolService object.

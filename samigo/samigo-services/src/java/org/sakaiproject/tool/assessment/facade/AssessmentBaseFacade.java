@@ -45,7 +45,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 
 public class AssessmentBaseFacade
     implements java.io.Serializable, AssessmentBaseIfc{
-  private static Log log = LogFactory.getLog(AssessmentBaseFacade.class);
+  private Log log = LogFactory.getLog(AssessmentBaseFacade.class);
 
   private AssessmentImpl assessmentImpl = new AssessmentImpl(); //<-- place holder
   protected org.osid.assessment.Assessment assessment =

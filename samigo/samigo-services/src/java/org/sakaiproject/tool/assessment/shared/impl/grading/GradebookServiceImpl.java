@@ -41,7 +41,7 @@ import org.sakaiproject.tool.assessment.shared.api.grading.GradebookServiceAPI;
  */
 public class GradebookServiceImpl implements GradebookServiceAPI
 {
-  //private static Log log = LogFactory.getLog(GradebookServiceImpl.class);
+  //private Log log = LogFactory.getLog(GradebookServiceImpl.class);
 
 
   public boolean isAssignmentDefined(String assessmentTitle)

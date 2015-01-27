@@ -34,8 +34,6 @@ import org.apache.commons.logging.LogFactory;
  * @version $Id$
  */
 public class MimeType {
-  private static Log log = LogFactory.getLog(MimeType.class);
-
   private static HashMap extensionMime = new HashMap();
   private static HashMap mimeExtension = new HashMap();
   private static boolean loaded = false;
@@ -47,6 +45,7 @@ public class MimeType {
    */
   public static void main(String[] args)
   {
+    Log log = LogFactory.getLog(MimeType.class);
     log.info("mime for BMP= " + get("BMP"));
     log.info("mime for .zip= " + get(".zip"));
     log.info("mime for .HTM= " + get (".HTM"));

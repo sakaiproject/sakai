@@ -29,7 +29,7 @@ import org.springframework.core.io.Resource;
  */
 public class SecureDeliveryServiceImpl implements SecureDeliveryServiceAPI {
 	
-	private static Log log = LogFactory.getLog( SecureDeliveryServiceImpl.class );
+	private Log log = LogFactory.getLog( SecureDeliveryServiceImpl.class );
 	
 	/*
 	 * Implementation of the SecureDeliveryModuleIfc interface with name,id ordering, except for id=NONE_ID

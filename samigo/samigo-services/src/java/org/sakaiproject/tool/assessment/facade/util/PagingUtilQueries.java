@@ -36,7 +36,7 @@ import org.hibernate.Session;
 
 public class PagingUtilQueries
     extends HibernateDaoSupport implements PagingUtilQueriesAPI{
-    private static Log log = LogFactory.getLog(PagingUtilQueries.class);
+    private Log log = LogFactory.getLog(PagingUtilQueries.class);
 
   public PagingUtilQueries () {
   }

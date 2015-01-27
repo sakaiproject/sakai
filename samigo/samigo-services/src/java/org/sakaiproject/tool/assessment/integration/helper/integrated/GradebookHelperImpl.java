@@ -49,7 +49,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 
 public class GradebookHelperImpl implements GradebookHelper
 {
-  private static Log log = LogFactory.getLog(GradebookHelperImpl.class);
+  private Log log = LogFactory.getLog(GradebookHelperImpl.class);
 
   /**
    * Get current gradebook uid.

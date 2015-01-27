@@ -21,12 +21,16 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.IHeaderContributor;
 import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
+
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -46,6 +50,19 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		// Set Sakai Locale
 		ResourceLoader rl = new ResourceLoader();
 		getSession().setLocale(rl.getLocale());
+
+        WebMarkupContainer html = new WebMarkupContainer("html") {
+
+            public boolean isTransparentResolver() {
+                return true;
+            }
+        };
+
+        String locale = getSession().getLocale().toString();
+        html.add(new SimpleAttributeModifier("lang", locale));
+        html.add(new SimpleAttributeModifier("xml:lang", locale));
+
+        add(html);
 	}
 
 	public void renderHead(IHeaderResponse response) {

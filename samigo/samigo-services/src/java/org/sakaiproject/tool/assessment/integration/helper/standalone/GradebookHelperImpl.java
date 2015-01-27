@@ -47,7 +47,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookHelper;
  */
 public class GradebookHelperImpl implements GradebookHelper
 {
-  private static Log log = LogFactory.getLog(GradebookHelperImpl.class);
+  private Log log = LogFactory.getLog(GradebookHelperImpl.class);
 
   /**
    * Hardcoded stub.  Get current gradebook uid.

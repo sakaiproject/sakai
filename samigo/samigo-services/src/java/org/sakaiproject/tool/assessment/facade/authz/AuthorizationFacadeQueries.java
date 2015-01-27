@@ -47,7 +47,7 @@ import org.apache.commons.logging.LogFactory;
 public class AuthorizationFacadeQueries
    extends HibernateDaoSupport implements AuthorizationFacadeQueriesAPI{
 
-  private static Log log = LogFactory.getLog(AuthorizationFacadeQueries.class);
+  private Log log = LogFactory.getLog(AuthorizationFacadeQueries.class);
 
   public AuthorizationFacadeQueries() {
   }

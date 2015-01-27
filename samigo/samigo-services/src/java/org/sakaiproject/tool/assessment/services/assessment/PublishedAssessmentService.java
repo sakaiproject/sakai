@@ -62,7 +62,7 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
  * @author Rachel Gollub <rgollub@stanford.edu>
  */
 public class PublishedAssessmentService extends AssessmentService{
-  private static Log log = LogFactory.getLog(PublishedAssessmentService.class);
+  private Log log = LogFactory.getLog(PublishedAssessmentService.class);
 
   /**
    * Creates a new QuestionPoolService object.
