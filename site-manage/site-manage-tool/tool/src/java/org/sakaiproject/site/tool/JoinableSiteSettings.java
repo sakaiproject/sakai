@@ -427,8 +427,7 @@ public class JoinableSiteSettings
 	 * Perform the steps needed to join a site. This includes determining if the global switch for
 	 * join limited by account type is enabled, as well as if it's enabled for the current site along
 	 * with the allowed account types set for the current site. The joiner group is also checked, and
-	 * joined if necessary. It will also send email notifications on join only if it is enabled both
-	 * globally and for the site.
+	 * joined if necessary.
 	 * 
 	 * Update: (Dec 2013 - sfoster9@uwo.ca) these checks are now in kernel's join method, so just call join
 	 * 
