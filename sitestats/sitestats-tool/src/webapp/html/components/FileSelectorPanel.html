@@ -22,7 +22,7 @@
     <wicket:head>
         <wicket:link>
             <style type="text/css">
-			      #container {
+			      #sitestats-container {
 			         background-color: white;
 			         border: 1px solid #888888;
 			         width: 290px;
@@ -32,7 +32,7 @@
 			         display: block;
 			         margin: 0.1em 0.3em;
 			      }
-			      #containerInner {
+			      #sitestats-containerInner {
                     margin-left: -17px; 
                   }
 			      .containerHover{
@@ -53,7 +53,7 @@
 			 <![endif]-->
 			 <script type="text/javascript">			      
 			      function updateFieldWithSelectedFiles(fieldId) {
-			        var files = jQuery('#container input[type=checkbox]:checked');
+			        var files = jQuery('#sitestats-container input[type=checkbox]:checked');
 			        var selection;
 			        var first = true;
 			        for(var i=0; i<files.size(); i++) {
@@ -73,8 +73,8 @@
     <wicket:body>
 		<wicket:panel>
 		      <div wicket:id="containerHover" class="containerHover" style="display:none"></div>
-		      <div id="container">
-		          <div id="containerInner"></div>
+		      <div id="sitestats-container">
+		          <div id="sitestats-containerInner"></div>
 		      </div>
 		      <input class="selectedFiles" wicket:id="selectedFiles" type="hidden"/>
 		</wicket:panel>

@@ -162,7 +162,7 @@ public class FileSelectorPanel extends Panel {
 		container.getHeaderResponse().renderJavascriptReference(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js");
 		container.getHeaderResponse().renderCSSReference(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css");
 		StringBuilder onDomReady = new StringBuilder();
-		onDomReady.append("jQuery('#containerInner').fileTree(");
+		onDomReady.append("jQuery('#sitestats-containerInner').fileTree(");
 		onDomReady.append("  {root: '");
 		onDomReady.append(BASE_DIR);
 		onDomReady.append("', script: '");
