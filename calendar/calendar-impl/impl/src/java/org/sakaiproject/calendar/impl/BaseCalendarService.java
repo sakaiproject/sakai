@@ -55,12 +55,13 @@ import org.sakaiproject.event.api.*;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
 import org.sakaiproject.time.api.TimeRange;
@@ -131,6 +132,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    private ContentHostingService contentHostingService;
    
 	private GroupComparator groupComparator = new GroupComparator();
+	
+	private Cache cache = null;
 	
 	/**
 	 * Access this service from the inner classes.
@@ -494,9 +497,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/** Depedency: SessionManager */
 	protected SessionManager m_sessionManager = null;
 
-	/** Dependency: ThreadLocalManager */
-	protected ThreadLocalManager m_threadLocalManager = null;
-
 	/** Dependency: TimeService */
 	protected TimeService m_timeService = null;
 
@@ -592,16 +592,6 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	}
 
 	/**
-	 * Dependency: ThreadLocalManager.
-	 * @param threadLocalManager
-	 *        The ThreadLocalManager.
-	 */
-	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
-	{
-		this.m_threadLocalManager = threadLocalManager;
-	}
-
-	/**
 	 * Dependency: TimeService.
 	 * @param timeService
 	 *        The TimeService.
@@ -692,6 +682,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_functionManager.registerFunction(AUTH_READ_CALENDAR);
 		m_functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR);
 		m_functionManager.registerFunction(AUTH_OPTIONS_CALENDAR);
+		
+		// setup cache
+		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
+		cacheConfig.setStatisticsEnabled(true);
+		cache = this.m_memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
 	}
 
 	/**
@@ -764,19 +759,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected Calendar findCalendar(String ref)
 	{
-        // TODO: do we really want to do this? -ggolden
-        // if we have done this already in this thread, use that
-        Calendar calendar = (Calendar) m_threadLocalManager.get(ref);
-        if (calendar == null)
-        {
-            calendar = m_storage.getCalendar(ref);
-
-            // "cache" the calendar in the current service in case they are needed again in this thread...
-            if (calendar != null)
-            {
-                m_threadLocalManager.set(ref, calendar);
-            }
-        }
+		Calendar calendar = null;
+			
+		//check cache
+		if(cache != null) {
+			if(cache.containsKey(ref)) {
+				calendar = (Calendar)cache.get(ref);
+			}
+		}
+		
+		//if calendar is still null, it's not in the cache, get it from storage and cache it
+		if(calendar == null) {
+			calendar = m_storage.getCalendar(ref);
+			cache.put(ref, calendar);
+		}
+		
 		return calendar;
 	} // findCalendar
 
