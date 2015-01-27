@@ -55,7 +55,9 @@ import org.sakaiproject.event.api.*;
 import org.sakaiproject.exception.*;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.Filter;
+import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -130,6 +132,8 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
    private ContentHostingService contentHostingService;
    
 	private GroupComparator groupComparator = new GroupComparator();
+	
+	private Cache cache = null;
 	
 	/**
 	 * Access this service from the inner classes.
@@ -678,6 +682,11 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_functionManager.registerFunction(AUTH_READ_CALENDAR);
 		m_functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR);
 		m_functionManager.registerFunction(AUTH_OPTIONS_CALENDAR);
+		
+		// setup cache
+		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);
+		cacheConfig.setStatisticsEnabled(true);
+		cache = this.m_memoryService.createCache("org.sakaiproject.calendar.cache", cacheConfig);
 	}
 
 	/**
@@ -750,7 +759,21 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	 */
 	protected Calendar findCalendar(String ref)
 	{
-		Calendar calendar = m_storage.getCalendar(ref);
+		Calendar calendar = null;
+			
+		//check cache
+		if(cache != null) {
+			if(cache.containsKey(ref)) {
+				calendar = (Calendar)cache.get(ref);
+			}
+		}
+		
+		//if calendar is still null, it's not in the cache, get it from storage and cache it
+		if(calendar == null) {
+			calendar = m_storage.getCalendar(ref);
+			cache.put(ref, calendar);
+		}
+		
 		return calendar;
 	} // findCalendar
 
