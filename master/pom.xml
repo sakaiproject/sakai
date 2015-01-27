@@ -123,6 +123,7 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <sakai.jdk.version>1.7</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
+    <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
   <distributionManagement>
     <snapshotRepository>
