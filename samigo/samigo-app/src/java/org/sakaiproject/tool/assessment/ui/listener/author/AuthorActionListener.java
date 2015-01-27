@@ -186,21 +186,8 @@ public class AuthorActionListener
 	}
     } 
 
-	String s2 = ServerConfigurationService.getString("samigo.editPubAssessment.restricted.afterStart");
-	if (s2 != null && s2.toLowerCase().equals("true")) {
-		author.setEditPubAssessmentRestrictedAfterStarted(Boolean.TRUE);
-	}
-	else {
-		author.setEditPubAssessmentRestrictedAfterStarted(Boolean.FALSE);
-	}
-	
-	String s3 = ServerConfigurationService.getString("samigo.removePubAssessment.restricted.afterStart");
-	if (s3 != null && s3.toLowerCase().equals("true")) {
-		author.setCanRemovePublishedAssessmentsAfterStarted(Boolean.TRUE);
-	}
-	else {
-		author.setCanRemovePublishedAssessmentsAfterStarted(Boolean.FALSE);
-	}
+	author.setEditPubAssessmentRestrictedAfterStarted(ServerConfigurationService.getBoolean("samigo.editPubAssessment.restricted.afterStart", false));
+	author.setCanRemovePublishedAssessmentsAfterStarted(ServerConfigurationService.getBoolean("samigo.removePubAssessment.restricted.afterStart", false));
 
 	AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
 	author.setIsGradeable(authorizationBean.getGradeAnyAssessment() || authorizationBean.getGradeOwnAssessment());
