@@ -24,6 +24,7 @@
 package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 
 import javax.faces.context.ExternalContext;
@@ -85,6 +86,7 @@ public class AuthorBean implements Serializable
   private String firstFromPage;
   private boolean isRetractedForEdit = false;
   private boolean editPubAssessmentRestricted;
+  private Boolean editPubAssessmentRestrictedAfterStarted;
   private boolean isRepublishAndRegrade = false;
   private boolean isErrorInSettings = false;
   
@@ -100,6 +102,8 @@ public class AuthorBean implements Serializable
   private ArrayList<SelectItem> pendingActionList1;
   private ArrayList<SelectItem> pendingActionList2;
   private ArrayList<SelectItem> publishedActionList;
+  private Boolean canRemovePublishedAssessments;
+  private Boolean canRemovePublishedAssessmentsAfterStarted;
   private boolean isGradeable;
   private boolean isEditable;
   
@@ -593,7 +597,21 @@ public class AuthorBean implements Serializable
   {
 	  this.editPubAssessmentRestricted = editPubAssessmentRestricted;
   }
+ 
+  public Boolean isEditPubAssessmentRestrictedAfterStarted(){
+	  return getEditPubAssessmentRestrictedAfterStarted();
+  }
   
+  public Boolean getEditPubAssessmentRestrictedAfterStarted()
+  {
+	  return editPubAssessmentRestrictedAfterStarted;
+  }
+
+  public void setEditPubAssessmentRestrictedAfterStarted(Boolean editPubAssessmentRestrictedAfterStarted)
+  {
+	  this.editPubAssessmentRestrictedAfterStarted = editPubAssessmentRestrictedAfterStarted;
+  }
+ 
   public boolean getIsRepublishAndRegrade()
   {
 	  return isRepublishAndRegrade;
@@ -736,6 +754,33 @@ public class AuthorBean implements Serializable
 	  return pendingActionList2;
   }
 
+  public Boolean getCanRemovePublishedAssessments(){
+	  if(canRemovePublishedAssessments == null){
+		  AuthorizationBean authorizationBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+
+		  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
+		  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
+		  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
+			  canRemovePublishedAssessments = Boolean.TRUE;
+		  }else{
+			  canRemovePublishedAssessments = Boolean.FALSE;
+		  }
+	  }
+	  
+	  return canRemovePublishedAssessments;
+  }
+  
+  public void setCanRemovePublishedAssessmentsAfterStarted(Boolean canRemovePublishedAssessmentsAfterStarted){
+	  this.canRemovePublishedAssessmentsAfterStarted = canRemovePublishedAssessmentsAfterStarted;
+  }
+  public Boolean isCanRemovePublishedAssessmentsAfterStarted(){
+	  return getCanRemovePublishedAssessmentsAfterStarted();
+  }
+  public Boolean getCanRemovePublishedAssessmentsAfterStarted(){
+	  return canRemovePublishedAssessmentsAfterStarted;
+  }
+
+
   public ArrayList<SelectItem> getPublishedSelectActionList()
   {
 	  if (publishedActionList != null) {
@@ -748,9 +793,6 @@ public class AuthorBean implements Serializable
 	  publishedActionList = new ArrayList<SelectItem>();
 	  boolean isEditAnyAssessment = authorizationBean.getEditAnyAssessment();
 	  boolean isEditOwnAssessment = authorizationBean.getEditOwnAssessment();
-	  boolean isDeleteAnyAssessment = authorizationBean.getDeleteAnyAssessment();
-	  boolean isDeleteOwnAssessment = authorizationBean.getDeleteOwnAssessment();
-
 
 	  if (isEditAnyAssessment || isEditOwnAssessment) {
 		  publishedActionList.add(new SelectItem("preview_published", com.getString("action_preview")));
@@ -759,11 +801,12 @@ public class AuthorBean implements Serializable
 		  }
 		  publishedActionList.add(new SelectItem("settings_published", com.getString("settings_action")));
 	  }
-	  if (isDeleteAnyAssessment || isDeleteOwnAssessment) {
-		  publishedActionList.add(new SelectItem("remove_published", com.getString("remove_action")));
-	  }
 
 	  return publishedActionList;
+  }
+
+  public Date getCurrentTime() {
+	  return Calendar.getInstance().getTime();
   }
 
   public boolean getCanRecordAverage() {
