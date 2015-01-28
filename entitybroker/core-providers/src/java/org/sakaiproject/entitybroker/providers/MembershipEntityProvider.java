@@ -371,7 +371,7 @@ RESTful, ActionsExecutable {
             if (usersToRoleMap.containsKey(role)) {
                 usersToRoleMap.get(role).add(id);
             } else {
-                List<String> users = new ArrayList<String>(20); // Prealloc space for 20 users in each role
+                List<String> users = new ArrayList<String>();
                 users.add(id);
                 usersToRoleMap.put(role, users);
             }
