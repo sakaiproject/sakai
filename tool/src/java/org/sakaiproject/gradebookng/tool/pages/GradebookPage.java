@@ -4,8 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -15,6 +19,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.gradebookng.business.StudentSortOrder;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.SectionColumnHeaderPanel;
@@ -37,6 +42,9 @@ import com.inmethod.grid.datagrid.DefaultDataGrid;
 public class GradebookPage extends BasePage {
 	
 	private static final long serialVersionUID = 1L;
+	
+	AddGradeItemWindow addGradeItemWindow;
+	Form<Void> form;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
@@ -44,8 +52,16 @@ public class GradebookPage extends BasePage {
 		
 		String currentUserUuid = this.businessService.getCurrentUserUuid();
 		
-		Form<Void> form = new Form<Void>("form");
+		
+		form = new Form<Void>("form");
 		add(form);
+		
+		
+		form.add(new AddGradeItemButton("addGradeItem"));
+		
+		addGradeItemWindow = new AddGradeItemWindow("addGradeItemWindow");
+		form.add(addGradeItemWindow);
+		
 		
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
@@ -196,6 +212,44 @@ public class GradebookPage extends BasePage {
 		//prefs.setSortOrder(3);
 		//this.businessService.saveUserPrefs(prefs);
 				
+	}
+	
+	/**
+	 * Add grade button
+	 */
+	private class AddGradeItemButton extends AjaxButton {
+
+		private static final long serialVersionUID = 1L;
+
+		public AddGradeItemButton(String componentId) {
+			super(componentId);
+			this.setDefaultFormProcessing(false);			
+		}
+		
+		
+		@Override
+		public void onSubmit(AjaxRequestTarget target, Form form) {
+			
+			//open window
+			addGradeItemWindow.show(target);
+		}
+		
+	}
+	
+	/**
+	 * Window for adding a grade item
+	 *
+	 */
+	private class AddGradeItemWindow extends ModalWindow {
+
+		public AddGradeItemWindow(String componentId) {
+			super(componentId);
+			
+			this.setContent(new AddGradeItemPanel(this.getContentId()));
+
+		}
+		
+		
 	}
 	
 	
