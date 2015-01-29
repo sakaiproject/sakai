@@ -329,7 +329,6 @@ $(document).ready(function() {
 	  of selectOneMenu because there are four cases. 
 	  Note: I have tried itemDisabled but it doesn't work in IE. Javascript workaround is needed. I decide to replicate the code as 
 	  this is what in the original spec */%>
-	  <h:outputText value="#{(!author.canRemovePublishedAssessments && !author.canRemovePublishedAssessmentsAfterStarted)}, #{author.canRemovePublishedAssessmentsAfterStarted}, #{(publishedAssessment.submittedCount > 0 || publishedAssessment.inProgressCount > 0)}, #{(publishedAssessment.retractDate == null || publishedAssessment.retractDate > author.currentTime)}"/>
 	  <h:selectOneMenu id="publishedSelectAction1" value="select" onchange="clickPublishedSelectActionLink(this);" rendered="#{(author.isGradeable && publishedAssessment.submittedCount > 0) && (author.isEditable && (!author.editPubAssessmentRestricted || !publishedAssessment.hasAssessmentGradingData))}">
 		<f:selectItem itemLabel="#{authorMessages.select_action}" itemValue="select"/>
 		<f:selectItem itemLabel="#{authorMessages.action_scores}" itemValue="scores" />
