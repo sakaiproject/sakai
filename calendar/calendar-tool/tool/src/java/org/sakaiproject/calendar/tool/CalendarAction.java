@@ -176,6 +176,7 @@ extends VelocityPortletStateAction
 	
 	private static final String FORM_ALIAS			= "alias";
 	private static final String FORM_ICAL_ENABLE = "icalEnable";
+	private static final String ICAL_EXTENSION = ".ics";
 	
 	/** The attachments from assignment */
 	private static final String ATTACHMENTS = "Assignment.attachments";
@@ -5760,7 +5761,7 @@ extends VelocityPortletStateAction
 				// first, clear any alias set to this calendar
 				AliasService.removeTargetAliases(calendarObj.getReference());
 				
-				alias += ".ics";
+				alias += ICAL_EXTENSION;
 				AliasService.setAlias(alias, calendarObj.getReference());
 			}
 		}
