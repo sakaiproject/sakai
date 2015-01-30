@@ -41,66 +41,36 @@
   font-size: 0.9em;
   color: #999;
 }
-
+table.imxt-head th a.imxt-handle {
+  max-height: 100%;
+}
 
 /* Dropdown Menus */
+div.imxt-nowrap div, div.imxt-nowrap,
+div.imxt-head-container2,
+table.imxt-head th div.imxt-a,
+table.imxt-head th div.imxt-b,
+table.imxt-body td {
+  overflow: visible;
+}
+table.imxt-head th div.imxt-a {
+  position: inherit;
+}
 #gradebookGrades th, 
 #gradebookGrades td {
   position: relative;
 }
-#gradebookGrades .btn.dropdown-toggle {
-  text-decoration: none;
+#gradebookGrades td .btn-group {
   position: absolute;
   bottom: 1px;
   right: 6px;
-  border: 1px solid transparent;
-  padding: 2px 3px;
-  height: 10px;
-  line-height: 8px;
-  border-radius: 4px;
 }
-#gradebookGrades th .btn.dropdown-toggle {
-  right: 10px;
-}
-#gradebookGrades .btn.dropdown-toggle.on,
-#gradebookGrades .btn.dropdown-toggle:hover {
-  background: #FFF;
-  border-color: #E0E0E0;
-}
-#gradebookGrades .btn.dropdown-toggle.on {
-  border-radius: 4px 4px 0 0;
-}
-#gradebookGrades .btn.dropdown-toggle .caret:before {
-  font-family: 'gradebook-icons';
-  content: '\f078';
-  font-size: 8px;
-  color: #CCC;
-}
-#gradebookGrades .btn.dropdown-toggle.on .caret:before {
-  content: '\f077';
-}
-#gradebookGrades table table td:hover .btn.dropdown-toggle .caret:before,
-#gradebookGrades table table th:hover .btn.dropdown-toggle .caret:before {
-  color: inherit;
-}
-#gradebookGrades ul.dropdown-menu {
-  display: none;
-}
-ul.dropdown-menu.gradebook-menu {
+#gradebookGrades th .btn-group {
   position: absolute;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  background: #FFF;
-  border: 1px solid #CCC;
+  right: 10px;
+  bottom: initial;
 }
-ul.dropdown-menu.gradebook-menu a {
-  display: block;
-  padding: 4px;
-  text-align: right;
-  text-decoration: none;
-  font-size: 0.9em;
-}
-ul.dropdown-menu.gradebook-menu a:hover {
-  background-color: #F0F0F0;
+#gradebookGrades .btn.dropdown-toggle {
+  padding: 0 8px;
+  line-height: 14px;
 }
