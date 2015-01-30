@@ -1237,7 +1237,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
 		InternetAddress fAddressesArr[] = new InternetAddress[fAddresses.size()];
 		fAddressesArr = fAddresses.toArray(fAddressesArr);
 		emailService.sendMail(new InternetAddress(systemEmail), fAddressesArr, message.getTitle(), 
-				bodyString, fAddressesArr, null, additionalHeaders);
+				bodyString, null, null, additionalHeaders);
     }
     
     
