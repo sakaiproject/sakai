@@ -6623,6 +6623,8 @@ public class SimplePageBean {
 		
 		SimplePageItem question = findItem(response.getQuestionId());
 		
+		if (questionResponse != null)
+		    questionResponse = questionResponse.trim();
 		response.setShortanswer(questionResponse);
 		gradeQuestionResponse(response);
 		

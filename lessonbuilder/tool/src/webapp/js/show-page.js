@@ -207,6 +207,8 @@ $(function() {
 			draggable: false
 		});
 		
+		$(".resizable").resizable();
+
 		$('#peer-eval-create-dialog').parent().append($peerButtons);
 		
 		$("#peer-eval-input-cloneable").html("").remove();

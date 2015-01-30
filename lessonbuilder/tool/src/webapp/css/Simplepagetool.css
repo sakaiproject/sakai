@@ -13,7 +13,15 @@
 .ui-front {
 	z-index: 100001;
 }
+
+/* override portal.css, which sets no background for icon- */
+
+.ui-wrapper .ui-icon-gripsmall-diagonal-se {
+   background-image: url("simplepage-theme/images/ui-icons_222222_256x240.png") !important;
+}
+
 /* end override */
+
 .title-tools h2{
 	padding-top: 0px;
 }
