@@ -2236,7 +2236,7 @@ private   int   getNum(char letter,   String   a)
     if (aMsg != null)
     {
       StringBuilder alertMsg = new StringBuilder();
-      aMsg.setTitle(FormattedText.processFormattedText(getComposeSubject(), alertMsg));
+      aMsg.setTitle(getComposeSubject());
       aMsg.setBody(FormattedText.processFormattedText(getComposeBody(), alertMsg));
       
       aMsg.setAuthor(getAuthorString());
@@ -2799,7 +2799,7 @@ private   int   getNum(char letter,   String   a)
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
     	StringBuilder alertMsg = new StringBuilder();
-    	rrepMsg.setTitle(FormattedText.processFormattedText(getReplyToSubject(), alertMsg));
+    	rrepMsg.setTitle(getReplyToSubject());
     	rrepMsg.setBody(FormattedText.processFormattedText(getReplyToBody(), alertMsg));
     	rrepMsg.setDraft(Boolean.FALSE);
     	rrepMsg.setDeleted(Boolean.FALSE);
@@ -2989,7 +2989,7 @@ private   int   getNum(char letter,   String   a)
     	PrivateMessage rrepMsg = messageManager.createPrivateMessage() ;
 
     	StringBuilder alertMsg = new StringBuilder();
-    	rrepMsg.setTitle(FormattedText.processFormattedText(getForwardSubject(), alertMsg));
+    	rrepMsg.setTitle(getForwardSubject());
     	rrepMsg.setDraft(Boolean.FALSE);
     	rrepMsg.setDeleted(Boolean.FALSE);
 
@@ -3194,7 +3194,7 @@ private   int   getNum(char letter,   String   a)
 
 
 	  StringBuilder alertMsg = new StringBuilder();
-	  rrepMsg.setTitle(FormattedText.processFormattedText(getForwardSubject(), alertMsg));
+	  rrepMsg.setTitle(getForwardSubject());
 	  rrepMsg.setDraft(isDraft);
 	  rrepMsg.setDeleted(Boolean.FALSE);
 
