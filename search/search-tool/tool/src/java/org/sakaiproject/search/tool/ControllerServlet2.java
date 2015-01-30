@@ -187,18 +187,8 @@ public class ControllerServlet2 extends HttpServlet
 		String toolPlacementJs = toolPlacement.toString().replace('-','x');
 		String skin = "default/"; // this could be changed in the future to
 		// make search skin awaire
-
-		Locale locale = (new ResourceLoader()).getLocale();
-		String language = locale.getLanguage();
-		String country = locale.getCountry();
-
-		String lang = language;
-
-		if(country != null && !country.equals("")) {
-			lang += "_" + country;
-		}
         
-		vc.put("lang", lang);
+		vc.put("lang", (new ResourceLoader()).getLocale().toString());
 		vc.put("skin", skin);
 		vc.put("sakaiheader", sakaiHeader);
 		vc.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("Search"));

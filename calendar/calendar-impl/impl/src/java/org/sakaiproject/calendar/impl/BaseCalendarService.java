@@ -123,6 +123,9 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	/** Security lock / event root for generic message events to make it a mail event. */
 	public static final String SECURE_SCHEDULE_ROOT = "calendar.";
 
+	/** SAK-29003 Google needs .ics at end of URL **/
+	public static final String ICAL_EXTENSION = ".ics";
+
 	private TransformerFactory transformerFactory = null;
    
    private DocumentBuilder docBuilder = null;
@@ -7103,7 +7106,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 	{
 		// TODO: Currently not sure whether alias handling will be required for this or not.
 		OpaqueUrl opaqUrl = m_opaqueUrlDao.getOpaqueUrl(m_sessionManager.getCurrentSessionUserId(), ref.getReference());
-		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_OPAQUEURL + Entity.SEPARATOR + opaqUrl.getOpaqueUUID() + Entity.SEPARATOR + ref.getId();
+		return getAccessPoint(true) + Entity.SEPARATOR + REF_TYPE_CALENDAR_OPAQUEURL + Entity.SEPARATOR + opaqUrl.getOpaqueUUID() + Entity.SEPARATOR + ref.getId() + ICAL_EXTENSION;
 	}
 	
 	/**

@@ -97,9 +97,9 @@ document.links[newindex].onclick();
 		  <h:selectBooleanCheckbox id="showFeedback" value="#{printSettings.showKeysFeedback}" />
 		  <h:outputText value="#{printMessages.show_answer_feedback}" />
 		</label>
-		      
-		&nbsp;&nbsp;&nbsp;
-		        
+        
+        &nbsp;&nbsp;&nbsp;
+        
 		<label>
           <h:selectBooleanCheckbox id="showPartIntros" value="#{printSettings.showPartIntros}" />
           <h:outputText value="#{printMessages.show_intros_titles}" />
@@ -107,6 +107,13 @@ document.links[newindex].onclick();
         
         &nbsp;&nbsp;&nbsp;
         
+        <label>
+		  <h:selectBooleanCheckbox id="showSequence" value="#{printSettings.showSequence}" />
+		  <h:outputText value="#{printMessages.show_answer_sequence}" />
+		</label>
+		      
+		&nbsp;&nbsp;&nbsp;
+
         <h:outputText value="#{printMessages.font_size}:" />
         <h:selectOneMenu id="fontSize" value="#{printSettings.fontSize}">
           <f:selectItem itemLabel="#{printMessages.size_xsmall}" itemValue="1" />
@@ -116,11 +123,9 @@ document.links[newindex].onclick();
           <f:selectItem itemLabel="#{printMessages.size_xlarge}" itemValue="5" />
         </h:selectOneMenu>
         
-        &nbsp;&nbsp;&nbsp;
-        
-        <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" />
         <br />
         
+        <h:commandButton action="#{pdfAssessment.prepDocumentPDF}" value="#{printMessages.apply_settings}" />
         <h:outputText value="<input type='button' onclick='print(); return false;' value='#{printMessages.print_html}' />" escape="false" />
         <h:commandButton action="#{pdfAssessment.getPDFAttachment}" value="#{printMessages.print_pdf}" />
       </p>
@@ -185,7 +190,7 @@ document.links[newindex].onclick();
                                 columnClasses="col-printQNum, col-printQues" rowClasses="item" border="0">           
             <h:column>
               <h:outputText value="<h3>" escape="false" />
-                <h:outputText id="number" escape="false" value="#{question.sequence}" />
+                <h:outputText id="number" escape="false" value="#{question.sequence}" rendered="#{printSettings.showSequence}"/>
               <h:outputText value="</h3>" escape="false" />
             </h:column>
               
