@@ -15,7 +15,8 @@ import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.helpers.ImportGradesHelper;
-import org.sakaiproject.gradebookng.business.model.ImportedGrade;
+import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -157,23 +158,24 @@ public class GradeImportUploadStep extends Panel {
                 try {
                     log.debug("file upload success");
                     //turn file into list
-                    List<ImportedGrade> importedGrades = parseImportedGradeFile(upload.getInputStream(), upload.getContentType());
+                    ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(), upload.getContentType());
+
+                    List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper, assignments, grades);
 
                     //if null, the file was of the incorrect type
                     //if empty there are no users
-                    if(importedGrades == null || importedGrades.isEmpty()) {
+                    if(processedGradeItems == null || processedGradeItems.isEmpty()) {
                         error(getString("error.parse.upload"));
                     } else {
                         //GO TO NEXT PAGE
-                        log.debug(importedGrades.size());
+                        log.debug(processedGradeItems.size());
 
 						//repaint panel
-						Component newPanel = new GradeImportConfirmationStep(panelId, importedGrades);
+						Component newPanel = new GradeImportConfirmationStep(panelId, processedGradeItems);
 						newPanel.setOutputMarkupId(true);
 						GradeImportUploadStep.this.replaceWith(newPanel);
 
                     }
-
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -185,7 +187,7 @@ public class GradeImportUploadStep extends Panel {
     }
 
 
-    public List<ImportedGrade> parseImportedGradeFile(InputStream is, String mimetype){
+    public ImportedGradeWrapper parseImportedGradeFile(InputStream is, String mimetype){
 
         //determine file type and delegate
         if(ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {

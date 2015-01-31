@@ -12,6 +12,7 @@ import java.util.Map;
 /**
  * Created by chmaurer on 1/21/15.
  */
+
 @Data
 public class ImportedGrade implements Serializable {
 
