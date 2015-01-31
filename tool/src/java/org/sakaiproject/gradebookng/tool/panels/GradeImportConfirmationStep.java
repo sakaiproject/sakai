@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +23,7 @@ public class GradeImportConfirmationStep extends Panel {
 
     private static final Logger log = Logger.getLogger(GradeImportConfirmationStep.class);
 
-    public GradeImportConfirmationStep(String id, List<ImportedGrade> grades) {
+    public GradeImportConfirmationStep(String id, List<ProcessedGradeItem> processedGradeItems) {
         super(id);
 
         final CheckGroup<ImportedGrade> group = new CheckGroup<ImportedGrade>("group", new ArrayList<ImportedGrade>());
@@ -38,20 +39,22 @@ public class GradeImportConfirmationStep extends Panel {
         add(form);
         form.add(group);
         group.add(new CheckGroupSelector("groupselector"));
-        ListView<ImportedGrade> gradeList = new ListView<ImportedGrade>("grades",
-                grades)
+        ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades",
+                processedGradeItems)
         {
             /**
              * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
              */
             @Override
-            protected void populateItem(ListItem<ImportedGrade> item)
+            protected void populateItem(ListItem<ProcessedGradeItem> item)
             {
-                item.add(new Check<ImportedGrade>("checkbox", item.getModel()));
-                item.add(new Label("studentId",
-                        new PropertyModel<String>(item.getDefaultModel(), "studentId")));
-                item.add(new Label("studentName", new PropertyModel<String>(item.getDefaultModel(),
-                        "studentName")));
+                item.add(new Check<ProcessedGradeItem>("checkbox", item.getModel()));
+                item.add(new Label("itemTitle",
+                        new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
+                item.add(new Label("itemPointValue", new PropertyModel<String>(item.getDefaultModel(),
+                        "itemPointValue")));
+                item.add(new Label("status", new PropertyModel<String>(item.getDefaultModel(),
+                        "status")));
             }
 
         };

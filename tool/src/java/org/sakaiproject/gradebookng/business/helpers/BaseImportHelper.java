@@ -4,7 +4,10 @@ package org.sakaiproject.gradebookng.business.helpers;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
+import org.sakaiproject.gradebookng.business.model.ImportColumn;
 
+import java.text.MessageFormat;
+import java.text.ParseException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -22,13 +25,43 @@ public class BaseImportHelper {
      * @param line	the already split line
      * @return
      */
-    protected static Map<Integer,String> mapHeaderRow(String[] line) {
-        Map<Integer,String> mapping = new LinkedHashMap<Integer,String>();
+    protected static Map<Integer,ImportColumn> mapHeaderRow(String[] line) {
+        Map<Integer,ImportColumn> mapping = new LinkedHashMap<Integer,ImportColumn>();
         for(int i=0;i<line.length;i++){
-            mapping.put(i, trim(line[i]));
+            mapping.put(i, parseHeaderForImportColumn(trim(line[i])));
         }
 
         return mapping;
+    }
+
+    private static ImportColumn parseHeaderForImportColumn(String headerValue) {
+        ImportColumn importColumn = new ImportColumn();
+        MessageFormat mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_PATTERN);
+        Object[] parsedObject;
+        try {
+            parsedObject = mf.parse(headerValue);
+            importColumn.setColumnTitle((String)parsedObject[0]);
+            importColumn.setType(ImportColumn.TYPE_ITEM_WITH_POINTS);
+            importColumn.setPoints((String)parsedObject[1]);
+        } catch (ParseException e) {
+            mf = new MessageFormat(ImportGradesHelper.ASSIGNMENT_HEADER_COMMENT_PATTERN);
+            try {
+                parsedObject = mf.parse(headerValue);
+                importColumn.setColumnTitle((String)parsedObject[0]);
+                importColumn.setType(ImportColumn.TYPE_ITEM_WITH_COMMENTS);
+            } catch (ParseException e1) {
+                mf = new MessageFormat(ImportGradesHelper.HEADER_STANDARD_PATTERN);
+                try {
+                    parsedObject = mf.parse(headerValue);
+                    importColumn.setColumnTitle((String)parsedObject[0]);
+                    importColumn.setType(ImportColumn.TYPE_REGULAR);
+                } catch (ParseException e2) {
+                    throw new RuntimeException("Error parsing grade import", e2);
+                }
+            }
+        }
+
+        return importColumn;
     }
 
     /**
