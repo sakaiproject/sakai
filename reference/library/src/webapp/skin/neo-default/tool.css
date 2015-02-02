@@ -1256,6 +1256,11 @@ input[type="checkbox"][disabled="disabled"], input[type="checkbox"][disabled="tr
 #helpSearchForm {
   padding: 6px;
 }
+
+.capsLockOnDisplay {
+    background: #ffffff url("/library/image/silk/font.png") no-repeat right;
+}
+
 #helpSearchForm\\:searchField {
   width: 100px;
   padding-right: 6px;
