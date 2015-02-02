@@ -267,6 +267,7 @@ public class ItemService
     while (k.hasNext()) {
       ItemText itemText = (ItemText) k.next();
       ItemText newItemText = new ItemText(cloned, itemText.getSequence(), itemText.getText(), null);
+      newItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
       Set newAnswerSet = copyAnswerSet(newItemText, itemText.getAnswerSet());
       newItemText.setAnswerSet(newAnswerSet);
       h.add(newItemText);
