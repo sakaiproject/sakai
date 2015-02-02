@@ -103,7 +103,7 @@ public class AssignmentBean extends GradebookDependentBean implements Serializab
 		}
 
         // initialization; shouldn't enter here after category drop down changes
-		if(selectedCategory == null && !getLocalizedString("cat_unassigned").equalsIgnoreCase(assignmentCategory)) {
+		if(selectedCategory == null && !UNASSIGNED_CATEGORY.equals(assignmentCategory)) {
 			Category assignCategory = assignment.getCategory();
 			if (assignCategory != null) {
 				assignmentCategory = assignCategory.getId().toString();
