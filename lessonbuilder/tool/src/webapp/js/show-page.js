@@ -45,6 +45,12 @@ function checkgroups(elt, groups) {
     }
 }
 
+function safeParseFloat(s) {
+    if (!/^[0-9.]+$/.test(s))
+	return NaN;
+    return parseFloat(s);
+}
+
 var blankRubricTemplate, blankRubricRow;
 
 $(function() {
@@ -1324,7 +1330,7 @@ $(function() {
 				    }
 				}
 
-				if(type === 6) {
+				if(type === '6') {
 					$("#change-quiz-p").show();
 					$("#change-quiz").attr("href", 
 					      $("#change-quiz").attr("href").replace("itemId=-1", "itemId=" + itemid));
@@ -1338,7 +1344,7 @@ $(function() {
 						$("#edit-item-settings").attr("href").replace(/(source=).*?(&)/, '$1' + escape(editsettingsurl) + '$2'));
 					$("#edit-item-settings-text").text(msg("simplepage.edit_quiz_settings"));
 
-				}else if (type === 8){
+				}else if (type === '8'){
 					$("#change-forum-p").show();
 					$("#change-forum").attr("href", 
 					      $("#change-forum").attr("href").replace("itemId=-1", "itemId=" + itemid));
@@ -1376,14 +1382,14 @@ $(function() {
 
 				}
 				
-				if(type === 3 || type === 6) {
+				if(type === '3' || type === '6') {
 					// Points or Assessment
 					
 					$("#require-label2").show();
 					$("#require-label2").html(msg("simplepage.require_receive") + " ");
-					if(type === 3) {
+					if(type === '3') {
 					    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assignment"));
-					}else if(type === 6) {
+					}else if(type === '6') {
 					    $("#assignment-points-label").text(" " + msg("simplepage.require_points_assessment"));
 					}
 					
@@ -1402,7 +1408,7 @@ $(function() {
 						
 						$("#assignment-points").val(req);
 					}
-				}else if(type === 4) {
+				}else if(type === '4') {
 					// Pass / Fail
 					$("#require-label2").show();
 					$("#require-label2").html(msg("simplepage.require_pass_assignment"));
@@ -1416,7 +1422,7 @@ $(function() {
 					}else {
 						$("#item-required2").prop("checked", false);
 					}
-				}else if(type === 2) {
+				}else if(type === '2') {
 					// Letter Grade
 					
 					$("#require-label2").show();
@@ -1434,10 +1440,10 @@ $(function() {
 						
 						$("#assignment-dropdown-selection").val(req);
 					}
-				}else if(type === 1) {
+				}else if(type === '1') {
 					// Ungraded
 					// Nothing more that we need to do
-				}else if(type === 5) {
+				}else if(type === '5') {
 					// Checkmark
 					$("#require-label2").show();
 					$("#require-label2").text(msg("simplepage.require_checkmark"));
@@ -2130,7 +2136,7 @@ function checkEditTitleForm() {
 		$('#edit-title-error').text(msg("simplepage.title_notblank"));
 		$('#edit-title-error-container').show();
 		return false;
-	}else if ($("#page-gradebook").prop("checked") && !isFinite(parseFloat($("#page-points").val()))) {
+	}else if ($("#page-gradebook").prop("checked") && !isFinite(safeParseFloat($("#page-points").val()))) {
 		$('#edit-title-error').text(msg("simplepage.integer-expected"));
 		$('#edit-title-error-container').show();
 	}else {
@@ -2270,8 +2276,8 @@ function checkEditItemForm() {
 		$('#edit-item-error').text(msg("simplepage.item_notblank"));
 		$('#edit-item-error-container').show();
 		return false;
-        } else if ((requirementType === 3 || requirementType === 6) && 
-		   $("#item-required2").prop("checked") && !isFinite(parseFloat($("#assignment-points").val()))) {
+        } else if ((requirementType === '3' || requirementType === '6') && 
+		   $("#item-required2").prop("checked") && !isFinite(safeParseFloat($("#assignment-points").val()))) {
 		$('#edit-item-error').text(msg("simplepage.integer-expected"));
 		$('#edit-item-error-container').show();
 		return false;
@@ -2614,7 +2620,7 @@ function checkQuestionGradedForm() {
 
 // Prepares the question dialog to be submitted
 function prepareQuestionDialog() {
-	if ($("#question-graded").prop("checked") && !isFinite(parseFloat($("#question-max").val()))) {
+	if ($("#question-graded").prop("checked") && !isFinite(safeParseFloat($("#question-max").val()))) {
 	    $('#question-error').text(msg("simplepage.integer-expected"));
 	    $('#question-error-container').show();
 	    return false;
