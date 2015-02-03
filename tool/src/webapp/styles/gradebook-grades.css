@@ -26,49 +26,40 @@
   height: 2em;
   line-height: 2em;
 }
-#gradebookGrades .imxt-empty-row td {
+#gradebookGrades td {
   height: 0px;
 }
  
  /* Table Header */
-#gradebookGrades .imxt-head th {
+#gradebookGrades th {
   vertical-align: top;
   background: #FAFAFA;
   text-shadow: 1px 1px 0 #FFF;
+  font-weight: normal;
 }
-#gradebookGrades .imxt-head .average,
-#gradebookGrades .imxt-head .due-date {
+#gradebookGrades th .title {
+  font-weight: bold;
+}
+#gradebookGrades th .average,
+#gradebookGrades th .due-date {
   font-size: 0.9em;
   color: #999;
 }
-table.imxt-head th a.imxt-handle {
-  max-height: 100%;
-}
 
 /* Dropdown Menus */
-div.imxt-nowrap div, div.imxt-nowrap,
-div.imxt-head-container2,
-table.imxt-head th div.imxt-a,
-table.imxt-head th div.imxt-b,
-table.imxt-body td {
-  overflow: visible;
-}
-table.imxt-head th div.imxt-a {
-  position: inherit;
-}
 #gradebookGrades th, 
 #gradebookGrades td {
   position: relative;
 }
 #gradebookGrades td .btn-group {
   position: absolute;
-  bottom: 1px;
-  right: 6px;
+  bottom: 0;
+  right: 0;
 }
 #gradebookGrades th .btn-group {
   position: absolute;
-  right: 10px;
-  bottom: initial;
+  right: 0;
+  bottom: 0;
 }
 #gradebookGrades .btn.dropdown-toggle {
   padding: 0 8px;
