@@ -1,0 +1,76 @@
+/* **************************************************************** *
+ *                      Gradebook Grades styles                     *
+ * **************************************************************** */
+ 
+ /* Fonts */
+ @font-face {
+    font-family:"gradebook-icons";
+    src:url(../fonts/gradebook-icons.eot);
+    src:url(../fonts/gradebook-icons.eot?#iefix) format("embedded-opentype"),url(../fonts/gradebook-icons.woff) format("woff"),url(../fonts/gradebook-icons.ttf) format("truetype"),url(../fonts/gradebook-icons.svg#gradebook-icons) format("svg");
+    font-weight:400;
+    font-style:normal
+}
+ 
+ 
+ /* Container */
+ #gradebookGrades {
+   margin-top: 10px;
+ }
+
+ /* Table */
+#gradebookGrades th,
+#gradebookGrades td {
+  padding: 4px;
+}
+#gradebookGrades fieldset td {
+  height: 2em;
+  line-height: 2em;
+}
+#gradebookGrades .imxt-empty-row td {
+  height: 0px;
+}
+ 
+ /* Table Header */
+#gradebookGrades .imxt-head th {
+  vertical-align: top;
+  background: #FAFAFA;
+  text-shadow: 1px 1px 0 #FFF;
+}
+#gradebookGrades .imxt-head .average,
+#gradebookGrades .imxt-head .due-date {
+  font-size: 0.9em;
+  color: #999;
+}
+table.imxt-head th a.imxt-handle {
+  max-height: 100%;
+}
+
+/* Dropdown Menus */
+div.imxt-nowrap div, div.imxt-nowrap,
+div.imxt-head-container2,
+table.imxt-head th div.imxt-a,
+table.imxt-head th div.imxt-b,
+table.imxt-body td {
+  overflow: visible;
+}
+table.imxt-head th div.imxt-a {
+  position: inherit;
+}
+#gradebookGrades th, 
+#gradebookGrades td {
+  position: relative;
+}
+#gradebookGrades td .btn-group {
+  position: absolute;
+  bottom: 1px;
+  right: 6px;
+}
+#gradebookGrades th .btn-group {
+  position: absolute;
+  right: 10px;
+  bottom: initial;
+}
+#gradebookGrades .btn.dropdown-toggle {
+  padding: 0 8px;
+  line-height: 14px;
+}
