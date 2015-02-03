@@ -242,14 +242,21 @@ function clickOnEnter(event, element)
 }
 
 // set the parent iframe's height to hold our entire contents
-function setMainFrameHeight(id)
+// pass -1 for no max
+function setMainFrameHeightWithMax(id, maxHeight)
 {
 	if ( ! inIframe() ) return;
 	// some browsers need a moment to finish rendering so the height and scroll are correct
-	setTimeout("setMainFrameHeightNow('"+id+"')",1);
+	setTimeout("setMainFrameHeightNow('"+id+"',"+maxHeight+")", 1);
 }
 
-function setMainFrameHeightNow(id)
+function setMainFrameHeight(id)
+{
+	setMainFrameHeightWithMax(id, 32760);  // original default max height for resizing the frame, reason unknown
+}
+
+// pass -1 for no max
+function setMainFrameHeightNow(id, maxHeight)
 {
 	// If we have been inlined, do nothing
 	if ( ! inIframe() ) return;
@@ -305,7 +312,7 @@ function setMainFrameHeightNow(id)
 		var newHeight = height + 40;
 
 		// but not too big!
-		if (newHeight > 32760) newHeight = 32760;
+		if (maxHeight > -1 && newHeight > maxHeight) newHeight = maxHeight;
 
 		// capture my current scroll position
 		var scroll = findScroll();
