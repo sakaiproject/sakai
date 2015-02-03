@@ -20,10 +20,6 @@
   <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-api/11-SNAPSHOT/sakai-kernel-api-11-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-component-manager/11-SNAPSHOT/sakai-component-manager-11-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/sakaiproject/kernel/sakai-kernel-util/11-SNAPSHOT/sakai-kernel-util-11-SNAPSHOT.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/wicketstuff/wicketstuff-inmethod-grid/6.18.0/wicketstuff-inmethod-grid-6.18.0.jar" sourcepath="M2_REPO/org/wicketstuff/wicketstuff-inmethod-grid/6.18.0/wicketstuff-inmethod-grid-6.18.0-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-datetime/6.18.0/wicket-datetime-6.18.0.jar" sourcepath="M2_REPO/org/apache/wicket/wicket-datetime/6.18.0/wicket-datetime-6.18.0-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.3/joda-time-2.3.jar" sourcepath="M2_REPO/joda-time/joda-time/2.3/joda-time-2.3-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-extensions/6.18.0/wicket-extensions-6.18.0.jar" sourcepath="M2_REPO/org/apache/wicket/wicket-extensions/6.18.0/wicket-extensions-6.18.0-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/sakaiproject/edu-services/gradebook/gradebook-service-api/11-SNAPSHOT/gradebook-service-api-11-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/sakaiproject/edu-services/gradebook/gradebook-service-hibernate/11-SNAPSHOT/gradebook-service-hibernate-11-SNAPSHOT.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/sakaiproject/edu-services/course-management/coursemanagement-api/11-SNAPSHOT/coursemanagement-api-11-SNAPSHOT.jar"/>
@@ -43,6 +39,8 @@
   <classpathentry kind="var" path="M2_REPO/org/webjars/bootstrap/3.2.0/bootstrap-3.2.0.jar" sourcepath="M2_REPO/org/webjars/bootstrap/3.2.0/bootstrap-3.2.0-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/webjars/jquery/1.11.1/jquery-1.11.1.jar" sourcepath="M2_REPO/org/webjars/jquery/1.11.1/jquery-1.11.1-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/webjars/modernizr/2.7.1/modernizr-2.7.1.jar"/>
+  <classpathentry kind="var" path="M2_REPO/joda-time/joda-time/2.3/joda-time-2.3.jar" sourcepath="M2_REPO/joda-time/joda-time/2.3/joda-time-2.3-sources.jar"/>
+  <classpathentry kind="var" path="M2_REPO/org/apache/wicket/wicket-extensions/6.17.0/wicket-extensions-6.17.0.jar" sourcepath="M2_REPO/org/apache/wicket/wicket-extensions/6.17.0/wicket-extensions-6.17.0-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2.jar" sourcepath="M2_REPO/org/apache/commons/commons-lang3/3.3.2/commons-lang3-3.3.2-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/de/agilecoders/maven/maven-parent-config/0.3.5/maven-parent-config-0.3.5.jar" sourcepath="M2_REPO/de/agilecoders/maven/maven-parent-config/0.3.5/maven-parent-config-0.3.5-sources.jar"/>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.11/junit-4.11.jar" sourcepath="M2_REPO/junit/junit/4.11/junit-4.11-sources.jar"/>

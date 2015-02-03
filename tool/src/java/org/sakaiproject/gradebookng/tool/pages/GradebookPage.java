@@ -7,11 +7,15 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
-import org.apache.wicket.markup.html.WebMarkupContainer;
-import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
+import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
+import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -23,15 +27,16 @@ import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.SectionColumnHeaderPanel;
+import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import com.inmethod.grid.DataProviderAdapter;
-import com.inmethod.grid.IGridColumn;
-import com.inmethod.grid.column.AbstractColumn;
-import com.inmethod.grid.column.PropertyColumn;
-import com.inmethod.grid.datagrid.DataGrid;
-import com.inmethod.grid.datagrid.DefaultDataGrid;
+//import com.inmethod.grid.DataProviderAdapter;
+//import com.inmethod.grid.IGridColumn;
+//import com.inmethod.grid.column.AbstractColumn;
+//import com.inmethod.grid.column.PropertyColumn;
+//import com.inmethod.grid.datagrid.DataGrid;
+//import com.inmethod.grid.datagrid.DefaultDataGrid;
 
 /**
  * Grades page
@@ -72,33 +77,24 @@ public class GradebookPage extends BasePage {
         //get the list of sections
         final List<Section> sections = this.businessService.getSiteSections();
         
-        final ListDataProvider<StudentGradeInfo> listDataProvider = new ListDataProvider<StudentGradeInfo>(grades);
-        List<IGridColumn> cols = new ArrayList<IGridColumn>();
+        final ListDataProvider<StudentGradeInfo> studentGradeMatrix = new ListDataProvider<StudentGradeInfo>(grades);
+        List<IColumn> cols = new ArrayList<IColumn>();
         
-        // match the studentgrades model
-        cols.add(new PropertyColumn(new Model("Student Name"), "studentName", SortOrder.ASCENDING).setReorderable(false));
-        cols.add(new PropertyColumn(new Model("Student ID"), "studentEid").setReorderable(false));
         
-        AbstractColumn studentNameColumn = new AbstractColumn("STUDENT_NAME_COLUMN", null) {
+        //student name column
+        AbstractColumn studentNameColumn = new AbstractColumn(new Model("")) {
 
         	@Override
-        	public Component newHeader(String componentId) {
-        		StudentNameColumnHeaderPanel panel = new StudentNameColumnHeaderPanel(componentId, StudentSortOrder.LAST_NAME);
-				return panel;
-        		
+        	public Component getHeader(String componentId) {
+        		return new StudentNameColumnHeaderPanel(componentId, StudentSortOrder.LAST_NAME);
         	}
         	
-			@Override
-			public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
-				//StudentGradeInfo studentsGrades = (StudentGradeInfo) rowModel.getObject();
-				//GradeItemCellPanel panel = new GradeItemCellPanel(componentId, assignment.getId(), studentsGrades);
-				
-				return new EmptyPanel(componentId);
-			}
-			
-			//TODO since we are now using a custom cell, we still need this to be editable, it will be done in the panel itself.
+        	@Override
+			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+				StudentGradeInfo studentGradeInfo = (StudentGradeInfo) rowModel.getObject();
+				cellItem.add(new StudentNameCellPanel(componentId, studentGradeInfo.getStudentName(), studentGradeInfo.getStudentEid()));
 
-			
+			}
         	
         };
         
@@ -107,105 +103,70 @@ public class GradebookPage extends BasePage {
         
         
         //section column (only rendered if we have sections)
+      
         if(!sections.isEmpty()){
-	        AbstractColumn sectionColumn = new AbstractColumn("SECTION_COLUMN", new ResourceModel("column.header.section")) {
+	        AbstractColumn sectionColumn = new AbstractColumn(new ResourceModel("column.header.section")) {
 	
 	        	@Override
-	        	public Component newHeader(String componentId) {
+	        	public Component getHeader(String componentId) {
 	        		SectionColumnHeaderPanel panel = new SectionColumnHeaderPanel(componentId, sections);
 					return panel;
 	        		
 	        	}
 	        	
 				@Override
-				public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
-					return new EmptyPanel(componentId); //TODO
-				}			
+				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+					cellItem.add(new EmptyPanel(componentId)); //TODO
+				}
+					
 	        };
 	        
 	        cols.add(sectionColumn);
         }
+       
         
         
         // pull from the studentgrades model
-        cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade").setReorderable(false));
+        cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade"));
         
         
         //build the rest of the columns based on the assignment list
+        //NOTE: the ordering of newly created assignments and grouping by category will come into play here
+       
         for(final Assignment assignment: assignments) {
         	
-        	AbstractColumn column = new AbstractColumn(String.valueOf(assignment.getId()), new Model(assignment.getName())) {
+        	AbstractColumn column = new AbstractColumn(new Model("")) {
 
             	@Override
-            	public Component newHeader(String componentId) {
+            	public Component getHeader(String componentId) {
             		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, assignment);
     				return panel;
-            		
             	}
             	
-    			@Override
-    			public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
-    				StudentGradeInfo studentsGrades = (StudentGradeInfo) rowModel.getObject();
-    				GradeItemCellPanel panel = new GradeItemCellPanel(componentId, assignment.getId(), studentsGrades);
-    				return panel;
-    			}
+            	@Override
+				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+            		StudentGradeInfo studentsGrades = (StudentGradeInfo) rowModel.getObject();
+            		cellItem.add(new GradeItemCellPanel(componentId, assignment.getId(), studentsGrades));
+				}
+            	
     			
     			//TODO since we are now using a custom cell, we still need this to be editable, it will be done in the panel itself.
-
-    			
             	
             };
             
             cols.add(column);
         	
         }
-        //TODO lookup how many assignments we have and iterate here
-        /*
-        cols.add(new EditablePropertyColumn(new Model("Assignment 1"), "assignments.0"));
-        cols.add(new EditablePropertyColumn(new Model("Assignment 2"), "assignments.1"));
-        cols.add(new EditablePropertyColumn(new Model("Mid Term"), "assignments.2"));
-        
-        
-        EditablePropertyColumn test1 = new EditablePropertyColumn(new Model("Assignment 4"), "assignments.3");
-        cols.add(test1);
-
-        AbstractColumn custom = new AbstractColumn("steve", new Model("steve")) {
-
-        	@Override
-        	public Component newHeader(String componentId) {
-        		AssignmentHeaderPanel panel = new AssignmentHeaderPanel(componentId);
-				return panel;
-        		
-        	}
-        	
-			@Override
-			public Component newCell(WebMarkupContainer parent, String componentId, IModel rowModel) {
-								
-				//need a panel to represent a grade and the comment etc, add it here
-				//pass in the data for the panel construction
-				GradeItemCellPanel panel = new GradeItemCellPanel(componentId);
-				
-				return panel;
-			}
-
-			
-        	
-        };
-        
-        cols.add(custom);
-        */
-        
-       
        
         
-        DataGrid grid = new DefaultDataGrid("grid", new DataProviderAdapter(listDataProvider), cols);
-        form.add(grid);
+        //TODO make this AjaxFallbackDefaultDataTable
+        DataTable table = new DataTable("table", cols, studentGradeMatrix, 8);
+        table.addBottomToolbar(new NavigationToolbar(table));
+        table.addTopToolbar(new HeadersToolbar(table, null));
+        form.add(table);
+       
         
-        grid.setAllowSelectMultiple(false);
-		grid.setSelectToEdit(false);
-		grid.setClickRowToSelect(true);
-		grid.setClickRowToDeselect(true);
-		
+        
 	
 		//testing the save and load
 		//GradebookUserPreferences prefs = new GradebookUserPreferences(currentUserUuid);
@@ -248,7 +209,6 @@ public class GradebookPage extends BasePage {
 			this.setContent(new AddGradeItemPanel(this.getContentId()));
 
 		}
-		
 		
 	}
 	

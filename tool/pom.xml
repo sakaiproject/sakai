@@ -59,10 +59,12 @@
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-util</artifactId>
 		</dependency>
+		<!--  
 		<dependency>
     		<groupId>org.wicketstuff</groupId>
     		<artifactId>wicketstuff-inmethod-grid</artifactId>
 		</dependency>
+		-->
 		<dependency>
 			<groupId>org.sakaiproject.edu-services.gradebook</groupId>
 			<artifactId>gradebook-service-api</artifactId>
