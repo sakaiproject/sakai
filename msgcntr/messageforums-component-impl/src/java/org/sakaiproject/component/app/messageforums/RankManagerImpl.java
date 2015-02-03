@@ -332,21 +332,11 @@ public class RankManagerImpl extends HibernateDaoSupport implements RankManager 
             throw new IllegalArgumentException("Null Argument");
         }
 
-        String userEid = null;
-        
-        try {
-			userEid = userDirectoryService.getUserEid(userid);
-		} catch (UserNotDefinedException e) {
-			throw new IllegalArgumentException("Cannot find user with id " + userid);
-		}
-        
-        final String fUserEid = userEid;
-
         HibernateCallback hcb = new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
                 Query q = session.getNamedQuery(QUERY_BY_CONTEXT_ID_USERID);
                 q.setParameter("contextId", contextId, Hibernate.STRING);
-                q.setParameter("userId", fUserEid, Hibernate.STRING);
+                q.setParameter("userId", userid, Hibernate.STRING);
                 return q.list();
             }
         };

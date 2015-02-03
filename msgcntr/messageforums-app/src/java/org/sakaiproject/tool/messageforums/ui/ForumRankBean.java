@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.tool.messageforums.ui;
 
+import java.util.Set;
+
 import org.sakaiproject.api.app.messageforums.Rank;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -32,7 +34,7 @@ public class ForumRankBean {
     private static final Log LOG = LogFactory.getLog(ForumRankBean.class);
 
     private boolean assignErr;
-    private String assignTo;
+    private Set<String> assignToIds;
     private String assignToDisplay;
     private String contextId;
     private boolean imageSizeErr;
@@ -54,14 +56,14 @@ public class ForumRankBean {
         this.rank = rank;
         this.type = rank.getType();
         this.title = rank.getTitle();
-        this.assignTo = rank.getAssignTo();
+        this.assignToIds = rank.getAssignToIds();
         this.assignToDisplay = rank.getAssignToDisplay();
         this.contextId = rank.getContextId();
         this.minPosts = rank.getMinPosts();
     }
 
-    public String getAssignTo() {
-        return assignTo;
+    public Set<String> getAssignToIds() {
+        return assignToIds;
     }
 
     public String getAssignToDisplay() {
@@ -116,8 +118,8 @@ public class ForumRankBean {
         this.assignErr = assignErr;
     }
 
-    public void setAssignTo(String assignTo) {
-        this.assignTo = assignTo;
+    public void setAssignToIds(Set<String> assignToIds) {
+        this.assignToIds = assignToIds;
     }
 
     public void setAssignToDisplay(String assignToDisplay) {
