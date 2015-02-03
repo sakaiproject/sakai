@@ -288,6 +288,9 @@ public interface SiteService extends EntityProducer
 
 		/** Get any non-user sites. */
 		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, false, true);
+
+		/** Get sites that the current user is a member of regardless whether site is published */
+		public static final SelectionType MEMBER = new SelectionType("member", true, true, false, true);
 		
 		/** Get my deleted sites. */
 		public static final SelectionType DELETED = new SelectionType("deleted", true, true, true, false);
