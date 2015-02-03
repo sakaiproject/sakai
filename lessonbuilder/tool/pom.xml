@@ -283,6 +283,18 @@
 
         <dependencies>
           <dependency>
+	    <groupId>org.sakaiproject.scorm</groupId>
+	    <artifactId>sakai-scorm-api</artifactId>
+            <version>3.1.9</version>
+            <scope>provided</scope>
+          </dependency>
+          <dependency>
+	    <groupId>org.sakaiproject.scorm</groupId>
+	    <artifactId>sakai-scorm-tool</artifactId>
+            <version>3.1.9</version>
+	    <scope>compile</scope>
+          </dependency>
+          <dependency>
             <groupId>org.sakaiproject.yaft</groupId>
             <artifactId>yaft-api</artifactId>
             <version>${sakai.yaft.version}</version>

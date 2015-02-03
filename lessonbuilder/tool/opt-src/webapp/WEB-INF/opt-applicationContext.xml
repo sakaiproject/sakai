@@ -31,6 +31,17 @@
     <property name = "prevEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity" />
   </bean>
 
+  <bean id="org.sakaiproject.lessonbuildertool.service.ScormEntity"
+	class="org.sakaiproject.lessonbuildertool.service.ScormEntity"
+        init-method="init"
+        destroy-method="destroy">
+
+    <property name="memoryService"><ref bean="org.sakaiproject.memory.api.MemoryService"/></property>
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="gradebookService" ref="org.sakaiproject.service.gradebook.GradebookService"/>
+    <property name = "prevEntity" ref="org.sakaiproject.lessonbuildertool.service.Assignment2Entity" />
+  </bean>
+
   <bean id="org.sakaiproject.lessonbuildertool.ccexport.Assignment2Export"
 	class="org.sakaiproject.lessonbuildertool.ccexport.Assignment2Export"
         init-method="init"

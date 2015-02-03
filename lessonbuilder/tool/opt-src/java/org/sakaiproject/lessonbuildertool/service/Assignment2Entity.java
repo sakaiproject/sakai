@@ -404,7 +404,7 @@ public class Assignment2Entity implements LessonEntity, AssignmentInterface {
 	    entity.setSimplePageBean(bean);
 	    return entity;
 	} else if (nextEntity != null) {
-	    return nextEntity.getEntity(ref, simplePageBean);
+	    return nextEntity.getEntity(ref, bean);
 	} else
 	    return null;
     }
