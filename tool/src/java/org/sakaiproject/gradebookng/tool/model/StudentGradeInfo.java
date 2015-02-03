@@ -43,7 +43,7 @@ public class StudentGradeInfo implements Serializable
 	}
 	
 	public StudentGradeInfo(User u) {
-		this.studentUuid = u.getId();
+		this.studentEid = u.getId();
 		this.studentEid = u.getEid();
 		this.studentName = u.getDisplayName();
 		this.grades = new HashMap<Long,GradeInfo>();
@@ -58,6 +58,5 @@ public class StudentGradeInfo implements Serializable
 	public void addGrade(Long assignmentId, GradeInfo gradeInfo) {
 		this.grades.put(assignmentId, gradeInfo);
 	}
-	
 	
 }

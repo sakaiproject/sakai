@@ -3,16 +3,21 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.Arrays;
 import java.util.List;
 
-import org.apache.commons.lang.enums.EnumUtils;
-import org.apache.wicket.extensions.markup.html.form.select.SelectOption;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.gradebookng.business.StudentSortOrder;
+import org.sakaiproject.gradebookng.tool.model.StringModel;
 
 /**
  * 
@@ -54,14 +59,68 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		//TODO set the default one to the currently selected one
 		
 		add(sortOrderList);
-				
+		/*		
 		//add the filter		
-		add(new TextField<String>("filter"));
+		TextField<String> filter = new TextField<String>("filter", new Model(new StringModel()));
+		filter.setModel(new Model<String>());
+		
+		filter.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				final Object value = getComponent().getDefaultModelObject();
+				
+				System.out.println("value:" + value);
+				
+			}
+			
+		});
+		
+		
+		add(filter);
+		*/
+		
+		add(new FilterForm("filterForm"));
 		
 		
 		
 	}
 	
+	private class FilterForm extends Form<StringModel> {
+		
+		public FilterForm(String id){
+			super(id);
+			
+			StringModel stringModel = new StringModel();
+			
+			//if we already have a filter, set it into the model
+			//if(StringUtils.isNotBlank(search)){
+			//	searchModel.setSearch(search);
+			//}
+			setDefaultModel(new CompoundPropertyModel<StringModel>(stringModel));
+			
+			TextField<String> filter = new TextField<String>("filter");
+			
+			filter.add(new AjaxFormComponentUpdatingBehavior("onchange"){
+
+				@Override
+				protected void onUpdate(AjaxRequestTarget target) {
+					final Object value = getComponent().getDefaultModelObject();
+					
+					System.out.println("value:" + value);
+					
+				}
+				
+			});
+			add(filter);
+			
+		}
+		
+		public void onSubmit(){
+			//ignore, might need to set default processing false
+		}
+		
+	}
 	
 	
 }
