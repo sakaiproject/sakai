@@ -21,11 +21,14 @@
 
 package org.sakaiproject.authz.impl;
 
+import java.util.Collection;
 /**
  * methods for accessing authz data in an oracle database.
  */
 public class DbAuthzGroupSqlOracle extends DbAuthzGroupSqlDefault
 {
+	/* KNL-382 */
+	private static final int ORA_1795_LIMIT = 999;
 	/**
 	 * returns the sql statement to write a row into the sakai_function_role table.
 	 */
@@ -50,4 +53,28 @@ public class DbAuthzGroupSqlOracle extends DbAuthzGroupSqlDefault
 		return "SELECT 1 FROM SAKAI_REALM_RL_FN srrf, SAKAI_REALM_FUNCTION srf, (select realm_key, role_key from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? union select -1 as realm_key, -1 as role_key from dual) srrg WHERE rownum = 1 AND srrf.realm_key in (select realm_key from SAKAI_REALM where " + inClause + ") AND srrf.function_key = srf.function_key AND srf.function_name = ? AND ((srrf.role_key = srrg.role_key AND srrg.realm_key in (select realm_key from SAKAI_REALM where " + inClause + ")) OR srrf.role_key in (" + roleKeys + "))";
 	}
 
+	@Override
+	public String getSelectRealmIdSql(Collection azGroups)
+	{
+		StringBuilder sqlBuilder = new StringBuilder();
+		String sql = "select     SR.REALM_ID " + "from       SAKAI_REALM_FUNCTION SRF "
+				+ "inner join SAKAI_REALM_RL_FN SRRF on SRF.FUNCTION_KEY = SRRF.FUNCTION_KEY "
+				+ "inner join SAKAI_REALM_RL_GR SRRG on SRRF.ROLE_KEY = SRRG.ROLE_KEY and SRRF.REALM_KEY = SRRG.REALM_KEY "
+				+ "inner join SAKAI_REALM SR on SRRF.REALM_KEY = SR.REALM_KEY "
+				+ "where      SRF.FUNCTION_NAME = ? and SRRG.USER_ID = ? and SRRG.ACTIVE = '1' ";
+
+		sqlBuilder.append(sql);
+		if (azGroups != null && azGroups.size()>0)
+		{
+			sqlBuilder.append("and (SR.REALM_ID in (");
+			for (int k = 0,size = 0;size<azGroups.size()-1 && k<ORA_1795_LIMIT-1;size++,k++) {
+				sqlBuilder.append("?,");
+				if (k==ORA_1795_LIMIT-2 && size<azGroups.size()-2) {
+					k=-1; size++; sqlBuilder.append("?) or SR.REALM_ID in (");
+				}
+			}
+			sqlBuilder.append("?))");
+		}
+		return sqlBuilder.toString();
+	}
 }
