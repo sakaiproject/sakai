@@ -25,6 +25,7 @@ function handleEnterKeyPress(ev)
 			var $pan = $('#peerReviewInfo')
    	 		if ($pan.is(':visible') && ev.target.id !== 'peerReviewInfo' && ev.target.id !== 'infoImg' && ev.target.id !== 'grade') $pan.hide();
 		});
+		disableBackButton();
     });
 
 var reportsExpanded = false;
