@@ -19,6 +19,7 @@
 
 package org.sakaiproject.signup.tool.jsf;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -399,8 +400,10 @@ public class TimeslotWrapper implements Comparable{
 	 * @return a string value.
 	 */
 	public String getLabel() {
-		return SignupDateFormat.format_h_mm_a(timeSlot.getStartTime()) + " - "
-				+ SignupDateFormat.format_h_mm_a(timeSlot.getEndTime());
+		SimpleDateFormat simpleDateFormat = new SimpleDateFormat();
+		simpleDateFormat.applyPattern(", EEE");
+		return SignupDateFormat.format_h_mm_a(timeSlot.getStartTime())+simpleDateFormat.format(timeSlot.getStartTime()) + " - "
+		+ SignupDateFormat.format_h_mm_a(timeSlot.getEndTime())+simpleDateFormat.format(timeSlot.getEndTime())+", "+SignupDateFormat.format_date_mm_dd_yy(timeSlot.getEndTime()); 
 	}
 
 	/**
