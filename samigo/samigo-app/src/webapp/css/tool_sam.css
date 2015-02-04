@@ -396,6 +396,12 @@ tr.list-row-even td, tr.list-row-odd td {
 	text-decoration: none !important;
 	color: #000000;
 }
+#assessment-link-status-all, #assessment-link-status-active, #assessment-link-status-inactive {
+	cursor:pointer;
+}
+#assessment-link-status-all.active, #assessment-link-status-active.active, #assessment-link-status-inactive.active {
+	cursor:text;
+}
 #tabs, #tabs .ui-widget-content {
 	border-width: 0;
 	background: none;
