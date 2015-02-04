@@ -20,6 +20,8 @@
  **********************************************************************************/
 package org.sakaiproject.api.app.messageforums;
 
+import java.util.Set;
+
 public interface Rank extends MutableEntity {
     public final static String RANK_TYPE_INDIVIDUAL = "1";
     public final static String RANK_TYPE_POST_COUNT = "2";
@@ -33,9 +35,9 @@ public interface Rank extends MutableEntity {
 
     public void setType(String ranktype);
 
-    public String getAssignTo();
+    public Set<String> getAssignToIds();
 
-    public void setAssignTo(String assignTo);
+    public void setAssignToIds(Set<String> assignToIds);
 
     public long getMinPosts();
 

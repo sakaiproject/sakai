@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.Locale;
 import java.util.HashMap;
-import java.util.TreeMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -61,6 +60,7 @@ import net.sf.json.JSONObject;
 import net.sf.json.JSONSerializer;
 import net.sf.json.JsonConfig;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.api.app.messageforums.Area;
@@ -77,12 +77,10 @@ import org.sakaiproject.api.app.messageforums.MembershipManager;
 import org.sakaiproject.api.app.messageforums.Message;
 import org.sakaiproject.api.app.messageforums.MessageForumsMessageManager;
 import org.sakaiproject.api.app.messageforums.MessageForumsTypeManager;
-import org.sakaiproject.api.app.messageforums.MessageMoveHistory;
 import org.sakaiproject.api.app.messageforums.OpenForum;
 import org.sakaiproject.api.app.messageforums.PermissionLevel;
 import org.sakaiproject.api.app.messageforums.PermissionLevelManager;
 import org.sakaiproject.api.app.messageforums.PermissionsMask;
-import org.sakaiproject.api.app.messageforums.PrivateMessage;
 import org.sakaiproject.api.app.messageforums.Rank;
 import org.sakaiproject.api.app.messageforums.RankImage;
 import org.sakaiproject.api.app.messageforums.RankManager;
@@ -100,9 +98,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.MessageMoveHistoryImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
-import org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentResource;
@@ -125,14 +121,12 @@ import org.sakaiproject.event.api.LearningResourceStoreService.LRS_Verb.SAKAI_VE
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-import org.sakaiproject.tool.api.Placement;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -9429,18 +9423,14 @@ public class DiscussionForumTool
 				if (LOG.isDebugEnabled()) LOG.debug("saveRank:   RANK_TYPE_INDIVIDUAL");
 
 				newRank.setType(Rank.RANK_TYPE_INDIVIDUAL);
-				String assigned_to_display = constructAssignedToDisplay();
-				newRank.setAssignToDisplay(assigned_to_display);
-				String assigned_to = constructAssignedTo();
-				if (LOG.isDebugEnabled()) LOG.debug("user_eid = " + assigned_to);
-				newRank.setAssignTo(assigned_to);
+				Set<String> assignToIds = constructAssignToIds();
+				if (LOG.isDebugEnabled()) LOG.debug("user_id = " + assignToIds);
+				newRank.setAssignToIds(assignToIds);
 				newRank.setMinPosts(0);
 				rankManager.saveRank(newRank);
 			} else if (Rank.RANK_TYPE_POST_COUNT.equalsIgnoreCase(selectedRankType)) { // by # of post
 				if (LOG.isDebugEnabled()) LOG.debug("saveRank:  RANK_TYPE_POST_COUNT ");
 
-				newRank.setAssignTo(null);
-				newRank.setAssignToDisplay(null);
 				newRank.setType(Rank.RANK_TYPE_POST_COUNT);
 				rankManager.saveRank(newRank);
 			} else {
@@ -9508,8 +9498,9 @@ public class DiscussionForumTool
 			setErrorMessage(getResourceBundleString(INSUFFICIENT_PRIVILEGES_TO_EDIT_RANKS));
 			return gotoMain();
 		}
-		List<RankImpl> ranklist = new ArrayList();
+		List<Rank> ranklist = new ArrayList();
 		ranklist = rankManager.getRankList(getSiteId());
+		constructAssignedToDisplay(ranklist);
 		setRankBeanList(ranklist);
 		return VIEW_RANK;
 	}
@@ -9532,11 +9523,10 @@ public class DiscussionForumTool
 
 		if (Rank.RANK_TYPE_INDIVIDUAL.equalsIgnoreCase(rankBean.getType())) {
 			// get selected individuals for editing
-			String useridlistString = thisrank.getAssignTo();
-			if ((useridlistString == null) || (useridlistString.length() <= 0)) {
+			Set<String> assignToIds = thisrank.getAssignToIds();
+			if (assignToIds == null || assignToIds.isEmpty()) {
 				return VIEW_RANK; // not going anywhere. AssignTo should have at least 1 user.
 			}
-			StringTokenizer st = new StringTokenizer(useridlistString, ASSIGNEDTO_DELIMITER, false);
 			StringBuffer memberitemidlist = new StringBuffer();
             this.courseMemberMap = membershipManager.getFilteredCourseMembers(true, null);
 			List members = membershipManager.convertMemberMapToList(courseMemberMap);
@@ -9546,18 +9536,15 @@ public class DiscussionForumTool
 				MembershipItem item = (MembershipItem) i.next();
 				User itemUser = item.getUser();
 				if (itemUser != null) {
-					membersKeyOnUserId.put(itemUser.getEid(), item);
+					membersKeyOnUserId.put(itemUser.getId(), item);
 				} else {
 					// okay ,not a User membershipItem, could be Group, or Role...
 				}
 			}
 
-			Set userIds = new HashSet();
-			while (st.hasMoreTokens()) {
-				String userid = (String) st.nextToken().trim();
-				if (membersKeyOnUserId.containsKey(userid)) {
-					// exist in courseMemberMap
-					memberitemidlist.append(membersKeyOnUserId.get(userid).getId());
+			for (String userId: assignToIds) {
+				if (membersKeyOnUserId.containsKey(userId)) {
+					memberitemidlist.append(membersKeyOnUserId.get(userId).getId());
 					memberitemidlist.append(AGGREGATE_DELIMITER);
 				}
 			}
@@ -9699,50 +9686,35 @@ public class DiscussionForumTool
 		return selectedComposeToList;
 	}
 
-	public String constructAssignedToDisplay() {
-		// store the user display name, separated by some delimiter.
-		// for faster performance.
-		String assignedtodisplay = "";
-
-		// store this in a Map to be sorted
-		Map<String, MembershipItem> NamesMap = new HashMap();
-		for (int i = 0; i < selectedComposeToList.size(); i++) {
-			MembershipItem membershipItem = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));
-			if (membershipItem != null) {
-				NamesMap.put(membershipItem.getUser().getFirstName() + membershipItem.getUser().getEid(), membershipItem);
+	private void constructAssignedToDisplay(List<Rank> ranks) {
+		courseMemberMap = membershipManager.getFilteredCourseMembers(true, null);
+		Map<String, String> memberIdNameMap = new HashMap<String, String>();
+		for (Object o: courseMemberMap.values()) {
+			MembershipItem item = (MembershipItem) o;
+			if (item.getUser() != null) {
+				memberIdNameMap.put(item.getUser().getId(), item.getUser().getDisplayName());
 			}
 		}
-
-		TreeMap<String, MembershipItem> sortNameMap = new TreeMap<String, MembershipItem>(NamesMap);
-		// after sorting
-		Iterator itr = sortNameMap.keySet().iterator();
-		while (itr.hasNext()) {
-			String firstname = (String) itr.next();
-			MembershipItem memberName = (MembershipItem) sortNameMap.get(firstname);
-			if (memberName != null) {
-				assignedtodisplay += memberName.getUser().getDisplayName() + ", ";
+		for (Rank rank: ranks) {
+			List<String> assignToNames = new ArrayList<String>();
+			for (String userId: rank.getAssignToIds()) {
+				if (memberIdNameMap.get(userId) != null) {
+					assignToNames.add(memberIdNameMap.get(userId));
+				}
 			}
+			rank.setAssignToDisplay(StringUtils.join(assignToNames, ", "));
 		}
-
-		if (!"".equals(assignedtodisplay)) {
-			assignedtodisplay = assignedtodisplay.substring(0, assignedtodisplay.length() - 2); // remove last comma and space
-		}
-		return assignedtodisplay;
 	}
 
-	public String constructAssignedTo() {
-		// store eid separated by delimiter.
-		String assignedto = "";
-		for (int i = 0; i < selectedComposeToList.size(); i++) {
-			MembershipItem item = (MembershipItem) courseMemberMap.get(selectedComposeToList.get(i));
+	private Set<String> constructAssignToIds() {
+		Set<String> assignToIds = new HashSet<String>();
+		for (String selectedComponseTo: (List<String>)selectedComposeToList) {
+			MembershipItem item = (MembershipItem)courseMemberMap.get(selectedComponseTo);
 			if (item != null) {
-				assignedto += item.getUser().getEid() + "; ";
+				assignToIds.add(item.getUser().getId());
 			}
 		}
-		if (!"".equals(assignedto)) {
-			assignedto = assignedto.substring(0, assignedto.length() - 2); // remove last comma and space
-		}
-		return assignedto;
+		return assignToIds;
 	}
 
 	private boolean attachCaneled = false;
