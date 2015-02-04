@@ -1483,6 +1483,10 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		/**
 		 * Refresh the external user - role membership for this AuthzGroup
 		 * 
+		 * <p>Refreshing from a provider can take longer than expected depending
+		 * on the providers implementation, so we queue requests to refresh and
+		 * the actual refresh is performed in a separate thread.</p>
+		 *
 		 * @param azGroup
 		 *        The azGroup to refresh.
 		 */
