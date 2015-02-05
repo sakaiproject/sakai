@@ -2005,4 +2005,17 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 	public void clearMessagesCache(String channelRef){
 		m_threadLocalManager.set(channelRef + ".msgs", null);
 	}
+	@Override
+	protected boolean isUserInstructor(String userId, Site site){
+		if(site != null && site.getMember(userId) != null){
+			//Requires annc.all.groups in this context
+			if (M_log.isDebugEnabled()) {
+				M_log.debug("isUserInstructor override from announcements for " + userId + " in " + site.getId());
+			}
+			if(m_securityService.unlock(userId, "annc.all.groups", m_siteService.siteReference(site.getId()))){
+				return true;
+			}
+		}
+		return false;
+	}
 }
