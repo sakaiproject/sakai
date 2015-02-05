@@ -15,6 +15,12 @@ function handleEnterKeyPress(ev)
 				 return false; 
 			 }
 		 }
+	//SAK-23247 - Prevent back button
+	history.pushState(null, null, 'no-back-button');
+	window.addEventListener('popstate', function(event) {
+		history.pushState(null, null, 'no-back-button');
+	});
+
 </script>
 <script type="text/javascript">
     $(document).ready(function(){
