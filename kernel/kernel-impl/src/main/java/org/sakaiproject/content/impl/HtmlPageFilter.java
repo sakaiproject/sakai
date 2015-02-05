@@ -131,6 +131,14 @@ public class HtmlPageFilter implements ContentFilter {
 				siteSkin = site.getSkin();
 			}
 		}
+
+		String neoPrefix = serverConfigurationService.getString("portal.neoprefix", "neo-");
+		String portalTemplate = serverConfigurationService.getString("portal.templates", "neoskin");
+
+		if ("neoskin".equals(portalTemplate) && !siteSkin.startsWith(neoPrefix)) {
+			siteSkin = neoPrefix + siteSkin;
+		}
+
 		return siteSkin;
 	}
 
