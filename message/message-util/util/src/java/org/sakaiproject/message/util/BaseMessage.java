@@ -1186,7 +1186,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		return rv;
 	}
 	
-	private boolean isUserInstructor(String userId, Site site){
+	protected boolean isUserInstructor(String userId, Site site){
 		if(site != null && site.getMember(userId) != null){
 			if(m_securityService.unlock(userId, "site.upd", m_siteService.siteReference(site.getId()))){
 				return true;
