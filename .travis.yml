@@ -1,5 +1,7 @@
 language: java
-sudo: false
-cache:
-  directories:
-  - $HOME/.m2
+# Disabled docker based builds because of:
+# https://github.com/travis-ci/travis-ci/issues/3174
+# sudo: false
+# cache:
+#  directories:
+#  - $HOME/.m2
