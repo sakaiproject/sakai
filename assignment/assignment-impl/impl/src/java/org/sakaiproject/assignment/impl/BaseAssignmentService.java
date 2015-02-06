@@ -21,8 +21,6 @@
 
 package org.sakaiproject.assignment.impl;
 
-import au.com.bytecode.opencsv.CSVWriter;
-
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
@@ -102,14 +100,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 //Export to excel
-import java.text.ParseException;
 import java.text.DecimalFormat;
-
-import org.apache.poi.hssf.usermodel.HSSFFont;
-import org.apache.poi.hssf.usermodel.HSSFRichTextString;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.IndexedColors;
-import org.sakaiproject.util.Resource;
 
 /**
  * <p>
@@ -5179,7 +5170,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 	        // Write the header
 			sheet.addHeader("Group", rb.getString("grades.eid"), rb.getString("grades.members"),
-					rb.getString("grades.grade"));
+					rb.getString("grades.grade"), rb.getString("grades.submissionTime"),rb.getString("grades.late"));
 
 	        // allow add assignment members
 	        List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
@@ -5224,10 +5215,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	                        // add the eid to the end of it to guarantee folder name uniqness
 	                        submittersString = submittersString + "(" + submitters[i].getEid() + ")";
 	                    }
+						String latenessStatus = whenSubmissionMade(s);
 
 						//Adding the row
 						sheet.addRow(gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
-								s.getGradeDisplay());
+								s.getGradeDisplay(), s.getTimeSubmittedString(), latenessStatus);
 
 	                    if (StringUtil.trimToNull(submitterString) != null)
 	                    {
@@ -5391,7 +5383,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
-					rb.getString("grades.firstname"),rb.getString("grades.grade"));
+					rb.getString("grades.firstname"),rb.getString("grades.grade"),
+					rb.getString("grades.submissionTime"),rb.getString("grades.late"));
 
 			// allow add assignment members
 			List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
@@ -5439,6 +5432,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									submittersString = submittersString + "(" + submitters[i].getId() + ")";
 								}
 								submittersString = escapeInvalidCharsEntry(submittersString);
+								// Work out if submission is late.
+								String latenessStatus = whenSubmissionMade(s);
 
 								String fullAnonId = s.getAnonymousSubmissionId();
 								String anonTitle = rb.getString("grading.anonymous.title");
@@ -5448,11 +5443,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								{
 									sheet.addRow(submitters[i].getDisplayId(), submitters[i].getEid(),
 											submitters[i].getLastName(), submitters[i].getFirstName(),
-											s.getGradeDisplay());
+											s.getGradeDisplay(), s.getTimeSubmittedString(), latenessStatus);
 								}
 								else
 								{
-									sheet.addRow(fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay());
+									sheet.addRow(fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay(),
+											s.getTimeSubmittedString(), latenessStatus);
 								}
 							}
 							
@@ -5631,6 +5627,25 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		        }
 		    }
 		}
+	}
+
+	/**
+	 * Just check to see if a submission is late.
+	 * @param s The assignment submission
+	 * @return The resource bundle string.
+	 */
+	private String whenSubmissionMade(AssignmentSubmission s) {
+		Time dueTime = s.getAssignment().getDueTime();
+		Time submittedTime = s.getTimeSubmitted();
+		String latenessStatus;
+		if (submittedTime == null) {
+			latenessStatus = rb.getString("grades.lateness.unknown");
+		} else if(dueTime != null && submittedTime.after(dueTime)) {
+			latenessStatus = rb.getString("grades.lateness.late");
+		} else {
+			latenessStatus = rb.getString("grades.lateness.ontime");
+		}
+		return latenessStatus;
 	}
 
 	/*
