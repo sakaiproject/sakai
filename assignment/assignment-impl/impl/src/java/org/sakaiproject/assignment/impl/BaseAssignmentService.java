@@ -5162,39 +5162,30 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	protected void zipGroupSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment,String gradeFileFormat)
 	{
 	    ZipOutputStream out = null;
-		//Excel generation
-		HSSFWorkbook gradesWorkbook = null;
-		HSSFSheet dataSheet = null;	    
 	    try {
 	        out = new ZipOutputStream(outputStream);
 
 	        // create the folder structure - named after the assignment's title
 	        String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
 
-			//Create excel datasheet	
-			if ("excel".equals(gradeFileFormat)) {	
-			   String sheetTitle = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle));
-			   gradesWorkbook=createGradesWorkbook(sheetTitle,true);
-			   dataSheet=gradesWorkbook.getSheet(sheetTitle);
-			}
-			
+			SpreadsheetExporter.Type type = SpreadsheetExporter.Type.valueOf(gradeFileFormat.toUpperCase());
+			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString);
+
 	        String submittedText = "";
 	        if (!submissions.hasNext())
 	        {
 	            exceptionMessage.append("There is no submission yet. ");
 	        }
 
-	        // the buffer used to store grade information
-	        StringBuilder gradesBuffer = new StringBuilder(assignmentTitle + "," + gradeTypeString + "\n\n");
-	        gradesBuffer.append("Group" + "," + rb.getString("grades.eid") + "," + rb.getString("grades.members") + "," + rb.getString("grades.grade") + "\n");
+	        // Write the header
+			sheet.addHeader("Group", rb.getString("grades.eid"), rb.getString("grades.members"),
+					rb.getString("grades.grade"));
 
 	        // allow add assignment members
 	        List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
 
 	        // Create the ZIP file
 	        String submittersName = "";
-	        int count = 1;
-			int xlsRowCount = 1;
 	        String caughtException = null;
 	        while (submissions.hasNext())
 	        {
@@ -5208,7 +5199,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	            {
 	                try
 	                {
-	                    count = 1;
 	                    submittersName = root;
 
 	                    User[] submitters = s.getSubmitters();
@@ -5235,16 +5225,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	                        submittersString = submittersString + "(" + submitters[i].getEid() + ")";
 	                    }
 
-						//Adding the row to the csv file
-						if ("csv".equals(gradeFileFormat)) {
-						gradesBuffer.append( gs.getGroup().getTitle() + "," + gs.getGroup().getId() + "," + submitters2String + "," + s.getGradeDisplay() + "\n");
-						}
-
-						//Adding the row to the excel file
-						if ("excel".equals(gradeFileFormat)) {
-							addExcelRowInfo(dataSheet,xlsRowCount,true,gs.getGroup().getTitle(),gs.getGroup().getId(),submitters2String,null,s.getGradeDisplay());
-							xlsRowCount++;
-						}
+						//Adding the row
+						sheet.addRow(gs.getGroup().getTitle(), gs.getGroup().getId(), submitters2String,
+								s.getGradeDisplay());
 
 	                    if (StringUtil.trimToNull(submitterString) != null)
 	                    {
@@ -5353,25 +5336,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        if (caughtException == null)
 	        {
 	            // continue
-	            if (withGradeFile)
-	            {
-		          if ("csv".equals(gradeFileFormat)) {	            	
-	                // create a grades.csv file into zip
-	                ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
-	                out.putNextEntry(gradesCSVEntry);
-	                byte[] grades = gradesBuffer.toString().getBytes();
-	                out.write(grades);
-	                gradesCSVEntry.setSize(grades.length);
-	                out.closeEntry();
-	            }
-		          if ("excel".equals(gradeFileFormat)) {
-			        // create a grades.xls file into zip
-			        ZipEntry gradesEXCELEntry = new ZipEntry(root + "grades.xls");
-			        out.putNextEntry(gradesEXCELEntry);
-			        gradesWorkbook.write(out);
-			        out.closeEntry();
-	        }
-	            }	            
+				if (withGradeFile)
+				{
+					ZipEntry gradesCSVEntry = new ZipEntry(root + "grades."+ sheet.getFileExtension());
+					out.putNextEntry(gradesCSVEntry);
+					sheet.write(out);
+					out.closeEntry();
+				}
 	        }
 	        else
 	        {
@@ -5400,126 +5371,33 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	    }
 	}
 
-	private HSSFCellStyle setHeaderStyle(HSSFWorkbook sampleWorkBook){
-		//TO-DO read style information from sakai.properties
-		HSSFFont font = sampleWorkBook.createFont();
-		font.setFontName(HSSFFont.FONT_ARIAL);
-		font.setColor(IndexedColors.PLUM.getIndex());
-		font.setBoldweight(HSSFFont.BOLDWEIGHT_BOLD);
-		HSSFCellStyle cellStyle = sampleWorkBook.createCellStyle();
-		cellStyle.setFont(font);
-		return cellStyle;
-	}
-	
-	private HSSFWorkbook createGradesWorkbook(String assignmentTitle,boolean isGroupSubmissions) {
-		HSSFWorkbook gradesWorkbook = new HSSFWorkbook();
-		HSSFSheet dataSheet = gradesWorkbook.createSheet(Validator.escapeZipEntry(assignmentTitle));
-		HSSFCellStyle cellStyle = setHeaderStyle(gradesWorkbook);	
-
-		//Excel file header row
-		HSSFRow headerRow = dataSheet.createRow(0);			
-		HSSFCell firstHeaderCell = headerRow.createCell(0);
-		firstHeaderCell.setCellStyle(cellStyle);
-		firstHeaderCell.setCellValue(new HSSFRichTextString(rb.getString("grades.id")));
-		HSSFCell secondHeaderCell = headerRow.createCell(1);
-		secondHeaderCell.setCellStyle(cellStyle);
-		secondHeaderCell.setCellValue(new HSSFRichTextString(rb.getString("grades.eid")));
-		if (!isGroupSubmissions) {
-			HSSFCell thirdHeaderCell = headerRow.createCell(2);
-			thirdHeaderCell.setCellStyle(cellStyle);
-			thirdHeaderCell.setCellValue(new HSSFRichTextString(rb.getString("grades.lastname")));			
-			HSSFCell fourthHeaderCell = headerRow.createCell(3);
-			fourthHeaderCell.setCellStyle(cellStyle);
-			fourthHeaderCell.setCellValue(new HSSFRichTextString(rb.getString("grades.firstname")));			
-			HSSFCell fifthHeaderCell = headerRow.createCell(4);
-			fifthHeaderCell.setCellStyle(cellStyle);
-			fifthHeaderCell.setCellValue(new HSSFRichTextString(rb.getString("grades.grade")));
-		} else {
-			HSSFCell thirdHeaderCell = headerRow.createCell(2);
-			thirdHeaderCell.setCellStyle(cellStyle);
-			thirdHeaderCell.setCellValue(new HSSFRichTextString(rb.getString("grades.members")));			
-			HSSFCell fifthHeaderCell = headerRow.createCell(3);
-			fifthHeaderCell.setCellStyle(cellStyle);
-			fifthHeaderCell.setCellValue(new HSSFRichTextString(rb.getString("grades.grade")));
-		}
-		return gradesWorkbook;
-	}
-	private void addExcelRowInfo(HSSFSheet dataSheet,int xlsRowCount,boolean isGroupSubmission,String submittersDisplayId, String submittersId,String submittersLastName,String submittersName,String grades) {
-		HSSFRow dataRow = dataSheet.createRow(xlsRowCount);
-	    //grades.id
-	    HSSFCell gradesidCell = dataRow.createCell(0);
-	    gradesidCell.setCellType(Cell.CELL_TYPE_STRING);
-	    gradesidCell.setCellValue(submittersDisplayId);
-	    //grades.eid
-	    HSSFCell gradeseidCell = dataRow.createCell(1);
-	    gradeseidCell.setCellType(Cell.CELL_TYPE_STRING);
-	    gradeseidCell.setCellValue(submittersId);
-	    //grades.lastname
-	    HSSFCell lastnameCell = dataRow.createCell(2);
-	    lastnameCell.setCellType(Cell.CELL_TYPE_STRING);
-	    lastnameCell.setCellValue(submittersLastName);
-	    if (!isGroupSubmission) {
-		    //grades.firstname
-		    HSSFCell firstnameCell = dataRow.createCell(3);
-		    firstnameCell.setCellType(Cell.CELL_TYPE_STRING);
-		    firstnameCell.setCellValue(submittersName);
-		    //grades.grade
-		    HSSFCell gradenameCell = dataRow.createCell(4);
-		    gradenameCell.setCellType(Cell.CELL_TYPE_STRING);
-		    gradenameCell.setCellValue(grades);
-	    } else {
-		    //grades.grade
-		    HSSFCell gradenameCell = dataRow.createCell(3);
-		    gradenameCell.setCellType(Cell.CELL_TYPE_STRING);
-		    gradenameCell.setCellValue(grades);	    	
-	    }
-   }
-	
 	protected void zipSubmissions(String assignmentReference, String assignmentTitle, String gradeTypeString, int typeOfSubmission, Iterator submissions, OutputStream outputStream, StringBuilder exceptionMessage, boolean withStudentSubmissionText, boolean withStudentSubmissionAttachment, boolean withGradeFile, boolean withFeedbackText, boolean withFeedbackComment, boolean withFeedbackAttachment, boolean withoutFolders,String gradeFileFormat)
 	{
 	    ZipOutputStream out = null;
-		
-		//Excel generation
-		HSSFWorkbook gradesWorkbook = null;
-		HSSFSheet dataSheet = null;
+
 		try {
 			out = new ZipOutputStream(outputStream);
 
 			// create the folder structure - named after the assignment's title
 			String root = escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle)) + Entity.SEPARATOR;
 
-			// create excel datasheet	
-			if ("excel".equals(gradeFileFormat)) {		
-			   String sheetTitle =escapeInvalidCharsEntry(Validator.escapeZipEntry(assignmentTitle));
-			   gradesWorkbook=createGradesWorkbook(sheetTitle,false);
-			   dataSheet=gradesWorkbook.getSheet(sheetTitle);
-			}
+			SpreadsheetExporter.Type type = SpreadsheetExporter.Type.valueOf(gradeFileFormat.toUpperCase());
+			SpreadsheetExporter sheet = SpreadsheetExporter.getInstance(type, assignmentTitle, gradeTypeString);
 
 			String submittedText = "";
 			if (!submissions.hasNext())
 			{
 				exceptionMessage.append("There is no submission yet. ");
 			}
-			
-			// the buffer used to store grade information
-			ByteArrayOutputStream gradesBAOS = new ByteArrayOutputStream();
-			CSVWriter gradesBuffer = new CSVWriter(new OutputStreamWriter(gradesBAOS));
 
-			String [] values = {assignmentTitle,gradeTypeString};
-			gradesBuffer.writeNext(values);
-			//Blank line was in original gradefile
-			values = new String[] {""};
-			gradesBuffer.writeNext(values);
-			values = new String[] {rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),rb.getString("grades.firstname"),rb.getString("grades.grade")};
-			gradesBuffer.writeNext(values);
+			sheet.addHeader(rb.getString("grades.id"),rb.getString("grades.eid"),rb.getString("grades.lastname"),
+					rb.getString("grades.firstname"),rb.getString("grades.grade"));
 
 			// allow add assignment members
 			List allowAddSubmissionUsers = allowAddSubmissionUsers(assignmentReference);
 			
 			// Create the ZIP file
 			String submittersName = "";
-			int count = 1;
-			int xlsRowCount = 1;
 			String caughtException = null;
 			while (submissions.hasNext())
 			{
@@ -5534,7 +5412,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						User u = UserDirectoryService.getUser(userId);
 						if (allowAddSubmissionUsers.contains(u))
 						{
-							count = 1;
 							submittersName = root;
 							
 							User[] submitters = s.getSubmitters();
@@ -5566,34 +5443,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								String fullAnonId = s.getAnonymousSubmissionId();
 								String anonTitle = rb.getString("grading.anonymous.title");
 
-								// in grades file, Eid is used
-								if ("csv".equals(gradeFileFormat)) {
-								
-									// SAK-17606
-									if (!isAnon) 
-									{
-										values = new String [] {submitters[i].getDisplayId(), submitters[i].getEid(), submitters[i].getLastName(), submitters[i].getFirstName(), s.getGradeDisplay()};
-										gradesBuffer.writeNext(values);
-									}
-									else 
-									{
-										// anonymous grading is true so we need to print different stuff in the csv
-										values = new String[] {fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay()};
-										gradesBuffer.writeNext(values);
-									}
+								// SAK-17606
+								if (!isAnon)
+								{
+									sheet.addRow(submitters[i].getDisplayId(), submitters[i].getEid(),
+											submitters[i].getLastName(), submitters[i].getFirstName(),
+											s.getGradeDisplay());
 								}
-
-								//Adding the row to the excel file
-								if ("excel".equals(gradeFileFormat)) {
-									if( !isAnon )
-									{
-										addExcelRowInfo(dataSheet,xlsRowCount,false,submitters[i].getDisplayId(),submitters[i].getEid(),submitters[i].getLastName(),submitters[i].getFirstName(),s.getGradeDisplay());
-									}
-									else
-									{
-										addExcelRowInfo( dataSheet, xlsRowCount, false, fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay() );
-									}
-									xlsRowCount++;
+								else
+								{
+									sheet.addRow(fullAnonId, fullAnonId, anonTitle, anonTitle, s.getGradeDisplay());
 								}
 							}
 							
@@ -5741,24 +5600,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				// continue
 				if (withGradeFile)
 				{
-				  if ("csv".equals(gradeFileFormat)) {
-					// create a grades.csv file into zip
-					ZipEntry gradesCSVEntry = new ZipEntry(root + "grades.csv");
+					ZipEntry gradesCSVEntry = new ZipEntry(root + "grades."+ sheet.getFileExtension());
 					out.putNextEntry(gradesCSVEntry);
-
-					gradesBuffer.close();
-					out.write(gradesBAOS.toByteArray());
-					gradesCSVEntry.setSize(gradesBAOS.size());
-
+					sheet.write(out);
 					out.closeEntry();
-				}
-		          if ("excel".equals(gradeFileFormat)) {
-		            // create a grades.xls file into zip
-		            ZipEntry gradesEXCELEntry = new ZipEntry(root + "grades.xls");
-		            out.putNextEntry(gradesEXCELEntry);
-		            gradesWorkbook.write(out);
-		            out.closeEntry();
-			}
 				}
 			}
 			else
