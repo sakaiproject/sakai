@@ -92,7 +92,16 @@ public interface ShortenedUrlService {
 	 */
 	public String resolve(String key);
 	
-	
-	
+	/**
+	 * Specify whether the short form of the URL should be placed in the transversal map
+	 * when duplicating sites. If so, SiteAction will call shorten on the URL. Depending
+	 * upon the implementation, it may not be desirable to call shorten once for each
+	 * tool, so implementations may choose to return false all the time, or return true
+	 * only if there is reason to think that this specific URL has been shortened.
+	 *
+	 * @param url
+	 * @return true if this URL should be shortened by SiteAction in duplicating sites
+	 */
+	public boolean shouldCopy(String url);	
 	
 }

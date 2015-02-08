@@ -154,6 +154,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.util.*;
 // for basiclti integration
 
@@ -215,6 +216,8 @@ public class SiteAction extends PagedResourceActionII {
 	private static org.sakaiproject.sitemanage.api.UserNotificationProvider userNotificationProvider = (org.sakaiproject.sitemanage.api.UserNotificationProvider) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.UserNotificationProvider.class);
 	
+	private static ShortenedUrlService shortenedUrlService = (ShortenedUrlService) ComponentManager.get(ShortenedUrlService.class);
+
 	private static final String SITE_MODE_SITESETUP = "sitesetup";
 
 	private static final String SITE_MODE_SITEINFO = "siteinfo";
@@ -13077,7 +13080,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// TODO: used to offer to resources first - why? still needed? -ggolden
 
 		Map transversalMap = new HashMap();
-		
+
 		// offer to all EntityProducers
 		for (Iterator i = EntityManager.getEntityProducers().iterator(); i
 				.hasNext();) {
@@ -13106,6 +13109,50 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 		}
 		
+		// record direct URL for this tool in old and new sites, so anyone using the URL in HTML text will 
+		// get a proper update for the HTML in the new site
+		// Some tools can have more than one instance. Because getTools should always return tools
+		// in order, we can assume that if there's more than one instance of a tool, the instances
+		// correspond
+
+		Site fromSite = null;
+		Site toSite = null;
+		Collection<ToolConfiguration> fromTools = null;
+		Collection<ToolConfiguration> toTools = null;
+		try {
+		    fromSite = SiteService.getSite(fromContext);
+		    toSite = SiteService.getSite(toContext);
+		    fromTools = fromSite.getTools(toolId);
+		    toTools = toSite.getTools(toolId);
+		} catch (Exception e) {
+		    M_log.warn(this + "transferCopyEntities: can't get site:" + e.getMessage());
+		}
+
+		// getTools appears to return tools in order. So we should be able to match them
+		if (fromTools != null && toTools != null) {
+		    Iterator<ToolConfiguration> toToolIt = toTools.iterator();
+		    // step through tools in old and new site in parallel
+		    // I believe the first time this is called for a given
+		    // tool all instances will be copied, but stop if not
+		    // all instances have been copied yet
+		    for (ToolConfiguration fromTool: fromTools) {
+			if (toToolIt.hasNext()) {
+			    ToolConfiguration toTool = toToolIt.next();
+			    String fromUrl = ServerConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(fromTool.getId()) + "/";
+			    String toUrl = ServerConfigurationService.getPortalUrl() + "/directtool/" + Web.escapeUrl(toTool.getId()) + "/";
+			    if (transversalMap.get(fromUrl) == null)
+				transversalMap.put(fromUrl, toUrl);
+			    if (shortenedUrlService.shouldCopy(fromUrl)) {
+				fromUrl = shortenedUrlService.shorten(fromUrl, false);
+				toUrl = shortenedUrlService.shorten(toUrl, false);
+				if (fromUrl != null && toUrl != null)
+				    transversalMap.put(fromUrl, toUrl);
+			    }
+			} else
+			    break;
+		    }
+		}
+
 		return transversalMap;
 	}
 

@@ -268,6 +268,15 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	}
 	
 	/**
+	 * See if we should include this in the transversal map. Do so only
+	 * if a mapping exists, since otherwise there can't be any references
+	 * to it.
+	 */
+	public boolean shouldCopy(String url) {
+		return (getExistingKey(url) != null);
+	}
+
+	/**
 	 * Checks if a given key is unique by checking for its existence
 	 * @param key
 	 * @return
