@@ -43,7 +43,7 @@ public class StudentGradeInfo implements Serializable
 	}
 	
 	public StudentGradeInfo(User u) {
-		this.studentEid = u.getId();
+		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();
 		this.studentName = u.getDisplayName();
 		this.grades = new HashMap<Long,GradeInfo>();
