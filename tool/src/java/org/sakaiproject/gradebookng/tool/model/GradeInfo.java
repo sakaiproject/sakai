@@ -4,7 +4,7 @@ import java.io.Serializable;
 
 import lombok.Getter;
 
-import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 
 /**

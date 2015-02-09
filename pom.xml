@@ -31,19 +31,9 @@
 				<version>6.18.0</version>
 			</dependency>
 			<dependency>
-				<groupId>org.wicketstuff</groupId>
-				<artifactId>wicketstuff-inmethod-grid</artifactId>
+				<groupId>org.apache.wicket</groupId>
+				<artifactId>wicket-extensions</artifactId>
 				<version>6.18.0</version>
-			</dependency>
-			<dependency>
-				<groupId>de.agilecoders.wicket</groupId>
-				<artifactId>wicket-bootstrap-core</artifactId>
-				<version>0.9.7</version>
-			</dependency>
-			<dependency>
-				<groupId>de.agilecoders.wicket</groupId>
-				<artifactId>wicket-bootstrap-extensions</artifactId>
-				<version>0.9.7</version>
 			</dependency>
 		</dependencies>
 	</dependencyManagement>
