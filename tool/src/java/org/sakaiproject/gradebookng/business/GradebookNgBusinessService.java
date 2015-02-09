@@ -160,6 +160,25 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
+	 * Save the grade for a student's assignment
+	 * 
+	 * @param assignmentId	id of the gradebook assignment
+	 * @param studentUuid	uuid of the user
+	 * @param grade			grade for the user
+	 * 
+	 * @return
+	 */
+	public boolean saveGrade(final Long assignmentId, final String studentUuid, final String grade) {
+		
+		Gradebook gradebook = this.getGradebook();
+		if(gradebook == null) {
+			return false;
+		}
+		
+		return this.saveGrade(assignmentId, studentUuid, grade, null);
+	}
+	
+	/**
 	 * Save the grade and comment for a student's assignment
 	 * 
 	 * @param assignmentId	id of the gradebook assignment
@@ -177,7 +196,7 @@ public class GradebookNgBusinessService {
 		}
 		
 		try {
-			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, grade, comment);
+			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, grade, comment);			
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
 			return false;
