@@ -50,7 +50,7 @@ https://confluence.sakaiproject.org/display/SAKDEV/Git+Setup
 For filing bugs against Sakai please use our Jira instance: https://jira.sakaiproject.org/
 
 ## Nightly servers 
-For testing out the latest code on trunk or on a supported branch go to the [nightly server page](http://nightly2.sakaiproject.org)
+For testing out the latest builds go to the [nightly server page](http://nightly2.sakaiproject.org)
 
 ## Get in touch
 
