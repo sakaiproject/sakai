@@ -218,8 +218,16 @@ public class UsersAction extends PagedResourceActionII
 		UsersActionState sstate = (UsersActionState)getState(context, rundata, UsersActionState.class);
 		String status = sstate.getStatus();
 
-        context.put("userTypes", getUserTypes());
-         
+		String[] userTypes = ServerConfigurationService.getStrings("user.type.selector");
+		if (userTypes != null && userTypes.length > 0)
+		{
+			context.put("userTypes", userTypes);
+		} else {
+			context.put("userTypes", getUserTypes());
+		}
+
+
+
 		// if not logged in as the super user, we won't do anything
 		if ((!singleUser) && (!createUser) && (!SecurityService.isSuperUser()))
 		{
