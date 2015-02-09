@@ -21,8 +21,6 @@ import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 
-import de.agilecoders.wicket.core.Bootstrap;
-
 
 /**
  * Base page for our app
