@@ -642,6 +642,7 @@ public class ServiceServlet extends HttpServlet {
 				return;
 			}
 
+			String roleMapProp = pitch.getProperty("rolemap");
 			String releaseName = pitch.getProperty(LTIService.LTI_SENDNAME);
 			String releaseEmail = pitch.getProperty(LTIService.LTI_SENDEMAILADDR);
 			String assignment = pitch.getProperty("assignment");
@@ -656,6 +657,7 @@ public class ServiceServlet extends HttpServlet {
 			try { 
 				List<Map<String,Object>> lm = new ArrayList<Map<String,Object>>();
 				Set<Member> members = site.getMembers();
+				Map<String, String> roleMap = SakaiBLTIUtil.convertRoleMapPropToMap(roleMapProp);
 				for (Member member : members ) {
 					Map<String,Object> mm = new TreeMap<String,Object>();
 					Role role = member.getRole();
@@ -663,6 +665,9 @@ public class ServiceServlet extends HttpServlet {
 					mm.put("/user_id",ims_user_id);
 					String ims_role = "Learner";
 					if ( maintainRole != null && maintainRole.equals(role.getId())) ims_role = "Instructor";
+					if ( roleMap.containsKey(role.getId()) ) {
+						ims_role = roleMap.get(role.getId());
+					}
                     // This is incorrect according to
                     // http://developers.imsglobal.org/ext_membership.html. It
                     // should be roles. If we can determine that nobody is using
