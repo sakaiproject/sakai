@@ -23,6 +23,7 @@ package org.sakaiproject.tool.assessment.facade;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.Set;
 
@@ -223,7 +224,7 @@ public interface AssessmentFacadeQueriesAPI {
   
     public String getAssessmentCreatedBy(String assessmentId);
 
-	public void copyAllAssessments(String fromContext, String toContext);
+    public void copyAllAssessments(String fromContext, String toContext, Map<String,String> transversalMap);
 	
 	public void copyAssessment(String assessmentId, String apepndCopyTitle);
 	

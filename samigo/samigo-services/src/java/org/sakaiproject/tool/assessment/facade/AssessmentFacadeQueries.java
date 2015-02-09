@@ -29,6 +29,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -1830,9 +1831,11 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return getHibernateTemplate().executeFind(hcb);
 	}
 
-	public void copyAllAssessments(String fromContext, String toContext) {
+	public void copyAllAssessments(String fromContext, String toContext, Map<String,String> transversalMap) {
 		List list = getAllActiveAssessmentsByAgent(fromContext);
-		ArrayList newList = new ArrayList();
+		ArrayList<AssessmentData> newList = new ArrayList<AssessmentData>();
+		Map<AssessmentData, String> assessmentMap = new HashMap<AssessmentData, String>();
+
 		for (int i = 0; i < list.size(); i++) {
 			AssessmentData a = (AssessmentData) list.get(i);
 			log.debug("****protocol:"
@@ -1840,6 +1843,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			AssessmentData new_a = prepareAssessment(a,
 					ServerConfigurationService.getServerUrl(), toContext);
 			newList.add(new_a);
+			assessmentMap.put(new_a, "sam_core/" + a.getAssessmentBaseId());
 		}
 		getHibernateTemplate().saveOrUpdateAll(newList); // write
 		// authorization
@@ -1877,6 +1881,12 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			}
 		}
 		getHibernateTemplate().saveOrUpdateAll(newList); // write
+		for (AssessmentData data: newList) {
+		    String oldRef = assessmentMap.get(data);
+		    if (oldRef != null && data.getAssessmentBaseId() != null)
+			transversalMap.put(oldRef, "sam_core/" + data.getAssessmentBaseId());
+		}
+
 	}
 	
 	public void copyAssessment(String assessmentId, String apepndCopyTitle) {
