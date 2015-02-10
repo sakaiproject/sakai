@@ -24,7 +24,7 @@ public class GradeItemCellPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	//todo erap this in a model as per http://wicket.apache.org/guide/guide/bestpractices.html#bestpractices_6
+	//todo wrap this in a model as per http://wicket.apache.org/guide/guide/bestpractices.html#bestpractices_6
 	public GradeItemCellPanel(String id, final Long assignmentId, final StudentGradeInfo studentGrades) {
 		super(id);
 		
@@ -37,7 +37,7 @@ public class GradeItemCellPanel extends Panel {
 
 			@Override
 			protected String defaultNullLabel() {
-				return "-";
+				return "-"; //TODO this is temporary, they need something to click
 			}
 			
 			@Override
