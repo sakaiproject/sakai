@@ -65,3 +65,7 @@
   padding: 0 8px;
   line-height: 14px;
 }
+
+div.wicket-modal div.w_content_3 {
+	border: none; /** don't want border wrapping content inside the modal **/
+}

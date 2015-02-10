@@ -207,6 +207,7 @@ public class GradebookPage extends BasePage {
 			super(componentId);
 			
 			this.setContent(new AddGradeItemPanel(this.getContentId()));
+			this.setUseInitialHeight(false);
 
 		}
 		
