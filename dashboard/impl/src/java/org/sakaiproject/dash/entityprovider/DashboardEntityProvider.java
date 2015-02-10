@@ -95,22 +95,11 @@ public class DashboardEntityProvider extends AbstractEntityProvider implements E
     	
     	@Setter
     	private DashboardLogic dashboardLogic;
-      public void setDashboardLogic( DashboardLogic dashboardLogic )
-      {
-         this.dashboardLogic = dashboardLogic;
-      }
 
-      @Setter
-      private DashboardCommonLogic dashboardCommonLogic;
-      public void setDashboardCommonLogic( DashboardCommonLogic dashboardCommonLogic )
-      {
-         this.dashboardCommonLogic = dashboardCommonLogic;
-      }
+	@Setter
+	private DashboardCommonLogic dashboardCommonLogic;
     	
     	@Setter
     	private SakaiProxy sakaiProxy;
-      public void setSakaiProxy( SakaiProxy sakaiProxy )
-      {
-         this.sakaiProxy = sakaiProxy;
-      }
-}
+
+    }
