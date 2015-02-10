@@ -37,7 +37,7 @@ public class GradeItemCellPanel extends Panel {
 
 			@Override
 			protected String defaultNullLabel() {
-				return "";
+				return "-";
 			}
 			
 			@Override
