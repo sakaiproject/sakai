@@ -33,14 +33,6 @@
     <property name="type">
       <column name="RANKTYPE" length="19" not-null="true" />
     </property>
-    
-		<property name="assignTo">
-			<column name="ASSIGNTO" length="255"  />
-		</property> 
-
-		<property name="assignToDisplay">
-			<column name="ASSIGNTODISPLAY" length="255"  />
-		</property>
 
 		<property name="minPosts">
 			<column name="MIN_POST" length="19" />
@@ -53,7 +45,10 @@
        <many-to-one name="rankImage" cascade="all" lazy="false"
                      class="org.sakaiproject.component.app.messageforums.dao.hibernate.RankImageImpl"/>
 
-  
+		<set name="assignToIds" table="MFR_RANK_INDIVIDUAL_T" lazy="false" cascade="all">
+			<key column="RANK_ID" />
+			<element column="USER_ID" type="string" length="99" not-null="true" />
+		</set>
   </class>
  
  <!-- 
@@ -71,7 +66,7 @@
 	</query>
   
    	<query name="findRanksByContextIdUserID">
-		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and instr(assignto, :userId) >0]]>
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.RankImpl as us where us.contextId = :contextId and :userId in elements (us.assignToIds)]]>
 	</query>
 	
  	<query name="findRanksByContextId">

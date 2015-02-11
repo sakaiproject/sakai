@@ -39,19 +39,19 @@ public class RankImpl extends MutableEntityImpl implements Rank
 	private static final Log LOG = LogFactory.getLog(RankImpl.class);
 	private String title;
 	private String type;
-	private String assignTo;
+	private Set<String> assignToIds;
 	private String assignToDisplay;
 	private String contextId;
 	private long minPosts;
 	private RankImage rankImage;
 	  
 	  
-	public RankImpl(String title, String type, String assignTo, String assignToDisplay,
+	public RankImpl(String title, String type, Set<String> assignToIds, String assignToDisplay,
 			String contextId, long minPosts) {
 		super();
 		this.title = title;
 		this.type = type;
-		this.assignTo = assignTo;
+		this.assignToIds = assignToIds;
 		this.assignToDisplay = assignToDisplay;
 		this.contextId = contextId;
 		this.minPosts = minPosts;
@@ -79,12 +79,12 @@ public class RankImpl extends MutableEntityImpl implements Rank
 		
 	}
 
-	public String getAssignTo() {
-		return assignTo;
+	public Set<String> getAssignToIds() {
+		return assignToIds;
 	}
 
-	public void setAssignTo(String assignTo) {
-		this.assignTo = assignTo;
+	public void setAssignToIds(Set<String> assignToIds) {
+		this.assignToIds = assignToIds;
 	}
 
 	public String getContextId() {

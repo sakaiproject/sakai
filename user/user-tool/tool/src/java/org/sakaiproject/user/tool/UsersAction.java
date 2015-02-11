@@ -118,6 +118,8 @@ public class UsersAction extends PagedResourceActionII
 
 	private static final String SAK_PROP_UNENROLL_BEFORE_DELETE = "user.unenroll.before.delete";
 
+    private static final String USER_TEMPLATE_PREFIX = "!user.template.";
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -220,7 +222,11 @@ public class UsersAction extends PagedResourceActionII
 		if (userTypes != null && userTypes.length > 0)
 		{
 			context.put("userTypes", userTypes);
+		} else {
+			context.put("userTypes", getUserTypes());
 		}
+
+
 
 		// if not logged in as the super user, we won't do anything
 		if ((!singleUser) && (!createUser) && (!SecurityService.isSuperUser()))
@@ -1815,4 +1821,22 @@ public class UsersAction extends PagedResourceActionII
 		}
 		return provided;
 	}
+    /**
+     * Determine user types by looking at realms that start with "!user.template."
+     * Doesn't include sample type
+     *
+     * @return list of user types in the system
+     */
+    protected List getUserTypes() {
+        List userTypes = new ArrayList();
+        List groups = AuthzGroupService.getInstance().getAuthzGroups(USER_TEMPLATE_PREFIX, null);
+        for (Iterator i = groups.iterator(); i.hasNext();) {
+            AuthzGroup group = (AuthzGroup) i.next();
+            String type = group.getId().replaceFirst(USER_TEMPLATE_PREFIX, "");
+            if (!type.equals("sample")) {
+                userTypes.add(type);
+            }
+        }
+        return userTypes;
+    }
 }

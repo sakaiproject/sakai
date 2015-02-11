@@ -23,6 +23,8 @@ package org.sakaiproject.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.Enumeration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -546,6 +548,8 @@ public class Web
 	 ** Sadly, Safari has a known bug where doesn't correctly translate encoding for user
 	 **
 	 ** This method require inclusion of the javamail mail package. 
+	 ** @deprecated  It is now possible to specify encoded filenames for the browser
+	 **              see @link{Web#buildContentDisposition}
 	 **/
 	public static String encodeFileName(HttpServletRequest req, String fileName )
 	{
@@ -567,8 +571,37 @@ public class Web
 		return fileName;		
 	}
 
+	/**
+	 * This attempts to build the value of the content disposition header. It provides a ISO-8859-1 representation
+	 * and a full UTF-8 version. This allows browser that understand the full version to use that and
+	 * for mainly IE 8 the old limited one.
+	 * @param filename The filename to encode
+	 * @param isDownload Whether the file is a download, will use "attachment" if true and "inline" if false.
+	 * @return The value of the content disposition header specifying it's inline content.
+	 */
+	public static String buildContentDisposition(String filename, boolean isDownload) {
+		try {
+			// This will replace all non US-ASCII characters with '?'
+			// Although this behaviour is unspecified doing it manually is overkill (too much work).
+			// Make sure we escape double quotes.
+			String iso8859Filename = new String(filename.getBytes("ISO-8859-1"), "ISO-8859-1")
+					.replace("\\", "\\\\")
+					.replace("\"", "\\\"");
+			String utf8Filename = URLEncoder.encode(filename, "UTF-8").replace("+", "%20");
+			return new StringBuilder()
+					.append(isDownload ? "attachment; " : "inline; ")
+					.append("filename=\"").append(iso8859Filename).append("\"; ")
+							// For sensible browser give them a full UTF-8 encoded string.
+					.append("filename*=UTF-8''").append(utf8Filename)
+					.toString();
+		} catch (UnsupportedEncodingException shouldNeverHappen) {
+			throw new RuntimeException(shouldNeverHappen);
+		}
+	}
+
 	private static String internalEscapeHtml(String value, boolean escapeNewlines) {
 	    // FIXME this method needs to be removed entirely and is only here as a reference of how this used to work
+
 
 	    if (value == null) return "";
 

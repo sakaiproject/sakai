@@ -42,6 +42,14 @@
 
 <%-- HEADING --%>
 <%@ include file="/jsf/author/item/itemHeadings.jsp" %>
+
+<%-- warning for editing FIB questions. SAM-2334 --%>
+<h:panelGroup rendered="#{!author.isEditPendingAssessmentFlow}" styleClass="messageSamigo2">
+	<h:panelGrid  columns="1">
+		<h:outputText value="#{authorMessages.edit_fib_warning}" />
+	</h:panelGrid>
+</h:panelGroup>
+
 <h:form id="itemForm">
 <p class="act">
  <h:commandButton rendered="#{itemauthor.target=='assessment'}" value="#{commonMessages.action_save}" action="#{itemauthor.currentItem.getOutcome}" styleClass="active">

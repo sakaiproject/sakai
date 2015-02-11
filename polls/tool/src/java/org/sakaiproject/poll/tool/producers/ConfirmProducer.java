@@ -21,15 +21,20 @@
 
 package org.sakaiproject.poll.tool.producers;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
@@ -46,6 +51,7 @@ public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporte
 	
 	
 	private MessageLocator messageLocator;
+	private LocaleGetter localeGetter;
 	
 	
 	public String getViewID() {
@@ -61,6 +67,10 @@ public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporte
 		  this.messageLocator = messageLocator;
 	  }
 
+    public void setLocaleGetter(LocaleGetter localeGetter) {
+        this.localeGetter = localeGetter;
+    }
+    
 
 	  
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
@@ -75,6 +85,13 @@ public class ConfirmProducer implements ViewComponentProducer, ViewParamsReporte
 			voteId = params.id;
 		else 
 			voteId="VoteId is missing!";
+
+		String locale = localeGetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 		
 		UIOutput.make(tofill,"confirm-msg",messageLocator.getMessage("thanks_msg"));
 		UIOutput.make(tofill,"confirm-ref-msg",messageLocator.getMessage("thanks_ref"));

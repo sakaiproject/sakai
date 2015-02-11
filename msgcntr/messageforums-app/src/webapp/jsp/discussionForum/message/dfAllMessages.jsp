@@ -266,7 +266,7 @@
 					<f:verbatim>
                         <a style="color:grey" class="display-topic-picker" id="msgForum:df_move_message_commandLink" onclick="resizeFrameForDialog();" href="#" >
 				    </f:verbatim>
-                    <h:outputText value="#{msgs.move_thread}" />
+                    <h:outputText rendered="#{ForumTool.selectedTopic.isMovePostings}" value="#{msgs.move_thread}" />
 					<f:verbatim></a></f:verbatim>
 					<f:verbatim></div></f:verbatim>
    		

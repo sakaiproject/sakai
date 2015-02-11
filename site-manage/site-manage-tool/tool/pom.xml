@@ -70,6 +70,10 @@
             <artifactId>userauditservice-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.shortenedurl</groupId>
+            <artifactId>shortenedurl-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-beanutils</groupId>
             <artifactId>commons-beanutils</artifactId>
             <version>1.7.0</version>

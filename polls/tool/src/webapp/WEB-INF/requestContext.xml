@@ -45,6 +45,7 @@
 		class="org.sakaiproject.poll.tool.producers.PermissionsProducer">
 		
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="externalLogic" ref="org.sakaiproject.poll.logic.ExternalLogic"/>
 		<property name="site" ref="sakai-Site" />
 	</bean>
@@ -72,12 +73,14 @@
 
 	<bean id="confirmProducer"
 		class="org.sakaiproject.poll.tool.producers.ConfirmProducer">
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="messageLocator" ref="messageLocator" />
 	</bean>
 
 	<bean id="pollOptionProducer"
 		class="org.sakaiproject.poll.tool.producers.PollOptionProducer">
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="pollListManager"
 			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="targettedMessageList"
@@ -89,6 +92,7 @@
 	<bean id="pollOptionDeleteProducer"
 		class="org.sakaiproject.poll.tool.producers.PollOptionDeleteProducer">
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="pollListManager"
 			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="pollVoteManager"
@@ -99,6 +103,7 @@
 		class="org.sakaiproject.poll.tool.producers.AddPollProducer">
 		<property name="voteBean" ref="voteBean" />
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="pollListManager"
 			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="richTextEvolver" ref="richTextEvolver" />
@@ -116,6 +121,7 @@
 		<property name="pollListManager"
 			ref="org.sakaiproject.poll.logic.PollListManager" />
 		<property name="messageLocator" ref="messageLocator" />
+		<property name="localeGetter" ref="requestLocaleProxy" />
 		<property name="pollVoteManager"
 			ref="org.sakaiproject.tool.poll.api.PollVoteManager" />
 		<property name="targettedMessageList"

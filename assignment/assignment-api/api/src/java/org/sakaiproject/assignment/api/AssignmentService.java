@@ -143,9 +143,9 @@ public interface AssignmentService extends EntityProducer
 	/**
 	 * Get the List of Users who can add assignment
 	 * 
-	 * @param assignmentReference -
-	 *        a reference to an assignment
-	 * @return the List (User) of users who can addSubmission() for this assignment.
+	 * @param context -
+	 *        Describes the portlet context - generated with DefaultId.getChannel().
+	 * @return the List (User) of users who are allowed to receive the email, false if not.
 	 */
 	public List allowReceiveSubmissionNotificationUsers(String context);
 	
@@ -760,8 +760,8 @@ public interface AssignmentService extends EntityProducer
 	 * Get the number of submissions which has been submitted.
 	 * 
 	 * @param assignmentRef -
-	 *        the reference of Assignment who's submissions you would like.
-	 * @return List over all the submissions for an Assignment.
+	 *        the reference of Assignment who's submission count you would like.
+	 * @return int The total submissions for the specified assignment.
 	 */
 	public int getSubmittedSubmissionsCount(String assignmentRef);
 	
@@ -769,8 +769,8 @@ public interface AssignmentService extends EntityProducer
 	 * Get the number of submissions which has not been submitted and graded.
 	 * 
 	 * @param assignmentRef -
-	 *        the reference of Assignment who's submissions you would like.
-	 * @return List over all the submissions for an Assignment.
+	 *        the reference of Assignment who's ungraded submission count you would like.
+	 * @return int The total ungraded submissions for the specified assignment.
 	 */
 	public int getUngradedSubmissionsCount(String assignmentRef);
 

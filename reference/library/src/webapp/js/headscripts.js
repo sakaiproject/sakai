@@ -43,15 +43,15 @@ function openWindow(url, title, options)
 
 function sitehelp(whereto) 
 {
-	umcthelp=window.open(whereto,'umcthelpWindow','toolbar=yes,scrollbars=yes,resizable=yes,menubar=no,status=yes,directories=no,location=no,width=600,height=400')
+	umcthelp=window.open(whereto,'umcthelpWindow','toolbar=yes,scrollbars=yes,resizable=yes,menubar=no,status=yes,directories=no,location=no,width=600,height=400');
 }
 
 function hideElement(hideMe)
 {
-	if (hideMe != 'none')
+	if (hideMe !== 'none')
 	{
 		var menuItem = document.getElementById(hideMe);
-		if(menuItem != null)
+		if(menuItem !== null)
 			menuItem.style.display = 'none';
 	}
 	return true;
@@ -88,8 +88,8 @@ function showSubmitMessage()
 // emulates the function (older browsers like IE 5.0)
 function myEscape(value)
 {
-	if (value == "") return "";
-	if (typeof encodeURIComponent == "function")
+	if (value === "") return "";
+	if (typeof encodeURIComponent === "function")
 	{
 		// Use JavaScript built-in function
 		// IE 5.5+ and Netscape 6+ and Mozilla
@@ -108,7 +108,7 @@ function encodeURIComponentEmulated(s) {
   var c;
   var enc = "";
   for (var i= 0; i<s.length; i++) {
-    if (okURIchars.indexOf(s.charAt(i))==-1)
+    if (okURIchars.indexOf(s.charAt(i))===-1)
       enc += "%"+toHex(s.charCodeAt(i));
     else
       enc += s.charAt(i);
@@ -157,8 +157,8 @@ function buildQueryString(theFormName)
 		var element = theForm.elements[e];
 		if ((element.name) && (element.type) && (element.value))
 		{
-			var checkRadio = ((element.type == "checkbox") || (element.type == "radio"));
-			if ((element.name != '') && (element.name.indexOf("eventSubmit_") == -1))
+			var checkRadio = ((element.type === "checkbox") || (element.type === "radio"));
+			if ((element.name !== '') && (element.name.indexOf("eventSubmit_") === -1))
 			{
 				if ( !checkRadio || element.checked)
 				{
@@ -204,10 +204,10 @@ function formSubmitOnEnter(field, event)
 	}
 	else
 	{
-		keycode = event.which ? event.which : event.keyCode
+		keycode = event.which ? event.which : event.keyCode;
 	}
 
-	if (keycode == 13)
+	if (keycode === 13)
 	{
 		field.form.submit();
 		return false;
@@ -226,10 +226,10 @@ function clickOnEnter(event, element)
 	}
 	else
 	{
-		keycode = event.which ? event.which : event.keyCode
+		keycode = event.which ? event.which : event.keyCode;
 	}
 
-	if (keycode == 13)
+	if (keycode === 13)
 	{
 		if (document.getElementById(element) && document.getElementById(element).click)
 		{
@@ -262,7 +262,7 @@ function setMainFrameHeightNow(id, maxHeight)
 	if ( ! inIframe() ) return;
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
-	if (typeof window.name != "undefined" && id != window.name) return;
+	if (typeof window.name !== "undefined" && id !== window.name) return;
 
 	//SAK-21209 check we can access the document, 
 	//ie this could be a Basic LTI request and therefore we are not allowed
@@ -285,16 +285,16 @@ function setMainFrameHeightNow(id, maxHeight)
 		var offsetH = document.body.offsetHeight;
 		var innerDocScrollH = null;
 
-		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		if (typeof(frame.contentDocument) !== 'undefined' || typeof(frame.contentWindow) !== 'undefined')
 		{
 			// very special way to get the height from IE on Windows!
 			// note that the above special way of testing for undefined variables is necessary for older browsers
 			// (IE 5.5 Mac) to not choke on the undefined variables.
  			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+			innerDocScrollH = (innerDoc !== null) ? innerDoc.body.scrollHeight : null;
 		}
 	
-		if (document.all && innerDocScrollH != null)
+		if (document.all && innerDocScrollH !== null)
 		{
 			// IE on Windows only
 			height = innerDocScrollH;
@@ -401,7 +401,7 @@ function firstFocus()
 		for (var i=0; i<f.length; i++)
 		{
 			var e = f.elements[i];
-			if ((e.name) && (e.type) && ((e.type=='text') || (e.type=='textarea')) && (!e.disabled))
+			if ((e.name) && (e.type) && ((e.type==='text') || (e.type==='textarea')) && (!e.disabled))
 			{
 				e.focus();
 				break;
@@ -415,7 +415,7 @@ function firstFocus()
 // which should be the id's of zero or more frames followed by the id of the element.
 function setFocus(elements)
 {
-	if(typeof elements == "undefined")
+	if(typeof elements === "undefined")
 	{
 		return;
 	}
@@ -458,9 +458,9 @@ function addAuto(loc)
 	var str = loc.toString();
 
 	// not if already there
-	if (str.indexOf("auto=courier") != -1) return str;
+	if (str.indexOf("auto=courier") !== -1) return str;
 	
-	if (str.indexOf("?") != -1)
+	if (str.indexOf("?") !== -1)
 	{
 		// has a ?
 		return str + '&auto=courier';
@@ -474,11 +474,11 @@ function addAuto(loc)
 
 function showNotif(item, button,formName)
 {
-	if (button !="noBlock")
+	if (button !=="noBlock")
 	{
-		eval("document." + formName + "." + button + ".disabled=true")
+		eval("document." + formName + "." + button + ".disabled=true");
 	}
-	if (item !="noNotif")
+	if (item !=="noNotif")
 	{
 		// SAK-21041 simplified to use getElementById
 		document.showItem = document.getElementById(item);
@@ -488,7 +488,7 @@ function showNotif(item, button,formName)
 	
 	for (var i=0;i<document.getElementsByTagName("input").length; i++) 
 	{
-		if (document.getElementsByTagName("input").item(i).className == "disableme")
+		if (document.getElementsByTagName("input").item(i).className === "disableme")
 		{
 			document.getElementsByTagName("input").item(i).disabled = "disabled";
 		}
@@ -533,7 +533,7 @@ function processReqChange()
 {
 	try
 	{
-		if (updateReq.readyState == 4)
+		if (updateReq.readyState === 4)
 		{
 			evalString = updateReq.responseText;
 			// alert(updateReq.readyState + " : " + updateReq.status + " : " + evalString);
@@ -561,7 +561,7 @@ function swapUpdateIndicator()
 {
 	try
 	{
-		if (document.getElementById('update_a').style.display=='none')
+		if (document.getElementById('update_a').style.display==='none')
 		{
 			document.getElementById('update_a').style.display='block';
 			document.getElementById('update_b').style.display='none';
@@ -581,7 +581,7 @@ function swapUpdateIndicator()
 function checkForUpdate()
 {
 	updateWaiting = 0;
-	if ((updateUrl != "") && (updateReq == null))
+	if ((updateUrl !== "") && (updateReq === null))
 	{
 		loadXMLDoc(updateUrl);
 	}
@@ -589,7 +589,7 @@ function checkForUpdate()
 
 function scheduleUpdate()
 {
-	if ((updateTime > 0) && (updateWaiting == 0))
+	if ((updateTime > 0) && (updateWaiting === 0))
 	{
 		updateWaiting = setTimeout('checkForUpdate()', updateTime);
 	}
@@ -597,7 +597,7 @@ function scheduleUpdate()
 
 function updateNow()
 {
-	if (updateWaiting != 0)
+	if (updateWaiting !== 0)
 	{
 		clearTimeout(updateWaiting);
 	}
@@ -606,19 +606,19 @@ function updateNow()
 
 function portalWindowRefresh(url)
 {
-	if (typeof(sakaiPortalWindow) != "undefined")
+	if (typeof(sakaiPortalWindow) !== "undefined")
 	{
 		location.replace(url);
 	}
-	else if (parent && (typeof(parent.sakaiPortalWindow) != "undefined"))
+	else if (parent && (typeof(parent.sakaiPortalWindow) !== "undefined"))
 	{
 		parent.location.replace(url);
 	}
-	else if (parent && parent.parent && (typeof(parent.parent.sakaiPortalWindow) != "undefined"))
+	else if (parent && parent.parent && (typeof(parent.parent.sakaiPortalWindow) !== "undefined"))
 	{
 		parent.parent.location.replace(url);
 	}
-	else if (parent && parent.parent && parent.parent.parent && (typeof(parent.parent.parent.sakaiPortalWindow) != "undefined"))
+	else if (parent && parent.parent && parent.parent.parent && (typeof(parent.parent.parent.sakaiPortalWindow) !== "undefined"))
 	{
 		parent.parent.parent.location.replace(url);
 	}

@@ -288,6 +288,9 @@ public interface SiteService extends EntityProducer
 
 		/** Get any non-user sites. */
 		public static final SelectionType NON_USER = new SelectionType("nonUser", false, true, false, true);
+
+		/** Get sites that the current user is a member of regardless whether site is published */
+		public static final SelectionType MEMBER = new SelectionType("member", true, true, false, true);
 		
 		/** Get my deleted sites. */
 		public static final SelectionType DELETED = new SelectionType("deleted", true, true, true, false);
@@ -395,7 +398,8 @@ public interface SiteService extends EntityProducer
 	String[] getLayoutNames();
 
 	/**
-	 * check permissions for accessing (i.e. visiting) a site
+	 * check permissions for accessing (i.e. visiting) a site. If a null site id is supplied, false will be returned.
+     * Similarly, if no site with the supplied id is found, false will be returned.
 	 * 
 	 * @param id
 	 *        The site id.
@@ -407,7 +411,7 @@ public interface SiteService extends EntityProducer
 	 * Is this a valid site id?
 	 * 
 	 * @param id
-	 *        The site id string.
+	 *        The site id string. If null, false is returned.
 	 * @return True if a site with this id is defined, false if not.
 	 */
 	boolean siteExists(String id);

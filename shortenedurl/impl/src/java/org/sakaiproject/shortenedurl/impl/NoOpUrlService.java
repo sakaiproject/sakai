@@ -33,4 +33,11 @@ public class NoOpUrlService implements ShortenedUrlService {
   		log.debug("Sakai NoOpUrlService init().");
   	}
 
+	/**
+	 * since the short URL is the same as the original, there's no
+	 * point in adding it to the transversal map along with the original
+	 */
+	public boolean shouldCopy(String url) {
+		return false;
+	}
 }

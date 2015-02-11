@@ -6917,8 +6917,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			else
 			{
 				// use the last part, the file name part of the id, for the download file name
-				String fileName = Web.encodeFileName( req, Validator.getFileName(ref.getId()) );
-
+				String fileName = Validator.getFileName(ref.getId());
 				String disposition = null;
 
 				if (Validator.letBrowserInline(contentType))
@@ -6950,17 +6949,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						}		
 						
 						if (fileInline || folderInline) {
-							disposition = "inline; filename=\"" + fileName + "\"";
+							disposition = Web.buildContentDisposition(fileName, false);
 						}
 					} else {
-						disposition = "inline; filename=\"" + fileName + "\"";
+						disposition = Web.buildContentDisposition(fileName, false);
 					}
 				}
 				
 				// drop through to attachment
 				if (disposition == null)
 				{
-					disposition = "attachment; filename=\"" + fileName + "\"";
+					disposition = Web.buildContentDisposition(fileName, true);
 				}
 
 				// NOTE: Only set the encoding on the content we have to.

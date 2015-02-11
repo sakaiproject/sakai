@@ -23,8 +23,10 @@ package org.sakaiproject.poll.tool.producers;
 
 import java.text.DateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
@@ -127,6 +129,13 @@ DefaultView,NavigationCaseReporter {
 		
 		voteBean.setPoll(null);
 		voteBean.voteCollection = null;
+
+		String locale = localegetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 			
 		UIOutput.make(tofill, "poll-list-title", messageLocator.getMessage("poll_list_title"));	
 		

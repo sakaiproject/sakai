@@ -59,6 +59,7 @@
 							<h:inputText id="filterParam_last" size="4"
 								value="#{ChatTool.currentChannelEdit.filterParamLast}" />
 							<h:outputLabel value="#{msgs['custom.mess']}" for="filterParam_last"/>
+							<h:message for="filterParam_last" styleClass="validationEmbedded" />
 						</h:panelGroup>
 						<h:panelGroup>
 							<t:radio for="filterType" index="2" />

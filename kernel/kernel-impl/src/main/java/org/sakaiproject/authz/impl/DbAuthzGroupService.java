@@ -24,7 +24,6 @@ package org.sakaiproject.authz.impl;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.*;
-import org.sakaiproject.authz.api.SimpleRole;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.Entity;
@@ -47,6 +46,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>
@@ -106,6 +108,28 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	private Cache authzUserGroupIdsCache;
 
     private Cache maintainRolesCache;
+
+	/** KNL-1325 provide a more efficent refreshAuthzGroup */
+    public static final String REFRESH_MAX_TIME_PROPKEY = "authzgroup.refresh.max.time";
+    public static final String REFRESH_INTERVAL_PROPKEY = "authzgroup.refresh.interval";
+
+    /**
+     * Number of seconds before running refreshAuthzGroupTask again to clear queue,
+     * defaults to 60 (1 minute)
+     */
+    private long refreshTaskInterval = 60;
+
+	/**
+	 * Number of seconds an authz group refresh is allowed to take
+	 * if threshold is reached delay processing the queue
+	 */
+	private long refreshMaxTime = 15;
+
+	/** Executor used to schedule processing */
+	private ScheduledExecutorService refreshScheduler;
+
+	/** Queue of authzgroups to refresh used by refreshAuthzGroupTask */
+	private Map<String, AuthzGroup> refreshQueue;
 
 	public void setDatabaseBeans(Map databaseBeans)
 	{
@@ -179,6 +203,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		m_promoteUsersToProvided = promoteUsersToProvided;
 	}
 	
+	public void setRefreshTaskInterval(long refreshTaskInterval) {
+		M_log.info(REFRESH_INTERVAL_PROPKEY + " changed from " + this.refreshTaskInterval + " to " + refreshTaskInterval);
+		this.refreshTaskInterval = refreshTaskInterval;
+	}
+
+	public void setRefreshMaxTime(long refreshMaxTime) {
+		M_log.info(REFRESH_MAX_TIME_PROPKEY + " changed from " + this.refreshMaxTime + " to " + refreshMaxTime);
+		this.refreshMaxTime = refreshMaxTime;
+	}
+
 	/**
 	 * Final initialization, once all dependencies are set.
 	 */
@@ -211,11 +245,36 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
             //get the set of maintain roles and cache them on startup
             getMaintainRoles();
 
+            refreshTaskInterval = initConfig(REFRESH_INTERVAL_PROPKEY, serverConfigurationService().getString(REFRESH_INTERVAL_PROPKEY), refreshTaskInterval);
+            refreshMaxTime = initConfig(REFRESH_MAX_TIME_PROPKEY, serverConfigurationService().getString(REFRESH_MAX_TIME_PROPKEY), refreshMaxTime);
+
+            refreshQueue = Collections.synchronizedMap(new HashMap<String, AuthzGroup>());
+
+            refreshScheduler = Executors.newSingleThreadScheduledExecutor();
+            refreshScheduler.scheduleWithFixedDelay(
+                new RefreshAuthzGroupTask(),
+                120, // minimally wait 2 mins for sakai to start
+                refreshTaskInterval, // delay before running again
+                TimeUnit.SECONDS
+            );
 		}
 		catch (Exception t)
 		{
 			M_log.warn("init(): ", t);
 		}
+	}
+
+	private long initConfig(String propkey, String scsValue, long currentValue) {
+		if (!"".equals(scsValue)) {
+			try {
+				long parsedVal = Long.parseLong(scsValue);
+				M_log.info("initConfig() " + propkey + " changed from " + currentValue + " to " + parsedVal);
+				return parsedVal;
+			} catch (NumberFormatException e) {
+				M_log.error("initConfig() " + propkey + " value cannot be parsed");
+			}
+		}
+		return currentValue;
 	}
 
 	/*************************************************************************************************************************************************
@@ -227,6 +286,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	*/
 	public void destroy()
 	{
+		refreshScheduler.shutdown();
+
 		authzUserGroupIdsCache.destroy();
 
 		// done with event watching
@@ -547,21 +608,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				for (String user : getAuthzUsersInGroups(new HashSet<String>(Arrays.asList(realmId)))) {
 					authzUserGroupIdsCache.remove(user);
 				}
-				if (serverConfigurationService().getBoolean("authz.cacheGrants", true)) {
-					if (M_log.isDebugEnabled()) {
-						M_log.debug("DbAuthzGroupService update(): clear realm role cache for " + realmId);
-					}
-
-					m_realmRoleGRCache.remove(realmId);
+				if (M_log.isDebugEnabled()) {
+					M_log.debug("DbAuthzGroupService update(): clear realm role cache for " + realmId);
 				}
+				m_realmRoleGRCache.remove(realmId);
 			} else {
 				// This should never happen as the events we generate should always have
 				// a /realm/ prefix on the resource.
 				M_log.warn("DBAuthzGroupService update(): failed to extract realm ID from "+ event.getResource());
 			}
 		}
-
-
 	}
 	
 	/**
@@ -601,6 +657,58 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	        rv.put(userId, new MemberWithRoleId(member));
 	    }
 	    return rv;
+	}
+
+	/**
+	 * Step through queue and call refreshAuthzGroup on all groups queued up for
+	 * a refresh
+	 */
+	protected class RefreshAuthzGroupTask implements Runnable {
+		@Override
+		public void run() {
+			if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() refreshing " + refreshQueue.size() + " realms");
+			if (refreshQueue.size() > 0) {
+				long numberRefreshed = 0;
+				long timeRefreshed = 0;
+				long longestRefreshed = 0;
+				String longestName = null;
+				
+				List<AuthzGroup> queueList = new ArrayList<AuthzGroup>(refreshQueue.values());
+
+				Iterator<AuthzGroup> it = queueList.iterator();
+				while (it.hasNext()) {
+					AuthzGroup azGroup = it.next();
+					if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: " + azGroup.getId());
+
+					numberRefreshed++;
+					long time = 0;
+					long start = System.currentTimeMillis();
+					try {
+						((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
+					} catch (Throwable e) {
+						M_log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroup.getId(), e);
+					} finally {
+						time = (System.currentTimeMillis() - start);
+						refreshQueue.remove(azGroup.getId());
+						if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: " + azGroup.getId() + " took " + time/1e3 + " seconds");
+					}
+					timeRefreshed += time;
+					if (time > longestRefreshed) {
+						longestRefreshed = time;
+						longestName = azGroup.getId();
+					}
+					
+					if (it.hasNext() && (time > (refreshMaxTime * 1000L))) {
+						M_log.warn("RefreshAuthzGroupTask.run() " + azGroup.getId() + " took " + time/1e3 + 
+								" seconds which is longer than the maximum allowed of " + refreshMaxTime + 
+								" seconds, delay processing the rest of the queue");
+						break;
+					}
+				}
+				M_log.info("RefreshAuthzGroupTask.run() refreshed " + numberRefreshed + " realms in " + timeRefreshed/1e3 + 
+						" seconds, longest realm was " + longestName + " at " + longestRefreshed/1e3 + " seconds");
+			}
+		}
 	}
 
 	/**
@@ -847,18 +955,16 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			        }
 			    });
 
-				if (serverConfigurationService().getBoolean("authz.cacheGrants", true)) {
-					Map<String, Map> payLoad = new HashMap<String, Map>();
-					// rehydrate from SimpleRole, which can be stored in a Terracotta cache
-					Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
-					for (java.util.Map.Entry<String, BaseRole> entry : ((Map<String, BaseRole>) realm.m_roles).entrySet()) {
-						roleProperties.put(entry.getKey(), entry.getValue().exportToSimpleRole());
-					}
-					Map<String, MemberWithRoleId> membersWithRoleIds = getMemberWithRoleIdMap(realm.m_userGrants);
-					payLoad.put(REALM_ROLES_CACHE, roleProperties);
-					payLoad.put(REALM_USER_GRANTS_CACHE, membersWithRoleIds);
-					m_realmRoleGRCache.put(realm.getId(), payLoad);
+				Map<String, Map> payLoad = new HashMap<String, Map>();
+				// rehydrate from SimpleRole, which can be stored in a Terracotta cache
+				Map<String, SimpleRole> roleProperties = new HashMap<String, SimpleRole>();
+				for (java.util.Map.Entry<String, BaseRole> entry : ((Map<String, BaseRole>) realm.m_roles).entrySet()) {
+					roleProperties.put(entry.getKey(), entry.getValue().exportToSimpleRole());
 				}
+				Map<String, MemberWithRoleId> membersWithRoleIds = getMemberWithRoleIdMap(realm.m_userGrants);
+				payLoad.put(REALM_ROLES_CACHE, roleProperties);
+				payLoad.put(REALM_USER_GRANTS_CACHE, membersWithRoleIds);
+				m_realmRoleGRCache.put(realm.getId(), payLoad);
 			}
 		}
 
@@ -2479,10 +2585,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		/**
 		 * {@inheritDoc}
 		 */
-		public void refreshAuthzGroup(BaseAuthzGroup realm)
+		public void refreshAuthzGroup(BaseAuthzGroup azGroup) {
+			if (azGroup == null) return;
+
+			// Add the AuthzGroup to the queue, keyed on id to eliminate duplicate refreshes
+			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroup() queue add " + azGroup.getId());
+			refreshQueue.put(azGroup.getId(), azGroup);
+		}
+
+		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
-			M_log.debug("refreshAuthzGroup()");
 			if ((realm == null) || (m_provider == null)) return;
+			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroupInternal() refreshing " + realm.getId());
 
 			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
 
@@ -2505,7 +2619,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 				catch (GroupNotDefinedException e)
 				{
-					M_log.warn("refreshAuthzGroup: cannot find containing realm for id: " + containingRealmRef);
+					M_log.warn("refreshAuthzGroupInternal() cannot find containing realm for id: " + containingRealmRef);
 				}
 			}
 
@@ -2534,7 +2648,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				{
 					if (existing.containsKey(uar.userId))
 					{
-						M_log.warn("refreshRealm: duplicate user id found in provider grants: " + uar.userId);
+						M_log.warn("refreshAuthzGroupInternal() duplicate user id found in provider grants: " + uar.userId);
 					}
 					else
 					{
@@ -2552,7 +2666,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				{
 					if (nonProvider.containsKey(uar.userId))
 					{
-						M_log.warn("refreshRealm: duplicate user id found in nonProvider grants: " + uar.userId);
+						M_log.warn("refreshAuthzGroupInternal() duplicate user id found in nonProvider grants: " + uar.userId);
 					}
 					else
 					{
@@ -2596,7 +2710,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 				catch (UserNotDefinedException e)
 				{
-					M_log.warn("refreshAuthzGroup: cannot find eid for user: " + userId);
+					M_log.warn("refreshAuthzGroupInternal() cannot find eid for user: " + userId);
 				}
 			}
 
@@ -2655,7 +2769,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 							if ((existingRole != null && !existingRole.equals(cMemberRoleId)) // overriding existing authz group role
 									||!role.equals(cMemberRoleId))	// overriding provided role
 							{
-								M_log.info("refreshAuthzGroup: realm id=" + realm.getId() + ", overrides group role of user eid=" + userEid + ": provided role=" + role + ", with site-level role=" + cMemberRoleId + " and site-level active status=" + cMemberActive);
+								M_log.info("refreshAuthzGroupInternal() realm id=" + realm.getId() + ", overrides group role of user eid=" + userEid + ": provided role=" + role + ", with site-level role=" + cMemberRoleId + " and site-level active status=" + cMemberActive);
 							}
 						}
 					}
@@ -2676,7 +2790,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 				catch (UserNotDefinedException e)
 				{
-					M_log.warn("refreshAuthzGroup: cannot find id for user eid: " + userEid);
+					M_log.warn("refreshAuthzGroupInternal() cannot find id for user eid: " + userEid);
 				}
 			}
 
@@ -2709,7 +2823,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 					}
 					catch (UserNotDefinedException e)
 					{
-						M_log.warn("refreshAuthzGroup: cannot find eid for user: " + userId);
+						M_log.warn("refreshAuthzGroupInternal() cannot find eid for user: " + userId);
 					}
 
 				}
@@ -2747,7 +2861,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				}
 			}
 			if (M_log.isDebugEnabled()) {
-				M_log.debug("refreshAuthzGroup(): deleted: "+ toDelete.size()+ " inserted: "+ toInsert.size()+ " provided: "+ existing.size()+ " nonProvider: "+ nonProvider.size());
+				M_log.debug("refreshAuthzGroupInternal() deleted: "+ toDelete.size()+ " inserted: "+ toInsert.size()+ " provided: "+ existing.size()+ " nonProvider: "+ nonProvider.size());
 			}
 		}
 

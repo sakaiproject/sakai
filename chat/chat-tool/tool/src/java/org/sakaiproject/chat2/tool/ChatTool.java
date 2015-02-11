@@ -509,6 +509,11 @@ public class ChatTool implements RoomObserver, PresenceObserver {
          validates = false;
       }
 
+      if(channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER) && (channel.getFilterParam() > chatManager.getMessagesMax() || channel.getFilterParam() < 1)){
+    	  setErrorMessage("editRoomForm:filterParam_last", "show_last_range_error", new String[] {Integer.toString(1),Integer.toString(chatManager.getMessagesMax())});
+    	  validates = false;
+      }      
+      
       if (logger.isDebugEnabled()) logger.debug("chat start ("+channel.getStartDate()+") and end ("+channel.getEndDate()+") dates");
       // validate the dates
       if (channel.getStartDate() != null && channel.getEndDate() != null) {
@@ -771,13 +776,7 @@ public class ChatTool implements RoomObserver, PresenceObserver {
            channel.setTimeParam(dChannel.getFilterParamPast());
 
            if (channel.getFilterType().equals(ChatChannel.FILTER_BY_NUMBER)) {
-               int pLast = dChannel.getFilterParamLast();
-               if (pLast > 9999) {
-                   pLast = 9999;
-               } else if (pLast <= 0) {
-                   pLast = 10;
-               }
-               channel.setFilterParam(pLast);
+        	   channel.setFilterParam(dChannel.getFilterParamLast());
            }
            else if (channel.getFilterType().equals(ChatChannel.FILTER_BY_TIME)) {
                int pPast = dChannel.getFilterParamPast();
