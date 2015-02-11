@@ -33,6 +33,7 @@
     <head><%= request.getAttribute("html.head") %>
     <title><h:outputText value="#{deliveryMessages.table_of_contents}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
+    <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
     </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!--div class="portletBody"-->
@@ -42,9 +43,7 @@
 
  <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
- 
-<%@ include file="/js/delivery.js" %>
- 
+
 <!-- content... -->
 <script type="text/javascript">
 
@@ -201,19 +200,19 @@ function clickSubmitForGrade(){
                              && authorization.submitAssessmentForGrade)}">
     <h:commandButton id="submitForGradeTOC1" type="submit" value="#{deliveryMessages.button_submit_grading}"
       action="#{delivery.confirmSubmitTOC}" styleClass="active"  
-      onclick="disableSubmitForGradeTOC1();javascript:saveTime()" 
+      onclick="saveTime()" 
       disabled="#{delivery.actionString=='previewAssessment'}" />
   </h:panelGroup>
 
 <!-- SUBMIT BUTTON FOR TAKE ASSESSMENT VIA URL ONLY -->
   <h:commandButton id="submitForGradeTOC2" type="submit" value="#{deliveryMessages.button_submit_grading}"
-    action="#{delivery.confirmSubmitTOC}" styleClass="active" onclick="disableSubmitForGradeTOC2();"
+    action="#{delivery.confirmSubmitTOC}" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}" />
 
 <!-- SAVE AND EXIT BUTTON FOR TAKE ASSESMENT AND PREVIEW ASSESSMENT-->
   <h:commandButton id="exitTOC1" type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}"
-    onclick="disableExitTOC1();javascript:saveTime()" 
+    onclick="saveTime()" 
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='previewAssessment') && !delivery.hasTimeLimit}" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
@@ -221,7 +220,7 @@ function clickSubmitForGrade(){
 <!-- QUIT BUTTON FOR TAKE ASSESSMENT VIA URL -->
   <h:commandButton id="exitTOC2" type="submit" value="#{deliveryMessages.button_exit}"
     action="#{delivery.saveAndExit}"
-    onclick="disableExitTOC2();javascript:saveTime()" 
+    onclick="saveTime()" 
     rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.hasTimeLimit}" >
   </h:commandButton>
 </p>

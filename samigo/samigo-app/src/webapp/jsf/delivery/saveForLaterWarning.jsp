@@ -36,7 +36,7 @@
       <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <!-- JAVASCRIPT -->
-<%@ include file="/js/delivery.js" %>
+<%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
 
 <h:form id="saveForLater">
 <!-- DONE BUTTON FOR PREVIEW -->
@@ -63,12 +63,12 @@
 
  <p class="act">
   <h:commandButton id="returnToAssessment" value="#{deliveryMessages.button_return_to_assessment}" 
-    action="#{delivery.validate}" type="submit" styleClass="active" onclick="disableReturnToAssessment();">
+    action="#{delivery.validate}" type="submit" styleClass="active">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
        <h:commandButton id="continue" value="#{deliveryMessages.button_continue}" type="submit"
-        action="select" disabled="#{delivery.actionString=='previewAssessment'}" onclick="disableContinue();">
+        action="select" disabled="#{delivery.actionString=='previewAssessment'}">
        </h:commandButton>
  </p> 
   <!-- end content -->

@@ -141,7 +141,7 @@ function saveTime()
              && delivery.navigation ne '1' 
              && !delivery.doContinue}"
 	disabled="#{delivery.actionString=='previewAssessment'}" 
-    onclick="disableSubmitForGrade()" onkeypress="" />
+    />
 
     <h:commandButton value="#{deliveryMessages.button_close_window}" type="button" 
        rendered="#{delivery.actionString=='takeAssessmentViaUrl' && !delivery.anonymousLogin}"
@@ -155,13 +155,13 @@ function saveTime()
 				   || delivery.actionString=='previewAssessment')
 				   && delivery.navigation eq '1' && !delivery.doContinue}" 
       disabled="#{delivery.actionString=='previewAssessment'}"
-      onclick="pauseTiming='false'; disableSubmit()" onkeypress="pauseTiming='false'"/>
+      onclick="pauseTiming='false'" onkeypress="pauseTiming='false'"/>
 
   <%-- SUBMIT FOR GRADE DURING PAU --%>
   <h:commandButton type="submit" value="#{deliveryMessages.button_submit_grading}"
     action="#{delivery.submitForGrade}"  id="submitForm1" styleClass="active"
     rendered="#{delivery.actionString=='takeAssessmentViaUrl'}"
-    onclick="pauseTiming='false'; disableSubmit1();" onkeypress="pauseTiming='false'"/>
+    onclick="pauseTiming='false'" onkeypress="pauseTiming='false'"/>
 
   <!-- Previous button for non-linear assessments -->
   <h:commandButton id="previous" type="submit" value="#{deliveryMessages.previous}"
@@ -170,7 +170,7 @@ function saveTime()
                  || delivery.actionString=='takeAssessment'
                  || delivery.actionString=='takeAssessmentViaUrl')
               && delivery.navigation ne '1'}" 
-    onclick="disablePrevious()" onkeypress="" />
+    />
 
   <!-- Previous button for linear assessments -->
   <h:commandButton type="submit" value="#{commonMessages.cancel_action}"
@@ -179,7 +179,7 @@ function saveTime()
                  || delivery.actionString=='takeAssessment'
 				 || delivery.actionString=='takeAssessmentViaUrl')
               && delivery.navigation eq '1'}"  
-    onclick="pauseTiming='false'; disableCancel();" onkeypress="pauseTiming='false'" 
+    onclick="pauseTiming='false'" onkeypress="pauseTiming='false'" 
     disabled="#{delivery.actionString=='previewAssessment'}" />
 
 <!-- DONE BUTTON FOR PREVIEW -->

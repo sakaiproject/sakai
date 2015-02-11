@@ -55,8 +55,8 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- HIDE / SHOW TIMER BAR -->
 <h:panelGroup rendered="#{delivery.hasTimeLimit}">
-<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none'"
- value="#{deliveryMessages.hide_show}" />
+<h:commandButton type="button" onclick="document.getElementById('remText').style.display=document.getElementById('remText').style.display=='none' ? '': 'none';document.getElementById('timer').style.display=document.getElementById('timer').style.display=='none' ? '': 'none';document.getElementById('bar').style.display=document.getElementById('bar').style.display=='none' ? '': 'none';return false;"
+ value="#{deliveryMessages.hide_show}" styleClass="noActionButton" />
  </h:panelGroup>
 <!-- END OF TIMER -->
 

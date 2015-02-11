@@ -38,7 +38,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- SHOW FEEDBACK LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
     <h:commandLink title="#{commonMessages.feedback}" action="#{delivery.getOutcome}" 
-       id="showFeedback" onmouseup="saveTime(); disableFeedback();" 
+       id="showFeedback" onmouseup="saveTime()" 
        rendered="#{(delivery.actionString=='takeAssessment'
                 || delivery.actionString=='takeAssessmentViaUrl') && !(delivery.pageContents.isNoParts && delivery.navigation eq '1')}" >
      <h:outputText value="#{deliveryMessages.show_feedback}" />
@@ -64,7 +64,7 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- TABLE OF CONTENT LINK FOR TAKE ASSESSMENT AND TAKE ASSESSMENT VIA URL -->
   <h:commandLink title="#{deliveryMessages.t_tableOfContents}" action="#{delivery.getOutcome}" 
-     id="showTOC" onmouseup="saveTime(); disableTOC()"
+     id="showTOC" onmouseup="saveTime()"
      rendered="#{(delivery.actionString=='takeAssessment'
                    || delivery.actionString=='takeAssessmentViaUrl')
                && delivery.navigation ne '1'}">
