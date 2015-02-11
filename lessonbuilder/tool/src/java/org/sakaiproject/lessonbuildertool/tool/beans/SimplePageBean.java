@@ -1823,7 +1823,9 @@ public class SimplePageBean {
 
 		PathEntry prevEntry = backPath.get(backPath.size()-2);
 		SimplePageItem prevItem = findItem(prevEntry.pageItemId);
-				GeneralViewParameters view = new GeneralViewParameters();
+		if (prevItem == null)
+			return;
+		GeneralViewParameters view = new GeneralViewParameters();
 		int itemType = prevItem.getType();
 		if (itemType == SimplePageItem.PAGE) {
 			view.setSendingPage(Long.valueOf(prevItem.getSakaiId()));
