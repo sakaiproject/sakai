@@ -23,6 +23,7 @@ package org.sakaiproject.poll.tool.producers;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +61,7 @@ import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 
 public class ResultsProducer implements ViewComponentProducer,NavigationCaseReporter,ViewParamsReporter {
@@ -131,6 +133,13 @@ public class ResultsProducer implements ViewComponentProducer,NavigationCaseRepo
 			return;
 			
 		}
+
+		String locale = localegetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 		
 		
 		

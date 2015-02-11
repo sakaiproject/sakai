@@ -22,7 +22,9 @@
 package org.sakaiproject.poll.tool.producers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -36,6 +38,7 @@ import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
@@ -46,6 +49,7 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.evolvers.TextInputEvolver;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
@@ -65,6 +69,7 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 
 
 	private MessageLocator messageLocator;
+	private LocaleGetter localeGetter;
 	
 	
 	public String getViewID() {
@@ -80,6 +85,10 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 	public void setMessageLocator(MessageLocator messageLocator) {
 
 		this.messageLocator = messageLocator;
+	}
+
+	public void setLocaleGetter(LocaleGetter localeGetter) {
+		this.localeGetter = localeGetter;
 	}
 
 
@@ -106,6 +115,13 @@ public class PollOptionProducer implements ViewComponentProducer,ViewParamsRepor
 
 	public void fillComponents(UIContainer tofill, ViewParameters viewparams,
 			ComponentChecker arg2) {
+
+		String locale = localeGetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 
 		if (tml.size() > 0) {
 			for (int i = 0; i < tml.size(); i ++ ) {

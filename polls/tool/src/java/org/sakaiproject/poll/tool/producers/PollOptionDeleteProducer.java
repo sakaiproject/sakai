@@ -21,7 +21,9 @@
 
 package org.sakaiproject.poll.tool.producers;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,6 +35,7 @@ import org.sakaiproject.poll.tool.params.OptionViewParameters;
 import org.sakaiproject.poll.tool.params.PollToolBean;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
@@ -45,6 +48,7 @@ import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -58,6 +62,7 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 	private static final Log LOG = LogFactory.getLog(PollOptionDeleteProducer.class);
 	
 	private MessageLocator messageLocator;
+	private LocaleGetter localeGetter;
 	
 	public String getViewID() {
 		
@@ -68,6 +73,10 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 			  
 		  this.messageLocator = messageLocator;
 	  }
+
+	public void setLocaleGetter(LocaleGetter localeGetter) {
+		this.localeGetter = localeGetter;
+	}
 
 	  private PollListManager pollListManager;
 	  public void setPollListManager(PollListManager p){
@@ -98,6 +107,13 @@ public class PollOptionDeleteProducer implements ViewComponentProducer, ActionRe
 			LOG.error("no such option found!");
 			return;
 		}
+
+		String locale = localeGetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 		
 		UIMessage.make(tofill, "error", "delete_option_message",
 				new Object[] { option.getOptionText() }
