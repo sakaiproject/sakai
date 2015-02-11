@@ -171,7 +171,7 @@ public class GradeImportUploadStep extends Panel {
                         log.debug(processedGradeItems.size());
 
 						//repaint panel
-						Component newPanel = new GradeImportConfirmationStep(panelId, processedGradeItems);
+						Component newPanel = new GradeItemImportSelectionStep(panelId, processedGradeItems);
 						newPanel.setOutputMarkupId(true);
 						GradeImportUploadStep.this.replaceWith(newPanel);
 
