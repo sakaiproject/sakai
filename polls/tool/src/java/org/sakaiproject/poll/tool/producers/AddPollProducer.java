@@ -22,7 +22,9 @@
 package org.sakaiproject.poll.tool.producers;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
@@ -40,6 +42,7 @@ import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteBean;
 import org.sakaiproject.util.FormattedText;
 
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -52,12 +55,14 @@ import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
 import uk.org.ponder.rsf.components.UIMessage;
+import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.evolvers.FormatAwareDateInputEvolver;
@@ -77,6 +82,7 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 	private PollListManager pollListManager;
 	private MessageLocator messageLocator;
+	private LocaleGetter localeGetter;
 
 
 	private static final Log LOG = LogFactory.getLog(AddPollProducer.class);
@@ -87,6 +93,10 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 
 	public void setMessageLocator(MessageLocator messageLocator) {
 		this.messageLocator = messageLocator;
+	}
+
+	public void setLocaleGetter(LocaleGetter localeGetter) {
+		this.localeGetter = localeGetter;
 	}
 
 	public void setPollListManager(PollListManager pollListManager) {
@@ -151,6 +161,13 @@ public class AddPollProducer implements ViewComponentProducer,NavigationCaseRepo
 		PollViewParameters ecvp = (PollViewParameters) viewparams;
 		Poll poll = null;
 		boolean isNew = true;
+
+		String locale = localeGetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 
 
 		

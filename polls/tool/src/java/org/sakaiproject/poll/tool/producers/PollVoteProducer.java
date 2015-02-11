@@ -24,7 +24,9 @@ package org.sakaiproject.poll.tool.producers;
 
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -37,6 +39,7 @@ import org.sakaiproject.poll.model.VoteCollection;
 import org.sakaiproject.poll.tool.params.PollViewParameters;
 import org.sakaiproject.poll.tool.params.VoteCollectionViewParameters;
 
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -50,6 +53,7 @@ import uk.org.ponder.rsf.components.UIOutputMany;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
 import uk.org.ponder.rsf.components.UIVerbatim;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
@@ -67,6 +71,7 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 
 	private PollListManager pollListManager;
 	private MessageLocator messageLocator;
+	private LocaleGetter localeGetter;
 	private TargettedMessageList tml;
 	private PollVoteManager pollVoteManager;
 
@@ -85,6 +90,10 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 	public void setMessageLocator(MessageLocator messageLocator) {
 
 		this.messageLocator = messageLocator;
+	}
+
+	public void setLocaleGetter(LocaleGetter localeGetter) {
+		this.localeGetter = localeGetter;
 	}
 
 
@@ -130,6 +139,13 @@ public class PollVoteProducer implements ViewComponentProducer,ViewParamsReporte
 			UIOutput.make(tofill, "hasErrors",messageLocator.getMessage("vote_hasvoted.voteCollection"));
 			return;
 		}
+
+		String locale = localeGetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 
 		UIOutput.make(tofill,"poll-text",poll.getText());
 		if (poll.getDetails() != null)

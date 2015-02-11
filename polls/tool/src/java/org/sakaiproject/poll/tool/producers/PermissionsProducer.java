@@ -34,10 +34,12 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.tool.api.ToolSession;
 
 import uk.ac.cam.caret.sakai.rsf.helper.HelperViewParameters;
+import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.flow.jsfnav.NavigationCaseReporter;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -54,6 +56,7 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 
 	
 	private MessageLocator messageLocator;
+	private LocaleGetter localeGetter;
 
 
 	private static final String PERMISSION_PREFIX ="poll";
@@ -71,6 +74,10 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 	public void setMessageLocator(MessageLocator messageLocator) {
 
 		this.messageLocator = messageLocator;
+	}
+
+	public void setLocaleGetter(LocaleGetter localeGetter) {
+		this.localeGetter = localeGetter;
 	}
 
 
@@ -99,6 +106,13 @@ public class PermissionsProducer implements ViewComponentProducer,NavigationCase
 		session.setAttribute(PermissionsHelper.TARGET_REF, site.getReference());
 	    session.setAttribute(PermissionsHelper.DESCRIPTION, messageLocator.getMessage("set.perms", new Object[]{site.getTitle()}));
 	    session.setAttribute(PermissionsHelper.PREFIX, PERMISSION_PREFIX + ".");
+
+		String locale = localeGetter.get().toString();
+        Map<String, String> langMap = new HashMap<String, String>();
+        langMap.put("lang", locale);
+        langMap.put("xml:lang", locale);
+
+		UIOutput.make(tofill, "polls-html", null).decorate(new UIFreeAttributeDecorator(langMap));
 	    
 	    List<String> perms = externalLogic.getPermissionKeys();
 	    HashMap<String, String> pRbValues = new HashMap<String, String>();
