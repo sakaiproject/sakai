@@ -212,10 +212,13 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
    private Pattern attributePattern;
 
    private Pattern pathPattern;
-
+   private Pattern dummyPattern;
+    
    private Class linkMigrationHelper = null;
    private Method migrateAllLinks = null;
    private Object linkMigrationHelperInstance = null;
+   final String ITEMDUMMY = "http://lessonbuilder.sakaiproject.org/";
+
 
    public void init() {
       logger.info("init()");
@@ -258,6 +261,8 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
       pathPattern = Pattern
 	  .compile("/(?:access/content/group|web|dav|xsl-portal/site|portal/site)/([^/]+)/.*");
       
+      dummyPattern = Pattern.compile(ITEMDUMMY + "\\d+");
+
       // Add the server name to the list of servers
       String serverName = ServerConfigurationService.getString("serverName", null);
       String serverId = ServerConfigurationService.getString("serverId", null);
@@ -1433,6 +1438,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     private void migrateEmbeddedLinks(String toContext, Map<String, String> transversalMap){
     	Set entrySet = (Set) transversalMap.entrySet();
+	// findTextItemsInSite accesses the raw database.
+	// I'm concerned that updates may have been made and not written to the database.
+	// I considered moving findTextItemsInSite to using real hibernate objects.
+	// But we did have a massave failure one time
+	simplePageToolDao.flush();
+	simplePageToolDao.clear();
 	List<SimplePageItem> items = simplePageToolDao.findTextItemsInSite(toContext);
 	for (SimplePageItem item: items) {
 	    String msgBody = item.getHtml();
@@ -1716,9 +1727,44 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 
     private String convertHtmlContent(ContentCopyContext context,
 				      String content, String contentUrl, Map<Long,Long> itemMap) {
+	
+	// this old code (below) seems to have come from an old version of the kerne's reference migrator.
+	// It's too complex for me to verify that it's right.
+	// At this point the kernel just does string replacements. So I'm going to
+	// replace /access/content/group/NNN with the new value
+	// and also fix up the dummy references.
+
+	String oldurl = "/access/content/group/" + context.getOldSiteId().replace(" ", "%20");
+	String newurl = "/access/content/group/" + context.getNewSiteId().replace(" ", "%20");
+
+	content = content.replace(oldurl, newurl);
+
+	// no point doing this code unless we actually have a dummy url in it
+	if (content.indexOf(ITEMDUMMY) >= 0) {
+
+	    StringBuffer newcontent = new StringBuffer();
+	    Matcher matcher = dummyPattern.matcher(content);
+	    while (matcher.find()) {
+		String itemnumber = matcher.group().substring(ITEMDUMMY.length());
+		long oldItem = 0;
+		try {
+		    oldItem = Long.parseLong(itemnumber);
+		    Long newItem = itemMap.get(oldItem);
+		    if (newItem != null)
+			matcher.appendReplacement(newcontent, ITEMDUMMY + newItem);
+		} catch (Exception e) {
+		}
+	    }
+	    matcher.appendTail(newcontent);
+	    content = newcontent.toString();
+	}
+
+	if (false) {
 	StringBuilder output = new StringBuilder();
 	Matcher matcher = attributePattern.matcher(content);
 	int contentPos = 0;
+
+	StringBuffer newContent = new StringBuffer();
 	while (matcher.find()) {
 	    String url = matcher.group(3);
 
@@ -1740,9 +1786,12 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	}
 	    output.append(content.substring(contentPos));
 	    return output.toString();
+	} // end of if false
+
+	return content;
+
     }
 
-    final String ITEMDUMMY = "http://lessonbuilder.sakaiproject.org/";
     final int ITEMDUMMYLEN = ITEMDUMMY.length();
 
     /**
@@ -1892,7 +1941,6 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
     }
 
     public String loadCartridge(File cartFile, String unzippedDir, String siteId) {
-	System.out.println("loadcart in entityproducer " + cartFile + " " + unzippedDir + " " + siteId);
 	if ((cartFile == null && unzippedDir == null) || siteId == null)
 	    return "missing arguments " + cartFile + " " + siteId;
 
