@@ -28,7 +28,11 @@ function submitOnEnter(event, defaultButtonId) {
 	if (characterCode == 13) {
 		event.returnValue = false;
 		event.cancel = true;
-		document.getElementById(defaultButtonId).click();
+		var defaultButton = document.getElementById(defaultButtonId);
+		if (defaultButton.style.display !== "none")
+		{
+			defaultButton.click();
+		}
 		return false;
 	} else {
 		return true;
