@@ -181,7 +181,7 @@ confirmation dialog
 	
 	  	</h:panelGrid>
 	  
-	  	<h:commandButton rendered="#{itemauthor.target=='assessment'}" 
+	  	<h:commandButton rendered="#{itemauthor.target=='assessment' || itemauthor.target=='questionpool'}" 
 	  			value="#{authorMessages.calc_question_extract_button}" 
 	  			action="calculatedQuestion" 
 	  			styleClass="active">
