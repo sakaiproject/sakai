@@ -647,3 +647,7 @@ div.msgcntr-profile-qtip {
     margin: 0;
     display: block;
 }
+
+.disable_a_href{
+    pointer-events: none;
+}

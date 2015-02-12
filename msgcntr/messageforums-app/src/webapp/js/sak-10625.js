@@ -2,8 +2,12 @@
 var click=0;
 sak10625_disabler = function(){
   var existing_event = this.onclick;
+  $("a, input[type=button], input[type=submit]").attr("onclick", "");
+  $(this).addClass("disable_a_href"); 
   this.onclick = null;
-  if(existing_event) $(this).click(existing_event);
+  if(existing_event) { 
+    $(this).click(existing_event);
+  }
 }
 if (typeof window.jQuery != "undefined") {
 
