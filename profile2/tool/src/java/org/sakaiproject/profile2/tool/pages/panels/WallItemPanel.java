@@ -31,7 +31,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.WallAction;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
 import org.sakaiproject.profile2.tool.pages.windows.RemoveWallItem;
@@ -88,8 +88,10 @@ public class WallItemPanel extends Panel {
 		};
 
 		// image
-		wallItemPhoto.add(new ProfileImageRenderer("wallItemPhoto", wallItem
-				.getCreatorUuid()));
+		ProfileImage photo = new ProfileImage("wallItemPhoto", new Model<String>(wallItem.getCreatorUuid()));
+		photo.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+		wallItemPhoto.add(photo);
+		
 		add(wallItemPhoto);
 
 		// name and link to profile
