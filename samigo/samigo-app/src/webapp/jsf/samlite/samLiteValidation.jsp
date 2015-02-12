@@ -149,6 +149,24 @@
           				
 		 			</h:panelGrid>
 				</h:column>
+				<h:column>
+		 			<f:facet name="header">
+		          		<h:outputText value="#{samLiteMessages.samlite_feedback}" />
+		        	</f:facet>
+		 			<h:panelGroup rendered="#{question.feedbackOK != null}">
+						<f:verbatim><b></f:verbatim>
+						<h:outputText value="#{samLiteMessages.samlite_feedbackOK}:"/>
+						<f:verbatim></b><br/></f:verbatim>
+						<h:outputText value="#{question.feedbackOK}"/>
+						<f:verbatim><br/></f:verbatim>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{question.feedbackNOK != null}">
+						<f:verbatim><b></f:verbatim>
+						<h:outputText value="#{samLiteMessages.samlite_feedbackNOK}:"/>
+						<f:verbatim></b><br/></f:verbatim>
+						<h:outputText value="#{question.feedbackNOK}"/>
+					</h:panelGroup>
+		 		</h:column>
 		 	</h:dataTable> 
 		 	<f:verbatim><p/></f:verbatim>
 		 	<div class="act">

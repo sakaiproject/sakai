@@ -125,7 +125,8 @@
 					   			<li><h:outputText value="#{samLiteMessages.general_instructions_format4}"/></li>
 					   			<li><h:outputText value="#{samLiteMessages.general_instructions_format5}"/></li>
 					   		</ul>
-					   		<h:outputText value="#{samLiteMessages.general_instructions_conclude}"/>
+					   		<h:outputText value="#{samLiteMessages.general_instructions_conclude}"/><p/>
+							<h:outputText value="#{samLiteMessages.general_instructions_feedback}"/>
 				    	</div>
 					</td>
 				</tr>
