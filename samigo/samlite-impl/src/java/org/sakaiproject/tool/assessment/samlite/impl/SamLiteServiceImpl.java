@@ -69,6 +69,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 	private Pattern justQuestionPattern, startOfQuestionPattern, correctAnswerPattern;
 	private Pattern correctFillInPattern, answerPattern, endQuestionPattern, correctMultipleChoicePattern;
 	private Pattern shortEssayPattern, correctTruePattern, correctFalsePattern, unnecessaryTruePattern, unnecessaryFalsePattern;
+	private Pattern feedbackOKPattern,feedbackNOKPattern;
 	private Pattern correctfillInNumericPattern,complexNumberPattern,intervalPattern,realPattern;
 	
 	private Pattern startOfQuestionNumericPattern;
@@ -84,6 +85,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		correctMultipleChoicePattern = Pattern.compile("^\\*\\s*([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
 		correctFillInPattern = Pattern.compile("^\\*\\s*(?!\\{)(.*)");
 		answerPattern = Pattern.compile("^([a-z])\\.\\s*(.*)", Pattern.CASE_INSENSITIVE);
+		feedbackOKPattern=Pattern.compile("^#FBOK:\\s*(.*)$");
+		feedbackNOKPattern=Pattern.compile("^#FBNOK:\\s*(.*)$");
 		
 		// REGEX: ^(\d+\.+ ).*\[[a-z[ ,]]*\].* - start with digits point space then string containing brackets with [a-z] commas or spaces 
 		extendedMatchingCorrectAnswersPattern = Pattern.compile("^(\\d+\\.+ ).*\\[[a-z[ ,]]*\\].*", Pattern.CASE_INSENSITIVE);
@@ -229,6 +232,10 @@ public class SamLiteServiceImpl implements SamLiteService {
 		boolean isAnswer = answerMatcher.find();
 		boolean isEmptyTrue = unnecessaryTruePattern.matcher(line).find();
 		boolean isEmptyFalse = unnecessaryFalsePattern.matcher(line).find();		
+		Matcher feedbackOKMatcher = feedbackOKPattern.matcher(line);
+		boolean hasfeedbackOK = feedbackOKMatcher.find();
+		Matcher feedbackNOKMatcher = feedbackNOKPattern.matcher(line);
+		boolean hasfeedbackNOK = feedbackNOKMatcher.find();
 		
 		boolean isEMICorrectAnswer = extendedMatchingCorrectAnswersPattern.matcher(line).find();
 		
@@ -283,6 +290,10 @@ public class SamLiteServiceImpl implements SamLiteService {
 	  		}
 		} else if (isEmptyTrue || isEmptyFalse) {
 			// Do nothing, since the 'correct' true or false answer is all we need.
+		} else if (hasfeedbackOK) {
+			question.setFeedbackOK(feedbackOKMatcher.group(1));
+		} else if (hasfeedbackNOK) {
+			question.setFeedbackNOK(feedbackNOKMatcher.group(1));
 		} else {
 			// If we didn't match anything, then assume it's just part of the question text
 			question.append(line);
@@ -494,6 +505,16 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildMattext(ifflow.addNewMaterial().addNewMattext());
 		buildEmptyMaterialImage(ifflow.addNewMaterial().addNewMatimage());
 	}
+
+	private void buildItemFeedback(ItemType item, String identity, String feedback) {
+		ItemfeedbackType ifeedback = item.addNewItemfeedback();
+		ifeedback.setIdent(identity);
+		ifeedback.setView(ItemfeedbackType.View.ALL);
+		FlowMatType ifflow = ifeedback.addNewFlowMat();
+		ifflow.setClass1("Block");
+		buildMattext(ifflow.addNewMaterial().addNewMattext(),feedback);
+		buildEmptyMaterialImage(ifflow.addNewMaterial().addNewMatimage());
+	}
 	
 	private void buildPresentationAndResponseLid(ItemType item, Question question, String label, 
 			String respLidId, ResponseLidType.Rcardinality.Enum rCardinality) {	
@@ -673,8 +694,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		
 		addRespProcessing(item, question, "TF02");
 		
-		buildItemFeedback(item, "Correct");
-		buildItemFeedback(item, "InCorrect");
+		buildItemFeedback(item, "Correct",question.getFeedbackOK() );
+		buildItemFeedback(item, "InCorrect", question.getFeedbackNOK());
 	}
 	
 	private void processMultipleChoiceQuestion(SectionType section, Question question) {
@@ -704,9 +725,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			buildItemFeedback(item, String.valueOf(c) + "1");
 			c++;
 		}
-		
-		buildItemFeedback(item, "Correct");
-		buildItemFeedback(item, "InCorrect");
+		buildItemFeedback(item, "Correct",question.getFeedbackOK() );
+		buildItemFeedback(item, "InCorrect", question.getFeedbackNOK());
 	}
 	
 	private void processMultipleChoiceMultipleAnswerQuestion(SectionType section, Question question) {
@@ -736,9 +756,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			buildItemFeedback(item, String.valueOf(c) + "1");
 			c++;
 		}
-		
-		buildItemFeedback(item, "Correct");
-		buildItemFeedback(item, "InCorrect");
+		buildItemFeedback(item, "Correct",question.getFeedbackOK() );
+		buildItemFeedback(item, "InCorrect", question.getFeedbackNOK());
 	}
 	
 	private void processFillInQuestion(SectionType section, Question question) {
@@ -803,8 +822,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		setvar.setVarname("SCORE");
 		setvar.setStringValue("0");
 		
-		buildItemFeedback(item, "Correct");
-		buildItemFeedback(item, "InCorrect");
+		buildItemFeedback(item, "Correct",question.getFeedbackOK() );
+		buildItemFeedback(item, "InCorrect", question.getFeedbackNOK());
 	}
 	
 	private void processFillInNumericQuestion(SectionType section, Question question) {
@@ -868,8 +887,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		setvar.setVarname("SCORE");
 		setvar.setStringValue("0");
 		
-		buildItemFeedback(item, "Correct");
-		buildItemFeedback(item, "InCorrect");
+		buildItemFeedback(item, "Correct",question.getFeedbackOK() );
+		buildItemFeedback(item, "InCorrect", question.getFeedbackNOK());
 	}
 	
 	private void processShortEssayQuestion(SectionType section, Question question) {
@@ -909,8 +928,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		decvar.setVarname("SCORE");
 		decvar.setVartype(DecvarType.Vartype.INTEGER);
 		
-		buildItemFeedback(item, "Correct");
-		buildItemFeedback(item, "InCorrect");
+		buildItemFeedback(item, "Correct",question.getFeedbackOK() );
+		buildItemFeedback(item, "InCorrect", question.getFeedbackNOK());
 	}
 	
 	private boolean isValidNumericResponse(String numericResponse){
