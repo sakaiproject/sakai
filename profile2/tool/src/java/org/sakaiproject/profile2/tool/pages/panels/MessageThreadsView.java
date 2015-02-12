@@ -38,7 +38,7 @@ import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.dataproviders.MessageThreadsDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyMessages;
 import org.sakaiproject.profile2.tool.pages.ViewProfile;
@@ -125,9 +125,10 @@ public class MessageThreadsView extends Panel {
 				};
 				
 				//photo
-				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				ProfileImage messagePhoto = new ProfileImage("messagePhoto", new Model<String>(messageFromUuid));
+				messagePhoto.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+				photoLink.add(messagePhoto);
 				item.add(photoLink);
-				
 				
 				//name link
 				AjaxLink<String> messageFromLink = new AjaxLink<String>("messageFromLink", new Model<String>(messageFromUuid)) {

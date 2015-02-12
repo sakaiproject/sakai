@@ -43,7 +43,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.OnlinePresenceIndicator;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.pages.panels.FriendsFeed;
@@ -129,7 +129,7 @@ public class ViewProfile extends BasePage {
 		final ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(userUuid);
 
 		/* IMAGE */
-		add(new ProfileImageRenderer("photo", userUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_MAIN, true));
+		add(new ProfileImage("photo", new Model<String>(userUuid)));
 		
 		/* NAME */
 		Label profileName = new Label("profileName", userDisplayName);

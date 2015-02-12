@@ -33,7 +33,7 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.util.FormattedText;
@@ -76,7 +76,9 @@ public class RemoveFriend extends Panel {
 		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(userY);
 		
 		//image
-		add(new ProfileImageRenderer("image", userY, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+		ProfileImage image = new ProfileImage("image", new Model<String>(userY));
+		image.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+		add(image);
 		
         //text
 		final Label text = new Label("text", new StringResourceModel("text.friend.remove", null, new Object[]{ friendName } ));

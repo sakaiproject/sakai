@@ -43,7 +43,7 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.dataproviders.ConfirmedFriendsDataProvider;
 import org.sakaiproject.profile2.tool.models.FriendAction;
@@ -201,8 +201,11 @@ public class ConfirmedFriends extends Panel {
 					}
 				};
 				
-				//image
-				friendItem.add(new ProfileImageRenderer("connectionPhoto", personUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, true));
+				//image				
+				ProfileImage connectionPhoto = new ProfileImage("connectionPhoto", new Model<String>(personUuid));
+				connectionPhoto.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+				friendItem.add(connectionPhoto);
+
 				item.add(friendItem);
 				
 		    	//name and link to profile

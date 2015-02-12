@@ -25,6 +25,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -36,7 +37,7 @@ import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.WallAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
@@ -75,8 +76,10 @@ public class RemoveWallItem extends Panel {
 		ProfilePreferences prefs = preferencesLogic.getPreferencesRecordForUser(wallItem.getCreatorUuid());
 		ProfilePrivacy privacy = privacyLogic.getPrivacyRecordForUser(wallItem.getCreatorUuid());
 		
-		add(new ProfileImageRenderer("image", wallItem.getCreatorUuid(), prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
-		
+		ProfileImage image = new ProfileImage("image", new Model<String>(wallItem.getCreatorUuid()));
+		image.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+		add(image);
+				
 		final Label text;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {
 			text = new Label("text", new StringResourceModel(

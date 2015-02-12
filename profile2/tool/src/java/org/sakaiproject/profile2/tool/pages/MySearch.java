@@ -61,7 +61,7 @@ import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileSearchTerm;
 import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.components.ProfileStatusRenderer;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.tool.models.StringModel;
@@ -297,7 +297,10 @@ public class MySearch extends BasePage {
 				};
 				
 				//image
-				friendItem.add(new ProfileImageRenderer("searchResultPhoto", person, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
+				ProfileImage searchResultPhoto = new ProfileImage("searchResultPhoto", new Model<String>(userUuid));
+				searchResultPhoto.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+				friendItem.add(searchResultPhoto);
+				
 				item.add(friendItem);
 		    	
 		    	//name and link to profile (if allowed or no link)

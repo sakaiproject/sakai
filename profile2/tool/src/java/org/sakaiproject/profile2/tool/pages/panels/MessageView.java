@@ -45,7 +45,7 @@ import org.sakaiproject.profile2.model.MessageParticipant;
 import org.sakaiproject.profile2.model.MessageThread;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.components.ProfileImageRenderer;
+import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.dataproviders.MessagesDataProvider;
 import org.sakaiproject.profile2.tool.models.StringModel;
 import org.sakaiproject.profile2.tool.pages.MyMessages;
@@ -184,9 +184,10 @@ public class MessageView extends Panel {
 				};
 				
 				//photo
-				photoLink.add(new ProfileImageRenderer("messagePhoto", messageFromUuid, prefs, privacy, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false));
-				item.add(photoLink);
-				
+				ProfileImage messagePhoto = new ProfileImage("messagePhoto", new Model<String>(messageFromUuid));
+				messagePhoto.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+				photoLink.add(messagePhoto);
+				item.add(photoLink);				
 				
 				//name link
 				AjaxLink<String> messageFromLink = new AjaxLink<String>("messageFromLink", new Model<String>(messageFromUuid)) {
@@ -315,7 +316,12 @@ public class MessageView extends Panel {
 				setResponsePage(new ViewProfile(getModelObject()));
 			}
 			
-		}.add(new ProfileImageRenderer("messagePhoto", message.getFrom(), prefs, ProfileConstants.PROFILE_IMAGE_THUMBNAIL, false)));
+		});
+		
+		//image
+		ProfileImage messagePhoto = new ProfileImage("messagePhoto", new Model<String>(message.getFrom()));
+		messagePhoto.setSize(ProfileConstants.PROFILE_IMAGE_THUMBNAIL);
+		item.add(messagePhoto);
 		
 		//name link
 		item.add(new AjaxLink<String>("messageFromLink", new Model<String>(message.getFrom())) {
