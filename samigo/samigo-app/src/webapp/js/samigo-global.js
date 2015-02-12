@@ -7,6 +7,7 @@ function show_editor(client_id, frame_id) {
 		setBlockDivs();
 		retainHideUnhideStatus('none');
 	}
+	document.getElementById(client_id + "_toggle").style.display = "none";
 }
 
 function encodeHTML(text) {
@@ -32,5 +33,4 @@ function chef_setupformattedtextarea(client_id, shouldToggle, frame_id) {
 
 	sakai.editor.launch(textarea_id,'','450','240');
 	setMainFrameHeight(frame_id);
-	document.getElementById(client_id + "_toggle").style.display = "none";
 }
