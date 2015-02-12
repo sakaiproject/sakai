@@ -91,7 +91,7 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.QuestionScoreListener" />
     </h:commandLink>
 
-    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" escape="false" />
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne ''}" escape="false" />
 
     <h:commandLink title="#{evaluationMessages.t_histogram}" action="histogramScores" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
@@ -101,7 +101,7 @@
         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.HistogramListener" />
     </h:commandLink>
 
-    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne '' && !totalScores.hasRandomDrawPart}" escape="false"/>
+    <h:outputText value="</span><li role='menuitem'><span>" rendered="#{totalScores.firstItem ne ''}" escape="false"/>
 
     <h:commandLink title="#{evaluationMessages.t_itemAnalysis}" action="detailedStatistics" immediate="true"
       rendered="#{totalScores.firstItem ne ''}" >
