@@ -25,6 +25,7 @@
 <script type="text/javascript">
      var five_minutes_left = "<h:outputText value="#{deliveryMessages.five_minutes_left1} "/><h:outputText value="#{deliveryMessages.five_minutes_left2} " /><h:outputText value="#{deliveryMessages.five_minutes_left3}" />";
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
+     var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
 
      var time_30_warning = "<h:outputText value="#{deliveryMessages.time_30_warning} "/><h:outputText value="#{deliveryMessages.time_30_warning_2} " />";
      var time_due_warning = "<h:outputText value="#{deliveryMessages.time_due_warning_1} "/><h:outputText value="#{deliveryMessages.time_due_warning_2} " />";     
@@ -34,11 +35,12 @@
 		//Turn off browser autocomplete on all forms
 		$("form").attr("autocomplete", "off");
 
-		$("input[type='submit']").click(function() { 
-			$.blockUI({ message: '', overlayCSS: { backgroundColor: '#ff0', opacity: 0} }); 
-			setTimeout($.unblockUI, 2000); 
+		// Block the UI to avoid user double-clicks
+		$("input[type='submit'][class!='noActionButton']").click(function() { 
+			$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		}); 
-			
+
+		// Modal dialog that pops up to warn user that time is running out		
 		$('#timer-warning').dialog({
 			autoOpen: false,
 			width: 400,
