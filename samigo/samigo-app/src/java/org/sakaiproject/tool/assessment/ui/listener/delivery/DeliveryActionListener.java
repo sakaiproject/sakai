@@ -134,7 +134,6 @@ public class DeliveryActionListener
     try
     {
       PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
-      log.debug("**** MacNetscape="+person.getIsMacNetscapeBrowser());
       // 1. get managed bean
       DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
       
