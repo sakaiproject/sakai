@@ -224,9 +224,9 @@ $(document).ready(function() {
 
  <div id="samigo-create-import">
 	  <div>
-		<span class="new_assessment">
+		<h4>
       		<h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
-		</span>
+		</h4>
     <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
       rendered="#{authorization.createAssessment}" action="importAssessment">
     </h:commandButton>
