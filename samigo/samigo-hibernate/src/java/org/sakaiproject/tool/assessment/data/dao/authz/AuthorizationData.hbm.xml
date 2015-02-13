@@ -17,21 +17,21 @@
       <version name="lockId" />
               
       <property name="agentIdString">
-        <column name="AGENTID" unique-key="uniqueAuthz" length="255"
+        <column name="AGENTID" unique-key="uniqueAuthz" length="99"
                 not-null="true" index="sam_authz_agentId_idx" />
       </property>
       <property name="functionId">
         <column name="FUNCTIONID" unique-key="uniqueAuthz" length="36"
-                not-null="true" index="sam_authz_functionId_idx" />
+                not-null="true" index="SAM_IDX_FUNC_QUAL" />
       </property>
       <property name="qualifierId">
         <column name="QUALIFIERID" unique-key="uniqueAuthz" length="36"
-                not-null="true" index="sam_authz_qualifierId_idx" />
+                not-null="true" index="SAM_IDX_FUNC_QUAL" />
       </property>  
       
       <property  name="authorizationEffectiveDate" type="date" column="EFFECTIVEDATE" not-null="false" />
       <property  name="authorizationExpirationDate" type="date" column="EXPIRATIONDATE" not-null="false" />
-      <property  name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
+      <property  name="lastModifiedBy" type="string" length="99" column="LASTMODIFIEDBY" not-null="true" />
       <property  name="lastModifiedDate" type="date" column="LASTMODIFIEDDATE" not-null="true" />
       <property  name="isExplicitBoolean" type="boolean" column="ISEXPLICIT" />
     </class>
