@@ -1044,3 +1044,8 @@ td.releaseTo div.alertMessage {
     line-height: inherit !important;
     font-family: inherit !important;
 }
+
+ul.no-list {
+    list-style-type: none;
+    padding-left: 4px;
+}
