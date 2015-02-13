@@ -302,7 +302,39 @@
 				<sakai:button_bar_item action="#{ForumTool.processDfMsgDeleteCancel}" value="#{msgs.cdfm_button_bar_cancel}" accesskey="c" />
                 <h:outputText styleClass="messageProgress" style="display:none" value="#{msgs.cdfm_processing_submit_message}" />
 			</sakai:button_bar>
+	
+			<f:verbatim><br/><br/></f:verbatim>		
+			<h:panelGroup styleClass="itemNav">
+				<h:commandLink action="#{ForumTool.processDisplayPreviousMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasPre}" 
+						title=" #{msgs.cdfm_prev_msg}">
+					<h:outputText value="#{msgs.cdfm_prev_msg}" />
+				</h:commandLink>
+				<h:outputText value="#{msgs.cdfm_prev_msg}"  rendered="#{!ForumTool.selectedMessage.hasPre}" />
+				<f:verbatim><h:outputText value=" | " /></f:verbatim>
+				<h:commandLink action="#{ForumTool.processDfDisplayNextMsg}" rendered="#{ForumTool.selectedMessage != null && ForumTool.selectedMessage.hasNext}" 
+						title=" #{msgs.cdfm_next_msg}">
+					<h:outputText value="#{msgs.cdfm_next_msg}" />
+				</h:commandLink>
+				<h:outputText value="#{msgs.cdfm_next_msg}" rendered="#{!ForumTool.selectedMessage.hasNext}" />
+			</h:panelGroup>
 
+			<f:verbatim><br/><br/></f:verbatim>
+			<h:panelGroup styleClass="itemNav">
+				<h:outputText   value="#{msgs.cdfm_previous_thread}"  rendered="#{!ForumTool.selectedThreadHead.hasPreThread}" />
+				<h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_previous_thread}"  rendered="#{ForumTool.selectedThreadHead.hasPreThread}">
+					<f:param value="#{ForumTool.selectedThreadHead.preThreadId}" name="messageId"/>
+					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+				</h:commandLink>
+				<f:verbatim><h:outputText  id="blankSpace2" value=" |  " /></f:verbatim>				
+				<h:outputText   value="#{msgs.cdfm_next_thread}" rendered="#{!ForumTool.selectedThreadHead.hasNextThread}" />
+				<h:commandLink action="#{ForumTool.processActionDisplayThread}" value="#{msgs.cdfm_next_thread}" rendered="#{ForumTool.selectedThreadHead.hasNextThread}">
+					<f:param value="#{ForumTool.selectedThreadHead.nextThreadId}" name="messageId"/>
+					<f:param value="#{ForumTool.selectedTopic.topic.id}" name="topicId"/>
+					<f:param value="#{ForumTool.selectedForum.forum.id}" name="forumId"/>
+				</h:commandLink>
+
+			 </h:panelGroup>
 		</h:form>
 	</sakai:view>
 </f:view>
