@@ -59,6 +59,7 @@ function checkSubmit(){
 }
 </script>
 
+      <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>;">
  
