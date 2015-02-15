@@ -4,6 +4,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.upload.FileUpload;
 import org.apache.wicket.markup.html.form.upload.FileUploadField;
@@ -19,6 +20,7 @@ import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.io.File;
@@ -147,6 +149,17 @@ public class GradeImportUploadStep extends Panel {
 
             fileUploadField = new FileUploadField("upload");
             add(fileUploadField);
+
+            add(new Button("continuebutton"));
+
+            Button cancel = new Button("cancelbutton"){
+                public void onSubmit() {
+//                    info("Cancel was pressed!");
+                    setResponsePage(new GradebookPage());
+                }
+            };
+            cancel.setDefaultFormProcessing(false);
+            add(cancel);
         }
 
         @Override

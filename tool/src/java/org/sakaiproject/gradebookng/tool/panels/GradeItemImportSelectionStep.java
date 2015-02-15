@@ -3,16 +3,14 @@ package org.sakaiproject.gradebookng.tool.panels;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Check;
-import org.apache.wicket.markup.html.form.CheckGroup;
-import org.apache.wicket.markup.html.form.CheckGroupSelector;
-import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,6 +46,19 @@ public class GradeItemImportSelectionStep extends Panel {
         };
         add(form);
         form.add(group);
+
+        form.add(new Button("nextbutton"));
+
+        Button back = new Button("backbutton"){
+            public void onSubmit() {
+                //TODO - Can I get the state of the form back, including the uploaded file?  This just starts the page over.
+                setResponsePage(new ImportExportPage());
+            }
+        };
+        back.setDefaultFormProcessing(false);
+        form.add(back);
+
+
         group.add(new CheckGroupSelector("groupselector"));
         ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades",
                 processedGradeItems)

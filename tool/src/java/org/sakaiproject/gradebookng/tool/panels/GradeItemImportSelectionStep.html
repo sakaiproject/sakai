@@ -29,15 +29,15 @@
                   </span>
                     </td>
                 </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <input type="submit" value="submit" />
-                    </td>
-                </tr>
             </table>
         </span>
+        <div><wicket:message key="importExport.selection.details" /></div>
+        <div class="act">
+            <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
+            <input type="submit" wicket:id="nextbutton" wicket:message="value:importExport.button.next"/>
+        </div>
     </form>
 
-    <div><wicket:message key="importExport.selection.details" /></div>
+
 
 </wicket:panel>

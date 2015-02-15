@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
@@ -38,6 +39,18 @@ public class GradeImportConfirmationStep extends Panel {
             }
         };
         add(form);
+
+        form.add(new Button("finishbutton"));
+
+        Button cancel = new Button("backbutton"){
+            public void onSubmit() {
+                    info("Back was pressed!");
+//                setResponsePage(new GradebookPage());
+            }
+        };
+        cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
+
 //        form.add(group);
 //        group.add(new CheckGroupSelector("groupselector"));
 
