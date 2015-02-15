@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebookng.tool.panels;
+package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;

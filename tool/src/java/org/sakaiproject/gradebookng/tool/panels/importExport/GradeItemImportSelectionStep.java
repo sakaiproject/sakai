@@ -1,4 +1,4 @@
-package org.sakaiproject.gradebookng.tool.panels;
+package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;

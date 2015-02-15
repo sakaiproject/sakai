@@ -2,7 +2,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 
 import org.apache.log4j.Logger;
-import org.sakaiproject.gradebookng.tool.panels.GradeImportUploadStep;
+import org.sakaiproject.gradebookng.tool.panels.importExport.GradeImportUploadStep;
 
 /**
  * Import Export page
