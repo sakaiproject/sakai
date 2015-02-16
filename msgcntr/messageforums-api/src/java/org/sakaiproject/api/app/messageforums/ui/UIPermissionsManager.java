@@ -55,12 +55,32 @@ public interface UIPermissionsManager
    * @return
    */
   public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum);
+  
+  /**
+   * 
+   * @param topic
+   * @param forum
+   * @param userId
+   * @param contextId
+   * @return
+   */
+  public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId);
 
   /**
    * @param topic
    * @return
    */
   public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum);
+  
+  /**
+   * 
+   * @param topic
+   * @param forum
+   * @param userId
+   * @param contextId
+   * @return
+   */
+  public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId);
 
   /**
    * @param topic
@@ -105,6 +125,16 @@ public interface UIPermissionsManager
    * @return
    */
   public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum);
+  
+  /**
+   * 
+   * @param topic
+   * @param forum
+   * @param userId
+   * @param contextId
+   * @return
+   */
+  public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId);
 
   /**
    * @param topic
@@ -113,16 +143,46 @@ public interface UIPermissionsManager
   public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum);
 
   /**
+   * 
+   * @param topic
+   * @param forum
+   * @param userId
+   * @param contextId
+   * @return
+   */
+  public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId);
+  
+  /**
    * @param topic
    * @return
    */
   public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum);
+  
+  /**
+   * 
+   * @param topic
+   * @param forum
+   * @param userId
+   * @param contextId
+   * @return
+   */
+  public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId);
 
   /**
    * @param topic
    * @return
    */
   public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum);
+  
+  /**
+   * 
+   * @param topic
+   * @param forum
+   * @param userId
+   * @param contextId
+   * @return
+   */
+  public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId);
 
   /**
    * @param topic

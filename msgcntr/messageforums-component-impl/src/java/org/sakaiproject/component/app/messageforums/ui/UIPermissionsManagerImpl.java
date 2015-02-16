@@ -295,6 +295,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum)
   {
+	  return isNewResponse(topic, forum, getCurrentUserId(), getContextId());
+  }
+  
+  public boolean isNewResponse(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isNewResponse(DiscussionTopic " + topic + "), DiscussionForum"
@@ -303,11 +307,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     try
     {
-      if (checkBaseConditions(topic, forum))
+      if (checkBaseConditions(topic, forum, userId, contextId))
       {
         return true;
       }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -337,6 +341,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
   public boolean isNewResponseToResponse(DiscussionTopic topic,
       DiscussionForum forum)
   {
+	return isNewResponseToResponse(topic, forum, getCurrentUserId(), getContextId());
+  }
+  
+  public boolean isNewResponseToResponse(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId)
+		  {
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isNewResponseToResponse(DiscussionTopic " + topic
@@ -345,11 +354,11 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 
     try
     {
-      if (checkBaseConditions(topic, forum))
+      if (checkBaseConditions(topic, forum, userId, contextId))
       {
         return true;
       }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -591,6 +600,10 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum)
   {
+	  return isReviseAny(topic, forum, getCurrentUserId(), getContextId());
+  }
+  
+  public boolean isReviseAny(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isReviseAny(DiscussionTopic " + topic + ", DiscussionForum"
@@ -598,7 +611,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     }
     try
     {
-      if (checkBaseConditions(topic, forum))
+      if (checkBaseConditions(topic, forum, userId, contextId))
       {
         return true;
       }
@@ -611,7 +624,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -640,18 +653,22 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum)
   {
+	  return isReviseOwn(topic, forum, getCurrentUserId(), getContextId());	  
+  }
+  
+  public boolean isReviseOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isReviseOwn(DiscussionTopic " + topic + ", DiscussionForum"
           + forum + ")");
     }
-    if (checkBaseConditions(topic, forum))
+    if (checkBaseConditions(topic, forum, userId, contextId))
     {
       return true;
     }
     try
     {
-      if (checkBaseConditions(topic, forum))
+      if (checkBaseConditions(topic, forum,  userId, contextId))
       {
         return true;
       }
@@ -665,7 +682,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -694,18 +711,22 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum)
   {
+	return isDeleteAny(topic, forum, getCurrentUserId(), getContextId());
+  }
+  
+  public boolean isDeleteAny(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isDeleteAny(DiscussionTopic " + topic + ", DiscussionForum"
           + forum + ")");
     }
-    if (checkBaseConditions(topic, forum))
+    if (checkBaseConditions(topic, forum, userId, contextId))
     {
       return true;
     }
     try
     {
-      if (checkBaseConditions(topic, forum))
+      if (checkBaseConditions(topic, forum, userId, contextId))
       {
         return true;
       }
@@ -718,7 +739,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
@@ -747,18 +768,22 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
    */
   public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum)
   {
+	  return isDeleteOwn(topic, forum, getCurrentUserId(), getContextId());
+  }
+  
+  public boolean isDeleteOwn(DiscussionTopic topic, DiscussionForum forum, String userId, String contextId){
     if (LOG.isDebugEnabled())
     {
       LOG.debug("isDeleteOwn(DiscussionTopic " + topic + ", DiscussionForum"
           + forum + ")");
     }
-    if (checkBaseConditions(topic, forum))
+    if (checkBaseConditions(topic, forum, userId, contextId))
     {
       return true;
     }
     try
     {
-      if (checkBaseConditions(topic, forum))
+      if (checkBaseConditions(topic, forum, userId, contextId))
       {
         return true;
       }
@@ -771,7 +796,7 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
     {
       LOG.debug("This topic is at draft stage " + topic);
     }
-      Iterator iter = getTopicItemsByCurrentUser(topic);
+      Iterator iter = getTopicItemsByUser(topic, userId, contextId);
       while (iter.hasNext())
       {
         DBMembershipItem item = (DBMembershipItem) iter.next();
