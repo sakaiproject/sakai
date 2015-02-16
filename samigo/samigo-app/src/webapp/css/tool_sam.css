@@ -341,7 +341,7 @@ table.noBorder td {
 	width: 40%;
 	padding: 12px;
 }
-#samigo-create-new h4 {
+#samigo-create-container h4 {
 	margin: 0 0 8px;
 }
 #samigo-create-or {
@@ -1043,4 +1043,9 @@ td.releaseTo div.alertMessage {
     font-size: inherit !important;
     line-height: inherit !important;
     font-family: inherit !important;
+}
+
+ul.no-list {
+    list-style-type: none;
+    padding-left: 4px;
 }

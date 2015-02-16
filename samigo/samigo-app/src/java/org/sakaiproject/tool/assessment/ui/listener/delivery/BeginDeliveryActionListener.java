@@ -344,7 +344,7 @@ public class BeginDeliveryActionListener implements ActionListener
     	delivery.setHasTimeLimit(true);
     	delivery.setTimerId((new Date()).getTime()+"");
 
-    	if (unSubmittedAssessmentGrading == null) {
+    	if (unSubmittedAssessmentGrading == null || unSubmittedAssessmentGrading.getAttemptDate() == null) {
     		try {
     			if (control.getTimeLimit() != null) {
     				delivery.setTimeLimit(control.getTimeLimit().toString());

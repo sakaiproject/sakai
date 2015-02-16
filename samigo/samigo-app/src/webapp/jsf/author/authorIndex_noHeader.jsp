@@ -197,10 +197,15 @@ $(document).ready(function() {
     	</div>
 
     	<div>
-			<h:selectOneRadio layout="pageDirection" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}">
+			<t:selectOneRadio layout="spread" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}">
 		      <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
 		      <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
-		    </h:selectOneRadio>
+		    </t:selectOneRadio>
+			<!-- SAM-2487 mark them up manually -->
+			<ul id="creationMode" class="no-list">
+			  <li><t:radio for="creationMode" index="0" /></li>
+			  <li><t:radio for="creationMode" index="1" /></li>
+			</ul>
     	</div>
 
   		<div>
@@ -224,9 +229,9 @@ $(document).ready(function() {
 
  <div id="samigo-create-import">
 	  <div>
-		<span class="new_assessment">
+		<h4>
       		<h:outputText value="#{authorFrontDoorMessages.assessment_import}" rendered="#{authorization.createAssessment}"/>
-		</span>
+		</h4>
     <h:commandButton id="import" value="#{authorFrontDoorMessages.button_import}" immediate="true" type="submit" 
       rendered="#{authorization.createAssessment}" action="importAssessment">
     </h:commandButton>
