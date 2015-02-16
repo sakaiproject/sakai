@@ -6,14 +6,18 @@
 
     <div>
         <p><wicket:message key="importExport.template.description" /></p>
-        <p>
+        <ul class="exportToolbar">
+          <li>
             <a class="button" wicket:id="downloadBlankTemplate" wicket:message="title:importExport.template.button.blankTemplate">
                 <wicket:message key="importExport.template.button.blankTemplate" />
-            </a> 
+            </a>
+          </li>
+          <li>
             <a class="button" wicket:id="downloadFullGradebook" wicket:message="title:importExport.template.button.fullGradebook">
                 <wicket:message key="importExport.template.button.fullGradebook" />
             </a>
-        </p>
+          </li>
+        </ul>
     </div>
 
     <div>
