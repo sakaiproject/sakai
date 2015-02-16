@@ -201,12 +201,12 @@ $(document).ready(function() {
     	</div>
 
     	<div>
-			<h:selectOneRadio layout="spread" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}">
+			<h:selectOneRadio id="creationMode" layout="spread" value="#{author.assessCreationMode}" rendered="#{samLiteBean.visible}">
 		      <f:selectItem itemValue="1" itemLabel="#{authorFrontDoorMessages.assessmentBuild}" />
 		      <f:selectItem itemValue="2" itemLabel="#{authorFrontDoorMessages.markupText}" />
 		    </h:selectOneRadio>
 			<!-- SAM-2487 mark them up manually -->
-			<ul id="creationMode" class="no-list">
+			<ul class="creation-mode-list no-list">
 			  <li><t:radio for="creationMode" index="0" /></li>
 			  <li><t:radio for="creationMode" index="1" /></li>
 			</ul>
