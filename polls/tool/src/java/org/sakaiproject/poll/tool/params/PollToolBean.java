@@ -146,7 +146,7 @@ public class PollToolBean {
 			//check for possible unchanged values
 			LOG.debug(" newPoll is " + poll.getText()+ " while poll text is " + poll.getText());
 			
-			
+
 			if (poll.getText().equals("") && poll.getText()!=null)
 				poll.setText(poll.getText());
 
@@ -204,6 +204,17 @@ public class PollToolBean {
 			}
 		}
 
+	}
+
+	public void processActionResetVotes() {
+
+		for (Long pollId : deleteids) {
+			Poll poll = manager.getPollById(pollId);
+			List<Vote> votes = pollVoteManager.getAllVotesForPoll(poll);
+			if (manager.userCanDeletePoll(poll)){
+				pollVoteManager.deleteAll(votes);
+			}
+		}
 	}
 
 	public VoteCollection processActionVote() {

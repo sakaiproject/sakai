@@ -211,4 +211,5 @@ public class ExternalLogicStubb implements ExternalLogic {
     public void registerStatement(String pollText, boolean newPoll) {
         // TODO Auto-generated method stub
     }
+
 }
