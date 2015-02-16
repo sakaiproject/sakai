@@ -5,7 +5,7 @@ import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 /**
  * Entity Provider for samigo PublishedAssessments
  * 
- * @author Joshua Ryan  josh@asu.edu  alt^I
+ * @author Charles Hedrick hedrick@rutgers.edu
  *
  */
 public interface CoreAssessmentEntityProvider extends EntityProvider {

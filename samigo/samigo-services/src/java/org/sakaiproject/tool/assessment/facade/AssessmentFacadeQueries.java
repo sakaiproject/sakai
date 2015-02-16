@@ -93,6 +93,7 @@ import org.sakaiproject.tool.assessment.qti.constants.AuthoringConstantStrings;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.HibernateQueryException;
@@ -1843,7 +1844,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			AssessmentData new_a = prepareAssessment(a,
 					ServerConfigurationService.getServerUrl(), toContext);
 			newList.add(new_a);
-			assessmentMap.put(new_a, "sam_core/" + a.getAssessmentBaseId());
+			assessmentMap.put(new_a, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + a.getAssessmentBaseId());
 		}
 		getHibernateTemplate().saveOrUpdateAll(newList); // write
 		// authorization
@@ -1884,7 +1885,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		for (AssessmentData data: newList) {
 		    String oldRef = assessmentMap.get(data);
 		    if (oldRef != null && data.getAssessmentBaseId() != null)
-			transversalMap.put(oldRef, "sam_core/" + data.getAssessmentBaseId());
+			transversalMap.put(oldRef, CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentBaseId());
 		}
 
 	}

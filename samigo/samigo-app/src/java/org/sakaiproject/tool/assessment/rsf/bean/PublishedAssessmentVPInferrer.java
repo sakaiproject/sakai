@@ -2,6 +2,7 @@ package org.sakaiproject.tool.assessment.rsf.bean;
 
 import org.sakaiproject.entitybroker.IdEntityReference;
 import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
+import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
 import org.sakaiproject.tool.assessment.rsf.params.BeginAssessmentViewParameters;
 import org.sakaiproject.tool.assessment.rsf.producers.BeginAssessmentProducer;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
@@ -24,13 +25,13 @@ public class PublishedAssessmentVPInferrer implements EntityViewParamsInferrer {
   }
 
   public String[] getHandledPrefixes() {
-      return new String[] {PublishedAssessmentEntityProvider.ENTITY_PREFIX, "sam_core"};
+      return new String[] {PublishedAssessmentEntityProvider.ENTITY_PREFIX, CoreAssessmentEntityProvider.ENTITY_PREFIX};
   }
 
   public ViewParameters inferDefaultViewParameters(String reference) {
     BeginAssessmentViewParameters params = new BeginAssessmentViewParameters();
     IdEntityReference ep = new IdEntityReference(reference);
-    if (reference.startsWith("/sam_core/")) {
+    if (reference.startsWith("/" + CoreAssessmentEntityProvider.ENTITY_PREFIX + "/")) {
 	Long id = null;
 	Long publishedId = null;
 	if (ep.id != null) {

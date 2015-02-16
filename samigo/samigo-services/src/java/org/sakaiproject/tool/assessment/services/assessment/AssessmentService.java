@@ -79,6 +79,9 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
+import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
+
 import org.sakaiproject.tool.cover.ToolManager;
 
 /**
@@ -1001,8 +1004,8 @@ public class AssessmentService {
 			for (PublishedAssessmentFacade facade: publist) {
 			    PublishedAssessmentData data = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().loadPublishedAssessment(facade.getPublishedAssessmentId());
 			    if (data != null) {
-				String oldRef = "sam_pub/" + data.getPublishedAssessmentId();
-				String oldCore = "sam_core/" + data.getAssessmentId();
+				String oldRef = PublishedAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getPublishedAssessmentId();
+				String oldCore = CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentId();
 				String newCore = transversalMap.get(oldCore);
 				if (oldRef != null && newCore != null)
 				    transversalMap.put(oldRef, newCore);

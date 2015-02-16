@@ -42,11 +42,13 @@ import java.lang.IllegalStateException;
 
 
 /**
- * Entity Provider impl for samigo PublishedAssessments
+ * Entity Provider impl for samigo core Assessments.
  * 
- * Implements PropertyProvideable to allow things to browse the entities provided by site
- * 
- * @author Joshua Ryan  josh@asu.edu  alt^I
+ * References to /direct/sam_core/NNN are mapped into the most recent published
+ * assessment based on the specified core assessment. The mapping is done by
+ * PublishedAssessmentVPInferrer. This is a minimal implementation. It is not browsable.
+ *
+ * @author Charles Hedrick hedrick@rutgers.edu
  *
  */
 public class CoreAssessmentEntityProviderImpl implements CoreAssessmentEntityProvider,
@@ -57,7 +59,7 @@ public class CoreAssessmentEntityProviderImpl implements CoreAssessmentEntityPro
   private PublishedAssessmentFacadeQueriesAPI publishedAssessmentFacadeQueries;
   private SecurityService securityService;
   private GradingServiceAPI gradingService = null;
-  public final static String ENTITY_PREFIX = "sam_core";
+  public final static String ENTITY_PREFIX = CoreAssessmentEntityProvider.ENTITY_PREFIX;
   
   public String getEntityPrefix() {
       return ENTITY_PREFIX;
