@@ -6,6 +6,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 
@@ -47,36 +48,47 @@ public class GradeImportConfirmationStep extends Panel {
         List<ProcessedGradeItem> itemsToCreate = filterListByStatus(processedGradeItems,
                 Arrays.asList(new Integer[] {ProcessedGradeItem.STATUS_NEW}));
 
-        ListView<ProcessedGradeItem> updateList = new ListView<ProcessedGradeItem>("grades_update", itemsToUpdate)
-        {
-            /**
-             * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
-             */
-            @Override
-            protected void populateItem(ListItem<ProcessedGradeItem> item)
-            {
-                item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
-            }
+        final boolean hasItemsToUpdate = !itemsToUpdate.isEmpty();
+        WebMarkupContainer gradesUpdateContainer = new WebMarkupContainer ("grades_update_container") {
+            public boolean isVisible() { return hasItemsToUpdate; }
         };
+        add(gradesUpdateContainer);
 
-        updateList.setReuseItems(true);
-        add(updateList);
-
-        ListView<ProcessedGradeItem> createList = new ListView<ProcessedGradeItem>("grades_create", itemsToCreate)
-        {
-            /**
-             * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
-             */
-            @Override
-            protected void populateItem(ListItem<ProcessedGradeItem> item)
-            {
+        if (hasItemsToUpdate) {
+            ListView<ProcessedGradeItem> updateList = new ListView<ProcessedGradeItem>("grades_update", itemsToUpdate) {
+              /**
+               * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
+               */
+              @Override
+              protected void populateItem(ListItem<ProcessedGradeItem> item) {
                 item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
-            }
+              }
+            };
+  
+            updateList.setReuseItems(true);
+            gradesUpdateContainer.add(updateList);
+        }
+
+        final boolean hasItemsToCreate = !itemsToCreate.isEmpty();
+        WebMarkupContainer gradesCreateContainer = new WebMarkupContainer ("grades_create_container") {
+            public boolean isVisible() { return hasItemsToCreate; }
         };
+        add(gradesCreateContainer);
 
-        createList.setReuseItems(true);
-        add(createList);
-
+        if (hasItemsToCreate) {
+            ListView<ProcessedGradeItem> createList = new ListView<ProcessedGradeItem>("grades_create", itemsToCreate) {
+              /**
+               * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
+               */
+              @Override
+              protected void populateItem(ListItem<ProcessedGradeItem> item) {
+                item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
+              }
+            };
+  
+            createList.setReuseItems(true);
+            gradesCreateContainer.add(createList);
+        }
     }
 
     private List<ProcessedGradeItem> filterListByStatus(List<ProcessedGradeItem> gradeList, List<Integer> statuses) {

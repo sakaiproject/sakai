@@ -1,34 +1,35 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
 
-    <div><wicket:message key="importExport.page.description" /></div>
+    <h2><wicket:message key="importExport.import.heading" /></h2>
+
+    <p><wicket:message key="importExport.import.description" /></p>
 
     <div>
-        <div><wicket:message key="importExport.step1.heading" /></div>
-        <div><wicket:message key="importExport.step1.description" /></div>
-        <div>
-            <a wicket:id="downloadBlankTemplate" wicket:message="title:importExport.step1.button.blankTemplate">
-                <wicket:message key="importExport.step1.button.blankTemplate" />
+        <p><wicket:message key="importExport.template.description" /></p>
+        <ul class="exportToolbar">
+          <li>
+            <a class="button" wicket:id="downloadBlankTemplate" wicket:message="title:importExport.template.button.blankTemplate">
+                <wicket:message key="importExport.template.button.blankTemplate" />
             </a>
-            <a wicket:id="downloadFullGradebook" wicket:message="title:importExport.step1.button.fullGradebook">
-                <wicket:message key="importExport.step1.button.fullGradebook" />
+          </li>
+          <li>
+            <a class="button" wicket:id="downloadFullGradebook" wicket:message="title:importExport.template.button.fullGradebook">
+                <wicket:message key="importExport.template.button.fullGradebook" />
             </a>
-        </div>
+          </li>
+        </ul>
     </div>
 
     <div>
-        <div><wicket:message key="importExport.step2.heading" /></div>
-        <div><wicket:message key="importExport.step2.description" /></div>
-    </div>
-    <div>
-        <div><wicket:message key="importExport.step3.heading" /></div>
-        <div><wicket:message key="importExport.step3.description" /></div>
+        <p><wicket:message key="importExport.upload.description" /></p>
 
         <form wicket:id="form">
-
-            <input type="file" wicket:id="upload" />
+            <fieldset>
+              <input type="file" wicket:id="upload" />
+            </fieldset>
 
             <div class="act">
-                <input type="submit" />
+                <input class="active" type="submit" />
             </div>
         </form>
 
