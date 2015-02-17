@@ -31,6 +31,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -65,9 +66,12 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIf
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
+import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacadeQueriesAPI;
+import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueries;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.SectionFacade;
@@ -75,6 +79,9 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
+import org.sakaiproject.tool.assessment.entity.api.CoreAssessmentEntityProvider;
+import org.sakaiproject.tool.assessment.entity.api.PublishedAssessmentEntityProvider;
+
 import org.sakaiproject.tool.cover.ToolManager;
 
 /**
@@ -987,10 +994,24 @@ public class AssessmentService {
 
 	} // escapeResourceName
 	
-	public void copyAllAssessments(String fromContext, String toContext) {
+	public void copyAllAssessments(String fromContext, String toContext, Map<String, String>transversalMap) {
 		try {
 			PersistenceService.getInstance().getAssessmentFacadeQueries()
-					.copyAllAssessments(fromContext, toContext);
+				.copyAllAssessments(fromContext, toContext, transversalMap);
+			List<PublishedAssessmentFacade> publist =
+			    PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+			    .getBasicInfoOfAllPublishedAssessments(PublishedAssessmentFacadeQueries.DUE, true, fromContext);
+			for (PublishedAssessmentFacade facade: publist) {
+			    PublishedAssessmentData data = PersistenceService.getInstance().getPublishedAssessmentFacadeQueries().loadPublishedAssessment(facade.getPublishedAssessmentId());
+			    if (data != null) {
+				String oldRef = PublishedAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getPublishedAssessmentId();
+				String oldCore = CoreAssessmentEntityProvider.ENTITY_PREFIX + "/" + data.getAssessmentId();
+				String newCore = transversalMap.get(oldCore);
+				if (oldRef != null && newCore != null)
+				    transversalMap.put(oldRef, newCore);
+			    }
+			}
+
 		} catch (Exception e) {
 			log.error(e.getMessage());
 			throw new RuntimeException(e);

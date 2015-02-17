@@ -87,10 +87,11 @@ public class AssessmentEntityProducer implements EntityTransferrer,
         public Map<String, String> transferCopyEntitiesRefMigrator(String fromContext, String toContext, List resourceIds)
 	{
 		AssessmentService service = new AssessmentService();
-		service.copyAllAssessments(fromContext, toContext);
+		Map<String, String> transversalMap = new HashMap<String, String>();
+		service.copyAllAssessments(fromContext, toContext, transversalMap);
 		
 		// At a minimum, we need to remap all the attachment URLs to point to the new site
-		Map<String, String> transversalMap = new HashMap<String, String>();
+
 		transversalMap.put("/content/attachment/" + fromContext + "/", "/content/attachment/" + toContext + "/");
 		return transversalMap;
 	}
