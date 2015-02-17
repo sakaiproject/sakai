@@ -3726,13 +3726,20 @@ public class DeliveryBean
 				  
 				  if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() || 
 						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
-						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue()) {
-
+						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue() ||
+						  item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()) {
 					  item.setUnanswered(true);
-					  for (int k=0; k<item.getSelectionArray().size(); k++) {
-						  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
-						  //selection.setResponse(false);
-						  selection.setResponseFromCleanRadioButton();
+					  if(item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()){
+						  for (int k=0; k<item.getMatrixArray().size(); k++) {
+							  MatrixSurveyBean selection = (MatrixSurveyBean)item.getMatrixArray().get(k);
+							  selection.setResponseFromCleanRadioButton();
+						  }
+					  }else{
+						  for (int k=0; k<item.getSelectionArray().size(); k++) {
+							  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
+							  //selection.setResponse(false);
+							  selection.setResponseFromCleanRadioButton();
+						  }
 					  }
 					  
 					  ArrayList itemGradingData = new ArrayList();
