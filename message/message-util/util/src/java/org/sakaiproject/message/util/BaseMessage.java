@@ -1092,8 +1092,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 						M_log.debug("Site not found for " + context + " " + e.getMessage());
 					}
 
-					//If the user is not an instructor then move on to the next one
-					if (!isUserInstructor(userId, site)){
+					if (!canSeeAllGroups(userId, site)){
 						continue;	
 					}
 				}
@@ -1186,9 +1185,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		return rv;
 	}
 	
-	private boolean isUserInstructor(String userId, Site site){
+	protected boolean canSeeAllGroups(String userId, Site site){
 		if(site != null && site.getMember(userId) != null){
-			if(m_securityService.unlock(userId, "site.upd", m_siteService.siteReference(site.getId()))){
+			if(m_securityService.unlock(userId, eventId(SECURE_ALL_GROUPS), m_siteService.siteReference(site.getId()))){
 				return true;
 			}
 		}
