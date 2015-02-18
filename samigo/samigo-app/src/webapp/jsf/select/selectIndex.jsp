@@ -122,28 +122,7 @@ sorting actions for table:
     var="takeable" styleClass="listHier" summary="#{selectIndexMessages.sum_availableAssessment}">
     <h:column>
       <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{selectIndexMessages.t_sortTitle}" id="taketitle1" rendered="#{select.takeableSortOrder!='title'}" onmouseup="disableLinks(this);">
-          <f:param name="takeableSortType" value="title" />
-          <f:param name="takeAscending" value="true" />
-          <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:outputText  value="#{selectIndexMessages.title} "  rendered="#{select.takeableSortOrder!='title'}" />
-        </h:commandLink>
-          <h:outputText  value="#{selectIndexMessages.title} " styleClass="currentSort" rendered="#{select.takeableSortOrder=='title'}" />
-          <h:commandLink title="#{selectIndexMessages.t_sortTitle}" id="taketitle2" rendered="#{select.takeableSortOrder=='title' && select.takeableAscending }" onmouseup="disableLinks(this);">
-           <f:param name="takeAscending" value="false" />
-           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-             <h:graphicImage alt="#{selectIndexMessages.alt_sortTitleDescending}" rendered="#{select.takeableAscending}" url="/images/sortascending.gif"/>
-          </h:commandLink>
-          <h:commandLink title="#{selectIndexMessages.t_sortTitle}" id="taketitle3" rendered="#{select.takeableSortOrder=='title'&& !select.takeableAscending }" onmouseup="disableLinks(this);">
-           <f:param name="takeAscending" value="true" />
-           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-           <h:graphicImage alt="#{selectIndexMessages.alt_sortTitleAscending}" rendered="#{!select.takeableAscending}" url="/images/sortdescending.gif"/>
-          </h:commandLink>
-       </h:panelGroup>
+          <h:outputText  value="#{selectIndexMessages.title} " />
       </f:facet>
 
       <h:commandLink title="#{selectIndexMessages.t_takeAssessment}" id="takeAssessment" action="beginAssessment" onmouseup="disableLinks(this);">
@@ -153,15 +132,12 @@ sorting actions for table:
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <h:outputText value="#{takeable.assessmentTitle}" escape="false"/>
       </h:commandLink>
-	  <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
       <h:outputText value="#{selectIndexMessages.assessment_updated_need_resubmit}" rendered="#{takeable.assessmentUpdatedNeedResubmit}" styleClass="validate" />	
       <h:outputText value="#{selectIndexMessages.assessment_updated}" rendered="#{takeable.assessmentUpdated}" styleClass="validate" />		
     </h:column>
     <h:column>
       <f:facet name="header">
-        <h:panelGroup>
-          <h:outputText value="#{selectIndexMessages.t_time_limit} " styleClass="currentSort"  />
-        </h:panelGroup>
+          <h:outputText value="#{selectIndexMessages.t_time_limit} " />
       </f:facet>
 	
 	<h:outputText value="#{takeable.timeLimit_hour} #{selectIndexMessages.hour} #{takeable.timeLimit_minute} #{selectIndexMessages.minutes}" styleClass="currentSort"  rendered="#{takeable.timeLimit_hour != 0 && takeable.timeLimit_minute != 0}"  escape="false"/>
@@ -172,28 +148,7 @@ sorting actions for table:
    </h:column>
     <h:column>
       <f:facet name="header">
-       <h:panelGroup>
-        <h:commandLink title="#{selectIndexMessages.t_sortDueDate}" id="takedue1" rendered="#{select.takeableSortOrder!='due'}" onmouseup="disableLinks(this);">
-          <f:param name="takeableSortType" value="due" />
-          <f:param name="takeAscending" value="true" />
-          <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:outputText value="#{selectIndexMessages.date_due} " rendered="#{select.takeableSortOrder!='due'}" />
-        </h:commandLink>
-        <h:outputText value="#{selectIndexMessages.date_due} " styleClass="currentSort" rendered="#{select.takeableSortOrder=='due'}" />
-        <h:commandLink title="#{selectIndexMessages.t_sortDueDate}" id="takedue2" rendered="#{select.takeableSortOrder=='due' && select.takeableAscending }" onmouseup="disableLinks(this);">
-          <f:param name="takeAscending" value="false" />
-          <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:graphicImage alt="#{selectIndexMessages.alt_sortDueDateDescending}" rendered="#{select.takeableAscending}" url="/images/sortascending.gif"/>
-        </h:commandLink>
-        <h:commandLink title="#{selectIndexMessages.t_sortDueDate}" id="takedue3" rendered="#{select.takeableSortOrder=='due'&& !select.takeableAscending }" onmouseup="disableLinks(this);">
-           <f:param name="takeAscending" value="true" />
-           <f:actionListener
-             type="org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener" />
-          <h:graphicImage alt="#{selectIndexMessages.alt_sortDueDateAscending}" rendered="#{!select.takeableAscending}" url="/images/sortdescending.gif"/>
-        </h:commandLink>
-       </h:panelGroup>
+          <h:outputText value="#{selectIndexMessages.date_due} " />
       </f:facet>
       <h:outputText value="#{selectIndexMessages.na}" rendered="#{takeable.dueDate == null}" />
       <h:outputText value="#{takeable.dueDateString}" style="color: red;" rendered="#{takeable.pastDue}">
@@ -322,7 +277,7 @@ sorting actions for table:
     <h:column>
       <f:facet name="header">
         <h:panelGroup>
-          <h:outputText value="#{selectIndexMessages.feedback_date}" styleClass="currentSort"  />
+          <h:outputText value="#{selectIndexMessages.feedback_date}" />
         </h:panelGroup>
       </f:facet>
 
