@@ -6910,8 +6910,14 @@ public class SimplePageBean {
 				index = "index.htm";
 			}
 
-			// Test for Camtasia
+			// Test for Camtasia < 9
 			ce = cc.getMember(contentCollectionId + "ProductionInfo.xml");
+			if (ce != null) {
+				index = name + ".html";
+			}
+
+			// Test for Camtasia 9
+			ce = cc.getMember(contentCollectionId + name + "_player.html");
 			if (ce != null) {
 				index = name + ".html";
 			}
