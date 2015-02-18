@@ -115,7 +115,7 @@ sorting actions for table:
   <div class="tier2">
   <h:dataTable cellpadding="0" cellspacing="0" id="selectTable" value="#{select.takeableAssessments}"
     var="takeable" styleClass="listHier" summary="#{selectIndexMessages.sum_availableAssessment}">
-    <h:column>
+    <h:column headerClass="assessmentTitleHeader">
       <f:facet name="header">
           <h:outputText  value="#{selectIndexMessages.title} " />
       </f:facet>
@@ -127,11 +127,10 @@ sorting actions for table:
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <h:outputText value="#{takeable.assessmentTitle}" escape="false"/>
       </h:commandLink>
-	  <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
       <h:outputText value="#{selectIndexMessages.assessment_updated_need_resubmit}" rendered="#{takeable.assessmentUpdatedNeedResubmit}" styleClass="validate" />	
       <h:outputText value="#{selectIndexMessages.assessment_updated}" rendered="#{takeable.assessmentUpdated}" styleClass="validate" />		
     </h:column>
-    <h:column>
+    <h:column headerClass="assessmentTimeLimitHeader">
       <f:facet name="header">
         <h:panelGroup>
           <h:outputText value="#{selectIndexMessages.t_time_limit} " styleClass="currentSort"  />
@@ -144,7 +143,7 @@ sorting actions for table:
 	<h:outputText value="#{selectIndexMessages.na}" styleClass="currentSort"  rendered="#{takeable.timeLimit_hour == 0 && takeable.timeLimit_minute == 0}"  escape="false"/>
 	
    </h:column>
-    <h:column>
+    <h:column headerClass="assessmentDueDateHeader">
       <f:facet name="header">
         <h:outputText value="#{selectIndexMessages.date_due} " />
       </f:facet>

@@ -132,7 +132,6 @@ sorting actions for table:
            type="org.sakaiproject.tool.assessment.ui.listener.delivery.BeginDeliveryActionListener" />
         <h:outputText value="#{takeable.assessmentTitle}" escape="false"/>
       </h:commandLink>
-	  <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
       <h:outputText value="#{selectIndexMessages.assessment_updated_need_resubmit}" rendered="#{takeable.assessmentUpdatedNeedResubmit}" styleClass="validate" />	
       <h:outputText value="#{selectIndexMessages.assessment_updated}" rendered="#{takeable.assessmentUpdated}" styleClass="validate" />		
     </h:column>
