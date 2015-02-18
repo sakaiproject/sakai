@@ -8,6 +8,8 @@
       head += "<link href=\"/samigo-app/css/ui-lightness/jquery-ui-1.7.2.custom.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
       head += org.sakaiproject.portal.util.PortalUtils.includeLatestJQuery("Samigo");
       head += "<script type=\"text/javascript\" src=\"/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js\"></script>\n";
+      head += "<script type=\"text/javascript\" src=\"/library/js/jquery/tablesorter/2.1.17/jquery.tablesorter.min.js\"></script>\n";
+      head += "<link href=\"/library/js/jquery/tablesorter/2.1.17/css/theme.default.css\" type=\"text/css\" rel=\"stylesheet\" media=\"all\" />\n";
       head += "<script type=\"text/javascript\" src=\"/samigo-app/js/samigo-global.js\"></script>\n";
 
       head += "<script type=\"text/javascript\" src=\"/library/js/jquery/qtip/jquery.qtip-latest.min.js\"></script>\n";

@@ -31,7 +31,12 @@ import java.util.TimeZone;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.joda.time.DateTime;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
+import org.joda.time.format.ISODateTimeFormat;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.ResourceLoader;
 /**
  * <p>Description: Time conversion utility class</p>
  */
@@ -145,6 +150,19 @@ public class TimeUtil
     return displayDate;
   }
 
+  /*
+   * SAM-2323: this is useful for simple sorting by jQuery tablesorter plugin
+   * In USA, I expect a date like 2015-02-15 04:00pm
+   * In Sweden, I expect a date like 2015-02-15 16:00
+   */
+  public String getIsoDateWithLocalTime(Date dateToConvert) {
+      DateTime dt = new DateTime(dateToConvert);
+      DateTimeFormatter fmt = ISODateTimeFormat.yearMonthDay();
+      DateTimeFormatter localFmt = fmt.withLocale(new ResourceLoader().getLocale());
+      DateTimeFormatter fmtTime = DateTimeFormat.shortTime();
+      DateTimeFormatter localFmtTime = fmtTime.withLocale(new ResourceLoader().getLocale());
+      return dt.toString(localFmt) + " " + dt.toString(localFmtTime);
+  }
 
 
 }
