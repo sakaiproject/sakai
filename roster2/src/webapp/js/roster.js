@@ -148,7 +148,7 @@
                 $('#roster-roles-selector').change(function (e) {
 
                     if (this.value === 'all') {
-                        roster.groupToView = null;
+                        roster.roleToView = null;
                         roster.renderMembership({ forceOfficialPicture: showOfficialPictures, replace: true });
                     } else {
                         roster.roleToView = this.value;
