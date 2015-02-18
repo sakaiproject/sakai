@@ -191,7 +191,11 @@
 
 
   <!-- 2 TEXT -->
-
+	<div class="multiple_editor">
+		<a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">
+ 	  <h:outputText id="text" value="#{authorMessages.show_editors}"/> 
+	</a>
+	</div>
    <div class="longtext"><h:outputLabel value="#{authorMessages.q_text}" />
 </div>
   <!-- WYSIWYG -->

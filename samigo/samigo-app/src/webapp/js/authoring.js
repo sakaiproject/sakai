@@ -595,4 +595,10 @@ function lockdownGradebook(value) {
 	}
 }
 
-
+function show_multiple_text(show_multiple_link){
+	$('.toggle_link_container a:visible').each(function(){
+		var params=/\(([^)]+)/.exec($(this).attr('href'))[1].replace(/\'/g,'').split(',');
+		show_editor($.trim(params[0]),$.trim(params[1]));
+		});
+	$(show_multiple_link).hide();
+}
