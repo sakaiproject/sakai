@@ -2,7 +2,7 @@
 <script src="dhtmlpopup/dhtmlPopup.js" type="text/javascript"></script>
 <f:view>
 	<div class="portletBody">
-	  <h:form id="gbForm" onsubmit="blockDoubleSubmit();">
+	  <h:form id="gbForm">
 
 		<t:aliasBean alias="#{bean}" value="#{courseGradeDetailsBean}">
 			<%@ include file="/inc/appMenu.jspf"%>
@@ -214,6 +214,7 @@
 				actionListener="#{courseGradeDetailsBean.processUpdateGrades}"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				disabled="#{courseGradeDetailsBean.allStudentsViewOnly}"
+                                onclick="disableButton('', this)"
 				/>
 			<h:commandButton
 				value="#{msgs.assignment_details_cancel}"
@@ -221,6 +222,7 @@
 				immediate="true"
 				rendered="#{!courseGradeDetailsBean.emptyEnrollments}"
 				disabled="#{courseGradeDetailsBean.allStudentsViewOnly}"
+                                onclick="disableButton('', this)"
 				/>
 
 			<h:commandButton
