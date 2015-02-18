@@ -504,8 +504,9 @@ public class SakaiMailet extends GenericMailet
 					    //e.printStackTrace();
 						M_log.warn("IOException: service(): msg.getContent() threw: " + e, e);
 					}
-					
-					mailHeaders.add("List-Id: <"+ channel.getId()+ "."+ serverConfigurationService.getServerName()+ ">");
+
+					mailHeaders.add("List-Id: <"+ channel.getId()+ "."+ channel.getContext()
+							+ "."+ serverConfigurationService.getServerName()+ ">");
 
 					// post the message to the group's channel
 					String body[] = new String[2];
