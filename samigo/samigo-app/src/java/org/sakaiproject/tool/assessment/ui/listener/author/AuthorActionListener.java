@@ -85,8 +85,6 @@ public class AuthorActionListener
   private static Log log = LogFactory.getLog(AuthorActionListener.class);
   private HashMap<String, ArrayList<String>> groupUsersIdMap = new HashMap<String, ArrayList<String>>();
   private ArrayList<String> siteUsersIdList = new ArrayList<String>();
-  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
-  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
   private TimeUtil tu = new TimeUtil();
 
   // UVa, per SAK-2438 
@@ -204,7 +202,7 @@ public class AuthorActionListener
 			AssessmentFacade assessmentFacade= (AssessmentFacade) iter.next();
 			assessmentFacade.setTitle(FormattedText.convertFormattedTextToPlaintext(assessmentFacade.getTitle()));
 			try {
-				String lastModifiedDateDisplay = tu.getDisplayDateTime(displayFormat, assessmentFacade.getLastModifiedDate());
+				String lastModifiedDateDisplay = tu.getIsoDateWithLocalTime(assessmentFacade.getLastModifiedDate());
 				assessmentFacade.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
 			}
 			catch (Exception ex) {
@@ -318,7 +316,7 @@ public class AuthorActionListener
 			  inActiveList.add(f);
 		  }
 		  try {
-				String lastModifiedDateDisplay = tu.getDisplayDateTime(displayFormat, f.getLastModifiedDate());
+				String lastModifiedDateDisplay = tu.getIsoDateWithLocalTime(f.getLastModifiedDate());
 				f.setLastModifiedDateForDisplay(lastModifiedDateDisplay);  
 			}
 			catch (Exception ex) {
