@@ -30,6 +30,7 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.pluto.PortletContainerException;
 import org.apache.pluto.core.PortletContextManager;
 import org.apache.pluto.descriptors.portlet.PortletAppDD;
 import org.apache.pluto.descriptors.portlet.PortletDD;
@@ -61,6 +62,7 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 	 * @see org.apache.pluto.spi.optional.PortletRegistryListener#portletApplicationRegistered(org.apache.pluto.spi.optional.PortletRegistryEvent)
 	 */
 	@SuppressWarnings("unchecked")
+	@Override
 	public void portletApplicationRegistered(PortletRegistryEvent evt)
 	{
 		try
@@ -165,6 +167,26 @@ public class SakaiPortletRegistryListener implements PortletRegistryListener
 	public void init()
 	{
 		registry = PortletContextManager.getManager();
+
+		Iterator<String> ids = registry.getRegisteredPortletApplicationIds();
+		// Portlets may have been registered before we managed to add our listener.
+		while(ids.hasNext())
+		{
+			String id = ids.next();
+			try
+			{
+				PortletAppDD appDD = registry.getPortletApplicationDescriptor(id);
+				PortletRegistryEvent event = new PortletRegistryEvent();
+				event.setApplicationId(id);
+				event.setPortletApplicationDescriptor(appDD);
+				portletApplicationRegistered(event);
+				log.info("Re-registered early portlet: "+ id);
+			}
+			catch (PortletContainerException e)
+			{
+				log.error("Failed to re-register portlet: "+ id, e);
+			}
+		}
 		registry.addPortletRegistryListener(this);
 	}
 
