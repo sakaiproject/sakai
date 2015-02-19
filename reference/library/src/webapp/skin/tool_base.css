@@ -1103,3 +1103,14 @@ span.nil a{
     visibility: visible\9;
     visibility: visible\10;
 }
+
+ul.calendarLegend{
+	padding:10px 0;
+}
+ul.calendarLegend li{
+  list-style: none;
+  width:200px;
+  float:left;
+  margin:3px;
+  line-height: 25px;
+}
