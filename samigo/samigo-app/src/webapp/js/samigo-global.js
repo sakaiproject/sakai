@@ -34,3 +34,13 @@ function chef_setupformattedtextarea(client_id, shouldToggle, frame_id) {
 	sakai.editor.launch(textarea_id,'','450','240');
 	setMainFrameHeight(frame_id);
 }
+
+$( document ).ready(function() {
+  $("#selectIndexForm\\:selectTable").tablesorter({ 
+    theme: 'default', 
+    sortList: [[2,0]],
+    textExtraction: {
+      0: function(node, table, cellIndex) { return $(node).find("a").text(); }
+    }
+  });
+});

@@ -48,7 +48,7 @@ public interface AuthzGroup extends Edit, Comparable, Serializable
 	 * @param userId
 	 *        The user.
 	 * @param roleId
-	 *        The role name.
+	 *        The role name. If no role with this name exists in the group, an IllegalArgumentException will be thrown.
 	 * @param active
 	 *        The active flag.
 	 * @param provided

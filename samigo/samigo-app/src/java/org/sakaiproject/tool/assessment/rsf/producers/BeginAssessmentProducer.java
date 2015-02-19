@@ -98,8 +98,8 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
     }
     else{
       log.warn("Something bad... we have no viewparams");
+      return;
     }
-
 
     //Begin cut and past (with small deviations) from existing LoginServlet that currently does
     //the job of url aliased assessment delivery in Samigo, some of this could possibly be removed
@@ -135,7 +135,14 @@ public class BeginAssessmentProducer implements ViewComponentProducer,
     // 3. If not, goto login.faces
     // both pages will set agentId and then direct user to BeginAssessment
     PublishedAssessmentService service = new PublishedAssessmentService();
-    PublishedAssessmentFacade pub = service.getPublishedAssessment(alias);
+    PublishedAssessmentFacade pub = null;
+    try {
+	pub = service.getPublishedAssessment(alias);
+    } catch (Exception e) {
+	log.warn("Something bad... can't find publisehd assessment " + e);
+	return;
+    }
+
 
     delivery.setAssessmentId(pub.getPublishedAssessmentId().toString());
     delivery.setAssessmentTitle(pub.getTitle());

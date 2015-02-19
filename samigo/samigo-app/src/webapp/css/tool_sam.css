@@ -165,39 +165,11 @@ font-size:1.2em
 }
 
 .titlePending {
-	width: 67%;
+	width: 50%;
 }
 
 .titlePub {
-	width: 30%;
-}
-
-.lastModified {
-	width: 23%;
-}
-
-.releaseTo {
-	width: 11%;
-}
-
-.status {
-	width: 8%;
-}
-
-.inProgress {
-	width: 6%;
-}
-
-.submitted {
-	width: 6%;
-}
-
-.releaseDate {
-	width: 8%;
-}
-
-.dueDate {
-	width: 8%;
+	width: 28%;
 }
 
 .listAssessments th{

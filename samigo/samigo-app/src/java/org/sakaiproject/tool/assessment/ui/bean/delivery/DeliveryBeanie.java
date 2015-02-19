@@ -29,14 +29,9 @@ import java.io.Serializable;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.tool.assessment.ui.bean.util.Validator;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
-
-
-import java.text.SimpleDateFormat;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
-import org.sakaiproject.util.ResourceLoader;
 
 /**
  *
@@ -87,9 +82,6 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
   private boolean multipleSubmissions;
   private String scoringOption;
    
-  private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_date_no_sec");
-  //private String display_dateFormat= "yyyy-MMM-dd hh:mm aaa";
-  private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat, new ResourceLoader().getLocale());
   private boolean hasRandomDrawPart;
   private boolean isAssessmentRetractForEdit;
   private boolean hasAssessmentBeenModified;
@@ -259,12 +251,11 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, feedbackDate);
+      dateString = tu.getIsoDateWithLocalTime(feedbackDate);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      log.warn("Unable to format date.");
-      ex.printStackTrace();
+      log.warn("Unable to format date.", ex);
     }
     return dateString;
   }
@@ -332,13 +323,12 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
     }
 
     try {
-      TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, dueDate);
+    	TimeUtil tu = new TimeUtil();
+    	return tu.getIsoDateWithLocalTime(dueDate);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      log.warn("Unable to format date.");
-      ex.printStackTrace();
+      log.warn("Unable to format date.", ex);
     }
     return dateString;
   }
@@ -414,12 +404,11 @@ private static Log log = LogFactory.getLog(DeliveryBeanie.class);
 
     try {
       TimeUtil tu = new TimeUtil();
-      dateString = tu.getDisplayDateTime(displayFormat, submissionDate);
+      dateString = tu.getIsoDateWithLocalTime(submissionDate);
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      log.warn("Unable to format date.");
-      ex.printStackTrace();
+      log.warn("Unable to format date.", ex);
     }
     return dateString;
   }
