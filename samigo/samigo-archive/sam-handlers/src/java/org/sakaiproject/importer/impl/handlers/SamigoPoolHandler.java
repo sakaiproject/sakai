@@ -89,7 +89,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 		for (int i = 0;i < questionItemsArray.length; i++) {
 			ItemFacade item = (ItemFacade)questionItemsArray[i];
 			item.setSequence(Integer.valueOf(i + 1));
-			qps.addItemToPool(item.getItemIdString(),savedPool.getQuestionPoolId());
+			qps.addItemToPool(item.getItemId(),savedPool.getQuestionPoolId());
 		}
 	}
 	
