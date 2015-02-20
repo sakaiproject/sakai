@@ -16,8 +16,9 @@ $button__border-color: transparent !default;
 $button__border-radius: .1875em !default;
 
 $button--light__color: nth($light-grey, 6) !default;
-$button--dark__color: #999 !default;
-$button__color: $button--light__color !default;
+$button--dark__color: #333 !default;
+$button__color: $button--dark__color !default;
+$button__text-shadow: 0 0 0 !default;
 
 $button__gradient-position: 45deg !default;
 $button__background-color: nth($light-grey, 5) !default;

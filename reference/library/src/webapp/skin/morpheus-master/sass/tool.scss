@@ -1,10 +1,7 @@
-$old-ie-8: false !default;
-$tool-css: true;
-
 @import "theme/warning/_warning";
 
 @import "compass/typography";
-@import "compass/css3"; 
+@import "compass/css3";
 @import 'breakpoint';
 
 @import "partials/_browsers";
@@ -16,13 +13,14 @@ $tool-css: true;
 @import "theme/common/_common_variables";
 @import "_configurations";
 
-@import "layout/breakpoints/_breakpoints";
-
 // Reset 
 @import "normalize";
 @import "formalize";
 
-// Base
+// Breakpoints
+@import "layout/breakpoints/_breakpoints";
+
+// Base Items
 @import "base/icons/_icons";
 @import "base/page/_page";
 @import "base/typography/_typography";
@@ -31,8 +29,35 @@ $tool-css: true;
 @import "base/buttons/_buttons";
 @import "base/webfont/_webfont";
 
-// Modules
-@import "modules/toolbody/_toolbody";
-@import "modules/chat/_chat";
+//@import "base/search/_search";
 
+//@import "modules/pagination/_pagination";
+//@import "modules/controls/_controls";
+//@import "modules/options/_options";
+
+// Modules
+//// Navs
+@import "modules/skipNav/_skipNav";
+@import "modules/loginNav/_loginNav";
+@import "modules/userNav/_userNav";
+@import "modules/sitesNav/_sitesNav";
+@import "modules/toggleNav/_toggleNav";
+@import "modules/toolsNav/_toolsNav";
+
+//// Page Elements
+@import "modules/loginForm/_loginForm";
+@import "modules/loginUser/_loginUser";
+@import "modules/content/_content";
+@import "modules/toolTitleNav/_toolTitleNav";
+@import "modules/toolBody/_toolBody";
+@import "modules/navIntraTool/_navIntraTool";
+@import "modules/footer/_footer";
+
+// Modules
+@import "modules/chat/_chat";
+//// Misc
+@import "modules/feedback/_feedback";
+@import "modules/alerts/_alerts";
+
+// Layout
 @import "layout/portal/_portal";

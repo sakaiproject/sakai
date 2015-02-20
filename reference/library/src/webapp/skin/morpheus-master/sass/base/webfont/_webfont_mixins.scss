@@ -19,14 +19,8 @@
     $font-style-code: 'i';
   }
 
-  // tool iframe doesn't yet have access to the includeStandardHead.vm so no JS file
-  @if $tool-css {
-    font-family: $font-name, $fontstack;
-
-  } @else {
-    // create a class for the html tag
-    .wf-#{$font-name--lowercase}-#{$font-style-code}#{$font-weight-code}-active & {
-      font-family: $font-name;
-    }
+  // create a class for the html tag
+  .wf-#{$font-name--lowercase}-#{$font-style-code}#{$font-weight-code}-active & {
+    font-family: $font-name;
   }
 }
