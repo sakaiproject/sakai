@@ -2568,7 +2568,8 @@ public class AssignmentAction extends PagedResourceActionII
 					context.put("associateGradebookAssignment", associateGradebookAssignment);
 					if (a != null)
 					{
-						context.put("noAddToGradebookChoice", Boolean.valueOf(associateGradebookAssignment.equals(a.getReference())));
+						context.put("noAddToGradebookChoice", 
+								Boolean.valueOf(associateGradebookAssignment.equals(a.getReference()) || g.isAssignmentDefined(gradebookUid, a.getTitle())));
 					}
 				}
 			}
