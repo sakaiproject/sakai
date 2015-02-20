@@ -2759,7 +2759,7 @@ public class MessageForumStatisticsBean {
 		Map<String, Integer> studentTotalCount = new HashMap<String, Integer>();
 		for(Entry<String, Boolean> entry: overridingPermissionMap.entrySet()){
 
-			if ((!forum.getDraft() && forum.getAvailability() && currTopic.getDraft().equals(Boolean.FALSE) && currTopic.getAvailability())
+			if ((!forum.getDraft() && currTopic.getDraft().equals(Boolean.FALSE))
 					|| entry.getValue())
 			{ // this is the start of the big topic if
 				// set the message count for moderated topics, otherwise it will be set later
