@@ -1246,7 +1246,8 @@ public class ItemContentsBean implements Serializable {
 		if (text != null) {
 			//text = text.replaceAll("<.*?>", " ");
 			//text = FormattedText.convertFormattedTextToPlaintext(text);
-			text = FormattedText.stripHtmlFromText(text, true); // SAM-2277
+			//text = FormattedText.stripHtmlFromText(text, true); // SAM-2277
+			text = FormattedText.stripHtmlFromText( text, false, true ).trim(); // SAM-2499
 		}
 		return text;
 
