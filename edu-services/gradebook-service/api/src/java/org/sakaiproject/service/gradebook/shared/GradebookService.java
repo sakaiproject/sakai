@@ -749,23 +749,6 @@ public interface GradebookService {
 	public Map getEnteredCourseGrade(String gradebookUid);
 
 	/**
-	 * Get a Map of auto calculated CourseGrade for students.
-	 * @param gradebookUid
-	 * @return Map of enrollment displayId as key, point as value
-	 * 
-	 */
-	public Map getCalculatedCourseGrade(String gradebookUid);
-
-	/**
-	 * Get a Map of auto calculated CourseGrade for students.
-	 * @param gradebookUid
-	 * @param mapTheGrades Should we map the grades from points to letters?
-	 * @return Map of enrollment displayId as key, point as value
-	 * 
-	 */
-	public Map getCalculatedCourseGrade(String gradebookUid, boolean mapTheGrades);
-	
-	/**
 	 * Get student's assignment's score as string.
 	 * @param gradebookUid
 	 * @param assignmentName
