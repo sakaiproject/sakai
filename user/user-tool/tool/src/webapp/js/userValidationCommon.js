@@ -31,6 +31,7 @@ USER.passwordModerate = false;
 USER.passwordStrong = false;
 USER.passwordsMatch = false;
 USER.isPasswordPolicyEnabled = false;
+USER.lastSentPasswordLength = 0; // SAK-29099
 
 // Get an element by ID
 USER.get = function (id) {
@@ -54,7 +55,7 @@ USER.display = function (element, show) {
             element.style.display = "none";
         }
     }
-}
+};
 
 // Validate the given email address string
 USER.checkEmail = function (email) {
@@ -64,7 +65,7 @@ USER.checkEmail = function (email) {
 
     var simpleRegexForEmail = /\S+@\S+\.\S\S+/;
     return simpleRegexForEmail.test(email);
-}
+};
 
 // Conditionally hide/show the strength info message
 USER.displayStrengthInfo = function () {
@@ -80,10 +81,16 @@ USER.displayStrengthInfo = function () {
 
         USER.display(strengthInfo, showStrengthInfo);
     }
-}
+};
 
 // Make the AJAX call to the validate password REST endpoint
 USER.validatePasswordREST = function (password, username) {
+    
+    // SAK-29099 - password likely hasn't changed, so abort
+    if (password.length === USER.lastSentPasswordLength) {
+        return;
+    }
+    
     jQuery.ajax({
         url: "/direct/user/validatePassword",
         type: "POST",
@@ -107,9 +114,12 @@ USER.validatePasswordREST = function (password, username) {
                 USER.passwordValid = true;
                 USER.passwordStrong = true;
             }
+            
+            // SAK-29099 - track current length of input password
+            USER.lastSentPasswordLength = password.length;
         }
     });
-}
+};
 
 // Display the appropriate messages based on the current password valid and strength status
 USER.displayMessages = function (strongMsg, moderateMsg, weakMsg, failMsg, strengthBar, strengthBarMeter) {
@@ -138,7 +148,7 @@ USER.displayMessages = function (strongMsg, moderateMsg, weakMsg, failMsg, stren
     var showStrengthBar = (USER.passwordStrong || USER.passwordModerate || USER.passwordWeak || !USER.passwordValid);
     USER.display(strengthBar, showStrengthBar);
     USER.display(strengthBarMeter, showStrengthBar);
-}
+};
 
 // Hide all password policy related messages
 USER.hideAllElements = function (strongMsg, moderateMsg, weakMsg, failMsg, strengthInfo, strengthBar, strengthBarMeter) {
@@ -149,4 +159,4 @@ USER.hideAllElements = function (strongMsg, moderateMsg, weakMsg, failMsg, stren
     USER.display(strengthInfo, false);
     USER.display(strengthBar, false);
     USER.display(strengthBarMeter, false);
-}
+};
