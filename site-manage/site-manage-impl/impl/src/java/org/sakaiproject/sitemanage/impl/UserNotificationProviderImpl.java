@@ -61,7 +61,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	 * {@inheritDoc}
 	 */
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
-			User user, String siteTitle) {
+			User user, Site site) {
 		ResourceLoader rb = new ResourceLoader(user.getId(), "UserNotificationProvider");
 		
 		String from = serverConfigurationService.getBoolean(NOTIFY_FROM_CURRENT_USER, false)?
@@ -90,7 +90,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 			buf.append(rb.getString("java.following") + " "
 					+ productionSiteName + " "
 					+ rb.getString("java.simplesite") + "\n");
-			buf.append(siteTitle + "\n");
+			buf.append(site.getTitle() + "\n");
 			buf.append(rb.getString("java.simpleby") + " ");
 			buf.append(userDirectoryService.getCurrentUser().getDisplayName()
 					+ ". \n\n");
@@ -130,7 +130,7 @@ public class UserNotificationProviderImpl implements UserNotificationProvider {
 	 * {@inheritDoc}
 	 */
 	public void notifyNewUserEmail(User user, String newUserPassword,
-			String siteTitle) {
+			Site site) {
 		ResourceLoader rb = new ResourceLoader("UserNotificationProvider");
 		// set the locale to individual receipient's setting
 		rb.setContextLocale(rb.getLocale(user.getId()));
