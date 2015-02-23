@@ -11,3 +11,5 @@
 @include generate-icons($fallback-icon, before, '', 'ico-font-icons');
 
 @include generate-icons($tool-icons, before, '.icon-', 'ico-font-icons');
+
+@include generate-icons($tool-icon-invisible, after, '', 'ico-font-icons');

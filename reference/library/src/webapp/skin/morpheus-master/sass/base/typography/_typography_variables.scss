@@ -31,7 +31,7 @@ $h1__font-weight: false !default; // normal
 $h1__font-style: false !default; // normal
 $h1__text-transform: false !default; // normal
 $h1__font-variant: false !default; // normal
-$h1__font-size: 2.5em !default;
+$h1__font-size: 2.5rem !default;
 $h1__line-height: 1.125em !default;
 $h1__padding: 1em !default;
 $h1__padding--position: top !default;
@@ -46,7 +46,7 @@ $h2__font-weight: false !default; // normal
 $h2__font-style: false !default; // normal
 $h2__text-transform: false !default; // normal
 $h2__font-variant: false !default; // normal
-$h2__font-size: 1.875em !default;
+$h2__font-size: 1.875rem !default;
 $h2__line-height: 1.5em !default;
 $h2__padding: 0.8333em !default;
 $h2__padding--position: top !default;
@@ -61,7 +61,7 @@ $h3__font-weight: false !default; // normal
 $h3__font-style: false !default; // normal
 $h3__text-transform: false !default; // normal
 $h3__font-variant: false !default; // normal
-$h3__font-size: 1.5625em !default;
+$h3__font-size: 1.5625rem !default;
 $h3__line-height: 1.4em !default;
 $h3__padding: 1em !default;
 $h3__padding--position: top !default;
@@ -76,7 +76,7 @@ $h4__font-weight: false !default; // normal
 $h4__font-style: false !default; // normal
 $h4__text-transform: false !default; // normal
 $h4__font-variant: false !default; // normal
-$h4__font-size: 1.25em !default;
+$h4__font-size: 1.25rem !default;
 $h4__line-height: 1.5em !default;
 $h4__padding: 1em !default;
 $h4__padding--position: top !default;
@@ -91,7 +91,7 @@ $h5__font-weight: false !default; // normal
 $h5__font-style: false !default; // normal
 $h5__text-transform: false !default; // normal
 $h5__font-variant: false !default; // normal
-$h5__font-size: 1.125em !default;
+$h5__font-size: 1.125rem !default;
 $h5__line-height: 1.6667em !default;
 $h5__padding: 1.1111em !default;
 $h5__padding--position: top !default;
@@ -138,7 +138,7 @@ $blockquote__font-weight: false !default; // normal
 $blockquote__font-style: true !default; // italic
 $blockquote__text-transform: false !default; // normal
 $blockquote__font-variant: false !default; // normal
-$blockquote__font-size: 1.25em !default;
+$blockquote__font-size: 1.25rem !default;
 $blockquote__line-height: 1.5em !default;
 $blockquote__letter-spacing: 0.05em !default;
 $blockquote__color: #888 !default;
@@ -158,7 +158,7 @@ $figcaption__font-weight: false !default; // normal
 $figcaption__font-style: true !default; // italic
 $figcaption__text-transform: false !default; // normal
 $figcaption__font-variant: false !default; // normal
-$figcaption__font-size: 0.857em !default;
+$figcaption__font-size: 0.857rem !default;
 $figcaption__line-height: 1.4286em !default;
 $figcaption__color: #666 !default;
 /// time
@@ -169,7 +169,7 @@ $time__font-weight: false !default; // normal
 $time__font-style: false !default; // normal
 $time__text-transform: true !default; // uppercase
 $time__font-variant: false !default; // normal
-$time__font-size: 0.75em !default;
+$time__font-size: 0.75rem !default;
 $time__line-height: 1.6667em !default;
 $time__letter-spacing: 0.2em !default;
 $time__color: #888 !default;
