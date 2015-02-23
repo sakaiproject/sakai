@@ -70,7 +70,7 @@ USER.verifyPasswordsMatch = function () {
     }
 
     USER.validateForm();
-}
+};
 
 // Validate the user ID from the form
 USER.validateUserId = function () {
