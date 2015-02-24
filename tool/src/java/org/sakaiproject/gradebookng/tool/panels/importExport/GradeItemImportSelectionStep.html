@@ -1,43 +1,40 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
 
-    <div><wicket:message key="importExport.selection.heading" /></div>
-    <div><wicket:message key="importExport.selection.description" /></div>
-    <div><wicket:message key="importExport.selection.note" /></div>
+    <h2><wicket:message key="importExport.selection.heading" /></h2>
+    <p><wicket:message key="importExport.selection.description" /></p>
+    <p><wicket:message key="importExport.selection.note" /></p>
 
     <form wicket:id="form">
-        <span wicket:id="group">
-            <table style="border: 2px dotted #fc0; width: 400px; padding: 5px;">
-                <tr>
-                    <td valign="top">Select grades</td>
-                    <td>
-                        <input type="checkbox" wicket:id="groupselector">check/uncheck all</input><br/>
-                        <table cellspacing="0" cellpadding="2">
-                            <tr>
-                                <td><b>Select</b></td>
-                                <td><b>Title</b></td>
-                                <td><b>Point Value</b></td>
-                                <td><b>Status</b></td>
-                            </tr>
-                            <tr wicket:id="grades">
-                                <td><input type="checkbox" wicket:id="checkbox"/></td>
-                                <td><span wicket:id="itemTitle">[this is where itemTitle will be]</span></td>
-                                <td><span wicket:id="itemPointValue">[this is where itemPointValue will be]</span></td>
-                                <td><span wicket:id="status">[this is where status will be]</span></td>
-                            </tr>
-                        </table>
-                  <span valign="top">
-                  </span>
-                    </td>
-                </tr>
+        <div wicket:id="group">
+            <table class="table table-striped table-condensed">
+                <thead>
+                    <tr>
+                        <th class="select-toggle">
+                            <label wicket:for="groupselector">check/uncheck all</label>
+                            <input type="checkbox" wicket:id="groupselector"/>
+                        </th>
+                        <th>Title</th>
+                        <th>Point Value</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr wicket:id="grades">
+                        <td><input type="checkbox" wicket:id="checkbox"/></td>
+                        <td><span wicket:id="itemTitle">[this is where itemTitle will be]</span></td>
+                        <td><span wicket:id="itemPointValue">[this is where itemPointValue will be]</span></td>
+                        <td><span wicket:id="status">[this is where status will be]</span></td>
+                    </tr>
+               </tbody>
             </table>
-        </span>
-        <div><wicket:message key="importExport.selection.details" /></div>
-        <div class="act">
-            <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back"/>
-            <input type="submit" wicket:id="nextbutton" wicket:message="value:importExport.button.next"/>
+
+            <p><wicket:message key="importExport.selection.details" /></p>
+
+            <div class="act">
+              <input type="submit" wicket:id="backbutton" wicket:message="value:importExport.button.back" onclick="window.history.back()"/>
+              <input class="active" type="submit" wicket:id="nextbutton" wicket:message="value:importExport.button.next"/>
+            </div>
         </div>
     </form>
-
-
 
 </wicket:panel>
