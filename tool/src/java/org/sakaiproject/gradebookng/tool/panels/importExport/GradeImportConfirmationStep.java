@@ -1,18 +1,19 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -22,9 +23,13 @@ public class GradeImportConfirmationStep extends Panel {
 
     private static final Logger log = Logger.getLogger(GradeItemImportSelectionStep.class);
 
+    @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+    protected GradebookNgBusinessService businessService;
+
     private String panelId;
 
-    public GradeImportConfirmationStep(String id, List<ProcessedGradeItem> processedGradeItems) {
+    public GradeImportConfirmationStep(String id, List<ProcessedGradeItem> itemsToCreate, List<ProcessedGradeItem> itemsToUpdate,
+                                       final List<Assignment> assignmentsToCreate) {
         super(id);
         this.panelId = id;
 
@@ -36,6 +41,10 @@ public class GradeImportConfirmationStep extends Panel {
             protected void onSubmit()
             {
 //                info("selected grade(s): " + form.getDefaultModelObjectAsString());
+                //Create new GB items
+                for (Assignment assignment : assignmentsToCreate) {
+                    businessService.addAssignmentToGradebook(assignment);
+                }
 
             }
         };
@@ -56,10 +65,7 @@ public class GradeImportConfirmationStep extends Panel {
 //        group.add(new CheckGroupSelector("groupselector"));
 
 
-        List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(processedGradeItems,
-                Arrays.asList(new Integer[] {ProcessedGradeItem.STATUS_UPDATE, ProcessedGradeItem.STATUS_NA}));
-        List<ProcessedGradeItem> itemsToCreate = filterListByStatus(processedGradeItems,
-                Arrays.asList(new Integer[] {ProcessedGradeItem.STATUS_NEW}));
+
 
         final boolean hasItemsToUpdate = !itemsToUpdate.isEmpty();
         WebMarkupContainer gradesUpdateContainer = new WebMarkupContainer ("grades_update_container") {
@@ -102,15 +108,6 @@ public class GradeImportConfirmationStep extends Panel {
             createList.setReuseItems(true);
             gradesCreateContainer.add(createList);
         }
-    }
-
-    private List<ProcessedGradeItem> filterListByStatus(List<ProcessedGradeItem> gradeList, List<Integer> statuses) {
-        List<ProcessedGradeItem> filteredList = new ArrayList<ProcessedGradeItem>();
-        for (ProcessedGradeItem gradeItem : gradeList) {
-            if (statuses.contains(gradeItem.getStatus()))
-                filteredList.add(gradeItem);
-        }
-        return filteredList;
     }
 
 }
