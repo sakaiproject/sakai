@@ -128,7 +128,7 @@ var setupSiteNav = function(){
           jqObjDrop.next('ul').find("a:first").focus();
         }
 
-        // addArrowNavAndDisableTabNav($PBJQ(".Mrphs-sitesNav__submenu"));
+        addArrowNavAndDisableTabNav($PBJQ(".Mrphs-sitesNav__submenu"));
 
       },
 

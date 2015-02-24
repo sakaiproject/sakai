@@ -93,6 +93,15 @@ module.exports = function(grunt) {
         src: 'js/morpheus.plugins.js',
         dest: 'js/morpheus.plugins.min.js'
       }
+    },
+
+    shell: {
+      dist: {
+        command: [
+        'ruby Sakai-Compass-Compile.rb',
+        'sh copy_js.sh'
+        ].join('&&')
+      }
     }
 
   });
