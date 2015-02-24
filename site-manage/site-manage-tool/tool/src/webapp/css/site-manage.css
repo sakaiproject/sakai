@@ -20,7 +20,7 @@ toggler needs
 #templateSettings, #siteTypeList, #archiveSettings{
     padding:.5em;
     background:#eee;
-    width:50em;
+    width: 100%;
     -webkit-border-radius:5px;
    -moz-border-radius:5px; 
 }
@@ -50,7 +50,7 @@ dl.defList dd{
 #templateSettings, #siteTypeList, #archiveSettings{
     padding:.5em;
     background:#eee;
-    width:60em;
+    width: 100%;
     -webkit-border-radius:5px;
    -moz-border-radius:5px;
     border-radius:5px;
