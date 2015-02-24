@@ -1,0 +1,13 @@
+#gradebookImportExport ul.exportToolbar {
+  padding: 0;
+  list-style: none;
+}
+
+#gradebookImportExport ul.exportToolbar li {
+  display: inline-block;
+  margin-right: 10px;
+}
+
+#gradebookImportExport .select-toggle label {
+  display: none;
+}
