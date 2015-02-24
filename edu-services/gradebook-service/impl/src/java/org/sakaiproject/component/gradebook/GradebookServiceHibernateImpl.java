@@ -859,6 +859,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 
 	/**
+	 * This is the preferred method to retrieve a Map of student ids and course grades for a site.
+	 * Use this method instead of older methods like getCalculatedCourseGrade
 	 * @param gradebookUid
 	 * @return A mapping from user display IDs to grades.  If no grade is available for a user, default to zero.
 	 */
@@ -2497,67 +2499,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return (Map)getHibernateTemplate().execute(hc);		
 	}
 	
-	public Map getCalculatedCourseGrade(String gradebookUid) {
-		return getCalculatedCourseGrade (gradebookUid, true);
-	}
-
-	public Map getCalculatedCourseGrade(String gradebookUid, boolean mapTheGrades) {
-		HashMap returnMap = new HashMap();
-
-		try
-		{
-			Gradebook thisGradebook = getGradebook(gradebookUid);
-			
-			List assignList = getAssignmentsCounted(thisGradebook.getId());
-			boolean nonAssignment = false;
-			if(assignList == null || assignList.size() < 1)
-			{
-				nonAssignment = true;
-			}
-			
-			Long gradebookId = thisGradebook.getId();
-			CourseGrade courseGrade = getCourseGrade(gradebookId);
-
-			Map enrollmentMap;
-			
-			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
-			enrollmentMap = new HashMap();
-
-			Map enrollmentMapUid = new HashMap();
-			for (Iterator iter = viewableEnrollmentsMap.keySet().iterator(); iter.hasNext(); ) 
-			{
-				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
-				enrollmentMap.put(enr.getUser().getUserUid(), enr);
-				enrollmentMapUid.put(enr.getUser().getUserUid(), enr);
-			}
-			List gradeRecords = getPointsEarnedCourseGradeRecords(courseGrade, enrollmentMap.keySet());
-			for (Iterator iter = gradeRecords.iterator(); iter.hasNext(); ) 
-			{
-				CourseGradeRecord gradeRecord = (CourseGradeRecord)iter.next();
-
-				GradeMapping gradeMap= thisGradebook.getSelectedGradeMapping();
-
-				EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(gradeRecord.getStudentId());
-				if(enr != null)
-				{
-					if(!nonAssignment) {
-					  if (mapTheGrades) {
-						returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade()));
-					  } 
-					  else {
-						returnMap.put(enr.getUser().getDisplayId(), gradeRecord.getNonNullAutoCalculatedGrade().toString());
-					  }
-					}
-				}
-			}
-		}
-		catch(Exception e)
-		{
-			e.printStackTrace();
-		}
-		return returnMap;
-	}
-
   public String getAssignmentScoreString(final String gradebookUid, final String assignmentName, final String studentUid) 
   throws GradebookNotFoundException, AssessmentNotFoundException
   {
