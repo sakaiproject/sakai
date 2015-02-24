@@ -45,11 +45,11 @@
 
                     #if (${tabsSites.worksiteToolUrl})
 
-                        <li><a id="allSites" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&amp;sakai.state.reset=true"><span>${rloader.sit_allsites}</span></a></li>
+                        <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
 
                         #if ($allowAddSite)
 
-                            <li><a id="newSite" href="${tabsSites.worksiteToolUrl}?sakai_nav_minimized=true&amp;panel=Shortcut&amp;sakai_action=doNew_site&amp;sakai.state.reset=true"><span>${rloader.sit_newsite}</span></a></li>
+                            <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
 
                         #end ## END of IF ($allowAddSite)
 
@@ -57,7 +57,7 @@
 
                     #if (${tabsSites.prefsToolUrl})
 
-                        <li><a href="${tabsSites.prefsToolUrl}?sakai_nav_minimized=true"><span>${rloader.sit_preferences}</span></a></li>
+                        <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
 
                     #end ## END of IF (${tabsSites.prefsToolUrl})
 

@@ -15,7 +15,7 @@
             </script>
         #end ## END of IF ($pageTop)
 
-        <div id="portalContainer" #if (${sakai_nav_minimized} && ${portal_allow_minimize_navigation}) class="minimize-site-nav" #end>
+        <div id="portalContainer">
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
 
             #parse("/vm/morpheus/includePageWithNav.vm")

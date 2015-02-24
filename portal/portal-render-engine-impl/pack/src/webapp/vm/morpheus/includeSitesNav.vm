@@ -57,13 +57,4 @@
 
     </ul>
 
-    ## Is this still used? Mark Reilly 2014-12-10
-    #if ($tabsAddLogout)
-
-        <div class="galleryLogin Mrphs-MainNav__logout">
-            <a href="$tabsLogoutUrl">${rloader.sit_log}</a>
-        </div>
-
-    #end
-
 </nav> <!-- /Mrphs-sitesNav -->

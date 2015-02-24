@@ -10,7 +10,7 @@
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
 
-        <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="Mrphs-portalWrapper Mrphs-siteNav is-minimized" #else class="Mrphs-portalWrapper" #end>
+        <div class="Mrphs-portalWrapper">
 
             ## Skip Nav
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
@@ -75,9 +75,9 @@
                 "seconds": $!{timeoutDialogWarningSeconds}
                 },
                 "toggle" : {
-                    "allowauto": $!{portal_allow_auto_minimize},
-                    "tools": $!{portal_allow_minimize_tools},
-                    "sitenav": $!{portal_allow_minimize_navigation}
+                    "allowauto": false,
+                    "tools": false,
+                    "sitenav": false // This is not allowed in morpheus
                 }
             };
         </script>
@@ -144,28 +144,6 @@
                 });
             </script>
         #end ## END of IF ($pageTop)
-
-        #if (!${loginTopLogin})
-
-            #if ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} )
-                <script>
-                    $(document).ready(function() {
-                        var toggleClass = "";
-
-                        #if (${portal_allow_minimize_tools})
-                            toggleClass = "toggleTools";
-                        #end ## END of IF (${portal_allow_minimize_tools})
-
-                        #if (${portal_allow_minimize_navigation})
-                            toggleClass = toggleClass + "toggleNav";
-                        #end ## END of IF (${portal_allow_minimize_navigation})
-                
-                            ## setupToolToggle(toggleClass);
-                    });
-                </script>
-            #end ## END of IF ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} )
-
-        #end ## END of IF (!${loginTopLogin})
 
         <script>
         // If we loaded a second jQuery, revert $ and jQuery to the first jQuery

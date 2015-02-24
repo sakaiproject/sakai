@@ -15,9 +15,9 @@
 
                     #if (${displayUserloginInfo})
 
-                        #if (${tabsSites.profileToolUrl})
+                        #if (${tabsSites.mrphs_worksiteUrl})
 
-                            <a id="loginUser" role="menuitem" href="${tabsSites.profileToolUrl}?sakai.state.reset=true" class="Mrphs-userNav__submenuitem--userlink">
+                            <a id="loginUser" role="menuitem" href="${tabsSites.mrphs_worksiteUrl}" class="Mrphs-userNav__submenuitem--userlink">
                                 <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
                                 <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                             </a>
@@ -29,7 +29,7 @@
                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                             <span class="Mrphs-userNav__drop" tabindex="-1"></span>
 
-                        #end ## END of IF (${tabsSites.profileToolUrl})
+                        #end ## END of IF (${tabsSites.mrphs_worksiteUrl})
 
                     #end ## END of IF (${displayUserloginInfo})
 
@@ -80,7 +80,7 @@
                         #if ($allowAddSite)
 
                             <li class="Mrphs-userNav__submenuitem">
-                                <a id="addNewSiteLink" role="menuitem" href="${tabsSites.worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp;sakai.state.reset=true" class="Mrphs-userNav__submenuitem--newsite">
+                                <a id="addNewSiteLink" role="menuitem" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site" class="Mrphs-userNav__submenuitem--newsite">
                             <span>${rloader.sit_newsite}</span>
                                 </a>
                             </li>

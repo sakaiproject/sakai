@@ -1,21 +1,6 @@
 <!-- START VM includePageNav.vm -->
 
-#if ( ${sakai_nav_minimized} && ${portal_allow_minimize_tools} )
-
-    <div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools is-minimized">
-
-#else
-
-    <div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools">
-
-#end ## END of IF ( ${sakai_nav_minimized} && ${portal_allow_minimize_tools} )
-
-    #if ($loggedIn) 
-
-        #parse("/vm/morpheus/includeToggleNav.vm")
-
-    #end ## END of IF ($loggedIn)
-
+<div id="toolMenuWrap" class="Mrphs-container Mrphs-container--nav-tools">
 
     #if ($sitePages.siteHTMLInclude)
 

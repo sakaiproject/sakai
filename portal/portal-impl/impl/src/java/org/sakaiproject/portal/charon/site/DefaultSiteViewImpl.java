@@ -191,10 +191,15 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
  		String profileToolUrl = null;
  		String worksiteToolUrl = null;
  		String prefsToolUrl = null;
+ 		String mrphs_profileToolUrl = null;
+ 		String mrphs_worksiteToolUrl = null;
+ 		String mrphs_prefsToolUrl = null;
+ 		String mrphs_worksiteUrl = null;
         if ( myWorkspaceSiteId != null ) {
             for (Iterator iSi = mySites.iterator(); iSi.hasNext();) {
                 Site s = (Site) iSi.next();
                 if (myWorkspaceSiteId.equals(s.getId()) ) {
+                    mrphs_worksiteUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)));
                     List pages = siteHelper.getPermittedPagesInOrder(s);
                     for (Iterator iPg = pages.iterator(); iPg.hasNext();) {
                         SitePage p = (SitePage) iPg.next();
@@ -204,10 +209,13 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
                             ToolConfiguration placement = (ToolConfiguration) iPt.next();
                             if ( profileToolId.equals(placement.getToolId()) ) {
                                 profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                                mrphs_profileToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
                             } else if ( preferencesToolId.equals(placement.getToolId()) ) {
                                 prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                                mrphs_prefsToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
                             } else if ( worksiteToolId.equals(placement.getToolId()) ) {
                                 worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/page/" + Web.escapeUrl(p.getId()));
+                                mrphs_worksiteToolUrl = Web.returnUrl(request, "/site/" + Web.escapeUrl(siteHelper.getSiteEffectiveId(s)) + "/tool-reset/" + Web.escapeUrl(placement.getId()));
                             }
                         }
                     }
@@ -215,14 +223,20 @@ public class DefaultSiteViewImpl extends AbstractSiteViewImpl
             }
         }
 
+		if ( mrphs_worksiteUrl != null ) {
+			renderContextMap.put("mrphs_worksiteUrl", mrphs_worksiteUrl);
+        }
 		if ( profileToolUrl != null ) {
 			renderContextMap.put("profileToolUrl", profileToolUrl);
+			renderContextMap.put("mrphs_profileToolUrl", mrphs_profileToolUrl);
 		}
 		if ( prefsToolUrl != null ) {
 			renderContextMap.put("prefsToolUrl", prefsToolUrl);
+			renderContextMap.put("mrphs_prefsToolUrl", mrphs_prefsToolUrl);
 		}
 		if ( worksiteToolUrl != null ) {
 			renderContextMap.put("worksiteToolUrl", worksiteToolUrl);
+			renderContextMap.put("mrphs_worksiteToolUrl", mrphs_worksiteToolUrl);
 		}
 		if (serverConfigurationService.getBoolean("portal.use.tutorial", true)) {
 			renderContextMap.put("tutorial", true);
