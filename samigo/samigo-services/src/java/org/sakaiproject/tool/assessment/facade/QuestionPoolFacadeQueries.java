@@ -43,6 +43,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.SQLQuery;
 import org.hibernate.Session;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.data.dao.assessment.Answer;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AnswerFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.ItemData;
@@ -58,6 +59,7 @@ import org.sakaiproject.tool.assessment.osid.shared.impl.IdImpl;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.util.api.FormattedText;
 import org.springframework.dao.DataAccessException;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
@@ -68,6 +70,9 @@ public class QuestionPoolFacadeQueries
   
   // SAM-2049
   private static final String VERSION_START = " - ";
+  
+  // SAM-2499
+  private final FormattedText formattedText = (FormattedText) ComponentManager.get( FormattedText.class );
 
   public QuestionPoolFacadeQueries() {
   }
@@ -329,7 +334,10 @@ public class QuestionPoolFacadeQueries
 	    	facadeVector.add(itemFacade);
 	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getItemId = " + itemData.getItemId());
 	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getText = " + itemData.getText());
-	    	text = itemFacade.getText();
+	    	
+	    	// SAM-2499
+	    	text = formattedText.stripHtmlFromText( itemFacade.getText(), false, true ).trim();
+	    	
 	    	log.debug("QuestionPoolFacadeQueries: getAllItemFacadesOrderByItemText:: getTextHtmlStrippedAll = '" + text + "'");
 	    	
 	    	origValueV = (Vector) hp.get(text);
@@ -627,7 +635,7 @@ public class QuestionPoolFacadeQueries
           // pool that item is attached to
           ArrayList metaList = new ArrayList();
           for (int j=0; j<list.size(); j++){
-            String itemId = ((QuestionPoolItemData)list.get(j)).getItemId();
+            Long itemId = ((QuestionPoolItemData)list.get(j)).getItemId();
             String query = "from ItemMetaData as meta where meta.item.itemId=? and meta.label=?";
             Object [] values = {Long.valueOf(itemId), ItemMetaDataIfc.POOLID};
     	    List m = getHibernateTemplate().find(query, values);
@@ -792,7 +800,7 @@ public class QuestionPoolFacadeQueries
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void removeItemFromPool(String itemId, Long poolId) {
+  public void removeItemFromPool(Long itemId, Long poolId) {
     QuestionPoolItemData qpi = new QuestionPoolItemData(poolId, itemId);
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
@@ -813,7 +821,7 @@ public class QuestionPoolFacadeQueries
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void moveItemToPool(String itemId, Long sourceId, Long destId) {
+  public void moveItemToPool(Long itemId, Long sourceId, Long destId) {
     QuestionPoolItemData qpi = new QuestionPoolItemData(sourceId, itemId);
     int retryCount = PersistenceService.getInstance().getPersistenceHelper().getRetryCount().intValue();
     while (retryCount > 0){
@@ -1232,7 +1240,7 @@ public class QuestionPoolFacadeQueries
     Iterator iter = itemDataArray.iterator();
     while (iter.hasNext()){
       ItemDataIfc itemData = (ItemDataIfc) iter.next();
-      set.add(new QuestionPoolItemData(questionPoolId, itemData.getItemIdString(), (ItemData) itemData));
+      set.add(new QuestionPoolItemData(questionPoolId, itemData.getItemId(), (ItemData) itemData));
     }
     return set;
   }

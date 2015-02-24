@@ -663,7 +663,11 @@
             } else {
                 groupId = roster.DEFAULT_GROUP_ID;
             }
-            
+        
+            if (null != roster.roleToView) {
+                baseUrl += "&roleId=" + roster.roleToView;
+            }
+    
             window.location.href = baseUrl + "&groupId=" + groupId + facetParams;
         } else if (roster.STATE_ENROLLMENT_STATUS === roster.currentState) {
         

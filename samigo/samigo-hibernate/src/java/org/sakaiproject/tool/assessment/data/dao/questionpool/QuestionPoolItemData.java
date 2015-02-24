@@ -37,19 +37,19 @@ public class QuestionPoolItemData
   private final static long serialVersionUID = 9180085666292824370L;
 
   private Long questionPoolId;
-  private String itemId;
+  private Long itemId;
   private ItemData itemData; //<-- is the item
     //private QuestionPool questionPool;
 
   public QuestionPoolItemData(){
   }
 
-  public QuestionPoolItemData(Long questionPoolId, String itemId){
+  public QuestionPoolItemData(Long questionPoolId, Long itemId){
     this.questionPoolId = questionPoolId;
     this.itemId = itemId;
   }
 
-  public QuestionPoolItemData(Long questionPoolId, String itemId, ItemData itemData){
+  public QuestionPoolItemData(Long questionPoolId, Long itemId, ItemData itemData){
     this.questionPoolId = questionPoolId;
     this.itemId = itemId;
     this.itemData = itemData;
@@ -59,7 +59,7 @@ public class QuestionPoolItemData
     this.itemData = itemData;
     //this.questionPool = questionPool;
     //setQuestionPoolId(questionPoolProperties.getId());
-    setItemId(itemData.getItemIdString());
+    setItemId(itemData.getItemId());
     setQuestionPoolId(questionPoolData.getQuestionPoolId());
   }
 
@@ -73,12 +73,12 @@ public class QuestionPoolItemData
     this.questionPoolId = questionPoolId;
   }
 
-  public String getItemId()
+  public Long getItemId()
   {
     return itemId;
   }
 
-  public void setItemId(String itemId)
+  public void setItemId(Long itemId)
   {
     this.itemId = itemId;
   }

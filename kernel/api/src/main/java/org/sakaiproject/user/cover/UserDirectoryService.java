@@ -220,6 +220,15 @@ public class UserDirectoryService
 
 		return service.allowAddUser();
 	}
+	
+	public static boolean checkDuplicatedEmail(org.sakaiproject.user.api.User param0)
+	{
+		org.sakaiproject.user.api.UserDirectoryService service = getInstance();
+		if (service == null) return false;
+
+		return service.checkDuplicatedEmail(param0);
+	}
+
 
 	public static org.sakaiproject.user.api.UserEdit addUser(java.lang.String param0, java.lang.String param1)
 			throws org.sakaiproject.user.api.UserIdInvalidException, org.sakaiproject.user.api.UserAlreadyDefinedException,

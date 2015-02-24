@@ -4,7 +4,7 @@
 
     #parse("/vm/morpheus/includeStandardHead.vm")
 
-    <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody" #end $pageSiteType>
+    <body #if( !${loggedIn} ) class="Mrphs-portalBody is-logged-out" #else class="Mrphs-portalBody ${logoSiteClass}" #end $pageSiteType>
 
         <noscript>
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
@@ -15,7 +15,7 @@
             ## Skip Nav
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
 
-            <div #if ( ${tabsSites} ) class="Mrphs-mainHeader is-maximized ${logoSiteClass}" #else class="Mrphs-mainHeader is-minimized ${logoSiteClass}" #end>
+            <div #if ( ${tabsSites} ) class="Mrphs-mainHeader is-maximized" #else class="Mrphs-mainHeader is-minimized" #end>
 
                 ## Header
                 #parse("/vm/morpheus/snippets/header-snippet.vm")
@@ -26,7 +26,7 @@
 
                 #else
 
-                    <nav class="Mrphs-mainHeader__loginNav">
+                    <nav class="Mrphs-loginNav Mrphs-loginNav--no-sites">
                         <!-- login component -->
 
                             #if (!${loginTopLogin})
@@ -55,9 +55,9 @@
                 "chat": {
                     "enabled": $!{neoChat},
                     "pollInterval": $!{portalChatPollInterval},
-		    "video" : {
-			"enabled": $!{neoChatVideo}
-		    }
+            "video" : {
+            "enabled": $!{neoChatVideo}
+            }
                 },
                 "loggedIn": $!{loggedIn},
                 "portalPath": "$!{portalPath}",
@@ -82,38 +82,34 @@
             };
         </script>
 
-<!-- this allows us to reliably detect if the browser is internet explorer, depends on these elements ul#topnav h1#sitetabs -->
-<script type="text/javascript">var sakai_portal_ie_detected=false;</script>
-<!--[if IE]><script type="text/javascript">sakai_portal_ie_detected=true;</script><![endif]-->
-
         #if ( ${bufferedResponse} && ${responseHead} )
         #else 
             ${sakai_html_head_js}
         #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
         ## Make sure we at least have a jQuery 1.9 or higher, log messages
-	#set ( $d = "$")
-	<script>
-		var needJQuery = true;
-		var secondJQuery = false;
-		if ( window.jQuery ) {
-			tver = jQuery.fn.jquery;
-			if ( tver.indexOf('1.9.') == 0 ) {
-				window.console && console.log('Using tool jQuery '+tver);
-				needJQuery = false;
-			} else {
-				secondJQuery = true;
-			}
-		}
-		if ( needJQuery ) {
-			document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-			document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
-		}
-	</script>
-	<script>
-		${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
-		window.console && console.log('Portal scripts loading PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
-	</script>
+    #set ( $d = "$")
+    <script>
+        var needJQuery = true;
+        var secondJQuery = false;
+        if ( window.jQuery ) {
+            tver = jQuery.fn.jquery;
+            if ( tver.indexOf('1.9.') == 0 ) {
+                window.console && console.log('Using tool jQuery '+tver);
+                needJQuery = false;
+            } else {
+                secondJQuery = true;
+            }
+        }
+        if ( needJQuery ) {
+            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+        }
+    </script>
+    <script>
+        ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
+        window.console && console.log('Portal scripts loading PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
+    </script>
 
         #if ($loggedIn)
             <script src="$!{portalCDNPath}/portal/scripts/sessionstoragemanager.js$!{portalCDNQuery}"></script>
@@ -131,10 +127,6 @@
         <script src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
-
-        <!--[if IE]>
-            <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
-<![endif]-->
 
         #if ( $tutorial && $loggedIn )
             <script>$(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
@@ -168,7 +160,7 @@
                             toggleClass = toggleClass + "toggleNav";
                         #end ## END of IF (${portal_allow_minimize_navigation})
                 
-                            setupToolToggle(toggleClass);
+                            ## setupToolToggle(toggleClass);
                     });
                 </script>
             #end ## END of IF ( ${portal_allow_minimize_tools} || ${portal_allow_minimize_navigation} )
@@ -176,27 +168,25 @@
         #end ## END of IF (!${loginTopLogin})
 
         <script>
-	    // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+        // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
             if ( secondJQuery ) {
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
-		jQuery = ${d};  // Return jQuery to point at the tool jQuery
+        jQuery = ${d};  // Return jQuery to point at the tool jQuery
             }
             window.console && console.log('Portal scripts loaded PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
 
             ${d}PBJQ(document).ready(function() {
                 setupSiteNav();
-                // sakai_portal_ie_detected should have been set above
-                if (sakai_portal_ie_detected) {
-                    // SAK-22308
-                    //if (${d}PBJQ.browser.msie && ${d}PBJQ('ul#topnav[role="navigation"]') && ${d}PBJQ('h1#sitetabs')) {
-                    var $ul_topnav = ${d}PBJQ('ul#topnav');
-                    var aria_label_val = $ul_topnav.attr('aria-label');
-                    ${d}PBJQ('h1#sitetabs').attr('role','navigation').attr('aria-label', aria_label_val);
-                    ${d}PBJQ('div#linkNav').removeAttr('role').removeAttr('aria-labelledby');
-                    $ul_topnav.removeAttr('aria-label');
-                }
+                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308 
             });
         </script>
+
+        <!--[if lt IE 9]>
+        <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>
+<![endif]-->
+ 
         #parse("/vm/morpheus/includeAnalytics.vm")
+
+        ${includeExtraHead}
     </body>
 </html>

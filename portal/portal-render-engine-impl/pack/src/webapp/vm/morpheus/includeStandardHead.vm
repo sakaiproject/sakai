@@ -5,7 +5,7 @@
 ##
 
 <!DOCTYPE html>
-<html lang="$!{locale}">
+<html lang="$!{locale}" class="Mrphs-html">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -24,5 +24,4 @@
         <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
 
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
-        ${includeExtraHead}
     </head>

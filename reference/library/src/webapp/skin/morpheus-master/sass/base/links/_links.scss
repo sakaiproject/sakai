@@ -18,8 +18,8 @@ a {
     @include border-outline(border, $links--visited__border-width, $links--visited__border-style, $links--visited__border-color);
   }
 
-  &[href]:hover,
-  &[href]:focus {
+  &:hover,
+  &:focus {
     color: $links--hover__color;
     text-decoration: $links--hover__text-decoration;
     @include border-outline(border, $links--hover__border-width, $links--hover__border-style, $links--hover__border-color);

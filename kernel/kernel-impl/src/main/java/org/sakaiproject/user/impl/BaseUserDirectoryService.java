@@ -755,6 +755,28 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			ensureMappedIdForProvidedUser(user);
 		}
 	}
+	
+	public boolean checkDuplicatedEmail (User user) 
+	{
+		//Check if another user has the same email
+		String email = StringUtils.trimToNull (user.getEmail());
+		
+		M_log.debug("commitEdit(): Check for mail " + email);
+		
+		if (email!=null)
+		{
+			Collection <User> usersByMail = findUsersByEmail(email);
+			for (User userToCheck : usersByMail)
+			{
+				if (!StringUtils.equals(userToCheck.getId(),user.getId()))
+				{
+					return true;
+				}
+			}
+		}
+		
+		return false;
+	}
 
 	/**
 	 * @inheritDoc

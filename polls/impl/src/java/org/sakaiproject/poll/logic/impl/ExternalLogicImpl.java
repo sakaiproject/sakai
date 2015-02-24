@@ -582,4 +582,5 @@ public class ExternalLogicImpl implements ExternalLogic {
             lrss.registerStatement(getStatementForUserEditPoll(lrss.getEventActor(event), pollText, newPoll), "polls");
         }
     }
+
 }
