@@ -18,7 +18,7 @@
 
 for folder in morpheus-examp-u morpheus-default morpheus-rtl; do
     for fn in js/morpheus.plugins.min.js js/morpheus.scripts.min.js; do
-       echo "ls $fn ../$folder/$fn"
+       cp $fn ../$folder/$fn
        ls -l $fn ../$folder/$fn
     done
 done
