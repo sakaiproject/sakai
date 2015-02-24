@@ -24,7 +24,7 @@
 
         #else
  
-            <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>
+            <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link"><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>
 
         #end ## END OF IF ($roleswapdropdown)
 
