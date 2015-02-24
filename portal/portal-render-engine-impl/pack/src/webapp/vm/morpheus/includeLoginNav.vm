@@ -15,9 +15,9 @@
 
                     #if (${displayUserloginInfo})
 
-                        #if (${tabsSites.mrphs_worksiteUrl})
+                        #if (${tabsSites.mrphs_profileToolUrl})
 
-                            <a id="loginUser" role="menuitem" href="${tabsSites.mrphs_worksiteUrl}" class="Mrphs-userNav__submenuitem--userlink">
+                            <a id="loginUser" role="menuitem" href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--userlink">
                                 <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
                                 <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                             </a>
@@ -29,7 +29,7 @@
                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
                             <span class="Mrphs-userNav__drop" tabindex="-1"></span>
 
-                        #end ## END of IF (${tabsSites.mrphs_worksiteUrl})
+                        #end ## END of IF (${tabsSites.mrphs_profileToolUrl})
 
                     #end ## END of IF (${displayUserloginInfo})
 
