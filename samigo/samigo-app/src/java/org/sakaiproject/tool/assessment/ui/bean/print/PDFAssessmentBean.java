@@ -364,7 +364,9 @@ public class PDFAssessmentBean implements Serializable {
 				ItemContentsBean item = (ItemContentsBean) items.get(j);
 				
 				StringBuffer legacy = new StringBuffer("<h3>");
-				legacy.append(item.getSequence());
+				if (printSetting.getShowSequence().booleanValue()) {
+					legacy.append(item.getSequence());
+				}
 				legacy.append("</h3>");
 
 				pdfItem.setItemId(item.getItemData().getItemId());
