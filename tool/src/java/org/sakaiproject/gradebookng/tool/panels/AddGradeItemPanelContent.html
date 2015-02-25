@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+    <body>
+        <wicket:panel>
+
+			<div class="form-group form-group-sm">
+				<label wicket:for="title" class="col-xs-3 control-label">
+					<wicket:message key="label.addgradeitem.title" />
+				</label>
+				<div class="col-xs-7">
+     				<input wicket:id="title" type="text" class="form-control" placeholder="Week 1 assignment" />
+   	 			</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<label wicket:for="points" class="col-xs-3 control-label">
+					<wicket:message key="label.addgradeitem.points" />
+				</label>
+				<div class="col-xs-2">
+					<input wicket:id="points" type="text" class="form-control" placeholder="100" />
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<div class="col-xs-offset-3 col-xs-6">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" />
+							<wicket:message key="label.addgradeitem.extracredit" />
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<label wicket:for="duedate" class="col-xs-3 control-label">
+					<wicket:message key="label.addgradeitem.due" />
+				</label>
+				<div class="col-xs-4">
+					<input wicket:id="duedate" type="text" class="form-control" placeholder="dd/mm/yy" aria-describedby="duedate-help"/>
+					<span id="duedate-help" class="help-block"><wicket:message key="label.addgradeitem.due.help" /></span>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<label wicket:for="category" class="col-xs-3 control-label">
+					<wicket:message key="label.addgradeitem.category" />
+				</label>
+				<div class="col-xs-6">
+					<select wicket:id="category" class="form-control">
+						<option>test</option>
+					</select>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<div class="col-xs-offset-3 col-xs-6">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" />
+							<wicket:message key="label.addgradeitem.release" />
+						</label>
+					</div>
+				</div>
+			</div>
+			<div class="form-group form-group-sm">
+				<div class="col-xs-offset-3 col-xs-6">
+					<div class="checkbox">
+						<label>
+							<input type="checkbox" />
+							<wicket:message key="label.addgradeitem.include" />
+						</label>
+					</div>
+				</div>
+			</div>
+
+        </wicket:panel>
+    </body>
+</html>

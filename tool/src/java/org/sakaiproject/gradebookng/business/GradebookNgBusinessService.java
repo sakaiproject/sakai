@@ -1,17 +1,7 @@
 package org.sakaiproject.gradebookng.business;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.bind.JAXBException;
-
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
-
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
@@ -25,18 +15,16 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
-import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
-import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
-import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
-import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.service.gradebook.shared.*;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+
+import javax.xml.bind.JAXBException;
+import java.util.*;
 
 
 /**
@@ -368,6 +356,18 @@ public class GradebookNgBusinessService {
 	public String getCurrentUserUuid() {
 		return this.userDirectoryService.getCurrentUser().getId();
 	}
+
+    /**
+     * Add a new assignment definition to the gradebook
+     * @param assignment
+     */
+    public void addAssignmentToGradebook(Assignment assignment) {
+        Gradebook gradebook = getGradebook();
+        if(gradebook != null) {
+            String gradebookId = gradebook.getUid();
+            this.gradebookService.addAssignment(gradebookId, assignment);
+        }
+    }
 	
 	
 }

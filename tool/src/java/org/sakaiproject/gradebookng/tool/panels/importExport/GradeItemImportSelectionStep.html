@@ -31,8 +31,8 @@
             <p><wicket:message key="importExport.selection.details" /></p>
 
             <div class="act">
-              <input type="button" value="Back" onclick="window.history.back()" />
-              <input type="submit" value="Next" />
+              <input type="submit" wicket:message="value:importExport.button.back" onclick="window.history.back()"/>
+              <input class="active" type="submit" wicket:id="nextbutton" wicket:message="value:importExport.button.next"/>
             </div>
         </div>
     </form>

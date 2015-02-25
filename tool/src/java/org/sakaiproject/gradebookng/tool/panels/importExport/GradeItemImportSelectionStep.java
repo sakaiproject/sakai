@@ -1,20 +1,19 @@
-package org.sakaiproject.gradebookng.tool.panels;
+package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.Check;
-import org.apache.wicket.markup.html.form.CheckGroup;
-import org.apache.wicket.markup.html.form.CheckGroupSelector;
-import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -39,15 +38,50 @@ public class GradeItemImportSelectionStep extends Panel {
             {
                 info("selected grade(s): " + group.getDefaultModelObjectAsString());
 
+                List<ProcessedGradeItem> processedGradeItems = (List<ProcessedGradeItem>)group.getDefaultModelObject();
+
+
+                //Process the selected items into the create/update lists
+                List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(processedGradeItems,
+                        Arrays.asList(new Integer[]{ProcessedGradeItem.STATUS_UPDATE, ProcessedGradeItem.STATUS_NA}));
+                List<ProcessedGradeItem> itemsToCreate = filterListByStatus(processedGradeItems,
+                        Arrays.asList(new Integer[] {ProcessedGradeItem.STATUS_NEW}));
+
+                List<ProcessedGradeItem> gbItemsToCreate = new ArrayList<ProcessedGradeItem>();
+                for (ProcessedGradeItem item : itemsToCreate) {
+                    if (!"N/A".equals(item.getItemPointValue())) {
+                        gbItemsToCreate.add(item);
+                    }
+                }
+
                 //repaint panel
-                Component newPanel = new GradeImportConfirmationStep(panelId, (List<ProcessedGradeItem>)group.getDefaultModelObject());
+//                Component newPanel = new GradeImportConfirmationStep(panelId, (List<ProcessedGradeItem>)group.getDefaultModelObject());
+
+                List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
+
+                Component newPanel = new CreateGradeItemStep(panelId, 1, gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
                 newPanel.setOutputMarkupId(true);
                 GradeItemImportSelectionStep.this.replaceWith(newPanel);
+
+
 
             }
         };
         add(form);
         form.add(group);
+
+        group.add(new Button("nextbutton"));
+
+//        Button back = new Button("backbutton"){
+//            public void onSubmit() {
+//                //TODO - Can I get the state of the form back, including the uploaded file?  This just starts the page over.
+//                setResponsePage(new ImportExportPage());
+//            }
+//        };
+//        back.setDefaultFormProcessing(false);
+//        group.add(back);
+
+
         group.add(new CheckGroupSelector("groupselector"));
         ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades",
                 processedGradeItems)
@@ -77,6 +111,15 @@ public class GradeItemImportSelectionStep extends Panel {
         gradeList.setReuseItems(true);
         group.add(gradeList);
 
+    }
+
+    private List<ProcessedGradeItem> filterListByStatus(List<ProcessedGradeItem> gradeList, List<Integer> statuses) {
+        List<ProcessedGradeItem> filteredList = new ArrayList<ProcessedGradeItem>();
+        for (ProcessedGradeItem gradeItem : gradeList) {
+            if (statuses.contains(gradeItem.getStatus()))
+                filteredList.add(gradeItem);
+        }
+        return filteredList;
     }
 
 }
