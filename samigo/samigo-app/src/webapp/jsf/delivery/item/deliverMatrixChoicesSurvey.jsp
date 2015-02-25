@@ -100,6 +100,14 @@ should be included in file importing DeliveryMessages
                  || delivery.actionString=='gradeAssessment'}" escape="false"/>
   </h:panelGroup>
 
+  <h:commandLink id="cmdclean" value="#{deliveryMessages.reset_selection}" action="#{delivery.cleanRadioButton}" 
+	rendered="#{(delivery.actionString=='previewAssessment' || delivery.actionString=='previewAssessmentPublished'
+                || delivery.actionString=='takeAssessment'
+                || delivery.actionString=='takeAssessmentViaUrl')}">
+	<f:param name="radioId" value="#{question.itemData.itemId}" />
+</h:commandLink>
+
+<f:verbatim><br /></f:verbatim>
 <f:verbatim><br /></f:verbatim>
 <h:panelGroup rendered="#{(delivery.actionString=='previewAssessment'
                 || delivery.actionString=='takeAssessment' 

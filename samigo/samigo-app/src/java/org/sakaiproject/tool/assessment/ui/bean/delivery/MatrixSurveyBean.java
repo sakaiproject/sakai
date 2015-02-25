@@ -154,6 +154,7 @@ public class MatrixSurveyBean
 
 public void setResponseFromCleanRadioButton() {
             response = false; 
+            responseId = null;
             data = null;
  }
 
