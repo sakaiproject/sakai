@@ -551,7 +551,7 @@ function checkChildrenCheckboxes(item) {
 
 	// Go to the item's parent table that has the tier. I would have used a wildcard selector but the version
 	// of jquery we are using doesn't seem to have that working well
-	var itemParentTable = localItem.parent().parent().parent().parent().parent();
+	var itemParentTable = localItem.parent().parent().parent().parent();
   
 	// Make sure we found something.  A length of 0 would be not found
 	if (itemParentTable.length == 1) {
@@ -689,7 +689,7 @@ function disableCheckboxes() {
 	
 	var otherCheckboxes = jQuery('input[name$=radiobtn]');
 	for (var i = 0; i < otherCheckboxes.length; i++) {
-		checkChildrenCheckboxesDisable(allCheckboxes.get(i));
+		checkChildrenCheckboxesDisable(otherCheckboxes.get(i));
 	}
 }
 
