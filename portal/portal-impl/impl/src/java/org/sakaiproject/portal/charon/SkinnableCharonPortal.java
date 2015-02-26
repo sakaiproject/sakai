@@ -788,6 +788,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 
+	// TODO: SAK-29115 Remove this and all code that uses it
 	private boolean usePdaHandler(HttpServletRequest req)
 	{
 		if ( req == null) return false;
@@ -796,7 +797,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		//check sakai.properties to see if auto redirect is enabled
 		//defaults to true - if set to false, skip the PDA check
-		if(!ServerConfigurationService.getBoolean("portal.pda.autoredirect", true)){
+		if(!ServerConfigurationService.getBoolean("portal.pda.autoredirect", false)){
 			if(M_log.isDebugEnabled()) {
 				M_log.debug("Auto redirect for mobile devices is disabled, classic view will be used preferentially.");
 			}
