@@ -189,8 +189,8 @@ public class LibraryWebappLoader extends ResourceLoader {
      */
     protected String getSkin() {
         String skin = ServerConfigurationService.getString("skin.default");
-        String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-        String prefix = ServerConfigurationService.getString("portal.neoprefix", "neo-");
+        String templates = ServerConfigurationService.getString("portal.templates", "morpheus");
+        String prefix = ServerConfigurationService.getString("portal.neoprefix", "");
         // Don't add the prefix twice
         if (StringUtils.equals("neoskin", templates) && !StringUtils.startsWith(skin, prefix)) {
         	skin = prefix + skin;

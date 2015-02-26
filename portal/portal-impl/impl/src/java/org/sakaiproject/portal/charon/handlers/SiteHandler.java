@@ -676,7 +676,7 @@ public class SiteHandler extends WorksiteHandler
 		{
 			skin = ServerConfigurationService.getString("skin.default");
 		}
-		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+		String templates = ServerConfigurationService.getString("portal.templates", "morpheus");
 		String prefix = portalService.getSkinPrefix();
         // Don't add the prefix twice
         if ( "neoskin".equals(templates) && !StringUtils.startsWith(skin, prefix) ) skin = prefix + skin;

@@ -78,7 +78,7 @@ public class PortalServiceImpl implements PortalService
 
 	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
 	
-	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
+	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "";
 	
 	private static String portalSkinPrefix;
 
