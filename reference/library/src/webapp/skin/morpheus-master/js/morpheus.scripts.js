@@ -1401,7 +1401,7 @@ var setupSiteNav = function(){
           jqObjDrop.next('ul').find("a:first").focus();
         }
 
-        // addArrowNavAndDisableTabNav($PBJQ(".Mrphs-sitesNav__submenu"));
+        addArrowNavAndDisableTabNav($PBJQ(".Mrphs-sitesNav__submenu"));
 
       },
 
@@ -1551,10 +1551,12 @@ function updatePresence(){
  */
 
 function toggleUserNav(){
+  event.preventDefault();
   $PBJQ('.Mrphs-userNav__subnav').toggleClass('is-hidden');
 }
 
-$PBJQ(".js-toggle-user-nav", "#loginLinks").on("click", toggleUserNav);
+$PBJQ(".js-toggle-user-nav a#loginUser", "#loginLinks").on("click", toggleUserNav);
+$PBJQ(".js-toggle-user-nav .Mrphs-userNav__drop", "#loginLinks").on("click", toggleUserNav);
 /**
  * Miscellaneous Utils
  */
