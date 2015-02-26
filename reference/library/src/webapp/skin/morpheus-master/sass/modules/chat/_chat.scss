@@ -3,3 +3,22 @@
 //////////////////////////////
 
 @import "_chat_variables";
+
+.Mrphs-{
+	&footerApp{
+		&__presence{
+		    color: $footerApp__chat__color;
+		    float: left;
+		    text-align: left;
+		    vertical-align: bottom;
+		    width: 200px;
+		}&--toggle{
+		 	display: inline;
+    		padding: 6px 6px 5px 6px;
+    		color: #222;
+    		text-decoration: none;
+    		height: 16px;
+    		font-weight: bold;
+		}
+	}
+}

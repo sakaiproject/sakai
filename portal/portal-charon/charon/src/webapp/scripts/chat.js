@@ -28,6 +28,9 @@
     portal.chat.connectionsAvailable = true;
 	portal.chat.videoOff = false;
 	portal.chat.openWindows = 0;
+	portal.chat.footerApp = $("#footerApp") || $("#Mrphs-footerApp");
+	portal.chat.footerAppChat = $("#footerAppChat") || $("#Mrphs-footerApp__chat");
+	
 
     /**
      *  Utility for rendering trimpath templates. Takes the id of the template,
@@ -134,7 +137,7 @@
 		var openSize = ((262 * this.openWindows) + 50);
 		$('#pc_chat_window_scroller').css("width", openSize + "px");
 		$('#pc_chat_window_container').css("right", "225px");
-		if ($("#footerAppTray").position().left < openSize) {
+		if (portal.chat.footerApp.position().left < openSize) {
 			$("#pc_chat_scroll_bar").show();
 		}
 
@@ -243,7 +246,7 @@
 		if (right!=225) {
 			$("#pc_chat_window_container").css("right", (right + 262) + "px");
 		}
-		if ($("#footerAppTray").position().left > openSize) {
+		if (portal.chat.footerApp.position().left > openSize) {
 			$("#pc_chat_scroll_bar").hide();
 		}
 
@@ -1004,7 +1007,7 @@
         
         $("#goright").click(function () {
 
-            var freeSpace = $("#footerAppTray").position().left;
+            var freeSpace = portal.chat.footerApp.position().left;
             var openSize = $('#pc_chat_window_scroller').css("width");
             openSize = openSize.substring(0,openSize.indexOf("px")) - 0;
             var right = $("#pc_chat_window_container").css("right");
@@ -1019,7 +1022,7 @@
         
         $("#goleft").click(function () {
 
-            var freeSpace = $("#footerAppTray").position().left;
+            var freeSpace = portal.chat.footerApp.position().left;
             var openSize = $('#pc_chat_window_scroller').css("width");
             openSize = openSize.substring(0, openSize.indexOf("px")) - 0;
             var right = $("#pc_chat_window_container").css("right");
@@ -1043,5 +1046,6 @@
 }) ($PBJQ);
 
 $PBJQ(document).ready(function () {
-    $PBJQ('#footerAppChat').show();
+    $PBJQ(portal.chat.footerAppChat).removeClass('is-hidden');
+    $PBJQ(portal.chat.footerAppChat).show();
 });
