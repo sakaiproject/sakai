@@ -201,6 +201,14 @@ function disableIt()
 	  <h:outputText value="#{evaluationMessages.view}"/>
 	  <h:panelGroup>
 
+     <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsA1"
+        required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '4' && totalScores.multipleSubmissionsAllowed eq 'true' }">
+      <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
+      <f:selectItem itemValue="4" itemLabel="#{evaluationMessages.average_sub}" />
+      <f:valueChangeListener
+         type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+     </h:selectOneMenu>
+
      <h:selectOneMenu value="#{totalScores.allSubmissions}" id="allSubmissionsL1"
         required="true" onchange="document.forms[0].submit();" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }">
       <f:selectItem itemValue="3" itemLabel="#{evaluationMessages.all_sub}" />
