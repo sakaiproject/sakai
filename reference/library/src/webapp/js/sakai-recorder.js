@@ -582,7 +582,7 @@ $(document).ready(function() {
         userMediaSupport = false;
 
         // Why is the user denying the mic? Reload and try again.
-        location.reload();
+        $('#sakai-recorder-error').show();
       });
     
     }
