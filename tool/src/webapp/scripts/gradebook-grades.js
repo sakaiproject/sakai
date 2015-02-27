@@ -64,18 +64,24 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
   var self = this;
 
   var $eventTarget = $(event.target);
+
+  if (!$eventTarget.is("td,th")) {
+    return true;
+  }
+
   var isEditableCell = this.isCellEditable($eventTarget);
 
-  // arrow left 37 || tab 9 + SHIFT
-  if (event.keyCode == 37 || (event.shiftKey && event.keyCode == 9)) {
+
+  // arrow left 37 (DISABLE TAB FOR NOW || tab 9 + SHIFT)
+  if (event.keyCode == 37) { // || (event.shiftKey && event.keyCode == 9)) {
     self.navigate(event, event.target, "left");
 
   // arrow up 38
   } else if (event.keyCode == 38) {
     self.navigate(event, event.target, "up");
 
-  // arrow right 39 || tab 9
-  } else if (event.keyCode == 39 || event.keyCode == 9) {
+  // arrow right 39 (DISABLE TAB FOR NOW || tab 9)
+  } else if (event.keyCode == 39) { // || event.keyCode == 9) {
     self.navigate(event, event.target, "right");
 
   // arrow down 40

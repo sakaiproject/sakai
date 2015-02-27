@@ -65,6 +65,10 @@
   padding: 0 8px;
   line-height: 14px;
 }
+#gradebookGrades .btn.dropdown-toggle:hover,
+#gradebookGrades .btn.dropdown-toggle:focus {
+  background-color: #DEF;
+}
 
 div.wicket-modal div.w_content_3 {
 	border: none; /** don't want border wrapping content inside the modal **/
