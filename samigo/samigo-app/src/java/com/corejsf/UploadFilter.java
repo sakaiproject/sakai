@@ -116,6 +116,15 @@ public class UploadFilter implements Filter {
       DiskFileUpload upload = new DiskFileUpload();
       if (repositoryPath != null)
          upload.setRepositoryPath(repositoryPath);
+      else {
+        String tempdir = System.getProperty("java.io.tmpdir");
+        if ( tempdir != null) {
+          if ( !(tempdir.endsWith("/") || tempdir.endsWith("\\")) ) {
+            tempdir = tempdir + System.getProperty("file.separator");
+          }
+          upload.setRepositoryPath(tempdir);
+          }
+        }
 
       try {
          List list = upload.parseRequest(httpRequest);
