@@ -48,6 +48,10 @@
 			{
 					extraInfoArray[extraInfoArray.length]="feedbackAttachments=true";
 			}
+			if (document.getElementById('includeNotSubmitted') && document.getElementById('includeNotSubmitted').checked)
+			{
+					extraInfoArray[extraInfoArray.length]="includeNotSubmitted=true";
+			}
 			if (extraInfoArray.length == 0)
 			{
 				alert(alertMessage);
@@ -162,6 +166,13 @@
 			#if ($!download && $enableFlatDownload)
 				<input id="withoutFolders" type="checkbox" value="withoutFolders" name="choices" class="toggleNotSelectedAll" #if($!withoutFolders)checked="checked"#end onclick="deselectSelectAll( this );" />
 				<label for="withoutFolders">$tlang.getString("uploadall.folders.no")</label><br/>
+			#end
+			## include empty submissions, old behavior
+			##Only show this on the download, upload takes it all
+			#if ($download)
+			<hr/>
+				<input id="includeNotSubmitted" type="checkbox" value="includeNotSubmitted" name="choices" #if($!hasIncludeNotSubmitted)checked="checked"#end />
+				<label for="includeNotSubmitted" style="font-weight:bold;">$tlang.getString("uploadall.choose.file.includeNotSubmitted")</label><br/>
 			#end
 
 			</p>
