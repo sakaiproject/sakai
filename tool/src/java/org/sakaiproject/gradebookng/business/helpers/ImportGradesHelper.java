@@ -253,31 +253,44 @@ public class ImportGradesHelper extends BaseImportHelper {
         for (ImportColumn column : importedGradeWrapper.getColumns()) {
             ProcessedGradeItem processedGradeItem = new ProcessedGradeItem();
 
+            String assignmentName = column.getColumnTitle();
+
             if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
-                processedGradeItem.setItemTitle(column.getColumnTitle());
+                processedGradeItem.setItemTitle(assignmentName);
                 processedGradeItem.setItemPointValue(column.getPoints());
 
-                Long assignmentId = assignmentNameMap.get(column.getColumnTitle());
 
-                int status = determineStatus(column, assignmentId, importedGradeWrapper, transformedGradeMap);
-
-                processedGradeItem.setItemId(assignmentId);
-                processedGradeItem.setStatus(status);
-                processedGradeItems.add(processedGradeItem);
 
             } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
-                processedGradeItem.setItemTitle("   " + column.getColumnTitle() + " Comments");
+                processedGradeItem.setItemTitle("   " + assignmentName + " Comments");
                 processedGradeItem.setItemPointValue("N/A");
 
-                Long assignmentId = assignmentNameMap.get(column.getColumnTitle());
-
-                int status = determineStatus(column, assignmentId, importedGradeWrapper, transformedGradeMap);
-
-                processedGradeItem.setItemId(assignmentId);
-                processedGradeItem.setStatus(status);
-
-                processedGradeItems.add(processedGradeItem);
+            } else {
+                //Just get out
+                log.warn("Bad column type - " + column.getType() + ".  Skipping.");
+                continue;
             }
+
+            Long assignmentId = assignmentNameMap.get(assignmentName);
+
+            int status = determineStatus(column, assignmentId, importedGradeWrapper, transformedGradeMap);
+
+            processedGradeItem.setItemId(assignmentId);
+            processedGradeItem.setStatus(status);
+
+            List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
+            for (ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
+                ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(assignmentName);
+                if (importedGradeItem != null) {
+                    ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
+                    processedGradeItemDetail.setStudentId(importedGrade.getStudentId());
+                    processedGradeItemDetail.setGrade(importedGradeItem.getGradeItemScore());
+                }
+
+            }
+            processedGradeItem.setProcessedGradeItemDetails(processedGradeItemDetails);
+
+            processedGradeItems.add(processedGradeItem);
         }
 
         return processedGradeItems;

@@ -59,7 +59,11 @@ public class GradeItemImportSelectionStep extends Panel {
 
                 List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
 
-                Component newPanel = new CreateGradeItemStep(panelId, 1, gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                Component newPanel = null;
+                if (gbItemsToCreate.size() > 0)
+                    newPanel = new CreateGradeItemStep(panelId, 1, gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                else
+                    newPanel = new GradeImportConfirmationStep(panelId, itemsToCreate, itemsToUpdate, assignmentsToCreate);
                 newPanel.setOutputMarkupId(true);
                 GradeItemImportSelectionStep.this.replaceWith(newPanel);
 

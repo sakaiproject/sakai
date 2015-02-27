@@ -12,8 +12,10 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -21,14 +23,14 @@ import java.util.List;
  */
 public class GradeImportConfirmationStep extends Panel {
 
-    private static final Logger log = Logger.getLogger(GradeItemImportSelectionStep.class);
+    private static final Logger LOG = Logger.getLogger(GradeImportConfirmationStep.class);
 
     @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
 
     private String panelId;
 
-    public GradeImportConfirmationStep(String id, List<ProcessedGradeItem> itemsToCreate, List<ProcessedGradeItem> itemsToUpdate,
+    public GradeImportConfirmationStep(String id, final List<ProcessedGradeItem> itemsToCreate, final List<ProcessedGradeItem> itemsToUpdate,
                                        final List<Assignment> assignmentsToCreate) {
         super(id);
         this.panelId = id;
@@ -44,6 +46,22 @@ public class GradeImportConfirmationStep extends Panel {
                 //Create new GB items
                 for (Assignment assignment : assignmentsToCreate) {
                     businessService.addAssignmentToGradebook(assignment);
+                }
+
+
+                List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
+                itemsToSave.addAll(itemsToUpdate);
+                itemsToSave.addAll(itemsToCreate);
+                for (ProcessedGradeItem processedGradeItem : itemsToSave) {
+                    LOG.info("Looping through items to save");
+                    for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
+                        LOG.info("Looping through detail items to save");
+//                        processedGradeItemDetail.g
+                        boolean saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentId(),
+                                processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
+                        LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentId() + ", " +
+                                processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
+                    }
                 }
 
             }
