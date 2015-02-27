@@ -128,7 +128,7 @@ public class GradebookNgBusinessService {
 		if(gradebook != null) {
 			
 			//get course grades and use entered grades preferentially, if they exist
-	        Map<String, String> courseGrades = gradebookService.getCalculatedCourseGrade(gradebook.getUid()); 
+	        Map<String, String> courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid()); 
 	        Map<String, String> enteredGrades = gradebookService.getEnteredCourseGrade(gradebook.getUid());
 	          
 	        Iterator<String> gradeOverrides = enteredGrades.keySet().iterator();
