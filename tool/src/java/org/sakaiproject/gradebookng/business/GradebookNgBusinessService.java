@@ -53,16 +53,39 @@ public class GradebookNgBusinessService {
 	private CourseManagementService courseManagementService;
 	
 	
+	
 	/**
-	 * Get a list of users in the current site that can have grades
+	 * Get a list of all users in the current site that can have grades
 	 * 
 	 * @return a list of users or null if none
 	 */
 	public List<User> getGradeableUsers() {
+		return this.getGradeableUsers(Collections.<String> emptyList());
+	}
+	
+	/**
+	 * Get a list of users in the current site that can have grades, based on the passed in userUuids
+	 * If the passed in list is empty, it returns all users that can be graded in the site
+	 * 
+	 * @return a list of users or null if none
+	 */
+	public List<User> getGradeableUsers(List<String> userUuids) {
 		try {
 			String siteId = this.getCurrentSiteId();
-			Set<String> userIds = siteService.getSite(siteId).getUsersIsAllowed("gradebook.viewOwnGrades");			
-			return userDirectoryService.getUsers(userIds);
+			Set<String> gradeableUserUuids = siteService.getSite(siteId).getUsersIsAllowed("gradebook.viewOwnGrades");
+			
+			List<String> matchingUuids = new ArrayList<String>();
+			if(userUuids.isEmpty()){
+				matchingUuids.addAll(gradeableUserUuids);
+			}
+			
+			for(String uuid : userUuids) {
+				if(gradeableUserUuids.contains(uuid)){
+					matchingUuids.add(uuid);
+				}
+			}
+			
+			return userDirectoryService.getUsers(matchingUuids);
 		} catch (IdUnusedException e) {
 			return null;
 		}
@@ -242,7 +265,51 @@ public class GradebookNgBusinessService {
 		}
 		return rval;
 		
+	}
+	
+	public List<StudentGradeInfo> buildGradeMatrix(List<String> userUuids) {
+		
+		List<User> students = this.getGradeableUsers();
+		List<Assignment> assignments = this.getGradebookAssignments();
+		
+		Map<String,String> courseGrades = this.getCourseGrades();
+		
+		//NOTES:
+		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
+		
+		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
+		
+		Gradebook gradebook = this.getGradebook();
+		if(gradebook == null) {
+			return null;
+		}
+		
+		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
+		//however the logic needs to be reworked so we can capture the user info
+		//currently storing the full grade definition too, this may be unnecessary
+		//NOT a high priority unless performance issue deems it to be
+		
+		for(User student: students) {
 			
+			StudentGradeInfo sg = new StudentGradeInfo(student);
+			
+			//add the assignment grades
+			for(Assignment assignment: assignments) {
+				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
+				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
+			}
+			
+			//add the course grade
+			sg.setCourseGrade(courseGrades.get(student.getId()));
+			
+			//add the section info
+			//this.courseManagementService.getSe
+			
+			rval.add(sg);
+			
+		}
+		return rval;
+		
 	}
 
 	
