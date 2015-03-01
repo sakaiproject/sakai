@@ -72,7 +72,7 @@ public class GradebookNgBusinessService {
 	public List<User> getGradeableUsers(List<String> userUuids) {
 		try {
 			String siteId = this.getCurrentSiteId();
-			Set<String> gradeableUserUuids = siteService.getSite(siteId).getUsersIsAllowed("gradebook.viewOwnGrades");
+			Set<String> gradeableUserUuids = siteService.getSite(siteId).getUsersIsAllowed(Permissions.VIEW_OWN_GRADES.getValue());
 			
 			List<String> matchingUuids = new ArrayList<String>();
 			if(userUuids.isEmpty()){
