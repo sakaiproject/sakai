@@ -34,11 +34,11 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
 
       var cellModel;
       if (self.isCellEditable($cell)) {
-         cellModel = new GradebookEditableCell($cell, self, {
-                                                              //onInputReturn: $.proxy(self.handleInputReturn, self),
-                                                              //onInputTab: $.proxy(self.handleInputTab, self),
-                                                              //onArrowKey: $.proxy(self.handleArrayKey, self)
-                     });
+        cellModel = new GradebookEditableCell($cell, self, {
+                                              onInputReturn: $.proxy(self.handleInputReturn, self),
+                                              onInputTab: $.proxy(self.handleInputTab, self),
+                                              onArrowKey: $.proxy(self.handleArrowKey, self)
+        });
       } else {
         cellModel = new GradebookBasicCell($cell, self);
       }
@@ -189,7 +189,10 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
   }
 
   if (enableEditMode && $targetCell) {
-    self.getCellModel($targetCell).enterEditMode();
+    var model = self.getCellModel($targetCell);
+    if (model.isEditable()) {
+      model.enterEditMode();
+    }
   } else if ($targetCell) {
     $targetCell.focus();
   }
@@ -207,9 +210,29 @@ GradebookSpreadsheet.prototype.getCellModel = function($cell) {
 };
 
 
-GradebookEditableCell.prototype.enterEditMode = function(withValue) {
-  console.log("GradebookEditableCell.prototype.enterEditMode");
+GradebookSpreadsheet.prototype.handleInputReturn = function(event, $cell) {
+  this.navigate(event, $cell, "down", true);
 };
+
+
+GradebookSpreadsheet.prototype.handleArrowKey = function(event, $cell) {
+  if (event.keyCode == 37) {
+    this.navigate(event, $cell, "left", true);
+  } else if (event.keyCode == 38) {
+    this.navigate(event, $cell, "up", true);
+  } else if (event.keyCode == 39) {
+    this.navigate(event, $cell, "right", true);
+  } else if (event.keyCode == 40) {
+    this.navigate(event, $cell, "down", true);
+  }
+  return false;
+};
+
+
+GradebookSpreadsheet.prototype.handleInputTab = function(event, $cell) {
+  this.navigate(event, $cell, event.shiftKey ? "left" : "right", true);
+};
+
 
 /*************************************************************************************
  * GradebookEditableCell - behaviour for editable cells
@@ -219,257 +242,119 @@ function GradebookEditableCell($cell, gradebookSpreadsheet, callbacks) {
   this.callbacks = callbacks;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
-  //this.$input = this.$cell.find(":input");
-  //this.$input.attr("tabindex", "-1").attr("disabled","disabled");
 
-  // store the original value
-  //this.$input.data("orig-value", this.$input.val());
-
-  //this.addListeners();
+  this.setupClickHandle();
 };
+
+
+GradebookEditableCell.prototype.setupClickHandle = function() {
+  var self = this;
+
+  function primSetupClickHandle() {
+    var $wicketSpan = self.$cell.find(".gb-item-grade span");
+
+    if ($wicketSpan.length == 0) {
+      return false
+    };
+
+    $wicketSpan.on("click", function(event) {
+      self.setupWicketInputField();
+    });
+
+    return true;
+  };
+
+  function pollToSetupClickHandle() {
+    if (!primSetupClickHandle()) {
+      setTimeout(pollToSetupClickHandle, 100);
+    }
+  };
+
+  pollToSetupClickHandle();
+};
+
+
+GradebookEditableCell.prototype.isEditable = function() {
+  return true;
+};
+
+
+GradebookEditableCell.prototype.setupKeyboardNavigation = function($input) {
+    var self = this;
+    $input.on("keydown", function(event) {
+      // Return 13
+      if (event.keyCode == 13) {
+        self.callbacks.onInputReturn(event, self.$cell);
+
+      // ESC 27
+      } else if (event.keyCode == 27) {
+        self.$cell.focus();
+
+      // arrow keys
+      } else if (event.keyCode >= 37 && event.keyCode <= 40) {
+        self.callbacks.onArrowKey(event, self.$cell);
+
+      // TAB 9
+      } else if (event.keyCode == 9) {
+        self.callbacks.onInputTab(event, self.$cell);
+      }
+    });
+    $input.on("blur", function(event) {
+      self.setupClickHandle();
+    });
+};
+
 
 GradebookEditableCell.prototype.getRow = function() {
   return this.$cell.closest("tr");
 };
 
-/*
-GradebookEditableCell.prototype.getColumn = function() {
-  return this.$cell.closest(".gradebook-column");
-};
 
-
-GradebookEditableCell.prototype.getWrapper = function() {
-  return this.$cell.closest(".gradebook-wrapper");
-};
-
-
-GradebookEditableCell.prototype.getHeaderToolbar = function() {
-  return $(".gradebook-gradeitem-columns-header", this.$spreadsheet);
-};
-
-
-GradebookEditableCell.prototype.getHeaderCell = function() {
-  return $(this.getHeaderToolbar().find(".gradebook-header-cell").get(this.getColumn().index() - 1));
-};
-
-
-GradebookEditableCell.prototype.getCellsInRow = function() {
-  return $(".gradebook-column .gradebook-cell:nth-child("+(this.$cell.index()+1)+")", this.$spreadsheet);
-};
-
-
-GradebookEditableCell.prototype.onFocus = function(event) {
-  var $column = this.getColumn(), 
-      $wrapper = this.getWrapper(),
-      $header = this.getHeaderToolbar();
-
+GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
   var self = this;
 
-  // highlight the column
-  $column.addClass("gradebook-column-highlight");
+  function primSetupInputField() {
+    var $input = self.$cell.find(".gb-item-grade :input:first");
 
-  // highlight the cell and mark as ready for edit
-  self.$cell.addClass("gradebook-cell-highlight");
-  setTimeout(function() {
-    self.$cell.addClass("gradebook-cell-ready");
-  }, 200); // add 200ms so it will catch double click to edit..
+    if ($input.length == 0) {
+      return false;
+    }
 
-  // highlight the header cell
-  self.getHeaderCell().addClass("gradebook-cell-highlight");
+    if (withValue != null) {
+      $input.val(withValue);
+    }
 
-  // highlight the row
-  self.getCellsInRow().addClass("gradebook-cell-highlight");
+    // if not typing a value then select the input
+    if (withValue == null) {
+      $input.focus().select();
+    } else {
+      $input.focus();
+    };
 
-  // check input is visible on x-scroll
-  if  ($column[0].offsetLeft - $wrapper[0].scrollLeft < 110) {
-     $wrapper[0].scrollLeft = $column[0].offsetLeft;
-  }
+    self.setupKeyboardNavigation($input);
 
-  // check input is visible on y-scroll
-  var headerBottomPosition = $header[0].offsetTop + $header[0].offsetHeight;
-  if (self.$cell[0].offsetTop < headerBottomPosition) {
-    document.body.scrollTop = document.body.scrollTop - (headerBottomPosition - self.$cell[0].offsetTop);
-  }
+    return true;
+  };
+
+  // As input field is loaded via AJAX, we need to
+  // poll until the input is loaded before we can set it up
+  function pollToSetupInputField() {
+    if (!primSetupInputField()) {
+      setTimeout(pollToSetupInputField, 50);
+    }
+  };
+  setTimeout(pollToSetupInputField, 50);
 };
-
-
-GradebookEditableCell.prototype.onBlur = function(event) {
-  // if blur is from cell to input, then don't worry about it
-  if (event.originalEvent && $(event.originalEvent.relatedTarget).parent()[0] == this.$cell[0]) {
-    return;
-  }
-  this.getColumn().removeClass("gradebook-column-highlight");
-  this.$cell.removeClass("gradebook-cell-highlight").
-             removeClass("gradebook-cell-active").
-             removeClass("gradebook-cell-ready");
-
-  this.getHeaderCell().removeClass("gradebook-cell-highlight");
-  this.getCellsInRow().removeClass("gradebook-cell-highlight");
-};
-
 
 GradebookEditableCell.prototype.enterEditMode = function(withValue) {
   var self = this;
 
-  // Cannot edit while saving
-  if (self.$cell.hasClass("gradebook-cell-item-saving")) {
-    return;
-  }
-
-  self.$cell.addClass("gradebook-cell-active");
-  //self.$input.data("orig-value", self.$input.val());
-
-  if (withValue != null) {
-    this.$input.val(withValue);
-  }
-
-  self.$input.removeAttr("disabled").removeAttr("tabindex").focus();
-
-  // if not typing a value then select the input
-  if (withValue == null) {
-    self.$input.focus().select();
-  } else {
-    self.$input.focus();
-  }
-
-  self.$input.one("blur", function(event) {
-    self.exitEditMode();
-    self.save();
-  });
-  self.$input.on("keydown", function(event) {
-    // return 13
-    if (event.keyCode == 13) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      self.exitEditMode();
-      self.callbacks.onInputReturn(event, self.$cell);
-      self.save();
-
-      return false;
-
-    // ESC 27
-    } else if (event.keyCode == 27) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      self.undo();
-
-      self.exitEditMode();
-      self.$cell.focus();
-
-      return false;
-
-    // arrow keys
-    } else if (event.keyCode >= 37 && event.keyCode <= 40) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      self.exitEditMode();
-      self.callbacks.onArrowKey(event, self.$cell);
-      self.save();
-
-      return false;
-
-    // TAB 9
-    } else if (event.keyCode == 9) {
-      event.preventDefault();
-      event.stopPropagation();
-
-      self.exitEditMode();
-      self.$cell.focus();
-      self.callbacks.onInputTab(event, self.$cell);
-      self.save();
-      
-      return false;
-    }
-  });
-};
-
-
-GradebookEditableCell.prototype.exitEditMode = function() {
-  this.$input.data("valid", this.$input[0].validity.valid);
-  this.$input.attr("disabled","disabled").attr("tabindex", "-1");
-  this.$cell.removeClass("gradebook-cell-active");
-  this.$input.off("keyup");
-  this.$cell.triggerHandler("blur");
-};
-
-
-GradebookEditableCell.prototype.undo = function() {
-  this.$cell.removeClass("gradebook-cell-item-error");
-  this.$input.val(this.$input.data("orig-value"));
-};
-
-
-GradebookEditableCell.prototype.clear = function() {
-  this.$input.val("");
-  this.$input.data("valid", true);
-  this.save();
-};
-
-
-GradebookEditableCell.prototype._validate = function() {
-  // basic validate of value, NaN, within range etc.
-  var value = this.$input.val();
-
-  if (value == "" && !(this.$input.data("valid") == true)) {
-    return false;
-  }
-
-  if (value == "") {
-    return true;
-  }
-
-  // basic "am I a string" test
-  if (parseFloat(value) + "" != value) {
-    return false;
-  }
-
-  if (parseFloat(value) > parseInt(this.$input.attr("max"))) {
-    return false;
-  } else if (parseFloat(value) < parseInt(this.$input.attr("min"))) {
-    return false;
-  }
-
-  return true;
-};
-
-
-GradebookEditableCell.prototype.save = function() {
-  var self = this;
+  // Trigger click on the Wicket node so we enter the edit mode
+  self.$cell.find(".gb-item-grade span").trigger("click");
   
-  if (self.$input.val() == self.$input.data("orig-value")) {
-    return;
-  };
-  
-  self.$cell.removeClass("gradebook-cell-item-error").addClass("gradebook-cell-item-saving");
-  setTimeout(function() {
-    self.$cell.removeClass("gradebook-cell-item-saving");
-    if (self._validate()) {
-      self.$cell.addClass("gradebook-cell-item-saved");
-      self.$input.data("orig-value", self.$input.val());
-      setTimeout(function() {
-        self.$cell.removeClass("gradebook-cell-item-saved");
-      }, 3000);
-    } else {
-      self.$cell.addClass("gradebook-cell-item-error");
-    }
-
-  }, 2000);
-
+  self.setupWicketInputField(withValue);
 };
 
-
-GradebookEditableCell.prototype.addListeners = function() {
-  var self = this;
-  self.$cell.on("focus", function(event) {
-    self.onFocus(event);
-  }).on("blur", function(event) {
-    self.onBlur(event);
-  });
-};
-*/
 
 /*************************************************************************************
  * GradebookBasicCell basic cell with basic functions
@@ -484,6 +369,10 @@ GradebookBasicCell.prototype.getRow = function() {
   return this.$cell.closest("tr");
 };
 
+
+GradebookBasicCell.prototype.isEditable = function() {
+  return false;
+};
 
 
 /*************************************************************************************

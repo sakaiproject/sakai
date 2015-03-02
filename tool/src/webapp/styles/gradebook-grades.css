@@ -69,7 +69,15 @@
 #gradebookGrades .btn.dropdown-toggle:focus {
   background-color: #DEF;
 }
-
+/* Table Cells */
+#gradebookGrades .gb-item-grade span {
+  display: block;
+  cursor: pointer;
+}
+#gradebookGrades .gb-item-grade input {
+  width: 40px;
+}
+/* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
 	border: none; /** don't want border wrapping content inside the modal **/
 }
