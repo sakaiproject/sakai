@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.sakaiproject.oauth</groupId>
+    <artifactId>oauth-base</artifactId>
+    <version>1.2-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    
+    <parent>
+        <groupId>org.sakaiproject</groupId>
+        <artifactId>master</artifactId>
+        <version>11-SNAPSHOT</version>
+        <relativePath>../master/pom.xml</relativePath>
+    </parent>
+
+    <name>OAuth Base</name>
+    <description>Add OAuth capabilities to an instance of Sakai CLE.</description>
+    <organization>
+        <name>The Sakai Foundation</name>
+        <url>http://www.sakaiproject.org/sakai-foundation</url>
+    </organization>
+    <inceptionYear>2009</inceptionYear>
+    <licenses>
+        <license>
+            <name>ECL-2.0</name>
+            <url>http://opensource.org/licenses/ECL-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>buckett</id>
+            <name>Matthew Buckett</name>
+            <organization>University of Oxford - IT Services</organization>
+            <organizationUrl>https://www.it.ox.ac.uk/</organizationUrl>
+        </developer>
+        <developer>
+            <id>ColinHebert</id>
+            <name>Colin Hebert</name>
+            <organization>University of Oxford - IT Services</organization>
+            <organizationUrl>https://www.it.ox.ac.uk/</organizationUrl>
+        </developer>
+    </developers>
+    
+    <contributors>
+        <contributor>
+            <name>Steve Swinsburg</name>
+            <email>steve.swinsburg@gmail.com</email>
+        </contributor>
+    </contributors>
+
+    <modules>
+        <module>api</module>
+        <module>impl</module>
+        <module>impl/dao-hbm</module>
+        <module>impl/dao-memory</module>
+        <module>impl/dao-server-config</module>
+        <module>pack</module>
+        <module>tool</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+        <!-- maven-compiler-plugin config -->
+        <maven.compiler.source>6</maven.compiler.source>
+        <maven.compiler.target>6</maven.compiler.target>
+
+        <!-- dependencies versions -->
+        <oauth.version>20100527</oauth.version>
+        <joda-time.version>2.2</joda-time.version>
+        <commons-logging.version>1.1.1</commons-logging.version>
+        <servlet-api.version>2.5</servlet-api.version>
+        <wicket.version>1.4.20</wicket.version>
+        <slf4j.version>1.7.5</slf4j.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <!-- Internal dependencies -->
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oauth-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oauth-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oauth-dao-hbm</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oauth-dao-server-config</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oauth-dao-memory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oauth-tool</artifactId>
+                <version>${project.version}</version>
+                <type>war</type>
+            </dependency>
+            <dependency>
+                <groupId>${project.groupId}</groupId>
+                <artifactId>oauth-pack</artifactId>
+                <version>${project.version}</version>
+                <type>sakai-component</type>
+            </dependency>
+
+            <!-- Dependencies -->
+            <dependency>
+                <groupId>joda-time</groupId>
+                <artifactId>joda-time</artifactId>
+                <version>${joda-time.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.oauth.core</groupId>
+                <artifactId>oauth</artifactId>
+                <version>${oauth.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>net.oauth.core</groupId>
+                <artifactId>oauth-provider</artifactId>
+                <version>${oauth.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>commons-logging</groupId>
+                <artifactId>commons-logging</artifactId>
+                <version>${commons-logging.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-log4j12</artifactId>
+                <version>${slf4j.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
+            </dependency>
+
+            <!-- Wicket -->
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket</artifactId>
+                <version>${wicket.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.wicket</groupId>
+                <artifactId>wicket-spring</artifactId>
+                <version>${wicket.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            
+            <!-- enforce Java 6 compiler -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerVersion>${sakai.jdk.version}</compilerVersion>
+                    <source>${sakai.jdk.version}</source>
+                    <target>${sakai.jdk.version}</target>
+                </configuration>
+            </plugin>
+            
+        </plugins>
+    </build>
+
+<!--
+    <repositories> 
+        <repository> 
+            <id>sonatype-nexus-snapshots</id> 
+            <name>Sonatype Nexus Snapshots</name> 
+            <url> https://oss.sonatype.org/content/repositories/snapshots </url> 
+            <releases> 
+                <enabled>false</enabled> 
+            </releases> 
+            <snapshots> 
+                <enabled>true</enabled> 
+            </snapshots> 
+        </repository> 
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>Sakai Plugin Repo</id>
+            <url>http://source.sakaiproject.org/maven2</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+        </pluginRepository>
+    </pluginRepositories>
+    -->
+</project>
