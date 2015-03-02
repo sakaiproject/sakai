@@ -34,11 +34,7 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
 
       var cellModel;
       if (self.isCellEditable($cell)) {
-        cellModel = new GradebookEditableCell($cell, self, {
-                                              onInputReturn: $.proxy(self.handleInputReturn, self),
-                                              onInputTab: $.proxy(self.handleInputTab, self),
-                                              onInputArrowKey: $.proxy(self.handleInputArrowKey, self)
-        });
+        cellModel = new GradebookEditableCell($cell, self);
       } else {
         cellModel = new GradebookBasicCell($cell, self);
       }
@@ -239,9 +235,8 @@ GradebookSpreadsheet.prototype.handleInputTab = function(event, $cell) {
 /*************************************************************************************
  * GradebookEditableCell - behaviour for editable cells
  */
-function GradebookEditableCell($cell, gradebookSpreadsheet, callbacks) {
+function GradebookEditableCell($cell, gradebookSpreadsheet) {
   this.$cell = $cell;
-  this.callbacks = callbacks;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
 
@@ -287,7 +282,7 @@ GradebookEditableCell.prototype.setupKeyboardNavigation = function($input) {
   $input.on("keydown", function(event) {
     // Return 13
     if (event.keyCode == 13) {
-      self.callbacks.onInputReturn(event, self.$cell);
+      self.gradebookSpreadsheet.handleInputReturn(event, self.$cell);
 
     // ESC 27
     } else if (event.keyCode == 27) {
@@ -295,11 +290,11 @@ GradebookEditableCell.prototype.setupKeyboardNavigation = function($input) {
 
     // arrow keys
     } else if (event.keyCode >= 37 && event.keyCode <= 40) {
-      self.callbacks.onInputArrowKey(event, self.$cell);
+      self.gradebookSpreadsheet.handleInputArrowKey(event, self.$cell);
 
     // TAB 9
     } else if (event.keyCode == 9) {
-      self.callbacks.onInputTab(event, self.$cell);
+      self.gradebookSpreadsheet.handleInputTab(event, self.$cell);
     }
   });
 };

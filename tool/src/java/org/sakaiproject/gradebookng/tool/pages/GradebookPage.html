@@ -10,13 +10,15 @@
 </wicket:head>
 
 <wicket:extend>
-  <div id="gradebookGrades">
-    <form wicket:id="form">
+  <form wicket:id="form">
+    <p>
       <input type="button" wicket:id="addGradeItem" wicket:message="value:button.addgradeitem" />
-      <div wicket:id="addGradeItemWindow" />
+    </p>
+    <div wicket:id="addGradeItemWindow" />
+    <div id="gradebookGrades">
       <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover"></table>
-    </form>
-  </div>
+    </div>
+  </form>
 </wicket:extend>
 
 </body>
