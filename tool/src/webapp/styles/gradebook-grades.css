@@ -56,6 +56,9 @@
   bottom: 0;
   right: 0;
 }
+#gradebookGrades .gb-cell {
+  cursor: pointer;
+}
 #gradebookGrades th .btn-group {
   position: absolute;
   right: 0;
@@ -72,7 +75,6 @@
 /* Table Cells */
 #gradebookGrades .gb-item-grade span {
   display: block;
-  cursor: pointer;
 }
 #gradebookGrades .gb-item-grade input {
   width: 40px;

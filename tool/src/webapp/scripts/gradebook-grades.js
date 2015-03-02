@@ -1,8 +1,8 @@
-/*************************************************************************************
- *                    Gradebook Grades Javascript                                               
+/**************************************************************************************
+ *                    Gradebook Grades Javascript                                      
  *************************************************************************************/
 
-/*************************************************************************************
+/**************************************************************************************
  * A GradebookSpreadsheet to encapsulate all the grid features 
  */
 function GradebookSpreadsheet($spreadsheet) {
@@ -37,7 +37,7 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
         cellModel = new GradebookEditableCell($cell, self, {
                                               onInputReturn: $.proxy(self.handleInputReturn, self),
                                               onInputTab: $.proxy(self.handleInputTab, self),
-                                              onArrowKey: $.proxy(self.handleArrowKey, self)
+                                              onInputArrowKey: $.proxy(self.handleInputArrowKey, self)
         });
       } else {
         cellModel = new GradebookBasicCell($cell, self);
@@ -102,14 +102,6 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
     event.preventDefault();
     self.getCellModel($eventTarget).clear();
   }
-};
-
-
-GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, enableEditMode) {
-  console.log("GradebookSpreadsheet.prototype.navigate");
-  console.log(fromCell);
-  console.log(direction);
-  console.log(enableEditMode);
 };
 
 
@@ -188,7 +180,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
     }
   }
 
-  if (enableEditMode && $targetCell) {
+  if (enableEditMode && $targetCell && $(fromCell) != $targetCell) {
     var model = self.getCellModel($targetCell);
     if (model.isEditable()) {
       model.enterEditMode();
@@ -215,7 +207,7 @@ GradebookSpreadsheet.prototype.handleInputReturn = function(event, $cell) {
 };
 
 
-GradebookSpreadsheet.prototype.handleArrowKey = function(event, $cell) {
+GradebookSpreadsheet.prototype.handleInputArrowKey = function(event, $cell) {
   if (event.keyCode == 37) {
     this.navigate(event, $cell, "left", true);
   } else if (event.keyCode == 38) {
@@ -243,34 +235,27 @@ function GradebookEditableCell($cell, gradebookSpreadsheet, callbacks) {
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
 
-  this.setupClickHandle();
+  this.$cell.on('DOMNodeInserted', $.proxy(this.handleDOMChange, this));
 };
 
 
-GradebookEditableCell.prototype.setupClickHandle = function() {
+GradebookEditableCell.prototype.handleDOMChange = function() {
   var self = this;
 
-  function primSetupClickHandle() {
-    var $wicketSpan = self.$cell.find(".gb-item-grade span");
+  if (self.isEditingMode()) {
+    self.setupWicketInputField();
+  } else {
+    self.setupWicketLabelField();
+  }
+};
 
-    if ($wicketSpan.length == 0) {
-      return false
-    };
 
-    $wicketSpan.on("click", function(event) {
-      self.setupWicketInputField();
-    });
+GradebookEditableCell.prototype.setupWicketLabelField = function() {
+};
 
-    return true;
-  };
 
-  function pollToSetupClickHandle() {
-    if (!primSetupClickHandle()) {
-      setTimeout(pollToSetupClickHandle, 100);
-    }
-  };
-
-  pollToSetupClickHandle();
+GradebookEditableCell.prototype.isEditingMode = function() {
+  return this.$cell.find(".gb-item-grade :input:first").length > 0;
 };
 
 
@@ -280,28 +265,25 @@ GradebookEditableCell.prototype.isEditable = function() {
 
 
 GradebookEditableCell.prototype.setupKeyboardNavigation = function($input) {
-    var self = this;
-    $input.on("keydown", function(event) {
-      // Return 13
-      if (event.keyCode == 13) {
-        self.callbacks.onInputReturn(event, self.$cell);
+  var self = this;
+  $input.on("keydown", function(event) {
+    // Return 13
+    if (event.keyCode == 13) {
+      self.callbacks.onInputReturn(event, self.$cell);
 
-      // ESC 27
-      } else if (event.keyCode == 27) {
-        self.$cell.focus();
+    // ESC 27
+    } else if (event.keyCode == 27) {
+      self.$cell.focus();
 
-      // arrow keys
-      } else if (event.keyCode >= 37 && event.keyCode <= 40) {
-        self.callbacks.onArrowKey(event, self.$cell);
+    // arrow keys
+    } else if (event.keyCode >= 37 && event.keyCode <= 40) {
+      self.callbacks.onInputArrowKey(event, self.$cell);
 
-      // TAB 9
-      } else if (event.keyCode == 9) {
-        self.callbacks.onInputTab(event, self.$cell);
-      }
-    });
-    $input.on("blur", function(event) {
-      self.setupClickHandle();
-    });
+    // TAB 9
+    } else if (event.keyCode == 9) {
+      self.callbacks.onInputTab(event, self.$cell);
+    }
+  });
 };
 
 
@@ -313,37 +295,20 @@ GradebookEditableCell.prototype.getRow = function() {
 GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
   var self = this;
 
-  function primSetupInputField() {
-    var $input = self.$cell.find(".gb-item-grade :input:first");
+  var $input = self.$cell.find(".gb-item-grade :input:first");
 
-    if ($input.length == 0) {
-      return false;
-    }
+  if (withValue != null) {
+    $input.val(withValue);
+  }
 
-    if (withValue != null) {
-      $input.val(withValue);
-    }
-
-    // if not typing a value then select the input
-    if (withValue == null) {
-      $input.focus().select();
-    } else {
-      $input.focus();
-    };
-
-    self.setupKeyboardNavigation($input);
-
-    return true;
+  // if not typing a value then select the input
+  if (withValue == null) {
+    $input.focus().select();
+  } else {
+    $input.focus();
   };
 
-  // As input field is loaded via AJAX, we need to
-  // poll until the input is loaded before we can set it up
-  function pollToSetupInputField() {
-    if (!primSetupInputField()) {
-      setTimeout(pollToSetupInputField, 50);
-    }
-  };
-  setTimeout(pollToSetupInputField, 50);
+  self.setupKeyboardNavigation($input);
 };
 
 GradebookEditableCell.prototype.enterEditMode = function(withValue) {
@@ -356,7 +321,7 @@ GradebookEditableCell.prototype.enterEditMode = function(withValue) {
 };
 
 
-/*************************************************************************************
+/**************************************************************************************
  * GradebookBasicCell basic cell with basic functions
  */
 function GradebookBasicCell($cell, gradebookSpreadsheet) {
@@ -375,7 +340,7 @@ GradebookBasicCell.prototype.isEditable = function() {
 };
 
 
-/*************************************************************************************
+/**************************************************************************************
  * Let's initialize our GradebookSpreadsheet 
  */
 $(function() {
