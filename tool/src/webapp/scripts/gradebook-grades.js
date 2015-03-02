@@ -197,8 +197,18 @@ GradebookSpreadsheet.prototype.isCellEditable = function($cell) {
 };
 
 
+GradebookSpreadsheet.prototype.getHeaderCellModelForCell = function($cell) {
+  return this.getCellModelForIndexes(0, $cell.data("cellIdx"));
+};
+
+
+GradebookSpreadsheet.prototype.getCellModelForIndexes = function(rowIndex, cellIndex) {
+  return this._CELLS[rowIndex][cellIndex];
+};
+
+
 GradebookSpreadsheet.prototype.getCellModel = function($cell) {
-  return this._CELLS[$cell.data("rowIdx")][$cell.data("cellIdx")];
+  return this.getCellModelForIndexes($cell.data("rowIdx"), $cell.data("cellIdx"));
 };
 
 
@@ -235,15 +245,20 @@ function GradebookEditableCell($cell, gradebookSpreadsheet, callbacks) {
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
 
+  this.setupWicketBindings();
+};
+
+
+GradebookEditableCell.prototype.setupWicketBindings = function() {
   this.$cell.on('DOMNodeInserted', $.proxy(this.handleDOMChange, this));
 };
 
 
-GradebookEditableCell.prototype.handleDOMChange = function() {
+GradebookEditableCell.prototype.handleDOMChange = function(event) {
   var self = this;
 
   if (self.isEditingMode()) {
-    self.setupWicketInputField();
+    self.setupWicketInputField(self.$cell.data("initialValue"));
   } else {
     self.setupWicketLabelField();
   }
@@ -251,6 +266,9 @@ GradebookEditableCell.prototype.handleDOMChange = function() {
 
 
 GradebookEditableCell.prototype.setupWicketLabelField = function() {
+  this.$cell.data("initialValue", null);
+  this.$cell.data("wicket_input_initialized", false).removeClass("gb-cell-editing");
+  this.$cell.data("wicket_label_initialized", true);
 };
 
 
@@ -292,32 +310,63 @@ GradebookEditableCell.prototype.getRow = function() {
 };
 
 
+GradebookEditableCell.prototype.insertWithoutDOMManipulation = function(block) {
+  this.$cell.off('DOMNodeInserted');
+  block();
+  this.setupWicketBindings();
+};
+
+
 GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
   var self = this;
+
+  if (self.$cell.data("wicket_input_initialized")) {
+    return;
+  }
 
   var $input = self.$cell.find(".gb-item-grade :input:first");
 
   if (withValue != null) {
-    $input.val(withValue);
+    // set the value after the focus to ensure the cursor is
+    // positioned after the new value
+    $input.focus();
+    setTimeout(function() {$input.val(withValue)});
+  } else {
+    $input.focus().select();
   }
 
-  // if not typing a value then select the input
-  if (withValue == null) {
-    $input.focus().select();
-  } else {
-    $input.focus();
-  };
+  // add the "out of XXX marks" label
+  self.insertWithoutDOMManipulation(function() {
+    var $outOf = $("<span class='gb-out-of'></span>");
+    $outOf.html("/"+self.getGradeItemTotalPoints());
+    $input.after($outOf);
+  });
 
+  // setup the keyboard bindings
   self.setupKeyboardNavigation($input);
+
+  self.$cell.data("wicket_input_initialized", true).addClass("gb-cell-editing");
+  self.$cell.data("wicket_label_initialized", false);
 };
+
+
+GradebookEditableCell.prototype.getHeaderCell = function() {
+  this.gradebookSpreadsheet.getHeaderCellModelForCell(this.$cell);
+};
+
+GradebookEditableCell.prototype.getGradeItemTotalPoints = function() {
+  var headerCellModel = this.gradebookSpreadsheet.getHeaderCellModelForCell(this.$cell);
+  return headerCellModel.$cell.find(".gb-total-points").html();
+};
+
 
 GradebookEditableCell.prototype.enterEditMode = function(withValue) {
   var self = this;
 
+  self.$cell.data("initialValue", withValue);
+
   // Trigger click on the Wicket node so we enter the edit mode
   self.$cell.find(".gb-item-grade span").trigger("click");
-  
-  self.setupWicketInputField(withValue);
 };
 
 

@@ -37,11 +37,11 @@
   text-shadow: 1px 1px 0 #FFF;
   font-weight: normal;
 }
-#gradebookGrades th .title {
+#gradebookGrades th .gb-title {
   font-weight: bold;
 }
-#gradebookGrades th .average,
-#gradebookGrades th .due-date {
+#gradebookGrades th .gb-average,
+#gradebookGrades th .gb-due-date {
   font-size: 0.9em;
   color: #999;
 }
@@ -50,6 +50,7 @@
 #gradebookGrades th, 
 #gradebookGrades td {
   position: relative;
+  padding: 6px;
 }
 #gradebookGrades td .btn-group {
   position: absolute;
@@ -73,11 +74,27 @@
   background-color: #DEF;
 }
 /* Table Cells */
+#gradebookGrades tbody td.gb-cell {
+  height: 34px;
+}
+#gradebookGrades .gb-item-grade {
+  position: relative;
+  text-align: center;
+  white-space: nowrap;
+}
 #gradebookGrades .gb-item-grade span {
   display: block;
 }
 #gradebookGrades .gb-item-grade input {
+  text-align: right;
   width: 40px;
+  line-height: 1em;
+}
+#gradebookGrades .gb-item-grade .gb-out-of {
+  display: inline;
+  padding-left: 6px;
+  font-size: 0.9em;
+  color: #999;
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
