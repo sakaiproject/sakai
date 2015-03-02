@@ -297,23 +297,26 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	 * @param item
 	 * @param props
 	 */
-	private void setContentItemValues(ContentEntity entity,
-			ContentItem item, ResourceProperties props) {
-		item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-		item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
-		item.setUrl(entity.getUrl());
-		item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
-		item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
-		item.setContainer(entity.getContainingCollection().getReference());
-		item.isVisible = !entity.isHidden() && entity.isAvailable();
-		item.isHidden = entity.isHidden();
-		if(entity.getReleaseDate() != null) {
-             item.setFromDate(entity.getReleaseDate().toStringGmtFull());
-         }
-		if(entity.getRetractDate()!=null) {
-		item.setEndDate(entity.getRetractDate().toStringGmtFull());
-		}
-	}
+   private void setContentItemValues(ContentEntity entity,
+         ContentItem item, ResourceProperties props) {
+      item.setTitle(props.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+      item.setDescription(props.getProperty(ResourceProperties.PROP_DESCRIPTION));
+      item.setUrl(entity.getUrl());
+      item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
+      item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
+      item.setContainer(entity.getContainingCollection().getReference());
+      item.isVisible = !entity.isHidden() && entity.isAvailable();
+      item.isHidden = entity.isHidden();
+      if(entity.getReleaseDate() != null) {
+         item.setFromDate(entity.getReleaseDate().toStringGmtFull());
+      }
+      if(entity.getRetractDate()!=null) {
+         item.setEndDate(entity.getRetractDate().toStringGmtFull());
+         item.setEndDate(entity.getRetractDate().toStringGmtFull());
+      }
+      item.copyrightAlert = props.getProperty(props.getNamePropCopyrightAlert());
+
+   }
 	
 	/**
 	 * 
@@ -511,6 +514,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 
 		@Getter @Setter
 		private String endDate;
+
+		@Getter @Setter
+		private String copyrightAlert;
 	}
 	
 	/**
