@@ -34,6 +34,8 @@ import java.util.*;
  *
  */
 
+// TODO add permission checks! Remove from entityprovider if double up
+
 @CommonsLog
 public class GradebookNgBusinessService {
 
@@ -98,7 +100,16 @@ public class GradebookNgBusinessService {
 	 * @return the gradebook for the site
 	 */
 	private Gradebook getGradebook() {
-		String siteId = this.getCurrentSiteId();
+		return getGradebook(this.getCurrentSiteId());
+	}
+	
+	/**
+	 * Helper to get a reference to the gradebook for the specified site
+	 * 
+	 * @param siteId the siteId
+	 * @return the gradebook for the site
+	 */
+	private Gradebook getGradebook(String siteId) {
 		try {
 			Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
 			return gradebook;
@@ -114,7 +125,17 @@ public class GradebookNgBusinessService {
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments() {
-		Gradebook gradebook = getGradebook();
+		return getGradebookAssignments(this.getCurrentSiteId());
+	}
+	
+	/**
+	 * Get a list of assignments in the gradebook in the specified site
+	 * 
+	 * @param siteId the siteId
+	 * @return a list of assignments or null if no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(String siteId) {
+		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
 			List<Assignment> assignments = gradebookService.getAssignments(gradebook.getUid());
 			assignments = sortAssignments(assignments);			

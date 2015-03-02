@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.rest;
 
+import java.util.List;
+
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
@@ -15,7 +17,9 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.Permissions;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.SessionManager;
@@ -51,7 +55,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	 * @throws IdUnusedException 
 	 */
 	@EntityCustomAction(action = "assignments", viewKey = EntityView.VIEW_LIST)
-	public String getWebContentItemsForSite(EntityView view) {
+	public List<Assignment> getAssignmentList(EntityView view) {
 
 		// get siteId
 		String siteId = view.getPathSegment(2);
@@ -67,8 +71,11 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		if(!isInstructor(siteId)) {
 			throw new SecurityException("You do not have permission to access GBNG data");
 		}
-
-		return "stub";
+		
+		// get assignment list
+		List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
+				
+		return assignments;
 	}
 
 	/**
@@ -135,5 +142,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 
 	@Setter
 	private SecurityService securityService;
-
+	
+	@Setter
+	private GradebookNgBusinessService businessService;
+	
 }
