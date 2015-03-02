@@ -12,8 +12,23 @@ function GradebookSpreadsheet($spreadsheet) {
   // all the GradebookCell objects keyed on row index, then cell index
   this._CELLS = {};
 
+  this.setupWicketAJAXEventHandler();
   this.setupGradeItemCellModels();
   this.setupKeyboadNavigation();
+};
+
+
+GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
+  var self = this;
+
+  // When Wicket AJAX loads in some new content, check if it's a grade cell
+  // and notify the cell's model accordingly.
+  Wicket.Event.subscribe('/dom/node/added', function(jqEvent, element) {
+    var $element = $(element);
+    if ($element.is(".gb-item-grade")) {
+      self.getCellModel($element.closest(".gb-cell")).handleWicketEvent(jqEvent, element);
+    }
+  });
 };
 
 
@@ -30,7 +45,6 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
     $row.find("th, td").each(function(cellIndex, cell) {
       var $cell = $(cell);
       $cell.data("rowIdx", rowIdx).data("cellIdx", cellIndex);
-      $cell.attr("id", "gb" + rowIdx + "-" + cellIndex);
 
       var cellModel;
       if (self.isCellEditable($cell)) {
@@ -239,19 +253,11 @@ function GradebookEditableCell($cell, gradebookSpreadsheet) {
   this.$cell = $cell;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
-
-  this.setupWicketBindings();
 };
 
 
-GradebookEditableCell.prototype.setupWicketBindings = function() {
-  this.$cell.on('DOMNodeInserted', $.proxy(this.handleDOMChange, this));
-};
-
-
-GradebookEditableCell.prototype.handleDOMChange = function(event) {
+GradebookEditableCell.prototype.handleWicketEvent = function(event, element) {
   var self = this;
-
   if (self.isEditingMode()) {
     self.setupWicketInputField(self.$cell.data("initialValue"));
   } else {
@@ -305,13 +311,6 @@ GradebookEditableCell.prototype.getRow = function() {
 };
 
 
-GradebookEditableCell.prototype.insertWithoutDOMManipulation = function(block) {
-  this.$cell.off('DOMNodeInserted');
-  block();
-  this.setupWicketBindings();
-};
-
-
 GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
   var self = this;
 
@@ -331,11 +330,9 @@ GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
   }
 
   // add the "out of XXX marks" label
-  self.insertWithoutDOMManipulation(function() {
-    var $outOf = $("<span class='gb-out-of'></span>");
-    $outOf.html("/"+self.getGradeItemTotalPoints());
-    $input.after($outOf);
-  });
+  var $outOf = $("<span class='gb-out-of'></span>");
+  $outOf.html("/"+self.getGradeItemTotalPoints());
+  $input.after($outOf);
 
   // setup the keyboard bindings
   self.setupKeyboardNavigation($input);
