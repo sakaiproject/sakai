@@ -92,6 +92,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	private transient LoginService loginService;
 
 	private static ResourceLoader rb = new ResourceLoader("auth");
+	
+	// the list of login choices that could be supplied
+	enum AuthChoices {
+		CONTAINER,
+		XLOGIN
+	}
 
 
 	private String loginContext;
@@ -188,7 +194,16 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			}
 			return;
 		}
+		
+		//SAK-29092 if an auth is specified in the URL, skip any other checks and go straight to it
+		String authPreferred = req.getParameter("auth");
+		log.debug("authPreferred: " + authPreferred);
 
+		if(StringUtils.equalsIgnoreCase(authPreferred, AuthChoices.XLOGIN.toString())) {
+			log.debug("Going straight to xlogin");
+			skipContainer = true;
+		}
+		
 		// see if we need to check container
 		boolean checkContainer = serverConfigurationService.getBoolean("container.login", false);
 		if (checkContainer && !skipContainer)
@@ -221,6 +236,11 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				}
 				String helperPath = helperUrl == null ? null : helperUrl.getPath();
 
+				if(StringUtils.equalsIgnoreCase(authPreferred, AuthChoices.CONTAINER.toString())) {
+					log.debug("Going straight to container login");
+					showAuthChoice = false;
+				}
+				
 				if (showAuthChoice && !(StringUtils.isEmpty(helperPath) || helperPath.equals("/portal") || 
 						helperPath.equals("/portal/") || helperPath.equals("/portal/pda") || helperPath.equals("/portal/pda/"))) {
 					String xloginUrl = serverConfigurationService.getPortalUrl() + "/xlogin";
