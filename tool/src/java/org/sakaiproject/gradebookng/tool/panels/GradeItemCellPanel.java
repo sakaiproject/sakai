@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -34,6 +35,7 @@ public class GradeItemCellPanel extends Panel {
 		AjaxEditableLabel<String> grade = new AjaxEditableLabel<String>("grade", new Model<String>(gradeInfo.getGrade())) {
 			
 			private static final long serialVersionUID = 1L;
+			
 
 			@Override
 			protected String defaultNullLabel() {
@@ -54,7 +56,23 @@ public class GradeItemCellPanel extends Panel {
 
 			}
 			
+			@Override
+			protected void updateLabelAjaxAttributes(AjaxRequestAttributes attributes) {
+				//when switching from editor to label
+				//attributes.getExtraParameters();
+				
+			}
+			
+			@Override
+			protected void updateEditorAjaxAttributes(AjaxRequestAttributes attributes) {
+				//when switching from label to editor
+				//attributes.getExtraParameters();
+			}
+			
+			
 		};
+		
+		
 		add(grade);
 		
 		//TODO since we are using a custom column panel here we still need this to be editable
