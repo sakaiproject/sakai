@@ -219,6 +219,14 @@ public class ProfileConstants {
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED = true; //profile2.profile.fields.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_PROFILE_STATUS_ENABLED = true; //profile2.profile.status.enabled
 	public static final boolean SAKAI_PROP_PROFILE2_IMPORT_IMAGES_ENABLED = false; // profile2.import.images
+	public static final boolean SAKAI_PROP_PROFILE2_MENU_ENABLED = true; //profile2.menu.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_CONNECTIONS_ENABLED = true; //profile2.connections.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_MESSAGING_ENABLED = true; //profile2.messaging.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_SEARCH_ENABLED = true; //profile2.search.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_PRIVACY_ENABLED = true; //profile2.privacy.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_PREFERENCE_ENABLED = true; //profile2.preference.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_MY_KUDOS_ENABLED = true; //profile2.myKudos.enabled
+	public static final boolean SAKAI_PROP_PROFILE2_ONLINE_STATUS_ENABLED = true; //profile2.onlineStatus.enabled
 
 
 	

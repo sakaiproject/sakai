@@ -306,6 +306,8 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		myFriendsContainer.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
+
 		//myStatus privacy
 		WebMarkupContainer myStatusContainer = new WebMarkupContainer("myStatusContainer");
 		myStatusContainer.add(new Label("myStatusLabel", new ResourceModel("privacy.mystatus")));
@@ -323,6 +325,8 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		myStatusContainer.setVisible(sakaiProxy.isProfileStatusEnabled());
+
 		// gallery privacy
 		WebMarkupContainer myPicturesContainer = new WebMarkupContainer("myPicturesContainer");
 		myPicturesContainer.add(new Label("myPicturesLabel", new ResourceModel("privacy.mypictures")));
@@ -375,6 +379,8 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		myKudosContainer.setVisible(sakaiProxy.isMyKudosEnabledGlobally());
+
 		// wall privacy
 		WebMarkupContainer myWallContainer = new WebMarkupContainer("myWallContainer");
 		myWallContainer.add(new Label("myWallLabel", new ResourceModel("privacy.mywall")));
@@ -409,6 +415,7 @@ public class MyPrivacy extends BasePage {
             }
         });
 		
+		onlineStatusContainer.setVisible(sakaiProxy.isOnlineStatusEnabledGlobally());
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {

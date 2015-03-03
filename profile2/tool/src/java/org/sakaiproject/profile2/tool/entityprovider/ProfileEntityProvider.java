@@ -426,7 +426,7 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			sb.append("</div>");
 		}
 		
-		if(!sakaiProxy.getCurrentUserId().equals(userProfile.getUserUuid())) {
+		if(sakaiProxy.isConnectionsEnabledGlobally() && !sakaiProxy.getCurrentUserId().equals(userProfile.getUserUuid())) {
 			
 			int connectionStatus = connectionsLogic.getConnectionStatus(sakaiProxy.getCurrentUserId(), userProfile.getUserUuid());
 		

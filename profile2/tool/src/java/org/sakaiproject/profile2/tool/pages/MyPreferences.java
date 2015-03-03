@@ -129,6 +129,9 @@ public class MyPreferences extends BasePage{
             }
         });
 		
+		//visibility for request emails
+		emailRequests.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
+
 		//confirm emails
 		final RadioGroup<Boolean> emailConfirms = new RadioGroup<Boolean>("confirmEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "confirmEmailEnabled"));
 		Radio confirmsOn = new Radio<Boolean>("confirmsOn", new Model<Boolean>(Boolean.valueOf(true)));
@@ -150,6 +153,9 @@ public class MyPreferences extends BasePage{
             }
         });
 		
+		//visibility for confirm emails
+		emailConfirms.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
+
 		//new message emails
 		final RadioGroup<Boolean> emailNewMessage = new RadioGroup<Boolean>("messageNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageNewEmailEnabled"));
 		Radio messageNewOn = new Radio<Boolean>("messageNewOn", new Model<Boolean>(Boolean.valueOf(true)));
@@ -217,6 +223,9 @@ public class MyPreferences extends BasePage{
             }
         });
 		
+		//visibility for wall items
+		wallItemNew.setVisible(sakaiProxy.isWallEnabledGlobally());
+
 		// added to new worksite emails
 		final RadioGroup<Boolean> worksiteNew = new RadioGroup<Boolean>("worksiteNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "worksiteNewEmailEnabled"));
 		Radio worksiteNewOn = new Radio<Boolean>("worksiteNewOn", new Model<Boolean>(Boolean.valueOf(true)));
@@ -346,6 +355,7 @@ public class MyPreferences extends BasePage{
 		// WIDGET SECTION
 		WebMarkupContainer ws = new WebMarkupContainer("widgetSettingsContainer");
 		ws.setOutputMarkupId(true);
+		int visibleWidgetCount = 0;
 		
 		//widget settings
 		ws.add(new Label("widgetSettingsHeading", new ResourceModel("heading.section.widget")));
@@ -370,6 +380,12 @@ public class MyPreferences extends BasePage{
             }
         });
 		ws.add(kudosContainer);
+		if(sakaiProxy.isMyKudosEnabledGlobally()) {
+			visibleWidgetCount++;
+		} else {
+			kudosContainer.setVisible(false);
+		}
+
 		
 		//gallery feed
 		WebMarkupContainer galleryFeedContainer = new WebMarkupContainer("galleryFeedContainer");
@@ -389,7 +405,11 @@ public class MyPreferences extends BasePage{
             }
         });
 		ws.add(galleryFeedContainer);
-		galleryFeedContainer.setVisible(sakaiProxy.isProfileGalleryEnabledGlobally());
+		if(sakaiProxy.isProfileGalleryEnabledGlobally()) {
+            visibleWidgetCount++;
+        } else {
+            galleryFeedContainer.setVisible(false);
+        }
 		
 		
 		//online status
@@ -411,6 +431,17 @@ public class MyPreferences extends BasePage{
         });
 		ws.add(onlineStatusContainer);		
 		
+		if(sakaiProxy.isOnlineStatusEnabledGlobally()){
+        visibleWidgetCount++;
+        } else {
+            onlineStatusContainer.setVisible(false);
+        }
+        
+        // Hide widget container if nothing to show
+        if(visibleWidgetCount == 0) {
+            ws.setVisible(false);
+        }
+
 		form.add(ws);
 		
 		//submit button
