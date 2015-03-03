@@ -1,12 +1,14 @@
 package org.sakaiproject.gradebookng.rest;
 
 import java.util.List;
+import java.util.Map;
 
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
 import org.sakaiproject.entitybroker.entityprovider.EntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomAction;
@@ -77,7 +79,26 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 				
 		return assignments;
 	}
-
+	
+	/**
+	 * Update the order of an assignment in the gradebook
+	 * This is a per site setting.
+	 * 
+	 * @param ref
+	 * @param params map, must include:
+	 * siteId
+	 * toolId
+	 * assignmentid
+	 * new order
+	 * 
+	 * an assignmentorder object will be created and saved as a list in the XML property 'gbng_assignment_order'
+	 */
+	@EntityCustomAction(action = "assignment-order", viewKey = EntityView.VIEW_NEW)
+	public void updateAssignmentOrder(EntityReference ref, Map<String, Object> params) {
+		
+		//params
+		
+	}
 	/**
 	 * Helper to check if the user is an instructor
 	 * 
