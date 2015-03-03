@@ -509,6 +509,14 @@ public class LessonsAccess {
 	if (item == null) {
 	    return false;
 	}
+	
+	//Look up the siteId if not provided
+	if (siteId == null) {
+        long pageId = item.getPageId();
+        SimplePage page = dao.getPage(pageId);
+        siteId = page.getSiteId();   
+	}
+	
 	// top-level pseudo-item is special, as there is no containing page
 	// just test the page it points to
 	if (item.getPageId() == 0L && item.getType() == SimplePageItem.PAGE) {
