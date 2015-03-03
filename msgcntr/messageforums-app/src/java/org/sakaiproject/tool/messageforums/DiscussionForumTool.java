@@ -9180,9 +9180,6 @@ public class DiscussionForumTool
 	}
 
 	private List transformItemList(List members) {
-		Map<String, List<JSONObject>> allParticipantsMap = new HashMap<String, List<JSONObject>>(1);
-		allParticipantsMap.put("allParticipants", new ArrayList<JSONObject>(1));
-
 		Map<String, List<JSONObject>> rolesMap = new HashMap<String, List<JSONObject>>(1);
 		rolesMap.put("roles", new ArrayList<JSONObject>(1));
 
@@ -9194,9 +9191,7 @@ public class DiscussionForumTool
 
 		for (Iterator iterator = members.iterator(); iterator.hasNext();) {
 			MembershipItem item = (MembershipItem) iterator.next();
-			if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())) {
-				parseAllParticipants(item, allParticipantsMap);
-			} else if (MembershipItem.TYPE_ROLE.equals(item.getType())) {
+			if (MembershipItem.TYPE_ROLE.equals(item.getType())) {
 				parseRoles(item, rolesMap);
 			} else if (MembershipItem.TYPE_GROUP.equals(item.getType())) {
 				parseGroups(item, groupsMap);
@@ -9223,8 +9218,7 @@ public class DiscussionForumTool
                 }
 			}
 		}
-		List allItemsList = new ArrayList(3);
-		allItemsList.add(allParticipantsMap);
+		List allItemsList = new ArrayList();
 		allItemsList.add(rolesMap);
 
 		// we only need the userIds to setup the individual user data
@@ -9291,16 +9285,6 @@ public class DiscussionForumTool
 			}
 		}
 		jsonMembershipItem.element("groups", memberGroupsArray);
-	}
-
-	private void parseAllParticipants(MembershipItem item, Map<String, List<JSONObject>> allParticipantsMap) {
-		List<JSONObject> allParticipantsList = allParticipantsMap.get("allParticipants");
-		if (allParticipantsList == null) {
-			allParticipantsList = new ArrayList<JSONObject>();
-		}
-		JSONObject jsonMembershipItem = new JSONObject();
-		jsonMembershipItem.element("name", item.getName()).element("membershipItemId", item.getId());
-		allParticipantsList.add(jsonMembershipItem);
 	}
 
 	public void setRankManager(RankManager rankManager) {
