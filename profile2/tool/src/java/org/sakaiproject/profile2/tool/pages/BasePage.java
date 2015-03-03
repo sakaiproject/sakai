@@ -49,41 +49,41 @@ import org.sakaiproject.profile2.util.ProfileUtils;
 
 public class BasePage extends WebPage implements IHeaderContributor {
 
-	private static final Logger log = Logger.getLogger(BasePage.class); 
-	
+	private static final Logger log = Logger.getLogger(BasePage.class);
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.SakaiProxy")
 	protected SakaiProxy sakaiProxy;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileLogic")
 	protected ProfileLogic profileLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePreferencesLogic")
 	protected ProfilePreferencesLogic preferencesLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfilePrivacyLogic")
 	protected ProfilePrivacyLogic privacyLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileConnectionsLogic")
 	protected ProfileConnectionsLogic connectionsLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileMessagingLogic")
 	protected ProfileMessagingLogic messagingLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileImageLogic")
 	protected ProfileImageLogic imageLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileKudosLogic")
 	protected ProfileKudosLogic kudosLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic")
 	protected ProfileExternalIntegrationLogic externalIntegrationLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileWallLogic")
 	protected ProfileWallLogic wallLogic;
-	
+
 	@SpringBean(name="org.sakaiproject.profile2.logic.ProfileSearchLogic")
 	protected ProfileSearchLogic searchLogic;
-	
+
 	Link<Void> myPicturesLink;
 	Link<Void> myProfileLink;
 	Link<Void> myFriendsLink;
@@ -91,22 +91,22 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> myPrivacyLink;
 	Link<Void> searchLink;
 	Link<Void> preferencesLink;
-	
-	
+
+
 	public BasePage() {
 		//super();
-		
+
 		log.debug("BasePage()");
-		
+
 		//set Locale - all pages will inherit this.
 		setUserPreferredLocale();
-		
+
 		//PRFL-791 set base HTML lang attribute
-		add(new LocaleAwareHtmlTag("html")); 
-		
+		add(new LocaleAwareHtmlTag("html"));
+
 		//get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
-		
+
     	//profile link
     	myProfileLink = new Link<Void>("myProfileLink") {
 			private static final long serialVersionUID = 1L;
@@ -116,8 +116,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myProfileLink.add(new Label("myProfileLabel",new ResourceModel("link.my.profile")));
 		myProfileLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.profile.tooltip")));
+
+		if(!sakaiProxy.isMenuEnabledGlobally()) {
+			myProfileLink.setVisible(false);
+		}
+
 		add(myProfileLink);
-		
+
 		//my pictures link
 		myPicturesLink = new Link<Void>("myPicturesLink") {
 			private static final long serialVersionUID = 1L;
@@ -135,8 +140,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		}
 
 		add(myPicturesLink);
-		
-		
+
+
 		//my friends link
     	myFriendsLink = new Link<Void>("myFriendsLink") {
 			private static final long serialVersionUID = 1L;
@@ -146,7 +151,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myFriendsLink.add(new Label("myFriendsLabel",new ResourceModel("link.my.friends")));
 		myFriendsLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.friends.tooltip")));
-		
+
 		//get count of new connection requests
 		int newRequestsCount = connectionsLogic.getConnectionRequestsForUserCount(currentUserUuid);
 		Label newRequestsLabel = new Label("newRequestsLabel", new Model<Integer>(newRequestsCount));
@@ -156,10 +161,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 			newRequestsLabel.setVisible(false);
 		}
 
-		myFriendsLink.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
+		if(!sakaiProxy.isConnectionEnabledGlobally()) {
+			myFriendsLink.setVisible(false);
+		}
+
 		add(myFriendsLink);
-		
-		
+
+
 		//messages link
     	myMessagesLink = new Link<Void>("myMessagesLink") {
 			private static final long serialVersionUID = 1L;
@@ -169,7 +177,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myMessagesLink.add(new Label("myMessagesLabel",new ResourceModel("link.my.messages")));
 		myMessagesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.messages.tooltip")));
-		
+
 		//get count of new messages grouped by thread
 		int newMessagesCount = messagingLogic.getThreadsWithUnreadMessagesCount(currentUserUuid);
 		Label newMessagesLabel = new Label("newMessagesLabel", new Model<Integer>(newMessagesCount));
@@ -178,12 +186,12 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		if(newMessagesCount == 0) {
 			newMessagesLabel.setVisible(false);
 		}
-		
+
 		if (!sakaiProxy.isMessagingEnabledGlobally()) {
 			myMessagesLink.setVisible(false);
 		}
 		add(myMessagesLink);
-		
+
 
 		//privacy link
     	myPrivacyLink = new Link<Void>("myPrivacyLink") {
@@ -194,9 +202,14 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		myPrivacyLink.add(new Label("myPrivacyLabel",new ResourceModel("link.my.privacy")));
 		myPrivacyLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.privacy.tooltip")));
+
+		if(!sakaiProxy.isPrivacyEnabledGlobally()) {
+			myPrivacyLink.setVisible(false);
+		}
+
 		add(myPrivacyLink);
-		
-		
+
+
 		//search link
     	searchLink = new Link<Void>("searchLink") {
 			private static final long serialVersionUID = 1L;
@@ -207,11 +220,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		searchLink.add(new Label("searchLabel",new ResourceModel("link.my.search")));
 		searchLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.search.tooltip")));
 
-		searchLink.setVisible(sakaiProxy.isSearchEnabledGlobally());
+		if(!sakaiProxy.isSearchEnabledGlobally()) {
+			searchLink.setVisible(false);
+		}
 
 		add(searchLink);
-		
-		
+
+
 		//preferences link
     	preferencesLink = new Link<Void>("preferencesLink") {
 			private static final long serialVersionUID = 1L;
@@ -221,9 +236,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		};
 		preferencesLink.add(new Label("preferencesLabel",new ResourceModel("link.my.preferences")));
 		preferencesLink.add(new AttributeModifier("title", true, new ResourceModel("link.my.preferences.tooltip")));
+
+		if(!sakaiProxy.isPreferenceEnabledGlobally()) {
+			preferencesLink.setVisible(false);
+		}
 		add(preferencesLink);
-			
-		
+
+
 		//rss link
 		/*
 		ContextImage icon = new ContextImage("icon",new Model(ProfileImageManager.RSS_IMG));
@@ -236,51 +255,32 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		icon.setVisible(true);
 		add(rssLink);
 		*/
-		
-    }
-	
-	
-	
-	
-	
-	
-	
 
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+    }
+
+
 	//Style it like a Sakai tool
 	public void renderHead(IHeaderResponse response) {
-		
+
 		//get the Sakai skin header fragment from the request attribute
 		HttpServletRequest request = getWebRequestCycle().getWebRequest().getHttpServletRequest();
 		response.renderString((String)request.getAttribute("sakai.html.head"));
 		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
-		
+
 		//Tool additions (at end so we can override if required)
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		response.renderCSSReference("css/profile2.css");
 		response.renderJavascriptReference("javascript/profile2.js");
-		
+
 	}
-	
+
 	/* disable caching
-	protected void setHeaders(WebResponse response) { 
-		response.setHeader("Pragma", "no-cache"); 
-		response.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store"); 
-    } 
+	protected void setHeaders(WebResponse response) {
+		response.setHeader("Pragma", "no-cache");
+		response.setHeader("Cache-Control", "no-cache, max-age=0, must-revalidate, no-store");
+    }
 	*/
-	
+
 	/**
 	 * Allow overrides of the user's locale
 	 */
@@ -289,36 +289,36 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		log.debug("User preferred locale: " + locale);
 		getSession().setLocale(locale);
 	}
-	
+
 	/**
 	 * Allow Pages to set the title
 	 * @param model
 	 */
 	/*
-	protected void setPageTitle(IModel model) {  
-		get("pageTitle").setDefaultModel(model);  
-	} 
-	*/ 
-	
-	/** 
+	protected void setPageTitle(IModel model) {
+		get("pageTitle").setDefaultModel(model);
+	}
+	*/
+
+	/**
 	 * Disable a page nav link (PRFL-468)
 	 */
 	protected void disableLink(Link<Void> l) {
 		l.add(new AttributeAppender("class", new Model<String>("current"), " "));
 		l.setEnabled(false);
 	}
-	
+
 	/**
 	 * Set the cookie that stores the current tab index.
-	 * 
+	 *
 	 * @param tabIndex the current tab index.
 	 */
 	protected void setTabCookie(int tabIndex) {
-		
+
 		Cookie tabCookie = new Cookie(ProfileConstants.TAB_COOKIE, "" + tabIndex);
 		// don't persist indefinitely
 		tabCookie.setMaxAge(-1);
 		getWebRequestCycle().getWebResponse().addCookie(tabCookie);
 	}
-	
+
 }
