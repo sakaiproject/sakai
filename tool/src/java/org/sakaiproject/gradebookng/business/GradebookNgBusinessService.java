@@ -1,7 +1,17 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
+
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
@@ -15,16 +25,18 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
-import org.sakaiproject.service.gradebook.shared.*;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-
-import javax.xml.bind.JAXBException;
-import java.util.*;
 
 
 /**
@@ -54,7 +66,7 @@ public class GradebookNgBusinessService {
 	@Setter
 	private CourseManagementService courseManagementService;
 	
-	
+	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -431,11 +443,29 @@ public class GradebookNgBusinessService {
 	
 	/**
 	 * Helper to get siteid
+	 * This will ONLY work in a portal site context, null otherwise.
 	 * @return
 	 */
 	private String getCurrentSiteId() {
-		return this.toolManager.getCurrentPlacement().getContext();
+		try {
+    		return this.toolManager.getCurrentPlacement().getContext();
+    	} catch (Exception e){
+    		return null;
+    	}
 	}
+	
+	/**
+     * Get the placement id of the gradebookNG tool in the site.
+     * This will ONLY work in a portal site context, null otherwise
+     * @return
+     */
+	private String getToolPlacementId() {
+    	try {
+    		return this.toolManager.getCurrentPlacement().getId();
+    	} catch (Exception e){
+    		return null;
+    	}
+    }
 	
 	/**
 	 * Helper to get user uuid
@@ -456,6 +486,5 @@ public class GradebookNgBusinessService {
             this.gradebookService.addAssignment(gradebookId, assignment);
         }
     }
-	
-	
+    
 }
