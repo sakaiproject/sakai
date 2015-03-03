@@ -54,16 +54,16 @@
 }
 #gradebookGrades td .btn-group {
   position: absolute;
-  bottom: 0;
-  right: 0;
+  bottom: 1px;
+  right: 1px;
 }
 #gradebookGrades .gb-cell {
   cursor: pointer;
 }
 #gradebookGrades th .btn-group {
   position: absolute;
-  right: 0;
-  bottom: 0;
+  bottom: 1px;
+  right: 1px;
 }
 #gradebookGrades .btn.dropdown-toggle {
   padding: 0 8px;
@@ -75,7 +75,7 @@
 }
 /* Table Cells */
 #gradebookGrades tbody td.gb-cell {
-  height: 34px;
+  height: 2.6em;
 }
 #gradebookGrades .gb-item-grade {
   position: relative;
