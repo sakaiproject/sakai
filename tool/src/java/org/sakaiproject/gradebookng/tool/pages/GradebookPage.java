@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -93,7 +94,8 @@ public class GradebookPage extends BasePage {
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				StudentGradeInfo studentGradeInfo = (StudentGradeInfo) rowModel.getObject();
 				cellItem.add(new StudentNameCellPanel(componentId, studentGradeInfo.getStudentName(), studentGradeInfo.getStudentEid()));
-
+				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
+				cellItem.add(new AttributeModifier("class", "gb-student-cell"));
 			}
         	
         };
@@ -113,7 +115,12 @@ public class GradebookPage extends BasePage {
 					return panel;
 	        		
 	        	}
-	        	
+
+				@Override
+				public String getCssClass() {
+					return "gb-grade-item";
+				}
+
 				@Override
 				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 					cellItem.add(new EmptyPanel(componentId)); //TODO

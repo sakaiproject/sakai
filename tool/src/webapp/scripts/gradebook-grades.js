@@ -29,6 +29,15 @@ GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
       self.getCellModel($element.closest(".gb-cell")).handleWicketEvent(jqEvent, element);
     }
   });
+
+  Wicket.Event.subscribe('/ajax/call/complete', function(jqEvent, attributes, jqXHR, errorThrown, textStatus) {
+    console.log("** '/ajax/call/complete'");
+    console.log(jqEvent);
+    console.log(attributes);
+    console.log(jqXHR);
+    console.log(errorThrown);
+    console.log(textStatus);
+  });
 };
 
 
