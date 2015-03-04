@@ -5,9 +5,10 @@ import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.business.model.GbAssignment;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -33,17 +34,19 @@ public class CreateGradeItemStep extends Panel {
         assignment.setName(processedGradeItem.getItemTitle());
         assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
 
-        Form<Assignment> form = new Form<Assignment>("form", new CompoundPropertyModel<Assignment>(assignment))
+        GbAssignmentModel gbAssignmentModel = new GbAssignmentModel(new GbAssignment(assignment));
+
+        Form<GbAssignmentModel> form = new Form<GbAssignmentModel>("form", gbAssignmentModel)
         {
             @Override
             protected void onSubmit()
             {
                 LOG.debug("onSubmit()");
-                CompoundPropertyModel<Assignment> submittedModel = (CompoundPropertyModel<Assignment>)getDefaultModel();
-                Assignment assignment = submittedModel.getObject();
+                GbAssignmentModel submittedModel = (GbAssignmentModel)getDefaultModel();
+                GbAssignment assignment = (GbAssignment)submittedModel.getObject();
 
                 if (assignment != null)
-                    assignmentsToCreate.add(assignment);
+                    assignmentsToCreate.add(assignment.convert2Assignment());
                 LOG.info("Assignment: " + assignment);
 //                info("assignment: " + getDefaultModelObjectAsString());
                 //Figure out if there are more steps
@@ -64,7 +67,7 @@ public class CreateGradeItemStep extends Panel {
 
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, totalSteps)));
 
-        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents");
+        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", gbAssignmentModel);
 
         form.add(gradePanelContent);
 

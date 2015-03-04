@@ -5,6 +5,8 @@ import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
+import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,14 +20,14 @@ public class AddGradeItemPanelContent extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	public AddGradeItemPanelContent(String id) {
-        super(id);
+    public AddGradeItemPanelContent(String id, GbAssignmentModel gbAssignmentModel) {
+        super(id, gbAssignmentModel);
 
-        add(new TextField("name"));
-        add(new TextField("points"));
-        add(new DateTextField("dueDate", "MM/DD/yy"));
+        add(new TextField("title", new PropertyModel(gbAssignmentModel, "name")));
+        add(new TextField("points", new PropertyModel(gbAssignmentModel, "points")));
+        add(new DateTextField("duedate", new PropertyModel(gbAssignmentModel, "dueDate"), "MM/DD/yy"));
         //add(new DropDownChoice("category", new Model()));
-        add(new DropDownChoice("categoryName", new Model(), Arrays.asList(new String[] { "A", "B", "C" })));
+        add(new DropDownChoice("category", new PropertyModel(gbAssignmentModel, "categoryName"), Arrays.asList(new String[] { "A", "B", "C" })));
 
     }
 	
