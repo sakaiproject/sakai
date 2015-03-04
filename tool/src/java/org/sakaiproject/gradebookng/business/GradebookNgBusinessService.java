@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
@@ -22,7 +23,9 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
+import org.sakaiproject.gradebookng.business.model.GradebookUiConfiguration;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
@@ -33,6 +36,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.user.api.User;
@@ -486,5 +490,44 @@ public class GradebookNgBusinessService {
             this.gradebookService.addAssignment(gradebookId, assignment);
         }
     }
+    
+    /**
+     * Get the configured assignment order for the site
+     * 
+     * @param siteId
+     * @return
+     */
+    public List<AssignmentOrder> getAssignmentOrder(String siteId) {
+    	
+    	Site site = null;
+		try {
+			site = this.siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+		ResourceProperties props = site.getProperties();
+    	String assignmentOrderXml = props.getProperty(ASSIGNMENT_ORDER_PROP);
+    	
+    	System.out.println("assignmentOrderXml: " + assignmentOrderXml);
+    	
+    	//deserialise the xml
+    	//in the update order method, check for assignemntid element, update it or add it, resave
+    	//the sort order needs to be used in the sortAssignments method too
+    	
+    	return null;
+    }
+    
+    /*
+    public GradebookUiConfiguration getGradebookUiConfiguration() {
+    	//the front end will set this into the DOM so the JS can pick it up. need to include siteid, toolid etc.
+    	//alternatxively can pass in the sited to get the config
+    	
+    	return null;
+    }
+    */
+    
     
 }

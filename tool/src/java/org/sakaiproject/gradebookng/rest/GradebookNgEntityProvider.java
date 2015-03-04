@@ -70,9 +70,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		checkValidSite(siteId);
 
 		// check instructor
-		if(!isInstructor(siteId)) {
-			throw new SecurityException("You do not have permission to access GBNG data");
-		}
+		checkInstructor(siteId);
 		
 		// get assignment list
 		List<Assignment> assignments = this.businessService.getGradebookAssignments(siteId);
@@ -87,8 +85,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	 * @param ref
 	 * @param params map, must include:
 	 * siteId
-	 * toolId
-	 * assignmentid
+	 * assignmentId
 	 * new order
 	 * 
 	 * an assignmentorder object will be created and saved as a list in the XML property 'gbng_assignment_order'
@@ -96,17 +93,34 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	@EntityCustomAction(action = "assignment-order", viewKey = EntityView.VIEW_NEW)
 	public void updateAssignmentOrder(EntityReference ref, Map<String, Object> params) {
 		
-		//params
+		// get params
+		String siteId = (String) params.get("siteId");
+		String assignmentId = (String) params.get("assignmentId");
+		String order = (String) params.get("order");
+
+		// check params supplied are valid
+		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(assignmentId) || StringUtils.isBlank(order)) {
+			throw new IllegalArgumentException(
+					"Data was missing from the request");
+		}
+		checkValidSite(siteId);
+
+		// check instructor
+		checkInstructor(siteId);
+		
+		//TODO get the current prop, update it and resave
+		
 		
 	}
 	/**
-	 * Helper to check if the user is an instructor
+	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not.
+	 * We don't currently need the value that this produces so we don't return it.
 	 * 
 	 * @param siteId
 	 * @return
 	 * @throws IdUnusedException
 	 */
-	private boolean isInstructor(String siteId) {
+	private void checkInstructor(String siteId) {
 		
 		String currentUserId = this.getCurrentUserId();
 		
@@ -114,7 +128,9 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("You must be logged in to access GBNG data");
 		}
 		
-		return isAllowed(currentUserId, Permissions.GRADE_ALL.getValue(), siteService.siteReference(siteId));
+		if(!isAllowed(currentUserId, Permissions.GRADE_ALL.getValue(), siteService.siteReference(siteId))) {
+			throw new SecurityException("You do not have instructor-type permissions in this site.");
+		}
 	}
 
 	/**

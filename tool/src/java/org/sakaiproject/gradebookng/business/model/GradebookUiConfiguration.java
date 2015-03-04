@@ -9,7 +9,7 @@ import lombok.Setter;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class GradebookConfiguration {
+public class GradebookUiConfiguration {
 
 	@Getter
 	@Setter
