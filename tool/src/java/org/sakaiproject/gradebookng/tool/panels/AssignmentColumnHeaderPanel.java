@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.apache.wicket.AttributeModifier;
 
 /**
  * 
@@ -34,7 +35,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(averageGradeSection);
 		
 		add(new Label("dueDate", new Model<String>(getDueDate(assignment.getDueDate()))));
-		
+
+		add(new AttributeModifier("data-assignmentId", assignment.getId()));
+
 		//menu
 		//AjaxLink menu = new AjaxLink("menu", "http://google.com");
 		//link.add(new Label("menuLabel"));
