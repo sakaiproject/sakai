@@ -14,20 +14,33 @@
 	<div class="portletBody">
 		<ul class="navIntraTool actionToolbar">
 			<li class="firstToolBarItem">
-				<a wicket:id="gradebookPageLink" wicket:message="title:link.gradebook.tooltip">
-					<wicket:message key="link.gradebook" />
-				</a>
-				<a wicket:id="settingsPageLink" wicket:message="title:link.settings.tooltip">
-					<wicket:message key="link.settings" />
-				</a>
-				<a wicket:id="importExportPageLink" wicket:message="title:link.importexport.tooltip">
-					<wicket:message key="link.importexport" />
-				</a>
-				<a wicket:id="permissionsPageLink" wicket:message="title:link.permissions.tooltip">
-					<wicket:message key="link.permissions" />
-				</a>
+				<span>
+					<a wicket:id="gradebookPageLink" wicket:message="title:link.gradebook.tooltip">
+						<wicket:message key="link.gradebook" />
+					</a>
+				</span>
+			</li>    
+			<li>
+				<span>
+					<a wicket:id="settingsPageLink" wicket:message="title:link.settings.tooltip">
+						<wicket:message key="link.settings" />
+					</a>
+				</span>
 			</li>
-			
+			<li>
+				<span>
+					<a wicket:id="importExportPageLink" wicket:message="title:link.importexport.tooltip">
+						<wicket:message key="link.importexport" />
+					</a>
+				</span>
+			</li>
+			<li>
+				<span>
+					<a wicket:id="permissionsPageLink" wicket:message="title:link.permissions.tooltip">
+						<wicket:message key="link.permissions" />
+					</a>
+				</span>
+			</li>
 		</ul>
 		
 		<span wicket:id="feedback">Feedback messages go here</span>
