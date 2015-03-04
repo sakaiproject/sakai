@@ -9,8 +9,8 @@ function GradebookSpreadsheet($spreadsheet) {
   this.$spreadsheet = $spreadsheet;
   this.$table = $("#gradebookGradesTable", this.$spreadsheet);
 
-  // all the GradebookCell objects keyed on row index, then cell index
-  this._CELLS = {};
+  // all the Grade Item cell models keyed on studentUuid, then assignmentId
+  this._GRADE_CELLS = {};
 
   this.setupWicketAJAXEventHandler();
   this.setupGradeItemCellModels();
@@ -21,22 +21,16 @@ function GradebookSpreadsheet($spreadsheet) {
 GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
   var self = this;
 
-  // When Wicket AJAX loads in some new content, check if it's a grade cell
-  // and notify the cell's model accordingly.
-  Wicket.Event.subscribe('/dom/node/added', function(jqEvent, element) {
-    var $element = $(element);
-    if ($element.is(".gb-item-grade")) {
-      self.getCellModel($element.closest(".gb-cell")).handleWicketEvent(jqEvent, element);
-    }
-  });
-
+  // When Wicket AJAX loads in some new content, notify the cell's model accordingly.
   Wicket.Event.subscribe('/ajax/call/complete', function(jqEvent, attributes, jqXHR, errorThrown, textStatus) {
-    console.log("** '/ajax/call/complete'");
-    console.log(jqEvent);
-    console.log(attributes);
-    console.log(jqXHR);
-    console.log(errorThrown);
-    console.log(textStatus);
+    var extraParameters = {};
+
+    attributes.ep.map(function(o, i) {
+      extraParameters[o.name] = o.value;
+    });
+
+    var model = self.getCellModelForStudentAndAssignment(extraParameters.studentUuid, extraParameters.assignmentId);
+    model.handleWicketEvent(jqEvent, attributes, jqXHR, errorThrown, textStatus, extraParameters);
   });
 };
 
@@ -44,24 +38,40 @@ GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
 GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
   var self = this;
 
+  var tmpHeaderByIndex = [];
 
-  self.$table.find("tr").each(function(rowIdx, row) {
+  self.$table.find("thead tr th").each(function(cellIndex, cell) {
+    var $cell = $(cell);
+
+    var model = new GradebookHeaderCell($cell, self);
+
+    tmpHeaderByIndex.push(model);
+
+    $cell.data("model", model);
+  });
+
+
+  self.$table.find("tbody tr").each(function(rowIdx, row) {
     var $row = $(row);
-    $row.data("rowIdx", rowIdx);
+    var studentUuid = $row.find(".gb-student-cell").data("studentuuid");
+    $row.data("studentuuid", studentUuid);
 
-    self._CELLS[rowIdx] = {};
+    self._GRADE_CELLS[studentUuid] = {};
 
     $row.find("th, td").each(function(cellIndex, cell) {
       var $cell = $(cell);
-      $cell.data("rowIdx", rowIdx).data("cellIdx", cellIndex);
 
       var cellModel;
+
       if (self.isCellEditable($cell)) {
-        cellModel = new GradebookEditableCell($cell, self);
+        cellModel = new GradebookEditableCell($cell, tmpHeaderByIndex[cellIndex], self);
+
+        self._GRADE_CELLS[studentUuid][cellModel.header.columnKey] = cellModel;
       } else {
-        cellModel = new GradebookBasicCell($cell, self);
+        cellModel = new GradebookBasicCell($cell, tmpHeaderByIndex[cellIndex], self);
       }
-      self._CELLS[rowIdx][cellIndex] = cellModel;
+
+      $cell.data("model", cellModel);
     });
   });
 };
@@ -216,18 +226,13 @@ GradebookSpreadsheet.prototype.isCellEditable = function($cell) {
 };
 
 
-GradebookSpreadsheet.prototype.getHeaderCellModelForCell = function($cell) {
-  return this.getCellModelForIndexes(0, $cell.data("cellIdx"));
-};
-
-
-GradebookSpreadsheet.prototype.getCellModelForIndexes = function(rowIndex, cellIndex) {
-  return this._CELLS[rowIndex][cellIndex];
+GradebookSpreadsheet.prototype.getCellModelForStudentAndAssignment = function(studentUuid, assignmentId) {
+  return this._GRADE_CELLS[studentUuid][assignmentId];
 };
 
 
 GradebookSpreadsheet.prototype.getCellModel = function($cell) {
-  return this.getCellModelForIndexes($cell.data("rowIdx"), $cell.data("cellIdx"));
+  return $cell.data("model");
 };
 
 
@@ -258,14 +263,15 @@ GradebookSpreadsheet.prototype.handleInputTab = function(event, $cell) {
 /*************************************************************************************
  * GradebookEditableCell - behaviour for editable cells
  */
-function GradebookEditableCell($cell, gradebookSpreadsheet) {
+function GradebookEditableCell($cell, header, gradebookSpreadsheet) {
   this.$cell = $cell;
+  this.header = header;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
 };
 
 
-GradebookEditableCell.prototype.handleWicketEvent = function(event, element) {
+GradebookEditableCell.prototype.handleWicketEvent = function(jqEvent, attributes, jqXHR, error, status, ep) {
   var self = this;
   if (self.isEditingMode()) {
     self.setupWicketInputField(self.$cell.data("initialValue"));
@@ -352,12 +358,12 @@ GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
 
 
 GradebookEditableCell.prototype.getHeaderCell = function() {
-  this.gradebookSpreadsheet.getHeaderCellModelForCell(this.$cell);
+  return this.header.$cell;
 };
 
+
 GradebookEditableCell.prototype.getGradeItemTotalPoints = function() {
-  var headerCellModel = this.gradebookSpreadsheet.getHeaderCellModelForCell(this.$cell);
-  return headerCellModel.$cell.find(".gb-total-points").html();
+  return this.header.$cell.find(".gb-total-points").html();
 };
 
 
@@ -374,8 +380,9 @@ GradebookEditableCell.prototype.enterEditMode = function(withValue) {
 /**************************************************************************************
  * GradebookBasicCell basic cell with basic functions
  */
-function GradebookBasicCell($cell, gradebookSpreadsheet) {
+function GradebookBasicCell($cell, header, gradebookSpreadsheet) {
   this.$cell = $cell;
+  this.header = header;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
 };
 
@@ -388,6 +395,39 @@ GradebookBasicCell.prototype.getRow = function() {
 GradebookBasicCell.prototype.isEditable = function() {
   return false;
 };
+
+
+/**************************************************************************************
+ * GradebookHeaderCell basic header cell with basic functions
+ */
+function GradebookHeaderCell($cell, gradebookSpreadsheet) {
+  this.$cell = $cell;
+  this.gradebookSpreadsheet = gradebookSpreadsheet;
+  this.setColumnKey();
+};
+
+
+GradebookHeaderCell.prototype.getRow = function() {
+  return this.$cell.closest("tr");
+};
+
+
+GradebookHeaderCell.prototype.isEditable = function() {
+  return false;
+};
+
+
+GradebookHeaderCell.prototype.setColumnKey = function() {
+  var columnKey;
+  if (this.$cell.hasClass("gb-grade-item-header")) {
+    columnKey = this.$cell.find("[data-assignmentid]").data("assignmentid");
+  } else {
+    columnKey = this.$cell.find(".gb-title, span:first")[0].innerText.trim();
+  }
+  this.columnKey = columnKey;
+
+  return columnKey;
+}
 
 
 /**************************************************************************************

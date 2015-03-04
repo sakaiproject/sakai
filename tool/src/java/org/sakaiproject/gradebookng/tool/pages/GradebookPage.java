@@ -97,7 +97,7 @@ public class GradebookPage extends BasePage {
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
 				cellItem.add(new AttributeModifier("class", "gb-student-cell"));
 			}
-        	
+
         };
         
         cols.add(studentNameColumn);
@@ -115,11 +115,6 @@ public class GradebookPage extends BasePage {
 					return panel;
 	        		
 	        	}
-
-				@Override
-				public String getCssClass() {
-					return "gb-grade-item";
-				}
 
 				@Override
 				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
@@ -149,6 +144,11 @@ public class GradebookPage extends BasePage {
             		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, assignment);
     				return panel;
             	}
+
+						@Override
+						public String getCssClass() {
+							return "gb-grade-item-header";
+						}
             	
             	@Override
 				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
