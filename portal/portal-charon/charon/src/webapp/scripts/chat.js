@@ -28,8 +28,10 @@
     portal.chat.connectionsAvailable = true;
 	portal.chat.videoOff = false;
 	portal.chat.openWindows = 0;
-	portal.chat.footerApp = $("#footerApp") || $("#Mrphs-footerApp");
-	portal.chat.footerAppChat = $("#footerAppChat") || $("#Mrphs-footerApp__chat");
+	
+	
+	portal.chat.footerApp = $("#footerApp").length > 0 ? $("#footerApp") : $("#Mrphs-footerApp");
+	portal.chat.footerAppChat = $("#footerAppChat").length > 0 ? $("#footerAppChat") : $("#Mrphs-footerApp__chat");
 	
 
     /**
@@ -1046,6 +1048,6 @@
 }) ($PBJQ);
 
 $PBJQ(document).ready(function () {
-    $PBJQ(portal.chat.footerAppChat).removeClass('is-hidden');
-    $PBJQ(portal.chat.footerAppChat).show();
+    portal.chat.footerAppChat.show();
+    portal.chat.footerAppChat.removeClass('is-hidden');
 });
