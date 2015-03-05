@@ -7,18 +7,186 @@
 .Mrphs-{
 	&footerApp{
 		&__presence{
-		    color: $footerApp__chat__color;
+		  	background-color: $footerApp__chat__header__background;
+		  	color: $footerApp__chat__header__color;
 		    float: left;
 		    text-align: left;
 		    vertical-align: bottom;
 		    width: 200px;
+		    height: 30px;
+		    padding: 5px 5px 0px 7px;
 		}&--toggle{
 		 	display: inline;
     		padding: 6px 6px 5px 6px;
-    		color: #222;
+    		color: $footerApp__chat__header__color;
     		text-decoration: none;
     		height: 16px;
     		font-weight: bold;
 		}
 	}
+	&portalChat{
+		    width: 200px;
+		    background-color: $footerApp__chat__background;
+		    border-width: 1px 1px 0 1px;
+		    position: fixed;
+		    bottom: 30px;
+		   
+		    /* Needs to be to the right of the expanded presence block. See presenceArea. */
+		    right: 18px;
+		    z-index: 2001;
+		    margin: 0px;
+		    padding: 0px;
+		    display: none;
+			
+			/* First generic styles*/
+			&__list{
+				list-style: none;
+				margin: 3px 5px 0px 0px;
+				padding: 0px;
+			}
+			&__list-item{
+				clear: both;
+				height: 100%;
+				overflow: hidden;
+				position: relative;
+			}
+			
+			&__title{
+				    font-weight: bold;
+    				padding: 5px;
+				    vertical-align: middle;
+				    color: $footerApp__chat__header__color;
+				    background-color: $footerApp__chat__header__background;
+			}
+			
+			&__container {
+    			 clear: both;
+    			 
+    			 h2{
+    			 	background: none;
+    			 	color: $footerApp__chat__color;
+    			 	padding: 2px 0px;
+    			 	font-size: 1em;
+    			 	margin: 0px;
+    			 }
+    			 
+			}
+			&__wrapper{
+				padding: 5px;
+				clear: both;
+				font-size: 95%;
+				height: 100%;
+				overflow: hidden;
+			}
+			&__options{
+				overflow: hidden;
+   				font-size: 90%;
+    			padding: 5px;
+    			margin: 0px 0px 10px 0px
+			}
+			&__users {
+				border-top: solid 0.5em $footerApp__chat__header__background;
+			}
+			&__count{
+				  border-radius: 50%;
+				  background: #FFF;
+				  width: 23px;
+				  height: 23px;
+				  display: inline-block;
+				  float: right;
+				  text-align: center;
+				  vertical-align: middle;
+			}
+			&__close{
+				padding: 0px !important;
+				width: 16px;
+				height: 16px;
+				background: url("/library/image/sakai/cross.png") 0 0 no-repeat;
+				float: right;
+				text-align: right;
+				margin-top: 5px;
+			}
+			&__siteusers,&__connections{
+				a{
+					
+				}
+				
+			}
+			&__user--link{
+				  margin-left: 5px;
+				  text-decoration: none !important;
+				  height: 30px;
+				  width: 140px;
+				  float: left;
+				  &:hover{
+				  	text-decoration: none;
+				  }
+			}
+			&__connection--bullet{
+				float: left;
+				display: inline-block;
+				right: -3px;
+				position: absolute;
+				bottom: 0px;
+			}
+			&__user--image{
+			  vertical-align: middle;
+  			  float: left;
+  			  width: 40px;
+			}
+			&__user--name{
+  				float: left;
+  				margin: 3px;
+  				height: 30px;
+			}
+		
+		
+			/*Chat windows*/
+			&__chat--title{
+					font-weight: bold;
+					font-size: 0.8em;
+					padding: 5px;
+					vertical-align: middle;
+					color: $footerApp__chat__header__color;
+					background-color: $footerApp__chat__header__background;
+					cursor: pointer;
+  					overflow: hidden;
+					position: relative;
+					height: 33px;
+			}
+			
+			/*Videochat controls */
+			
+			&__videochat--bar{
+				font-size: 14px;
+				font-weight: bold;
+				color: $footerApp__chat__color;
+			}
+			
+			&__videochat--ctrlbar{
+				font-size: 14px;
+				font-weight: bold;
+				color: $footerApp__chat__color;
+				background: none repeat scroll 0% 0% $footerApp__chat__background;
+				overflow: hidden;
+				position: relative;
+				height: 18px;
+				border-bottom: 1px solid #CCC;
+			}
+			&__videochat--answerelement{
+				float: left;
+				width: 25%;
+			}
+			&__videochat--rightelement{
+				font-size: 15px;
+				font-weight: bold;
+				float: right;
+				width: 75%;
+				text-align: right;
+			}
+			
+		
+	}
+	
+
 }
