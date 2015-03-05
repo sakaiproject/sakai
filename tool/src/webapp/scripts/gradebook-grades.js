@@ -209,12 +209,16 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
     }
   }
 
-  if (enableEditMode && $targetCell && $(fromCell) != $targetCell) {
-    var model = self.getCellModel($targetCell);
-    if (model.isEditable()) {
-      model.enterEditMode();
-    }
-  } else if ($targetCell) {
+  //Disable auto-editmode for now until latency issues are investigated.
+  //With a 1-2 latency, the navigation from edit-mode to edit-mode doesn't flow
+  //well when navigating quickly through the cells.
+  //if (enableEditMode && $targetCell && $(fromCell) != $targetCell) {
+  //  var model = self.getCellModel($targetCell);
+  //  if (model.isEditable()) {
+  //    model.enterEditMode();
+  //  }
+  //} else if ($targetCell) {
+  if ($targetCell) {
     $targetCell.focus();
   }
 
