@@ -15,6 +15,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupWicketAJAXEventHandler();
   this.setupGradeItemCellModels();
   this.setupKeyboadNavigation();
+  this.setupFixedTableHeader();
 };
 
 
@@ -220,6 +221,18 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
   //} else if ($targetCell) {
   if ($targetCell) {
     $targetCell.focus();
+
+    // check input is visible on x-scroll
+    if  ($targetCell[0].offsetLeft - self.$spreadsheet[0].scrollLeft < 110) {
+      self.$spreadsheet[0].scrollLeft = $targetCell[0].offsetLeft;
+    }
+
+    // check input is visible on y-scroll
+    var $header = self.getHeader();
+    var headerBottomPosition = $header[0].offsetTop + $header[0].offsetHeight;
+    if ($targetCell[0].offsetTop < headerBottomPosition) {
+      document.body.scrollTop = document.body.scrollTop - (headerBottomPosition - $targetCell[0].offsetTop);
+    }
   }
 
   return false;
@@ -262,6 +275,45 @@ GradebookSpreadsheet.prototype.handleInputArrowKey = function(event, $cell) {
 GradebookSpreadsheet.prototype.handleInputTab = function(event, $cell) {
   this.navigate(event, $cell, event.shiftKey ? "left" : "right", true);
 };
+
+
+GradebookSpreadsheet.prototype.getHeader = function() {
+  // if floating, return the floating header
+  if (this.$spreadsheet.find(".gb-fixed-header-table:visible").length > 0) {
+    return this.$spreadsheet.find(".gb-fixed-header-table:visible");
+  }
+
+  // otherwise, return the fixed header
+  return this.$table.find("thead", "tr");
+};
+
+
+GradebookSpreadsheet.prototype.setupFixedTableHeader = function() {
+  var self = this;
+
+  var $header = self.$table.find("thead", "tr");
+  var $fixedHeader = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-header-table").hide();
+  $fixedHeader.append($header.clone());
+  self.$spreadsheet.append($fixedHeader);
+
+  function positionFixedHeader() {
+    if (document.body.scrollTop + $fixedHeader.height() + 100 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+    } else if (self.$spreadsheet.offset().top < document.body.scrollTop) {
+      $fixedHeader.
+          show().
+          css("top", document.body.scrollTop - self.$spreadsheet.offset().top + "px").
+          css("left", "0");
+    } else {
+      $fixedHeader.hide();
+    }
+  }
+
+  $(document).on("scroll", function() {
+    positionFixedHeader();
+  });
+  positionFixedHeader();
+};
+
 
 
 /*************************************************************************************

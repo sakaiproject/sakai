@@ -12,15 +12,24 @@
 }
  
  
- /* Container */
- #gradebookGrades {
-   margin-top: 10px;
- }
+/* Container */
+#gradebookGrades {
+  margin-top: 10px;
+  width: 100%;
+  overflow: auto;
+  position: relative;
+}
 
- /* Table */
+/* Table */
+#gradebookGrades table {
+  width: 0; /* Foo-width to fix display issue in Morpheus */
+  display: block;
+  margin: 0;
+}
 #gradebookGrades th,
 #gradebookGrades td {
   padding: 4px;
+  min-width: 120px;
 }
 #gradebookGrades fieldset td {
   height: 2em;
@@ -95,6 +104,10 @@
   padding-left: 6px;
   font-size: 0.9em;
   color: #999;
+}
+/* Fixed header */
+#gradebookGrades .gb-fixed-header-table {
+  position: absolute;
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
