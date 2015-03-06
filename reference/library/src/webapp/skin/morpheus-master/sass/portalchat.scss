@@ -3,23 +3,6 @@
 #pc h5 {
     	margin-bottom: 5px !important;
 }
-#pc_chat_window_container {
-    position: fixed;
-    /* The chats container is placed just to the left of the connections menu */
-    right: 225px;
-    bottom: 0px;
-    height: 300px;
-    width: auto;
-}
-.pc_chat_window {
-    height: 300px;
-    width: 256px;
-    float: right;
-    border: #ccc solid 1px;
-    border-bottom: 0;
-    bottom: 0;
-    margin-right: 5px;
-}
 
 #pc_people {
     display: none
@@ -30,16 +13,6 @@
     padding: 0;
     margin: 0;
 }
-
-.pc_minimised {
-    margin-top: 260px
-}
-.pc_maximised {
-    margin-top: 0px;
-    font-family: 'Helvetica Neue', Arial;
-}
-
-
 
 .pc_message_panel {
     padding: 0px;
@@ -74,44 +47,11 @@
     left: 2px;
     float: left;
 }
-.pc_editor_wrapper {
-    padding: 5px 5px 0px 7px;
-    background: #f3f3f3;
-    border-top: 1px solid #ccc;
-    height: 200px;
-}
-.pc_editor {
-    width: 236px;
-    margin-top: 2px;
-    padding: 1px;
-}
-.pc_displayname {
-    display: block;
-    font-weight: bold;
-    font-size: 0.9em;
-    padding: 0 5% 5% 5%;
-    text-align: center;
-}
-.pc_displayname + .pc_message {
-    margin-left: -20px;
-    margin-top: 3px;
-}
-.pc_message {
-    /*TODO: width of message will also depend on server-scaled avatar;;
-    * width: ;*/
-    width: 170px;
-    overflow: hidden;
-}
+
+
 /* if avatars are not being displayed, adjust message
  * positioning
    */
-.pc_messagedate {
-    font-size: 90%;
-    color: #555;
-    position: absolute;
-    right: 3px;
-    top: 3px;
-}
 
 .pc_new_message {
     background-color: #fcc6c6;

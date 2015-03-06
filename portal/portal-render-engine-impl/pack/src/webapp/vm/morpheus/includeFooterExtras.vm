@@ -191,22 +191,22 @@
 					</a>
                 </div>
                 #if ( $neoChatVideo )
-				<div id="pc_connection_${uuid}_videochat_bar" class="pc_connection_videochat_bar Mrphs-portalChat__videochat--bar Mrphs-portalChat__videochat--ctrlbar">
+				<div id="Mrphs-portalChat__chat--videochatbar-${uuid}" class="pc_connection_videochat_bar Mrphs-portalChat__videochat--bar Mrphs-portalChat__videochat--ctrlbar">
 					<div class="pc_connection_videochat_bar_left Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--leftelement">
 						<a href="javascript:;" onclick="return portal.chat.video.openVideoCall('${uuid}',false);" class="video_off video_button video_call Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videocall is-hidden" title="${rloader.pc_video_do_videocall_title}" ></a>
 						<a href="javascript:;" onclick="return portal.chat.video.closeVideoCall('${uuid}',true);" class="video_on video_button video_close videochat--videobutton Mrphs-portalChat__videochat--videoclose" title="${rloader.pc_video_end_title}" ></a>
 						<a href="javascript:;" onclick="return portal.chat.video.maximizeVideoCall('${uuid}');" class="video_on video_button video_maxi Mrphs-portalChat__videochat--videomaxi" title="${rloader.pc_video_maximize_title}" ></a>
 					</div>
-					<div id="pc_connection_${uuid}_videoin" class="pc_connection_videochat_bar_answer Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--answerelement">
+					<div id="Mrphs-portalChat__chat--videoin-${uuid}" class="pc_connection_videochat_bar_answer Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--answerelement">
 						<a href="javascript:;" onclick="return portal.chat.video.acceptVideoCall('${uuid}');" class="video_button video_call Mrphs-portalChat__videochat--videocall" title="${rloader.pc_video_accept_title}"></a>
 						<a href="javascript:;" onclick="return portal.chat.video.ignoreVideoCall('${uuid}');" class="video_button video_close Mrphs-portalChat__videochat--videoclose" title="${rloader.pc_video_ingnore_title}"></a>
 						<span>${rloader.pc_video_askforincoming}</span>
 					</div>
-					<div id="pc_connection_${uuid}_videotime" class="pc_connection_videochat_bar_right Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--rightelement">
-						<span id="pc_connection_${uuid}_time">00:00</span>
+					<div id="Mrphs-portalChat__chat--videotime-${uuid}" class="pc_connection_videochat_bar_right Mrphs-portalChat__videochat--barelement Mrphs-portalChat__videochat--rightelement">
+						<span id="Mrphs-portalChat__chat--time-${uuid}">00:00</span>
 					</div>
                 </div>
-				<div id="pc_chat_${uuid}_video_content" class="pc_chat_video_content">
+				<div id="Mrphs-portalChat__chat--videocontent-${uuid}" class="Mrphs-portalChat__chat--videocontent">
 					<div class="pc_chat_video_statusbar Mrphs-portalChat__videochat--statusbar is-hidden"><span></span></div>
 					<div class="statusElement pc_chat_video_failed Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfailed is-hidden" ><span>:(</span></div>
 					<div class="statusElement pc_chat_video_finished Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfinished is-hidden" ></div>
@@ -220,7 +220,7 @@
 						</span>
 					</div>
 					
-					<div stye="display:none;" class="statusElement pc_chat_video_remote Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--remotevideo">
+					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--remotevideo">
 						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video Mrphs-portalChat__videochat--video" autoplay >
 						</video>
 					</div>
@@ -229,9 +229,9 @@
 
 				</div>
 				#end
-                <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content Mrphs-portalChat__chat--content">
-                    <ul id="pc_connection_chat_${uuid}_messages" class="pc_message_panel Mrphs-portalChat__chat--messages"></ul>
-                    <div class="pc_editor_wrapper Mrphs-portalChat__chat--wrapper"><input type="text" id="pc_editor_for_${uuid}" class="pc_editor Mrphs-portalChat__chat--editor" alt="" title="${rloader.pc_editor_tooltip}"/></div>
+                <div id="Mrphs-portalChat__chat--content-${uuid}" class="pc_connection_chat_content Mrphs-portalChat__chat--content">
+                    <ul id="Mrphs-portalChat__chat--messages-${uuid}" class="pc_message_panel Mrphs-portalChat__chat--messages"></ul>
+                    <div class="Mrphs-portalChat__chat--editorwrapper"><input type="text" id="Mrphs-portalChat__chat--editor-${uuid}" class="Mrphs-portalChat__chat--editor" alt="" title="${rloader.pc_editor_tooltip}"/></div>
                 </div>
             -->
     </div> ## END pc_connection_chat_template
@@ -240,7 +240,7 @@
 
 
     <!-- Chat windows get prepended to this container -->
-    <div id="pc_chat_window_container" class="Mrphs-portalChat__chat--container"><div id="pc_chat_window_scroller" class=" Mrphs-portalChat__chat--windowscroller"></div></div>
+    <div class="Mrphs-portalChat__chat--container"><div class=" Mrphs-portalChat__chat--windowscroller"></div></div>
     <!-- END FLOATING CHAT STUFF -->
 
 #end ## END to IF ( $neoChat && ${loggedIn})

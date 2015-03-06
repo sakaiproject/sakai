@@ -156,7 +156,7 @@
                     if (secs < 10) secs = '0' + secs;
     
                     var formattedDuration = hours + ":" + mins + ":" + secs;  
-                    $('#pc_connection_' + peerUUID + '_time').html(formattedDuration);
+                    $(portal.chat.domSelectors.pcChatVideoTimePre + peerUUID).html(formattedDuration);
                 });
             }, 1000);
     }; // init

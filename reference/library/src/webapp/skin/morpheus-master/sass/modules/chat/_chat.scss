@@ -139,52 +139,141 @@
   				margin: 3px;
   				height: 30px;
 			}
-		
-		
+			
 			/*Chat windows*/
-			&__chat--title{
-					font-weight: bold;
-					font-size: 0.8em;
-					padding: 5px;
-					vertical-align: middle;
-					color: $footerApp__chat__header__color;
-					background-color: $footerApp__chat__header__background;
-					cursor: pointer;
-  					overflow: hidden;
+			&__chat--{
+				&window{
+					height: 300px;
+				    width: 256px;
+				    float: right;
+				    border: #ccc solid 1px;
+				    border-bottom: 0;
+				    bottom: 0;
+				    margin-right: 5px;
+				}
+				&title{
+						font-weight: bold;
+						font-size: 0.8em;
+						padding: 5px;
+						vertical-align: middle;
+						color: $footerApp__chat__header__color;
+						background-color: $footerApp__chat__header__background;
+						cursor: pointer;
+	  					overflow: hidden;
+						position: relative;
+						height: 33px;
+				}
+				&container{
+					 position: fixed;
+				    /* The chats container is placed just to the left of the connections menu */
+				    right: 225px;
+				    bottom: 0px;
+				    height: 300px;
+				    width: auto;
+				     position: fixed;
+	    		}
+	    		&maximised{
+	    			margin-top: 0px;
+	   				font-family: 'Helvetica Neue', Arial;
+	    		}
+	    		&minimised{
+	    			margin-top: 260px;
+	    		}
+	    		&message{
+	    		    width: 170px;
+	    			overflow: hidden;
+	    		}
+	    		&displayname{
+					display: block;
+    				font-weight: bold;
+    				font-size: 0.9em;
+    				padding: 0 5% 5% 5%;
+    				text-align: center;    		
+	    		}
+	    		&displayname , &message{
+					margin-left: -20px;
+    				margin-top: 3px;    		
+	    		}
+	    		&messagedate{
+	    			font-size: 90%;
+				    color: #555;
+				    position: absolute;
+				    right: 3px;
+				    top: 3px;
+	    		}
+	    		
+	    		&editorwrapper {
+				    padding: 5px 5px 0px 7px;
+				    background: #f3f3f3;
+				    border-top: 1px solid #ccc;
+				    height: 200px;
+				}
+				&editor {
+				    width: 236px;
+				    margin-top: 2px;
+				    padding: 1px;
+				}
+				&messages{
+					list-style: none;
+				}
+				&messages li{
+					margin: 2px 0px;
+					vertical-align: text-top;
 					position: relative;
-					height: 33px;
+					border-bottom: 1px solid #EEE;
+					padding: 2px 35px 5px;
+					min-height: 30px;
+				}
+	    		
+	    		
 			}
 			
 			/*Videochat controls */
 			
-			&__videochat--bar{
-				font-size: 14px;
-				font-weight: bold;
-				color: $footerApp__chat__color;
-			}
+			&__videochat--{
 			
-			&__videochat--ctrlbar{
-				font-size: 14px;
-				font-weight: bold;
-				color: $footerApp__chat__color;
-				background: none repeat scroll 0% 0% $footerApp__chat__background;
-				overflow: hidden;
-				position: relative;
-				height: 18px;
-				border-bottom: 1px solid #CCC;
+				&bar{
+					font-size: 14px;
+					font-weight: bold;
+					color: $footerApp__chat__color;
+				}
+				
+				&ctrlbar{
+					font-size: 14px;
+					font-weight: bold;
+					color: $footerApp__chat__color;
+					background: none repeat scroll 0% 0% $footerApp__chat__background;
+					overflow: hidden;
+					position: relative;
+					height: 18px;
+					border-bottom: 1px solid #CCC;
+				}
+				&answerelement{
+					float: left;
+					width: 25%;
+				}
+				&rightelement{
+					font-size: 15px;
+					font-weight: bold;
+					float: right;
+					width: 75%;
+					text-align: right;
+				}
+				&remote{
+						background: black;
+						position: relative;
+				}
+				&statuselement{
+						position: relative;
+						top: 150px;
+						color: #DEDEDE;
+						font-weight: bold;
+						font-size: 10pt;
+						text-align: center;
+						width: 100%;
+						height:0px;
+				}
 			}
-			&__videochat--answerelement{
-				float: left;
-				width: 25%;
-			}
-			&__videochat--rightelement{
-				font-size: 15px;
-				font-weight: bold;
-				float: right;
-				width: 75%;
-				text-align: right;
-			}
-			
 		
 	}
 	
