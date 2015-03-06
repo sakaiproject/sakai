@@ -330,6 +330,14 @@ GradebookSpreadsheet.prototype.setupFixedStudentColumn = function() {
   $fixedColumn.width(colWidth);
   self.$spreadsheet.append($fixedColumn);
 
+  self.$table.find("tbody tr").hover(
+    function() {
+      $($fixedColumn.find("tr")[$(this).index()]).addClass("hovered");
+    },
+    function() {
+      $($fixedColumn.find("tr")[$(this).index()]).removeClass("hovered");
+    }
+  );
 
   function positionFixedColumn() {
     //if (document.body.scrollLeft + $fixedHeader.height() + 100 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {

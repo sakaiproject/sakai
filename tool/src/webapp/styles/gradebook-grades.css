@@ -116,6 +116,9 @@
 #gradebookGrades .gb-fixed-column-table.table-striped > tbody > tr:nth-of-type(even) {
   background-color: white;
 }
+#gradebookGrades .gb-fixed-column-table.table-hover tr.hovered {
+  background-color: #f5f5f5 !important;
+}
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
 	border: none; /** don't want border wrapping content inside the modal **/
