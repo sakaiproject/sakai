@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 
 import javax.xml.bind.JAXBException;
@@ -25,7 +24,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
-import org.sakaiproject.gradebookng.business.model.GradebookUiConfiguration;
+import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
@@ -36,9 +35,9 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
@@ -509,15 +508,67 @@ public class GradebookNgBusinessService {
 		}
 		
 		ResourceProperties props = site.getProperties();
-    	String assignmentOrderXml = props.getProperty(ASSIGNMENT_ORDER_PROP);
+    	String xml = props.getProperty(ASSIGNMENT_ORDER_PROP);
     	
-    	System.out.println("assignmentOrderXml: " + assignmentOrderXml);
-    	
-    	//deserialise the xml
+    	if(StringUtils.isNotBlank(xml)) {
+    		try {
+    			//goes via the xml list wrapper as that is serialisable
+    			XmlList<AssignmentOrder> xmlList = (XmlList<AssignmentOrder>) XmlMarshaller.unmarshall(xml);
+    			return xmlList.getItems();
+    		} catch (JAXBException e) {
+    			e.printStackTrace();
+    		}
+    	}
+    	    	
+    	return null;
+    }
+    
+    public void updateAssignmentOrder(String siteId, int assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
     	//in the update order method, check for assignemntid element, update it or add it, resave
     	//the sort order needs to be used in the sortAssignments method too
     	
-    	return null;
+    	Site site = null;
+		try {
+			site = this.siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return;
+		}
+		
+		ResourcePropertiesEdit props = site.getPropertiesEdit();
+    	String xml = props.getProperty(ASSIGNMENT_ORDER_PROP);
+    	
+    	List<AssignmentOrder> assignmentOrder = new ArrayList<>();
+    	if(StringUtils.isNotBlank(xml)) {
+    		XmlList<AssignmentOrder> xmlList = (XmlList<AssignmentOrder>) XmlMarshaller.unmarshall(xml);
+    		if(xmlList != null) {
+    			assignmentOrder = xmlList.getItems();
+    		}
+    	}
+    	
+    	//try to update an existing order
+    	boolean matched = false;
+    	for(AssignmentOrder as: assignmentOrder) {
+    		if(as.getAssignmentId() == assignmentId) {
+    			matched = true;
+    			as.setOrder(order);
+    		}
+    	}
+    	
+    	//otherwise add it
+    	if(!matched) {
+    		assignmentOrder.add(new AssignmentOrder(assignmentId, order));
+    	}
+    	
+    	//serialise the XmlList back to xml
+    	XmlList<AssignmentOrder> updatedXmlList = new XmlList<AssignmentOrder>(assignmentOrder);
+    	String updatedXml = XmlMarshaller.marshal(updatedXmlList);
+		
+		//and save it
+		props.addProperty(ASSIGNMENT_ORDER_PROP, updatedXml);
+		this.siteService.save(site);
+    	
     }
     
     /*

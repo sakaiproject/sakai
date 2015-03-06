@@ -13,7 +13,8 @@ import lombok.Setter;
 
 /**
  * Class for storing the order of an assignment.
- * A list of these is persisted as XML into the site tool properties
+ * 
+ * A list of these is persisted as XML into the site tool properties and used for sorting
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -21,7 +22,6 @@ import lombok.Setter;
 @XmlRootElement
 @XmlAccessorType(XmlAccessType.NONE)
 public class AssignmentOrder {
-
 
 	@Getter
 	@Setter
@@ -33,6 +33,7 @@ public class AssignmentOrder {
 	@XmlElement
 	private int order;	
 	
+	@SuppressWarnings("unused")
 	private AssignmentOrder() {
 		//JAXB constructor
 	}
