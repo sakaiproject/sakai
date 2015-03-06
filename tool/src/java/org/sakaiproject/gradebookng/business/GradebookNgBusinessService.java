@@ -1,7 +1,18 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
+
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.commons.lang.StringUtils;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
@@ -12,19 +23,24 @@ import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
+import org.sakaiproject.gradebookng.business.model.GradebookUiConfiguration;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
-import org.sakaiproject.service.gradebook.shared.*;
+import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
-
-import javax.xml.bind.JAXBException;
-import java.util.*;
 
 
 /**
@@ -33,6 +49,8 @@ import java.util.*;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
+
+// TODO add permission checks! Remove from entityprovider if double up
 
 @CommonsLog
 public class GradebookNgBusinessService {
@@ -52,17 +70,40 @@ public class GradebookNgBusinessService {
 	@Setter
 	private CourseManagementService courseManagementService;
 	
+	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	
 	/**
-	 * Get a list of users in the current site that can have grades
+	 * Get a list of all users in the current site that can have grades
 	 * 
 	 * @return a list of users or null if none
 	 */
 	public List<User> getGradeableUsers() {
+		return this.getGradeableUsers(Collections.<String> emptyList());
+	}
+	
+	/**
+	 * Get a list of users in the current site that can have grades, based on the passed in userUuids
+	 * If the passed in list is empty, it returns all users that can be graded in the site
+	 * 
+	 * @return a list of users or null if none
+	 */
+	public List<User> getGradeableUsers(List<String> userUuids) {
 		try {
 			String siteId = this.getCurrentSiteId();
-			Set<String> userIds = siteService.getSite(siteId).getUsersIsAllowed("gradebook.viewOwnGrades");			
-			return userDirectoryService.getUsers(userIds);
+			Set<String> gradeableUserUuids = siteService.getSite(siteId).getUsersIsAllowed(Permissions.VIEW_OWN_GRADES.getValue());
+			
+			List<String> matchingUuids = new ArrayList<String>();
+			if(userUuids.isEmpty()){
+				matchingUuids.addAll(gradeableUserUuids);
+			}
+			
+			for(String uuid : userUuids) {
+				if(gradeableUserUuids.contains(uuid)){
+					matchingUuids.add(uuid);
+				}
+			}
+			
+			return userDirectoryService.getUsers(matchingUuids);
 		} catch (IdUnusedException e) {
 			return null;
 		}
@@ -75,7 +116,16 @@ public class GradebookNgBusinessService {
 	 * @return the gradebook for the site
 	 */
 	private Gradebook getGradebook() {
-		String siteId = this.getCurrentSiteId();
+		return getGradebook(this.getCurrentSiteId());
+	}
+	
+	/**
+	 * Helper to get a reference to the gradebook for the specified site
+	 * 
+	 * @param siteId the siteId
+	 * @return the gradebook for the site
+	 */
+	private Gradebook getGradebook(String siteId) {
 		try {
 			Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
 			return gradebook;
@@ -91,7 +141,17 @@ public class GradebookNgBusinessService {
 	 * @return a list of assignments or null if no gradebook
 	 */
 	public List<Assignment> getGradebookAssignments() {
-		Gradebook gradebook = getGradebook();
+		return getGradebookAssignments(this.getCurrentSiteId());
+	}
+	
+	/**
+	 * Get a list of assignments in the gradebook in the specified site
+	 * 
+	 * @param siteId the siteId
+	 * @return a list of assignments or null if no gradebook
+	 */
+	public List<Assignment> getGradebookAssignments(String siteId) {
+		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
 			List<Assignment> assignments = gradebookService.getAssignments(gradebook.getUid());
 			assignments = sortAssignments(assignments);			
@@ -242,7 +302,51 @@ public class GradebookNgBusinessService {
 		}
 		return rval;
 		
+	}
+	
+	public List<StudentGradeInfo> buildGradeMatrix(List<String> userUuids) {
+		
+		List<User> students = this.getGradeableUsers();
+		List<Assignment> assignments = this.getGradebookAssignments();
+		
+		Map<String,String> courseGrades = this.getCourseGrades();
+		
+		//NOTES:
+		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
+		
+		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
+		
+		Gradebook gradebook = this.getGradebook();
+		if(gradebook == null) {
+			return null;
+		}
+		
+		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
+		//however the logic needs to be reworked so we can capture the user info
+		//currently storing the full grade definition too, this may be unnecessary
+		//NOT a high priority unless performance issue deems it to be
+		
+		for(User student: students) {
 			
+			StudentGradeInfo sg = new StudentGradeInfo(student);
+			
+			//add the assignment grades
+			for(Assignment assignment: assignments) {
+				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
+				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
+			}
+			
+			//add the course grade
+			sg.setCourseGrade(courseGrades.get(student.getId()));
+			
+			//add the section info
+			//this.courseManagementService.getSe
+			
+			rval.add(sg);
+			
+		}
+		return rval;
+		
 	}
 
 	
@@ -343,11 +447,29 @@ public class GradebookNgBusinessService {
 	
 	/**
 	 * Helper to get siteid
+	 * This will ONLY work in a portal site context, null otherwise.
 	 * @return
 	 */
 	private String getCurrentSiteId() {
-		return this.toolManager.getCurrentPlacement().getContext();
+		try {
+    		return this.toolManager.getCurrentPlacement().getContext();
+    	} catch (Exception e){
+    		return null;
+    	}
 	}
+	
+	/**
+     * Get the placement id of the gradebookNG tool in the site.
+     * This will ONLY work in a portal site context, null otherwise
+     * @return
+     */
+	private String getToolPlacementId() {
+    	try {
+    		return this.toolManager.getCurrentPlacement().getId();
+    	} catch (Exception e){
+    		return null;
+    	}
+    }
 	
 	/**
 	 * Helper to get user uuid
@@ -368,6 +490,44 @@ public class GradebookNgBusinessService {
             this.gradebookService.addAssignment(gradebookId, assignment);
         }
     }
-	
-	
+    
+    /**
+     * Get the configured assignment order for the site
+     * 
+     * @param siteId
+     * @return
+     */
+    public List<AssignmentOrder> getAssignmentOrder(String siteId) {
+    	
+    	Site site = null;
+		try {
+			site = this.siteService.getSite(siteId);
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return null;
+		}
+		
+		ResourceProperties props = site.getProperties();
+    	String assignmentOrderXml = props.getProperty(ASSIGNMENT_ORDER_PROP);
+    	
+    	System.out.println("assignmentOrderXml: " + assignmentOrderXml);
+    	
+    	//deserialise the xml
+    	//in the update order method, check for assignemntid element, update it or add it, resave
+    	//the sort order needs to be used in the sortAssignments method too
+    	
+    	return null;
+    }
+    
+    /*
+    public GradebookUiConfiguration getGradebookUiConfiguration() {
+    	//the front end will set this into the DOM so the JS can pick it up. need to include siteid, toolid etc.
+    	//alternatxively can pass in the sited to get the config
+    	
+    	return null;
+    }
+    */
+    
+    
 }

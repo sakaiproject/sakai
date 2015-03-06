@@ -12,6 +12,8 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 
+import java.util.Map;
+
 /**
  * The panel for the cell of a grade item
  * 
@@ -59,14 +61,17 @@ public class GradeItemCellPanel extends Panel {
 			@Override
 			protected void updateLabelAjaxAttributes(AjaxRequestAttributes attributes) {
 				//when switching from editor to label
-				//attributes.getExtraParameters();
-				
+				Map<String,Object> extraParameters = attributes.getExtraParameters();
+				extraParameters.put("assignmentId", assignmentId);
+				extraParameters.put("studentUuid", studentGrades.getStudentUuid());
 			}
 			
 			@Override
 			protected void updateEditorAjaxAttributes(AjaxRequestAttributes attributes) {
 				//when switching from label to editor
-				//attributes.getExtraParameters();
+				Map<String,Object> extraParameters = attributes.getExtraParameters();
+				extraParameters.put("assignmentId", assignmentId);
+				extraParameters.put("studentUuid", studentGrades.getStudentUuid());
 			}
 			
 			
