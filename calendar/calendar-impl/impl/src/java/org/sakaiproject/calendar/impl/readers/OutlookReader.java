@@ -24,6 +24,8 @@ package org.sakaiproject.calendar.impl.readers;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -43,21 +45,10 @@ import org.sakaiproject.util.ResourceLoader;
  */
 public class OutlookReader extends CSVReader
 {
-   private ResourceLoader rb = new ResourceLoader("calendar");
+	private static ResourceLoader rb = new ResourceLoader("calendar");
    
-	//
-	// Commented out lines are present in the import file, but we are
-	// currently ignoring them.  They are here for reference/future use.
-	//
-	public final String SUBJECT_HEADER = "Subject";	
-	public final String START_DATE_HEADER = "Start Date";	
-	public final String START_TIME_HEADER = "Start Time";	
-	public final String END_DATE_HEADER = "End Date";	
-	public final String END_TIME_HEADER = "End Time";	
-	public final String ALL_DAY_EVENT_HEADER = "All day event";	// FALSE/TRUE
-	public final String DESCRIPTION_HEADER = "Description";	
-	public final String LOCATION_HEADER = "Location";	
-
+	private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
+	
 	/**
 	 * Default constructor
 	 */
@@ -151,6 +142,24 @@ public class OutlookReader extends CSVReader
 			lineNumber++;
 		}
 	}
+	
+	/**
+	 * overrides {@link org.sakaiproject.calendar.impl.readers.Reader#getReader(InputStream)}
+	 * 
+	 * This is because MS Outlook exports in other char set that UTF-8 and it probably   
+	 * depends on the Outlook's language 
+	 */
+	protected BufferedReader getReader(InputStream stream) {
+		InputStreamReader inStreamReader = null;
+		try {
+			inStreamReader = new InputStreamReader(stream, rb.getString("import.outlook.charset"));
+			
+		} catch (UnsupportedEncodingException e) {
+			inStreamReader = new InputStreamReader(stream);
+		}
+		BufferedReader bufferedReader = new BufferedReader(inStreamReader);
+		return bufferedReader;
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#filterEvents(java.util.List, java.lang.String[])
@@ -169,7 +178,7 @@ public class OutlookReader extends CSVReader
 		{
 			Map eventProperties = (Map)it.next();
 
-			Date startTime = (Date) eventProperties.get(GenericCalendarImporter.START_TIME_PROPERTY_NAME);
+			Date startTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
 			TimeBreakdown startTimeBreakdown = null;
 			
 			if ( startTime != null )
@@ -190,7 +199,7 @@ public class OutlookReader extends CSVReader
             throw new ImportException( rb.getString("err_no_stime") );
 			}
 			
-			Date endTime = (Date) eventProperties.get(GenericCalendarImporter.END_TIME_PROPERTY_NAME);
+			Date endTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.END_TIME_DEFAULT_COLUMN_HEADER));
 			TimeBreakdown endTimeBreakdown = null;
 
 			if ( endTime != null )
@@ -211,7 +220,7 @@ public class OutlookReader extends CSVReader
             throw new ImportException( rb.getString("err_no_etime") );
 			}
 
-			Date startDate = (Date) eventProperties.get(GenericCalendarImporter.DATE_PROPERTY_NAME);
+			Date startDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
          
          // if the source time zone were known, this would be
          // a good place to set it: startCal.setTimeZone()
@@ -223,7 +232,7 @@ public class OutlookReader extends CSVReader
          startTimeBreakdown.setMonth( startCal.get(Calendar.MONTH)+1 );
          startTimeBreakdown.setDay( startCal.get(Calendar.DAY_OF_MONTH) );
 			
-			Date endDate = (Date) eventProperties.get(GenericCalendarImporter.ENDS_PROPERTY_NAME);
+			Date endDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.ENDS_DEFAULT_COLUMN_HEADER));
          
          // if the source time zone were known, this would be
          // a good place to set it: startCal.setTimeZone()
@@ -250,24 +259,20 @@ public class OutlookReader extends CSVReader
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#getDefaultColumnMap()
 	 */
-	public Map getDefaultColumnMap()
+	public Map<String, String> getDefaultColumnMap()
 	{
-		//
-		// Commented out properties are ones that we could set, but are
-		// currently not being used.  They might be in the future.
-		//
-		Map columnHeaderMap = new HashMap();
+		Map<String, String> columnHeaderMap = new HashMap<String, String>();
 
-		columnHeaderMap.put(SUBJECT_HEADER, GenericCalendarImporter.TITLE_PROPERTY_NAME);
-		columnHeaderMap.put(DESCRIPTION_HEADER, GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME);
-		columnHeaderMap.put(START_DATE_HEADER, GenericCalendarImporter.DATE_PROPERTY_NAME);
-		columnHeaderMap.put(START_TIME_HEADER, GenericCalendarImporter.START_TIME_PROPERTY_NAME);
-		columnHeaderMap.put(END_TIME_HEADER, GenericCalendarImporter.END_TIME_PROPERTY_NAME);
-		columnHeaderMap.put(LOCATION_HEADER, GenericCalendarImporter.LOCATION_PROPERTY_NAME);
-		columnHeaderMap.put(END_DATE_HEADER, GenericCalendarImporter.ENDS_PROPERTY_NAME);
-		
+		columnHeaderMap.put(GenericCalendarImporter.TITLE_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.subject_header"));
+		columnHeaderMap.put(GenericCalendarImporter.DESCRIPTION_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.description_header"));
+		columnHeaderMap.put(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.start_date_header"));
+		columnHeaderMap.put(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.start_time_header"));
+		columnHeaderMap.put(GenericCalendarImporter.ENDS_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.end_date_header"));
+		columnHeaderMap.put(GenericCalendarImporter.END_TIME_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.end_time_header"));
+		columnHeaderMap.put(GenericCalendarImporter.LOCATION_DEFAULT_COLUMN_HEADER, rb.getString("import.outlook.location_header"));
+				
 		// This is one that we use only for conversion.
-		columnHeaderMap.put(ALL_DAY_EVENT_HEADER, ALL_DAY_EVENT_HEADER);
+		//columnHeaderMap.put(GenericCalendarImporter.ALL_DAY_EVENT_HEADER, rb.getString("import.outlook.end_date_header"));
 		
 		return columnHeaderMap;
 	}

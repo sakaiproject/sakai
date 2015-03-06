@@ -51,18 +51,11 @@ public class IcalendarReader extends Reader
 {
 	private ResourceLoader rb = new ResourceLoader("calendar");
 	private static Log M_log = LogFactory.getLog(IcalendarReader.class);
+	private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
 	
 	private static final String CONTACT_SECTION_HEADER = "Contacts";
 	private static final String TODO_SECTION_HEADER = "Todos";
 	private static final String EVENT_SECTION_HEADER = "Events";
-
-	public static final String TITLE_HEADER = "Summary";	
-	public static final String LOCATION_HEADER = "Location";
-	public static final String DATE_HEADER = "Start Date";	
-	public static final	String START_TIME_HEADER = "Start Time";
-	public static final	String DURATION_HEADER = "Duration";	
-	public static final	String ITEM_HEADER = "Type";	
-	public static final	String DESCRIPTION_HEADER = "Description";
 
 	/**
 	 * Default constructor 
@@ -208,7 +201,7 @@ public class IcalendarReader extends Reader
 		{
 			Map eventProperties = (Map)it.next();
 
-			Date startTime = (Date) eventProperties.get(GenericCalendarImporter.START_TIME_PROPERTY_NAME);
+			Date startTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
 			TimeBreakdown startTimeBreakdown = null;
 			
 			if ( startTime != null )
@@ -232,7 +225,7 @@ public class IcalendarReader extends Reader
 				throw new ImportException( msg );
 			}
 			
-			Integer durationInMinutes = (Integer)eventProperties.get(GenericCalendarImporter.DURATION_PROPERTY_NAME);
+			Integer durationInMinutes = (Integer)eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));
 
 			if ( durationInMinutes == null )
 			{
@@ -262,7 +255,7 @@ public class IcalendarReader extends Reader
 							  0 );
 			}
 
-			Date startDate = (Date) eventProperties.get(GenericCalendarImporter.DATE_PROPERTY_NAME);
+			Date startDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
 			
 			// if the source time zone were known, this would be
 			// a good place to set it: startCal.setTimeZone()
@@ -295,17 +288,18 @@ public class IcalendarReader extends Reader
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.tool.calendar.schedimportreaders.Reader#getDefaultColumnMap()
 	 */
-	public Map getDefaultColumnMap()
+	public Map<String, String> getDefaultColumnMap()
 	{
-		Map columnHeaderMap = new HashMap();
+		Map<String, String> columnHeaderMap = new HashMap<String, String>();
 
-		columnHeaderMap.put(TITLE_HEADER, GenericCalendarImporter.TITLE_PROPERTY_NAME);
-		columnHeaderMap.put(DESCRIPTION_HEADER, GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME);
-		columnHeaderMap.put(DATE_HEADER, GenericCalendarImporter.DATE_PROPERTY_NAME);
-		columnHeaderMap.put(START_TIME_HEADER, GenericCalendarImporter.START_TIME_PROPERTY_NAME);
-		columnHeaderMap.put(DURATION_HEADER, GenericCalendarImporter.DURATION_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.TITLE_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.TITLE_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.DESCRIPTION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DATE_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.START_TIME_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.DURATION_PROPERTY_NAME);
 		//columnHeaderMap.put(ITEM_HEADER, GenericCalendarImporter.ITEM_TYPE_PROPERTY_NAME);
-		columnHeaderMap.put(LOCATION_HEADER, GenericCalendarImporter.LOCATION_PROPERTY_NAME);
+		columnHeaderMap.put(GenericCalendarImporter.LOCATION_DEFAULT_COLUMN_HEADER, GenericCalendarImporter.LOCATION_PROPERTY_NAME);
+		
 				
 		return columnHeaderMap;
 	}
