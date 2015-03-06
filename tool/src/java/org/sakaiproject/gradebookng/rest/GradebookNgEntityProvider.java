@@ -3,10 +3,13 @@ package org.sakaiproject.gradebookng.rest;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.bind.JAXBException;
+
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.EntityView;
@@ -19,6 +22,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.Permissions;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -95,20 +99,34 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		
 		// get params
 		String siteId = (String) params.get("siteId");
-		String assignmentId = (String) params.get("assignmentId");
-		String order = (String) params.get("order");
+		int assignmentId = NumberUtils.toInt((String) params.get("assignmentId"));
+		int order = NumberUtils.toInt((String) params.get("order"));
 
-		// check params supplied are valid
-		if (StringUtils.isBlank(siteId) || StringUtils.isBlank(assignmentId) || StringUtils.isBlank(order)) {
+		// check params supplied are valid 
+		if (StringUtils.isBlank(siteId) || assignmentId == 0 || order < 0) {
 			throw new IllegalArgumentException(
-					"Data was missing from the request");
+					"Request data was missing / invalid");
 		}
 		checkValidSite(siteId);
 
 		// check instructor
 		checkInstructor(siteId);
 		
-		//TODO get the current prop, update it and resave
+		
+		//update the order
+		try {
+			this.businessService.updateAssignmentOrder(siteId, assignmentId, order);
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+				
 		
 		
 	}
