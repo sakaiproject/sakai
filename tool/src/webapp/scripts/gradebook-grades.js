@@ -230,10 +230,12 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
     }
 
     // check input is visible on y-scroll
-    var $header = self.getHeader();
-    var headerBottomPosition = $header[0].offsetTop + $header[0].offsetHeight;
-    if ($targetCell[0].offsetTop < headerBottomPosition) {
-      document.body.scrollTop = document.body.scrollTop - (headerBottomPosition - $targetCell[0].offsetTop);
+    if ($targetCell.parent().parent().prop("tagName") == "TBODY") {
+      var $header = self.getHeader();
+      var headerBottomPosition = $header[0].offsetTop + $header[0].offsetHeight;
+      if ($targetCell[0].offsetTop < headerBottomPosition) {
+        document.body.scrollTop = document.body.scrollTop - (headerBottomPosition - ($targetCell[0].offsetTop - $targetCell.height()));
+      }
     }
   }
 
@@ -299,7 +301,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function() {
   self.$spreadsheet.append($fixedHeader);
 
   function positionFixedHeader() {
-    if (document.body.scrollTop + $fixedHeader.height() + 100 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+    if (document.body.scrollTop + $fixedHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
     } else if (self.$spreadsheet.offset().top < document.body.scrollTop) {
       $fixedHeader.
           show().
