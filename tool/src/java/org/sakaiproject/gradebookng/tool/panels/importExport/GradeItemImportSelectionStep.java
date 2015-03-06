@@ -1,12 +1,14 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.*;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -108,6 +110,10 @@ public class GradeItemImportSelectionStep extends Panel {
                 Integer status = statusProp.getObject();
                 String statusValue = getString("importExport.status." + status);
                 item.add(new Label("status", statusValue));
+
+                String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
+                if (naString.equals(item.getModelObject().getItemPointValue()))
+                    item.add(new AttributeModifier("class", "comment"));
             }
 
         };
