@@ -105,9 +105,16 @@
   font-size: 0.9em;
   color: #999;
 }
-/* Fixed header */
-#gradebookGrades .gb-fixed-header-table {
+/* Fixed header/column */
+#gradebookGrades .gb-fixed-header-table,
+#gradebookGrades .gb-fixed-column-table {
   position: absolute;
+  border-collapse: collapse;
+  box-shadow: 1px 1px 3px #AAA;
+  width: auto;
+}
+#gradebookGrades .gb-fixed-column-table.table-striped > tbody > tr:nth-of-type(even) {
+  background-color: white;
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {

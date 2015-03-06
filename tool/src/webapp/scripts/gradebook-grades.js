@@ -15,8 +15,9 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupWicketAJAXEventHandler();
   this.setupGradeItemCellModels();
   this.setupKeyboadNavigation();
+  this.setupFixedStudentColumn(); // goes first so z-index/layering plays nice
   this.setupFixedTableHeader();
-};
+}
 
 
 GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
@@ -223,8 +224,9 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
     $targetCell.focus();
 
     // check input is visible on x-scroll
-    if  ($targetCell[0].offsetLeft - self.$spreadsheet[0].scrollLeft < 110) {
-      self.$spreadsheet[0].scrollLeft = $targetCell[0].offsetLeft;
+    var fixedColWidth = self.$table.find(".gb-student-cell:first").width();
+    if  ($targetCell[0].offsetLeft - self.$spreadsheet[0].scrollLeft < fixedColWidth) {
+      self.$spreadsheet[0].scrollLeft = $targetCell[0].offsetLeft - fixedColWidth;
     }
 
     // check input is visible on y-scroll
@@ -312,6 +314,42 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function() {
     positionFixedHeader();
   });
   positionFixedHeader();
+};
+
+GradebookSpreadsheet.prototype.setupFixedStudentColumn = function() {
+  var self = this;
+
+  var $fixedColumn = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-column-table").hide();
+  var colWidth = self.$table.find(".gb-student-cell:first").width();
+  
+  self.$table.find(".gb-student-cell").each(function(i, cell) {
+    var $clone  = $(cell).clone();
+    $clone.width(colWidth);
+    $fixedColumn.append($("<tr>").append($clone));
+  });
+  $fixedColumn.width(colWidth);
+  self.$spreadsheet.append($fixedColumn);
+
+
+  function positionFixedColumn() {
+    //if (document.body.scrollLeft + $fixedHeader.height() + 100 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+    //} else if (self.$spreadsheet.offset().top < document.body.scrollTop) {
+    if (self.$spreadsheet[0].scrollLeft > 20) {
+      $fixedColumn.
+          show().
+          css("left", self.$spreadsheet[0].scrollLeft + "px").
+          css("top", self.$table.find("tbody").position().top - 1);
+          
+    } else {
+      $fixedColumn.hide();
+    }
+  }
+
+  self.$spreadsheet.on("scroll", function() {
+    positionFixedColumn();
+  });
+
+  positionFixedColumn();
 };
 
 
