@@ -110,8 +110,14 @@
 #gradebookGrades .gb-fixed-column-table {
   position: absolute;
   border-collapse: collapse;
-  box-shadow: 1px 1px 3px #AAA;
+  box-shadow: 1px 1px 1px #AAA;
   width: auto;
+}
+#gradebookGrades .gb-fixed-header-table {
+  z-index: 20;
+}
+#gradebookGrades .gb-fixed-column-table {
+  z-index: 10;
 }
 #gradebookGrades .gb-fixed-column-table.table-striped > tbody > tr:nth-of-type(even) {
   background-color: white;
