@@ -298,7 +298,7 @@ public class SakaiBLTIUtil {
 		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
 	}
 
-	public static void addRoleInfo(Properties props, Properties lti2subst, String context)
+	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp)
 	{
 		String theRole = "Learner";
 		if ( SecurityService.isSuperUser() )
@@ -314,6 +314,7 @@ public class SakaiBLTIUtil {
 
 		String realmId = SiteService.siteReference(context);
 		User user = null;
+		Map<String, String> roleMap = convertRoleMapPropToMap(roleMapProp);
 		try {
 			user = UserDirectoryService.getCurrentUser();
 			if ( user != null ) {
@@ -323,6 +324,10 @@ public class SakaiBLTIUtil {
 				if ( realm != null ) role = realm.getUserRole(user.getId());
 				if ( role != null ) roleId = role.getId();
 				if ( roleId != null && roleId.length() > 0 ) setProperty(props, "ext_sakai_role", roleId);
+				if ( roleMap.containsKey(roleId) ) {
+					setProperty(props, BasicLTIConstants.ROLES, roleMap.get(roleId));
+					setProperty(lti2subst, "Membership.role", roleMap.get(roleId));
+				}
 			}
 		} catch (GroupNotDefinedException e) {
 			dPrint("SiteParticipantHelper.getExternalRealmId: site realm not found"+e.getMessage());
@@ -367,7 +372,10 @@ public class SakaiBLTIUtil {
 
 		// Add the generic information
 		addGlobalData(site, props, null, rb);
-		addRoleInfo(props, null, context);
+		ToolConfiguration placement = SiteService.findTool(placementId);
+		Properties config = placement.getConfig();
+		String roleMapProp = toNull(getCorrectProperty(config, "rolemap", placement));
+		addRoleInfo(props, null, context, roleMapProp);
 		addSiteInfo(props, null, site);
 
 		// Add Placement Information
@@ -653,7 +661,7 @@ public class SakaiBLTIUtil {
 		}
 		addGlobalData(site, ltiProps, lti2subst, rb);
 		addSiteInfo(ltiProps, lti2subst, site);
-		addRoleInfo(ltiProps, lti2subst,  context);
+		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
 
 		if ( deploy != null ) {
 			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
@@ -1550,5 +1558,22 @@ public class SakaiBLTIUtil {
         SecurityService.popAdvisor();
     }
 
+	/**
+	 * Converts a string from a comma-separated list of role maps to a Map<String, String>.
+	 * Each role mapping in the string should be of the form <sakairole>:<ltirole>.
+	 */
+	public static Map<String, String> convertRoleMapPropToMap(String roleMapProp) {
+		Map<String, String> roleMap = new HashMap<String, String>();
+		if (roleMapProp == null) return roleMap;
 
+		String[] roleMapPairs = roleMapProp.split(",");
+		for (String s : roleMapPairs) {
+			String[] roleMapPair = s.split(":");
+			if (roleMapPair.length != 2) {
+				throw new IllegalArgumentException("Malformed rolemap property. Value must be a comma-separated list of values of the form <sakairole>:<ltirole>");
+			}
+			roleMap.put(roleMapPair[0], roleMapPair[1]);
+		}
+		return roleMap;
+	}
 }
