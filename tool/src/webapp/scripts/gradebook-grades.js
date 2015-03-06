@@ -14,10 +14,11 @@ function GradebookSpreadsheet($spreadsheet) {
 
   this.setupWicketAJAXEventHandler();
   this.setupGradeItemCellModels();
+  this.enableAbsolutePositionsInCells();
   this.setupKeyboadNavigation();
-  this.setupFixedStudentColumn(); // goes first so z-index/layering plays nice
+  this.setupFixedStudentColumn();
   this.setupFixedTableHeader();
-}
+};
 
 
 GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
@@ -231,8 +232,6 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
 
 
 GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
-  console.log("** ensureCellIsVisible: " + $cell.index());
-  
   var self= this;
 
   // check input is visible on x-scroll
@@ -370,6 +369,19 @@ GradebookSpreadsheet.prototype.setupFixedStudentColumn = function() {
   });
 
   positionFixedColumn();
+};
+
+
+GradebookSpreadsheet.prototype.enableAbsolutePositionsInCells = function() {
+  // as HTML tables don't normally allow position:absolute, innerWrap all cells
+  // with a div that provide the block level element to contain an absolutely
+  // positioned child node.
+  this.$table.find("th,td").each(function() {
+    var $cell = $(this);
+    var $wrapDiv = $("<div>").addClass("gb-cell-inner");
+    $wrapDiv.height($cell.height());
+    $cell.wrapInner($wrapDiv);
+  });
 };
 
 

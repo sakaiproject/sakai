@@ -28,8 +28,8 @@
 }
 #gradebookGrades th,
 #gradebookGrades td {
-  padding: 4px;
-  min-width: 120px;
+  padding: 6px;
+  min-width: 140px;
 }
 #gradebookGrades fieldset td {
   height: 2em;
@@ -56,23 +56,18 @@
 }
 
 /* Dropdown Menus */
-#gradebookGrades th, 
-#gradebookGrades td {
-  position: relative;
-  padding: 6px;
-}
 #gradebookGrades td .btn-group {
   position: absolute;
-  bottom: 1px;
-  right: 1px;
+  bottom: -5px;
+  right: -5px;
 }
 #gradebookGrades .gb-cell {
   cursor: pointer;
 }
 #gradebookGrades th .btn-group {
   position: absolute;
-  bottom: 1px;
-  right: 1px;
+  bottom: -5px;
+  right: -5px;
 }
 #gradebookGrades .btn.dropdown-toggle {
   padding: 0 8px;
@@ -87,7 +82,6 @@
   height: 2.6em;
 }
 #gradebookGrades .gb-item-grade {
-  position: relative;
   text-align: center;
   white-space: nowrap;
 }
@@ -104,6 +98,11 @@
   padding-left: 6px;
   font-size: 0.9em;
   color: #999;
+}
+#gradebookGrades .gb-cell .gb-cell-inner {
+  width: 100%;
+  position: relative;
+  height: auto; /* will be overriden by the javascript */
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
