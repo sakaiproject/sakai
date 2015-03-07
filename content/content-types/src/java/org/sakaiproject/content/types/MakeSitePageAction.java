@@ -24,20 +24,23 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.content.cover.ContentHostingService;
 import org.sakaiproject.content.util.BaseInteractionAction;
+import org.sakaiproject.content.util.BaseResourceAction;
 import org.sakaiproject.content.util.BaseServiceLevelAction;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.util.Resource;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Page action to allow creation of a Page in the site that links to content in resources.
- *
+ * We need our own subclass to allow the action to be disabled.
  */
-public class MakeSitePageAction extends BaseInteractionAction {
+public class MakeSitePageAction extends BaseServiceLevelAction {
 
-	public MakeSitePageAction(String id, ActionType actionType, String typeId,
-			String helperId, Localizer localizer) {
-		super(id, actionType, typeId, helperId, localizer);
+	public MakeSitePageAction(String id, ActionType actionType, String typeId)
+	{
+		super(id, actionType, typeId, false);
 	}
 
 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.TypeProperties";
@@ -48,8 +51,11 @@ public class MakeSitePageAction extends BaseInteractionAction {
 	private String resourceBundle = ServerConfigurationService.getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
 	private ResourceLoader rb = new Resource().getLoader(resourceClass, resourceBundle);
 
-	public boolean available(ContentEntity entity) {
+	public boolean available(ContentEntity entity) {;
 		return ServerConfigurationService.getBoolean("content.make.site.page",true)
-				&& !ContentHostingService.isInDropbox(entity.getId());
+				// Not in a dropbox
+				&& !ContentHostingService.isInDropbox(entity.getId())
+				// Not in a user site.
+				&& !SiteService.isUserSite(EntityManager.newReference(entity.getReference()).getContext());
 	}
 }
