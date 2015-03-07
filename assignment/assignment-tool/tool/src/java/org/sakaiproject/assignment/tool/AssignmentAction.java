@@ -5898,7 +5898,7 @@ public class AssignmentAction extends PagedResourceActionII
 
 							// clean the ContentReview attributes
 							sEdit.setReviewIconUrl(null);
-							sEdit.setReviewScore(0); // default to be 0?
+							sEdit.setReviewScore(-2); // the default is -2 (e.g., for a new submission)
 							sEdit.setReviewStatus(null);
 
 							if (StringUtils.trimToNull(sEdit.getFeedbackFormattedText()) != null)
