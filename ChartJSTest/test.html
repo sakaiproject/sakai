@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <title>Chart.js demo</title>
+        <script src="Chart.js"></script>
+        <script src='Chart.min.js'></script>
+    </head>
+    <div>
+        <canvas id="gradeGraph" width="500" height="300"></canvas>
+
+        <script>
+            var categoryNumbersGrade = [1,2,3,4,5,6,7,8,9]; // This is the array for how many students are in each category
+            var studentLocationGrade = 8;
+            var gradeData = {
+                labels : ["0-59","60-64","65-69","70-74","75-79","80-84","85-89","90-94","95-100"],
+                datasets : [
+                {
+                    label: "Grade",
+                    fillColor : "#48A497",
+                    strokeColor : "#000000",
+                    highlightFill: "#34A2C3",
+                    highlightStroke: "#000000",
+                    data : categoryNumbersGrade
+                },
+                ]
+            }
+
+            var ctx = document.getElementById('gradeGraph').getContext('2d');
+            var gradeGraph = new Chart(ctx).Bar(gradeData); // gradeGraph is the graph itself
+            gradeGraph.datasets[0].bars[0].value = 4;
+            gradeGraph.datasets[0].bars[0].fillColor = "red";
+            gradeGraph.datasets[0].bars[0].highlightFill = "pink"; 
+            gradeGraph.datasets[0].bars[studentLocationGrade].fillColor = "green";
+            gradeGraph.datasets[0].bars[studentLocationGrade].highlightFill = "lightgreen"; 
+            gradeGraph.update();
+        </script>
+    </div>
+
+    <div>
+        <canvas id="timeGraph" width="500" height="300"></canvas>
+
+        <script>
+            var categoryNumbersTime = [1,2,3,4,5,6,7,8,9]; // This is the array for how many students are in each category
+            var studentLocationTime = 5;
+            var timeData = {
+                labels : ["Early","6 Days","5 Days","4 Days","3 Days","2 Days","1 Day","Late","Late x2"],
+                datasets : [
+                {
+                    label: "Time Turned In",
+                    fillColor : "#48A497",
+                    strokeColor : "#000000",
+                    highlightFill: "#34A2C3",
+                    highlightStroke: "#000000",
+                    data : categoryNumbersTime
+                },
+                ]
+            }
+
+            var ctx2 = document.getElementById('timeGraph').getContext('2d');
+            var timeGraph = new Chart(ctx2).Bar(timeData); // gradeGraph is the graph itself
+            timeGraph.datasets[0].bars[0].value = 4;
+            timeGraph.datasets[0].bars[7].fillColor = "red";
+            timeGraph.datasets[0].bars[7].highlightFill = "pink"; 
+            timeGraph.datasets[0].bars[8].fillColor = "red";
+            timeGraph.datasets[0].bars[8].highlightFill = "pink";
+            timeGraph.datasets[0].bars[studentLocationTime].fillColor = "green";
+            timeGraph.datasets[0].bars[studentLocationTime].highlightFill = "lightgreen"; 
+            timeGraph.update();
+        </script>
+    </div>
+</html>
