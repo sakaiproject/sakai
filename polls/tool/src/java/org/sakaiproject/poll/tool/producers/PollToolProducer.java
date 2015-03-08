@@ -194,6 +194,9 @@ DefaultView,NavigationCaseReporter {
 		df.setTimeZone(tz);
 		//m_log.debug("got timezone: " + tz.getDisplayName());
 
+		UIOutput.make(tofill, "poll_list_remove_confirm", messageLocator.getMessage("poll_list_remove_confirm"));
+		UIOutput.make(tofill, "poll_list_reset_confirm", messageLocator.getMessage("poll_list_reset_confirm"));
+
 		UIForm deleteForm = UIForm.make(tofill, "delete-poll-form");
 		// Create a multiple selection control for the tasks to be deleted.
 		// We will fill in the options at the loop end once we have collected them.
