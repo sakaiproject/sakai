@@ -3672,7 +3672,10 @@ public class SiteAction extends PagedResourceActionII {
 		List<Map<String, Object>> visibleTools, allTools;
 		// get the visible and all (including stealthed) list of lti tools
 		visibleTools = m_ltiService.getTools(null,null,0,0);
-		allTools     = m_ltiService.getToolsDao(null,null,0,0,site.getId());
+		if (site == null)
+			allTools = visibleTools;
+		else
+			allTools = m_ltiService.getToolsDao(null,null,0,0,site.getId());
       
 		if (visibleTools != null && !visibleTools.isEmpty())
 		{
@@ -6132,7 +6135,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private List getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
 		List ltiSelectedTools = selectedLTITools(site);
 		List ltiTools = new ArrayList();
-		List<Map<String, Object>> allTools     = m_ltiService.getToolsDao(null,null,0,0,site.getId());
+		List<Map<String, Object>> allTools;
+		if ( site == null )
+			allTools = m_ltiService.getTools(null,null,0,0);
+		else
+			allTools = m_ltiService.getToolsDao(null,null,0,0,site.getId());
       
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
