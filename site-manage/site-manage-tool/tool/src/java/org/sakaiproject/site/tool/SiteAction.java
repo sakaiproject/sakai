@@ -3669,10 +3669,12 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void buildLTIToolContextForTemplate(Context context,
 			SessionState state, Site site, boolean updateToolRegistration) {
-		List<Map<String, Object>> tools;
-		// get the list of available external lti tools
-		tools = m_ltiService.getTools(null,null,0,0);
-		if (tools != null && !tools.isEmpty())
+		List<Map<String, Object>> visibleTools, allTools;
+		// get the visible and all (including stealthed) list of lti tools
+		visibleTools = m_ltiService.getTools(null,null,0,0);
+		allTools     = m_ltiService.getToolsDao(null,null,0,0,site.getId());
+      
+		if (visibleTools != null && !visibleTools.isEmpty())
 		{
 			HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
 			// get invoke count for all lti tools
@@ -3705,26 +3707,31 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 			}
-			for (Map<String, Object> toolMap : tools ) {
+         
+         // First search list of visibleTools for those not selected (excluding stealthed tools)
+			for (Map<String, Object> toolMap : visibleTools ) {
 				String ltiToolId = toolMap.get("id").toString();
 				String siteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
 				toolMap.put("selected", linkedLtiContents.containsKey(ltiToolId));
-				if (siteId == null)
+				if ( siteId == null || siteId.equals(site.getId()) )
 				{
-					// only show the system-range lti tools
+					// only show the system-range lti tools or tools for current site
 					ltiTools.put(ltiToolId, toolMap);
 				}
-				else
-				{
-					// show the site-range lti tools only if 
-					// 1. this is in Site Info editing existing site, 
-					// and 2. the lti tool site_id equals to current site
-					if (site != null && siteId.equals(site.getId()))
-					{
-						ltiTools.put(ltiToolId, toolMap);
-					}
-				}
 			}
+         
+         // Second search list of allTools for those already selected (including stealthed)
+			for (Map<String, Object> toolMap : allTools ) {
+				String ltiToolId = toolMap.get("id").toString();
+				boolean selected = linkedLtiContents.containsKey(ltiToolId);
+				toolMap.put( "selected", selected);
+				if ( selected && ltiTools.get(ltiToolId)==null )
+            {
+               ltiTools.put(ltiToolId, toolMap);
+            }
+			}
+         
+         
 			state.setAttribute(STATE_LTITOOL_LIST, ltiTools);
 			state.setAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST, linkedLtiContents);
 			context.put("ltiTools", ltiTools);
@@ -6125,19 +6132,22 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private List getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
 		List ltiSelectedTools = selectedLTITools(site);
 		List ltiTools = new ArrayList();
-		List<Map<String, Object>> allTools = m_ltiService.getTools(null, null,
-				0, 0);
+		List<Map<String, Object>> allTools     = m_ltiService.getToolsDao(null,null,0,0,site.getId());
+      
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
 				String toolIdString = tool.get(m_ltiService.LTI_ID).toString();
+				boolean toolStealthed = tool.get(m_ltiService.LTI_VISIBLE).toString().equals("1");
+				boolean ltiToolSelected = ltiSelectedTools.contains(toolIdString); 
+
 				try
 				{
 					// in Oracle, the lti tool id is returned as BigDecimal, which cannot be casted into Integer directly
 					Integer ltiId = Integer.valueOf(toolIdString);
 					if (ltiId != null) {
 						String ltiToolId = ltiId.toString(); 
-						if (ltiToolId != null) {
+						if (ltiToolId != null && (!toolStealthed || ltiToolSelected) ) {
 							String relativeWebPath = null;
 							MyTool newTool = new MyTool();
 							newTool.title = tool.get("title").toString();
@@ -6150,7 +6160,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 							// SAK16600 should this be a property or specified in  toolOrder.xml?
 							newTool.required = false; 
-							newTool.selected = ltiSelectedTools.contains(ltiToolId); 
+							newTool.selected = ltiToolSelected;
 							ltiTools.add(newTool);
 						}
 					}
