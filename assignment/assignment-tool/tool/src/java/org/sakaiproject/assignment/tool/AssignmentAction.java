@@ -4381,6 +4381,7 @@ public class AssignmentAction extends PagedResourceActionII
 		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH): rb.getString("search_student_instruction"));
 
+		String view = (String)state.getAttribute(VIEW_SUBMISSION_LIST_OPTION);
 		context.put("view", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION));
 		context.put("viewString", state.getAttribute(VIEW_SUBMISSION_LIST_OPTION)!=null?state.getAttribute(VIEW_SUBMISSION_LIST_OPTION):"");
 		context.put("searchString", state.getAttribute(VIEW_SUBMISSION_SEARCH)!=null?state.getAttribute(VIEW_SUBMISSION_SEARCH):"");
@@ -4395,8 +4396,13 @@ public class AssignmentAction extends PagedResourceActionII
 		 
 		add2ndToolbarFields(data, context);
 
+		if (view != null && !AssignmentConstants.ALL.equals(view)) {
+		context.put("accessPointUrl", ServerConfigurationService.getAccessUrl()
+				+ AssignmentService.gradesSpreadsheetReference(view.substring(view.indexOf(Entity.SEPARATOR)+1), null));
+		} else {
 		context.put("accessPointUrl", ServerConfigurationService.getAccessUrl()
 				+ AssignmentService.gradesSpreadsheetReference(contextString, null));
+		}
 
 		pagingInfoToContext(state, context);
 
