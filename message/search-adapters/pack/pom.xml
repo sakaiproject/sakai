@@ -21,7 +21,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>sakai-search-adapters-impl</artifactId>
+            <artifactId>message-search-adapters-impl</artifactId>
             <version>${project.version}</version>
             <type>jar</type>
         </dependency>
