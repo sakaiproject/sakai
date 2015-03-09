@@ -145,27 +145,19 @@ public class ItemModifyListener implements ActionListener
         itemauthorbean.setItemNo(String.valueOf(itemfacade.getSequence().intValue() ));
       }
 
-      Double points = itemfacade.getScore();
-      String score;
-      if (points!=null)
+      Double score = itemfacade.getScore();
+      if (score == null)
        {
-        score = points.toString();
-       }
-      else // cover modifying an imported XML assessment that has no score yet
-       {
-         score ="0.0";
+         // cover modifying an imported XML assessment that has no score yet
+         score = 0.0d;
        }
       bean.setItemScore(score);
 
-      Double discountpoints = itemfacade.getDiscount();
-      String discount;
-      if (discountpoints!=null)
+      Double discount = itemfacade.getDiscount();
+      if (discount == null)
       {
-    	  discount = discountpoints.toString();
-      }
-      else // cover modifying an imported XML assessment that has no score yet
-      {
-    	  discount ="0.0";
+        // cover modifying an imported XML assessment that has no score yet
+    	  discount = 0.0d;
       }
       bean.setItemDiscount(discount);
 

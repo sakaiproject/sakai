@@ -39,6 +39,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.util.MathUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
@@ -180,7 +181,7 @@ public class SectionContentsBean
   {
     // only show 2 decimal places 
     
-    return roundTo2Decimals(maxPoints);
+    return MathUtils.round(maxPoints, 2);
   }
 
   /**
@@ -667,17 +668,9 @@ public class SectionContentsBean
     String pointsDisplayString = "";
     if (showStudentQuestionScore)
     {
-      pointsDisplayString = roundTo2Decimals(points) + "/";
+      pointsDisplayString = MathUtils.round(points, 2) + "/";
     }
     return pointsDisplayString;
-  }
-
-  public static double roundTo2Decimals(double points)
-  {
-    Double dTmp = points * 100.0d;
-    int tmp = dTmp.intValue();
-    points = (double) tmp / 100.0d;
-    return points;
   }
 
   public List getAttachmentList() {

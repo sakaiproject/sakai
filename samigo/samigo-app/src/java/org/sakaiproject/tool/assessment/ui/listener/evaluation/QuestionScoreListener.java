@@ -412,7 +412,7 @@ public class QuestionScoreListener implements ActionListener,
 			}
 			try {
 				bean.setMaxScore(publishedAssessment.getEvaluationModel()
-						.getFixedTotalScore().toString());
+						.getFixedTotalScore());
 			} catch (RuntimeException e) {
 				double score = (double) 0.0;
 				Iterator iter2 = publishedAssessment.getSectionArraySorted()
@@ -427,7 +427,7 @@ public class QuestionScoreListener implements ActionListener,
 							score = idata.getScore().doubleValue();
 					}
 				}
-				bean.setMaxScore(Double.toString(score));
+				bean.setMaxScore(score);
 			}
 			
 			// need to get id from somewhere else, not from data. data only
