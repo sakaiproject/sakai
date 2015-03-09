@@ -122,6 +122,8 @@ import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -563,6 +565,8 @@ public class ResourcesAction
 	private static final String MODE_RESTORE = "restore";
 	
 	protected static final String MODE_REVISE_METADATA = "revise_metadata";
+	
+	protected static final String MODE_MAKE_SITE_PAGE = "make_site_page";
 
 	
 
@@ -792,6 +796,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
 	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + SYS + "usingCreativeCommons";
 
+	/** The title of the new page to be created in the site */
+	protected static final String STATE_PAGE_TITLE = PREFIX + REQUEST+ "page_title";
+	
+	protected static final String STATE_MAKE_PAGE_ENTITY_ID = PREFIX + REQUEST+ "entity_id";
+	
+	
 	/** vm files for each mode. */
 	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
 	
@@ -819,6 +829,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String TEMPLATE_RESTORE = "content/sakai_resources_restore";
 
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
+
+	protected static final String TEMPLATE_MAKE_SITE_PAGE = "content/sakai_make_site_page";
+
 
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
 
@@ -4890,11 +4903,92 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			template = buildMoreContext(portlet, context, data, state);
 		}
+		else if(mode.equals(MODE_MAKE_SITE_PAGE))
+		{
+			template = buildMakeSitePageContext(portlet, context, data, state);
+		}
 
 		return template;
 
 	}	// buildMainPanelContext
 
+	public String buildMakeSitePageContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {	
+		logger.debug(this + ".buildMakeSitePage()");
+		
+		context.put("tlang", trb);
+		context.put("page", state.getAttribute(STATE_PAGE_TITLE));
+		
+		return TEMPLATE_MAKE_SITE_PAGE;
+	}
+	
+	
+	public void doMakeSitePage(RunData data) {
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		String entityId = (String) state.getAttribute(STATE_MAKE_PAGE_ENTITY_ID);
+		ContentEntity entity;
+		try {
+			boolean isFolder = entityId.endsWith(Entity.SEPARATOR);
+			
+			if (isFolder) {
+				entity = ContentHostingService.getCollection(entityId);
+			} else {
+				entity = ContentHostingService.getResource(entityId);
+			}
+		} catch (Exception e) {
+			addAlert(state, trb.getString("alert.resource.not.found"));
+			state.setAttribute(STATE_MODE, MODE_LIST);
+			return;
+		}
+		String url = entity.getUrl();
+		String title = params.getString("page");
+		state.setAttribute(STATE_PAGE_TITLE, title);
+		if (title == null || title.trim().length() == 0) {
+			addAlert(state, trb.getString("alert.page.empty"));
+			return;
+		}
+		
+		Placement placement = ToolManager.getCurrentPlacement();
+		String context = null;
+		if (placement != null) {
+			context = placement.getContext();
+			try {
+				Tool tr = ToolManager.getTool("sakai.iframe");
+				
+				Site site = SiteService.getSite(context);
+				for (SitePage page: (List<SitePage>)site.getPages()) {
+					if (title.equals(page.getTitle())) {
+						addAlert(state, trb.getString("alert.page.exists"));
+						return;
+					}
+				}
+				SitePage newPage = site.addPage();
+				newPage.setTitle(title);
+				ToolConfiguration tool = newPage.addTool();
+				tool.setTool("sakai.iframe", tr);
+				tool.setTitle(title);
+				tool.getPlacementConfig().setProperty("source", url);
+				SiteService.save(site);
+				
+				// Get it to showup in the tool menu.
+				scheduleTopRefresh();
+				state.setAttribute(STATE_MODE, MODE_LIST);
+				state.removeAttribute(STATE_PAGE_TITLE);
+
+			} catch (IdUnusedException e) {
+				logger.warn("Somehow we couldn't find the site.", e);
+			} catch (PermissionException e) {
+				logger.info("No permission to add page.", e);
+				addAlert(state, trb.getString("alert.page.permission"));
+			}
+		}
+	}
+
+	
 	/**
 	*  Setup for customization
 	**/
@@ -6637,6 +6731,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 					break;
 				case PRINT_FILE:
 					printFile(state, data, selectedItemId);
+					break;
+				case MAKE_SITE_PAGE:
+					// Stash the selected entity ID.
+					state.setAttribute(STATE_MAKE_PAGE_ENTITY_ID, selectedItemId);
+					state.setAttribute(STATE_MODE, MODE_MAKE_SITE_PAGE);
+					state.removeAttribute(STATE_PAGE_TITLE); // Remove title if cancel was pressed.
 					break;
 				default:
 					sAction.initializeAction(reference);
