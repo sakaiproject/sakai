@@ -2911,14 +2911,26 @@ public class SiteAction extends PagedResourceActionII {
 			//if option is enabled, show the import for all tools in the original site, not just the ones in this site
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = isAddMissingToolsOnImportEnabled();
+			
+			//helper var to hold the list we use for the seletedTools context variable, as we use it for the alternate toolnames too
+			List<String> selectedTools = new ArrayList<>();
+			
 			if(addMissingTools) {
-				context.put("selectedTools", allImportableToolIdsInOriginalSites);
+				selectedTools = allImportableToolIdsInOriginalSites;
+				context.put("selectedTools", selectedTools);
 				//set tools in destination site into context so we can markup the lists and show which ones are new
 				context.put("toolsInDestinationSite", importableToolsIdsInDestinationSite);
 			} else {
 				//just just the ones in the destination site
-				context.put("selectedTools", importableToolsIdsInDestinationSite);
+				selectedTools = importableToolsIdsInDestinationSite;
+				context.put("selectedTools", selectedTools);
 			}
+			
+			//get any alternate tool names from the sites selected to import from (importSites) and the selectedTools list
+			Map<String,Set<String>> alternateToolNames = this.getToolNames(selectedTools, importSites);
+			System.out.println("names: " + alternateToolNames.toString());			
+			
+			//need to set this into context and adjust the front end to also look at it.
 			
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
@@ -15282,5 +15294,39 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	
 		return importToolsInSites;
 	}
+	
+	/**
+	 * Get a map of all names for the given list of tools in the given sites. For example if a tool with id sakai.mytool
+	 * is called My Tool in one site and An Amazing Tool in another site, the set will contain both for that tool id.
+	 * @param toolIds
+	 * @param sites
+	 * @return
+	 */
+	private Map<String,Set<String>> getToolNames(List<String> toolIds, List<Site> sites) {
+		Map<String,Set<String>> rval = new HashMap<>();
+		
+		//foreach toolid
+		for(String toolId : toolIds){
+			
+			//init a set
+			Set<String> toolNames = new HashSet<>();
+			
+			//for each site
+			for(Site s: sites) {
+				
+				//get the name of this tool in the site for the page it is on, if it exists, add to the list
+				List<ToolConfiguration> toolConfigs = (List<ToolConfiguration>)s.getTools(toolId);
+				for(ToolConfiguration config: toolConfigs){
+					toolNames.add(config.getContainingPage().getTitle());
+				}
+			}
+			
+			rval.put(toolId, toolNames);			
+		}
+		
+		return rval;
+
+	}
+
 	
 }
