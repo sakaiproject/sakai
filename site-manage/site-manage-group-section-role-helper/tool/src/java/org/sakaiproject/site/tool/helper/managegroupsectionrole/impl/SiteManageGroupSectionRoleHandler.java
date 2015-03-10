@@ -109,7 +109,6 @@ public class SiteManageGroupSectionRoleHandler {
     private final String TOOL_CFG_MULTI = "allowMultiple";
     private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
-    private final String UNHIDEABLES_CFG = "poh.unhideables";
     private final String GROUP_ADD = "group.add";
     private final String GROUP_DELETE = "group.delete";
     private final String GROUP_RENAME = "group.rename";
@@ -459,16 +458,7 @@ public class SiteManageGroupSectionRoleHandler {
             }
         }
         title = "";
-        
-        String conf = serverConfigurationService.getString(UNHIDEABLES_CFG);
-        if (conf != null) {
-            unhideables = new HashSet();
-            String[] toolIds = conf.split(",");
-            for (int i = 0; i < toolIds.length; i++) {
-                unhideables.add(toolIds[i].trim());
-            }
-        }
-        
+
         if (groupMembers == null)
         {
         	groupMembers = new Vector<Member>();
