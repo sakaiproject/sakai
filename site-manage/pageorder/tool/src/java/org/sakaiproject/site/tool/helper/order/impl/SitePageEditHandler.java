@@ -56,6 +56,15 @@ public class SitePageEditHandler {
     private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
     private final String UNHIDEABLES_CFG = "poh.unhideables";
+    /**
+     * Configuration: Should the page order helper allow pages to be disabled?
+     */
+    public final String DISABLE_ENABLED_CFG = "poh.allow.lock";
+
+    /**
+     * Configuration: Should the page order helper allow pages to be hidden?
+     */
+    public final String HIDDEN_ENABLED_CFG = "poh.allow.hide";
     private final String PAGE_ADD = "pageorder.add";
     private final String PAGE_DELETE = "pageorder.delete";
     private final String PAGE_RENAME = "pageorder.rename";
@@ -409,7 +418,7 @@ public class SitePageEditHandler {
      *
      * @return true if this tool is allowed to be hidden
      */
-    public boolean allowsHide(String toolId) {
+    private boolean allowsHide(String toolId) {
         if (unhideables == null || !unhideables.contains(toolId))
             return true;
         return false;
@@ -425,6 +434,9 @@ public class SitePageEditHandler {
      * @return true if this tool is allowed to be hidden
      */
     public boolean allowsHide(SitePage page) {
+        if (!(serverConfigurationService.getBoolean(HIDDEN_ENABLED_CFG, true)))
+            return false;
+
         List<ToolConfiguration> tools = page.getTools();
         Iterator<ToolConfiguration> iPt = tools.iterator();
 
@@ -438,6 +450,17 @@ public class SitePageEditHandler {
             }
         }
         return hideable;
+    }
+
+    /**
+     * Can the page be disabled?
+     * @param page The SitePage that in question.
+     * @return <code>true</code> if the page can be disabled.
+     * @see #DISABLE_ENABLED_CFG
+     */
+    public boolean allowDisable(SitePage page) {
+        return serverConfigurationService.getBoolean(DISABLE_ENABLED_CFG, true) && allowsHide(page);
+
     }
  
     /**

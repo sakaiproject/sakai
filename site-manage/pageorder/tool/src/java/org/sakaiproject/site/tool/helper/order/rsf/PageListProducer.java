@@ -161,7 +161,7 @@ public class PageListProducer
                 
 		// NEW
 		// TODO: Force hidden if disabled
-                if (handler.allowsHide(page)) {
+                if (handler.allowDisable(page)) {
                     param.viewID = PageEditProducer.VIEW_ID;
                     param.visible = null;
                     if (handler.isEnabled(page)) {
