@@ -178,6 +178,98 @@
 		</property>
 	</bean>
 
+
+	<bean id="javax.sql.hikaricp.BaseDataSource" abstract="true"
+			class="org.sakaiproject.hikaricp.jdbc.pool.SakaiBasicDataSource"
+            init-method="init"
+			destroy-method="close">
+
+		<!--  The fully qualified Java class name of the JDBC driver to be used. -->
+		<property name="driverClassName">
+			<value>org.hsqldb.jdbcDriver</value>
+		</property>
+
+		<!-- The connection URL to be passed to our JDBC driver to establish a connection. -->
+		<property name="url">
+			<value>jdbc:hsqldb:mem:sakai</value>
+		</property>
+
+		<!-- The connection username to be passed to our JDBC driver to establish a connection. -->
+		<property name="username">
+			<value>sa</value>
+		</property>
+
+		<!-- The connection password to be passed to our JDBC driver to establish a connection. -->
+		<property name="password">
+			<value></value>
+		</property>
+
+		<!-- Use TRANSACTION_READ_COMMITTED for MySQL -->
+		<!-- DO NOT SET for Oracle (the default TRANSACTION_READ_COMMITTED is fine, and setting it causes performance problems) -->
+		<!-- Up to and including 1.7.1, HSQLDB supports only Connection.TRANSACTION_READ_UNCOMMITTED. -->
+		<property name="defaultTransactionIsolationString">
+			<value>TRANSACTION_READ_UNCOMMITTED</value>
+		</property>
+
+		<!-- Whether or not to autocommit, setting to true is causing an error in content, so might not be a great idea -->
+		<property name="autoCommit">
+			<value>false</value>
+		</property>
+
+		<!-- These are some of the additional hikari properties. See the webpage for more info https://github.com/brettwooldridge/HikariCP 
+		 Note: There *may* be some other much less commonly used beans that cannot or are not currently defined here. Check the webpage if you want to see them. -->
+		<!-- Number of ms to wait for a connection, default 30 seconds -->
+		<property name="connectionTimeout">
+			<value>30000</value>
+		</property>
+
+		<!-- Time that a connection is allowed to sit idle, default 10 minutes -->
+		<property name="idleTimeout">
+			<value>600000</value>
+		</property>
+
+		<!-- This property controls the maximum lifetime of a connection in the pool, default 30 minutes -->
+		<property name="maxLifetime">
+			<value>1800000</value>
+		</property>
+
+		<!-- If your driver supports JDBC4 we strongly recommend not setting this property. This is for "legacy" databases that do not support the JDBC4 Connection.isValid() API. Default null (important). -->
+		<!-- This seems like it might need to be specified with MySQL to something like "SELECT 1" depending on the driver: https://github.com/brettwooldridge/HikariCP/issues/206 -->
+		<property name="connectionTestQuery">
+		<null />
+		</property>
+
+		<!-- This property controls the minimum number of idle connections that HikariCP tries to maintain in the pool. Default 10 -->
+		<property name="minimumIdle">
+			<value>10</value>
+		</property>
+
+		<!-- This property controls the maximum size of the pool for idle and in use. Default 10 (TODO: Seems low)-->
+		<property name="maximumPoolSize">
+			<value>10</value>
+		</property>
+
+		<!-- Register MBeans -->
+		<property name="registerMbeans">
+			<value>true</value>
+		</property>
+
+		<!-- The default name of the pool -->
+		<property name="poolName">
+			<value>sakai</value>
+		</property>
+
+		<!-- Additional data source properties -->
+		<property name="dataSourceProperties">
+			<props>
+				<prop key="cachePrepStmts">true</prop>
+				<prop key="prepStmtCacheSize">250</prop>
+				<prop key="prepStmtCacheSqlLimit">2048</prop>
+				<prop key="useServerPrepStmts">true</prop>
+			</props>
+		</property>
+</bean>
+
 	<bean id="javax.sql.tomcat.BaseDataSource" abstract="true"
 			class="org.sakaiproject.tomcat.jdbc.pool.SakaiBasicDataSource"
             init-method="init"
