@@ -381,7 +381,7 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String SITE_DEFAULT_LIST = ServerConfigurationService
 			.getString("site.types");
 
-	private final static String DEFAULT_SITE_TYPE_SAK_PROP = ServerConfigurationService.getString("site.types.defaultType");
+	private final static String DEFAULT_SITE_TYPE_SAK_PROP = ServerConfigurationService.getString("site.types.defaultType", null);
 	private final static String[] PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicChangeable");
 	private final static String[] PUBLIC_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicOnly");
 	private final static String[] PRIVATE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.privateOnly");
