@@ -1417,11 +1417,18 @@ public class QuestionPoolFacadeQueries
 	  return count;
   }
   
+  /**
+   * Fetch a HashMap of question pool ids and counts for all pools that a user has access to.
+   * We inner join the QuestionPoolAccessData table because the user may have access to pools
+   * that are being shared by other users. We can't simply look for the ownerId on QuestionPoolData.
+   * This was originally written for SAM-2463 to speed up these counts. 
+   * @param agentId Sakai internal user id. Most likely the currently logged in user
+   */
   public HashMap<Long, Integer> getCountItemFacadesForUser(final String agentId) {	    
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd " + 
-					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.ownerId=? group by qpi.questionPoolId");
+			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " + 
+					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.questionPoolId=qpad.questionPoolId AND qpad.agentId=? group by qpi.questionPoolId");
 			  q.setString(0, agentId);
 			  q.setCacheable(true);
 			  return q.list();
