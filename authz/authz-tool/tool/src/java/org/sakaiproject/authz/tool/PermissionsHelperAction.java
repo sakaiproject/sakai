@@ -173,16 +173,8 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		}
 
 		String template = buildHelperContext(portlet, context, rundata, sstate);
-		if (template == null)
-		{
-			addAlert(sstate, rb.getString("java.alert.prbset"));
-		}
-		else
-		{
-			return template;
-		}
-
-		return null;
+		// May be null.
+		return template;
 	}
 
 	protected void initHelper(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
@@ -222,7 +214,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	/**
 	 * build the context.
 	 * 
-	 * @return The name of the template to use.
+	 * @return The name of the template to use. <code>null</code> can be returned.
 	 */
 	static public String buildHelperContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
@@ -279,6 +271,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			{
 				M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
 				cleanupState(state);
+				addAlert(state, rb.getFormattedMessage("alert_permission", new Object[]{realmId}));
 				return null;
 			}
 		}
