@@ -100,9 +100,7 @@ public class PageListProducer
                 param.viewID = PageEditProducer.VIEW_ID;
                 Object[] pageTitle = new Object[] {page.getTitle()};
 
-                //default value is to allow the Title to be edited.  If the sakai properties 
-                //specifically requests this to be set to false, then do not allow this function
-                if (serverConfigurationService.getBoolean(ALLOW_TITLE_EDIT, true)) {
+                if (handler.allowEdit(page)) {
 
                     fullyDecorate(UIInternalLink.make(pagerow, "edit-link", param), 
                         UIMessage.make("page_edit", pageTitle));
