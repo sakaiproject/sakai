@@ -18,6 +18,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupKeyboadNavigation();
   this.setupFixedStudentColumn();
   this.setupFixedTableHeader();
+  this.setupColumnDragAndDrop();
 };
 
 
@@ -384,6 +385,14 @@ GradebookSpreadsheet.prototype.enableAbsolutePositionsInCells = function() {
   });
 };
 
+
+GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
+  this.$table.dragtable({
+    maxMovingRows: 1,
+    dragaccept: '.gb-grade-item-header',
+    excludeFooter: true
+  });
+};
 
 
 /*************************************************************************************
