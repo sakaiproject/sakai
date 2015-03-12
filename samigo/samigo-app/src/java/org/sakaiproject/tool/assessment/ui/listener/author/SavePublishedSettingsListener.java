@@ -250,7 +250,7 @@ implements ActionListener
 			context.addMessage(null,new FacesMessage(dueDateErr));
 			error=true;
 		}
-		// check if retract date is valid
+		// check if late submission date is valid
 		if(!assessmentSettings.getIsValidRetractDate()){
 			String retractDateErr = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","invalid_retrack_date");
 			context.addMessage(null,new FacesMessage(retractDateErr));
@@ -283,12 +283,12 @@ implements ActionListener
 	    }
 
 	    // SAM-1088
-	    // if late submissions not allowed and retract date is null, set retract date to due date
+	    // if late submissions not allowed and late submission date is null, set late submission date to due date
 	    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.equals(assessmentSettings.getLateHandling()) &&
 	    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
 	    	assessmentSettings.setRetractDate(dueDate);
 	    }
-	    // if auto-submit is enabled, make sure retract date is set
+	    // if auto-submit is enabled, make sure late submission date is set
 	    if (assessmentSettings.getAutoSubmit() && retractDate == null) {
 	    	String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
 	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
