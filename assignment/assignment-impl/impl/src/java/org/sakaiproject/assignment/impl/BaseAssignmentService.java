@@ -10962,6 +10962,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							intString = attributes.getValue("numberoflogs");
 							try
 							{
+							if(!StringUtils.isBlank(intString)) {
 							    numAttributes = Integer.parseInt(intString);
 							    for (int x = 0; x < numAttributes; x++)
 							    {
@@ -10972,6 +10973,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							        }
 							    }
 							}
+							}
 							catch (Exception e)
 							{
 							    M_log.debug(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading logs : " + e);
@@ -10980,6 +10982,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							intString = attributes.getValue("numberofgrades");
 							try
 							{
+							if(!StringUtils.isBlank(intString)) {
 							    numAttributes = Integer.parseInt(intString);
 							    for (int x = 0; x < numAttributes; x++)
 							    {
@@ -10987,6 +10990,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							        tempString = attributes.getValue(attributeString);
 							        if (tempString != null) m_grades.add(tempString);
 							    }
+							}
 							}
 							catch (Exception e)
 							{
