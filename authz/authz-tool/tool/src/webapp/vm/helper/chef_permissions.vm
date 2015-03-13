@@ -92,8 +92,8 @@
 										<input type="hidden" name="$role.Id$lock" value="$granted"/>
 									#else
 										<span class="skip">$thelp.getString("gen.enable") $role.Id: $desc</span>
-										<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock"
-											value="true" #if($granted)checked="checked"#end/>
+										#set ($checked = ($myRole) && ($myRole.Id==$role.Id) && ($myRole.AllowedFunctions.contains($lock)))
+										<input class="$role.Id$lock" type="checkbox" name="$role.Id$lock" id="$role.Id$lock" value="$role.Id$lock" #if($checked)checked="checked"#end  #if(! $limiter.isEnabled($role.id, $lock, $checked))disabled="true"#end />
 									#end
 									</label>
 								</td>
