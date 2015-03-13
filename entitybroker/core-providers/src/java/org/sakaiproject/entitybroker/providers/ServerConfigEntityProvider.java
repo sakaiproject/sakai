@@ -65,7 +65,6 @@ public class ServerConfigEntityProvider extends AbstractEntityProvider implement
             "portalPath",
             "version.service",
             "version.sakai",
-            "version.kernel",
             "buildTime.kernel",
             "locales",
             "force.url.secure",
