@@ -4730,16 +4730,18 @@ public class AssignmentAction extends PagedResourceActionII
 							while (submissions.hasNext())
 							{
 								AssignmentSubmission aSubmission = (AssignmentSubmission) submissions.next();
-								User[] submitters = aSubmission.getSubmitters();
-                                                                for (int i=0; submitters != null && i < submitters.length; i++) {
-									if (isExternalAssociateAssignmentDefined)
-									{
-										// if the old associated assignment is an external maintained one
-										gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[i].getId(), null);
-									}
-									else if (isAssignmentDefined)
-									{
-										g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[i].getId(), "0", assignmentToolTitle);
+								if (aSubmission.getGrade(false) != null) {
+									User[] submitters = aSubmission.getSubmitters();
+									for (int i=0; submitters != null && i < submitters.length; i++) {
+										if (isExternalAssociateAssignmentDefined)
+										{
+											// if the old associated assignment is an external maintained one
+											gExternal.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[i].getId(), null);
+										}
+										else if (isAssignmentDefined)
+										{
+											g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[i].getId(), "0", assignmentToolTitle);
+										}
 									}
 								}
 							}
@@ -8275,6 +8277,9 @@ public class AssignmentAction extends PagedResourceActionII
 							// if the assignment has been assoicated with a different entry in gradebook before, remove those grades from the entry in Gradebook
 							if (StringUtils.trimToNull(oAssociateGradebookAssignment) != null && !oAssociateGradebookAssignment.equals(associateGradebookAssignment))
 							{
+								// remove all previously associated grades, if any, into Gradebook
+								integrateGradebook(state, aReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category);
+								
 								// if the old assoicated assignment entry in GB is an external one, but doesn't have anything assoicated with it in Assignment tool, remove it
 								removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,gExternal, gradebookUid);
 							}
@@ -8293,6 +8298,9 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			else
 			{
+				// remove all previously associated grades, if any, into Gradebook
+				integrateGradebook(state, aReference, oAssociateGradebookAssignment, null, null, null, -1, null, null, "remove", category);
+				
 				// need to remove the associated gradebook entry if 1) it is external and 2) no other assignment are associated with it
 				removeNonAssociatedExternalGradebookEntry(context, a.getReference(), oAssociateGradebookAssignment,gExternal, gradebookUid);
 			}
