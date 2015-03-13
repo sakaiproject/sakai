@@ -96,8 +96,10 @@ function textCounter(field, maxlimit) {
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.PoolSaveListener" />
   <f:attribute name="addsource" value="editpool"/>
   </h:commandButton>
-  <h:commandButton style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true"/>
-
+  <h:commandButton style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true">
+    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+    <f:attribute name="returnToParentPool" value="true"/>
+  </h:commandButton>
 
 </p>
  </h:form>

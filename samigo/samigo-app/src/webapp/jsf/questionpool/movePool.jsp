@@ -92,7 +92,15 @@
     action="#{questionpool.moveQuestion}" rendered="#{questionpool.actionType == 'item'}" styleClass="active">
   </h:commandButton>
 
-  <h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}"/>
+	<h:commandButton id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" rendered="#{questionpool.actionType == 'pool'}">
+		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+		<f:attribute name="returnToParentPool" value="true"/>
+	</h:commandButton>
+
+	<h:commandButton id="cancelItem" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" rendered="#{questionpool.actionType == 'item'}">
+		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+		<f:attribute name="returnToParentPool" value="false"/>
+	</h:commandButton>
 
 </p>
 

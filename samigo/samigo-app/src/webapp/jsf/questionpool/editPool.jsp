@@ -213,9 +213,10 @@ function textCounter(field, maxlimit) {
   <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.ImportQuestionsToAuthoring" />
   </h:commandButton>
 
-  <h:commandButton style="act" value="#{commonMessages.cancel_action}" action="poolList" immediate="true">
-    <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
-  </h:commandButton>
+	<h:commandButton style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}">
+		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+		<f:attribute name="returnToParentPool" value="true"/>
+	</h:commandButton>
 
  <h:outputText escape="false" value="<span id=\"submitnotif\" style=\"visibility:hidden\"> #{deliveryMessages.processing}</span>"/>
  </div>
