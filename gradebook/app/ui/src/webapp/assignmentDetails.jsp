@@ -26,23 +26,20 @@
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
 				value="#{msgs.assignment_details_previous_assignment}"
 				title="#{assignmentDetailsBean.previousAssignment.name}"
-				accesskey="p"
-				tabindex="4">
+				accesskey="p">
 					<f:param name="assignmentId" value="#{assignmentDetailsBean.previousAssignment.id}"/>
 			</h:commandButton>
 			<h:commandButton
 				action="#{assignmentDetailsBean.processCancel}"
 				immediate="true"
 				value="#{assignmentDetailsBean.returnString}"
-				accesskey="l"
-				tabindex="6"/>
+				accesskey="l"/>
 			<h:commandButton
 				disabled="#{assignmentDetailsBean.last}"
 				actionListener="#{assignmentDetailsBean.processAssignmentIdChange}"
 				value="#{msgs.assignment_details_next_assignment}"
 				title="#{assignmentDetailsBean.nextAssignment.name}"
-				accesskey="n"
-				tabindex="5">
+				accesskey="n">
 					<f:param name="assignmentId" value="#{assignmentDetailsBean.nextAssignment.id}"/>
 			</h:commandButton>
 		</p>
@@ -92,7 +89,6 @@
 					<h:commandLink
 						action="#{assignmentDetailsBean.navigateToEdit}"
 						accesskey="e"
-						tabindex="7"
 						title="#{msgs.assignment_details_edit}">
 						<h:outputFormat id="editAssignment" value="#{msgs.assignment_details_edit}" />
 						<f:param name="assignmentId" value="#{assignmentDetailsBean.assignment.id}"/>
@@ -101,7 +97,6 @@
 						action="removeAssignment"
 						rendered="#{!assignmentDetailsBean.assignment.externallyMaintained}"
 						accesskey="r"
-						tabindex="8"
 						title="#{msgs.assignment_details_remove}">
 							<h:outputText id="removeAssignment" value="#{msgs.assignment_details_remove}"/>
 						<f:param name="assignmentId" value="#{assignmentDetailsBean.assignment.id}"/>
@@ -111,7 +106,6 @@
 						value="#{assignmentDetailsBean.assignment.externalInstructorLink}"
 						rendered="#{assignmentDetailsBean.assignment.externallyMaintained && not empty assignmentDetailsBean.assignment.externalInstructorLink}"
 						accesskey="x"
-						tabindex="9"
 						title="#{msgs.assignment_details_edit}">
 							<h:outputFormat value="#{msgs.assignment_details_external_edit}">
 								<f:param value="#{assignmentDetailsBean.assignment.externalAppName}"/>
@@ -144,7 +138,6 @@
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="s"
-				tabindex="9998"
 				title="#{msgs.assignment_details_submit}"
 				onclick="disableButton('buttonDiv1', this)"/>
 			<h:commandButton
@@ -155,7 +148,6 @@
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
 				accesskey="c"
 				immediate="true"
-				tabindex="9999"
 				title="#{msgs.assignment_details_cancel}" onclick="disableButton('buttonDiv1', this)">
 					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}"/>
 			</h:commandButton>
@@ -307,7 +299,6 @@
 				actionListener="#{assignmentDetailsBean.processUpdateScores}"
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
-				tabindex="9998"
 				title="#{msgs.assignment_details_submit}"
 				onclick="disableButton('buttonDiv2', this)"/>
 			<h:commandButton
@@ -317,7 +308,6 @@
 				immediate="true"
 				disabled="#{assignmentDetailsBean.assignment.externallyMaintained || assignmentDetailsBean.allStudentsViewOnly}"
 				rendered="#{!assignmentDetailsBean.emptyEnrollments}"
-				tabindex="9999"
 				title="#{msgs.assignment_details_cancel}"
 				onclick="disableButton('buttonDiv2', this)">
 					<f:param name="breadcrumbPage" value="#{assignmentDetailsBean.breadcrumbPage}"/>
