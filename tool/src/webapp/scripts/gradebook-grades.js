@@ -387,8 +387,14 @@ GradebookSpreadsheet.prototype.enableAbsolutePositionsInCells = function() {
 
 
 GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
+  // insert a drag handle 
+  $(".gb-grade-item-header .gb-title").each(function() {
+    var $handle = $("<a>").attr("href", "javascript:void(0);").addClass("gb-grade-item-drag-handle");
+    $(this).prepend($handle)
+  });
   this.$table.dragtable({
     maxMovingRows: 1,
+    dragHandle: '.gb-grade-item-drag-handle',
     dragaccept: '.gb-grade-item-header',
     excludeFooter: true
   });
