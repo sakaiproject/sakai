@@ -85,7 +85,7 @@ GradebookSpreadsheet.prototype.setupKeyboadNavigation = function() {
   var self = this;
 
   // make all table header and body cells tabable
-  self.$table.find("th, td").
+  self.$table.find("thead th, tbody td").
                       attr("tabindex", 0).
                       addClass("gb-cell").
                       on("focus", function(event) {
