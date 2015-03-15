@@ -2912,7 +2912,7 @@ public class SiteAction extends PagedResourceActionII {
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = isAddMissingToolsOnImportEnabled();
 			
-			//helper var to hold the list we use for the seletedTools context variable, as we use it for the alternate toolnames too
+			//helper var to hold the list we use for the selectedTools context variable, as we use it for the alternate toolnames too
 			List<String> selectedTools = new ArrayList<>();
 			
 			if(addMissingTools) {
@@ -2926,11 +2926,25 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("selectedTools", selectedTools);
 			}
 			
-			//get any alternate tool names from the sites selected to import from (importSites) and the selectedTools list
-			Map<String,Set<String>> alternateToolNames = this.getToolNames(selectedTools, importSites);
-			System.out.println("names: " + alternateToolNames.toString());			
+			//get all known tool names from the sites selected to import from (importSites) and the selectedTools list
+			Map<String,Set<String>> toolNames = this.getToolNames(selectedTools, importSites);
 			
-			//need to set this into context and adjust the front end to also look at it.
+			//filter this list so its just the alternate ones and turn it into a string for the UI
+			Map<String,String> alternateToolTitles = new HashMap<>();
+			for(MyTool myTool : allTools) {
+				String toolId = myTool.getId();
+				String toolTitle = myTool.getTitle();
+				Set<String> allToolNames = toolNames.get(toolId);
+				if(allToolNames != null) {
+					allToolNames.remove(toolTitle);
+				
+					//if we have something left then we have alternates, so process them
+					if(!allToolNames.isEmpty()) {
+						alternateToolTitles.put(toolId, StringUtils.join(allToolNames, ", "));
+					}
+				}
+			}
+			context.put("alternateToolTitlesMap", alternateToolTitles);
 			
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
@@ -3026,22 +3040,49 @@ public class SiteAction extends PagedResourceActionII {
 			//ensure this is the original tool list and set the sorted list back into context.
 			context.put(STATE_TOOL_REGISTRATION_LIST, allTools);
 			state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST));
-		
-			
 			
 			//if option is enabled, import into ALL tools, not just the ones in this site
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = isAddMissingToolsOnImportEnabled();
+			
+			//helper var to hold the list we use for the selectedTools context variable, as we use it for the alternate toolnames too
+			List<String> selectedTools = new ArrayList<>();
+			
 			if(addMissingTools) {
-				context.put("selectedTools", allImportableToolIdsInOriginalSites); 
+				
+                selectedTools = allImportableToolIdsInOriginalSites;
+				
+				context.put("selectedTools", selectedTools); 
 				//set tools in destination site into context so we can markup the lists and show which ones are new
 				context.put("toolsInDestinationSite", importableToolsIdsInDestinationSite);
 				
 			} else {
+				
+                selectedTools = importableToolsIdsInDestinationSite;
+
 				//just just the ones in the destination site
-				context.put("selectedTools", importableToolsIdsInDestinationSite); 
+				context.put("selectedTools", selectedTools); 
 			}
 			
+			//get all known tool names from the sites selected to import from (importSites) and the selectedTools list
+			Map<String,Set<String>> toolNames = this.getToolNames(selectedTools, importSites);
+			
+			//filter this list so its just the alternate ones and turn it into a string for the UI
+			Map<String,String> alternateToolTitles = new HashMap<>();
+			for(MyTool myTool : allTools) {
+				String toolId = myTool.getId();
+				String toolTitle = myTool.getTitle();
+				Set<String> allToolNames = toolNames.get(toolId);
+				if(allToolNames != null) {
+					allToolNames.remove(toolTitle);
+				
+					//if we have something left then we have alternates, so process them
+					if(!allToolNames.isEmpty()) {
+						alternateToolTitles.put(toolId, StringUtils.join(allToolNames, ", "));
+					}
+				}
+			}
+			context.put("alternateToolTitlesMap", alternateToolTitles);
 						
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
