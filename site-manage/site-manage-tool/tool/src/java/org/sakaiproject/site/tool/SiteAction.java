@@ -53,6 +53,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,6 +95,7 @@ import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -2946,6 +2948,10 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("alternateToolTitlesMap", alternateToolTitles);
 			
+			//build a map of sites and tools in those sites that have content
+			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
+			context.put("siteToolsWithContent", siteToolsWithContent);
+			
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
 			
@@ -3083,6 +3089,10 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 			context.put("alternateToolTitlesMap", alternateToolTitles);
+			
+			//build a map of sites and tools in those sites that have content
+			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
+			context.put("siteToolsWithContent", siteToolsWithContent);
 						
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
@@ -15316,6 +15326,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	/**
 	 * Get the list of tools that are in a list of sites that are available for import.
 	 * 
+	 * Only tools with content will be collected. See hasContent(toolId, siteId) for the behaviour.
+	 * 
 	 * @param list of siteids to check, could be a singleton
 	 * @return a list of toolIds that are in the sites that are available for import
 	 * 
@@ -15328,7 +15340,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		for(Site site: sites) {
 			for(String toolId: allImportToolIds) {
 				if(site.getToolForCommonId(toolId) != null) {
-					importToolsInSites.add(toolId);
+					
+					//check the tool has content. 
+					//this caters for the case where we only selected one site for import, this means the tool won't show in the list at all.
+					if(hasContent(toolId, site.getId())) {
+						importToolsInSites.add(toolId);
+					}
+					
 				}
 			}
 		}
@@ -15366,7 +15384,74 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}
 		
 		return rval;
-
+	}
+	
+	
+	
+	/**
+	 * Get a map of tools in each site that have content.
+	 * The list of tools are only those that have been selected for import
+	 * 
+	 * The algorithm for determining this is documented as part of hasContent(siteId, toolid);
+	 * 
+	 * @param sites
+	 * @param toolIds
+	 * @return Map keyed on siteId. Set contains toolIds that have content.
+	 */
+	private Map<String, Set<String>> getSiteImportToolsWithContent(List<Site> sites, List<String> toolIds) {
+		
+		Map<String, Set<String>> siteToolsWithContent = new HashMap<>(); 
+		
+		for(Site site: sites) {
+			
+			Set<String> toolsWithContent = new HashSet<>();
+			
+			for(String toolId: toolIds) {
+				if(site.getToolForCommonId(toolId) != null) {
+					
+					//check the tool has content
+					if(hasContent(toolId, site.getId())) {
+						toolsWithContent.add(toolId);
+					}
+				}
+			}
+			
+			M_log.debug("Site: " + site.getId() + ", has the following tools with content: " + toolsWithContent);
+			
+			siteToolsWithContent.put(site.getId(), toolsWithContent);
+		}
+	
+		return siteToolsWithContent;
+	}
+	
+	/**
+	 * Helper to check if a tool in a site has content. 
+	 * This leverages the EntityProducer system and then checks each producer to see if it is the one we are interested in
+	 * If the tool implements the ContentExistsAware interface, then it asks the tool explicitly if it has content.
+	 * If the tool does not implement this interface, then we have no way to tell, so for backwards compatibility we assume it has content.
+	 * 
+	 * @param toolId
+	 * @param siteId
+	 */
+	private boolean hasContent(String toolId, String siteId) {
+		
+		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();) {
+			EntityProducer ep = (EntityProducer) i.next();
+			
+			if (ep instanceof EntityTransferrer) {
+				EntityTransferrer et = (EntityTransferrer) ep;
+				
+				if (ArrayUtils.contains(et.myToolIds(), toolId)) {
+					
+					if(ep instanceof ContentExistsAware){
+						ContentExistsAware cea = (ContentExistsAware) ep;
+						M_log.debug("Checking tool content for site:" + siteId + ", tool: " + et.myToolIds());
+						return cea.hasContent(siteId);
+					} 
+				}
+			}
+		}
+		return true; //backwards compatibility
 	}
 
 	

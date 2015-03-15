@@ -74,6 +74,12 @@
 										#end
 									#end
 								#end
+								
+								#set ($toolsWithContent = $!siteToolsWithContent.get($site.getId()))
+								#if(!$toolsWithContent.contains($toolId))
+									#set($toolFound = false)
+								#end
+								
 								#if ($toolFound)
 									<input type="checkbox" id="toolSite$toolCount$siteCount" name="$toolId" value="$site.Id" #if($!selectedSites.contains($site.Id))checked="checked"#end />
 									<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
