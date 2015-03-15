@@ -387,16 +387,29 @@ GradebookSpreadsheet.prototype.enableAbsolutePositionsInCells = function() {
 
 
 GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
+  var self = this;
+
   // insert a drag handle 
   $(".gb-grade-item-header .gb-title").each(function() {
     var $handle = $("<a>").attr("href", "javascript:void(0);").addClass("gb-grade-item-drag-handle");
-    $(this).prepend($handle)
+    $(this).prepend($handle);
   });
-  this.$table.dragtable({
+  self.$table.dragtable({
     maxMovingRows: 1,
     dragHandle: '.gb-grade-item-drag-handle',
     dragaccept: '.gb-grade-item-header',
-    excludeFooter: true
+    excludeFooter: true,
+    persistState: function(dragTable) {
+      var newIndex = dragTable.endIndex - 1; // reset to 0-based count
+      var $header = $(self.$table.find("thead th").get(newIndex));
+
+      // determine the new position of the grade item in relation to other grade items
+      var order = self.$table.find("thead th.gb-grade-item-header").index($header);
+
+      GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
+                                         $header.data("model").columnKey,
+                                         order);
+    }
   });
 };
 
@@ -573,6 +586,30 @@ GradebookHeaderCell.prototype.setColumnKey = function() {
 
   return columnKey;
 }
+
+
+/**************************************************************************************
+ * GradebookAPI - all the backend calls in one happy place
+ */
+GradebookAPI = {};
+
+GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError) {
+  GradebookAPI._POST("/direct/gbng/assignment-order", {
+                                                        siteId: siteId,
+                                                        assignmentId: assignmentId,
+                                                        order: order
+                                                      })
+};
+
+GradebookAPI._POST = function(url, data, onSuccess, onError) {
+  $.ajax({
+    type: "POST",
+    url: url,
+    data: data,
+    onSuccess: onSuccess || $.noop,
+    onError: onError || $.noop
+  });
+};
 
 
 /**************************************************************************************
