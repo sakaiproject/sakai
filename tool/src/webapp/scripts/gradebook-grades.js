@@ -18,6 +18,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupKeyboadNavigation();
   this.setupFixedStudentColumn();
   this.setupFixedTableHeader();
+  this.setupColumnDragAndDrop();
 };
 
 
@@ -84,7 +85,7 @@ GradebookSpreadsheet.prototype.setupKeyboadNavigation = function() {
   var self = this;
 
   // make all table header and body cells tabable
-  self.$table.find("th, td").
+  self.$table.find("thead th, tbody td").
                       attr("tabindex", 0).
                       addClass("gb-cell").
                       on("focus", function(event) {
@@ -245,7 +246,7 @@ GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
     var $header = self.getHeader();
     var headerBottomPosition = $header[0].offsetTop + $header[0].offsetHeight;
     if ($cell[0].offsetTop < headerBottomPosition) {
-      document.body.scrollTop = document.body.scrollTop - (headerBottomPosition - ($cell[0].offsetTop - $cell.height()));
+      $(document).scrollTop($(document).scrollTop() - (headerBottomPosition - ($cell[0].offsetTop - $cell.height())));
     }
   }
 };
@@ -310,11 +311,11 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function() {
   self.$spreadsheet.prepend($fixedHeader);
 
   function positionFixedHeader() {
-    if (document.body.scrollTop + $fixedHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
-    } else if (self.$spreadsheet.offset().top < document.body.scrollTop) {
+    if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+    } else if (self.$spreadsheet.offset().top < $(document).scrollTop()) {
       $fixedHeader.
           show().
-          css("top", document.body.scrollTop - self.$spreadsheet.offset().top + "px").
+          css("top", $(document).scrollTop() - self.$spreadsheet.offset().top + "px").
           css("left", "0");
     } else {
       $fixedHeader.hide();
@@ -384,6 +385,33 @@ GradebookSpreadsheet.prototype.enableAbsolutePositionsInCells = function() {
   });
 };
 
+
+GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
+  var self = this;
+
+  // insert a drag handle 
+  $(".gb-grade-item-header .gb-title").each(function() {
+    var $handle = $("<a>").attr("href", "javascript:void(0);").addClass("gb-grade-item-drag-handle");
+    $(this).prepend($handle);
+  });
+  self.$table.dragtable({
+    maxMovingRows: 1,
+    dragHandle: '.gb-grade-item-drag-handle',
+    dragaccept: '.gb-grade-item-header',
+    excludeFooter: true,
+    persistState: function(dragTable) {
+      var newIndex = dragTable.endIndex - 1; // reset to 0-based count
+      var $header = $(self.$table.find("thead th").get(newIndex));
+
+      // determine the new position of the grade item in relation to other grade items
+      var order = self.$table.find("thead th.gb-grade-item-header").index($header);
+
+      GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
+                                         $header.data("model").columnKey,
+                                         order);
+    }
+  });
+};
 
 
 /*************************************************************************************
@@ -544,16 +572,44 @@ GradebookHeaderCell.prototype.isEditable = function() {
 
 
 GradebookHeaderCell.prototype.setColumnKey = function() {
+  var self = this;
+
   var columnKey;
-  if (this.$cell.hasClass("gb-grade-item-header")) {
-    columnKey = this.$cell.find("[data-assignmentid]").data("assignmentid");
+  if (self.$cell.hasClass("gb-grade-item-header")) {
+    columnKey = self.$cell.find("[data-assignmentid]").data("assignmentid");
+  } else if (self.$cell.find(".gb-title").length > 0) {
+    columnKey = self.$cell.find(".gb-title").text().trim();
   } else {
-    columnKey = this.$cell.find(".gb-title, span:first")[0].innerText.trim();
+    columnKey = self.$cell.find("span:first").text().trim();
   }
-  this.columnKey = columnKey;
+  self.columnKey = columnKey;
 
   return columnKey;
 }
+
+
+/**************************************************************************************
+ * GradebookAPI - all the backend calls in one happy place
+ */
+GradebookAPI = {};
+
+GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError) {
+  GradebookAPI._POST("/direct/gbng/assignment-order", {
+                                                        siteId: siteId,
+                                                        assignmentId: assignmentId,
+                                                        order: order
+                                                      })
+};
+
+GradebookAPI._POST = function(url, data, onSuccess, onError) {
+  $.ajax({
+    type: "POST",
+    url: url,
+    data: data,
+    onSuccess: onSuccess || $.noop,
+    onError: onError || $.noop
+  });
+};
 
 
 /**************************************************************************************

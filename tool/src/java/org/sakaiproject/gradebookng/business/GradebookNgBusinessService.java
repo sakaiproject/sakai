@@ -449,7 +449,7 @@ public class GradebookNgBusinessService {
 	 * This will ONLY work in a portal site context, null otherwise.
 	 * @return
 	 */
-	private String getCurrentSiteId() {
+	public String getCurrentSiteId() {
 		try {
     		return this.toolManager.getCurrentPlacement().getContext();
     	} catch (Exception e){
