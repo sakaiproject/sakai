@@ -279,3 +279,11 @@ ALTER TABLE SAM_AUTHZDATA_T ADD INDEX SAM_IDX_FUNC_QUAL (FUNCTIONID,QUALIFIERID)
 ALTER TABLE SAM_AUTHZDATA_T MODIFY COLUMN AGENTID varchar(99);
 ALTER TABLE SAM_AUTHZDATA_T MODIFY COLUMN LASTMODIFIEDBY varchar(99);
 -- End SAM-2259
+
+-- SAK-23666 Add OAuth Admin tool to Administration workspace
+INSERT INTO sakai_site_page VALUES('!admin-1500', '!admin', 'OAuth Admin', '0', 20, '0');
+INSERT INTO sakai_site_tool VALUES('!admin-1550', '!admin-1500', '!admin', 'sakai.oauth.admin', 1, 'OAuth Admin', NULL);
+
+-- SAK-23666 Add OAuth Admin tool to My Workspace template 
+INSERT INTO sakai_site_page VALUES('!user-650', '!user', 'Trusted Applications', '0', 9, '0');
+INSERT INTO sakai_site_tool VALUES('!user-655', '!user-650', '!user', 'sakai.oauth', 1, 'Trusted Applications', NULL);
