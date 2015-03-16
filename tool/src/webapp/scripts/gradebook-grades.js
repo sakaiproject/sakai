@@ -328,6 +328,13 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   }
 
   $(document).off("scroll", positionFixedHeader).on("scroll", positionFixedHeader);
+
+  $fixedHeader.find("th").on("click", function(event) {
+    event.preventDefault();
+
+    $(document).scrollTop(self.$table.offset().top - 10);
+    self.$table.find("thead tr th").get($(this).index()).focus();
+  });
   positionFixedHeader();
 };
 
