@@ -510,11 +510,14 @@ public class LessonsAccess {
 	    return false;
 	}
 	
+	SimplePage currentPage = dao.getPage(item.getPageId());
+	if (currentPage == null) {
+	    return false;
+	}
+
 	//Look up the siteId if not provided
 	if (siteId == null) {
-        long pageId = item.getPageId();
-        SimplePage page = dao.getPage(pageId);
-        siteId = page.getSiteId();   
+        siteId = currentPage.getSiteId();   
 	}
 	
 	// top-level pseudo-item is special, as there is no containing page
@@ -528,10 +531,6 @@ public class LessonsAccess {
 		return false;
 	    }
 	    return isPageAccessible(pageNum, siteId, currentUserId, simplePageBean);
-	}
-	SimplePage currentPage = dao.getPage(item.getPageId());
-	if (currentPage == null) {
-	    return false;
 	}
 
 	simplePageBean = makeSimplePageBean(simplePageBean, siteId, currentPage);
