@@ -524,7 +524,13 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			// commit the change
 			try
 			{
-				AuthzGroupService.save(edit);
+				removeEmptyRoles(edit);
+
+				if (hasNothingSet(edit)) {
+					AuthzGroupService.removeAuthzGroup(edit);
+				} else {
+					AuthzGroupService.save(edit);
+				}
 			}
 			catch (GroupNotDefinedException e)
 			{
@@ -538,6 +544,26 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		// clean up state
 		cleanupState(state);
+	}
+
+	/**
+	 * Removes all the roles in an AuthzGroup that don't have any permissions set on them.
+	 * @param edit The AuthzGroup to cleanup.
+	 */
+	private void removeEmptyRoles(AuthzGroup edit) {
+		for (Role role : edit.getRoles()) {
+			if(role.getAllowedFunctions().isEmpty()) {
+				edit.removeRole(role.getId());
+			}
+		}
+	}
+
+	/**
+	 * @param edit The AuthzGroup to check.
+	 * @return <code>true</code> if there are no roles and no members in this AuthzGroup.
+	 */
+	private boolean hasNothingSet(AuthzGroup edit) {
+		return edit.getRoles().isEmpty() && edit.getMembers().isEmpty();
 	}
 
 	/**
