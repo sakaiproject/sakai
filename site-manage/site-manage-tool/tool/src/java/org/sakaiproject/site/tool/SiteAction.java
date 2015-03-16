@@ -3124,7 +3124,7 @@ public class SiteAction extends PagedResourceActionII {
 				coursesIntoContext(state, context, site);
 
 				// bjones86 - SAK-23256
-				List<AcademicSession> terms = setTermListForContext( context, state, true, false ); // true -> upcoming only
+				List<AcademicSession> terms = setTermListForContext( context, state, true, true ); // true -> upcoming only
 				
 				AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
 				
