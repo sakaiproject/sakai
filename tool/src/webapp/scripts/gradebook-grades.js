@@ -302,8 +302,13 @@ GradebookSpreadsheet.prototype.getHeader = function() {
 };
 
 
-GradebookSpreadsheet.prototype.setupFixedTableHeader = function() {
+GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   var self = this;
+
+  if (reset) {
+    // delete the existing header and initialize a new one
+    self.$spreadsheet.find(".gb-fixed-header-table").remove();
+  };
 
   var $header = self.$table.find("thead", "tr");
   var $fixedHeader = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-header-table").hide();
@@ -322,11 +327,22 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function() {
     }
   }
 
-  $(document).on("scroll", function() {
-    positionFixedHeader();
+  $(document).off("scroll", positionFixedHeader).on("scroll", positionFixedHeader);
+
+  $fixedHeader.find("th").on("click", function(event) {
+    event.preventDefault();
+
+    $(document).scrollTop(self.$table.offset().top - 10);
+    self.$table.find("thead tr th").get($(this).index()).focus();
   });
   positionFixedHeader();
 };
+
+
+GradebookSpreadsheet.prototype.refreshFixedTableHeader = function() {
+  this.setupFixedTableHeader(true);
+};
+
 
 GradebookSpreadsheet.prototype.setupFixedStudentColumn = function() {
   var self = this;
@@ -409,6 +425,9 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
       GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
                                          $header.data("model").columnKey,
                                          order);
+
+      // refresh the fixed header
+      self.refreshFixedTableHeader(true)
     }
   });
 };

@@ -146,6 +146,15 @@
   font-family:"gradebook-icons";
   content: '\f0c9';
 }
+#gradebookGrades .gb-fixed-header-table .gb-grade-item-drag-handle {
+  cursor: pointer;
+}
+#gradebookGrades .gb-fixed-header-table .gb-grade-item-drag-handle:before {
+  content: '\f062';
+}
+#gradebookGrades .gb-fixed-header-table .btn-group {
+  visibility: hidden;
+}
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
 	border: none; /** don't want border wrapping content inside the modal **/
