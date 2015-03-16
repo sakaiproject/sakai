@@ -130,6 +130,18 @@
             <version>1.0</version>
             <scope>provided</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-api</artifactId>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>org.sakaiproject.search</groupId>
+            <artifactId>search-util</artifactId>
+            <type>jar</type>
+        </dependency>
+
         <dependency>
             <groupId>org.hibernate</groupId>
 	    <artifactId>${sakai.hibernate.artifactId}</artifactId>
