@@ -38,7 +38,7 @@ import javax.faces.event.ActionListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -288,11 +288,15 @@ implements ActionListener
 	    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
 	    	assessmentSettings.setRetractDate(dueDate);
 	    }
+
 	    // if auto-submit is enabled, make sure late submission date is set
 	    if (assessmentSettings.getAutoSubmit() && retractDate == null) {
-	    	String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
-	    	error=true;
+	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+	    	if (autoSubmitEnabled) {
+	    		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
+	    		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+	    		error=true;
+	    	}
 	    }
 	    	    
 		// if timed assessment, does it has value for time
