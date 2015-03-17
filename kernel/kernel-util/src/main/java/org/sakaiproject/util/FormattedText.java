@@ -226,4 +226,9 @@ public class FormattedText {
     	return getFormattedText().getNumberFormat();
     }
     
+    //SAM-2505
+    public static String formatEnglishLocale(String text, boolean toEnglish){
+    	return getFormattedText().formatEnglishLocale(text, toEnglish);
+    }
+    
 }

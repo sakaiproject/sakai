@@ -26,7 +26,9 @@ package org.sakaiproject.tool.assessment.ui.listener.delivery;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.ResourceBundle;
+import java.util.Set;
 
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
@@ -34,6 +36,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,6 +48,9 @@ import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
+import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.EventLogFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
@@ -57,6 +63,7 @@ import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServ
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.util.FormattedText;
 
 
 public class LinearAccessDeliveryActionListener extends DeliveryActionListener
@@ -137,6 +144,8 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       boolean isFirstTimeBegin = false;
       if (itemGradingHash!=null && itemGradingHash.size()>0){
     	  log.debug("itemGradingHash!=null && itemGradingHash.size()>0");
+    	  //SAM-2505
+    	  itemGradingHash = formatEnglishLocale(itemGradingHash, publishedAssessment, pubService);    	  
     	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
     	  setAttemptDateIfNull(ag);
       }
@@ -256,6 +265,36 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       delivery.setPageContents(getPageContents(publishedAssessment, delivery, itemGradingHash, publishedAnswerHash));
   }
 
+  //SAM-2505
+  private HashMap formatEnglishLocale(HashMap itemGradingHash, PublishedAssessmentFacade publishedAssessment, PublishedAssessmentService pubService){
+	  
+	  if(publishedAssessment.getData()!=null){
+          HashMap<Long, ItemDataIfc> publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment.getData());
+          Set<Map.Entry<Long, ArrayList>> set = itemGradingHash.entrySet();
+        
+          for(Map.Entry<Long, ArrayList> ig: set){
+        	  Long itemId = ig.getKey();
+        	  ItemDataIfc item = publishedItemHash.get(itemId);
+
+        	  if(item!=null && TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())){
+        		  ArrayList itemGradingDataList = ig.getValue();
+        		  if(itemGradingDataList!=null){
+            		  for(int i=0;i<itemGradingDataList.size();i++){
+            			  ItemGradingData itemGradingData = (ItemGradingData)itemGradingDataList.get(i);
+            			  String answerText = itemGradingData.getAnswerText();
+            			  if(StringUtils.isNotBlank(answerText)){
+            				  itemGradingData.setAnswerText(FormattedText.formatEnglishLocale(answerText, false));
+            				  itemGradingDataList.set(i, itemGradingData);
+            			  }
+            		  }
+            		  itemGradingHash.put(itemId, itemGradingDataList);
+            	  }
+        	  }
+          }
+      }
+ 	  return itemGradingHash;
+  }
+  
   private void setPosition(DeliveryBean delivery, PublishedAssessmentFacade publishedAssessment, ActionEvent ae) {
 	  GradingService gradingService = new GradingService();
 	  if (ae != null && ae.getComponent().getId().startsWith("beginAssessment")) {
