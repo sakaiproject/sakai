@@ -21,7 +21,7 @@
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
     </h:commandLink>
 <f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
+<li role="menuitem" ><span class="current"></f:verbatim>
       <h:outputText value="#{generalMessages.eventLog}" />
 <f:verbatim></span></li>
 </ul></f:verbatim>
