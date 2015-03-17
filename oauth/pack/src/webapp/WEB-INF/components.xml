@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  #%L
+  OAuth Component
+  %%
+  Copyright (C) 2009 - 2013 The Sakai Foundation
+  %%
+  Licensed under the Educational Community License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+  
+              http://opensource.org/licenses/ecl2
+  
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  #L%
+  -->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <!-- Add our HBM files to the Sakai global session factory -->
+    <bean class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+        <property name="mappingResources">
+            <list>
+                <value>org/sakaiproject/oauth/dao/Accessor.hbm.xml</value>
+                <value>org/sakaiproject/oauth/dao/Consumer.hbm.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.oauth.service.OAuthService" class="org.sakaiproject.oauth.service.OAuthServiceImpl">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
+        <property name="accessorDao" ref="org.sakaiproject.oauth.dao.AccessorDao"/>
+        <property name="consumerDao" ref="org.sakaiproject.oauth.dao.ConsumerDao"/>
+        <property name="keepOldAccessors" value="true"/>
+    </bean>
+
+    <bean id="org.sakaiproject.oauth.service.OAuthAdminService" class="org.sakaiproject.oauth.service.OAuthAdminServiceImpl">
+        <property name="oauthService" ref="org.sakaiproject.oauth.service.OAuthService"/>
+        <property name="consumerDao" ref="org.sakaiproject.oauth.dao.ConsumerDao"/>
+        <property name="accessorDao" ref="org.sakaiproject.oauth.dao.AccessorDao"/>
+    </bean>
+
+    <bean id="org.sakaiproject.oauth.dao.AccessorDao"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"
+                  ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        <property name="target">
+            <bean class="org.sakaiproject.oauth.dao.HibernateAccessorDao">
+                <property name="sessionFactory"
+                          ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.oauth.dao.ConsumerDao"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"
+                  ref="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
+        <property name="target">
+            <bean class="org.sakaiproject.oauth.dao.HibernateConsumerDao">
+                <property name="sessionFactory"
+                          ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+            </bean>
+        </property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="*">PROPAGATION_REQUIRED</prop>
+            </props>
+        </property>
+    </bean>
+
+    <bean id="org.sakaiproject.oauth.service.OAuthHttpService" class="org.sakaiproject.oauth.service.OAuthHttpServiceImpl">
+        <property name="oAuthService" ref="org.sakaiproject.oauth.service.OAuthService"/>
+        <property name="oAuthValidator">
+            <bean class="net.oauth.SimpleOAuthValidator"/>
+        </property>
+        <!-- This means we don't have to put another dependency in the bean -->
+        <property name="enabled">
+            <bean factory-bean="org.sakaiproject.component.api.ServerConfigurationService"
+                    factory-method="getBoolean">
+                <constructor-arg value="oauth.enabled"/>
+                <constructor-arg value="true"/>
+            </bean>
+        </property>
+    </bean>
+
+    <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject">
+            <bean class="org.sakaiproject.oauth.service.Util"/>
+        </property>
+        <property name="targetMethod" value="importConsumers"/>
+        <property name="arguments">
+            <list>
+                <bean class="org.sakaiproject.oauth.dao.ServerConfigConsumerDao">
+                    <constructor-arg ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+                </bean>
+                <ref bean="org.sakaiproject.oauth.dao.ConsumerDao"/>
+            </list>
+        </property>
+    </bean>
+</beans>
