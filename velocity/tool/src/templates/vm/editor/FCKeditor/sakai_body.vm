@@ -1,4 +1,4 @@
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 
 	function chef_setupformattedtextarea(textarea_id,height,width,ToolBarSetChoice)
 	{

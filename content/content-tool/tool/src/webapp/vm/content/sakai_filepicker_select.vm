@@ -118,7 +118,7 @@ $(document).ready(function() {
 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 
-	<script language="JavaScript" type="text/JavaScript">
+	<script type="text/javascript">
 	function doattachsubmit(itemId) {
 	   document.getElementById('doattachitemid').setAttribute('value',itemId);
 	   var f = document.getElementById('doattachitem');

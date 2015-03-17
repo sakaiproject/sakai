@@ -99,12 +99,12 @@ var chat2_messageCountTemplate = "<h:outputText value="#{ChatTool.messagesShownT
         </t:div>
 	<p style="clear:both;display:block;"></p>
 			
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 		setMainFrameHeight('<h:outputText value="#{ChatTool.framePlacementId}" />');
 	</script>
 
 <!--  We can't use the sakai:courier tag because it works from the tool placement id...  and this is now specific to presence in the room  -->
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 updateTime = 10000;
 updateUrl = "<h:outputText value="#{ChatTool.courierString}" />";
 scheduleUpdate();

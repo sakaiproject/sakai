@@ -90,7 +90,7 @@
 	</form>						
 .
 </div>
-<script language="JavaScript" type="text/javascript">
+<script type="text/javascript">
 	<!--
 		function submitform(id)
 		{
