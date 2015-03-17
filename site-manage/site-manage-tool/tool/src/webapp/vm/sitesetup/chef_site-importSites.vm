@@ -66,6 +66,8 @@
 					<tr>					
 						<td>
 								#set($toolTitle = "")
+								#set($alternateToolTitles = "")
+								
 								#foreach($t in $toolRegistrationList)
 									#if ($t.getId() == $toolId)
 										#set($toolTitle = $t.getTitle())
@@ -74,7 +76,14 @@
 								#if($toolId == "sakai.iframe.site")
 									#set($toolTitle = $siteInfoToolTitle)
 								#end
+								
+								#set($alternateToolTitles = $!alternateToolTitlesMap.get($toolId))
+								
 								<h4>$toolTitle
+									
+									#if ($alternateToolTitles != "")
+										<span class="instruction">($alternateToolTitles)</span>
+									#end
 								
     								#if ($addMissingTools)
     									## if the tool doesnt exist in the selected site, output icon
@@ -99,6 +108,12 @@
 												#end
 											#end
 										#end
+										
+										#set ($toolsWithContent = $!siteToolsWithContent.get($site.getId()))
+										#if(!$toolsWithContent.contains($toolId))
+											#set($toolFound = false)
+    									#end
+										
 										#if ($toolFound)
 											<input type="checkbox" id="toolSite$toolCount$siteCount" name="$toolId" value="$site.Id" #if($!selectedSites.contains($site.Id))checked="checked"#end />
 											<label  class="skip" for="toolSite$toolCount$siteCount">$tlang.getString('import.choose.label1')  $toolTitle $tlang.getString('import.choose.label2') $validator.escapeHtml($site.getTitle())</label>
