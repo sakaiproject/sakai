@@ -70,21 +70,6 @@ public class GradeImportConfirmationStep extends Panel {
 
         form.add(new Button("finishbutton"));
 
-        Button cancel = new Button("backbutton"){
-            public void onSubmit() {
-                    info("Back was pressed!");
-//                setResponsePage(new GradebookPage());
-            }
-        };
-        cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-
-//        form.add(group);
-//        group.add(new CheckGroupSelector("groupselector"));
-
-
-
-
         final boolean hasItemsToUpdate = !itemsToUpdate.isEmpty();
         WebMarkupContainer gradesUpdateContainer = new WebMarkupContainer ("grades_update_container") {
             public boolean isVisible() { return hasItemsToUpdate; }
