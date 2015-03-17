@@ -170,6 +170,7 @@ public class GradebookPage extends BasePage {
         DataTable table = new DataTable("table", cols, studentGradeMatrix, 8);
         table.addBottomToolbar(new NavigationToolbar(table));
         table.addTopToolbar(new HeadersToolbar(table, null));
+        table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
         form.add(table);
        
         
