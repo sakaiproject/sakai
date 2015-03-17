@@ -9,7 +9,13 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.gradebookng.business.model.*;
+import org.sakaiproject.gradebookng.business.model.ImportColumn;
+import org.sakaiproject.gradebookng.business.model.ImportedGrade;
+import org.sakaiproject.gradebookng.business.model.ImportedGradeItem;
+import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
@@ -240,13 +246,13 @@ public class ImportGradesHelper extends BaseImportHelper {
     public static List<ProcessedGradeItem> processImportedGrades(ImportedGradeWrapper importedGradeWrapper,
                                                                  List<Assignment> assignments, List<StudentGradeInfo> currentGrades) {
         List<ProcessedGradeItem> processedGradeItems = new ArrayList<ProcessedGradeItem>();
-        Map<String, Long> assignmentNameMap = new HashMap<String, Long>();
+        Map<String, Assignment> assignmentNameMap = new HashMap<String, Assignment>();
 
         Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
 
         //Map the assignment name back to the Id
         for (Assignment assignment : assignments) {
-            assignmentNameMap.put(assignment.getName(), assignment.getId());
+            assignmentNameMap.put(assignment.getName(), assignment);
         }
 
 
@@ -271,12 +277,14 @@ public class ImportGradesHelper extends BaseImportHelper {
                 continue;
             }
 
-            Long assignmentId = assignmentNameMap.get(assignmentName);
+            Assignment assignment = assignmentNameMap.get(assignmentName);
 
-            int status = determineStatus(column, assignmentId, importedGradeWrapper, transformedGradeMap);
-
-            processedGradeItem.setItemId(assignmentId);
+            ProcessedGradeItemStatus status = determineStatus(column, assignment, importedGradeWrapper, transformedGradeMap);
             processedGradeItem.setStatus(status);
+
+            if (assignment != null) {
+                processedGradeItem.setItemId(assignment.getId());
+            }
 
             List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<>();
             for (ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
@@ -297,14 +305,16 @@ public class ImportGradesHelper extends BaseImportHelper {
 
     }
 
-    private static int determineStatus(ImportColumn column, Long assignmentId, ImportedGradeWrapper importedGradeWrapper,
+    private static ProcessedGradeItemStatus determineStatus(ImportColumn column, Assignment assignment, ImportedGradeWrapper importedGradeWrapper,
                                        Map<Long, AssignmentStudentGradeInfo> transformedGradeMap) {
-        int status = ProcessedGradeItem.STATUS_UNKNOWN;
-        if (assignmentId == null) {
-            status = ProcessedGradeItem.STATUS_NEW;
+        ProcessedGradeItemStatus status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
+        if (assignment == null) {
+            status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NEW);
+        } else if (assignment.getExternalId() != null) {
+            status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_EXTERNAL, assignment.getExternalAppName());
         } else {
             for (ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
-                AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignmentId);
+                AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
                 ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(column.getColumnTitle());
                 GradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentId());
                 if (actualGradeInfo == null) {
@@ -318,19 +328,23 @@ public class ImportGradesHelper extends BaseImportHelper {
 
                 if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
                     if (!importedScore.equals(actualScore)) {
-                        status = ProcessedGradeItem.STATUS_UPDATE;
+                        status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
                         break;
                     }
                 } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
                     if (!importedComment.equals(actualComment)) {
-                        status = ProcessedGradeItem.STATUS_UPDATE;
+                        status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
                         break;
                     }
                 }
             }
             // If we get here, must not have been any changes
-            if (status == ProcessedGradeItem.STATUS_UNKNOWN)
-                status = ProcessedGradeItem.STATUS_NA;
+            if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_UNKNOWN)
+                status = status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
+
+            //TODO - What about if a user was added to the import file?
+            // That probably means that actualGradeInfo from up above is null...but what do I do?
+
         }
         return status;
     }
