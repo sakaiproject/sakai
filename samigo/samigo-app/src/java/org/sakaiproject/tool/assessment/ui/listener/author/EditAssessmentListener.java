@@ -188,11 +188,11 @@ public class EditAssessmentListener
         
 		// pass authz, move on
 		author.setIsEditPendingAssessmentFlow(false);
-		// Retract the published assessment for edit by updating the retract date to now
+		// Retract the published assessment for edit by updating the late submission date to now
 		//AssessmentAccessControlIfc publishedAccessControl = publishedAssessmentService.loadPublishedAccessControl(Long.valueOf(publishedAssessmentId));
 		//publishedAccessControl.setRetractDate(new Date());
 		//publishedAssessmentService.saveOrUpdatePublishedAccessControl(publishedAccessControl);
-		//Update the retract date in the assessment bean
+		//Update the late submission date in the assessment bean
 		//publishedAssessment.setAssessmentAccessControl(publishedAccessControl);
 		publishedAssessment.setStatus(AssessmentBaseIfc.RETRACT_FOR_EDIT_STATUS);
 		publishedAssessmentService.saveAssessment(publishedAssessment);
