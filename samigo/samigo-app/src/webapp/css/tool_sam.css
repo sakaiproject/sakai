@@ -1001,6 +1001,10 @@ div.collapse {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 
+div.multiple_editor {
+	float:right;
+  	clear:left;
+}
 td.releaseTo div.alertMessage {
     width: auto;
 }
