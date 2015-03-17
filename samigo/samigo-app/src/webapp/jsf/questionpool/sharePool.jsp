@@ -96,7 +96,7 @@
 
 <f:verbatim></span></li></f:verbatim>
 </h:panelGroup>
-<f:verbatim><li role="menuitem"><span></f:verbatim>
+<f:verbatim><li role="menuitem"><span class="current"></f:verbatim>
 
    	<h:outputText value="#{questionPoolMessages.qps}"/>
 <f:verbatim></span></li>
