@@ -2,7 +2,9 @@ package org.sakaiproject.gradebookng.business;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +15,7 @@ import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -49,7 +52,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
  *
  */
 
-// TODO add permission checks! Remove from entityprovider if double up
+// TODO add permission checks! Remove logic from entityprovider if there is a double up
 
 @CommonsLog
 public class GradebookNgBusinessService {
@@ -153,21 +156,66 @@ public class GradebookNgBusinessService {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
 			List<Assignment> assignments = gradebookService.getAssignments(gradebook.getUid());
-			assignments = sortAssignments(assignments);			
+			assignments = sortAssignments(siteId,assignments);			
 			return assignments;
 		}
 		return null;
 	}
 	
 	/**
-	 * Sort the assignment list according to some criteria
+	 * Sort the assignment list according to the criteria stored in the site property
 	 * 
 	 * @param assignments
 	 * @return sorted list of assignments
 	 */
-	private List<Assignment> sortAssignments(List<Assignment> assignments) {
-		//this is a placeholder for when we eventually implement custom sorting of assignment columns
-		return assignments;
+	private List<Assignment> sortAssignments(String siteId, List<Assignment> assignments) {
+		
+		// The performance of this could be better. However we are talking about a tiny list here (<50 items)
+		//What would be ideal is an order on the assignments in the db table
+		
+		//create a copy of the list we can modify
+		List<Assignment> rval = new ArrayList<>();
+		rval.addAll(assignments);
+		int size = rval.size();
+
+
+		//get the stored order
+		List<AssignmentOrder> assignmentOrder = this.getAssignmentOrder(siteId);
+		
+		//iterate over assignments, then check the order list for matches.
+		//if matched, insert null to ensure list size, remove assignment and add at the new position in the rval list
+		//if not matched, continue.
+		//add the end, remove nulls
+		
+		//TODO should this iteration be on the order list first? the order list is potentially less iterations...
+		for(Assignment a : assignments) {
+			
+			for(AssignmentOrder o: assignmentOrder) {
+				long assignmentId = o.getAssignmentId();
+
+				if(assignmentId == a.getId().longValue()){
+					
+					int order = o.getOrder();
+					
+					//trim order to bounds of assignment list
+					if(order < 0){
+						order = 0;
+					} else if(order >= size) {
+						order = size-1; //0 based index
+					}
+					
+					rval.add(null); //ensure size remains the same for the remove
+					rval.remove(a); //remove item
+					rval.add(order, a); //add at ordered position
+					
+				}
+			}
+		}
+		
+		//retain only the assignment objects
+		rval.retainAll(assignments);
+	
+		return rval;
 	}
 
 	
@@ -279,6 +327,8 @@ public class GradebookNgBusinessService {
 		//however the logic needs to be reworked so we can capture the user info
 		//currently storing the full grade definition too, this may be unnecessary
 		//NOT a high priority unless performance issue deems it to be
+		
+		//TODO getGradeBookAssignments automatically sorts the list. check front end doesnt rely on it.
 		
 		for(User student: students) {
 			
@@ -523,9 +573,17 @@ public class GradebookNgBusinessService {
     	return null;
     }
     
-    public void updateAssignmentOrder(String siteId, int assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
-    	//in the update order method, check for assignemntid element, update it or add it, resave
-    	//the sort order needs to be used in the sortAssignments method too
+    /**
+     * Update the order of an assignment.
+     * 
+     * @param siteId	the siteId
+     * @param assignmentId the assignment we are reordering
+     * @param order the new order
+     * @throws JAXBException
+     * @throws IdUnusedException
+     * @throws PermissionException
+     */
+    public void updateAssignmentOrder(String siteId, long assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
     	
     	Site site = null;
 		try {
@@ -567,6 +625,9 @@ public class GradebookNgBusinessService {
 		
 		//and save it
 		props.addProperty(ASSIGNMENT_ORDER_PROP, updatedXml);
+		
+		log.debug("Updated assignment order: " + updatedXml);
+		
 		this.siteService.save(site);
     	
     }
