@@ -42,12 +42,16 @@
 			pcMaximised : 'pc_maximised',
 			pcMinimised: 'pc_minimised',
 			pcDisplayName: 'pc_displayname',
-			pcMessage: 'pc_message'
+			pcMessage: 'pc_message',
+			pcNewMessage: 'pc_new_message',
+			pcChatVideoLocalVideo:  'pc_chat_local_video',
+			pcChatRemoteVideoPre: 'pc_chat_remote_video_'
 		};		
 		
 		portal.chat.domSelectors = {
 			footerApp : '#footerApp',
 			footerAppChat : '#footerAppChat',
+			footerAppChatToggle: '#chatToggle',
 			pcChatWin : '#'+ portal.chat.domNames.pcChatWin,
 			pcChatWinScroller : '#pc_chat_window_scroller',
 			pcChatWithPre : '#' + portal.chat.domNames.pcChatWithPre,
@@ -62,22 +66,53 @@
 			pcChatMessagesPre: '#pc_connection_chat_messages_',
 			pcChatEditorForPre: '#pc_editor_for_',
 			pcChatEditor : '.pc_editor',
+			pcUsers: '#pc_users',
+			pc: '#pc',
+			pcChatConnections :'#pc_connections',
+			pcChatConnectionsWrapper: '#pc_connections_wrapper',
+			pcChatSiteUsers: '#pc_site_users',
+			pcChatConnection: '.pc_chat_connection',
+			pcChatSiteUser: '.pc_site_user',
+			pcChatUsersWrapper: '.pc_users_wrapper',
+			pcChatContent: '#pc_content',
+			pcChatTitleClose: '#pc_title_close',
+			pcChatChatableCount: '#chattableCount',
+			pcChatAvatarPerm: '#avatarPermitted',
+			pcChatPingedPopupPre: '#pc_pingeg_popup_',
+			pcChatShowOfflineConsCheck: '#pc_showoffline_connections_checkbox',
+			pcChatTitle: '#pc_title',
+			pcVideoOffCheckOff: '#pc_video_off_checkbox',
+			pcVideoOffCtrl: '#pc_video_off_ctrl',
+			pcChatOfflineCheck: '#pc_go_offline_checkbox',
+			pcChatConnectionTitle: '.pc_connection_chat_title',
+			pcChatVideoLocalContent: '#pc_chat_local_video_content',
+			pcChatVideoBarLeft: '.pc_connection_videochat_bar_left',
+			pcChatVideoLink: '.pc_user_video_link',
+			pcChatVideoRemote: '.pc_chat_video_remote',
+			pcChatBubbling : '.bubblingG',
+			pcChatVideoStatusElement : '.statusElement',
+			pcChatVideoStatusBar : '.pc_chat_video_statusbar'
 			
 		};
 	}else{
 		portal.chat.portalHandler = 'morpheus';
 		portal.chat.domNames = {
-			pcChatWin : 'Mrphs-portalchat__chat--window',
+			pcChatWin : 'Mrphs-portalChat__chat--window',
 			pcChatWithPre: 'Mrphs-portalChat__chat--with-',
 			pcMaximised : 'Mrphs-portalChat__chat--maximised',
 			pcMinimised: 'Mrphs-portalChat__chat--minimised',
 			pcDisplayName: 'Mrphs-portalChat__chat--displayname',
-			pcMessage: 'Mrphs-portalChat__chat--message'
+			pcMessage: 'Mrphs-portalChat__chat--message',
+			pcNewMessage: 'Mrphs-portalChat__message--new',
+			pcChatVideoLocalVideo: 'Mrphs-portalChat__video--localvideo',
+			pcChatRemoteVideoPre: 'Mrphs-portalChat__videochat--remotevideo-'
+				
 		};		
 
 		portal.chat.domSelectors = {
 			footerApp : '#Mrphs-footerApp',
 			footerAppChat : '#Mrphs-footerApp__chat',
+			footerAppChatToggle: '#Mrphs-footerApp--toggle',
 			pcChatWin : '.' + portal.chat.domNames.pcChatWin,
 			pcChatWinScroller : '.Mrphs-portalChat__chat--windowscroller',
 			pcChatWithPre : '#' + portal.chat.domNames.pcChatWithPre,
@@ -91,7 +126,34 @@
 			pcChatContentPre: '#Mrphs-portalChat__chat--content-',
 			pcChatMessagesPre: '#Mrphs-portalChat__chat--messages-',
 			pcChatEditorForPre: '#Mrphs-portalChat__chat--editor-',
-			pcChatEditor : '.Mrphs-portalChat__chat--editor'
+			pcChatEditor : '.Mrphs-portalChat__chat--editor',
+			pcUsers: '#Mrphs-portalChat__users',
+			pc: '#Mrphs-portalChat',
+			pcChatConnections :'#Mrphs-portalChat__connections',
+			pcChatConnectionsWrapper: '#Mrphs-portalChat__connections--wrapper',
+			pcChatSiteUsers: '#Mrphs-portalChat__siteusers',
+			pcChatConnection : 'Mrphs-portalChat_connection',
+			pcChatSiteUser: '.Mrphs-portalChat__user',
+			pcChatUsersWrapper: '.Mrphs-portalChat__user--wrapper',
+			pcChatContent: '#Mrphs-portalChat__content',
+			pcChatTitleClose: '#Mrphs-portalChat__close',
+			pcChatChatableCount: '#Mrphs-footerApp--count',
+			pcChatAvatarPerm: '#Mrphs-portalChat__avatar--permitted',
+			pcChatPingedPopupPre: '#Mrphs-portalChat__connection--ping_',
+			pcChatShowOfflineConsCheck: '#Mrphs-portalChat__showoffline',
+			pcChatTitle: '#Mrphs-portalChat__title',
+			pcVideoOffCheckOff: '#Mrphs-portalChat__videooff--check',
+			pcVideoOffCtrl: '#Mrphs-portalChat__videooff--ctrl',
+			pcChatOfflineCheck: '#Mrphs-portalChat__gooffline--check',
+			pcChatConnectionTitle: '.Mrphs-portalChat__chat--title',
+			pcChatLocalVideoContent: '#Mrphs-portalChat__video--localcontent',
+			pcChatVideoBarLeft: '.Mrphs-portalChat__videochat--leftelement',
+			pcChatVideoLink: '.Mrphs-portalChat__connection--videolink',
+			pcChatVideoRemote: '.Mrphs-portalChat__videochat--remotevideo',
+			pcChatBubbling: '.Mrphs-portalChat__videochat--bubblingG',
+			pcChatVideoStatusElement: '.Mrphs-portalchat__videochat--statuselement',
+			pcChatVideoStatusBar : '.Mrphs-portalChat__videochat--statusbar'
+			
 		};
 	}
 
@@ -201,7 +263,7 @@
 		
 		$(portal.chat.domSelectors.pcChatWinContainer).css("right", "225px");
 		if ($(portal.chat.domSelectors.footerApp).position().left < openSize) {
-			$().show();
+			$(portal.chat.domSelectors.pcChatScrollBar).show();
 		}
 
 		this.renderTemplate('pc_connection_chat_template', connection, windowId);
@@ -327,26 +389,28 @@
 	 * expanded flag in the settings cookie.
 	 */
 	portal.chat.toggleChat = function () {
+		var pc = $(portal.chat.domSelectors.pc);
+            	var pc_user = $(portal.chat.domSelectors.pcUsers);
 
 		if (!this.expanded) {
-			var pc = $('#pc');
+			
+
 
 			pc.show();
 
 			this.setSetting('expanded', true);
 			this.expanded = true;
 
-            var pc_users = $('#pc_users');
 
-			if (pc_users.height() > this.MAX_CONTENT_HEIGHT) {
-				pc_users.height(this.MAX_CONTENT_HEIGHT);
+			if ( pc_user.height() > this.MAX_CONTENT_HEIGHT) {
+				 pc_user.height(this.MAX_CONTENT_HEIGHT);
 			}
 
-			$('#pc').css('height', 'auto');
+			pc.css('height', 'auto');
 		} else {
-			$('#pc').hide();
+			pc.hide();
 
-			$('#pc').css('height', 'auto');
+			pc.css('height', 'auto');
 
 			this.setSetting('expanded', false);
 			this.expanded = false;
@@ -390,7 +454,7 @@
             } else {
                 chatDiv.css('margin-top', ((chatDiv.attr('data-height') > 300) ? '-18':'0') + 'px');
             }
-			$(portal.chat.domSelectors.pcChatWithPre + peerUUID + ' > .pc_connection_chat_title').removeClass('pc_new_message');
+			$(portal.chat.domSelectors.pcChatWithPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatConnectionTitle).removeClass(portal.chat.domNames.pcNewMessage);
 			this.scrollMessageWindowToBottom(peerUUID);
             if (chatSessionString) {
                 chatSession = JSON.parse(chatSessionString);
@@ -458,7 +522,7 @@
 		}
 
 		if (flashIt) {
-			$(portal.chat.domSelectors.pcChatWithPre + from + ' > .pc_connection_chat_title').addClass('pc_new_message');
+			$(portal.chat.domSelectors.pcChatWithPre + from + + ' > ' + portal.chat.domSelectors.pcChatConnectionTitle).addClass(portal.chat.domNames.pcNewMessage);
 		}
 
 		var fromDisplayName = this.currentConnectionsMap[from].displayName;
@@ -547,9 +611,9 @@
             portal.chat.onlineConnections = onlineConnections;
 
             if (portal.chat.showOfflineConnections === true) {
-                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},'#pc_connections');
+                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},portal.chat.domSelectors.pcChatConnections);
             } else {
-                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},'#pc_connections');
+                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},portal.chat.domSelectors.pcChatConnections);
             }
 
             portal.chat.sortConnections();
@@ -599,9 +663,9 @@
             portal.chat.currentSiteUsers = siteUsers;
 
             if (portal.chat.currentSiteUsers.length > 0) {
-                portal.chat.renderTemplate('pc_site_users_template',{'siteUsers':portal.chat.currentSiteUsers},'#pc_site_users');
+                portal.chat.renderTemplate('pc_site_users_template',{'siteUsers':portal.chat.currentSiteUsers},portal.chat.domSelectors.pcChatSiteUsers);
             } else {
-                $('#pc_site_users').html('');
+                $(portal.chat.domSelectors.pcChatSiteUsers).html('');
             }
 
 			for (var i2=0,j2=portal.chat.currentSiteUsers.length;i2<j2;i2++) {
@@ -619,7 +683,7 @@
 
 		$(document).ready(function (){
 
-            $("#pc_connections").html($(".pc_connection").sort(function (a, b) {
+            $(portal.chat.domSelectors.pcChatConnections).html($(portal.chat.domSelectors.pcChatConnection).sort(function (a, b) {
                 var val1 = a.children[0].children[1].innerHTML;
                 var val2 = b.children[0].children[1].innerHTML;
                 return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
@@ -631,7 +695,7 @@
 
 		$(document).ready(function (){
 
-            $("#pc_site_users").html($(".pc_site_user").sort(function (a, b) {
+            $(portal.chat.domSelectors.pcChatSiteUsers).html($(portal.chat.domSelectors.pcChatSiteUser).sort(function (a, b) {
                 var val1 = a.children[0].children[1].innerHTML;
                 var val2 = b.children[0].children[1].innerHTML;
                 return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
@@ -685,19 +749,19 @@
                 // SAK-20565. Profile2 may not be installed, so no connections :(
                 if (portal.chat.connectionsAvailable === true) {
                     if (data.data.connectionsAvailable) {
-                        $('#pc_connections_wrapper').show();
+                        $(portal.chat.domSelectors.pcChatConnectionsWrapper).show();
                         portal.chat.updateConnections(data.data.connections, data.data.online);
                     } else {
-                        $('#pc_connections_wrapper').hide();
+                        $(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
                         // No point checking again as profile2 can't be installed without a full restart
                     }
                 }
 
                 if (data.data.showSiteUsers) {
-                    $('.pc_users_wrapper').show();
+                    $(portal.chat.domSelectors.pcChatUsersWrapper).show();
                     portal.chat.updateSiteUsers(data.data.presentUsers);
                 } else {
-                    $('.pc_users_wrapper').hide();
+                    $(portal.chat.domSelectors.pcChatUsersWrapper).hide();
                 }
 
                 var totalChattable = data.data.online ? data.data.online.length : 0;
@@ -720,14 +784,14 @@
                 }
 
                 if (totalChattable > 0) {
-                    $('#chattableCount').html(totalChattable + '');
-                    $('#chattableCount').removeClass('empty').addClass('present');
+                    $(portal.chat.domSelectors.pcChatChatableCount).html(totalChattable + '');
+                    $(portal.chat.domSelectors.pcChatChatableCount).removeClass('empty').addClass('present');
                 } else {
-                    $('#chattableCount').html(' ');
-                    $('#chattableCount').removeClass('present').addClass('empty');
+                    $(portal.chat.domSelectors.pcChatChatableCount).html(' ');
+                    $(portal.chat.domSelectors.pcChatChatableCount).removeClass('present').addClass('empty');
                 }
 
-                $('.pc_user_video_link').toggle(videoAgent !== 'none');
+                $(portal.chat.domSelectors.pcChatVideoLink).toggle(videoAgent !== 'none');
 			},
 			error : function (xhr,textStatus,error) {
 
@@ -772,8 +836,8 @@
 			dataType : "text",
 			cache: false,
 			success : function (text,status) {
-                $('#pc_pinged_popup_' + connectionUserId).show();
-                setTimeout(function () { $('#pc_pinged_popup_' + connectionUserId).fadeOut(800); },500);
+                $(portal.chat.domSelectors.pcChatPingedPopupPre + connectionUserId).show();
+                setTimeout(function () { $(portal.chat.domSelectors.pcChatPingedPopupPre + connectionUserId).fadeOut(800); },500);
 			},
 			error : function (xmlHttpRequest,textStatus,error) {
 
@@ -840,7 +904,7 @@
         var alt = params.alt;
 
         var avatarPermitted;
-        if ($('#avatarPermitted').length === 1) {
+        if ($(portal.chat.domSelectors.pcChatAvatarPerm).length === 1) {
             avatarPermitted =true;
         } else {
             avatarPermitted =false;
@@ -867,7 +931,7 @@
     $(document).ready(function () {
         
         if (portal.loggedIn) {
-            $('#chatToggle').click(function () {
+            $(portal.chat.domSelectors.footerAppChatToggle).click(function () {
                 portal.chat.toggleChat();
             });
 
@@ -888,7 +952,7 @@
             }
 
             if (portal.chat.getSetting('offline', true)) {
-                $('#pc_go_offline_checkbox').prop('checked', true);
+                $(portal.chat.domSelectors.pcChatOfflineCheck).prop('checked', true);
                 portal.chat.offline = true;
             } else {
                 portal.chat.offline = false;
@@ -900,13 +964,13 @@
 
             if (portal.chat.video.enabled && portal.chat.video.webrtc.isVideoEnabled()) { 
                 if (portal.chat.getSetting('videoOff',true)) {
-                    $('#pc_video_off_checkbox').prop('checked', true);
+                    $(portal.chat.domSelectors.pcVideoOffCheckOff).prop('checked', true);
                     portal.chat.videoOff = true;
                 } else {
                     portal.chat.videoOff = false;
                 }
             } else {
-                $('#pc_video_off_ctrl').hide();
+                $(portal.chat.domSelectors.pcVideoOffCtrl).hide();
             }
 
             portal.chat.setGetLatestDataInterval();
@@ -919,25 +983,26 @@
             sessionStorage.removeItem('pcCurrentSiteUsersMap');
         }
 
-        $('#pc_showoffline_connections_checkbox').click(function () {
+        $(portal.chat.domSelectors.pcChatShowOfflineConsCheck).click(function () {
 
             if ($(this).prop('checked')) {
                 portal.chat.showOfflineConnections = true;
-                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},'#pc_connections');
-                var pc_users = $('#pc_users');
+                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},portal.chat.domSelectors.pcChatConnections);
+		var pc_users = $(portal.chat.domSelectors.pcUsers);              
+
                 if (pc_users.height() > portal.chat.MAX_CONTENT_HEIGHT) pc_users.height(portal.chat.MAX_CONTENT_HEIGHT);
                 portal.chat.setSetting('showOfflineConnections',true);
             } else {
                 portal.chat.showOfflineConnections = false;
-                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},'#pc_connections');
-                $('#pc_connections').css('height','auto');
+                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},portal.chat.domSelectors.pcChatConnections);
+                $(portal.chat.domSelectors.pcChatConnections).css('height','auto');
                 portal.chat.setSetting('showOfflineConnections',false);
             }
 
             portal.chat.sortConnections();
         });
 
-        $('#pc_go_offline_checkbox').click(function () {
+        $(portal.chat.domSelectors.pcChatOfflineCheck).click(function () {
 
             if ($(this).prop('checked')) {
                 portal.chat.setSetting('offline', true, true);
@@ -976,11 +1041,11 @@
         var connectionsAvailableSetting = portal.chat.getSetting('connectionsAvailable');
         if (connectionsAvailableSetting !== undefined && connectionsAvailableSetting === false) {
             // SAK-20565. Profile2 may not be installed,so no connections :(
-           $('#pc_connections_wrapper').hide();
+           $(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
         }
 
         // Will be set by getLatestData with the right value.
-        $('.pc_users_wrapper').hide();
+        $(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
 
         // Clear all of the intervals when the window is closed
         $(window).bind('unload', function () {
@@ -992,7 +1057,7 @@
         });
 
         // Explicitly close presence panel. This also handles clicks bubbled up from the close icon.
-        $('#pc_title').click(function (e) {
+        $(portal.chat.domSelectors.pcChatTitle).click(function (e) {
 
             if ($(e.target).is('img')) {
                 return;
@@ -1000,17 +1065,17 @@
             e.preventDefault();
             if (portal.chat.video) {
 
-                if ($('#pc_content').is(':visible')) {
-                    $('#pc_content').hide();
+                if ($(portal.chat.domSelectors.pcChatContent).is(':visible')) {
+                    $(portal.chat.domSelectors.pcChatContent).hide();
                 } else {
-                    $('#pc_content').show();
+                    $(portal.chat.domSelectors.pcChatContent).show();
                 }
             } else {
                 portal.chat.toggleChat();
             }
         });
 
-        $('#pc_title_close').click(function (e){
+        $(portal.chat.domSelectors.pcChatTitleClose).click(function (e){
 
             e.preventDefault();
             portal.chat.toggleChat();
@@ -1018,20 +1083,21 @@
 
         if (portal.chat.currentConnections.length > 0) {
             if (portal.chat.showOfflineConnections) {
-                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},'#pc_connections');
-                $('#pc_showoffline_connections_checkbox').prop('checked', true);
+                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},portal.chat.domSelectors.pcChatConnections);
+                $(portal.chat.domSelectors.pcChatShowOfflineConsCheck).prop('checked', true);
             } else {
-                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},'#pc_connections');
-                $('#pc_showoffline_connections_checkbox').prop('checked', false);
+                portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},portal.chat.domSelectors.pcChatConnections);
+                $(portal.chat.domSelectors.pcChatShowOfflineConsCheck).prop('checked', false);
             }
+	     
+            var pc_users = $(portal.chat.domSelectors.pcUsers);
 
-            var pc_users = $('#pc_users');
             if (pc_users.height() > portal.chat.MAX_CONTENT_HEIGHT) pc_users.height(portal.chat.MAX_CONTENT_HEIGHT);
             portal.chat.sortConnections();
         }
 
         if (portal.chat.currentSiteUsers.length > 0) {
-            portal.chat.renderTemplate('pc_site_users_template',{'siteUsers':portal.chat.currentSiteUsers},'#pc_site_users');
+            portal.chat.renderTemplate('pc_site_users_template',{'siteUsers':portal.chat.currentSiteUsers},portal.chat.domSelectors.pcChatSiteUsers);
             portal.chat.sortSiteUsers();
         }
 

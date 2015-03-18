@@ -361,7 +361,7 @@
     };
     
     /**
-     * Use this helper function to hook the media stream to a especified element
+     * Use this helper function to hook the media stream to a specified element
      */
     portal.chat.video.webrtc.attachMediaStream = function (element, stream) {
     
