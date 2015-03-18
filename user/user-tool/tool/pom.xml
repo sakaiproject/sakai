@@ -72,6 +72,10 @@
 		<groupId>org.sakaiproject.portal</groupId>
 		<artifactId>sakai-portal-util</artifactId>
 	</dependency>
+	<dependency>
+		<groupId>org.sakaiproject.accountvalidator</groupId>
+		<artifactId>accountvalidator-api</artifactId>
+	</dependency>
   </dependencies>
   <build>
     <resources>
