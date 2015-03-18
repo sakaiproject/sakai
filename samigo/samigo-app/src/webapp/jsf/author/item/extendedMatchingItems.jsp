@@ -244,7 +244,7 @@
 					<h:panelGrid>
 						<samigo:wysiwyg rows="140"
 							value="#{itemauthor.currentItem.emiAnswerOptionsRich}"
-							hasToggle="yes">
+							hasToggle="yes" mode="author">
 							<f:validateLength minimum="1" maximum="64000" />
 						</samigo:wysiwyg>
 					</h:panelGrid>
@@ -336,7 +336,7 @@
 			<!-- WYSIWYG -->
 			<h:panelGrid>
 				<samigo:wysiwyg identity="lead_in_statement" rows="140"
-					value="#{itemauthor.currentItem.leadInStatement}" hasToggle="yes">
+					value="#{itemauthor.currentItem.leadInStatement}" hasToggle="yes" mode="author">
 					<f:validateLength minimum="1" maximum="64000" />
 				</samigo:wysiwyg>
 			</h:panelGrid>
@@ -376,7 +376,7 @@
 							<!-- WYSIWYG -->
 							<h:panelGrid>
 								<samigo:wysiwyg rows="140" value="#{answer.text}"
-									hasToggle="yes">
+									hasToggle="yes" mode="author">
 									<f:validateLength maximum="64000" />
 								</samigo:wysiwyg>
 
