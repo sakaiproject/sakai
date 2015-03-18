@@ -27,11 +27,20 @@ GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
 
   // When Wicket AJAX loads in some new content, notify the cell's model accordingly.
   Wicket.Event.subscribe('/ajax/call/complete', function(jqEvent, attributes, jqXHR, errorThrown, textStatus) {
+    var $target = $(attributes.event.target);
+
+    if ($target.closest(".gb-item-grade").length == 0) {
+      // this ajax doesn't have anything to do with grades... ABORT
+      return true;
+    }
+
     var extraParameters = {};
 
-    attributes.ep.map(function(o, i) {
-      extraParameters[o.name] = o.value;
-    });
+    if (attributes.ep) {
+      attributes.ep.map(function(o, i) {
+        extraParameters[o.name] = o.value;
+      });
+    }
 
     var model = self.getCellModelForStudentAndAssignment(extraParameters.studentUuid, extraParameters.assignmentId);
     model.handleWicketEvent(jqEvent, attributes, jqXHR, errorThrown, textStatus, extraParameters);
