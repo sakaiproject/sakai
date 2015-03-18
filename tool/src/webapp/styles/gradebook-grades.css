@@ -155,6 +155,10 @@
 #gradebookGrades .gb-fixed-header-table .btn-group {
   visibility: hidden;
 }
+/* Fix ghosting of the dragtable helper */
+#gradebookGrades .dragtable-sortable {
+  z-index: 10;
+}
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
 	border: none; /** don't want border wrapping content inside the modal **/
