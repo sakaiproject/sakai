@@ -102,7 +102,22 @@ margin-right: auto;
 }
 
 .bubblingG span {
-
+display: inline-block;
+vertical-align: middle;
+width: 10px;
+height: 10px;
+margin: 90px auto;
+background: #FFFFFF;
+-moz-border-radius: 50px;
+-moz-animation: bubblingG 1.3s infinite alternate;
+-webkit-border-radius: 50px;
+-webkit-animation: bubblingG 1.3s infinite alternate;
+-ms-border-radius: 50px;
+-ms-animation: bubblingG 1.3s infinite alternate;
+-o-border-radius: 50px;
+-o-animation: bubblingG 1.3s infinite alternate;
+border-radius: 50px;
+animation: bubblingG 1.3s infinite alternate;
 }
 
 .bubblingG span.bubblingG_1 {

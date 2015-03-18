@@ -3,6 +3,7 @@
 //////////////////////////////
 
 @import "_chat_variables";
+@import "theme/warning/_warning";
 
 .Mrphs-{
 	&footerApp{
@@ -37,6 +38,10 @@
 		    margin: 0px;
 		    padding: 0px;
 		    display: none;
+			
+			h5{
+				margin-bottom: 5px !important;
+			}
 			
 			/* First generic styles*/
 			&__list{
@@ -139,6 +144,33 @@
   				margin: 3px;
   				height: 30px;
 			}
+
+			&__checkbox--options{
+				margin-right: 3px;
+				margin-left: -1px;
+			}
+			&__connection--ping{
+			 	display: none;
+			    color: #fff;
+			    padding: 2px;
+			    position: absolute;
+			    right: 30px;
+			    top: 1px;
+			    background: green;
+			    -moz-border-radius: 3px;
+			    -webkit-border-radius: 3px;
+			    -khtml-border-radius: 3px;
+			    border-radius: 3px;
+			}
+			&__message--new{
+				background-color: #fcc6c6;
+			    background: -webkit-gradient(linear, left top, left bottom, from(rgb(238, 238, 238)), to(rgb(252, 198, 198)));
+			    background: -webkit-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+			    background: -moz-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+			    background: -o-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+			    background: -ms-linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+			    background: linear-gradient(top, rgb(238, 238, 238), rgb(252, 198, 198));
+			}
 			
 			/*Chat windows*/
 			&__chat--{
@@ -215,15 +247,40 @@
 				}
 				&messages{
 					list-style: none;
+					padding: 0px;
+				    background: white;
+				    height: 225px;
+				    overflow: auto;
+				    margin: 0;
+				    
+					li{
+						margin: 2px 0px;
+						vertical-align: text-top;
+						position: relative;
+						border-bottom: 1px solid #EEE;
+						padding: 2px 35px 5px;
+						min-height: 30px;
+						
+						img{
+							vertical-align: text-top;
+						    max-width: 10%;
+						    max-height: 80%;
+						    border: 1px solid #ccc;
+						    margin-right: 5px;
+						    margin-left: 2px;
+						    position: absolute;
+						    top: 2px;
+						    left: 2px;
+						    float: left;
+						}
+					
+					}
 				}
-				&messages li{
-					margin: 2px 0px;
-					vertical-align: text-top;
-					position: relative;
-					border-bottom: 1px solid #EEE;
-					padding: 2px 35px 5px;
-					min-height: 30px;
-				}
+	    		&connections{
+	    			list-style: none;
+				    padding: 0;
+				    margin: 0;
+	    		}
 	    		
 	    		
 			}
@@ -252,6 +309,10 @@
 					float: left;
 					width: 25%;
 				}
+				&leftelement{
+					float: left;
+  					width: 25%;				
+				}
 				&rightelement{
 					font-size: 15px;
 					font-weight: bold;
@@ -259,9 +320,13 @@
 					width: 75%;
 					text-align: right;
 				}
-				&remote{
+				&remotevideo{
 						background: black;
 						position: relative;
+				}
+				&video{
+					width: 100%;
+  					height: 192px;
 				}
 				&statuselement{
 						position: relative;
@@ -273,6 +338,176 @@
 						width: 100%;
 						height:0px;
 				}
+				
+				&videobutton{
+					width:16px;
+					height:16px;
+					margin-left: 2px;
+					margin-top: 1px;
+					text-decoration: none;
+					border : 0px;
+					cursor: hand; 
+					display:inline-block;
+					cursor: pointer;
+					background-repeat:no-repeat;
+					background-position: center;
+					&:hover{
+						 -moz-box-shadow: 0 0 6px #009DCE ;
+    					 -webkit-box-shadow: 0 0 6px #009DCE;
+    					  box-shadow: 0 0 6px #009DCE;
+					}
+				}
+				&videocall{
+					background-image: url('/library/image/sakai/video_call.png');
+				}
+				&videoclose{
+					background-image: url('/library/image/sakai/video_hang.png');
+				}
+				&videomaxi{
+					background-image: url('/library/image/sakai/video_maxi.png');
+				}
+				&videomicenable{
+					background-image: url('/library/image/sakai/video_mic_enable.png');
+				}
+				&video_mic_disable{
+					background-image: url('/library/image/sakai/video_mic_disable.png');
+				}
+				&videocamenable{
+					background-image: url('/library/image/sakai/video_cam_enable.png');
+				}
+				&videocamdisable{
+					background-image: url('/library/image/sakai/video_cam_disable.png');
+				}
+				
+				/*Bubbling effect*/
+				&bubblingG{
+					span{
+						display: inline-block;
+						vertical-align: middle;
+						width: 10px;
+						height: 10px;
+						margin: 90px auto;
+						background: #FFFFFF;
+						-moz-border-radius: 50px;
+						-moz-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
+						-webkit-border-radius: 50px;
+						-webkit-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
+						-ms-border-radius: 50px;
+						-ms-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
+						-o-border-radius: 50px;
+						-o-animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
+						border-radius: 50px;
+						animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
+						
+						&.bubblingG_1 {
+							-moz-animation-delay: 0s;
+							-webkit-animation-delay: 0s;
+							-ms-animation-delay: 0s;
+							-o-animation-delay: 0s;
+							animation-delay: 0s;
+						}
+						&.bubblingG_2 {
+							-moz-animation-delay: 0.39s;
+							-webkit-animation-delay: 0.39s;
+							-ms-animation-delay: 0.39s;
+							-o-animation-delay: 0.39s;
+							animation-delay: 0.39s;
+						}
+						&.bubblingG_3 {
+							-moz-animation-delay: 0.78s;
+							-webkit-animation-delay: 0.78s;
+							-ms-animation-delay: 0.78s;
+							-o-animation-delay: 0.78s;
+							animation-delay: 0.78s;
+						}
+					}
+				
+					
+					
+					
+				} 
+				
+				@-moz-keyframes &bubblingG {
+					0% {
+						width: 10px;
+						height: 10px;
+						background-color:#FFFFFF;
+						-moz-transform: translateY(0);
+					}
+					
+					100% {
+						width: 24px;
+						height: 24px;
+						background-color:#4D4D4D;
+						-moz-transform: translateY(-21px);
+					}
+				
+				}
+				
+				@-webkit-keyframes Mrphs-portalChat__videochat--bubblingG {
+					0% {
+						width: 10px;
+						height: 10px;
+						background-color:#FFFFFF;
+						-webkit-transform: translateY(0);
+					}
+					
+					100% {
+						width: 24px;
+						height: 24px;
+						background-color:#4D4D4D;
+						-webkit-transform: translateY(-21px);
+					}
+				}
+				
+				@-ms-keyframes Mrphs-portalChat__videochat--bubblingG {
+					0% {
+						width: 10px;
+						height: 10px;
+						background-color:#FFFFFF;
+						-ms-transform: translateY(0);
+					}
+					
+					100% {
+						width: 24px;
+						height: 24px;
+						background-color:#4D4D4D;
+						-ms-transform: translateY(-21px);
+					}
+				}
+				
+				@-o-keyframes Mrphs-portalChat__videochat--bubblingG {
+					0% {
+						width: 10px;
+						height: 10px;
+						background-color:#FFFFFF;
+						-o-transform: translateY(0);
+					}
+					
+					100% {
+						width: 24px;
+						height: 24px;
+						background-color:#4D4D4D;
+						-o-transform: translateY(-21px);
+					}
+				}
+
+				@keyframes Mrphs-portalChat__videochat--bubblingG {
+					0% {
+						width: 10px;
+						height: 10px;
+						background-color:#FFFFFF;
+						transform: translateY(0);
+					}
+					
+					100% {
+						width: 24px;
+						height: 24px;
+						background-color:#4D4D4D;
+						transform: translateY(-21px);
+					}
+				}
+				
 			}
 		
 	}
