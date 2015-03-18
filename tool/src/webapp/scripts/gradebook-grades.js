@@ -329,11 +329,14 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
 
   $(document).off("scroll", positionFixedHeader).on("scroll", positionFixedHeader);
 
-  $fixedHeader.find("th").on("click", function(event) {
+  $fixedHeader.find("th").on("mousedown", function(event) {
     event.preventDefault();
 
     $(document).scrollTop(self.$table.offset().top - 10);
-    self.$table.find("thead tr th").get($(this).index()).focus();
+    var $target = $(self.$table.find("thead tr th").get($(this).index()));
+
+    // proxy through the event to start up a drag action
+    $target.trigger(event);
   });
   positionFixedHeader();
 };
@@ -405,16 +408,14 @@ GradebookSpreadsheet.prototype.enableAbsolutePositionsInCells = function() {
 GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
   var self = this;
 
-  // insert a drag handle 
-  $(".gb-grade-item-header .gb-title").each(function() {
-    var $handle = $("<a>").attr("href", "javascript:void(0);").addClass("gb-grade-item-drag-handle");
-    $(this).prepend($handle);
-  });
   self.$table.dragtable({
     maxMovingRows: 1,
-    dragHandle: '.gb-grade-item-drag-handle',
+    clickDelay: 200, // give the user 200ms to perform a click or actually get their drag on
     dragaccept: '.gb-grade-item-header',
     excludeFooter: true,
+    beforeStop: function(dragTable) {
+      self.$table.find("thead th").get(dragTable.endIndex - 1).focus();
+    },
     persistState: function(dragTable) {
       var newIndex = dragTable.endIndex - 1; // reset to 0-based count
       var $header = $(self.$table.find("thead th").get(newIndex));
