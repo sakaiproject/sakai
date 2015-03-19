@@ -73,7 +73,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		//TODO locale formatting via ResourceLoader
 		
 		if(assignmentDueDate == null) {
-			return null;
+			return getString("label.noduedate");
 		}
 		
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
