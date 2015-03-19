@@ -28,7 +28,7 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	<!--
 	function submitform(id)
 	{

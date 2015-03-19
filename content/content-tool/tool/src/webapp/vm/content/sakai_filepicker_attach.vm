@@ -1,5 +1,5 @@
 <!-- sakai_filepicker_attach.vm, version: Id:  $, use with org.sakaiproject.content.tool.FilePickerAction.java -->
-<script language="JavaScript" type="text/JavaScript">
+<script type="text/javascript">
 	<!--
 		function openCopyrightWindow(theURL,winName,winSettings) 
 		{ 
@@ -50,7 +50,7 @@
 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 
-	<script language="JavaScript" type="text/JavaScript">
+	<script type="text/javascript">
 	function doattachsubmit(itemId) {
 	   document.getElementById('doattachitemid').setAttribute('value',itemId);
 	   var f = document.getElementById('doattachitem');

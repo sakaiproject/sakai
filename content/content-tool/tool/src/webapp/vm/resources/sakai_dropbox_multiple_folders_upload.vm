@@ -67,7 +67,7 @@
 	</form>
 </div>
 
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	$(document).ready (function (){
 		/*Sort by name*/
 

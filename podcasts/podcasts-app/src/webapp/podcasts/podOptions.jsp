@@ -13,10 +13,10 @@
     <link href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 
-    <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+    <script type="text/javascript" src="/library/js/headscripts.js"></script>
 
   <sakai:view toolCssHref="./css/podcaster.css">
-  <script type="text/javascript" language="JavaScript" src="./scripts/popupscripts.js"></script>
+  <script type="text/javascript" src="./scripts/popupscripts.js"></script>
   <h:form enctype="multipart/form-data">
     <div>  <!-- Page title and Instructions -->
       <h3><h:outputText value="#{msgs.options_title}" /></h3>

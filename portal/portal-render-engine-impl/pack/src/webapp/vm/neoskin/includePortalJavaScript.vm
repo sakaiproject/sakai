@@ -20,7 +20,7 @@ window.console && console.log('Loading portal JavaScript - $PBJQ='+$PBJQ.fn.jque
 	<script type="text/javascript">$PBJQ(document).ready(function(){startTutorial({'showTutorialLocationOnHide': 'true'});});</script>
 #end
 #if ($portal_use_global_alert_message)
-    <script type="text/javascript" language="JavaScript" src="$!{portalCDNPath}/globalalerts/js/gam.js$!{portalCDNQuery}"></script>
+    <script type="text/javascript" src="$!{portalCDNPath}/globalalerts/js/gam.js$!{portalCDNQuery}"></script>
 #end
 
 #if ( $neoChat && $loggedIn )

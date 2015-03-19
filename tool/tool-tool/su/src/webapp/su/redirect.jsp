@@ -13,7 +13,7 @@
 <f:view>
 <sakai:view_container title="#{msgs.title}">
   <h2>&nbsp;&nbsp;switching user, forwarding to <h:outputText value="#{SuTool.portalUrl}"/></h2>
-  <script type="text/javascript" language="JavaScript">
+  <script type="text/javascript">
     if (parent){
       parent.location.replace('<h:outputText value="#{SuTool.portalUrl}"/>');
     }

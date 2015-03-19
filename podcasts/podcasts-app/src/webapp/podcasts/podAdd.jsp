@@ -12,7 +12,7 @@
     <link href="./css/podcaster.css" type="text/css" rel="stylesheet" media="all" />
 
   <sakai:view>
-      <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js" language="JavaScript" ></script> 
+      <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js"></script> 
       
   <h:form id="podAdd" enctype="multipart/form-data">
 
