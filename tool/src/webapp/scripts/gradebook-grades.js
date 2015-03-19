@@ -430,6 +430,24 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
   positionFixedColumn();
   positionFixedColumnHeader();
+
+
+  // Clicks on the fixed header return you to the real header cell
+  $fixedColumnsHeader.find("th").on("mousedown", function(event) {
+    event.preventDefault();
+    $(document).scrollTop(self.$table.offset().top - 10);
+    self.$spreadsheet.scrollLeft(0);
+    self.$table.find("thead tr th").get($(this).index()).focus();
+  });
+
+  // Clicks on the fixed column return you to the real column cell
+  $fixedColumns.find("td").on("mousedown", function(event) {
+    event.preventDefault();
+    self.$spreadsheet.scrollLeft(0);
+    var cellIndex = $(this).index();
+    var rowIndex = $(this).closest("tr").index();
+    $(self.$table.find("tbody tr").get(rowIndex)).find("td").get(cellIndex).focus();
+  });
 };
 
 
