@@ -36,6 +36,11 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		
 		add(new Label("dueDate", new Model<String>(getDueDate(assignment.getDueDate()))));
 
+		add(new WebMarkupContainer("isCountedFlag").setVisible(assignment.isCounted()));
+		add(new WebMarkupContainer("notCountedFlag").setVisible(!assignment.isCounted()));
+		add(new WebMarkupContainer("isReleasedFlag").setVisible(assignment.isReleased()));
+		add(new WebMarkupContainer("notReleasedFlag").setVisible(!assignment.isReleased()));
+
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 
 		//menu

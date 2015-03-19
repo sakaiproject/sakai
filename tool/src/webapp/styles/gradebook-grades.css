@@ -51,8 +51,9 @@
 }
 #gradebookGrades th .gb-average,
 #gradebookGrades th .gb-due-date {
-  font-size: 0.9em;
+  font-size: 0.8em;
   color: #999;
+  line-height: 1.4em;
 }
 
 /* Dropdown Menus */
@@ -130,6 +131,31 @@
 /* Fix ghosting of the dragtable helper */
 #gradebookGrades .dragtable-sortable {
   z-index: 10;
+}
+/* Grade Item Flags */
+#gradebookGrades .gb-grade-item-flags {
+  position: absolute;
+  bottom: -8px;
+  left: 0;
+  color: #999;
+}
+#gradebookGrades .gb-grade-item-flags span {
+  margin-right: 4px;
+}
+#gradebookGrades .gb-grade-item-flags .gb-is-released-flag,
+#gradebookGrades .gb-grade-item-flags .gb-is-counted-flag {
+  display: none; /* don't show these flags */
+}
+#gradebookGrades .gb-grade-item-flags .gb-not-released-flag,
+#gradebookGrades .gb-grade-item-flags .gb-not-counted-flag {
+  display: inline-block;
+  font-family: 'gradebook-icons';
+}
+#gradebookGrades .gb-grade-item-flags .gb-not-counted-flag:before {
+  content: '\e600';
+}
+#gradebookGrades .gb-grade-item-flags .gb-not-released-flag:before {
+  content: '\e601';
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
