@@ -2723,7 +2723,7 @@ public class DeliveryActionListener
 				return;
 			}
 	    }
-	    // retract date
+	    // late submission date
 	    if (delivery.getRetractDate() != null) {
 	    	int timeBeforeRetract  = Math.round((double)(delivery.getRetractDate().getTime() - (new Date()).getTime())/1000.0d); //in sec
 	    	if (timeBeforeRetract < timeLimit && fromBeginAssessment) {

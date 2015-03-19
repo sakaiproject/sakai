@@ -354,9 +354,8 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// Check for incomplete URLs in the case of inlined tools
-		String trinity = ServerConfigurationService.getString(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, 
-			ToolUtils.PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
-		if ( "true".equals(trinity) && toolId == null) {
+		boolean trinity = ServerConfigurationService.getBoolean(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, ToolUtils.PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
+		if (trinity && toolId == null) {
 			String pagerefUrl = ToolUtils.getPageUrl(req, site, page, getUrlFragment(),
 				false, null, null);
 			// http://localhost:8080/portal/site/963b28b/tool/0996adf
@@ -676,7 +675,7 @@ public class SiteHandler extends WorksiteHandler
 		{
 			skin = ServerConfigurationService.getString("skin.default");
 		}
-		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+		String templates = ServerConfigurationService.getString("portal.templates", "morpheus");
 		String prefix = portalService.getSkinPrefix();
         // Don't add the prefix twice
         if ( "neoskin".equals(templates) && !StringUtils.startsWith(skin, prefix) ) skin = prefix + skin;

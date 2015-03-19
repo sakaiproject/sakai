@@ -17,17 +17,16 @@
 <div class="portletBody">
 
   <h:form id="eventLogId">
-<h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <!-- HEADINGS -->
   <%@ include file="/jsf/event/eventLogHeadings.jsp" %>
+  
+  <h:messages rendered="#{! empty facesContext.maximumSeverity}" infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
 
 <!-- content... -->
- <div align="center">
-   <h3>
-      <h:outputText value="#{eventLog.siteTitle} "/>
-      <h:outputText value="#{eventLogMessages.log}"/>
-   </h3>
- </div>
+ <h3>
+    <h:outputText value="#{eventLog.siteTitle} "/>
+    <h:outputText value="#{eventLogMessages.log}"/>
+ </h3>
 
  <div align="right">
  	<h:panelGroup>

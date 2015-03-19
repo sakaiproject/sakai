@@ -41,6 +41,7 @@ public class SitePageEditHandler {
     private Map<String, SitePage> pages;
     public String[] selectedTools = new String[] {};
     private Set<String> unhideables;
+    private Set<String> uneditables;
     public String state;
     public String title = "";
     public String test;
@@ -56,6 +57,19 @@ public class SitePageEditHandler {
     private final String SITE_UPD = "site.upd";
     private final String HELPER_ID = "sakai.tool.helper.id";
     private final String UNHIDEABLES_CFG = "poh.unhideables";
+    /**
+     * Configuration: Tool IDs that page order help shouldn't allow to be hidden
+     */
+    private final String UNEDITABLES_CFG = "poh.uneditables";
+    /**
+     * Configuration: Should the page order helper allow pages to be disabled?
+     */
+    public final String DISABLE_ENABLED_CFG = "poh.allow.lock";
+
+    /**
+     * Configuration: Should the page order helper allow pages to be hidden?
+     */
+    public final String HIDDEN_ENABLED_CFG = "poh.allow.hide";
     private final String PAGE_ADD = "pageorder.add";
     private final String PAGE_DELETE = "pageorder.delete";
     private final String PAGE_RENAME = "pageorder.rename";
@@ -65,6 +79,9 @@ public class SitePageEditHandler {
     private final String PAGE_DISABLE = "pageorder.disable";
     private final String SITE_REORDER = "pageorder.reorder";
     private final String SITE_RESET = "pageorder.reset";
+
+    // Preserve for configuration backward compat
+    public String ALLOW_TITLE_EDIT = "org.sakaiproject.site.tool.helper.order.rsf.PageListProducer.allowTitleEdit";
 
     //System config for which tools can be added to a site more then once
     private final String MULTI_TOOLS = "sakai.site.multiPlacementTools";
@@ -150,6 +167,11 @@ public class SitePageEditHandler {
             for (int i = 0; i < toolIds.length; i++) {
                 unhideables.add(toolIds[i].trim());
             }
+        }
+        String uneditablesConfig = serverConfigurationService.getString(UNEDITABLES_CFG, "");
+        uneditables = new HashSet<String>();
+        for (String tool: uneditablesConfig.split(",")) {
+            uneditables.add(tool);
         }
     }
     
@@ -409,7 +431,7 @@ public class SitePageEditHandler {
      *
      * @return true if this tool is allowed to be hidden
      */
-    public boolean allowsHide(String toolId) {
+    private boolean allowsHide(String toolId) {
         if (unhideables == null || !unhideables.contains(toolId))
             return true;
         return false;
@@ -425,6 +447,9 @@ public class SitePageEditHandler {
      * @return true if this tool is allowed to be hidden
      */
     public boolean allowsHide(SitePage page) {
+        if (!(serverConfigurationService.getBoolean(HIDDEN_ENABLED_CFG, true)))
+            return false;
+
         List<ToolConfiguration> tools = page.getTools();
         Iterator<ToolConfiguration> iPt = tools.iterator();
 
@@ -438,6 +463,17 @@ public class SitePageEditHandler {
             }
         }
         return hideable;
+    }
+
+    /**
+     * Can the page be disabled?
+     * @param page The SitePage that in question.
+     * @return <code>true</code> if the page can be disabled.
+     * @see #DISABLE_ENABLED_CFG
+     */
+    public boolean allowDisable(SitePage page) {
+        return serverConfigurationService.getBoolean(DISABLE_ENABLED_CFG, true) && allowsHide(page);
+
     }
  
     /**
@@ -734,5 +770,26 @@ public class SitePageEditHandler {
         }    // compare
         
     } //ToolComparator    
+
+
+    /**
+     * Is the current user allowed to edit the title of the page.
+     * @param page The page in question.
+     * @return <code>true</code> if the page title can be edited.
+     */
+    public boolean allowEdit(SitePage page) {
+        //default value is to allow the Title to be edited.  If the sakai properties
+        //specifically requests this to be set to false, then do not allow this function
+        boolean allow = serverConfigurationService.getBoolean(ALLOW_TITLE_EDIT, true);
+        if (!(uneditables.isEmpty())) {
+            for(Iterator<ToolConfiguration> toolIt = page.getTools().iterator(); toolIt.hasNext() && allow;) {
+                ToolConfiguration toolConfig = toolIt.next();
+                if (uneditables.contains(toolConfig.getToolId())) {
+                    allow = false;
+                }
+            }
+        }
+        return allow;
+    }
 }
 

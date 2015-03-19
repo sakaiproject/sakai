@@ -1239,7 +1239,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		// new Object[] {siteAgentId},
 		// new org.hibernate.type.Type[] {Hibernate.STRING});
 
-		// we will filter the one that is past duedate & retract date
+		// we will filter the one that is past duedate & late submission date
 		ArrayList list = new ArrayList();
 		for (int j = 0; j < l.size(); j++) {
 			PublishedAssessmentData p = (PublishedAssessmentData) l.get(j);

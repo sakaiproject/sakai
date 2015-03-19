@@ -4131,7 +4131,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		try
 		{
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(context));
+			AuthzGroup group = AuthzGroupService.getAuthzGroup(context);
 			
 			// get the roles which are allowed for submission but not for all_site control
 			Set rolesAllowSubmission = group.getRolesIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
@@ -4260,24 +4260,27 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			throws IdUnusedException, PermissionException {
 		boolean retVal = false;
 		String typeGradesString = REF_TYPE_GRADES + Entity.SEPARATOR;
-		String context = ref.substring(ref.indexOf(typeGradesString) + typeGradesString.length());
+		String [] parts = ref.substring(ref.indexOf(typeGradesString) + typeGradesString.length()).split(Entity.SEPARATOR);
+		String idSite = (parts.length>1) ? parts[1] : parts[0];
+		String context = (parts.length>1) ? SiteService.siteGroupReference(idSite, parts[3]) : SiteService.siteReference(idSite);
 
 		// get site title for display purpose
 		String siteTitle = "";
+		String sheetName = "";
 		try
 		{
-			Site s = SiteService.getSite(context);
-			siteTitle = s.getTitle();
+			siteTitle = (parts.length>1)?SiteService.getSite(idSite).getTitle()+" - "+SiteService.getSite(idSite).getGroup((String)parts[3]).getTitle():SiteService.getSite(idSite).getTitle();
+			sheetName = (parts.length>1)?SiteService.getSite(idSite).getGroup((String)parts[3]).getTitle():SiteService.getSite(idSite).getTitle();
 		}
 		catch (Exception e)
 		{
 			// ignore exception
-			M_log.debug(this + ":getGradesSpreadsheet cannot get site context=" + context + e.getMessage());
+			M_log.debug(this + ":getGradesSpreadsheet cannot get site context=" + idSite + e.getMessage());
 		}
 		
 		// does current user allowed to grade any assignment?
 		boolean allowGradeAny = false;
-		List assignmentsList = getListAssignmentsForContext(context);
+		List assignmentsList = getListAssignmentsForContext(idSite);
 		for (int iAssignment = 0; !allowGradeAny && iAssignment<assignmentsList.size(); iAssignment++)
 		{
 			if (allowGradeSubmission(((Assignment) assignmentsList.get(iAssignment)).getReference()))
@@ -4296,7 +4299,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			int rowNum = 0;
 			HSSFWorkbook wb = new HSSFWorkbook();
 			
-			HSSFSheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(siteTitle));
+			HSSFSheet sheet = wb.createSheet(WorkbookUtil.createSafeSheetName(sheetName));
 	
 			// Create a row and put some cells in it. Rows are 0 based.
 			HSSFRow row = sheet.createRow(rowNum++);
@@ -10959,7 +10962,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							intString = attributes.getValue("numberoflogs");
 							try
 							{
-							    numAttributes = Integer.parseInt(intString);
+							    numAttributes = NumberUtils.toInt(intString);
 							    for (int x = 0; x < numAttributes; x++)
 							    {
 							        attributeString = "log" + x;
@@ -10971,13 +10974,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 							catch (Exception e)
 							{
-							    M_log.debug(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading logs : " + e);
+							    M_log.debug(" BaseAssignmentSubmission: error parsing 'numberoflogs' attribute : " + e);
 							}
 
 							intString = attributes.getValue("numberofgrades");
 							try
 							{
-							    numAttributes = Integer.parseInt(intString);
+							    numAttributes = NumberUtils.toInt(intString);
 							    for (int x = 0; x < numAttributes; x++)
 							    {
 							        attributeString = "grade" + x;
@@ -10987,7 +10990,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 							catch (Exception e)
 							{
-							    M_log.warn(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading logs : " + e);
+							    M_log.warn(" BaseAssignmentSubmission: error parsing 'numberofgrades' property : " + e);
 							}
 
 							// READ THE SUBMITTERS
@@ -10995,7 +10998,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							intString = attributes.getValue("numberofsubmitters");
 							try
 							{
-								numAttributes = Integer.parseInt(intString);
+								numAttributes = NumberUtils.toInt(intString);
 
 								for (int x = 0; x < numAttributes; x++)
 								{
@@ -11020,7 +11023,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							intString = attributes.getValue("numberoffeedbackattachments");
 							try
 							{
-								numAttributes = Integer.parseInt(intString);
+								numAttributes = NumberUtils.toInt(intString);
 
 								for (int x = 0; x < numAttributes; x++)
 								{
@@ -11043,7 +11046,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							intString = attributes.getValue("numberofsubmittedattachments");
 							try
 							{
-								numAttributes = Integer.parseInt(intString);
+								numAttributes = NumberUtils.toInt(intString);
 
 								for (int x = 0; x < numAttributes; x++)
 								{

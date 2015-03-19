@@ -27,6 +27,8 @@ import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -504,10 +506,27 @@ public class MockCharonPortal extends HttpServlet
 		int w = t.getParseWarnings();
 		errorOut.close();
 		// JTidy r938 became more agressive about warnings
-		// if ( e != 0 || w != 0 ) {
+		// Morpheus uses HTML5 tags which JTidy does not grok so we need
+		// to actually read and parse the error output
 		if ( e != 0 ) {
-			log.info("Context Dump is " + rcontext.dump());
-			throw new RuntimeException("Error in HTML see "+errorFile);
+			try {
+				BufferedReader br = new BufferedReader(new FileReader(errorFile));
+				String thisLine;
+				while ((thisLine = br.readLine()) != null) { // while loop begins here
+					System.out.println(thisLine);
+					if ( thisLine.indexOf("Error:") < 0 ) continue;
+					if ( thisLine.indexOf("<nav>") > 0 ) continue;
+					if ( thisLine.indexOf("<main>") > 0 ) continue;
+					if ( thisLine.indexOf("<header>") > 0 ) continue;
+					log.info("Context Dump is " + rcontext.dump());
+					throw new RuntimeException("Error in HTML see "+errorFile+" "+thisLine);
+				} 
+			} 
+			catch (IOException ex) {
+				System.err.println("Error: " + ex);
+				log.info("File read error " + ex);
+				throw new RuntimeException("File read error "+ex);
+			}
 		}
 		log.info("All OK");
 		

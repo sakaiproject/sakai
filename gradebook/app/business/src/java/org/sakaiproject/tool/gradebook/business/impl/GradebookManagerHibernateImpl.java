@@ -129,6 +129,17 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
         };
         return (List)getHibernateTemplate().execute(hc);
     }
+    
+    public CourseGradeRecord getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final String studentUid) {
+    	Set<String> oneStudent = new HashSet<String>(1);
+    	oneStudent.add(studentUid);
+
+    	List<CourseGradeRecord> list = getPointsEarnedCourseGradeRecords(courseGrade, oneStudent);
+    	for (CourseGradeRecord cgr : list) {
+    		return cgr;
+    	}
+		return null;
+    }
 
     public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) {
     	HibernateCallback hc = new HibernateCallback() {
@@ -151,13 +162,9 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     			
     			// get all of the counted assignments
     			List<Assignment> countedAssigns = getCountedAssignments(session, gradebookId);
-    			
-    			//double totalPointsPossible = getTotalPointsInternal(gradebookId, session);
-    			//if(log.isDebugEnabled()) log.debug("Total points = " + totalPointsPossible);
 
     			for(Iterator iter = records.iterator(); iter.hasNext();) {
     				CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-    				//double totalPointsEarned = getTotalPointsEarnedInternal(gradebookId, cgr.getStudentId(), session);
     				List<AssignmentGradeRecord> studentGradeRecs = gradeRecMap.get(cgr.getStudentId());
 
                     applyDropScores(studentGradeRecs);    				
@@ -287,56 +294,7 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     	}
     	
     }
-    
-//    public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Collection assignments, final Map gradeRecordMap) {
-//    	HibernateCallback hc = new HibernateCallback() {
-//    		public Object doInHibernate(Session session) throws HibernateException {
-//    			if(studentUids == null || studentUids.size() == 0) {
-//    				if(log.isInfoEnabled()) log.info("Returning no grade records for an empty collection of student UIDs");
-//    				return new ArrayList();
-//    			}
-//
-//    			Query q = session.createQuery("from CourseGradeRecord as cgr where cgr.gradableObject.id=:gradableObjectId");
-//    			q.setLong("gradableObjectId", courseGrade.getId().longValue());
-//    			List records = filterAndPopulateCourseGradeRecordsByStudents(courseGrade, q.list(), studentUids);
-//
-//     			Set assignmentsNotCounted = new HashSet();
-//    			double totalPointsPossible = 0;
-//     			for (Iterator iter = assignments.iterator(); iter.hasNext(); ) {
-//     				Assignment assignment = (Assignment)iter.next();
-//     				if (assignment.isCounted()) {
-//     					totalPointsPossible += assignment.getPointsPossible();
-//     				} else {
-//     					assignmentsNotCounted.add(assignment.getId());
-//     				}
-//     			}
-//    			if(log.isDebugEnabled()) log.debug("Total points = " + totalPointsPossible);
-//
-//    			for(Iterator iter = records.iterator(); iter.hasNext();) {
-//    				CourseGradeRecord cgr = (CourseGradeRecord)iter.next();
-//    				double totalPointsEarned = 0;
-//    				Map studentMap = (Map)gradeRecordMap.get(cgr.getStudentId());
-//    				if (studentMap != null) {
-//        				Collection studentGradeRecords = studentMap.values();
-//    					for (Iterator gradeRecordIter = studentGradeRecords.iterator(); gradeRecordIter.hasNext(); ) {
-//    						AssignmentGradeRecord agr = (AssignmentGradeRecord)gradeRecordIter.next();
-//    						if (!assignmentsNotCounted.contains(agr.getGradableObject().getId())) {
-//    							Double pointsEarned = agr.getPointsEarned();
-//    							if (pointsEarned != null) {
-//    								totalPointsEarned += pointsEarned.doubleValue();
-//    							}    						
-//    						}
-//    					}
-//    				}
-//   					cgr.initNonpersistentFields(totalPointsPossible, totalPointsEarned);
-//    				if(log.isDebugEnabled()) log.debug("Points earned = " + cgr.getPointsEarned());
-//    			}
-//
-//    			return records;
-//    		}
-//    	};
-//    	return (List)getHibernateTemplate().execute(hc);
-//    }
+
     public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Collection assignments, final Map gradeRecordMap) {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
@@ -1092,115 +1050,6 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
      * [2] is (Double) literalTotalPointsEarned
      */
     abstract List getTotalPointsEarnedInternal(final String studentId, final Gradebook gradebook, final List categories, final List<AssignmentGradeRecord> gradeRecs, List<Assignment> countedAssigns);
-//    private List getTotalPointsEarnedInternal(final String studentId, 
-//            final Gradebook gradebook, final List categories, 
-//            final List<AssignmentGradeRecord> gradeRecs, List<Assignment> countedAssigns) 
-//    {
-//        	
-//    	if (gradeRecs == null || countedAssigns == null) {
-//    	    if (log.isDebugEnabled()) log.debug("getTotalPointsEarnedInternal for " +
-//    	    		"studentId=" + studentId + " returning 0 because null gradeRecs or countedAssigns");
-//            List returnList = new ArrayList();
-//            returnList.add(new Double(0));
-//            returnList.add(new Double(0));
-//            return returnList;
-//    	}
-//    	
-//    	double totalPointsEarned = 0;
-//    	double literalTotalPointsEarned = 0;
-//
-//    	Map cateScoreMap = new HashMap();
-//    	Map cateTotalScoreMap = new HashMap();
-//
-//    	Set assignmentsTaken = new HashSet();
-//    	for (AssignmentGradeRecord gradeRec : gradeRecs) {
-//    		Double pointsEarned = gradeRec.getPointsEarned();
-//    		Assignment go = gradeRec.getAssignment();
-//    		if (go != null && go.isCounted() && pointsEarned != null) {
-//    			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
-//    			{
-//    				totalPointsEarned += pointsEarned.doubleValue();
-//    				literalTotalPointsEarned += pointsEarned.doubleValue();
-//    				assignmentsTaken.add(go.getId());
-//    			}
-//    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
-//    			{
-//    				totalPointsEarned += pointsEarned.doubleValue();
-//    				literalTotalPointsEarned += pointsEarned.doubleValue();
-//    				assignmentsTaken.add(go.getId());
-//    			}
-//    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
-//    			{
-//    				for(int i=0; i<categories.size(); i++)
-//    				{
-//    					Category cate = (Category) categories.get(i);
-//    					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
-//    					{
-//    						assignmentsTaken.add(go.getId());
-//    						literalTotalPointsEarned += pointsEarned.doubleValue();
-//    						if(cateScoreMap.get(cate.getId()) != null)
-//    						{
-//    							cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + pointsEarned.doubleValue()));
-//    						}
-//    						else
-//    						{
-//    							cateScoreMap.put(cate.getId(), new Double(pointsEarned));
-//    						}
-//    						break;
-//    					}
-//    				}
-//    			}
-//    		}
-//    	}
-//
-//    	if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && categories != null)
-//    	{
-//    		Iterator assgnsIter = countedAssigns.iterator();
-//    		while (assgnsIter.hasNext()) 
-//    		{
-//    			Assignment asgn = (Assignment)assgnsIter.next();
-//    			if(assignmentsTaken.contains(asgn.getId()))
-//    			{
-//    				for(int i=0; i<categories.size(); i++)
-//    				{
-//    					Category cate = (Category) categories.get(i);
-//    					if(cate != null && !cate.isRemoved() && asgn.getCategory() != null && cate.getId().equals(asgn.getCategory().getId()))
-//    					{
-//    						if(cateTotalScoreMap.get(cate.getId()) == null)
-//    						{
-//    							cateTotalScoreMap.put(cate.getId(), asgn.getPointsPossible());
-//    						}
-//    						else
-//    						{
-//    							cateTotalScoreMap.put(cate.getId(), new Double(((Double)cateTotalScoreMap.get(cate.getId())).doubleValue() + asgn.getPointsPossible().doubleValue()));
-//    						}
-//    					}
-//    				}
-//    			}
-//    		}
-//    	}
-//
-//    	if(assignmentsTaken.isEmpty())
-//    		totalPointsEarned = -1;
-//
-//    	if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
-//    	{
-//    		for(int i=0; i<categories.size(); i++)
-//    		{
-//    			Category cate = (Category) categories.get(i);
-//    			if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null)
-//    			{
-//    				totalPointsEarned += ((Double)cateScoreMap.get(cate.getId())).doubleValue() * cate.getWeight().doubleValue() / ((Double)cateTotalScoreMap.get(cate.getId())).doubleValue();
-//    			}
-//    		}
-//    	}
-//
-//    	if (log.isDebugEnabled()) log.debug("getTotalPointsEarnedInternal for studentId=" + studentId + " returning " + totalPointsEarned);
-//    	List returnList = new ArrayList();
-//    	returnList.add(new Double(totalPointsEarned));
-//    	returnList.add(new Double(literalTotalPointsEarned));
-//    	return returnList;
-//    }
 
     //for testing
     public double getTotalPointsEarnedInternal(final Long gradebookId, final String studentId, final Gradebook gradebook, final List categories) 
@@ -1308,49 +1157,6 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
     		}
     	};
     	return (Double)getHibernateTemplate().execute(hc);
-    }
-
-    public CourseGradeRecord getStudentCourseGradeRecord(final Gradebook gradebook, final String studentId) {
-    	if (logData.isDebugEnabled()) logData.debug("About to read student course grade for gradebook=" + gradebook.getUid());
-    	return (CourseGradeRecord)getHibernateTemplate().execute(new HibernateCallback() {
-            public Object doInHibernate(Session session) throws HibernateException {
-                CourseGradeRecord courseGradeRecord = getCourseGradeRecord(gradebook, studentId, session);
-                if (courseGradeRecord == null) {
-                	courseGradeRecord = new CourseGradeRecord(getCourseGrade(gradebook.getId()), studentId);
-                }
-                
-                // Only take the hit of autocalculating the course grade if no explicit
-                // grade has been entered.
-                if (courseGradeRecord.getEnteredGrade() == null) {
-                    // TODO We could easily get everything we need in a single query by using an outer join if we
-                    // weren't mapping the different classes together into single sparsely populated
-                    // tables. When we finally break up the current mungings of Assignment with CourseGrade
-                    // and AssignmentGradeRecord with CourseGradeRecord, redo this section.
-                	List cates = getCategories(gradebook.getId());
-                	//double totalPointsPossible = getTotalPointsInternal(gradebook.getId(), session);
-                	//double totalPointsEarned = getTotalPointsEarnedInternal(gradebook.getId(), studentId, session);
-                    
-                	// get the grade recs for this student
-                    List<String> studentUids = new ArrayList<String>();
-                    studentUids.add(studentId);
-                    Map<String, List<AssignmentGradeRecord>> gradeRecMap = getGradeRecordMapForStudents(session, gradebook.getId(), studentUids);
-                    List<AssignmentGradeRecord> gradeRecs = gradeRecMap.get(studentId);
-                    
-                    // get the counted assignments for this gradebook
-                    List<Assignment> countedAssigns = getCountedAssignments(session, gradebook.getId());
-                    
-                    applyDropScores(gradeRecs);                    
-
-                	double totalPointsPossible = getTotalPointsInternal(gradebook, cates, studentId, gradeRecs, countedAssigns, false);
-                	
-                	List totalEarned = getTotalPointsEarnedInternal(studentId, gradebook, cates, gradeRecs, countedAssigns);
-                	double totalPointsEarned = ((Double)totalEarned.get(0)).doubleValue();
-                	double literalTotalPointsEarned = ((Double)totalEarned.get(1)).doubleValue();
-                	courseGradeRecord.initNonpersistentFields(totalPointsPossible, totalPointsEarned, literalTotalPointsEarned);
-                }             
-                return courseGradeRecord;
-            }
-        });
     }
 
     public GradingEvents getGradingEvents(final GradableObject gradableObject, final Collection studentIds) {
@@ -1855,94 +1661,6 @@ public abstract class GradebookManagerHibernateImpl extends BaseHibernateManager
      * for this particular student. 
      */
     public abstract double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns, boolean literalTotal);
-    /*private double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns)
-    {
-       	if (studentGradeRecs == null || countedAssigns == null) {
-    	    if (log.isDebugEnabled()) log.debug("Returning 0 from getTotalPointsInternal " +
-    	    		"since studentGradeRecs or countedAssigns was null");
-    	    return 0;
-    	}
-       	
-    	double totalPointsPossible = 0;
-
-    	// we need to filter this list to identify only "counted" grade recs
-    	List<AssignmentGradeRecord> countedGradeRecs = new ArrayList<AssignmentGradeRecord>();
-    	for (AssignmentGradeRecord gradeRec : studentGradeRecs) {
-    	    Assignment assign = gradeRec.getAssignment();
-    	    if (assign.isCounted() && !assign.getUngraded() && !assign.isRemoved() && 
-    	            assign.getPointsPossible() != null && assign.getPointsPossible() > 0) {
-    	        countedGradeRecs.add(gradeRec);
-    	    }
-    	}
-
-    	Set assignmentsTaken = new HashSet();
-    	Set categoryTaken = new HashSet();
-    	for (AssignmentGradeRecord gradeRec : countedGradeRecs) {
-    		Double pointsEarned = gradeRec.getPointsEarned();
-    		Assignment go = gradeRec.getAssignment();
-    		if (pointsEarned != null) {
-    			if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY)
-    			{
-    				assignmentsTaken.add(go.getId());
-    			}
-    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && go != null)
-    			{
-    				assignmentsTaken.add(go.getId());
-    			}
-    			else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && go != null && categories != null)
-    			{
-    				for(int i=0; i<categories.size(); i++)
-    				{
-    					Category cate = (Category) categories.get(i);
-    					if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
-    					{
-    						assignmentsTaken.add(go.getId());
-    						categoryTaken.add(cate.getId());
-    						break;
-    					}
-    				}
-    			}
-    		}
-    	}
-
-    	if(!assignmentsTaken.isEmpty())
-    	{
-    		if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
-    		{
-	    		for(int i=0; i<categories.size(); i++)
-	    		{
-	    			Category cate = (Category) categories.get(i);
-	    			if(cate != null && !cate.isRemoved() && categoryTaken.contains(cate.getId()) )
-	    			{
-	    				totalPointsPossible += cate.getWeight().doubleValue();
-	    			}
-	    		}
-	    		return totalPointsPossible;
-    		}
-    		Iterator assignmentIter = countedAssigns.iterator();
-    		while (assignmentIter.hasNext()) {
-    			Assignment asn = (Assignment) assignmentIter.next();
-    			if(asn != null)
-    			{
-    				Double pointsPossible = asn.getPointsPossible();
-
-    				if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY && assignmentsTaken.contains(asn.getId()))
-    				{
-    					totalPointsPossible += pointsPossible.doubleValue();
-    				}
-    				else if(gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && assignmentsTaken.contains(asn.getId()))
-    				{
-    					totalPointsPossible += pointsPossible.doubleValue();
-    				}
-    			}
-    		}
-    	}
-    	else
-    		totalPointsPossible = -1;
-
-    	return totalPointsPossible;
-    }
-    */
 
     //for test
     public double getLiteralTotalPointsInternal(final Long gradebookId, final Gradebook gradebook, final List categories)

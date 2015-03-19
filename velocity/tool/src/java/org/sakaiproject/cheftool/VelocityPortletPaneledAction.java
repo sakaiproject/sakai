@@ -384,13 +384,15 @@ public abstract class VelocityPortletPaneledAction extends ToolServlet
 		{
             // SAK-23047 Set the proper country code in the chef_start generated markup
             String userId = session.getUserId();
-            Locale locale = (new ResourceLoader(userId)).getLocale();
+            ResourceLoader rl = new ResourceLoader(userId);
+            Locale locale = rl.getLocale();
             String languageCode = locale.getLanguage();
             String countryCode = locale.getCountry();
             if(countryCode != null && countryCode.length() > 0) {
                 languageCode += "_" + countryCode;
             }
             context.put("language",languageCode);
+            context.put("dir", rl.getOrientation(locale));
 
 			String browserId = session.getBrowserId();
 			if (UsageSession.WIN_IE.equals(browserId) || UsageSession.WIN_MZ.equals(browserId)

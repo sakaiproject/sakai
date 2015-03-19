@@ -74,6 +74,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 	
 	private Pattern startOfQuestionNumericPattern;
 	private Pattern pointsPattern;
+	private Pattern discountPattern;
 	String realPatternString = "((\\+||\\-)?(\\d+((\\.|\\,)\\d+)?)((E|e)(\\-|\\+)?\\d+)?)";
 	
 	private Pattern extendedMatchingCorrectAnswersPattern;
@@ -138,7 +139,29 @@ public class SamLiteServiceImpl implements SamLiteService {
 		return sb.toString();
 	}
 	
+	private String getDiscount(String line) {
+		Matcher discountMatcher = discountPattern.matcher(line);
+				
+		String discount = "";
+				
+		if (discountMatcher.find()) 
+			discount = discountMatcher.group(1);
+				
+		return discount;
+	}
 	
+	private String stripDiscount(String line) {
+		Matcher discountMatcher = discountPattern.matcher(line);
+				
+		StringBuffer sb = new StringBuffer();
+		while (discountMatcher.find()) {
+			discountMatcher.appendReplacement(sb, "");
+		}
+		discountMatcher.appendTail(sb);
+				
+		return sb.toString();
+	}
+			
 	private String removeMatchedPattern(Matcher m) {
 		StringBuffer buffer = new StringBuffer();
 		
@@ -155,6 +178,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		startOfQuestionPattern = Pattern.compile("^(" + stQuestion + "\\s*\\d*\\s*)", Pattern.CASE_INSENSITIVE);
 		String stPoints = rb.getString("points");
 		pointsPattern = Pattern.compile("\\((\\d*\\.?\\d*)\\s+" + stPoints + "\\)", Pattern.CASE_INSENSITIVE);
+		String stDiscount = rb.getString("discount");
+		discountPattern = Pattern.compile("\\((\\d*\\.?\\d*)\\s+" + stDiscount + "\\)", Pattern.CASE_INSENSITIVE);
 		String stSaveAnswer = rb.getString("save_answer");
 		endQuestionPattern = Pattern.compile("^" + stSaveAnswer, Pattern.CASE_INSENSITIVE);
 		String stTrue = rb.getString("true");
@@ -181,7 +206,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			if (null != line && !"".equals(line)) {	
 				Matcher startOfQuestionMatcher = startOfQuestionPattern.matcher(line);
 				Matcher startOfQuestionNumericMatcher = startOfQuestionNumericPattern.matcher(line);
-				Matcher pointsMatcher = pointsPattern.matcher(line);				
+				Matcher pointsMatcher = pointsPattern.matcher(line);
+				Matcher discountMatcher = discountPattern.matcher(line);
 				Matcher extendedMatchingCorrectAnswersMatcher = extendedMatchingCorrectAnswersPattern.matcher(line);
 				
 				// The question can begin with the word 'Question'
@@ -190,9 +216,12 @@ public class SamLiteServiceImpl implements SamLiteService {
 				boolean isQuestionNumericStart = startOfQuestionNumericMatcher.find(); 
 				// Some users may prefer to delineate questions with just the points line
 				boolean isJustPoints = pointsMatcher.find();
+				// Some users may want to specify the discount line
+				boolean isJustDiscount = discountMatcher.find();
+				
 				boolean isEMICorrectAnswerLine = extendedMatchingCorrectAnswersMatcher.find(); 
 				
-				if (!isEMICorrectAnswerLine && (isQuestionStart || isQuestionNumericStart || isJustPoints)) {
+				if (!isEMICorrectAnswerLine && (isQuestionStart || isQuestionNumericStart || isJustPoints || isJustDiscount)) {
 					question = saveLast(questionGroup, question);
 					
 					if (isQuestionStart)
@@ -204,7 +233,11 @@ public class SamLiteServiceImpl implements SamLiteService {
 					
 					question.setQuestionPoints(points);
 					
-					String questionText = stripPoints(line);
+					String discount = getDiscount(line);
+ 					
+					question.setQuestionDiscount(discount);
+										
+					String questionText = stripDiscount(stripPoints(line));
 					
 					question.append(questionText.trim());
 					
@@ -607,7 +640,10 @@ public class SamLiteServiceImpl implements SamLiteService {
 		DecvarType decvar = resProcessing.addNewOutcomes().addNewDecvar();
 		decvar.setDefaultval("0");
 		decvar.setMaxvalue(question.getQuestionPoints());
-		decvar.setMinvalue("0");
+		if (Question.MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION != question.getQuestionType())
+			decvar.setMinvalue(question.getQuestionDiscount());
+		else
+			decvar.setMinvalue("0");
 		decvar.setVarname("SCORE");
 		decvar.setVartype(DecvarType.Vartype.INTEGER);
 		

@@ -1417,11 +1417,18 @@ public class QuestionPoolFacadeQueries
 	  return count;
   }
   
+  /**
+   * Fetch a HashMap of question pool ids and counts for all pools that a user has access to.
+   * We inner join the QuestionPoolAccessData table because the user may have access to pools
+   * that are being shared by other users. We can't simply look for the ownerId on QuestionPoolData.
+   * This was originally written for SAM-2463 to speed up these counts. 
+   * @param agentId Sakai internal user id. Most likely the currently logged in user
+   */
   public HashMap<Long, Integer> getCountItemFacadesForUser(final String agentId) {	    
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
-			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd " + 
-					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.ownerId=? group by qpi.questionPoolId");
+			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " + 
+					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.questionPoolId=qpad.questionPoolId AND qpad.agentId=? group by qpi.questionPoolId");
 			  q.setString(0, agentId);
 			  q.setCacheable(true);
 			  return q.list();
@@ -1597,13 +1604,16 @@ public class QuestionPoolFacadeQueries
                   boolean autoCommit = conn.getAutoCommit();
   		  String query = "";
   		  if (!"".equals(updateOwnerIdInPoolTableQueryString)) {
-  			  query = "UPDATE sam_questionpoolaccess_t SET agentid = '" + ownerId +"' WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")" + 
-  					  " AND accesstypeid = 34";					 
+  			  query = "UPDATE SAM_QUESTIONPOOLACCESS_T SET agentid = ? WHERE questionpoolid IN (?) AND accesstypeid = 34";
   			  statement = conn.prepareStatement(query);
+  			  statement.setString(1, ownerId);
+  			  statement.setString(2, updateOwnerIdInPoolTableQueryString);
   			  statement.executeUpdate();
   			  
-  			  query = "UPDATE sam_questionpool_t SET ownerid = '" + ownerId + "' WHERE questionpoolid IN (" + updateOwnerIdInPoolTableQueryString + ")";
+  			  query = "UPDATE SAM_QUESTIONPOOL_T SET ownerid = ? WHERE questionpoolid IN (?)";
 			  statement = conn.prepareStatement(query);
+  			  statement.setString(1, ownerId);
+  			  statement.setString(2, updateOwnerIdInPoolTableQueryString);
 			  statement.executeUpdate();
                           
                           if (!autoCommit) {
@@ -1613,8 +1623,9 @@ public class QuestionPoolFacadeQueries
   
   		  // if the pool has parent but the parent doesn't transfer, need to remove the child-parent relationship.
   		  if (!"".equals(removeParentPoolString)) {
-  			  query = "UPDATE sam_questionpool_t SET parentpoolid = " + 0 + " WHERE questionpoolid IN (" + removeParentPoolString + ")";
+  			  query = "UPDATE SAM_QUESTIONPOOL_T SET parentpoolid = 0 WHERE questionpoolid IN (?)";
   			  statement = conn.prepareStatement(query);
+  			  statement.setString(1, removeParentPoolString);
   			  statement.executeUpdate();	
                           
                           if (!autoCommit) {
@@ -1628,7 +1639,7 @@ public class QuestionPoolFacadeQueries
 			  try {
 				  statement.close();
 			  } catch (Exception ex) {
-				  ex.printStackTrace();
+				  log.warn("Could not close statement", ex);
 			  }
 		  }
   		  
@@ -1636,7 +1647,7 @@ public class QuestionPoolFacadeQueries
 			  try {
 				  conn.close();
 			  } catch (Exception ex) {
-				  ex.printStackTrace();
+				  log.warn("Could not close conn", ex);
 			  }
 		  }
   		  
@@ -1644,7 +1655,7 @@ public class QuestionPoolFacadeQueries
   			  try {
   				  session.close();
 			  } catch (Exception ex) {
-				  ex.printStackTrace();
+				  log.warn("Could not close session", ex);
 			  }
   		  }
   	  }

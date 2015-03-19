@@ -581,24 +581,33 @@ public class HistogramListener
 					  if (obj != null && !"".equals(obj)) {
 						  String[] objs = obj.split(",");
 						  for (int i=0; i < objs.length; i++) {
-							  if (objectivesCorrect.get(objs[i]) != null) {
-								  int divisor = objectivesCounter.get(objs[i]) + 1;
-								  // newavg = avg + ((q3 - avg)/index)
-								  Double newAvg = objectivesCorrect.get(objs[i]) + (
-								  (Double.parseDouble(questionScores.getPercentCorrect()) - objectivesCorrect.get(objs[i])
-								  ) / divisor);
-                              
-								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                              
-								  objectivesCounter.put(objs[i], divisor);
-								  objectivesCorrect.put(objs[i], newAvg);
-							  } else {
-								  Double newAvg = Double.parseDouble(questionScores.getPercentCorrect());
-								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
-                              
-								  objectivesCounter.put(objs[i], 1);
-								  objectivesCorrect.put(objs[i], newAvg);
+
+							  // SAM-2508 set a default value to avoid the NumberFormatException issues
+							  Double pctCorrect = 0.0d;
+							  Double newAvg = 0.0d;
+							  int divisor = 1;
+
+							  try {
+								  if (questionScores.getPercentCorrect() != null && !"N/A".equalsIgnoreCase(questionScores.getPercentCorrect())) {
+									  pctCorrect = Double.parseDouble(questionScores.getPercentCorrect());
+								  }
 							  }
+							  catch (NumberFormatException nfe) {
+								  log.error("NFE when looking at metadata and objectives", nfe);
+							  }
+
+							  if (objectivesCorrect.get(objs[i]) != null) {
+								  Double objCorrect = objectivesCorrect.get(objs[i]);
+								  divisor = objCorrect.intValue() + 1;
+
+								  newAvg = objCorrect + ((pctCorrect - objCorrect) / divisor);
+								  newAvg = new BigDecimal(newAvg).setScale(2, RoundingMode.HALF_UP).doubleValue();
+							  } else {
+								  newAvg = new BigDecimal(pctCorrect).setScale(2, RoundingMode.HALF_UP).doubleValue();
+							  }
+
+							  objectivesCounter.put(objs[i], divisor);
+							  objectivesCorrect.put(objs[i], newAvg);
 						  }
 					  }
 				                                                                   

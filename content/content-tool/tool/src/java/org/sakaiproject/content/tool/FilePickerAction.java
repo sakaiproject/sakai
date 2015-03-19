@@ -1122,6 +1122,10 @@ public class FilePickerAction extends PagedResourceHelperAction
 	public void doAttachitem(RunData data)
 	{
 		
+		if (!"POST".equals(data.getRequest().getMethod())) {
+			return;
+		}
+
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
 		ToolSession toolSession = SessionManager.getCurrentToolSession();
 		ParameterParser params = data.getParameters ();

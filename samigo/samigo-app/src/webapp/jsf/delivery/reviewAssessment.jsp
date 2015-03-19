@@ -65,7 +65,7 @@
       <h:outputText value=" #{deliveryMessages.dash} #{part.text} />
       <!-- h:outputText value="#{part.unansweredQuestions}/#{part.questions} " / -->
       <!-- h:outputText value="#{deliveryMessages.ans_q}, " / -->
-      <!-- h:outputText value="#{part.points}/#{part.maxPoints} #{deliveryMessages.pt}" / -->
+      <!-- h:outputText value="#{part.points}/#{part.roundedMaxPoints} #{deliveryMessages.pt}" / -->
       <f:verbatim></h4><div class="tier1"></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
       <f:verbatim></div></f:verbatim>
@@ -75,7 +75,7 @@
           <f:verbatim><h4 class="tier1"></f:verbatim>
           <h:outputText value="#{deliveryMessages.q} #{question.number} #{deliveryMessages.of} " />
           <h:outputText value="#{part.itemContentsSize} " />
-          <h:outputText value="#{question.points}#{deliveryMessages.splash}#{question.maxPoints} " />
+          <h:outputText value="#{question.points}#{deliveryMessages.splash}#{question.roundedMaxPoints} " />
           <h:outputText value="#{deliveryMessages.pt}"/>
           <f:verbatim></h4></f:verbatim>
           <h:outputText value="#{question.itemData.description}" escape="false"/>

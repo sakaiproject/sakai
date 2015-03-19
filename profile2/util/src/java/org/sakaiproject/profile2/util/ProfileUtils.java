@@ -356,6 +356,17 @@ public class ProfileUtils {
 		ResourceLoader rl = new ResourceLoader();
 		return rl.getLocale();
 	}
+
+	/**
+	 * Gets the users preferred orientation, either from the user's session or Sakai preferences and returns it
+	 * This depends on Sakai's ResourceLoader.
+	 * 
+	 * @return
+	 */
+	public static String getUserPreferredOrientation() {
+		ResourceLoader rl = new ResourceLoader();
+		return rl.getOrientation(rl.getLocale());
+	}
 	
 	/**
 	 * Creates a full profile event reference for a given reference

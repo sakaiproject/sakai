@@ -23,7 +23,6 @@
     }
   }
 
-
   //// Sites Menu
   &sitesNav {
 
@@ -54,7 +53,7 @@
         position: relative;
         display: inline-block;
       }
-    
+
       &__subnav {
         position: absolute;
         top: 2.75em;
@@ -66,17 +65,18 @@
     @include respond-to('narrow navigation') {
       // Hide by default
       display: none;
-      
+
       // show when sitesNav is clicked
       .sitesNav--displayed & {
         display: table-cell;
       }
-      
+
       &__popup {
-      
 
         > .Mrphs-userNav__drop {
           float: left;
+          font-size: 1.85em;
+          margin: 0 .25em;
         }
       }
     }
@@ -167,7 +167,7 @@
         width: calc(50% - 1.5em);
         float: left;
       }
-    
+
       &--second {
         margin-left: 0;
       }

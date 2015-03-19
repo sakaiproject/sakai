@@ -27,12 +27,20 @@ function msg(s) {
 }
 
 function checksize(oe) {
+    // jquery wraps the content in another div. we need that div, except dropdowndiv is our own
+	if (!oe.hasClass("dropDownDiv")) {
+		oe = oe.parent();
+		var position = $("#outer").position();
+		oe.css('left', position.left + 'px');
+		oe.css('top', position.top + 'px');
+	}
 	var nsize = oe.height() + oe.parent().position().top;
 	var bsize = $("#outer").height();
 	if ((nsize) > bsize) {
 		$("#outer").height(nsize);
 		setMainFrameHeight(window.name);
 	}
+
 }
 
 function checkgroups(elt, groups) {

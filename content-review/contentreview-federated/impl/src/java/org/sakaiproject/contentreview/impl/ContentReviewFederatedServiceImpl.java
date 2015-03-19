@@ -69,10 +69,10 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 
 	public ContentReviewService getSelectedProvider() {
 		Site currentSite = getCurrentSite();
-		if (log.isDebugEnabled())
-			log.debug("In Location:" + currentSite.getReference());
 		String overrideProvider = null;
 		if (currentSite != null) {
+			if (log.isDebugEnabled())
+				log.debug("In Location:" + currentSite.getReference());
 			overrideProvider = currentSite.getProperties().getProperty("contentreview.provider");
 		}
 		if (providers.size() > 0) {

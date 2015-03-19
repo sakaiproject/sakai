@@ -3080,21 +3080,23 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     				completeItemGradingData(adata, sectionSetMap);
 
     				List eventLogDataList = eventService.getEventLogData(adata.getAssessmentGradingId());
-    				EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
-    				//will do the i18n issue later.
-    				eventLogData.setErrorMsg("No Errors (Auto submit)");
-    				Date endDate = new Date();
-    				eventLogData.setEndDate(endDate);
-    				if(endDate != null && eventLogData.getStartDate() != null) {
-    					double minute= 1000*60;
-    					int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
-    					eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
-    				} else {
-    					eventLogData.setEclipseTime(null); 
-    					eventLogData.setErrorMsg("Error during auto submit");
+    				if (!eventLogDataList.isEmpty()) {
+    					EventLogData eventLogData= (EventLogData) eventLogDataList.get(0);
+    					//will do the i18n issue later.
+    					eventLogData.setErrorMsg("No Errors (Auto submit)");
+    					Date endDate = new Date();
+    					eventLogData.setEndDate(endDate);
+    					if(endDate != null && eventLogData.getStartDate() != null) {
+    						double minute= 1000*60;
+    						int eclipseTime = (int)Math.ceil(((endDate.getTime() - eventLogData.getStartDate().getTime())/minute));
+    						eventLogData.setEclipseTime(Integer.valueOf(eclipseTime)); 
+    					} else {
+    						eventLogData.setEclipseTime(null); 
+    						eventLogData.setErrorMsg("Error during auto submit");
+    					}
+    					eventLogFacade.setData(eventLogData);
+    					eventService.saveOrUpdateEventLog(eventLogFacade);
     				}
-    				eventLogFacade.setData(eventLogData);
-    				eventService.saveOrUpdateEventLog(eventLogFacade);
 
     				EventTrackingService.post(EventTrackingService.newEvent("sam.auto-submit.job", 
     						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 

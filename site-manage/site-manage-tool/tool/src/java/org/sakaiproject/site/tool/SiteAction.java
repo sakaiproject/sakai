@@ -53,6 +53,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -94,6 +95,7 @@ import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -381,7 +383,7 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String SITE_DEFAULT_LIST = ServerConfigurationService
 			.getString("site.types");
 
-	private final static String DEFAULT_SITE_TYPE_SAK_PROP = ServerConfigurationService.getString("site.types.defaultType");
+	private final static String DEFAULT_SITE_TYPE_SAK_PROP = ServerConfigurationService.getString("site.types.defaultType", null);
 	private final static String[] PUBLIC_CHANGEABLE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicChangeable");
 	private final static String[] PUBLIC_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.publicOnly");
 	private final static String[] PRIVATE_SITE_TYPES_SAK_PROP = ServerConfigurationService.getStrings("site.types.privateOnly");
@@ -2911,14 +2913,44 @@ public class SiteAction extends PagedResourceActionII {
 			//if option is enabled, show the import for all tools in the original site, not just the ones in this site
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = isAddMissingToolsOnImportEnabled();
+			
+			//helper var to hold the list we use for the selectedTools context variable, as we use it for the alternate toolnames too
+			List<String> selectedTools = new ArrayList<>();
+			
 			if(addMissingTools) {
-				context.put("selectedTools", allImportableToolIdsInOriginalSites);
+				selectedTools = allImportableToolIdsInOriginalSites;
+				context.put("selectedTools", selectedTools);
 				//set tools in destination site into context so we can markup the lists and show which ones are new
 				context.put("toolsInDestinationSite", importableToolsIdsInDestinationSite);
 			} else {
 				//just just the ones in the destination site
-				context.put("selectedTools", importableToolsIdsInDestinationSite);
+				selectedTools = importableToolsIdsInDestinationSite;
+				context.put("selectedTools", selectedTools);
 			}
+			
+			//get all known tool names from the sites selected to import from (importSites) and the selectedTools list
+			Map<String,Set<String>> toolNames = this.getToolNames(selectedTools, importSites);
+			
+			//filter this list so its just the alternate ones and turn it into a string for the UI
+			Map<String,String> alternateToolTitles = new HashMap<>();
+			for(MyTool myTool : allTools) {
+				String toolId = myTool.getId();
+				String toolTitle = myTool.getTitle();
+				Set<String> allToolNames = toolNames.get(toolId);
+				if(allToolNames != null) {
+					allToolNames.remove(toolTitle);
+				
+					//if we have something left then we have alternates, so process them
+					if(!allToolNames.isEmpty()) {
+						alternateToolTitles.put(toolId, StringUtils.join(allToolNames, ", "));
+					}
+				}
+			}
+			context.put("alternateToolTitlesMap", alternateToolTitles);
+			
+			//build a map of sites and tools in those sites that have content
+			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
+			context.put("siteToolsWithContent", siteToolsWithContent);
 			
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
@@ -3014,22 +3046,53 @@ public class SiteAction extends PagedResourceActionII {
 			//ensure this is the original tool list and set the sorted list back into context.
 			context.put(STATE_TOOL_REGISTRATION_LIST, allTools);
 			state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, state.getAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST));
-		
-			
 			
 			//if option is enabled, import into ALL tools, not just the ones in this site
 			//otherwise, only import content for the tools that already exist in the 'destination' site
 			boolean addMissingTools = isAddMissingToolsOnImportEnabled();
+			
+			//helper var to hold the list we use for the selectedTools context variable, as we use it for the alternate toolnames too
+			List<String> selectedTools = new ArrayList<>();
+			
 			if(addMissingTools) {
-				context.put("selectedTools", allImportableToolIdsInOriginalSites); 
+				
+                selectedTools = allImportableToolIdsInOriginalSites;
+				
+				context.put("selectedTools", selectedTools); 
 				//set tools in destination site into context so we can markup the lists and show which ones are new
 				context.put("toolsInDestinationSite", importableToolsIdsInDestinationSite);
 				
 			} else {
+				
+                selectedTools = importableToolsIdsInDestinationSite;
+
 				//just just the ones in the destination site
-				context.put("selectedTools", importableToolsIdsInDestinationSite); 
+				context.put("selectedTools", selectedTools); 
 			}
 			
+			//get all known tool names from the sites selected to import from (importSites) and the selectedTools list
+			Map<String,Set<String>> toolNames = this.getToolNames(selectedTools, importSites);
+			
+			//filter this list so its just the alternate ones and turn it into a string for the UI
+			Map<String,String> alternateToolTitles = new HashMap<>();
+			for(MyTool myTool : allTools) {
+				String toolId = myTool.getId();
+				String toolTitle = myTool.getTitle();
+				Set<String> allToolNames = toolNames.get(toolId);
+				if(allToolNames != null) {
+					allToolNames.remove(toolTitle);
+				
+					//if we have something left then we have alternates, so process them
+					if(!allToolNames.isEmpty()) {
+						alternateToolTitles.put(toolId, StringUtils.join(allToolNames, ", "));
+					}
+				}
+			}
+			context.put("alternateToolTitlesMap", alternateToolTitles);
+			
+			//build a map of sites and tools in those sites that have content
+			Map<String,Set<String>> siteToolsWithContent = this.getSiteImportToolsWithContent(importSites, selectedTools);
+			context.put("siteToolsWithContent", siteToolsWithContent);
 						
 			// set the flag for the UI
 			context.put("addMissingTools", addMissingTools);
@@ -3124,7 +3187,7 @@ public class SiteAction extends PagedResourceActionII {
 				coursesIntoContext(state, context, site);
 
 				// bjones86 - SAK-23256
-				List<AcademicSession> terms = setTermListForContext( context, state, true, false ); // true -> upcoming only
+				List<AcademicSession> terms = setTermListForContext( context, state, true, true ); // true -> upcoming only
 				
 				AcademicSession t = (AcademicSession) state.getAttribute(STATE_TERM_SELECTED);
 				
@@ -3669,10 +3732,15 @@ public class SiteAction extends PagedResourceActionII {
 	 */
 	private void buildLTIToolContextForTemplate(Context context,
 			SessionState state, Site site, boolean updateToolRegistration) {
-		List<Map<String, Object>> tools;
-		// get the list of available external lti tools
-		tools = m_ltiService.getTools(null,null,0,0);
-		if (tools != null && !tools.isEmpty())
+		List<Map<String, Object>> visibleTools, allTools;
+		// get the visible and all (including stealthed) list of lti tools
+		visibleTools = m_ltiService.getTools(null,null,0,0);
+		if (site == null)
+			allTools = visibleTools;
+		else
+			allTools = m_ltiService.getToolsDao(null,null,0,0,site.getId());
+      
+		if (visibleTools != null && !visibleTools.isEmpty())
 		{
 			HashMap<String, Map<String, Object>> ltiTools = new HashMap<String, Map<String, Object>>();
 			// get invoke count for all lti tools
@@ -3705,26 +3773,31 @@ public class SiteAction extends PagedResourceActionII {
 					}
 				}
 			}
-			for (Map<String, Object> toolMap : tools ) {
+         
+         // First search list of visibleTools for those not selected (excluding stealthed tools)
+			for (Map<String, Object> toolMap : visibleTools ) {
 				String ltiToolId = toolMap.get("id").toString();
 				String siteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
 				toolMap.put("selected", linkedLtiContents.containsKey(ltiToolId));
-				if (siteId == null)
+				if ( siteId == null || siteId.equals(site.getId()) )
 				{
-					// only show the system-range lti tools
+					// only show the system-range lti tools or tools for current site
 					ltiTools.put(ltiToolId, toolMap);
 				}
-				else
-				{
-					// show the site-range lti tools only if 
-					// 1. this is in Site Info editing existing site, 
-					// and 2. the lti tool site_id equals to current site
-					if (site != null && siteId.equals(site.getId()))
-					{
-						ltiTools.put(ltiToolId, toolMap);
-					}
-				}
 			}
+         
+         // Second search list of allTools for those already selected (including stealthed)
+			for (Map<String, Object> toolMap : allTools ) {
+				String ltiToolId = toolMap.get("id").toString();
+				boolean selected = linkedLtiContents.containsKey(ltiToolId);
+				toolMap.put( "selected", selected);
+				if ( selected && ltiTools.get(ltiToolId)==null )
+            {
+               ltiTools.put(ltiToolId, toolMap);
+            }
+			}
+         
+         
 			state.setAttribute(STATE_LTITOOL_LIST, ltiTools);
 			state.setAttribute(STATE_LTITOOL_EXISTING_SELECTED_LIST, linkedLtiContents);
 			context.put("ltiTools", ltiTools);
@@ -6125,19 +6198,26 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private List getLtiToolGroup(String groupName, File moreInfoDir, Site site) {
 		List ltiSelectedTools = selectedLTITools(site);
 		List ltiTools = new ArrayList();
-		List<Map<String, Object>> allTools = m_ltiService.getTools(null, null,
-				0, 0);
+		List<Map<String, Object>> allTools;
+		if ( site == null )
+			allTools = m_ltiService.getTools(null,null,0,0);
+		else
+			allTools = m_ltiService.getToolsDao(null,null,0,0,site.getId());
+      
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
 				String toolIdString = tool.get(m_ltiService.LTI_ID).toString();
+				boolean toolStealthed = tool.get(m_ltiService.LTI_VISIBLE).toString().equals("1");
+				boolean ltiToolSelected = ltiSelectedTools.contains(toolIdString); 
+
 				try
 				{
 					// in Oracle, the lti tool id is returned as BigDecimal, which cannot be casted into Integer directly
 					Integer ltiId = Integer.valueOf(toolIdString);
 					if (ltiId != null) {
 						String ltiToolId = ltiId.toString(); 
-						if (ltiToolId != null) {
+						if (ltiToolId != null && (!toolStealthed || ltiToolSelected) ) {
 							String relativeWebPath = null;
 							MyTool newTool = new MyTool();
 							newTool.title = tool.get("title").toString();
@@ -6150,7 +6230,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 							// SAK16600 should this be a property or specified in  toolOrder.xml?
 							newTool.required = false; 
-							newTool.selected = ltiSelectedTools.contains(ltiToolId); 
+							newTool.selected = ltiToolSelected;
 							ltiTools.add(newTool);
 						}
 					}
@@ -15246,6 +15326,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	/**
 	 * Get the list of tools that are in a list of sites that are available for import.
 	 * 
+	 * Only tools with content will be collected. See hasContent(toolId, siteId) for the behaviour.
+	 * 
 	 * @param list of siteids to check, could be a singleton
 	 * @return a list of toolIds that are in the sites that are available for import
 	 * 
@@ -15258,12 +15340,119 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		for(Site site: sites) {
 			for(String toolId: allImportToolIds) {
 				if(site.getToolForCommonId(toolId) != null) {
-					importToolsInSites.add(toolId);
+					
+					//check the tool has content. 
+					//this caters for the case where we only selected one site for import, this means the tool won't show in the list at all.
+					if(hasContent(toolId, site.getId())) {
+						importToolsInSites.add(toolId);
+					}
+					
 				}
 			}
 		}
 	
 		return importToolsInSites;
 	}
+	
+	/**
+	 * Get a map of all names for the given list of tools in the given sites. For example if a tool with id sakai.mytool
+	 * is called My Tool in one site and An Amazing Tool in another site, the set will contain both for that tool id.
+	 * @param toolIds
+	 * @param sites
+	 * @return
+	 */
+	private Map<String,Set<String>> getToolNames(List<String> toolIds, List<Site> sites) {
+		Map<String,Set<String>> rval = new HashMap<>();
+		
+		//foreach toolid
+		for(String toolId : toolIds){
+			
+			//init a set
+			Set<String> toolNames = new HashSet<>();
+			
+			//for each site
+			for(Site s: sites) {
+				
+				//get the name of this tool in the site for the page it is on, if it exists, add to the list
+				List<ToolConfiguration> toolConfigs = (List<ToolConfiguration>)s.getTools(toolId);
+				for(ToolConfiguration config: toolConfigs){
+					toolNames.add(config.getContainingPage().getTitle());
+				}
+			}
+			
+			rval.put(toolId, toolNames);			
+		}
+		
+		return rval;
+	}
+	
+	
+	
+	/**
+	 * Get a map of tools in each site that have content.
+	 * The list of tools are only those that have been selected for import
+	 * 
+	 * The algorithm for determining this is documented as part of hasContent(siteId, toolid);
+	 * 
+	 * @param sites
+	 * @param toolIds
+	 * @return Map keyed on siteId. Set contains toolIds that have content.
+	 */
+	private Map<String, Set<String>> getSiteImportToolsWithContent(List<Site> sites, List<String> toolIds) {
+		
+		Map<String, Set<String>> siteToolsWithContent = new HashMap<>(); 
+		
+		for(Site site: sites) {
+			
+			Set<String> toolsWithContent = new HashSet<>();
+			
+			for(String toolId: toolIds) {
+				if(site.getToolForCommonId(toolId) != null) {
+					
+					//check the tool has content
+					if(hasContent(toolId, site.getId())) {
+						toolsWithContent.add(toolId);
+					}
+				}
+			}
+			
+			M_log.debug("Site: " + site.getId() + ", has the following tools with content: " + toolsWithContent);
+			
+			siteToolsWithContent.put(site.getId(), toolsWithContent);
+		}
+	
+		return siteToolsWithContent;
+	}
+	
+	/**
+	 * Helper to check if a tool in a site has content. 
+	 * This leverages the EntityProducer system and then checks each producer to see if it is the one we are interested in
+	 * If the tool implements the ContentExistsAware interface, then it asks the tool explicitly if it has content.
+	 * If the tool does not implement this interface, then we have no way to tell, so for backwards compatibility we assume it has content.
+	 * 
+	 * @param toolId
+	 * @param siteId
+	 */
+	private boolean hasContent(String toolId, String siteId) {
+		
+		for (Iterator i = EntityManager.getEntityProducers().iterator(); i.hasNext();) {
+			EntityProducer ep = (EntityProducer) i.next();
+			
+			if (ep instanceof EntityTransferrer) {
+				EntityTransferrer et = (EntityTransferrer) ep;
+				
+				if (ArrayUtils.contains(et.myToolIds(), toolId)) {
+					
+					if(ep instanceof ContentExistsAware){
+						ContentExistsAware cea = (ContentExistsAware) ep;
+						M_log.debug("Checking tool content for site:" + siteId + ", tool: " + et.myToolIds());
+						return cea.hasContent(siteId);
+					} 
+				}
+			}
+		}
+		return true; //backwards compatibility
+	}
+
 	
 }

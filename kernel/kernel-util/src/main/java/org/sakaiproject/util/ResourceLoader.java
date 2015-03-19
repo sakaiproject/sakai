@@ -257,7 +257,22 @@ public class ResourceLoader extends DummyMap implements InternationalizedMessage
 
 		return displayName.toString();
 	}
-   
+
+	/**
+	** Return orientation of given locale
+	**
+	** @param loc Locale to obtain orientation
+	** @return String with two possible values "rtl" or "ltr"
+	** @author jjmerono
+	**/
+	public String getOrientation(Locale loc) {
+		String [] locales = ServerConfigurationService.getStrings("locales.rtl");
+		if (locales==null) {
+			locales = new String[]{"ar","dv","fa","ha","he","iw","ji","ps","ur","yi"};
+		}
+		return ArrayUtil.contains(locales,loc.getLanguage())?"rtl":"ltr";
+	}
+	
 	/**
 	 ** Return user's prefered locale
 	 **	 First: return locale from Sakai user preferences, if available

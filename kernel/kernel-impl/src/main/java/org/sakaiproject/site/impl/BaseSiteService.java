@@ -3168,10 +3168,10 @@ public abstract class BaseSiteService implements SiteService, Observer
 	{
 		// return the skin as just a name, no ".css", and not dependent on the published status, or a null if not defined
 		if (StringUtils.isEmpty(skin)) {
-			skin = serverConfigurationService().getString("skin.default", "default");
+			skin = serverConfigurationService().getString("skin.default");
 		}
 
-		String templates = serverConfigurationService().getString("portal.templates", "neoskin");
+		String templates = serverConfigurationService().getString("portal.templates", "morpheus");
 		if("neoskin".equals(templates))
 		{
 			if (StringUtils.isNotEmpty(portalSkinPrefix)) {

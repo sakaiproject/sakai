@@ -189,8 +189,7 @@ public class GradebookEntityProvider extends AbstractEntityProvider implements
 		ArrayList<String> result = new ArrayList<String>();
 
 		@SuppressWarnings("unchecked")
-		Map<String, String> studentToPoints = gradebookService
-				.getFixedPoint(gbID);
+		Map<String, String> studentToPoints = gradebookService.getImportCourseGrade(gbID);
 		ArrayList<String> eids = new ArrayList<String>(studentToPoints.keySet());
 				
 		List<User> users = userDirectoryService.getUsersByEids(eids);

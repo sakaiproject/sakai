@@ -180,7 +180,7 @@ public class TotalScoreListener
     // reset question score page content 
     questionbean.setSections(new ArrayList());
     questionbean.setTypeId("0");   // if setting "", QuestionScoreBean.getTypeId will default to 1. Thus setting it to 0. 
-    questionbean.setMaxScore("");
+    questionbean.setMaxScore(0.0d);
     questionbean.setDeliveryItem(new ArrayList());
     questionbean.setSelectedSARationaleView(QuestionScoresBean.SHOW_SA_RATIONALE_RESPONSES_INLINE);
     

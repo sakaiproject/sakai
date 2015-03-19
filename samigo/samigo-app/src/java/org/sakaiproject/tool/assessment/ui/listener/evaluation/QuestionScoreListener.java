@@ -412,7 +412,7 @@ public class QuestionScoreListener implements ActionListener,
 			}
 			try {
 				bean.setMaxScore(publishedAssessment.getEvaluationModel()
-						.getFixedTotalScore().toString());
+						.getFixedTotalScore());
 			} catch (RuntimeException e) {
 				double score = (double) 0.0;
 				Iterator iter2 = publishedAssessment.getSectionArraySorted()
@@ -427,7 +427,7 @@ public class QuestionScoreListener implements ActionListener,
 							score = idata.getScore().doubleValue();
 					}
 				}
-				bean.setMaxScore(Double.toString(score));
+				bean.setMaxScore(score);
 			}
 			
 			// need to get id from somewhere else, not from data. data only
@@ -630,22 +630,11 @@ public class QuestionScoreListener implements ActionListener,
 					// non-abbreviated answers
 					// for essay questions
 
-					int answerTextLength = 1000;
-					if (!bean.getTypeId().equals("5")) {
-						String s = ServerConfigurationService.getString("samigo.questionScore.answerText.length");
-						if (s != null) {
-							try {
-								answerTextLength = Integer.parseInt(s);
-							}
-							catch (NumberFormatException e) {
-								log.warn("NumberFormatException. Use the default value for answerTextLength");
-							}
-						}
-					}
-					else {
+					int answerTextLength = ServerConfigurationService.getInt("samigo.questionScore.answerText.length", 1000);
+					if (bean.getTypeId().equals("5")) {
 						answerTextLength = 35;
 					}
-					
+
 					// Fix for SAK-6932: Strip out all HTML tags except image tags
  					if (answerText.length() > answerTextLength) {
 						String noHTMLAnswerText;
