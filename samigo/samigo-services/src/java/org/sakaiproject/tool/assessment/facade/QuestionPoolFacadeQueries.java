@@ -1428,8 +1428,10 @@ public class QuestionPoolFacadeQueries
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " + 
-					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.questionPoolId=qpad.questionPoolId AND qpad.agentId=? group by qpi.questionPoolId");
+					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.questionPoolId=qpad.questionPoolId AND qpad.agentId=? AND qpad.accessTypeId!=? " + 
+					  "group by qpi.questionPoolId");
 			  q.setString(0, agentId);
+			  q.setLong(1, QuestionPoolData.ACCESS_DENIED);
 			  q.setCacheable(true);
 			  return q.list();
 		  };
