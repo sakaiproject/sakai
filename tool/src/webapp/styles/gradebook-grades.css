@@ -78,6 +78,10 @@
 #gradebookGrades .btn.dropdown-toggle:focus {
   background-color: #DEF;
 }
+/* Distinguish Fixed Columns */
+#gradebookGrades table tr > :nth-child(2) {
+  border-right: 2px solid #AAA;
+}
 /* Table Cells */
 #gradebookGrades tbody td.gb-cell {
   height: 2.6em;
@@ -111,8 +115,13 @@
 #gradebookGrades .gb-fixed-column-headers-table {
   position: absolute;
   border-collapse: collapse;
-  box-shadow: 1px 1px 1px #AAA;
+  box-shadow: 0 1px 1px #AAA;
   width: auto;
+}
+#gradebookGrades .gb-fixed-columns-table,
+#gradebookGrades .gb-fixed-column-headers-table {
+  border-right: none;
+  border-left-width: 3px;
 }
 #gradebookGrades .gb-fixed-column-headers-table {
   z-index: 30;

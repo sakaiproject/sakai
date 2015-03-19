@@ -397,7 +397,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   );
 
   function positionFixedColumn() {
-    if (self.$spreadsheet[0].scrollLeft > 20) {
+    if (self.$spreadsheet[0].scrollLeft > 0) {
       $fixedColumns.
           show().
           css("left", self.$spreadsheet[0].scrollLeft + "px").
@@ -408,7 +408,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   };
 
   function positionFixedColumnHeader() {
-    if (self.$spreadsheet[0].scrollLeft > 20 || self.$spreadsheet.offset().top < $(document).scrollTop()) {
+    if (self.$spreadsheet[0].scrollLeft > 0 || self.$spreadsheet.offset().top < $(document).scrollTop()) {
       $fixedColumnsHeader.
           show().
           css("left", self.$spreadsheet[0].scrollLeft + "px").
