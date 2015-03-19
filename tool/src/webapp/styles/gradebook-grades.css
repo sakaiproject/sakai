@@ -107,22 +107,27 @@
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
-#gradebookGrades .gb-fixed-column-table {
+#gradebookGrades .gb-fixed-columns-table,
+#gradebookGrades .gb-fixed-column-headers-table {
   position: absolute;
   border-collapse: collapse;
   box-shadow: 1px 1px 1px #AAA;
   width: auto;
 }
+#gradebookGrades .gb-fixed-column-headers-table {
+  z-index: 30;
+}
 #gradebookGrades .gb-fixed-header-table {
   z-index: 20;
 }
-#gradebookGrades .gb-fixed-column-table {
+#gradebookGrades .gb-fixed-columns-table {
   z-index: 10;
-}
-#gradebookGrades .gb-fixed-column-table.table-striped > tbody > tr:nth-of-type(even) {
   background-color: white;
 }
-#gradebookGrades .gb-fixed-column-table.table-hover tr.hovered {
+#gradebookGrades .gb-fixed-columns-table.table-striped > tbody > tr:nth-of-type(even) {
+  background-color: white;
+}
+#gradebookGrades .gb-fixed-columns-table.table-hover tr.hovered {
   background-color: #f5f5f5 !important;
 }
 #gradebookGrades .gb-fixed-header-table .btn-group {

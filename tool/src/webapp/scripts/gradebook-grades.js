@@ -16,7 +16,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupGradeItemCellModels();
   this.enableAbsolutePositionsInCells();
   this.setupKeyboadNavigation();
-  this.setupFixedStudentColumn();
+  this.setupFixedColumns();
   this.setupFixedTableHeader();
   this.setupColumnDragAndDrop();
 };
@@ -236,7 +236,7 @@ GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
   var self= this;
 
   // check input is visible on x-scroll
-  var fixedColWidth = self.$table.find(".gb-student-cell:first").width();
+  var fixedColWidth = self.$spreadsheet.find(".gb-fixed-columns-table").width();
   if  ($cell[0].offsetLeft - self.$spreadsheet[0].scrollLeft < fixedColWidth) {
     self.$spreadsheet[0].scrollLeft = $cell[0].offsetLeft - fixedColWidth;
   }
@@ -347,48 +347,89 @@ GradebookSpreadsheet.prototype.refreshFixedTableHeader = function() {
 };
 
 
-GradebookSpreadsheet.prototype.setupFixedStudentColumn = function() {
+GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   var self = this;
 
-  var $fixedColumn = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-column-table").hide();
-  var colWidth = self.$table.find(".gb-student-cell:first").width();
-  
-  self.$table.find(".gb-student-cell").each(function(i, cell) {
-    var $clone  = $(cell).clone();
-    $clone.width(colWidth);
-    $fixedColumn.append($("<tr>").append($clone));
+  // all columns before the grade item columns should be fixed
+
+  var $fixedColumnsHeader = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-column-headers-table").hide();
+  var $fixedColumns = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-columns-table").hide();
+
+  var $headers = self.$table.find("thead th:not(.gb-grade-item-header)");
+  $fixedColumnsHeader.append($("<thead>").append("<tr>"));
+  $fixedColumns.append($("<tbody>"));
+
+  var colWidths = [];
+  var totalWidth = 0;
+
+  // populate the dummy header table
+  $headers.each(function(i, origCell) {
+    var $th = $(origCell).clone();
+    colWidths.push($(origCell).find(".gb-cell-inner").outerWidth());
+    $th.find(".gb-cell-inner").width(colWidths[i]);
+    totalWidth += colWidths[i];
+    $fixedColumnsHeader.find("tr").append($th);
   });
-  $fixedColumn.width(colWidth);
-  self.$spreadsheet.prepend($fixedColumn);
+
+  // populate the dummy column table
+  self.$table.find("tbody tr").each(function(i, origRow) {
+    var $tr = $("<tr>");
+
+    $headers.each(function(i, origTh) {
+      var $td = $($(origRow).find("td").get(i)).clone();
+      $td.find(".gb-cell-inner").width(colWidths[i]);
+      $tr.append($td);
+    });
+
+    $fixedColumns.find("tbody").append($tr);
+  });
+
+  self.$spreadsheet.prepend($fixedColumnsHeader);
+  self.$spreadsheet.prepend($fixedColumns);
 
   self.$table.find("tbody tr").hover(
     function() {
-      $($fixedColumn.find("tr")[$(this).index()]).addClass("hovered");
+      $($fixedColumns.find("tr")[$(this).index()]).addClass("hovered");
     },
     function() {
-      $($fixedColumn.find("tr")[$(this).index()]).removeClass("hovered");
+      $($fixedColumns.find("tr")[$(this).index()]).removeClass("hovered");
     }
   );
 
   function positionFixedColumn() {
-    //if (document.body.scrollLeft + $fixedHeader.height() + 100 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
-    //} else if (self.$spreadsheet.offset().top < document.body.scrollTop) {
     if (self.$spreadsheet[0].scrollLeft > 20) {
-      $fixedColumn.
+      $fixedColumns.
           show().
           css("left", self.$spreadsheet[0].scrollLeft + "px").
           css("top", self.$table.find("tbody").position().top - 1);
+    } else {
+      $fixedColumns.hide();
+    }
+  };
+
+  function positionFixedColumnHeader() {
+    if (self.$spreadsheet[0].scrollLeft > 20 || self.$spreadsheet.offset().top < $(document).scrollTop()) {
+      $fixedColumnsHeader.
+          show().
+          css("left", self.$spreadsheet[0].scrollLeft + "px").
+          css("top", Math.max(0, $(document).scrollTop() - self.$spreadsheet.offset().top) + "px");
           
     } else {
-      $fixedColumn.hide();
+      $fixedColumnsHeader.hide();
     }
   }
 
   self.$spreadsheet.on("scroll", function() {
     positionFixedColumn();
+    positionFixedColumnHeader();
+  });
+
+  $(document).on("scroll", function() {
+    positionFixedColumnHeader();
   });
 
   positionFixedColumn();
+  positionFixedColumnHeader();
 };
 
 
