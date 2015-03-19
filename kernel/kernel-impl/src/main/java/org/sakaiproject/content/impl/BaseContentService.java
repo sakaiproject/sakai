@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -6882,7 +6883,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			
 			// KNL-1316 tell the browser when our file was last modified for caching reasons
 			if (lastModTime > 0) {
-				SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE);
+				SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE, Locale.ENGLISH);
 				rfc1123Date.setTimeZone(TimeZone.getTimeZone("GMT"));
 				res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
 			}
