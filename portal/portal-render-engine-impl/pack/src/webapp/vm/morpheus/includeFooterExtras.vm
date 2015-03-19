@@ -206,9 +206,9 @@
 					</div>
                 </div>
 				<div id="Mrphs-portalChat__chat--videocontent-${uuid}" class="Mrphs-portalChat__chat--videocontent">
-					<div class="Mrphs-portalChat__videochat--statusbar is-hidden"><span></span></div>
-					<div class="statusElement pc_chat_video_failed Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfailed is-hidden" ><span>:(</span></div>
-					<div class="statusElement pc_chat_video_finished Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfinished is-hidden" ></div>
+					<div style="display:none;" class="Mrphs-portalChat__videochat--statusbar "><span></span></div>
+					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfailed" ><span>:(</span></div>
+					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--statusfinished" ></div>
 					
 					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--bubblingG">
 						<span class="Mrphs-portalChat__videochat--bubblingG_1">
@@ -219,7 +219,7 @@
 						</span>
 					</div>
 					
-					<div style="display:none;" class="Mrphs-portalChat__videochat--remotevideo">
+					<div style="display:none;" class="Mrphs-portalChat__videochat--statuselement Mrphs-portalChat__videochat--remotevideo">
 						<video id="Mrphs-portalChat__videochat--remotevideo-${uuid}" class="Mrphs-portalChat__videochat--video " autoplay >
 						</video>
 					</div>

@@ -222,7 +222,7 @@
     				padding: 0 5% 5% 5%;
     				text-align: center;    		
 	    		}
-	    		&displayname , &message{
+	    		&displayname{
 					margin-left: -20px;
     				margin-top: 3px;    		
 	    		}
@@ -244,6 +244,9 @@
 				    width: 236px;
 				    margin-top: 2px;
 				    padding: 1px;
+				}
+				&videocontent{
+					  background-color: #000;
 				}
 				&messages{
 					list-style: none;
@@ -328,15 +331,31 @@
 					width: 100%;
   					height: 192px;
 				}
-				&statuselement{
-						position: relative;
-						top: 150px;
-						color: #DEDEDE;
-						font-weight: bold;
-						font-size: 10pt;
-						text-align: center;
-						width: 100%;
-						height:0px;
+				&statusbar{
+					  position: relative;
+					  top: 150px;
+					  color: #DEDEDE;
+					  font-weight: bold;
+					  font-size: 10pt;
+					  text-align: center;
+					  width: 100%;
+					  height: 0px;
+				}
+				&statusfailed{
+					  color: #DEDEDE;
+					  text-align: center;
+					  height: 192px;
+					  margin-left: auto;
+					  margin-right: auto;
+					  font-size: 36pt;
+					  position: relative;
+					  top: 20px;
+				}
+				&statusfinished{
+					  height: 192px;
+  					  background-image: url('/library/image/sakai/video_back_finish.png');
+  					  background-repeat: no-repeat;
+  					  background-position: 50% 30%;
 				}
 				
 				&videobutton{
@@ -381,6 +400,12 @@
 				
 				/*Bubbling effect*/
 				&bubblingG{
+					text-align: center;
+					width:80px;
+					height:192px;
+					margin-left:auto;
+					margin-right: auto;
+					
 					span{
 						display: inline-block;
 						vertical-align: middle;
@@ -399,21 +424,21 @@
 						border-radius: 50px;
 						animation: Mrphs-portalChat__videochat--bubblingG 1.3s infinite alternate;
 						
-						&.bubblingG_1 {
+						&.Mrphs-portalChat__videochat--bubblingG_1 {
 							-moz-animation-delay: 0s;
 							-webkit-animation-delay: 0s;
 							-ms-animation-delay: 0s;
 							-o-animation-delay: 0s;
 							animation-delay: 0s;
 						}
-						&.bubblingG_2 {
+						&.Mrphs-portalChat__videochat--bubblingG_2 {
 							-moz-animation-delay: 0.39s;
 							-webkit-animation-delay: 0.39s;
 							-ms-animation-delay: 0.39s;
 							-o-animation-delay: 0.39s;
 							animation-delay: 0.39s;
 						}
-						&.bubblingG_3 {
+						&.Mrphs-portalChat__videochat--bubblingG_3 {
 							-moz-animation-delay: 0.78s;
 							-webkit-animation-delay: 0.78s;
 							-ms-animation-delay: 0.78s;
@@ -421,10 +446,6 @@
 							animation-delay: 0.78s;
 						}
 					}
-				
-					
-					
-					
 				} 
 				
 				@-moz-keyframes &bubblingG {

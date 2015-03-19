@@ -483,7 +483,7 @@
 
         if (debug) console.debug('video.showMyVideo');
 
-        $(portal.chat.domSelectors.pcChatLocalVideoContent).show();
+        $(portal.chat.domSelectors.pcChatLocalVideoContent).removeClass('is-hidden');
         if (!portal.chat.expanded) {
             $(portal.chat.domSelectors.pcChatContent).hide();
             portal.chat.toggleChat();
@@ -499,7 +499,7 @@
                 $(portal.chat.domSelectors.pcChatContent).show();
                 portal.chat.toggleChat();
             }
-            $(portal.chat.domSelectors.pcChatLocalVideoContent).hide();
+            $(portal.chat.domSelectors.pcChatLocalVideoContent).addClass('is-hidden');
         }
     };
 

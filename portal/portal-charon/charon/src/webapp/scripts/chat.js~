@@ -123,7 +123,7 @@
 			pcChatVideoVideoInPre: '#Mrphs-portalChat__chat--videoin-',
 			pcChatVideoVideoChatBarPre: '#Mrphs-portalChat__chat--videochatbar-',
 			pcChatVideoVideoTimePre: '#Mrphs-portalChat__chat--videotime-',
-			pcChatVideoTimePre: '#Mrphs-portalChat__chat--time-',
+			pcChatVideoTimePre: '#Mrphs-portalChat__chat--time',
 			pcChatContentPre: '#Mrphs-portalChat__chat--content-',
 			pcChatMessagesPre: '#Mrphs-portalChat__chat--messages-',
 			pcChatEditorForPre: '#Mrphs-portalChat__chat--editor-',
