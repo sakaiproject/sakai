@@ -36,6 +36,29 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		
 		add(new Label("dueDate", new Model<String>(getDueDate(assignment.getDueDate()))));
 
+		WebMarkupContainer externalAppFlag = new WebMarkupContainer("externalAppFlag");
+		if (assignment.getExternalAppName() == null) {
+			externalAppFlag.setVisible(false);
+		} else {
+			externalAppFlag.setVisible(true);
+			externalAppFlag.add(new AttributeModifier("title", getString("label.gradeitem.externalAppPrefix") + " " + assignment.getExternalAppName()));
+			String iconClass = "icon-sakai";
+			if ("Assignments".equals(assignment.getExternalAppName())) {
+				iconClass = "icon-sakai-assignment-grades";
+			} else if ("Tests & Quizzes".equals(assignment.getExternalAppName())) {
+				iconClass = "icon-sakai-samigo";
+			} else if ("Lesson Builder".equals(assignment.getExternalAppName())) {
+				iconClass = "icon-sakai-lessonbuildertool";
+			}
+			externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag " + iconClass));
+		}
+		add(externalAppFlag);
+
+		add(new WebMarkupContainer("isCountedFlag").setVisible(assignment.isCounted()));
+		add(new WebMarkupContainer("notCountedFlag").setVisible(!assignment.isCounted()));
+		add(new WebMarkupContainer("isReleasedFlag").setVisible(assignment.isReleased()));
+		add(new WebMarkupContainer("notReleasedFlag").setVisible(!assignment.isReleased()));
+
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 
 		//menu
