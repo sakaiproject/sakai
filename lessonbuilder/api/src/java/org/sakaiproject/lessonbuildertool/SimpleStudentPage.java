@@ -25,6 +25,8 @@ public interface SimpleStudentPage {
         public void setGroup(String group);
 	
     // no longer used, but left in to ease transitions
+
+//prueba para el commit
         public boolean isGroupOwned();
         public void setGroupOwned(Boolean g);
 
