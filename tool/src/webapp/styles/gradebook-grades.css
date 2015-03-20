@@ -147,29 +147,31 @@
   z-index: 10;
 }
 /* Grade Item Flags */
+#gradebookGrades [class*="gb-flag"] {
+  color: #999;
+  font-family: 'gradebook-icons';
+  display: inline-block;
+}
 #gradebookGrades .gb-grade-item-flags {
   position: absolute;
   bottom: -8px;
   left: 0;
-  color: #999;
 }
 #gradebookGrades .gb-grade-item-flags span {
   margin-right: 4px;
 }
-#gradebookGrades .gb-grade-item-flags .gb-is-released-flag,
-#gradebookGrades .gb-grade-item-flags .gb-is-counted-flag {
+#gradebookGrades .gb-grade-item-flags .gb-flag-is-released,
+#gradebookGrades .gb-grade-item-flags .gb-flag-is-counted {
   display: none; /* don't show these flags */
 }
-#gradebookGrades .gb-grade-item-flags .gb-not-released-flag,
-#gradebookGrades .gb-grade-item-flags .gb-not-counted-flag {
-  display: inline-block;
-  font-family: 'gradebook-icons';
-}
-#gradebookGrades .gb-grade-item-flags .gb-not-counted-flag:before {
+#gradebookGrades .gb-flag-not-counted:before {
   content: '\e600';
 }
-#gradebookGrades .gb-grade-item-flags .gb-not-released-flag:before {
+#gradebookGrades .gb-flag-not-released:before {
   content: '\e601';
+}
+#gradebookGrades .gb-flag-extra-credit:before {
+  content: '\f0fe';
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
