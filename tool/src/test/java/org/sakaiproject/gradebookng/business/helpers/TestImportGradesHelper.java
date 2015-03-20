@@ -3,7 +3,12 @@ package org.sakaiproject.gradebookng.business.helpers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sakaiproject.gradebookng.business.model.*;
+import org.sakaiproject.gradebookng.business.model.ImportColumn;
+import org.sakaiproject.gradebookng.business.model.ImportedGrade;
+import org.sakaiproject.gradebookng.business.model.ImportedGradeItem;
+import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
+import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -111,12 +116,18 @@ public class TestImportGradesHelper {
 
         Assert.assertNotNull(processedGradeItems);
 
-        Assert.assertEquals("wrong status", ProcessedGradeItem.STATUS_NA, processedGradeItems.get(0).getStatus());
-        Assert.assertEquals("wrong status", ProcessedGradeItem.STATUS_NA, processedGradeItems.get(1).getStatus());
-        Assert.assertEquals("wrong status", ProcessedGradeItem.STATUS_UPDATE, processedGradeItems.get(2).getStatus());
-        Assert.assertEquals("wrong status", ProcessedGradeItem.STATUS_UPDATE, processedGradeItems.get(3).getStatus());
-        Assert.assertEquals("wrong status", ProcessedGradeItem.STATUS_NEW, processedGradeItems.get(4).getStatus());
-        Assert.assertEquals("wrong status", ProcessedGradeItem.STATUS_NEW, processedGradeItems.get(5).getStatus());
+        Assert.assertEquals("wrong number of results", 7, processedGradeItems.size());
+
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NA, processedGradeItems.get(0).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NA, processedGradeItems.get(1).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE, processedGradeItems.get(2).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE, processedGradeItems.get(3).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NEW, processedGradeItems.get(4).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NEW, processedGradeItems.get(5).getStatus().getStatusCode());
+
+        ProcessedGradeItemStatus extStatus = processedGradeItems.get(6).getStatus();
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_EXTERNAL, extStatus.getStatusCode());
+        Assert.assertEquals("wrong status name", "From a test", extStatus.getStatusValue());
 
     }
 
@@ -137,6 +148,14 @@ public class TestImportGradesHelper {
         assignment2.setName("Assignment 2");
         assignment2.setPoints(100.0);
         assignments.add(assignment2);
+
+        Assignment assignment3 = new Assignment();
+        assignment3.setId(3L);
+        assignment3.setName("Assignment Ext");
+        assignment3.setPoints(1000.0);
+        assignment3.setExternalAppName("From a test");
+        assignment3.setExternalId("ext_asdf");
+        assignments.add(assignment3);
 
         return assignments;
     }
@@ -197,6 +216,7 @@ public class TestImportGradesHelper {
         columns.add(new ImportColumn("Assignment 2", "N/A", ImportColumn.TYPE_ITEM_WITH_COMMENTS));
         columns.add(new ImportColumn("Assignment 3", "100.0", ImportColumn.TYPE_ITEM_WITH_POINTS));
         columns.add(new ImportColumn("Assignment 3", "N/A", ImportColumn.TYPE_ITEM_WITH_COMMENTS));
+        columns.add(new ImportColumn("Assignment Ext", "1000.0", ImportColumn.TYPE_ITEM_WITH_POINTS));
 
         importedGradeWrapper.setColumns(columns);
 

@@ -2,6 +2,8 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.sakaiproject.gradebookng.business.model.GbAssignment;
+import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
 
 /**
  * The panel for the add grade item window
@@ -16,8 +18,8 @@ public class AddGradeItemPanel extends Panel {
 		super(id);
 
         Form<?> form = new Form("form");
-		
-		add(new AddGradeItemPanelContent("subComponents", form));
+
+		add(new AddGradeItemPanelContent("subComponents", new GbAssignmentModel(new GbAssignment())));
 
 
 	}
