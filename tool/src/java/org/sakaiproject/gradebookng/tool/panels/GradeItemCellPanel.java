@@ -55,13 +55,15 @@ public class GradeItemCellPanel extends Panel {
 				super.onSubmit(target);
 				String newGrade = this.getEditor().getValue();
 				
-				
-				
-				System.out.println("newGrade: " + newGrade);
-				
 				boolean result = businessService.saveGrade(assignmentId, studentGrades.getStudentUuid(), newGrade);
-				System.out.println("result: " + result);
-
+				//TODO do something with the result
+				
+				//format it for display
+				String formattedGrade = formatGrade(newGrade);
+				
+				this.getLabel().setDefaultModelObject(formattedGrade);
+				
+				target.add(this);
 			}
 			
 			@Override
@@ -82,6 +84,8 @@ public class GradeItemCellPanel extends Panel {
 			
 			
 		};
+		
+		grade.setType(String.class);
 		
 		
 		add(grade);
