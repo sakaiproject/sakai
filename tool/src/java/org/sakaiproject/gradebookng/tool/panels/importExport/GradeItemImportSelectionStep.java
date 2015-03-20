@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Check;
@@ -126,7 +127,7 @@ public class GradeItemImportSelectionStep extends Panel {
 
                 String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
                 if (naString.equals(item.getModelObject().getItemPointValue()))
-                    item.add(new AttributeModifier("class", "comment"));
+                    item.add(new AttributeAppender("class", new Model("comment"), " "));
             }
 
         };

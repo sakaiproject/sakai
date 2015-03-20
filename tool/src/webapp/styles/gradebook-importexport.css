@@ -16,3 +16,11 @@
   font-style: italic;
   text-indent: 15px;
 }
+
+#grade_import_selection tr.external {
+  background-color: lightgray;
+}
+
+#grade_import_selection tr.external td.item_status {
+  font-style: italic;
+}
