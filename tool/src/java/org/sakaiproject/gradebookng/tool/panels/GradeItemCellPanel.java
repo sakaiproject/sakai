@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
@@ -12,6 +13,8 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 /**
@@ -33,8 +36,11 @@ public class GradeItemCellPanel extends Panel {
 		
 		//TODO harden this
 		GradeInfo gradeInfo = studentGrades.getGrades().get(assignmentId);
+		
+		//get grade
+		String formattedGrade = this.formatGrade(gradeInfo.getGrade());
 						
-		AjaxEditableLabel<String> grade = new AjaxEditableLabel<String>("grade", new Model<String>(gradeInfo.getGrade())) {
+		AjaxEditableLabel<String> grade = new AjaxEditableLabel<String>("grade", new Model<String>(formattedGrade)) {
 			
 			private static final long serialVersionUID = 1L;
 			
@@ -85,6 +91,15 @@ public class GradeItemCellPanel extends Panel {
 		//menu
 		
 
+	}
+	
+	/**
+	 * Format a grade to remove the .0 if present.
+	 * @param grade
+	 * @return
+	 */
+	private String formatGrade(String grade) {
+		return StringUtils.removeEnd(grade, ".0");		
 	}
 
 }
