@@ -268,7 +268,7 @@ public class ImportGradesHelper extends BaseImportHelper {
 
 
             } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
-                processedGradeItem.setItemTitle("   " + assignmentName + " Comments");
+                processedGradeItem.setItemTitle(assignmentName + " Comments");
                 processedGradeItem.setItemPointValue("N/A");
 
             } else {

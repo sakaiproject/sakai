@@ -41,13 +41,12 @@ public class CreateGradeItemStep extends Panel {
             @Override
             protected void onSubmit()
             {
-                LOG.debug("onSubmit()");
                 GbAssignmentModel submittedModel = (GbAssignmentModel)getDefaultModel();
                 GbAssignment assignment = (GbAssignment)submittedModel.getObject();
 
                 if (assignment != null)
                     assignmentsToCreate.add(assignment.convert2Assignment());
-                LOG.info("Assignment: " + assignment);
+                LOG.debug("Assignment: " + assignment);
 //                info("assignment: " + getDefaultModelObjectAsString());
                 //Figure out if there are more steps
                 //If so, go to the next step

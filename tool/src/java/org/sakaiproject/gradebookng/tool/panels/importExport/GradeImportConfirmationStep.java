@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -8,6 +9,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -35,35 +37,29 @@ public class GradeImportConfirmationStep extends Panel {
         super(id);
         this.panelId = id;
 
-//        final CheckGroup<ImportedGrade> group = new CheckGroup<ImportedGrade>("group", new ArrayList<ImportedGrade>());
-
         Form<?> form = new Form("form")
         {
             @Override
             protected void onSubmit()
             {
-//                info("selected grade(s): " + form.getDefaultModelObjectAsString());
                 //Create new GB items
                 for (Assignment assignment : assignmentsToCreate) {
                     businessService.addAssignmentToGradebook(assignment);
                 }
 
-
                 List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
                 itemsToSave.addAll(itemsToUpdate);
                 itemsToSave.addAll(itemsToCreate);
                 for (ProcessedGradeItem processedGradeItem : itemsToSave) {
-                    LOG.info("Looping through items to save");
+                    LOG.debug("Looping through items to save");
                     for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
-                        LOG.info("Looping through detail items to save");
-//                        processedGradeItemDetail.g
+                        LOG.debug("Looping through detail items to save");
                         boolean saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentId(),
                                 processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
                         LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentId() + ", " +
                                 processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
                     }
                 }
-
             }
         };
         add(form);
@@ -77,16 +73,8 @@ public class GradeImportConfirmationStep extends Panel {
         add(gradesUpdateContainer);
 
         if (hasItemsToUpdate) {
-            ListView<ProcessedGradeItem> updateList = new ListView<ProcessedGradeItem>("grades_update", itemsToUpdate) {
-              /**
-               * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
-               */
-              @Override
-              protected void populateItem(ListItem<ProcessedGradeItem> item) {
-                item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
-              }
-            };
-  
+            ListView<ProcessedGradeItem> updateList = makeListView("grades_update", itemsToUpdate);
+
             updateList.setReuseItems(true);
             gradesUpdateContainer.add(updateList);
         }
@@ -98,19 +86,26 @@ public class GradeImportConfirmationStep extends Panel {
         add(gradesCreateContainer);
 
         if (hasItemsToCreate) {
-            ListView<ProcessedGradeItem> createList = new ListView<ProcessedGradeItem>("grades_create", itemsToCreate) {
-              /**
-               * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
-               */
-              @Override
-              protected void populateItem(ListItem<ProcessedGradeItem> item) {
-                item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
-              }
-            };
-  
+            ListView<ProcessedGradeItem> createList = makeListView("grades_create", itemsToCreate);
+
             createList.setReuseItems(true);
             gradesCreateContainer.add(createList);
         }
+    }
+
+    private ListView<ProcessedGradeItem> makeListView(String componentName, List<ProcessedGradeItem> itemList) {
+        return new ListView<ProcessedGradeItem>(componentName, itemList) {
+            /**
+             * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)
+             */
+            @Override
+            protected void populateItem(ListItem<ProcessedGradeItem> item) {
+                item.add(new Label("itemTitle", new PropertyModel<String>(item.getDefaultModel(), "itemTitle")));
+                String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
+                if (naString.equals(item.getModelObject().getItemPointValue()))
+                    item.add(new AttributeModifier("class", "comment"));
+            }
+        };
     }
 
 }

@@ -49,23 +49,28 @@ public class GradeItemImportSelectionStep extends Panel {
 
                 List<ProcessedGradeItem> processedGradeItems = (List<ProcessedGradeItem>)group.getDefaultModelObject();
 
+                log.debug("Processed items: " + processedGradeItems.size());
 
                 //Process the selected items into the create/update lists
                 List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(processedGradeItems,
-                        Arrays.asList(new Integer[]{ProcessedGradeItemStatus.STATUS_UPDATE, ProcessedGradeItemStatus.STATUS_NA}));
+                        Arrays.asList(ProcessedGradeItemStatus.STATUS_UPDATE, ProcessedGradeItemStatus.STATUS_NA));
                 List<ProcessedGradeItem> itemsToCreate = filterListByStatus(processedGradeItems,
-                        Arrays.asList(new Integer[] {ProcessedGradeItemStatus.STATUS_NEW}));
+                        Arrays.asList(ProcessedGradeItemStatus.STATUS_NEW));
+
+                log.debug("Filtered Update items: " + itemsToUpdate.size());
+                log.debug("Filtered Create items: " + itemsToCreate.size());
 
                 List<ProcessedGradeItem> gbItemsToCreate = new ArrayList<ProcessedGradeItem>();
                 for (ProcessedGradeItem item : itemsToCreate) {
+                    //Don't want comment items here
                     if (!"N/A".equals(item.getItemPointValue())) {
                         gbItemsToCreate.add(item);
                     }
                 }
 
-                //repaint panel
-//                Component newPanel = new GradeImportConfirmationStep(panelId, (List<ProcessedGradeItem>)group.getDefaultModelObject());
+                log.debug("Actual items to create: " + gbItemsToCreate.size());
 
+                //repaint panel
                 List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
 
                 Component newPanel = null;
@@ -76,24 +81,12 @@ public class GradeItemImportSelectionStep extends Panel {
                 newPanel.setOutputMarkupId(true);
                 GradeItemImportSelectionStep.this.replaceWith(newPanel);
 
-
-
             }
         };
         add(form);
         form.add(group);
 
         group.add(new Button("nextbutton"));
-
-//        Button back = new Button("backbutton"){
-//            public void onSubmit() {
-//                //TODO - Can I get the state of the form back, including the uploaded file?  This just starts the page over.
-//                setResponsePage(new ImportExportPage());
-//            }
-//        };
-//        back.setDefaultFormProcessing(false);
-//        group.add(back);
-
 
         group.add(new CheckGroupSelector("groupselector"));
         ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades",
@@ -127,7 +120,7 @@ public class GradeItemImportSelectionStep extends Panel {
 
                 String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
                 if (naString.equals(item.getModelObject().getItemPointValue()))
-                    item.add(new AttributeAppender("class", new Model("comment"), " "));
+                    item.add(new AttributeAppender("class", new Model<String>("comment"), " "));
             }
 
         };
@@ -140,7 +133,7 @@ public class GradeItemImportSelectionStep extends Panel {
     private List<ProcessedGradeItem> filterListByStatus(List<ProcessedGradeItem> gradeList, List<Integer> statuses) {
         List<ProcessedGradeItem> filteredList = new ArrayList<ProcessedGradeItem>();
         for (ProcessedGradeItem gradeItem : gradeList) {
-            if (statuses.contains(gradeItem.getStatus()))
+            if (statuses.contains(gradeItem.getStatus().getStatusCode()))
                 filteredList.add(gradeItem);
         }
         return filteredList;

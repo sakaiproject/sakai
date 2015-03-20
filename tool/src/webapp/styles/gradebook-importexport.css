@@ -24,3 +24,8 @@
 #grade_import_selection tr.external td.item_status {
   font-style: italic;
 }
+
+.grade_import_confirmation tr.comment td {
+  font-style: italic;
+  text-indent: 15px;
+}
