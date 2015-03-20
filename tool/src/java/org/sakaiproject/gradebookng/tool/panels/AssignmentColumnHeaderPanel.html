@@ -12,7 +12,10 @@
 	<div wicket:id="averageGradeSection" class="gb-average">
 		<span wicket:message="value:label.avg">Avg: </span><span wicket:id="averagePoints" class="gb-average-points">72</span> / <span wicket:id="totalPoints" class="gb-total-points">100</span>
 	</div>
-	<div wicket:id="dueDate" class="gb-due-date">23/5/2014</div>
+	
+	<div class="gb-due-date">
+		<span wicket:message="value:label.due">Due: </span><span wicket:id="dueDate">23/5/2014</span>
+	</div>
 	
 	<div class="gb-grade-item-flags">
 		<span wicket:id="isReleasedFlag" class="gb-is-released-flag" wicket:message="title:label.gradeitem.released"></span>

@@ -179,15 +179,18 @@ public class GradebookNgBusinessService {
 		// The performance of this could be better. However we are talking about a tiny list here (<50 items)
 		//What would be ideal is an order on the assignments in the db table
 		
+		//get the stored order
+		List<AssignmentOrder> assignmentOrder = this.getAssignmentOrder(siteId);
+		if(assignmentOrder == null) {
+			//no order set, use natural order
+			return assignments;
+		}
+		
 		//create a copy of the list we can modify
 		List<Assignment> rval = new ArrayList<>();
 		rval.addAll(assignments);
 		int size = rval.size();
 
-
-		//get the stored order
-		List<AssignmentOrder> assignmentOrder = this.getAssignmentOrder(siteId);
-		
 		//iterate over assignments, then check the order list for matches.
 		//if matched, insert null to ensure list size, remove assignment and add at the new position in the rval list
 		//if not matched, continue.
