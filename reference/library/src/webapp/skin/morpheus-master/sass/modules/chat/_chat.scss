@@ -309,8 +309,12 @@
 					border-bottom: 1px solid #CCC;
 				}
 				&answerelement{
-					float: left;
-					width: 25%;
+					  font-size: 12px;
+					  font-weight: bold;
+					  float: left;
+					  width: 75%;
+					  text-align: left;
+					  vertical-align: middle;
 				}
 				&leftelement{
 					float: left;
@@ -385,16 +389,16 @@
 				&videomaxi{
 					background-image: url('/library/image/sakai/video_maxi.png');
 				}
-				&videomicenable{
+				&videomicenabled{
 					background-image: url('/library/image/sakai/video_mic_enable.png');
 				}
-				&video_mic_disable{
+				&videomicdisabled{
 					background-image: url('/library/image/sakai/video_mic_disable.png');
 				}
-				&videocamenable{
+				&videocamenabled{
 					background-image: url('/library/image/sakai/video_cam_enable.png');
 				}
-				&videocamdisable{
+				&videocamdisabled{
 					background-image: url('/library/image/sakai/video_cam_disable.png');
 				}
 				

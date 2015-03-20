@@ -462,7 +462,7 @@
 					</div>
 					
 					<div stye="display:none;" class="statusElement pc_chat_video_remote">
-						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video" autoplay >
+						<video id="pc_chat_remote_video_${uuid}" class="pc_chat_video" autoplay >
 						</video>
 					</div>
 

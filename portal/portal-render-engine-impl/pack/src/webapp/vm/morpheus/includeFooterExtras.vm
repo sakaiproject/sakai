@@ -55,15 +55,15 @@
 
     #if ($neoChatVideo)
 
-        <div id="Mrphs-portalChat__video--localcontent" class="Mrphs-portalChat__container Mrphs-portalChat__video--localcontent is-hidden" data-video="0">
+        <div style="display:none;" id="Mrphs-portalChat__video--localcontent" class="Mrphs-portalChat__container Mrphs-portalChat__video--localcontent" data-video="0">
         
             <video id="Mrphs-portalChat__video--localvideo" class="pc_chat_video_min Mrphs-portalChat__video--video" autoplay muted="true"></video>
         
             <nav id="Mrphs-portalChat__video--nav">
-                <a href="javascript:;" id="disable_local_video" onclick="return portal.chat.video.disableVideo();" title="${rloader.pc_video_disable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton video_cam_enable Mrphs-portalChat__video--button  Mrphs-portalChat__video is-enabled js-portalChat__video--disableVideo"></a>
-                <a href="javascript:;" id="enable_local_video" onclick="return portal.chat.video.enableVideo();" style="display:none" title="${rloader.pc_video_enable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton video_cam_disable Mrphs-portalChat__video--button  Mrphs-portalChat__video is-disabled js-portalChat__video--enableVideo"></a>
-                <a href="javascript:;" id="mute_local_audio" onclick="return portal.chat.video.mute();"  title="${rloader.pc_video_mute_local_audio_title}" class="video_button video_mic_enable Mrphs-portalChat__videochat--videobutton  Mrphs-portalChat__video--mic is-enabled js-portalChat__video--muteVideo"></a>
-                <a href="javascript:;" id="unmute_local_audio" onclick="return portal.chat.video.unmute();" style="display:none" title="${rloader.pc_video_unmute_local_audio_title}" class="video_mic_disable Mrphs-portalChat__videochat--videobutton  Mrphs-portalChat__video--mic is-disabled js-portalChat__video--unmuteVideo"></a>
+                <a href="javascript:;" id="disable_local_video" onclick="return portal.chat.video.disableVideo();" title="${rloader.pc_video_disable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videocamenabled"></a>
+                <a href="javascript:;" id="enable_local_video" onclick="return portal.chat.video.enableVideo();" style="display:none" title="${rloader.pc_video_enable_local_video_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videocamdisabled"></a>
+                <a href="javascript:;" id="mute_local_audio" onclick="return portal.chat.video.mute();"  title="${rloader.pc_video_mute_local_audio_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videomicenabled"></a>
+                <a href="javascript:;" id="unmute_local_audio" onclick="return portal.chat.video.unmute();" style="display:none" title="${rloader.pc_video_unmute_local_audio_title}" class="Mrphs-portalChat__videochat--videobutton Mrphs-portalChat__videochat--videomicdisabled"></a>
             </nav>
         
         </div>

@@ -44,7 +44,7 @@
 			pcDisplayName: 'pc_displayname',
 			pcMessage: 'pc_message',
 			pcNewMessage: 'pc_new_message',
-			pcChatVideoLocalVideo:  'pc_chat_local_video',
+			pcChatVideoLocalVideo:  'pc_chat_video_local',
 			pcChatRemoteVideoPre: 'pc_chat_remote_video_'
 		};		
 		

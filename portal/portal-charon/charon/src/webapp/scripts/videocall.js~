@@ -496,10 +496,10 @@
 
         if ($('.video_active').length < 1) {
             if (portal.chat.expanded) {
-                $(portal.chat.domSelectors.pcChatContent).show();
+                $(portal.chat.domSelectors.pcChatContent).removeClass('is-hidden');
                 portal.chat.toggleChat();
             }
-            $(portal.chat.domSelectors.pcChatLocalVideoContent).hide();
+            $(portal.chat.domSelectors.pcChatLocalVideoContent).addClass('is-hidden');
         }
     };
 
