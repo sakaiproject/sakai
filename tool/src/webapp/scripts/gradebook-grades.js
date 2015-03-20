@@ -326,6 +326,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
 
   function positionFixedHeader() {
     if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+      // don't change anything as we don't want the fixed header to scroll to below the table
     } else if (self.$spreadsheet.offset().top < $(document).scrollTop()) {
       $fixedHeader.
           show().
@@ -417,12 +418,30 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   };
 
   function positionFixedColumnHeader() {
+    var showFixedHeader = false;
+    var leftOffset = self.$spreadsheet[0].scrollLeft;
+    var topOffset = 0;
+
     if (self.$spreadsheet[0].scrollLeft > 0 || self.$spreadsheet.offset().top < $(document).scrollTop()) {
-      $fixedColumnsHeader.
-          show().
-          css("left", self.$spreadsheet[0].scrollLeft + "px").
-          css("top", Math.max(0, $(document).scrollTop() - self.$spreadsheet.offset().top) + "px");
-          
+      if (self.$spreadsheet[0].scrollLeft > 0) {
+        showFixedHeader = true;
+      }
+
+      if ($(document).scrollTop() + $fixedColumnsHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+        // don't change anything as we don't want the fixed header to scroll to below the table
+        topOffset = $fixedColumnsHeader.css("top");
+        // except check for the horizontal scroll
+        if (self.$spreadsheet[0].scrollLeft == 0) {
+          showFixedHeader = true;
+        }
+      } else if (self.$spreadsheet.offset().top < $(document).scrollTop()) {
+        topOffset = Math.max(0, $(document).scrollTop() - self.$spreadsheet.offset().top);
+        showFixedHeader = true
+      }
+    }
+
+    if (showFixedHeader) {
+      $fixedColumnsHeader.show().css("top", topOffset).css("left", leftOffset);
     } else {
       $fixedColumnsHeader.hide();
     }

@@ -54,6 +54,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		}
 		add(externalAppFlag);
 
+		add(new WebMarkupContainer("extraCreditFlag").setVisible(assignment.isExtraCredit()));
 		add(new WebMarkupContainer("isCountedFlag").setVisible(assignment.isCounted()));
 		add(new WebMarkupContainer("notCountedFlag").setVisible(!assignment.isCounted()));
 		add(new WebMarkupContainer("isReleasedFlag").setVisible(assignment.isReleased()));
