@@ -32,7 +32,7 @@
 	/* Set elements names depending on portal handler*/
 	
 	portal.chat.domSelectors = {};
-	portal.chat.domSelectors = {};
+	portal.chat.domNames = {};
 
 	if ($("#footerApp").length > 0){
 		portal.chat.portalHandler = 'neo';
@@ -133,7 +133,7 @@
 			pcChatConnections :'#Mrphs-portalChat__connections',
 			pcChatConnectionsWrapper: '#Mrphs-portalChat__connections--wrapper',
 			pcChatSiteUsers: '#Mrphs-portalChat__siteusers',
-			pcChatConnection : 'Mrphs-portalChat_connection',
+			pcChatConnection : '.Mrphs-portalChat_connection',
 			pcChatSiteUser: '.Mrphs-portalChat__user',
 			pcChatUsersWrapper: '.Mrphs-portalChat__user--wrapper',
 			pcChatContent: '#Mrphs-portalChat__content',

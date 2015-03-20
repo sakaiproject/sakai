@@ -113,7 +113,7 @@
                 {for connection in connections}
                     <li class="Mrphs-portalChat_connection Mrphs-portalChat__list-item" >
 
-                        <a id="${connection.uuid}_link" class="Mrphs-portalChat__connection--link" href="javascript:;" onclick="return portal.chat.setupChatWindow('${connection.uuid}');">
+                        <a id="${connection.uuid}_link" class="Mrphs-portalChat__user--link" href="javascript:;" onclick="return portal.chat.setupChatWindow('${connection.uuid}');">
 							## TODO: the width and height below should be set to be whatever the server-side scaling sets it to be (to avoid jiggle)
 			#if ( $neoAvatar ) 
                             <img class="Mrphs-portalChat__image Mrphs-portalChat__user--image" src="/direct/profile/${connection.uuid}/image"/>

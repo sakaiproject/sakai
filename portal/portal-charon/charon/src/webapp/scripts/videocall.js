@@ -483,9 +483,9 @@
 
         if (debug) console.debug('video.showMyVideo');
 
-        $(portal.chat.domSelectors.pcChatLocalVideoContent).show();
+        $(portal.chat.domSelectors.pcChatLocalVideoContent).removeClass('is-hidden');
         if (!portal.chat.expanded) {
-            $(portal.chat.domSelectors.pcChatContent).hide();
+            $(portal.chat.domSelectors.pcChatContent).addClass('is-hidden');
             portal.chat.toggleChat();
         }
     };
@@ -496,10 +496,10 @@
 
         if ($('.video_active').length < 1) {
             if (portal.chat.expanded) {
-                $(portal.chat.domSelectors.pcChatContent).show();
+                $(portal.chat.domSelectors.pcChatContent).removeClass('is-hidden');
                 portal.chat.toggleChat();
             }
-            $(portal.chat.domSelectors.pcChatLocalVideoContent).hide();
+            $(portal.chat.domSelectors.pcChatLocalVideoContent).addClass('is-hidden');
         }
     };
 
@@ -529,7 +529,7 @@
 
     $(document).ready(function () {
 
-        $('#pc_video_off_checkbox').click( function () {
+        $(portal.chat.domSelectors.pcVideoOffCheckOff).click( function () {
 
             if ($(this).prop('checked')) {
                 portal.chat.setSetting('videoOff', true, /* localStorage */ true);
