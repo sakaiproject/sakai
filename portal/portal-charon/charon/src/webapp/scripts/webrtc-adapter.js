@@ -156,7 +156,7 @@
                     if (secs < 10) secs = '0' + secs;
     
                     var formattedDuration = hours + ":" + mins + ":" + secs;  
-                    $('#pc_connection_' + peerUUID + '_time').html(formattedDuration);
+                    $(portal.chat.domSelectors.pcChatVideoTimePre + peerUUID).html(formattedDuration);
                 });
             }, 1000);
     }; // init
@@ -361,7 +361,7 @@
     };
     
     /**
-     * Use this helper function to hook the media stream to a especified element
+     * Use this helper function to hook the media stream to a specified element
      */
     portal.chat.video.webrtc.attachMediaStream = function (element, stream) {
     
@@ -653,10 +653,10 @@
             
         video.setVideoStatus(peerUUID, video.messages.pc_video_status_user_hung, "finished");
         video.doClose(peerUUID);
-        $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').hide();
-        $('#pc_connection_' + peerUUID + '_videoin').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
     };
     
     /** 

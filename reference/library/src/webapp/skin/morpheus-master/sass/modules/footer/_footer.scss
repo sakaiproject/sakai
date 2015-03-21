@@ -94,6 +94,22 @@
   }
 }
 
+#Mrphs- {
+  
+&footerApp {
+    font-size: .9em;
+    position: fixed;
+    right: 18px;
+    bottom: 0;
+    line-height: 1.2em;
+    text-align: center;
+    padding: 0;
+    z-index: 9999;
+    background: $footer__footerApp_background;
+  }
+
+}
+
 //@include respond-to('narrow navigation') {
 //
 //  .footer {
