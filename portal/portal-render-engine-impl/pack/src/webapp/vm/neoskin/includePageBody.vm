@@ -313,7 +313,7 @@
 		<span id="avatarPermitted" class="skip"></span>
 	#end
             <div id="pc" tabindex="-1">
-		<div id="pc_title">${rloader.pc_title}<div id="pc_title_close"><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt=""/></a></div></div>
+			<div id="pc_title">${rloader.pc_title}<div id="pc_title_close"><a href="#" id="pc_chat_close" title="${rloader.pc_chat_close}"><span class="skip">${rloader.pc_chat_close}</span><img src="/library/image/silk/cross.png" alt=""/></a></div></div>
 			#if ( $neoChatVideo )
 				<div id="pc_chat_local_video_content" class="pc_chat_video_local" data-video="0">
 					<video id="pc_chat_local_video" class="pc_chat_video_min" autoplay muted="true"></video>
@@ -432,22 +432,22 @@
 					</a>
                 </div>
                 #if ( $neoChatVideo )
-				<div id="pc_connection_${uuid}_videochat_bar" class="pc_connection_videochat_bar">
+				<div id="pc_connection_videochat_bar_${uuid}" class="pc_connection_videochat_bar">
 					<div class="pc_connection_videochat_bar_left">
 						<a href="javascript:;" onclick="return portal.chat.video.openVideoCall('${uuid}',false);" class="video_off video_button video_call" title="${rloader.pc_video_do_videocall_title}" ></a>
 						<a href="javascript:;" onclick="return portal.chat.video.closeVideoCall('${uuid}',true);" class="video_on video_button video_close" title="${rloader.pc_video_end_title}" ></a>
 						<a href="javascript:;" onclick="return portal.chat.video.maximizeVideoCall('${uuid}');" class="video_on video_button video_maxi" title="${rloader.pc_video_maximize_title}" ></a>
 					</div>
-					<div id="pc_connection_${uuid}_videoin" class="pc_connection_videochat_bar_answer">
+					<div id="pc_connection_videoin_${uuid}" class="pc_connection_videochat_bar_answer">
 						<a href="javascript:;" onclick="return portal.chat.video.acceptVideoCall('${uuid}');" class="video_button video_call" title="${rloader.pc_video_accept_title}"></a>
 						<a href="javascript:;" onclick="return portal.chat.video.ignoreVideoCall('${uuid}');" class="video_button video_close" title="${rloader.pc_video_ingnore_title}"></a>
 						<span>${rloader.pc_video_askforincoming}</span>
 					</div>
-					<div id="pc_connection_${uuid}_videotime" class="pc_connection_videochat_bar_right">
-						<span id="pc_connection_${uuid}_time">00:00</span>
+					<div id="pc_connection_videotime_${uuid}" class="pc_connection_videochat_bar_right">
+						<span id="pc_connection__time_${uuid}">00:00</span>
 					</div>
                 </div>
-				<div id="pc_chat_${uuid}_video_content" class="pc_chat_video_content">
+				<div id="pc_chat_video_content_${uuid}" class="pc_chat_video_content">
 					<div style="display:none;" class="pc_chat_video_statusbar"><span></span></div>
 					<div style="display:none;" class="statusElement pc_chat_video_failed" ><span>:(</span></div>
 					<div style="display:none;" class="statusElement pc_chat_video_finished" ></div>
@@ -462,7 +462,7 @@
 					</div>
 					
 					<div stye="display:none;" class="statusElement pc_chat_video_remote">
-						<video id="pc_chat_${uuid}_remote_video" class="pc_chat_video" autoplay >
+						<video id="pc_chat_remote_video_${uuid}" class="pc_chat_video" autoplay >
 						</video>
 					</div>
 
@@ -470,8 +470,8 @@
 
 				</div>
 				#end
-                <div id="pc_connection_chat_${uuid}_content" class="pc_connection_chat_content">
-                    <ul id="pc_connection_chat_${uuid}_messages" class="pc_message_panel"></ul>
+                <div id="pc_connection_chat_content_${uuid}" class="pc_connection_chat_content">
+                    <ul id="pc_connection_chat_messages_${uuid}" class="pc_message_panel"></ul>
                     <div class="pc_editor_wrapper"><input type="text" id="pc_editor_for_${uuid}" class="pc_editor" alt="" title="${rloader.pc_editor_tooltip}"/></div>
                 </div>
             -->
