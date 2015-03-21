@@ -4,7 +4,7 @@ GEM
     breakpoint (2.5.0)
       sass (~> 3.3)
       sassy-maps (< 1.0.0)
-    chunky_png (1.3.3)
+    chunky_png (1.3.4)
     color-schemer (0.2.8)
       compass-blend-modes (~> 0.0.2)
     compass (1.0.1)
@@ -16,7 +16,7 @@ GEM
       sass (>= 3.3.13, < 3.5)
     compass-blend-modes (0.0.2)
       compass
-    compass-core (1.0.1)
+    compass-core (1.0.3)
       multi_json (~> 1.0)
       sass (>= 3.3.0, < 3.5)
     compass-import-once (1.0.5)
