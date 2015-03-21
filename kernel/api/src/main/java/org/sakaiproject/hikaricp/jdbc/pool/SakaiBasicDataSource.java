@@ -136,6 +136,15 @@ public class SakaiBasicDataSource extends HikariDataSource
         this.driverClassName = driverClassName;
     }
 
+    //validationQuery in Hikari is called connectionTestQuery, map to it
+    public String getValidationQuery() {
+        return super.getConnectionTestQuery();
+    }
+
+    public void setValidationQuery(String validationQuery) {
+        super.setConnectionTestQuery(validationQuery);
+    }
+
     /**
      * @exception SQLException
      *            if the object pool cannot be created.
