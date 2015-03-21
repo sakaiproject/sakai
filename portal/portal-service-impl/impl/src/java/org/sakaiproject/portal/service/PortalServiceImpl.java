@@ -76,12 +76,6 @@ public class PortalServiceImpl implements PortalService
 	 */
 	public static final String PARM_STATE_RESET = "sakai.state.reset";
 
-	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
-	
-	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "";
-	
-	private static String portalSkinPrefix;
-
 	private Map<String, PortalRenderEngine> renderEngines = new ConcurrentHashMap<String, PortalRenderEngine>();
 
 	private Map<String, Map<String, PortalHandler>> handlerMaps = new ConcurrentHashMap<String, Map<String, PortalHandler>>();
@@ -127,10 +121,6 @@ public class PortalServiceImpl implements PortalService
 				log.error("Failed to configure Castor", ex);
 			}
 			
-			portalSkinPrefix = serverConfigurationService.getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
-			if (portalSkinPrefix == null) {
-				portalSkinPrefix = "";
-			}
 		}
 		catch (Exception ex)
 		{
@@ -625,7 +615,7 @@ public class PortalServiceImpl implements PortalService
 	}
 	
 	public String getSkinPrefix() {
-		return portalSkinPrefix;
+		return "";
 	}
 
 

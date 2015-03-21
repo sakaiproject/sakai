@@ -1,6 +1,0 @@
-#parse("/vm/neoskin/includeStandardHead.vm")
-<body class="portalBody">
-#parse("/vm/neoskin/includeToolBody.vm")
-#parse("/vm/neoskin/includePortalJavaScript.vm")
-</body>
-</html>

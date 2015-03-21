@@ -19,6 +19,9 @@ Brief overview of how it works on OS X. This document will eventually be the bas
 ### Sakai Properties Variables
 To get started and set MORPHEUS as add these to your `sakai.properties`
 
+Note: These property values are the default for the trunk of Sakai and 
+should no longer be needed.
+
 ```   
 portal.templates=morpheus
 portal.neoprefix=
