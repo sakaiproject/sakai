@@ -105,7 +105,7 @@ public class ToolUtils
 	 * @param <code>page</code>
 	 *		The page
 	 * @param <code>portalPrefix</code>
-	 *		The controlling portal.  Typically "portal" or "pda".  No slashes should be included
+	 *		The controlling portal.  Typically "site".  No slashes should be included
 	 */
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page, String portalPrefix)
 	{
@@ -122,7 +122,7 @@ public class ToolUtils
 	 * @param <code>page</code>
 	 *		The page
 	 * @param <code>portalPrefix</code>
-	 *		The controlling portal.  Typically "portal" or "pda".  No slashes should be included
+	 *		The controlling portal.  Typically "site".  No slashes should be included
 	 * @param <code>reset</code>
 	 *		Should we reset the tool as part of this GET reference (typically true)
 	 * @param <code>effectiveSiteId</code>
