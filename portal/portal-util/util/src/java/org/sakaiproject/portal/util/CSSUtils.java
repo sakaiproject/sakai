@@ -28,9 +28,6 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 public class CSSUtils
 {
 
-	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
-	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "";
-
 	/**
 	 * Returns a URL for the tool_base.css suitable for putting in an href= field.
 	 *
@@ -57,13 +54,6 @@ public class CSSUtils
 			skinFolder = ServerConfigurationService.getString("skin.default");
 			if ( skinFolder == null ) skinFolder = ""; // Not likely - not good if it happens
 		}
-
-		String prefix = ServerConfigurationService.getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
-		if (prefix == null) prefix = "";
-
-		String templates = ServerConfigurationService.getString("portal.templates", "morpheus");
-
-		if ( "neoskin".equals(templates) && !skinFolder.startsWith(prefix) ) skinFolder = prefix + skinFolder;
 		return skinFolder;
 	}
 
