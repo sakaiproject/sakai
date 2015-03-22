@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.business;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -27,6 +28,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.business.model.GbGroupType;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
@@ -36,6 +39,7 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -451,22 +455,46 @@ public class GradebookNgBusinessService {
 		 
 	}
 	
+	
 	/**
-	 * Get a list of sections
-	 * 
+	 * Get a list of sections and groups in a site
 	 * @return
 	 */
-	public List<Section> getSiteSections() {
+	public List<GbGroup> getSiteSectionsAndGroups() {
 		String siteId = this.getCurrentSiteId();
 		
+		List<GbGroup> rval = new ArrayList<>();
+		
+		//get sections
 		try {
 			Set<Section> sections = courseManagementService.getSections(siteId);
-			return new ArrayList<Section>(sections);
+			for(Section section: sections){
+				rval.add(new GbGroup(section.getEid(), section.getTitle(), GbGroupType.SECTION));
+			}
 		} catch (IdNotFoundException e) {
-			//if not a course site or no sections
-			return Collections.emptyList();
+			//not a course site or no sections, ignore
 		}
 		
+		//get groups
+		try {			
+			Site site = siteService.getSite(siteId);
+			Collection<Group> groups = site.getGroups();
+
+			for(Group group: groups) {
+				rval.add(new GbGroup(group.getId(), group.getTitle(), GbGroupType.GROUP));
+			}
+		} catch (IdUnusedException e) {
+			//essentially ignore and use what we have
+			log.error("Error retrieving groups", e);
+		}
+		
+		Collections.sort(rval);
+		
+		//add the default ALL (this is a UI thing, it might not be appropriate here)
+		//TODO also need to internationalse ths string
+		rval.add(0, new GbGroup(null, "All Groups/Sections", GbGroupType.ALL));
+		
+		return rval;
 		
 	}
 	
@@ -474,6 +502,7 @@ public class GradebookNgBusinessService {
 	 * Get a list of section memberships for the users in the site
 	 * @return
 	 */
+	/*
 	public List<String> getSectionMemberships() {
 		
 		List<Section> sections = getSiteSections();
@@ -495,6 +524,7 @@ public class GradebookNgBusinessService {
 		return null;
 		
 	}
+	*/
 	
 	
 	/**

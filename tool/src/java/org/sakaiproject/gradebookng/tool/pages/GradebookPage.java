@@ -14,6 +14,8 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolb
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
@@ -23,21 +25,14 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.gradebookng.business.StudentSortOrder;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
-import org.sakaiproject.gradebookng.tool.panels.SectionColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-
-//import com.inmethod.grid.DataProviderAdapter;
-//import com.inmethod.grid.IGridColumn;
-//import com.inmethod.grid.column.AbstractColumn;
-//import com.inmethod.grid.column.PropertyColumn;
-//import com.inmethod.grid.datagrid.DataGrid;
-//import com.inmethod.grid.datagrid.DefaultDataGrid;
 
 /**
  * Grades page
@@ -54,16 +49,42 @@ public class GradebookPage extends BasePage {
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
-		disableLink(this.gradebookPageLink);
-		
-		String currentUserUuid = this.businessService.getCurrentUserUuid();
-		
+		disableLink(this.gradebookPageLink);		
 		
 		form = new Form<Void>("form");
 		add(form);
 		
 		
 		form.add(new AddGradeItemButton("addGradeItem"));
+		
+		//section and group dropdown
+        final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+        
+		DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", groups, new ChoiceRenderer<GbGroup>() {
+			
+			private static final long serialVersionUID = 1L;
+			
+			@Override
+			public Object getDisplayValue(GbGroup g) {
+				return g.getTitle();
+			}
+			
+			@Override
+			public String getIdValue(GbGroup g, int index) {
+				return g.getId();
+			}
+			
+		});
+		
+		//TODO need to subclass the DDC to add the selectionchanged listener
+		
+		groupFilter.setVisible(!groups.isEmpty());
+		groupFilter.setModel(new Model<GbGroup>()); //TODO update this so its aware of the currently selected filter. Maybe the form needs to maintain state and have this as a param?
+		groupFilter.setDefaultModelObject(groups.get(0)); //TODO update this
+		groupFilter.setNullValid(false);
+		form.add(groupFilter);
+		
+		
 		
 		addGradeItemWindow = new AddGradeItemWindow("addGradeItemWindow");
 		form.add(addGradeItemWindow);
@@ -74,9 +95,6 @@ public class GradebookPage extends BasePage {
         
         //get the grade matrix
         final List<StudentGradeInfo> grades = businessService.buildGradeMatrix();
-        
-        //get the list of sections
-        final List<Section> sections = this.businessService.getSiteSections();
         
         final ListDataProvider<StudentGradeInfo> studentGradeMatrix = new ListDataProvider<StudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
@@ -102,32 +120,6 @@ public class GradebookPage extends BasePage {
         
         cols.add(studentNameColumn);
         
-        
-        
-        //section column (only rendered if we have sections)
-      
-        if(!sections.isEmpty()){
-	        AbstractColumn sectionColumn = new AbstractColumn(new ResourceModel("column.header.section")) {
-	
-	        	@Override
-	        	public Component getHeader(String componentId) {
-	        		SectionColumnHeaderPanel panel = new SectionColumnHeaderPanel(componentId, sections);
-					return panel;
-	        		
-	        	}
-
-				@Override
-				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-					cellItem.add(new EmptyPanel(componentId)); //TODO
-				}
-					
-	        };
-	        
-	        cols.add(sectionColumn);
-        }
-       
-        
-        
         // pull from the studentgrades model
         cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade"));
         
@@ -141,7 +133,7 @@ public class GradebookPage extends BasePage {
 
             	@Override
             	public Component getHeader(String componentId) {
-            		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, assignment);
+            		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, new Model<Assignment>(assignment));
     				return panel;
             	}
 
@@ -172,15 +164,7 @@ public class GradebookPage extends BasePage {
         table.addTopToolbar(new HeadersToolbar(table, null));
         table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
         form.add(table);
-       
-        
-        
-	
-		//testing the save and load
-		//GradebookUserPreferences prefs = new GradebookUserPreferences(currentUserUuid);
-		//prefs.setSortOrder(3);
-		//this.businessService.saveUserPrefs(prefs);
-				
+       		
 	}
 	
 	/**
@@ -210,6 +194,8 @@ public class GradebookPage extends BasePage {
 	 *
 	 */
 	private class AddGradeItemWindow extends ModalWindow {
+
+		private static final long serialVersionUID = 1L;
 
 		public AddGradeItemWindow(String componentId) {
 			super(componentId);
