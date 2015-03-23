@@ -665,6 +665,8 @@ function GradebookHeaderCell($cell, gradebookSpreadsheet) {
   this.$cell = $cell;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.setColumnKey();
+
+  this.truncateTitle();
 };
 
 
@@ -693,6 +695,29 @@ GradebookHeaderCell.prototype.setColumnKey = function() {
 
   return columnKey;
 }
+
+
+GradebookHeaderCell.prototype.truncateTitle = function() {
+  var self = this;
+
+  if (self.$cell.hasClass("gb-grade-item-header")) {
+    var $title = self.$cell.find(".gb-title");
+    var targetHeight = $title.height();
+    if ($title[0].scrollHeight > targetHeight) {
+      var $titleText = $title.find("span[title]");
+      var words = $titleText.text().split(" ");
+
+      while (words.length > 1) {
+        words = words.slice(0, words.length - 1); // drop a word
+        $titleText.html(words.join(" ") + "&hellip;");
+        if ($title[0].scrollHeight <= targetHeight) {
+          break;
+        }
+      }
+    }
+
+  }
+};
 
 
 /**************************************************************************************
