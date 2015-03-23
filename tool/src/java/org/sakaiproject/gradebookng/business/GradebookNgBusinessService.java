@@ -52,6 +52,9 @@ import org.sakaiproject.user.api.UserDirectoryService;
 /**
  * Business service for GradebookNG
  * 
+ * This is not designed to be consumed outside of the application or supplied entityproviders. 
+ * Use at your own risk.
+ * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
@@ -77,6 +80,8 @@ public class GradebookNgBusinessService {
 	private CourseManagementService courseManagementService;
 	
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
+	public static final String PREFS_PROP_PREFIX = "gbng_prefs_";
+
 	
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -156,6 +161,7 @@ public class GradebookNgBusinessService {
 	 * @param siteId the siteId
 	 * @return a list of assignments or null if no gradebook
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Assignment> getGradebookAssignments(String siteId) {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
@@ -225,41 +231,48 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
-	
-		
 	/**
-	 * Get a map of course grades for the users in the site, using a grade override preferentially over a calculated one
+	 * Get a map of course grades for all users in the site, using a grade override preferentially over a calculated one
 	 * key = uuid
 	 * value = course grade
-	 * 
-	 * Note, could potentially change the Value to be an object to store a field that can show if its been overridden
 	 * 
 	 * @return the map of course grades for students, or an empty map
 	 */
 	public Map<String,String> getCourseGrades() {
+		return this.getCourseGrades(Collections.<String> emptyList());
+	}
+		
+	/**
+	 * Get a map of course grades for the specified users in the site, using a grade override preferentially over a calculated one
+	 * key = uuid
+	 * value = course grade
+	 * 
+	 * If the passed in list is empty, it returns all users that can be graded in the site
+	 * 
+	 * @param userUuids
+	 * @return the map of course grades for students, or an empty map
+	 */
+	@SuppressWarnings("unchecked")
+	public Map<String,String> getCourseGrades(List<String> userUuids) {
+		
+		Map<String,String> courseGrades = new HashMap<>();
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook != null) {
 			
-			//get course grades and use entered grades preferentially, if they exist
-	        Map<String, String> courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid()); 
-	        Map<String, String> enteredGrades = gradebookService.getEnteredCourseGrade(gradebook.getUid());
-	          
-	        Iterator<String> gradeOverrides = enteredGrades.keySet().iterator();
-	        while(gradeOverrides.hasNext()) {
-	        	String username = gradeOverrides.next();
-	        	String override = enteredGrades.get(username);
-	        	
-	        	if(StringUtils.isNotBlank(override)) {
-	        		courseGrades.put(username, override);
-	        	}
-	        }
-	        
-	        return courseGrades;
+			//get course grades. THis new method for Sakai 11 does the override automatically
+			courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid());
 		}
 		
-		return Collections.emptyMap();
+		//only keep the ones for the provided students
+		if(!userUuids.isEmpty()) {
+			courseGrades.entrySet().retainAll(userUuids);
+		}
+		
+		return courseGrades;
 	}
+	
+	
 	
 	/**
 	 * Save the grade for a student's assignment
@@ -311,71 +324,36 @@ public class GradebookNgBusinessService {
 	 * Build the matrix of assignments, students and grades
 	 * 
 	 * In the future this can be expanded to be given a list of students so we can do scrolling
+	 * 
+	 * @param assignments list of assignments
 	 * @return
 	 */
-	public List<StudentGradeInfo> buildGradeMatrix() {
-		
-		List<User> students = this.getGradeableUsers();
-		List<Assignment> assignments = this.getGradebookAssignments();
-		
-		Map<String,String> courseGrades = this.getCourseGrades();
-		
-		//NOTES:
-		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
-		
-		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
-		
-		Gradebook gradebook = this.getGradebook();
-		if(gradebook == null) {
-			return null;
-		}
-		
-		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
-		//however the logic needs to be reworked so we can capture the user info
-		//currently storing the full grade definition too, this may be unnecessary
-		//NOT a high priority unless performance issue deems it to be
-		
-		//TODO getGradeBookAssignments automatically sorts the list. check front end doesnt rely on it.
-		
-		for(User student: students) {
-			
-			StudentGradeInfo sg = new StudentGradeInfo(student);
-			
-			//add the assignment grades
-			for(Assignment assignment: assignments) {
-				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
-				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
-			}
-			
-			//add the course grade
-			sg.setCourseGrade(courseGrades.get(student.getId()));
-			
-			//add the section info
-			//this.courseManagementService.getSe
-			
-			rval.add(sg);
-			
-		}
-		return rval;
-		
+	public List<StudentGradeInfo> buildGradeMatrix(List<Assignment> assignments) {
+		return this.buildGradeMatrix(assignments, Collections.<String> emptyList());
 	}
 	
-	public List<StudentGradeInfo> buildGradeMatrix(List<String> userUuids) {
-		
-		List<User> students = this.getGradeableUsers();
-		List<Assignment> assignments = this.getGradebookAssignments();
-		
-		Map<String,String> courseGrades = this.getCourseGrades();
-		
-		//NOTES:
-		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
-		
-		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
+	/**
+	 * Build the matrix of assignments and grades for the given student uuids.
+	 * 
+	 * If the passed in list is empty, it returns all users that can be graded in the site
+	 * 
+	 * @param assignments
+	 * @param userUuids student uuids to get the data for
+	 * @return
+	 */
+	public List<StudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> userUuids) {
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
 			return null;
 		}
+		
+		List<User> students = this.getGradeableUsers(userUuids);
+				
+		Map<String,String> courseGrades = this.getCourseGrades(userUuids);
+				
+		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
+		
 		
 		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
 		//however the logic needs to be reworked so we can capture the user info
@@ -409,6 +387,9 @@ public class GradebookNgBusinessService {
 	
 	/**
 	 * Get the user prefs for this gradebook instance
+	 * 
+	 * CURRENTLY UNUSED
+	 * 
 	 * @param userUuid
 	 * @return
 	 */
@@ -420,7 +401,7 @@ public class GradebookNgBusinessService {
 			Site site = siteService.getSite(siteId);
 			
 			ResourceProperties props = site.getProperties();
-			String xml = (String) props.get(GradebookUserPreferences.getPropKey(userUuid));
+			String xml = (String) props.get(PREFS_PROP_PREFIX + userUuid);
 			
 			GradebookUserPreferences prefs = (GradebookUserPreferences) XmlMarshaller.unmarshall(xml);
 			return prefs;
@@ -437,6 +418,8 @@ public class GradebookNgBusinessService {
 	/**
 	 * Helper to save user prefs
 	 * 
+	 * CURRENTLY UNUSED
+	 * 
 	 * @param prefs
 	 */
 	public void saveUserPrefs (GradebookUserPreferences prefs) {
@@ -446,7 +429,7 @@ public class GradebookNgBusinessService {
 			Site site = siteService.getSite(siteId);
 			
 			ResourcePropertiesEdit props = site.getPropertiesEdit();
-			props.addProperty(GradebookUserPreferences.getPropKey(prefs.getUserUuid()), XmlMarshaller.marshal(prefs));
+			props.addProperty(PREFS_PROP_PREFIX + prefs.getUserUuid(), XmlMarshaller.marshal(prefs));
 			siteService.save(site);
 			
 		} catch (IdUnusedException | JAXBException | PermissionException e) {

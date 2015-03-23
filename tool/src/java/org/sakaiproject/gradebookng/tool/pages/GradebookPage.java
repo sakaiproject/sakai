@@ -1,7 +1,9 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -96,7 +98,7 @@ public class GradebookPage extends BasePage {
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
         
         //get the grade matrix
-        final List<StudentGradeInfo> grades = businessService.buildGradeMatrix();
+        final List<StudentGradeInfo> grades = businessService.buildGradeMatrix(assignments);
         
         final ListDataProvider<StudentGradeInfo> studentGradeMatrix = new ListDataProvider<StudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
@@ -113,7 +115,13 @@ public class GradebookPage extends BasePage {
         	@Override
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				StudentGradeInfo studentGradeInfo = (StudentGradeInfo) rowModel.getObject();
-				cellItem.add(new StudentNameCellPanel(componentId, studentGradeInfo.getStudentName(), studentGradeInfo.getStudentEid()));
+				
+				Map<String,String> modelData = new HashMap<>();
+				modelData.put("userId", studentGradeInfo.getStudentUuid());
+				modelData.put("eid", studentGradeInfo.getStudentEid());
+				modelData.put("name", studentGradeInfo.getStudentName());
+				
+				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
 				cellItem.add(new AttributeModifier("class", "gb-student-cell"));
 			}
@@ -123,7 +131,7 @@ public class GradebookPage extends BasePage {
         cols.add(studentNameColumn);
         
         // pull from the studentgrades model
-        cols.add(new PropertyColumn(new Model("Course Grade"), "courseGrade"));
+        cols.add(new PropertyColumn(new ResourceModel("column.header.coursegrade"), "courseGrade"));
         
         
         //build the rest of the columns based on the assignment list

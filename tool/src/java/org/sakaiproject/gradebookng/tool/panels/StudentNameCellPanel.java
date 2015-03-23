@@ -1,15 +1,19 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 
 /**
  * 
- * Cell panel for the student name and eid
+ * Cell panel for the student name and eid. Link shows the student grade summary
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -18,79 +22,74 @@ public class StudentNameCellPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
-	DetailsWindow detailsWindow;
+	String userId;
+	String eid;
+	String name;
+	GradeSummaryWindow detailsWindow;
+	
+	IModel<Map<String,String>> model;
 
-	public StudentNameCellPanel(String id, String name, String eid) {
-		super(id);
+	public StudentNameCellPanel(String id, IModel<Map<String,String>> model) {
+		super(id, model);
+		this.model = model;
+	}
+	
+	@SuppressWarnings("unchecked")
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
 		
-		//change this to be a model passed in wrapping the details for the student
-		
-		// also need to have the config passed in
+		//unpack model
+		Map<String,String> modelData = (Map<String,String>) this.model.getObject();
+		this.userId = modelData.get("userId");
+		this.eid = modelData.get("eid");
+		this.name = modelData.get("name");
 		
 		//link
-		add(new DetailsLink("link"));
+		AjaxLink link = new AjaxLink("link") {
+			
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				detailsWindow.show(target);
+				
+				//when this appears we want to alter the css so it is
+				//opacity: 0.8; 
+				//filter: alpha(opacity=80);  
+				
+				
+			}
+			
+		};
 		
-		//eid
-		add(new EidLabel("eid", eid));
-
+		//name label
+		link.add(new Label("name", name));
+		
+		//eid label, configurable
+		link.add(new Label("eid", eid){
+		
+			public boolean isVisible() {
+				return true; //TODO use config
+			}
+			
+		});
+		
+		add(link);
+		
 		//details window
-		detailsWindow = new DetailsWindow("details");
+		detailsWindow = new GradeSummaryWindow("details", this.model);
 		add(detailsWindow);
-		
-	}
-	
-	private class DetailsLink extends AjaxLink {
 
-		private static final long serialVersionUID = 1L;
-
-		public DetailsLink(String id) {
-			super(id);
-			
-			//TODO need a model passed in wrapping the details for the user
-			add(new Label("name", new Model<String>("123")));
-			
-		}
-
-		@Override
-		public void onClick(AjaxRequestTarget target) {
-			detailsWindow.show(target);
-			
-			//when this appears we want to alter the css so it is
-			//opacity: 0.8; 
-			//filter: alpha(opacity=80);  
-			
-			
-		}
-		
-	}
-	
-	/**
-	 * Label for showing a user's eid. Configurable.
-	 *
-	 */
-	private class EidLabel extends Label {
-
-		public EidLabel(String id, String label) {
-			super(id, label);
-
-		}
-		
-		public boolean isVisible() {
-			return true; //TODO use config
-		}
-		
 	}
 	
 	/**
 	 * Window for viewing a student's grades
 	 */
-	private class DetailsWindow extends ModalWindow {
+	private class GradeSummaryWindow extends ModalWindow {
 
-		public DetailsWindow(String componentId) {
+		public GradeSummaryWindow(String componentId, IModel<Map<String,String>> model) {
 			super(componentId);
 			
-			//TODO point to correct data
-			this.setContent(new AddGradeItemPanel(this.getContentId()));
+			this.setContent(new StudentGradeSummaryPanel(this.getContentId(), model));
 			this.setUseInitialHeight(false);
 
 		}
