@@ -19,9 +19,28 @@
   <form wicket:id="form">
     <p>
       <input type="button" wicket:id="addGradeItem" wicket:message="value:button.addgradeitem" />
+      
+      
     </p>
     <div wicket:id="addGradeItemWindow" />
     <div id="gradebookGrades">
+      <div id="gradebookGradesToolbar">
+        <ul>
+          <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
+          <li>
+            <button id="toggleGradeItemsToolbarItem">Show/Hide Items</button>
+          </li>
+          <li>
+            <button id="toggleCategoriesToolbarItem">Group By Category</button>
+          </li>
+          <li>
+            <select id="filterByGroup" wicket:id="groupFilter">
+              <option value="1">Section 1</option>
+              <option value="2">Section 2</option>
+            </select>
+          </li>
+        </ul>
+      </div>
       <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover"></table>
     </div>
   </form>

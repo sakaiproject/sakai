@@ -29,7 +29,11 @@
 #gradebookGrades th,
 #gradebookGrades td {
   padding: 6px;
-  min-width: 140px;
+  min-width: 180px;
+}
+#gradebookGrades th input[type='text'],
+#gradebookGrades th select {
+  width: 100%;
 }
 #gradebookGrades fieldset td {
   height: 2em;
@@ -42,12 +46,15 @@
  /* Table Header */
 #gradebookGrades th {
   vertical-align: top;
-  background: #FAFAFA;
+  background: #EEE;
   text-shadow: 1px 1px 0 #FFF;
   font-weight: normal;
 }
 #gradebookGrades th .gb-title {
   font-weight: bold;
+  max-height: 2.8em;
+  overflow: hidden;
+  line-height: 1.4em;
 }
 #gradebookGrades th .gb-average,
 #gradebookGrades th .gb-due-date {
@@ -108,6 +115,9 @@
   width: 100%;
   position: relative;
   height: auto; /* will be overriden by the javascript */
+}
+#gradebookGrades .gb-due-date {
+  margin-bottom: 1.2em;
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
@@ -172,6 +182,57 @@
 }
 #gradebookGrades .gb-flag-extra-credit:before {
   content: '\f0fe';
+}
+/* Toolbar */
+#gradebookGrades {
+  padding-top: 1.6em;
+}
+#gradebookGradesToolbar {
+  background: #FAFAFA;
+  font-size: 0.8em;
+  overflow: hidden;
+  padding: 0 0.4em;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  white-space: nowrap; /* don't wrap so it stays on one line */
+}
+#gradebookGradesToolbar ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  float: right;
+}
+#gradebookGradesToolbar li {
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: 4px;
+}
+#toggleGradeItemsToolbarItem:after {
+  font-family: 'gradebook-icons';
+  content: '\f078';
+  font-size: 0.9em;
+  margin-left: 6px
+}
+#toggleGradeItemsToolbarItem.on:after {
+  content: '\f077';
+}
+#toggleCategoriesToolbarItem:before {
+  font-family: 'gradebook-icons';
+  content: '\f096';
+  font-size: 0.9em;
+  margin-right: 6px
+}
+#toggleCategoriesToolbarItem.on {
+  background: #ded;
+  border-color: #9b9;
+}
+#toggleCategoriesToolbarItem.on:before {
+  content: '\f046';
+}
+#filterByGroup {
+  line-height: 1em;
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {

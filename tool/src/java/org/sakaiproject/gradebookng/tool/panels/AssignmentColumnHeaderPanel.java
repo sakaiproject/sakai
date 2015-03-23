@@ -7,6 +7,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.apache.wicket.AttributeModifier;
@@ -22,11 +23,24 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
+	private IModel<Assignment> modelData;
 
-	public AssignmentColumnHeaderPanel(String id, Assignment assignment) {
+	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
 		super(id);
 		
-		add(new Label("title", new Model<String>(assignment.getName())));
+		this.modelData = modelData;
+		
+	}
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+		
+		Assignment assignment = this.modelData.getObject();
+
+		Label assignmentTitle = new Label("title", new Model<String>(assignment.getName()));
+		assignmentTitle.add(new AttributeModifier("title", assignment.getName()));
+		add(assignmentTitle);
 		
 		WebMarkupContainer averageGradeSection = new WebMarkupContainer("averageGradeSection");
 		averageGradeSection.add(new Label("averagePoints", new Model("TODO")));

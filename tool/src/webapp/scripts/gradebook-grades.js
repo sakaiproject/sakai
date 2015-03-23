@@ -19,6 +19,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupFixedColumns();
   this.setupFixedTableHeader();
   this.setupColumnDragAndDrop();
+  this.setupToolbar();
 };
 
 
@@ -325,9 +326,9 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   self.$spreadsheet.prepend($fixedHeader);
 
   function positionFixedHeader() {
-    if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+    if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
       // don't change anything as we don't want the fixed header to scroll to below the table
-    } else if (self.$spreadsheet.offset().top < $(document).scrollTop()) {
+    } else if (self.$table.offset().top < $(document).scrollTop()) {
       $fixedHeader.
           show().
           css("top", $(document).scrollTop() - self.$spreadsheet.offset().top + "px").
@@ -420,21 +421,21 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   function positionFixedColumnHeader() {
     var showFixedHeader = false;
     var leftOffset = self.$spreadsheet[0].scrollLeft;
-    var topOffset = 0;
+    var topOffset = self.$table.offset().top - self.$spreadsheet.offset().top;
 
-    if (self.$spreadsheet[0].scrollLeft > 0 || self.$spreadsheet.offset().top < $(document).scrollTop()) {
+    if (self.$spreadsheet[0].scrollLeft > 0 || self.$table.offset().top < $(document).scrollTop()) {
       if (self.$spreadsheet[0].scrollLeft > 0) {
         showFixedHeader = true;
       }
 
-      if ($(document).scrollTop() + $fixedColumnsHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
+      if ($(document).scrollTop() + $fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
         // don't change anything as we don't want the fixed header to scroll to below the table
-        topOffset = $fixedColumnsHeader.css("top");
+        topOffset = $fixedColumnsHeader.offset().top;
         // except check for the horizontal scroll
         if (self.$spreadsheet[0].scrollLeft == 0) {
           showFixedHeader = true;
         }
-      } else if (self.$spreadsheet.offset().top < $(document).scrollTop()) {
+      } else if (self.$table.offset().top < $(document).scrollTop()) {
         topOffset = Math.max(0, $(document).scrollTop() - self.$spreadsheet.offset().top);
         showFixedHeader = true
       }
@@ -518,6 +519,11 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
       self.refreshFixedTableHeader(true)
     }
   });
+};
+
+
+GradebookSpreadsheet.prototype.setupToolbar = function() {
+  this.toolbarModel = new GradebookToolbar($("#gradebookGradesToolbar"), this);
 };
 
 
@@ -665,6 +671,8 @@ function GradebookHeaderCell($cell, gradebookSpreadsheet) {
   this.$cell = $cell;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.setColumnKey();
+
+  this.truncateTitle();
 };
 
 
@@ -692,6 +700,74 @@ GradebookHeaderCell.prototype.setColumnKey = function() {
   self.columnKey = columnKey;
 
   return columnKey;
+}
+
+
+GradebookHeaderCell.prototype.truncateTitle = function() {
+  var self = this;
+
+  if (self.$cell.hasClass("gb-grade-item-header")) {
+    var $title = self.$cell.find(".gb-title");
+    var targetHeight = $title.height();
+    if ($title[0].scrollHeight > targetHeight) {
+      var $titleText = $title.find("span[title]");
+      var words = $titleText.text().split(" ");
+
+      while (words.length > 1) {
+        words = words.slice(0, words.length - 1); // drop a word
+        $titleText.html(words.join(" ") + "&hellip;");
+        if ($title[0].scrollHeight <= targetHeight) {
+          break;
+        }
+      }
+    }
+
+  }
+};
+
+
+/**************************************************************************************
+ * GradebookToolbar - all the toolbar actions
+ */
+
+function GradebookToolbar($toolbar, gradebookSpreadsheet) {
+  this.$toolbar = $toolbar;
+  this.gradebookSpreadsheet = gradebookSpreadsheet;
+  this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
+  this.setupToolbarPositioning();
+  this.setupToggleGradeItems();
+  this.setupToggleCategories();
+}
+
+
+GradebookToolbar.prototype.setupToolbarPositioning = function() {
+  var self = this;
+
+  self.$spreadsheet.on("scroll", function(event) {
+    self.$toolbar.css("left", self.$spreadsheet[0].scrollLeft);
+  });
+};
+
+
+GradebookToolbar.prototype.setupToggleGradeItems = function() {
+  this.$toolbar.on("click", "#toggleGradeItemsToolbarItem", function(event) {
+    event.preventDefault();
+
+    $(this).toggleClass("on");
+
+    return false;
+  })
+};
+
+
+GradebookToolbar.prototype.setupToggleCategories = function() {
+  this.$toolbar.on("click", "#toggleCategoriesToolbarItem", function(event) {
+    event.preventDefault();
+
+    $(this).toggleClass("on");
+
+    return false;
+  })
 }
 
 
