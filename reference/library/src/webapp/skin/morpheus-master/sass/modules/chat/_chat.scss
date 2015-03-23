@@ -54,6 +54,10 @@
 				height: 100%;
 				overflow: hidden;
 				position: relative;
+				font-size: 0.9em;
+				 & a:hover{
+				 	border: 0px;
+				 }
 			}
 			
 			&__title{
@@ -121,7 +125,7 @@
 				  margin-left: 5px;
 				  text-decoration: none !important;
 				  height: 30px;
-				  width: 140px;
+				  width: 150px;
 				  float: left;
 				  &:hover{
 				  	text-decoration: none;
@@ -142,7 +146,11 @@
 			&__user--name{
   				float: left;
   				margin: 3px;
+  				width: 102px;
   				height: 30px;
+  				white-space: nowrap;
+  				overflow: hidden;
+  				text-overflow: ellipsis;
 			}
 
 			&__checkbox--options{
