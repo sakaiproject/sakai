@@ -113,7 +113,7 @@ public class GradeImportUploadStep extends Panel {
 
             for (StudentGradeInfo studentGradeInfo : grades) {
                 line.add(wrapText(studentGradeInfo.getStudentEid()));
-                line.add(wrapText(studentGradeInfo.getStudentName()));
+                line.add(wrapText(studentGradeInfo.getStudentDisplayName()));
                 if (includeGrades) {
                     for (Assignment assignment : assignments) {
                         GradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());

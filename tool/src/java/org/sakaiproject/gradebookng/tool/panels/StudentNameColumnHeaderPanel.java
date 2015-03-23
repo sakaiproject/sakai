@@ -16,7 +16,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.sakaiproject.gradebookng.business.StudentSortOrder;
+import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
 import org.sakaiproject.gradebookng.tool.model.StringModel;
 
 /**
@@ -30,14 +30,14 @@ public class StudentNameColumnHeaderPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
-	public StudentNameColumnHeaderPanel(String id, StudentSortOrder currentSortOrder) {
+	public StudentNameColumnHeaderPanel(String id, GbStudentSortType currentSortOrder) {
 		super(id);
 		
 		//title
 		add(new Label("title", new ResourceModel("column.header.students")));
 		
 		//get list of sort orders
-		List<StudentSortOrder> sortOrders = Arrays.asList(StudentSortOrder.values());
+		List<GbStudentSortType> sortOrders = Arrays.asList(GbStudentSortType.values());
 		
 		//TODO use the list to render the dropdown, changing the text as appropriate
 		

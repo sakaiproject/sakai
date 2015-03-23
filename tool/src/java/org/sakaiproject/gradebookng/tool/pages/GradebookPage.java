@@ -16,20 +16,18 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolb
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.gradebookng.business.StudentSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
@@ -109,17 +107,19 @@ public class GradebookPage extends BasePage {
 
         	@Override
         	public Component getHeader(String componentId) {
-        		return new StudentNameColumnHeaderPanel(componentId, StudentSortOrder.LAST_NAME);
+        		return new StudentNameColumnHeaderPanel(componentId, GbStudentSortType.LAST_NAME); //TODO this needs to come from somewhere, prefs maybe
         	}
         	
         	@Override
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
 				StudentGradeInfo studentGradeInfo = (StudentGradeInfo) rowModel.getObject();
 				
-				Map<String,String> modelData = new HashMap<>();
+				Map<String,Object> modelData = new HashMap<>();
 				modelData.put("userId", studentGradeInfo.getStudentUuid());
 				modelData.put("eid", studentGradeInfo.getStudentEid());
-				modelData.put("name", studentGradeInfo.getStudentName());
+				modelData.put("firstName", studentGradeInfo.getStudentFirstName());
+				modelData.put("lastName", studentGradeInfo.getStudentLastName());
+				modelData.put("sortType", GbStudentSortType.LAST_NAME); //TODO this needs to come from somewhere, prefs maybe
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));

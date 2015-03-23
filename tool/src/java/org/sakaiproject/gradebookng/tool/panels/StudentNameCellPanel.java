@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -9,7 +8,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.Model;
+import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
 
 /**
  * 
@@ -22,53 +21,54 @@ public class StudentNameCellPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
-	String userId;
-	String eid;
-	String name;
 	GradeSummaryWindow detailsWindow;
 	
-	IModel<Map<String,String>> model;
+	IModel<Map<String,Object>> model;
 
-	public StudentNameCellPanel(String id, IModel<Map<String,String>> model) {
+	public StudentNameCellPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);
 		this.model = model;
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		
 		//unpack model
-		Map<String,String> modelData = (Map<String,String>) this.model.getObject();
-		this.userId = modelData.get("userId");
-		this.eid = modelData.get("eid");
-		this.name = modelData.get("name");
+		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
+		String userId = (String) modelData.get("userId");
+		String eid = (String) modelData.get("eid");
+		String firstName = (String) modelData.get("firstName");
+		String lastName = (String) modelData.get("lastName");
+		GbStudentSortType sortType = (GbStudentSortType) modelData.get("sortType");
 		
 		//link
-		AjaxLink link = new AjaxLink("link") {
+		AjaxLink<String> link = new AjaxLink<String>("link") {
 			
+			private static final long serialVersionUID = 1L;
+
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				detailsWindow.show(target);
 				
+				//TODO
 				//when this appears we want to alter the css so it is
 				//opacity: 0.8; 
 				//filter: alpha(opacity=80);  
-				
-				
 			}
 			
 		};
 		
 		//name label
-		link.add(new Label("name", name));
+		link.add(new Label("name", getFormattedStudentName(firstName, lastName, sortType)));
 		
 		//eid label, configurable
 		link.add(new Label("eid", eid){
 		
+			private static final long serialVersionUID = 1L;
+
 			public boolean isVisible() {
-				return true; //TODO use config
+				return true; //TODO use config, will need to be passed in the model map
 			}
 			
 		});
@@ -86,7 +86,9 @@ public class StudentNameCellPanel extends Panel {
 	 */
 	private class GradeSummaryWindow extends ModalWindow {
 
-		public GradeSummaryWindow(String componentId, IModel<Map<String,String>> model) {
+		private static final long serialVersionUID = 1L;
+
+		public GradeSummaryWindow(String componentId, IModel<Map<String,Object>> model) {
 			super(componentId);
 			
 			this.setContent(new StudentGradeSummaryPanel(this.getContentId(), model));
@@ -94,6 +96,29 @@ public class StudentNameCellPanel extends Panel {
 
 		}
 		
+	}
+	
+	/**
+	 * Helper to format a student name based on the sort type.
+	 * 
+	 * Sorted by Last Name = Smith, John (jsmith26)
+   	 * Sorted by First Name = John Smith (jsmith26)
+   	 * 
+	 * @param firstName
+	 * @param lastName
+	 * @param sortType
+	 * @return
+	 */
+	private String getFormattedStudentName(String firstName, String lastName, GbStudentSortType sortType) {
+		
+		String msg = "formatter.studentname." + sortType.name();
+		if(GbStudentSortType.LAST_NAME == sortType) {
+			return String.format(getString(msg), lastName, firstName);
+		}
+		if(GbStudentSortType.FIRST_NAME == sortType) {
+			return String.format(getString(msg), firstName, lastName);
+		}
+		return firstName;
 	}
 	
 	

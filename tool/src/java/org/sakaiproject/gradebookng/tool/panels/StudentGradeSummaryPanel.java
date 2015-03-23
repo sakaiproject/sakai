@@ -35,7 +35,7 @@ public class StudentGradeSummaryPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 	
-	public StudentGradeSummaryPanel(String id, IModel<Map<String,String>> model) {
+	public StudentGradeSummaryPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);
 	}
 	
@@ -44,8 +44,8 @@ public class StudentGradeSummaryPanel extends Panel {
 		super.onInitialize();
 		
 		//unpack model
-		Map<String,String> modelData = (Map<String,String>) this.getDefaultModelObject();
-		String userId = modelData.get("userId");
+		Map<String,Object> modelData = (Map<String,Object>) this.getDefaultModelObject();
+		String userId = (String) modelData.get("userId");
 
 		//build the grade matrix for the user then iterate over it
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
@@ -57,7 +57,7 @@ public class StudentGradeSummaryPanel extends Panel {
         //List<IColumn> cols = new ArrayList<IColumn>();
 		
 		//add components
-				System.out.println(gradeInfo.getStudentName());
+		System.out.println(gradeInfo.getStudentDisplayName());
 				
 	}
 	
