@@ -6,16 +6,22 @@
 	
 	<div wicket:id="title" class="gb-title"></div>
 	
-	<select wicket:id="sortOrderList">
-  		<option value="1">Last Name</option>
-  		<option value="2">First Name</option>
-	</select>
-	
 	<div>
 		<form wicket:id="filterForm">
 			<input type="text" wicket:id="filter" wicket:message="placeholder:placeholder.students" />
 		</form>
 	</div>
+	
+	<!--  this comes from the wicket bootstrap module, needs to be sorted out. -->
+	<div class="btn-group">
+	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+	    	<span class="caret"></span>
+	    </a>
+	    <ul class="dropdown-menu dropdown-menu-right">
+	   		<li><a tabindex="1" href="#">Sort by Last Name</a></li>
+	   		<li><a tabindex="2" href="#">Sort by First Name</a></li>
+	    </ul>
+    </div>
 	
 </wicket:panel>
 </body>

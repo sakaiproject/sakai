@@ -39,46 +39,7 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		//get list of sort orders
 		List<StudentSortOrder> sortOrders = Arrays.asList(StudentSortOrder.values());
 		
-		//dropdown
-		DropDownChoice<StudentSortOrder> sortOrderList = new DropDownChoice<StudentSortOrder>("sortOrderList", sortOrders, new ChoiceRenderer<StudentSortOrder>() {
-			
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public Object getDisplayValue(StudentSortOrder o) {
-				return o.name();
-			}
-			
-			@Override
-			public String getIdValue(StudentSortOrder o, int index) {
-				return String.valueOf(o.getValue());
-			}
-			
-		});
-		
-		//TODO set the default one to the currently selected one
-		
-		add(sortOrderList);
-		/*		
-		//add the filter		
-		TextField<String> filter = new TextField<String>("filter", new Model(new StringModel()));
-		filter.setModel(new Model<String>());
-		
-		filter.add(new AjaxFormComponentUpdatingBehavior("onchange"){
-
-			@Override
-			protected void onUpdate(AjaxRequestTarget target) {
-				final Object value = getComponent().getDefaultModelObject();
-				
-				System.out.println("value:" + value);
-				
-			}
-			
-		});
-		
-		
-		add(filter);
-		*/
+		//TODO use the list to render the dropdown, changing the text as appropriate
 		
 		add(new FilterForm("filterForm"));
 		
