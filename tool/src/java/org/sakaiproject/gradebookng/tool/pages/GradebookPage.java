@@ -17,12 +17,14 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColu
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.gradebookng.business.StudentSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -164,7 +166,12 @@ public class GradebookPage extends BasePage {
         table.addTopToolbar(new HeadersToolbar(table, null));
         table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
         form.add(table);
-       		
+
+        // Populate the toolbar 
+        Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size(), assignments.size()));
+        gradeItemSummary.setEscapeModelStrings(false);
+        form.add(gradeItemSummary);
+
 	}
 	
 	/**
