@@ -41,6 +41,7 @@
 #gradebookGrades th input[type='text'],
 #gradebookGrades th select {
   width: 100%;
+  font-size: 0.8em;
 }
 #gradebookGrades fieldset td {
   height: 2em;
