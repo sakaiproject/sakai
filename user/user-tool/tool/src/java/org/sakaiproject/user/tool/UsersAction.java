@@ -90,6 +90,8 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.portal.util.PortalUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
+import java.text.MessageFormat;
+import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.util.PasswordCheck;
@@ -126,7 +128,11 @@ public class UsersAction extends PagedResourceActionII
 	private static final String CONFIG_VALIDATE_THROUGH_EMAIL = "validate-through-email";
 	private static final String STATE_SUCCESS_MESSAGE = "successMessage";
 
-    private static final String USER_TEMPLATE_PREFIX = "!user.template.";
+	// SAK-29182
+	private static final String SAK_PROP_INVALID_EMAIL_DOMAINS = "invalidEmailInIdAccountString";
+	private static final String SAK_PROP_INVALID_EMAIL_DOMAINS_CUSTOM_MESSAGE = "user.email.invalid.domain.message";
+
+	private static final String USER_TEMPLATE_PREFIX = "!user.template.";
 
 	/**
 	 * {@inheritDoc}
@@ -408,6 +414,15 @@ public class UsersAction extends PagedResourceActionII
 		return "_list";
 
 	} // buildListContext
+
+	/**
+	 * @author bjones86 - SAK-29182
+	 * @return a list of strings contained in the invalidEmailInIdAccountString sakai.property, or an empty list if not set
+	 */
+	private List<String> getInvalidEmailDomains()
+	{
+		return Arrays.asList( ArrayUtils.nullToEmpty( ServerConfigurationService.getStrings( SAK_PROP_INVALID_EMAIL_DOMAINS ) ) );
+	}
 
 	/**
 	 * Build the context for the new user mode.
@@ -1204,11 +1219,12 @@ public class UsersAction extends PagedResourceActionII
 	private boolean readUserForm(RunData data, SessionState state)
 	{
 		// boolean parameters and values
-		// --------------Mode--singleUser-createUser-typeEnable
-		// Admin New-----new---false------false------true
-		// Admin Update--edit--false------false------true
-		// Gateway New---null---false------true-------false
-		// Account Edit--edit--true-------false------false
+		// --------------Mode----singleUser-createUser-typeEnable
+		// Admin New-----new-----false------false------true
+		// Admin Update--edit----false------false------true
+		// Admin Delete--remove--false------false------false
+		// Gateway New---null----false------true-------false
+		// Account Edit--edit----true-------false------false
 
 		// read the form
 		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
@@ -1230,6 +1246,28 @@ public class UsersAction extends PagedResourceActionII
         String mode = (String) state.getAttribute("mode");
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
+
+		// SAK-29182 - enforce invalid domains when creating a user through Gateway -> New Account
+		boolean isEidEditable = isEidEditable( state );
+		if( createUser && !isEidEditable )
+		{
+			for( String domain : getInvalidEmailDomains() )
+			{
+				if( email.toLowerCase().endsWith( domain.toLowerCase() ) )
+				{
+					String defaultMsg = rb.getFormattedMessage( "email.invalid.domain", new Object[] { domain } );
+					String customMsg = ServerConfigurationService.getString( SAK_PROP_INVALID_EMAIL_DOMAINS_CUSTOM_MESSAGE, "" );
+					if( !customMsg.isEmpty() )
+					{
+						String institution = ServerConfigurationService.getString( "ui.institution", "" );
+						customMsg = new MessageFormat( customMsg, rb.getLocale() ).format( new Object[] { institution, domain }, new StringBuffer(), null ).toString();
+					}
+
+					addAlert( state, customMsg.isEmpty() ? defaultMsg : customMsg );
+					return false;
+				}
+			}
+		}
 
 		boolean typeEnable = false;
 		String type = null;
@@ -1342,7 +1380,7 @@ public class UsersAction extends PagedResourceActionII
 		if (user == null)
 		{
 			// make sure we have eid
-			if (isEidEditable(state))
+			if (isEidEditable)
 			{
 				if (eid == null)
 				{
