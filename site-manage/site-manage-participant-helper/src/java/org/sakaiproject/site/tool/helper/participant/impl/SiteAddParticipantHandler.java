@@ -47,6 +47,7 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.api.UserPermissionException;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
+import org.sakaiproject.util.PasswordCheck;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
@@ -57,26 +58,6 @@ import uk.org.ponder.messageutil.TargettedMessageList;
  *
  */
 public class SiteAddParticipantHandler {
-	
-	char[] LOWER_ALPHA_ARRAY =
-	{
-	        'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p',
-	        'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-	};
-	char[] UPPER_ALPHA_ARRAY = 
-	{
-			'A', 'B', 'C', 'E', 'F',
-	        'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-	        'W', 'X', 'Y', 'Z'
-	}; 
-	char[] NUMBER_ARRAY = 
-	{
-			'2', '3', '4', '5', '6', '7', '8', '9'
-	};
-	/*char[] SYMBOL_ARRAY = 
-	{
-			'!','@', '#', '$', '%', '^', '&', '*' 
-	};*/
 	
     /** Our log (commons). */
     private static Log M_log = LogFactory.getLog(SiteAddParticipantHandler.class);
@@ -722,7 +703,7 @@ public class SiteAddParticipantHandler {
 						if (lastName != null  && lastName.length() > 0)
 							uEdit.setLastName(entry.lastName);
 						
-						String pw = generatePassword();
+						String pw = PasswordCheck.generatePassword();
 						uEdit.setPassword(pw);
 
 						// and save
@@ -1262,37 +1243,6 @@ public class SiteAddParticipantHandler {
 		
 		// replace the original official account entry with eids from all matches.
 		officialAccountParticipant = officialAccountParticipant.replaceAll(officialAccount, eidsForAllMatches);
-	}
-	
-	/**
-	 * generate a 9 digit password. Chars are randomly picked from lower-case/upper-case alpha lists, a numerical list, and a symbol list
-	 * @return
-	 */
-	protected String generatePassword()
-	{
-		// set random password
-		int length = 9;
-		StringBuffer rndbuf = new StringBuffer(length);
-		for (int i = 0; i < length; ++i){
-			int chooseArray = (int) (4 * Math.random());
-		    switch (chooseArray) {
-		    	case 0: 
-		    		rndbuf.append(LOWER_ALPHA_ARRAY[(int) ( LOWER_ALPHA_ARRAY.length * Math.random())]);
-		    		break;
-		    	case 1:
-		    		rndbuf.append(UPPER_ALPHA_ARRAY[(int) ( UPPER_ALPHA_ARRAY.length * Math.random())]);
-		    		break;
-		    	case 2:
-		    		rndbuf.append(NUMBER_ARRAY[(int) ( NUMBER_ARRAY.length * Math.random())]);
-		    		break;
-		    	/*case 3:
-		    		rndbuf.append(SYMBOL_ARRAY[(int) ( SYMBOL_ARRAY.length * Math.random())]);
-		    		break;*/
-		    	default:
-		    		break;
-		    }
-		}
-		return rndbuf.toString();
 	}
 	
 	/**

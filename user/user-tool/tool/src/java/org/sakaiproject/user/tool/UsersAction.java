@@ -92,6 +92,7 @@ import org.sakaiproject.portal.util.PortalUtils;
 import au.com.bytecode.opencsv.CSVReader;
 import org.sakaiproject.accountvalidator.logic.ValidationLogic;
 import org.sakaiproject.accountvalidator.model.ValidationAccount;
+import org.sakaiproject.util.PasswordCheck;
 
 /**
  * <p>
@@ -1410,7 +1411,7 @@ public class UsersAction extends PagedResourceActionII
 				if (validateWithAccountValidator)
 				{
 					// the eid is their email address. The password is random
-					newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, generatePassword(), type, properties);
+					newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, PasswordCheck.generatePassword(), type, properties);
 					// Invoke AccountValidator to send an email to the user containing a link to a form on which they can set their name and password
 					ValidationLogic validationLogic = (ValidationLogic) ComponentManager.get(ValidationLogic.class);
 					validationLogic.createValidationAccount(newUser.getId(), ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT);
@@ -1545,47 +1546,6 @@ public class UsersAction extends PagedResourceActionII
 		}
 
 		return true;
-	}
-
-	// duplicates site-manage's SiteAddParticipantHandler.generatePassword()
-	protected String generatePassword()
-	{
-
-		char[] LOWER_ALPHA_ARRAY =
-		{
-			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p',
-			'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
-		};
-		char[] UPPER_ALPHA_ARRAY =
-		{
-			'A', 'B', 'C', 'E', 'F',
-			'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
-			'W', 'X', 'Y', 'Z'
-		};
-		char[] NUMBER_ARRAY =
-		{
-			'2', '3', '4', '5', '6', '7', '8', '9'
-		};
-		// set random password
-		int length = 9;
-		StringBuilder rndbld = new StringBuilder(length);
-		for (int i = 0; i < length; ++i){
-				int chooseArray = (int) (4 * Math.random());
-			switch (chooseArray) {
-				case 0:
-					rndbld.append(LOWER_ALPHA_ARRAY[(int) ( LOWER_ALPHA_ARRAY.length * Math.random())]);
-					break;
-				case 1:
-					rndbld.append(UPPER_ALPHA_ARRAY[(int) ( UPPER_ALPHA_ARRAY.length * Math.random())]);
-					break;
-				case 2:
-					rndbld.append(NUMBER_ARRAY[(int) ( NUMBER_ARRAY.length * Math.random())]);
-					break;
-				default:
-					break;
-			}
-		}
-		return rndbld.toString();
 	}
 	
 	/**

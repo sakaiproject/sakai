@@ -255,6 +255,64 @@ public class PasswordCheck {
 		log.debug("Range bad; min=" + min + ", max=" + max + ", length=" + length);
 		return false;
 	}
+
+	/**
+	 * Generate a 9 digit password. Chars are randomly picked from lower-case/upper-case alpha lists, a numerical list, and a symbol list.
+	 * 
+	 * NOTE: the following characters/numbers are not included in the algorithm likely due to the fact that they can be difficult to distinguish visually:
+	 * capitals D, O, numbers 1, 0, and lower case o, and l.
+	 * 
+	 * @return generated password
+	 */
+	public static String generatePassword()
+	{
+		return generatePassword(9);
+	}
 	
-	
+	/**
+	 * Generate a variable length password. Chars are randomly picked from lower-case/upper-case alpha lists, a numerical list, and a symbol list.
+	 * 
+	 * NOTE: the following characters/numbers are not included in the algorithm likely due to the fact that they can be difficult to distinguish visually:
+	 * capitals D, O, numbers 1, 0, and lower case o, and l.
+	 * 
+	 * @param passwordLength the length of password desired
+	 * @return generated password
+	 */
+	public static String generatePassword(int passwordLength)
+	{
+		char[] LOWER_ALPHA_ARRAY =
+		{
+			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'm', 'n', 'p',
+			'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'
+		};
+		char[] UPPER_ALPHA_ARRAY =
+		{
+			'A', 'B', 'C', 'E', 'F',
+			'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'U', 'V',
+			'W', 'X', 'Y', 'Z'
+		};
+		char[] NUMBER_ARRAY =
+		{
+			'2', '3', '4', '5', '6', '7', '8', '9'
+		};
+		// set random password
+		StringBuilder rndbld = new StringBuilder(passwordLength);
+		for (int i = 0; i < passwordLength; ++i){
+				int chooseArray = (int) (4 * Math.random());
+			switch (chooseArray) {
+				case 0:
+					rndbld.append(LOWER_ALPHA_ARRAY[(int) ( LOWER_ALPHA_ARRAY.length * Math.random())]);
+					break;
+				case 1:
+					rndbld.append(UPPER_ALPHA_ARRAY[(int) ( UPPER_ALPHA_ARRAY.length * Math.random())]);
+					break;
+				case 2:
+					rndbld.append(NUMBER_ARRAY[(int) ( NUMBER_ARRAY.length * Math.random())]);
+					break;
+				default:
+					break;
+			}
+		}
+		return rndbld.toString();
+	}
 }
