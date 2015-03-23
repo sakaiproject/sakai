@@ -492,7 +492,7 @@ public class GradebookNgBusinessService {
 		
 		//add the default ALL (this is a UI thing, it might not be appropriate here)
 		//TODO also need to internationalse ths string
-		rval.add(0, new GbGroup(null, "All Groups/Sections", GbGroupType.ALL));
+		rval.add(0, new GbGroup(null, "All Sections/Groups", GbGroupType.ALL));
 		
 		return rval;
 		
