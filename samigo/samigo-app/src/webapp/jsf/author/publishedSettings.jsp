@@ -106,7 +106,7 @@
         <h:outputLabel value="#{assessmentSettingsMessages.assessment_description}" rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}"/>
 
         <h:panelGrid rendered="#{publishedSettings.valueMap.description_isInstructorEditable==true}">
-           <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" >
+           <samigo:wysiwyg rows="100" columns="400" value="#{assessmentSettings.description}" hasToggle="yes" mode="author" >
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
         </h:panelGrid>
@@ -292,7 +292,7 @@
    <h:outputText escape="false" value="<h3> <a class=\"jqueryui-hideDivision\" href=\"#\"> #{assessmentSettingsMessages.heading_submission_message} </a> </h3><div>" />
     <h:panelGrid rendered="#{publishedSettings.valueMap.submissionMessage_isInstructorEditable==true}">
     <f:verbatim><div class="samigo-submission-message"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.submission_message}" /> <f:verbatim><br/></f:verbatim>
-        <samigo:wysiwyg rows="140" value="#{publishedSettings.submissionMessage}" hasToggle="yes" >
+        <samigo:wysiwyg rows="140" value="#{publishedSettings.submissionMessage}" hasToggle="yes" mode="author" >
          <f:validateLength maximum="4000"/>
         </samigo:wysiwyg>
        <f:verbatim></div></f:verbatim>

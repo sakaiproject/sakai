@@ -297,6 +297,16 @@
       </description>
     </attribute>
 
+	<attribute>
+      <name>mode</name>
+      <required>false</required>
+      <rtexprvalue>false</rtexprvalue>
+      <description>
+		  Mode that the wysiwyg runs in. Currently only author is treated special.
+      </description>
+    </attribute>
+
+
     <attribute>
       <name>rows</name>
       <required>false</required>

@@ -105,7 +105,7 @@
   
    <h:panelGrid>
    <samigo:wysiwyg
-     rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
+     rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
     <f:validateLength maximum="60000"/>
     <f:validator validatorId="finQuestionValidator"/>
    </samigo:wysiwyg>
@@ -140,11 +140,11 @@
 <f:verbatim> <div class="tier2"></f:verbatim>
   <h:panelGrid>
    <h:outputText value="#{authorMessages.correct_answer_opti}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
    <h:outputText value="#{authorMessages.incorrect_answer_op}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>

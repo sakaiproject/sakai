@@ -110,7 +110,7 @@
   <!-- WYSIWYG -->
    
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
      <f:validateLength minimum="1" maximum="60000"/>
    </samigo:wysiwyg>
 
@@ -180,7 +180,7 @@
 
   <!-- WYSIWYG -->
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
@@ -190,7 +190,7 @@
 
   <!-- WYSIWYG -->
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 

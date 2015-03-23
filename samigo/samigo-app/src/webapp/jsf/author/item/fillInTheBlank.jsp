@@ -97,7 +97,7 @@
   
    <h:panelGrid>
    <samigo:wysiwyg
-     rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
+     rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
     <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
@@ -165,14 +165,14 @@
   
   <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
    <h:outputText value="#{authorMessages.correct_answer_opti}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>
 
   <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '2') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '2'))}">
    <h:outputText value="#{authorMessages.incorrect_answer_op}" />
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>

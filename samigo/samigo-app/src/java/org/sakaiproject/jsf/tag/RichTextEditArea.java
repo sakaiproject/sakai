@@ -35,6 +35,7 @@ public class RichTextEditArea extends UIComponentTag
   private String rows;
   private String justArea;
   private String hasToggle;
+  private String mode;
   private String reset;
 
   public void setIdentity(String newIdentity)
@@ -96,6 +97,17 @@ public class RichTextEditArea extends UIComponentTag
   {
 	  return hasToggle;
   }
+
+  public void setMode(String mode)
+  {
+	  this.mode = mode;
+  }
+   
+  public String getMode()
+  {
+	  return mode;
+  }
+
   
   public void setReset(String newR)
   {
@@ -126,6 +138,7 @@ public class RichTextEditArea extends UIComponentTag
     setString(component, "rows", rows);
     setString(component, "justArea", justArea);
     setString(component, "hasToggle", hasToggle);
+    setString(component, "mode", mode);
     setString(component, "reset", reset);
 	}
 
@@ -138,6 +151,7 @@ public class RichTextEditArea extends UIComponentTag
     rows = null;
     justArea = null;
     hasToggle = null;
+    mode = null;
     reset = null;
   }
 
