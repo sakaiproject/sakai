@@ -65,7 +65,11 @@
 
 <div class="portletBody specialLink">
 	<ul class="navIntraTool actionToolBar">
+        #if("$!dropboxMode" == "true")
+		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site.dropbox")</a></span></li>
+        #else
 		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
+        #end
 		<li><span class="current">$tlang.getString('dav.webdav')</span></li>
 	</ul>
 	#if($menu)#toolbar($menu)#end
