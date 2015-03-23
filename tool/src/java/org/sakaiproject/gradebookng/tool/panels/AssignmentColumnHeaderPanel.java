@@ -37,8 +37,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		super.onInitialize();
 		
 		Assignment assignment = this.modelData.getObject();
-		
-		add(new Label("title", new Model<String>(assignment.getName())));
+
+		Label assignmentTitle = new Label("title", new Model<String>(assignment.getName()));
+		assignmentTitle.add(new AttributeModifier("title", assignment.getName()));
+		add(assignmentTitle);
 		
 		WebMarkupContainer averageGradeSection = new WebMarkupContainer("averageGradeSection");
 		averageGradeSection.add(new Label("averagePoints", new Model("TODO")));

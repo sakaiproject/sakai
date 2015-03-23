@@ -29,7 +29,11 @@
 #gradebookGrades th,
 #gradebookGrades td {
   padding: 6px;
-  min-width: 140px;
+  min-width: 180px;
+}
+#gradebookGrades th input[type='text'],
+#gradebookGrades th select {
+  width: 100%;
 }
 #gradebookGrades fieldset td {
   height: 2em;
@@ -48,6 +52,9 @@
 }
 #gradebookGrades th .gb-title {
   font-weight: bold;
+  max-height: 2.8em;
+  overflow: hidden;
+  line-height: 1.4em;
 }
 #gradebookGrades th .gb-average,
 #gradebookGrades th .gb-due-date {
@@ -108,6 +115,9 @@
   width: 100%;
   position: relative;
   height: auto; /* will be overriden by the javascript */
+}
+#gradebookGrades .gb-due-date {
+  margin-bottom: 1.2em;
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
