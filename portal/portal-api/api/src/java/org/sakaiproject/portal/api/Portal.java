@@ -119,23 +119,6 @@ public interface Portal
 	 */
 	public static final String PREFER_MAXIMIZE = "sakai:prefer-maximize";
 	
-	/** 
-	 * Parameter to signal that we should force the request back to the normal portal view
-	 * rather than the PDA portal view.
-	 */
-	public static final String FORCE_CLASSIC_REQ_PARAM = "force.classic";
-	
-	/**
-	 * Name of cookie that is set to signal what view we want
-	 * It is an abstract name to we can later set other preferred modes into same cookie if desired
-	 */
-	public static final String PORTAL_MODE_COOKIE_NAME = "sakai_portal_mode";
-	
-	/**
-	 * Value that this cookie will have if we are forcing classic mode
-	 */
-	public static final String FORCE_CLASSIC_COOKIE_VALUE = "classic";
-	
 	/**
 	 * Name of cookie that is set to signal that the user wants us to start minimized
 	 */
