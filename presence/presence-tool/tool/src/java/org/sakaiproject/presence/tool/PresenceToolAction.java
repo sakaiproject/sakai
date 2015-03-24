@@ -21,10 +21,7 @@
 
 package org.sakaiproject.presence.tool;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Vector;
+import java.util.*;
 
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -36,6 +33,8 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.cluster.api.ClusterService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.UsageSessionService;
@@ -66,6 +65,11 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 
 	protected static final String MODE_SERVERS = "servers";
 
+    protected ClusterService clusterService;
+
+	public PresenceToolAction() {
+		clusterService = (ClusterService) ComponentManager.get(ClusterService.class);
+	}
 	/**
 	 * Populate the state object, if needed.
 	 */
@@ -176,16 +180,19 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			template += ".servers-List";
 
 			// get the set of all servers with current presence
-			Map<String,List<UsageSession>> servers = UsageSessionService.getOpenSessionsByServer();
-			context.put("servers", servers);
+			Map<String,List<UsageSession>> session = UsageSessionService.getOpenSessionsByServer();
+			context.put("serverSessions", session);
 
-			List<String> serverList = new Vector<String>();
-			serverList.addAll(servers.keySet());
-			Collections.sort(serverList);
+			Map<String, ClusterService.Status>status = clusterService.getServerStatus();
+			context.put("serverStatus", status);
+
+			Set<String> serverList = new TreeSet<String>();
+			serverList.addAll(status.keySet());
+			serverList.addAll(session.keySet());
 			context.put("serverList", serverList);
 
 			int count = 0;
-			for (List<UsageSession> sessions : servers.values())
+			for (List<UsageSession> sessions : session.values())
 			{
 				count += sessions.size();
 			}
@@ -263,6 +270,15 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 		}
 
 	} // doAuto
+
+	public void doSwitch(RunData data, Context context)
+	{
+		// We look at the status in the request so that if someone else has changed the status
+		// of a node we don't switch it back.
+		String id = data.getParameters().getString("server_id");
+		String status = data.getParameters().getString("status");
+		clusterService.markClosing(id, !ClusterService.Status.CLOSING.toString().equals(status));
+	}
 
 	/**
 	 * The action for when the user want's an update
