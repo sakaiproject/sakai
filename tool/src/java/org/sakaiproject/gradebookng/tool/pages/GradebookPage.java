@@ -17,8 +17,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.form.ChoiceRenderer;
-import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -26,7 +24,6 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
@@ -58,34 +55,6 @@ public class GradebookPage extends BasePage {
 		
 		
 		form.add(new AddGradeItemButton("addGradeItem"));
-		
-		//section and group dropdown
-        final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
-        
-		DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", groups, new ChoiceRenderer<GbGroup>() {
-			
-			private static final long serialVersionUID = 1L;
-			
-			@Override
-			public Object getDisplayValue(GbGroup g) {
-				return g.getTitle();
-			}
-			
-			@Override
-			public String getIdValue(GbGroup g, int index) {
-				return g.getId();
-			}
-			
-		});
-		
-		//TODO need to subclass the DDC to add the selectionchanged listener
-		
-		groupFilter.setVisible(!groups.isEmpty());
-		groupFilter.setModel(new Model<GbGroup>()); //TODO update this so its aware of the currently selected filter. Maybe the form needs to maintain state and have this as a param?
-		groupFilter.setDefaultModelObject(groups.get(0)); //TODO update this
-		groupFilter.setNullValid(false);
-		form.add(groupFilter);
-		
 		
 		
 		addGradeItemWindow = new AddGradeItemWindow("addGradeItemWindow");

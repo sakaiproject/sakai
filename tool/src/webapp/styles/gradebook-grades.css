@@ -10,8 +10,15 @@
     font-weight:400;
     font-style:normal
 }
- 
- 
+
+/* Add Gradebook Item */
+.gb-add-gradebook-item-button:before {
+  font-family: "gradebook-icons";
+  content: "\f067";
+  vertical-align: text-bottom;
+  margin-right: 4px;
+}
+
 /* Container */
 #gradebookGrades {
   margin-top: 10px;
@@ -34,6 +41,7 @@
 #gradebookGrades th input[type='text'],
 #gradebookGrades th select {
   width: 100%;
+  font-size: 0.8em;
 }
 #gradebookGrades fieldset td {
   height: 2em;
@@ -84,6 +92,11 @@
 #gradebookGrades .btn.dropdown-toggle:hover,
 #gradebookGrades .btn.dropdown-toggle:focus {
   background-color: #DEF;
+}
+#gradebookGrades #gradebookGradesTable tfoot .gb-cell-inner {
+  /* ensure there's enough room at the bottom of the scrollable div
+     so that the bottom-most menus display without being cropped */
+  min-height: 40px;
 }
 /* Distinguish Fixed Columns */
 #gradebookGrades table tr > :nth-child(2) {

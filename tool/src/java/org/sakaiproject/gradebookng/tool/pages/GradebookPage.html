@@ -18,7 +18,7 @@
 <wicket:extend>
   <form wicket:id="form">
     <p>
-      <button wicket:id="addGradeItem">
+      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
       	 <wicket:message key="button.addgradeitem" />
       </button>
       
@@ -33,12 +33,6 @@
           </li>
           <li>
             <button id="toggleCategoriesToolbarItem">Group By Category</button>
-          </li>
-          <li>
-            <select id="filterByGroup" wicket:id="groupFilter">
-              <option value="1">Section 1</option>
-              <option value="2">Section 2</option>
-            </select>
           </li>
         </ul>
       </div>
