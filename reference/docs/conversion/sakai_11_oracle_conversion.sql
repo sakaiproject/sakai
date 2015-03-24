@@ -267,7 +267,7 @@ alter table GB_GRADEBOOK_T add COURSE_POINTS_DISPLAYED number(1,0) default '0' n
 -- SAK-27929 Add Dashboard to default !user site
 --
 
-INSERT INTO SAKAI_SITE_PAGE VALUES('!user-99', '!user', 'Dashboard', '1', 0, '0' );
+INSERT INTO SAKAI_SITE_PAGE VALUES('!user-99', '!user', 'Dashboard', '0', 0, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!user-999', '!user-99', '!user', 'sakai.dashboard', 1, 'Dashboard', NULL );
 
 -- SAK-25385
