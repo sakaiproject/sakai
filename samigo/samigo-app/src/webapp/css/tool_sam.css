@@ -498,9 +498,13 @@ a.hideDivision {
 }
 
 .mcAnswerText {
-	/*display:inline-table;*/
+	display:inline-table;
 	width: 80%;
 	float:unset;
+}
+/* Someone put a paragraph in a multiple choice answer */
+.mcAnswerText p {
+    margin: 0 0 1em 0;
 }
 
 .mcColumn1 {
