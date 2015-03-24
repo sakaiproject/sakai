@@ -15443,8 +15443,8 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 							}
 							
-							// release or not
-							if (sEdit.getGraded())
+							// release or not - If it's graded or if there were feedback comments provided
+							if (sEdit.getGraded() || (sEdit.getFeedbackComment() != null && !"".equals(sEdit.getFeedbackComment())))
 							{
 								sEdit.setGradeReleased(releaseGrades);
 								sEdit.setReturned(releaseGrades);
