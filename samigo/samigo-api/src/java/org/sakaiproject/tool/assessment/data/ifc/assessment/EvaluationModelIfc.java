@@ -39,7 +39,8 @@ public interface EvaluationModelIfc
   public static final Integer TO_DEFAULT_GRADEBOOK = Integer.valueOf(1);
   //public static Integer TO_SELECTED_GRADEBOOK = new Integer(2);  // this is confusing, we are using 2 for 'None' but the name is confusing, 
   public static final Integer NOT_TO_GRADEBOOK = Integer.valueOf(2);		// so now we added this new constant, SAK-7162
-  public static final Integer TO_SELECTED_GRADEBOOK = Integer.valueOf(3);  // not used, but leave it for now 
+  public static final Integer TO_SELECTED_GRADEBOOK = Integer.valueOf(3);  // not used, but leave it for now
+  public static final Integer TO_EXISTING_GRADEBOOK_ITEM = Integer.valueOf(4);
 
   // scoring type 
   public static final Integer HIGHEST_SCORE = Integer.valueOf(1);

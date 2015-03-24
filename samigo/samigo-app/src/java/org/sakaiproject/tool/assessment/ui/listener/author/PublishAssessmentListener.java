@@ -46,6 +46,7 @@ import javax.mail.internet.InternetAddress;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -195,6 +196,27 @@ public class PublishAssessmentListener
 
     try {
        assessment.addAssessmentMetaData("ALIAS", assessmentSettings.getAlias());
+       
+       /*
+        * If an assessment has been marked as to be linked to an existing empty gradebook item of the same name, we must:
+        * 	1. remove the existing item from gradebook
+        * 	2. change the assessment properties such that publishAssessment takes care of creating the new GB Item, etc. 
+        */
+       if(assessment.getEvaluationModel().getToGradeBook().equals(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM.toString())) {
+    	   try {
+	    	   if(gradebookItemAvailable(assessment.getTitle())) {
+	    		   GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	    		   String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+	    		   g.removeAssignment(g.getAssignment(gradebookUid, assessment.getTitle()).getId());
+	    		   assessment.getEvaluationModel().setToGradeBook(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK));
+	    	   }
+    	   } catch (Exception e) {
+    		   // we should change assessment properties and notify user here.
+    		   System.out.println("Failed removing existing GB item");
+    	   }
+       }
+       /* -------------- */
+       
        pub = publishedAssessmentService.publishAssessment(assessment);
        PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
        boolean sendNotification = publishRepublishNotification.getSendNotification();
@@ -269,7 +291,7 @@ public class PublishAssessmentListener
     }
     String toGradebook = assessment.getEvaluationModel().getToGradeBook();
     try{
-      if (toGradebook!=null && toGradebook.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString()) &&
+      if (toGradebook!=null && toGradebook.equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK)) &&
           gbsHelper.isAssignmentDefined(assessmentName, g)){
         error=true;
         String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
@@ -477,4 +499,22 @@ public class PublishAssessmentListener
 	  
 	  return message.toString();
   }
+  
+  /**
+   * Check if there still exist a gradebook item which has the same name as the assessment AND is not externally maitained (empty).
+   * @param pTitle
+   * @return
+   */
+  private boolean gradebookItemAvailable(String pTitle) {
+	  GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+	  String gradebookId = ToolManager.getInstance().getCurrentPlacement().getContext();
+	  List allGradebookItems = g.getAssignments(gradebookId);
+	  for(Object a : allGradebookItems) {
+		  org.sakaiproject.service.gradebook.shared.Assignment curGBItem = (org.sakaiproject.service.gradebook.shared.Assignment) a;
+		  if(!curGBItem.isExternallyMaintained() && curGBItem.getName().equals(pTitle)) return true;
+	  }
+	  return false;
+  }
+
+  
 }
