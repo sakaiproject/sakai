@@ -93,6 +93,11 @@
 #gradebookGrades .btn.dropdown-toggle:focus {
   background-color: #DEF;
 }
+#gradebookGrades #gradebookGradesTable tfoot .gb-cell-inner {
+  /* ensure there's enough room at the bottom of the scrollable div
+     so that the bottom-most menus display without being cropped */
+  min-height: 40px;
+}
 /* Distinguish Fixed Columns */
 #gradebookGrades table tr > :nth-child(2) {
   border-right: 2px solid #AAA;
