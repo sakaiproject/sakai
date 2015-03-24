@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.business;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -114,7 +115,11 @@ public class GradebookNgBusinessService {
 				}
 			}
 			
-			return userDirectoryService.getUsers(matchingUuids);
+			List<User> users = userDirectoryService.getUsers(matchingUuids);
+			
+			Collections.sort(users, new LastNameComparator()); //this needs to take into account the GbStudentSortType
+			return users;
+			
 		} catch (IdUnusedException e) {
 			return null;
 		}
@@ -231,42 +236,30 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 
-	/**
-	 * Get a map of course grades for all users in the site, using a grade override preferentially over a calculated one
-	 * key = uuid
-	 * value = course grade
-	 * 
-	 * @return the map of course grades for students, or an empty map
-	 */
-	public Map<String,String> getCourseGrades() {
-		return this.getCourseGrades(Collections.<String> emptyList());
-	}
+	
 		
 	/**
-	 * Get a map of course grades for the specified users in the site, using a grade override preferentially over a calculated one
-	 * key = uuid
+	 * Get a map of course grades for all users in the site, using a grade override preferentially over a calculated one
+	 * key = student eid
 	 * value = course grade
 	 * 
-	 * If the passed in list is empty, it returns all users that can be graded in the site
+	 * Note that his mpa is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
 	 * 
 	 * @param userUuids
 	 * @return the map of course grades for students, or an empty map
 	 */
 	@SuppressWarnings("unchecked")
-	public Map<String,String> getCourseGrades(List<String> userUuids) {
+	public Map<String,String> getSiteCourseGrades() {
 		
 		Map<String,String> courseGrades = new HashMap<>();
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook != null) {
 			
-			//get course grades. THis new method for Sakai 11 does the override automatically
+			//get course grades. THis new method for Sakai 11 does the override automatically, so GB1 data is preserved
+			//note that this DOES not have the course grade points earned because that is in GradebookManagerHibernateImpl
 			courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid());
-		}
-		
-		//only keep the ones for the provided students
-		if(!userUuids.isEmpty()) {
-			courseGrades.entrySet().retainAll(userUuids);
+						
 		}
 		
 		return courseGrades;
@@ -349,11 +342,11 @@ public class GradebookNgBusinessService {
 		}
 		
 		List<User> students = this.getGradeableUsers(userUuids);
-				
-		Map<String,String> courseGrades = this.getCourseGrades(userUuids);
+		
+		//because this map is based on eid not uuid, we do the filtering later so we can save an iteration
+		Map<String,String> courseGrades = this.getSiteCourseGrades();
 				
 		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
-		
 		
 		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
 		//however the logic needs to be reworked so we can capture the user info
@@ -371,7 +364,7 @@ public class GradebookNgBusinessService {
 			}
 			
 			//add the course grade
-			sg.setCourseGrade(courseGrades.get(student.getId()));
+			sg.setCourseGrade(courseGrades.get(student.getEid()));
 			
 			//add the section info
 			//this.courseManagementService.getSe
@@ -656,6 +649,26 @@ public class GradebookNgBusinessService {
     	return null;
     }
     */
+    
+    /**
+    * Comparator class for sorting a list of users by last name
+    */
+    class LastNameComparator implements Comparator<User> {
+	    @Override
+	    public int compare(User u1, User u2) {
+	    	return u1.getLastName().compareTo(u2.getLastName());
+	    }
+    }
+    
+    /**
+     * Comparator class for sorting a list of users by first name
+     */
+     class FirstNameComparator implements Comparator<User> {
+ 	    @Override
+ 	    public int compare(User u1, User u2) {
+ 	    	return u1.getFirstName().compareTo(u2.getFirstName());
+ 	    }
+     }
     
     
 }
