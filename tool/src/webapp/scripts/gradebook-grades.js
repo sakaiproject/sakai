@@ -346,8 +346,11 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
     $(document).scrollTop(self.$table.offset().top - 10);
     var $target = $(self.$table.find("thead tr th").get($(this).index()));
 
-    // proxy through the event to start up a drag action
-    $target.trigger(event);
+    // attempt to proxy to elements in the original cell
+    if (!self.proxyEventToElementsInOriginalCell(event, $target)) {
+      // if false, proxy through the event to start up a drag action
+      $target.trigger(event); 
+    }
   });
   positionFixedHeader();
 };
@@ -466,7 +469,13 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
     event.preventDefault();
     $(document).scrollTop(self.$table.offset().top - 10);
     self.$spreadsheet.scrollLeft(0);
-    self.$table.find("thead tr th").get($(this).index()).focus();
+    var $targetCell = $(self.$table.find("thead tr th").get($(this).index()));
+
+    // attempt to proxy to elements in the original cell
+    if (!self.proxyEventToElementsInOriginalCell(event, $targetCell)) {
+      // otherwise just focus the original cell
+      $targetCell.focus();
+    }
   });
 
   // Clicks on the fixed column return you to the real column cell
@@ -477,6 +486,22 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
     var rowIndex = $(this).closest("tr").index();
     $(self.$table.find("tbody tr").get(rowIndex)).find("td").get(cellIndex).focus();
   });
+};
+
+
+GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(event, $originalCell) {
+    if (event.target.id) {
+      var $targetElement = $originalCell.find("#"+event.target.id);
+      if ($targetElement.length > 0) {
+        $targetElement.focus().trigger("click");
+        return true;
+      }
+    } else if ($(event.target).is("a.btn.dropdown-toggle")) {
+      $originalCell.find("a.btn.dropdown-toggle").focus().trigger("click");
+      return true;
+    }
+
+    return false;
 };
 
 
