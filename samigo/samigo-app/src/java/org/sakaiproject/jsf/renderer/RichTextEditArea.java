@@ -236,12 +236,15 @@ public class RichTextEditArea extends Renderer
     	if (shouldToggle) {
     		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"firsttime\">");
     	}
+    	else if(hasToggle.equals("plain") && !valueHasRichText){
+        	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\" data-first=\"" + clientId + "\" data-second=\"" + samigoFrameId + "\">");
+        }
     	else {
     		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\">");
     	}
-    //if toggling is off or the content is already rich, make the editor show up immediately
-    if(!shouldToggle){
-    	writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "', false, '" + samigoFrameId +"');</script>");
+	//if toggling is off or the content is already rich, make the editor show up immediately if hasToggle is not plain
+	if(!shouldToggle && (!hasToggle.equals("plain") || valueHasRichText)){
+		writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "', false, '" + samigoFrameId +"');</script>");
     }
   }
 
