@@ -13,7 +13,7 @@
 	<form name="addContentForm" id="addContentForm" method="post" action="#toolForm("ResourcesHelperAction")" >
 		<input type="hidden" name="pipe-init-id" id="pipe-init-id" value="$!{pipe-init-id}" />
 		<input type="hidden" name="requestStateId" id="requestStateId" value="$!{requestStateId}" />
-		#if($!{item.isMissing("content")})
+		#if($!{item.isMissing("contenttext")})
 			<p class="longtext validation">
 		#else
 			<p class="longtext">
@@ -21,8 +21,9 @@
 			<table border="0">
 				<tr>
 					<td>
-						<textarea name="content" id="content" rows="30" cols="80" wrap="virtual">$validator.escapeHtmlTextarea("$!{pipe.contentstring}")</textarea>
-						#chef_setupformattedtextarea("content")
+					<!-- id can't be content, or it conflicts with portal markup, but java expects name to be content -->
+						<textarea name="content" id="contenttext" rows="30" cols="80" wrap="virtual">$validator.escapeHtmlTextarea("$!{pipe.contentstring}")</textarea>
+						#chef_setupformattedtextarea("contenttext")
 					</td>
 				</tr>
 			</table>

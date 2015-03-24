@@ -82,8 +82,8 @@
                 //index will be the begining of 'matrixSurveyRadioTable'
                 var index = myId.indexOf("matrixSurveyRadioTable");
                 var strBefore = myId.substring(0,index+'matrixSurveyRadioTable'.length);
-                //remove table no 
-                var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+2);
+                //This needs to skip past the id which is on index 7 and the colon to add 1
+                var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+myIdParts[7].length+1);
                 //find rows of mytable	
                 var iRow = mytable.getElementsByTagName('tr');
                 //one header row before the row containing the radio button
