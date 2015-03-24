@@ -84,7 +84,8 @@ public class QuestionPoolBean implements Serializable
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
   public final static String ORIGIN_TOP = "poolList";
-
+  public final static String EDIT_POOL = "editPool";
+  
   private String name;
   private Collection pools;
   private QuestionPoolDataBean currentPool;
@@ -1845,11 +1846,11 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String cancelPool() {
-	  if(ORIGIN_TOP.equals(getOutcome())){
-		  setCurrentPool(null);
-		  setOutcomePool(0);
-	  buildTree();
-	  setQpDataModelByLevel();
+	  if(ORIGIN_TOP.equals(getOutcome()) || getOutcomePool() == 0){		  
+		setCurrentPool(null);
+		setOutcome(ORIGIN_TOP);
+		buildTree();
+		setQpDataModelByLevel();
 	  }else{
 		  startEditPoolAgain(Long.toString(getOutcomePool()));
 	      buildTree();
@@ -1892,6 +1893,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   {
 	String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
   	startEditPoolAgain(qpid);
+  	setOutComeParams();
   }
 
 

@@ -61,7 +61,10 @@
    <f:param name="poolId" value="#{questionpool.currentPool.id}"/>
 </h:commandButton>
 
-  <h:commandButton type="button" id="Cancel" value="#{commonMessages.cancel_action}" immediate="true" action="#{questionpool.cancelPool}"/>
+<h:commandButton type="button" id="Cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}" immediate="true">
+	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.CancelPoolListener" />
+	<f:attribute name="returnToParentPool" value="false"/>
+</h:commandButton>
 </p>
 
 </h:form>
