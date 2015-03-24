@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import lombok.Getter;
+
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -44,6 +46,9 @@ public class GradebookPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 	
 	AddGradeItemWindow addGradeItemWindow;
+	
+	ModalWindow studentGradeSummary;
+	
 	Form<Void> form;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
@@ -59,6 +64,10 @@ public class GradebookPage extends BasePage {
 		
 		addGradeItemWindow = new AddGradeItemWindow("addGradeItemWindow");
 		form.add(addGradeItemWindow);
+		
+		//details window TODO move these windows and fix up the naming
+		studentGradeSummary = new ModalWindow("studentGradeSummary");
+		form.add(studentGradeSummary);
 		
 		
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
@@ -91,8 +100,8 @@ public class GradebookPage extends BasePage {
 				modelData.put("sortType", GbStudentSortType.LAST_NAME); //TODO this needs to come from somewhere, prefs maybe
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
-				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
-				cellItem.add(new AttributeModifier("class", "gb-student-cell"));
+				//cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
+				//cellItem.add(new AttributeModifier("class", "gb-student-cell"));
 			}
 
         };
@@ -189,6 +198,14 @@ public class GradebookPage extends BasePage {
 
 		}
 		
+	}
+	
+	/**
+	 * Getter for panels to get at the window
+	 * @return
+	 */
+	public ModalWindow getStudentGradeSummaryWindow() {
+		return this.studentGradeSummary;
 	}
 	
 	
