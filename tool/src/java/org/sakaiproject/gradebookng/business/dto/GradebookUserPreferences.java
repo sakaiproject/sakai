@@ -45,15 +45,6 @@ public class GradebookUserPreferences {
 		this.userUuid = userUuid;
 	}
 	
-	/**
-	 * Helper to get the key of the property that this item will be saved under
-	 * @param userUuid
-	 * @return
-	 */
-	public static String getPropKey(String userUuid) {
-		return userUuid;
-	}
-	
 	
 	@Override
 	public String toString() {

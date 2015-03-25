@@ -1,15 +1,18 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.Map;
+
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
-import org.apache.wicket.model.Model;
+import org.apache.wicket.model.IModel;
+import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
 
 /**
  * 
- * Cell panel for the student name and eid
+ * Cell panel for the student name and eid. Link shows the student grade summary
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -18,83 +21,104 @@ public class StudentNameCellPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
-	DetailsWindow detailsWindow;
+	GradeSummaryWindow detailsWindow;
+	
+	IModel<Map<String,Object>> model;
 
-	public StudentNameCellPanel(String id, String name, String eid) {
-		super(id);
+	public StudentNameCellPanel(String id, IModel<Map<String,Object>> model) {
+		super(id, model);
+		this.model = model;
+	}
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
 		
-		//change this to be a model passed in wrapping the details for the student
-		
-		// also need to have the config passed in
+		//unpack model
+		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
+		String userId = (String) modelData.get("userId");
+		String eid = (String) modelData.get("eid");
+		String firstName = (String) modelData.get("firstName");
+		String lastName = (String) modelData.get("lastName");
+		GbStudentSortType sortType = (GbStudentSortType) modelData.get("sortType");
 		
 		//link
-		add(new DetailsLink("link"));
-		
-		//eid
-		add(new EidLabel("eid", eid));
+		AjaxLink<String> link = new AjaxLink<String>("link") {
+			
+			private static final long serialVersionUID = 1L;
 
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				detailsWindow.show(target);
+				
+				//TODO
+				//when this appears we want to alter the css so it is
+				//opacity: 0.8; 
+				//filter: alpha(opacity=80);  
+			}
+			
+		};
+		
+		//name label
+		link.add(new Label("name", getFormattedStudentName(firstName, lastName, sortType)));
+		
+		//eid label, configurable
+		link.add(new Label("eid", eid){
+		
+			private static final long serialVersionUID = 1L;
+
+			public boolean isVisible() {
+				return true; //TODO use config, will need to be passed in the model map
+			}
+			
+		});
+		
+		add(link);
+		
 		//details window
-		detailsWindow = new DetailsWindow("details");
+		detailsWindow = new GradeSummaryWindow("details", this.model);
 		add(detailsWindow);
-		
-	}
-	
-	private class DetailsLink extends AjaxLink {
 
-		private static final long serialVersionUID = 1L;
-
-		public DetailsLink(String id) {
-			super(id);
-			
-			//TODO need a model passed in wrapping the details for the user
-			add(new Label("name", new Model<String>("123")));
-			
-		}
-
-		@Override
-		public void onClick(AjaxRequestTarget target) {
-			detailsWindow.show(target);
-			
-			//when this appears we want to alter the css so it is
-			//opacity: 0.8; 
-			//filter: alpha(opacity=80);  
-			
-			
-		}
-		
-	}
-	
-	/**
-	 * Label for showing a user's eid. Configurable.
-	 *
-	 */
-	private class EidLabel extends Label {
-
-		public EidLabel(String id, String label) {
-			super(id, label);
-
-		}
-		
-		public boolean isVisible() {
-			return true; //TODO use config
-		}
-		
 	}
 	
 	/**
 	 * Window for viewing a student's grades
 	 */
-	private class DetailsWindow extends ModalWindow {
+	private class GradeSummaryWindow extends ModalWindow {
 
-		public DetailsWindow(String componentId) {
+		private static final long serialVersionUID = 1L;
+
+		public GradeSummaryWindow(String componentId, IModel<Map<String,Object>> model) {
 			super(componentId);
 			
-			//TODO point to correct data
-			this.setContent(new AddGradeItemPanel(this.getContentId()));
+			this.setContent(new StudentGradeSummaryPanel(this.getContentId(), model));
 			this.setUseInitialHeight(false);
 
 		}
 		
+	}
+	
+	/**
+	 * Helper to format a student name based on the sort type.
+	 * 
+	 * Sorted by Last Name = Smith, John (jsmith26)
+   	 * Sorted by First Name = John Smith (jsmith26)
+   	 * 
+	 * @param firstName
+	 * @param lastName
+	 * @param sortType
+	 * @return
+	 */
+	private String getFormattedStudentName(String firstName, String lastName, GbStudentSortType sortType) {
+		
+		String msg = "formatter.studentname." + sortType.name();
+		if(GbStudentSortType.LAST_NAME == sortType) {
+			return String.format(getString(msg), lastName, firstName);
+		}
+		if(GbStudentSortType.FIRST_NAME == sortType) {
+			return String.format(getString(msg), firstName, lastName);
+		}
+		return firstName;
 	}
 	
 	

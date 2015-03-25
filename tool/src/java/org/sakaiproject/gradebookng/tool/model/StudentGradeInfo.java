@@ -25,7 +25,13 @@ public class StudentGradeInfo implements Serializable
 	private String studentUuid;
 	
 	@Getter
-	private String studentName;
+	private String studentDisplayName;
+	
+	@Getter
+	private String studentFirstName;
+	
+	@Getter
+	private String studentLastName;
 	
 	@Getter
 	private String studentEid;
@@ -45,7 +51,9 @@ public class StudentGradeInfo implements Serializable
 	public StudentGradeInfo(User u) {
 		this.studentUuid = u.getId();
 		this.studentEid = u.getEid();
-		this.studentName = u.getDisplayName();
+		this.studentFirstName = u.getFirstName();
+		this.studentLastName = u.getLastName();
+		this.studentDisplayName = u.getDisplayName();
 		this.grades = new HashMap<Long,GradeInfo>();
 	}
 	

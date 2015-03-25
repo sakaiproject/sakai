@@ -99,7 +99,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		
 		// get params
 		String siteId = (String) params.get("siteId");
-		int assignmentId = NumberUtils.toInt((String) params.get("assignmentId"));
+		long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
 		int order = NumberUtils.toInt((String) params.get("order"));
 
 		// check params supplied are valid 

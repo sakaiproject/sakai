@@ -7,6 +7,7 @@ import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.apache.wicket.AttributeModifier;
@@ -22,11 +23,24 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
+	private IModel<Assignment> modelData;
 
-	public AssignmentColumnHeaderPanel(String id, Assignment assignment) {
+	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
 		super(id);
 		
-		add(new Label("title", new Model<String>(assignment.getName())));
+		this.modelData = modelData;
+		
+	}
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
+		
+		Assignment assignment = this.modelData.getObject();
+
+		Label assignmentTitle = new Label("title", new Model<String>(assignment.getName()));
+		assignmentTitle.add(new AttributeModifier("title", assignment.getName()));
+		add(assignmentTitle);
 		
 		WebMarkupContainer averageGradeSection = new WebMarkupContainer("averageGradeSection");
 		averageGradeSection.add(new Label("averagePoints", new Model("TODO")));
@@ -35,6 +49,30 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(averageGradeSection);
 		
 		add(new Label("dueDate", new Model<String>(getDueDate(assignment.getDueDate()))));
+
+		WebMarkupContainer externalAppFlag = new WebMarkupContainer("externalAppFlag");
+		if (assignment.getExternalAppName() == null) {
+			externalAppFlag.setVisible(false);
+		} else {
+			externalAppFlag.setVisible(true);
+			externalAppFlag.add(new AttributeModifier("title", getString("label.gradeitem.externalAppPrefix") + " " + assignment.getExternalAppName()));
+			String iconClass = "icon-sakai";
+			if ("Assignments".equals(assignment.getExternalAppName())) {
+				iconClass = "icon-sakai-assignment-grades";
+			} else if ("Tests & Quizzes".equals(assignment.getExternalAppName())) {
+				iconClass = "icon-sakai-samigo";
+			} else if ("Lesson Builder".equals(assignment.getExternalAppName())) {
+				iconClass = "icon-sakai-lessonbuildertool";
+			}
+			externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag " + iconClass));
+		}
+		add(externalAppFlag);
+
+		add(new WebMarkupContainer("extraCreditFlag").setVisible(assignment.isExtraCredit()));
+		add(new WebMarkupContainer("isCountedFlag").setVisible(assignment.isCounted()));
+		add(new WebMarkupContainer("notCountedFlag").setVisible(!assignment.isCounted()));
+		add(new WebMarkupContainer("isReleasedFlag").setVisible(assignment.isReleased()));
+		add(new WebMarkupContainer("notReleasedFlag").setVisible(!assignment.isReleased()));
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 
@@ -50,7 +88,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		//TODO locale formatting via ResourceLoader
 		
 		if(assignmentDueDate == null) {
-			return null;
+			return getString("label.noduedate");
 		}
 		
 		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");

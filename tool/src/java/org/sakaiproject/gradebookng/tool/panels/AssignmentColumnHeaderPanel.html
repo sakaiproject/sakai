@@ -4,12 +4,27 @@
 <body>
 <wicket:panel>
 	
-	<div wicket:id="title" class="gb-title"></div>
+	<div class="gb-title">
+		<span wicket:id="externalAppFlag"></span>
+		<span wicket:id="title"></span>
+	</div>
+	
 	<div wicket:id="averageGradeSection" class="gb-average">
 		<span wicket:message="value:label.avg">Avg: </span><span wicket:id="averagePoints" class="gb-average-points">72</span> / <span wicket:id="totalPoints" class="gb-total-points">100</span>
 	</div>
-	<div wicket:id="dueDate" class="gb-due-date">23/5/2014</div>
 	
+	<div class="gb-due-date">
+		<span wicket:message="value:label.due">Due: </span><span wicket:id="dueDate">23/5/2014</span>
+	</div>
+	
+	<div class="gb-grade-item-flags">
+		<span wicket:id="extraCreditFlag" class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
+		<span wicket:id="isReleasedFlag" class="gb-flag-is-released" wicket:message="title:label.gradeitem.released"></span>
+		<span wicket:id="notReleasedFlag" class="gb-flag-not-released" wicket:message="title:label.gradeitem.notreleased"></span>
+		<span wicket:id="isCountedFlag" class="gb-flag-is-counted" wicket:message="title:label.gradeitem.counted"></span>
+		<span wicket:id="notCountedFlag" class="gb-flag-not-counted" wicket:message="title:label.gradeitem.notcounted"></span>
+	</div>
+
 	<!--  this comes from the wicket bootstrap module, needs to be sorted out. -->
 	<div class="btn-group">
 	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
@@ -17,8 +32,6 @@
 	    </a>
 	    <ul class="dropdown-menu dropdown-menu-right">
 	   		<li><a tabindex="-1" href="#">Edit Item Details</a></li>
-			<li><a tabindex="-1" href="#">Hide From Students</a></li>
-			<li><a tabindex="-1" href="#">Exclude From Course Grade Calculations</a></li>
 	    </ul>
     </div>
 

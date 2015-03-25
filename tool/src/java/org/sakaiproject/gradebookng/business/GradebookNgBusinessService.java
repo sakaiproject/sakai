@@ -1,8 +1,12 @@
 package org.sakaiproject.gradebookng.business;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,6 +17,7 @@ import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -24,6 +29,8 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
+import org.sakaiproject.gradebookng.business.model.GbGroupType;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
@@ -33,6 +40,7 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
@@ -45,11 +53,14 @@ import org.sakaiproject.user.api.UserDirectoryService;
 /**
  * Business service for GradebookNG
  * 
+ * This is not designed to be consumed outside of the application or supplied entityproviders. 
+ * Use at your own risk.
+ * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
 
-// TODO add permission checks! Remove from entityprovider if double up
+// TODO add permission checks! Remove logic from entityprovider if there is a double up
 
 @CommonsLog
 public class GradebookNgBusinessService {
@@ -70,6 +81,8 @@ public class GradebookNgBusinessService {
 	private CourseManagementService courseManagementService;
 	
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
+	public static final String PREFS_PROP_PREFIX = "gbng_prefs_";
+
 	
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -102,7 +115,11 @@ public class GradebookNgBusinessService {
 				}
 			}
 			
-			return userDirectoryService.getUsers(matchingUuids);
+			List<User> users = userDirectoryService.getUsers(matchingUuids);
+			
+			Collections.sort(users, new LastNameComparator()); //this needs to take into account the GbStudentSortType
+			return users;
+			
 		} catch (IdUnusedException e) {
 			return null;
 		}
@@ -149,62 +166,106 @@ public class GradebookNgBusinessService {
 	 * @param siteId the siteId
 	 * @return a list of assignments or null if no gradebook
 	 */
+	@SuppressWarnings("unchecked")
 	public List<Assignment> getGradebookAssignments(String siteId) {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
 			List<Assignment> assignments = gradebookService.getAssignments(gradebook.getUid());
-			assignments = sortAssignments(assignments);			
+			assignments = sortAssignments(siteId,assignments);			
 			return assignments;
 		}
 		return null;
 	}
 	
 	/**
-	 * Sort the assignment list according to some criteria
+	 * Sort the assignment list according to the criteria stored in the site property
 	 * 
 	 * @param assignments
 	 * @return sorted list of assignments
 	 */
-	private List<Assignment> sortAssignments(List<Assignment> assignments) {
-		//this is a placeholder for when we eventually implement custom sorting of assignment columns
-		return assignments;
+	private List<Assignment> sortAssignments(String siteId, List<Assignment> assignments) {
+		
+		// The performance of this could be better. However we are talking about a tiny list here (<50 items)
+		//What would be ideal is an order on the assignments in the db table
+		
+		//get the stored order
+		List<AssignmentOrder> assignmentOrder = this.getAssignmentOrder(siteId);
+		if(assignmentOrder == null) {
+			//no order set, use natural order
+			return assignments;
+		}
+		
+		//create a copy of the list we can modify
+		List<Assignment> rval = new ArrayList<>();
+		rval.addAll(assignments);
+		int size = rval.size();
+
+		//iterate over assignments, then check the order list for matches.
+		//if matched, insert null to ensure list size, remove assignment and add at the new position in the rval list
+		//if not matched, continue.
+		//add the end, remove nulls
+		
+		//TODO should this iteration be on the order list first? the order list is potentially less iterations...
+		for(Assignment a : assignments) {
+			
+			for(AssignmentOrder o: assignmentOrder) {
+				long assignmentId = o.getAssignmentId();
+
+				if(assignmentId == a.getId().longValue()){
+					
+					int order = o.getOrder();
+					
+					//trim order to bounds of assignment list
+					if(order < 0){
+						order = 0;
+					} else if(order >= size) {
+						order = size-1; //0 based index
+					}
+					
+					rval.add(null); //ensure size remains the same for the remove
+					rval.remove(a); //remove item
+					rval.add(order, a); //add at ordered position
+					
+				}
+			}
+		}
+		
+		//retain only the assignment objects
+		rval.retainAll(assignments);
+	
+		return rval;
 	}
 
 	
 		
 	/**
-	 * Get a map of course grades for the users in the site, using a grade override preferentially over a calculated one
-	 * key = uuid
+	 * Get a map of course grades for all users in the site, using a grade override preferentially over a calculated one
+	 * key = student eid
 	 * value = course grade
 	 * 
-	 * Note, could potentially change the Value to be an object to store a field that can show if its been overridden
+	 * Note that his mpa is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
 	 * 
+	 * @param userUuids
 	 * @return the map of course grades for students, or an empty map
 	 */
-	public Map<String,String> getCourseGrades() {
+	@SuppressWarnings("unchecked")
+	public Map<String,String> getSiteCourseGrades() {
+		
+		Map<String,String> courseGrades = new HashMap<>();
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook != null) {
 			
-			//get course grades and use entered grades preferentially, if they exist
-	        Map<String, String> courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid()); 
-	        Map<String, String> enteredGrades = gradebookService.getEnteredCourseGrade(gradebook.getUid());
-	          
-	        Iterator<String> gradeOverrides = enteredGrades.keySet().iterator();
-	        while(gradeOverrides.hasNext()) {
-	        	String username = gradeOverrides.next();
-	        	String override = enteredGrades.get(username);
-	        	
-	        	if(StringUtils.isNotBlank(override)) {
-	        		courseGrades.put(username, override);
-	        	}
-	        }
-	        
-	        return courseGrades;
+			//get course grades. THis new method for Sakai 11 does the override automatically, so GB1 data is preserved
+			//note that this DOES not have the course grade points earned because that is in GradebookManagerHibernateImpl
+			courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid());
+						
 		}
 		
-		return Collections.emptyMap();
+		return courseGrades;
 	}
+	
+	
 	
 	/**
 	 * Save the grade for a student's assignment
@@ -256,69 +317,36 @@ public class GradebookNgBusinessService {
 	 * Build the matrix of assignments, students and grades
 	 * 
 	 * In the future this can be expanded to be given a list of students so we can do scrolling
+	 * 
+	 * @param assignments list of assignments
 	 * @return
 	 */
-	public List<StudentGradeInfo> buildGradeMatrix() {
-		
-		List<User> students = this.getGradeableUsers();
-		List<Assignment> assignments = this.getGradebookAssignments();
-		
-		Map<String,String> courseGrades = this.getCourseGrades();
-		
-		//NOTES:
-		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
-		
-		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
-		
-		Gradebook gradebook = this.getGradebook();
-		if(gradebook == null) {
-			return null;
-		}
-		
-		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
-		//however the logic needs to be reworked so we can capture the user info
-		//currently storing the full grade definition too, this may be unnecessary
-		//NOT a high priority unless performance issue deems it to be
-		
-		for(User student: students) {
-			
-			StudentGradeInfo sg = new StudentGradeInfo(student);
-			
-			//add the assignment grades
-			for(Assignment assignment: assignments) {
-				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
-				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
-			}
-			
-			//add the course grade
-			sg.setCourseGrade(courseGrades.get(student.getId()));
-			
-			//add the section info
-			//this.courseManagementService.getSe
-			
-			rval.add(sg);
-			
-		}
-		return rval;
-		
+	public List<StudentGradeInfo> buildGradeMatrix(List<Assignment> assignments) {
+		return this.buildGradeMatrix(assignments, Collections.<String> emptyList());
 	}
 	
-	public List<StudentGradeInfo> buildGradeMatrix(List<String> userUuids) {
-		
-		List<User> students = this.getGradeableUsers();
-		List<Assignment> assignments = this.getGradebookAssignments();
-		
-		Map<String,String> courseGrades = this.getCourseGrades();
-		
-		//NOTES:
-		//a reorder of columns can happen client side and be saved as then any refresh is going to refetch the data and it will have the new order applied
-		
-		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
+	/**
+	 * Build the matrix of assignments and grades for the given student uuids.
+	 * 
+	 * If the passed in list is empty, it returns all users that can be graded in the site
+	 * 
+	 * @param assignments
+	 * @param userUuids student uuids to get the data for
+	 * @return
+	 */
+	public List<StudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> userUuids) {
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
 			return null;
 		}
+		
+		List<User> students = this.getGradeableUsers(userUuids);
+		
+		//because this map is based on eid not uuid, we do the filtering later so we can save an iteration
+		Map<String,String> courseGrades = this.getSiteCourseGrades();
+				
+		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
 		
 		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
 		//however the logic needs to be reworked so we can capture the user info
@@ -336,7 +364,7 @@ public class GradebookNgBusinessService {
 			}
 			
 			//add the course grade
-			sg.setCourseGrade(courseGrades.get(student.getId()));
+			sg.setCourseGrade(courseGrades.get(student.getEid()));
 			
 			//add the section info
 			//this.courseManagementService.getSe
@@ -352,6 +380,9 @@ public class GradebookNgBusinessService {
 	
 	/**
 	 * Get the user prefs for this gradebook instance
+	 * 
+	 * CURRENTLY UNUSED
+	 * 
 	 * @param userUuid
 	 * @return
 	 */
@@ -363,7 +394,7 @@ public class GradebookNgBusinessService {
 			Site site = siteService.getSite(siteId);
 			
 			ResourceProperties props = site.getProperties();
-			String xml = (String) props.get(GradebookUserPreferences.getPropKey(userUuid));
+			String xml = (String) props.get(PREFS_PROP_PREFIX + userUuid);
 			
 			GradebookUserPreferences prefs = (GradebookUserPreferences) XmlMarshaller.unmarshall(xml);
 			return prefs;
@@ -380,6 +411,8 @@ public class GradebookNgBusinessService {
 	/**
 	 * Helper to save user prefs
 	 * 
+	 * CURRENTLY UNUSED
+	 * 
 	 * @param prefs
 	 */
 	public void saveUserPrefs (GradebookUserPreferences prefs) {
@@ -389,7 +422,7 @@ public class GradebookNgBusinessService {
 			Site site = siteService.getSite(siteId);
 			
 			ResourcePropertiesEdit props = site.getPropertiesEdit();
-			props.addProperty(GradebookUserPreferences.getPropKey(prefs.getUserUuid()), XmlMarshaller.marshal(prefs));
+			props.addProperty(PREFS_PROP_PREFIX + prefs.getUserUuid(), XmlMarshaller.marshal(prefs));
 			siteService.save(site);
 			
 		} catch (IdUnusedException | JAXBException | PermissionException e) {
@@ -398,22 +431,46 @@ public class GradebookNgBusinessService {
 		 
 	}
 	
+	
 	/**
-	 * Get a list of sections
-	 * 
+	 * Get a list of sections and groups in a site
 	 * @return
 	 */
-	public List<Section> getSiteSections() {
+	public List<GbGroup> getSiteSectionsAndGroups() {
 		String siteId = this.getCurrentSiteId();
 		
+		List<GbGroup> rval = new ArrayList<>();
+		
+		//get sections
 		try {
 			Set<Section> sections = courseManagementService.getSections(siteId);
-			return new ArrayList<Section>(sections);
+			for(Section section: sections){
+				rval.add(new GbGroup(section.getEid(), section.getTitle(), GbGroupType.SECTION));
+			}
 		} catch (IdNotFoundException e) {
-			//if not a course site or no sections
-			return Collections.emptyList();
+			//not a course site or no sections, ignore
 		}
 		
+		//get groups
+		try {			
+			Site site = siteService.getSite(siteId);
+			Collection<Group> groups = site.getGroups();
+
+			for(Group group: groups) {
+				rval.add(new GbGroup(group.getId(), group.getTitle(), GbGroupType.GROUP));
+			}
+		} catch (IdUnusedException e) {
+			//essentially ignore and use what we have
+			log.error("Error retrieving groups", e);
+		}
+		
+		Collections.sort(rval);
+		
+		//add the default ALL (this is a UI thing, it might not be appropriate here)
+		//TODO also need to internationalse ths string
+		rval.add(0, new GbGroup(null, "All Sections/Groups", GbGroupType.ALL));
+		
+		return rval;
 		
 	}
 	
@@ -421,6 +478,7 @@ public class GradebookNgBusinessService {
 	 * Get a list of section memberships for the users in the site
 	 * @return
 	 */
+	/*
 	public List<String> getSectionMemberships() {
 		
 		List<Section> sections = getSiteSections();
@@ -442,6 +500,7 @@ public class GradebookNgBusinessService {
 		return null;
 		
 	}
+	*/
 	
 	
 	/**
@@ -523,9 +582,17 @@ public class GradebookNgBusinessService {
     	return null;
     }
     
-    public void updateAssignmentOrder(String siteId, int assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
-    	//in the update order method, check for assignemntid element, update it or add it, resave
-    	//the sort order needs to be used in the sortAssignments method too
+    /**
+     * Update the order of an assignment.
+     * 
+     * @param siteId	the siteId
+     * @param assignmentId the assignment we are reordering
+     * @param order the new order
+     * @throws JAXBException
+     * @throws IdUnusedException
+     * @throws PermissionException
+     */
+    public void updateAssignmentOrder(String siteId, long assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
     	
     	Site site = null;
 		try {
@@ -567,6 +634,9 @@ public class GradebookNgBusinessService {
 		
 		//and save it
 		props.addProperty(ASSIGNMENT_ORDER_PROP, updatedXml);
+		
+		log.debug("Updated assignment order: " + updatedXml);
+		
 		this.siteService.save(site);
     	
     }
@@ -579,6 +649,26 @@ public class GradebookNgBusinessService {
     	return null;
     }
     */
+    
+    /**
+    * Comparator class for sorting a list of users by last name
+    */
+    class LastNameComparator implements Comparator<User> {
+	    @Override
+	    public int compare(User u1, User u2) {
+	    	return u1.getLastName().compareTo(u2.getLastName());
+	    }
+    }
+    
+    /**
+     * Comparator class for sorting a list of users by first name
+     */
+     class FirstNameComparator implements Comparator<User> {
+ 	    @Override
+ 	    public int compare(User u1, User u2) {
+ 	    	return u1.getFirstName().compareTo(u2.getFirstName());
+ 	    }
+     }
     
     
 }

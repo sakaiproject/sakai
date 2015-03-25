@@ -16,9 +16,10 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupGradeItemCellModels();
   this.enableAbsolutePositionsInCells();
   this.setupKeyboadNavigation();
-  this.setupFixedStudentColumn();
+  this.setupFixedColumns();
   this.setupFixedTableHeader();
   this.setupColumnDragAndDrop();
+  this.setupToolbar();
 };
 
 
@@ -27,11 +28,20 @@ GradebookSpreadsheet.prototype.setupWicketAJAXEventHandler = function() {
 
   // When Wicket AJAX loads in some new content, notify the cell's model accordingly.
   Wicket.Event.subscribe('/ajax/call/complete', function(jqEvent, attributes, jqXHR, errorThrown, textStatus) {
+    var $target = $(attributes.event.target);
+
+    if ($target.closest(".gb-item-grade").length == 0) {
+      // this ajax doesn't have anything to do with grades... ABORT
+      return true;
+    }
+
     var extraParameters = {};
 
-    attributes.ep.map(function(o, i) {
-      extraParameters[o.name] = o.value;
-    });
+    if (attributes.ep) {
+      attributes.ep.map(function(o, i) {
+        extraParameters[o.name] = o.value;
+      });
+    }
 
     var model = self.getCellModelForStudentAndAssignment(extraParameters.studentUuid, extraParameters.assignmentId);
     model.handleWicketEvent(jqEvent, attributes, jqXHR, errorThrown, textStatus, extraParameters);
@@ -236,7 +246,7 @@ GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
   var self= this;
 
   // check input is visible on x-scroll
-  var fixedColWidth = self.$table.find(".gb-student-cell:first").width();
+  var fixedColWidth = self.$spreadsheet.find(".gb-fixed-columns-table").width();
   if  ($cell[0].offsetLeft - self.$spreadsheet[0].scrollLeft < fixedColWidth) {
     self.$spreadsheet[0].scrollLeft = $cell[0].offsetLeft - fixedColWidth;
   }
@@ -316,8 +326,9 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   self.$spreadsheet.prepend($fixedHeader);
 
   function positionFixedHeader() {
-    if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
-    } else if (self.$spreadsheet.offset().top < $(document).scrollTop()) {
+    if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
+      // don't change anything as we don't want the fixed header to scroll to below the table
+    } else if (self.$table.offset().top < $(document).scrollTop()) {
       $fixedHeader.
           show().
           css("top", $(document).scrollTop() - self.$spreadsheet.offset().top + "px").
@@ -329,11 +340,14 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
 
   $(document).off("scroll", positionFixedHeader).on("scroll", positionFixedHeader);
 
-  $fixedHeader.find("th").on("click", function(event) {
+  $fixedHeader.find("th").on("mousedown", function(event) {
     event.preventDefault();
 
     $(document).scrollTop(self.$table.offset().top - 10);
-    self.$table.find("thead tr th").get($(this).index()).focus();
+    var $target = $(self.$table.find("thead tr th").get($(this).index()));
+
+    // proxy through the event to start up a drag action
+    $target.trigger(event);
   });
   positionFixedHeader();
 };
@@ -344,48 +358,125 @@ GradebookSpreadsheet.prototype.refreshFixedTableHeader = function() {
 };
 
 
-GradebookSpreadsheet.prototype.setupFixedStudentColumn = function() {
+GradebookSpreadsheet.prototype.setupFixedColumns = function() {
   var self = this;
 
-  var $fixedColumn = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-column-table").hide();
-  var colWidth = self.$table.find(".gb-student-cell:first").width();
-  
-  self.$table.find(".gb-student-cell").each(function(i, cell) {
-    var $clone  = $(cell).clone();
-    $clone.width(colWidth);
-    $fixedColumn.append($("<tr>").append($clone));
+  // all columns before the grade item columns should be fixed
+
+  var $fixedColumnsHeader = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-column-headers-table").hide();
+  var $fixedColumns = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-columns-table").hide();
+
+  var $headers = self.$table.find("thead th:not(.gb-grade-item-header)");
+  $fixedColumnsHeader.append($("<thead>").append("<tr>"));
+  $fixedColumns.append($("<tbody>"));
+
+  var colWidths = [];
+  var totalWidth = 0;
+
+  // populate the dummy header table
+  $headers.each(function(i, origCell) {
+    var $th = $(origCell).clone();
+    colWidths.push($(origCell).find(".gb-cell-inner").outerWidth());
+    $th.find(".gb-cell-inner").width(colWidths[i]);
+    totalWidth += colWidths[i];
+    $fixedColumnsHeader.find("tr").append($th);
   });
-  $fixedColumn.width(colWidth);
-  self.$spreadsheet.prepend($fixedColumn);
+
+  // populate the dummy column table
+  self.$table.find("tbody tr").each(function(i, origRow) {
+    var $tr = $("<tr>");
+
+    $headers.each(function(i, origTh) {
+      var $td = $($(origRow).find("td").get(i)).clone();
+      $td.find(".gb-cell-inner").width(colWidths[i]);
+      $tr.append($td);
+    });
+
+    $fixedColumns.find("tbody").append($tr);
+  });
+
+  self.$spreadsheet.prepend($fixedColumnsHeader);
+  self.$spreadsheet.prepend($fixedColumns);
 
   self.$table.find("tbody tr").hover(
     function() {
-      $($fixedColumn.find("tr")[$(this).index()]).addClass("hovered");
+      $($fixedColumns.find("tr")[$(this).index()]).addClass("hovered");
     },
     function() {
-      $($fixedColumn.find("tr")[$(this).index()]).removeClass("hovered");
+      $($fixedColumns.find("tr")[$(this).index()]).removeClass("hovered");
     }
   );
 
   function positionFixedColumn() {
-    //if (document.body.scrollLeft + $fixedHeader.height() + 100 > self.$spreadsheet.offset().top + self.$spreadsheet.height()) {
-    //} else if (self.$spreadsheet.offset().top < document.body.scrollTop) {
-    if (self.$spreadsheet[0].scrollLeft > 20) {
-      $fixedColumn.
+    if (self.$spreadsheet[0].scrollLeft > 0) {
+      $fixedColumns.
           show().
           css("left", self.$spreadsheet[0].scrollLeft + "px").
           css("top", self.$table.find("tbody").position().top - 1);
-          
     } else {
-      $fixedColumn.hide();
+      $fixedColumns.hide();
+    }
+  };
+
+  function positionFixedColumnHeader() {
+    var showFixedHeader = false;
+    var leftOffset = self.$spreadsheet[0].scrollLeft;
+    var topOffset = self.$table.offset().top - self.$spreadsheet.offset().top;
+
+    if (self.$spreadsheet[0].scrollLeft > 0 || self.$table.offset().top < $(document).scrollTop()) {
+      if (self.$spreadsheet[0].scrollLeft > 0) {
+        showFixedHeader = true;
+      }
+
+      if ($(document).scrollTop() + $fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
+        // don't change anything as we don't want the fixed header to scroll to below the table
+        topOffset = $fixedColumnsHeader.offset().top;
+        // except check for the horizontal scroll
+        if (self.$spreadsheet[0].scrollLeft == 0) {
+          showFixedHeader = true;
+        }
+      } else if (self.$table.offset().top < $(document).scrollTop()) {
+        topOffset = Math.max(0, $(document).scrollTop() - self.$spreadsheet.offset().top);
+        showFixedHeader = true
+      }
+    }
+
+    if (showFixedHeader) {
+      $fixedColumnsHeader.show().css("top", topOffset).css("left", leftOffset);
+    } else {
+      $fixedColumnsHeader.hide();
     }
   }
 
   self.$spreadsheet.on("scroll", function() {
     positionFixedColumn();
+    positionFixedColumnHeader();
+  });
+
+  $(document).on("scroll", function() {
+    positionFixedColumnHeader();
   });
 
   positionFixedColumn();
+  positionFixedColumnHeader();
+
+
+  // Clicks on the fixed header return you to the real header cell
+  $fixedColumnsHeader.find("th").on("mousedown", function(event) {
+    event.preventDefault();
+    $(document).scrollTop(self.$table.offset().top - 10);
+    self.$spreadsheet.scrollLeft(0);
+    self.$table.find("thead tr th").get($(this).index()).focus();
+  });
+
+  // Clicks on the fixed column return you to the real column cell
+  $fixedColumns.find("td").on("mousedown", function(event) {
+    event.preventDefault();
+    self.$spreadsheet.scrollLeft(0);
+    var cellIndex = $(this).index();
+    var rowIndex = $(this).closest("tr").index();
+    $(self.$table.find("tbody tr").get(rowIndex)).find("td").get(cellIndex).focus();
+  });
 };
 
 
@@ -405,16 +496,14 @@ GradebookSpreadsheet.prototype.enableAbsolutePositionsInCells = function() {
 GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
   var self = this;
 
-  // insert a drag handle 
-  $(".gb-grade-item-header .gb-title").each(function() {
-    var $handle = $("<a>").attr("href", "javascript:void(0);").addClass("gb-grade-item-drag-handle");
-    $(this).prepend($handle);
-  });
   self.$table.dragtable({
     maxMovingRows: 1,
-    dragHandle: '.gb-grade-item-drag-handle',
+    clickDelay: 200, // give the user 200ms to perform a click or actually get their drag on
     dragaccept: '.gb-grade-item-header',
     excludeFooter: true,
+    beforeStop: function(dragTable) {
+      self.$table.find("thead th").get(dragTable.endIndex - 1).focus();
+    },
     persistState: function(dragTable) {
       var newIndex = dragTable.endIndex - 1; // reset to 0-based count
       var $header = $(self.$table.find("thead th").get(newIndex));
@@ -430,6 +519,11 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
       self.refreshFixedTableHeader(true)
     }
   });
+};
+
+
+GradebookSpreadsheet.prototype.setupToolbar = function() {
+  this.toolbarModel = new GradebookToolbar($("#gradebookGradesToolbar"), this);
 };
 
 
@@ -577,6 +671,8 @@ function GradebookHeaderCell($cell, gradebookSpreadsheet) {
   this.$cell = $cell;
   this.gradebookSpreadsheet = gradebookSpreadsheet;
   this.setColumnKey();
+
+  this.truncateTitle();
 };
 
 
@@ -604,6 +700,74 @@ GradebookHeaderCell.prototype.setColumnKey = function() {
   self.columnKey = columnKey;
 
   return columnKey;
+}
+
+
+GradebookHeaderCell.prototype.truncateTitle = function() {
+  var self = this;
+
+  if (self.$cell.hasClass("gb-grade-item-header")) {
+    var $title = self.$cell.find(".gb-title");
+    var targetHeight = $title.height();
+    if ($title[0].scrollHeight > targetHeight) {
+      var $titleText = $title.find("span[title]");
+      var words = $titleText.text().split(" ");
+
+      while (words.length > 1) {
+        words = words.slice(0, words.length - 1); // drop a word
+        $titleText.html(words.join(" ") + "&hellip;");
+        if ($title[0].scrollHeight <= targetHeight) {
+          break;
+        }
+      }
+    }
+
+  }
+};
+
+
+/**************************************************************************************
+ * GradebookToolbar - all the toolbar actions
+ */
+
+function GradebookToolbar($toolbar, gradebookSpreadsheet) {
+  this.$toolbar = $toolbar;
+  this.gradebookSpreadsheet = gradebookSpreadsheet;
+  this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
+  this.setupToolbarPositioning();
+  this.setupToggleGradeItems();
+  this.setupToggleCategories();
+}
+
+
+GradebookToolbar.prototype.setupToolbarPositioning = function() {
+  var self = this;
+
+  self.$spreadsheet.on("scroll", function(event) {
+    self.$toolbar.css("left", self.$spreadsheet[0].scrollLeft);
+  });
+};
+
+
+GradebookToolbar.prototype.setupToggleGradeItems = function() {
+  this.$toolbar.on("click", "#toggleGradeItemsToolbarItem", function(event) {
+    event.preventDefault();
+
+    $(this).toggleClass("on");
+
+    return false;
+  })
+};
+
+
+GradebookToolbar.prototype.setupToggleCategories = function() {
+  this.$toolbar.on("click", "#toggleCategoriesToolbarItem", function(event) {
+    event.preventDefault();
+
+    $(this).toggleClass("on");
+
+    return false;
+  })
 }
 
 

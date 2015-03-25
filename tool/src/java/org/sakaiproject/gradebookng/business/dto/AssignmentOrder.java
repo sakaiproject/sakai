@@ -26,7 +26,7 @@ public class AssignmentOrder {
 	@Getter
 	@Setter
 	@XmlElement
-	private int assignmentId;
+	private long assignmentId;
 	
 	@Getter
 	@Setter
@@ -38,7 +38,7 @@ public class AssignmentOrder {
 		//JAXB constructor
 	}
 	
-	public AssignmentOrder(int assignmentId, int order) {
+	public AssignmentOrder(long assignmentId, int order) {
 		this.assignmentId = assignmentId;
 		this.order = order;
 	}

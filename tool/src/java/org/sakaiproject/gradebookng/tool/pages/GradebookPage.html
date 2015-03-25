@@ -18,10 +18,24 @@
 <wicket:extend>
   <form wicket:id="form">
     <p>
-      <input type="button" wicket:id="addGradeItem" wicket:message="value:button.addgradeitem" />
+      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
+      	 <wicket:message key="button.addgradeitem" />
+      </button>
+      
     </p>
     <div wicket:id="addGradeItemWindow" />
     <div id="gradebookGrades">
+      <div id="gradebookGradesToolbar">
+        <ul>
+          <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
+          <li>
+            <button id="toggleGradeItemsToolbarItem">Show/Hide Items</button>
+          </li>
+          <li>
+            <button id="toggleCategoriesToolbarItem">Group By Category</button>
+          </li>
+        </ul>
+      </div>
       <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover"></table>
     </div>
   </form>
