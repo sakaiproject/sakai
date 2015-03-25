@@ -6362,7 +6362,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 						String newModifierId = (String) userIdTrans.get(modifierId);
 						if (newModifierId != null)
 						{
-							Xml.encodeAttribute(element4, "CHEF:creator", newModifierId);
+							Xml.encodeAttribute(element4, "CHEF:modifiedby", newModifierId);
 							element4.setAttribute("enc", "BASE64");
 						}
 					}
