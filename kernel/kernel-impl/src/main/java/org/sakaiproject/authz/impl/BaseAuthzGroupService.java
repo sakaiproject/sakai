@@ -1478,7 +1478,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 * @param providerMembership
 		 *        The Map of external group id -> role id.
 		 */
-		void refreshUser(String userId, Map providerMembership);
+		void refreshUser(String userId, Map<String, String> providerMembership);
 
 		/**
 		 * Refresh the external user - role membership for this AuthzGroup
@@ -1500,47 +1500,63 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
         public Set<String> getMaintainRoles();
 	}
 
-	public class ProviderMap implements Map
+	/**
+	 * A map that allows look ups to be done by compound group IDs.
+	 *
+	 * @see GroupProvider#unpackId(String)
+	 * @see GroupProvider#packId(String[])
+	 */
+	public class ProviderMap implements Map<String, String>
 	{
-		protected Map m_wrapper = null;
+		protected Map<String, String> m_wrapper = null;
 		protected GroupProvider m_provider = null;
 
-		public ProviderMap(GroupProvider provider, Map wrapper)
+		/**
+		 * Create a new ProviderMap.
+		 * @param provider The Group Provider.
+		 * @param wrapper The external group ID to role name map.
+		 */
+		public ProviderMap(GroupProvider provider, Map<String, String> wrapper)
 		{
 			m_provider = provider;
 			m_wrapper = wrapper;
 		}
 
+		@Override
 		public void clear()
 		{
 			m_wrapper.clear();
 		}
 
+		@Override
 		public boolean containsKey(Object key)
 		{
 			return m_wrapper.containsKey(key);
 		}
 
+		@Override
 		public boolean containsValue(Object value)
 		{
 			return m_wrapper.containsValue(value);
 		}
 
-		public Set entrySet()
+		@Override
+		public Set<Map.Entry<String, String>> entrySet()
 		{
 			return m_wrapper.entrySet();
 		}
 
-		public Object get(Object key)
+		@Override
+		public String get(Object key)
 		{
 			// if we have this key exactly, use it
-			Object value = m_wrapper.get(key);
+			String value = m_wrapper.get(key);
 			if (value != null) return value;
 
 			// otherwise break up key as a compound id and find what values we have for these
 			// the values are roles, and we prefer "maintain" to "access"
 			String rv = null;
-			String[] ids = m_provider.unpackId((String) key);
+			String[] ids = m_provider.unpackId((String)key);
 			for (int i = 0; i < ids.length; i++)
 			{
 				// try this one
@@ -1549,47 +1565,54 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 				// if we found one already, ask the provider which to keep
 				if (value != null)
 				{
-					rv = m_provider.preferredRole((String)value, rv);
+					rv = m_provider.preferredRole(value, rv);
 				}
 			}
 
 			return rv;
 		}
 
+		@Override
 		public boolean isEmpty()
 		{
 			return m_wrapper.isEmpty();
 		}
 
-		public Set keySet()
+		@Override
+		public Set<String> keySet()
 		{
 			return m_wrapper.keySet();
 		}
 
-		public Object put(Object key, Object value)
+		@Override
+		public String put(String key, String value)
 		{
 			return m_wrapper.put(key, value);
 		}
 
+		@Override
 		public void putAll(Map t)
 		{
 			m_wrapper.putAll(t);
 		}
 
-		public Object remove(Object key)
+		@Override
+		public String remove(Object key)
 		{
 			return m_wrapper.remove(key);
 		}
 
+		@Override
 		public int size()
 		{
 			return m_wrapper.size();
 		}
 
-		public Collection values()
+		@Override
+		public Collection<String> values()
 		{
 			return m_wrapper.values();
-		}		
+		}
 	}
 
 	@Override

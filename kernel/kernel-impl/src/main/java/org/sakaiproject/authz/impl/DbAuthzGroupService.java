@@ -2390,7 +2390,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		/**
 		 * {@inheritDoc}
 		 */
-		public void refreshUser(String userId, Map providerGrants)
+		public void refreshUser(String userId, Map<String, String> providerGrants)
 		{
 			if (userId == null) return;
 
@@ -2475,9 +2475,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				sql = dbAuthzGroupSql.getSelectRealmProviderSql(orInClause(providerGrants.size(), "SRP.PROVIDER_ID"));
 				Object[] fieldsx = new Object[providerGrants.size()];
 				int pos = 0;
-				for (Iterator f = providerGrants.keySet().iterator(); f.hasNext();)
+				for (String providerId : providerGrants.keySet())
 				{
-					String providerId = (String) f.next();
 					fieldsx[pos++] = providerId;
 				}
 				List<RealmAndProvider> realms = m_sql.dbRead(sql, fieldsx, new SqlReader()
@@ -2501,7 +2500,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				{
 					for (RealmAndProvider rp : realms)
 					{
-						String role = (String) providerGrants.get(rp.providerId);
+						String role = providerGrants.get(rp.providerId);
 						if (role != null)
 						{
 							if (target.containsKey(rp.realmId))
