@@ -59,6 +59,9 @@
                                      #end
                                      #if ($!toolId.equals($!homeToolId))
                                              #parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
+                                     ## SAK-29132 - Don't do anything if this is an instance of a multi-tool, it's handled down below
+                                     #elseif ($multipleToolIdTitleMap.containsKey($toolId))
+                                       <!-- Multi tool $toolId is handled below -->
                                      #else 
                                      	<li id="row-$rowCount">
                                             <div class="toolListControl" id="$toolId.replace(".","_")_wrap">

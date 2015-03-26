@@ -39,6 +39,7 @@
                             
                             #foreach($tool in $mapEntry.value)
                                 #set ($rowCount=0)
+                                    #set($toolId = $tool.getId())
                                     #if (!$toolId.equals("sakai.web.168"))
                                         ## SAK-22108: exclude the Basic LTI tools, since they would be listed separately down the list
                                         #set ($rowCount=$rowCount + 1)
@@ -48,9 +49,11 @@
                                             </li>
                                         #end
                                         <li id="row-$rowCount">                                            
-                                        #set($toolId = $tool.getId())
                                    			 #if ($!toolId.equals($!homeToolId)
                                     			#parse("/vm/sitesetup/toolGroupHomeDisplay.vm")
+                                            ## SAK-29132 - Don't do anything if this is an instance of a multi-tool, it's handled down below
+                                            #elseif ($multipleToolIdTitleMap.containsKey($toolId))
+                                            <!-- Multi tool $toolId is handled below -->
                                     		#else 
                                             <div class="toolListControl">
                                                 <input type="checkbox" name="selectedTools" value="$toolId" id="$toolId"
