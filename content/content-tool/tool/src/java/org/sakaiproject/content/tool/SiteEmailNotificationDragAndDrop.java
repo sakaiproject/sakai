@@ -28,6 +28,7 @@ import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.Group;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.exception.IdUnusedException;
@@ -226,6 +227,12 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 					String siteDropbox = buf.toString();
 
 					recipients.addAll(securityService.unlockUsers(contentHostingService.AUTH_DROPBOX_MAINTAIN, siteDropbox));
+					
+					//SAK-11647 - Adding to notifications all users with AUTH_DROPBOX_GROUPS who belong to current user's groups.
+					List<User> dropboxGroupsRecipients = new ArrayList<User>();
+					dropboxGroupsRecipients.addAll(securityService.unlockUsers(contentHostingService.AUTH_DROPBOX_GROUPS, siteDropbox));
+					recipients.addAll(filterUsersInGroups(dropboxGroupsRecipients, modifiedBy, site));
+					
 					refineToSiteMembers(recipients, site);
 				}
 				else
@@ -258,6 +265,27 @@ public class SiteEmailNotificationDragAndDrop extends SiteEmailNotification
 		{
 			return super.getRecipients(event);
 		}
+	}
+	
+	private List<User> filterUsersInGroups(List<User> usersToFilter, String currentUser, Site site)
+	{
+		List<User> usersInCurrentUserGroups = new ArrayList<User>();
+		List<Group> site_groups = new ArrayList<Group>();
+		List<String> allGroupsUsers = new ArrayList<String>();
+		
+		site_groups.addAll(site.getGroupsWithMember(currentUser));
+		if (site_groups.size()>0)
+		{
+			for (Group g : site_groups)
+			{
+				allGroupsUsers.addAll(g.getUsers());
+			}
+		}
+		for (User user : usersToFilter)
+		{
+			if (allGroupsUsers.contains(user.getId())) usersInCurrentUserGroups.add(user);
+		}
+		return usersInCurrentUserGroups;
 	}
 
 	/**

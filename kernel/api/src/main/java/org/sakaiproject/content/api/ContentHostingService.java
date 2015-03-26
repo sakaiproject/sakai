@@ -168,6 +168,9 @@ public interface ContentHostingService extends EntityProducer
 	
 	/** Security function for those who may OWN a dropbox. */
 	public static final String AUTH_DROPBOX_OWN = "dropbox.own";
+	
+	/** Security function for those who may maintain dropboxes of their groups/sections. */
+	public static final String AUTH_DROPBOX_GROUPS = "dropbox.maintain.own.groups";
 
 	/** Security function for those who may maintain dropboxes. */
 	public static final String AUTH_DROPBOX_MAINTAIN = "dropbox.maintain";
@@ -1715,6 +1718,13 @@ public interface ContentHostingService extends EntityProducer
 	 */
 	public boolean isDropboxMaintainer(String siteId);
 
+	/**
+	 * Determine whether the user has the dropbox.groups permission 
+	 * 
+	 * @return True if user has dropbox.groups permission, false otherwise.
+	 */
+	public boolean isDropboxGroups(String siteId);
+	
 	/**
 	 * Access the default dropbox collection display name for the current request. If the current user has permission to modify the site's dropbox collection, this is returned. Otherwise, the current user's collection within the site's dropbox is
 	 * returned.
