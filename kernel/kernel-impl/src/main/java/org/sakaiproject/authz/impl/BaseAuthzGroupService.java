@@ -1478,7 +1478,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 * @param providerMembership
 		 *        The Map of external group id -> role id.
 		 */
-		void refreshUser(String userId, Map providerMembership);
+		void refreshUser(String userId, Map<String, String> providerMembership);
 
 		/**
 		 * Refresh the external user - role membership for this AuthzGroup
@@ -1498,98 +1498,6 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
          * @return a String Set of all maintain roles
          */
         public Set<String> getMaintainRoles();
-	}
-
-	public class ProviderMap implements Map
-	{
-		protected Map m_wrapper = null;
-		protected GroupProvider m_provider = null;
-
-		public ProviderMap(GroupProvider provider, Map wrapper)
-		{
-			m_provider = provider;
-			m_wrapper = wrapper;
-		}
-
-		public void clear()
-		{
-			m_wrapper.clear();
-		}
-
-		public boolean containsKey(Object key)
-		{
-			return m_wrapper.containsKey(key);
-		}
-
-		public boolean containsValue(Object value)
-		{
-			return m_wrapper.containsValue(value);
-		}
-
-		public Set entrySet()
-		{
-			return m_wrapper.entrySet();
-		}
-
-		public Object get(Object key)
-		{
-			// if we have this key exactly, use it
-			Object value = m_wrapper.get(key);
-			if (value != null) return value;
-
-			// otherwise break up key as a compound id and find what values we have for these
-			// the values are roles, and we prefer "maintain" to "access"
-			String rv = null;
-			String[] ids = m_provider.unpackId((String) key);
-			for (int i = 0; i < ids.length; i++)
-			{
-				// try this one
-				value = m_wrapper.get(ids[i]);
-				
-				// if we found one already, ask the provider which to keep
-				if (value != null)
-				{
-					rv = m_provider.preferredRole((String)value, rv);
-				}
-			}
-
-			return rv;
-		}
-
-		public boolean isEmpty()
-		{
-			return m_wrapper.isEmpty();
-		}
-
-		public Set keySet()
-		{
-			return m_wrapper.keySet();
-		}
-
-		public Object put(Object key, Object value)
-		{
-			return m_wrapper.put(key, value);
-		}
-
-		public void putAll(Map t)
-		{
-			m_wrapper.putAll(t);
-		}
-
-		public Object remove(Object key)
-		{
-			return m_wrapper.remove(key);
-		}
-
-		public int size()
-		{
-			return m_wrapper.size();
-		}
-
-		public Collection values()
-		{
-			return m_wrapper.values();
-		}		
 	}
 
 	@Override
