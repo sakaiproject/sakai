@@ -63,6 +63,24 @@
     roster.nextPage = 0;
     roster.currentState = null;
 
+	/**
+	*	Check if there is no scroll rendered and there are more pages
+	*/
+    roster.checkScroll = function () {
+    	$(window).off('scroll.roster.rendered');
+        // Check if body height is lower than window height
+        if ($("body").height() <= $(window).height()) {
+            setTimeout(function () {
+            	var renderedMembers = $(".roster-member").size();
+            	if (roster.site.membersTotal > renderedMembers) {
+                	$("body").data("scroll-roster", true);
+                	$(window).on('scroll.roster.rendered', roster.checkScroll);
+                	$(window).trigger('scroll.roster');
+            	}
+            },100);
+        }
+    };
+    
     /**
      * Renders a handlebars template.
      */
@@ -70,6 +88,7 @@
 
         var t = Handlebars.templates[template];
         document.getElementById(outputId).innerHTML = t(data);
+        $(window).trigger('scroll.roster.rendered');
     };
 
     roster.switchState = function (state, arg, searchQuery) {
@@ -509,7 +528,8 @@
 
             var wintop = $(window).scrollTop(), docheight = $(document).height(), winheight = $(window).height();
      
-            if  ((wintop/(docheight-winheight)) > 0.95) {
+            if  ((wintop/(docheight-winheight)) > 0.95 || $("body").data("scroll-roster") === true) {
+                $("body").data("scroll-roster", false);
                 $(window).off('scroll.roster');
                 if (showOfficialPictures) {
                     roster.renderMembership({ forceOfficialPicture: true, replace: false, enrollmentStatus: enrollmentStatus });
@@ -707,4 +727,10 @@
         error: function () {
         }
     });
+    
+    $(document).ready(function () {
+    	// Ensure everything is rendered
+    	setTimeout(function () { roster.checkScroll(); }, 100);
+    });
+    
 }) (jQuery);
