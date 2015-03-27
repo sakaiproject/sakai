@@ -28,21 +28,17 @@ import com.hazelcast.config.Config;
 import com.hazelcast.core.DistributedObject;
 import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
-
 import com.hazelcast.core.IMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
-
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.GenericMultiRefCache;
+import org.sakaiproject.memory.api.Configuration;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.memory.util.CacheInitializer;
 
 import java.util.*;
 
@@ -122,7 +118,7 @@ public class HazelcastMemoryService implements MemoryService {
     }
 
     @Override
-    public <C extends org.sakaiproject.memory.api.Configuration> Cache createCache(String cacheName, C configuration) {
+    public <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration) {
         return new HazelcastCache(makeHazelcastCache(cacheName, configuration));
     }
 
@@ -315,12 +311,6 @@ public class HazelcastMemoryService implements MemoryService {
         return getCache(cacheName);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
-        log.warn("Creating MultiRefCache("+cacheName+"), GenericMultiRefCache is not supported in the distributed MemoryService implementation, the refs handling will do nothing!");
-        return new HazelcastGenericMultiRefCache(makeHazelcastCache(cacheName, null));
-    }
 
     /**
      * @param cacheName the name of the cache
@@ -415,17 +405,4 @@ public class HazelcastMemoryService implements MemoryService {
         this.securityService = securityService;
     }
 
-    /**
-     * Temporary only
-     */
-    @SuppressWarnings("deprecation")
-    private class HazelcastGenericMultiRefCache extends HazelcastCache implements GenericMultiRefCache {
-        public HazelcastGenericMultiRefCache(IMap cache) {
-            super(cache);
-        }
-        @Override
-        public void put(String key, Object payload, String ref, Collection<String> dependRefs) {
-            super.put(key, payload);
-        }
-    }
 }

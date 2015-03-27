@@ -41,7 +41,7 @@ import java.util.*;
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class EhcacheCache extends BasicCache implements CacheEventListener {
+public class EhcacheCache<K, V> extends BasicCache<K, V> implements CacheEventListener {
     final Log log = LogFactory.getLog(BasicMapCache.class);
 
     /**
@@ -65,12 +65,12 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
     }
 
     @Override
-    public void put(String key, Object payload) {
+    public void put(K key, V payload) {
         cache.put(new Element(key, payload));
     }
 
     @Override
-    public boolean containsKey(String key) {
+    public boolean containsKey(K key) {
         if (cache.isKeyInCache(key)) {
             // commented out the old way because this mechanism is the recommended way, note that this returning true is no guarantee the data will be there and that should NOT be assumed by anyone using this method -AZ
             //return (cache.get(key) != null);
@@ -80,15 +80,15 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
     } // containsKey
 
     @Override
-    public Object get(String key) {
+    public V get(K key) {
         final Element element = cache.get(key);
-        Object value;
+        V value;
         if (element == null) {
             if (loader != null) {
                 // trigger the cache loader on cache miss
                 try {
                     //noinspection unchecked
-                    value = loader.load(key);
+                    value = (V) loader.load(key);
                 } catch (Exception e1) {
                     value = null;
                     log.error("Cache loader failed trying to load (" + key + ") for cache (" + getName() + "), return value will be null:" + e1, e1);
@@ -98,7 +98,7 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
                 value = null;
             }
         } else {
-            value = element.getObjectValue();
+            value = (V) element.getObjectValue();
         }
         return value;
     } // get
@@ -213,7 +213,7 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
     }
 
     @Override
-    public boolean remove(String key) {
+    public boolean remove(K key) {
         //final Object value = get(key);
         boolean found = cache.remove(key);
         return found;
@@ -249,22 +249,22 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
     // BULK operations - KNL-1246
 
     @Override
-    public Map<String, Object> getAll(Set<String> keys) {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+    public Map<K, V> getAll(Set<? extends K> keys) {
+        HashMap<K, V> map = new HashMap<>();
         if (!keys.isEmpty()) {
             Map<Object, Element> mapElements = cache.getAll(keys);
             for (Map.Entry<Object, Element> entry : mapElements.entrySet()) {
-                map.put(entry.getKey().toString(), entry.getValue().getObjectValue());
+                map.put((K)entry.getKey(), (V)entry.getValue().getObjectValue());
             }
         }
         return map;
     }
 
     @Override
-    public void putAll(Map<String, Object> map) {
+    public void putAll(Map<? extends K, ? extends V> map) {
         if (map != null && !map.isEmpty()) {
             HashSet<Element> elements = new HashSet<Element>(map.size());
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
+            for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
                 if (entry.getKey() != null) {
                     elements.add( new Element(entry.getKey(), entry.getValue()) );
                 }
@@ -276,7 +276,7 @@ public class EhcacheCache extends BasicCache implements CacheEventListener {
     }
 
     @Override
-    public void removeAll(Set<String> keys) {
+    public void removeAll(Set<? extends K> keys) {
         if (!keys.isEmpty()) {
             cache.removeAll(keys);
         }

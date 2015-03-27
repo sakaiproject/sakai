@@ -450,12 +450,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			// <= 0 minutes indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-                boolean useLegacy = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
-                if (useLegacy) {
-                    m_siteCache = new SiteCacheImpl(memoryService(), m_cacheCleanerSeconds, siteReference(""));
-                } else {
-                    m_siteCache = new SiteCacheSafe(memoryService(), eventTrackingService()); // ONLY keep this part -AZ
-                }
+				m_siteCache = new SiteCacheSafe(memoryService(), eventTrackingService());
 			}
 
 			// Register our user-site cache property
