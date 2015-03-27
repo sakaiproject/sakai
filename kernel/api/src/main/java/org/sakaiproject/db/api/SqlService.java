@@ -97,9 +97,11 @@ public interface SqlService
 	 *        The array of fields for parameters.
 	 * @param reader
 	 *        The reader object to read each record.
+	 * @param <T>
+	 *        The type of objects being returned by the SqlReader.
 	 * @return The List of things read, one per record.
 	 */
-	List dbRead(String sql, Object[] fields, SqlReader reader);
+	<T> List<T> dbRead(String sql, Object[] fields, SqlReader<T> reader);
 
 	/**
 	 * Process a query, filling in with fields, and return the results as a List, one per record read. If a reader is provided, it will be called for each record to prepare the Object placed into the List. Otherwise, the first field of each record, as a
@@ -113,9 +115,11 @@ public interface SqlService
 	 *        The array of fields for parameters.
 	 * @param reader
 	 *        The reader object to read each record.
+	 * @param <T>
+	 *        The type of objects being returned by the SqlReader.
 	 * @return The List of things read, one per record.
 	 */
-	List dbRead(Connection conn, String sql, Object[] fields, SqlReader reader);
+	<T> List<T> dbRead(Connection conn, String sql, Object[] fields, SqlReader<T> reader);
 
 	/**
 	 * Read a single field from the db, from multiple record - concatenating the binary values into value.

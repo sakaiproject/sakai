@@ -26,16 +26,17 @@ import java.sql.ResultSet;
 /**
  * <p>
  * SqlReader is the Interface for objects that can read stuff from a SQL request ResultSet.
+ * @param <T> The type of objects returned from the reader.
  * </p>
  */
-public interface SqlReader 
+public interface SqlReader<T>
 {
 	/**
 	 * Read fields from this result set, creating one object which is returned.
 	 * 
 	 * @param result
 	 *        The SQL ResultSet, set to the proper record.
-	 * @return The object read.
+	 * @return The object read of type T.
 	 */
-	Object readSqlResultRecord(ResultSet result) throws SqlReaderFinishedException;
+	T readSqlResultRecord(ResultSet result) throws SqlReaderFinishedException;
 }
