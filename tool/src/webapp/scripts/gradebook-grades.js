@@ -322,7 +322,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
 
   var $header = self.$table.find("thead", "tr");
   var $fixedHeader = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-header-table").hide();
-  $fixedHeader.append($header.clone());
+  $fixedHeader.append(self._cloneCell($header));
   self.$spreadsheet.prepend($fixedHeader);
 
   function positionFixedHeader() {
@@ -378,7 +378,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
   // populate the dummy header table
   $headers.each(function(i, origCell) {
-    var $th = $(origCell).clone();
+    var $th = self._cloneCell($(origCell));
     colWidths.push($(origCell).find(".gb-cell-inner").outerWidth());
     $th.find(".gb-cell-inner").width(colWidths[i]);
     totalWidth += colWidths[i];
@@ -390,7 +390,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
     var $tr = $("<tr>");
 
     $headers.each(function(i, origTh) {
-      var $td = $($(origRow).find("td").get(i)).clone();
+      var $td = self._cloneCell($($(origRow).find("td").get(i)));
       $td.find(".gb-cell-inner").width(colWidths[i]);
       $tr.append($td);
     });
@@ -484,24 +484,41 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
     self.$spreadsheet.scrollLeft(0);
     var cellIndex = $(this).index();
     var rowIndex = $(this).closest("tr").index();
-    $(self.$table.find("tbody tr").get(rowIndex)).find("td").get(cellIndex).focus();
+    $targetCell = $($(self.$table.find("tbody tr").get(rowIndex)).find("td").get(cellIndex));
+
+    // attempt to proxy to elements in the original cell
+    if (!self.proxyEventToElementsInOriginalCell(event, $targetCell)) {
+      // otherwise just focus the original cell
+      $targetCell.focus();
+    }
   });
 };
 
 
 GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(event, $originalCell) {
-    if (event.target.id) {
-      var $targetElement = $originalCell.find("#"+event.target.id);
-      if ($targetElement.length > 0) {
-        $targetElement.focus().trigger("click");
-        return true;
-      }
-    } else if ($(event.target).is("a.btn.dropdown-toggle")) {
-      $originalCell.find("a.btn.dropdown-toggle").focus().trigger("click");
+  var $target = $(event.target);
+
+  // if a span, then check if this is a child of link
+  if ($target.is("span") && $target.closest("a").length > 0) {
+    // yep! let's proxy through the event to the link
+    // as it's likely the user wanted to click it
+    $target = $target.closest("a");
+  }
+
+  // check for an id
+  if ($target.data("id") || $target.attr("id")) {
+    var $originalElement = $originalCell.find("#"+($target.data("id") || $target.attr("id")));
+    if ($originalElement.length > 0) {
+      $originalElement.focus().trigger("click");
       return true;
     }
+  // or a dropdown?
+  } else if ($(event.target).is("a.btn.dropdown-toggle")) {
+    $originalCell.find("a.btn.dropdown-toggle").focus().trigger("click");
+    return true;
+  }
 
-    return false;
+  return false;
 };
 
 
@@ -549,6 +566,22 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
 
 GradebookSpreadsheet.prototype.setupToolbar = function() {
   this.toolbarModel = new GradebookToolbar($("#gradebookGradesToolbar"), this);
+};
+
+
+GradebookSpreadsheet.prototype._cloneCell = function($cell) {
+  // clone and sanitize the $cell so it can be used in a fixed header/column
+  // and not interfere with javascript bindings already out there
+
+  // start with a basic clone
+  var $clone = $cell.clone();
+
+  // remove any ids
+  $clone.find("[id]").each(function() {
+    $(this).data("id", $(this).attr("id")).removeAttr("id");
+  });
+
+  return $clone;
 };
 
 
