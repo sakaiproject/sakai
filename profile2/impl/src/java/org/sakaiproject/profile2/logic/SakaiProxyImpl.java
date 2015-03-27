@@ -719,8 +719,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 				StringBuilder sb = new StringBuilder();
 				sb.append("From: ");
 				sb.append(getServiceName());
-				sb.append(" <no-reply@");
-				sb.append(getServerName());
+				sb.append(" <");
+				sb.append(serverConfigurationService.getString("smtpFrom@org.sakaiproject.email.api.EmailService","no-reply@"+getServerName()));
 				sb.append(">");
 				
 				return sb.toString();
