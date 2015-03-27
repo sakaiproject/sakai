@@ -26,7 +26,15 @@
     <div wicket:id="addGradeItemWindow" />
     <div id="gradebookGrades">
       <div id="gradebookGradesToolbar">
-        <ul>
+        <ul class="gb-toolbar-left">
+          <li>
+            <select id="filterByGroup" wicket:id="groupFilter">
+              <option value="1">Section 1</option>
+              <option value="2">Section 2</option>
+            </select>
+          </li>
+        </ul>
+        <ul class="gb-toolbar-right">
           <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
           <li>
             <button id="toggleGradeItemsToolbarItem">Show/Hide Items</button>
