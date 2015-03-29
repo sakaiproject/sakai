@@ -212,6 +212,11 @@
   list-style: none;
   margin: 0;
   padding: 0;
+}
+#gradebookGradesToolbar ul.gb-toolbar-left {
+  float: left;
+}
+#gradebookGradesToolbar ul.gb-toolbar-right {
   float: right;
 }
 #gradebookGradesToolbar li {
