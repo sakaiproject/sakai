@@ -162,9 +162,6 @@
 #gradebookGrades .gb-fixed-columns-table.table-hover tr.hovered {
   background-color: #f5f5f5 !important;
 }
-#gradebookGrades .gb-fixed-header-table .btn-group {
-  visibility: hidden;
-}
 /* Fix ghosting of the dragtable helper */
 #gradebookGrades .dragtable-sortable {
   z-index: 10;
