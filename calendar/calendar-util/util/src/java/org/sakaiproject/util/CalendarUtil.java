@@ -557,8 +557,9 @@ public class CalendarUtil
 	// Used for tests
 	static String getLocalAMString(DateTime now) {
 		//we need an AM date
-		DateTime dt = now.withTime(1, 0, 0, 0);
-		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(new ResourceLoader("calendar").getLocale());
+		DateTime dt = now.withTimeAtStartOfDay();
+		Locale locale= new ResourceLoader("calendar").getLocale();
+		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
 		return df.print(dt);
 	}
 	
@@ -573,8 +574,9 @@ public class CalendarUtil
 	// Used for tests
 	static String getLocalPMString(DateTime now) {
 		//we need an PM date
-		DateTime dt = now.withTime(14, 0, 0, 0);
-		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(new ResourceLoader("calendar").getLocale());
+		DateTime dt = now.withTimeAtStartOfDay().plusHours(14);
+		Locale locale = new ResourceLoader("calendar").getLocale();
+		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
 		return df.print(dt);
 	}
 	
