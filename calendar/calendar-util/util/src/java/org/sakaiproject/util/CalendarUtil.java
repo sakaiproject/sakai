@@ -548,25 +548,35 @@ public class CalendarUtil
 	
 	/**
 	 * Get the String representing AM in the users Locale 
-	 * @return
+	 * @return A String representing the morning for the current user.
 	 */
 	public static String getLocalAMString() {
-		
+		return getLocalAMString(new DateTime());
+	}
+
+	// Used for tests
+	static String getLocalAMString(DateTime now) {
 		//we need an AM date
-		DateTime dt = new DateTime().withTime(1, 0, 0, 0);
-		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(new ResourceLoader("calendar").getLocale());
+		DateTime dt = now.withTimeAtStartOfDay();
+		Locale locale= new ResourceLoader("calendar").getLocale();
+		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
 		return df.print(dt);
 	}
 	
 	/**
 	 * Get the string representing PM in the users Locale
-	 * @return
+	 * @return A String representing the afternoon for the current user.
 	 */
 	public static String getLocalPMString() {
+		return getLocalPMString(new DateTime());
+	}
 
+	// Used for tests
+	static String getLocalPMString(DateTime now) {
 		//we need an PM date
-		DateTime dt = new DateTime().withTime(14, 0, 0, 0);
-		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(new ResourceLoader("calendar").getLocale());
+		DateTime dt = now.withTimeAtStartOfDay().plusHours(14);
+		Locale locale = new ResourceLoader("calendar").getLocale();
+		DateTimeFormatter df = new DateTimeFormatterBuilder().appendHalfdayOfDayText().toFormatter().withLocale(locale);
 		return df.print(dt);
 	}
 	
