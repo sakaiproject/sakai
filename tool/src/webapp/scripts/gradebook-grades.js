@@ -16,7 +16,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupGradeItemCellModels();
   this.enableAbsolutePositionsInCells();
   this.setupKeyboadNavigation();
-  //this.setupFixedColumns();
+  this.setupFixedColumns();
   this.setupFixedTableHeader();
   this.setupColumnDragAndDrop();
   this.setupToolbar();

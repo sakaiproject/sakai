@@ -54,12 +54,7 @@ public class StudentNameCellPanel extends Panel {
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				
-				System.out.println("clicked");
-				
-				//this.setContent(new StudentGradeSummaryPanel(this.getContentId(), model));
-
-				gradeSummary.setContent(new Label(gradeSummary.getContentId(), "I'm a modal window!"));
-				
+				gradeSummary.setContent(new StudentGradeSummaryPanel(gradeSummary.getContentId(), model, gradeSummary));
 				gradeSummary.show(target);
 				
 				//TODO
@@ -90,23 +85,6 @@ public class StudentNameCellPanel extends Panel {
 
 	}
 	
-	/**
-	 * Window for viewing a student's grades. Setup only
-	 * 
-	 */
-	private class GradeSummaryWindow extends ModalWindow {
-
-		private static final long serialVersionUID = 1L;
-
-		public GradeSummaryWindow(String componentId) {
-			super(componentId);
-			
-			System.out.println("init");
-			
-			//this.setUseInitialHeight(false);
-		}
-		
-	}
 	
 	/**
 	 * Helper to format a student name based on the sort type.

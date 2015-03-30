@@ -353,6 +353,7 @@ public class GradebookNgBusinessService {
 		//currently storing the full grade definition too, this may be unnecessary
 		//NOT a high priority unless performance issue deems it to be
 		
+		
 		for(User student: students) {
 			
 			StudentGradeInfo sg = new StudentGradeInfo(student);

@@ -12,6 +12,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.MaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
@@ -70,6 +71,9 @@ public class GradebookPage extends BasePage {
 		
 		//details window TODO move these windows and fix up the naming
 		studentGradeSummary = new ModalWindow("studentGradeSummary");
+		studentGradeSummary.setResizable(false);
+		studentGradeSummary.setUseInitialHeight(true);
+		
 		form.add(studentGradeSummary);
 		
 		
@@ -100,6 +104,7 @@ public class GradebookPage extends BasePage {
 				modelData.put("eid", studentGradeInfo.getStudentEid());
 				modelData.put("firstName", studentGradeInfo.getStudentFirstName());
 				modelData.put("lastName", studentGradeInfo.getStudentLastName());
+				modelData.put("displayName", studentGradeInfo.getStudentDisplayName());
 				modelData.put("sortType", GbStudentSortType.LAST_NAME); //TODO this needs to come from somewhere, prefs maybe
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));

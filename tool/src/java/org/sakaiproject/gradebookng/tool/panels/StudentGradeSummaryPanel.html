@@ -4,25 +4,26 @@
 <body>
 	<wicket:panel>
 
-
+		<h2><wicket:message key="heading.studentsummary" /></h2>
 		
+		<h3><span wicket:id="name">Tony Stark</span></h3>
 		
-		<form class="form-horizontal">
+		<h4><wicket:message key="label.studentsummary.coursegrade" /> <span wicket:id="courseGrade">B+</span></h4>
+
+		<table class="table-striped table-bordered table-hover">
+			<tr>
+			   <th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+			   <th><wicket:message key="column.header.studentsummary.duedate" /></th>
+			   <th><wicket:message key="column.header.studentsummary.grade" /></th>
+			   <th><wicket:message key="column.header.studentsummary.weight" /></th>
+			   <th><wicket:message key="column.header.studentsummary.comments" /></th>
+			</tr>
+			<tr wicket:id="rows">
+			   <td wicket:id="dataRow"></td>
+			</tr>
+		</table>
 		
-			<h2><wicket:message key="heading.studentsummary" /></h2>
-
-            <div class="form-group">
-                
-				<!--  <table wicket:id="table" class="table-striped table-bordered table-hover"></table> -->
-
-				<div class="col-xs-offset-3 col-xs-5">
-					<button type="submit" class="btn btn-primary"><wicket:message key="button.done" /></button>
-				</div>
-			</div>
-		
-		</form>
-
-
+		<button type="submit" class="btn btn-secondary" wicket:id="done"><wicket:message key="button.done" /></button>
 
 	</wicket:panel>
 </body>
