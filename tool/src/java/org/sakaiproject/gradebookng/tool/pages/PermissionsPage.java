@@ -12,7 +12,7 @@ public class PermissionsPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	public PermissionsPage() {
-		
+		disableLink(this.permissionsPageLink);
 		
 	}
 }

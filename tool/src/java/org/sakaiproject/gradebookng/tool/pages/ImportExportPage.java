@@ -19,6 +19,8 @@ public class ImportExportPage extends BasePage {
 
 
 	public ImportExportPage() {
+		disableLink(this.importExportPageLink);
+		
 		add(new GradeImportUploadStep("wizard"));
 
 	}
