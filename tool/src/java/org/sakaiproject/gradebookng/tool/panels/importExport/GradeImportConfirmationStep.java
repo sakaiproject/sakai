@@ -15,6 +15,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.util.ArrayList;
@@ -42,6 +43,7 @@ public class GradeImportConfirmationStep extends Panel {
             @Override
             protected void onSubmit()
             {
+                boolean errors = false;
                 //Create new GB items
                 for (Assignment assignment : assignmentsToCreate) {
                     businessService.addAssignmentToGradebook(assignment);
@@ -56,9 +58,19 @@ public class GradeImportConfirmationStep extends Panel {
                         LOG.debug("Looping through detail items to save");
                         boolean saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentId(),
                                 processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
+                        if (!saved) {
+                            errors = true;
+                        }
                         LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentId() + ", " +
                                 processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
                     }
+                }
+
+                if (!errors) {
+                    getSession().info(getString("importExport.confirmation.success"));
+                    setResponsePage(new GradebookPage());
+                } else {
+                    getSession().error(getString("importExport.confirmation.failure"));
                 }
             }
         };
