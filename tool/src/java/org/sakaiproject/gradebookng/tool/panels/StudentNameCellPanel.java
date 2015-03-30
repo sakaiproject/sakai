@@ -9,6 +9,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
  * 
@@ -20,14 +21,13 @@ import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
 public class StudentNameCellPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-	
-	GradeSummaryWindow detailsWindow;
-	
+		
 	IModel<Map<String,Object>> model;
 
 	public StudentNameCellPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);
 		this.model = model;
+		
 	}
 	
 	@Override
@@ -42,6 +42,10 @@ public class StudentNameCellPanel extends Panel {
 		String lastName = (String) modelData.get("lastName");
 		GbStudentSortType sortType = (GbStudentSortType) modelData.get("sortType");
 		
+		//get reference to parent page modal window
+		GradebookPage gradebookPage = (GradebookPage) this.getPage();
+		final ModalWindow gradeSummary = gradebookPage.getStudentGradeSummaryWindow();
+		
 		//link
 		AjaxLink<String> link = new AjaxLink<String>("link") {
 			
@@ -49,7 +53,9 @@ public class StudentNameCellPanel extends Panel {
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
-				detailsWindow.show(target);
+				
+				gradeSummary.setContent(new StudentGradeSummaryPanel(gradeSummary.getContentId(), model, gradeSummary));
+				gradeSummary.show(target);
 				
 				//TODO
 				//when this appears we want to alter the css so it is
@@ -75,28 +81,10 @@ public class StudentNameCellPanel extends Panel {
 		
 		add(link);
 		
-		//details window
-		detailsWindow = new GradeSummaryWindow("details", this.model);
-		add(detailsWindow);
+		
 
 	}
 	
-	/**
-	 * Window for viewing a student's grades
-	 */
-	private class GradeSummaryWindow extends ModalWindow {
-
-		private static final long serialVersionUID = 1L;
-
-		public GradeSummaryWindow(String componentId, IModel<Map<String,Object>> model) {
-			super(componentId);
-			
-			this.setContent(new StudentGradeSummaryPanel(this.getContentId(), model));
-			this.setUseInitialHeight(false);
-
-		}
-		
-	}
 	
 	/**
 	 * Helper to format a student name based on the sort type.
