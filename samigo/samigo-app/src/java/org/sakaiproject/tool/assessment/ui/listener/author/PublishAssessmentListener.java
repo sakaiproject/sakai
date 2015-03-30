@@ -336,7 +336,7 @@ public class PublishAssessmentListener
 	  }
 
 
-	  String noReplyEmaillAddress =  "no-reply@" + ServerConfigurationService.getServerName();
+	  String noReplyEmaillAddress =  ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
       InternetAddress[] noReply = new InternetAddress[1];
       try {
     	  noReply[0] = new InternetAddress(noReplyEmaillAddress);

@@ -762,8 +762,7 @@ public class EmailNotification implements NotificationAction
 	 */
 	protected String getFromService()
 	{
-		return "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"
-				+ ServerConfigurationService.getServerName() + ">";
+		return "\"" + ServerConfigurationService.getString("ui.service", "Sakai") + "\" <"+ ServerConfigurationService.getString("setup.request","no-reply@"+ ServerConfigurationService.getServerName()) + ">";
 	}
 
 	/**

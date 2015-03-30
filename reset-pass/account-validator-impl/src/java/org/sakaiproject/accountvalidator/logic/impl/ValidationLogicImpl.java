@@ -466,13 +466,13 @@ public class ValidationLogicImpl implements ValidationLogic {
 		replacementValues.put("memberSites", sb.toString());
 		replacementValues.put("displayName", userDisplayName);
 		replacementValues.put("userEid", userEid);
-		replacementValues.put("support.email", serverConfigurationService.getString("support.email"));
+		replacementValues.put("support.email", serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
 		replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 		String templateKey = getTemplateKey(accountStatus);
 
 		
 		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
+		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()), serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
 		v.setValidationSent(new Date());
 		v.setStatus(ValidationAccount.STATUS_SENT);
 		
@@ -755,7 +755,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		String templateKey = getTemplateKey(account.getAccountStatus());
 		
 		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
+		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()), serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
 	}
 
 
