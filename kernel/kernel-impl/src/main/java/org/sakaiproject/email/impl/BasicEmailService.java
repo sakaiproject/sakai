@@ -465,8 +465,8 @@ public class BasicEmailService implements EmailService
 
 		if (from == null)
 		{
-			M_log.warn("sendMail: null from");
-			return;
+			M_log.warn("sendMail: null from, setting smtpFrom property value.");
+			from = new InternetAddress(m_smtpFrom);
 		}
 
 		if (to == null)
@@ -633,8 +633,8 @@ public class BasicEmailService implements EmailService
 
 		if (fromStr == null)
 		{
-			M_log.warn("send: null fromStr");
-			return;
+			M_log.warn("send: null fromStr, setting smtpFrom property value.");
+			fromStr = m_smtpFrom;
 		}
 
 		if (toStr == null)
