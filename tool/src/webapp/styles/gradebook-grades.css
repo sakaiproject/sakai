@@ -258,6 +258,12 @@ div.wicket-mask-dark {
   opacity: 0.95;
   filter: alpha(opacity=95);
 }
+div.wicket-mask-transparent {
+  	/* make the modal background darker, back to the original 10% opacity */
+	opacity: 0.1; 
+	background-color: black; 
+	filter: alpha(opacity=10); 
+}
 div.wicket-modal div.w_content_container {
   /* give wicket model content some padding */
   padding: 0 20px 20px;

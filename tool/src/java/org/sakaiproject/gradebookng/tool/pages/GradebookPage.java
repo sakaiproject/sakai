@@ -228,6 +228,7 @@ public class GradebookPage extends BasePage {
 			
 			this.setContent(new AddGradeItemPanel(this.getContentId()));
 			this.setUseInitialHeight(false);
+			this.setMaskType(MaskType.TRANSPARENT); //this is actually overriden in the styles to be the standard 10% opacity
 
 		}
 		
