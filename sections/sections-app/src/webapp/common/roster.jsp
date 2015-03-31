@@ -8,8 +8,9 @@
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
-	<div class="instructions">
-		<h3 class="instructions"><h:outputText value="#{msgs.student_member}"/></h3>
+	<h3><h:outputText value="#{msgs.student_member}"/></h3>
+	
+	<div class="instructions">	
 		<h:outputText value="#{msgs.roster_instructions}"
 			rendered="#{ ! rosterBean.externallyManaged}"/>
 	</div>

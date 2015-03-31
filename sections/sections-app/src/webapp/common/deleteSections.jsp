@@ -8,7 +8,7 @@
         <%@ include file="/inc/navMenu.jspf"%>
     </t:aliasBean>
 
-	<h3 class="instructions">
+	<h3>
 	    <h:outputFormat value="#{msgs.overview_page_header}">
 	        <f:param value="#{overviewBean.siteRole}"/>
 	    </h:outputFormat>
