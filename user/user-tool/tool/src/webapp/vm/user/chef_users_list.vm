@@ -103,8 +103,7 @@
 								</form>
 							#end
 						#end
-					</div>
-				</div> ##end navPanel
+		</div> ##end navPanel
 				
 
 #if ($users.size() > 0)
