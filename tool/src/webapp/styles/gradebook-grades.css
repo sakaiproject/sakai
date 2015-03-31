@@ -251,5 +251,20 @@
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
-	border: none; /** don't want border wrapping content inside the modal **/
+  border: none; /** don't want border wrapping content inside the modal **/
+}
+div.wicket-mask-dark {
+  /* make the modal background darker */
+  opacity: 0.95;
+  filter: alpha(opacity=95);
+}
+div.wicket-modal div.w_content_container {
+  /* give wicket model content some padding */
+  padding: 0 20px 20px;
+}
+div.wicket-modal div.w_content_container > div > h2:first-child,
+div.wicket-modal div.w_content_container > div > form > h2:first-child {
+  /* remove the large morpheus top padding and margin from the first header element */
+  padding-top: 0;
+  margin-top: 0;
 }
