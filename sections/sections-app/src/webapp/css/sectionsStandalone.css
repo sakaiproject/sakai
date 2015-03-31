@@ -1,8 +1,4 @@
 /* Non-section-specific CSS class definitions and overrides. */
-/*
-  We include this in the common directory to let integrated deployments experiment
-  with the original look and feel.
-*/
 
 body  {
 	font-family:verdana,arial,helvetica,sans-serif;
