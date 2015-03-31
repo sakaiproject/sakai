@@ -6,6 +6,7 @@ import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -56,13 +57,20 @@ public class GradeItemCellPanel extends Panel {
 				String newGrade = this.getEditor().getValue();
 				
 				boolean result = businessService.saveGrade(assignmentId, studentGrades.getStudentUuid(), newGrade);
-				//TODO do something with the result
 				
-				//format it for display
+				//TODO fix this message
+				if(result) {
+					info("hooray");
+				} else {
+					error("oh dear");
+				}
+				
+				//format the grade for subsequent display and update the model
 				String formattedGrade = formatGrade(newGrade);
-				
 				this.getLabel().setDefaultModelObject(formattedGrade);
 				
+				//refresh the components we need
+				target.addChildren(getPage(), FeedbackPanel.class);
 				target.add(this);
 			}
 			

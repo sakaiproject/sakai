@@ -30,6 +30,8 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
  */
 public class BasePage extends WebPage implements IHeaderContributor {
 
+	private static final long serialVersionUID = 1L;
+
 	private static final Logger log = Logger.getLogger(BasePage.class); 
 	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
@@ -86,7 +88,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		// Add a FeedbackPanel for displaying our messages
         feedbackPanel = new FeedbackPanel("feedback"){
         	
-        	@Override
+			private static final long serialVersionUID = 1L;
+
+			@Override
         	protected Component newMessageDisplayComponent(final String id, final FeedbackMessage message) {
         		final Component newMessageDisplayComponent = super.newMessageDisplayComponent(id, message);
 
@@ -102,6 +106,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
         		return newMessageDisplayComponent;
         	}
         };
+        feedbackPanel.setOutputMarkupId(true);
         add(feedbackPanel); 
 		
     }
