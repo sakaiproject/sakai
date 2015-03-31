@@ -128,7 +128,7 @@
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
       <artifactId>sakai-kernel-private</artifactId>
-      <version>${sakai.kernel.version}</version>
+      <version>${sakai.version}</version>
       <scope>test</scope>
     </dependency>
 <!-- End Sakai2 Dependencies -->

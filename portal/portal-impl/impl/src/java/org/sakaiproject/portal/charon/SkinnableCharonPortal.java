@@ -1739,8 +1739,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 					"version.service", "?");
 			String sakaiVersion = ServerConfigurationService.getString("version.sakai",
 			"?");
-			String kernelVersion = ServerConfigurationService.getString("version.kernel",
-			"?");
 			String server = ServerConfigurationService.getServerId();
 			String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
 			String[] poweredByUrl = ServerConfigurationService.getStrings("powered.url");
@@ -1857,7 +1855,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavCopyright", copyright);
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
-			rcontext.put("bottomNavKernelVersion", kernelVersion);
 			rcontext.put("bottomNavServer", server);
 		}
 	}

@@ -63,30 +63,6 @@
           <forkMode>pertest</forkMode>
         </configuration>
       </plugin>
-            <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <version>1.7</version>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <echo message="version.kernel=${project.version}${line.separator}" file="${project.build.outputDirectory}/org/sakaiproject/config/version.properties" />
-                <tstamp>
-                <format property="timestamp" pattern="dd/MM/yyyy HH:mm:ss Z" />
-                </tstamp>
-                <echo message="buildTime.kernel=${timestamp}" file="${project.build.outputDirectory}/org/sakaiproject/config/version.properties" append="true" />
-              </tasks>
-
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-      
     </plugins>
     <pluginManagement>
         <plugins>
