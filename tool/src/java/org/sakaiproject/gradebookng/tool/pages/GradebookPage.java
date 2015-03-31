@@ -108,8 +108,8 @@ public class GradebookPage extends BasePage {
 				modelData.put("sortType", GbStudentSortType.LAST_NAME); //TODO this needs to come from somewhere, prefs maybe
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
-				//cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
-				//cellItem.add(new AttributeModifier("class", "gb-student-cell"));
+				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
+				cellItem.add(new AttributeModifier("class", "gb-student-cell"));
 			}
 
         };
