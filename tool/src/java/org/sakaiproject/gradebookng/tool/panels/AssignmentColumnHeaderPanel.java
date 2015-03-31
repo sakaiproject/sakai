@@ -75,6 +75,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(new WebMarkupContainer("notReleasedFlag").setVisible(!assignment.isReleased()));
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
+		add(new AttributeModifier("data-category", assignment.getCategoryName()));
 
 		//menu
 		//AjaxLink menu = new AjaxLink("menu", "http://google.com");

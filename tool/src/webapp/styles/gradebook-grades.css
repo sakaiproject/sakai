@@ -99,8 +99,31 @@
   min-height: 40px;
 }
 /* Distinguish Fixed Columns */
-#gradebookGrades table tr > :nth-child(2) {
+#gradebookGrades table thead tr > th:nth-child(2),
+#gradebookGrades table tbody tr > td:nth-child(2) {
   border-right: 2px solid #AAA;
+}
+/* Categories */
+#gradebookGrades table tr.gb-categories-row td {
+  height: 30px;
+  line-height: 16px;
+  font-size: 16px;
+}
+#gradebookGrades table tr.gb-categories-row > td:nth-child(1) {
+  border-right: 2px solid #AAA;
+}
+#gradebookGrades .gb-categories-row td {
+  text-align: center;
+  background: #e6e6e6;
+}
+#gradebookGrades.gb-grouped-by-category .dragtable-sortable {
+  margin-top: 30px;
+}
+#gradebookGrades .gb-fixed-column-headers-table .gb-categories-row {
+  display: none;
+}
+#gradebookGrades.gb-grouped-by-category .gb-fixed-column-headers-table .gb-categories-row {
+  display: table-row;
 }
 /* Table Cells */
 #gradebookGrades tbody td.gb-cell {
@@ -144,7 +167,6 @@
 #gradebookGrades .gb-fixed-columns-table,
 #gradebookGrades .gb-fixed-column-headers-table {
   border-right: none;
-  border-left-width: 3px;
 }
 #gradebookGrades .gb-fixed-column-headers-table {
   z-index: 30;
@@ -259,10 +281,10 @@ div.wicket-mask-dark {
   filter: alpha(opacity=95);
 }
 div.wicket-mask-transparent {
-  	/* make the modal background darker, back to the original 10% opacity */
-	opacity: 0.1; 
-	background-color: black; 
-	filter: alpha(opacity=10); 
+  /* make the modal background darker, back to the original 10% opacity */
+  opacity: 0.1; 
+  background-color: black; 
+  filter: alpha(opacity=10); 
 }
 div.wicket-modal div.w_content_container {
   /* give wicket model content some padding */
@@ -277,7 +299,7 @@ div.wicket-modal div.w_content_container > div > form > h2:first-child {
 
 /* style applied to a div for a Wicket FeedbackPanel, but removes the list styles and just make it bold */
 .feedbackPanel {
-	list-style-type: none;
-	margin-left: 0;
-	padding-left: 0;
+  list-style-type: none;
+  margin-left: 0;
+  padding-left: 0;
 }
