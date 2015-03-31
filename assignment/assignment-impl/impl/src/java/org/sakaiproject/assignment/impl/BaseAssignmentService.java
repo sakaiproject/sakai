@@ -2691,7 +2691,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	
 	protected String getFrom()
 	{
-		return "From: " + "\"" + m_serverConfigurationService.getString("ui.service", "Sakai") + "\"<no-reply@"+ m_serverConfigurationService.getServerName() + ">";
+		return "From: " + "\"" + m_serverConfigurationService.getString("ui.service", "Sakai") + "\" <"+ m_serverConfigurationService.getString("setup.request","no-reply@"+ m_serverConfigurationService.getServerName()) + ">";
 	}
 	
 	private final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";

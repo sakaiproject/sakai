@@ -204,7 +204,7 @@ public class SiteEmailNotification extends EmailNotification
 		{
 		}
 
-		return "\"" + title + "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
+		return "\"" + title + "\" <"+ ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName()) + ">";
 	}
 
 	/**

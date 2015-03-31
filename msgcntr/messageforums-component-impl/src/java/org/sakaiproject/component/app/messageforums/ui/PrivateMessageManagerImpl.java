@@ -1138,7 +1138,7 @@ public class PrivateMessageManagerImpl extends HibernateDaoSupport implements
     
 
     /** determines if default in sakai.properties is set, if not will make a reasonable default */
-    String defaultEmail = "postmaster@" + ServerConfigurationService.getServerName();
+    String defaultEmail = ServerConfigurationService.getString("setup.request","postmaster@" + ServerConfigurationService.getServerName());
     String systemEmail = ServerConfigurationService.getString("msgcntr.notification.from.address", defaultEmail);
    
     if (!ServerConfigurationService.getBoolean("msgcntr.notification.user.real.from", false)) {
