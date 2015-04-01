@@ -1165,7 +1165,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 	        {
 	            Assignment go = gradeRec.getAssignment();
-	            if (go.isIncludedInCalculations())
+	            if (go.isIncludedInCalculations() && countedAssigns.contains(go))
 	            {
 	                Double pointsEarned = new Double(gradeRec.getPointsEarned());
 	                //if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
