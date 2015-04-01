@@ -54,6 +54,7 @@ public class GradeImportConfirmationStep extends Panel {
                 itemsToSave.addAll(itemsToCreate);
                 for (ProcessedGradeItem processedGradeItem : itemsToSave) {
                     LOG.debug("Looping through items to save");
+                    //TODO this loops through grades and comments separately...need to figure out a better way
                     for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
                         LOG.debug("Looping through detail items to save");
                         boolean saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentId(),

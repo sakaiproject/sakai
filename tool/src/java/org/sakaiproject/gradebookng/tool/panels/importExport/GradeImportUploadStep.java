@@ -1,7 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
+import au.com.bytecode.opencsv.CSVWriter;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Button;
@@ -79,53 +79,41 @@ public class GradeImportUploadStep extends Panel {
         add(new UploadForm("form"));
     }
 
-    /**
-     *
-     * @param input
-     * @return
-     */
-    private String wrapText(String input) {
-        return "\"" + input + "\"";
-    }
-
-
     private File buildFile(boolean includeGrades) {
         File tempFile;
         try {
-            //TODO - Maybe use CSVWriter here?
             //TODO - add the site name to the file?
             tempFile = File.createTempFile("gradebookTemplate", ".csv");
-
             FileWriter fw = new FileWriter(tempFile);
+            CSVWriter csvWriter = new CSVWriter(fw);
+
             //Create csv header
             List<String> header = new ArrayList<String>();
-            header.add(wrapText("Student ID"));
-            header.add(wrapText("Student Name"));
+            header.add("Student ID");
+            header.add("Student Name");
 
             for (Assignment assignment : assignments) {
-                header.add(wrapText(assignment.getName() + " [" + assignment.getPoints() + "]"));
-                header.add(wrapText("*/ " + assignment.getName() + " Comments */"));
+                header.add(assignment.getName() + " [" + assignment.getPoints() + "]");
+                header.add("*/ " + assignment.getName() + " Comments */");
             }
-            String headerStr = StringUtils.join(header, ",");
-            fw.append(headerStr + "\n");
 
-            List<String> line = new ArrayList<String>();
+            csvWriter.writeNext(header.toArray(new String[]{}));
 
             for (StudentGradeInfo studentGradeInfo : grades) {
-                line.add(wrapText(studentGradeInfo.getStudentEid()));
-                line.add(wrapText(studentGradeInfo.getStudentDisplayName()));
+                List<String> line = new ArrayList<String>();
+                line.add(studentGradeInfo.getStudentEid());
+                line.add(studentGradeInfo.getStudentDisplayName());
                 if (includeGrades) {
                     for (Assignment assignment : assignments) {
                         GradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
-                        line.add(wrapText(gradeInfo.getGrade()));
-                        line.add(wrapText(gradeInfo.getGradeComment()));
+                        line.add(gradeInfo.getGrade());
+                        line.add(gradeInfo.getGradeComment());
                     }
                 }
-                String lineStr = StringUtils.join(line, ",");
-                fw.append(lineStr + "\n");
+                csvWriter.writeNext(line.toArray(new String[]{}));
             }
 
-
+            csvWriter.close();
             fw.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
