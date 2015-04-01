@@ -27,6 +27,7 @@ import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -293,10 +294,10 @@ public class SakaiClusterService implements ClusterService
 	}
 
 	@Override
-	public Map<String, Status> getServerStatus()
+	public Map<String, ClusterNode> getServerStatus()
 	{
 		String statement = clusterServiceSql.getListServerStatusSql();
-		final Map<String, Status> servers = new HashMap<String, Status>();
+		final Map<String, ClusterNode> servers = new HashMap<>();
 		m_sqlService.dbRead(statement, null, new SqlReader()
 		{
 			@Override
@@ -304,10 +305,12 @@ public class SakaiClusterService implements ClusterService
 			{
 				try
 				{
+					String serverInstanceId = result.getString("SERVER_ID_INSTANCE");
 					String serverId = result.getString("SERVER_ID");
+					Date updateTime = result.getTimestamp("UPDATE_TIME");
 					Status status = parseStatus(result.getString("STATUS"));
-					// Happy to put null into status? or should we convert to UNKNOWN?
-					servers.put(serverId, status);
+					ClusterNode node = new ClusterNodeImpl(serverId, status, updateTime);
+					servers.put(serverInstanceId, node);
 				}
 				catch (SQLException e)
 				{
@@ -317,14 +320,15 @@ public class SakaiClusterService implements ClusterService
 			}
 		});
 		// Always override DB status with memory version.
-		Status dbStatus = servers.put(m_serverConfigurationService.getServerIdInstance(), status);
+		ClusterNode dbStatus = servers.put(m_serverConfigurationService.getServerIdInstance(),
+				new ClusterNodeImpl(m_serverConfigurationService.getServerId(), status, new Date()));
 		if (dbStatus == null)
 		{
 			M_log.warn("Failed to find ourselves in the cluster: "+ m_serverConfigurationService.getServerIdInstance());
 		}
-		else if (!status.equals(dbStatus))
+		else if (!status.equals(dbStatus.getStatus()))
 		{
-			M_log.warn("In memory status ("+ status+ ") different to DB ("+ dbStatus+ ")");
+			M_log.warn("In memory status ("+ status+ ") different to DB ("+ dbStatus.getStatus()+ ")");
 		}
 		return servers;
 	}
@@ -388,9 +392,10 @@ public class SakaiClusterService implements ClusterService
 
 			// register in the cluster table
 			String statement = clusterServiceSql.getInsertServerSql();
-			Object fields[] = new Object[2];
+			Object fields[] = new Object[3];
 			fields[0] = m_serverConfigurationService.getServerIdInstance();
 			fields[1] = Status.STARTING.toString();
+			fields[2] = m_serverConfigurationService.getServerId();
 
 			boolean ok = m_sqlService.dbWrite(statement, fields);
 			if (!ok)
@@ -591,9 +596,10 @@ public class SakaiClusterService implements ClusterService
 				M_log.warn("run(): server has been closed in cluster table, reopened: " + serverIdInstance);
 
 				statement = clusterServiceSql.getInsertServerSql();
-				fields = new Object[2];
+				fields = new Object[3];
 				fields[0] = serverIdInstance;
 				fields[1] = status;
+				fields[2] = m_serverConfigurationService.getServerId();
 				boolean ok = m_sqlService.dbWrite(statement, fields);
 				if (!ok)
 				{
@@ -606,9 +612,10 @@ public class SakaiClusterService implements ClusterService
 			{
 				// register that this app server is alive and well
 				statement = clusterServiceSql.getUpdateServerSql();
-				fields = new Object[2];
+				fields = new Object[3];
 				fields[0] = status;
-				fields[1] = serverIdInstance;
+				fields[1] = m_serverConfigurationService.getServerId();
+				fields[2] = serverIdInstance;
 				boolean ok = m_sqlService.dbWrite(statement, fields);
 				if (!ok)
 				{
@@ -641,7 +648,7 @@ public class SakaiClusterService implements ClusterService
 
 	private Status parseStatus(String statusString)
 	{
-		Status status = null;
+		Status status = Status.UNKNOWN;
 		if (statusString != null)
 		{
 			try

@@ -33,6 +33,7 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.SessionState;
@@ -183,11 +184,17 @@ public class PresenceToolAction extends VelocityPortletPaneledAction
 			Map<String,List<UsageSession>> session = UsageSessionService.getOpenSessionsByServer();
 			context.put("serverSessions", session);
 
-			Map<String, ClusterService.Status>status = clusterService.getServerStatus();
+			Map<String, ClusterNode>nodes = clusterService.getServerStatus();
+			// Get a map of statuses
+			Map<String, ClusterService.Status> status = new HashMap<>();
+			for (Map.Entry<String, ClusterNode> entry: nodes.entrySet()) {
+				status.put(entry.getKey(), entry.getValue().getStatus());
+			}
+
 			context.put("serverStatus", status);
 
 			Set<String> serverList = new TreeSet<String>();
-			serverList.addAll(status.keySet());
+			serverList.addAll(nodes.keySet());
 			serverList.addAll(session.keySet());
 			context.put("serverList", serverList);
 

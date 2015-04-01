@@ -28,6 +28,9 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.cluster.api.ClusterNode;
+import org.sakaiproject.cluster.api.ClusterService;
+import org.sakaiproject.cluster.api.ClusterService.Status;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.event.api.UsageSession;
@@ -176,6 +179,10 @@ public class RequestFilter implements Filter
 	
 	/** The tools allowed as lti provider **/
 	protected static final String SAKAI_BLTI_PROVIDER_TOOLS = "basiclti.provider.allowedtools";
+
+	/** The name of the Skaia property to say we should redirect to another node when in shutdown */
+	protected static final String SAKAI_CLUSTER_REDIRECT_RANDOM = "cluster.redirect.random.node";
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(RequestFilter.class);
 	/** If true, we deliver the Sakai end user enterprise id as the remote user in each request. */
@@ -204,6 +211,8 @@ public class RequestFilter implements Filter
 	protected String m_uploadTempDir = null;
 
 	protected boolean m_displayModJkWarning = true;
+
+	protected boolean m_redirectRandomNode = true;
 
 	/** Default is to abort further upload processing if the max is exceeded. */
 	protected boolean m_uploadContinue = false;
@@ -555,7 +564,7 @@ public class RequestFilter implements Filter
 		// We could check that we aren't in a redirect loop here, but if the load balancer doesn't know that
 		// a node is no longer responding to new sessions it may still be sending it new clients, and so after
 		// a couple of redirects it should hop off this node.
-		String value = "";
+		String value = getRedirectNode();
 		// set the cookie
 		Cookie c = new Cookie(cookieName, value);
 		c.setPath("/");
@@ -577,6 +586,43 @@ public class RequestFilter implements Filter
 			url.append("?").append(req.getQueryString());
 		}
 		res.sendRedirect(url.toString());
+	}
+
+	/**
+	 * This looks to find a node to redirect to or if it can't find one it just empties the cookie
+	 * so the load balancer chooses.
+	 * @return The cookie value for a different node.
+	 */
+	protected String getRedirectNode() {
+		if (m_redirectRandomNode) {
+			ClusterService clusterService = (ClusterService) ComponentManager.get(ClusterService.class);
+			Map<String, ClusterNode> nodes = clusterService.getServerStatus();
+			// There may be more than one node listed for each node ID, just list the latest ones.
+			Map<String, ClusterNode> latestNodes = new HashMap<>();
+			for (ClusterNode node: nodes.values()) {
+				ClusterNode latest = latestNodes.get(node.getServerId());
+				if (latest == null || latest.getUpdated().after(node.getUpdated())) {
+					latestNodes.put(node.getServerId(), node);
+				}
+			}
+			// This node shouldn't ever be included but it's better safe than sorry.
+			latestNodes.remove(System.getProperty(SAKAI_SERVERID));
+			// Remove all the non-running servers.
+			List<String> activeServers = new ArrayList<>(latestNodes.size());
+			for (ClusterNode node : latestNodes.values()) {
+				if (Status.RUNNING.equals(node.getStatus())) {
+					activeServers.add(node.getServerId());
+				}
+			}
+			// Pick a random remaining server if we have one.
+			if (!(activeServers.isEmpty())) {
+				Random random = new Random();
+				int i = random.nextInt(activeServers.size());
+				String serverId = activeServers.get(i);
+				return DOT + serverId;
+			}
+		}
+		return "";
 	}
 
 	/**
@@ -605,6 +651,7 @@ public class RequestFilter implements Filter
 		// Requesting the ServerConfigurationService here also triggers the promotion of certain
 		// sakai.properties settings to system properties - see SakaiPropertyPromoter()
 		ServerConfigurationService configService = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
+
 
 		// knl-640
 		appUrl = configService.getString("serverUrl", null);
@@ -772,9 +819,11 @@ public class RequestFilter implements Filter
 		// retrieve option to enable or disable cookie HttpOnly
 		m_cookieHttpOnly = configService.getBoolean(SAKAI_COOKIE_HTTP_ONLY, true);
 
-		m_UACompatible = configService.getString(SAKAI_UA_COMPATIBLE,null);
+		m_UACompatible = configService.getString(SAKAI_UA_COMPATIBLE, null);
 
 		isLTIProviderAllowed = (configService.getString(SAKAI_BLTI_PROVIDER_TOOLS,null)!=null);
+
+		m_redirectRandomNode = configService.getBoolean(SAKAI_CLUSTER_REDIRECT_RANDOM, true);
 
 	}
 

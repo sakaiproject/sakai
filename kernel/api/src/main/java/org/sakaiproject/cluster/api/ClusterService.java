@@ -87,7 +87,7 @@ public interface ClusterService
 	 * Get the statuses of the servers in the cluster.
 	 * @return A Map of the servers with the value being the server status.
 	 */
-	Map<String, Status> getServerStatus();
+	Map<String, ClusterNode> getServerStatus();
 
 	/**
 	 * Marks a server as being closed. This prevents new sessions from being started.
