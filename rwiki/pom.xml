@@ -37,7 +37,6 @@ limitations under the License.
   <modules>
     <module>rwiki-api/api</module>
     <module>rwiki-impl/impl</module>
-    <module>rwiki-integration-test</module>
     <module>rwiki-model</module>
     <module>rwiki-util/jrcs</module>
     <module>rwiki-util/radeox</module>
