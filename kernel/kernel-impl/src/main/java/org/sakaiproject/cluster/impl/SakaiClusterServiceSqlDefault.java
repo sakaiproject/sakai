@@ -51,7 +51,7 @@ public class SakaiClusterServiceSqlDefault implements ClusterServiceSql
 	 */
 	public String getDeleteServerSql()
 	{
-		return "delete from SAKAI_CLUSTER where SERVER_ID = ?";
+		return "delete from SAKAI_CLUSTER where SERVER_ID_INSTANCE = ?";
 	}
 
 	/**
@@ -59,7 +59,7 @@ public class SakaiClusterServiceSqlDefault implements ClusterServiceSql
 	 */
 	public String getInsertServerSql()
 	{
-		return "insert into SAKAI_CLUSTER (SERVER_ID,UPDATE_TIME) values (?, " + sqlTimestamp() + ")";
+		return "insert into SAKAI_CLUSTER (SERVER_ID_INSTANCE, UPDATE_TIME, STATUS, SERVER_ID) values (?, " + sqlTimestamp() + ", ?, ?)";
 	}
 
 	/**
@@ -69,7 +69,7 @@ public class SakaiClusterServiceSqlDefault implements ClusterServiceSql
 	 */
 	public String getListExpiredServers(long timeout)
 	{
-		return "select SERVER_ID from SAKAI_CLUSTER where SERVER_ID != ? and DATEDIFF('ss', UPDATE_TIME, CURRENT_TIMESTAMP) >= " + timeout;
+		return "select SERVER_ID_INSTANCE from SAKAI_CLUSTER where SERVER_ID_INSTANCE != ? and DATEDIFF('ss', UPDATE_TIME, CURRENT_TIMESTAMP) >= " + timeout;
 	}
 
 	/**
@@ -77,7 +77,7 @@ public class SakaiClusterServiceSqlDefault implements ClusterServiceSql
 	 */
 	public String getListServersSql()
 	{
-		return "select SERVER_ID from SAKAI_CLUSTER order by SERVER_ID asc";
+		return "select SERVER_ID_INSTANCE from SAKAI_CLUSTER order by SERVER_ID_INSTANCE asc";
 	}
 
 	/**
@@ -85,7 +85,7 @@ public class SakaiClusterServiceSqlDefault implements ClusterServiceSql
 	 */
 	public String getReadServerSql()
 	{
-		return "select SERVER_ID from SAKAI_CLUSTER where SERVER_ID = ?";
+		return "select SERVER_ID_INSTANCE, STATUS from SAKAI_CLUSTER where SERVER_ID_INSTANCE = ?";
 	}
 
 	/**
@@ -93,7 +93,13 @@ public class SakaiClusterServiceSqlDefault implements ClusterServiceSql
 	 */
 	public String getUpdateServerSql()
 	{
-		return "update SAKAI_CLUSTER set UPDATE_TIME = " + sqlTimestamp() + " where SERVER_ID = ?";
+		return "update SAKAI_CLUSTER set UPDATE_TIME = " + sqlTimestamp() + ", STATUS = ?, SERVER_ID = ? where SERVER_ID_INSTANCE = ?";
+	}
+
+	@Override
+	public String getListServerStatusSql()
+	{
+		return "SELECT SERVER_ID_INSTANCE, STATUS, SERVER_ID, UPDATE_TIME FROM SAKAI_CLUSTER ORDER BY SERVER_ID_INSTANCE ASC";
 	}
 
 	/**
@@ -103,4 +109,5 @@ public class SakaiClusterServiceSqlDefault implements ClusterServiceSql
 	{
 		return "CURRENT_TIMESTAMP";
 	}
+
 }

@@ -12,16 +12,31 @@
 			<tr>
 				<th id="Id">$tlang.getString("presence.list.server")</th>
 				<th id="Count">$tlang.getString("presence.list.sessions")</th>
+				<th id="Status">$tlang.getString("presence.list.status")</th>
 			</tr>
 		#foreach ($serverName in $serverList)
 			<tr>
 				<td headers="Id">
 					<h4>
 						$validator.escapeHtml($serverName)
-					</h4>	
+					</h4>
 				</td>
 				<td headers="Count">
-					$servers.get("$serverName").size()
+					$!serverSessions.get($serverName).size()
+				</td>
+				<td headers="Status">
+					$serverStatus.get($serverName)
+					#if($serverStatus.get($serverName) == "CLOSING")
+						#set($button = $tlang.getString("presence.button.open"))
+					#else
+						#set($button = $tlang.getString("presence.button.close"))
+					#end
+					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
+						<input type="hidden" name="server_id" value="$serverName"/>
+						<input type="hidden" name="status" value="$serverStatus.get($serverName)"/>
+						<input type="submit" name="eventSubmit_doSwitch" value="$button"/>
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+					</form>
 				</td>
 			</tr>
 		#end

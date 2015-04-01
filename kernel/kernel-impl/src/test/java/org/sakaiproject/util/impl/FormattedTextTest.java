@@ -21,7 +21,12 @@
 
 package org.sakaiproject.util.impl;
 
+import java.util.regex.Pattern;
+
 import junit.framework.TestCase;
+import java.util.regex.Pattern;
+
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.impl.BasicConfigurationService;
@@ -78,6 +83,11 @@ public class FormattedTextTest extends TestCase {
             }
             @Override
             protected RebuildBreakdownService rebuildBreakdownService() {
+                return null;
+            }
+
+            @Override
+            protected ClusterService clusterManager() {
                 return null;
             }
         };
