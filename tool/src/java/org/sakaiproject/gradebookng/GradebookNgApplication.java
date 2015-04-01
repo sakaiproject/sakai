@@ -1,12 +1,12 @@
 package org.sakaiproject.gradebookng;
 
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.request.IRequestHandler;
-import org.apache.wicket.request.Url;
-import org.apache.wicket.request.cycle.IRequestCycleListener;
-import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
+import org.sakaiproject.gradebookng.tool.pages.PermissionsPage;
+import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 
 /**
  * Main application class
@@ -17,7 +17,17 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 public class GradebookNgApplication extends WebApplication {    
    
 	@Override
-	protected void init() {
+	public void init() {
+		super.init();
+		
+		//page mounting for bookmarkable URLs
+		//mountPage("/gradebook", GradebookPage.class);
+		//mountPage("/settings", SettingsPage.class);
+		//mountPage("/importexport", ImportExportPage.class);
+		//mountPage("/permissions", PermissionsPage.class);
+		
+		//remove the version number from the URL so that browser refreshes re-render the page
+		//getRequestCycleSettings().setRenderStrategy(IRequestCycleSettings.RenderStrategy.ONE_PASS_RENDER); 
 		
 		//Configure for Spring injection
         getComponentInstantiationListeners().add(new SpringComponentInjector(this));
@@ -94,7 +104,6 @@ public class GradebookNgApplication extends WebApplication {
 		//to put this app into deployment mode, see web.xml
 	}
 	
-
 	
 	/**
 	 * The main page for our app
