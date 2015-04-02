@@ -16,6 +16,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -34,11 +35,13 @@ public class GradeImportConfirmationStep extends Panel {
 
     private String panelId;
 
-    public GradeImportConfirmationStep(String id, final List<ProcessedGradeItem> processedGradeItems,
-                                       final List<ProcessedGradeItem> gbItemsToCreate, final List<ProcessedGradeItem> itemsToCreate,
-                                       final List<ProcessedGradeItem> itemsToUpdate, final List<Assignment> assignmentsToCreate) {
+    public GradeImportConfirmationStep(String id, final ImportWizardModel importWizardModel) {
         super(id);
         this.panelId = id;
+
+        final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
+        final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
+        final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
         Form<?> form = new Form("form")
         {
@@ -85,9 +88,9 @@ public class GradeImportConfirmationStep extends Panel {
                 LOG.debug("Clicking back button...");
                 Component newPanel = null;
                 if (assignmentsToCreate.size() > 0)
-                    newPanel = new CreateGradeItemStep(panelId, processedGradeItems, gbItemsToCreate.size(), gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
                 else
-                    newPanel = new GradeItemImportSelectionStep(panelId, processedGradeItems);
+                    newPanel = new GradeItemImportSelectionStep(panelId, importWizardModel);
                 newPanel.setOutputMarkupId(true);
                 GradeImportConfirmationStep.this.replaceWith(newPanel);
 

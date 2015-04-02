@@ -10,9 +10,11 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbAssignment;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
+import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,13 +26,14 @@ public class CreateGradeItemStep extends Panel {
 
     private String panelId;
 
-    public CreateGradeItemStep(String id, final List<ProcessedGradeItem> processedGradeItems, final int step, final int totalSteps, final List<ProcessedGradeItem> gbItemsToCreate,
-                               final List<ProcessedGradeItem> itemsToCreate, final List<ProcessedGradeItem> itemsToUpdate,
-                               final List<Assignment> assignmentsToCreate) {
+    public CreateGradeItemStep(String id, final ImportWizardModel importWizardModel) {
         super(id);
         this.panelId = id;
 
-        ProcessedGradeItem processedGradeItem = gbItemsToCreate.get(step - 1);
+        final int step = importWizardModel.getStep();
+
+
+        ProcessedGradeItem processedGradeItem = importWizardModel.getGbItemsToCreate().get(step - 1);
         Assignment assignment = new Assignment();
         assignment.setName(processedGradeItem.getItemTitle());
         assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
@@ -42,6 +45,7 @@ public class CreateGradeItemStep extends Panel {
             @Override
             protected void onSubmit()
             {
+                List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
                 GbAssignmentModel submittedModel = (GbAssignmentModel)getDefaultModel();
                 GbAssignment assignment = (GbAssignment)submittedModel.getObject();
 
@@ -52,11 +56,14 @@ public class CreateGradeItemStep extends Panel {
                 //Figure out if there are more steps
                 //If so, go to the next step
                 Component newPanel = null;
-                if (step < totalSteps) {
-                    newPanel = new CreateGradeItemStep(panelId, processedGradeItems, step+1, totalSteps, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                importWizardModel.setAssignmentsToCreate(assignmentsToCreate);
+
+                if (step < importWizardModel.getTotalSteps()) {
+                    importWizardModel.setStep(step+1);
+                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
                 } else {
                     //If not, continue on in the wizard
-                    newPanel = new GradeImportConfirmationStep(panelId, processedGradeItems, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                    newPanel = new GradeImportConfirmationStep(panelId, importWizardModel);
                 }
                     newPanel.setOutputMarkupId(true);
                     CreateGradeItemStep.this.replaceWith(newPanel);
@@ -70,10 +77,12 @@ public class CreateGradeItemStep extends Panel {
             public void onSubmit() {
                 LOG.debug("Clicking back button...");
                 Component newPanel = null;
-                if (step > 1)
-                    newPanel = new CreateGradeItemStep(panelId, processedGradeItems, step-1, totalSteps, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                if (step > 1) {
+                    importWizardModel.setStep(step-1);
+                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
+                }
                 else
-                    newPanel = new GradeItemImportSelectionStep(panelId, processedGradeItems);
+                    newPanel = new GradeItemImportSelectionStep(panelId, importWizardModel);
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);
 
@@ -83,7 +92,7 @@ public class CreateGradeItemStep extends Panel {
         backButton.setDefaultFormProcessing(false);
         form.add(backButton);
 
-        form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, totalSteps)));
+        form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
 
         AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", gbAssignmentModel);
 
