@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -33,8 +34,9 @@ public class GradeImportConfirmationStep extends Panel {
 
     private String panelId;
 
-    public GradeImportConfirmationStep(String id, final List<ProcessedGradeItem> itemsToCreate, final List<ProcessedGradeItem> itemsToUpdate,
-                                       final List<Assignment> assignmentsToCreate) {
+    public GradeImportConfirmationStep(String id, final List<ProcessedGradeItem> processedGradeItems,
+                                       final List<ProcessedGradeItem> gbItemsToCreate, final List<ProcessedGradeItem> itemsToCreate,
+                                       final List<ProcessedGradeItem> itemsToUpdate, final List<Assignment> assignmentsToCreate) {
         super(id);
         this.panelId = id;
 
@@ -76,6 +78,24 @@ public class GradeImportConfirmationStep extends Panel {
             }
         };
         add(form);
+
+        Button backButton = new Button("backbutton") {
+            @Override
+            public void onSubmit() {
+                LOG.debug("Clicking back button...");
+                Component newPanel = null;
+                if (assignmentsToCreate.size() > 0)
+                    newPanel = new CreateGradeItemStep(panelId, processedGradeItems, gbItemsToCreate.size(), gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                else
+                    newPanel = new GradeItemImportSelectionStep(panelId, processedGradeItems);
+                newPanel.setOutputMarkupId(true);
+                GradeImportConfirmationStep.this.replaceWith(newPanel);
+
+
+            }
+        };
+        backButton.setDefaultFormProcessing(false);
+        form.add(backButton);
 
         form.add(new Button("finishbutton"));
 

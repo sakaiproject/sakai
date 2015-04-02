@@ -75,9 +75,9 @@ public class GradeItemImportSelectionStep extends Panel {
 
                 Component newPanel = null;
                 if (gbItemsToCreate.size() > 0)
-                    newPanel = new CreateGradeItemStep(panelId, 1, gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                    newPanel = new CreateGradeItemStep(panelId, processedGradeItems, 1, gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
                 else
-                    newPanel = new GradeImportConfirmationStep(panelId, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                    newPanel = new GradeImportConfirmationStep(panelId, processedGradeItems, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
                 newPanel.setOutputMarkupId(true);
                 GradeItemImportSelectionStep.this.replaceWith(newPanel);
 
@@ -85,6 +85,18 @@ public class GradeItemImportSelectionStep extends Panel {
         };
         add(form);
         form.add(group);
+
+        Button backButton = new Button("backbutton") {
+            @Override
+            public void onSubmit() {
+                log.debug("Clicking back button...");
+                Component newPanel = new GradeImportUploadStep(panelId);
+                newPanel.setOutputMarkupId(true);
+                GradeItemImportSelectionStep.this.replaceWith(newPanel);
+            }
+        };
+        backButton.setDefaultFormProcessing(false);
+        group.add(backButton);
 
         group.add(new Button("nextbutton"));
 

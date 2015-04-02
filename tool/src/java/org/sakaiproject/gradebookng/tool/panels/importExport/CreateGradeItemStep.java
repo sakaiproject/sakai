@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.StringResourceModel;
@@ -23,7 +24,7 @@ public class CreateGradeItemStep extends Panel {
 
     private String panelId;
 
-    public CreateGradeItemStep(String id, final int step, final int totalSteps, final List<ProcessedGradeItem> gbItemsToCreate,
+    public CreateGradeItemStep(String id, final List<ProcessedGradeItem> processedGradeItems, final int step, final int totalSteps, final List<ProcessedGradeItem> gbItemsToCreate,
                                final List<ProcessedGradeItem> itemsToCreate, final List<ProcessedGradeItem> itemsToUpdate,
                                final List<Assignment> assignmentsToCreate) {
         super(id);
@@ -52,10 +53,10 @@ public class CreateGradeItemStep extends Panel {
                 //If so, go to the next step
                 Component newPanel = null;
                 if (step < totalSteps) {
-                    newPanel = new CreateGradeItemStep(panelId, step+1, totalSteps, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                    newPanel = new CreateGradeItemStep(panelId, processedGradeItems, step+1, totalSteps, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
                 } else {
                     //If not, continue on in the wizard
-                    newPanel = new GradeImportConfirmationStep(panelId, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                    newPanel = new GradeImportConfirmationStep(panelId, processedGradeItems, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
                 }
                     newPanel.setOutputMarkupId(true);
                     CreateGradeItemStep.this.replaceWith(newPanel);
@@ -63,6 +64,24 @@ public class CreateGradeItemStep extends Panel {
             }
         };
         add(form);
+
+        Button backButton = new Button("backbutton") {
+            @Override
+            public void onSubmit() {
+                LOG.debug("Clicking back button...");
+                Component newPanel = null;
+                if (step > 1)
+                    newPanel = new CreateGradeItemStep(panelId, processedGradeItems, step-1, totalSteps, gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                else
+                    newPanel = new GradeItemImportSelectionStep(panelId, processedGradeItems);
+                newPanel.setOutputMarkupId(true);
+                CreateGradeItemStep.this.replaceWith(newPanel);
+
+
+            }
+        };
+        backButton.setDefaultFormProcessing(false);
+        form.add(backButton);
 
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, totalSteps)));
 
