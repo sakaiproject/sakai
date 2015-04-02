@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
@@ -15,6 +16,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
+import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -33,10 +35,13 @@ public class GradeImportConfirmationStep extends Panel {
 
     private String panelId;
 
-    public GradeImportConfirmationStep(String id, final List<ProcessedGradeItem> itemsToCreate, final List<ProcessedGradeItem> itemsToUpdate,
-                                       final List<Assignment> assignmentsToCreate) {
+    public GradeImportConfirmationStep(String id, final ImportWizardModel importWizardModel) {
         super(id);
         this.panelId = id;
+
+        final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
+        final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
+        final List<Assignment> assignmentsToCreate = importWizardModel.getAssignmentsToCreate();
 
         Form<?> form = new Form("form")
         {
@@ -76,6 +81,24 @@ public class GradeImportConfirmationStep extends Panel {
             }
         };
         add(form);
+
+        Button backButton = new Button("backbutton") {
+            @Override
+            public void onSubmit() {
+                LOG.debug("Clicking back button...");
+                Component newPanel = null;
+                if (assignmentsToCreate.size() > 0)
+                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
+                else
+                    newPanel = new GradeItemImportSelectionStep(panelId, importWizardModel);
+                newPanel.setOutputMarkupId(true);
+                GradeImportConfirmationStep.this.replaceWith(newPanel);
+
+
+            }
+        };
+        backButton.setDefaultFormProcessing(false);
+        form.add(backButton);
 
         form.add(new Button("finishbutton"));
 

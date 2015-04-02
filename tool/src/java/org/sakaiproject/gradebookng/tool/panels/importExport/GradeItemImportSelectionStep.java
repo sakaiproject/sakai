@@ -19,7 +19,7 @@ import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
-import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -34,7 +34,7 @@ public class GradeItemImportSelectionStep extends Panel {
 
     private String panelId;
 
-    public GradeItemImportSelectionStep(String id, List<ProcessedGradeItem> processedGradeItems) {
+    public GradeItemImportSelectionStep(String id, final ImportWizardModel importWizardModel) {
         super(id);
         this.panelId = id;
 
@@ -71,13 +71,18 @@ public class GradeItemImportSelectionStep extends Panel {
                 log.debug("Actual items to create: " + gbItemsToCreate.size());
 
                 //repaint panel
-                List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
-
                 Component newPanel = null;
-                if (gbItemsToCreate.size() > 0)
-                    newPanel = new CreateGradeItemStep(panelId, 1, gbItemsToCreate.size(), gbItemsToCreate, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                importWizardModel.setProcessedGradeItems(processedGradeItems);
+                importWizardModel.setGbItemsToCreate(gbItemsToCreate);
+                importWizardModel.setItemsToCreate(itemsToCreate);
+                importWizardModel.setItemsToUpdate(itemsToUpdate);
+                if (gbItemsToCreate.size() > 0) {
+                    importWizardModel.setStep(1);
+                    importWizardModel.setTotalSteps(gbItemsToCreate.size());
+                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
+                }
                 else
-                    newPanel = new GradeImportConfirmationStep(panelId, itemsToCreate, itemsToUpdate, assignmentsToCreate);
+                    newPanel = new GradeImportConfirmationStep(panelId, importWizardModel);
                 newPanel.setOutputMarkupId(true);
                 GradeItemImportSelectionStep.this.replaceWith(newPanel);
 
@@ -86,11 +91,23 @@ public class GradeItemImportSelectionStep extends Panel {
         add(form);
         form.add(group);
 
+        Button backButton = new Button("backbutton") {
+            @Override
+            public void onSubmit() {
+                log.debug("Clicking back button...");
+                Component newPanel = new GradeImportUploadStep(panelId);
+                newPanel.setOutputMarkupId(true);
+                GradeItemImportSelectionStep.this.replaceWith(newPanel);
+            }
+        };
+        backButton.setDefaultFormProcessing(false);
+        group.add(backButton);
+
         group.add(new Button("nextbutton"));
 
         group.add(new CheckGroupSelector("groupselector"));
         ListView<ProcessedGradeItem> gradeList = new ListView<ProcessedGradeItem>("grades",
-                processedGradeItems)
+                importWizardModel.getProcessedGradeItems())
         {
             /**
              * @see org.apache.wicket.markup.html.list.ListView#populateItem(org.apache.wicket.markup.html.list.ListItem)

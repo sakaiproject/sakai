@@ -19,6 +19,7 @@ import org.sakaiproject.gradebookng.business.helpers.ImportGradesHelper;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
+import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -172,7 +173,9 @@ public class GradeImportUploadStep extends Panel {
                         log.debug(processedGradeItems.size());
 
 						//repaint panel
-						Component newPanel = new GradeItemImportSelectionStep(panelId, processedGradeItems);
+                        ImportWizardModel importWizardModel = new ImportWizardModel();
+                        importWizardModel.setProcessedGradeItems(processedGradeItems);
+						Component newPanel = new GradeItemImportSelectionStep(panelId, importWizardModel);
 						newPanel.setOutputMarkupId(true);
 						GradeImportUploadStep.this.replaceWith(newPanel);
 
