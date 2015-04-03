@@ -13,6 +13,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
@@ -33,10 +34,20 @@ public class GradeItemImportSelectionStep extends Panel {
     private static final Logger log = Logger.getLogger(GradeItemImportSelectionStep.class);
 
     private String panelId;
+    private IModel<ImportWizardModel> model;
 
-    public GradeItemImportSelectionStep(String id, final ImportWizardModel importWizardModel) {
+    public GradeItemImportSelectionStep(String id, IModel<ImportWizardModel> importWizardModel) {
         super(id);
         this.panelId = id;
+        this.model = importWizardModel;
+    }
+
+    @Override
+    public void onInitialize() {
+        super.onInitialize();
+
+        //unpack model
+        final ImportWizardModel importWizardModel = this.model.getObject();
 
         final CheckGroup<ImportedGrade> group = new CheckGroup<ImportedGrade>("group", new ArrayList<ImportedGrade>());
 
@@ -79,10 +90,10 @@ public class GradeItemImportSelectionStep extends Panel {
                 if (gbItemsToCreate.size() > 0) {
                     importWizardModel.setStep(1);
                     importWizardModel.setTotalSteps(gbItemsToCreate.size());
-                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
+                    newPanel = new CreateGradeItemStep(panelId, Model.of(importWizardModel));
                 }
                 else
-                    newPanel = new GradeImportConfirmationStep(panelId, importWizardModel);
+                    newPanel = new GradeImportConfirmationStep(panelId, Model.of(importWizardModel));
                 newPanel.setOutputMarkupId(true);
                 GradeItemImportSelectionStep.this.replaceWith(newPanel);
 
