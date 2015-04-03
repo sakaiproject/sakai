@@ -317,30 +317,38 @@ public class ImportGradesHelper extends BaseImportHelper {
                 AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
                 ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(column.getColumnTitle());
                 GradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentId());
-                if (actualGradeInfo == null) {
-//                    status = ProcessedGradeItem.STATUS_UPDATE;
-                    break;
+
+                String actualScore = null;
+                String actualComment = null;
+
+                if (actualGradeInfo != null) {
+                    actualScore = actualGradeInfo.getGrade();
+                    actualComment = actualGradeInfo.getGradeComment();
                 }
-                String importedScore = importedGradeItem.getGradeItemScore();
-                String actualScore = actualGradeInfo.getGrade();
-                String importedComment = importedGradeItem.getGradeItemComment();
-                String actualComment = actualGradeInfo.getGradeComment();
+                String importedScore = null;
+                String importedComment = null;
+
+                if (importedGradeItem != null) {
+                    importedScore = importedGradeItem.getGradeItemScore();
+                    importedComment = importedGradeItem.getGradeItemComment();
+                }
 
                 if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
-                    if (!importedScore.equals(actualScore)) {
+                    if (importedScore != null && !importedScore.equals(actualScore)) {
                         status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
                         break;
                     }
                 } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
-                    if (!importedComment.equals(actualComment)) {
+                    if (importedScore != null && !importedComment.equals(actualComment)) {
                         status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
                         break;
                     }
                 }
             }
             // If we get here, must not have been any changes
-            if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_UNKNOWN)
-                status = status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
+            if (status.getStatusCode() == ProcessedGradeItemStatus.STATUS_UNKNOWN) {
+                status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_NA);
+            }
 
             //TODO - What about if a user was added to the import file?
             // That probably means that actualGradeInfo from up above is null...but what do I do?
