@@ -70,6 +70,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.cover.AuthzGroupService;
@@ -1868,6 +1869,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("published", Boolean.valueOf(siteInfo.published));
 			context.put("joinable", Boolean.valueOf(siteInfo.joinable));
 			context.put("joinerRole", siteInfo.joinerRole);
+            addAccess(context, siteInfo.allow_anon, siteInfo.allow_auth);
 
 			// bjones86 - SAK-24423 - add joinable site settings to context
 			JoinableSiteSettings.addJoinableSiteSettingsToNewSiteConfirmContext( context, siteInfo );
@@ -1967,6 +1969,10 @@ public class SiteAction extends PagedResourceActionII {
 						.allowUpdateSiteMembership(siteId);
 				context.put("allowUpdateSiteMembership", Boolean
 						.valueOf(allowUpdateSiteMembership));
+
+ 				AdditionalAccess access = getAdditionalAccess(site);
+ 				
+ 				addAccess(context, access.anon, access.auth);
 
 				Menu b = new MenuImpl(portlet, data, (String) state
 						.getAttribute(STATE_ACTION));
@@ -2692,10 +2698,15 @@ public class SiteAction extends PagedResourceActionII {
 					// site cannot be set as joinable
 					context.put("disableJoinable", Boolean.TRUE);
 				}
+				
+				AdditionalAccess access = getAdditionalAccess(site);
+				
+				addAccess(context, access.anon, access.auth);
 
 				// bjones86 - SAK-23257
 				context.put("roles", getJoinerRoles(site.getReference(), state, site.getType()));
 			} else {
+				// In the site creation process...
 				siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 
 				if (siteInfo.site_type != null
@@ -2748,6 +2759,8 @@ public class SiteAction extends PagedResourceActionII {
 					} catch (GroupNotDefinedException ee) {
 					}
 				}
+				
+				addAccess(context, siteInfo.allow_anon, siteInfo.allow_auth);
 
 				// new site, go to confirmation page
 				context.put("continue", "10");
@@ -3679,9 +3692,17 @@ public class SiteAction extends PagedResourceActionII {
 			
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
-
 	}
 
+	private void addAccess(Context context, boolean anon, boolean auth) {
+		if (anon) {
+			context.put("access", "anonymous");
+		} else if (auth) {
+			context.put("access", "authenticated");
+		} else {
+			context.put("access", "members");
+		}
+	}
 
 	private void toolSelectionIntoContext(Context context, SessionState state, String siteType, String siteId, String overridePageOrderSiteTypes) {
 		List toolRegistrationList;
@@ -3815,6 +3836,19 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, idSelected);
 			}
 		}
+	}
+
+	private AdditionalAccess getAdditionalAccess(AuthzGroup realm) {
+		// Check for .auth/.anon
+		AdditionalAccess access = new AdditionalAccess();
+		for (Role role : (Set<Role>)realm.getRoles()) {
+			if (".auth".equals(role.getId())) {
+				access.auth = true;
+			} else if (".anon".equals(role.getId())) {
+				access.anon = true;
+			}
+		}
+		return access;
 	}
 
 	private String getSelectionString(List selections, int numSelections) {
@@ -6515,6 +6549,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				} finally {
 					SecurityService.popAdvisor();
 				}
+
+			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
+			if (siteInfo != null) {
+				addAuthAnonRoles(state, site, siteInfo.allow_auth, siteInfo.allow_anon);
 			}
 
 			Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
@@ -6666,7 +6704,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				state.setAttribute(STATE_SITE_MODE, SITE_MODE_HELPER_DONE);
 			}
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
-
+		}
 		}
 
 	}// doFinish
@@ -8736,6 +8774,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
 		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
 		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
+
+		String access = params.getString("access");
 		
 		// bjones86 - SAK-24423 - get all joinable site settings from the form input
 		JoinableSiteSettings.getAllFormInputs( state, params );
@@ -8766,6 +8806,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 
 			doUpdate_site_access_joinable(data, state, params, sEdit);
+			addAuthAnonRoles(state, sEdit, "authenticated".equals(access), "anonymous".equals(access));
 
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				commitSite(sEdit);
@@ -8822,6 +8863,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					siteInfo.joinable = false;
 					siteInfo.joinerRole = null;
 				}
+				
+				if (access != null) {
+					siteInfo.allow_anon = "anonymous".equals(access);
+					siteInfo.allow_auth = "authenticated".equals(access);
+				}
 
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
 			}
@@ -8839,6 +8885,44 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
 
 	} // doUpdate_site_access
+
+	private void addAuthAnonRoles(SessionState state, Site site, boolean auth, boolean anon) {
+		try {
+			AuthzGroup templateGroup = AuthzGroupService.getAuthzGroup("!site.roles");
+			if (auth) {
+				if (site.getRole(".anon") != null) {
+					site.removeRole(".anon");
+				}
+				if (site.getRole(".auth") == null) {
+					try {
+						site.addRole(".auth", templateGroup.getRole(".auth"));
+					} catch (RoleAlreadyDefinedException e) {
+						addAlert(state, "java.authroleexists");
+					}
+				}
+			} else if (anon) {
+				if (site.getRole(".auth") != null) {
+					site.removeRole(".auth");
+				}
+				if (site.getRole(".anon") == null) {
+					try {
+						site.addRole(".anon", templateGroup.getRole(".anon"));
+					} catch (RoleAlreadyDefinedException e) {
+						addAlert(state, "java.anonroleexists");
+					}
+				}
+			} else {
+				if (site.getRole(".anon") != null) {
+					site.removeRole(".anon");
+				}
+				if (site.getRole(".auth") != null) {
+					site.removeRole(".auth");
+				}
+			}
+		} catch (GroupNotDefinedException gnde) {
+			addAlert(state, rb.getString("java.rolenotfound"));
+		}
+	}
 	
 	private void readInputAndUpdateStateVariable(SessionState state, ParameterParser params, String paramName, String stateAttributeName, boolean isBoolean)
 	{
@@ -10468,7 +10552,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				.getAttribute(STATE_SITE_INSTANCE_ID));
 		try {
 			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
-			roles.addAll(realm.getRoles());
+			// Filter the roles so we only display user roles
+			for (Role role: (Set<Role>)realm.getRoles()) {
+				if (isUserRole(role)) {
+					roles.add(role);
+				}
+			}
 			Collections.sort(roles);
 		} catch (GroupNotDefinedException e) {
 			M_log.warn( this + ".getRoles: IdUnusedException " + realmId, e);
@@ -10514,8 +10603,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				
 				for(Role role:realm.getRoles())
 				{
-					if (permissionAllowedRoleIds == null 
-							|| permissionAllowedRoleIds!= null && !permissionAllowedRoleIds.contains(role.getId()))
+					if (isUserRole(role) && (permissionAllowedRoleIds == null 
+							|| permissionAllowedRoleIds!= null && !permissionAllowedRoleIds.contains(role.getId())))
 					{
 						// bjones86 - SAK-23257
 						if (allowedRoles != null && allowedRoles.contains(role)) {
@@ -10535,6 +10624,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		return roles;
 
 	} // getRolesWithoutPermission
+
+	private boolean isUserRole(Role role) {
+		return !role.getId().startsWith(".");
+	}
 
 	private void addSynopticTool(SitePage page, String toolId,
 			String toolTitle, String layoutHint, int position) {
@@ -12848,6 +12941,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		public String infoUrl = NULL_STRING;
 
 		public boolean joinable = false;
+		
+		public boolean allow_auth = false;
+		
+		public boolean allow_anon = false;
 
 		public String joinerRole = NULL_STRING;
 
@@ -12989,6 +13086,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}		
 
 	} // SiteInfo
+	
+	/**
+	 * Allow the additional access details to be passed and returned form 
+	 * methods easily.
+	 * @author buckett
+	 */
+	public class AdditionalAccess {
+		boolean auth = false;
+		boolean anon = false;
+	}
 
 	// customized type tool related
 	/**

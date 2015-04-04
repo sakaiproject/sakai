@@ -23,6 +23,24 @@
 					</label>
 					<input type="text" name="title" id="title" maxlength="$!titleMaxLength" size="20" value="" />
 				</p>
+				#if ($canSelect)
+				#if ($allowUnmanaged)
+				<p class="checkbox indnt1">
+					<input type="radio" name="adminSite" id="unmanaged" value="unmanaged" #if ("unmanaged" == $adminSite) checked="checked" #end/>
+						<label for="unmanaged">
+							$tlang.getString("siteseladm.unmanaged")
+						</label>	
+				</p>
+				#end
+				#foreach ($site in $adminSites)
+				<p class="checkbox indnt1">
+					<input type="radio" name="adminSite" id="$site.reference" value="$site.reference" #if ($site.reference == $adminSite) checked="checked" #end/>
+						<label for="$site.reference">
+							$site.title
+						</label>	
+				</p>
+				#end
+				#end
 				#if ($!isCourseSite)
 						<p class="shorttext required">
 									<span class ="reqStar"> *</span>

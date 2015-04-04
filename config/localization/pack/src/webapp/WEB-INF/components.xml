@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+    <bean id="org.sakaiproject.localization.util.AuthzImplProperties" class="org.sakaiproject.localization.util.AuthzImplProperties" singleton="true"/>
 	<bean id="org.sakaiproject.localization.util.ContentProperties" class="org.sakaiproject.localization.util.ContentProperties" singleton="true"/>
 	<bean id="org.sakaiproject.localization.util.ContentTypeProperties" class="org.sakaiproject.localization.util.ContentTypeProperties" singleton="true"/>
 	<bean id="org.sakaiproject.localization.util.EmailImplProperties" class="org.sakaiproject.localization.util.EmailImplProperties" singleton="true"/>

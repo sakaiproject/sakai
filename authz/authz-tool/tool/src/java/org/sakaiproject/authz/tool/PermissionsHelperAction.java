@@ -104,6 +104,9 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	/** State attribute for permission description */
 	public static final String STATE_PERMISSION_DESCRIPTIONS = "permission.descriptions";
 
+	/** the prefix to permission title for permission description entry in bundle file */
+	public static final String PREFIX_PERMISSION_DESCRIPTION = "desc-";
+
 	/** Modes. */
 	public static final String MODE_MAIN = "main";
 
@@ -180,7 +183,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
 		String description = (String) toolSession.getAttribute(PermissionsHelper.DESCRIPTION);
 		String rolesRef = (String) toolSession.getAttribute(PermissionsHelper.ROLES_REF);
-		
 		if (rolesRef == null) rolesRef = targetRef;
 
 		toolSession.setAttribute(STARTED, Boolean.valueOf(true));
@@ -378,7 +380,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				for(Object function : functions)
 				{
 					String desc = (String) function;
-					String descKey = PermissionsHelper.PREFIX_PERMISSION_DESCRIPTION + function;
+					String descKey = PREFIX_PERMISSION_DESCRIPTION + function;
 					if (keySet.contains(descKey))
 					{
 						// use function description
@@ -388,7 +390,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 					functionDescriptions.put((String) function, desc);
 				}
 				context.put("functionDescriptions", functionDescriptions);
-			
 			}
 		}
 
@@ -442,6 +443,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		context.put("limiter", limiter);
 
+        context.put("roleName", new RoleNameLookup());
 		context.put("realm", viewEdit != null ? viewEdit : edit);
 		context.put("prefix", prefix);
 		context.put("description", description);
@@ -543,11 +545,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	public void doSave(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-
-		if (!"POST".equals(data.getRequest().getMethod())) {
-			M_log.warn("PermissionsAction.doSave: user did not submit with a POST! IP=" + data.getRequest().getRemoteAddr());
-			return;
-		}
 
 		// only save the view realm's roles
 		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
@@ -730,4 +727,10 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		}
 	}
 
+ 	public static class RoleNameLookup {
+
+ 		public String getName(String roleId) {
+ 			return AuthzGroupService.getRoleName(roleId);
+ 		}
+ 	}
 }
