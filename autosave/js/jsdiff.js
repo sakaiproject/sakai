@@ -11,7 +11,7 @@
  *
  */
 
-function escape(s) {
+function escape_jsdiff(s) {
     var n = s;
     n = n.replace(/&/g, "&amp;");
     n = n.replace(/</g, "&lt;");
@@ -43,23 +43,23 @@ function diffString( o, n ) {
 
   if (out.n.length == 0) {
       for (var i = 0; i < out.o.length; i++) {
-        str += '<del>' + escape(out.o[i]) + oSpace[i] + "</del>";
+        str += '<del>' + escape_jsdiff(out.o[i]) + oSpace[i] + "</del>";
       }
   } else {
     if (out.n[0].text == null) {
       for (n = 0; n < out.o.length && out.o[n].text == null; n++) {
-        str += '<del>' + escape(out.o[n]) + oSpace[n] + "</del>";
+        str += '<del>' + escape_jsdiff(out.o[n]) + oSpace[n] + "</del>";
       }
     }
 
     for ( var i = 0; i < out.n.length; i++ ) {
       if (out.n[i].text == null) {
-        str += '<ins>' + escape(out.n[i]) + nSpace[i] + "</ins>";
+        str += '<ins>' + escape_jsdiff(out.n[i]) + nSpace[i] + "</ins>";
       } else {
         var pre = "";
 
         for (n = out.n[i].row + 1; n < out.o.length && out.o[n].text == null; n++ ) {
-          pre += '<del>' + escape(out.o[n]) + oSpace[n] + "</del>";
+          pre += '<del>' + escape_jsdiff(out.o[n]) + oSpace[n] + "</del>";
         }
         str += " " + out.n[i].text + nSpace[i] + pre;
       }
@@ -99,18 +99,18 @@ function diffString2( o, n ) {
       colors[i] = randomColor();
 
       if (out.o[i].text != null) {
-          os += escape(out.o[i].text) + oSpace[i];
+          os += escape_jsdiff(out.o[i].text) + oSpace[i];
       } else {
-          os += "<del>" + escape(out.o[i]) + oSpace[i] + "</del>";
+          os += "<del>" + escape_jsdiff(out.o[i]) + oSpace[i] + "</del>";
       }
   }
 
   var ns = "";
   for (var i = 0; i < out.n.length; i++) {
       if (out.n[i].text != null) {
-          ns += escape(out.n[i].text) + nSpace[i];
+          ns += escape_jsdiff(out.n[i].text) + nSpace[i];
       } else {
-          ns += "<ins>" + escape(out.n[i]) + nSpace[i] + "</ins>";
+          ns += "<ins>" + escape_jsdiff(out.n[i]) + nSpace[i] + "</ins>";
       }
   }
 
