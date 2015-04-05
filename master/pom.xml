@@ -1791,6 +1791,8 @@
             <!--suppress MavenModelInspection -->
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
+          <!-- This is to stop it stealing focus on developer machines (OSX) -->
+          <argLine>-Djava.awt.headless=true</argLine>
         </configuration>
       </plugin>
       <plugin>
