@@ -42,6 +42,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.BaseResourcePropertiesEdit;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -71,6 +72,9 @@ public class MockContentEntity implements ContentEntity, GroupAwareEdit
 	protected Map<String, MockContentEntity> memberMap = new HashMap<String, MockContentEntity>();
 	protected boolean isActiveEdit;
 
+	public MockContentEntity() {
+		this.resourceProperties = new BaseResourcePropertiesEdit();
+	}
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.content.api.ContentEntity#getContainingCollection()
 	 */

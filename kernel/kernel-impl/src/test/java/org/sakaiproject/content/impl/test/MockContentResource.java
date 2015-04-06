@@ -61,16 +61,18 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	protected String contentType;
 	protected String resourceId;
 
-	protected ResourcePropertiesEdit resourceProperties;
-
 	/**
      * @param collectionId
      * @param resourceId
      */
     public MockContentResource(String collectionId, String resourceId)
     {
+	    super();
 	    this.collectionId = collectionId;
 	    this.resourceId = resourceId;
+	    //Setup this property for sorting purposes
+	    this.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, resourceId); 
+	    this.getPropertiesEdit().addProperty(ResourceProperties.PROP_CONTENT_LENGTH, "0"); 
     }
 
 	/* (non-Javadoc)
@@ -109,6 +111,7 @@ public class MockContentResource extends MockContentEntity implements ContentRes
 	{
 		this.content = content;
 		this.contentLength = this.content.length;
+
 	}
 
 	/* (non-Javadoc)
