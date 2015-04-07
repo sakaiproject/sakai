@@ -367,6 +367,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	public void savePeerAssessmentItem(PeerAssessmentItem item){
 		if(item != null && item.getAssessorUserId() != null && item.getSubmissionId() != null){
 			getHibernateTemplate().saveOrUpdate(item);
+			getHibernateTemplate().flush();
 		}
 	}
 	
