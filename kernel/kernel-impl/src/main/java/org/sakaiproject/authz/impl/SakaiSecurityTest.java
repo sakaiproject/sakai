@@ -26,6 +26,7 @@ import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -96,5 +97,12 @@ public class SakaiSecurityTest extends SakaiSecurity
     @Override
     protected FunctionManager functionManager() {
         return null;
+    }
+    
+    /**
+     * @return the SiteService collaborator
+     */
+    protected SiteService siteService() {
+    	return null;
     }
 }
