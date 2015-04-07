@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>coza.opencollab.sakai</groupId>
+    <artifactId>swift-resources</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+    <packaging>jar</packaging>
+    <name>Openstack Swift Sakai Resources</name>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>1.7</maven.compiler.source>
+        <maven.compiler.target>1.7</maven.compiler.target>
+        <jclouds.version>1.7.2</jclouds.version>
+    </properties>
+    <dependencies>
+        <!-- sakai dependencies -->
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+            <version>10.1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>3.2.3.RELEASE</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- jclouds dependencies -->
+        <dependency>
+            <groupId>org.apache.jclouds.driver</groupId>
+            <artifactId>jclouds-slf4j</artifactId>
+            <version>${jclouds.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.jclouds.labs</groupId>
+            <artifactId>openstack-swift</artifactId>
+            <version>${jclouds.version}</version>
+            <scope>provided</scope>
+        </dependency>
+        <!-- 3rd party dependencies -->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.0.13</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <goals>
+                            <goal>copy-dependencies</goal>
+                        </goals>
+                        <phase>process-resources</phase>
+                        <configuration>
+                            <outputDirectory>${project.build.directory}/cloudlib</outputDirectory>
+                            <excludeArtifactIds>commons-logging,sakai-kernel-api,slf4j-api,spring-core</excludeArtifactIds>
+                            <includeScope>provided</includeScope>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+<!--            <plugin>Does not work since this jar need the kernel api
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <outputDirectory>${project.build.directory}/cloudlib</outputDirectory>
+                </configuration>
+            </plugin>-->
+        </plugins>
+    </build>
+</project>
