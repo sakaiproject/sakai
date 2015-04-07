@@ -34,7 +34,11 @@ if ( window.jQuery ) {
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
 		<ul class="navIntraTool actionToolBar">
-			<li class="firstToolBarItem"><span class="current">$tlang.getString("list.site")</span></li>
+            #if("$!dropboxMode" == "true")
+			<li class="firstToolBarItem"><span class="current">$clang.getString("list.site.dropbox")</span></li>
+            #else
+			<li class="firstToolBarItem"><span class="current">$clang.getString("list.site")</span></li>
+            #end
 			#if($canDeleteResource)
 				## view restore deleted resources area if the user has revise permission
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
