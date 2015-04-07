@@ -11,6 +11,7 @@ import org.apache.wicket.markup.html.form.upload.FileUploadField;
 import org.apache.wicket.markup.html.link.DownloadLink;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.LoadableDetachableModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.apache.wicket.util.lang.Bytes;
 import org.apache.wicket.util.time.Duration;
@@ -43,8 +44,8 @@ public class GradeImportUploadStep extends Panel {
     private static final String[] CSV_MIME_TYPES={"text/csv"};
 
     private String panelId;
-    final List<Assignment> assignments;
-    final List<StudentGradeInfo> grades;
+    private List<Assignment> assignments;
+    private List<StudentGradeInfo> grades;
 
     @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
@@ -52,6 +53,11 @@ public class GradeImportUploadStep extends Panel {
     public GradeImportUploadStep(String id) {
         super(id);
         this.panelId = id;
+    }
+
+    @Override
+    public void onInitialize() {
+        super.onInitialize();
 
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
         assignments = businessService.getGradebookAssignments();
@@ -175,7 +181,7 @@ public class GradeImportUploadStep extends Panel {
 						//repaint panel
                         ImportWizardModel importWizardModel = new ImportWizardModel();
                         importWizardModel.setProcessedGradeItems(processedGradeItems);
-						Component newPanel = new GradeItemImportSelectionStep(panelId, importWizardModel);
+						Component newPanel = new GradeItemImportSelectionStep(panelId, Model.of(importWizardModel));
 						newPanel.setOutputMarkupId(true);
 						GradeImportUploadStep.this.replaceWith(newPanel);
 

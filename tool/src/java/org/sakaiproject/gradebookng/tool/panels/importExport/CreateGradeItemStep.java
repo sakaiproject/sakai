@@ -6,6 +6,8 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbAssignment;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
@@ -25,10 +27,20 @@ public class CreateGradeItemStep extends Panel {
     private static final Logger LOG = Logger.getLogger(CreateGradeItemStep.class);
 
     private String panelId;
+    private IModel<ImportWizardModel> model;
 
-    public CreateGradeItemStep(String id, final ImportWizardModel importWizardModel) {
+    public CreateGradeItemStep(String id, IModel<ImportWizardModel> importWizardModel) {
         super(id);
         this.panelId = id;
+        this.model = importWizardModel;
+    }
+
+    @Override
+    public void onInitialize() {
+        super.onInitialize();
+
+        //unpack model
+        final ImportWizardModel importWizardModel = this.model.getObject();
 
         final int step = importWizardModel.getStep();
 
@@ -60,10 +72,10 @@ public class CreateGradeItemStep extends Panel {
 
                 if (step < importWizardModel.getTotalSteps()) {
                     importWizardModel.setStep(step+1);
-                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
+                    newPanel = new CreateGradeItemStep(panelId, Model.of(importWizardModel));
                 } else {
                     //If not, continue on in the wizard
-                    newPanel = new GradeImportConfirmationStep(panelId, importWizardModel);
+                    newPanel = new GradeImportConfirmationStep(panelId, Model.of(importWizardModel));
                 }
                     newPanel.setOutputMarkupId(true);
                     CreateGradeItemStep.this.replaceWith(newPanel);
@@ -79,10 +91,10 @@ public class CreateGradeItemStep extends Panel {
                 Component newPanel = null;
                 if (step > 1) {
                     importWizardModel.setStep(step-1);
-                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
+                    newPanel = new CreateGradeItemStep(panelId, Model.of(importWizardModel));
                 }
                 else
-                    newPanel = new GradeItemImportSelectionStep(panelId, importWizardModel);
+                    newPanel = new GradeItemImportSelectionStep(panelId, Model.of(importWizardModel));
                 newPanel.setOutputMarkupId(true);
                 CreateGradeItemStep.this.replaceWith(newPanel);
 

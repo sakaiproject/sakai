@@ -10,6 +10,7 @@ import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -34,10 +35,20 @@ public class GradeImportConfirmationStep extends Panel {
     protected GradebookNgBusinessService businessService;
 
     private String panelId;
+    private IModel<ImportWizardModel> model;
 
-    public GradeImportConfirmationStep(String id, final ImportWizardModel importWizardModel) {
+    public GradeImportConfirmationStep(String id, IModel<ImportWizardModel> importWizardModel) {
         super(id);
         this.panelId = id;
+        this.model = importWizardModel;
+    }
+
+    @Override
+    public void onInitialize() {
+        super.onInitialize();
+
+        //unpack model
+        final ImportWizardModel importWizardModel = this.model.getObject();
 
         final List<ProcessedGradeItem> itemsToCreate = importWizardModel.getItemsToCreate();
         final List<ProcessedGradeItem> itemsToUpdate = importWizardModel.getItemsToUpdate();
@@ -88,9 +99,9 @@ public class GradeImportConfirmationStep extends Panel {
                 LOG.debug("Clicking back button...");
                 Component newPanel = null;
                 if (assignmentsToCreate.size() > 0)
-                    newPanel = new CreateGradeItemStep(panelId, importWizardModel);
+                    newPanel = new CreateGradeItemStep(panelId, Model.of(importWizardModel));
                 else
-                    newPanel = new GradeItemImportSelectionStep(panelId, importWizardModel);
+                    newPanel = new GradeItemImportSelectionStep(panelId, Model.of(importWizardModel));
                 newPanel.setOutputMarkupId(true);
                 GradeImportConfirmationStep.this.replaceWith(newPanel);
 
