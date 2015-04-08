@@ -240,7 +240,7 @@ function removeOptionalAttributeBlock(elem) {
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
                 </fieldset>
 		</form>
-	</div>
+</div>
 
 
 ## create a dropdown of existing attributes, takes the full list as an argument as well as a given attribute and the value so we can match them up

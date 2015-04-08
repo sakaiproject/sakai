@@ -74,8 +74,8 @@
 
   <properties>
     <sakai.version>11-SNAPSHOT</sakai.version>
-    <!-- kernel only versions -->
-    <sakai.kernel.version>11-SNAPSHOT</sakai.kernel.version>
+    <!-- Retain this for backward compatibility -->
+    <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
     <kernel.spring.version>3.2.3.RELEASE</kernel.spring.version>
     <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
     <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
@@ -1791,6 +1791,8 @@
             <!--suppress MavenModelInspection -->
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
+          <!-- This is to stop it stealing focus on developer machines (OSX) -->
+          <argLine>-Djava.awt.headless=true</argLine>
         </configuration>
       </plugin>
       <plugin>

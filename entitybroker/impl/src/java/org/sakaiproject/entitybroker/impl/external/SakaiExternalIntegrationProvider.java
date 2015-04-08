@@ -228,7 +228,7 @@ public class SakaiExternalIntegrationProvider implements ExternalIntegrationProv
                 serverConfigurationService.getString("portal.error.email"));
 
         if (emailAddr != null && !"".equals(emailAddr)) {
-            String from = "\"<no-reply@" + serverConfigurationService.getServerName() + ">";
+            String from = "\" <"+ serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName()) + ">";
             if (emailService != null) {
                 emailService.send(from, emailAddr, subject, body + "\n" + stacktrace, emailAddr, null, null);
             } else {

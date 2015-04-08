@@ -255,6 +255,9 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 --  END permission backfill -----
 -- ------------------------------
 
+-- KNL-1336 - Add status for all nodes in a cluster.
+ALTER TABLE SAKAI_CLUSTER ADD COLUMN STATUS VARCHAR(8);
+
 -- SAK 27937 - Course grade to disable course points
 ALTER TABLE GB_GRADEBOOK_T ADD COLUMN COURSE_POINTS_DISPLAYED bit not null
 -- End SAK-27937

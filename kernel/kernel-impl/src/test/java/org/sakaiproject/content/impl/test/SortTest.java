@@ -21,8 +21,18 @@
 
 package org.sakaiproject.content.impl.test;
 
-import org.sakaiproject.content.impl.ContentHostingComparator;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 
+import org.sakaiproject.content.api.ContentResource;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.impl.ContentHostingComparator;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class SortTest extends TestCase {
@@ -31,9 +41,10 @@ public class SortTest extends TestCase {
 		super(name);
 	}
 
+	@SuppressWarnings("unchecked")
 	public void testSorts() {
-		ContentHostingComparator c = new ContentHostingComparator(null, true);
-
+		ContentHostingComparator c = new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true); 
+		
 		assertEquals(-1, c.compareLikeMacFinder("AAAAA", "BBBBBB"));
 		assertEquals(0, c.compareLikeMacFinder("AAAA", "AAAA"));
 		assertEquals(1, c.compareLikeMacFinder("BBBB", "AAAA"));
@@ -70,8 +81,46 @@ public class SortTest extends TestCase {
 		 */
 		//assertEquals(0,  c.compareLikeMacFinder("Leon", "leon"));
 		//assertEquals(0,  c.compareLikeMacFinder("leon", "léon"));
+		
+		
 	}
 	
+	private List createResources(List <String>resources) {
+		List <MockContentResource> testList = new ArrayList<MockContentResource>();
+		for (String resource:resources) {
+			testList.add(new MockContentResource("test",resource));
+		}
+		return testList;
+	}
+
+	public void testNameCompare() {
+		ContentHostingComparator c = new ContentHostingComparator(ResourceProperties.PROP_DISPLAY_NAME, true, false); 
+		//Test ids to use
+		List <String> testIds = Arrays.asList("11","10","10x","1","1x","2x","2","4","4","4x","4x","6");
+		//Expected sort after the "smart sort"
+		List <String> smartSortIds = Arrays.asList("1","2","4","10","10x","6","11","1x","2x","4","4x","4x");
+		List <String> regularSortIds = Arrays.asList("11","10","10x","1","1x","2x","2","4","4","4x","4x","6");
+
+		List <MockContentResource> testResources = createResources(testIds);
+		List <MockContentResource> smartSortResources = createResources(smartSortIds);
+		List <MockContentResource> regularSortResources = createResources(regularSortIds);
+		Collections.sort(testResources,c);
+		for (int i=0;i<testResources.size();i++) {
+			assertEquals(testResources.get(i).resourceId,smartSortResources.get(i).resourceId); 
+//			System.out.printf("\"%s\" ",testResources.get(i).resourceId);
+		}
+		System.out.println();
+
+		//Switch to content length (which is 0 in mock) and regular sorting
+		c = new ContentHostingComparator(ResourceProperties.PROP_CONTENT_LENGTH, false, true); 
+		testResources = createResources(testIds);
+		Collections.sort(testResources,c);
+		for (int i=0;i<testResources.size();i++) {
+			assertEquals(testResources.get(i).resourceId,regularSortResources.get(i).resourceId); 
+//			System.out.printf("\"%s\" ",testResources.get(i).resourceId);
+		}
+		System.out.println();
+	}
 	
 	public void testLocaleSorts() {
 		ContentHostingComparator c = new ContentHostingComparator(null, true);
