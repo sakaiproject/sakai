@@ -756,6 +756,11 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String SAK_PROP_SKIP_MANUAL_COURSE_CREATION = "wsetup.skipManualCourseCreation";
 	private final static String SAK_PROP_SKIP_COURSE_SECTION_SELECTION = "wsetup.skipCourseSectionSelection";
 
+	//Setup property to require (or not require) authorizer
+	private static final String SAK_PROP_REQUIRE_AUTHORIZER = "wsetup.requireAuthorizer";
+	//Setup property to email authorizer (default to true)
+	private static final String SAK_PROP_EMAIL_AUTHORIZER = "wsetup.emailAuthorizer";
+
 	private List prefLocales = new ArrayList();
 	
 	private static final String VM_ALLOWED_ROLES_DROP_DOWN 	= "allowedRoles";
@@ -798,7 +803,6 @@ public class SiteAction extends PagedResourceActionII {
 	private static final String VM_CONT_NO_ROSTER_ENABLED = "contNoRosterEnabled";
 	private static final String SAK_PROP_CONT_NO_ROSTER_ENABLED = "sitemanage.continueWithNoRoster";
 	
-	private static final String SAK_PROP_ADD_ROSTER_AUTH_REQUIRED = "site.addroster.authorizationrequired";
 	private static final String VM_ADD_ROSTER_AUTH_REQUIRED = "authorizationRequired";
 
 	/**
@@ -3285,7 +3289,7 @@ public class SiteAction extends PagedResourceActionII {
 					.getAttribute(STATE_TERM_COURSE_LIST));
 
 			// SAK-29000
-			Boolean isAuthorizationRequired = ServerConfigurationService.getBoolean( SAK_PROP_ADD_ROSTER_AUTH_REQUIRED, Boolean.TRUE );
+			Boolean isAuthorizationRequired = ServerConfigurationService.getBoolean( SAK_PROP_REQUIRE_AUTHORIZER, Boolean.TRUE );
 			context.put( VM_ADD_ROSTER_AUTH_REQUIRED, isAuthorizationRequired );
 
 			// added for 2.4 -daisyf
@@ -3382,7 +3386,7 @@ public class SiteAction extends PagedResourceActionII {
 			
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
 			
-			context.put("requireAuthorizer", ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
+			context.put("requireAuthorizer", ServerConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
 			
 			// bjones86 - SAK-21706/SAK-23255
 			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
@@ -7023,7 +7027,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		User cUser = UserDirectoryService.getCurrentUser();
 		String sendEmailToRequestee = null;
 		StringBuilder buf = new StringBuilder();
-		boolean requireAuthorizer = ServerConfigurationService.getString("wsetup.requireAuthorizer", "true").equals("true")?true:false;
+		boolean requireAuthorizer = ServerConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?true:false;
+		String emailAuthorizer = ServerConfigurationService.getString(SAK_PROP_EMAIL_AUTHORIZER, "");
 
 		// get the request email from configuration
 		String requestEmail = getSetupRequestEmailAddress();
@@ -7119,7 +7124,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				for (Iterator iInstructors = authorizerList.iterator(); iInstructors.hasNext();)
 				{
 					String instructorId = (String) iInstructors.next();
-					if (requireAuthorizer)
+					//If emailAuthorizer is defined to be true  or if requireAuthorizer is set
+					
+					//If emailAuthrozier is true always send email, if it's unset send if requireAuthrozier is set
+					//Otherwise don't send
+					if (("".equals(emailAuthorizer) && requireAuthorizer) || "true".equals(emailAuthorizer))
 					{
 						// 1. email to course site authorizer
 						boolean result = userNotificationProvider.notifyCourseRequestAuthorizer(instructorId, requestEmail, requestReplyToEmail, term != null? term.getTitle():"", requestSectionInfo, title, id, additional, productionSiteName);
