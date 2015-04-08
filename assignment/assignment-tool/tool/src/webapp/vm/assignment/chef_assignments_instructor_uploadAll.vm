@@ -123,40 +123,40 @@
 			 <label for="selectall">$tlang.getString("all")</label><br/>
 			 #if ($!includeSubmissionText)
 					## student submission text
-					<input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="choices" class="toggleSelectedAll" #if($!hasSubmissionText)checked="checked"#end />
+					<input id="studentSubmissionText" type="checkbox" value="studentSubmissionText" name="choices" class="toggleSelectedAll" #if($!hasSubmissionText)checked="checked"#end onclick="deselectSelectAll( this );" />
 					<label for="studentSubmissionText">$tlang.getString("uploadall.choose.file.studentSubmissionText")</label><br/>
 				#end
 				#if ($!includeSubmissionAttachment)
 					## student submission attachment
-					<input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="choices" class="toggleSelectedAll" #if($!hasSubmissionAttachment)checked="checked"#end />
+					<input id="studentSubmissionAttachment" type="checkbox" value="studentSubmissionAttachment" name="choices" class="toggleSelectedAll" #if($!hasSubmissionAttachment)checked="checked"#end onclick="deselectSelectAll( this );" />
 					<label for="studentSubmissionAttachment">$tlang.getString("uploadall.choose.file.studentSubmissionAttachment")</label><br/>
 				#end
 				## grade files
-				<input id="gradeFile" type="checkbox" value="gradeFile" name="choices" class="toggleSelectedAll" #if($!hasGradeFile)checked="checked"#end />
+				<input id="gradeFile" type="checkbox" value="gradeFile" name="choices" class="toggleSelectedAll" #if($!hasGradeFile)checked="checked"#end onclick="deselectSelectAll( this );" />
 				<label for="gradeFile">$tlang.getString("uploadall.choose.file.gradeFile")</label><br/>
 			</p>
 				<p class="checkbox indnt3">
-					<input id="gradeFileFormat_csv" type="radio" value="csv" name="gradeFileFormat" #if($gradeFileFormat=="csv")checked="checked"#end />
+					<input id="gradeFileFormat_csv" type="radio" value="csv" name="gradeFileFormat" #if($gradeFileFormat=="csv")checked="checked"#end onclick="deselectSelectAll( this );" />
 					<label for="gradeFileFormat_csv">$tlang.getString("uploadall.choose.file.gradeFile.csv")</label><br/>
-					<input id="gradeFileFormat_excel" type="radio" value="excel" name="gradeFileFormat" #if($gradeFileFormat=="excel")checked="checked"#end />
+					<input id="gradeFileFormat_excel" type="radio" value="excel" name="gradeFileFormat" #if($gradeFileFormat=="excel")checked="checked"#end onclick="deselectSelectAll( this );" />
 					<label for="gradeFileFormat_excel">$tlang.getString("uploadall.choose.file.gradeFile.excel")</label><br/>
 				</p>
 			<p class="checkbox indnt2">
 				#if ($!includeSubmissionText)
 					## feedback text
-					<input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="choices" class="toggleSelectedAll" #if($!hasFeedbackText)checked="checked"#end />
+					<input id="feedbackTexts" type="checkbox" value="feedbackTexts" name="choices" class="toggleSelectedAll" #if($!hasFeedbackText)checked="checked"#end onclick="deselectSelectAll( this );" />
 					<label for="feedbackTexts">$tlang.getString("uploadall.choose.file.feedbackTexts")</label><br/>	
 				#end
 			 ## feedback comments
-				<input id="feedbackComments" type="checkbox" value="feedbackComments" name="choices" class="toggleSelectedAll" #if($!hasComments)checked="checked"#end />
+				<input id="feedbackComments" type="checkbox" value="feedbackComments" name="choices" class="toggleSelectedAll" #if($!hasComments)checked="checked"#end onclick="deselectSelectAll( this );" />
 				<label for="feedbackComments">$tlang.getString("uploadall.choose.file.feedbackComments")</label><br/>	
 			 ## feedback attachments
-				<input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" class="toggleSelectedAll" #if($!hasFeedbackAttachment)checked="checked"#end />
+				<input id="feedbackAttachments" type="checkbox" value="feedbackAttachments" name="choices" class="toggleSelectedAll" #if($!hasFeedbackAttachment)checked="checked"#end onclick="deselectSelectAll( this );" />
 				<label for="feedbackAttachments">$tlang.getString("download.feedback.attachment")</label><br/>
 			<br/>
 			## SAK-19147 output without folders
 			#if ($!download && $enableFlatDownload)
-				<input id="withoutFolders" type="checkbox" value="withoutFolders" name="choices" class="toggleNotSelectedAll" #if($!withoutFolders)checked="checked"#end />
+				<input id="withoutFolders" type="checkbox" value="withoutFolders" name="choices" class="toggleNotSelectedAll" #if($!withoutFolders)checked="checked"#end onclick="deselectSelectAll( this );" />
 				<label for="withoutFolders">$tlang.getString("uploadall.folders.no")</label><br/>
 			#end
 
@@ -199,6 +199,16 @@
 				$('.toggleSelectedAll').each(function(){
 					$(this).prop('checked', newValue);
 				});
+			}
+
+			// SAK-29240
+			function deselectSelectAll( caller )
+			{
+				var checked = caller.checked;
+				if( !checked )
+				{
+					$( "#selectall" ).prop( "checked", checked );
+				}
 			}
 		-->
 	</script>
