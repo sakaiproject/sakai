@@ -1710,10 +1710,27 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	    
 	    final HibernateCallback hcb2 = new HibernateCallback() {
 	    	public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	    		Query q = session.createQuery(
-	    				"select pia from PublishedItemData pia where pia.itemId in ( :idList )");
-	    		q.setParameterList("idList", itemIds);   		
-	    		return q.list();
+	    			    		
+	    		final Criteria criteria = session.createCriteria( PublishedItemData.class );
+	    		if( itemIds.size() > 1000 ) {
+	    			final Set<Long> ids = new HashSet<Long>();
+	    			Disjunction disjunction = Restrictions.disjunction();
+	    			
+	    			for( Long id : itemIds ) {
+	    				if( ids.size() < 1000 ) {
+	    					ids.add( id );
+	    				}
+	    				else {
+	    					criteria.add( disjunction.add( Restrictions.in( "itemId", ids ) ) );
+	    					ids.clear();
+	    				}
+	    			}
+	    		}
+	    		else {
+	    			criteria.add( Restrictions.in( "itemId", itemIds ) );
+	    		}
+	    		
+	    		return criteria.list();
 	    	};
 	    };
 
