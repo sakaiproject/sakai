@@ -104,10 +104,6 @@
             <param-name>contextManagementServiceBean</param-name>
             <param-value>org.sakaiproject.section.api.facade.manager.Context</param-value>
         </init-param>
-        <init-param>
-            <param-name>selectSiteRedirect</param-name>
-            <param-value>/sakai-sections-tool/standalone/login.jsf</param-value>
-        </init-param>
     </filter>
     <filter-mapping>
         <filter-name>SectionAuthzFilter</filter-name>
