@@ -108,13 +108,14 @@
      */
     _restoreState: function(persistObj) {
       for (var n in persistObj) {
-        this.originalTable.startIndex = $('#' + n).closest('th').prevAll().size() + 1;
+        this.originalTable.startIndex = $('#' + n).closest('th').prevAll(':visible').size() + 1;
         this.originalTable.endIndex = parseInt(persistObj[n], 10) + 1;
         this._bubbleCols();
       }
     },
     // bubble the moved col left or right
     _bubbleCols: function() {
+      var _this = this;
       var i, j, col1, col2;
       var from = this.originalTable.startIndex;
       var to = this.originalTable.endIndex;
@@ -127,20 +128,20 @@
       }
       if (from < to) {
         for (i = from; i < to; i++) {
-          col1 = thtb.find('> tr > td:nth-child(' + i + ')')
-            .add(thtb.find('> tr > th:nth-child(' + i + ')'));
-          col2 = thtb.find('> tr > td:nth-child(' + (i + 1) + ')')
-            .add(thtb.find('> tr > th:nth-child(' + (i + 1) + ')'));
+          col1 = $(thtb.find('> tr > td:visible').get(i-1)) //:nth-child(' + i + ')'
+            .add(thtb.find('> tr > th:visible').get(i-1)); //:nth-child(' + i + ')')
+          col2 = $(thtb.find('> tr > td:visible').get(i)) //:nth-child(' + (i + 1) + ')'
+            .add(thtb.find('> tr > th:visible').get(i)); //:nth-child(' + (i + 1) + ')'
           for (j = 0; j < col1.length; j++) {
             swapNodes(col1[j], col2[j]);
           }
         }
       } else {
         for (i = from; i > to; i--) {
-          col1 = thtb.find('> tr > td:nth-child(' + i + ')')
-            .add(thtb.find('> tr > th:nth-child(' + i + ')'));
-          col2 = thtb.find('> tr > td:nth-child(' + (i - 1) + ')')
-            .add(thtb.find('> tr > th:nth-child(' + (i - 1) + ')'));
+          col1 = $(thtb.find('> tr > td:visible').get(i-1)) //:nth-child(' + i + ')'
+            .add(thtb.find('> tr > th:visible').get(i-1)); //:nth-child(' + i + ')')
+          col2 = $(thtb.find('> tr > td:visible').get(i-2)) //:nth-child(' + (i + 1) + ')'
+            .add(thtb.find('> tr > th:visible').get(i-2)); //:nth-child(' + (i + 1) + ')'
           for (j = 0; j < col1.length; j++) {
             swapNodes(col1[j], col2[j]);
           }
@@ -171,7 +172,7 @@
         _this.options.beforeReorganize(_this.originalTable, _this.sortableTable);
         // do reorganisation asynchronous
         // for chrome a little bit more than 1 ms because we want to force a rerender
-        _this.originalTable.endIndex = _this.sortableTable.movingRow.prevAll().size() + 1;
+        _this.originalTable.endIndex = _this.sortableTable.movingRow.prevAll(':visible').size() + 1;
         setTimeout(_this._rearrangeTableBackroundProcessing(), 50);
       };
     },
@@ -220,7 +221,7 @@
       if (this.options.excludeFooter) {
         thtb = thtb.not('tfoot');
       }
-      thtb.find('> tr > th').each(function(i, v) {
+      thtb.find('> tr > th:visible').each(function(i, v) {
         var w = $(this).outerWidth();
         widthArr.push(w);
         totalWidth += w;
@@ -234,14 +235,14 @@
 
       var sortableHtml = '<ul class="dragtable-sortable" style="position:absolute; width:' + totalWidth + 'px;">';
       // assemble the needed html
-      thtb.find('> tr > th').each(function(i, v) {
+      thtb.find('> tr > th:visible').each(function(i, v) {
         var width_li = $(this).outerWidth();
         sortableHtml += '<li style="width:' + width_li + 'px;">';
         sortableHtml += '<table ' + attrsString + '>';
-        var row = thtb.find('> tr > th:nth-child(' + (i + 1) + ')');
-        if (_this.options.maxMovingRows > 1) {
-          row = row.add(thtb.find('> tr > td:nth-child(' + (i + 1) + ')').slice(0, _this.options.maxMovingRows - 1));
-        }
+        var row = $(thtb.find('> tr > th:visible').get(i)); //:nth-child(' + (i + 1) + ')'
+        //if (_this.options.maxMovingRows > 1) {
+        //  row = row.add(thtb.find('> tr > td:visible:nth-child(' + (i + 1) + ')').slice(0, _this.options.maxMovingRows - 1));
+        //}
         row.each(function(j) {
           // TODO: May cause duplicate style-Attribute
           var row_content = $(this).clone().wrap('<div></div>').parent().html();
@@ -279,7 +280,7 @@
       });
 
       // assign start index
-      this.originalTable.startIndex = $(e.target).closest('th').prevAll().size() + 1;
+      this.originalTable.startIndex = $(e.target).closest('th').prevAll(':visible').size() + 1;
 
       this.options.beforeMoving(this.originalTable, this.sortableTable);
       // Start moving by delegating the original event to the new sortable table

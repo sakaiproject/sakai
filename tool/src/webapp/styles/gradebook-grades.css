@@ -112,6 +112,9 @@
 #gradebookGrades table tr.gb-categories-row > td:nth-child(1) {
   border-right: 2px solid #AAA;
 }
+#gradebookGrades table tr.gb-categories-row > td:nth-child(2) {
+  border-right: 1px solid #DDD;
+}
 #gradebookGrades .gb-categories-row td {
   text-align: center;
   background: #e6e6e6;
@@ -222,7 +225,7 @@
 #gradebookGradesToolbar {
   background: #FAFAFA;
   font-size: 0.8em;
-  overflow: hidden;
+  overflow: visible;
   padding: 0 0.4em;
   position: absolute;
   top: 0;
@@ -271,6 +274,91 @@
 #filterByGroup {
   line-height: 1em;
 }
+#gradebookGradesToolbar .gradebook-item-summary.warn-items-hidden .gb-item-summary-counts {
+  color: #CA7311;
+  font-weight: bold;
+}
+/* Toolbar - Show/Hide grade items */
+#gradebookGradesToolbar .gb-toggle-grade-items-panel {
+  position: absolute;
+  border: 1px solid #bdbdbd;
+  min-width: 200px;
+  min-height: 100px;
+  top: 25px;
+  background-color: #FFF;
+  box-shadow: 1px 1px 2px #AAA;
+  z-index: 40;
+} 
+#gradeItemsTogglePanel .hide-me {
+  display: none;
+}
+#gradeItemsTogglePanel input {
+  margin-left: 20px;
+  background-color: transparent;
+  position: absolute;
+  left: -100000px;
+}
+#gradeItemsTogglePanel label {
+  cursor: pointer;
+  display: block;
+  margin: 0;
+}
+#gradeItemsTogglePanel label:hover {
+  background-color: #FAFAFA;
+}
+#gradeItemsTogglePanel input:before {
+  height: 16px;
+  width: 16px;
+  display: inline-block;
+  content: "";
+}
+#gradeItemsTogglePanel .gradebook-item-category-filter label {
+  font-weight: bold;
+}
+#gradeItemsTogglePanel .gradebook-item-filter label {
+  font-weight: normal;
+}
+#gradeItemsTogglePanel .gradebook-item-category-filter .weighting {
+  font-weight: 200;
+  color: #999;
+}
+#gradeItemsTogglePanel .gradebook-item-category-filter-signal {
+  height: 1.2em;
+  width: 1.2em;
+  float: right;
+  margin-left: 20px;
+  border: 1px solid #EEE;
+  background-color: #EEE;
+  margin-top: 0.3em;
+}
+#gradeItemsTogglePanel .gradebook-item-category-filter,
+#gradeItemsTogglePanel .gradebook-item-filter {
+  clear: both;
+  margin-left: 10px;
+  position: relative;
+}
+#gradeItemsTogglePanel label {
+  margin-right: 24px;
+}
+#gradeItemsTogglePanel label.category-partial-filter .gradebook-item-category-filter-signal:before {
+  font-family: 'nyu-classes-icons';
+  content: '\e060';
+}
+#gradeItemsTogglePanel .gradebook-filter-partial-signal {
+  display: block;
+
+  border-left: 1.2em solid transparent;
+  border-right: 0px solid transparent;
+  border-bottom: 1.2em solid;
+  border-bottom-color: inherit;
+}
+#gradeItemsTogglePanel #showAllGradeItems,
+#gradeItemsTogglePanel #hideAllGradeItems {
+  float: right;
+  font-size: 0.9em;
+  margin: 0 5px 0;
+  border-bottom: none;
+}
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
@@ -296,7 +384,6 @@ div.wicket-modal div.w_content_container > div > form > h2:first-child {
   padding-top: 0;
   margin-top: 0;
 }
-
 /* style applied to a div for a Wicket FeedbackPanel, but removes the list styles and just make it bold */
 .feedbackPanel {
   list-style-type: none;

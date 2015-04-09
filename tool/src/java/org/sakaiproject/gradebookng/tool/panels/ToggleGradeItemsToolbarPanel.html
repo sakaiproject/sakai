@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+
+<body>
+<wicket:panel>
+
+<div id="gradeItemsToolbarItemPanel">
+  <a href="javascript:void(0)" id="hideAllGradeItems"><span wicket:message="value:label.toolbar.gradeitemhideall">Hide All</span></a>
+  <a href="javascript:void(0)" id="showAllGradeItems"><span wicket:message="value:label.toolbar.gradeitemshowall">Show All</span></a>
+  <div wicket:id="categoriesList" class="gradebook-item-filter-group">
+    <div class="gradebook-item-category-filter">
+      <label tabindex="0">
+        <span wicket:id="category"></span>
+        <span class="gradebook-item-category-filter-signal"></span>
+        <input wicket:id="categoryCheckbox" type="checkbox">
+      </label>
+      <a class="context-menu-toggle" href="javascript:void(0);"></a>
+    </div>
+    <div wicket:id="assignmentsForCategory" class="gradebook-item-filter">
+      <label tabindex="0">
+        <span wicket:id="assignmentTitle"></span>
+        <span class="gradebook-item-category-filter-signal"></span>
+        <input wicket:id="assignmentCheckbox" type="checkbox">
+      </label>
+      <a class="context-menu-toggle" href="javascript:void(0);"></a>
+    </div>
+  </div>
+</div>
+
+</wicket:panel>
+</body>
+</html>
