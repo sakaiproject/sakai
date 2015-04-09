@@ -60,6 +60,7 @@ import org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer;
 import org.sakaiproject.lessonbuildertool.tool.view.GeneralViewParameters;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.site.api.*;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.Placement;
@@ -114,6 +115,9 @@ import au.com.bytecode.opencsv.CSVParser;
 // it doesn't have to do synchronization (since it applies just to processing one transaction).
 
 public class SimplePageBean {
+	public static final int CACHE_MAX_ENTRIES = 5000;
+	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
+	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
 	private static Log log = LogFactory.getLog(SimplePageBean.class);
 
 	public enum Status {
@@ -579,11 +583,13 @@ public class SimplePageBean {
 		isoDateFormat.setTimeZone(tz);
 
 		if (groupCache == null) {
-			groupCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache");
+			groupCache = memoryService.createCache(
+					"org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.groupCache",
+					new SimpleConfiguration<>(CACHE_MAX_ENTRIES, CACHE_TIME_TO_LIVE_SECONDS, CACHE_TIME_TO_IDLE_SECONDS));
 		}
 		
 		if (resourceCache == null) {
-			resourceCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
+			resourceCache = memoryService.getCache("org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.resourceCache");
 		}
 	}
 
@@ -3229,9 +3235,9 @@ public class SimplePageBean {
 	   }
 
 	   if (ret == null)
-	       groupCache.put(i.getSakaiId(), "*", DEFAULT_EXPIRATION);
+	       groupCache.put(i.getSakaiId(), "*");
 	   else
-	       groupCache.put(i.getSakaiId(), ret, DEFAULT_EXPIRATION);
+	       groupCache.put(i.getSakaiId(), ret);
 
 	   return ret;
 
@@ -3303,9 +3309,9 @@ public class SimplePageBean {
     		   
     		   if (!nocache) {
     			   if (ret == null)
-    				   groupCache.put(i.getSakaiId(), "*", DEFAULT_EXPIRATION);
+    				   groupCache.put(i.getSakaiId(), "*");
     			   else
-    				   groupCache.put(i.getSakaiId(), ret, DEFAULT_EXPIRATION);
+    				   groupCache.put(i.getSakaiId(), ret);
     		   }
     		   
     		   return ret;

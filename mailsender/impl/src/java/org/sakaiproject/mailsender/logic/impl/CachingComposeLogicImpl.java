@@ -68,13 +68,13 @@ public class CachingComposeLogicImpl extends ComposeLogicImpl
 	{
 		// create the cache needed to store method call results
 		// this cache is defined in components.xml with the same name
-		cache = memoryService.newCache(this.getClass().getName() + ".groupsCache");
+		cache = memoryService.getCache(this.getClass().getName() + ".groupsCache");
 	}
 
 	public void destroy()
 	{
 		// get rid of any cache elements left
-		cache.destroy();
+		cache.close();
 	}
 
 	public void setMemoryService(MemoryService memoryService)

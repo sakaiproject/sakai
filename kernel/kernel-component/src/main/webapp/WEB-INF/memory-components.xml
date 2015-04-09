@@ -18,17 +18,4 @@
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
     </bean>
 
-	<!-- 
-	a JMX Agent to make the Cache visable in JConsole 
-	-->
-	<bean id="org.sakaiproject.memory.api.MemoryService.jmxAgent" 
-	    class="org.sakaiproject.memory.impl.MemoryServiceJMXAgent"
-	    init-method="init" >
-  		<property name="cacheManager"><ref bean="org.sakaiproject.memory.api.MemoryService.cacheManager"/></property>
-		<property name="registerCacheManager"><value>true</value></property>
-		<property name="registerCaches"><value>true</value></property>
-		<property name="registerCacheConfigurations"><value>true</value></property>
-		<property name="registerCacheStatistics"><value>true</value></property>
-	</bean>
-
 </beans>

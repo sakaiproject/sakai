@@ -30,17 +30,15 @@ import javax.management.MBeanServer;
 import java.lang.management.ManagementFactory;
 
 /**
- * @author ieb
- * @deprecated as of Sakai 2.9, this should no longer be used and should be removed in Sakai 11
+ * This class just registers a EhCache with a JMX MBean server.
+ * By default it will use the platform MBean server.
  */
-public class MemoryServiceJMXAgent
+public class EhCacheJmxRegistration
 {
 
-	private static final Log log = LogFactory.getLog(MemoryServiceJMXAgent.class);
+	private static final Log log = LogFactory.getLog(EhCacheJmxRegistration.class);
 
 	private MBeanServer mBeanServer = ManagementFactory.getPlatformMBeanServer();
-
-	private CacheManager cacheManager;
 
 	private boolean registerCacheManager = true;
 
@@ -50,40 +48,11 @@ public class MemoryServiceJMXAgent
 
 	private boolean registerCacheStatistics = true;
 
-	public MBeanServer getMBeanServer()
-	{
-		return mBeanServer;
-	}
-
-	public void init()
+	public void register(CacheManager cacheManager)
 	{
 		log.info("Registering Cache Provider with JMXBeanServer "+mBeanServer);
 		ManagementService.registerMBeans(cacheManager, mBeanServer, registerCacheManager,
 				registerCaches, registerCacheConfigurations, registerCacheStatistics);
-	}
-
-	/**
-	 * @return the cacheManager
-	 */
-	public CacheManager getCacheManager()
-	{
-		return cacheManager;
-	}
-
-	/**
-	 * @param cacheManager the cacheManager to set
-	 */
-	public void setCacheManager(CacheManager cacheManager)
-	{
-		this.cacheManager = cacheManager;
-	}
-
-	/**
-	 * @return the registerCacheConfigurations
-	 */
-	public boolean isRegisterCacheConfigurations()
-	{
-		return registerCacheConfigurations;
 	}
 
 	/**
@@ -95,14 +64,6 @@ public class MemoryServiceJMXAgent
 	}
 
 	/**
-	 * @return the registerCacheManager
-	 */
-	public boolean isRegisterCacheManager()
-	{
-		return registerCacheManager;
-	}
-
-	/**
 	 * @param registerCacheManager the registerCacheManager to set
 	 */
 	public void setRegisterCacheManager(boolean registerCacheManager)
@@ -111,27 +72,11 @@ public class MemoryServiceJMXAgent
 	}
 
 	/**
-	 * @return the registerCaches
-	 */
-	public boolean isRegisterCaches()
-	{
-		return registerCaches;
-	}
-
-	/**
 	 * @param registerCaches the registerCaches to set
 	 */
 	public void setRegisterCaches(boolean registerCaches)
 	{
 		this.registerCaches = registerCaches;
-	}
-
-	/**
-	 * @return the registerCacheStatistics
-	 */
-	public boolean isRegisterCacheStatistics()
-	{
-		return registerCacheStatistics;
 	}
 
 	/**

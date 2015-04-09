@@ -288,12 +288,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	{
 		refreshScheduler.shutdown();
 
-		authzUserGroupIdsCache.destroy();
+		authzUserGroupIdsCache.close();
 
 		// done with event watching
 		eventTrackingService().deleteObserver(this);
 
-        maintainRolesCache.destroy();
+        maintainRolesCache.close();
 
 		M_log.info(this +".destroy()");
 	}

@@ -107,7 +107,7 @@ public class LessonsAccess {
     public void destroy() {
         log.info("destroy()");
 	if (useCache) {
-	cache.destroy();
+	cache.close();
 	cache = null;
 	}
     }

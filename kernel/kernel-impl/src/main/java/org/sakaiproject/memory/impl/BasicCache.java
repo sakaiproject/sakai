@@ -37,7 +37,7 @@ import java.util.Set;
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public abstract class BasicCache implements Cache {
+public abstract class BasicCache<K, V> implements Cache<K, V> {
     final Log log = LogFactory.getLog(BasicCache.class);
     /**
      * the name for this cache
@@ -120,14 +120,14 @@ public abstract class BasicCache implements Cache {
     // BULK operations - KNL-1246
 
     @Override
-    public Map<String, Object> getAll(Set<String> keys) {
-        HashMap<String, Object> map = new HashMap<String, Object>();
+    public Map<K, V> getAll(Set<? extends K> keys) {
+        HashMap<K, V> map = new HashMap<>();
         if (!keys.isEmpty()) {
-            for (String key : keys) {
+            for (K key : keys) {
                 if (key == null) {
                     throw new NullPointerException("keys Set for getAll cannot contain nulls (but it does)");
                 }
-                Object value = this.get(key);
+                V value = this.get(key);
                 if (value != null) {
                     map.put(key, value);
                 }
@@ -137,18 +137,18 @@ public abstract class BasicCache implements Cache {
     }
 
     @Override
-    public void putAll(Map<String, Object> map) {
+    public void putAll(Map<? extends K, ? extends V> map) {
         if (map != null && !map.isEmpty()) {
-            for (Map.Entry<String, Object> entry : map.entrySet()) {
+            for (Map.Entry<? extends K, ? extends V> entry : map.entrySet()) {
                 this.put(entry.getKey(), entry.getValue());
             }
         }
     }
 
     @Override
-    public void removeAll(Set<String> keys) {
+    public void removeAll(Set<? extends K> keys) {
         if (!keys.isEmpty()) {
-            for (String key : keys) {
+            for (K key : keys) {
                 if (key == null) {
                     throw new NullPointerException("keys Set for removeAll cannot contain nulls (but it does)");
                 }
@@ -162,24 +162,4 @@ public abstract class BasicCache implements Cache {
      * because we can't get the set of all keys from the Cache API methods.
      * All implementations must override removeAll() method and probably should override the others
      */
-
-
-    // **************************************************************************
-    // DEPRECATED methods - REMOVE THESE
-    // **************************************************************************
-
-    /**
-     * @deprecated REMOVE THIS
-     */
-    public void destroy() {
-        this.close();
-    }
-
-    /**
-     * @deprecated REMOVE THIS
-     */
-    public void put(Object key, Object payload, int duration) {
-        put(String.valueOf(key), payload);
-    }
-
 }

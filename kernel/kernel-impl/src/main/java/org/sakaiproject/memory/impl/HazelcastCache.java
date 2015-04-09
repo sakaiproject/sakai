@@ -36,10 +36,10 @@ import java.util.Set;
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class HazelcastCache extends BasicMapCache {
+public class HazelcastCache<K, V> extends BasicMapCache<K, V> {
     final Log log = LogFactory.getLog(HazelcastCache.class);
 
-    IMap<String, ?> cache;
+    private IMap<K, V> cache;
 
     /**
      * Construct the Cache
@@ -97,21 +97,21 @@ public class HazelcastCache extends BasicMapCache {
     // BULK operations - KNL-1246
 
     @Override
-    public Map<String, Object> getAll(Set<String> keys) {
+    public Map<K, V> getAll(Set<? extends K> keys) {
         //noinspection unchecked
-        return (Map) cache.getAll(keys);
+        return cache.getAll((Set<K>) keys);
     }
 
     @Override
-    public void putAll(Map<String, Object> map) {
+    public void putAll(Map<? extends K, ? extends V> map) {
         //noinspection unchecked
-        cache.putAll((Map)map);
+        cache.putAll(map);
     }
 
     @Override
-    public void removeAll(Set<String> keys) {
+    public void removeAll(Set<? extends K> keys) {
         if (!keys.isEmpty()) {
-            for (String key : keys) {
+            for (K key : keys) {
                 if (key == null) {
                     throw new NullPointerException("keys Set for removeAll cannot contain nulls (but it does)");
                 }
@@ -123,25 +123,6 @@ public class HazelcastCache extends BasicMapCache {
     @Override
     public void close() {
         this.cache.destroy();
-    }
-
-
-    // **************************************************************************
-    // DEPRECATED methods - REMOVE THESE
-    // **************************************************************************
-
-    /**
-     * @deprecated REMOVE THIS
-     */
-    public void destroy() {
-        this.close();
-    }
-
-    /**
-     * @deprecated REMOVE THIS
-     */
-    public void put(Object key, Object payload, int duration) {
-        put(String.valueOf(key), payload);
     }
 
 }

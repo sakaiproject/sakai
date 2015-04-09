@@ -726,12 +726,6 @@ public abstract class ClusterEventTracking extends BaseEventTrackingService impl
      * Initializes the events cache, if enabled
      */
     private void initCacheServer() {
-        boolean legacyCaching = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
-        if (legacyCaching) {
-            M_log.warn("Legacy memory service is incompatible with event caching, you must use the new memory service (memory.use.legacy=false) with memory.cluster.enabled=true, using legacy (DB based) event propagation instead");
-            cachingEnabled = false;
-            return;
-        }
         // remove down to and including this line
         cachingEnabled = serverConfigurationService().getBoolean("memory.cluster.enabled", false);
         if (cachingEnabled) {

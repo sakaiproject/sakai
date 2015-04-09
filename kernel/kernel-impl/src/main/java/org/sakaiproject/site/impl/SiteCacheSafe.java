@@ -44,7 +44,7 @@ import java.util.Properties;
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class SiteCacheSafe extends BasicCache implements SiteCache, Cache, CacheEventListener<String, Object>
+public class SiteCacheSafe extends BasicCache<String, Object> implements SiteCache, CacheEventListener<String, Object>
 {
     private static Log M_log = LogFactory.getLog(SiteCacheSafe.class);
 
@@ -164,8 +164,9 @@ public class SiteCacheSafe extends BasicCache implements SiteCache, Cache, Cache
 
     @Override
     public <T> T unwrap(Class<T> clazz) {
-        return m_cache.unwrap(clazz);
+        return (T) m_cache.unwrap(clazz);
     }
+
 
     @Override
     public void registerCacheEventListener(CacheEventListener cacheEventListener) {
@@ -195,16 +196,6 @@ public class SiteCacheSafe extends BasicCache implements SiteCache, Cache, Cache
     @Override
     public boolean isDistributed() {
         return m_cache.isDistributed();
-    }
-
-    @Override
-    public void destroy() {
-        close();
-    }
-
-    @Override
-    public void put(Object key, Object payload, int duration) {
-        m_cache.put((String) key, payload);
     }
 
     @Override

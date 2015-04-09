@@ -150,7 +150,7 @@ public class SignupCacheServiceImpl implements SignupCacheService,
 	 */
 	public void destroy() {
 		if (m_signupSiteCache != null) {
-			m_signupSiteCache.destroy();
+			m_signupSiteCache.close();
 
 		}
 

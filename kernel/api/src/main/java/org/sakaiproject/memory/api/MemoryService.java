@@ -94,7 +94,7 @@ public interface MemoryService // CacheManager
      *                                       due to the current security settings
      * JSR-107: <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration) throws IllegalArgumentException;
      */
-    <C extends Configuration> Cache createCache(String cacheName, C configuration);
+    <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration);
 
     //<K, V> Cache<K, V> getCache(String cacheName, Class<K> keyType, Class<V> valueType);
 
@@ -125,7 +125,7 @@ public interface MemoryService // CacheManager
      * @throws SecurityException        when the operation could not be performed
      *                                  due to the current security settings
      */
-    Cache getCache(String cacheName); // <K, V> Cache<K, V> getCache(String cacheName);
+    <K, V>Cache<K, V> getCache(String cacheName);
 
     /**
      * Obtains an {@link Iterable} over the names of {@link Cache}s managed by the
@@ -270,16 +270,6 @@ public interface MemoryService // CacheManager
      * @deprecated since Sakai 2.9, pattern matching no longer needed or supported, 07/Oct/2007 -AZ
      */
     Cache newCache(String cacheName, String pattern); // used in BaseAliasService, SiteCacheImpl, BaseUserDirectoryService (2), BaseCalendarService(3), ShareUserCacheImpl
-
-    /**
-     * Construct a multi-ref Cache. No automatic refresh: expire only, from time and events.
-     * NOT Cluster safe
-     *
-     * @param cacheName Load a defined bean from ComponentManager or create a default cache with this name.
-     * @deprecated since Sakai 2.9, this should no longer be used, it is not cluster safe or JSR-107 compatible
-     */
-    @SuppressWarnings("deprecation") // TODO remove this
-    GenericMultiRefCache newGenericMultiRefCache(String cacheName); // used in BaseAliasService and SecurityService
 
     /**
      * Thrown to indicate an exception has occurred in the Cache.

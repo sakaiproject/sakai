@@ -225,7 +225,7 @@ public class BaseExternalCalendarSubscriptionService implements
 		{
 			// INIT the caches
 			long cacheRefreshRate = 43200; // 12 hours
-			SimpleConfiguration cacheConfig = new SimpleConfiguration(1000, 43200, 0); // 12 hours
+			SimpleConfiguration cacheConfig = new SimpleConfiguration(1000, cacheRefreshRate, 0); // 12 hours
 			cacheConfig.setStatisticsEnabled(true);
 			institutionalSubscriptionCache = new SubscriptionCache(
 					m_memoryService.createCache("org.sakaiproject.calendar.impl.BaseExternalCacheSubscriptionService.institutionalCache", cacheConfig));

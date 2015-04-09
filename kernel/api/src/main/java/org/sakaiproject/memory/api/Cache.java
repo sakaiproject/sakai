@@ -40,7 +40,7 @@ import java.util.Set;
  * Send questions to Aaron Zeckoski
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
+public interface Cache <K, V> { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Closeable {
 
     /**
      * Get the cached payload, or null if not there (or expired)<br/>
@@ -52,9 +52,9 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      *
      * @param key the unique key for a cached object
      * @return The cached payload, or null if the payload is not found in the cache,
-     * (use {@link #containsKey(String)} to differentiate between not found and stored null)
+     * (use {@link #containsKey(K)} to differentiate between not found and stored null)
      */
-    Object get(String key); // V get(K key);
+    V get(K key); // V get(K key);
 
     /**
      * Gets a collection of entries from the {@link Cache}, returning them as
@@ -77,7 +77,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      *                               types are incompatible with those that have been
      *                               configured for the {@link Cache}
      */
-    Map<String, Object> getAll(Set<String> keys); // Map<K, V> getAll(Set<? extends K> keys);
+    Map<K, V> getAll(Set<? extends K> keys);
 
     /**
      * Test if an entry exists in the cache for a key,
@@ -92,7 +92,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      * @param key the unique key for a cached object
      * @return true if the cache contains an entry with this key, false otherwise
      */
-    boolean containsKey(String key); // boolean containsKey(K key);
+    boolean containsKey(K key);
 
     //JSR-107 void loadAll(Set<? extends K> keys, boolean replaceExistingValues, CompletionListener completionListener);
 
@@ -107,7 +107,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      * be distributable or able to be stored in the disk cache,
      * null may be used (this will cause the cache to store a null value for this key)
      */
-    void put(String key, Object payload); // void put(K key, V value);
+    void put(K key, V payload);
 
     //JSR-107 V getAndPut(K key, V value);
 
@@ -138,7 +138,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      *                               types are incompatible with those that have been
      *                               configured for the {@link Cache}
      */
-    void putAll(java.util.Map<String, Object> map); //void putAll(java.util.Map<? extends K, ? extends V> map);
+    void putAll(Map<? extends K, ? extends V> map);
 
     //JSR-107 boolean putIfAbsent(K key, V value);
 
@@ -157,7 +157,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      * @param key the unique key for a cached object
      * @return true if the item was removed from the cache, false otherwise
      */
-    boolean remove(String key); // boolean remove(K key);
+    boolean remove(K key);
 
     //JSR-107 boolean remove(K key, V oldValue);
     //JSR-107 V getAndRemove(K key);
@@ -186,7 +186,7 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      *                               types are incompatible with those that have been
      *                               configured for the {@link Cache}
      */
-    void removeAll(Set<String> keys); // void removeAll(Set<? extends K> keys);
+    void removeAll(Set<? extends K> keys);
 
     /**
      * Removes all of the mappings from this cache.
@@ -349,28 +349,5 @@ public interface Cache { // Cache<K, V> extends Iterable<Cache.Entry<K, V>>, Clo
      * @return true if this cache has distributed replication or expiration support, false otherwise
      */
     boolean isDistributed();
-
-    // DEPRECATED METHODS - remove these before Sakai 11 release
-
-    /**
-     * Same as close
-     * Destroys the cache
-     * @deprecated since 2.9, will be removed in future versions, use close() instead
-     */
-    void destroy();
-
-    /**
-     * Cache an object
-     *
-     * @param key
-     *        The key with which to find the object.
-     * @param payload
-     *        The object to cache.
-     * @param duration
-     *        The time to cache the object (seconds).
-     * @deprecated Since Sakai 2.5.0
-     * @see Cache#put(String, Object)
-     */
-    void put(Object key, Object payload, int duration);
 
 }
