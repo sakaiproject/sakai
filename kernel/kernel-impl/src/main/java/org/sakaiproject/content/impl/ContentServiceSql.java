@@ -87,6 +87,12 @@ public interface ContentServiceSql
 	String getResourceIdXmlSql();
 
 	/**
+	 * returns the sql statement which retrieves all id's and file paths where the file path is not null.
+	 * This is used for converting storage from one FileSystemHandler to another.
+	 */
+	public String getResourceIdAndFilePath();
+
+	/**
 	 * returns the sql statement which retrieves resource uuid from the content_resource table.
 	 */
 	String getResourceUuidSql();

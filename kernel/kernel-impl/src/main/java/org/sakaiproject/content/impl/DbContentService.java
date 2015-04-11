@@ -24,10 +24,6 @@ package org.sakaiproject.content.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Blob;
@@ -55,6 +51,7 @@ import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentCollectionEdit;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.content.api.FileSystemHandler;
 import org.sakaiproject.content.api.Lock;
 import org.sakaiproject.content.api.LockManager;
 import org.sakaiproject.content.impl.serialize.impl.conversion.Type1BlobCollectionConversionHandler;
@@ -168,6 +165,33 @@ public class DbContentService extends BaseContentService
     /*************************************************************************************************************************************************
      * Constructors, Dependencies and their setter methods
      ************************************************************************************************************************************************/
+
+    /**
+     * The file system handler to use when files are not stored in the database.
+     */
+    private FileSystemHandler fileSystemHandler = new DefaultFileSystemHandler();
+
+    /**
+     * Get the file system handler to use when files are not stored in the database.
+     * <p/>
+     * This can be null if files are stored in the database.
+     * <p/>
+     * The Default is DefaultFileSystemHandler.
+     */
+    public FileSystemHandler getFileSystemHandler(){
+        return fileSystemHandler;
+    }
+
+    /**
+     * Set the file system handler to use when files are not stored in the database.
+     * <p/>
+     * This can be null if files are stored in the database.
+     * <p/>
+     * The Default is DefaultFileSystemHandler.
+     */
+    public void setFileSystemHandler(FileSystemHandler fileSystemHandler){
+        this.fileSystemHandler = fileSystemHandler;
+    }
 
     /** Dependency: LockManager */
     protected LockManager m_lockManager = null;
@@ -436,6 +460,12 @@ public class DbContentService extends BaseContentService
             {
                 m_convertToFile = false;
                 convertToFile();
+            }
+
+            //Check that there is a valid file system handler
+            if (m_bodyPath != null && fileSystemHandler == null)
+            {
+                throw new IllegalStateException("There is no FileSystemHandler set for the ContentService!");
             }
 
             M_log.info("init(): tables: " + m_collectionTableName + " " + m_resourceTableName + " " + m_resourceBodyTableName + " "
@@ -1906,16 +1936,7 @@ public class DbContentService extends BaseContentService
                    // if we have been configured to use an external file system
                    if (m_bodyPath != null)
                    {
-                       if (m_bodyPathDeleted != null) {
-                           // form the file name
-                           File file = new File(externalResourceFileName(m_bodyPathDeleted, edit));
-
-                           // delete
-                           if (file.exists())
-                           {
-                               file.delete();
-                           }                   
-                       }
+                       delResourceBodyFilesystem(m_bodyPathDeleted, edit);
                    }
 
                    // otherwise use the database
@@ -2101,7 +2122,7 @@ public class DbContentService extends BaseContentService
 					   // if we have been configured to use an external file system
 					   if (removeContent) {
 						   M_log.info("Removing resource ("+edit.getId()+") content: "+m_bodyPath);
-						   delResourceBodyFilesystem(edit);
+						   delResourceBodyFilesystem(m_bodyPath, edit);
 					   } else {
 						   M_log.info("Removing original resource reference ("+edit.getId()+") without removing the actual content: "+m_bodyPath);
 					   }
@@ -2290,35 +2311,29 @@ public class DbContentService extends BaseContentService
         /**
          * Return an input stream.
          * 
-         * @param resource -
-         *        the resource for the stream It is a non-fatal error for the file not to be readible as long as the resource's expected length is
-         *        zero. We check for the body length *after* we try to read the file. If the file
-         *        is readible, we simply read it and return it as the body.
+         * @param resource the resource to resolve to a stream
+         *        It is a non-fatal error for the file not to be readible as long as the resource's expected length is
+         *        zero. In this case, a null stream is returned. Otherwise, attempt to prepare a stream for reading the
+         *        file body and fail with an exception on error.
          */
 
         protected InputStream streamResourceBodyFilesystem(String rootFolder, ContentResource resource) throws ServerOverloadException
         {
-            // form the file name
-            File file = new File(externalResourceFileName(rootFolder,resource));
+            if (((BaseResourceEdit) resource).m_contentLength == 0)
+            {
+                // Zero-length files are not written, so don't bother checking the filesystem.
+                return null;
+            }
 
-            // read the new
             try
             {
-                FileInputStream in = new FileInputStream(file);
-                return in;
+                return fileSystemHandler.getInputStream(((BaseResourceEdit) resource).m_id, rootFolder, ((BaseResourceEdit) resource).m_filePath);
             }
-            catch (FileNotFoundException t)
+            catch (IOException e)
             {
-                // If there is not supposed to be data in the file - simply return null
-                if (((BaseResourceEdit) resource).m_contentLength == 0)
-                {
-                    return null;
-                }
-
                 // If we have a non-zero body length and reading failed, it is an error worth of note
-                M_log.warn(": failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength + " : " + t);
-                throw new ServerOverloadException("failed to read resource body");
-                // return null;
+                M_log.warn("Failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength, e);
+                throw new ServerOverloadException("Failed to read resource body", e);
             }
         }
 
@@ -2453,91 +2468,23 @@ public class DbContentService extends BaseContentService
          */
         private boolean putResourceBodyFilesystem(ContentResourceEdit resource, InputStream stream, String rootFolder)
         {
-			// Do not create the files for resources with zero length bodies
-			if ((stream == null)) return true;
-
-			// form the file name
-			File file = new File(externalResourceFileName(rootFolder, resource));
-
-			// delete the old
-			if (file.exists())
-			{
-				file.delete();
-			}
-
-			FileOutputStream out = null;
-
-			// add the new
-			try
-			{
-				// make sure all directories are there
-				File container = file.getParentFile();
-				if (container != null)
-				{
-					container.mkdirs();
-				}
-
-				// write the file
-				out = new FileOutputStream(file);
-
-				long byteCount = 0;
-				// chunk
-				byte[] chunk = new byte[STREAM_BUFFER_SIZE];
-				int lenRead;
-				while ((lenRead = stream.read(chunk)) != -1)
-				{
-					out.write(chunk, 0, lenRead);
-					byteCount += lenRead;
-				}
-
-				resource.setContentLength(byteCount);
-				ResourcePropertiesEdit props = resource.getPropertiesEdit();
-				props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
-				if (resource.getContentType() != null)
-				{
-					props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
-				}
-			}
-			// catch (Throwable t)
-			// {
-			// M_log.warn(": failed to write resource: " + resource.getId() + " : " + t);
-			// return false;
-			// }
-			catch (IOException e)
-			{
-				M_log.warn("IOException", e);
-				return false;
-			}
-			finally
-			{
-				if (stream != null)
-				{
-					try
-					{
-						stream.close();
-					}
-					catch (IOException e)
-					{
-						// TODO Auto-generated catch block
-						M_log.warn("IOException ", e);
-					}
-				}
-
-				if (out != null)
-				{
-					try
-					{
-						out.close();
-					}
-					catch (IOException e)
-					{
-						// TODO Auto-generated catch block
-						M_log.warn("IOException ", e);
-					}
-				}
-			}
-
-			return true;
+            try
+            {
+                long byteCount = fileSystemHandler.saveInputStream(((BaseResourceEdit) resource).m_id, rootFolder, ((BaseResourceEdit) resource).m_filePath, stream);
+                resource.setContentLength(byteCount);
+                ResourcePropertiesEdit props = resource.getPropertiesEdit();
+                props.addProperty(ResourceProperties.PROP_CONTENT_LENGTH, Long.toString(byteCount));
+                if (resource.getContentType() != null)
+                {
+                    props.addProperty(ResourceProperties.PROP_CONTENT_TYPE, resource.getContentType());
+                }
+                return true;
+            }
+            catch (IOException e)
+            {
+                M_log.warn("IOException", e);
+                return false;
+            }
         }
 
         /**
@@ -2585,16 +2532,9 @@ public class DbContentService extends BaseContentService
          * @param resource
          *        The resource whose body is being written.
          */
-        protected void delResourceBodyFilesystem(ContentResourceEdit resource)
+        protected void delResourceBodyFilesystem(String rootFolder, ContentResourceEdit resource)
         {
-            // form the file name
-            File file = new File(externalResourceFileName(m_bodyPath,resource));
-
-            // delete
-            if (file.exists())
-            {
-                file.delete();
-            }
+            fileSystemHandler.delete(((BaseResourceEdit) resource).m_id, rootFolder, ((BaseResourceEdit) resource).m_filePath);
         }
 
         public int getMemberCount(String collectionId)
@@ -2796,18 +2736,6 @@ public class DbContentService extends BaseContentService
         }
 
     } // DbStorage
-
-    /**
-     * Form the full file path+name used to store the resource body in an external file system.
-     * 
-     * @param resource
-     *        The resource.
-     * @return The resource external file name.
-     */
-    protected String externalResourceFileName(String rootFolder, ContentResource resource)
-    {
-        return rootFolder + ((BaseResourceEdit) resource).m_filePath;
-    }
 
     @SuppressWarnings("unchecked")
     public Map<String, Long> getMostRecentUpdate(String id) 
