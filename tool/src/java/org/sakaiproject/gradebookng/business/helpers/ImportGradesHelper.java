@@ -339,7 +339,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                         break;
                     }
                 } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
-                    if (importedScore != null && !importedComment.equals(actualComment)) {
+                    if (importedComment != null && !importedComment.equals(actualComment)) {
                         status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
                         break;
                     }
