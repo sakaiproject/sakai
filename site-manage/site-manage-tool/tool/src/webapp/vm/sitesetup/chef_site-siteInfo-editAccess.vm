@@ -196,6 +196,24 @@
 			</label>
 		</p>
 		</fieldset>
+        <fieldset>
+			<legend>
+				<h4>$tlang.getString("ediacc.addit")</h4>
+			</legend>
+ 			<p class="instruction">$tlang.getString("ediacc.additin")</p>
+ 			<p class="checkbox indnt1">
+ 				<input name="access" value="members" type="radio" id="access_members" #if($access == "members")checked="true"#end>
+ 				<label for="access_members">$tlang.getString("ediacc.noextra")</label>
+ 			</p>
+ 			<p class="checkbox indnt1">
+ 				<input name="access" value="authenticated" type="radio" id="access_authenticated"  #if($access == "authenticated")checked="true"#end>
+ 				<label for="access_authenticated">$tlang.getString("ediacc.auth")</label>
+ 			</p>
+ 			<p class="checkbox indnt1">
+ 				<input name="access" value="anonymous" type="radio" id="access_anonymous" #if($access == "anonymous")checked="true"#end>
+ 				<label for="access_anonymous">$tlang.getString("ediacc.anon")</label>
+ 			</p>
+        </fieldset>
 		## site visibility
 		<fieldset>
 		<legend>
@@ -232,16 +250,13 @@
 				</label>
 			</p>
 			<p class="checkbox indnt1">
-				<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end aria-describedby="site_vis_inst" />
-				<label for="access_private">
-					$tlang.getString("ediacc.pri")
-				</label>
 			</p>
 		</div>
 		<div id="publicChangeableNoDiv" $publicChangeableNoDivDisplay>
 			<p class="instruction">
 				## the site should be public
 				$tlang.getString("ediacc.dismysit")
+
 			</p>
 			<p />
 		</div>
@@ -546,6 +561,8 @@
 
 		</div>
 		#end
+			<p/>
+		</div>		
 		<input type="hidden" name="continue" value="$!continue" />
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />

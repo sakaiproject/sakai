@@ -182,14 +182,28 @@
 				</th>
 				<td>
 					#if ($!published)
-						#if ($!joinable)
-							$tlang.getString("newsc.sitecan")
-						#else
-							$tlang.getString("newsc.sitepart")
-						#end
+					#if ("anonymous" == $!access)
+						$tlang.getString("newsc.anon")
+					#else #if ("authenticated" == $!access)
+						$tlang.getString("newsc.auth")
+					#else 
+						$tlang.getString("newsc.sitepart")
+					#end #end
 					#else
 						## unpublished site
 						$tlang.getString("newsc.siteown")
+					#end
+				</td>
+			</tr>
+			<tr>
+				<th>
+					$tlang.getString("newsc.joinable")
+				</th>
+				<td>
+					#if ($!published && $!joinable)
+						$tlang.getString("newsc.yes")
+					#else
+						$tlang.getString("newsc.no")
 					#end
 				</td>
 			</tr>

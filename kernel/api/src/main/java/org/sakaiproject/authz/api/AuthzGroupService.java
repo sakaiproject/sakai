@@ -395,7 +395,7 @@ public interface AuthzGroupService extends EntityProducer
 	 * @return the role name for this user in this AuthzGroup, if the user has active membership, or null if not.
 	 */
 	String getUserRole(String userId, String azGroupId);
-	
+
 	/**
 	 * Get all role names for a given user in a set of AuthzGroups.
 	 *
@@ -487,6 +487,13 @@ public interface AuthzGroupService extends EntityProducer
      * @return List containing the currently registered AuthzGroupAdvisors
      */
     public List<AuthzGroupAdvisor> getAuthzGroupAdvisors();
+	
+	/**
+	 * Get a nice display name for role. 
+	 * @param roleId The role ID to check (eg .auth)
+	 * @return A display name for the role, if there is no better name the original roleId should be returned.
+	 */
+	public String getRoleName(String roleId);
 
     /**
      * Set of all maintain roles
