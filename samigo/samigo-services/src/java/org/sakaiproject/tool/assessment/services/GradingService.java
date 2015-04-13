@@ -2938,14 +2938,15 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  if (tempItemGradinglist.size() == 0) return false;
 	  
 	  Iterator iter = tempItemGradinglist.iterator();
-	  ItemGradingData itemCheck = (ItemGradingData) iter.next();
-	  Long itemId = itemCheck.getPublishedItemId();
-      ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
-      if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
-    	  return true;
-      }
-          
-      return false;
+	  while(iter.hasNext()){
+		  ItemGradingData itemCheck = (ItemGradingData) iter.next();
+		  Long itemId = itemCheck.getPublishedItemId();
+		  ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(itemId);
+		  if (item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) {
+	    	  return true;
+	      }
+	  }
+	  return false;
   }
 
   
