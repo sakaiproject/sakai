@@ -2601,23 +2601,51 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	return Double.valueOf(assignmentScore).toString();
   }
 
-  public String getAssignmentScoreString(final String gradebookUid, final Long gbItemId, String studentUid) 
+  public String getAssignmentScoreString(final String gradebookUid, final Long gbItemId, final String studentUid) 
   throws GradebookNotFoundException, AssessmentNotFoundException
   {
+		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
+	  
 		if (gradebookUid == null || gbItemId == null || studentUid == null) {
 			throw new IllegalArgumentException("null parameter passed to getAssignmentScore");
-		}
-		
-		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-			}
-		});
-		if (assignment == null) {
-			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
-		}
-		
-		return getAssignmentScoreString(gradebookUid, assignment.getName(), studentUid);
+		}	
+
+	  	Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
+	  		public Object doInHibernate(Session session) throws HibernateException {
+	  			Assignment assignment = getAssignmentWithoutStats(gradebookUid, gbItemId, session);
+	  			if (assignment == null) {
+	  				throw new AssessmentNotFoundException("There is no assignment with id " + gbItemId + " in gradebook " + gradebookUid);
+	  			}
+
+	  			if (!studentRequestingOwnScore && !isUserAbleToViewItemForStudent(gradebookUid, gbItemId, studentUid)) {
+	  				log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve grade for student " + studentUid + " for assignment " + assignment.getName());
+	  				throw new SecurityException("You do not have permission to perform this operation");
+	  			}
+
+	  			// If this is the student, then the assignment needs to have
+	  			// been released.
+	  			if (studentRequestingOwnScore && !assignment.isReleased()) {
+	  				log.error("AUTHORIZATION FAILURE: Student " + getUserUid() + " in gradebook " + gradebookUid + " attempted to retrieve score for unreleased assignment " + assignment.getName());
+	  				throw new SecurityException("You do not have permission to perform this operation");					
+	  			}
+
+	  			AssignmentGradeRecord gradeRecord = getAssignmentGradeRecord(assignment, studentUid, session);
+	  			if (log.isDebugEnabled()) log.debug("gradeRecord=" + gradeRecord);
+	  			if (gradeRecord == null) {
+	  				return null;
+	  			} else {
+	  				return gradeRecord.getPointsEarned();
+	  			}
+	  		}
+	  	});
+	  	if (log.isDebugEnabled()) log.debug("returning " + assignmentScore);
+	  	
+	  	//TODO: when ungraded items is considered, change column to ungraded-grade 
+	  	//its possible that the assignment score is null
+	  	if (assignmentScore == null)
+	  		return null;
+	  	
+	  	return Double.valueOf(assignmentScore).toString();
   }
 
 	public void setAssignmentScoreString(final String gradebookUid, final String assignmentName, final String studentUid, final String score, final String clientServiceDescription) 
