@@ -23,10 +23,15 @@ public class NameListener implements ActionListener {
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		
 		author.setOutcome("samLiteEntry");
-	    if (!passAuthz(context)){
-	    	author.setOutcome("author");
-	      	return;
-	    }
+		
+		// Permission check
+	    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		if (!authzBean.isUserAllowedToCreateAssessment()) {
+			String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_create_assessment_error");
+			context.addMessage(null,new FacesMessage(err));
+			author.setOutcome("author");
+			return;
+		}
 	    
 	    String assessmentTitle = ContextUtil.lookupParam("title");
 	    
@@ -50,17 +55,5 @@ public class NameListener implements ActionListener {
 	    samLiteBean.setAssessmentTemplateId(templateId);
 	    
 	}
-	
-	private boolean passAuthz(FacesContext context){
-	    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean(
-	                         "authorization");
-	    boolean hasPrivilege = authzBean.getCreateAssessment();
-	    if (!hasPrivilege){
-	      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-	                  "denied_create_assessment_error");
-	      context.addMessage(null,new FacesMessage(err));
-	    }
-	    return hasPrivilege;
-	}
-		
+			
 }

@@ -186,14 +186,10 @@ public class AuthzQueriesFacade
    * @return the list of authorizations.
    */
   public List getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
-    try
-    {
-      String query =
-        res.getString("select_authdata_f_id") + functionId +
-        res.getString("and_q_id") + qualifierId + "'";
+    try    {
+      String query = res.getString("select_authdata_f_id") + functionId + res.getString("and_q_id") + qualifierId + "'";
 
       List list = getHibernateTemplate().find(query);
-      //System.out.println("list="+list);
       return list;
     }
     catch (DataAccessException ex)

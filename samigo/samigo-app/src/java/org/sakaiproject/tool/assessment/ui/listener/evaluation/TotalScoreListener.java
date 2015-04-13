@@ -165,9 +165,12 @@ public class TotalScoreListener
     AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
     author.setOutcome("totalScores");
 
-    if (pubAssessment != null && !passAuthz(context, pubAssessment.getCreatedBy())){
-      author.setOutcome("author");
-      return;
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (pubAssessment != null && !authzBean.isUserAllowedToGradeAssessment(publishedId, pubAssessment.getCreatedBy(), true)) {
+       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_grade_assessment_error");
+       context.addMessage("authorIndexForm:grade_assessment_denied" ,new FacesMessage(err));
+       author.setOutcome("author");
+       return;
     }
 
     // set action mode
@@ -415,28 +418,6 @@ log.debug("totallistener: firstItem = " + bean.getFirstItem());
     }
 
     return true;
-  }
-
-
- public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    boolean hasPrivilege_any = authzBean.getGradeAnyAssessment();
-    boolean hasPrivilege_own0 = authzBean.getGradeOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-    if (!hasPrivilege){
-       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_grade_assessment_error");
-       context.addMessage("authorIndexForm:grade_assessment_denied" ,new FacesMessage(err));
-    }
-    return hasPrivilege;
-  }
-
-  public boolean isOwner(String ownerId){
-    boolean isOwner = false;
-    String agentId = AgentFacade.getAgentString();
-    isOwner = agentId.equals(ownerId);
-    log.debug("***isOwner="+isOwner);
-    return isOwner;
   }
 
   public Integer getScoringType(PublishedAssessmentData pub){
