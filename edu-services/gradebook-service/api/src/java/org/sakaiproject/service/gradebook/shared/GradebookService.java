@@ -199,7 +199,14 @@ public interface GradebookService {
 	 * @return Returns a list of Assignment objects describing the assignments
 	 *         that are currently defined in the given gradebook.
 	 */
-	public List getAssignments(String gradebookUid)
+	public List<Assignment> getAssignments(String gradebookUid)
+			throws GradebookNotFoundException;
+	
+	/**
+	 * @return Returns a list of Assignment objects describing the assignments
+	 *         that are currently defined in the given gradebook, sorted by the given sort type.
+	 */
+	public List<Assignment> getAssignments(String gradebookUid, SortType sortBy)
 			throws GradebookNotFoundException;
 
 	/**
