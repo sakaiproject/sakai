@@ -441,10 +441,11 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   // Check whether the assessment belongs to the given site
   public static boolean isAssessmentInSite(String assessmentId, String siteId, boolean published) {
       // get list of site that this published assessment has been released to
-      List l = PersistenceService.getInstance().getAuthzQueriesFacade().getAuthorizationByFunctionAndQualifier(published ? "VIEW_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
+      List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().getAuthorizationByFunctionAndQualifier(published ? "VIEW_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
 
       for (int i=0; i < l.size(); i++) {
-          String assessmentSiteId = ((AuthorizationData)l.get(i)).getAgentIdString();
+          String assessmentSiteId = (l.get(i)).getAgentIdString();
+          System.out.println("zz01: " + assessmentId + ":" + siteId + ":" + published + ":" + assessmentSiteId);
           if (siteId.equals(assessmentSiteId)) {
               return true;
           }

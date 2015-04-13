@@ -294,6 +294,10 @@ public interface PublishedAssessmentFacadeQueriesAPI
    */
   public HashMap getAllAssessmentsReleasedToAuthenticatedUsers();
 
+  /* 
+   * This function returns a site id that "owns" the assessment not a user id.
+   * @return String the site that owns the assessment
+   */
   public String getPublishedAssessmentOwner(String publishedAssessmentId);
 
   public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title);

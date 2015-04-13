@@ -44,6 +44,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
@@ -1556,6 +1557,13 @@ public String getAddOrEdit()
 
           // Get all data from the database
           QuestionPoolService delegate = new QuestionPoolService();
+
+          // Does the user have permission to copy or move this pool?
+          List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(AgentFacade.getAgentString());
+          if (!poolsWithAccess.contains(pool.getId())) {
+              throw new IllegalArgumentException("User " + AgentFacade.getAgentString() + " does not have access to question pool id " + pool.getId() + " for move or copy");
+          }
+
           QuestionPoolFacade thepool =
             delegate.getPool(
               new Long(qpid), AgentFacade.getAgentString());
@@ -2429,12 +2437,21 @@ String poolId = ContextUtil.lookupParam("qpid");
                     return "transferPool";
                }
 
+		QuestionPoolService delegate = new QuestionPoolService();
+		List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(AgentFacade.getAgentString());
+
 		String[] poolIds = transferPoolIds.split(",");
 		List<Long> transferPoolIdLong = new ArrayList<Long>();
 		for (int i = 0; i < poolIds.length; i++) {
-                        if (poolIds[i] != null && !poolIds[i].isEmpty()) {
-                                transferPoolIdLong.add(new Long(poolIds[i]));
-                        }
+			if (StringUtils.isNotBlank(poolIds[i])) {
+				Long poolId = new Long(poolIds[i]);
+				if (poolsWithAccess.contains(poolId)) {
+					transferPoolIdLong.add(poolId);
+				}
+				else {
+					throw new IllegalArgumentException("Cannot transfer pool: userId " + AgentFacade.getAgentString() + " does not have access to pool id " + poolId);
+				}
+			}
 		}
 		this.transferPools = transferPoolIdLong;	
 		

@@ -61,8 +61,7 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
 
     // #1 - read the assessmentId from the form
-    String publishedAssessmentId = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("publishedAssessmentId");
+    String publishedAssessmentId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishedAssessmentId");
     log.debug("publishedAssessmentId = " + publishedAssessmentId);
     
     // #2 -  and use it to set author bean, goto removeAssessment.jsp

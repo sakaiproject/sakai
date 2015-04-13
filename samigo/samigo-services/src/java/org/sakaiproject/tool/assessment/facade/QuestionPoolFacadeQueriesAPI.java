@@ -185,7 +185,7 @@ public interface QuestionPoolFacadeQueriesAPI
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByAgent(String agentId);
+  public List<Long> getPoolIdsByAgent(String agentId);
 
   /**
    * Return a list of questionPoolId (java.lang.Long)

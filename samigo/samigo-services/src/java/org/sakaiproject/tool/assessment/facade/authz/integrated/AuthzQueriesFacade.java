@@ -317,7 +317,7 @@ public class AuthzQueriesFacade
     return getHibernateTemplate().find(query, new String[]{agentId, functionId});
   }
 
-  public List getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
+  public List<AuthorizationData> getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId) {
   return getHibernateTemplate().find(
 		"select a from AuthorizationData a where a.functionId=?"+
 		" and a.qualifierId=?",new String[]{functionId,qualifierId});

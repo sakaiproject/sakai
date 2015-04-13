@@ -1804,16 +1804,15 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 	}
 
 	public String getPublishedAssessmentOwner(String publishedAssessmentId) {
-		// HashMap h = new HashMap();
-		String query = "select a from AuthorizationData a where "
-				+ " a.functionId=? and a.qualifierId=? ";
+		String query = "select a from AuthorizationData a where a.functionId=? and a.qualifierId=? ";
 		Object [] values = {"OWN_PUBLISHED_ASSESSMENT", publishedAssessmentId};
 	    List l = getHibernateTemplate().find(query, values);
 		if (l.size() > 0) {
 			AuthorizationData a = (AuthorizationData) l.get(0);
 			return a.getAgentIdString();
-		} else
+		} else {
 			return null;
+		}
 	}
 
 	public boolean publishedAssessmentTitleIsUnique(

@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.faces.application.FacesMessage;
+import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
@@ -43,8 +45,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
-import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
-import org.sakaiproject.tool.assessment.facade.AgentFacade;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
 import org.sakaiproject.tool.assessment.facade.TypeFacade;
@@ -62,6 +63,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 
@@ -115,8 +117,8 @@ public class ItemModifyListener implements ActionListener
 
   }
 
-
   public boolean populateItemBean(ItemAuthorBean itemauthorbean, String itemId) {
+      FacesContext context = FacesContext.getCurrentInstance();
       String nextpage= null;
       ItemBean bean = new ItemBean();
       AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -132,10 +134,27 @@ public class ItemModifyListener implements ActionListener
     	  delegate = new PublishedItemService();
     	  assessdelegate = new PublishedAssessmentService();
       }
-    try{
-    	String pbd1=AgentFacade.getAgentString();
-      ItemFacade itemfacade = delegate.getItem(new Long(itemId), AgentFacade
-				.getAgentString());
+
+    try {
+      ItemFacade itemfacade = delegate.getItem(itemId);
+
+      // Check permissions: if sequence is null, the item is *not* in a pool
+      if (itemfacade.getSequence() != null) {
+        AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+        Long sectionId = itemfacade.getSection().getSectionId();
+        AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
+
+        if (!authzBean.isUserAllowedToEditAssessment(af.getAssessmentBaseId().toString(), af.getCreatedBy(), !isEditPendingAssessmentFlow)) {
+          String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+          context.addMessage(null,new FacesMessage(err));
+          itemauthorbean.setOutcome("author");
+          return false;
+        }
+      }
+      else {
+          // This item is in a question pool
+      }
+
       bean.setItemId(itemfacade.getItemId().toString());
       bean.setItemType(itemfacade.getTypeId().toString());
       itemauthorbean.setItemType(itemfacade.getTypeId().toString());

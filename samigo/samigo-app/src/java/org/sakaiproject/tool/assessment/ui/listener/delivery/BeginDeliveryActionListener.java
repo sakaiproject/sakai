@@ -133,9 +133,9 @@ public class BeginDeliveryActionListener implements ActionListener
         throw new IllegalArgumentException("User does not have permission to preview assessment id " + pub.getPublishedAssessmentId());
       }
     }
-    else if (DeliveryBean.REVIEW_ASSESSMENT == action) {
+    else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
       if (!authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString())) {
-        throw new IllegalArgumentException("User does not have permission to review assessment id " + pub.getPublishedAssessmentId());
+        throw new IllegalArgumentException("User does not have permission to view assessment id " + pub.getPublishedAssessmentId());
       }
     }
 
