@@ -37,6 +37,7 @@ import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
+import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -191,6 +192,8 @@ public class GradebookPage extends BasePage {
         groupFilter.setDefaultModelObject(groups.get(0)); //TODO update this
         groupFilter.setNullValid(false);
         form.add(groupFilter);
+
+        add(new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", assignments));
 	}
 	
 	/**
