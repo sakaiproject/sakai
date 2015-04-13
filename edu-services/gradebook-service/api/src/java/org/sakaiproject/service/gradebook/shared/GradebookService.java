@@ -803,5 +803,14 @@ public interface GradebookService {
 	 * @return
 	 */
 	public String getAverageCourseGrade(String gradebookUid);
+	
+	/**
+	 * Update the ordering of an assignment. This can be performed on internal and external assignments.
+	 * @param gradebookUid uid of the gradebook
+	 * @param assignmentId id of the assignment in the gradebook
+	 * @param order the new order for this assignment
+	 * @return
+	 */
+	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order);
 
 }

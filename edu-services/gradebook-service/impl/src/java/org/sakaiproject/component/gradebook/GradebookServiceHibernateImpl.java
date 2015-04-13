@@ -2673,4 +2673,34 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    return courseGradeLetter;
 	}
 	
+	/**
+	 * Updates the order of an assignment
+	 */
+	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order) {
+		
+		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the order of assignment " + assignmentId);
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+	
+		final Long gradebookId = getGradebook(gradebookUid).getId();
+		
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				
+				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
+				
+				if (assignment == null) {
+					throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
+				}
+				
+				assignment.setSortOrder(order);
+				updateAssignment(assignment, session);
+				return null;
+			}
+		});
+		
+	}
+
+	
 }
