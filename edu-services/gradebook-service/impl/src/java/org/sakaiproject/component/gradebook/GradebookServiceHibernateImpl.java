@@ -2675,6 +2675,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	/**
 	 * Updates the order of an assignment
+	 * 
+	 * @see GradebookService.updateAssignmentOrder(java.lang.String gradebookUid, java.lang.Long assignmentId, java.lang.Integer order)
 	 */
 	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order) {
 		
@@ -2685,20 +2687,54 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		
-		getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				
-				Assignment assignment = getAssignmentWithoutStats(gradebookUid, assignmentId, session);
-				
-				if (assignment == null) {
-					throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId + " in gradebook " + gradebookUid);
-				}
-				
-				assignment.setSortOrder(order);
-				updateAssignment(assignment, session);
-				return null;
+		//get all assignments for this gradebook
+		List<Assignment> assignments = getAssignments(gradebookId, Assignment.SORT_BY_SORTING, true);
+		
+		//find the assignment
+		Assignment target = null;
+		for(Assignment a: assignments){
+			if(a.getId().equals(assignmentId)) {
+				target = a;
+				break;
 			}
-		});
+		}
+		
+		//add the assignment to the list via a 'pad, remove, add' approach
+		assignments.add(null); //ensure size remains the same for the remove
+		assignments.remove(target); //remove item
+		assignments.add(order, target); //add at ordered position, will shuffle others along
+		
+		//the assignments are now in the correct order within the list, we just need to update the sort order for each one
+		//create a new list for the assignments we need to update in the database
+		List<Assignment> assignmentsToUpdate = new ArrayList<>();
+		
+		int i = 0;
+		for(Assignment a: assignments){
+			
+			//skip if null
+			if(a == null) {
+				continue;
+			}
+			
+			//if the sort order is not the same as the counter, update the order and add to the other list
+			//this allows us to skip items that have not had their position changed and saves some db work later on
+			if(!a.getSortOrder().equals(i)) {
+				a.setSortOrder(i);
+				assignmentsToUpdate.add(a);
+			}
+			
+			i++;		
+		}
+		
+		//do the updates
+		for(final Assignment assignmentToUpdate: assignmentsToUpdate){
+			getHibernateTemplate().execute(new HibernateCallback() {
+				public Object doInHibernate(Session session) throws HibernateException {
+					updateAssignment(assignmentToUpdate, session);
+					return null;
+				}
+			});
+		}
 		
 	}
 
