@@ -34,9 +34,8 @@
       <head><%= request.getAttribute("html.head") %>
       <title><h:outputText value="#{assessmentSettingsMessages.sakai_assessment_manager} #{assessmentSettingsMessages.dash} #{assessmentSettingsMessages.settings}" /></title>
       <samigo:script path="/jsf/widget/hideDivision/hideDivision.js"/>
-      <samigo:script path="/jsf/widget/datepicker/datepicker.js"/>
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
-      <!-- AUTHORING -->
+      <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <samigo:script path="/js/authoring.js"/>
 
       <script type="text/javascript">
@@ -49,6 +48,36 @@
           $("#jqueryui-accordion-security").accordion({ heightStyle: "content",collapsible: true,active: false });
           // adjust the height of the iframe to accomodate the expansion from the accordion
           $("body").height($("body").outerHeight() + 900);
+
+          // SAM-2323 jquery-UI datepicker
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:startDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              val: '<h:outputText value="#{assessmentSettings.startDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              ashidden: { iso8601: 'startDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:endDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              val: '<h:outputText value="#{assessmentSettings.dueDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              ashidden: { iso8601: 'endDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:retractDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              val: '<h:outputText value="#{assessmentSettings.retractDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              ashidden: { iso8601: 'retractDateISO8601' }
+          });
+          localDatePicker({
+              input: '#assessmentSettingsAction\\:feedbackDate',
+              useTime: 1,
+              parseFormat: 'YYYY-MM-DD HH:mm:ss',
+              val: '<h:outputText value="#{assessmentSettings.feedbackDate}"><f:convertDateTime pattern="yyyy-MM-dd HH:mm:ss"/></h:outputText>',
+              ashidden: { iso8601: 'feedbackDateISO8601' }
+          });
 
           // SAM-2121: Lockdown the question layout and mark for review if necessary
           var navVal = $('#assessmentSettingsAction\\:itemNavigation input:radio:checked').val();
@@ -70,7 +99,6 @@
 
 <!-- content... -->
 <h:form id="assessmentSettingsAction" onsubmit="return editorCheck();">
-
   <h:inputHidden id="assessmentId" value="#{assessmentSettings.assessmentId}"/>
   <h:inputHidden id="blockDivs" value="#{assessmentSettings.blockDivs}"/>
   <h:inputHidden id="itemNavigationUpdated" value="false" />
@@ -216,12 +244,12 @@
   <h:panelGrid columns="1" columnClasses="samigoCell" border="0">
     <h:panelGroup>
       <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
-      <samigo:datePicker value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
+      <h:inputText value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
 	  <h:outputText value="" />
 	  <h:outputText value="" />
 	  
       <h:outputLabel for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
-      <samigo:datePicker value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
+      <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
 	  <h:outputText value="" />
 	  <h:outputText value="" />
 	  
@@ -252,7 +280,7 @@
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
       </h:selectOneRadio>
 
-	  <samigo:datePicker value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
+	  <h:inputText value="#{assessmentSettings.retractDateString}" size="25" id="retractDate"/>
     </h:panelGrid>
   </h:panelGrid>
 
@@ -383,9 +411,7 @@
           <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.feedback_by_date}"/>
         </h:selectOneMenu>
 
-	     <samigo:datePicker value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" >
-            <f:convertDateTime pattern="#{generalMessages.output_date_picker}" />
-          </samigo:datePicker>
+        <h:inputText value="#{assessmentSettings.feedbackDateString}" size="25" id="feedbackDate" />
        
   </h:panelGrid>
 

@@ -37,6 +37,7 @@ import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.util.ResourceLoader;
+import org.springframework.util.StringUtils;
 /**
  * <p>Description: Time conversion utility class</p>
  */
@@ -45,6 +46,8 @@ public class TimeUtil
 {
 
   private static Log log = LogFactory.getLog(TimeUtil.class);
+  private static final String ISO_8601_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ssZZ";
+  private static DateTimeFormatter dtf = DateTimeFormat.forPattern(ISO_8601_DATE_FORMAT);
 
   private TimeZone m_client_timezone= null;
   private TimeZone m_server_timezone= null;
@@ -162,6 +165,25 @@ public class TimeUtil
       DateTimeFormatter fmtTime = DateTimeFormat.shortTime();
       DateTimeFormatter localFmtTime = fmtTime.withLocale(new ResourceLoader().getLocale());
       return dt.toString(localFmt) + " " + dt.toString(localFmtTime);
+  }
+  
+  /*
+   * SAM-2323: the jquery-ui datepicker provides a hidden field with ISO-8601 date/time
+   * This method will convert that date string into a Java Date
+   */
+  public Date parseISO8601String(String dateString) {
+	  if (StringUtils.isEmpty(dateString)) {
+		  return null;
+	  }
+
+	  try {
+		DateTime dt = dtf.parseDateTime(dateString);
+		return dt.toDate();
+	  } catch (Exception e) {
+		log.error("parseISO8601String could not parse: " + dateString);
+	  }
+	  
+	  return null;
   }
 
 
