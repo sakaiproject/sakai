@@ -113,16 +113,40 @@
 		<wicket:message key="shoppingAdminInstructions"/>
 		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
 	</span>
-	<a wicket:id="bulkEditLink"><wicket:message key="bulkEditLink"/></a>
+	<form wicket:id="filterform">
+		<div style="padding-bottom: 1.8em;">
+			<div style="float:left; margin-left: 1em;">
+				<a wicket:id="bulkEditLink"><wicket:message key="bulkEditLink"/></a>
+			</div>
+			<div style="float:right; margin-right: 1em;">
+				<b><wicket:message key="filterBy"/>:</b>
+				&nbsp;
+				<wicket:message key="hierarchyLevel"/>:
+				&nbsp;
+				<select wicket:id="filterHierarchyLevel">
+					<option>School</option>
+					<option>Department</option>
+				</select>				
+				&nbsp;
+				<input wicket:id="filterSearch"/>
+				&nbsp;
+				<input wicket:id="filterButton" type="submit"/>
+				&nbsp;
+				<input wicket:id="filterClearButton" type="button"/>
+			</div>
+		</div>
+	</form>
 	<wicket:enclosure child="inactiveLegend">
 		<br/>
 		<span style="font-weight: bold;"><wicket:message key="legend"/></span>
 		<br/>
 		<img wicket:id="inactiveLegend"/>&nbsp;<wicket:message key="inactiveLegendText"/>
-	</wicket:enclosure>		
+	</wicket:enclosure>
+	<wicket:enclosure child="noAccess">		
 	<br/>
 	<span wicket:id="noAccess"></span>
 	<br/>
+	</wicket:enclosure>
 	<form wicket:id="form">
         <div wicket:id="treeTable" class="my-tree">
         </div>

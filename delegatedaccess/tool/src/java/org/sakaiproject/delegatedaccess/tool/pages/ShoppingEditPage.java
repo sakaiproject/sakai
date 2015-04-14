@@ -40,16 +40,21 @@ import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.resources.CompressedResourceReference;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAdvancedOptions;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
@@ -67,6 +72,10 @@ public class ShoppingEditPage extends BaseTreePage{
 	private TreeTable tree;
 	private static final Logger log = Logger.getLogger(ShoppingEditPage.class);
 	private String[] defaultRole = null;
+	private SelectOption filterHierarchy;
+	private String filterSearch = "";
+	private List<ListOptionSerialized> blankRestrictedTools;
+	private boolean filterChanged = false;
 
 	@Override
 	protected AbstractTree getTree() {
@@ -75,6 +84,8 @@ public class ShoppingEditPage extends BaseTreePage{
 
 	public ShoppingEditPage(){
 		disableLink(shoppingAdminLink);
+		
+		blankRestrictedTools = projectLogic.getEntireToolsList();
 
 		//Form Feedback (Saved/Error)
 		final Label formFeedback = new Label("formFeedback");
@@ -87,8 +98,16 @@ public class ShoppingEditPage extends BaseTreePage{
 		final String formFeedback2Id = formFeedback2.getMarkupId();
 		add(formFeedback2);
 
+		//FORM:
+		Form form = new Form("form");
+		add(form);
+
+		//Filter Forum
+		Form filterForm = new Form("filterform");
+		add(filterForm);
+		
 		//bulk add, edit, delete link:
-		add(new Link("bulkEditLink"){
+		filterForm.add(new Link("bulkEditLink"){
 
 			@Override
 			public void onClick() {
@@ -96,10 +115,66 @@ public class ShoppingEditPage extends BaseTreePage{
 			}			
 		});
 		
-		//FORM:
-		Form form = new Form("form");
-		add(form);
 
+
+		//Filter Search:
+		
+		//Dropdown
+		final ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
+		final PropertyModel<SelectOption> filterHierarchydModel = new PropertyModel<SelectOption>(this, "filterHierarchy");
+		List<SelectOption> hierarchyOptions = new ArrayList<SelectOption>();
+		String[] hierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
+		if(hierarchy == null || hierarchy.length == 0){
+			hierarchy = DelegatedAccessConstants.DEFAULT_HIERARCHY;
+		}
+		for(int i = 0; i < hierarchy.length; i++){
+			hierarchyOptions.add(new SelectOption(hierarchy[i], "" + i));
+		}
+		final DropDownChoice filterHierarchyDropDown = new DropDownChoice("filterHierarchyLevel", filterHierarchydModel, hierarchyOptions, choiceRenderer);
+		filterHierarchyDropDown.setOutputMarkupPlaceholderTag(true);
+		filterForm.add(filterHierarchyDropDown);
+		//Filter Search field
+		final PropertyModel<String> filterSearchModel = new PropertyModel<String>(this, "filterSearch");
+		final TextField<String> filterSearchTextField = new TextField<String>("filterSearch", filterSearchModel);
+		filterSearchTextField.setOutputMarkupPlaceholderTag(true);
+		filterForm.add(filterSearchTextField);
+		//submit button:
+		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter", null)){
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+				filterChanged = true;
+				//now go through the tree and make sure its been loaded at every level:
+				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
+				Integer depth = null;
+				if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
+					try{
+						depth = Integer.parseInt(filterHierarchy.getValue());
+					}catch(Exception e){
+						//number format exception, ignore
+					}
+				}
+				if(depth != null){
+					//call tree update to trigger the filter listener onTargetRespond
+					expandTreeToDepth(rootNode, depth, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, null, false, true, false);
+					getTree().updateTree(target);
+				}				
+			}
+		});
+		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear", null)){
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+				filterChanged = true;
+				filterSearch = "";
+				filterHierarchy = null;
+				target.addComponent(filterSearchTextField);
+				target.addComponent(filterHierarchyDropDown);
+				//call tree update to trigger the filter listener onTargetRespond
+				getTree().updateTree(target);
+			}
+		});
+		
 
 		//tree:
 
@@ -144,7 +219,6 @@ public class ShoppingEditPage extends BaseTreePage{
 		columnsList.add(new PropertyEditableColumnAdvancedOptions(new ColumnLocation(Alignment.RIGHT, 75, Unit.PX), new StringResourceModel("advanced", null).getString(), "userObject.shoppingPeriodRevokeInstructorEditable", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
-		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
 		final boolean activeSiteFlagEnabled = sakaiProxy.isActiveSiteFlagEnabled();
 		final ResourceReference inactiveWarningIcon = new CompressedResourceReference(ShoppingEditPage.class, "images/bullet_error.png");
 		final ResourceReference instructorEditedIcon = new CompressedResourceReference(ShoppingEditPage.class, "images/bullet_red.png");
@@ -205,6 +279,25 @@ public class ShoppingEditPage extends BaseTreePage{
 					log.error(e.getMessage(), e);
 				}
 				return super.newNodeLink(parent, id, node);
+			}
+			
+			@Override
+			public void onTargetRespond(AjaxRequestTarget target) {
+				super.onTargetRespond(target);
+				if(filterChanged){
+					//make sure filter visibility is set properly:
+					DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
+					Integer depth = null;
+					if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
+						try{
+							depth = Integer.parseInt(filterHierarchy.getValue()) + 1;
+						}catch(Exception e){
+							//number format exception, ignore
+						}
+					}
+					hideFilteredNodes(rootNode, 0, depth, filterSearch, target);
+					filterChanged = false;
+				}				
 			}
 		};
 		if(singleRoleOptions){
