@@ -34,130 +34,67 @@
 	portal.chat.domSelectors = {};
 	portal.chat.domNames = {};
 
-	if ($("#footerAppTray").length > 0){
-		portal.chat.portalHandler = 'neo';
-		portal.chat.domNames = {
-			pcChatWin : 'pc_chat_window',
-			pcChatWithPre: 'pc_chat_with_',
-			pcMaximised : 'pc_maximised',
-			pcMinimised: 'pc_minimised',
-			pcDisplayName: 'pc_displayname',
-			pcMessage: 'pc_message',
-			pcNewMessage: 'pc_new_message',
-			pcChatVideoLocalVideo:  'pc_chat_local_video',
-			pcChatRemoteVideoPre: 'pc_chat_remote_video_'
-		};		
-		
-		portal.chat.domSelectors = {
-			footerApp : '#footerAppTray',
-			footerAppChat : '#footerAppChat',
-			footerAppChatToggle: '#chatToggle',
-			pcChatWin : '#'+ portal.chat.domNames.pcChatWin,
-			pcChatWinScroller : '#pc_chat_window_scroller',
-			pcChatWithPre : '#' + portal.chat.domNames.pcChatWithPre,
-			pcChatWinContainer : '#pc_chat_window_container',
-			pcChatScrollBar : '#pc_chat_scroll_bar',
-			pcChatVideoContentPre : '#pc_chat_video_content_',
-			pcChatVideoVideoInPre: '#pc_connection_videoin_',
-			pcChatVideoVideoChatBarPre: '#pc_connection_videochat_bar_',
-			pcChatVideoVideoTimePre: '#pc_connection_videotime_',
-			pcChatVideoTimePre: '#pc_connection_time_',
-			pcChatContentPre: '#pc_connection_chat_content_',
-			pcChatMessagesPre: '#pc_connection_chat_messages_',
-			pcChatEditorForPre: '#pc_editor_for_',
-			pcChatEditor : '.pc_editor',
-			pcUsers: '#pc_users',
-			pc: '#pc',
-			pcChatConnections :'#pc_connections',
-			pcChatConnectionsWrapper: '#pc_connections_wrapper',
-			pcChatSiteUsers: '#pc_site_users',
-			pcChatConnection: '.pc_connection',
-			pcChatSiteUser: '.pc_site_user',
-			pcChatUsersWrapper: '.pc_users_wrapper',
-			pcChatContent: '#pc_content',
-			pcChatTitleClose: '#pc_title_close',
-			pcChatChatableCount: '#chattableCount',
-			pcChatAvatarPerm: '#avatarPermitted',
-			pcChatPingedPopupPre: '#pc_pingeg_popup_',
-			pcChatShowOfflineConsCheck: '#pc_showoffline_connections_checkbox',
-			pcChatTitle: '#pc_title',
-			pcVideoOffCheckOff: '#pc_video_off_checkbox',
-			pcVideoOffCtrl: '#pc_video_off_ctrl',
-			pcChatOfflineCheck: '#pc_go_offline_checkbox',
-			pcChatConnectionTitle: '.pc_connection_chat_title',
-			pcChatLocalVideoContent: '#pc_chat_local_video_content',
-			pcChatVideoBarLeft: '.pc_connection_videochat_bar_left',
-			pcChatVideoLink: '.pc_user_video_link',
-			pcChatVideoRemote: '.pc_chat_video_remote',
-			pcChatBubbling : '.bubblingG',
-			pcChatVideoStatusElement : '.statusElement',
-			pcChatVideoStatusBar : '.pc_chat_video_statusbar',
-			pcChatVideoFailed: '.pc_chat_video_failed',
-			pcChatVideoFinished: '.pc_chat_video_finished'
-		};
-	}else{
-		portal.chat.portalHandler = 'morpheus';
-		portal.chat.domNames = {
-			pcChatWin : 'Mrphs-portalChat__chat--window',
-			pcChatWithPre: 'Mrphs-portalChat__chat--with-',
-			pcMaximised : 'Mrphs-portalChat__chat--maximised',
-			pcMinimised: 'Mrphs-portalChat__chat--minimised',
-			pcDisplayName: 'Mrphs-portalChat__chat--displayname',
-			pcMessage: 'Mrphs-portalChat__chat--message',
-			pcNewMessage: 'Mrphs-portalChat__message--new',
-			pcChatVideoLocalVideo: 'Mrphs-portalChat__video--localvideo',
-			pcChatRemoteVideoPre: 'Mrphs-portalChat__videochat--remotevideo-'
-				
-		};		
+	portal.chat.domNames = {
+		pcChatWin : 'Mrphs-portalChat__chat--window',
+		pcChatWithPre: 'Mrphs-portalChat__chat--with-',
+		pcMaximised : 'Mrphs-portalChat__chat--maximised',
+		pcMinimised: 'Mrphs-portalChat__chat--minimised',
+		pcDisplayName: 'Mrphs-portalChat__chat--displayname',
+		pcMessage: 'Mrphs-portalChat__chat--message',
+		pcNewMessage: 'Mrphs-portalChat__message--new',
+		pcChatVideoLocalVideo: 'Mrphs-portalChat__video--localvideo',
+		pcChatRemoteVideoPre: 'Mrphs-portalChat__videochat--remotevideo-'
+			
+	};		
 
-		portal.chat.domSelectors = {
-			footerApp : '#Mrphs-footerApp',
-			footerAppChat : '#Mrphs-footerApp__chat',
-			footerAppChatToggle: '#Mrphs-footerApp--toggle',
-			pcChatWin : '.' + portal.chat.domNames.pcChatWin,
-			pcChatWinScroller : '.Mrphs-portalChat__chat--windowscroller',
-			pcChatWithPre : '#' + portal.chat.domNames.pcChatWithPre,
-			pcChatWinContainer : '.Mrphs-portalChat__chat--container',
-			pcChatScrollBar : '.Mrphs-portalChat__chat--scrollbar',
-			pcChatVideoContentPre: '#Mrphs-portalChat__chat--videocontent-',
-			pcChatVideoVideoInPre: '#Mrphs-portalChat__chat--videoin-',
-			pcChatVideoVideoChatBarPre: '#Mrphs-portalChat__chat--videochatbar-',
-			pcChatVideoVideoTimePre: '#Mrphs-portalChat__chat--videotime-',
-			pcChatVideoTimePre: '#Mrphs-portalChat__chat--time-',
-			pcChatContentPre: '#Mrphs-portalChat__chat--content-',
-			pcChatMessagesPre: '#Mrphs-portalChat__chat--messages-',
-			pcChatEditorForPre: '#Mrphs-portalChat__chat--editor-',
-			pcChatEditor : '.Mrphs-portalChat__chat--editor',
-			pcUsers: '#Mrphs-portalChat__users',
-			pc: '#Mrphs-portalChat',
-			pcChatConnections :'#Mrphs-portalChat__connections',
-			pcChatConnectionsWrapper: '#Mrphs-portalChat__connections--wrapper',
-			pcChatSiteUsers: '#Mrphs-portalChat__siteusers',
-			pcChatConnection : '.Mrphs-portalChat_connection',
-			pcChatSiteUser: '.Mrphs-portalChat__user',
-			pcChatUsersWrapper: '.Mrphs-portalChat__user--wrapper',
-			pcChatContent: '#Mrphs-portalChat__content',
-			pcChatTitleClose: '#Mrphs-portalChat__close',
-			pcChatChatableCount: '#Mrphs-footerApp--count',
-			pcChatAvatarPerm: '#Mrphs-portalChat__avatar--permitted',
-			pcChatPingedPopupPre: '#Mrphs-portalChat__connection--ping_',
-			pcChatShowOfflineConsCheck: '#Mrphs-portalChat__showoffline',
-			pcChatTitle: '#Mrphs-portalChat__title',
-			pcVideoOffCheckOff: '#Mrphs-portalChat__videooff--check',
-			pcVideoOffCtrl: '#Mrphs-portalChat__videooff--ctrl',
-			pcChatOfflineCheck: '#Mrphs-portalChat__gooffline--check',
-			pcChatConnectionTitle: '.Mrphs-portalChat__chat--title',
-			pcChatLocalVideoContent: '#Mrphs-portalChat__video--localcontent',
-			pcChatVideoBarLeft: '.Mrphs-portalChat__videochat--leftelement',
-			pcChatVideoLink: '.Mrphs-portalChat__connection--videolink',
-			pcChatVideoRemote: '.Mrphs-portalChat__videochat--remotevideo',
-			pcChatBubbling: '.Mrphs-portalChat__videochat--bubblingG',
-			pcChatVideoStatusElement: '.Mrphs-portalChat__videochat--statuselement',
-			pcChatVideoStatusBar : '.Mrphs-portalChat__videochat--statusbar',
-			pcChatVideoFailed: '.Mrphs-portalChat__videochat--statusfailed',
-			pcChatVideoFinished: '.Mrphs-portalChat__videochat--statusfinished'
-		};
-	}
+	portal.chat.domSelectors = {
+		footerApp : '#Mrphs-footerApp',
+		footerAppChat : '#Mrphs-footerApp__chat',
+		footerAppChatToggle: '#Mrphs-footerApp--toggle',
+		pcChatWin : '.' + portal.chat.domNames.pcChatWin,
+		pcChatWinScroller : '.Mrphs-portalChat__chat--windowscroller',
+		pcChatWithPre : '#' + portal.chat.domNames.pcChatWithPre,
+		pcChatWinContainer : '.Mrphs-portalChat__chat--container',
+		pcChatScrollBar : '.Mrphs-portalChat__chat--scrollbar',
+		pcChatVideoContentPre: '#Mrphs-portalChat__chat--videocontent-',
+		pcChatVideoVideoInPre: '#Mrphs-portalChat__chat--videoin-',
+		pcChatVideoVideoChatBarPre: '#Mrphs-portalChat__chat--videochatbar-',
+		pcChatVideoVideoTimePre: '#Mrphs-portalChat__chat--videotime-',
+		pcChatVideoTimePre: '#Mrphs-portalChat__chat--time-',
+		pcChatContentPre: '#Mrphs-portalChat__chat--content-',
+		pcChatMessagesPre: '#Mrphs-portalChat__chat--messages-',
+		pcChatEditorForPre: '#Mrphs-portalChat__chat--editor-',
+		pcChatEditor : '.Mrphs-portalChat__chat--editor',
+		pcUsers: '#Mrphs-portalChat__users',
+		pc: '#Mrphs-portalChat',
+		pcChatConnections :'#Mrphs-portalChat__connections',
+		pcChatConnectionsWrapper: '#Mrphs-portalChat__connections--wrapper',
+		pcChatSiteUsers: '#Mrphs-portalChat__siteusers',
+		pcChatConnection : '.Mrphs-portalChat_connection',
+		pcChatSiteUser: '.Mrphs-portalChat__user',
+		pcChatUsersWrapper: '.Mrphs-portalChat__user--wrapper',
+		pcChatContent: '#Mrphs-portalChat__content',
+		pcChatTitleClose: '#Mrphs-portalChat__close',
+		pcChatChatableCount: '#Mrphs-footerApp--count',
+		pcChatAvatarPerm: '#Mrphs-portalChat__avatar--permitted',
+		pcChatPingedPopupPre: '#Mrphs-portalChat__connection--ping_',
+		pcChatShowOfflineConsCheck: '#Mrphs-portalChat__showoffline',
+		pcChatTitle: '#Mrphs-portalChat__title',
+		pcVideoOffCheckOff: '#Mrphs-portalChat__videooff--check',
+		pcVideoOffCtrl: '#Mrphs-portalChat__videooff--ctrl',
+		pcChatOfflineCheck: '#Mrphs-portalChat__gooffline--check',
+		pcChatConnectionTitle: '.Mrphs-portalChat__chat--title',
+		pcChatLocalVideoContent: '#Mrphs-portalChat__video--localcontent',
+		pcChatVideoBarLeft: '.Mrphs-portalChat__videochat--leftelement',
+		pcChatVideoLink: '.Mrphs-portalChat__connection--videolink',
+		pcChatVideoRemote: '.Mrphs-portalChat__videochat--remotevideo',
+		pcChatBubbling: '.Mrphs-portalChat__videochat--bubblingG',
+		pcChatVideoStatusElement: '.Mrphs-portalChat__videochat--statuselement',
+		pcChatVideoStatusBar : '.Mrphs-portalChat__videochat--statusbar',
+		pcChatVideoFailed: '.Mrphs-portalChat__videochat--statusfailed',
+		pcChatVideoFinished: '.Mrphs-portalChat__videochat--statusfinished'
+	};
+
 
     /**
      *  Utility for rendering trimpath templates. Takes the id of the template,
@@ -1179,6 +1116,5 @@
 }) ($PBJQ);
 
 $PBJQ(document).ready(function () {
-    $(portal.chat.domSelectors.footerAppChat).show();
     $(portal.chat.domSelectors.footerAppChat).removeClass('is-hidden');
 });
