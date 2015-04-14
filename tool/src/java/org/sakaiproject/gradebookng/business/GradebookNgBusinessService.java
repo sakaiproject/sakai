@@ -40,6 +40,7 @@ import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -81,8 +82,6 @@ public class GradebookNgBusinessService {
 	private CourseManagementService courseManagementService;
 	
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
-	public static final String PREFS_PROP_PREFIX = "gbng_prefs_";
-
 	
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -161,81 +160,20 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Get a list of assignments in the gradebook in the specified site
+	 * Get a list of assignments in the gradebook in the specified site, sorted by sort order
 	 * 
 	 * @param siteId the siteId
 	 * @return a list of assignments or null if no gradebook
 	 */
-	@SuppressWarnings("unchecked")
 	public List<Assignment> getGradebookAssignments(String siteId) {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
-			List<Assignment> assignments = gradebookService.getAssignments(gradebook.getUid());
-			assignments = sortAssignments(siteId,assignments);			
-			return assignments;
+			return gradebookService.getAssignments(gradebook.getUid(), SortType.SORT_BY_SORTING);
 		}
 		return null;
 	}
 	
-	/**
-	 * Sort the assignment list according to the criteria stored in the site property
-	 * 
-	 * @param assignments
-	 * @return sorted list of assignments
-	 */
-	private List<Assignment> sortAssignments(String siteId, List<Assignment> assignments) {
-		
-		// The performance of this could be better. However we are talking about a tiny list here (<50 items)
-		//What would be ideal is an order on the assignments in the db table
-		
-		//get the stored order
-		List<AssignmentOrder> assignmentOrder = this.getAssignmentOrder(siteId);
-		if(assignmentOrder == null) {
-			//no order set, use natural order
-			return assignments;
-		}
-		
-		//create a copy of the list we can modify
-		List<Assignment> rval = new ArrayList<>();
-		rval.addAll(assignments);
-		int size = rval.size();
-
-		//iterate over assignments, then check the order list for matches.
-		//if matched, insert null to ensure list size, remove assignment and add at the new position in the rval list
-		//if not matched, continue.
-		//add the end, remove nulls
-		
-		//TODO should this iteration be on the order list first? the order list is potentially less iterations...
-		for(Assignment a : assignments) {
-			
-			for(AssignmentOrder o: assignmentOrder) {
-				long assignmentId = o.getAssignmentId();
-
-				if(assignmentId == a.getId().longValue()){
-					
-					int order = o.getOrder();
-					
-					//trim order to bounds of assignment list
-					if(order < 0){
-						order = 0;
-					} else if(order >= size) {
-						order = size-1; //0 based index
-					}
-					
-					rval.add(null); //ensure size remains the same for the remove
-					rval.remove(a); //remove item
-					rval.add(order, a); //add at ordered position
-					
-				}
-			}
-		}
-		
-		//retain only the assignment objects
-		rval.retainAll(assignments);
 	
-		return rval;
-	}
-
 	
 		
 	/**
@@ -376,62 +314,6 @@ public class GradebookNgBusinessService {
 		return rval;
 		
 	}
-
-	
-	
-	/**
-	 * Get the user prefs for this gradebook instance
-	 * 
-	 * CURRENTLY UNUSED
-	 * 
-	 * @param userUuid
-	 * @return
-	 */
-	public GradebookUserPreferences getUserPrefs() {
-		String siteId = this.getCurrentSiteId();
-		String userUuid = this.getCurrentUserUuid();
-		
-		try {
-			Site site = siteService.getSite(siteId);
-			
-			ResourceProperties props = site.getProperties();
-			String xml = (String) props.get(PREFS_PROP_PREFIX + userUuid);
-			
-			GradebookUserPreferences prefs = (GradebookUserPreferences) XmlMarshaller.unmarshall(xml);
-			return prefs;
-			
-		} catch (IdUnusedException | JAXBException e) {
-			e.printStackTrace();
-		}
-		
-		
-		return null;
-	}
-	
-	
-	/**
-	 * Helper to save user prefs
-	 * 
-	 * CURRENTLY UNUSED
-	 * 
-	 * @param prefs
-	 */
-	public void saveUserPrefs (GradebookUserPreferences prefs) {
-		String siteId = this.getCurrentSiteId();
-		
-		try {
-			Site site = siteService.getSite(siteId);
-			
-			ResourcePropertiesEdit props = site.getPropertiesEdit();
-			props.addProperty(PREFS_PROP_PREFIX + prefs.getUserUuid(), XmlMarshaller.marshal(prefs));
-			siteService.save(site);
-			
-		} catch (IdUnusedException | JAXBException | PermissionException e) {
-			e.printStackTrace();
-		}
-		 
-	}
-	
 	
 	/**
 	 * Get a list of sections and groups in a site
@@ -551,39 +433,6 @@ public class GradebookNgBusinessService {
     }
     
     /**
-     * Get the configured assignment order for the site
-     * 
-     * @param siteId
-     * @return
-     */
-    public List<AssignmentOrder> getAssignmentOrder(String siteId) {
-    	
-    	Site site = null;
-		try {
-			site = this.siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return null;
-		}
-		
-		ResourceProperties props = site.getProperties();
-    	String xml = props.getProperty(ASSIGNMENT_ORDER_PROP);
-    	
-    	if(StringUtils.isNotBlank(xml)) {
-    		try {
-    			//goes via the xml list wrapper as that is serialisable
-    			XmlList<AssignmentOrder> xmlList = (XmlList<AssignmentOrder>) XmlMarshaller.unmarshall(xml);
-    			return xmlList.getItems();
-    		} catch (JAXBException e) {
-    			e.printStackTrace();
-    		}
-    	}
-    	    	
-    	return null;
-    }
-    
-    /**
      * Update the order of an assignment.
      * 
      * @param siteId	the siteId
@@ -595,61 +444,9 @@ public class GradebookNgBusinessService {
      */
     public void updateAssignmentOrder(String siteId, long assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
     	
-    	Site site = null;
-		try {
-			site = this.siteService.getSite(siteId);
-		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-			return;
-		}
-		
-		ResourcePropertiesEdit props = site.getPropertiesEdit();
-    	String xml = props.getProperty(ASSIGNMENT_ORDER_PROP);
-    	
-    	List<AssignmentOrder> assignmentOrder = new ArrayList<>();
-    	if(StringUtils.isNotBlank(xml)) {
-    		XmlList<AssignmentOrder> xmlList = (XmlList<AssignmentOrder>) XmlMarshaller.unmarshall(xml);
-    		if(xmlList != null) {
-    			assignmentOrder = xmlList.getItems();
-    		}
-    	}
-    	
-    	//try to update an existing order
-    	boolean matched = false;
-    	for(AssignmentOrder as: assignmentOrder) {
-    		if(as.getAssignmentId() == assignmentId) {
-    			matched = true;
-    			as.setOrder(order);
-    		}
-    	}
-    	
-    	//otherwise add it
-    	if(!matched) {
-    		assignmentOrder.add(new AssignmentOrder(assignmentId, order));
-    	}
-    	
-    	//serialise the XmlList back to xml
-    	XmlList<AssignmentOrder> updatedXmlList = new XmlList<AssignmentOrder>(assignmentOrder);
-    	String updatedXml = XmlMarshaller.marshal(updatedXmlList);
-		
-		//and save it
-		props.addProperty(ASSIGNMENT_ORDER_PROP, updatedXml);
-		
-		log.debug("Updated assignment order: " + updatedXml);
-		
-		this.siteService.save(site);
-    	
+		Gradebook gradebook = this.getGradebook(siteId); //this is called from an entity provider so must provide the siteId
+		this.gradebookService.updateAssignmentOrder(gradebook.getUid(), assignmentId, order);
     }
-    
-    /*
-    public GradebookUiConfiguration getGradebookUiConfiguration() {
-    	//the front end will set this into the DOM so the JS can pick it up. need to include siteid, toolid etc.
-    	//alternatxively can pass in the sited to get the config
-    	
-    	return null;
-    }
-    */
     
     /**
     * Comparator class for sorting a list of users by last name
