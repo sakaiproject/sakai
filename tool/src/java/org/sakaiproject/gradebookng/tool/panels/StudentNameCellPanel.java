@@ -27,7 +27,6 @@ public class StudentNameCellPanel extends Panel {
 	public StudentNameCellPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);
 		this.model = model;
-		
 	}
 	
 	@Override

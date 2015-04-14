@@ -31,6 +31,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
+import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
@@ -121,9 +122,7 @@ public class GradebookPage extends BasePage {
         cols.add(new PropertyColumn(new ResourceModel("column.header.coursegrade"), "courseGrade"));
         
         
-        //build the rest of the columns based on the assignment list
-        //NOTE: the ordering of newly created assignments and grouping by category will come into play here
-       
+        //build the rest of the columns based on the assignment list       
         for(final Assignment assignment: assignments) {
         	
         	AbstractColumn column = new AbstractColumn(new Model("")) {
@@ -134,24 +133,28 @@ public class GradebookPage extends BasePage {
     				return panel;
             	}
 
-						@Override
-						public String getCssClass() {
-							return "gb-grade-item-header";
-						}
+				@Override
+				public String getCssClass() {
+					return "gb-grade-item-header";
+				}
             	
             	@Override
 				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-            		StudentGradeInfo studentsGrades = (StudentGradeInfo) rowModel.getObject();
-            		cellItem.add(new GradeItemCellPanel(componentId, assignment.getId(), studentsGrades));
-				}
-            	
-    			
-    			//TODO since we are now using a custom cell, we still need this to be editable, it will be done in the panel itself.
-            	
+            		StudentGradeInfo studentGrades = (StudentGradeInfo) rowModel.getObject();
+            		
+            		GradeInfo gradeInfo = studentGrades.getGrades().get(assignment.getId());
+            		
+            		Map<String,Object> modelData = new HashMap<>();
+    				modelData.put("assignmentId", assignment.getId());
+    				modelData.put("studentUuid", studentGrades.getStudentUuid());
+    				modelData.put("isExternal", assignment.isExternallyMaintained());
+    				modelData.put("gradeInfo", gradeInfo);
+    				
+    				cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
+				}            	
             };
             
             cols.add(column);
-        	
         }
        
         

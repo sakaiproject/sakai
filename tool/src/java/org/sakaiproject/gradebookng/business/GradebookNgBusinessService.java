@@ -288,7 +288,6 @@ public class GradebookNgBusinessService {
 		
 		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
 		//however the logic needs to be reworked so we can capture the user info
-		//currently storing the full grade definition too, this may be unnecessary
 		//NOT a high priority unless performance issue deems it to be
 		
 		
