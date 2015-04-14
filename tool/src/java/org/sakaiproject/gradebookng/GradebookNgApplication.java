@@ -1,6 +1,9 @@
 package org.sakaiproject.gradebookng;
 
 import org.apache.wicket.protocol.http.WebApplication;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -43,65 +46,28 @@ public class GradebookNgApplication extends WebApplication {
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 				
 		// On Wicket session timeout, redirect to main page
-		//getApplicationSettings().setPageExpiredErrorPage(FirstPage.class);
-		//getApplicationSettings().setAccessDeniedPage(FirstPage.class);
+		getApplicationSettings().setPageExpiredErrorPage(getHomePage());
+		
+		// Intercept the stacktrace so it doesnt fill the page
+		getRequestCycleListeners().add(new SakaiRequestCycleListener());
 
-		/* this is mucking up the exception handling in Sakai and thorinw to a portalless page. Fix it.
-        getRequestCycleListeners().add(new IRequestCycleListener() {
-
-            //public void onBeginRequest() {
-            	// optionally do something at the beginning of the request
-            //}
-
-            //public void onEndRequest() {
-            	// optionally do something at the end of the request
-            //}
-
-            public IRequestHandler onException(RequestCycle cycle, Exception ex) {
-	            // optionally do something here when there's an exception
-	            // then, return the appropriate IRequestHandler, or "null"
-	            // to let another listener handle the exception
-                ex.printStackTrace();
-                return null;
-            }
-
-            @Override
-            public void onBeginRequest(RequestCycle arg0) {
-            }
-
-            @Override
-            public void onDetach(RequestCycle arg0) {
-            }
-
-            @Override
-            public void onEndRequest(RequestCycle arg0) {
-            }
-
-            @Override
-            public void onExceptionRequestHandlerResolved(RequestCycle arg0, IRequestHandler arg1, Exception arg2) {
-            }
-
-            @Override
-            public void onRequestHandlerExecuted(RequestCycle arg0, IRequestHandler arg1) {
-            }
-
-            @Override
-            public void onRequestHandlerResolved(RequestCycle arg0, IRequestHandler arg1) {
-            }
-
-            @Override
-            public void onRequestHandlerScheduled(RequestCycle arg0, IRequestHandler arg1) {
-            }
-
-            @Override
-            public void onUrlMapped(RequestCycle arg0,IRequestHandler arg1, Url arg2) {
-            }
-        });
-        */
-        
+		
 
    
 		//to put this app into deployment mode, see web.xml
+	}
+	
+	/**
+	 * Overrides the exception handler so the stacktrace doesnt consume the screen.
+	 * @author fivium
+	 *
+	 */
+	public class SakaiRequestCycleListener extends AbstractRequestCycleListener {
+		
+		@Override
+		public IRequestHandler onException(RequestCycle cycle, Exception ex) {
+            return null;
+        }
 	}
 	
 	
