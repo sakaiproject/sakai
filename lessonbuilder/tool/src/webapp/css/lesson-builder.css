@@ -1,0 +1,78 @@
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+.portletBody .lb-button {
+  font-size: 90%;
+  text-align: center;
+  padding-left: 15px;
+  padding-right: 15px;
+  -webkit-border-radius: 15px;
+  -moz-border-radius: 15px;
+  border-radius: 15px;
+}
+.portletBody .lb-button-default {
+  color: #478ba4;
+  border: 1px solid #d6dde5;
+  background-color: #d6dde5;
+  background: #d6dde5;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #d6dde5), color-stop(1, #ffffff));
+  background: -ms-linear-gradient(bottom, #d6dde5, #ffffff);
+  background: -moz-linear-gradient(center bottom, #d6dde5 0%, #ffffff 100%);
+  background: -o-linear-gradient(#ffffff, #d6dde5);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#d6dde5', GradientType=0);
+}
+.portletBody .lb-button-default:hover,
+.portletBody .lb-button-default:active {
+  color: #2b7490;
+  border: 1px solid #aab8c8;
+  background-color: #d6dde5;
+  background: #d6dde5;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ffffff), color-stop(1, #d6dde5));
+  background: -ms-linear-gradient(bottom, #ffffff, #d6dde5);
+  background: -moz-linear-gradient(center bottom, #ffffff 0%, #d6dde5 100%);
+  background: -o-linear-gradient(#d6dde5, #ffffff);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d6dde5', endColorstr='#ffffff', GradientType=0);
+}
+.portletBody .lb-button-primary {
+  color: #ffffff;
+  border: 1px solid #478ba4;
+  background-color: #6aabc5;
+  background: #6aabc5;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, none), color-stop(1, none));
+  background: -ms-linear-gradient(bottom, none, none);
+  background: -moz-linear-gradient(center bottom, none 0%, none 100%);
+  background: -o-linear-gradient(none, none);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='none', endColorstr='none', GradientType=0);
+}
+.portletBody .lb-button-primary:hover,
+.portletBody .lb-button-primary:active {
+  color: #ffffff;
+  border: 1px solid #2b7490;
+  background-color: #478ba4;
+  background: #478ba4;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, none), color-stop(1, none));
+  background: -ms-linear-gradient(bottom, none, none);
+  background: -moz-linear-gradient(center bottom, none 0%, none 100%);
+  background: -o-linear-gradient(none, none);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='none', endColorstr='none', GradientType=0);
+}
+.portletBody .portletTitle {
+  height: 50px;
+}
+.portletBody .portletTitle .title {
+  margin-top: 6px;
+}
+.portletBody .portletTitle .title h2 {
+  color: #478ba4;
+  font-size: 150%;
+  font-weight: bold;
+}
+.portletBody .portletTitle .action {
+  margin-top: 12px;
+}
+.portletBody .portletTitle .action a {
+  margin-right: 10px;
+}
