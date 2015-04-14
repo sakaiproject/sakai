@@ -53,5 +53,7 @@ For filing bugs against Sakai please use our Jira instance: https://jira.sakaipr
 For testing out the latest builds go to the [nightly server page](http://nightly2.sakaiproject.org)
 
 ## Get in touch
+If you have any questions, please join the Sakai developer mailing list: To subscribe send an email to sakai-dev+subscribe@apereo.org
 
-If you have any questions, please join the Sakai developer mailing list: http://collab.sakaiproject.org/mailman/listinfo/sakai-dev
+To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
+https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists
