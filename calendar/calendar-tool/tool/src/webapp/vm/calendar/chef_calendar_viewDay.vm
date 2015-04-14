@@ -97,7 +97,7 @@
                 #set($temp = $timer)
                 #set($timer = $timer - 12)
             #end
-            <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">
+            <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
             #foreach ($format in $timeFormat)
                 #if ($format == "h")
                     $timer
@@ -111,10 +111,10 @@
                     #end
                 #end
             #end
-            </td>
+            </th>
             #if ($temp>12) #set($timer = $temp) #end
         #elseif ( $page == "third" )
-            <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">
+            <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
             #foreach ($format in $timeFormat)
                 #if ($format == "h")
                     $timer
@@ -125,9 +125,9 @@
                     ${temp}:00
                 #end
             #end
-            </td>
+            </th>
         #elseif ($page == "first")            
-            <td width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap">
+            <th width="5%" rowspan="2" align="right" bgcolor="#eeeeee" class="borderWhite" nowrap="nowrap" scope="row">
             #foreach ($format in $timeFormat)
                 #if ($format == "h")
                     #if($timer == 0) 12 #else $timer #end
@@ -137,7 +137,7 @@
                     ${timer}:00
                 #end
             #end
-            </td>
+            </th>
         #end
 
         #set($timer = $timer + 1)
