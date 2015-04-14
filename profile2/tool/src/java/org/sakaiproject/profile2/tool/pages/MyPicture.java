@@ -31,7 +31,7 @@ import org.sakaiproject.profile2.tool.pages.panels.GalleryImageEdit;
 public class MyPicture extends BasePage {
 
 	public MyPicture(String userId, GalleryImage galleryImage,
-			int galleryPageIndex) {
+			long galleryPageIndex) {
 
 		configureFeedback();
 

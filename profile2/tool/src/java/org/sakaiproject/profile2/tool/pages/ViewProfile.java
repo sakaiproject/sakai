@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -173,7 +174,11 @@ public class ViewProfile extends BasePage {
 			}
 		};
 		
-		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
+		HttpServletRequest request = (HttpServletRequest) getRequestCycle().getRequest();
+		//TODO need to fix this. For now the cookie is null
+		Cookie tabCookie = null;
+		
+		//Cookie tabCookie = request.getCookie(ProfileConstants.TAB_COOKIE);
 		
 		if (sakaiProxy.isProfileFieldsEnabled()) {
 			tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
@@ -279,7 +284,7 @@ public class ViewProfile extends BasePage {
             		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
             		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
             		addFriendLink.setEnabled(false);
-            		target.addComponent(addFriendLink);
+            		target.add(addFriendLink);
             	}
             }
         });

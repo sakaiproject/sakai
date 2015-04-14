@@ -19,6 +19,7 @@ import java.util.Locale;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -28,6 +29,7 @@ import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.resources.JavascriptResourceReference;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -258,7 +260,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	public void renderHead(IHeaderResponse response) {
 		
 		//get the Sakai skin header fragment from the request attribute
-		HttpServletRequest request = getWebRequestCycle().getWebRequest().getHttpServletRequest();
+		HttpServletRequest request = (HttpServletRequest) getRequestCycle().getRequest();
 		response.renderString((String)request.getAttribute("sakai.html.head"));
 		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
 		
@@ -266,6 +268,13 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
 		response.renderCSSReference("css/profile2.css");
 		response.renderJavascriptReference("javascript/profile2.js");
+		
+		
+		//CKEDITOR moved here
+		response.renderJavascriptReference(new JavascriptResourceReference(BasePage.class, "/library/editor/ckeditor/adapters/jquery.js"));
+		response.renderJavascript("var CKEDITOR_BASEPATH = '/library/editor/ckeditor/';", "ckeditorpath");
+		response.renderJavascriptReference("/library/editor/ckeditor/ckeditor.js", "ckeditor");
+		response.renderJavascriptReference("/library/editor/ckeditor/adapters/jquery.js", "ckeditoradapter");
 		
 	}
 	
@@ -313,7 +322,8 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		Cookie tabCookie = new Cookie(ProfileConstants.TAB_COOKIE, "" + tabIndex);
 		// don't persist indefinitely
 		tabCookie.setMaxAge(-1);
-		getWebRequestCycle().getWebResponse().addCookie(tabCookie);
+		HttpServletResponse response = (HttpServletResponse) getRequestCycle().getResponse();
+		response.addCookie(tabCookie);
 	}
 	
 }

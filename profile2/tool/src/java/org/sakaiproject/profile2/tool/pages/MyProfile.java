@@ -258,10 +258,10 @@ public class MyProfile extends BasePage {
 				
 				//show the panel
 				changePicture.setVisible(true);
-				target.addComponent(changePicture);
+				target.add(changePicture);
 				
 				//resize iframe to fit it
-				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavaScript("resizeFrame('grow');");
 			}
 						
 		};
@@ -361,7 +361,7 @@ public class MyProfile extends BasePage {
 	            		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
 	            		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 	            		addFriendLink.setEnabled(false);
-	            		target.addComponent(addFriendLink);
+	            		target.add(addFriendLink);
 	            	}
 	            }
 	        });
@@ -391,7 +391,7 @@ public class MyProfile extends BasePage {
 	    				} else {
 	    					add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
 	    				}
-	    				target.addComponent(this);
+	    				target.add(this);
 	    			}
 				}
 			};
@@ -468,7 +468,9 @@ public class MyProfile extends BasePage {
 			}
 		};
 		
-		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
+		//TODO fix cookies
+		//Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
+		Cookie tabCookie = null;
 		
 		if (sakaiProxy.isProfileFieldsEnabled()) {
 			tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {

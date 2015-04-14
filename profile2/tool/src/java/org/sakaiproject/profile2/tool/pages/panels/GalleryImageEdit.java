@@ -64,7 +64,7 @@ public class GalleryImageEdit extends Panel {
 	
 	public GalleryImageEdit(String id,
 			final String userId, final GalleryImage image,
-			final int galleryPageIndex) {
+			final long galleryPageIndex) {
 
 		super(id);
 

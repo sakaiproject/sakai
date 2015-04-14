@@ -106,9 +106,9 @@ public class MyMessages extends BasePage {
 		replacement.setOutputMarkupId(true);
 		tabPanel.replaceWith(replacement);
 		if(target != null) {
-			target.addComponent(replacement);
+			target.add(replacement);
 			//resize iframe
-			target.appendJavascript("setMainFrameHeight(window.name);");
+			target.appendJavaScript("setMainFrameHeight(window.name);");
 		}
 		
 		//must keep reference up to date

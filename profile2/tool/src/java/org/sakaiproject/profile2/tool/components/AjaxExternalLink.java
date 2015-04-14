@@ -66,12 +66,6 @@ public abstract class AjaxExternalLink<T> extends ExternalLink implements IAjaxL
 			}
 
 			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator()
-			{
-				return new CancelEventIfNoAjaxDecorator(AjaxExternalLink.this.getAjaxCallDecorator());
-			}
-
-			@Override
 			protected void onComponentTag(ComponentTag tag)
 			{
 				// add the onclick handler only if link is enabled

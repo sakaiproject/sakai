@@ -12,7 +12,6 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AbstractBehavior;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -402,7 +401,6 @@ public class CKEditorTextArea extends TextArea<String> {
 				component.getResponse().write(jsStr);
 			}
 		}
-
 	}
 
 	/**

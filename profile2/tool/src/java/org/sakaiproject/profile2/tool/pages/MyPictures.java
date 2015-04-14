@@ -81,14 +81,14 @@ public class MyPictures extends BasePage {
 	 *            gallery page index used to set the page the user is returned
 	 *            to after making a change to the gallery.
 	 */
-	public MyPictures(int pageToDisplay) {
+	public MyPictures(long pageToDisplay) {
 		renderMyPictures(pageToDisplay, sakaiProxy.getCurrentUserId());
 	}
 
 	/**
 	 * Does the actual rendering of the page
 	 */
-	private void renderMyPictures(int pageToDisplay, String userUuid) {
+	private void renderMyPictures(long pageToDisplay, String userUuid) {
 
 		log.debug("MyPictures()");
 		
@@ -134,12 +134,12 @@ public class MyPictures extends BasePage {
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				target.addComponent(fileFeedback);
+				target.add(fileFeedback);
 			}
 			
         	protected void onError(AjaxRequestTarget target, Form form) { 
         		log.debug("MyPictures.onSubmit validation failed.");
-        	    target.addComponent(fileFeedback); 
+        	    target.add(fileFeedback); 
         	} 
 
 		};
@@ -160,7 +160,7 @@ public class MyPictures extends BasePage {
 		addPictureForm.add(addPictureListView);
 	}
 
-	private void createGalleryForm(final String userUuid, int pageToDisplay) {
+	private void createGalleryForm(final String userUuid, long pageToDisplay) {
 
 		Label galleryHeading = new Label("galleryHeading", new ResourceModel(
 				"heading.pictures.my.pictures"));
@@ -183,11 +183,11 @@ public class MyPictures extends BasePage {
 	 * previously viewing after removing an image from the gallery.
 	 */
 	private void populateGallery(Form galleryForm, final String userUuid,
-			int pageToDisplay) {
+			long pageToDisplay) {
 
 		IDataProvider dataProvider = new GalleryImageDataProvider(userUuid);
 
-		int numImages = dataProvider.size();
+		long numImages = dataProvider.size();
 
 		gridView = new GridView("rows", dataProvider) {
 

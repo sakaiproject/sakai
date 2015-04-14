@@ -17,7 +17,7 @@ package org.sakaiproject.profile2.tool.components;
 
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AbstractBehavior;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
 
 /*
  * FocusOnLoadBehaviour. 

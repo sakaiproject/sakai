@@ -36,6 +36,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.behavior.AbstractBehavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -99,7 +100,9 @@ public class MySearch extends BasePage {
 		disableLink(searchLink);
 		
 		//check for current search cookie	 
-		searchCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.SEARCH_COOKIE);
+		//TODO fix cookies
+		//searchCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.SEARCH_COOKIE);
+		searchCookie = null;
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -223,7 +226,7 @@ public class MySearch extends BasePage {
 				
 				// clear cookie if present	 
                 if (null != searchCookie) {	 
-                        getWebRequestCycle().getWebResponse().clearCookie(searchCookie);	 
+                       // getWebRequestCycle().getWebResponse().clearCookie(searchCookie);	 
                 }
                 
 				//clear the fields, hide self, then repaint
@@ -234,10 +237,10 @@ public class MySearch extends BasePage {
 				resultsContainer.setVisible(false);
 				clearButton.setVisible(false);
 				
-				target.addComponent(searchField);
-				target.addComponent(numSearchResultsContainer);
-				target.addComponent(resultsContainer);
-				target.addComponent(this);
+				target.add(searchField);
+				target.add(numSearchResultsContainer);
+				target.add(resultsContainer);
+				target.add(this);
 			}				
 		};
 		clearButton.setOutputMarkupPlaceholderTag(true);
@@ -371,7 +374,7 @@ public class MySearch extends BasePage {
 					            		connectionLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
 										add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
 					            		setEnabled(false);
-					            		target.addComponent(c1);
+					            		target.add(c1);
 					            	}
 					            }
 					        });						
@@ -383,7 +386,7 @@ public class MySearch extends BasePage {
 							//friendActionModel.setUpdateThisComponentOnSuccess(this);
 							
 							connectionWindow.show(target);
-							target.appendJavascript("fixWindowVertical();"); 
+							target.appendJavaScript("fixWindowVertical();"); 
 			            	
 						}
 					};
@@ -490,7 +493,8 @@ public class MySearch extends BasePage {
 		    }
 		};
 		
-		resultsListView.add(new MySearchCookieBehavior(resultsListView));
+		//TOOD fix the cookies
+		//resultsListView.add(new MySearchCookieBehavior(resultsListView));
 		resultsContainer.add(resultsListView);
 
 		final PagingNavigator searchResultsNavigator = new PagingNavigator("searchResultsNavigator", resultsListView);
@@ -609,9 +613,9 @@ public class MySearch extends BasePage {
 				searchHistoryContainer.setVisible(false);
 				clearHistoryButton.setVisible(false);
 				
-				target.addComponent(searchField);
-				target.addComponent(searchHistoryContainer);
-				target.addComponent(this);
+				target.add(searchField);
+				target.add(searchHistoryContainer);
+				target.add(this);
 			}				
 		};
 		clearHistoryButton.setOutputMarkupPlaceholderTag(true);
@@ -763,19 +767,19 @@ public class MySearch extends BasePage {
 		
 		if (null != target) {
 			//repaint components
-			target.addComponent(searchField);
-			target.addComponent(searchTypeRadioGroup);
-			target.addComponent(connectionsCheckBox);
-			target.addComponent(worksiteCheckBox);
-			target.addComponent(worksiteChoice);
-			target.addComponent(clearButton);
-			target.addComponent(numSearchResultsContainer);
+			target.add(searchField);
+			target.add(searchTypeRadioGroup);
+			target.add(connectionsCheckBox);
+			target.add(worksiteCheckBox);
+			target.add(worksiteChoice);
+			target.add(clearButton);
+			target.add(numSearchResultsContainer);
 			clearButton.setVisible(true);
-			target.addComponent(resultsContainer);
+			target.add(resultsContainer);
 			clearHistoryButton.setVisible(true);
 			searchHistoryContainer.setVisible(true);
-			target.addComponent(searchHistoryContainer);
-			target.appendJavascript("setMainFrameHeight(window.name);");
+			target.add(searchHistoryContainer);
+			target.appendJavaScript("setMainFrameHeight(window.name);");
 		}
 	}
 	
@@ -831,19 +835,19 @@ public class MySearch extends BasePage {
 		
 		if (null != target) {
 			//repaint components
-			target.addComponent(searchField);
-			target.addComponent(searchTypeRadioGroup);
-			target.addComponent(connectionsCheckBox);
-			target.addComponent(worksiteCheckBox);
-			target.addComponent(worksiteChoice);
-			target.addComponent(clearButton);
-			target.addComponent(numSearchResultsContainer);
+			target.add(searchField);
+			target.add(searchTypeRadioGroup);
+			target.add(connectionsCheckBox);
+			target.add(worksiteCheckBox);
+			target.add(worksiteChoice);
+			target.add(clearButton);
+			target.add(numSearchResultsContainer);
 			clearButton.setVisible(true);
-			target.addComponent(resultsContainer);
+			target.add(resultsContainer);
 			clearHistoryButton.setVisible(true);
 			searchHistoryContainer.setVisible(true);
-			target.addComponent(searchHistoryContainer);
-			target.appendJavascript("setMainFrameHeight(window.name);");
+			target.add(searchHistoryContainer);
+			target.appendJavaScript("setMainFrameHeight(window.name);");
 		}
 	}
 	
@@ -861,12 +865,14 @@ public class MySearch extends BasePage {
 			searchCookie.getValue().indexOf(ProfileConstants.SEARCH_COOKIE_VALUE_SEARCH_MARKER)));
 	}
 	
-	private void updatePageNumber(int pageNumber, String cookieString) {
+	private void updatePageNumber(long l, String cookieString) {
+		/* TODO update the cookies
 		setSearchCookie(getCookieSearchType(cookieString),
 				getCookieSearchString(cookieString),
-				pageNumber,
+				l,
 				getCookieFilterConnections(cookieString),
 				getCookieFilterWorksite(cookieString));
+		*/
 	}
 	
 	private void setSearchCookie(String searchCookieValuePrefix,
@@ -886,7 +892,8 @@ public class MySearch extends BasePage {
 						+ searchText);
 		// don't persist indefinitely
 		searchCookie.setMaxAge(-1);
-		getWebRequestCycle().getWebResponse().addCookie(searchCookie);
+		//getWebRequestCycle().getWebResponse().addCookie(searchCookie);
+		//TODO sort out the cookies
 	}
 	
 	private String getCookieSearchString(String cookieString) {
@@ -926,6 +933,12 @@ public class MySearch extends BasePage {
 			if (searchCookie != null) {
 				updatePageNumber(view.getCurrentPage(), searchCookie.getValue());
 			}
+		}
+
+		@Override
+		public void renderHead(IHeaderResponse response) {
+			// TODO Auto-generated method stub
+			
 		}
 	}
 		

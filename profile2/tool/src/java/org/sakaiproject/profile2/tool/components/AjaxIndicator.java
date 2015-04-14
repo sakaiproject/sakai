@@ -19,6 +19,7 @@ import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebMarkupContainer;
+import org.apache.wicket.request.cycle.RequestCycle;
 
 
 public class AjaxIndicator extends WebMarkupContainer implements IAjaxIndicatorAware {
@@ -29,7 +30,7 @@ public class AjaxIndicator extends WebMarkupContainer implements IAjaxIndicatorA
 
 	public void onComponentTag(ComponentTag tag) {
 		super.onComponentTag(tag);
-		tag.put("src", urlFor(AbstractDefaultAjaxBehavior.INDICATOR));
+		tag.put("src", RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR, null));
 	}
 
 	public String getAjaxIndicatorMarkupId() {
