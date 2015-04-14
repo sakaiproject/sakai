@@ -159,7 +159,7 @@ public class GradebookPage extends BasePage {
        
         
         //TODO make this AjaxFallbackDefaultDataTable
-        DataTable table = new DataTable("table", cols, studentGradeMatrix, 8);
+        DataTable table = new DataTable("table", cols, studentGradeMatrix, 50);
         table.addBottomToolbar(new NavigationToolbar(table));
         table.addTopToolbar(new HeadersToolbar(table, null));
         table.add(new AttributeModifier("data-siteid", this.businessService.getCurrentSiteId()));
