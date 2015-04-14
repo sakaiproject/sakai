@@ -101,8 +101,30 @@
 		<a href="#" onclick="$('.instruction').toggle();" style="float: right;"><img src="/library/image/silk/cross.png"/></a>
 	</span>
 	<br/>
+	<form wicket:id="filterform">
+		<div style="padding-bottom: 1.8em;">
+			<div style="float:left; margin-left: 1em;">
+				<a wicket:id="expandAll"><span wicket:id="expandCollapse">Expand All Nodes</span></a>
+			</div>
+			<div style="float:right; margin-right: 1em;">
+				<b><wicket:message key="filterBy"/>:</b>
+				&nbsp;
+				<wicket:message key="hierarchyLevel"/>:
+				&nbsp;
+				<select wicket:id="filterHierarchyLevel">
+					<option>School</option>
+					<option>Department</option>
+				</select>				
+				&nbsp;
+				<input wicket:id="filterSearch"/>
+				&nbsp;
+				<input wicket:id="filterButton" type="submit"/>
+				&nbsp;
+				<input wicket:id="filterClearButton" type="button"/>
+			</div>
+		</div>
+	</form>
 	<form wicket:id="form">
-		<a wicket:id="expandAll"><span wicket:id="expandCollapse">Expand All Nodes</span></a>&nbsp;&nbsp;
         <div wicket:id="treeTable" class="my-tree">
         </div>
         <input wicket:id="update" type="submit" value="Save" /> &nbsp; <input wicket:id="cancel" type="submit" value="Cancel" />

@@ -21,6 +21,8 @@ import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -29,6 +31,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
@@ -197,6 +200,44 @@ public abstract class BaseTreePage extends BasePage
 		Label noInheritedToolsLabel = new Label("noToolsInherited", new StringResourceModel("inheritedNothing", null));
 		inheritedSpan.add(noInheritedToolsLabel);
 	
+	}
+	
+	public void hideFilteredNodes(DefaultMutableTreeNode node, int depth, Integer filterLevel, String filter, AjaxRequestTarget target){
+		boolean isVisible = true;
+		if(filterLevel != null && filterLevel.equals(depth)){
+			//this is the filter level, so check visibility
+			String nodeTitle = ((NodeModel) node.getUserObject()).getNode().description.toLowerCase();
+			if(filter != null && !"".equals(filter.trim()) &&
+					!nodeTitle.contains(filter.toLowerCase())){
+				isVisible = false;
+			}
+		}
+		Component treeComponent = getTree().getNodeComponent(node);
+		if(treeComponent != null){
+			String display = isVisible ? "block" : "none";
+			treeComponent.add(new AttributeModifier("style", true, Model.of("display: " + display)));
+			target.addComponent(treeComponent);
+		}
+		for(int i = 0; i < node.getChildCount(); i++){
+			hideFilteredNodes((DefaultMutableTreeNode) node.getChildAt(i), depth + 1, filterLevel, filter, target);
+		}
+	}
+	
+	public void expandTreeToDepth(DefaultMutableTreeNode node, int depth, String userId, List<ListOptionSerialized> blankRestrictedTools, List<String> accessAdminNodeIds, boolean onlyAccessNodes, boolean shopping, boolean shoppingPeriodTool){
+		projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, onlyAccessNodes, accessAdminNodeIds, shopping, shoppingPeriodTool);
+		getTree().getTreeState().expandNode(node);
+		if(depth > 0){
+			//recursive function stopper:
+			int newDepth = depth - 1;
+			for(int i = 0; i < node.getChildCount(); i++){
+				expandTreeToDepth((DefaultMutableTreeNode) node.getChildAt(i), newDepth, userId, blankRestrictedTools, accessAdminNodeIds, onlyAccessNodes, shopping, shoppingPeriodTool);
+			}
+		}else{
+			//make sure all children are collapsed:
+			for(int i = 0; i < node.getChildCount(); i++){
+				getTree().getTreeState().collapseNode(node.getChildAt(i));
+			}
+		}
 	}
 
 }
