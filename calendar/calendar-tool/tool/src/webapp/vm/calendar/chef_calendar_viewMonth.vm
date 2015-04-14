@@ -47,7 +47,7 @@
        	## --- Modificado por la UPV - Begin
     	##set ($day_of_Week = $calObj.getDay_Of_Week())
     	#foreach ($dayname in $dayOfWeekNames)
-		<th align="center" width="14%" class="borderWhite">$dayname</th>
+		<th align="center" width="14%" class="borderWhite" scope="col">$dayname</th>
     	#end
 	## --- Modificado por la UPV - End 
     </tr>           
