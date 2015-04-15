@@ -642,7 +642,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
-    public List getToolGroup(String groupName) 
+    public List<String> getToolGroup(String groupName)
     {
         return toolConfigurationService.getToolGroup(groupName);
     }
@@ -650,7 +650,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
-    public List getCategoryGroups(String category) 
+    public List<String> getCategoryGroups(String category)
     {
         return toolConfigurationService.getCategoryGroups(category);
     }
@@ -659,7 +659,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
-    public List getToolOrder(String category)
+    public List<String> getToolOrder(String category)
     {
 
         return toolConfigurationService.getToolOrder(category);
@@ -668,7 +668,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
-    public List getToolsRequired(String category)
+    public List<String> getToolsRequired(String category)
     {
 
         return toolConfigurationService.getToolsRequired(category);
@@ -677,7 +677,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     /**
      * {@inheritDoc}
      */
-    public List getDefaultTools(String category)
+    public List<String> getDefaultTools(String category)
     {
 
         return toolConfigurationService.getDefaultTools(category);
