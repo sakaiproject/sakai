@@ -162,10 +162,10 @@
 		#if ($sites.size() > 0)
 			<table class ="listHier lines nolines" summary ="$tlang.getString('list.summary')" border ="0" id ="siteList" cellpadding="0" cellspacing="0">
 				<tr>
-					<th id="checkbox" class="screenOnly attach">
+					<th id="checkbox" class="screenOnly attach" scope="col">
 						<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected"  title="$tlang.getString('check.all')" />
 					</th>
-					<th id="title">
+					<th id="title" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_title)")" title ="$tlang.getString('list.sortbytitle')"> 
 							$tlang.getString("list.worksite")
 							#if ($currentSortedBy.equals($sortby_title)) 
@@ -178,7 +178,7 @@
 						</a>
 					</th>
 					#if($show_id_column)
-						<th id="id">
+						<th id="id" scope="col">
 							<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_id)")" title ="$tlang.getString('list.sortbyid')"> 
 								$tlang.getString("list.id")
 								#if ($currentSortedBy.equals($sortby_id)) 
@@ -191,7 +191,7 @@
 							</a>
 						</th>
 					#end
-					<th id="type">
+					<th id="type" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_type)")" title ="$tlang.getString('list.sortbytype')"> 
 							$tlang.getString("list.type")
 							#if ($currentSortedBy.equals($sortby_type)) 
@@ -203,7 +203,7 @@
 							#end 
 						</a>
 					</th>					
-					<th id="createdBy">
+					<th id="createdBy" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdby)")" title ="$tlang.getString('list.sortbycreator')"> 
 							$tlang.getString("list.creator")
 							#if ($currentSortedBy.equals($sortby_createdby))
@@ -215,7 +215,7 @@
 							#end 
 						</a>
 					</th>
-					<th id="term">
+					<th id="term" scope="col">
 						##<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=term")" title ="$tlang.getString('list.sortbyterm')"> 
 							$tlang.getString("list.term")
 							#*if ($currentSortedBy.equals("term")) 
@@ -227,7 +227,7 @@
 							#end 
 						</a>*#
 					</th>
-					<th id="published">
+					<th id="published" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_publish)")" title ="$tlang.getString('list.sortbystatus')"> 
 							$tlang.getString("list.status")
 							#if ($currentSortedBy.equals($sortby_publish)) 
@@ -239,7 +239,7 @@
 							#end 
 						</a>
 					</th>
-					<th id="createdOn">
+					<th id="createdOn" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_sites" "criterion=$validator.escapeUrl($sortby_createdon)")" title ="$tlang.getString('list.sortbycreation')"> 
 							$tlang.getString("list.creationdate")
 							#if ($currentSortedBy.equals($sortby_createdon))
@@ -270,14 +270,12 @@
 								#end
 							</td>
 							<td headers="title">
-								<h4>
 									<a href="$site.Url" target="_top">
 									$validator.escapeHtml($site.getTitle())
 									</a>
                                     <a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
                                         <img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
                                     </a>
-								</h4>
 							</td>
 							#if($show_id_column)
 								<td headers="id">
