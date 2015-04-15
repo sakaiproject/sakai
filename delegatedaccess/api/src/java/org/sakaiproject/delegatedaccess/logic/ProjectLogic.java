@@ -158,8 +158,14 @@ public interface ProjectLogic {
 	 * @param id
 	 * @return
 	 */
-	public HierarchyNodeSerialized getNode(String id);
+	public HierarchyNodeSerialized getCachedNode(String id);
 
+	/**
+	 * returns a map of HierarchyNodes
+	 * @param ids
+	 * @return
+	 */
+	public Map<String, HierarchyNodeSerialized> getCachedNodes(String[] ids);
 
 	/**
 	 * This returns the entire tree plus any permissions set for a user
