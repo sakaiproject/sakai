@@ -14,7 +14,16 @@
         <span class="gradebook-item-category-filter-signal"></span>
         <input wicket:id="categoryCheckbox" type="checkbox">
       </label>
-      <a class="context-menu-toggle" href="javascript:void(0);"></a>
+      <div class="btn-group">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li><a class="gb-show-only-this-category" href="#"><span wicket:message="value:label.toolbar.gradeitemshowonlythiscategory">Show only this category</span></a></li>
+          <li><a class="gb-toggle-this-category gb-show-this-category" href="#"><span wicket:message="value:label.toolbar.gradeitemshowthiscategory">Show this category</span></a></li>
+          <li><a class="gb-toggle-this-category gb-hide-this-category" href="#"><span wicket:message="value:label.toolbar.gradeitemhidethiscategory">Hide this category</span></a></li>
+        </ul>
+      </div>
     </div>
     <div wicket:id="assignmentsForCategory" class="gradebook-item-filter">
       <label tabindex="0">
@@ -22,7 +31,16 @@
         <span class="gradebook-item-category-filter-signal"></span>
         <input wicket:id="assignmentCheckbox" type="checkbox">
       </label>
-      <a class="context-menu-toggle" href="javascript:void(0);"></a>
+      <div class="btn-group">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+          <span class="caret"></span>
+        </a>
+        <ul class="dropdown-menu dropdown-menu-right">
+          <li><a class="gb-show-only-this-item" href="#"><span wicket:message="value:label.toolbar.gradeitemshowonlythisitem">Show only this item</span></a></li>
+          <li><a class="gb-toggle-this-item gb-show-this-item" href="#"><span wicket:message="value:label.toolbar.gradeitemshowthisitem">Show this item</span></a></li>
+          <li><a class="gb-toggle-this-item gb-hide-this-item" href="#"><span wicket:message="value:label.toolbar.gradeitemhidethisitem">Hide this item</span></a></li>
+        </ul>
+      </div>
     </div>
   </div>
 </div>
