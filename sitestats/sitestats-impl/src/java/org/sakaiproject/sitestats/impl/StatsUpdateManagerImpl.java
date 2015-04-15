@@ -948,9 +948,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -960,7 +958,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				eExistingSiteId = eExisting.getSiteId();
 			}catch(Exception ex){
 				//If something happens, skip the event processing
-				ex.printStackTrace();
+				LOG.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
@@ -999,9 +997,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1009,8 +1005,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
 				
 				eExistingSiteId = eExisting.getSiteId();
-			}catch(Exception e){
-				e.printStackTrace();
+			}catch(Exception ex){
+				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
@@ -1047,9 +1043,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) 
 					eExisting = eUpdate;
@@ -1057,8 +1051,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
 	
 				eExistingSiteId = eExisting.getSiteId();
-			}catch(Exception e){
-				e.printStackTrace();
+			}catch(Exception ex){
+				LOG.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
@@ -1095,9 +1089,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null){
 					eExisting = eUpdate;
@@ -1108,8 +1100,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				eExisting.setTotalUnique(mapUV == null? 1 : mapUV.longValue());
 	
 				eExistingSiteId = eExisting.getSiteId();
-			}catch(Exception e){
-				e.printStackTrace();
+			}catch(Exception ex){
+				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
@@ -1146,9 +1138,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null){
 					eExisting = eUpdate;
@@ -1156,8 +1146,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					eExisting.setDuration(eExisting.getDuration() + eUpdate.getDuration());
 				}
 				eExistingSiteId = eExisting.getSiteId();
-			}catch(Exception e){
-				e.printStackTrace();
+			}catch(Exception ex){
+				LOG.warn("Failed to event:" + eUpdate.getId(), ex);
 			}
 			if ((eExistingSiteId!=null) && (eExistingSiteId.trim().length()>0))
 					session.saveOrUpdate(eExisting);
@@ -1192,9 +1182,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) {
 					eExisting = eUpdate;
@@ -1202,8 +1190,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					eExisting.setCount(eExisting.getCount() + eUpdate.getCount());
 				}
 				
-			}catch(Exception e){
-				e.printStackTrace();
+			}catch(Exception ex){
+				LOG.warn("Failed to event:"+ eUpdate.getEventId(), ex);
 			}
 			session.saveOrUpdate(eExisting);
 		}
@@ -1238,9 +1226,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 						eExisting = null;
 					}
 				}catch(Exception ex2){
-					LOG.debug("Probably ddbb error when loading data at java object", ex2);
-					System.out.println("Probably ddbb error when loading data at java object!!!!!!!!");
-					
+					LOG.warn("Probably ddbb error when loading data at java object", ex2);
 				}
 				if(eExisting == null) {
 					eExisting = eUpdate;
@@ -1250,8 +1236,8 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				
 				eExistingUserId = eExisting.getUserId();
 				
-			}catch(Exception e){
-				e.printStackTrace();
+			}catch(Exception ex){
+				LOG.warn("Failed to event:"+ eUpdate.getId(), ex);
 			}
 			
 			if(StringUtils.isNotBlank(eExistingUserId)) {
