@@ -224,6 +224,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
         M_log.info("init()");
 
+        // Initialise the tool configuration service
         toolConfigurationService.setUseToolGroup(getConfig("config.sitemanage.useToolGroup", false));
         toolConfigurationService.init();
     }
@@ -573,19 +574,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         return counter;
     }
 
-
-    /*
-	private String getString(String name, Properties fromProperties) {
-		return getString(name, "", fromProperties);
-	}
-
-	private String getString(String name, String dflt, Properties fromProperties) {
-		String rv = StringUtils.trimToNull((String) fromProperties.get(name));
-		if (rv == null) rv = dflt;
-
-		return rv;
-	}
-     */
 
     /**
      * {@inheritDoc}
