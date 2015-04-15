@@ -120,6 +120,17 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
         toolConfigurationService.setToolOrderFile(string);
     }
 
+    /**
+     * Configuration: set the resource to load in which the default tool order is defined.
+     *
+     * @param defaultToolOrderResource
+     *        The resource containing a tool order.
+     */
+    public void setDefaultToolOrderResource(Resource defaultToolOrderResource)
+    {
+        toolConfigurationService.setDefaultToolOrderResource(defaultToolOrderResource);
+    }
+
     /**********************************************************************************************************************************************************************************************************************************************************
      * Init and Destroy
      *********************************************************************************************************************************************************************************************************************************************************/
@@ -858,10 +869,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
     public void setSessionManager(SessionManager sessionManager) {
         this.sessionManager = sessionManager;
-    }
-
-    public void setDefaultToolOrderResource(Resource defaultToolOrderResource) {
-        this.toolConfigurationService.setDefaultToolOrderResource(defaultToolOrderResource);
     }
 
     /**
