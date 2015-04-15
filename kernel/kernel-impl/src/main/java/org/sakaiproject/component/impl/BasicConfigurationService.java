@@ -22,7 +22,6 @@
 package org.sakaiproject.component.impl;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -52,7 +51,6 @@ import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.Resource;
-import org.w3c.dom.Element;
 
 import au.com.bytecode.opencsv.CSVParser;
 
@@ -724,16 +722,8 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     }
 
     /*
-     * Load tools by group, from toolOrder.xml file with optional groups defined
-     */
-    private void loadToolGroups(InputStream in)
-    {
-        toolConfigurationService.loadToolGroups(in);
-    }
- 
-    /*
      * Returns true if selected tool is contained in pre-initialized list of selected items
-     * @parms toolId id of the selected tool
+     * @params toolId id of the selected tool
      */
     public boolean toolGroupIsSelected(String groupName, String toolId) 
     {
@@ -748,30 +738,6 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
     {
         return toolConfigurationService.toolGroupIsRequired(groupName, toolId);
     }
-
-    /**
-     * Load this single file as a registration file, loading tools and locks.
-     *
-     * @param in
-     *        The Stream to load
-     */
-    private void loadToolOrder(InputStream in)
-    {
-        // read the children nodes
-        toolConfigurationService.loadToolOrder(in);
-    }
-    
-    private void processCategory(Element element, List order, List required,
-            List defaultTools, List<String> toolCategories,
-            Map<String, List<String>> toolCategoryMappings,
-            Map<String, String> toolToCategoryMap) {
-        toolConfigurationService.processCategory(element, order, required, defaultTools, toolCategories, toolCategoryMappings, toolToCategoryMap);
-    }
-
-    private String processTool(Element element, List order, List required, List defaultTools) {
-        return toolConfigurationService.processTool(element, order, required, defaultTools);
-    }
-
 
     /**
      * Get the list of allowed locales as controlled by config params for {@value #SAKAI_LOCALES_KEY} and {@value #SAKAI_LOCALES_MORE}
