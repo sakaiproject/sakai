@@ -32,32 +32,32 @@ public class ToolConfigurationService {
     /**
      * loaded tool orders - map keyed by category of List of tool id strings.
      */
-    private Map m_toolOrders = new HashMap();
-    private Map m_toolGroups = new HashMap<String, List>(); // Map = [group1,{tool1,tool2,tool3}],[group2,{tool2,tool4}],[group3,{tool1,tool5}]
+    private Map<String, List<String>> m_toolOrders = new HashMap<>();
+    private Map<String, List<String>> m_toolGroups = new HashMap<>(); // Map = [group1,{tool1,tool2,tool3}],[group2,{tool2,tool4}],[group3,{tool1,tool5}]
 
-    private Map m_toolGroupCategories = new HashMap<String,List>(); // Map = [course,{group1, group2,group3}],[project,{group1, group3, group4}],[portfolio,{group4}]
+    private Map<String, List<String>> m_toolGroupCategories = new HashMap<>(); // Map = [course,{group1, group2,group3}],[project,{group1, group3, group4}],[portfolio,{group4}]
 
-    private Map m_toolGroupRequired = new HashMap<String,List>();
+    private Map<String, List<String>> m_toolGroupRequired = new HashMap<>();
 
-    private Map m_toolGroupSelected = new HashMap<String,List>();
+    private Map<String, List<String>> m_toolGroupSelected = new HashMap<>();
 
-    private Map m_toolsRequired = new HashMap();
+    private Map<String, List<String>> m_toolsRequired = new HashMap<>();
     /**
      * default tools - map keyed by category of List of tool id strings.
      */
-    private Map m_defaultTools = new HashMap();
+    private Map<String, List<String>> m_defaultTools = new HashMap<>();
     /**
      * default tool categories in order mapped by site type
      */
-    private Map<String, List<String>> m_toolCategoriesList = new HashMap<String, List<String>>();
+    private Map<String, List<String>> m_toolCategoriesList = new HashMap<>();
     /**
      * default tool categories to tool id maps mapped by site type
      */
-    private Map<String, Map<String, List<String>>> m_toolCategoriesMap = new HashMap<String, Map<String, List<String>>>();
+    private Map<String, Map<String, List<String>>> m_toolCategoriesMap = new HashMap<>();
     /**
      * default tool id to tool category maps mapped by site type
      */
-    private Map<String, Map<String, String>> m_toolToToolCategoriesMap = new HashMap<String, Map<String, String>>();
+    private Map<String, Map<String, String>> m_toolToToolCategoriesMap = new HashMap<>();
 
     public ToolConfigurationService() {
     }
@@ -126,71 +126,71 @@ public class ToolConfigurationService {
     /**
      * {@inheritDoc}
      */
-    public List getToolGroup(String groupName) {
+    public List<String> getToolGroup(String groupName) {
         if (groupName != null) {
-            List groups = (List) m_toolGroups.get(groupName);
+            List<String> groups = m_toolGroups.get(groupName);
             if (groups != null) {
                 log.debug("getToolGroup: " + groups.toString());
                 return groups;
             }
         }
-        return new Vector();
+        return new Vector<>();
     }
 
     /**
      * {@inheritDoc}
      */
-    public List getCategoryGroups(String category) {
+    public List<String> getCategoryGroups(String category) {
         if (category != null) {
-            List groups = (List) m_toolGroupCategories.get(category);
+            List<String> groups = m_toolGroupCategories.get(category);
             if (groups != null) {
                 log.debug("getCategoryGroups: " + groups.toString());
                 return groups;
             }
         }
-        return new Vector();
+        return new Vector<>();
     }
 
     /**
      * {@inheritDoc}
      */
-    public List getToolOrder(String category) {
+    public List<String> getToolOrder(String category) {
         if (category != null) {
-            List order = (List) m_toolOrders.get(category);
+            List<String> order = m_toolOrders.get(category);
             if (order != null) {
                 return order;
             }
         }
 
-        return new Vector();
+        return new Vector<>();
     }
 
     /**
      * {@inheritDoc}
      */
-    public List getToolsRequired(String category) {
+    public List<String> getToolsRequired(String category) {
         if (category != null) {
-            List order = (List) m_toolsRequired.get(category);
+            List<String> order = m_toolsRequired.get(category);
             if (order != null) {
                 return order;
             }
         }
 
-        return new Vector();
+        return new Vector<>();
     }
 
     /**
      * {@inheritDoc}
      */
-    public List getDefaultTools(String category) {
+    public List<String> getDefaultTools(String category) {
         if (category != null) {
-            List order = (List) m_defaultTools.get(category);
+            List<String> order = m_defaultTools.get(category);
             if (order != null) {
                 return order;
             }
         }
 
-        return new Vector();
+        return new Vector<>();
     }
 
     /**
@@ -204,7 +204,7 @@ public class ToolConfigurationService {
             }
         }
 
-        return new Vector();
+        return new Vector<>();
     }
 
     /**
@@ -218,7 +218,7 @@ public class ToolConfigurationService {
             }
         }
 
-        return new HashMap();
+        return new HashMap<>();
     }
 
     /**
@@ -232,7 +232,7 @@ public class ToolConfigurationService {
             }
         }
 
-        return new HashMap();
+        return new HashMap<>();
     }/*
      * Load tools by group, from toolOrder.xml file with optional groups defined
      */
@@ -255,9 +255,9 @@ public class ToolConfigurationService {
                 //
                 if ((groupName != null)) {
                     // group of this name already in map?
-                    List groupList = (List) m_toolGroups.get(groupName);
+                    List<String> groupList = m_toolGroups.get(groupName);
                     if (groupList == null) {
-                        groupList = new Vector();
+                        groupList = new Vector<>();
                         m_toolGroups.put(groupName, groupList);
                     }
                     // add tools
@@ -270,18 +270,18 @@ public class ToolConfigurationService {
                         groupList.add(toolId);
                         String req = StringUtils.trimToNull(toolElement.getAttribute("required"));
                         if ((req != null) && (Boolean.TRUE.toString().equalsIgnoreCase(req))) {
-                            List reqList = (List) m_toolGroupRequired.get(groupName);
+                            List<String> reqList = m_toolGroupRequired.get(groupName);
                             if (reqList == null) {
-                                reqList = new ArrayList<String>();
+                                reqList = new ArrayList<>();
                                 m_toolGroupRequired.put(groupName, reqList);
                             }
                             reqList.add(toolId);
                         }
                         String sel = StringUtils.trimToNull(toolElement.getAttribute("selected"));
                         if ((sel != null) && (Boolean.TRUE.toString().equalsIgnoreCase(sel))) {
-                            List selList = (List) m_toolGroupSelected.get(groupName);
+                            List<String> selList = m_toolGroupSelected.get(groupName);
                             if (selList == null) {
-                                selList = new ArrayList<String>();
+                                selList = new ArrayList<>();
                                 m_toolGroupSelected.put(groupName, selList);
                             }
                             selList.add(toolId);
@@ -290,13 +290,13 @@ public class ToolConfigurationService {
                     // add group to category(s)
                     String groupCategories = StringUtils.trimToNull(g_element.getAttribute("category"));
                     if (groupCategories != null) {
-                        List<String> list = new ArrayList<String>(Arrays.asList(groupCategories.split(",")));
+                        List<String> list = new ArrayList<>(Arrays.asList(groupCategories.split(",")));
                         //noinspection ForLoopReplaceableByForEach
                         for (Iterator<String> itr = list.iterator(); itr.hasNext(); ) {
                             String catName = itr.next();
-                            List groupCategoryList = (List) m_toolGroupCategories.get(catName);
+                            List<String> groupCategoryList = m_toolGroupCategories.get(catName);
                             if (groupCategoryList == null) {
-                                groupCategoryList = new ArrayList();
+                                groupCategoryList = new ArrayList<>();
                                 m_toolGroupCategories.put(catName, groupCategoryList);
                             }
                             groupCategoryList.add(groupName);
@@ -311,7 +311,7 @@ public class ToolConfigurationService {
      */
 
     public boolean toolGroupIsSelected(String groupName, String toolId) {
-        List selList = (List) m_toolGroupRequired.get(groupName);
+        List<String> selList = m_toolGroupRequired.get(groupName);
         if (selList == null) {
             return false;
         } else {
@@ -324,7 +324,7 @@ public class ToolConfigurationService {
      */
 
     public boolean toolGroupIsRequired(String groupName, String toolId) {
-        List reqList = (List) m_toolGroupRequired.get(groupName);
+        List<String> reqList = m_toolGroupRequired.get(groupName);
         if (reqList == null) {
             return false;
         } else {
@@ -359,23 +359,23 @@ public class ToolConfigurationService {
                 String name = StringUtils.trimToNull(rootElement.getAttribute("name"));
                 if (name != null) {
                     // form a list for this category
-                    List order = (List) m_toolOrders.get(name);
+                    List<String> order = m_toolOrders.get(name);
                     if (order == null) {
-                        order = new Vector();
+                        order = new Vector<>();
                         m_toolOrders.put(name, order);
 
-                        List required = new Vector();
+                        List<String> required = new Vector<>();
                         m_toolsRequired.put(name, required);
-                        List defaultTools = new Vector();
+                        List<String> defaultTools = new Vector<>();
                         m_defaultTools.put(name, defaultTools);
 
-                        List<String> toolCategories = new Vector();
+                        List<String> toolCategories = new Vector<>();
                         m_toolCategoriesList.put(name, toolCategories);
 
-                        Map<String, List<String>> toolCategoryMappings = new HashMap();
+                        Map<String, List<String>> toolCategoryMappings = new HashMap<>();
                         m_toolCategoriesMap.put(name, toolCategoryMappings);
 
-                        Map<String, String> toolToCategoryMap = new HashMap();
+                        Map<String, String> toolToCategoryMap = new HashMap<>();
                         m_toolToToolCategoriesMap.put(name, toolToCategoryMap);
 
                         // get the kids
@@ -399,8 +399,8 @@ public class ToolConfigurationService {
         }
     }
 
-    void processCategory(Element element, List order, List required,
-                         List defaultTools, List<String> toolCategories,
+    void processCategory(Element element, List<String> order, List<String> required,
+                         List<String> defaultTools, List<String> toolCategories,
                          Map<String, List<String>> toolCategoryMappings,
                          Map<String, String> toolToCategoryMap) {
         String name = element.getAttribute("id");
@@ -412,7 +412,7 @@ public class ToolConfigurationService {
         }
 
         toolCategories.add(name);
-        List<String> toolCategoryTools = new Vector();
+        List<String> toolCategoryTools = new Vector<>();
         toolCategoryMappings.put(name, toolCategoryTools);
 
         NodeList nodes = element.getChildNodes();
@@ -430,7 +430,7 @@ public class ToolConfigurationService {
         }
     }
 
-    String processTool(Element element, List order, List required, List defaultTools) {
+    String processTool(Element element, List<String> order, List<String> required, List<String> defaultTools) {
         String id = StringUtils.trimToNull(element.getAttribute("id"));
         if (id != null) {
             order.add(id);
