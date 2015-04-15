@@ -398,7 +398,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		return resetTime;
 	}
 	
-	public long getTotalTimeEllapsedSinceReset() {
+	public long getTotalTimeElapsedSinceReset() {
 		return System.currentTimeMillis() - resetTime;
 	}
 	
@@ -411,7 +411,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 	}
 	
 	public double getNumberOfEventsGeneratedPerSec() {
-		double ellapsed = (double) getTotalTimeEllapsedSinceReset();
+		double ellapsed = (double) getTotalTimeElapsedSinceReset();
 		if(ellapsed > 0) {
 			return Util.round((double)totalEventsProcessed / (ellapsed/1000), 3);
 		}else{
@@ -433,7 +433,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			sb.append("SiteStats Event aggregation metrics summary:\n");
 			sb.append("\t\tNumber of total events processed: ").append(getNumberOfEventsProcessed()).append("\n");
 			sb.append("\t\tReset/init time: ").append(new Date(getResetTime())).append("\n");
-			sb.append("\t\tTotal time ellapsed since reset: ").append(getTotalTimeEllapsedSinceReset()).append(" ms\n");
+			sb.append("\t\tTotal time ellapsed since reset: ").append(getTotalTimeElapsedSinceReset()).append(" ms\n");
 			sb.append("\t\tTotal time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms\n");
 			sb.append("\t\tNumber of events processed per sec: ").append(getNumberOfEventsProcessedPerSec()).append("\n");
 			sb.append("\t\tNumber of events genereated in Sakai per sec: ").append(getNumberOfEventsGeneratedPerSec()).append("\n");
@@ -442,7 +442,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			sb.append("\t\tIdle: ").append(isIdle());
 		}else{
 			sb.append("#Events processed: ").append(getNumberOfEventsProcessed()).append(", ");
-			sb.append("Time ellapsed since reset: ").append(getTotalTimeEllapsedSinceReset()).append(" ms, ");
+			sb.append("Time ellapsed since reset: ").append(getTotalTimeElapsedSinceReset()).append(" ms, ");
 			sb.append("Time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms, ");
 			sb.append("#Events processed/sec: ").append(getNumberOfEventsProcessedPerSec()).append(", ");
 			sb.append("Avg. Time/event: ").append(getAverageTimeInEventProcessingPerEvent()).append(" ms, ");
