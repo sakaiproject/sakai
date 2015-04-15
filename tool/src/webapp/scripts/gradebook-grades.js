@@ -702,10 +702,11 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     var cellsForCategory = self._CATEGORIES_MAP[category];
 
     var $categoryCell = $("<td>").addClass("gb-category-header").
-                                    attr("colspan", cellsForCategory.length).
-                                    text(category);
+                                  text(category);
 
     $categoriesRow.append($categoryCell);
+
+    var numberVisible = 0;
 
     $.each(cellsForCategory, function(_, model) {
       model.moveColumnTo(newColIndex);
@@ -715,8 +716,17 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
       model.categoryDragScope = categoryDragScope;
       model.setCategoryCell($categoryCell);
 
+      if (model.$cell.is(":visible")) {
+        numberVisible++;
+      }
+
       newColIndex++;
     });
+
+    $categoryCell.attr("colspan", numberVisible);
+    if (numberVisible == 0) {
+      $categoryCell.hide();
+    }
   });
 
   self.$table.find("thead").prepend($categoriesRow);
@@ -1191,6 +1201,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
   function handleCategoryFilterStateChange(event) {
     var $input = $(event.target);
     var $label = $input.closest("label");
+    var $filter = $input.closest(".gradebook-item-category-filter");
 
     // toggle all columns in this category
     if ($input.is(":checked")) {
@@ -1201,6 +1212,8 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
       $input.closest(".gradebook-item-filter-group").find(".gradebook-item-filter :input:checked").trigger("click");
     }
 
+    $filter.toggleClass("off");
+
     updateCategoryFilterState($input);
   };
 
@@ -1208,17 +1221,58 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
   function handleGradeItemFilterStateChange(event) {
     var $input = $(event.target);
     var $label = $input.closest("label");
-    
+    var $filter = $input.closest(".gradebook-item-filter");
+
     var assignmentId = $input.val();
-    
+
     if ($input.is(":checked")) {
       self.gradebookSpreadsheet.showGradeItemColumn(assignmentId);
     } else {
       self.gradebookSpreadsheet.hideGradeItemColumn(assignmentId);
     }
 
+    $filter.toggleClass("off");
+
     updateSignal($label, $input);
     updateCategoryFilterState($input);
+  };
+
+
+  function handleShowAll() {
+    self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:not(:checked)").trigger("click");
+  };
+
+
+  function handleHideAll() {
+    self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:checked").trigger("click");
+  };
+
+
+  function handleShowOnlyThisCategory($filter) {
+    var $input = $filter.find(":input");
+    var $label = $filter.find("label");
+
+    self.$gradeItemsFilterPanel.
+        find(".gradebook-item-filter :input:checked:not(#"+$input.attr("id")+")").
+        trigger("click");
+
+    if ($input.is(":not(:checked)")) {
+      $label.trigger("click");
+    }
+  };
+
+
+  function handleShowOnlyThisItem($filter) {
+    var $input = $filter.find(":input");
+    var $label = $filter.find("label");
+
+    self.$gradeItemsFilterPanel.
+        find(".gradebook-item-filter :input:checked:not(#"+$input.attr("id")+")").
+        trigger("click");
+
+    if ($input.is(":not(:checked)")) {
+      $label.trigger("click");
+    }
   };
 
 
@@ -1240,10 +1294,34 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
   self.$gradeItemsFilterPanel.
         on("click", "#showAllGradeItems", function() {
-          self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:not(:checked)").trigger("click");
+          handleShowAll();
         }).
         on("click", "#hideAllGradeItems", function() {
-          self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:checked").trigger("click");
+          handleHideAll();
+        }).
+        on("click", ".gb-show-only-this-category", function(event) {
+          event.preventDefault();
+
+          var $filter = $(event.target).closest(".gradebook-item-category-filter");
+          handleShowOnlyThisCategory($filter);
+        }).
+        on("click", ".gb-show-only-this-item", function(event) {
+          event.preventDefault();
+
+          var $filter = $(event.target).closest(".gradebook-item-filter");
+          handleShowOnlyThisItem($filter);
+        }).
+        on("click", ".gb-toggle-this-category", function(event) {
+          event.preventDefault();
+
+          var $filter = $(event.target).closest(".gradebook-item-category-filter");
+          $filter.find(":input").trigger("click");
+        }).
+        on("click", ".gb-toggle-this-item", function(event) {
+          event.preventDefault();
+
+          var $filter = $(event.target).closest(".gradebook-item-filter");
+          $filter.find(":input").trigger("click");
         });
 
   self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input").on("change", handleCategoryFilterStateChange);

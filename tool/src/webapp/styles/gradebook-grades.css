@@ -244,7 +244,7 @@
 #gradebookGradesToolbar ul.gb-toolbar-right {
   float: right;
 }
-#gradebookGradesToolbar li {
+#gradebookGradesToolbar > ul > li {
   display: inline-block;
   vertical-align: middle;
   margin-left: 4px;
@@ -338,7 +338,8 @@
   position: relative;
 }
 #gradeItemsTogglePanel label {
-  margin-right: 24px;
+  float: left;
+  width: 90%;
 }
 #gradeItemsTogglePanel label.category-partial-filter .gradebook-item-category-filter-signal:before {
   font-family: 'nyu-classes-icons';
@@ -358,6 +359,23 @@
   font-size: 0.9em;
   margin: 0 5px 0;
   border-bottom: none;
+}
+#gradeItemsTogglePanel .gradebook-item-filter-group .btn-group {
+  float: right;
+  margin-top: 4px;
+}
+#gradeItemsTogglePanel .gradebook-item-filter-group .btn-group .btn.dropdown-toggle {
+  padding: 0 4px;
+}
+#gradeItemsTogglePanel .gradebook-item-filter .gb-show-this-item,
+#gradeItemsTogglePanel .gradebook-item-filter.off .gb-hide-this-item,
+#gradeItemsTogglePanel .gradebook-item-category-filter .gb-show-this-category,
+#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-hide-this-category {
+  display: none;
+}
+#gradeItemsTogglePanel .gradebook-item-filter.off .gb-show-this-item,
+#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-show-this-category {
+  display: block;
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
