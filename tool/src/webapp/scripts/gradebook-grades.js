@@ -702,10 +702,11 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     var cellsForCategory = self._CATEGORIES_MAP[category];
 
     var $categoryCell = $("<td>").addClass("gb-category-header").
-                                    attr("colspan", cellsForCategory.length).
-                                    text(category);
+                                  text(category);
 
     $categoriesRow.append($categoryCell);
+
+    var numberVisible = 0;
 
     $.each(cellsForCategory, function(_, model) {
       model.moveColumnTo(newColIndex);
@@ -715,8 +716,17 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
       model.categoryDragScope = categoryDragScope;
       model.setCategoryCell($categoryCell);
 
+      if (model.$cell.is(":visible")) {
+        numberVisible++;
+      }
+
       newColIndex++;
     });
+
+    $categoryCell.attr("colspan", numberVisible);
+    if (numberVisible == 0) {
+      $categoryCell.hide();
+    }
   });
 
   self.$table.find("thead").prepend($categoriesRow);
