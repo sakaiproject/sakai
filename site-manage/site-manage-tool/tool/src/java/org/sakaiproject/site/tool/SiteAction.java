@@ -6553,6 +6553,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				} finally {
 					SecurityService.popAdvisor();
 				}
+			}
 
 			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			if (siteInfo != null) {
@@ -6708,7 +6709,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				state.setAttribute(STATE_SITE_MODE, SITE_MODE_HELPER_DONE);
 			}
 			state.setAttribute(STATE_TEMPLATE_INDEX, "0");
-		}
 		}
 
 	}// doFinish
