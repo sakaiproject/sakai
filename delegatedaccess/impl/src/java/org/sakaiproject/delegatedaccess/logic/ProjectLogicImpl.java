@@ -115,6 +115,15 @@ public class ProjectLogicImpl implements ProjectLogic {
 	public HierarchyNodeSerialized getNode(String id){
 		return new HierarchyNodeSerialized(hierarchyService.getNodeById(id));
 	}
+	
+	public Map<String, HierarchyNodeSerialized> getNodes(String[] ids){
+		Map<String, HierarchyNodeSerialized> returnNodes = new HashMap<String, HierarchyNodeSerialized>();
+		Map<String, HierarchyNode> nodes = hierarchyService.getNodesByIds(ids);
+		for(Entry<String, HierarchyNode> entry : nodes.entrySet()){
+			returnNodes.put(entry.getKey(), new HierarchyNodeSerialized(entry.getValue()));
+		}		
+		return returnNodes;
+	}
 
 
 	/**
@@ -1267,20 +1276,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 		List<List> currentLevel = l1;
 
 		for(HierarchyNodeSerialized node : nodes){
-			for(String parentId : getOrderedParentsList(node)){
-				HierarchyNodeSerialized parentNode = getCachedNode(parentId);
-
-				if(!hasNode(parentNode, currentLevel)){
-					List newNode = new ArrayList();
-					newNode.add(parentNode);
-					newNode.add(new ArrayList());
-					currentLevel.add(newNode);
-				}
-				currentLevel = getChildrenForNode(parentNode.id, currentLevel);
-				if(addDirectChildren){
-					for(List nodeList : getDirectChildren(parentNode)){
-						if(!hasNode((HierarchyNodeSerialized) nodeList.get(0), currentLevel)){
-							currentLevel.add(nodeList);
+			List<String> parents = getOrderedParentsList(node);
+			Map<String, HierarchyNodeSerialized> cachedNodes = getCachedNodes(parents.toArray(new String[parents.size()]));
+			for(String parentId : parents){
+				HierarchyNodeSerialized parentNode = cachedNodes.get(parentId);
+				if(parentNode != null){
+					if(!hasNode(parentNode, currentLevel)){
+						List newNode = new ArrayList();
+						newNode.add(parentNode);
+						newNode.add(new ArrayList());
+						currentLevel.add(newNode);
+					}
+					currentLevel = getChildrenForNode(parentNode.id, currentLevel);
+					if(addDirectChildren){
+						for(List nodeList : getDirectChildren(parentNode)){
+							if(!hasNode((HierarchyNodeSerialized) nodeList.get(0), currentLevel)){
+								currentLevel.add(nodeList);
+							}
 						}
 					}
 				}
@@ -1320,7 +1332,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 * @param id
 	 * @return
 	 */
-	private HierarchyNodeSerialized getCachedNode(String id){
+	public HierarchyNodeSerialized getCachedNode(String id){
 		Object el = nodeCache.get(id);
 		HierarchyNodeSerialized node = null;
 		if(el == null){
@@ -1334,6 +1346,30 @@ public class ProjectLogicImpl implements ProjectLogic {
 			node = (HierarchyNodeSerialized) el;
 		}
 		return node;
+	}
+	
+	public Map<String, HierarchyNodeSerialized> getCachedNodes(String[] ids){
+		Map<String, HierarchyNodeSerialized> returnNodes = new HashMap<String, HierarchyNodeSerialized>();
+		Set<String> lookupNodes = new HashSet<String>();
+		for(String id : ids){
+			Object el = nodeCache.get(id);
+			HierarchyNodeSerialized node = null;
+			if(el == null){
+				//look these up in bulk:
+				lookupNodes.add(id);
+			}else if(el instanceof HierarchyNodeSerialized){
+				returnNodes.put(id, (HierarchyNodeSerialized) el);
+			}
+		}
+		//now that we only have non cached ids, look them up in bulk:
+		Map<String, HierarchyNodeSerialized> lookupMap = getNodes(lookupNodes.toArray(new String[lookupNodes.size()]));
+		//store nodes in cache and add to return set
+		for(Entry<String, HierarchyNodeSerialized> entry : lookupMap.entrySet()){
+			returnNodes.put(entry.getKey(), entry.getValue());
+			nodeCache.put(entry.getKey(), entry.getValue());
+		}
+		
+		return returnNodes;
 	}
 
 	/**
@@ -1364,11 +1400,14 @@ public class ProjectLogicImpl implements ProjectLogic {
 
 		if(parent != null){
 			Set<String> parentChildren = parent.directChildNodeIds;
+			Map<String, HierarchyNodeSerialized> childreNodes = getCachedNodes(parentChildren.toArray(new String[parentChildren.size()]));
 			for(String childId : parentChildren){
-				List child = new ArrayList();
-				child.add(getCachedNode(childId));
-				child.add(new ArrayList());
-				returnList.add(child);
+				if(childreNodes.containsKey(childId)){
+					List child = new ArrayList();
+					child.add(childreNodes.get(childId));
+					child.add(new ArrayList());
+					returnList.add(child);
+				}
 			}
 		}
 		return returnList;
@@ -1383,20 +1422,23 @@ public class ProjectLogicImpl implements ProjectLogic {
 	 */
 	private List<List> getCascadingChildren(HierarchyNodeSerialized parent, List<List> children){
 		Set<String> parentChildren = parent.directChildNodeIds;
+		Map<String, HierarchyNodeSerialized> childreNodes = getCachedNodes(parentChildren.toArray(new String[parentChildren.size()]));
 		for(String childId : parentChildren){
-			HierarchyNodeSerialized childNode = getCachedNode(childId);
+			if(childreNodes.containsKey(childId)){
+				HierarchyNodeSerialized childNode = childreNodes.get(childId);
 
-			List childMap = getChildrenForNode(childNode.id, children);
-			if(childMap == null){
-				childMap = new ArrayList();
-			}
+				List childMap = getChildrenForNode(childNode.id, children);
+				if(childMap == null){
+					childMap = new ArrayList();
+				}
 
-			childMap = getCascadingChildren(childNode, childMap);
-			if(!hasNode(childNode, children)){
-				List childList = new ArrayList();
-				childList.add(childNode);
-				childList.add(childMap);
-				children.add(childList);
+				childMap = getCascadingChildren(childNode, childMap);
+				if(!hasNode(childNode, children)){
+					List childList = new ArrayList();
+					childList.add(childNode);
+					childList.add(childMap);
+					children.add(childList);
+				}
 			}
 		}
 
@@ -1562,7 +1604,7 @@ public class ProjectLogicImpl implements ProjectLogic {
 	}
 
 	public NodeModel getNodeModel(String nodeId, String userId){
-		HierarchyNodeSerialized node = getNode(nodeId);
+		HierarchyNodeSerialized node = getCachedNode(nodeId);
 		NodeModel parentNodeModel = null;
 		if(node.directParentNodeIds != null && node.directParentNodeIds.size() > 0){
 			//grad the last parent in the Set (this is the closest parent)
@@ -1974,25 +2016,28 @@ public class ProjectLogicImpl implements ProjectLogic {
 			//so by starting at the bottom we have a better chance of using less cylces
 			Collections.reverse(accessParents);
 
+			Map<String, HierarchyNodeSerialized> cachedNodes = getCachedNodes(accessParents.toArray(new String[accessParents.size()]));
 			for(String parent: accessParents){
-				HierarchyNodeSerialized pNode = getCachedNode(parent);
-				boolean foundAccessChild = false;
-				for(String child : pNode.childNodeIds){
-					for(String childCheck: accessParents){
-						if(childCheck.equals(child)){
-							//there is a parent with access permissions at a lower level,
-							//skip this parent and go to the next one
-							foundAccessChild = true;
+				HierarchyNodeSerialized pNode = cachedNodes.get(parent);
+				if(pNode != null){
+					boolean foundAccessChild = false;
+					for(String child : pNode.childNodeIds){
+						for(String childCheck: accessParents){
+							if(childCheck.equals(child)){
+								//there is a parent with access permissions at a lower level,
+								//skip this parent and go to the next one
+								foundAccessChild = true;
+								break;
+							}
+						}
+						if(foundAccessChild){
 							break;
 						}
 					}
-					if(foundAccessChild){
+					if(!foundAccessChild){
+						accessParent = parent;
 						break;
 					}
-				}
-				if(!foundAccessChild){
-					accessParent = parent;
-					break;
 				}
 			}
 		}
@@ -2493,8 +2538,11 @@ public class ProjectLogicImpl implements ProjectLogic {
 		HierarchyNodeSerialized node = getCachedNode(nodeId);
 		Set<HierarchyNodeSerialized> returnSet = new HashSet<HierarchyNodeSerialized>();
 		if(node != null && node.directChildNodeIds != null){
+			Map<String, HierarchyNodeSerialized> cachedNodes = getCachedNodes(node.directChildNodeIds.toArray(new String[node.directChildNodeIds.size()]));
 			for(String id : node.directChildNodeIds){
-				returnSet.add(getCachedNode(id));
+				if(cachedNodes.containsKey(id)){
+					returnSet.add(cachedNodes.get(id));
+				}
 			}
 		}
 		return returnSet;
@@ -2590,9 +2638,13 @@ public class ProjectLogicImpl implements ProjectLogic {
 	
 	private List<String> getHierarchyForNode(HierarchyNodeSerialized node){
 		List<String> returnList = new ArrayList<String>();
-		for(String parentId : getOrderedParentsList(node)){
-			HierarchyNodeSerialized parentNode = getCachedNode(parentId);
-			returnList.add(parentNode.description);
+		List<String> parentList = getOrderedParentsList(node);
+		Map<String, HierarchyNodeSerialized> cachedNodes = getCachedNodes(parentList.toArray(new String[parentList.size()]));
+		for(String parentId : parentList){
+			HierarchyNodeSerialized parentNode = cachedNodes.get(parentId);
+			if(parentNode != null){
+				returnList.add(parentNode.description);
+			}
 		}
 		returnList.add(node.description);
 		return returnList;
