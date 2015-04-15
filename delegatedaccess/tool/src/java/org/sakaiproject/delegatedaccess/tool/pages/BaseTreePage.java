@@ -20,11 +20,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
+import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -35,6 +38,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 
 /**
  * BaseTreePage is a base page for all pages that want to use AbstractTree.  It extends BasePage as well.
@@ -44,6 +48,7 @@ import org.sakaiproject.delegatedaccess.model.NodeModel;
 
 public abstract class BaseTreePage extends BasePage
 {
+	private static final Logger log = Logger.getLogger(BaseTreePage.class);
 
 	/**
 	 * Returns the tree on this pages. This is used to collapse, expand, ect
@@ -202,27 +207,6 @@ public abstract class BaseTreePage extends BasePage
 	
 	}
 	
-	public void hideFilteredNodes(DefaultMutableTreeNode node, int depth, Integer filterLevel, String filter, AjaxRequestTarget target){
-		boolean isVisible = true;
-		if(filterLevel != null && filterLevel.equals(depth)){
-			//this is the filter level, so check visibility
-			String nodeTitle = ((NodeModel) node.getUserObject()).getNode().description.toLowerCase();
-			if(filter != null && !"".equals(filter.trim()) &&
-					!nodeTitle.contains(filter.toLowerCase())){
-				isVisible = false;
-			}
-		}
-		Component treeComponent = getTree().getNodeComponent(node);
-		if(treeComponent != null){
-			String display = isVisible ? "block" : "none";
-			treeComponent.add(new AttributeModifier("style", true, Model.of("display: " + display)));
-			target.addComponent(treeComponent);
-		}
-		for(int i = 0; i < node.getChildCount(); i++){
-			hideFilteredNodes((DefaultMutableTreeNode) node.getChildAt(i), depth + 1, filterLevel, filter, target);
-		}
-	}
-	
 	public void expandTreeToDepth(DefaultMutableTreeNode node, int depth, String userId, List<ListOptionSerialized> blankRestrictedTools, List<String> accessAdminNodeIds, boolean onlyAccessNodes, boolean shopping, boolean shoppingPeriodTool){
 		projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, onlyAccessNodes, accessAdminNodeIds, shopping, shoppingPeriodTool);
 		getTree().getTreeState().expandNode(node);
@@ -239,5 +223,45 @@ public abstract class BaseTreePage extends BasePage
 			}
 		}
 	}
+	
+	public void populateTreeItemFilter(WebMarkupContainer arg0, String filterHierarchyLevel, String filterSearch){
+		if(arg0.getDefaultModelObject() instanceof DelegatedAccessMutableTreeNode){
+			DelegatedAccessMutableTreeNode treeNode = (DelegatedAccessMutableTreeNode) arg0.getDefaultModelObject();
+			Component treeComponent = getTree().getNodeComponent(treeNode);
+			if(treeComponent != null){
+				//check filters:
+				//make sure filter visibility is set properly:
+				if(filterHierarchyLevel != null && !"".equals(filterHierarchyLevel.trim())){
+					try{
+						Integer filterLevel = Integer.parseInt(filterHierarchyLevel) + 1;
+						//find this components level:
+						int depth = 0;
+						TreeNode parent = treeNode.getParent();
+						while(parent != null){
+							parent = parent.getParent();
+							depth++;
+						}
 
+						if(filterLevel != null && filterLevel.equals(depth)){
+							//this is the filter level, so check visibility
+							String nodeTitle = ((NodeModel) treeNode.getUserObject()).getNode().description.toLowerCase();
+							if(filterSearch != null && !"".equals(filterSearch.trim())){
+								if(!nodeTitle.contains(filterSearch.toLowerCase())){			
+									//hide this component:
+									treeComponent.add(new AttributeModifier("style", true, Model.of("display: none;")));
+								}else{
+									//matched
+									treeComponent.add(new AttributeAppender("class", true, Model.of("filterMatch"), " "));
+								}
+							}
+						}
+					}catch(NumberFormatException e){
+						//number format exception, ignore
+					}catch(Exception e){
+						log.error(e.getMessage(), e);
+					}
+				}
+			}
+		}
+	}
 }

@@ -38,6 +38,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -155,7 +156,6 @@ public class ShoppingEditPage extends BaseTreePage{
 					}
 				}
 				if(depth != null){
-					//call tree update to trigger the filter listener onTargetRespond
 					expandTreeToDepth(rootNode, depth, DelegatedAccessConstants.SHOPPING_PERIOD_USER, blankRestrictedTools, null, false, true, false);
 					getTree().updateTree(target);
 				}				
@@ -170,7 +170,8 @@ public class ShoppingEditPage extends BaseTreePage{
 				filterHierarchy = null;
 				target.addComponent(filterSearchTextField);
 				target.addComponent(filterHierarchyDropDown);
-				//call tree update to trigger the filter listener onTargetRespond
+
+				getTree().getTreeState().collapseAll();
 				getTree().updateTree(target);
 			}
 		});
@@ -282,22 +283,11 @@ public class ShoppingEditPage extends BaseTreePage{
 			}
 			
 			@Override
-			public void onTargetRespond(AjaxRequestTarget target) {
-				super.onTargetRespond(target);
-				if(filterChanged){
-					//make sure filter visibility is set properly:
-					DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
-					Integer depth = null;
-					if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
-						try{
-							depth = Integer.parseInt(filterHierarchy.getValue()) + 1;
-						}catch(Exception e){
-							//number format exception, ignore
-						}
-					}
-					hideFilteredNodes(rootNode, 0, depth, filterSearch, target);
-					filterChanged = false;
-				}				
+			protected void populateTreeItem(WebMarkupContainer arg0, int arg1) {
+				super.populateTreeItem(arg0, arg1);
+				if(filterHierarchy != null){
+					populateTreeItemFilter(arg0, filterHierarchy.getValue(), filterSearch);
+				}
 			}
 		};
 		if(singleRoleOptions){

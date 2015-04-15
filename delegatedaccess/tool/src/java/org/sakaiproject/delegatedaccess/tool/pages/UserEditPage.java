@@ -39,6 +39,7 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
@@ -55,6 +56,7 @@ import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
 import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAdvancedUserOptions;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
@@ -148,7 +150,6 @@ public class UserEditPage  extends BaseTreePage{
 				}
 				if(depth != null){
 					expandTreeToDepth(rootNode, depth, userId, blankRestrictedTools, accessAdminNodeIds, false, false, false);
-					//call tree update to trigger the filter listener onTargetRespond
 					getTree().updateTree(target);
 				}				
 			}			
@@ -162,7 +163,8 @@ public class UserEditPage  extends BaseTreePage{
 				filterHierarchy = null;
 				target.addComponent(filterSearchTextField);
 				target.addComponent(filterHierarchyDropDown);
-				//call tree update to trigger the filter listener onTargetRespond
+
+				getTree().getTreeState().collapseAll();
 				getTree().updateTree(target);
 			}
 		});
@@ -268,6 +270,15 @@ public class UserEditPage  extends BaseTreePage{
 			protected boolean isForceRebuildOnSelectionChange() {
 				return true;
 			};
+						
+			@Override
+			protected void populateTreeItem(WebMarkupContainer arg0, int arg1) {
+				super.populateTreeItem(arg0, arg1);
+				if(filterHierarchy != null){
+					populateTreeItemFilter(arg0, filterHierarchy.getValue(), filterSearch);
+				}
+			}			
+			
 			@Override
 			protected MarkupContainer newNodeLink(MarkupContainer parent, String id, TreeNode node) {
 				try{
@@ -276,24 +287,6 @@ public class UserEditPage  extends BaseTreePage{
 					log.error(e.getMessage(), e);
 				}
 				return super.newNodeLink(parent, id, node);
-			}
-			@Override
-			public void onTargetRespond(AjaxRequestTarget target) {
-				super.onTargetRespond(target);
-				if(filterChanged){
-					//make sure filter visibility is set properly:
-					DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
-					Integer depth = null;
-					if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
-						try{
-							depth = Integer.parseInt(filterHierarchy.getValue()) + 1;
-						}catch(Exception e){
-							//number format exception, ignore
-						}
-					}
-					hideFilteredNodes(rootNode, 0, depth, filterSearch, target);
-					filterChanged = false;
-				}				
 			}
 		};
 		if(singleRoleOptions){
