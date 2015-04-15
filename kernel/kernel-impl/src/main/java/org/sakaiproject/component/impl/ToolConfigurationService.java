@@ -73,49 +73,40 @@ public class ToolConfigurationService {
     void setDefaultToolOrderResource(Resource defaultToolOrderResource) {
         this.defaultToolOrderResource = defaultToolOrderResource;
     }
-    
+
     public void init() {
         // load in the tool order, if specified, from the sakai home area
-        if (toolOrderFile != null)
-        {
+        if (toolOrderFile != null) {
             File f = new File(toolOrderFile);
-            if (f.exists())
-            {
+            if (f.exists()) {
                 FileInputStream fis = null;
-                try
-                {
+                try {
                     fis = new FileInputStream(f);
-                    if ( ! useToolGroup )  // default, legacy toolOrder.xml format
+                    if (!useToolGroup) {  // default, legacy toolOrder.xml format
                         loadToolOrder(fis);
-                    else                    // optional format with tool groups
+                    } else {                    // optional format with tool groups
                         loadToolGroups(fis);
-                }
-                catch (Exception t)
-                {
+                    }
+                } catch (Exception t) {
                     log.warn("init(): trouble loading tool order from : " + toolOrderFile, t);
-                }
-                finally {
+                } finally {
                     if (fis != null) {
                         try {
                             fis.close();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            log.warn("Failure closing file.", e);
                         }
                     }
                 }
-            }
-            else
-            {
+            } else {
                 // start with the distributed defaults from the classpath
-                try
-                {
-                    if ( ! useToolGroup )  // default, legacy toolOrder.xml format
+                try {
+                    if (!useToolGroup) { // default, legacy toolOrder.xml format
                         loadToolOrder(defaultToolOrderResource.getInputStream());
-                    else                    // optional format with tool groups
+                    } else {                    // optional format with tool groups{
                         loadToolGroups(defaultToolOrderResource.getInputStream());
-                }
-                catch (Exception t)
-                {
+                    }
+                } catch (Exception t) {
                     log.warn("init(): trouble loading tool order from default toolOrder.xml", t);
                 }
             }
