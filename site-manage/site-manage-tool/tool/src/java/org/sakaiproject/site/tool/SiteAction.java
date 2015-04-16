@@ -3652,6 +3652,7 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("value_uniqname", state.getAttribute(STATE_SITE_QUEST_UNIQNAME));
 			context.put("basedOnTemplate",  state.getAttribute(STATE_TEMPLATE_SITE) != null ? Boolean.TRUE:Boolean.FALSE);
+			context.put("requireAuthorizer", ServerConfigurationService.getString(SAK_PROP_REQUIRE_AUTHORIZER, "true").equals("true")?Boolean.TRUE:Boolean.FALSE);
 			
 			// bjones86 - SAK-21706/SAK-23255
 			context.put( CONTEXT_IS_ADMIN, SecurityService.isSuperUser() );
