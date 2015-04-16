@@ -17,6 +17,8 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -101,6 +103,21 @@ public abstract class BaseTreePage extends BasePage
 			for(int i = 0; i < node.getChildCount(); i++){
 				updateNodeAccessHelper((DefaultMutableTreeNode)node.getChildAt(i), userId, defaultRole);
 			}
+		}
+	}
+	
+	public boolean anyNodesModified(DefaultMutableTreeNode node){
+		boolean modified = false;
+		if(((NodeModel) node.getUserObject()).isModified()){
+			return true;
+		}else{
+			for(int i = 0; i < node.getChildCount(); i++){
+				modified = modified || anyNodesModified((DefaultMutableTreeNode)node.getChildAt(i));
+				if(modified){
+					break;
+				}
+			}
+			return modified;
 		}
 	}
 
@@ -207,61 +224,33 @@ public abstract class BaseTreePage extends BasePage
 	
 	}
 	
-	public void expandTreeToDepth(DefaultMutableTreeNode node, int depth, String userId, List<ListOptionSerialized> blankRestrictedTools, List<String> accessAdminNodeIds, boolean onlyAccessNodes, boolean shopping, boolean shoppingPeriodTool){
+	public void expandTreeToDepth(DefaultMutableTreeNode node, int depth, String userId, List<ListOptionSerialized> blankRestrictedTools, List<String> accessAdminNodeIds, boolean onlyAccessNodes, boolean shopping, boolean shoppingPeriodTool, String filterSearch){
 		projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, onlyAccessNodes, accessAdminNodeIds, shopping, shoppingPeriodTool);
+		//set expand flag to true so to not look for children again:
+		((NodeModel) node.getUserObject()).setAddedDirectChildrenFlag(true);
 		getTree().getTreeState().expandNode(node);
 		if(depth > 0){
 			//recursive function stopper:
 			int newDepth = depth - 1;
-			for(int i = 0; i < node.getChildCount(); i++){
-				expandTreeToDepth((DefaultMutableTreeNode) node.getChildAt(i), newDepth, userId, blankRestrictedTools, accessAdminNodeIds, onlyAccessNodes, shopping, shoppingPeriodTool);
+			//count down backwards since we could be deleting these children nodes
+			for(int i = node.getChildCount() - 1; i >= 0; i--){
+				expandTreeToDepth((DefaultMutableTreeNode) node.getChildAt(i), newDepth, userId, blankRestrictedTools, accessAdminNodeIds, onlyAccessNodes, shopping, shoppingPeriodTool, filterSearch);
 			}
 		}else{
-			//make sure all children are collapsed:
-			for(int i = 0; i < node.getChildCount(); i++){
+			//make sure all children are collapsed and filter out the ones that need to be filtered
+			//count down backwards since we could be deleting these children nodes
+			for(int i = node.getChildCount() - 1; i >= 0; i--){
 				getTree().getTreeState().collapseNode(node.getChildAt(i));
-			}
-		}
-	}
-	
-	public void populateTreeItemFilter(WebMarkupContainer arg0, String filterHierarchyLevel, String filterSearch){
-		if(arg0.getDefaultModelObject() instanceof DelegatedAccessMutableTreeNode){
-			DelegatedAccessMutableTreeNode treeNode = (DelegatedAccessMutableTreeNode) arg0.getDefaultModelObject();
-			Component treeComponent = getTree().getNodeComponent(treeNode);
-			if(treeComponent != null){
-				//check filters:
-				//make sure filter visibility is set properly:
-				if(filterHierarchyLevel != null && !"".equals(filterHierarchyLevel.trim())){
-					try{
-						Integer filterLevel = Integer.parseInt(filterHierarchyLevel) + 1;
-						//find this components level:
-						int depth = 0;
-						TreeNode parent = treeNode.getParent();
-						while(parent != null){
-							parent = parent.getParent();
-							depth++;
-						}
-
-						if(filterLevel != null && filterLevel.equals(depth)){
-							//this is the filter level, so check visibility
-							String nodeTitle = ((NodeModel) treeNode.getUserObject()).getNode().description.toLowerCase();
-							if(filterSearch != null && !"".equals(filterSearch.trim())){
-								if(!nodeTitle.contains(filterSearch.toLowerCase())){			
-									//hide this component:
-									treeComponent.add(new AttributeModifier("style", true, Model.of("display: none;")));
-								}else{
-									//matched
-									treeComponent.add(new AttributeAppender("class", true, Model.of("filterMatch"), " "));
-								}
-							}
-						}
-					}catch(NumberFormatException e){
-						//number format exception, ignore
-					}catch(Exception e){
-						log.error(e.getMessage(), e);
-					}
+				String nodeTitle = ((NodeModel) ((DefaultMutableTreeNode) node.getChildAt(i)).getUserObject()).getNode().description.toLowerCase();
+				if(filterSearch != null && !"".equals(filterSearch.trim()) && !nodeTitle.contains(filterSearch.toLowerCase())){
+					//delete this child:
+					node.remove(i);
 				}
 			}
+		}
+		//check if all of the children have been removed (but don't delete root node)
+		if(node.getParent() != null && node.getChildCount() == 0){
+			((DefaultMutableTreeNode) node.getParent()).remove(node);
 		}
 	}
 }
