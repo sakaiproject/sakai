@@ -14,6 +14,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
@@ -73,9 +74,9 @@ public class GradeImportConfirmationStep extends Panel {
                     //TODO this loops through grades and comments separately...need to figure out a better way
                     for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
                         LOG.debug("Looping through detail items to save");
-                        boolean saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentId(),
+                        GradeSaveResponse saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentId(),
                                 processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
-                        if (!saved) {
+                        if (saved != GradeSaveResponse.OK) {
                             errors = true;
                         }
                         LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentId() + ", " +

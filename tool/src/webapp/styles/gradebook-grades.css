@@ -414,3 +414,17 @@ ul.feedbackPanel {
 	list-style-type: none;
 	margin: 0;
 }
+
+/* feedback styles for the grade saving state */
+.gradeSaveSuccess {
+	background-color: #dff0d8 !important;
+}
+
+.gradeSaveError {
+	background-color: #ffbbbb !important;
+}
+
+.gradeSaveWarning {
+	background-color: #fcf8e3 !important;
+}
+	

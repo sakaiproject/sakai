@@ -214,14 +214,14 @@ public class GradebookNgBusinessService {
 	 * 
 	 * @return
 	 */
-	public boolean saveGrade(final Long assignmentId, final String studentUuid, final String grade) {
+	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String newGrade) {
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
-			return false;
+			return GradeSaveResponse.ERROR;
 		}
 		
-		return this.saveGrade(assignmentId, studentUuid, grade, null);
+		return this.saveGrade(assignmentId, studentUuid, newGrade, null);
 	}
 	
 	/**
@@ -234,20 +234,35 @@ public class GradebookNgBusinessService {
 	 * 
 	 * @return
 	 */
-	public boolean saveGrade(final Long assignmentId, final String studentUuid, final String grade, final String comment) {
+	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String newGrade, final String comment) {
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
-			return false;
+			return GradeSaveResponse.ERROR;
 		}
 		
+		//get current grade
+		String currentStoredGrade = gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId, studentUuid);
+		
+		//no change TODO check this
+		if(StringUtils.equals(currentStoredGrade, newGrade)){
+			return GradeSaveResponse.NO_CHANGE;
+		}
+		
+		//TODO concurrency check, requires passing in the current grade
+		//if(!StringUtils.equals(currentStoredGrade, currentPassedInGrade)) {
+		//	//SOMEONE ELSE HAS CHANGED IT
+		//}
+		
+		//TODO get max points for assignment and check if the newGrade is over limit and pass appropriate response
+		
 		try {
-			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, grade, comment);			
+			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, newGrade, comment);			
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
-			return false;
+			return GradeSaveResponse.ERROR;
 		}
-		return true;
+		return GradeSaveResponse.OK;
 	}
 	
 	

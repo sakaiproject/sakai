@@ -151,9 +151,11 @@ public class GradebookPage extends BasePage {
     				modelData.put("gradeInfo", gradeInfo);
     				
     				cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
+    				
+    				cellItem.setOutputMarkupId(true);
 				}            	
             };
-            
+                       
             cols.add(column);
         }
        

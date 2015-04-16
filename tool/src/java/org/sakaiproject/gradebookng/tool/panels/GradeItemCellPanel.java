@@ -4,6 +4,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
@@ -13,6 +15,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 
@@ -68,21 +71,35 @@ public class GradeItemCellPanel extends Panel {
 					super.onSubmit(target);
 					String newGrade = this.getEditor().getValue();
 					
-					boolean result = businessService.saveGrade(assignmentId, studentUuid, newGrade);
-					
-					//TODO fix this message
-					if(result) {
-						info("hooray");
-					} else {
-						error("oh dear");
+					GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, newGrade);
+										
+					switch (result) {
+						case OK: 
+							markSuccessful(this);
+						break;
+						case ERROR: 
+							markError(this);
+							//TODO fix this message
+							error("oh dear");
+						break;
+						case OVER_LIMIT:
+							markWarning(this);
+						break;
+						case NO_CHANGE:
+							//do nothing
+						break;
 					}
+					
+					//todo handle more cases here, like concurrency etc
 					
 					//format the grade for subsequent display and update the model
 					String formattedGrade = formatGrade(newGrade);
+					
 					this.getLabel().setDefaultModelObject(formattedGrade);
 					
 					//refresh the components we need
 					target.addChildren(getPage(), FeedbackPanel.class);
+					target.add(this.getParent().getParent());
 					target.add(this);
 				}
 				
@@ -107,11 +124,11 @@ public class GradeItemCellPanel extends Panel {
 			
 			gradeCell.setType(String.class);
 			
+			gradeCell.setOutputMarkupId(true);
+			
 			add(gradeCell);
 		}
-						
-		
-				
+									
 		//menu
 		
 
@@ -125,5 +142,19 @@ public class GradeItemCellPanel extends Panel {
 	private String formatGrade(String grade) {
 		return StringUtils.removeEnd(grade, ".0");		
 	}
+	
+	private void markSuccessful(Component gradeCell) {
+		gradeCell.getParent().getParent().add(AttributeModifier.replace("class", "gb-grade-item-header gradeSaveSuccess"));
+		//TODO attach a timeout here
+	}
+	
+	private void markError(Component gradeCell) {
+		gradeCell.getParent().getParent().add(AttributeModifier.replace("class", "gb-grade-item-header gradeSaveError"));
+	}
+	
+	private void markWarning(Component gradeCell) {
+		gradeCell.getParent().getParent().add(AttributeModifier.replace("class", "gb-grade-item-header gradeSaveWarning"));
+	}
+	
 
 }
