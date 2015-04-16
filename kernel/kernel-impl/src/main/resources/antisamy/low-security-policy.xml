@@ -43,8 +43,10 @@
     <regexp name="htmlTitle" value="[\p{L}\p{N}\s\-_',:\[\]!\./\\\(\)&amp;]*" /> <!-- force non-empty with a '+' at the end instead of '*' -->
     <regexp name="htmlClass" value="[a-zA-Z0-9\s,\-_]+" />
 
-    <regexp name="onsiteURL" value="([\p{L}\p{N}\\\.\#@\$%\+&amp;;\-_~,\?=/!]+|\#(\w)+)" />
-    <regexp name="offsiteURL" value="(\s)*((ht|f)tp(s?)://|mailto:)[\p{L}\p{N}]+[\p{L}\p{N}\p{Zs}\.\#@\$%\+&amp;;:\-_~,\?=/!\(\)]*(\s)*" />
+    <!-- The single space in this regex is from KNL-1346 -->
+
+    <regexp name="onsiteURL" value="([\p{L}\p{N}\\\.\#@\$% \+&amp;;\-_~,\?=/!]+|\#(\w)+)" />
+    <regexp name="offsiteURL" value="(\s)*((ht|f)tp(s?)://|mailto:)[\p{L}\p{N}]+[\p{L}\p{N}\p{Zs}\.\#@\$% \+&amp;;:\-_~,\?=/!\(\)]*(\s)*" />
 
     <regexp name="boolean" value="^$|(true|false)" />
     <regexp name="singlePrintable" value="[a-zA-Z0-9]{1}" /> <!-- \w allows the '_' character -->
