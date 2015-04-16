@@ -78,7 +78,7 @@ public class UserEditPage  extends BaseTreePage{
 	private SelectOption filterHierarchy;
 	private String filterSearch = "";
 	private List<ListOptionSerialized> blankRestrictedTools;
-	private boolean filterChanged = false;
+	private boolean modifiedAlert = false;
 	
 	@Override
 	protected AbstractTree getTree() {
@@ -137,35 +137,66 @@ public class UserEditPage  extends BaseTreePage{
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
-				filterChanged = true;
-				//now go through the tree and make sure its been loaded at every level:
 				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
-				Integer depth = null;
-				if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
-					try{
-						depth = Integer.parseInt(filterHierarchy.getValue());
-					}catch(Exception e){
-						//number format exception, ignore
+				//check that no nodes have been modified
+				if(!modifiedAlert && anyNodesModified(rootNode)){
+					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback);
+					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback2);
+					modifiedAlert = true;
+					//call a js function to hide the message in 5 seconds
+					target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
+					target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+				}else{
+					//now go through the tree and make sure its been loaded at every level:
+					Integer depth = null;
+					if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
+						try{
+							depth = Integer.parseInt(filterHierarchy.getValue());
+						}catch(Exception e){
+							//number format exception, ignore
+						}
 					}
+					if(depth != null && filterSearch != null && !"".equals(filterSearch.trim())){
+						expandTreeToDepth(rootNode, depth, userId, blankRestrictedTools, accessAdminNodeIds, false, false, false, filterSearch);
+						getTree().updateTree(target);
+					}
+					modifiedAlert = false;
 				}
-				if(depth != null){
-					expandTreeToDepth(rootNode, depth, userId, blankRestrictedTools, accessAdminNodeIds, false, false, false);
-					getTree().updateTree(target);
-				}				
 			}			
 		});
 		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear", null)){
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
-				filterChanged = true;
-				filterSearch = "";
-				filterHierarchy = null;
-				target.addComponent(filterSearchTextField);
-				target.addComponent(filterHierarchyDropDown);
+				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
+				//check that no nodes have been modified
+				if(!modifiedAlert && anyNodesModified(rootNode)){
+					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback);
+					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback2);
+					modifiedAlert = true;
+					//call a js function to hide the message in 5 seconds
+					target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
+					target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+				}else{
+					filterSearch = "";
+					filterHierarchy = null;
+					target.addComponent(filterSearchTextField);
+					target.addComponent(filterHierarchyDropDown);
 
-				getTree().getTreeState().collapseAll();
-				getTree().updateTree(target);
+					((NodeModel) rootNode.getUserObject()).setAddedDirectChildrenFlag(false);
+					rootNode.removeAllChildren();				
+					getTree().getTreeState().collapseAll();
+					getTree().updateTree(target);
+					modifiedAlert = false;
+				}
 			}
 		});
 		
@@ -269,15 +300,7 @@ public class UserEditPage  extends BaseTreePage{
 			@Override
 			protected boolean isForceRebuildOnSelectionChange() {
 				return true;
-			};
-						
-			@Override
-			protected void populateTreeItem(WebMarkupContainer arg0, int arg1) {
-				super.populateTreeItem(arg0, arg1);
-				if(filterHierarchy != null){
-					populateTreeItemFilter(arg0, filterHierarchy.getValue(), filterSearch);
-				}
-			}			
+			};		
 			
 			@Override
 			protected MarkupContainer newNodeLink(MarkupContainer parent, String id, TreeNode node) {
@@ -321,6 +344,7 @@ public class UserEditPage  extends BaseTreePage{
 				//call a js function to hide the message in 5 seconds
 				target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
 				target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+				modifiedAlert = false;
 			}
 		};
 		form.add(updateButton);
