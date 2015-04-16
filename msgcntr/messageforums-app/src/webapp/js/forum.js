@@ -796,9 +796,6 @@ function resizeFrameForDialog()
         var clientH = document.body.clientHeight + 400;
         $( frame ).height( clientH );
     }
-    else {
-        throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-    }
 }
 
 // This is the profile display on user's names.
@@ -819,20 +816,6 @@ $(document).ready(function() {
 		$(this).prop('href', 'javascript:;');
 	});
 });	
-
-function resizeFrameForDialog()
-{
-    if (top.location != self.location) {
-        var frame = parent.document.getElementById(window.name);
-    }
-    if( frame ) {
-        var clientH = document.body.clientHeight + 400;
-        $( frame ).height( clientH );
-    }
-    else {
-        throw( "resizeFrame did not get the frame (using name=" + window.name + ")" );
-    }
-}
 
 $(document).ready(function(){
     $('.blockMeOnClick').click(function(e){

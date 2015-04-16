@@ -191,6 +191,8 @@ Licenses.
     
     var moveThreadEnabled = function (){
                         //function to check total number of CheckBoxes that are checked in a form
+    			//if there is no elements in form, disable the move link
+    	 		if (typeof document.forms['msgForum'].moveCheckbox === 'undefined') { return false; }
                 //initialize total count to zero
                 var totalChecked = 0;
                                 //get total number of CheckBoxes in form
