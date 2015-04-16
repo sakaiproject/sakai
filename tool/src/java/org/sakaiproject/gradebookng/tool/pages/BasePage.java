@@ -43,7 +43,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> permissionsPageLink;
 	
 	
-	FeedbackPanel feedbackPanel;
+	final FeedbackPanel feedbackPanel;
 	
 	public BasePage() {
 		
@@ -98,9 +98,11 @@ public class BasePage extends WebPage implements IHeaderContributor {
         			message.getLevel() == FeedbackMessage.DEBUG ||
         			message.getLevel() == FeedbackMessage.FATAL ||
         			message.getLevel() == FeedbackMessage.WARNING){
-        			add(AttributeModifier.replace("class", "alertMessage"));
+        			add(AttributeModifier.replace("class", "messageError"));
+        			feedbackPanel.add(AttributeModifier.append("class", "feedback"));
         		} else if(message.getLevel() == FeedbackMessage.INFO){
-        			add(AttributeModifier.replace("class", "success"));        			
+        			add(AttributeModifier.replace("class", "messageSuccess"));   
+        			feedbackPanel.add(AttributeModifier.append("class", "feedback"));
         		} 
 
         		return newMessageDisplayComponent;
@@ -117,7 +119,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	 */
 	public void clearFeedback(FeedbackPanel f) {
 		if(!f.hasFeedbackMessage()) {
-			f.add(AttributeModifier.replace("class", ""));
+			f.add(AttributeModifier.remove("class"));
 		}
 	}
 	

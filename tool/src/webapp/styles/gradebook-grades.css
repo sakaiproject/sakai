@@ -384,9 +384,15 @@ div.wicket-modal div.w_content_container > div > form > h2:first-child {
   padding-top: 0;
   margin-top: 0;
 }
-/* style applied to a div for a Wicket FeedbackPanel, but removes the list styles and just make it bold */
-.feedbackPanel {
-  list-style-type: none;
-  margin-left: 0;
-  padding-left: 0;
+
+/* wrapper for the feedback panel list */
+.feedback {
+	width: 100%;
+}
+
+/* style applied to the UL rendered for a feedback panel */
+ul.feedbackPanel {
+	display: inline-block;
+	list-style-type: none;
+	margin: 0;
 }
