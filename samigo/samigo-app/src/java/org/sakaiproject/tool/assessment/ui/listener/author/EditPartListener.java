@@ -22,12 +22,14 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.List;
 
 import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
@@ -85,8 +87,17 @@ public class EditPartListener
     AssessmentService assessmentService = null;
     SectionFacade section = null;
 
+    List<SelectItem> sectionList = assessmentBean.getSectionList();
+    boolean foundPart = false;
+    for (int i=0; i<sectionList.size();i++){
+      SelectItem s = sectionList.get(i);
+      
+      // only pick this part if it's actually in current assessment
+      if (sectionId.equals((String)s.getValue())) foundPart = true;
+    }
+
     // Permission check
-    if (!authzBean.isUserAllowedToEditAssessment(assessmentBean.getAssessmentId(), assessmentBean.getAssessment().getCreatedBy(), !isEditPendingAssessmentFlow)) {
+    if ((!foundPart) || !authzBean.isUserAllowedToEditAssessment(assessmentBean.getAssessmentId(), assessmentBean.getAssessment().getCreatedBy(), !isEditPendingAssessmentFlow)) {
       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
       context.addMessage(null,new FacesMessage(err));
       author.setOutcome("author");

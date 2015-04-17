@@ -42,6 +42,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerFeedbackIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AnswerIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
@@ -141,10 +142,21 @@ public class ItemModifyListener implements ActionListener
       // Check permissions: if sequence is null, the item is *not* in a pool
       if (itemfacade.getSequence() != null) {
         AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-        Long sectionId = itemfacade.getSection().getSectionId();
-        AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
-
-        if (!authzBean.isUserAllowedToEditAssessment(af.getAssessmentBaseId().toString(), af.getCreatedBy(), !isEditPendingAssessmentFlow)) {
+	// the way to get assessment ID is completely different for published and core
+	// you'd think a slight variant of the published would work for core, but it generates an error
+	Long assessmentId = null;
+	String createdBy = null;
+	if (isEditPendingAssessmentFlow) {
+	    Long sectionId = itemfacade.getSection().getSectionId();
+	    AssessmentFacade af = assessdelegate.getBasicInfoOfAnAssessmentFromSectionId(sectionId);
+	    assessmentId = af.getAssessmentBaseId();
+	    createdBy = af.getCreatedBy();
+	} else {
+	    PublishedAssessmentIfc assessment = (PublishedAssessmentIfc)itemfacade.getSection().getAssessment();
+	    assessmentId = assessment.getPublishedAssessmentId();
+	    createdBy = assessment.getCreatedBy();
+	}
+	if (!authzBean.isUserAllowedToEditAssessment(assessmentId.toString(), createdBy, !isEditPendingAssessmentFlow)) {
           String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
           context.addMessage(null,new FacesMessage(err));
           itemauthorbean.setOutcome("author");

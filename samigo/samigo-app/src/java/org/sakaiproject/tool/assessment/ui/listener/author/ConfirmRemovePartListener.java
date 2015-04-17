@@ -60,7 +60,6 @@ public class ConfirmRemovePartListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
     SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean("sectionBean");
     String sectionId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("sectionId");
-    sectionBean.setSectionId(sectionId);
 
     AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     AssessmentService assessdelegate = new AssessmentService();
@@ -77,8 +76,13 @@ public class ConfirmRemovePartListener implements ActionListener
 
     List<SelectItem> sectionList = assessmentBean.getSectionList();
     ArrayList<SelectItem> otherSectionList = new ArrayList<SelectItem>();
+    boolean foundPart = false;
     for (int i=0; i<sectionList.size();i++){
       SelectItem s = sectionList.get(i);
+      
+      // only pick this part if it's actually in current assessment
+      if (sectionId.equals((String)s.getValue()))
+	  foundPart = true;
       
       // need to filter out all the random draw parts
       SectionDataIfc section= assessdelegate.getSection(s.getValue().toString());
@@ -91,6 +95,15 @@ public class ConfirmRemovePartListener implements ActionListener
         }
       }
     }
+    if (!foundPart) {
+      AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+      context.addMessage(null,new FacesMessage(err));
+      author.setOutcome("author");
+      return;
+    }
+
+    sectionBean.setSectionId(sectionId);
     assessmentBean.setOtherSectionList(otherSectionList);
   }
 

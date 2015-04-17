@@ -44,7 +44,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.bean.shared.BackingBean;
 import org.sakaiproject.util.FormattedText;
-
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p>Description: Action Listener for loading a template</p>
@@ -72,6 +72,15 @@ public class TemplateLoadListener
     TemplateBean templateBean = lookupTemplateBean(context);
     //log.info("id=" + cu.lookupParam("templateId"));
     String templateId = cu.lookupParam("templateId");
+
+    AssessmentService assessmentService = new AssessmentService();
+    AssessmentTemplateFacade template = assessmentService.getAssessmentTemplate(templateId);
+    String author =  (String)template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author");
+    if (author != null && author.length() > 0 && !author.equals(UserDirectoryService.getCurrentUser().getId())) {
+        log.error("User attempted to load template not their own " + author + " " + UserDirectoryService.getCurrentUser().getId());
+        throw new AbortProcessingException("Attempted to load template owned by another author");
+    }
+
     loadAssessment(templateBean, templateId);
   }
 

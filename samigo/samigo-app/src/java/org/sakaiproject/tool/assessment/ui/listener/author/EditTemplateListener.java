@@ -40,6 +40,7 @@ import org.sakaiproject.tool.assessment.ui.bean.author.IndexBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p>Description: Action Listener to edit a new or existing template</p>
@@ -87,6 +88,8 @@ public class EditTemplateListener
     templateBean.setTypeId(null); //new template
     templateBean.setValueMap(getMetaDataMap());
     templateBean.setMarkForReview(Boolean.FALSE);
+    templateBean.setTemplateAuthor(UserDirectoryService.getCurrentUser().getId());
+
   }
 
   // meta data contains the list of "can edit" option and we want to set

@@ -93,7 +93,7 @@ public class ConfirmPublishAssessmentListener
     
     // Check permissions
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    if (!authzBean.isUserAllowedToPublishAssessment(assessmentId, assessment.getCreatedBy(), true)) {
+    if (!authzBean.isUserAllowedToPublishAssessment(assessmentId, assessment.getCreatedBy(), false)) {
         String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_publish_assessment_error");
         context.addMessage(null,new FacesMessage(err));
         assessmentSettings.setOutcomePublish("editAssessmentSettings");

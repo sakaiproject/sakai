@@ -31,6 +31,7 @@ import javax.faces.event.ActionListener;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p> Stub</p>
@@ -61,6 +62,13 @@ public class ConfirmDeleteTemplateListener
     AssessmentTemplateFacade template = assessmentService.getAssessmentTemplate(templateId);
 
     TemplateBean templateBean = lookupTemplateBean(context);
+
+    String author =  (String)template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author");
+    if (author != null && author.length() > 0 &&
+	!author.equals(UserDirectoryService.getCurrentUser().getId())) {
+	throw new AbortProcessingException("trying to delete template not your own");
+    }
+
     templateBean.setIdString(templateId);
     templateBean.setTemplateName(template.getTitle());
   }

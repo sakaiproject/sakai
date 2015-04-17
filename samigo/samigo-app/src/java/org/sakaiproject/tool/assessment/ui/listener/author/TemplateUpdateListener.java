@@ -56,6 +56,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.author.TemplateListener;
 import org.sakaiproject.tool.assessment.util.TextFormat;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.user.cover.UserDirectoryService;
 
 /**
  * <p>Description: Action Listener for template updates</p>
@@ -184,12 +185,26 @@ public class TemplateUpdateListener
       {
         template =
           (delegate.getAssessmentTemplate(templateIdString)).getData();
+	if (template == null) {
+	    System.out.println("Can't find template " + templateIdString);
+	    throw new AbortProcessingException("can't find template ");
+	}
       }
 
       template.setTitle(templateBean.getTemplateName());
-      if (templateBean.getTemplateAuthor() != null)
-        templateBean.getValueMap().put
-          ("author", TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, templateBean.getTemplateAuthor()));
+      
+      // ignore any author set by the user
+
+      if (!"0".equals(templateIdString)) {
+	  String author =  (String)template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author");
+	  if (author != null && author.length() > 0 &&
+	      !author.equals(UserDirectoryService.getCurrentUser().getId())) {
+	      System.out.println("trying to update template not your own " + author + " " + UserDirectoryService.getCurrentUser().getId());
+	      throw new AbortProcessingException("trying to update template not your own");
+	  }
+      }
+      templateBean.getValueMap().put("author", UserDirectoryService.getCurrentUser().getId());
+	  
       template.setDescription(templateBean.getTemplateDescription());
 
       // Assessment Access Control

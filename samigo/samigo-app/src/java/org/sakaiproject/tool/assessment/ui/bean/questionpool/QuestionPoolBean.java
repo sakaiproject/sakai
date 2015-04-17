@@ -65,6 +65,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.user.api.User;
@@ -1295,6 +1296,23 @@ public String getAddOrEdit()
 				.getAgentString());
 		Iterator iter = pools.iterator();
 
+		// verify that the sectionId is in the current assessment
+		String sectionId = ContextUtil.lookupParam("sectionId");
+		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+		List<SelectItem> sectionList = assessmentBean.getSectionList();
+		boolean foundPart = false;
+		for (int i = 0; i < sectionList.size(); i++) {
+		    SelectItem s = sectionList.get(i);
+		    if (sectionId.equals((String)s.getValue())) foundPart = true;
+		}
+		if (!foundPart) {
+		    FacesContext context=FacesContext.getCurrentInstance();
+		    String err;
+		    err=rb.getString("no_pools_error");
+		    context.addMessage(null, new FacesMessage(err));
+		    return "editAssessment";
+		}
+
 		if (iter.hasNext()) {
 			// first pool, if there is one
 			QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
@@ -1302,7 +1320,7 @@ public String getAddOrEdit()
 			buildTree();
 			startEditPoolAgain(poolId);
 			setActionType("item");
-			this.sourcePart = ContextUtil.lookupParam("sectionId");
+			this.sourcePart = sectionId;
 			return "copyPool";
 		}
 		
