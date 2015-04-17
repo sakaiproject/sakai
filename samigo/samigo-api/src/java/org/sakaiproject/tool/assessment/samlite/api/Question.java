@@ -33,6 +33,7 @@ public class Question {
 	private String questionTypeAsString;
 	private String feedbackOK;
 	private String feedbackNOK;
+	private boolean randomize;
 	
 	public Question() {
 		this.questionNumber = 0;
@@ -45,6 +46,7 @@ public class Question {
 		this.hasPoints = false;
 		this.hasDiscount = false;
 		this.questionTypeAsString = "";
+		this.randomize = false;
 	}
 
 	public void addAnswer(String id, String text, boolean isCorrect) {
@@ -174,6 +176,14 @@ public class Question {
 
 	public void setQuestionTypeAsString(String questionTypeAsString) {
 		this.questionTypeAsString = questionTypeAsString;
+	}
+
+	public boolean isRandomize() {
+		return randomize;
+	}
+
+	public void setRandomize(boolean randomize) {
+		this.randomize = randomize;
 	}
 	
 	public String getFeedbackOK() {
