@@ -2724,7 +2724,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		
 		//get all assignments for this gradebook
-		List<Assignment> assignments = getAssignments(gradebookId, Assignment.SORT_BY_SORTING, true);
+		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_SORTING, true);
 		
 		//find the assignment
 		Assignment target = null;
