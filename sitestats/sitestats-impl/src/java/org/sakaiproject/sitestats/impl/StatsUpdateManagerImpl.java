@@ -53,17 +53,7 @@ import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
-import org.sakaiproject.sitestats.api.EventStat;
-import org.sakaiproject.sitestats.api.JobRun;
-import org.sakaiproject.sitestats.api.ResourceStat;
-import org.sakaiproject.sitestats.api.ServerStat;
-import org.sakaiproject.sitestats.api.SiteActivity;
-import org.sakaiproject.sitestats.api.SitePresence;
-import org.sakaiproject.sitestats.api.SiteVisits;
-import org.sakaiproject.sitestats.api.StatsManager;
-import org.sakaiproject.sitestats.api.StatsUpdateManager;
-import org.sakaiproject.sitestats.api.UserStat;
-import org.sakaiproject.sitestats.api.Util;
+import org.sakaiproject.sitestats.api.*;
 import org.sakaiproject.sitestats.api.event.EventRegistryService;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
 import org.sakaiproject.sitestats.api.parser.EventParserTip;
@@ -74,7 +64,7 @@ import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
 /**
  * @author <a href="mailto:nuno@ufp.pt">Nuno Fernandes</a>
  */
-public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer {
+public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runnable, StatsUpdateManager, Observer, StatsUpdateManagerMXBean {
 	private Log								LOG									= LogFactory.getLog(StatsUpdateManagerImpl.class);
 	private final static String				PRESENCE_SUFFIX						= "-presence";
 	private final static int				PRESENCE_SUFFIX_LENGTH				= PRESENCE_SUFFIX.length();
@@ -386,22 +376,27 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		resetTime = System.currentTimeMillis();
 	}
 	
+	@Override
 	public long getNumberOfEventsProcessed() {
 		return totalEventsProcessed;
 	}
 	
+	@Override
 	public long getTotalTimeInEventProcessing() {
 		return totalTimeInEventProcessing;
 	}
 	
+	@Override
 	public long getResetTime() {
 		return resetTime;
 	}
-	
-	public long getTotalTimeEllapsedSinceReset() {
+
+	@Override
+	public long getTotalTimeElapsedSinceReset() {
 		return System.currentTimeMillis() - resetTime;
 	}
 	
+	@Override
 	public double getNumberOfEventsProcessedPerSec() {
 		if(totalTimeInEventProcessing > 0) {
 			return Util.round((double)totalEventsProcessed / ((double)totalTimeInEventProcessing/1000), 3);
@@ -410,8 +405,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
+	@Override
 	public double getNumberOfEventsGeneratedPerSec() {
-		double ellapsed = (double) getTotalTimeEllapsedSinceReset();
+		double ellapsed = (double) getTotalTimeElapsedSinceReset();
 		if(ellapsed > 0) {
 			return Util.round((double)totalEventsProcessed / (ellapsed/1000), 3);
 		}else{
@@ -419,6 +415,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 		}
 	}
 	
+	@Override
 	public long getAverageTimeInEventProcessingPerEvent() {
 		if(totalEventsProcessed > 0) {
 			return totalTimeInEventProcessing / totalEventsProcessed;
@@ -433,7 +430,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			sb.append("SiteStats Event aggregation metrics summary:\n");
 			sb.append("\t\tNumber of total events processed: ").append(getNumberOfEventsProcessed()).append("\n");
 			sb.append("\t\tReset/init time: ").append(new Date(getResetTime())).append("\n");
-			sb.append("\t\tTotal time ellapsed since reset: ").append(getTotalTimeEllapsedSinceReset()).append(" ms\n");
+			sb.append("\t\tTotal time ellapsed since reset: ").append(getTotalTimeElapsedSinceReset()).append(" ms\n");
 			sb.append("\t\tTotal time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms\n");
 			sb.append("\t\tNumber of events processed per sec: ").append(getNumberOfEventsProcessedPerSec()).append("\n");
 			sb.append("\t\tNumber of events genereated in Sakai per sec: ").append(getNumberOfEventsGeneratedPerSec()).append("\n");
@@ -442,7 +439,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			sb.append("\t\tIdle: ").append(isIdle());
 		}else{
 			sb.append("#Events processed: ").append(getNumberOfEventsProcessed()).append(", ");
-			sb.append("Time ellapsed since reset: ").append(getTotalTimeEllapsedSinceReset()).append(" ms, ");
+			sb.append("Time ellapsed since reset: ").append(getTotalTimeElapsedSinceReset()).append(" ms, ");
 			sb.append("Time spent processing events: ").append(getTotalTimeInEventProcessing()).append(" ms, ");
 			sb.append("#Events processed/sec: ").append(getNumberOfEventsProcessedPerSec()).append(", ");
 			sb.append("Avg. Time/event: ").append(getAverageTimeInEventProcessingPerEvent()).append(" ms, ");

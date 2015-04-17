@@ -80,15 +80,15 @@
 	</bean>
 	<!-- Transaction proxy: StatsManager -->
 	<bean id="org.sakaiproject.sitestats.api.StatsManagerTransactionProxyFactoryBean"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
 		<property name="target" ref="org.sakaiproject.sitestats.api.StatsManager"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
 		</property>
 	</bean>
-	
-	
+
+
 	<!-- EventRegistryService ______________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.event.EventRegistryService"
 		class="org.sakaiproject.sitestats.impl.event.EventRegistryServiceImpl"
@@ -203,7 +203,6 @@
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManager"
 		class="org.sakaiproject.sitestats.impl.StatsUpdateManagerImpl"
 		singleton="true"
-		lazy-init="true"
 		init-method="init"
 		destroy-method="destroy">
 		
@@ -233,14 +232,14 @@
 	</bean>
 	<!-- Transaction proxy: StatsUpdateManager -->
 	<bean id="org.sakaiproject.sitestats.api.StatsUpdateManagerTransactionProxyFactoryBean"
-		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">		
+		class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
 		<property name="transactionManager" ref="@{sitestats.db}SitestatsTransactionManager" />
 		<property name="target" ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
 		<property name="transactionAttributes">
 			<props><prop key="*">PROPAGATION_REQUIRED</prop></props>
 		</property>
 	</bean>
-	
+
 
 	<!-- ServerWideReportManager ____________________________________________________________________________ -->
 	<bean id="org.sakaiproject.sitestats.api.ServerWideReportManager"
@@ -344,6 +343,29 @@
             <props><prop key="*">PROPAGATION_REQUIRED</prop></props>
         </property>
     </bean>
+
+	<bean id="org.sakaiproject.sitestats.impl.MBeanExporter"
+		  class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+		<property name="beans">
+			<map>
+				<entry key="org.sakaiproject.sitestats.api:name=StatsUpdateManager"
+					   value-ref="org.sakaiproject.sitestats.api.StatsUpdateManager"/>
+			</map>
+		</property>
+		<!-- This doesn't work because it detects both the original bean and it's Transaction Proxy -->
+		<!--
+		<property name="autodetectModeName" value="AUTODETECT_MBEAN"/>
+		<property name="namingStrategy">
+			<bean class="org.springframework.jmx.export.naming.KeyNamingStrategy">
+				<property name="mappings">
+					<props>
+						<prop key="org.sakaiproject.sitestats.api.StatsUpdateManager">org.sakaiproject.sitestats.api:name=StatsUpdateManager</prop>
+					</props>
+				</property>
+			</bean>
+		</property>
+		 -->
+	</bean>
 
 
 	<!-- Hibernate objects api-impl mapping _________________________________________________________________________________________ -->
