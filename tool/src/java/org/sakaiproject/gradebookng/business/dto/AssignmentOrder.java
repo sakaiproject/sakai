@@ -12,7 +12,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * Class for storing the order of an assignment.
+ * Class for storing the categorized order of an assignment.
  * 
  * A list of these is persisted as XML into the site tool properties and used for sorting
  * 
@@ -26,20 +26,26 @@ public class AssignmentOrder {
 	@Getter
 	@Setter
 	@XmlElement
-	private long assignmentId;
+	private Long assignmentId;
 	
 	@Getter
 	@Setter
 	@XmlElement
-	private int order;	
-	
-	@SuppressWarnings("unused")
+	private int order;
+
+  @Getter
+  @Setter
+  @XmlElement
+  private String category;
+
+  @SuppressWarnings("unused")
 	private AssignmentOrder() {
 		//JAXB constructor
 	}
 	
-	public AssignmentOrder(long assignmentId, int order) {
-		this.assignmentId = assignmentId;
+	public AssignmentOrder(long assignmentId, String category, int order) {
+		this.assignmentId = new Long(assignmentId);
+    this.category = category;
 		this.order = order;
 	}
 	

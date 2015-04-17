@@ -552,8 +552,152 @@ public class GradebookNgBusinessService {
 		Gradebook gradebook = this.getGradebook(siteId);
 		this.gradebookService.updateAssignmentOrder(gradebook.getUid(), assignmentId, order);
     }
-    
-    /**
+
+
+  /**
+   * Update the categorized order of an assignment.
+   *
+   * @param siteId	the siteId
+   * @param assignmentId the assignment we are reordering
+   * @param order the new order
+   * @throws JAXBException
+   * @throws IdUnusedException
+   * @throws PermissionException
+   */
+  public void updateCategorizedAssignmentOrder(String siteId, long assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
+    Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
+    Assignment assignmentToMove = gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+    String category = assignmentToMove.getCategoryName();
+
+    if (assignmentToMove == null) {
+      // TODO Handle assignment not in gradebook
+      log.error(String.format("Assignment %d not in site %s", assignmentId, siteId));
+      return;
+    }
+
+    Map<String, List<Long>> orderedAssignments = getCategorizedAssignmentOrder(siteId);
+
+    orderedAssignments.get(category).remove(assignmentToMove.getId());
+    orderedAssignments.get(category).add(order, assignmentToMove.getId());
+
+    storeCategorizedAssignmentsOrder(siteId, orderedAssignments);
+  }
+
+
+  /**
+   * Get the ordered categorized assignment ids
+   *
+   * @param siteId	the siteId
+   * @throws JAXBException
+   * @throws IdUnusedException
+   * @throws PermissionException
+   */
+  public Map<String, List<Long>> getCategorizedAssignmentOrder(String siteId) {
+    Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
+
+    Site site = null;
+    try {
+      site = this.siteService.getSite(siteId);
+    } catch (IdUnusedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return null;
+    }
+
+    ResourceProperties props = site.getProperties();
+    String xml = props.getProperty(ASSIGNMENT_ORDER_PROP);
+
+    if(StringUtils.isNotBlank(xml)) {
+      try {
+        //goes via the xml list wrapper as that is serialisable
+        XmlList<AssignmentOrder> xmlList = (XmlList<AssignmentOrder>) XmlMarshaller.unmarshall(xml);
+        Map<String, List<Long>> result = new HashMap<String, List<Long>>();
+        List<AssignmentOrder> assignmentOrders = xmlList.getItems();
+
+        Collections.sort(assignmentOrders, new AssignmentOrderComparator());
+
+        for (AssignmentOrder ao : assignmentOrders) {
+          if (!result.containsKey(ao.getCategory())) {
+            result.put(ao.getCategory(), new ArrayList<Long>());
+          }
+          result.get(ao.getCategory()).add(ao.getOrder(), ao.getAssignmentId());
+        }
+        return result;
+      } catch (JAXBException e) {
+        e.printStackTrace();
+      }
+    } else {
+      return initializeCategorizedAssignmentOrder(siteId);
+    }
+
+    return null;
+  }
+
+
+  /**
+   * Set up initial Categorized Assignment Order
+   */
+  private Map<String, List<Long>> initializeCategorizedAssignmentOrder(String siteId) throws JAXBException, IdUnusedException, PermissionException {
+    Gradebook gradebook = getGradebook(siteId);
+
+    List<Assignment> assignments = getGradebookAssignments();
+
+    Map<String, List<Long>> categoriesToAssignments = new HashMap<String, List<Long>>();
+    Iterator<Assignment> assignmentsIterator = assignments.iterator();
+    while (assignmentsIterator.hasNext()) {
+      Assignment assignment = assignmentsIterator.next();
+      String category = assignment.getCategoryName();
+      if (!categoriesToAssignments.containsKey(category)) {
+        categoriesToAssignments.put(category, new ArrayList<Long>());
+      }
+      categoriesToAssignments.get(category).add(assignment.getId());
+    }
+
+    storeCategorizedAssignmentsOrder(siteId, categoriesToAssignments);
+
+    return categoriesToAssignments;
+  }
+  
+  /**
+   * Store categorized assignment order as XML on a site property
+   *
+   * @param siteId	the siteId
+   * @param assignments a list of assignments in their new order
+   * @throws JAXBException
+   * @throws IdUnusedException
+   * @throws PermissionException
+   */
+  private void storeCategorizedAssignmentsOrder(String siteId, Map<String, List<Long>> categoriesToAssignments) throws JAXBException, IdUnusedException, PermissionException {
+    Site site = null;
+    try {
+      site = this.siteService.getSite(siteId);
+    } catch (IdUnusedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return;
+    }
+
+    List<AssignmentOrder> assignmentOrders = new ArrayList<AssignmentOrder>();
+
+    for (String category : categoriesToAssignments.keySet()) {
+      List<Long> assignmentIds = categoriesToAssignments.get(category);
+      for (int i = 0; i < assignmentIds.size(); i++) {
+        assignmentOrders.add(new AssignmentOrder(assignmentIds.get(i), category, i));
+      }
+    }
+
+    XmlList<AssignmentOrder> newXmlList = new XmlList<AssignmentOrder>(assignmentOrders);
+    String newXml = XmlMarshaller.marshal(newXmlList);
+
+    ResourcePropertiesEdit props = site.getPropertiesEdit();
+    props.addProperty(ASSIGNMENT_ORDER_PROP, newXml);
+
+    log.debug("Updated assignment order: " + newXml);
+    this.siteService.save(site);
+  }
+
+
+  /**
     * Comparator class for sorting a list of users by last name
     */
     class LastNameComparator implements Comparator<User> {
@@ -770,4 +914,14 @@ public class GradebookNgBusinessService {
 		 return false;
      }
     
+
+    /**
+     * Comparator class for sorting a list of AssignmentOrders
+     */
+    class AssignmentOrderComparator implements Comparator<AssignmentOrder> {
+      @Override
+      public int compare(AssignmentOrder ao1, AssignmentOrder ao2) {
+        return ((Integer) ao1.getOrder()).compareTo(ao2.getOrder());
+      }
+    }
 }
