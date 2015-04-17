@@ -268,18 +268,20 @@ implements ActionListener
 	    	error=true;
 	    	assessmentSettings.setStartDate(new Date());
 	    }
-	    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
-	    	(retractDate != null && startDate == null && retractDate.before(new Date()))) {
-	    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
-	    	error=true;
-	    	isRetractEarlierThanAvaliable = true;
-	    	assessmentSettings.setStartDate(new Date());
-	    }
-	    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
-	    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
-	    	error=true;
+	    if(assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+		    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
+		    	(retractDate != null && startDate == null && retractDate.before(new Date()))) {
+		    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
+		    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
+		    	error=true;
+		    	isRetractEarlierThanAvaliable = true;
+		    	assessmentSettings.setStartDate(new Date());
+		    }
+		    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
+		    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
+		    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
+		    	error=true;
+		    }
 	    }
 
 	    // SAM-1088
