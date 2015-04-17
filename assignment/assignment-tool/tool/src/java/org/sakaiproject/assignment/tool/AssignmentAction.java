@@ -8936,15 +8936,14 @@ public class AssignmentAction extends PagedResourceActionII
         }
         try {
             contentReviewService.createAssignment(assign.getContext(), assignmentRef, opts);
-            return true;
+			return true;
         } catch (Exception e) {
             M_log.error(e);
-            String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
-            String supportEmail = ServerConfigurationService.getString("mail.support", null);
-            String[] args = new String[]{contentReviewService.getServiceName(), uiService, supportEmail};
+			String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
+			String[] args = new String[]{contentReviewService.getServiceName(), uiService};
             state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
         }
-        return false;
+		return false;
     }
 	
 
