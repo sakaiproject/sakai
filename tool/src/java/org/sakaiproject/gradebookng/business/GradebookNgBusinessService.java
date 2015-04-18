@@ -273,17 +273,32 @@ public class GradebookNgBusinessService {
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
 		
-		//TODO get max points for assignment and check if the newGrade is over limit and pass appropriate response
-		//Assignment assignment = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
-		//Double maxPoints = assignment.getPoints();
-				
+		//over limit check, get max points for assignment and check if the newGrade is over limit
+		//we still save it but we return the warning
+		Assignment assignment = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+		Double maxPoints = assignment.getPoints();
+		
+		Double newGradePoints = NumberUtils.toDouble(newGrade);
+		
+		GradeSaveResponse rval = null;
+		
+		if(newGradePoints.compareTo(maxPoints) > 0) {
+			log.debug("over limit. Max: " + maxPoints);
+			rval = GradeSaveResponse.OVER_LIMIT;
+		}
+		
+		//save
 		try {
-			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, newGrade, comment);			
+			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, newGrade, comment);
+			if(rval == null) {
+				//if we don't have some other warning, it was all OK
+				rval = GradeSaveResponse.OK;
+			}
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
-			return GradeSaveResponse.ERROR;
+			rval = GradeSaveResponse.ERROR;
 		}
-		return GradeSaveResponse.OK;
+		return rval;
 	}
 	
 	
@@ -316,7 +331,7 @@ public class GradebookNgBusinessService {
 		}
 		
 		List<User> students = this.getGradeableUsers(userUuids);
-		
+				
 		//because this map is based on eid not uuid, we do the filtering later so we can save an iteration
 		Map<String,String> courseGrades = this.getSiteCourseGrades();
 				
