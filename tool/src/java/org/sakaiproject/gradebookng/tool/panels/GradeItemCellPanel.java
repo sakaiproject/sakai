@@ -51,7 +51,7 @@ public class GradeItemCellPanel extends Panel {
 		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
 		
 		//get grade
-		String formattedGrade = this.formatGrade(gradeInfo.getGrade());
+		final String formattedGrade = this.formatGrade(gradeInfo.getGrade());
 				
 		//if assignment is external, normal label
 		if(BooleanUtils.isTrue(isExternal)){
@@ -60,18 +60,37 @@ public class GradeItemCellPanel extends Panel {
 			AjaxEditableLabel<String> gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				
 				private static final long serialVersionUID = 1L;
-
+				
+				private String originalGrade = null;
+								
 				@Override
 				protected String defaultNullLabel() {
-					return "-"; //TODO this is temporary, they need something to click
+					return "-"; // they need something to click
+				}
+				
+				@Override
+				//TODO - Is setting a string here overkill since this component is initialised for EVERY cell?
+				protected void onInitialize() {
+					//set original grade, once only
+					super.onInitialize();
+					this.originalGrade = this.getLabel().getDefaultModelObjectAsString();
+				}
+				
+				@Override
+				protected void onModelChanging() {
+					//capture the original grade before it changes
+					this.originalGrade = this.getEditor().getValue();
 				}
 				
 				@Override
 				protected void onSubmit(final AjaxRequestTarget target) {
 					super.onSubmit(target);
+					
 					String newGrade = this.getEditor().getValue();
 					
-					GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, newGrade);
+					//for concurrency, get the original grade we have in the UI and pass it into the service as a check
+										
+					GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, this.originalGrade, newGrade);
 										
 					switch (result) {
 						case OK: 
@@ -88,6 +107,13 @@ public class GradeItemCellPanel extends Panel {
 						case NO_CHANGE:
 							//do nothing
 						break;
+						case CONCURRENT_EDIT:
+							markError(this);
+							//TODO fix this message
+							error("concurrent edit, eep");
+						break;
+						default:
+							throw new UnsupportedOperationException("The response for saving the grade is unknown.");
 					}
 					
 					//todo handle more cases here, like concurrency etc
@@ -117,6 +143,11 @@ public class GradeItemCellPanel extends Panel {
 					Map<String,Object> extraParameters = attributes.getExtraParameters();
 					extraParameters.put("assignmentId", assignmentId);
 					extraParameters.put("studentUuid", studentUuid);
+				}
+				
+				/* for setting the original grade at construction time */
+				public void setOriginalGrade(String grade) {
+					this.originalGrade = grade;
 				}
 				
 				

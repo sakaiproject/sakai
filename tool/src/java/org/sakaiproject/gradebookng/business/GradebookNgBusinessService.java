@@ -210,18 +210,19 @@ public class GradebookNgBusinessService {
 	 * 
 	 * @param assignmentId	id of the gradebook assignment
 	 * @param studentUuid	uuid of the user
-	 * @param grade			grade for the user
+	 * @param oldGrade 		old grade, passed in for concurrency checking
+	 * @param newGrade		new grade for the assignment/user
 	 * 
 	 * @return
 	 */
-	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String newGrade) {
+	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String oldGrade, final String newGrade) {
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
 			return GradeSaveResponse.ERROR;
 		}
 		
-		return this.saveGrade(assignmentId, studentUuid, newGrade, null);
+		return this.saveGrade(assignmentId, studentUuid, oldGrade, newGrade, null);
 	}
 	
 	/**
@@ -229,12 +230,13 @@ public class GradebookNgBusinessService {
 	 * 
 	 * @param assignmentId	id of the gradebook assignment
 	 * @param studentUuid	uuid of the user
-	 * @param grade			grade for the user
+	 * @param oldGrade 		old grade, passed in for concurrency checking
+	 * @param newGrade		new grade for the assignment/user
 	 * @param comment		optional comment for the grade
 	 * 
 	 * @return
 	 */
-	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String newGrade, final String comment) {
+	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, String oldGrade, String newGrade, final String comment) {
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
@@ -242,20 +244,39 @@ public class GradebookNgBusinessService {
 		}
 		
 		//get current grade
-		String currentStoredGrade = gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId, studentUuid);
+		String storedGrade = gradebookService.getAssignmentScoreString(gradebook.getUid(), assignmentId, studentUuid);
 		
-		//no change TODO check this
-		if(StringUtils.equals(currentStoredGrade, newGrade)){
+		//trim the .0 from the grades if present. UI removes it so lets standardise.
+		storedGrade = StringUtils.removeEnd(storedGrade, ".0");
+		oldGrade = StringUtils.removeEnd(oldGrade, ".0");
+		newGrade = StringUtils.removeEnd(newGrade, ".0");
+		
+		//trim to null so we can better compare against no previous grade being recorded (as it will be null)
+		//note that we also trim newGrade so that don't add the grade if the new grade is blank and there was no grade previously
+		storedGrade = StringUtils.trimToNull(storedGrade);
+		oldGrade = StringUtils.trimToNull(oldGrade);	
+		newGrade = StringUtils.trimToNull(newGrade);	
+		
+		if(log.isDebugEnabled()) {
+			log.debug("storedGrade: " + storedGrade);
+			log.debug("oldGrade: " + oldGrade);
+			log.debug("newGrade: " + newGrade);
+		}
+
+		//no change
+		if(StringUtils.equals(storedGrade, newGrade)){
 			return GradeSaveResponse.NO_CHANGE;
 		}
-		
-		//TODO concurrency check, requires passing in the current grade
-		//if(!StringUtils.equals(currentStoredGrade, currentPassedInGrade)) {
-		//	//SOMEONE ELSE HAS CHANGED IT
-		//}
+
+		//concurrency check, if stored grade != old grade that was passed in, someone else has edited.
+		if(!StringUtils.equals(storedGrade, oldGrade)) {	
+			return GradeSaveResponse.CONCURRENT_EDIT;
+		}
 		
 		//TODO get max points for assignment and check if the newGrade is over limit and pass appropriate response
-		
+		//Assignment assignment = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+		//Double maxPoints = assignment.getPoints();
+				
 		try {
 			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, newGrade, comment);			
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
