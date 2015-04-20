@@ -596,6 +596,9 @@ public class SiteParticipantHelper {
 		// Loop through all the roles for this site type
 		for( Role role : allRolesForSiteType )
 		{
+			if (!authzGroupService.isRoleAssignable(role.getId())) {
+				continue;
+			}
 			// If the user is an admin, or if the properties weren't found (empty set), just add the role to the list
 			if( securityService.isSuperUser() || restrictedRoles.isEmpty() )
 			{

@@ -487,6 +487,13 @@ public interface AuthzGroupService extends EntityProducer
      * @return List containing the currently registered AuthzGroupAdvisors
      */
     public List<AuthzGroupAdvisor> getAuthzGroupAdvisors();
+
+    /**
+     * Check if the supplied role can be assigned to a user.
+     * @param roleId The role ID to check.
+     * @return <code>true</code> if the role can be assigned to a user.
+     */
+    public boolean isRoleAssignable(String roleId);
 	
 	/**
 	 * Get a nice display name for role. 
