@@ -14,33 +14,33 @@
   border-radius: 15px;
 }
 .portletBody .lb-button-default {
-  color: #478ba4;
-  border: 1px solid #d6dde5;
-  background-color: #d6dde5;
-  background: #d6dde5;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #d6dde5), color-stop(1, #ffffff));
-  background: -ms-linear-gradient(bottom, #d6dde5, #ffffff);
-  background: -moz-linear-gradient(center bottom, #d6dde5 0%, #ffffff 100%);
-  background: -o-linear-gradient(#ffffff, #d6dde5);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#d6dde5', GradientType=0);
+  color: #058abc;
+  border: 1px solid #89b859;
+  background-color: #89b859;
+  background: #89b859;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #89b859), color-stop(1, #ffffff));
+  background: -ms-linear-gradient(bottom, #89b859, #ffffff);
+  background: -moz-linear-gradient(center bottom, #89b859 0%, #ffffff 100%);
+  background: -o-linear-gradient(#ffffff, #89b859);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#89b859', GradientType=0);
 }
 .portletBody .lb-button-default:hover,
 .portletBody .lb-button-default:active {
-  color: #2b7490;
-  border: 1px solid #aab8c8;
-  background-color: #d6dde5;
-  background: #d6dde5;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ffffff), color-stop(1, #d6dde5));
-  background: -ms-linear-gradient(bottom, #ffffff, #d6dde5);
-  background: -moz-linear-gradient(center bottom, #ffffff 0%, #d6dde5 100%);
-  background: -o-linear-gradient(#d6dde5, #ffffff);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d6dde5', endColorstr='#ffffff', GradientType=0);
+  color: #046184;
+  border: 1px solid #639531;
+  background-color: #89b859;
+  background: #89b859;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ffffff), color-stop(1, #89b859));
+  background: -ms-linear-gradient(bottom, #ffffff, #89b859);
+  background: -moz-linear-gradient(center bottom, #ffffff 0%, #89b859 100%);
+  background: -o-linear-gradient(#89b859, #ffffff);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#89b859', endColorstr='#ffffff', GradientType=0);
 }
 .portletBody .lb-button-primary {
   color: #ffffff;
-  border: 1px solid #478ba4;
-  background-color: #6aabc5;
-  background: #6aabc5;
+  border: 1px solid #058abc;
+  background-color: #1999cc;
+  background: #1999cc;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, none), color-stop(1, none));
   background: -ms-linear-gradient(bottom, none, none);
   background: -moz-linear-gradient(center bottom, none 0%, none 100%);
@@ -50,9 +50,9 @@
 .portletBody .lb-button-primary:hover,
 .portletBody .lb-button-primary:active {
   color: #ffffff;
-  border: 1px solid #2b7490;
-  background-color: #478ba4;
-  background: #478ba4;
+  border: 1px solid #046184;
+  background-color: #058abc;
+  background: #058abc;
   background: -webkit-gradient(linear, left bottom, left top, color-stop(0, none), color-stop(1, none));
   background: -ms-linear-gradient(bottom, none, none);
   background: -moz-linear-gradient(center bottom, none 0%, none 100%);
@@ -66,13 +66,68 @@
   margin-top: 6px;
 }
 .portletBody .portletTitle .title h2 {
-  color: #478ba4;
+  color: #058abc;
   font-size: 150%;
   font-weight: bold;
 }
-.portletBody .portletTitle .action {
+.portletBody .action {
   margin-top: 12px;
 }
-.portletBody .portletTitle .action a {
+.portletBody .action a {
   margin-right: 10px;
+}
+.portletBody .action .gradingarea {
+  background-color: #66bdde;
+  margin-left: 1em;
+  padding: 1px 5px;
+  display: inline-block;
+  font-size: 90%;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.portletBody .action .gradingarea .grading-nextprev {
+  margin-right: 2px;
+}
+.portletBody .action .gradingarea .statusImg {
+  height: 16px;
+  width: 16px;
+}
+.portletBody .action .gradingarea .comments-points {
+  vertical-align: 13%;
+}
+.portletBody .action .gradingarea .uuidBox,
+.portletBody .action .gradingarea .pointsSpan {
+  display: none;
+}
+.portletBody .action .gradingarea .student-points-box {
+  font-size: 100%;
+}
+.portletBody .action .gradingarea .usebutton {
+  background: none;
+  width: auto;
+  *vertical-align: 13%;
+  margin-right: 0.5em;
+}
+.portletBody .action .nextprev {
+  width: auto !important;
+}
+.portletBody .action .nextprev a {
+  width: auto !important;
+}
+.portletBody .lb-toolbar {
+  clear: both;
+  z-index: 100000;
+}
+.portletBody .lb-toolbar #toolbar {
+  padding: 2px;
+  margin: 0;
+}
+.portletBody .lb-alerts .lb-alert .lb-alert-highlight {
+  margin-top: 20px;
+  padding: 0.5em 0.7em;
+}
+.portletBody .lb-alerts .lb-alert .lb-alert-highlight .lb-alert-icon {
+  float: left;
+  margin-right: 0.3em;
 }

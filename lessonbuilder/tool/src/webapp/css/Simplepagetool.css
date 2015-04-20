@@ -83,11 +83,8 @@
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
 }
-.portletTitle .title, .portletTitle .action {
-	padding-bottom: 0px !important;
-}
-.breadcrumbs a[title="Reset"] {
-
+.portletTitle .title {
+	padding-bottom: 0;
 }
 .breadcrumbs span {
 	display: inline-block;
@@ -100,25 +97,25 @@
     margin-left:0;
 }
 .breadcrumbs + .singlePageTitle {
-    display:none
+    display:none;
 }
 .italic {
-	font-style: italic
+	font-style: italic;
 }
 .indent {
-	margin-left: 20px
+	margin-left: 20px;
 }
 .indent2 {
-	margin-left: 50px
+	margin-left: 50px;
 }
 .indent3 {
-	margin-left: 70px
+	margin-left: 70px;
 }
 .lessons-messages{
 	white-space: pre-line;
 }
 .hidden {
-	visibility: hidden
+	visibility: hidden;
 }
 .rightJustify {
 	position: absolute;
@@ -736,16 +733,6 @@ background-color: #e8e8e8
 .details-row td:hover {
     background: #fff
 }
-.gradingarea {
-	margin-left: 1em;
-	padding: 1px 5px;
-	display: inline-block;
-	font-size: 90%;
-	background-color: #acf;
-	-moz-border-radius: 3px;
-	-webkit-border-radius: 3px;
-	border-radius: 3px;
-}
 .backgroundHighlight {
 	border: 2px solid black;
 	background-color: #F8F8F8;
@@ -911,7 +898,7 @@ div[role="dialog"] {
 /*    overflow: hidden; */
 }
 .portletTitle .action {
-    padding: 2px -1px 6px 2px;
+    padding: 2px 0 6px 2px;
     float: right;
     vertical-align: middle;
 }
@@ -1007,14 +994,14 @@ a.Mrphs-toolTitleNav__link--reset {
     color: #333
 }
 .portletTitle .title a.reload {
-    background: url(../images/reload.gif) center left no-repeat;
+    background: url(../images/reload.png) center left no-repeat;
     text-decoration: none !important;
     border: 1px solid #fff;
     height: 1.5em;
     outline: none;
 }
 .portletTitle .title a.reload:hover, .portletTitle .title a.reload:focus {
-    background: url(../images/reload_h.gif) center left no-repeat
+    background: url(../images/reload_h.png) center left no-repeat
 }
 
 /*
