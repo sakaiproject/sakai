@@ -810,7 +810,7 @@ public class SessionComponentRegressionTest extends BaseSessionComponentTest {
 			allowing(threadLocalManager).get(with(equal(SessionComponent.CURRENT_SESSION)));
 //			exactly(2).of(threadLocalManager).get(with(any(String.class)));
 			will(returnValue(session));
-			allowing(threadLocalManager).set(with(equal(SessionComponent.CURRENT_SESSION)),with(equal(null)));
+			allowing(threadLocalManager).set(with(equal(SessionComponent.CURRENT_SESSION)),with(equal((Object)null)));
 		}});
 	}
 	
