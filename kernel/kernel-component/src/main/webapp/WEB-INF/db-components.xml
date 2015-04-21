@@ -403,7 +403,7 @@
     </bean>
 
 	<!-- Backward property compatibility -->
-    <bean id="javax.sql.BaseDataSource" parent="javax.sql.dbcp.BaseDataSource">
+    <bean id="javax.sql.BaseDataSource" parent="javax.sql.hikaricp.BaseDataSource">
     </bean>
 
     <!-- Shared DataSource for all pooled database connections -->
