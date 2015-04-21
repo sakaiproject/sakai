@@ -256,6 +256,9 @@ public class LessonsEntityContentProducer implements EntityContentProducer
 	private String getSiteId(Reference ref)
 	{
 		String context = ref.getContext();
+		if (context == null) {
+		    return null;
+		}
 		if (context.startsWith("/site/"))
 		{
 			context = context.substring("/site/".length());
