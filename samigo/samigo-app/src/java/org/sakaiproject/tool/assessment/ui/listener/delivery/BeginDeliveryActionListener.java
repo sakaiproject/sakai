@@ -99,6 +99,8 @@ public class BeginDeliveryActionListener implements ActionListener
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     log.debug("****DeliveryBean= "+delivery);
     String actionString = ContextUtil.lookupParam("actionString");
+    String publishedId = ContextUtil.lookupParam("publishedId");
+    String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
 
     if (StringUtils.isNotBlank(actionString)) {
       // if actionString is null, likely that action & actionString has been set already, 
@@ -120,17 +122,24 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     
     int action = delivery.getActionMode();
-    PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
+    PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery, assessmentId, publishedId);
     if(pub == null){
     	delivery.setOutcome("poolUpdateError");
     	throw new AbortProcessingException("pub is null");
     }
 
     // Does the user have permission to take this action on this assessment in this site?
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization"); 
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     if (DeliveryBean.PREVIEW_ASSESSMENT == action) {
-      if (!authzBean.isUserAllowedToEditAssessment(pub.getPublishedAssessmentId().toString(), pub.getCreatedBy(), true)) {
-        throw new IllegalArgumentException("User does not have permission to preview assessment id " + pub.getPublishedAssessmentId());
+      if (StringUtils.isBlank(publishedId)) {
+        if (!authzBean.isUserAllowedToEditAssessment(assessmentId, pub.getCreatedBy(), false)) {
+          throw new IllegalArgumentException("User does not have permission to preview assessment id " + assessmentId);
+        }
+      }
+      else {
+        if (!authzBean.isUserAllowedToEditAssessment(publishedId, pub.getCreatedBy(), true)) {
+          throw new IllegalArgumentException("User does not have permission to preview assessment id " + publishedId);
+        }
       }
     }
     else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
@@ -436,15 +445,15 @@ public class BeginDeliveryActionListener implements ActionListener
       }
   }
 
-  private PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery){
+  private PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery, String assessmentId, String publishedId){
     AssessmentService assessmentService = new AssessmentService();
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
-    String publishedId = ContextUtil.lookupParam("publishedId");
-    String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
-    if (StringUtils.isBlank(assessmentId))
-    	assessmentId = delivery.getAssessmentId();
-    	 
+
+    if (StringUtils.isBlank(assessmentId)) {
+        assessmentId = delivery.getAssessmentId();
+    }
+
     switch (action){
     case 2: // delivery.PREVIEW_ASSESSMENT
     	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
