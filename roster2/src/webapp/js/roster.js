@@ -77,7 +77,7 @@
                 	$(window).on('scroll.roster.rendered', roster.checkScroll);
                 	$(window).trigger('scroll.roster');
             	}
-            },100);
+            }, 500);
         }
     };
     
@@ -730,7 +730,7 @@
     
     $(document).ready(function () {
     	// Ensure everything is rendered
-    	setTimeout(function () { roster.checkScroll(); }, 100);
+    	setTimeout(function () { roster.checkScroll(); }, 500);
     });
     
 }) (jQuery);
