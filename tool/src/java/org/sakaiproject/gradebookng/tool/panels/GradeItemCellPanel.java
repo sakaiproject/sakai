@@ -7,6 +7,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.markup.html.basic.Label;
@@ -74,6 +75,7 @@ public class GradeItemCellPanel extends Panel {
 					//set original grade, once only
 					super.onInitialize();
 					this.originalGrade = this.getLabel().getDefaultModelObjectAsString();
+					this.addSpecialAttributes();
 				}
 				
 				@Override
@@ -135,6 +137,28 @@ public class GradeItemCellPanel extends Panel {
 					Map<String,Object> extraParameters = attributes.getExtraParameters();
 					extraParameters.put("assignmentId", assignmentId);
 					extraParameters.put("studentUuid", studentUuid);
+
+					AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+						@Override
+						public CharSequence getBeforeSendHandler(Component component) {
+							return "GradebookWicketEventProxy.updateLabel.handleBeforeSend('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, settings);";
+						}
+
+						@Override
+						public CharSequence getSuccessHandler(Component component) {
+							return "GradebookWicketEventProxy.updateLabel.handleSuccess('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, data, textStatus);";
+						}
+
+						@Override
+						public CharSequence getFailureHandler(Component component) {
+							return "GradebookWicketEventProxy.updateLabel.handleFailure('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, errorMessage, textStatus);";
+						}
+						@Override
+						public CharSequence getCompleteHandler(Component component) {
+							return "GradebookWicketEventProxy.updateLabel.handleComplete('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, textStatus);";
+						}
+					};
+					attributes.getAjaxCallListeners().add(myAjaxCallListener);
 				}
 				
 				@Override
@@ -143,16 +167,43 @@ public class GradeItemCellPanel extends Panel {
 					Map<String,Object> extraParameters = attributes.getExtraParameters();
 					extraParameters.put("assignmentId", assignmentId);
 					extraParameters.put("studentUuid", studentUuid);
+
+					AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+						@Override
+						public CharSequence getBeforeSendHandler(Component component) {
+							return "GradebookWicketEventProxy.updateEditor.handleBeforeSend('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, settings);";
+						}
+
+						@Override
+						public CharSequence getSuccessHandler(Component component) {
+							return "GradebookWicketEventProxy.updateEditor.handleSuccess('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, data, textStatus);";
+						}
+
+						@Override
+						public CharSequence getFailureHandler(Component component) {
+							return "GradebookWicketEventProxy.updateEditor.handleFailure('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, errorMessage, textStatus);";
+						}
+						@Override
+						public CharSequence getCompleteHandler(Component component) {
+							return "GradebookWicketEventProxy.updateEditor.handleComplete('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, textStatus);";
+						}
+					};
+					attributes.getAjaxCallListeners().add(myAjaxCallListener);
 				}
 				
 				/* for setting the original grade at construction time */
 				public void setOriginalGrade(String grade) {
 					this.originalGrade = grade;
 				}
-				
-				
+
+				private void addSpecialAttributes() {
+					Component parentCell = getParentCellFor(this);
+					parentCell.add(new AttributeModifier("data-assignmentid", assignmentId));
+					parentCell.add(new AttributeModifier("data-studentuuid", studentUuid));
+					parentCell.add(new AttributeModifier("class", "gb-grade-item-cell"));
+				}
 			};
-			
+
 			gradeCell.setType(String.class);
 			
 			gradeCell.setOutputMarkupId(true);
@@ -175,17 +226,20 @@ public class GradeItemCellPanel extends Panel {
 	}
 	
 	private void markSuccessful(Component gradeCell) {
-		gradeCell.getParent().getParent().add(AttributeModifier.replace("class", "gb-grade-item-header gradeSaveSuccess"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveSuccess"));
 		//TODO attach a timeout here
 	}
 	
 	private void markError(Component gradeCell) {
-		gradeCell.getParent().getParent().add(AttributeModifier.replace("class", "gb-grade-item-header gradeSaveError"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveError"));
 	}
 	
 	private void markWarning(Component gradeCell) {
-		gradeCell.getParent().getParent().add(AttributeModifier.replace("class", "gb-grade-item-header gradeSaveWarning"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveWarning"));
+	}
+
+	private Component getParentCellFor(Component gradeCell) {
+		return gradeCell.getParent().getParent();
 	}
 	
-
 }

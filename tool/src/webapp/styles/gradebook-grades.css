@@ -86,8 +86,8 @@
   right: -5px;
 }
 #gradebookGrades .btn.dropdown-toggle {
-  padding: 0 8px;
-  line-height: 14px;
+  padding: 4px 8px;
+  line-height: 1em;
 }
 #gradebookGrades .btn.dropdown-toggle:hover,
 #gradebookGrades .btn.dropdown-toggle:focus {
@@ -132,19 +132,20 @@
 #gradebookGrades tbody td.gb-cell {
   height: 2.6em;
 }
-#gradebookGrades .gb-item-grade {
+#gradebookGrades .gb-grade-item-cell {
   text-align: center;
   white-space: nowrap;
 }
-#gradebookGrades .gb-item-grade span {
+#gradebookGrades .gb-grade-item-cell span {
   display: block;
 }
-#gradebookGrades .gb-item-grade input {
+#gradebookGrades .gb-grade-item-cell input {
   text-align: right;
   width: 40px;
   line-height: 1em;
+  display: inline;
 }
-#gradebookGrades .gb-item-grade .gb-out-of {
+#gradebookGrades .gb-grade-item-cell .gb-out-of {
   display: inline;
   padding-left: 6px;
   font-size: 0.9em;

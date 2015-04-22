@@ -135,7 +135,7 @@ public class GradebookPage extends BasePage {
 
 				@Override
 				public String getCssClass() {
-					return "gb-grade-item-header";
+					return "gb-grade-item-column-cell";
 				}
             	
             	@Override
