@@ -34,6 +34,7 @@
     <title><h:outputText value="#{deliveryMessages.table_of_contents}" /></title>
     <samigo:script path="/jsf/widget/hideDivision/hideDivision.js" />
     <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
+    <h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
     </head>
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 <!--div class="portletBody"-->
