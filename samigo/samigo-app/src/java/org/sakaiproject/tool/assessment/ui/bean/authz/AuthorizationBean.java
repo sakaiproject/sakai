@@ -366,97 +366,100 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   public boolean getGradeOwnAssessment(HttpServletRequest req, String siteId) {
     return getPrivilege(req, "grade_own_assessment", siteId);
   }
-  
-  public boolean isUserAllowedToPublishAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
-	  // First check to see if the user in *this* course has access to *this* assessment
-	  checkAssessmentInSite(assessmentId, published);
 
-	  if (getPublishAnyAssessment()) {
-		  return true;
-	  }
-	  else if (getPublishOwnAssessment()) {
-		  final String loggedInUser = AgentFacade.getAgentString();
-		  return StringUtils.equals(loggedInUser, assessmentOwnerId);
-	  }
-	  return false;
+  public boolean isUserAllowedToPublishAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    if (getPublishAnyAssessment()) {
+      return true;
+    }
+    else if (getPublishOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
   }
-  
+
   public boolean isUserAllowedToGradeAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
-	  // First check to see if the user in *this* course has access to *this* assessment
-	  checkAssessmentInSite(assessmentId, published);
-	  
-	  // Second check on the realm permissions
-	  if (getGradeAnyAssessment()) {
-		  return true;
-	  }
-	  else if (getGradeOwnAssessment()) {
-		  final String loggedInUser = AgentFacade.getAgentString();
-		  return StringUtils.equals(loggedInUser, assessmentOwnerId);
-	  }
-	  return false;
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    // Second check on the realm permissions
+    if (getGradeAnyAssessment()) {
+      return true;
+    }
+    else if (getGradeOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
   }
-  
+
   public boolean isUserAllowedToEditAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
-	  // First check to see if the user in *this* course has access to *this* assessment
-	  checkAssessmentInSite(assessmentId, published);
-	  
-	  // Second check on the realm permissions
-	  if (getEditAnyAssessment()) {
-		  return true;
-	  }
-	  else if (getEditOwnAssessment()) {
-		  final String loggedInUser = AgentFacade.getAgentString();
-		  return StringUtils.equals(loggedInUser, assessmentOwnerId);
-	  }
-	  return false;
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    // Second check on the realm permissions
+    if (getEditAnyAssessment()) {
+      return true;
+    }
+    else if (getEditOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
   }
-  
+
   public boolean isUserAllowedToDeleteAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
-	  // First check to see if the user in *this* course has access to *this* assessment
-	  checkAssessmentInSite(assessmentId, published);
-	  
-	  // Second check on the realm permissions
-	  if (getDeleteAnyAssessment()) {
-		  return true;
-	  }
-	  else if (getDeleteOwnAssessment()) {
-		  final String loggedInUser = AgentFacade.getAgentString();
-		  return StringUtils.equals(loggedInUser, assessmentOwnerId);
-	  }
-	  return false;
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    // Second check on the realm permissions
+    if (getDeleteAnyAssessment()) {
+      return true;
+    }
+    else if (getDeleteOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
   }
-  
+
   public boolean isUserAllowedToTakeAssessment(final String assessmentId) {
-	  // First check to see if the user in *this* course has access to *this* assessment
-	  checkAssessmentInSite(assessmentId, true);
-	  
-	  // Second check on the realm permissions
-	  return getTakeAssessment();
+    if (!isAssessmentInSite(assessmentId, true)) { 
+      return false;
+    }
+
+    // Second check on the realm permissions
+    return getTakeAssessment();
   }
-  
+
   public boolean isUserAllowedToCreateAssessment() {
-	  return getCreateAssessment();
+    return getCreateAssessment();
   }
 
   // Check whether the assessment belongs to the given site
   public static boolean isAssessmentInSite(final String assessmentId, final String siteId, final boolean published) {
-      // get list of site that this published assessment has been released to
-      List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().getAuthorizationByFunctionAndQualifier(published ? "VIEW_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
+    // get list of site that this published assessment has been released to
+    List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().getAuthorizationByFunctionAndQualifier(published ? "VIEW_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
 
-      for (int i=0; i < l.size(); i++) {
-          String assessmentSiteId = (l.get(i)).getAgentIdString();
-          if (siteId.equals(assessmentSiteId)) {
-              return true;
-          }
+    for (int i=0; i < l.size(); i++) {
+      String assessmentSiteId = (l.get(i)).getAgentIdString();
+      if (siteId.equals(assessmentSiteId)) {
+        return true;
       }
+    }
 
-      return false;
+    return false;
   }
 
-  private void checkAssessmentInSite(final String assessmentId, final boolean published) {
-      if (!isAssessmentInSite(assessmentId, AgentFacade.getCurrentSiteId(), published)) {
-          throw new IllegalArgumentException("Assessment " + assessmentId + " (published=" + published + ") does not belong to site " + AgentFacade.getCurrentSiteId());
-      }
+  public static boolean isAssessmentInSite(final String assessmentId, final boolean published) {
+    return isAssessmentInSite(assessmentId, AgentFacade.getCurrentSiteId(), published);
   }
 
 }
