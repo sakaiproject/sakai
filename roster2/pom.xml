@@ -21,7 +21,7 @@
 	<packaging>war</packaging>
 
     <properties>
-        <poi.version>3.10.1</poi.version>
+        <poi.version>3.11</poi.version>
         <yuicompressor.plugin.version>1.2</yuicompressor.plugin.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
