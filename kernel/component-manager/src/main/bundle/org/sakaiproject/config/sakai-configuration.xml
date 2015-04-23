@@ -65,6 +65,7 @@
 				<value>file:${sakai.home}sakai.properties</value>
 				<value>file:${sakai.home}local.properties</value>
 				<value>file:${sakai.security}security.properties</value>
+				<value>file:${sakai.test}test.properties</value>
 			</list>
 		</property>
 	</bean>
