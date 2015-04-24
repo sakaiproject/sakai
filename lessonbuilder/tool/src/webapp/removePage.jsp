@@ -118,7 +118,7 @@
 		
     EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + simplePage.getPageId(), true));
 
-   out.println("<script>parent.location.replace(parent.location)</script>");
+   out.println("<script>parent.location.replace(\"/portal/site/" + site.getId() + "\")</script>");
 
 %>
 
