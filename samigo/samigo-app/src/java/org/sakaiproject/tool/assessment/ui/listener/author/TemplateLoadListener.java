@@ -39,6 +39,8 @@ import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentFeedback;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EvaluationModel;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentTemplateFacade;
+import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
+import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.TemplateBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
@@ -75,11 +77,11 @@ public class TemplateLoadListener
 
     AssessmentService assessmentService = new AssessmentService();
     AssessmentTemplateFacade template = assessmentService.getAssessmentTemplate(templateId);
-    String author =  (String)template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author");
-    if (author != null && author.length() > 0 && !author.equals(UserDirectoryService.getCurrentUser().getId())) {
-        log.error("User attempted to load template not their own " + author + " " + UserDirectoryService.getCurrentUser().getId());
-        throw new AbortProcessingException("Attempted to load template owned by another author");
-    }
+    String author = template.getCreatedBy();
+    if (!(author != null && author.equals(UserDirectoryService.getCurrentUser().getId())) && !template.getTypeId().equals(TypeIfc.TEMPLATE_SYSTEM_DEFINED)) {
+        log.error("User attempted to load template owned by another author " + author + " " + UserDirectoryService.getCurrentUser().getId());
+        throw new AbortProcessingException("Attempted to load template owned by another author " + author + " " + UserDirectoryService.getCurrentUser().getId());
+     }
 
     loadAssessment(templateBean, templateId);
   }

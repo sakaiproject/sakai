@@ -183,28 +183,24 @@ public class TemplateUpdateListener
       }
       else
       {
-        template =
-          (delegate.getAssessmentTemplate(templateIdString)).getData();
-	if (template == null) {
-	    System.out.println("Can't find template " + templateIdString);
-	    throw new AbortProcessingException("can't find template ");
-	}
+        template = (delegate.getAssessmentTemplate(templateIdString)).getData();
+        if (template == null) {
+          log.info("Can't find template " + templateIdString);
+          throw new AbortProcessingException("Can't find template ");
+         }
       }
 
       template.setTitle(templateBean.getTemplateName());
       
       // ignore any author set by the user
-
       if (!"0".equals(templateIdString)) {
-	  String author =  (String)template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author");
-	  if (author != null && author.length() > 0 &&
-	      !author.equals(UserDirectoryService.getCurrentUser().getId())) {
-	      System.out.println("trying to update template not your own " + author + " " + UserDirectoryService.getCurrentUser().getId());
-	      throw new AbortProcessingException("trying to update template not your own");
-	  }
+        String author =  (String)template.getCreatedBy();
+        if (author == null || !author.equals(UserDirectoryService.getCurrentUser().getId())) {
+          log.info("trying to update template not your own " + author + " " + UserDirectoryService.getCurrentUser().getId());
+          throw new AbortProcessingException("Attempted to update template owned by another author " + author + " " + UserDirectoryService.getCurrentUser().getId());
+        }
       }
-      templateBean.getValueMap().put("author", UserDirectoryService.getCurrentUser().getId());
-	  
+
       template.setDescription(templateBean.getTemplateDescription());
 
       // Assessment Access Control

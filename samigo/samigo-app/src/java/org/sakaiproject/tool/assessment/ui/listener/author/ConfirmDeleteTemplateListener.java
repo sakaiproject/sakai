@@ -46,8 +46,6 @@ public class ConfirmDeleteTemplateListener
   extends TemplateBaseListener
   implements ActionListener
 {
-  //private static Log log = LogFactory.getLog(ConfirmDeleteTemplateListener.class);
-
   public void processAction(ActionEvent ae) throws
     AbortProcessingException
   {
@@ -63,10 +61,9 @@ public class ConfirmDeleteTemplateListener
 
     TemplateBean templateBean = lookupTemplateBean(context);
 
-    String author =  (String)template.getAssessmentMetaDataMap(template.getAssessmentMetaDataSet()).get("author");
-    if (author != null && author.length() > 0 &&
-	!author.equals(UserDirectoryService.getCurrentUser().getId())) {
-	throw new AbortProcessingException("trying to delete template not your own");
+    String author =  (String)template.getCreatedBy();
+    if (author == null || !author.equals(UserDirectoryService.getCurrentUser().getId())) {
+        throw new AbortProcessingException("Attempted to delete template owned by another " + author + " " + UserDirectoryService.getCurrentUser().getId());
     }
 
     templateBean.setIdString(templateId);
