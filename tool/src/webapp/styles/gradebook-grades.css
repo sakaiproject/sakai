@@ -35,7 +35,6 @@
 }
 #gradebookGrades th,
 #gradebookGrades td {
-  padding: 6px;
   min-width: 180px;
 }
 #gradebookGrades th input[type='text'],
@@ -74,16 +73,16 @@
 /* Dropdown Menus */
 #gradebookGrades td .btn-group {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
+  bottom: 1px;
+  right: 1px;
 }
 #gradebookGrades .gb-cell {
   cursor: pointer;
 }
 #gradebookGrades th .btn-group {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
+  bottom: 1px;
+  right: 1px;
 }
 #gradebookGrades .btn.dropdown-toggle {
   padding: 4px 8px;
@@ -151,11 +150,23 @@
   font-size: 0.9em;
   color: #999;
 }
-#gradebookGrades .gb-cell .gb-cell-inner {
+/* as HTML tables don't normally allow position:absolute, innerWrap all cells
+   with a div that provide the block level element to contain an absolutely
+   positioned child node. */
+#gradebookGrades thead th > span,
+#gradebookGrades tbody th > span,
+#gradebookGrades thead th > div,
+#gradebookGrades tbody td > div {
   width: 100%;
   position: relative;
-  height: auto; /* will be overriden by the javascript */
+  padding: 6px;
+  display: block;
 }
+#gradebookGrades thead th > span,
+#gradebookGrades tbody th > span {
+  min-height: 90px;
+}
+
 #gradebookGrades .gb-due-date {
   margin-bottom: 1.2em;
 }
@@ -200,7 +211,7 @@
 }
 #gradebookGrades .gb-grade-item-flags {
   position: absolute;
-  bottom: -8px;
+  bottom: 0;
   left: 0;
 }
 #gradebookGrades .gb-grade-item-flags span {

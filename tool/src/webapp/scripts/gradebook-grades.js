@@ -650,6 +650,10 @@ GradebookSpreadsheet.prototype._cloneCell = function($cell) {
     $(this).data("id", $(this).attr("id")).removeAttr("id");
   });
 
+  // set the width/height
+  $clone.height($cell.outerHeight());
+  $clone.width($cell.outerWidth());
+
   return $clone;
 };
 
