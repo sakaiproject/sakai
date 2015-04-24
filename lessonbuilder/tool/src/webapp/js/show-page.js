@@ -2763,3 +2763,12 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
     }
 }
     
+function printView(url) {
+    var i = url.indexOf("/site/");
+    if (i < 0)
+	return url;
+    var j = url.indexOf("/tool/");
+    if (j < 0)
+	return url;
+    return url.substring(0, i) + url.substring(j);
+}
