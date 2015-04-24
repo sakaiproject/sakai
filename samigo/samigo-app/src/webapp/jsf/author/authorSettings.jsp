@@ -204,7 +204,7 @@
   <!-- *** RELEASED TO *** -->
   <h:panelGroup>
     <h:outputText value="#{assessmentSettingsMessages.released_to} " />
-    <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="showHideReleaseGroups();setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);">
+    <h:selectOneMenu id="releaseTo" value="#{assessmentSettings.firstTargetSelected}" onclick="setBlockDivs();lockdownAnonyGrading(this.value);lockdownGradebook(this.value);" onchange="showHideReleaseGroups();">
       <f:selectItems value="#{assessmentSettings.publishingTargets}" />
     </h:selectOneMenu>
   </h:panelGroup>
