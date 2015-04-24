@@ -212,7 +212,7 @@
 #gradebookGrades .gb-grade-item-flags {
   position: absolute;
   bottom: 0;
-  left: 0;
+  left: 5px;
 }
 #gradebookGrades .gb-grade-item-flags span {
   margin-right: 4px;
@@ -439,4 +439,3 @@ ul.feedbackPanel {
 .gradeSaveWarning {
 	background-color: #fcf8e3 !important;
 }
-	

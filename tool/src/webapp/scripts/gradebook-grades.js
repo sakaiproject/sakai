@@ -388,15 +388,9 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
   $fixedColumns.append($("<tbody>"));
 
-  var colWidths = [];
-  var totalWidth = 0;
-
   // populate the dummy header table
   $headers.each(function(i, origCell) {
     var $th = self._cloneCell($(origCell));
-    colWidths.push($(origCell).find(".gb-cell-inner").outerWidth());
-    $th.find(".gb-cell-inner").width(colWidths[i]);
-    totalWidth += colWidths[i];
     $fixedColumnsHeader.find("tr.gb-clone-row").append($th);
   });
 
@@ -406,7 +400,6 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
     $headers.each(function(i, origTh) {
       var $td = self._cloneCell($($(origRow).find("td").get(i)));
-      $td.find(".gb-cell-inner").width(colWidths[i]);
       $tr.append($td);
     });
 
@@ -812,17 +805,21 @@ var GradebookAbstractCell = {
   setupCell: function($cell) {
     this.$cell = $cell;
     $cell.data("model", this);
-    this.setupAbsolutePositioning();
+// Disable setupAbsolutePositioning as it slows down loading of the page
+// when there's a large dataset.  Replace this with some CSS to achieve
+// the same result.  Will leave the code in here just in case we need it
+// in the near future.
+//  setupAbsolutePositioning()
     this.makeCellTabbable();
   },
-  setupAbsolutePositioning: function() {
-    // as HTML tables don't normally allow position:absolute, innerWrap all cells
-    // with a div that provide the block level element to contain an absolutely
-    // positioned child node.
-    var $wrapDiv = $("<div>").addClass("gb-cell-inner");
-    $wrapDiv.height(this.$cell.height());
-    this.$cell.wrapInner($wrapDiv);
-  },
+//  setupAbsolutePositioning: function() {
+//    // as HTML tables don't normally allow position:absolute, innerWrap all cells
+//    // with a div that provide the block level element to contain an absolutely
+//    // positioned child node.
+//    var $wrapDiv = $("<div>").addClass("gb-cell-inner");
+//    $wrapDiv.height(this.$cell.height());
+//    this.$cell.wrapInner($wrapDiv);
+//  },
   makeCellTabbable: function() {
     var self = this;
     self.$cell.attr("tabindex", 0).
