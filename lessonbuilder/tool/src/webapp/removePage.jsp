@@ -1,6 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
 <%@ page import="org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean" %><%
+%><%@ page import="java.net.URLEncoder" %><%
 %><%@ page import="org.sakaiproject.tool.cover.ToolManager" %><%
 %><%@ page import="org.sakaiproject.user.cover.UserDirectoryService" %><%
 %><%@ page import="org.sakaiproject.user.api.User" %><%
@@ -118,7 +119,7 @@
 		
     EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.remove", "/lessonbuilder/page/" + simplePage.getPageId(), true));
 
-   out.println("<script>parent.location.replace(parent.location)</script>");
+   out.println("<script>parent.location.replace(\"/portal/site/" + URLEncoder.encode(site.getId(), "UTF-8") + "\")</script>");
 
 %>
 
