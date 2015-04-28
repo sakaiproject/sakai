@@ -1319,7 +1319,12 @@ public class RealmsAction extends PagedResourceActionII
 		if (realm != null && user != null)
 		{
 			// Need to grab the role before removing the user from the realm
-			String roleId = realm.getUserRole(user.getId()).getId();
+			// Need to grab the role before removing the user from the realm
+			Role role = realm.getUserRole(user.getId());
+			String roleId = "";
+			if (role != null) {
+				roleId = role.getId();
+			}
 			
 			// clear out this user's settings
 			realm.removeMember(user.getId());
