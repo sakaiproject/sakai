@@ -5,14 +5,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import lombok.Getter;
-
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.MaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
@@ -23,6 +20,7 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
@@ -88,6 +86,20 @@ public class GradebookPage extends BasePage {
         final ListDataProvider<StudentGradeInfo> studentGradeMatrix = new ListDataProvider<StudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
         
+        //add an empty column that we can use as a handle for selecting the row
+        AbstractColumn handleColumn = new AbstractColumn(new Model("")){
+
+			@Override
+			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+				cellItem.add(new EmptyPanel(componentId));
+			}
+			
+			@Override
+			public String getCssClass() {
+				return "gb-row-selector";
+			}
+        };
+        cols.add(handleColumn);
         
         //student name column
         AbstractColumn studentNameColumn = new AbstractColumn(new Model("")) {
@@ -111,14 +123,18 @@ public class GradebookPage extends BasePage {
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
-				cellItem.add(new AttributeModifier("class", "gb-student-cell"));
+			}
+        	
+        	@Override
+			public String getCssClass() {
+				return "gb-student-cell";
 			}
 
         };
         
         cols.add(studentNameColumn);
         
-        // pull from the studentgrades model
+        // course grade column, pull from the studentgrades model
         cols.add(new PropertyColumn(new ResourceModel("column.header.coursegrade"), "courseGrade"));
         
         
@@ -135,7 +151,7 @@ public class GradebookPage extends BasePage {
 
 				@Override
 				public String getCssClass() {
-					return "gb-grade-item-header";
+					return "gb-grade-item-column-cell";
 				}
             	
             	@Override

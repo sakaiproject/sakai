@@ -35,7 +35,6 @@
 }
 #gradebookGrades th,
 #gradebookGrades td {
-  padding: 6px;
   min-width: 180px;
 }
 #gradebookGrades th input[type='text'],
@@ -74,20 +73,20 @@
 /* Dropdown Menus */
 #gradebookGrades td .btn-group {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
+  bottom: 1px;
+  right: 1px;
 }
 #gradebookGrades .gb-cell {
   cursor: pointer;
 }
 #gradebookGrades th .btn-group {
   position: absolute;
-  bottom: -5px;
-  right: -5px;
+  bottom: 1px;
+  right: 1px;
 }
 #gradebookGrades .btn.dropdown-toggle {
-  padding: 0 8px;
-  line-height: 14px;
+  padding: 4px 8px;
+  line-height: 1em;
 }
 #gradebookGrades .btn.dropdown-toggle:hover,
 #gradebookGrades .btn.dropdown-toggle:focus {
@@ -132,29 +131,42 @@
 #gradebookGrades tbody td.gb-cell {
   height: 2.6em;
 }
-#gradebookGrades .gb-item-grade {
+#gradebookGrades .gb-grade-item-cell {
   text-align: center;
   white-space: nowrap;
 }
-#gradebookGrades .gb-item-grade span {
+#gradebookGrades .gb-grade-item-cell span {
   display: block;
 }
-#gradebookGrades .gb-item-grade input {
+#gradebookGrades .gb-grade-item-cell input {
   text-align: right;
   width: 40px;
   line-height: 1em;
+  display: inline;
 }
-#gradebookGrades .gb-item-grade .gb-out-of {
+#gradebookGrades .gb-grade-item-cell .gb-out-of {
   display: inline;
   padding-left: 6px;
   font-size: 0.9em;
   color: #999;
 }
-#gradebookGrades .gb-cell .gb-cell-inner {
+/* as HTML tables don't normally allow position:absolute, innerWrap all cells
+   with a div that provide the block level element to contain an absolutely
+   positioned child node. */
+#gradebookGrades thead th > span,
+#gradebookGrades tbody th > span,
+#gradebookGrades thead th > div,
+#gradebookGrades tbody td > div {
   width: 100%;
   position: relative;
-  height: auto; /* will be overriden by the javascript */
+  padding: 6px;
+  display: block;
 }
+#gradebookGrades thead th > span,
+#gradebookGrades tbody th > span {
+  min-height: 90px;
+}
+
 #gradebookGrades .gb-due-date {
   margin-bottom: 1.2em;
 }
@@ -199,8 +211,8 @@
 }
 #gradebookGrades .gb-grade-item-flags {
   position: absolute;
-  bottom: -8px;
-  left: 0;
+  bottom: 0;
+  left: 5px;
 }
 #gradebookGrades .gb-grade-item-flags span {
   margin-right: 4px;
@@ -427,4 +439,3 @@ ul.feedbackPanel {
 .gradeSaveWarning {
 	background-color: #fcf8e3 !important;
 }
-	
