@@ -123,14 +123,18 @@ public class GradebookPage extends BasePage {
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
-				cellItem.add(new AttributeModifier("class", "gb-student-cell"));
+			}
+        	
+        	@Override
+			public String getCssClass() {
+				return "gb-student-cell";
 			}
 
         };
         
         cols.add(studentNameColumn);
         
-        // pull from the studentgrades model
+        // course grade column, pull from the studentgrades model
         cols.add(new PropertyColumn(new ResourceModel("column.header.coursegrade"), "courseGrade"));
         
         
