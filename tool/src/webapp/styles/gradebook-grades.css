@@ -176,6 +176,7 @@
   min-width: 14px;
   background-color: #EEE;
   cursor: pointer;
+  vertical-align: middle;
 }
 #gradebookGrades .gb-row-selector:before {
   font-family: 'gradebook-icons';
@@ -183,6 +184,7 @@
   color: #E0E0E0;
   margin-left: 4px;
   font-size: 8px;
+  text-shadow: none;
 }
 #gradebookGrades .gb-row-selector:hover:before {
   color: #FFF;
@@ -193,6 +195,10 @@
 }
 #gradebookGrades tbody .gb-highlighted-row {
     outline: 1px solid #3698DB;
+}
+#gradebookGrades .gb-row-selector div,
+#gradebookGrades .gb-row-selector span {
+  display: none;
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,

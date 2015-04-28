@@ -20,12 +20,12 @@ function GradebookSpreadsheet($spreadsheet) {
 
   // set it all up
   this.setupGradeItemCellModels();
-  this.addRowSelector();
   this.setupKeyboadNavigation();
   this.setupFixedColumns();
   this.setupFixedTableHeader();
   this.setupColumnDragAndDrop();
   this.setupToolbar();
+  this.setupRowSelector();
 
   this._refreshColumnOrder();
 
@@ -817,8 +817,7 @@ GradebookSpreadsheet.prototype.highlightRow = function($row) {
 };
 
 
-GradebookSpreadsheet.prototype.addRowSelector = function() {
-  this.$table.find("tr").prepend($("<td>").addClass("gb-row-selector"));
+GradebookSpreadsheet.prototype.setupRowSelector = function() {
   this.$table.on("click", '.gb-row-selector', function() {
     $(this).next().focus();
   });
