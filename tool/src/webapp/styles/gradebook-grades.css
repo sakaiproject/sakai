@@ -98,8 +98,8 @@
   min-height: 40px;
 }
 /* Distinguish Fixed Columns */
-#gradebookGrades table thead tr > th:nth-child(2),
-#gradebookGrades table tbody tr > td:nth-child(2) {
+#gradebookGrades.initialized table thead tr > th:nth-child(3),
+#gradebookGrades.initialized table tbody tr > td:nth-child(3) {
   border-right: 2px solid #AAA;
 }
 /* Categories */
@@ -108,10 +108,10 @@
   line-height: 16px;
   font-size: 16px;
 }
-#gradebookGrades table tr.gb-categories-row > td:nth-child(1) {
+#gradebookGrades.initialized table tr.gb-categories-row > td:nth-child(1) {
   border-right: 2px solid #AAA;
 }
-#gradebookGrades table tr.gb-categories-row > td:nth-child(2) {
+#gradebookGrades.initialized table tr.gb-categories-row > td:nth-child(3) {
   border-right: 1px solid #DDD;
 }
 #gradebookGrades .gb-categories-row td {
@@ -169,6 +169,30 @@
 
 #gradebookGrades .gb-due-date {
   margin-bottom: 1.2em;
+}
+/* Row selector/highlights */
+#gradebookGrades .gb-row-selector {
+  width: 14px;
+  min-width: 14px;
+  background-color: #EEE;
+  cursor: pointer;
+}
+#gradebookGrades .gb-row-selector:before {
+  font-family: 'gradebook-icons';
+  content: '\f054';
+  color: #E0E0E0;
+  margin-left: 4px;
+  font-size: 8px;
+}
+#gradebookGrades .gb-row-selector:hover:before {
+  color: #FFF;
+}
+#gradebookGrades .gb-highlighted-row .gb-row-selector {
+  background-color: #3698DB;
+  border-color: #3698DB;
+}
+#gradebookGrades tbody .gb-highlighted-row {
+    outline: 1px solid #3698DB;
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
