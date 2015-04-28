@@ -91,15 +91,18 @@ public class GradebookNgBusinessService {
 	
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	
-	private Cache<String,Map<String,GbEditingNotification>> cache;
+	private Cache cache;
+	private static final String NOTIFICATIONS_CACHE_NAME = "org.sakaiproject.gradebookng.cache.notifications";
 	
 	@SuppressWarnings("unchecked")
 	public void init() {
 		
 		//max entries unbounded, no TTL eviction (TODO set this to 10 seconds?), TTI 10 seconds
-		SimpleConfiguration<String,Map<String,GbEditingNotification>> config = new SimpleConfiguration<String,Map<String,GbEditingNotification>>(-1,0,10);
-		
-		cache = memoryService.createCache("org.sakaiproject.gradebookng.cache.notifications", config);
+		//TODO this should be configured in sakai.properties so we dont have redundant config code here
+		cache = memoryService.getCache(NOTIFICATIONS_CACHE_NAME);
+		if(cache == null) {
+			cache = memoryService.createCache("org.sakaiproject.gradebookng.cache.notifications", null);
+		}
 	}
 	
 	
@@ -292,6 +295,9 @@ public class GradebookNgBusinessService {
 		if(!StringUtils.equals(storedGrade, oldGrade)) {	
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
+		
+		//about to edit so push a notification
+		pushEditingNotification(gradebook.getUid());
 		
 		//over limit check, get max points for assignment and check if the newGrade is over limit
 		//we still save it but we return the warning
@@ -548,7 +554,7 @@ public class GradebookNgBusinessService {
     	 
     	 User currentUser = this.getCurrentUser();
     	 
-    	 Map<String,GbEditingNotification> notifications = cache.get(gradebookUid);
+    	 Map<String,GbEditingNotification> notifications = (Map<String,GbEditingNotification>) cache.get(gradebookUid);
     	 GbEditingNotification n;
     	 
     	 if(notifications == null) {
