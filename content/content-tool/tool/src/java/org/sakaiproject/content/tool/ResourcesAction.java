@@ -8328,21 +8328,28 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.noperm"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("PermissionException " + e);
 		}
 		catch (IdUnusedException e)
 		{
 			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unknown"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("IdUnusedException ", e);
 		}
 		catch (TypeException e)
 		{
 			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unknown"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("TypeException ", e);
 		}
 		catch (InUseException e)
 		{
 			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unknown"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("InUseException ", e);
 		}
 		catch (OverQuotaException e)
