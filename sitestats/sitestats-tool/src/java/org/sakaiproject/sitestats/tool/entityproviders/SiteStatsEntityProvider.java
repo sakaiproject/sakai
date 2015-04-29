@@ -97,7 +97,7 @@ public class SiteStatsEntityProvider extends AbstractEntityProvider implements A
 
         List<StrippedReportDef> stripped = new ArrayList<StrippedReportDef>();
 
-        for (ReportDef rd : reportManager.getReportDefinitions(siteId, false, false)) {
+        for (ReportDef rd : reportManager.getReportDefinitions(siteId, true, false)) {
             stripped.add(new StrippedReportDef(rd));
         }
 
