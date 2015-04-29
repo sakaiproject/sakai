@@ -9,7 +9,8 @@
 
 	<bean
 		id="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
-		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService">
+		class="org.sakaiproject.gradebookng.business.GradebookNgBusinessService"
+		init-method="init">
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="userDirectoryService"
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
@@ -18,8 +19,8 @@
 			ref="org_sakaiproject_service_gradebook_GradebookService" />
 		<property name="courseManagementService"
 			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
-		<!-- <property name="xmlMarshaller" ref="org.sakaiproject.gradebookng.business.XmlMarshaller" 
-			/> -->
+		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
+			
 	</bean>
 
 	<bean

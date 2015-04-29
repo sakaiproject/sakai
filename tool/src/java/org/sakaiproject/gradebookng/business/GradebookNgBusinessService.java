@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -29,11 +30,15 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
+import org.sakaiproject.gradebookng.business.model.GbEditingNotification;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbGroupType;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
@@ -81,7 +86,25 @@ public class GradebookNgBusinessService {
 	@Setter
 	private CourseManagementService courseManagementService;
 	
+	@Setter
+	private MemoryService memoryService;
+	
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
+	
+	private Cache cache;
+	private static final String NOTIFICATIONS_CACHE_NAME = "org.sakaiproject.gradebookng.cache.notifications";
+	
+	@SuppressWarnings("unchecked")
+	public void init() {
+		
+		//max entries unbounded, no TTL eviction (TODO set this to 10 seconds?), TTI 10 seconds
+		//TODO this should be configured in sakai.properties so we dont have redundant config code here
+		cache = memoryService.getCache(NOTIFICATIONS_CACHE_NAME);
+		if(cache == null) {
+			cache = memoryService.createCache("org.sakaiproject.gradebookng.cache.notifications", null);
+		}
+	}
+	
 	
 	/**
 	 * Get a list of all users in the current site that can have grades
@@ -273,6 +296,9 @@ public class GradebookNgBusinessService {
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
 		
+		//about to edit so push a notification
+		pushEditingNotification(gradebook.getUid());
+		
 		//over limit check, get max points for assignment and check if the newGrade is over limit
 		//we still save it but we return the warning
 		Assignment assignment = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
@@ -293,6 +319,9 @@ public class GradebookNgBusinessService {
 			if(rval == null) {
 				//if we don't have some other warning, it was all OK
 				rval = GradeSaveResponse.OK;
+				
+				//push an event into the cache
+				
 			}
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
@@ -463,11 +492,11 @@ public class GradebookNgBusinessService {
     }
 	
 	/**
-	 * Helper to get user uuid
+	 * Helper to get user
 	 * @return
 	 */
-	public String getCurrentUserUuid() {
-		return this.userDirectoryService.getCurrentUser().getId();
+	public User getCurrentUser() {
+		return this.userDirectoryService.getCurrentUser();
 	}
 
     /**
@@ -518,5 +547,65 @@ public class GradebookNgBusinessService {
  	    }
      }
     
+     /**
+      * Push a an notification into the cache that someone is editing this gradebook.
+      * there could be multiple people editing this gradebook so we store a map of events keyed on the user performing the action
+      * 
+      * @param gradebookUid
+      */
+     private void pushEditingNotification(String gradebookUid) {
+    	 
+    	 //TODO do we need to tie into the event system so other edits also affect this?
+    	 
+    	 User currentUser = this.getCurrentUser();
+    	 
+    	 Map<String,GbEditingNotification> notifications = (Map<String,GbEditingNotification>) cache.get(gradebookUid);
+    	 GbEditingNotification n;
+    	 
+    	 if(notifications == null) {
+    		 notifications = new LinkedHashMap<>();  
+    		 
+    		 //create a new notification for the current user
+    		 n = new GbEditingNotification(this.getCurrentUser(), gradebookUid);
+    		 
+    	 } else {
+    		 
+    		 //check if we have one for this user
+    		 n = notifications.get(currentUser.getEid());
+
+    		 //if not, create, otherwise update timestamp
+    		 if(n == null) {
+        		 n = new GbEditingNotification(this.getCurrentUser(), gradebookUid);
+    		 } else {
+    			 n.setLastUpdated(new Date());
+    		 }
+    		 
+    	 }
+    	 
+    	 //push the new/updated notification into the map
+    	 notifications.put(currentUser.getEid(), n);
+    	 
+    	 //update the map in the cache
+    	 cache.put(gradebookUid, notifications);
+    	 
+     }
+     
+     /**
+      * Get a list of editing notifications for this gradebook. Excludes any notifications for the current user
+      * 
+      * @param gradebookUid the gradebook that we are interested in
+      * @return
+      */
+     public Map<String,GbEditingNotification> getEditingNotifications(String gradebookUid) {
+		
+    	 String currentUserId = this.getCurrentUser().getEid();
+    	 
+    	 Map<String,GbEditingNotification> notifications = (Map<String,GbEditingNotification>) cache.get(gradebookUid);
+    	 if(notifications != null) {
+    		notifications.remove(currentUserId);
+    	 }
+    	 
+    	 return notifications;
+     }
     
 }
