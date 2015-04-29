@@ -265,6 +265,7 @@ simplePageBean.peerEvalAllowSelfGrade
     <property name="contentHostingService"><ref bean="org.sakaiproject.content.api.ContentHostingService"/></property>
     <property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
     <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+    <property name="contentFilterService"><ref bean="org.sakaiproject.content.api.ContentFilterService"/></property>
 
     <property name="messageLocator" ref="messageLocator"/>
     <property name="toolManager" ref="org.sakaiproject.tool.api.ActiveToolManager" />
