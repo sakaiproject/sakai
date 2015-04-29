@@ -66,6 +66,13 @@ public interface Placement
 	String getTitle();
 
 	/**
+	 * Access the TitleCustom property.
+	 * 
+	 * @return The TitleCustom property.
+	 */
+	boolean isTitleCustom();
+	
+	/**
 	 * Access the tool placed with this placement.
 	 * 
 	 * @return The tool placed with this placement.
@@ -86,6 +93,14 @@ public interface Placement
 	 *        The tool placement title.
 	 */
 	void setTitle(String title);
+	
+	/**
+	 * Set the titleCustom property for this tool placement. This value override the page titleCustom property.
+	 * 
+	 * @param title
+	 *        The tool placement title.
+	 */
+	void setTitleCustom(boolean titleCustom);
 
 	/**
 	 * Set the tool for this tool placement.
