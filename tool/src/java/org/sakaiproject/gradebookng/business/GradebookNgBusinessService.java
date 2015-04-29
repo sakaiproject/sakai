@@ -547,10 +547,15 @@ public class GradebookNgBusinessService {
  	    }
      }
     
+     /**
+      * Push a an notification into the cache that someone is editing this gradebook.
+      * there could be multiple people editing this gradebook so we store a map of events keyed on the user performing the action
+      * 
+      * @param gradebookUid
+      */
      private void pushEditingNotification(String gradebookUid) {
-    	 //get the current event stack for this site
-    	 //There could be multiple people editing this gradebook so we store a map of events
-    	 //keyed on the user performing the action
+    	 
+    	 //TODO do we need to tie into the event system so other edits also affect this?
     	 
     	 User currentUser = this.getCurrentUser();
     	 
@@ -564,9 +569,16 @@ public class GradebookNgBusinessService {
     		 n = new GbEditingNotification(this.getCurrentUser(), gradebookUid);
     		 
     	 } else {
-    		 //if we already have a notification for the current user, update the timestamp
+    		 
+    		 //check if we have one for this user
     		 n = notifications.get(currentUser.getEid());
-    		 n.setLastUpdated(new Date());
+
+    		 //if not, create, otherwise update timestamp
+    		 if(n == null) {
+        		 n = new GbEditingNotification(this.getCurrentUser(), gradebookUid);
+    		 } else {
+    			 n.setLastUpdated(new Date());
+    		 }
     		 
     	 }
     	 
@@ -576,6 +588,24 @@ public class GradebookNgBusinessService {
     	 //update the map in the cache
     	 cache.put(gradebookUid, notifications);
     	 
+     }
+     
+     /**
+      * Get a list of editing notifications for this gradebook. Excludes any notifications for the current user
+      * 
+      * @param gradebookUid the gradebook that we are interested in
+      * @return
+      */
+     public Map<String,GbEditingNotification> getEditingNotifications(String gradebookUid) {
+		
+    	 String currentUserId = this.getCurrentUser().getEid();
+    	 
+    	 Map<String,GbEditingNotification> notifications = (Map<String,GbEditingNotification>) cache.get(gradebookUid);
+    	 if(notifications != null) {
+    		notifications.remove(currentUserId);
+    	 }
+    	 
+    	 return notifications;
      }
     
 }

@@ -30,6 +30,7 @@ public class GbEditingNotification implements Serializable {
 	/** 
 	 * The gradebook uid is here for redundancy. 
 	 * The data is already stored in the cache against the gradebook uid.
+	 * TODO I think we might remove this field
 	 */
 	@Getter @Setter
 	private String gradebookUid;

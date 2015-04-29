@@ -25,6 +25,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.Permissions;
+import org.sakaiproject.gradebookng.business.model.GbEditingNotification;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -126,10 +127,39 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-				
-		
 		
 	}
+	
+	/**
+	 * Endpoint for getting the flag if another user is editing the gradebook 
+	 * This is designed to be polled on a regular basis so must be lightweight
+	 * @param view
+	 * @return
+	 */
+	@EntityCustomAction(action = "isotheruserediting", viewKey = EntityView.VIEW_LIST)
+	public Map<String, GbEditingNotification> isAnotherUserEditing(EntityView view) {
+		
+		// get siteId
+		String siteId = view.getPathSegment(2);
+		
+		// check siteId supplied
+		if (StringUtils.isBlank(siteId)) {
+			throw new IllegalArgumentException(
+					"Site ID must be set in order to access GBNG data.");
+		}
+		checkValidSite(siteId);
+
+		// check instructor
+		checkInstructor(siteId);
+		
+		// get notification list
+		// NOTE we assume the gradebook id and siteid are equivalent, which they are
+		// unless they have two gradebooks in a site? Is that even possible?
+		return this.businessService.getEditingNotifications(siteId);
+	}
+	
+	
+	
 	/**
 	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not.
 	 * We don't currently need the value that this produces so we don't return it.
