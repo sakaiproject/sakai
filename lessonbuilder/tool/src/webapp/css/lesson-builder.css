@@ -4,37 +4,44 @@
     A set of useful LESS mixins
     More info at: http://lesselements.com
   ---------------------------------------------------*/
+#cluetip {
+  z-index: 10000 !important;
+}
 .portletBody .lb-button {
-  font-size: 90%;
+  font-size: 80%;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: inline-block;
   text-align: center;
-  padding-left: 15px;
-  padding-right: 15px;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
   -webkit-border-radius: 15px;
   -moz-border-radius: 15px;
   border-radius: 15px;
 }
 .portletBody .lb-button-default {
-  color: #058abc;
-  border: 1px solid #89b859;
-  background-color: #89b859;
-  background: #89b859;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #89b859), color-stop(1, #ffffff));
-  background: -ms-linear-gradient(bottom, #89b859, #ffffff);
-  background: -moz-linear-gradient(center bottom, #89b859 0%, #ffffff 100%);
-  background: -o-linear-gradient(#ffffff, #89b859);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#89b859', GradientType=0);
+  color: #333333;
+  border: 1px solid #dddddd;
+  background-color: #cccccc;
+  background: #cccccc;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eeeeee), color-stop(1, #ffffff));
+  background: -ms-linear-gradient(bottom, #eeeeee, #ffffff);
+  background: -moz-linear-gradient(center bottom, #eeeeee 0%, #ffffff 100%);
+  background: -o-linear-gradient(#ffffff, #eeeeee);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
 }
 .portletBody .lb-button-default:hover,
 .portletBody .lb-button-default:active {
-  color: #046184;
-  border: 1px solid #639531;
-  background-color: #89b859;
-  background: #89b859;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #ffffff), color-stop(1, #89b859));
-  background: -ms-linear-gradient(bottom, #ffffff, #89b859);
-  background: -moz-linear-gradient(center bottom, #ffffff 0%, #89b859 100%);
-  background: -o-linear-gradient(#89b859, #ffffff);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#89b859', endColorstr='#ffffff', GradientType=0);
+  color: #333333;
+  border: 1px solid #cccccc;
+  background-color: #bbbbbb;
+  background: #bbbbbb;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #dddddd), color-stop(1, #eeeeee));
+  background: -ms-linear-gradient(bottom, #dddddd, #eeeeee);
+  background: -moz-linear-gradient(center bottom, #dddddd 0%, #eeeeee 100%);
+  background: -o-linear-gradient(#eeeeee, #dddddd);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#dddddd', GradientType=0);
 }
 .portletBody .lb-button-primary {
   color: #ffffff;
@@ -59,24 +66,129 @@
   background: -o-linear-gradient(none, none);
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='none', endColorstr='none', GradientType=0);
 }
+.portletBody .lb-button-toolbar {
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  color: #333333;
+  border: 1px solid #dddddd;
+  background-color: #cccccc;
+  background: #cccccc;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eeeeee), color-stop(1, #ffffff));
+  background: -ms-linear-gradient(bottom, #eeeeee, #ffffff);
+  background: -moz-linear-gradient(center bottom, #eeeeee 0%, #ffffff 100%);
+  background: -o-linear-gradient(#ffffff, #eeeeee);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
+}
+.portletBody .lb-button-toolbar:hover,
+.portletBody .lb-button-toolbar:active {
+  color: #333333;
+  border: 1px solid #cccccc;
+  background-color: #bbbbbb;
+  background: #bbbbbb;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #dddddd), color-stop(1, #eeeeee));
+  background: -ms-linear-gradient(bottom, #dddddd, #eeeeee);
+  background: -moz-linear-gradient(center bottom, #dddddd 0%, #eeeeee 100%);
+  background: -o-linear-gradient(#eeeeee, #dddddd);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#dddddd', GradientType=0);
+}
 .portletBody .portletTitle {
+  width: 100%;
   height: 50px;
+  padding-bottom: 3px;
+  margin-top: 12px;
+  clear: both;
+  float: left;
 }
 .portletBody .portletTitle .title {
-  margin-top: 6px;
+  float: left;
 }
 .portletBody .portletTitle .title h2 {
+  margin: 0;
+  padding: 0;
   color: #058abc;
   font-size: 150%;
   font-weight: bold;
+  display: inline;
 }
-.portletBody .action {
-  margin-top: 12px;
+.portletBody .portletTitle .title h2.siteTitle {
+  color: #058abc;
 }
-.portletBody .action a {
-  margin-right: 10px;
+.portletBody .portletTitle .title a {
+  text-decoration: none;
 }
-.portletBody .action .gradingarea {
+.portletBody .portletTitle .title a.reload {
+  background: url(../images/reload.png) center left no-repeat;
+  text-decoration: none !important;
+  border: 1px solid #ffffff;
+  height: 1.5em;
+  outline: none;
+}
+.portletBody .portletTitle .title a.reload:hover,
+.portletBody .portletTitle .title a.reload:focus {
+  background: url(../images/reload_h.png) center left no-repeat;
+}
+.portletBody .portletTitle .title a:focus {
+  outline: black dotted thin;
+}
+.portletBody .portletTitle .title img {
+  margin: 0;
+  vertical-align: text-bottom;
+  width: 18px;
+  border: none;
+  height: 18px;
+}
+.portletBody .portletTitle .action {
+  float: right;
+}
+.portletBody .portletTitle .action a#jsr-edit {
+  padding: 2px;
+  background: url(../images/page_edit.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a#jsr-edit:hover {
+  background: url(../images/page_edit.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a.help {
+  background: url(../images/help.gif) center right no-repeat;
+  text-align: left;
+  padding: 0;
+  text-decoration: none !important;
+  width: 1em;
+  height: 1.5em;
+  outline: none;
+}
+.portletBody .portletTitle .action a.help:hover {
+  background: url(../images/help_h.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a.help:focus img {
+  background: url(../images/help_h.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a.tool-directurl {
+  padding: 2px;
+  background: url(/library/image/silk/link.png) center right no-repeat;
+  text-decoration: none;
+}
+.portletBody .portletTitle .action a.tool-directurl:hover {
+  background: url(/library/image/silk/link_go.png) center right no-repeat;
+}
+.portletBody .portletTitle .action a.Mrphs-toolTitleNav__link--directurl {
+  background: none;
+  display: inline;
+}
+.portletBody .portletTitle .action a.Mrphs-toolTitleNav__link--directurl:hover {
+  background: none;
+}
+.portletBody .portletTitle .action a:focus {
+  outline: black dotted thin;
+}
+.portletBody .portletTitle .action img {
+  margin: 0;
+  vertical-align: text-bottom;
+  width: 18px;
+  border: none;
+  height: 18px;
+}
+.portletBody .portletTitle .action .gradingarea {
   background-color: #66bdde;
   margin-left: 1em;
   padding: 1px 5px;
@@ -86,42 +198,63 @@
   -moz-border-radius: 3px;
   border-radius: 3px;
 }
-.portletBody .action .gradingarea .grading-nextprev {
+.portletBody .portletTitle .action .gradingarea .grading-nextprev {
   margin-right: 2px;
 }
-.portletBody .action .gradingarea .statusImg {
+.portletBody .portletTitle .action .gradingarea .statusImg {
   height: 16px;
   width: 16px;
 }
-.portletBody .action .gradingarea .comments-points {
+.portletBody .portletTitle .action .gradingarea .comments-points {
   vertical-align: 13%;
 }
-.portletBody .action .gradingarea .uuidBox,
-.portletBody .action .gradingarea .pointsSpan {
+.portletBody .portletTitle .action .gradingarea .uuidBox,
+.portletBody .portletTitle .action .gradingarea .pointsSpan {
   display: none;
 }
-.portletBody .action .gradingarea .student-points-box {
+.portletBody .portletTitle .action .gradingarea .student-points-box {
   font-size: 100%;
 }
-.portletBody .action .gradingarea .usebutton {
+.portletBody .portletTitle .action .gradingarea .usebutton {
   background: none;
   width: auto;
   *vertical-align: 13%;
   margin-right: 0.5em;
 }
-.portletBody .action .nextprev {
+.portletBody .portletTitle .action .nextprev {
   width: auto !important;
 }
-.portletBody .action .nextprev a {
+.portletBody .portletTitle .action .nextprev a {
   width: auto !important;
 }
 .portletBody .lb-toolbar {
+  width: 100%;
+  height: 60px;
+  padding-bottom: 3px;
   clear: both;
-  z-index: 100000;
+  float: left;
 }
-.portletBody .lb-toolbar #toolbar {
-  padding: 2px;
+.portletBody .lb-toolbar .toolbar-right {
+  float: right;
+}
+.portletBody .lb-toolbar .toolbar-left {
+  float: left;
+}
+.portletBody .lb-toolbar .toolbar-item {
+  display: inline-block;
+  height: 55px;
+  vertical-align: top;
+}
+.portletBody .lb-toolbar .toolbar-item .lb-button .toolbar-icon-img {
+  position: relative;
+  top: 3px;
+}
+.portletBody .lb-toolbar .toolbar-item .toolbar-label {
   margin: 0;
+  padding: 0;
+  font-size: 60%;
+  text-align: center;
+  font-weight: bold;
 }
 .portletBody .lb-alerts .lb-alert .lb-alert-highlight {
   margin-top: 20px;
@@ -130,4 +263,57 @@
 .portletBody .lb-alerts .lb-alert .lb-alert-highlight .lb-alert-icon {
   float: left;
   margin-right: 0.3em;
+}
+.portletBody .lb-dropdown ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  position: relative;
+  float: left;
+}
+.portletBody .lb-dropdown ul li {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  float: left;
+}
+.portletBody .lb-dropdown ul li:hover {
+  background: #f6f6f6;
+}
+.portletBody .lb-dropdown ul li:hover > ul {
+  display: block;
+}
+.portletBody .lb-dropdown ul a {
+  display: block;
+  color: #333;
+  text-decoration: none;
+  font-size: 12px;
+}
+.portletBody .lb-dropdown ul ul {
+  top: 100%;
+  left: 0;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  display: none;
+  position: absolute;
+  z-index: 1;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: -2px 6px 8px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: -2px 6px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: -2px 6px 8px rgba(0, 0, 0, 0.2);
+}
+.portletBody .lb-dropdown ul ul li {
+  float: none;
+  white-space: nowrap;
+}
+.portletBody .lb-dropdown ul ul a {
+  line-height: 120%;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+}
+.portletBody .lb-dropdown ul ul a:hover {
+  border-bottom: 1px solid #1999cc;
 }

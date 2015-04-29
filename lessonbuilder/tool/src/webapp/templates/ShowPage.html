@@ -105,6 +105,7 @@
             </div>
         </div>
 
+        <!-- Refresh Alert -->
         <div rsf:id="refreshAlert" class="ui-widget lb-alert">
             <div class="ui-state-highlight ui-corner-all lb-alert-highlight">
                 <p><span class="ui-icon ui-icon-info lb-alert-icon"></span>
@@ -129,7 +130,6 @@
                 <a href="#" rsf:id="resetbutton" class="reload">
                     <img rsf:id="resetimage" src="/library/image/transparent.gif"/>
                 </a>
-
                 <h2>
                     <span rsf:id="pagetitle"></span><a class="portlet title-tools title reset Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" rsf:id="pagetitlelink"></a>
                 </h2>
@@ -138,19 +138,9 @@
                 <a class="lb-button lb-button-primary" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
                 <a class="lb-button lb-button-primary" href="#" rsf:id="helpbutton" target="_blank">Help<span rsf:id="helpnewwindow" class="offscreen"></span></a>
                 <a class="lb-button lb-button-primary" href="#" rsf:id="print-view" id="print-view" onclick="window.open(window.location.href);return false" role="note"></a>
-                <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl"></a>
-                <div rsf:id="directurl-div"
-                     class="portlet title-tools direct-url-wrap Mrphs-directUrl Mrphs-directUrl__dropDown">
-                    <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/>
-                    <span rsf:id="directurl-shorten">Short URL</span>
-                    <textarea rsf:id="directurl-textarea" class="portlet title-tools"></textarea>
-                </div>
-
                 <span rsf:id="gradingSpan" class="gradingarea">
                     <a href="#" rsf:id="gradingBack" class="usebutton grading-nextprev">&#60;</a>
-
                     <img class="statusImg" src="$context/images/no-status.png" id="statusImg" alt=""></img>
-
                     <span class="comments-points" rsf:id="msg=simplepage.comments-points"></span>
                     <span class="uuidBox" rsf:id="commentsUUID"></span>
                     <span class="pointsSpan" rsf:id="commentPoints"></span>
@@ -163,173 +153,155 @@
                     <a href="#" rsf:id="prev" class="nextprev">next</a>
                     <a href="#" rsf:id="next" class="nextprev">next</a>
                 </span>
-
                 <a href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help">
                     <img rsf:id="helpimage2" src="/library/image/transparent.gif"/>
                     <span rsf:id="helpnewwindow2" class="offscreen"></span> </a>
             </div>
-            <div style="clear:both"></div>
         </div>
     </div>
 
+    <div rsf:id="tool-bar:" class="lb-toolbar" id="toolbar" role="toolbar" aria-labelledby="tool-bar::toolbar-label">
+        <div class="toolbar-left">
+            <!-- Add Text Button -->
+            <div class="toolbar-item"> 
+                <a href="#" class="lb-button lb-button-toolbar" rsf:id="add-text"> 
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/new-text.png"/> 
+                </a>
+                <p class="toolbar-label">TEXT</p> 
+            </div>
+              
+            <!-- Direct URL Button -->
+            <div class="toolbar-item"> 
+                <a href="#" class="lb-button lb-button-toolbar tool-directurl" rsf:id="directurl"> 
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/link.png"/> 
+                </a>
+                <p class="toolbar-label">LINK</p> 
+            </div>
+            <!-- URL container --> 
+            <div rsf:id="directurl-div" class="portlet title-tools direct-url-wrap Mrphs-directUrl Mrphs-directUrl__dropDown"> 
+                <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/> 
+                <span rsf:id="directurl-shorten">Short URL</span> 
+                <textarea rsf:id="directurl-textarea"class="portlet title-tools"></textarea> 
+            </div>
 
-    <div rsf:id="tool-bar:" class="navIntraTool lb-toolbar" role="toolbar" aria-labelledby="tool-bar::toolbar-label">
-        <h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
+            <!-- Add Subpage Button -->
+            <div class="toolbar-item"> 
+                    <a href="#" class="lb-button lb-button-toolbar" rsf:id="add-multimedia"> 
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/embed.png"/> 
+                </a>  
+                <p class="toolbar-label">SUBPAGE</p> 
+            </div>
+              
+            <!-- New Embed Button -->
+            <div class="toolbar-item"> 
+                <a href="#" class="lb-button lb-button-toolbar subpage-link" rsf:id="subpage-link"> 
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/new-subpage.png"/> 
+                </a>
+                <p class="toolbar-label">EMBED</p> 
+            </div>
 
-        <ul id="toolbar">
+            <!-- Add More dropdown --> 
+            <div class="toolbar-item lb-dropdown"> 
+                <ul>
+                    <li>
+                        <a href="#" class="lb-button lb-button-toolbar"> 
+                            <span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
+                            <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/down.png"/> 
+                        </a>
+                        <ul>
+                            <li>
+                                <a role="menuitem" href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a>
+                            </li>
+                            <li rsf:id="assignment-li">
+                                <a role="menuitem" href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
+                            </li>
+                            <li rsf:id="quiz-li">
+                                <a role="menuitem" href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a>
+                            </li>
+                            <li rsf:id="forum-li">
+                                <a role="menuitem" class="add-forum-link" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
+                            </li>
+                            <li rsf:id="question-li">
+                                <a role="menuitem" href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
+                            </li>
+                            <li rsf:id="student-li">
+                                <a href="#" role="menuitem" rsf:id="add-comments"><span rsf:id="msg.simplepage.comments"></span></a>
+                            </li>
+                            <li rsf:id="studentcontent-li">
+                                <a href="#" role="menuitem" rsf:id="add-content"><span rsf:id="msg.simplepage.add-student-content"></span></a>
+                            </li>
+                            <li rsf:id="addwebsite-li">
+                                <a href="#" role="menuitem" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a>
+                            </li>
+                            <li rsf:id="blti-tool:">
+                                <a href="#" role="menuitem" rsf:id="add-blti-tool"><span rsf:id="msg.simplepage.blti"></span></a>
+                            </li>
+                            <li rsf:id="blti-li">
+                                <a href="#" role="menuitem" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
 
-            <div rsf:id="msg=simplepage.subpage-descrip"></div>
-
-            <li class="dropdown" id="dropdownc" style="z-index:900">
-                <span>
-                    <a href="#" onclick="return false;">
-                        <span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
-                        <img rsf:id="icondropc" src="/library/image/sakai/icon-dropdn.gif" style="height:15px"/>
-                    </a>
-                </span>
-            </li>
-            <li class="dropdown" rsf:id="dropdown" id="dropdown" style="z-index:900">
-                <span>
-                    <a href="#" onclick="return false;">
-                        <span rsf:id="msg=simplepage.more-tools"></span>
-                        &nbsp;&nbsp;<img rsf:id="icondrop" src="/library/image/sakai/icon-dropdn.gif"
-                                         style="height:15px"/>
-                    </a>
-                </span>
-            </li>
-
-            <li rsf:id="remove-student"><a href="#" role="menuitem" rsf:id="remove-page-student"
-                                           class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
-            </li>
-
-            <li style="float:right">
-                    <span rsf:id="title-descrip">
-                    <a href="#" role="menuitem" rsf:id="edit-title" id="edit-title"><span><img
-                            src="/library/image/silk/cog.png"/></span><span class="skip"
-                                                                            rsf:id="edit-title-text"></span></a>
-                    </span>
-            </li>
-
-            <li style="float:right"><span><a href="#" role="menuitem" rsf:id="permissions"></a></span></li>
-            <li style="float:right"><span><a href="#" role="menuitem" rsf:id="help" target="_blank"></a></span></li>
-            <li style="float:right"><span><a href="#" role="menuitem" rsf:id="reorder"></a></span></li>
-        </ul>
-    </div>
-
-    <div id="addContentDiv" style="display:none" class="dropDownDiv specialLink" role="menu"
-         aria-label="Add content menu">
-        <ul>
-            <li>
-                <a role="menuitem" href="#" rsf:id="add-multimedia" class="add-multimedia"><span
-                        rsf:id="msg.simplepage.multimedia"></span></a>
-
-                <div rsf:id="msg=simplepage.multimedia-descrip"></div>
-            </li>
-            <li>
-                <a role="menuitem" href="#" rsf:id="add-resource" class="add-resource"><span
-                        rsf:id="msg.simplepage.resource"></span></a>
-
-                <div rsf:id="msg=simplepage.resource-descrip"></div>
-            </li>
-            <li rsf:id="assignment-li">
-                <a role="menuitem" href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
-
-                <div rsf:id="msg=simplepage.assignment-descrip"></div>
-            </li>
-            <li rsf:id="quiz-li">
-                <a role="menuitem" href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a>
-
-                <div rsf:id="msg=simplepage.quiz-descrip"></div>
-            </li>
-            <li rsf:id="forum-li">
-                <a role="menuitem" class="add-forum-link" href="#" rsf:id="add-forum"><span
-                        rsf:id="msg.simplepage.forum"></span></a>
-
-                <div rsf:id="msg=simplepage.forum-descrip"></div>
-            </li>
-            <li rsf:id="question-li">
-                <a role="menuitem" href="#" rsf:id="question-link" class="question-link"><span
-                        rsf:id="msg=simplepage.questionLinkText"></span></a>
-
-                <div rsf:id="msg=simplepage.question-descrip"></div>
-            </li>
-            <li rsf:id="student-li">
-                <a href="#" role="menuitem" rsf:id="add-comments"><span rsf:id="msg.simplepage.comments"></span></a>
-
-                <div rsf:id="msg=simplepage.comments-descrip"></div>
-            </li>
-            <li rsf:id="studentcontent-li">
-                <a href="#" role="menuitem" rsf:id="add-content"><span
-                        rsf:id="msg.simplepage.add-student-content"></span></a>
-
-                <div rsf:id="msg=simplepage.student-descrip"></div>
-            </li>
-            <li>
-                <a role="menuitem" href="#" rsf:id="subpage-link" class="subpage-link"><span
-                        rsf:id="msg=simplepage.subpage"></span></a>
-
-                <div rsf:id="msg=simplepage.subpage-descrip"></div>
-            </li>
-            <li rsf:id="addwebsite-li">
-                <a href="#" role="menuitem" rsf:id="add-website" class="add-website"><span
-                        rsf:id="msg.simplepage.website"></span></a>
-
-                <div rsf:id="msg=simplepage.addwebsite-descrip"></div>
-            </li>
-            <li rsf:id="blti-tool:">
-                <a href="#" role="menuitem" rsf:id="add-blti-tool"><span rsf:id="msg.simplepage.blti"></span></a>
-
-                <div rsf:id="add-blti-description"></div>
-            </li>
-            <li rsf:id="blti-li">
-                <a href="#" role="menuitem" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
-
-                <div rsf:id="msg=simplepage.blti-descrip"></div>
-            </li>
-
-        </ul>
-    </div>
-
-    <div rsf:id="moreDiv" id="moreDiv" style="display:none" class="dropDownDiv specialLink" role="menu"
-         aria-label="More menu options">
-        <ul>
-            <!-- add new page -->
-            <li>
-                <a href="#" role="menuitem" rsf:id="new-page" id="new-page"><span
-                        rsf:id="msg=simplepage.new-page"></span></a>
-
-                <div rsf:id="msg=simplepage.newpage-descrip"></div>
-            </li>
-            <!-- remove page -->
-            <li rsf:id="remove-li">
-                <a href="#" role="menuitem" rsf:id="remove-page" id="remove-page" class="remove-page"><span
-                        rsf:id="msg=simplepage.remove-page"></span></a>
-
-                <div rsf:id="msg=simplepage.remove-page-explanation"></div>
-            </li>
-            <li rsf:id="delete-orphan-li">
-                <form action="#" rsf:id="delete-orphan-form" method="post" enctype="multipart/form-data">
-                    <input type="hidden" rsf:id="csrf1"/>
-                    <input type="submit" style="display:none" rsf:id="delete-orphan" id="delete-orphan"/>
-                    <a rsf:id="delete-orphan-link" id="delete-orphan-link" href="#" role="menuitem"
-                       class="delete-orphan"><span rsf:id="msg=simplepage.delete-orphan-pages"></span></a>
-
-                    <div rsf:id="msg=simplepage.delete-orphan-pages-desc"></div>
-                </form>
-            </li>
-            <li>
-                <a href="#" role="menuitem" rsf:id="import-cc" id="import-cc"><span
-                        rsf:id="msg=simplepage.import_cc_button"></span></a>
-                <!-- just a message, so will display when it should not-->
-                <div rsf:id="msg=simplepage.importcc-descrip"></div>
-            </li>
-            <li>
-                <a href="#" role="menuitem" rsf:id="export-cc" id="export-cc"><span
-                        rsf:id="msg=simplepage.export_cc"></span></a>
-                <!-- just a message, so will display when it should not-->
-                <div rsf:id="msg=simplepage.exportcc-descrip"></div>
-            </li>
-        </ul>
+            <!-- Pages dropdown -->
+            <div class="toolbar-item lb-dropdown"> 
+                <ul>
+                    <li>
+                        <a href="#" class="lb-button lb-button-toolbar"> 
+                             <span rsf:id="msg=simplepage.more-tools"></span>&nbsp;&nbsp; 
+                            <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/down.png"/> 
+                        </a>
+                        <ul>
+                            <li>
+                                <a href="#" role="menuitem" rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a>
+                            </li>
+                            <li rsf:id="remove-li">
+                                <a href="#" role="menuitem" rsf:id="remove-page" id="remove-page" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
+                            </li>
+                            <li>
+                                <a href="#" role="menuitem" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
+                            </li>
+                            <li>
+                                <a href="#" role="menuitem" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="toolbar-right">
+            <div class="toolbar-item" rsf:id="remove-student"> 
+                <a href="#" class="lb-button lb-button-toolbar remove-page" rsf:id="remove-page-student"> 
+                    <span rsf:id="msg=simplepage.remove-page"></span> 
+                </a> 
+            </div>
+            <div class="toolbar-item" rsf:id="title-descrip"> 
+                <a href="#" class="lb-button lb-button-toolbar" rsf:id="edit-title" id="edit-title">
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/cog.png"/> 
+                </a> 
+                <p class="toolbar-label">SETTINGS</p> 
+            </div> 
+            <div class="toolbar-item">
+                <a href="#" class="lb-button lb-button-toolbar" rsf:id="permissions">
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/lock.png"/> 
+                </a>
+                <p class="toolbar-label">PERMISSIONS</p> 
+            </div>
+            <div class="toolbar-item">
+                <a href="#" class="lb-button lb-button-toolbar" rsf:id="help" target="_blank">
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/info-circle.png"/> 
+                </a>
+                <p class="toolbar-label">HELP</p> 
+            </div>
+            <div class="toolbar-item">
+                <a href="#" class="lb-button lb-button-toolbar" rsf:id="reorder">
+                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/sort.png"/> 
+                </a>
+                <p class="toolbar-label">REORDER</p> 
+            </div>
+        </div>
+        <div style="clear:both;"></div>
     </div>
 
     <div rsf:id="error-div" class="ui-widget" role="alert">
