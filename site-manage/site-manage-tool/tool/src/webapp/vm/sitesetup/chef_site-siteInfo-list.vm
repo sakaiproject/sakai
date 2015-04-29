@@ -220,6 +220,40 @@ function printPreview(target){
 					$!siteModifiedTime
 				</td>
 			</tr>
+		#end
+		
+		#if ($siteJoinable)
+			
+			<tr>
+				<th>
+					&nbsp;
+				</th>
+				<td>
+					
+			#if ($allowUnjoin)
+                    
+					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						<input type="hidden" name="itemReference" value="$siteId"/>
+						<input type="submit" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
+					</form>
+                    
+			#else
+                    
+            		<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+						<input type="hidden" name="itemReference" value="$siteId"/>
+						<input type="submit" disabled="disabled" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
+					</form>
+                    
+			#end
+					
+				</td>
+			</tr>
+				
+		#end
+            
+		#if ($!allowUpdate)
+		
 			<tr>
 				<th>
 					$tlang.getString("sitegen.siteinfolist.usermodify")

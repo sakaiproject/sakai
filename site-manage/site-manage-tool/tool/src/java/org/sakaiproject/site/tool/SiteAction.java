@@ -1941,6 +1941,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("siteFriendlyUrls", getSiteUrlsForSite(site));
 				context.put("siteDefaultUrl", getDefaultSiteUrl(siteId));
 				
+				context.put("siteId", site.getId());
 				context.put("siteIcon", site.getIconUrl());
 				context.put("siteTitle", site.getTitle());
 				context.put("siteDescription", site.getDescription());
@@ -1948,7 +1949,11 @@ public class SiteAction extends PagedResourceActionII {
 				if (unJoinableSiteTypes != null && !unJoinableSiteTypes.contains(siteType))
 				{
 					context.put("siteJoinable", Boolean.valueOf(site.isJoinable()));
+					context.put("allowUnjoin", SiteService.allowUnjoinSite(site.getId()));
 				}
+
+				// Is the current user a member
+				context.put("siteUserMember", site.getUserRole(UserDirectoryService.getCurrentUser().getId()) != null);
 
 				if (site.isPublished()) {
 					context.put("published", Boolean.TRUE);
@@ -15149,6 +15154,45 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	    org.sakaiproject.component.api.ServerConfigurationService scs = (org.sakaiproject.component.api.ServerConfigurationService) ComponentManager.get(org.sakaiproject.component.api.ServerConfigurationService.class);
 	    return scs.getLocaleFromString(localeString);
 	}
+	
+	/**
+	 * Handle the eventSubmit_doUnjoin command to have the user un-join this site.
+	 */
+	public void doUnjoin(RunData data) {
+		
+		SessionState state = ((JetspeedRunData) data)
+			.getPortletSessionState(((JetspeedRunData) data).getJs_peid());
+		final ParameterParser params = data.getParameters();
+
+		final String id = params.get("itemReference");
+		String siteTitle = null;
+		
+		if (id != null)	{
+			try	{
+				siteTitle = SiteService.getSite(id).getTitle();
+				SiteService.unjoin(id);
+				String msg = rb.getString("sitinfimp.youhave") + " " + siteTitle;
+				addAlert(state, msg);
+				
+			} catch (IdUnusedException ignore) {
+				
+			} catch (PermissionException e)	{
+				// This could occur if the user's role is the maintain role for the site, and we don't let the user
+				// unjoin sites they are maintainers of
+				Log.warn("chef", this + ".doUnjoin(): " + e);
+				//TODO can't access site so redirect to portal
+				
+			} catch (InUseException e) {
+				addAlert(state, siteTitle + " "
+						+ rb.getString("sitinfimp.sitebeing") + " ");
+			}
+		}
+		
+		// refresh the whole page
+		scheduleTopRefresh();
+		
+	} // doUnjoin
+
 	
 	/**
 	 * @return Returns the prefLocales
