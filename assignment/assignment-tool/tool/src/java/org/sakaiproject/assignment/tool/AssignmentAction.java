@@ -5698,8 +5698,8 @@ public class AssignmentAction extends PagedResourceActionII
 				// SAK-23817: return to the Assignments List by Student
 				state.setAttribute(FROM_VIEW, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
 				try {
-					u = UserDirectoryService.getUser(studentId);
 					submitter = u;
+					u = UserDirectoryService.getUser(studentId);
 				} catch (UserNotDefinedException ex1) {
 					M_log.warn("Unable to find user with ID [" + studentId + "]");
 					submitter = null;
