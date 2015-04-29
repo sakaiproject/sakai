@@ -243,7 +243,8 @@
                     </li>
                 </ul>
             </div>
-
+        </div>
+        <div class="toolbar-right">
             <!-- Pages dropdown -->
             <div class="toolbar-item lb-dropdown"> 
                 <ul>
@@ -253,6 +254,9 @@
                             <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/down.png"/> 
                         </a>
                         <ul>
+                            <li rsf:id="title-descrip">
+                                <a href="#" role="menuitem" rsf:id="edit-title" id="edit-title"><span rsf:id="msg=simplepage.page_settings"></span></a>
+                            </li>
                             <li>
                                 <a href="#" role="menuitem" rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a>
                             </li>
@@ -260,45 +264,27 @@
                                 <a href="#" role="menuitem" rsf:id="remove-page" id="remove-page" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
                             </li>
                             <li>
-                                <a href="#" role="menuitem" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
-                            </li>
-                            <li>
-                                <a href="#" role="menuitem" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
+                                <a href="#" role="menuitem" rsf:id="reorder"></a>
                             </li>
                         </ul>
                     </li>
                 </ul>
             </div>
-        </div>
-        <div class="toolbar-right">
-            <div class="toolbar-item" rsf:id="remove-student"> 
-                <a href="#" class="lb-button lb-button-toolbar remove-page" rsf:id="remove-page-student"> 
-                    <span rsf:id="msg=simplepage.remove-page"></span> 
-                </a> 
-            </div>
-            <div class="toolbar-item" rsf:id="title-descrip"> 
-                <a href="#" class="lb-button lb-button-toolbar" rsf:id="edit-title" id="edit-title">
-                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/cog.png"/> 
-                </a> 
-                <p class="toolbar-label">SETTINGS</p> 
-            </div> 
+
+            <!-- Permissions Button -->
             <div class="toolbar-item">
                 <a href="#" class="lb-button lb-button-toolbar" rsf:id="permissions">
                     <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/lock.png"/> 
                 </a>
                 <p class="toolbar-label">PERMISSIONS</p> 
             </div>
+
+            <!-- Help Button -->
             <div class="toolbar-item">
                 <a href="#" class="lb-button lb-button-toolbar" rsf:id="help" target="_blank">
                     <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/info-circle.png"/> 
                 </a>
                 <p class="toolbar-label">HELP</p> 
-            </div>
-            <div class="toolbar-item">
-                <a href="#" class="lb-button lb-button-toolbar" rsf:id="reorder">
-                    <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/sort.png"/> 
-                </a>
-                <p class="toolbar-label">REORDER</p> 
             </div>
         </div>
         <div style="clear:both;"></div>

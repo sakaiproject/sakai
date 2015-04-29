@@ -214,9 +214,6 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 	text-decoration: none !important;
 	background-color: #eee;
 }
-#edit-title {
-	margin-left: 1em
-}
 .ui-button-text {
 	padding: 0.25em 0.8em !important
 }
