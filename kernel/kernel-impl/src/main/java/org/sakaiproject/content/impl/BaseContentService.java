@@ -83,19 +83,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conditions.api.ConditionService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentFilter;
-import org.sakaiproject.content.api.ContentHostingHandler;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ContentTypeImageService;
-import org.sakaiproject.content.api.GroupAwareEdit;
-import org.sakaiproject.content.api.GroupAwareEntity;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
@@ -279,8 +267,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** Optional set of folders just within the m_bodyPath to distribute files among. */
 	protected String[] m_bodyVolumes = null;
-	
-	protected List<ContentFilter> m_outputFilters = Collections.emptyList();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -485,6 +471,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	{
 		m_collectionAccessFormatter = service;
 	}
+
+	/** Dependency: ContentFilterService */
+	protected ContentFilterService m_contentFilterService;
+
+	/**
+	 * Dependency: ContentFilterService.
+	 *
+	 * @param service
+	 *        The ContentFilterService.
+	 */
+	public void setContentFilterService(ContentFilterService service)
+	{
+		m_contentFilterService = service;
+	}
+
 
 	/**
 	 * Set the site quota.
@@ -841,12 +842,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
 	}
 
-	public void setOutputFilters(List<ContentFilter> outputFilters)
-	{
-		this.m_outputFilters = outputFilters;
-	}
 
-	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -6859,11 +6855,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		
 		// Wrap up the resource if we need to.
-		for (ContentFilter filter: m_outputFilters)
-		{
-			resource = filter.wrap(resource);
-		}
-		
+		resource = m_contentFilterService.wrap(resource);
+
 		// Set some headers to tell browsers to revalidate and check for updated files
 		res.addHeader("Cache-Control", "must-revalidate, private");
 		res.addHeader("Expires", "-1");
