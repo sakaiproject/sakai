@@ -899,7 +899,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
 										<td>
-											## add browse resources button here	--bbailla2
+											## add browse resources button here
 											#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel.singular"))
 											<input
 												class="disableme enabled"
