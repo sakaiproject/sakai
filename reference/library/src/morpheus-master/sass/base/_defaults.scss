@@ -1,0 +1,58 @@
+body{
+	background:  $tool-background-color;
+	color: 		 $text-color;
+	font-family: $font-family;
+	font-size: 	 $default-font-size !important; // Bootstrap Tool error
+	font-weight: $default-font-weight;
+	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
+	&.#{$namespace}portalBody{
+		background:  $background-color;
+	}
+}
+
+a{
+	outline: none;
+}
+
+h1, h2, h3, h4, h5, h6{
+	font-family: $header-font-family;
+	font-weight: $header-font-weight;
+	line-height: 1.1;
+}
+
+// Using 3:4 - perfect fourth
+h1{
+	font-size: 2.375em;
+}
+
+h2{
+	font-size: 1.75em;
+}
+
+h3{
+	font-size: 1.3125em;
+}
+
+h4{
+	font-size: 1em;
+}
+
+.skip{
+	display: none;
+}
+
+input[type="submit"],input[type="button"]{
+	@include sakai-button(  $background-color-secondary, 
+							darken( $background-color-secondary, 15% ), 
+							darken( $background-color-secondary, 25% ), 
+							darken( $background-color-secondary, 55% ) );
+}
+
+select{
+	padding: 0.25em;
+	border: 1px solid darken( $background-color-secondary, 25% );
+}
+
+.is-hidden{
+	display: none;
+}

@@ -1,0 +1,143 @@
+#portalMask{
+	background: rgba(0,0,0,0.45);
+	position: fixed;
+}
+#selectSite{
+	position: fixed;
+	@include transition( left 1s linear );
+	&.dhtml_more_tabs{
+		background: $background-color;
+		display: block;
+		position: fixed;
+		top: 0;
+		left: 0;
+		width: calc( 60% - 2em );
+		height: calc( 100% - 2em );
+		padding: 1em;
+		overflow: auto;
+		z-index: 1005;
+		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
+		@media #{$phone}{
+			width: calc( 85% - 2em );
+		}
+	}
+	&.outscreen{
+		left: -1200px;
+		#otherSiteCloseW{
+			.toggler{
+				.hamburger{
+			  		> span{
+			  			&.top{
+			  				@include transform( rotate(0deg) );
+			  				top:  0;
+			  				left: 0;
+			  			}
+			  			&.middle{
+			  				opacity: 1;
+			  			}
+			  			&.bottom{
+			  				@include transform( rotate(0deg) );
+			  				top:  0;
+			  				left: 0;
+			  			}
+			  		}
+				}
+			}
+		}
+	}
+	h4{
+		font-size: 1.8em;
+  		margin: 1.5em 0 0.4em 0;
+	}
+}
+
+ul#otherSitesMenu{
+	float: right;
+	li{
+		display: inline-block;
+		a{
+			font-size: 0.8em;
+			@include sakai-button(  $background-color, 
+							darken( $background-color, 15% ), 
+							darken( $background-color, 25% ), 
+							darken( $background-color, 55% ) );
+		}
+	}
+}
+
+ul.otherSitesCategorList{
+	li{
+		display: inline-block;
+		border: 1px solid darken( $background-color-secondary, 10% );
+		background: darken( $background-color-secondary, 5% );
+		@include border-radius( 4px );
+		margin: 0 0.7em 0 0;
+		padding: 0.1em 0.5em 0.1em 0.5em;
+		a{
+			@extend .userNav_link;
+			font-weight: 700;
+			&.toolMenus{
+				display: inline-block;
+			}
+		}
+		&.is-selected{
+			background: lighten($background-color, 10%);
+		}
+	}
+}
+
+#otherSiteSearch{
+	border-bottom: 1px solid darken( $background-color, 15% );
+	margin: 0 0 1em 0;
+	padding: 0.8em 0 1em 0;
+	#imgSearch{
+		img{
+			vertical-align: middle;
+		}
+	}
+}
+
+#otherSiteCloseW{
+	background: none;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	border: 0px none;
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 95%;
+	font-size: 2em;
+	@media #{$phone}{
+		left: 90%;
+	}
+	.toggler{
+		text-decoration: none;
+		color: darken($errorcolor, 50%);
+		.hamburger{
+			@include display-flex(inline-flex);
+	  		@include flex-direction(column);
+	  		@include align-items(flex-end);
+	  		@include justify-content(space-between);
+		  	@include transition( all 0.25s linear );
+	  		> span{
+	  			height: 8px;
+		  		@include transition( all 0.25s linear );
+	  			&.top{
+	  				@include transform( rotate(-45deg) );
+	  				position: relative;
+	  				top: 12px;
+	  				left: -12px;
+	  			}
+	  			&.middle{
+	  				opacity: 0;
+	  			}
+	  			&.bottom{
+	  				@include transform( rotate(45deg) );
+	  				position: relative;
+	  				top: -3px;
+	  				left: 17px;
+	  			}
+	  		}
+		}
+	}
+}
