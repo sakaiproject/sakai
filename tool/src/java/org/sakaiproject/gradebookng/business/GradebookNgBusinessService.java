@@ -585,14 +585,31 @@ public class GradebookNgBusinessService {
 
 
   /**
-   * Get the ordered categorized assignment ids
+   * Get the ordered categorized assignment ids for the current site
+   */
+  public Map<String, List<Long>> getCategorizedAssignmentOrder() {
+    try {
+      return getCategorizedAssignmentOrder(getCurrentSiteId());
+    } catch (JAXBException e) {
+      e.printStackTrace();
+    } catch(IdUnusedException e) {
+      e.printStackTrace();
+    } catch(PermissionException e) {
+      e.printStackTrace();
+    }
+    return null;
+  }
+
+
+  /**
+   * Get the ordered categorized assignment ids for the siteId
    *
    * @param siteId	the siteId
    * @throws JAXBException
    * @throws IdUnusedException
    * @throws PermissionException
    */
-  public Map<String, List<Long>> getCategorizedAssignmentOrder(String siteId) {
+  private Map<String, List<Long>> getCategorizedAssignmentOrder(String siteId) throws JAXBException, IdUnusedException, PermissionException {
     Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
 
     Site site = null;
