@@ -57,6 +57,7 @@ public class GradeItemCellPanel extends Panel {
 		//if assignment is external, normal label
 		if(BooleanUtils.isTrue(isExternal)){
 			add(new Label("grade", Model.of(formattedGrade)));
+			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
 		} else {
 			AjaxEditableLabel<String> gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				
