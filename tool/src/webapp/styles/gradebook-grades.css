@@ -131,7 +131,8 @@
 #gradebookGrades tbody td.gb-cell {
   height: 2.6em;
 }
-#gradebookGrades .gb-grade-item-cell {
+#gradebookGrades .gb-grade-item-cell,
+#gradebookGrades .gb-external-item-cell {
   text-align: center;
   white-space: nowrap;
 }
@@ -459,13 +460,37 @@ ul.feedbackPanel {
 
 /* feedback styles for the grade saving state */
 .gradeSaveSuccess {
-	background-color: #dff0d8 !important;
+  background-color: #dff0d8 !important;
+}
+.gradeSaveSuccess > div:before {
+  font-family: "gradebook-icons";
+  content: "\f05d";
+  color: green;
+  position: absolute;
+  left: 20px;
+  font-size: 1.4em;
 }
 
 .gradeSaveError {
 	background-color: #ffbbbb !important;
 }
+.gradeSaveError > div:before {
+  font-family: "gradebook-icons";
+  content: "\f06a";
+  color: rgb(204,0,0);
+  position: absolute;
+  left: 20px;
+  font-size: 1.4em;
+}
 
 .gradeSaveWarning {
-	background-color: #fcf8e3 !important;
+  background-color: #fcf8e3 !important;
+}
+.gradeSaveWarning > div:before {
+  font-family: "gradebook-icons";
+  content: "\f071";
+  color: rgb(200,144,0);
+  position: absolute;
+  left: 20px;
+  font-size: 1.4em;
 }
