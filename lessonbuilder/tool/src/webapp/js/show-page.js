@@ -1906,17 +1906,17 @@ $(function() {
 	});
 	
 	// don't do this twice. if portal is loaded portal will do it
-        if(typeof portal === 'undefined')
-	$('#directurl').cluetip({
+	if(typeof portal === 'undefined')
+	$('a.tool-directurl').cluetip({
 		local: true,
-		    arrows: true,
-		    cluetipClass: 'jtip',
-		    sticky: true,
-		    cursor: 'pointer',
-		    activation: 'click',
-		    closePosition: 'title',
-		    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
-		    });
+		arrows: true,
+		cluetipClass: 'jtip',
+		sticky: true,
+		cursor: 'pointer',
+		activation: 'click',
+		closePosition: 'title',
+		closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+	});
 
 	function submitgrading(item) {
 	    var img = item.parent().children("img");
@@ -2045,10 +2045,10 @@ $(function() {
 
 	//$("#dropdown").hoverIntent(megaConfig);
 	//$("#dropdownc").hoverIntent(megaConfigc);
-	$("#moreDiv").hide();
-	$("#addContentDiv").hide();
-	$("#moreDiv").hoverIntent(dropdownConfig);
-	$("#addContentDiv").hoverIntent(dropdowncConfig);
+	//$("#moreDiv").hide();
+	//$("#addContentDiv").hide();
+	//$("#moreDiv").hoverIntent(dropdownConfig);
+	//$("#addContentDiv").hoverIntent(dropdowncConfig);
 	//$("#dropdown").click(buttonToggleDropdown);
 	//$("#dropdownc").click(buttonToggleDropdownc);
 	dropDownViaClick = false;
