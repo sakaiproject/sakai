@@ -7,6 +7,13 @@
 #cluetip {
   z-index: 10000 !important;
 }
+.portletBody {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.portletBody .pageTitle {
+  width: auto !important;
+}
 .portletBody .lb-button {
   font-size: 80%;
   padding-left: 10px;
@@ -16,9 +23,9 @@
   white-space: nowrap;
   vertical-align: middle;
   cursor: pointer;
-  -webkit-border-radius: 15px;
-  -moz-border-radius: 15px;
-  border-radius: 15px;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
 }
 .portletBody .lb-button-default {
   color: #333333;
@@ -48,28 +55,25 @@
   border: 1px solid #058abc;
   background-color: #1999cc;
   background: #1999cc;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, none), color-stop(1, none));
-  background: -ms-linear-gradient(bottom, none, none);
-  background: -moz-linear-gradient(center bottom, none 0%, none 100%);
-  background: -o-linear-gradient(none, none);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='none', endColorstr='none', GradientType=0);
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #1999cc), color-stop(1, #058abc));
+  background: -ms-linear-gradient(bottom, #1999cc, #058abc);
+  background: -moz-linear-gradient(center bottom, #1999cc 0%, #058abc 100%);
+  background: -o-linear-gradient(#058abc, #1999cc);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#058abc', endColorstr='#1999cc', GradientType=0);
 }
 .portletBody .lb-button-primary:hover,
 .portletBody .lb-button-primary:active {
   color: #ffffff;
-  border: 1px solid #046184;
+  border: 1px solid #058abc;
   background-color: #058abc;
   background: #058abc;
-  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, none), color-stop(1, none));
-  background: -ms-linear-gradient(bottom, none, none);
-  background: -moz-linear-gradient(center bottom, none 0%, none 100%);
-  background: -o-linear-gradient(none, none);
-  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='none', endColorstr='none', GradientType=0);
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3daad4), color-stop(1, #1999cc));
+  background: -ms-linear-gradient(bottom, #3daad4, #1999cc);
+  background: -moz-linear-gradient(center bottom, #3daad4 0%, #1999cc 100%);
+  background: -o-linear-gradient(#1999cc, #3daad4);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1999cc', endColorstr='#3daad4', GradientType=0);
 }
 .portletBody .lb-button-toolbar {
-  -webkit-border-radius: 5px;
-  -moz-border-radius: 5px;
-  border-radius: 5px;
   color: #333333;
   border: 1px solid #dddddd;
   background-color: #cccccc;
@@ -94,9 +98,14 @@
 }
 .portletBody .portletTitle {
   width: 100%;
-  height: 50px;
-  padding-bottom: 3px;
-  margin-top: 12px;
+  height: 70px;
+  padding: 1em 1em 15px 1em;
+  background: #046184;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #033d53), color-stop(1, #046184));
+  background: -ms-linear-gradient(bottom, #033d53, #046184);
+  background: -moz-linear-gradient(center bottom, #033d53 0%, #046184 100%);
+  background: -o-linear-gradient(#046184, #033d53);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#046184', endColorstr='#033d53', GradientType=0);
   clear: both;
   float: left;
 }
@@ -106,13 +115,13 @@
 .portletBody .portletTitle .title h2 {
   margin: 0;
   padding: 0;
-  color: #058abc;
+  color: #ffffff;
   font-size: 150%;
   font-weight: bold;
   display: inline;
 }
 .portletBody .portletTitle .title h2.siteTitle {
-  color: #058abc;
+  color: #ffffff;
 }
 .portletBody .portletTitle .title a {
   text-decoration: none;
@@ -120,13 +129,14 @@
 .portletBody .portletTitle .title a.reload {
   background: url(../images/reload.png) center left no-repeat;
   text-decoration: none !important;
-  border: 1px solid #ffffff;
   height: 1.5em;
   outline: none;
 }
 .portletBody .portletTitle .title a.reload:hover,
 .portletBody .portletTitle .title a.reload:focus {
   background: url(../images/reload_h.png) center left no-repeat;
+  text-decoration: none;
+  border: none;
 }
 .portletBody .portletTitle .title a:focus {
   outline: black dotted thin;
@@ -137,6 +147,11 @@
   width: 18px;
   border: none;
   height: 18px;
+}
+.portletBody .portletTitle .title img:hover,
+.portletBody .portletTitle .title img:focus {
+  text-decoration: none;
+  border: none;
 }
 .portletBody .portletTitle .action {
   float: right;
@@ -162,21 +177,6 @@
 }
 .portletBody .portletTitle .action a.help:focus img {
   background: url(../images/help_h.gif) center right no-repeat;
-}
-.portletBody .portletTitle .action a.tool-directurl {
-  padding: 2px;
-  background: url(/library/image/silk/link.png) center right no-repeat;
-  text-decoration: none;
-}
-.portletBody .portletTitle .action a.tool-directurl:hover {
-  background: url(/library/image/silk/link_go.png) center right no-repeat;
-}
-.portletBody .portletTitle .action a.Mrphs-toolTitleNav__link--directurl {
-  background: none;
-  display: inline;
-}
-.portletBody .portletTitle .action a.Mrphs-toolTitleNav__link--directurl:hover {
-  background: none;
 }
 .portletBody .portletTitle .action a:focus {
   outline: black dotted thin;
@@ -227,10 +227,26 @@
 .portletBody .portletTitle .action .nextprev a {
   width: auto !important;
 }
+.portletBody .lb-content {
+  width: 100%;
+  height: 100%;
+  clear: both;
+  display: block;
+  position: relative;
+}
+.portletBody .lb-content .lb-items {
+  width: 100%;
+  margin-top: 20px;
+  clear: both;
+  display: block;
+  position: relative;
+}
 .portletBody .lb-toolbar {
   width: 100%;
-  height: 60px;
-  padding-bottom: 3px;
+  height: 70px;
+  padding: 10px 1em;
+  background-color: #d1eef9;
+  border-bottom: 1px solid #9bdaf3;
   clear: both;
   float: left;
 }
@@ -256,6 +272,25 @@
   text-align: center;
   font-weight: bold;
 }
+.portletBody .lb-alerts {
+  width: 85%;
+  margin: 0 auto;
+  top: 10px;
+  position: relative;
+  display: block;
+  clear: both;
+}
+.portletBody .lb-alerts .lb-alert {
+  width: 100%;
+  padding: 0 20px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+}
+.portletBody .lb-alerts .lb-alert .alert-icon-img {
+  position: relative;
+  top: 3px;
+}
 .portletBody .lb-alerts .lb-alert .lb-alert-highlight {
   margin-top: 20px;
   padding: 0.5em 0.7em;
@@ -263,6 +298,14 @@
 .portletBody .lb-alerts .lb-alert .lb-alert-highlight .lb-alert-icon {
   float: left;
   margin-right: 0.3em;
+}
+.portletBody .lb-alerts .lb-alert-danger {
+  background-color: #f6e4ea;
+  border: 1px solid #c34a75;
+}
+.portletBody .lb-alerts .lb-alert-warning {
+  background-color: #fbc713;
+  border: 1px solid #bf9503;
 }
 .portletBody .lb-dropdown ul {
   margin: 0;
