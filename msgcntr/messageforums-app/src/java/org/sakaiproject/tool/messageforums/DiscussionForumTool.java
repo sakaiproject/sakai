@@ -1486,14 +1486,14 @@ public class DiscussionForumTool {
 	  if (newTarget instanceof DiscussionForum && oldTarget instanceof DiscussionForum){
 		  DiscussionForum forum = ((DiscussionForum) newTarget);
 		  DiscussionForum oldForum = ((DiscussionForum) oldTarget);
-		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate());
-		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldForum.getAvailabilityRestricted(), oldForum.getOpenDate(), oldForum.getCloseDate());
+		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(forum.getAvailabilityRestricted(), forum.getOpenDate(), forum.getCloseDate(), forum.getLockedAfterClosed());
+		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldForum.getAvailabilityRestricted(), oldForum.getOpenDate(), oldForum.getCloseDate(), oldForum.getLockedAfterClosed());
 		  return newAvailable != oldAvailable;			
 	  }else if (newTarget instanceof Topic && oldTarget instanceof Topic){
 		  DiscussionTopic topic = ((DiscussionTopic) newTarget);
 		  DiscussionTopic oldTopic = ((DiscussionTopic) oldTarget);
-		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate());
-		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldTopic.getAvailabilityRestricted(), oldTopic.getOpenDate(), oldTopic.getCloseDate());
+		  boolean newAvailable = ForumScheduleNotificationCover.makeAvailableHelper(topic.getAvailabilityRestricted(), topic.getOpenDate(), topic.getCloseDate(), topic.getLockedAfterClosed());
+		  boolean oldAvailable = ForumScheduleNotificationCover.makeAvailableHelper(oldTopic.getAvailabilityRestricted(), oldTopic.getOpenDate(), oldTopic.getCloseDate(), oldTopic.getLockedAfterClosed());
 		  return newAvailable != oldAvailable;	
 	  }
 	  return false;
@@ -7972,6 +7972,7 @@ public class DiscussionForumTool {
 		newTopic.setAvailabilityRestricted(true);
 		newTopic.setOpenDate(fromTopic.getOpenDate());
 		newTopic.setCloseDate(fromTopic.getCloseDate());
+		newTopic.setLockedAfterClosed(fromTopic.getLockedAfterClosed());
 	}
 
 	newTopic.setBaseForum(forum);
@@ -8075,10 +8076,11 @@ public class DiscussionForumTool {
     String fromAssignmentTitle = oldForum.getDefaultAssignName();
     forum.setDefaultAssignName(fromAssignmentTitle);
 
-		if(oldForum.getAvailabilityRestricted()){
+		if(oldForum.getAvailabilityRestricted()) {
 			forum.setAvailabilityRestricted(true);
 			forum.setOpenDate(oldForum.getOpenDate());
 			forum.setCloseDate(oldForum.getCloseDate());
+			forum.setLockedAfterClosed(oldForum.getLockedAfterClosed());
 		}
 
 		forum = saveForumSettings(oldForum.getDraft());

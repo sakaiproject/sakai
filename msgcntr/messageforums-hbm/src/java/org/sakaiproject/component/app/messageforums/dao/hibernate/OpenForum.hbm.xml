@@ -96,6 +96,10 @@
       <column name="CALENDAR_END_ID" />
     </property>
     
+    <property name="lockedAfterClosed" type="boolean">
+      <column name="LOCKED_AFTER_CLOSED" not-null="true" default="0" />
+    </property>
+
     <property name="availabilityRestricted">
       <column name="AVAILABILITY_RESTRICTED" not-null="true" default="0" />
     </property>
