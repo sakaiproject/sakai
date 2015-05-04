@@ -131,7 +131,8 @@
 #gradebookGrades tbody td.gb-cell {
   height: 2.6em;
 }
-#gradebookGrades .gb-grade-item-cell {
+#gradebookGrades .gb-grade-item-cell,
+#gradebookGrades .gb-external-item-cell {
   text-align: center;
   white-space: nowrap;
 }

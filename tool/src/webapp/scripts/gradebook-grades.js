@@ -79,6 +79,10 @@ GradebookSpreadsheet.prototype.setupGradeItemCellModels = function() {
         cellModel = new GradebookEditableCell($cell, tmpHeaderByIndex[cellIndex], self);
 
         self._GRADE_CELLS[studentUuid][cellModel.header.columnKey] = cellModel;
+      } else if (self.isCellForExternalItem($cell)) {
+        cellModel = new GradebookBasicCell($cell, tmpHeaderByIndex[cellIndex], self);
+
+        self._GRADE_CELLS[studentUuid][cellModel.header.columnKey] = cellModel;
       } else {
         cellModel = new GradebookBasicCell($cell, tmpHeaderByIndex[cellIndex], self);
       }
@@ -252,6 +256,11 @@ GradebookSpreadsheet.prototype.ensureCellIsVisible = function($cell) {
 
 GradebookSpreadsheet.prototype.isCellEditable = function($cell) {
   return $cell.hasClass("gb-grade-item-cell");
+};
+
+
+GradebookSpreadsheet.prototype.isCellForExternalItem = function($cell) {
+  return $cell.hasClass("gb-external-item-cell");
 };
 
 
@@ -854,6 +863,12 @@ var GradebookAbstractCell = {
                  self.gradebookSpreadsheet.ensureCellIsVisible($(event.target));
                  self.gradebookSpreadsheet.highlightRow(self.getRow());
                });
+  },
+  show: function() {
+    this.$cell.show();
+  },
+  hide: function() {
+    this.$cell.hide();
   }
 };
 
@@ -961,16 +976,6 @@ GradebookEditableCell.prototype.enterEditMode = function(withValue) {
 
   // Trigger click on the Wicket node so we enter the edit mode
   self.$cell.find("span[id^='label']").trigger("click");
-};
-
-
-GradebookEditableCell.prototype.show = function() {
-  this.$cell.show();
-};
-
-
-GradebookEditableCell.prototype.hide = function() {
-  this.$cell.hide();
 };
 
 
