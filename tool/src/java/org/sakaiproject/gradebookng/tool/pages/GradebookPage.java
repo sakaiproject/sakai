@@ -162,6 +162,7 @@ public class GradebookPage extends BasePage {
             		
             		Map<String,Object> modelData = new HashMap<>();
     				modelData.put("assignmentId", assignment.getId());
+    				modelData.put("assignmentPoints", assignment.getPoints()); //TODO might be able to set some of this higher up and use a getter in the subclasses, so its not passed around so much. It's common to the assignment....
     				modelData.put("studentUuid", studentGrades.getStudentUuid());
     				modelData.put("isExternal", assignment.isExternallyMaintained());
     				modelData.put("gradeInfo", gradeInfo);

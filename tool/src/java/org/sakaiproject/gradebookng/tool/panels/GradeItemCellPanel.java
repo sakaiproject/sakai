@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
@@ -49,6 +50,7 @@ public class GradeItemCellPanel extends Panel {
 		//unpack model
 		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
 		final Long assignmentId = (Long) modelData.get("assignmentId");
+		final Double assignmentPoints = (Double) modelData.get("assignmentPoints");
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final Boolean isExternal = (Boolean) modelData.get("isExternal");
 		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
@@ -79,6 +81,11 @@ public class GradeItemCellPanel extends Panel {
 					super.onInitialize();
 					this.originalGrade = this.getLabel().getDefaultModelObjectAsString();
 					this.addSpecialAttributes();
+					
+					//check if grade is over limit and mark the cell with the warning class
+					if(NumberUtils.toDouble(this.originalGrade) > assignmentPoints) {
+						markWarning(this);
+					}
 				}
 				
 				@Override
@@ -217,9 +224,7 @@ public class GradeItemCellPanel extends Panel {
 			gradeCell.setType(String.class);
 						
 			gradeCell.setOutputMarkupId(true);
-			
-			//add validation to ensure we have a number
-			
+						
 			add(gradeCell);
 		}
 									
