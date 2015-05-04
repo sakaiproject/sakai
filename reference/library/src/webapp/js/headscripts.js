@@ -34,9 +34,9 @@ function inIframe () {
 	}
 }
 
-function openWindow(url, title, options)
+function openWindow(url, name, options)
 {
-	var win = top.window.open(url, title.replace(/[ -]+/g, ''), options);
+	var win = top.window.open(url, name.replace(/[ -]+/g, ''), options);
 	win.focus();
 	return win;
 }

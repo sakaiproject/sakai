@@ -41,9 +41,12 @@ public class ToolConfigurationService {
 
     private Map<String, List<String>> m_toolGroupSelected = new HashMap<>();
 
+    /**
+     * Required tools - map keyed by category to List of tool id strings.
+     */
     private Map<String, List<String>> m_toolsRequired = new HashMap<>();
     /**
-     * default tools - map keyed by category of List of tool id strings.
+     * default tools - map keyed by category to List of tool id strings.
      */
     private Map<String, List<String>> m_defaultTools = new HashMap<>();
     /**
