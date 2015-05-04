@@ -85,6 +85,26 @@
       <attribute value="jar:file:/Users/fivium/.m2/repository/commons-logging/commons-logging/1.2/commons-logging-1.2-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-validator/commons-validator/1.4.1/commons-validator-1.4.1.jar" sourcepath="M2_REPO/commons-validator/commons-validator/1.4.1/commons-validator-1.4.1-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/fivium/.m2/repository/commons-validator/commons-validator/1.4.1/commons-validator-1.4.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3.jar" sourcepath="M2_REPO/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/fivium/.m2/repository/commons-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-digester/commons-digester/1.8.1/commons-digester-1.8.1.jar" sourcepath="M2_REPO/commons-digester/commons-digester/1.8.1/commons-digester-1.8.1-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/fivium/.m2/repository/commons-digester/commons-digester/1.8.1/commons-digester-1.8.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
+  <classpathentry kind="var" path="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1.jar" sourcepath="M2_REPO/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-sources.jar">
+    <attributes>
+      <attribute value="jar:file:/Users/fivium/.m2/repository/commons-collections/commons-collections/3.2.1/commons-collections-3.2.1-javadoc.jar!/" name="javadoc_location"/>
+    </attributes>
+  </classpathentry>
   <classpathentry kind="var" path="M2_REPO/net/sf/opencsv/opencsv/2.3/opencsv-2.3.jar" sourcepath="M2_REPO/net/sf/opencsv/opencsv/2.3/opencsv-2.3-sources.jar">
     <attributes>
       <attribute value="jar:file:/Users/fivium/.m2/repository/net/sf/opencsv/opencsv/2.3/opencsv-2.3-javadoc.jar!/" name="javadoc_location"/>
@@ -115,14 +135,14 @@
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/commons-httpclient/commons-httpclient/3.1/commons-httpclient-3.1.jar" sourcepath="M2_REPO/commons-httpclient/commons-httpclient/3.1/commons-httpclient-3.1-sources.jar"/>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/3.2.3.RELEASE/spring-beans-3.2.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-beans/3.2.3.RELEASE/spring-beans-3.2.3.RELEASE-sources.jar">
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-beans/3.2.13.RELEASE/spring-beans-3.2.13.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-beans/3.2.13.RELEASE/spring-beans-3.2.13.RELEASE-sources.jar">
     <attributes>
-      <attribute value="jar:file:/Users/fivium/.m2/repository/org/springframework/spring-beans/3.2.3.RELEASE/spring-beans-3.2.3.RELEASE-javadoc.jar!/" name="javadoc_location"/>
+      <attribute value="jar:file:/Users/fivium/.m2/repository/org/springframework/spring-beans/3.2.13.RELEASE/spring-beans-3.2.13.RELEASE-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
-  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/3.2.3.RELEASE/spring-core-3.2.3.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-core/3.2.3.RELEASE/spring-core-3.2.3.RELEASE-sources.jar">
+  <classpathentry kind="var" path="M2_REPO/org/springframework/spring-core/3.2.13.RELEASE/spring-core-3.2.13.RELEASE.jar" sourcepath="M2_REPO/org/springframework/spring-core/3.2.13.RELEASE/spring-core-3.2.13.RELEASE-sources.jar">
     <attributes>
-      <attribute value="jar:file:/Users/fivium/.m2/repository/org/springframework/spring-core/3.2.3.RELEASE/spring-core-3.2.3.RELEASE-javadoc.jar!/" name="javadoc_location"/>
+      <attribute value="jar:file:/Users/fivium/.m2/repository/org/springframework/spring-core/3.2.13.RELEASE/spring-core-3.2.13.RELEASE-javadoc.jar!/" name="javadoc_location"/>
     </attributes>
   </classpathentry>
   <classpathentry kind="var" path="M2_REPO/junit/junit/4.11/junit-4.11.jar" sourcepath="M2_REPO/junit/junit/4.11/junit-4.11-sources.jar">

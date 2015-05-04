@@ -4,6 +4,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.validator.routines.DoubleValidator;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -16,6 +17,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.validation.validator.RangeValidator;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
@@ -90,37 +92,44 @@ public class GradeItemCellPanel extends Panel {
 					super.onSubmit(target);
 					
 					String newGrade = this.getEditor().getValue();
+										
+					//perform validation here so we can bypass the backend
+					DoubleValidator validator = new DoubleValidator();
 					
-					//for concurrency, get the original grade we have in the UI and pass it into the service as a check
-										
-					GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, this.originalGrade, newGrade);
-										
-					switch (result) {
-						case OK: 
-							markSuccessful(this);
-						break;
-						case ERROR: 
-							markError(this);
-							//TODO fix this message
-							error("oh dear");
-						break;
-						case OVER_LIMIT:
-							markWarning(this);
-						break;
-						case NO_CHANGE:
-							//do nothing
-						break;
-						case CONCURRENT_EDIT:
-							markError(this);
-							//TODO fix this message
-							error("concurrent edit, eep");
-						break;
-						default:
-							throw new UnsupportedOperationException("The response for saving the grade is unknown.");
+					if(!validator.isValid(newGrade)) {
+						markWarning(this);
+						//TODO add the message
+					} else {
+						
+						//for concurrency, get the original grade we have in the UI and pass it into the service as a check
+						GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, this.originalGrade, newGrade);
+						
+						//TODO here, add the message
+						switch (result) {
+							case OK: 
+								markSuccessful(this);
+							break;
+							case ERROR: 
+								markError(this);
+								//TODO fix this message
+								error("oh dear");
+							break;
+							case OVER_LIMIT:
+								markWarning(this);
+							break;
+							case NO_CHANGE:
+								//do nothing
+							break;
+							case CONCURRENT_EDIT:
+								markError(this);
+								//TODO fix this message
+								error("concurrent edit, eep");
+							break;
+							default:
+								throw new UnsupportedOperationException("The response for saving the grade is unknown.");
+						}
 					}
-					
-					//todo handle more cases here, like concurrency etc
-					
+								
 					//format the grade for subsequent display and update the model
 					String formattedGrade = formatGrade(newGrade);
 					
@@ -206,8 +215,10 @@ public class GradeItemCellPanel extends Panel {
 			};
 
 			gradeCell.setType(String.class);
-			
+						
 			gradeCell.setOutputMarkupId(true);
+			
+			//add validation to ensure we have a number
 			
 			add(gradeCell);
 		}
