@@ -56,23 +56,18 @@ import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.cover.ContentHostingService;
-import org.sakaiproject.content.util.ZipContentUtil;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.event.cover.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.OverQuotaException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.IdUniquenessException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.SitePage;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -87,11 +82,8 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ParameterParser;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
-import org.sakaiproject.content.tool.ResourcesAction;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.api.NotificationEdit;
-import org.sakaiproject.entity.api.Reference;
 
 public class ResourcesHelperAction extends VelocityPortletPaneledAction 
 {
@@ -655,7 +647,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String upload_limit = rb.getFormattedMessage("upload.limit", new String[]{ max_file_size_mb });
 		context.put("upload_limit", upload_limit);
 		
-		String uploadMax = ServerConfigurationService.getString("content.upload.max");
+		String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
 		String instr_uploads= rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax});
 		context.put("instr_uploads", instr_uploads);
 
@@ -1092,7 +1084,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			pipe.setErrorEncountered(true);
 			pipe.setActionCompleted(false);
 			logger.debug(this + ".doReplace() setting error on pipe");
-			String uploadMax = ServerConfigurationService.getString("content.upload.max");
+			String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
 			addAlert(state, rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			return;
 		}
@@ -1460,7 +1452,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			mfp.setErrorEncountered(true);
 			mfp.setActionCompleted(false);
 			logger.debug(this + ".doUpload() setting error on pipe");
-			String uploadMax = ServerConfigurationService.getString("content.upload.max");
+			String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
 			addAlert(state, rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
 			return;
 		}
@@ -1757,12 +1749,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 
 		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
 		{
-			String uploadMax = ServerConfigurationService.getString("content.upload.max");
+			String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
 			String uploadCeiling = ServerConfigurationService.getString("content.upload.ceiling");
 			
 			if(uploadMax == null && uploadCeiling == null)
 			{
-				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, "20");
+				state.setAttribute(STATE_FILE_UPLOAD_MAX_SIZE, ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING );
 			}
 			else if(uploadCeiling == null)
 			{
@@ -1880,14 +1872,74 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		
 		if(fullPath != null)
 		{
-			String uploadMax = ServerConfigurationService.getString("content.upload.max");
-			String siteQuota = ServerConfigurationService.getString("siteQuota@org.sakaiproject.content.api.ContentHostingService");
 			Long fileSize = Long.parseLong(request.getHeader("content-length"));
-			if((uploadMax != null && !"".equals(uploadMax)) &&   (fileSize /1024L / 1024L) > Long.parseLong(uploadMax)){
+			Long uploadMax;
+			Long siteQuota;
+			
+			try
+			{
+				uploadMax = Long.parseLong( ServerConfigurationService.getString( ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE, 
+																					ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING ) );
+			}
+			catch( NumberFormatException ex )
+			{
+				logger.debug( "sakai.property '"+ ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE + "' does not contain an integer", ex );
+				uploadMax = ResourcesConstants.DEFAULT_MAX_FILE_SIZE;
+			}
+			
+			try
+			{
+				siteQuota = Long.parseLong( ServerConfigurationService.getString( ResourcesConstants.SAK_PROP_MASTER_SITE_QUOTA, 
+																					ResourcesConstants.DEFAULT_SITE_QUOTA_STRING ) );
+			}
+			catch( NumberFormatException ex )
+			{
+				logger.debug( "sakai.property '" + ResourcesConstants.SAK_PROP_MASTER_SITE_QUOTA + "' does not contain an integer", ex );
+				siteQuota = ResourcesConstants.DEFAULT_SITE_QUOTA;
+			}
+			
+			// Get the site type specific site quota
+			String siteTypeQuotaProp = "";
+			Long siteTypeQuota = null;
+			try
+			{
+				Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+				siteTypeQuotaProp = ResourcesConstants.SAK_PROP_MASTER_SITE_QUOTA + "." + site.getType();
+				siteTypeQuota = Long.parseLong( ServerConfigurationService.getString( siteTypeQuotaProp ) );
+			}
+			catch( IdUnusedException ex )
+			{
+				logger.warn( "Can't find site: ", ex );
+			}
+			catch( NumberFormatException ex )
+			{
+				logger.debug( "sakai.property '" + siteTypeQuotaProp + "' does not contain an integer", ex );
+			}
+			
+			// Determine which site quota to use (if the site specific quota is set, it over-rides the global one)
+			if( siteTypeQuota != null )
+			{
+				siteQuota = siteTypeQuota;
+			}
+
+			// Determine if the site quota is unlimited
+			boolean siteQuotaUnlimited = siteQuota == 0;
+			
+			// If the file size exceeds the max uploaded file size, post error message
+			Long fileSizeMB = fileSize / 1024L / 1024L;
+			if( fileSizeMB > uploadMax )
+			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-per-upload-quota", new Object[]{uploadMax}));
-			} else if ((siteQuota != null && !"".equals(siteQuota)) && (fileSize /1024L / 1024L)  > Long.parseLong(siteQuota)) {
+			}
+			
+			// If the file size exceeds the max quota for the site, post error message
+			else if( !siteQuotaUnlimited && fileSizeMB > siteQuota )
+			{
 				addAlert(getState(request), rb.getFormattedMessage("alert.over-site-upload-quota", new Object[]{siteQuota}));
-			} else {
+			}
+			// Otherwise, continue with upload process
+			else
+			{
 				JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
 				if (checkCSRFToken(request,rundata,action)) {
 					doDragDropUpload(request, response, fullPath);
