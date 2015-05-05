@@ -2175,9 +2175,11 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 			SiteEmailNotificationDragAndDrop sendnd = new SiteEmailNotificationDragAndDrop(site.getId());
 			sendnd.setDropboxFolder(item.isDropbox());
 			sendnd.setFileList((ArrayList<String>)(state.getAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST)));
-			ne.setAction(sendnd);
-			sendnd.notify(ne,eventTrackingService.newEvent(eventResource, ContentHostingService.REFERENCE_ROOT+item.getId(), true, notificationPriority));
-			
+			// Notify when files were successfully added
+			if (sendnd.getFileList() != null && !sendnd.getFileList().isEmpty()) {			
+				ne.setAction(sendnd);
+				sendnd.notify(ne,eventTrackingService.newEvent(eventResource, ContentHostingService.REFERENCE_ROOT+item.getId(), true, notificationPriority));			
+			}
 			state.setAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST, null);
 		} catch (IdUnusedException e) {
 			logger.warn("Somehow we couldn't find the site.", e);
