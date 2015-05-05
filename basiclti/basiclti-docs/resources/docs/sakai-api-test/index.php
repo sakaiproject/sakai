@@ -31,6 +31,7 @@ the following test harness:
 <pre>
 <?php
   $cur_url = curPageURL();
+  $content_url = str_replace("index.php","content_return.php",$cur_url);
   $cur_url = str_replace("index.php","tool.php",$cur_url);
 echo("URL: ".$cur_url."\n");
 ?>
@@ -98,8 +99,9 @@ one of the base strings from output that you have.
 <h1>Using This Code</h1>
 <p>
 You are welcome to grab a copy of this code at<br/>
-<a href="https://source.sakaiproject.org/svn/basiclti/trunk/basiclti-docs/resources/docs/sakai-api-test/" target="_blank">
-https://source.sakaiproject.org/svn/basiclti/trunk/basiclti-docs/resources/docs/sakai-api-test/</a>.
+<a href="https://github.com/sakaiproject/sakai" target="_blank">https://github.com/sakaiproject/sakai</a> under the folder
+<a href="https://github.com/sakaiproject/sakai/tree/master/basiclti/basiclti-docs/resources/docs/sakai-api-test" target="_blank">
+https://github.com/sakaiproject/sakai/tree/master/basiclti/basiclti-docs/resources/docs/sakai-api-test</a>
 </p>
 <p>
 I host a copy of this code at:<br/>

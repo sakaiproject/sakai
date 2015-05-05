@@ -65,6 +65,7 @@ if ( strlen($output) > 0 ) togglePre("Raw GET Parameters", $output);
 
 echo("<pre>\n");
 
+$tc_oauth_half_secret = isset($_POST['tc_oauth_half_secret']) ? $_POST['tc_oauth_half_secret'] : false;
 $re_register = false;
 if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
 	$reg_key = $_POST['oauth_consumer_key'];
@@ -152,6 +153,7 @@ if ( count($tc_capabilities) < 1 ) die("No capabilities found!\n");
 echo("Optional money collection phase complete...\n");
 echo("<hr/>");
 
+$oauth_splitsecret = in_array('OAuth.splitsecret', $tc_capabilities);
 $tp_profile = json_decode($tool_proxy);
 if ( $tp_profile == null ) {
 	togglePre("Tool Proxy Raw",htmlent_utf8($tool_proxy));
@@ -191,7 +193,14 @@ foreach($tc_capabilities as $capability) {
 $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 
-$tp_profile->security_contract->shared_secret = 'secret';
+// Make a split-secret if desired
+$secret = 'secret';
+if ( $tc_oauth_half_secret && $oauth_splitsecret ) {
+    $tp_oauth_half_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
+    $secret = $tc_oauth_half_secret . $tp_oauth_half_secret;
+}
+
+$tp_profile->security_contract->shared_secret = $secret;
 $tp_services = array();
 foreach($tc_services as $tc_service) {
 	// var_dump($tc_service);
