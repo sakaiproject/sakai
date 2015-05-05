@@ -1414,15 +1414,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	}
 
 	/**
-	 * Used to set the cache key case-sensitivity behavior. 
-	 * @param caseSensitive
-	 * @deprecated
-	 */
-	public void setCaseSensitiveCacheKeys(boolean caseSensitive) {
-		M_log.warn("DEPRECATION WARNING: caseSensitiveCacheKeys is deprecated. Please remove it from your jldap-beans.xml configuration.");
-	}
-
-	/**
 	 * Access the service used to verify EIDs prior to executing
 	 * searches on those values.
 	 * 
