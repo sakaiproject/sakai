@@ -284,6 +284,16 @@ $(function() {
 			return false;
 		});
 
+		$('#export-cc-v11').change(function(){		
+			if ($("#export-cc-v11").prop('checked'))
+			    $("#export-cc-v13").prop('checked',false);
+		    });
+
+		$('#export-cc-v13').change(function(){		
+			if ($("#export-cc-v13").prop('checked'))
+			    $("#export-cc-v11").prop('checked',false);
+		    });
+
 		$('#delete-orphan-link').click(function(){
 			if (delete_orphan_enabled) {
 			    delete_orphan_enabled = false;
