@@ -1322,7 +1322,7 @@ GradebookHeaderCell.prototype.hide = function() {
 
 
 GradebookHeaderCell.prototype.getCategorizedOrder = function() {
-  return this.$cell.find("[data-catagorized-order]").data("catagorized-order");
+  return this.$cell.find("[data-categorized-order]").data("categorized-order");
 }
 
 

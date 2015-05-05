@@ -189,7 +189,7 @@ public class GradebookPage extends BasePage {
                 String category = assignment.getCategoryName();
                 int order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
                 panel.add(new AttributeModifier("data-category", category));
-                panel.add(new AttributeModifier("data-catagorized-order", order));
+                panel.add(new AttributeModifier("data-categorized-order", order));
     				return panel;
             	}
 
