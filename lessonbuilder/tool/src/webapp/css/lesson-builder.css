@@ -39,7 +39,8 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
 }
 .portletBody .lb-button-default:hover,
-.portletBody .lb-button-default:active {
+.portletBody .lb-button-default:active,
+.portletBody .lb-button-default:focus {
   color: #333333;
   border: 1px solid #cccccc;
   background-color: #bbbbbb;
@@ -62,7 +63,8 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#058abc', endColorstr='#1999cc', GradientType=0);
 }
 .portletBody .lb-button-primary:hover,
-.portletBody .lb-button-primary:active {
+.portletBody .lb-button-primary:active,
+.portletBody .lb-button-primary:focus {
   color: #ffffff;
   border: 1px solid #058abc;
   background-color: #058abc;
@@ -85,7 +87,8 @@
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
 }
 .portletBody .lb-button-toolbar:hover,
-.portletBody .lb-button-toolbar:active {
+.portletBody .lb-button-toolbar:active,
+.portletBody .lb-button-toolbar:focus {
   color: #333333;
   border: 1px solid #cccccc;
   background-color: #bbbbbb;
@@ -320,10 +323,12 @@
   position: relative;
   float: left;
 }
-.portletBody .lb-dropdown ul li:hover {
+.portletBody .lb-dropdown ul li:hover,
+.portletBody .lb-dropdown ul li:focus {
   background: #f6f6f6;
 }
-.portletBody .lb-dropdown ul li:hover > ul {
+.portletBody .lb-dropdown ul li:hover > ul,
+.portletBody .lb-dropdown ul li:focus > ul {
   display: block;
 }
 .portletBody .lb-dropdown ul a {

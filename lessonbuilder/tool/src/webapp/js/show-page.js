@@ -2002,21 +2002,21 @@ $(function() {
 			out: buttonRemoveHighlightc
 	};
 
-	//var dropdownConfig = {
-	//		interval: 0,
-	//		sensitivity: 7,
-	//		over: menuAddHighlight,
-	//		timeout: 700,
-	//		out: menuRemoveHighlight
-	//};
-    //
-	//var dropdowncConfig = {
-	//		interval: 0,
-	//		sensitivity: 7,
-	//		over: menuAddHighlightc,
-	//		timeout: 700,
-	//		out: menuRemoveHighlightc
-	//};
+	var dropdownConfig = {
+			interval: 0,
+			sensitivity: 7,
+			over: menuAddHighlight,
+			timeout: 700,
+			out: menuRemoveHighlight
+	};
+
+	var dropdowncConfig = {
+			interval: 0,
+			sensitivity: 7,
+			over: menuAddHighlightc,
+			timeout: 700,
+			out: menuRemoveHighlightc
+	};
 
 	// where html5 might work we have an html5 player followed by the ususal object or embed
 	// check the dom to see if it will actually work. If so use html5 with other stuff inside it
@@ -2053,8 +2053,22 @@ $(function() {
 	//$("#dropdownc").click(buttonToggleDropdownc);
 	dropDownViaClick = false;
 
+	// Dropdown jQuery - for #addContentDropdown and #addPagesDropdown
+	$("li.tabTrigger").hover(function(){
+		$('ul:first',this).stop().show();
+	}, function(){
+		$('ul:first',this).stop().hide();
+	});
+	$("li.tabTrigger a").focus(function(){
+		$(this).parent().find('ul').show();
+	});
+	$("li.tabTrigger ul li:last-child a").blur(function(){
+		$(this).parent().parent().hide();
+	});
+
 	return false;
 });
+
 
 function closeSubpageDialog() {
 	$("#subpage-dialog").dialog("close");
