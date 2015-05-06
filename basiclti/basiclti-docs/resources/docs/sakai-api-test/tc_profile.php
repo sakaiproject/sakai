@@ -112,7 +112,8 @@ echo <<< EOF
         "User.image" ,
         "Result.sourcedId" ,
         "Result.autocreate",
-        "Result.custom.url"
+        "Result.custom.url",
+        "OAuth.splitsecret"
   ],
   "service_offered": [
     {
