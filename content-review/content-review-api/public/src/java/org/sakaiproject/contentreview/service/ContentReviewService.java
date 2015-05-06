@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedSet;
 
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.site.api.Site;
@@ -202,14 +203,33 @@ public interface ContentReviewService {
 	 */
 	
 	public void resetUserDetailsLockedItems(String userId);
+
+	/**
+	 * Each content review implementation can either accept all files or reject unsupported file formats.
+	 * VeriCite for instance accepts files of any type; if content is in a format that cannot be checked for originality, it returns a score of 0.
+	 * However, TurnItIn reports errors when the file format cannot be checked for originality, so we need to block unsupported content.
+	 * @return whether all content is accepted by this content review service
+	 */
+	public boolean allowAllContent();
 	
 	/**
-	 * Is the content resource of an type that can be accepted by the service implementation
+	 * Is the content resource of a type that can be accepted by the service implementation
 	 * @param resource
 	 * @return
 	 */
 	public boolean isAcceptableContent(ContentResource resource);
 	
+	/**                                                                                                                                                                                                    
+	 * Gets a map of acceptable file extensions for this content-review service to their associated mime types (ie. ".rtf" -> ["text/rtf", "application,rtf"])                                             
+	 */                                                                                                                                                                                                    
+	public Map<String, SortedSet<String>> getAcceptableExtensionsToMimeTypes();                                                                                                                                 
+																																																		  
+	/**                                                                                                                                                                                                    
+	 * Gets a map of acceptable file types for this content-review service (as UI presentable names) to their associated file extensions (ie. "PowerPoint" -> [".ppt", ".pptx", ".pps", ".ppsx"])          
+	 * NB: This must always be implemented as a LinkedHashMap or equivalent; the order is expected to be preserved                                                                                         
+	 */                                                                                                                                                                                                    
+	public Map<String, SortedSet<String>> getAcceptableFileTypesToExtensions();
+
 	/**
 	 *  Can this site make use of the content review service
 	 * 
