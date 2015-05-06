@@ -19,6 +19,7 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -33,6 +34,7 @@ import org.sakaiproject.gradebookng.business.dto.GradebookUserPreferences;
 import org.sakaiproject.gradebookng.business.model.GbEditingNotification;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbGroupType;
+import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
@@ -354,22 +356,28 @@ public class GradebookNgBusinessService {
 	 */
 	public List<StudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> userUuids) {
 		
+		StopWatch stopwatch = new StopWatch();
+		stopwatch.start();
+		Temp.timeWithContext("buildGradeMatrix", "buildGradeMatrix start", stopwatch.getTime());
+		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
 			return null;
 		}
+		Temp.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
 		
 		List<User> students = this.getGradeableUsers(userUuids);
-				
+		Temp.timeWithContext("buildGradeMatrix", "getGradeableUsers", stopwatch.getTime());
+
 		//because this map is based on eid not uuid, we do the filtering later so we can save an iteration
 		Map<String,String> courseGrades = this.getSiteCourseGrades();
-				
+		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
+		
 		List<StudentGradeInfo> rval = new ArrayList<StudentGradeInfo>();
 		
 		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
 		//however the logic needs to be reworked so we can capture the user info
 		//NOT a high priority unless performance issue deems it to be
-		
 		
 		for(User student: students) {
 			
@@ -380,7 +388,8 @@ public class GradebookNgBusinessService {
 				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
 				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
 			}
-			
+			Temp.timeWithContext("buildGradeMatrix", "all grades for student", stopwatch.getTime());
+
 			//add the course grade
 			sg.setCourseGrade(courseGrades.get(student.getEid()));
 			
@@ -390,6 +399,9 @@ public class GradebookNgBusinessService {
 			rval.add(sg);
 			
 		}
+		
+		Temp.timeWithContext("buildGradeMatrix", "buildGradeMatrix done", stopwatch.getTime());
+
 		return rval;
 		
 	}

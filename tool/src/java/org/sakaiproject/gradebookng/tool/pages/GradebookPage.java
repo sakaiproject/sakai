@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -29,6 +31,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
+import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
@@ -57,14 +60,16 @@ public class GradebookPage extends BasePage {
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
-		disableLink(this.gradebookPageLink);		
+		disableLink(this.gradebookPageLink);	
+		
+		StopWatch stopwatch = new StopWatch();
+		stopwatch.start();
+		Temp.time("GradebookPage init", stopwatch.getTime());
 		
 		form = new Form<Void>("form");
 		add(form);
 		
-		
 		form.add(new AddGradeItemButton("addGradeItem"));
-		
 		
 		addGradeItemWindow = new AddGradeItemWindow("addGradeItemWindow");
 		form.add(addGradeItemWindow);
@@ -76,12 +81,20 @@ public class GradebookPage extends BasePage {
 		
 		form.add(studentGradeSummary);
 		
-		
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+		Temp.time("getGradebookAssignments", stopwatch.getTime());
         
         //get the grade matrix
         final List<StudentGradeInfo> grades = businessService.buildGradeMatrix(assignments);
+		Temp.time("buildGradeMatrix", stopwatch.getTime());
+		
+		//if the grade matrix is null, we dont have any data
+		//TODO finish this page. Test by creating a new site and going to the tool
+		if(grades == null) {
+			throw new RestartResponseException(NoDataPage.class);
+		}
+		
         
         final ListDataProvider<StudentGradeInfo> studentGradeMatrix = new ListDataProvider<StudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
@@ -176,6 +189,7 @@ public class GradebookPage extends BasePage {
             cols.add(column);
         }
        
+		Temp.time("all Columns added", stopwatch.getTime());
         
         //TODO make this AjaxFallbackDefaultDataTable
         DataTable table = new DataTable("table", cols, studentGradeMatrix, 50);
@@ -216,6 +230,9 @@ public class GradebookPage extends BasePage {
         form.add(groupFilter);
 
         add(new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", assignments));
+        
+		Temp.time("Gradebook page done", stopwatch.getTime());
+
 	}
 	
 	/**
@@ -266,6 +283,7 @@ public class GradebookPage extends BasePage {
 	public ModalWindow getStudentGradeSummaryWindow() {
 		return this.studentGradeSummary;
 	}
+	
 	
 	
 	
