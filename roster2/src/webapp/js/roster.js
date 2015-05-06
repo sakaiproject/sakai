@@ -280,9 +280,6 @@
 
             $('#navbar_permissions_link > span').addClass('current');
             
-            roster.render('permissions_header',
-                    { 'siteTitle': roster.site.title }, 'roster_header');
-            
             $('#roster_section_filter').html('');
             $('#roster_search').html('');
 
@@ -294,7 +291,7 @@
                         return {name: role};
                     });
             
-                roster.render('permissions', { roles: roles }, 'roster_content');
+                roster.render('permissions', { siteTitle: roster.site.title, roles: roles }, 'roster_content');
                 
                 $(document).ready(function () {
 
