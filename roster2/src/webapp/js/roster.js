@@ -428,6 +428,19 @@
 
                         $('#roster-group-option-' + value).prop('selected', true);
                     });
+
+                    $('a.profile').cluetip({
+                        width: '640px',
+                        cluetipClass: 'roster',
+                        sticky: true,
+                        dropShadow: false,
+                        arrows: true,
+                        mouseOutClose: true,
+                        closeText: '<img src="/library/image/silk/cross.png" alt="close" />',
+                        closePosition: 'top',
+                        showTitle: false,
+                        hoverIntent: true
+                    });
                 });
 
                 if (roster.nextPage === 0) {
