@@ -67,17 +67,18 @@
 	*	Check if there is no scroll rendered and there are more pages
 	*/
     roster.checkScroll = function () {
-    	$(window).off('scroll.roster.rendered');
-        // Check if body height is lower than window height
+        // Check if body height is lower than window height (scrollbar missed, maybe you need to get more pages automatically)
         if ($("body").height() <= $(window).height()) {
             setTimeout(function () {
             	var renderedMembers = $(".roster-member").size();
-            	if (roster.site.membersTotal > renderedMembers) {
+            	// Without filter conditions get more pages if there are more members than rendered and rendered > 0
+            	// If you have an active filter maybe you could display less members than total
+            	// So get more pages only if rendered match a page size (10 is pagesize)
+            	if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
                 	$("body").data("scroll-roster", true);
-                	$(window).on('scroll.roster.rendered', roster.checkScroll);
                 	$(window).trigger('scroll.roster');
             	}
-            }, 500);
+            }, 100);
         }
     };
     
@@ -88,7 +89,7 @@
 
         var t = Handlebars.templates[template];
         document.getElementById(outputId).innerHTML = t(data);
-        $(window).trigger('scroll.roster.rendered');
+
     };
 
     roster.switchState = function (state, arg, searchQuery) {
@@ -527,9 +528,10 @@
             };
 
         var templateName = (enrollmentsMode) ? 'enrollments' : 'members';
-
+        $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
         var t = Handlebars.templates[templateName];
         target.append(t(templateData));
+        $(window).trigger('scroll.roster.rendered');
     };
 
     roster.getScrollFunction = function (showOfficialPictures, enrollmentStatus) {
@@ -736,11 +738,6 @@
         },
         error: function () {
         }
-    });
-    
-    $(document).ready(function () {
-    	// Ensure everything is rendered
-    	setTimeout(function () { roster.checkScroll(); }, 500);
     });
     
 }) (jQuery);
