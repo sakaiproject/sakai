@@ -994,6 +994,10 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   // DOM node on the model and set it up
   this.setupCell($("#"+cellId));
   this.setupWicketLabelField();
+  
+  //bind a timeout to the successful save. An easing would be nice
+  $(".gradeSaveSuccess").removeClass("gradeSaveSuccess", 1000);
+  
 };
 
 
