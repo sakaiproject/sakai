@@ -85,6 +85,7 @@ public class QuestionPoolBean implements Serializable
 	  private final static long serialVersionUID = 418920360211039758L;
   public final static String ORIGIN_TOP = "poolList";
   public final static String EDIT_POOL = "editPool";
+  public final static String EDIT_ASSESSMENT = "editAssessment";
   
   private String name;
   private Collection pools;
@@ -1310,7 +1311,7 @@ public String getAddOrEdit()
         err=rb.getString("no_pools_error");
         context.addMessage(null, new FacesMessage(err));
 
-		return "editAssessment";
+		return EDIT_ASSESSMENT;
 	}
      
   public boolean hasItemInDestPool(String sourceItemId, String destId){
@@ -1414,8 +1415,8 @@ public String getAddOrEdit()
 				}
 			}
 		}
-		
-		return "editAssessment";
+		setSourcePart(null);
+		return EDIT_ASSESSMENT;
 	}
 
  public String removeQuestionsFromPool(){
@@ -1846,7 +1847,11 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String cancelPool() {
-	  if(ORIGIN_TOP.equals(getOutcome()) || getOutcomePool() == 0){		  
+	  if (getSourcePart() != null) {	
+		  setSourcePart(null);
+		  setOutcome(EDIT_ASSESSMENT);
+	  }
+	  else if (ORIGIN_TOP.equals(getOutcome()) || getOutcomePool() == 0){		  
 		setCurrentPool(null);
 		setOutcome(ORIGIN_TOP);
 		buildTree();
@@ -2057,7 +2062,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     this.setImportToAuthoring(false);
     itemauthorbean.setItemTypeString("");
-    return "editAssessment";
+    return EDIT_ASSESSMENT;
 
   }
 
