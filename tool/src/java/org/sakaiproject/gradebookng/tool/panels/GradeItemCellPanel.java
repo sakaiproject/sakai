@@ -71,7 +71,7 @@ public class GradeItemCellPanel extends Panel {
 								
 				@Override
 				protected String defaultNullLabel() {
-					return "-"; // they need something to click
+					return "&nbsp;";
 				}
 				
 				@Override
