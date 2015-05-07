@@ -18,6 +18,7 @@ import org.jclouds.openstack.swift.v1.domain.SwiftObject;
 import org.jclouds.openstack.swift.v1.features.ContainerApi;
 import org.jclouds.openstack.swift.v1.features.ObjectApi;
 import org.jclouds.openstack.swift.v1.options.CreateContainerOptions;
+import org.jclouds.openstack.swift.v1.options.PutOptions;
 import org.sakaiproject.content.api.FileSystemHandler;
 import org.springframework.util.FileCopyUtils;
 
@@ -253,7 +254,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     @Override
     public InputStream getInputStream(String id, String root, String filePath) throws IOException {
         ContainerAndName can = getContainerAndName(id, root, filePath);
-        ObjectApi objectApi = swiftApi.objectApiInRegionForContainer(region, can.container);
+        ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
         SwiftObject so = objectApi.get(can.name, GetOptions.NONE);
         if(so == null){
             throw new IOException("No object found for " + id);
@@ -275,10 +276,10 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
         checkAccountSpace();
         createContainerIfNotExist(can.container);
         checkContainerSpace(can.container);
-        ObjectApi objectApi = swiftApi.objectApiInRegionForContainer(region, can.container);
+        ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
         CountingInputStream in = new CountingInputStream((stream));
         Payload payload = Payloads.newInputStreamPayload(in);
-        objectApi.replace(can.name, payload, ImmutableMap.of("id", id, "path", filePath));
+        objectApi.put(can.name, payload, PutOptions.Builder.metadata(ImmutableMap.of("id", id, "path", filePath)));
         return in.getCount();
     }
 
@@ -288,8 +289,8 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     @Override
     public boolean delete(String id, String root, String filePath) {
         ContainerAndName can = getContainerAndName(id, root, filePath);
-        ObjectApi objectApi = swiftApi.objectApiInRegionForContainer(region, can.container);
-        if(objectApi.head(can.name) == null){
+        ObjectApi objectApi = swiftApi.getObjectApi(region, can.container);
+        if(objectApi.getWithoutBody(can.name) == null){
             return false;
         }else{
             objectApi.delete(can.name);
@@ -306,7 +307,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
         if(warningLimitForAccountSizeInBytes <= 0L && errorLimitForAccountSizeInBytes <= 0L){
             return;
         }
-        long bytesUsed = swiftApi.accountApiInRegion(region).get().getBytesUsed();
+        long bytesUsed = swiftApi.getAccountApi(region).get().getBytesUsed();
         if(errorLimitForAccountSizeInBytes > 0L && errorLimitForAccountSizeInBytes < bytesUsed){
             logger.errorOnAccountSize(errorLimitForAccountSizeInBytes, bytesUsed);
             throw new IOException("No more space available for account!\nMax:" + errorLimitForAccountSizeInBytes + "\nUsed:" + bytesUsed);
@@ -325,7 +326,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
         if(warningLimitForContainerSizeInBytes <= 0L && errorLimitForContainerSizeInBytes <= 0L){
             return;
         }
-        long bytesUsed = swiftApi.containerApiInRegion(region).head(container).getBytesUsed();
+        long bytesUsed = swiftApi.getContainerApi(region).get(container).getBytesUsed();
         if(errorLimitForContainerSizeInBytes > 0L && errorLimitForContainerSizeInBytes < bytesUsed){
             logger.errorOnContainerSize(errorLimitForContainerSizeInBytes, bytesUsed);
             throw new IOException("No more space available for container!\nMax:" + errorLimitForContainerSizeInBytes + "\nUsed:" + bytesUsed);
@@ -340,9 +341,9 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
      * Make sure the container exist.
      */
     private void createContainerIfNotExist(String container) {
-        ContainerApi containerApi = swiftApi.containerApiInRegion(region);
+        ContainerApi containerApi = swiftApi.getContainerApi(region);
         CreateContainerOptions options = CreateContainerOptions.Builder.anybodyRead();
-        containerApi.createIfAbsent(container, options);
+        containerApi.create(container, options);
     }
     
     /**
@@ -350,7 +351,7 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
      */
     private void deleteContainerIfEmpty(String container){
         if(deleteEmptyContainers) {
-            ContainerApi containerApi = swiftApi.containerApiInRegion(region);
+            ContainerApi containerApi = swiftApi.getContainerApi(region);
             containerApi.deleteIfEmpty(container);
         }
     }

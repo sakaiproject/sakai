@@ -8,16 +8,16 @@
     <name>Openstack Swift Sakai Resources</name>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.7</maven.compiler.source>
-        <maven.compiler.target>1.7</maven.compiler.target>
-        <jclouds.version>1.7.2</jclouds.version>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <jclouds.version>1.9.0</jclouds.version>
     </properties>
     <dependencies>
         <!-- sakai dependencies -->
         <dependency>
             <groupId>org.sakaiproject.kernel</groupId>
             <artifactId>sakai-kernel-api</artifactId>
-            <version>10.1</version>
+            <version>11-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -31,20 +31,20 @@
             <groupId>org.apache.jclouds.driver</groupId>
             <artifactId>jclouds-slf4j</artifactId>
             <version>${jclouds.version}</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
-            <groupId>org.apache.jclouds.labs</groupId>
+            <groupId>org.apache.jclouds.api</groupId>
             <artifactId>openstack-swift</artifactId>
             <version>${jclouds.version}</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
         <!-- 3rd party dependencies -->
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
             <version>1.0.13</version>
-            <scope>provided</scope>
+            <!--<scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>junit</groupId>
