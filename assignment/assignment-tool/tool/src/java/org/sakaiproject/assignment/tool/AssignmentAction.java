@@ -5959,12 +5959,15 @@ public class AssignmentAction extends PagedResourceActionII
 						sEdit.setAssignment(a);
 
 						// SAK-26322	--bbailla2
-						List nonInlineAttachments = getNonInlineAttachments(state, a);
-						if (nonInlineAttachments != null && a.getContent().getTypeOfSubmission() == 5)
+						if (a.getContent().getTypeOfSubmission() == 5)
 						{
-							//clear out inline attachments for content-review
-							//filter the attachment sin the state to exclude inline attachments (nonInlineAttachments, is a subset of what's currently in the state)
-							state.setAttribute(ATTACHMENTS, nonInlineAttachments);
+							List nonInlineAttachments = getNonInlineAttachments(state, a);
+							if (nonInlineAttachments != null)
+							{
+								//clear out inline attachments for content-review
+								//filter the attachments in the state to exclude inline attachments (nonInlineAttachments, is a subset of what's currently in the state)
+								state.setAttribute(ATTACHMENTS, nonInlineAttachments);
+							}
 						}
 
 						// add attachments
