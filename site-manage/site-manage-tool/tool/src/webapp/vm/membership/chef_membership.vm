@@ -133,6 +133,10 @@
 							#end
 						</a>
 					</th>
+
+					## SAK-29138
+					<th id="sections">$tlang.getString("mb.sections")</th>
+
 					<th id="description">$tlang.getString("gen.description")</th>
 				</tr>
 				<tbody>
@@ -145,18 +149,23 @@
 								## don't show unjoin link if (1) unjoin is disabled for all sites; (2) unjoin is disabled for current site type
 								#if(!$disableUnjoinSelection && !($!siteType && $!disableUnjoinSiteTypes.contains($!siteType)) && $SiteService.allowUnjoinSite($site.Id))
 									<input title="$tlang.getString('mb.unjointitle') $validator.escapeHtml($site.Title)" type="checkbox" id="check-$rowCount" name="itemReference" value="$validator.escapeUrl($site.Id)" class="joinable"/>
-								#end						
+								#end
 							</td>	
 	
 							<td headers="worksite" style="white-space:nowrap" class="attach" id="mcstR-$rowCount">
 								<h4><a href="$site.Url" target="_top" title="$tlang.getString('mb.gotosite') $validator.escapeHtml($site.Title)">$validator.escapeHtml($site.Title)</a></h4>
 							</td>
+
+							<td headers="sections">
+								$siteGroupsMap.get( $site.getId() )
+							</td>
+
 							<td headers="description mcstR-$rowCount" class="specialLink">
 								#if ($validator.escapeHtml($site.Description) != '')
 									$!membershipTextEdit.doPlainTextAndLimit($site.Description,65,"...")
 									<span class="itemAction"><a class="getSiteDesc" id="$site.Id" href="#">$tlang.getString("list.desc.more")</a></span>
 								#end
-					    </td>
+						</td>
 						</tr>
 					#end
 				</tbody>	
