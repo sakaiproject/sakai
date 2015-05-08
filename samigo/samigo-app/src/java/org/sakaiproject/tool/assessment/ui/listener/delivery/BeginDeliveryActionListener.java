@@ -38,12 +38,14 @@ import javax.faces.context.FacesContext;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentAccessControl;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedFeedback;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentAccessControlIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.AssessmentFeedbackIfc;
@@ -57,8 +59,10 @@ import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.bean.cms.CourseManagementBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.delivery.FeedbackComponent;
@@ -69,7 +73,6 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
-
 /**
  * <p>Title: Samigo</p>
  * <p>Purpose:  this module handles the beginning of the assessment
@@ -96,7 +99,10 @@ public class BeginDeliveryActionListener implements ActionListener
     DeliveryBean delivery = (DeliveryBean) ContextUtil.lookupBean("delivery");
     log.debug("****DeliveryBean= "+delivery);
     String actionString = ContextUtil.lookupParam("actionString");
-    if (actionString != null && !actionString.trim().equals("")) {
+    String publishedId = ContextUtil.lookupParam("publishedId");
+    String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
+
+    if (StringUtils.isNotBlank(actionString)) {
       // if actionString is null, likely that action & actionString has been set already, 
       // e.g. take assessment via url, actionString is set by LoginServlet.
       // preview and take assessment is set by the parameter in the jsp pages
@@ -107,7 +113,7 @@ public class BeginDeliveryActionListener implements ActionListener
     
     if ("previewAssessment".equals(delivery.getActionString()) || "editAssessment".equals(actionString)) {
     	String isFromPrint = ContextUtil.lookupParam("isFromPrint");
-        if (isFromPrint != null && !isFromPrint.trim().equals("")) {
+        if (StringUtils.isNotBlank(isFromPrint)) {
     		delivery.setIsFromPrint(Boolean.parseBoolean(isFromPrint));
     	}
     }
@@ -116,15 +122,35 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     
     int action = delivery.getActionMode();
-    PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery);
+    PublishedAssessmentFacade pub = getPublishedAssessmentBasedOnAction(action, delivery, assessmentId, publishedId);
     if(pub == null){
     	delivery.setOutcome("poolUpdateError");
     	throw new AbortProcessingException("pub is null");
     }
-    
+
+    // Does the user have permission to take this action on this assessment in this site?
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (DeliveryBean.PREVIEW_ASSESSMENT == action) {
+      if (StringUtils.isBlank(publishedId)) {
+        if (!authzBean.isUserAllowedToEditAssessment(assessmentId, pub.getCreatedBy(), false)) {
+          throw new IllegalArgumentException("User does not have permission to preview assessment id " + assessmentId);
+        }
+      }
+      else {
+        if (!authzBean.isUserAllowedToEditAssessment(publishedId, pub.getCreatedBy(), true)) {
+          throw new IllegalArgumentException("User does not have permission to preview assessment id " + publishedId);
+        }
+      }
+    }
+    else if (DeliveryBean.REVIEW_ASSESSMENT == action || DeliveryBean.TAKE_ASSESSMENT == action) {
+      if (!authzBean.isUserAllowedToTakeAssessment(pub.getPublishedAssessmentId().toString())) {
+        throw new IllegalArgumentException("User does not have permission to view assessment id " + pub.getPublishedAssessmentId());
+      }
+    }
+
+    // Bug 1547: If this is during review and the assessment is retracted for edit now, 
+	// set the outcome to isRetractedForEdit2 error page.
     if (DeliveryBean.REVIEW_ASSESSMENT == action && AssessmentIfc.RETRACT_FOR_EDIT_STATUS.equals(pub.getStatus())) {
-    	// Bug 1547: If this is during review and the assessment is retracted for edit now, 
-    	// set the outcome to isRetractedForEdit2 error page.
     	delivery.setAssessmentTitle(pub.getTitle());
     	delivery.setHonorPledge(pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable") != null &&
     			pub.getAssessmentMetaDataByLabel("honorpledge_isInstructorEditable").toLowerCase().equals("true"));
@@ -419,15 +445,15 @@ public class BeginDeliveryActionListener implements ActionListener
       }
   }
 
-  private PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery){
+  private PublishedAssessmentFacade getPublishedAssessmentBasedOnAction(int action, DeliveryBean delivery, String assessmentId, String publishedId){
     AssessmentService assessmentService = new AssessmentService();
     PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
     PublishedAssessmentFacade pub = null;
-    String publishedId = ContextUtil.lookupParam("publishedId");
-    String assessmentId = (String)ContextUtil.lookupParam("assessmentId");
-    if (assessmentId == null || "".equals(assessmentId))
-    	assessmentId = delivery.getAssessmentId();
-    	 
+
+    if (StringUtils.isBlank(assessmentId)) {
+        assessmentId = delivery.getAssessmentId();
+    }
+
     switch (action){
     case 2: // delivery.PREVIEW_ASSESSMENT
     	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
@@ -456,7 +482,6 @@ public class BeginDeliveryActionListener implements ActionListener
     			} 
     			catch (Exception e) {
     				log.error(e);
-    				e.printStackTrace();
     			}
     		}else{
     			FacesContext context = FacesContext.getCurrentInstance();

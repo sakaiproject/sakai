@@ -137,8 +137,8 @@ public interface AssessmentGradingFacadeQueriesAPI
   public ItemGradingData getLastItemGradingDataByAgent(Long publishedItemId,
       String agentId);
 
-  public ItemGradingData getItemGradingData(Long assessmentGradingId,
-      Long publishedItemId);
+  public ItemGradingData getItemGradingData(Long assessmentGradingId);
+  public ItemGradingData getItemGradingData(Long assessmentGradingId, Long publishedItemId);
 
   public AssessmentGradingData load(Long id);
   
