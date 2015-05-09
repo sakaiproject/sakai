@@ -17,15 +17,11 @@ require_once("util/lti_util.php");
 
     $cur_url = curPageURL();
 
-    // Half-secret
-    $half = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
-
     $lmsdata = array(
       "lti_message_type" => "ToolProxyRegistrationRequest",
       "lti_version" => "LTI-2p0",
       "reg_key" => "98765",
       "reg_password" => "dontpanic",
-      "tc_oauth_half_secret" => $half,
       "tc_profile_url" => str_replace("tc.php", "tc_profile.php", $cur_url),
       "launch_presentation_return_url" => str_replace("tc.php", "tc_continue.php", $cur_url),
       "secret" => "secret"

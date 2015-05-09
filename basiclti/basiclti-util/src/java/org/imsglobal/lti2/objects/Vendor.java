@@ -62,7 +62,7 @@ public class Vendor {
         return vendor_name;
     }
 
-    @JsonProperty("name")
+    @JsonProperty("vendor_name")
     public void setVendor_name(Name vendor_name) {
         this.vendor_name = vendor_name;
     }

@@ -21,7 +21,6 @@ package org.sakaiproject.basiclti.util;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import org.imsglobal.basiclti.Base64;
 
 public class PortableShaUtil {
 	public static final String UTF8 = "UTF8";
