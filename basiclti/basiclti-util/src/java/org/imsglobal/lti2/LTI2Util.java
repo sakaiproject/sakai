@@ -137,6 +137,11 @@ public class LTI2Util {
 		capabilities.add("ToolProxyBinding.custom.url");
 	}
 
+	public static void allowSplitSecret(List<String> capabilities) {
+		capabilities.add("OAuth.splitSecret");
+	}
+
+
 	// If this code looks like a hack - it is because the spec is a hack.
 	// There are five possible scenarios for GET and two possible scenarios
 	// for PUT.  I begged to simplify the business logic but was overrulled.
