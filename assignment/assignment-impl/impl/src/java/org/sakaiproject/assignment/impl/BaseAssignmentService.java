@@ -2233,6 +2233,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		catch(IdUnusedException iue)
 		{
 			// A bit terminal, this.
+			M_log.error("addSubmission called with unknown assignmentId: " + assignmentId);
 		}
 
 		// SAK-21525
@@ -4633,7 +4634,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
                         			commitEdit(s);
                         			// clear the permission
-                        		} finally {
+                        		} 
+                        		catch (Exception e)
+                        		{
+                        			M_log.warn("getSubmitterGroupList: exception thrown while creating empty submission for group who has not submitted: " + e.getMessage());
+                        		}
+                        		finally {
                         			securityService.popAdvisor(securityAdvisor);
                         		}
 	                        }
@@ -4811,6 +4817,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									commitEdit(s);
 									rv.put(u, s);
 								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("getSubmitterMap: exception thrown while creating empty submission for student who has not submitted: " + e.getMessage());
 							}
 							finally
 							{
