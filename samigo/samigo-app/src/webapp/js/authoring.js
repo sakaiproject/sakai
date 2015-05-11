@@ -331,20 +331,31 @@ function disableAllFeedbackCheck(feedbackType)
 	var noFeedback = 3;
 	
     if (feedbackType == noFeedback){
-     	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop({disabled:true, checked:false});
+     	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
 		$(".respChoice input").prop({disabled:true, checked:false});
 	}
-	else
+    else
 	{
-		$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
-		if($("#assessmentSettingsAction\\:feedbackComponentOption input:checked").val() == 1)
-			$(".respChoice input").prop("disabled", true);
-		else 
-		{
-			$("#assessmentSettingsAction\\:feedbackComponentOption input")[1].checked = true;
-			$(".respChoice input").prop("disabled", false);
-		}
+    	$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", false);
+    	if ($("input[name=assessmentSettingsAction\\:feedbackComponentOption]:checked").val() == 1) {
+    		$(".respChoice input").prop({disabled:true, checked:false});
+    	} else {
+    		$(".respChoice input").prop("disabled", false);
+    	}
 	}
+    disableFeedbackDateCheck(feedbackType);
+}
+
+function disableFeedbackDateCheck(feedbackType) {
+	var dateFeedback = 2;
+
+    if (feedbackType == dateFeedback) {
+    	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", false);
+    	$("td.feedbackColumn2 > img.ui-datepicker-trigger").prop("hidden", false);
+    } else {
+    	$("input#assessmentSettingsAction\\:feedbackDate.hasDatepicker").prop("disabled", true);
+    	$("td.feedbackColumn2 > img.ui-datepicker-trigger").prop("hidden", true);
+    }
 }
 
 function disableAllFeedbackCheckTemplate(feedbackType)
@@ -389,16 +400,19 @@ function disableAllFeedbackCheckTemplate(feedbackType)
 	}
 }
 
-$(document).ready(function(){
+$(window).load( function() {
 	checkNoFeedbackOnLoad();
-})
+});
 
 function checkNoFeedbackOnLoad(){
 	var noFeedback = 3;
-	if($("#assessmentSettingsAction\\:feedbackDelivery input:checked").val() == noFeedback || $("#assessmentSettingsAction\\:feedbackDelivery2 input:checked").val() == noFeedback) {
-		$("#assessmentSettingsAction\\:feedbackComponentOption input").prop({disabled:true, checked:false});
+	var feedbackType = $("input[name=assessmentSettingsAction\\:feedbackDelivery]:checked").val();
+
+	if(feedbackType == noFeedback) {
+		$("#assessmentSettingsAction\\:feedbackComponentOption input").prop("disabled", true);
 		$(".respChoice input").prop('disabled', true);
 	}
+	disableFeedbackDateCheck(feedbackType);
 }
 
 function disableOtherFeedbackComponentOption(field)
