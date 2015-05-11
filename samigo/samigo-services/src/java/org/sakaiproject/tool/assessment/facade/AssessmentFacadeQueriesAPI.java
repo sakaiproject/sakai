@@ -100,7 +100,7 @@ public interface AssessmentFacadeQueriesAPI {
 	/**
 	 * 
 	 * @param assessmentId
-	 * @return the assement or null if non found
+	 * @return the assessment or null if not found
 	 */
 	public AssessmentFacade getAssessment(Long assessmentId);
 
@@ -139,6 +139,8 @@ public interface AssessmentFacadeQueriesAPI {
 			String siteAgentId);
 
 	public AssessmentFacade getBasicInfoOfAnAssessment(Long assessmentId);
+	
+	public AssessmentFacade getBasicInfoOfAnAssessmentFromSectionId(Long sectionId);
 
 	public ArrayList getSettingsOfAllActiveAssessments(String orderBy);
 

@@ -89,12 +89,16 @@ public class ConfirmPublishAssessmentListener
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     SaveAssessmentSettings s = new SaveAssessmentSettings();
     AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.getAssessment(
-        assessmentId);
-    if (!passAuthz(context, assessment.getCreatedBy())){
-      assessmentSettings.setOutcomePublish("editAssessmentSettings");
-      author.setIsErrorInSettings(true);
-      return;
+    AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+    
+    // Check permissions
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (!authzBean.isUserAllowedToPublishAssessment(assessmentId, assessment.getCreatedBy(), false)) {
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_publish_assessment_error");
+        context.addMessage(null,new FacesMessage(err));
+        assessmentSettings.setOutcomePublish("editAssessmentSettings");
+        author.setIsErrorInSettings(true);
+        return;
     }
 
     assessmentBean.setAssessment(assessment);
@@ -391,27 +395,6 @@ public class ConfirmPublishAssessmentListener
 	SetFromPageAsAuthorSettingsListener setFromPageAsAuthorSettingsListener = new SetFromPageAsAuthorSettingsListener();
 	setFromPageAsAuthorSettingsListener.processAction(null);
   }
-
-  public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
-    boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-    if (!hasPrivilege){
-      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-		     "denied_publish_assessment_error");
-      context.addMessage(null,new FacesMessage(err));
-    }
-    return hasPrivilege;
-  }
-
-  public boolean isOwner(String ownerId){
-    boolean isOwner = false;
-    String agentId = AgentFacade.getAgentString();
-    isOwner = agentId.equals(ownerId);
-    return isOwner;
-  }  
 
   public void setIsFromActionSelect(boolean isFromActionSelect){
 	  this.isFromActionSelect = isFromActionSelect;

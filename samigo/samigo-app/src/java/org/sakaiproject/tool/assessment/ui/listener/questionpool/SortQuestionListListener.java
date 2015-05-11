@@ -23,6 +23,9 @@
 package org.sakaiproject.tool.assessment.ui.listener.questionpool;
 
 import java.util.ArrayList;
+import java.util.List;
+
+import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
@@ -66,7 +69,18 @@ public class SortQuestionListListener
     questionpoolbean.setSortQuestionAscending(Boolean.valueOf(ContextUtil.lookupParam("ascending")).booleanValue());
     
     String qpid=ContextUtil.lookupParam("qpid");
+
     QuestionPoolService delegate = new QuestionPoolService();
+
+    // Check permission to this pool
+    PersonBean person = (PersonBean) ContextUtil.lookupBean("person");
+    String userId = person.getId();
+
+    List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(userId);
+    if (!poolsWithAccess.contains(Long.valueOf(qpid))) {
+        throw new IllegalArgumentException("userId " + userId + " does not have access to question pool id " + qpid);
+    }
+
     ArrayList list= null;
     if (getItems != null && getItems.trim().equals("false")){
     	log.debug("Do not getItems: getItems = " + getItems);

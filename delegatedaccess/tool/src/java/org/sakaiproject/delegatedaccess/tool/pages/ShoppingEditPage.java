@@ -219,9 +219,9 @@ public class ShoppingEditPage extends BaseTreePage{
 			}
 		}
 		//set the size of the role Column (shopper becomes)
-		int roleColumnSize = 40 + largestRole.length() * 6;
-		if(roleColumnSize < 115){
-			roleColumnSize = 115;
+		int roleColumnSize = 80 + largestRole.length() * 6;
+		if(roleColumnSize < 155){
+			roleColumnSize = 155;
 		}
 		boolean singleRoleOptions = false;
 		if(roleMap.size() == 1){
@@ -244,11 +244,11 @@ public class ShoppingEditPage extends BaseTreePage{
 			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("shoppersBecome", null).getString(),
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, null));
 		}
-		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true));
-		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 100, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));
-		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("showToolsHeader", null).getString(),
+		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 104, Unit.PX), new StringResourceModel("startDate", null).getString(), "userObject.shoppingPeriodStartDate", true));
+		columnsList.add(new PropertyEditableColumnDate(new ColumnLocation(Alignment.RIGHT, 104, Unit.PX), new StringResourceModel("endDate", null).getString(), "userObject.shoppingPeriodEndDate", false));
+		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 120, Unit.PX), new StringResourceModel("showToolsHeader", null).getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
-		columnsList.add(new PropertyEditableColumnAdvancedOptions(new ColumnLocation(Alignment.RIGHT, 75, Unit.PX), new StringResourceModel("advanced", null).getString(), "userObject.shoppingPeriodRevokeInstructorEditable", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
+		columnsList.add(new PropertyEditableColumnAdvancedOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced", null).getString(), "userObject.shoppingPeriodRevokeInstructorEditable", DelegatedAccessConstants.TYPE_ACCESS_SHOPPING_PERIOD_USER));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		final boolean activeSiteFlagEnabled = sakaiProxy.isActiveSiteFlagEnabled();

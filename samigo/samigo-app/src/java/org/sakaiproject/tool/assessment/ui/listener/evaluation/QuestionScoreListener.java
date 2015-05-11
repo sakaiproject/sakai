@@ -57,6 +57,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.FormattedText;
@@ -117,6 +119,15 @@ public class QuestionScoreListener implements ActionListener,
 
 		// we probably want to change the poster to be consistent
 		String publishedId = ContextUtil.lookupParam("publishedId");
+
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+		PublishedAssessmentService pubService = new PublishedAssessmentService();
+		Long pubId = new Long(publishedId);
+		String assessmentOwner = pubService.getPublishedAssessmentOwner(pubId);
+		if (!authzBean.isUserAllowedToGradeAssessment(publishedId, assessmentOwner, true)) {
+			throw new IllegalArgumentException("QuestionScoreListener unauthorized attempt to get scores for " + publishedId);
+		}
 
 		if (!questionScores(publishedId, bean, false)) {
 			throw new RuntimeException("failed to call questionScores.");

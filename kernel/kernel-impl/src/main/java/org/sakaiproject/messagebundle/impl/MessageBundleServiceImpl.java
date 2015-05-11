@@ -207,15 +207,15 @@ public class MessageBundleServiceImpl extends HibernateDaoSupport implements Mes
             mbp.setModuleName(moduleName);
             mbp.setLocale(loc.toString());
             mbp.setPropertyName(key);
-            mbp.setDefaultValue(entry.getValue());
             MessageBundleProperty existingMbp = getProperty(mbp);
             if (existingMbp != null) {
                 //don"t update id or value, we don't want to loose that data
-                BeanUtils.copyProperties(mbp, existingMbp, new String[]{"id","value"});
+                BeanUtils.copyProperties(mbp, existingMbp, new String[]{"id", "defaultValue", "value"});
                 logger.debug("updating message bundle data for : " +
                         getIndexKeyName(mbp.getBaseName(),mbp.getModuleName(), mbp.getLocale()));
                 updateMessageBundleProperty(existingMbp);
             } else {
+                mbp.setDefaultValue(entry.getValue());
                 logger.debug("adding message bundle data for : " +
                         getIndexKeyName(mbp.getBaseName(),mbp.getModuleName(), mbp.getLocale()));
                 updateMessageBundleProperty(mbp);

@@ -60,6 +60,7 @@ if ( ! $endpoint ) {
     }
 }
 $cssurl = str_replace("lms.php","lms.css",$cur_url);
+$content_url = str_replace("lms.php","content_return.php",$cur_url);
 
 $b64 = base64_encode($key.":::".$secret.":::".uniqid());
 $outcomes = str_replace("lms.php","common/tool_consumer_outcome.php",$cur_url);
@@ -125,6 +126,7 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   // Add oauth_callback to be compliant with the 1.0A spec
   $parms["oauth_callback"] = "about:blank";
   $parms["lis_outcome_service_url"] = $outcomes;
+  $parms["content_item_return_url"] = $content_url;
   $parms["lis_result_sourcedid"] = '{"zap" : "Siân JSON 1234 Sourcedid <>&lt;"}';
     
 if ( strpos($cur_url, "localhost" ) === FALSE ) $parms['launch_presentation_css_url'] = $cssurl;

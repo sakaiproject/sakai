@@ -43,7 +43,8 @@ import org.sakaiproject.user.api.User;
 public interface AuthzGroup extends Edit, Comparable, Serializable
 {
 	/**
-	 * Add a member to the AuthzGroup.
+	 * Add a member to the AuthzGroup, or, if the user is currently a member, update
+     * the membership with the supplied details.
 	 * 
 	 * @param userId
 	 *        The user.

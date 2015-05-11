@@ -8,12 +8,27 @@ import javax.faces.event.ActionListener;
 
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 
 public class UpdateRandomPoolQuestionsListener  implements ActionListener{
 	public void processAction(ActionEvent arg0) throws AbortProcessingException {
 		String sectionId = (String) FacesContext.getCurrentInstance()
 		.getExternalContext().getRequestParameterMap().get("assesssmentForm:randomQuestionsSectionId");
+
+		AssessmentService assessmentService = new AssessmentService();
+		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(new Long(sectionId));
+		Long assessmentId = af.getAssessmentBaseId();
+		String createdBy = af.getCreatedBy();
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+
+		if (!authzBean.isUserAllowedToEditAssessment(assessmentId.toString(), createdBy, false)) {
+		    FacesContext context = FacesContext.getCurrentInstance();
+		    String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+		    context.addMessage(null,new FacesMessage(err));
+		    return;
+		}
 
 		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 		int success = assessmentBean.updateRandomPoolQuestions(sectionId);
