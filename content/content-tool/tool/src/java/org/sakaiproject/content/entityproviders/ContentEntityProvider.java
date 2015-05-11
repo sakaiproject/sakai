@@ -179,6 +179,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						ContentItem item = new ContentItem();
 						item.setType("collection");
 						item.setSize(contentHostingService.getCollectionSize(id));
+						item.setQuota(Long.toString(contentHostingService.getQuota(collection)));
+						item.setUsage(Long.toString(collection.getBodySizeK() * 1024));
+						
 						List<String> collectionMembers = collection.getMembers();
 						if (collectionMembers != null)
 						{
@@ -511,6 +514,12 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 
 		@Getter @Setter
 		private String endDate;
+      
+		@Getter @Setter
+		private String quota;
+		
+		@Getter @Setter
+		private String usage;
 	}
 	
 	/**
