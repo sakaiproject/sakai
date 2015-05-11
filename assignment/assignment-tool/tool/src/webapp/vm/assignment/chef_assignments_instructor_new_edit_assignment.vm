@@ -216,6 +216,15 @@ $(document).ready(function() {
 			document.getElementById('resubmitNotification').style.display = 'none';
 		}
 	}
+
+	function toggleIsGroupSubmission(checked){
+		if (checked) {
+			$("#site").prop("disabled", true);
+			$("#groups").prop("checked", true).trigger("click");
+		} else {
+			$("#site").prop("disabled", false);
+		}
+	}
 </script>
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
@@ -1103,7 +1112,7 @@ $(document).ready(function() {
 
                                  #if ($group_submissions_enabled)
                                     <p class="checkbox  indnt2">
-                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1"
+                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" onclick="toggleIsGroupSubmission(this.checked);"
                             #if ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
                                 checked="checked"
                                         #end
@@ -1139,7 +1148,9 @@ $(document).ready(function() {
                         <input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); showOrHideAccessMessages( false ); resizeFrame();" 
                         #if( $!range == "site" || $selectedGroupsNotFound )
                             checked="checked"
-					#end
+                        #elseif ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
+                            disabled="disabled"
+                        #end
                         />
                     #end
 					<label for="site">$tlang.getString("displayto.site")</label>
