@@ -386,6 +386,8 @@ public class GradebookNgBusinessService {
 			//add the assignment grades
 			for(Assignment assignment: assignments) {
 				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
+				Temp.timeWithContext("buildGradeMatrix", "getGradeDefinitionForStudentForItem", stopwatch.getTime());
+				
 				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
 			}
 			Temp.timeWithContext("buildGradeMatrix", "all grades for student", stopwatch.getTime());
