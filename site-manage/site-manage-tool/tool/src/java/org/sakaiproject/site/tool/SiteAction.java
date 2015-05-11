@@ -7654,12 +7654,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Site site = getStateSite(state);
 		
 		saveFeatures(params, state, site);
-
-		// SAK-22384
-		if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
-		{
-			commitSite(site);
-		}
 		
 		if (state.getAttribute(STATE_MESSAGE) == null) {
 			// clean state variables
@@ -11188,6 +11182,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 		// import
 		importToolIntoSite(chosenList, importTools, site);
+		
+		// SAK-22384 add LaTeX (MathJax) support
+		if (MathJaxEnabler.prepareMathJaxToolSettingsForSave(site, state))
+		{
+			commitSite(site);
+		}
 		
 	} // saveFeatures
 
