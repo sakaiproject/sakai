@@ -592,54 +592,81 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
     }
   };
 
+
+  function applyAndPersistOrder($source, $target) {
+    var sourceModel = $source.data("model");
+    var targetModel = $target.data("model");
+    // position relative to other header cells
+    var newPosition = $target.index();
+    // order relative to other grade item cells
+    var newOrder = $.inArray(targetModel, self._COLUMN_ORDER);
+
+    sourceModel.moveColumnTo(newPosition);
+
+    updateOrderingAfterDrop(sourceModel);
+
+    if (self.isGroupedByCategory()) {
+      // determine the new position of the grade item in relation to grade items in this category
+      var order = $.inArray(model, self._CATEGORIES_MAP[model.getCategory()]);
+      // TODO persist sort order for items within categories
+      //GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
+      //                                  model.columnKey,
+      //                                  order);
+    } else {
+      // determine the new position of the grade item in relation to all other grade items
+      GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
+                                        targetModel.columnKey,
+                                        newOrder);
+    }
+
+    // refresh the fixed header
+    self.refreshFixedTableHeader(true);
+  }
+
+
   self.find(".gb-grade-item-column-cell").on("mousedown", function() {
     self.$spreadsheet.data("activeCell", $(this));
+    $(this).focus();
     return true;
   });
 
-  var myDragTable = self.$table.dragtable({
-    maxMovingRows: 1,
-    clickDelay: 200, // give the user 200ms to perform a click or actually get their drag on
-    dragaccept: '.gb-grade-item-column-cell',
-    excludeFooter: true,
-    beforeStart: function(dragTable) {
+  var $droppables = self.$table.find("thead .gb-grade-item-column-cell").droppable({
+    accept: ".gb-grade-item-column-cell",
+    hoverClass: "gb-grade-item-drag-hover",
+    tolerance: "pointer",
+    drop: function(event, ui) {
+      applyAndPersistOrder(ui.draggable, $(event.target));
+    }
+  });
+
+  self.$table.find("thead .gb-grade-item-column-cell").draggable({
+    addClasses: false,
+    helper: function(event, ui, foo) {
+      var $cell = $(event.currentTarget);
+      var $clone = self._cloneCell($cell);
+      $clone.data("model", $cell.data("model"));
+
+      $clone.height(self.$table.height());
+
+      return $clone;
+    },
+    axis: 'x',
+    delay: 500,
+    scrollSensitivity: 100,
+    opacity: 0.9,
+    zIndex: 1000,
+    start: function(event, ui) {
+      $(ui.helper.context).addClass("gb-grade-item-drag-source");
+      // enable all droppable
+      $droppables.droppable("enable");
+      // but disable those that aren't in the same category if grouped
       if (self.isGroupedByCategory()) {
-        var scope = self.$spreadsheet.data("activeCell").data("model").categoryDragScope;
-        this.dragaccept = "." + scope; // restrict drop to category
-      } else {
-        this.dragaccept = ".gb-grade-item-column-cell"; // allow drop anywhere
+        var model = $(ui.helper).data("model");
+        $droppables.filter(":not(."+ model.categoryDragScope+")").droppable("disable");
       }
     },
-    beforeStop: function(dragTable) {
-      var newIndex = dragTable.endIndex - 1; // reset to 0-based count
-      var $header = $(self.$table.find("thead th:visible").get(newIndex));
-      var model = $header.data("model");
-
-      self.$table.find("thead th").get(newIndex).focus();
-      updateOrderingAfterDrop(model);
-    },
-    persistState: function(dragTable) {
-      var newIndex = dragTable.endIndex - 1; // reset to 0-based count
-      var $header = $(self.$table.find("thead th:visible").get(newIndex));
-      var model = $header.data("model");
-
-      if (self.isGroupedByCategory()) {
-        // determine the new position of the grade item in relation to grade items in this category
-        var order = $.inArray(model, self._CATEGORIES_MAP[model.getCategory()]);
-        // TODO persist sort order for items within categories
-        //GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
-        //                                  model.columnKey,
-        //                                  order);
-      } else {
-        // determine the new position of the grade item in relation to all other grade items
-        var order = $.inArray(model, self._COLUMN_ORDER);
-        GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
-                                          model.columnKey,
-                                          order);
-      }
-
-      // refresh the fixed header
-      self.refreshFixedTableHeader(true)
+    stop: function(event, ui) {
+      $(ui.helper.context).removeClass("gb-grade-item-drag-source");   
     }
   });
 };
@@ -1121,14 +1148,25 @@ GradebookHeaderCell.prototype.moveColumnTo = function(newIndex) {
 
   var currentIndex = self.$cell.index();
 
-  // reorder the header cell
-  $(self.getRow().children().get(newIndex)).before(self.$cell);
+  if (currentIndex < newIndex) {
+    // reorder the header cell
+    $(self.getRow().children().get(newIndex)).after(self.$cell);
 
-  // reorder the tbody cells
-  self.gradebookSpreadsheet.$table.find("tbody tr").each(function() {
-      var $tr = $(this);
-      $tr.find("td:eq(" + newIndex + ")").before($tr.find("td:eq("+currentIndex+")"));
-  });
+    // reorder the tbody cells
+    self.gradebookSpreadsheet.$table.find("tbody tr").each(function() {
+        var $tr = $(this);
+        $tr.find("td:eq(" + newIndex + ")").after($tr.find("td:eq("+currentIndex+")"));
+    });    
+  } else {
+    // reorder the header cell
+    $(self.getRow().children().get(newIndex)).before(self.$cell);
+
+    // reorder the tbody cells
+    self.gradebookSpreadsheet.$table.find("tbody tr").each(function() {
+        var $tr = $(this);
+        $tr.find("td:eq(" + newIndex + ")").before($tr.find("td:eq("+currentIndex+")"));
+    });
+  }
 };
 
 

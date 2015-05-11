@@ -261,6 +261,17 @@
 #gradebookGrades .gb-flag-extra-credit:before {
   content: '\f0fe';
 }
+/* Drag and Drop */
+#gradebookGrades .gb-grade-item-drag-hover {
+  background-color: #DED;
+  border-color: #393;
+}
+#gradebookGrades .gb-grade-item-drag-source {
+  box-shadow: 2px 2px 3px #AAA inset, -2px -2px 3px #AAA inset;
+}
+#gradebookGrades .gb-grade-item-drag-source > * {
+  visibility: hidden;
+}
 /* Toolbar */
 #gradebookGrades {
   padding-top: 1.6em;
