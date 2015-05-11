@@ -154,60 +154,15 @@ public class SiteHandler extends WorksiteHandler
 		{
 			// This is part of the main portal so we simply remove the attribute
 			session.setAttribute(PortalService.SAKAI_CONTROLLING_PORTAL, null);
+			// site might be specified
+			String siteId = null;
+			if (parts.length >= 3)
+			{
+				siteId = parts[2];
+			}
 			try
 			{
-				// site might be specified
-				String siteId = null;
-				if (parts.length >= 3)
-				{
-					siteId = parts[2];
-				}
-				
-				// recognize an optional page/pageid
-				String pageId = null;
-				String toolId = null;
-
-				// may also have the tool part, so check that length is 5 or greater.
-				if ((parts.length >= 5) && (parts[3].equals("page")))
-				{
-					pageId = parts[4];
-				}
-
-				// Tool resetting URL - clear state and forward to the real tool
-				// URL
-				// /portal/site/site-id/tool-reset/toolId
-				// 0 1 2 3 4
-				if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
-				{
-					toolId = parts[4];
-					String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
-						+ Web.makePath(parts, 4, parts.length);
-					String queryString = Validator.generateQueryString(req);
-					if (queryString != null)
-					{
-						toolUrl = toolUrl + "?" + queryString;
-					}
-					portalService.setResetState("true");
-					res.sendRedirect(toolUrl);
-					return RESET_DONE;
-				}
-
-				// may also have the tool part, so check that length is 5 or greater.
-				if ((parts.length >= 5) && (parts[3].equals("tool")))
-				{
-					toolId = parts[4];
-				}
-
-				String commonToolId = null;
-				
-				if(parts.length == 4)
-				{
-					commonToolId = parts[3];
-				}
-
-				doSite(req, res, session, siteId, pageId, toolId, commonToolId, parts,
-						req.getContextPath() + req.getServletPath());
-				return END;
+				return doGet(parts, req, res, session, siteId);
 			}
 			catch (Exception ex)
 			{
@@ -218,6 +173,60 @@ public class SiteHandler extends WorksiteHandler
 		{
 			return NEXT;
 		}
+	}
+
+	/**
+	 * This extra method is so that we can pass in a different siteId to the one in the URL.
+	 * @see #doGet(String[], HttpServletRequest, HttpServletResponse, Session, String)
+	 */
+	public int doGet(String[] parts, HttpServletRequest req, HttpServletResponse res,
+					 Session session, String siteId) throws IOException, ToolException {
+
+		// recognize an optional page/pageid
+		String pageId = null;
+		String toolId = null;
+
+		// may also have the tool part, so check that length is 5 or greater.
+		if ((parts.length >= 5) && (parts[3].equals("page")))
+		{
+			pageId = parts[4];
+		}
+
+		// Tool resetting URL - clear state and forward to the real tool
+		// URL
+		// /portal/site/site-id/tool-reset/toolId
+		// 0 1 2 3 4
+		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("tool-reset")))
+		{
+			toolId = parts[4];
+			String toolUrl = req.getContextPath() + "/site/" + siteId + "/tool"
+					+ Web.makePath(parts, 4, parts.length);
+			String queryString = Validator.generateQueryString(req);
+			if (queryString != null)
+			{
+				toolUrl = toolUrl + "?" + queryString;
+			}
+			portalService.setResetState("true");
+			res.sendRedirect(toolUrl);
+			return RESET_DONE;
+		}
+
+		// may also have the tool part, so check that length is 5 or greater.
+		if ((parts.length >= 5) && (parts[3].equals("tool")))
+		{
+			toolId = parts[4];
+		}
+
+		String commonToolId = null;
+
+		if(parts.length == 4)
+		{
+			commonToolId = parts[3];
+		}
+
+		doSite(req, res, session, siteId, pageId, toolId, commonToolId, parts,
+				req.getContextPath() + req.getServletPath());
+		return END;
 	}
 
 	public void doSite(HttpServletRequest req, HttpServletResponse res, Session session,

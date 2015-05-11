@@ -40,9 +40,11 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesService;
@@ -68,6 +70,8 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 	private ServerConfigurationService serverConfigurationService;
 	
 	private AliasService aliasService;
+
+	private ThreadLocalManager threadLocalManager;
 	
 	/** Should all site aliases have a prefix */
 	private boolean useAliasPrefix = false;
@@ -527,14 +531,26 @@ public class SiteNeighbourhoodServiceImpl implements SiteNeighbourhoodService
 		this.userDirectoryService = userDirectoryService;
 	}
 
+	public void setThreadLocalManager(ThreadLocalManager threadLocalManager)
+	{
+		this.threadLocalManager = threadLocalManager;
+	}
+
 	public String lookupSiteAlias(String id, String context)
 	{
+		// TODO Constant extraction
+		if ("/site/!error".equals(id)) {
+			Object originalId =  threadLocalManager.get(PortalService.SAKAI_PORTAL_ORIGINAL_SITEID);
+			if (originalId instanceof String) {
+				return (String)originalId;
+			}
+		}
+		List<Alias> aliases = aliasService.getAliases(id);
 		if (!useSiteAliases)
 		{
 			return null;
 		}
-		List<Alias> aliases = aliasService.getAliases(id);
-		if (aliases.size() > 0) 
+		if (aliases.size() > 0)
 		{
 			if (aliases.size() > 1 && log.isInfoEnabled())
 			{
