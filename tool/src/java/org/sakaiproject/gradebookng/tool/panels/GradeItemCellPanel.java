@@ -18,7 +18,6 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.apache.wicket.validation.validator.RangeValidator;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
@@ -55,8 +54,16 @@ public class GradeItemCellPanel extends Panel {
 		final Boolean isExternal = (Boolean) modelData.get("isExternal");
 		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
 		
+		//note, gradeInfo may be null
+		String rawGrade;
+		if(gradeInfo != null) {
+			rawGrade = gradeInfo.getGrade();
+		} else {
+			rawGrade = "";
+		}
+		
 		//get grade
-		final String formattedGrade = this.formatGrade(gradeInfo.getGrade());
+		final String formattedGrade = this.formatGrade(rawGrade);
 				
 		//if assignment is external, normal label
 		if(BooleanUtils.isTrue(isExternal)){
