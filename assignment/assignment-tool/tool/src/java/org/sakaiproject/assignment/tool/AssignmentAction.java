@@ -4825,6 +4825,29 @@ public class AssignmentAction extends PagedResourceActionII
 
 		User u = (User) state.getAttribute(STATE_USER);
 
+		// redirect student to doView_grade if they clicked an old link
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		Assignment a = getAssignment(assignmentReference, "doView_submission", state);
+		if (a != null && !AssignmentService.canSubmit(contextString, a))
+		{
+			AssignmentSubmission submission = null;
+			try
+			{
+				submission = AssignmentService.getSubmission(assignmentReference, u);
+			}
+			catch (Exception e)
+			{
+				String userId = u == null ? "" : u.getId();
+				addAlert(state, rb.getFormattedMessage("cannotfin_submission_1", new String[]{assignmentReference, userId}));
+			}
+			if (submission != null)
+			{
+				String submissionReference = submission.getReference();
+				prepareStudentViewGrade(state, submissionReference);
+				return;
+			}
+		}
+
 		String submitterId = params.get("submitterId");
 		if (submitterId != null && (AssignmentService.allowGradeSubmission(assignmentReference))) {
 		    try {
@@ -4835,7 +4858,6 @@ public class AssignmentAction extends PagedResourceActionII
 		    }
 		}
 
-		Assignment a = getAssignment(assignmentReference, "doView_submission", state);
 		if (a != null)
 		{
 			AssignmentSubmission submission = getSubmission(assignmentReference, u, "doView_submission", state);
@@ -10310,35 +10332,56 @@ public class AssignmentAction extends PagedResourceActionII
 
 		ParameterParser params = data.getParameters();
 
-		state.setAttribute(VIEW_GRADE_SUBMISSION_ID, params.getString("submissionId"));
-		
+		String submissionReference = params.getString("submissionId");
+
+		prepareStudentViewGrade(state, submissionReference);
+	} // doView_grade
+
+	/**
+	 * Prepares the state for the student to view their grade
+	 */
+	private void prepareStudentViewGrade(SessionState state, String submissionReference)
+	{
+		state.setAttribute(VIEW_GRADE_SUBMISSION_ID, submissionReference);
+
 		String _mode = MODE_STUDENT_VIEW_GRADE;
 
-		AssignmentSubmission _s = getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID), "doView_grade", state );
+		AssignmentSubmission _s = getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID), "doView_grade", state);
 		// whether the user can access the Submission object
-		if (_s != null) {
-		    // show submission view unless group submission with group error
-		    Assignment a = _s.getAssignment();
-		    User u = (User) state.getAttribute(STATE_USER);
-		    if (a.isGroup()) {
-		        Collection groups = null;
-		        Site st = null;
-		        try {
-		            st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-		            groups = getGroupsWithUser(u.getId(), a, st);
-		            Collection<String> _dupUsers = checkForGroupsInMultipleGroups(a, groups, state, rb.getString("group.user.multiple.warning"));
-		            if (_dupUsers.size() > 0) {
-		                _mode = MODE_STUDENT_VIEW_GROUP_ERROR;
-		                state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, _s.getAssignmentId());
-		            }
-		        } catch (IdUnusedException iue) {
-		            M_log.warn(this + ":doView_grade found!" + iue.getMessage());
-		        }
-		    }
+		if (_s != null)
+		{
+			String status = _s.getStatus();
+			if ("Not Started".equals(status))
+			{
+				addAlert(state, rb.getString("stuviewsubm.theclodat"));
+			}
+
+			// show submission view unless group submission with group error
+			Assignment a = _s.getAssignment();
+			User u = (User) state.getAttribute(STATE_USER);
+			if (a.isGroup())
+			{
+				Collection groups = null;
+				Site st = null;
+				try
+				{
+					st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+					groups = getGroupsWithUser(u.getId(), a, st);
+					Collection<String> _dupUsers = checkForGroupsInMultipleGroups(a, groups, state, rb.getString("group.user.multiple.warning"));
+					if (_dupUsers.size() > 0)
+					{
+						_mode = MODE_STUDENT_VIEW_GROUP_ERROR;
+						state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, _s.getAssignmentId());
+					}
+				}
+				catch (IdUnusedException iue)
+				{
+					M_log.warn(this + ":doView_grade found!" + iue.getMessage());
+				}
+			}
 			state.setAttribute(STATE_MODE, _mode);
 		}
-
-	} // doView_grade
+	}
 	
 	/**
 	 * Action is to show the graded assignment submission while keeping specific information private
