@@ -6286,12 +6286,22 @@ public class AssignmentAction extends PagedResourceActionII
 		if ("newAttachment".equals(selection))
 		{
 			Reference attachment = (Reference) state.getAttribute("newSingleUploadedFile");
+			if (attachment == null)
+			{
+				// Try the newSingleAttachmentList
+				List l = (List) state.getAttribute("newSingleAttachmentList");
+				if (l != null && !l.isEmpty())
+				{
+					attachment = (Reference) l.get(0);
+				}
+			}
 			if (attachment != null)
 			{
 				List attachments = EntityManager.newReferenceList();
 				attachments.add(attachment);
 				state.setAttribute(ATTACHMENTS, attachments);
 				state.removeAttribute("newSingleUploadedFile");
+				state.removeAttribute("newSingleAttachmentList");
 				state.removeAttribute(VIEW_SUBMISSION_TEXT);
 			}
 			// ^ if attachment is null, we don't care - checkSubmissionTextAttachmentInput() handles that for us
@@ -10774,15 +10784,26 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			state.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, rb.getString("gen.addatttoassiginstr"));
 
-			// use the real attachment list
-			// but omit the inlie submission under conditions determined in the logic above
+			// process existing attachments
 			List attachments = (List) state.getAttribute(ATTACHMENTS);
-			if (omitInlineAttachments && assignment != null)
+			if (singleAttachment && attachments != null && attachments.size() > 1)
 			{
-				attachments = getNonInlineAttachments(state, assignment);
-				state.setAttribute(ATTACHMENTS, attachments);
+				// multiple attachments -> Single Uploaded File Only
+				List newSingleAttachmentList = EntityManager.newReferenceList();
+				state.setAttribute("newSingleAttachmentList", newSingleAttachmentList);
+				state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, newSingleAttachmentList);
 			}
-			state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, attachments);
+			else
+			{
+				// use the real attachment list
+				// but omit the inline submission under conditions determined in the logic above
+				if (omitInlineAttachments && assignment != null)
+				{
+					attachments = getNonInlineAttachments(state, assignment);
+					state.setAttribute(ATTACHMENTS, attachments);
+				}
+				state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, attachments);
+			}
 		}
 	}
 
@@ -14379,6 +14400,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 		state.removeAttribute("newSingleUploadedFile");
+		state.removeAttribute("newSingleAttachmentList");
 	}
 
 	/**
