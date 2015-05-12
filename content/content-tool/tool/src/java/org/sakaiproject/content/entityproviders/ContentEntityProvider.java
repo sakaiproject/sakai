@@ -153,6 +153,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 	private List<ContentItem> getSiteListItems(String siteId) {
 		List<ContentItem> rv = new ArrayList<ContentItem>();
 		String wsCollectionId = contentHostingService.getSiteCollection(siteId);
+		boolean allowUpdateSite = siteService.allowUpdateSite(siteId);
+      
 		try
         {
 			// mark the site collection as expanded
@@ -179,7 +181,8 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 						ContentItem item = new ContentItem();
 						item.setType("collection");
 						item.setSize(contentHostingService.getCollectionSize(id));
-						item.setQuota(Long.toString(contentHostingService.getQuota(collection)));
+						if (allowUpdateSite) // to be consistent with UI
+							item.setQuota(Long.toString(contentHostingService.getQuota(collection)));
 						item.setUsage(Long.toString(collection.getBodySizeK() * 1024));
 						
 						List<String> collectionMembers = collection.getMembers();
