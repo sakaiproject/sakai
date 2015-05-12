@@ -954,6 +954,11 @@ function enableSubmitUnlessNoFile(checkForFile)
 						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="highlightSelectedAttachment(); enableSubmitUnlessNoFile(true);" checked />
 						<span>
 							#set($attachment = $newSingleUploadedFile)
+							#if (!$attachment)
+								#if ($newSingleAttachmentList && !$newSingleAttachmentList.isEmpty())
+									#set($attachment = $newSingleAttachmentList.get(0))
+								#end
+							#end
 							#set($props = false)
 							#set($props = $attachment.Properties)
 							#if ($props)
@@ -966,6 +971,17 @@ function enableSubmitUnlessNoFile(checkForFile)
 								$tlang.getString("stuviewsubm.uploadnew")
 								<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/>
 								<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+								<span class="navIntraToolLink">
+									<input
+										class="disableme enabled"
+										type="button"
+										value="$tlang.getString("stuviewsubm.attfromserverlabel")"
+										name="attach"
+										id="attach"
+										accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+									/>
+								</span>
 							#end
 						</span>
 					</div>
@@ -1168,7 +1184,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 								id="post" 
 								value="$!name"
 								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
-								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile)
+								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile && (!$!newSingleAttachmentList || $!newSingleAttachmentList.isEmpty()))
 									disabled
 								#end
 							/>
