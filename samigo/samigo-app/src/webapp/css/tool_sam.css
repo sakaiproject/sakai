@@ -1056,3 +1056,12 @@ ul.no-list {
     list-style-type: none;
     padding-left: 4px;
 }
+
+td.feedbackColumn2 {
+  vertical-align: bottom;
+  padding-bottom: 15px;
+}
+
+div.respChoice {
+	margin-top: -30px;
+}
