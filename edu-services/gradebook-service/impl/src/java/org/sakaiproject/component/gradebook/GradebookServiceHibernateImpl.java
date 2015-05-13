@@ -2782,7 +2782,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			//if the sort order is not the same as the counter, update the order and add to the other list
 			//this allows us to skip items that have not had their position changed and saves some db work later on
-			if(!a.getSortOrder().equals(i)) {
+			//sort order may be null if never previously sorted, so give it the current index
+			if(a.getSortOrder() == null || !a.getSortOrder().equals(i)) {
 				a.setSortOrder(i);
 				assignmentsToUpdate.add(a);
 			}
