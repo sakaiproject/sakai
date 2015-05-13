@@ -339,5 +339,7 @@
             <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
         </property>
     </bean>
+
+    <import resource="backfill-tool.xml"/>
    
 </beans>
