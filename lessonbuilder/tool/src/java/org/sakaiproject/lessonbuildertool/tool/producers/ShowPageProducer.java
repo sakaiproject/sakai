@@ -181,7 +181,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowSessionId = ServerConfigurationService.getBoolean("session.parameter.allow", false);
         public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", true);
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
-        public String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
+        public String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
 
 
 	// I don't much like the static, because it opens us to a possible race

@@ -1,0 +1,7 @@
+this theme came from the theme generator. It's the default "smoothness" theme.
+However !important is added to the backgrounds under 
+
+/* Icons
+----------------------------------*/
+
+because tool.css sets icons to invisible
