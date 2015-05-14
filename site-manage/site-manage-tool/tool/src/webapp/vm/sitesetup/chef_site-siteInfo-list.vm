@@ -235,7 +235,7 @@ function printPreview(target){
 					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						<input type="hidden" name="itemReference" value="$siteId"/>
-						<input type="submit" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
+						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
 					</form>
                     
 			#else
