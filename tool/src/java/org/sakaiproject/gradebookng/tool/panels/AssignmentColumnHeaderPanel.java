@@ -2,13 +2,21 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
+import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.pages.EditGradebookItemPage;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.apache.wicket.AttributeModifier;
 
@@ -24,6 +32,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	private IModel<Assignment> modelData;
+	
+	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	private GradebookNgBusinessService businessService;
 
 	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
 		super(id);
@@ -37,7 +48,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		super.onInitialize();
 		
 		Assignment assignment = this.modelData.getObject();
-
+				
 		Label assignmentTitle = new Label("title", new Model<String>(assignment.getName()));
 		assignmentTitle.add(new AttributeModifier("title", assignment.getName()));
 		add(assignmentTitle);
@@ -78,9 +89,59 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(new AttributeModifier("data-category", assignment.getCategoryName()));
 
 		//menu
-		//AjaxLink menu = new AjaxLink("menu", "http://google.com");
-		//link.add(new Label("menuLabel"));
-		//add(link);
+		add(new Link<Long>("editAssignmentDetails", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new EditGradebookItemPage(this.getModel()));
+			}
+		});
+		
+		add(new Link<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new GradebookPage());
+			}
+		});
+		
+		add(new Link<Long>("moveAssignmentLeft", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				//given the id, get the assignment, get the sort order, then update and refresh
+				//note that we cannot use the passed in assignment sort order in here
+				//as we may have had an async reorder on the front end but not had the model data updated, 
+				//so we just make sure we get it fresh
+				
+				long assignmentId = this.getModelObject();
+				
+				int order = businessService.getAssignmentSortOrder(assignmentId);
+				businessService.updateAssignmentOrder(assignmentId, (order-1));
+
+				setResponsePage(new GradebookPage());
+			}
+		});
+		
+				
+		add(new Link<Long>("moveAssignmentRight", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				
+				long assignmentId = this.getModelObject();
+				
+				int order = businessService.getAssignmentSortOrder(assignmentId);
+				businessService.updateAssignmentOrder(assignmentId, (order+1));
+				
+				setResponsePage(new GradebookPage());
+			}
+		});
+		
+		
+		add(new Link<Long>("hideAssignment", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			public void onClick() {
+				setResponsePage(new GradebookPage());
+			}
+		});
+		
 
 	}
 	

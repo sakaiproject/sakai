@@ -77,9 +77,17 @@ public class StudentGradeSummaryPanel extends Panel {
 	    		GradeInfo gradeInfo = StudentGradeSummaryPanel.this.gradeInfo.getGrades().get(assignment.getId());
 	    		//TODO exception handling in here
 	    		
+	    		//note, gradeInfo may be null
+	    		String rawGrade;
+	    		if(gradeInfo != null) {
+	    			rawGrade = gradeInfo.getGrade();
+	    		} else {
+	    			rawGrade = "";
+	    		}
+	    		
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getName()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatDueDate(assignment.getDueDate())));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatGrade(gradeInfo.getGrade()))); 
+	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatGrade(rawGrade))); 
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getWeight()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), gradeInfo.getGradeComment())); 
 

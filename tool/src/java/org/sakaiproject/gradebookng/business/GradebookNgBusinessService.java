@@ -10,6 +10,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -478,8 +479,8 @@ public class GradebookNgBusinessService {
 	
 	
 	/**
-	 * Helper to get siteid
-	 * This will ONLY work in a portal site context, null otherwise.
+	 * Helper to get siteid.
+	 * This will ONLY work in a portal site context, it will return null otherwise (ie via an entityprovider).
 	 * @return
 	 */
 	public String getCurrentSiteId() {
@@ -524,18 +525,29 @@ public class GradebookNgBusinessService {
     }
     
     /**
-     * Update the order of an assignment.
+     * Update the order of an assignment for the current site.
+	 *
+     * @param assignmentId
+     * @param order
+     */
+    public void updateAssignmentOrder(long assignmentId, int order) {
+    	
+    	String siteId = this.getCurrentSiteId();
+		this.updateAssignmentOrder(siteId, assignmentId, order);
+    }
+    
+    /**
+     * Update the order of an assignment. If calling outside of GBNG, use this method as you can provide the site id.
      * 
      * @param siteId	the siteId
      * @param assignmentId the assignment we are reordering
      * @param order the new order
-     * @throws JAXBException
      * @throws IdUnusedException
      * @throws PermissionException
      */
-    public void updateAssignmentOrder(String siteId, long assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
+    public void updateAssignmentOrder(String siteId, long assignmentId, int order) {
     	
-		Gradebook gradebook = this.getGradebook(siteId); //this is called from an entity provider so must provide the siteId
+		Gradebook gradebook = this.getGradebook(siteId);
 		this.gradebookService.updateAssignmentOrder(gradebook.getUid(), assignmentId, order);
     }
     
@@ -619,5 +631,72 @@ public class GradebookNgBusinessService {
     	 
     	 return notifications;
      }
+
+     
+
+     /**
+      * Get an Assignment in the current site given the assignment id
+      * 
+      * @param siteId
+      * @param assignmentId
+      * @return
+      */
+     public Assignment getAssignment(long assignmentId) {
+    	 String siteId = this.getCurrentSiteId();
+    	 return this.getAssignment(siteId, assignmentId);
+     }
+     
+     /**
+      * Get an Assignment in the specified site given the assignment id
+      * 
+      * @param siteId
+      * @param assignmentId
+      * @return
+      */
+     public Assignment getAssignment(String siteId, long assignmentId) {
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 if(gradebook != null) {
+    		 return gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+    	 }
+    	 return null;
+     }
+     
+     /**
+      * Get the sort order of an assignment. If the assignment has a sort order, use that.
+      * Otherwise we determine the order of the assignment in the list of assignments
+      * 
+      * This means that we can always determine the most current sort order for an assignment, even if the list has never been sorted.
+      * 
+      * 
+      * @param assignmentId
+      * @return sort order if set, or calculated, or -1 if cannot determine at all.
+      */
+     public int getAssignmentSortOrder(long assignmentId) {
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	     	 
+    	 if(gradebook != null) {
+    		 Assignment assignment = gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+    		 
+    		 //if the assignment has a sort order, return that
+    		 if(assignment.getSortOrder() != null) {
+    			 return assignment.getSortOrder();
+    		 }
+    		 
+    		 //otherwise we need to determine the assignment sort order within the list of assignments
+    		 List<Assignment> assignments = this.getGradebookAssignments(siteId);
+    		
+    		 
+    		 for(int i=0; i<assignments.size(); i++) {
+    			 Assignment a = assignments.get(i);
+    			 if(assignmentId == a.getId()) {
+    				 return a.getSortOrder();
+    			 }
+    		 }
+    	 }
+    	 
+    	 return -1;
+     }
+     
     
 }
