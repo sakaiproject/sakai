@@ -28,6 +28,10 @@ import javax.faces.event.ActionListener;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.RetakeAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
+import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
+
 
 /**
  * <p>Title: Samigo</p>
@@ -44,10 +48,20 @@ public class ConfirmRetakeAssessmentListener implements ActionListener {
 
 	public void processAction(ActionEvent ae) throws AbortProcessingException {
 		RetakeAssessmentBean retakeAssessment = (RetakeAssessmentBean) ContextUtil.lookupBean("retakeAssessment");
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+		PublishedAssessmentService pubService = new PublishedAssessmentService();
+
 		String publishedAssessmentId = ContextUtil.lookupParam("publishedAssessmentId");
+		Long pubId = new Long(publishedAssessmentId);
 		String agentIdString = ContextUtil.lookupParam("agentIdString");
 		AgentFacade agent = new AgentFacade(agentIdString);
 		String studentName = agent.getDisplayName();
+		String assessmentOwner = pubService.getPublishedAssessmentOwner(pubId);
+
+		if (!authzBean.isUserAllowedToGradeAssessment(publishedAssessmentId, assessmentOwner, true)) {
+			throw new IllegalArgumentException("ConfirmRetakeAssessmentListener unauthorized attempt to set retake for " + publishedAssessmentId);
+		}
 		retakeAssessment.setPublishedAssessmentId(Long.valueOf(publishedAssessmentId));
 		retakeAssessment.setAgentId(agentIdString);
 		retakeAssessment.setStudentName(studentName);

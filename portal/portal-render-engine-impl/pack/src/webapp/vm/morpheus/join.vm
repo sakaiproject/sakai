@@ -37,13 +37,21 @@
                             </td>
                         </tr>
                         <tr>
+                        #if (!${restrictedByAccountType})
                             <td>${rloader.getString("join_question")}</td>
+                        #else
+                            <td>${rloader.getString("join_restricted")}</td>
+                        #end
                         </tr>
                         <tr>
                             <td>
                                 <form method="POST">
+                                #if (!${restrictedByAccountType})
                                     <input type="submit" name="join" value="${rloader.getString("yes")}">
                                     <input type="submit" name="reject" value="${rloader.getString("no")}">
+                                #else
+                                    <input type="submit" name="return" value="${rloader.getString("return")}" class="active"/>
+                                #end
                                 </form>
                             </td>
                         </tr>

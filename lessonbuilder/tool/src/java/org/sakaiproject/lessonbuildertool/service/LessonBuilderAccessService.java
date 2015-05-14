@@ -54,6 +54,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.sakaiproject.content.api.ContentFilterService;
 import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
@@ -188,6 +189,12 @@ public class LessonBuilderAccessService {
 	}
 
 	LessonEntity assignmentEntity = null;
+
+	ContentFilterService contentFilterService;
+
+	public void setContentFilterService(ContentFilterService s) {
+		contentFilterService = s;
+	}
 
 	public void setAssignmentEntity(Object e) {
 		assignmentEntity = (LessonEntity) e;
@@ -600,6 +607,9 @@ public class LessonBuilderAccessService {
 					    throw new EntityCopyrightException(resource.getReference());
 					}  
 					try {
+						// Wrap it in any filtering needed.
+						resource = contentFilterService.wrap(resource);
+
 					    // following cast is redundant is current kernels, but is needed for Sakai 2.6.1
 						long len = (long)resource.getContentLength();
 						String contentType = resource.getContentType();

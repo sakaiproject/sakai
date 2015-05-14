@@ -4825,6 +4825,29 @@ public class AssignmentAction extends PagedResourceActionII
 
 		User u = (User) state.getAttribute(STATE_USER);
 
+		// redirect student to doView_grade if they clicked an old link
+		String contextString = (String) state.getAttribute(STATE_CONTEXT_STRING);
+		Assignment a = getAssignment(assignmentReference, "doView_submission", state);
+		if (a != null && !AssignmentService.canSubmit(contextString, a))
+		{
+			AssignmentSubmission submission = null;
+			try
+			{
+				submission = AssignmentService.getSubmission(assignmentReference, u);
+			}
+			catch (Exception e)
+			{
+				String userId = u == null ? "" : u.getId();
+				addAlert(state, rb.getFormattedMessage("cannotfin_submission_1", new String[]{assignmentReference, userId}));
+			}
+			if (submission != null)
+			{
+				String submissionReference = submission.getReference();
+				prepareStudentViewGrade(state, submissionReference);
+				return;
+			}
+		}
+
 		String submitterId = params.get("submitterId");
 		if (submitterId != null && (AssignmentService.allowGradeSubmission(assignmentReference))) {
 		    try {
@@ -4835,7 +4858,6 @@ public class AssignmentAction extends PagedResourceActionII
 		    }
 		}
 
-		Assignment a = getAssignment(assignmentReference, "doView_submission", state);
 		if (a != null)
 		{
 			AssignmentSubmission submission = getSubmission(assignmentReference, u, "doView_submission", state);
@@ -5698,8 +5720,8 @@ public class AssignmentAction extends PagedResourceActionII
 				// SAK-23817: return to the Assignments List by Student
 				state.setAttribute(FROM_VIEW, MODE_INSTRUCTOR_VIEW_STUDENTS_ASSIGNMENT);
 				try {
-					u = UserDirectoryService.getUser(studentId);
 					submitter = u;
+					u = UserDirectoryService.getUser(studentId);
 				} catch (UserNotDefinedException ex1) {
 					M_log.warn("Unable to find user with ID [" + studentId + "]");
 					submitter = null;
@@ -5959,12 +5981,15 @@ public class AssignmentAction extends PagedResourceActionII
 						sEdit.setAssignment(a);
 
 						// SAK-26322	--bbailla2
-						List nonInlineAttachments = getNonInlineAttachments(state, a);
-						if (nonInlineAttachments != null && a.getContent().getTypeOfSubmission() == 5)
+						if (a.getContent().getTypeOfSubmission() == 5)
 						{
-							//clear out inline attachments for content-review
-							//filter the attachment sin the state to exclude inline attachments (nonInlineAttachments, is a subset of what's currently in the state)
-							state.setAttribute(ATTACHMENTS, nonInlineAttachments);
+							List nonInlineAttachments = getNonInlineAttachments(state, a);
+							if (nonInlineAttachments != null)
+							{
+								//clear out inline attachments for content-review
+								//filter the attachments in the state to exclude inline attachments (nonInlineAttachments, is a subset of what's currently in the state)
+								state.setAttribute(ATTACHMENTS, nonInlineAttachments);
+							}
 						}
 
 						// add attachments
@@ -6283,12 +6308,22 @@ public class AssignmentAction extends PagedResourceActionII
 		if ("newAttachment".equals(selection))
 		{
 			Reference attachment = (Reference) state.getAttribute("newSingleUploadedFile");
+			if (attachment == null)
+			{
+				// Try the newSingleAttachmentList
+				List l = (List) state.getAttribute("newSingleAttachmentList");
+				if (l != null && !l.isEmpty())
+				{
+					attachment = (Reference) l.get(0);
+				}
+			}
 			if (attachment != null)
 			{
 				List attachments = EntityManager.newReferenceList();
 				attachments.add(attachment);
 				state.setAttribute(ATTACHMENTS, attachments);
 				state.removeAttribute("newSingleUploadedFile");
+				state.removeAttribute("newSingleAttachmentList");
 				state.removeAttribute(VIEW_SUBMISSION_TEXT);
 			}
 			// ^ if attachment is null, we don't care - checkSubmissionTextAttachmentInput() handles that for us
@@ -10307,35 +10342,56 @@ public class AssignmentAction extends PagedResourceActionII
 
 		ParameterParser params = data.getParameters();
 
-		state.setAttribute(VIEW_GRADE_SUBMISSION_ID, params.getString("submissionId"));
-		
+		String submissionReference = params.getString("submissionId");
+
+		prepareStudentViewGrade(state, submissionReference);
+	} // doView_grade
+
+	/**
+	 * Prepares the state for the student to view their grade
+	 */
+	private void prepareStudentViewGrade(SessionState state, String submissionReference)
+	{
+		state.setAttribute(VIEW_GRADE_SUBMISSION_ID, submissionReference);
+
 		String _mode = MODE_STUDENT_VIEW_GRADE;
 
-		AssignmentSubmission _s = getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID), "doView_grade", state );
+		AssignmentSubmission _s = getSubmission((String) state.getAttribute(VIEW_GRADE_SUBMISSION_ID), "doView_grade", state);
 		// whether the user can access the Submission object
-		if (_s != null) {
-		    // show submission view unless group submission with group error
-		    Assignment a = _s.getAssignment();
-		    User u = (User) state.getAttribute(STATE_USER);
-		    if (a.isGroup()) {
-		        Collection groups = null;
-		        Site st = null;
-		        try {
-		            st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
-		            groups = getGroupsWithUser(u.getId(), a, st);
-		            Collection<String> _dupUsers = checkForGroupsInMultipleGroups(a, groups, state, rb.getString("group.user.multiple.warning"));
-		            if (_dupUsers.size() > 0) {
-		                _mode = MODE_STUDENT_VIEW_GROUP_ERROR;
-		                state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, _s.getAssignmentId());
-		            }
-		        } catch (IdUnusedException iue) {
-		            M_log.warn(this + ":doView_grade found!" + iue.getMessage());
-		        }
-		    }
+		if (_s != null)
+		{
+			String status = _s.getStatus();
+			if ("Not Started".equals(status))
+			{
+				addAlert(state, rb.getString("stuviewsubm.theclodat"));
+			}
+
+			// show submission view unless group submission with group error
+			Assignment a = _s.getAssignment();
+			User u = (User) state.getAttribute(STATE_USER);
+			if (a.isGroup())
+			{
+				Collection groups = null;
+				Site st = null;
+				try
+				{
+					st = SiteService.getSite((String) state.getAttribute(STATE_CONTEXT_STRING));
+					groups = getGroupsWithUser(u.getId(), a, st);
+					Collection<String> _dupUsers = checkForGroupsInMultipleGroups(a, groups, state, rb.getString("group.user.multiple.warning"));
+					if (_dupUsers.size() > 0)
+					{
+						_mode = MODE_STUDENT_VIEW_GROUP_ERROR;
+						state.setAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE, _s.getAssignmentId());
+					}
+				}
+				catch (IdUnusedException iue)
+				{
+					M_log.warn(this + ":doView_grade found!" + iue.getMessage());
+				}
+			}
 			state.setAttribute(STATE_MODE, _mode);
 		}
-
-	} // doView_grade
+	}
 	
 	/**
 	 * Action is to show the graded assignment submission while keeping specific information private
@@ -10771,15 +10827,26 @@ public class AssignmentAction extends PagedResourceActionII
 			}
 			state.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, rb.getString("gen.addatttoassiginstr"));
 
-			// use the real attachment list
-			// but omit the inlie submission under conditions determined in the logic above
+			// process existing attachments
 			List attachments = (List) state.getAttribute(ATTACHMENTS);
-			if (omitInlineAttachments && assignment != null)
+			if (singleAttachment && attachments != null && attachments.size() > 1)
 			{
-				attachments = getNonInlineAttachments(state, assignment);
-				state.setAttribute(ATTACHMENTS, attachments);
+				// multiple attachments -> Single Uploaded File Only
+				List newSingleAttachmentList = EntityManager.newReferenceList();
+				state.setAttribute("newSingleAttachmentList", newSingleAttachmentList);
+				state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, newSingleAttachmentList);
 			}
-			state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, attachments);
+			else
+			{
+				// use the real attachment list
+				// but omit the inline submission under conditions determined in the logic above
+				if (omitInlineAttachments && assignment != null)
+				{
+					attachments = getNonInlineAttachments(state, assignment);
+					state.setAttribute(ATTACHMENTS, attachments);
+				}
+				state.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, attachments);
+			}
 		}
 	}
 
@@ -14376,6 +14443,7 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 		state.removeAttribute("newSingleUploadedFile");
+		state.removeAttribute("newSingleAttachmentList");
 	}
 
 	/**

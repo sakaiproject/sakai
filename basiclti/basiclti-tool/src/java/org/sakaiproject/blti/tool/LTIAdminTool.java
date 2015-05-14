@@ -60,8 +60,6 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.util.foorm.SakaiFoorm;
-// REMOVE AFTER TESTING
-// TODO: FIX THIS
 
 /**
  * <p>
@@ -915,20 +913,26 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		switchPanel(state, "DeploySystem");
 	}
 
-    public String prepareValidate(Map<String,Object> deploy, List<Map<String,Object>> theTools, 
+	public String prepareValidate(Map<String,Object> deploy, List<Map<String,Object>> theTools, 
 		Properties info, SessionState state)
 	{
-        Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
+		Long reg_state = foorm.getLongNull(deploy.get(LTIService.LTI_REG_STATE));
 		String profileText = (String) deploy.get(LTIService.LTI_REG_PROFILE);
 		if ( profileText == null || profileText.length() < 1 ) {
 			addAlert(state,rb.getString("error.activate.not.ready"));
 			return "lti_error";
 		}
 
-        JSONObject providerProfile = (JSONObject) JSONValue.parse(profileText);
+		JSONObject providerProfile = (JSONObject) JSONValue.parse(profileText);
+		if ( providerProfile == null ) {
+			M_log.error("error parsing tool profile " + profileText);
+			addAlert(state,rb.getString("deploy.parse.error"));
+			return "lti_error";
+		}
+
 
 		List<Properties> profileTools = new ArrayList<Properties> ();
-        try {
+		try {
             String retval = LTI2Util.parseToolProfile(profileTools, info, providerProfile);
             if ( retval != null ) {
 				addAlert(state,rb.getString("deploy.parse.error")+" "+retval);

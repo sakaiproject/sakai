@@ -366,10 +366,7 @@ public class DbContentService extends BaseContentService
 
                 // add the delete table
                 m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_delete");
-
-                // do the 2.1.0 conversions
-                m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_content_2_1_0");
-            } 
+            }
 
             // Check for the existence of the FILE_SIZE column
             filesizeColumnExists = filesizeColumnExists();

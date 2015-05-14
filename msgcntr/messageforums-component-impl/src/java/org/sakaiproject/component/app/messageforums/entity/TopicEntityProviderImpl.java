@@ -375,7 +375,6 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 				}
 
 				for (DiscussionForum forum : forums) {
-					if(forum.getDraft().equals(Boolean.FALSE)){
 						List<DecoratedAttachment> forumAttachments = decorateAttachments(forum.getAttachments());
 					        Long forumOpenDate = null;
 					        Long forumCloseDate = null;
@@ -390,13 +389,12 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 					            forumGbItemId = gbItemNameToId.get(forum.getDefaultAssignName());
 					        }
 					             
-					        DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle(), forumAttachments, forum.getShortDescription(), forum.getExtendedDescription(), forum.getLocked(), 
+					        DecoratedForumInfo dForum = new DecoratedForumInfo(forum.getId(), forum.getTitle(), forumAttachments, forum.getShortDescription(), forum.getExtendedDescription(), forum.getLocked(),forum.getDraft(), 
                                     forum.getPostFirst(), forum.getAvailabilityRestricted(), forumOpenDate, forumCloseDate, forum.getDefaultAssignName(), forumGbItemId);
 						List<DiscussionTopic> topics = forum.getTopics();
 						int viewableTopics = 0;
 
 						for (DiscussionTopic topic : topics) {
-							if(topic.getDraft().equals(Boolean.FALSE)){
 
 								if (forumManager.isInstructor(userId, siteId) || 
 										getUiPermissionsManager().isRead(topic.getId(), topic.getDraft(), forum.getDraft(), userId, siteId))
@@ -432,11 +430,10 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 									}
 									
 									dForum.addTopic(new DecoratedTopicInfo(topic.getId(), topic.getTitle(), unreadMessages, 
-											totalMessages, "", attachments, topic.getShortDescription(), topic.getExtendedDescription(), topic.getLocked(), topic.getPostFirst(), topic.getAvailabilityRestricted(), 
+											totalMessages, "", attachments, topic.getShortDescription(), topic.getExtendedDescription(), topic.getLocked(), topic.getDraft(), topic.getPostFirst(), topic.getAvailabilityRestricted(), 
                                             topicOpenDate, topicCloseDate, topic.getDefaultAssignName(), topicGbItemId));
 									viewableTopics++;
 								}						  
-							}
 						}
 						
 						// TODO this is a bit too simplistic but will do for now. better to be more restrictive than less at this point
@@ -444,7 +441,6 @@ AutoRegisterEntityProvider, PropertyProvideable, RESTful, RequestStorable, Reque
 						if (forumManager.isInstructor(userId, siteId) || viewableTopics > 0) {
 							dForums.add(dForum);
 						}
-					}
 				}
 			}
 		

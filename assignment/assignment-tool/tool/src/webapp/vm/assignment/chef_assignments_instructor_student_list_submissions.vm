@@ -194,7 +194,10 @@
 													#set ($submitterId = false)
 													#set ($submitterId = $!submission.getProperties().getProperty("submitted_user_id"))
 													#if ($!submitterId)
-														<br />by $userService.getUser($submitterId).getDisplayName()
+														<br />$tlang.getString("listsub.submitted.by") $userService.getUser($submitterId).getDisplayName()
+														#if( $member.getDisplayId() != $submitterId )
+															($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($member.sortName))
+														#end
 													#end
 												#elseif ($!submission.TimeSubmitted.toStringLocalFull())
 													$tlang.getString("gen.subm4") $tlang.getString("submitted.date.redacted")
