@@ -38,6 +38,9 @@ import org.sakaiproject.api.app.messageforums.DiscussionForum;
 import org.sakaiproject.api.app.messageforums.ui.DiscussionForumManager;
 import org.sakaiproject.api.app.messageforums.ui.UIPermissionsManager;
 
+import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.util.ResourceLoader;
+
 /**
  * @author <a href="mailto:rshastri@iupui.edu">Rashmi Shastri</a>
  */
@@ -63,6 +66,9 @@ public class DiscussionForumBean
   private String locked;
   
   private SimpleDateFormat datetimeFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+  
+  private static final String MESSAGECENTER_BUNDLE = "org.sakaiproject.api.app.messagecenter.bundle.Messages";
+  private static final ResourceLoader rb = new ResourceLoader(MESSAGECENTER_BUNDLE);    
    
   private String postFirst = null;
    
@@ -712,6 +718,28 @@ public class DiscussionForumBean
 			}
 		}else{
 			forum.setCloseDate(null);
+		}
+	}
+	
+	public String getFormattedCloseDate(){
+		if(forum == null || forum.getCloseDate() == null){
+			return "";
+		}else{
+			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
+			formatter_date.setTimeZone(TimeService.getLocalTimeZone());
+			String formattedCloseDate = formatter_date.format(forum.getCloseDate());
+			return formattedCloseDate;
+		}
+	}	
+
+	public String getFormattedOpenDate(){
+		if(forum == null || forum.getOpenDate() == null){
+			return "";
+		}else{
+			SimpleDateFormat formatter_date = new SimpleDateFormat(rb.getString("date_format"), new ResourceLoader().getLocale());
+			formatter_date.setTimeZone(TimeService.getLocalTimeZone());
+			String formattedOpenDate = formatter_date.format(forum.getOpenDate());
+			return formattedOpenDate;
 		}
 	}
 }
