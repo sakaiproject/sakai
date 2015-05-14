@@ -2743,17 +2743,28 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * 
 	 * @see GradebookService.updateAssignmentOrder(java.lang.String gradebookUid, java.lang.Long assignmentId, java.lang.Integer order)
 	 */
-	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order) {
+	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, Integer order) {
 		
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
 			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to change the order of assignment " + assignmentId);
 			throw new SecurityException("You do not have permission to perform this operation");
+		}
+		
+		if(order == null) {
+			throw new IllegalArgumentException("Order cannot be null");
 		}
 	
 		final Long gradebookId = getGradebook(gradebookUid).getId();
 		
 		//get all assignments for this gradebook
 		List<Assignment> assignments = getAssignments(gradebookId, SortType.SORT_BY_SORTING, true);
+		
+		//adjust order to be within bounds
+		if(order < 0) {
+			order = 0;
+		} else if (order > assignments.size()) {
+			order = assignments.size();
+		}
 		
 		//find the assignment
 		Assignment target = null;
