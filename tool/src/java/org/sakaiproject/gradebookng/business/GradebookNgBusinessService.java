@@ -114,27 +114,28 @@ public class GradebookNgBusinessService {
 	/**
 	 * Get a list of all users in the current site that can have grades
 	 * 
-	 * @return a list of users or null if none
+	 * @return a list of users as uuids or null if none
 	 */
-	public List<String> getGradeableUsers() {
+	private List<String> getGradeableUsers() {
 		try {
 			String siteId = this.getCurrentSiteId();
-			Set<String> gradeableUserUuids = siteService.getSite(siteId).getUsersIsAllowed(Permissions.VIEW_OWN_GRADES.getValue());
+			Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(Permissions.VIEW_OWN_GRADES.getValue());
 			
-			return new ArrayList<String>(gradeableUserUuids);
-			
+			return new ArrayList<>(userUuids);
+						
 		} catch (IdUnusedException e) {
+			e.printStackTrace();
 			return null;
 		}
 	}
 	
 	/**
-	 * Given a list of uuids, get a list of Users, sorted.
+	 * Given a list of uuids, get a list of Users
 	 * 
 	 * @param userUuids list of user uuids
 	 * @return
 	 */
-	public List<User> getUsers(List<String> userUuids) {
+	private List<User> getUsers(List<String> userUuids) {
 		List<User> users = userDirectoryService.getUsers(userUuids);
 		Collections.sort(users, new LastNameComparator()); //TODO this needs to take into account the GbStudentSortType
 		return users;
@@ -324,7 +325,7 @@ public class GradebookNgBusinessService {
 	
 	
 	/**
-	 * Build the matrix of assignments, students and grades for all student
+	 * Build the matrix of assignments, students and grades for all students
 	 * 
 	 * @param assignments list of assignments
 	 * @return
@@ -335,7 +336,7 @@ public class GradebookNgBusinessService {
 	
 	/**
 	 * Build the matrix of assignments and grades for the given users.
-	 * In generall this is just one, as we use it for the student summary
+	 * In general this is just one, as we use it for the student summary but could be more for paging etc
 	 * 
 	 * @param assignments list of assignments
 	 * @param list of uuids
@@ -353,35 +354,34 @@ public class GradebookNgBusinessService {
 		}
 		Temp.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
 		
-		//this gives us a sorted list that we can use for seeding
-		//TODO see if this is inefficient as we need to look up users later so we might be best sorting the list of StudentGradeInfo instead
+		//get uuids as list of Users.
+		//this gives us our base list and will be sorted as per our desired sort method
 		List<User> students = this.getUsers(studentUuids);
 		
 		//because this map is based on eid not uuid, we do the filtering later so we can save an iteration
 		Map<String,String> courseGrades = this.getSiteCourseGrades();
 		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 		
-		//maintain a map as we progressively build this up
+		//setup a map as we progressively build this up by adding grades to a student's entry
 		Map<String, StudentGradeInfo> matrix = new LinkedHashMap<String, StudentGradeInfo>();
 		
-		//seed the map for all students
+		//seed the map for all students so we can progresseively add grades to it
 		//also add the course grade here, to save an iteration later
 		for(User student: students) {
+			
+			//create and add the user info
 			StudentGradeInfo sg = new StudentGradeInfo(student);
 
 			//add the course grade
 			sg.setCourseGrade(courseGrades.get(student.getEid()));
 			
+			//add to map so we can build on it later
 			matrix.put(student.getId(), sg);
 		}
-		
 		Temp.timeWithContext("buildGradeMatrix", "matrix seeded", stopwatch.getTime());
-
-		
-		//TODO further optimisation is to do with filling in the student details. Can this be done in batch?
-		
+				
 		//iterate over assignments and get the grades for each
-		//the returned list only includes entries where there is a grade for the user, so we need to parse this
+		//note, the returned list only includes entries where there is a grade for the user
 		//TODO maybe a new gb service method to do this, so we save iterating here?
 		for(Assignment assignment: assignments) {
 			List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
@@ -392,74 +392,18 @@ public class GradebookNgBusinessService {
 				StudentGradeInfo sg = matrix.get(def.getStudentUid());
 				
 				if(sg == null) {
-					System.out.println("No matrix entry seeded for: " + def.getStudentUid());
+					log.warn("No matrix entry seeded for: " + def.getStudentUid() + ". This user may be been removed from the site");
 				} else {
 				
 					sg.addGrade(assignment.getId(), new GradeInfo(def));
 				}
 			}
 			Temp.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(), stopwatch.getTime());
-
 		
 		}
 		
 		//return the matrix as a list of StudentGradeInfo
 		return new ArrayList<StudentGradeInfo>(matrix.values());
-				
-		
-		
-		/*
-		//TODO this could be optimised to iterate the assignments instead, and pass the list of users and use getGradesForStudentsForItem,
-		//however the logic needs to be reworked so we can capture the user info
-		//NOT a high priority unless performance issue deems it to be
-		
-		for(User student: students) {
-			
-			StudentGradeInfo sg = new StudentGradeInfo(student);
-			
-			//add the assignment grades
-			for(Assignment assignment: assignments) {
-				GradeDefinition gradeDefinition = gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), student.getId());
-				Temp.timeWithContext("buildGradeMatrix", "getGradeDefinitionForStudentForItem", stopwatch.getTime());
-				
-				sg.addGrade(assignment.getId(), new GradeInfo(gradeDefinition));
-			}
-			Temp.timeWithContext("buildGradeMatrix", "all grades for student", stopwatch.getTime());
-
-			//add the course grade
-			sg.setCourseGrade(courseGrades.get(student.getEid()));
-			
-			//add the section info
-			//this.courseManagementService.getSe
-			
-			rval.add(sg);
-			
-		}
-		
-		Temp.timeWithContext("buildGradeMatrix", "buildGradeMatrix done", stopwatch.getTime());
-		
-		Set<String> gradeableUserUuids = new HashSet<>();
-		try {
-			String siteId = this.getCurrentSiteId();
-			gradeableUserUuids = siteService.getSite(siteId).getUsersIsAllowed(Permissions.VIEW_OWN_GRADES.getValue());
-			
-		} catch (IdUnusedException e) {
-			return null;
-		}
-		
-		
-		
-		
-		//now just for testing, do this call and time it		
-		for(Assignment assignment: assignments) {
-			List<GradeDefinition> discard = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), new ArrayList<String>(gradeableUserUuids));
-			Temp.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(), stopwatch.getTime());
-			System.out.println("rval: " + discard.size());
-		}
-		*/
-
-		//return new ArrayList<>();
-		
 	}
 	
 	/**
