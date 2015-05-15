@@ -1108,3 +1108,20 @@ a.Mrphs-toolTitleNav__link--reset {
  /*
 end alternate treatment for list
 */
+
+/*
+ this may actually be better css, but for the moment I'm
+ doing this just for print
+*/
+@media print {
+.edit-col {
+float:left;
+clear:left;
+}
+.right-col {
+float:left;
+margin-left: 10px;
+width: calc(100% - 50px);
+}
+}
+
