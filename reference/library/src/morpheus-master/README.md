@@ -27,8 +27,10 @@ If you want to change any configuration in _defaults.scss to easily customize yo
 
 For example:
 
- - To generate with icons: `mvn clean install -Pcompile-skin -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withicons.scss`
- - To generate with another google font: `mvn clean install -Pcompile-skin -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_typography.scss`
+ - To generate without icons: 
+ `mvn clean install -Pcompile-skin -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withouticons.scss`
+ - To generate with another google font: 
+ `mvn clean install -Pcompile-skin -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_typography.scss`
 
 By default source is morpheus-master and target is morpheus-default, but you can change these folders typing:
 
@@ -36,7 +38,7 @@ By default source is morpheus-master and target is morpheus-default, but you can
 
 We have uploaded a icons version compiled by:
 
-`mvn clean install -Pcompile-skin -Dsakai.skin.target=morpheus-default-icons -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withicons.scss`
+`mvn clean install -Pcompile-skin -Dsakai.skin.target=morpheus-default-noicons -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withouticons.scss`
 
 Feel free to repeat this commands to generate as many skins as you want.
 
