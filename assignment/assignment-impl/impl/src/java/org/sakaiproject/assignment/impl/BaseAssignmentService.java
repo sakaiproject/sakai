@@ -10725,21 +10725,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				M_log.debug(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading logs : " + e);
 			}
 
-                        intString = el.getAttribute("numberofgrades");
-                        try
-                       {
-                               numAttributes = Integer.parseInt(intString);
-                               for (int x = 0; x < numAttributes; x++)
-                               {
-                                       attributeString = "grade" + x;
-                                       tempString = el.getAttribute(attributeString);
-                                       if (tempString != null) m_grades.add(tempString);
-                               }
-                       }
-                       catch (Exception e)
-                       {
-                               M_log.warn(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading grades : " + e);
-                       }
+			intString = el.getAttribute("numberofgrades");
+			if (intString == null)
+			{
+				M_log.debug("BaseAssignmentSubmission: numberofgrades property not found");
+			}
+			else
+			{
+				try
+				{
+					numAttributes = Integer.parseInt(intString);
+					for (int x = 0; x < numAttributes; x++)
+					{
+						attributeString = "grade" + x;
+						tempString = el.getAttribute(attributeString);
+						if (tempString != null) 
+						{
+							m_grades.add(tempString);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					M_log.warn(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading grades : " + e);
+				}
+			}
 
 			// READ THE SUBMITTERS
 			m_submitters = new ArrayList();
@@ -11006,19 +11016,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 
 							intString = attributes.getValue("numberofgrades");
-							try
+							if (intString == null)
 							{
-							    numAttributes = NumberUtils.toInt(intString);
-							    for (int x = 0; x < numAttributes; x++)
-							    {
-							        attributeString = "grade" + x;
-							        tempString = attributes.getValue(attributeString);
-							        if (tempString != null) m_grades.add(tempString);
-							    }
+								M_log.debug("BaseAssignmentSubmission: numberofgrades property not found");
 							}
-							catch (Exception e)
+							else
 							{
-							    M_log.warn(" BaseAssignmentSubmission: error parsing 'numberofgrades' property : " + e);
+								try
+								{
+									numAttributes = NumberUtils.toInt(intString);
+									for (int x = 0; x < numAttributes; x++)
+									{
+										attributeString = "grade" + x;
+										tempString = attributes.getValue(attributeString);
+										if (tempString != null)
+										{
+											m_grades.add(tempString);
+										}
+									}
+								}
+								catch (Exception e)
+								{
+									M_log.warn(" BaseAssignmentSubmission: error parsing 'numberofgrades' property : " + e);
+								}
 							}
 
 							// READ THE SUBMITTERS
