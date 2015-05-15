@@ -1,0 +1,96 @@
+@import "compass/utilities/sprites";
+
+@import "base/*.png";
+@include all-base-sprites;
+
+/* Tool icons. It will be only added to final CSS if $skin-with-icons is true in customization.scss */
+@import "tool/*.png";
+@include all-tool-sprites;
+
+
+@import "toolactive/*.png";
+@include all-tool-sprites;
+
+/* icons in tool menu, left menu */
+
+@mixin icotool( $image : basic ){
+	
+	@if $skin-with-icons {
+		@include tool-sprite( $image );
+		&.icon-active{
+			@include toolactive-sprite( $image );
+		}
+	}
+
+}
+
+
+.Mrphs-toolsNav__menuitem--icon{
+	
+	@include toolicon();
+	@include icotool(basic); //default icon
+
+	&.icon-sakai-iframe-site{ 		@include icotool(home); 	 }
+	&.icon-sakai-syllabus{			@include icotool(document); }	
+	&.icon-sakai-schedule{			@include icotool(calendar); }	
+	&.icon-sakai-announcements{		@include icotool(messages); }
+	&.icon-sakai-resources{			@include icotool(folder); 	 }
+	&.icon-sakai-dropbox{			@include icotool(folder); 	 }
+	&.icon-sakai-assignment-grades{	@include icotool(task); 	 }
+	&.icon-sakai-samigo{			@include icotool(document); }
+	&.icon-sakai-gradebook-tool{	@include icotool(document); }
+	&.icon-sakai-chat{				@include icotool(messages); }
+	&.icon-sakai-rwiki{ 			@include icotool(edit); 	 }
+	&.icon-sakai-mailbox{			@include icotool(mail); 	 }
+	&.icon-sakai-news{				@include icotool(rss); 	 }
+	&.icon-sakai-basiclti{			@include icotool(lti); 	 }
+	&.icon-sakai-messages{			@include icotool(messages); }
+	&.icon-sakai-dashboard{			@include icotool(rss);	 	 }
+	&.icon-sakai-site-roster2{		@include icotool(user); 	 }
+	&.icon-sakai-sections{			@include icotool(user); 	 }
+	&.icon-sakai-help{				@include icotool(help); 	 }
+	&.icon-sakai-siteinfo{			@include icotool(options);  }
+}
+
+/* icons in sitesNav, top submenu */
+
+@import "sitenav/*.png";
+@include all-sitenav-sprites;
+
+@mixin icositenav( $image : basic ){
+	
+	@if $skin-with-icons {
+		@include sitenav-sprite( $image );
+	}
+
+}
+
+
+.Mrphs-sitesNav__submenuitem{
+	.toolMenuIcon{
+		@include toolicon( 16px, 16px );
+		@include sitenav-sprite( basic );
+
+		&.icon-sakai-iframe-site{ 		@include sitenav-sprite(home); 	 }
+		&.icon-sakai-syllabus{			@include sitenav-sprite(document); }	
+		&.icon-sakai-schedule{			@include sitenav-sprite(calendar); }	
+		&.icon-sakai-announcements{		@include sitenav-sprite(messages); }
+		&.icon-sakai-resources{			@include sitenav-sprite(folder); 	 }
+		&.icon-sakai-dropbox{			@include sitenav-sprite(folder); 	 }
+		&.icon-sakai-assignment-grades{	@include sitenav-sprite(task); 	 }
+		&.icon-sakai-samigo{			@include sitenav-sprite(document); }
+		&.icon-sakai-gradebook-tool{	@include sitenav-sprite(document); }
+		&.icon-sakai-chat{				@include sitenav-sprite(messages); }
+		&.icon-sakai-rwiki{ 			@include sitenav-sprite(edit); 	 }
+		&.icon-sakai-mailbox{			@include sitenav-sprite(mail); 	 }
+		&.icon-sakai-news{				@include sitenav-sprite(rss); 	 }
+		&.icon-sakai-basiclti{			@include sitenav-sprite(lti); 	 }
+		&.icon-sakai-messages{			@include sitenav-sprite(messages); }
+		&.icon-sakai-dashboard{			@include sitenav-sprite(rss);	 	 }
+		&.icon-sakai-site-roster2{		@include sitenav-sprite(user); 	 }
+		&.icon-sakai-sections{			@include sitenav-sprite(user); 	 }
+		&.icon-sakai-help{				@include sitenav-sprite(help); 	 }
+		&.icon-sakai-siteinfo{			@include sitenav-sprite(options);  }
+
+	}
+}

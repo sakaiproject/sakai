@@ -1,7 +1,0 @@
-//////////////////////////////
-// MODULES: Styles that are layout independent 
-//////////////////////////////
-
-@import "_colorguide_mixins";
-
-@include generate-colour-guide($primary, $secondary, $tertiary, $quadrary, $light-grey, $dark-grey);

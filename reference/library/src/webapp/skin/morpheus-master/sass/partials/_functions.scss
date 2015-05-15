@@ -1,7 +1,0 @@
-//////////////////////////////
-// FUNCTIONS: Functions should take arguments and return values...
-//////////////////////////////
-
-@function calc-em($target-px, $context) {
-  @return ($target-px / $context) * 1em;
-}

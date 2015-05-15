@@ -1,0 +1,59 @@
+/* Compass requirements */
+@import "compass/reset";
+@import "compass/css3";
+
+
+/* Global namespace */
+
+$namespace : "Mrphs-";
+
+/* Typography*/
+
+//Google family Fonts URL
+$font-family-url: "//fonts.googleapis.com/css?family=Noto+Sans" !default;
+$header-font-family-url: "//fonts.googleapis.com/css?family=Raleway:300" !default;
+
+//Typography variables
+$font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
+$default-font-size: 15px !default;
+$default-font-weight: 400 !default;										// 300, 400 or 700 as you wish
+$header-font-family: "Raleway", Arial, sans-serif !default;
+$header-font-weight: 300 !default;										// 300, 400 or 700 as you wish
+
+/* Color palette */
+$background-color: 			 #F8F8F8 !default;
+$background-color-secondary: #efeae5 !default;
+
+$tool-background-color:		 #F8F8F8 !default;
+
+$primary-color:    			 #2a97cc !default;
+$secondary-color:  			 #F00 !default;
+
+$text-color:				 #363636 !default;
+
+$button-color: 				 $primary-color !default;
+$okcolor: 					 #dff0d8 !default;
+$errorcolor: 			 	 #f2dede !default;
+$warncolor: 			 	 #fcf8e3 !default;
+
+
+/* Main Menu */
+$header-size : 50px !default;
+
+/* Tool Menu */
+$tool-menu-width: 220px !default;
+
+/* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
+$measure: 960px !default;
+
+/* Logo location */
+$logo: 'images/logo.png' !default;
+
+/* Tool icons */
+$skin-with-icons: false !default;
+$icon-size: 20px !default;
+
+@import "customization"; //it is created on-the-fly by maven.
+
+@import url( #{$font-family-url}    );
+@import url( #{$header-font-family-url} );
