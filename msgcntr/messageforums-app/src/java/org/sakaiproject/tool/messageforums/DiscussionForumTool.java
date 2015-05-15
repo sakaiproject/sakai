@@ -4698,7 +4698,7 @@ public class DiscussionForumTool
   public String processDfMsgRevisedPost()
   {
 	//checks whether the user can post to the forum & topic based on the passed in message id
-	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, true)){
+	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, false)){
 		return gotoMain();
 	}
 	try{

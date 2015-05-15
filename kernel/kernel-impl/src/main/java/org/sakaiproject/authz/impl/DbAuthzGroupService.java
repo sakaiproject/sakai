@@ -227,7 +227,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (m_autoDdl)
 			{
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm");
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm_2_4_0_001");
 			}
 
 			super.init();

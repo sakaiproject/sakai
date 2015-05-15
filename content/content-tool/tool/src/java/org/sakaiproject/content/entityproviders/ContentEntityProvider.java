@@ -305,14 +305,15 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 		item.setAuthor(getDisplayName(props.getProperty(ResourceProperties.PROP_CREATOR)));
 		item.setModifiedDate(props.getProperty(ResourceProperties.PROP_MODIFIED_DATE));
 		item.setContainer(entity.getContainingCollection().getReference());
-		item.isVisible = !entity.isHidden() && entity.isAvailable();
-		item.isHidden = entity.isHidden();
+		item.setVisible( !entity.isHidden() && entity.isAvailable() );
+		item.setHidden( entity.isHidden() );
 		if(entity.getReleaseDate() != null) {
-             item.setFromDate(entity.getReleaseDate().toStringGmtFull());
-         }
-		if(entity.getRetractDate()!=null) {
-		item.setEndDate(entity.getRetractDate().toStringGmtFull());
+			item.setFromDate(entity.getReleaseDate().toStringGmtFull());
 		}
+		if(entity.getRetractDate()!=null) {
+			item.setEndDate(entity.getRetractDate().toStringGmtFull());
+		}
+		item.setCopyrightAlert(props.getProperty(props.getNamePropCopyrightAlert()) );
 	}
 	
 	/**
@@ -511,6 +512,9 @@ public class ContentEntityProvider extends AbstractEntityProvider implements Ent
 
 		@Getter @Setter
 		private String endDate;
+  
+		@Getter @Setter
+		private String copyrightAlert;
 	}
 	
 	/**

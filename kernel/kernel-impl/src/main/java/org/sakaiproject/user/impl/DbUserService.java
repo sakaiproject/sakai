@@ -156,15 +156,6 @@ public abstract class DbUserService extends BaseUserDirectoryService
 			if (m_autoDdl)
 			{
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user");
-
-				// load the 2.1.0.004 email_lc conversion
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user_2_1_0_004");
-
-				// load the 2.1.0 postmaster password conversion
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user_2_1_0");
-
-				// load the 2.2 id-eid map table conversion
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_user_2_2_map");
 			}
 
 			super.init();

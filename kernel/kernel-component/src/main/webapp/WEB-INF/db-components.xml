@@ -259,6 +259,11 @@
 			<value>sakai</value>
 		</property>
 
+		<!-- The timeout for running validation query. Must be less than connectionTimeout. Default is 5000 (5 sec). Cannot be less than 1000 (1 sec). -->
+		<property name="validationTimeout">
+			<value>5000</value>
+		</property>
+
 		<!-- Additional data source properties -->
 		<property name="dataSourceProperties">
 			<props>
