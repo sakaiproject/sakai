@@ -19,7 +19,7 @@ ASN_SVS.confirmDiscardOrSubmit = function(attachmentsModified)
 	}
 	else
 	{
-	cancelProceed();
+		ASN_SVS.cancelProceed();
 	}
 }
 
