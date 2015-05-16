@@ -5,6 +5,8 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.ExternalLink;
@@ -135,11 +137,14 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 		
 		
-		add(new Link<Long>("hideAssignment", Model.of(assignment.getId())){
+		add(new AjaxLink<Long>("hideAssignment", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
-			public void onClick() {
-				setResponsePage(new GradebookPage());
+			public void onClick(AjaxRequestTarget target) {
+				long assignmentId = this.getModelObject();
+				target.appendJavaScript("sakai.gradebookng.spreadsheet.hideGradeItemAndSyncToolbar('" + assignmentId + "');");
 			}
+			
+			
 		});
 		
 
