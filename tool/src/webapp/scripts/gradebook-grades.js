@@ -655,6 +655,7 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
     scrollSensitivity: 100,
     opacity: 0.9,
     zIndex: 1000,
+    cancel: '.btn-group, .btn-group *', // don't start drag if the dropdown menu is clicked
     start: function(event, ui) {
       $(ui.helper.context).addClass("gb-grade-item-drag-source");
       // enable all droppable
