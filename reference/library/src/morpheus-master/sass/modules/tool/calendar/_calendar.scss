@@ -1,0 +1,29 @@
+table.calendar{
+	font-size: 0.8em;
+	tr{
+		border-bottom: 1px solid darken($background-color-secondary, 10%);
+		td{
+			text-align: center;
+		}
+	}
+}
+
+.viewLinkControl{
+	font-size: 0.8em;
+	margin: 0.5em 0;
+	@include sakai-button(  $background-color-secondary, 
+							darken( $background-color-secondary, 15% ), 
+							darken( $background-color-secondary, 25% ), 
+							darken( $background-color-secondary, 55% ) );
+}
+
+.calendarLegend{
+	font-size: 0.8em;
+	margin: 0 0 1.5em 0;
+}
+
+#calendarForm{
+	.sectionContainerNav{
+		width: 93% !important;
+	}
+}

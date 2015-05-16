@@ -88,7 +88,8 @@ function enableSubmitUnlessNoFile(checkForFile)
 	}
 }
 </script>
-
+## Include other javascript specific to this page
+<script type="text/javascript" src="/sakai-assignment-tool/js/studentViewSubmission.js"></script>
 
 <div class="portletBody">
 ## submission times
@@ -899,7 +900,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
 										<td>
-											## add browse resources button here	--bbailla2
+											## add browse resources button here
 											#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel.singular"))
 											<input
 												class="disableme enabled"
@@ -1158,7 +1159,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 						$tlang.getString("gen.youmus")
 					</p>
 				#end
-				<div
+				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
 						<input 
@@ -1167,7 +1168,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 							accesskey="x"
 							id="cancel" 
 							value="$tlang.getString("gen.don")"
-							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+							onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false;"
 						/>
 					#else
 					 class="act messageInformation">
@@ -1222,7 +1223,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 								accesskey="x"
 								id="cancel" 
 								value="$tlang.getString("gen.can")"
-								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+								onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false"
 							/>
 							#end
 
@@ -1233,6 +1234,11 @@ function enableSubmitUnlessNoFile(checkForFile)
                             #end
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+			</div>
+			<div id="confirmationDialogue" class="act messageInformation" style="display:none;">
+				$tlang.getString("gen.can.discard")
+				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="ASN_SVS.cancelProceed()" />
+				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel()" />
 			</div>
 		#else
 				#if ($submission.getGradeReleased() && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
@@ -1372,7 +1378,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 					accesskey="x"
 					id="cancel" 
 					value="$tlang.getString("gen.don")"
-					onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+					onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false;"
 				/>
 			</p>
 		#end

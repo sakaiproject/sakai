@@ -1,0 +1,44 @@
+// https://github.com/Team-Sass/breakpoint/wiki/Respond-To
+
+$break-small-end: 	800px;
+
+$phone: "only screen and (max-width : #{ $break-small-end })";
+
+//This shouldn't be here but classes are togglered in body :(
+body{
+	@media #{$phone}{
+		&.toolsNav--displayed{
+			#toolMenuWrap{
+				left: 0px;
+				@include box-shadow( 0 8px 8px rgba( $text-color, 1 ) );
+			}
+			.#{$namespace}mainHeader{
+				.#{$namespace}headerLogo{
+					width: $tool-menu-width;
+				}
+			}
+			#skipNav{
+				.js-toggle-sites-nav{
+					display: none;
+				}
+				.js-toggle-tools-nav{
+					color: $background-color;
+					left: 186px;
+					position: absolute;
+					font-size: 2.7em;
+				}
+			}
+			#loginForm{
+				display: none;
+			}
+		}
+		&.sitesNav--displayed{
+			#linkNav{
+				height: auto;
+				border-top: 5px solid $text-color;
+				display: block;
+				@include box-shadow(0 2px 8px rgba( $text-color, 0.25 ) );
+			}
+		}
+	}
+}

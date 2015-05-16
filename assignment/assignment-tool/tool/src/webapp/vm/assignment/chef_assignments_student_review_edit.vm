@@ -13,10 +13,10 @@ function handleEnterKeyPress(ev)
 		 }
 </script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
-		setupItemNavigator();
-    });
+	$(document).ready(function(){
+		setupToggleAreas('toggleAnchor', 'toggledContent', false, 'fast');
+		ASN.setupItemNavigator();
+	});
 </script>
 <div class="portletBody">
 <ul class="navIntraTool actionToolBar">

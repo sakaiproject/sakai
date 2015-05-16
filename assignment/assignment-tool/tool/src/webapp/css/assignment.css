@@ -179,6 +179,83 @@ label.disabled {
     color: #aaa;
 }
 
-a.noPointers {
+a.noPointers, input.noPointers {
     pointer-events: none;
 }
+
+/* start SAK-29314 */
+.navigator {
+    width: 100%;
+    display: table;
+}
+
+.navigator fieldset.roundedBorder {
+    border: 2px solid #c8c8c8;
+    border-radius: 5px;
+    padding: 1em;
+    margin-bottom: 1em;
+}
+
+.navigator fieldset.roundedBorder legend
+{
+    padding-left: 6px;
+    padding-right: 6px;
+    background: rgba(255, 255, 255, 0);
+    color: #444444;
+}
+
+.leftColumn {
+    float: left;
+    display: table-cell;
+    width: 40%;
+}
+
+.centreColumn {
+    display: table-cell;
+    width: 20%;
+    text-align: center;
+}
+
+.rightColumn {
+    display: table-cell;
+    width: 40%;
+    text-align: right;
+}
+
+.centreColumn #subsOnlyContainer {
+    display: block;
+    text-align: center;
+    margin-top: 0.5em;
+}
+
+.centreColumn .messageProgress {
+    display: none;
+    text-align: left;
+    margin: 0 auto;
+}
+
+.leftColumn .instruction.textPanelFooter, .rightColumn .instruction.textPanelFooter {
+    margin-top: 0.5em;
+}
+
+.spinner {
+    display: inline;
+    vertical-align: middle;
+    visibility: hidden;
+}
+
+.spinnerFrame {
+    margin: 0 2px;
+    position:absolute;
+}
+
+td.specialLink a:link, td.specialLink a:visited {
+    color: #197FA8;
+}
+
+.gradingHeader {
+    width: 100%;
+    line-height: 1.4em;
+    padding: 3px;
+}
+/* end SAK-29314 */
