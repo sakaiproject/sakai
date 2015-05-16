@@ -860,6 +860,12 @@ GradebookSpreadsheet.prototype.setupRowSelector = function() {
 };
 
 
+GradebookSpreadsheet.prototype.hideGradeItemAndSyncToolbar = function(assignmentId) {
+  var $input = this.toolbarModel.$gradeItemsFilterPanel.find(".gradebook-item-filter :input").filter("[value='"+assignmentId+"']");
+  $input.trigger("click");
+};
+
+
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
  */
