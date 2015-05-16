@@ -356,6 +356,8 @@
   cursor: pointer;
   display: block;
   margin: 0;
+  position: relative;
+  padding-right: 1.5em;
 }
 #gradeItemsTogglePanel label:hover {
   background-color: #FAFAFA;
@@ -379,11 +381,11 @@
 #gradeItemsTogglePanel .gradebook-item-category-filter-signal {
   height: 1.2em;
   width: 1.2em;
-  float: right;
-  margin-left: 20px;
   border: 1px solid #EEE;
   background-color: #EEE;
   margin-top: 0.3em;
+  position: absolute;
+  right: 0;
 }
 #gradeItemsTogglePanel .gradebook-item-category-filter,
 #gradeItemsTogglePanel .gradebook-item-filter {
