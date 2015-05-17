@@ -516,11 +516,13 @@ public class GradebookNgBusinessService {
      * Add a new assignment definition to the gradebook
      * @param assignment
      */
-    public void addAssignmentToGradebook(Assignment assignment) {
+    public void addAssignment(Assignment assignment) {
         Gradebook gradebook = getGradebook();
         if(gradebook != null) {
             String gradebookId = gradebook.getUid();
             this.gradebookService.addAssignment(gradebookId, assignment);
+            
+            //TODO wrap this so we can catch any runtime exceptions
         }
     }
     
@@ -698,5 +700,27 @@ public class GradebookNgBusinessService {
     	 return -1;
      }
      
+     /**
+      * Update the details of an assignment
+      * 
+      * @param assignment
+      * @return
+      */
+     public boolean updateAssignment(Assignment assignment) {
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 //need the original name as the service needs that as the key...
+    	 Assignment original = this.getAssignment(assignment.getId());
+    	 
+    	 try {
+    		 gradebookService.updateAssignment(gradebook.getUid(), original.getName(), assignment);
+    		 return true;
+    	 } catch (Exception e) {
+    		 log.error("An error occurred updating the assignment", e);
+    	 }
+    	 
+		 return false;
+     }
     
 }

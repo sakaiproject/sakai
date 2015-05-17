@@ -9,9 +9,12 @@ import java.util.Date;
 
 /**
  * Created by chmaurer on 3/3/15.
+ * 
+ * @Deprecated. use shared Assignment instead as that is just a DTO( where as the tool Assignment is the persistent)
  */
 @NoArgsConstructor
 @Data
+@Deprecated 
 public class GbAssignment implements Serializable {
 
     private static final long serialVersionUID = 1L;

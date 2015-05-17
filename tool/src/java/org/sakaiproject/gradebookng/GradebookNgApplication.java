@@ -4,10 +4,12 @@ import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
+import org.sakaiproject.gradebookng.tool.pages.NoDataPage;
 import org.sakaiproject.gradebookng.tool.pages.PermissionsPage;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 
@@ -46,7 +48,13 @@ public class GradebookNgApplication extends WebApplication {
 		getMarkupSettings().setDefaultAfterDisabledLink(null);
 				
 		// On Wicket session timeout, redirect to main page
-		getApplicationSettings().setPageExpiredErrorPage(getHomePage());
+		//getApplicationSettings().setPageExpiredErrorPage(getHomePage());
+		
+		//catch the exception page and redirect somewhere
+		//getApplicationSettings().setInternalErrorPage(SomePage.class);
+		
+		// show internal error page rather than default developer page
+		//getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_INTERNAL_ERROR_PAGE);
 		
 		// Intercept the stacktrace so it doesnt fill the page
 		getRequestCycleListeners().add(new SakaiRequestCycleListener());

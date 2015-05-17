@@ -49,7 +49,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 		
-		Assignment assignment = this.modelData.getObject();
+		final Assignment assignment = this.modelData.getObject();
 				
 		Label assignmentTitle = new Label("title", new Model<String>(assignment.getName()));
 		assignmentTitle.add(new AttributeModifier("title", assignment.getName()));
@@ -93,13 +93,22 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		//menu
 		add(new Link<Long>("editAssignmentDetails", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				setResponsePage(new EditGradebookItemPage(this.getModel()));
+			}
+			@Override
+			public boolean isVisible() {
+				if(assignment.isExternallyMaintained()) {
+					return false;
+				}
+				return true;
 			}
 		});
 		
 		add(new Link<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				setResponsePage(new GradebookPage());
 			}
@@ -107,6 +116,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		
 		add(new Link<Long>("moveAssignmentLeft", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				//given the id, get the assignment, get the sort order, then update and refresh
 				//note that we cannot use the passed in assignment sort order in here
@@ -125,6 +135,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				
 		add(new Link<Long>("moveAssignmentRight", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick() {
 				
 				long assignmentId = this.getModelObject();
@@ -139,12 +150,11 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		
 		add(new AjaxLink<Long>("hideAssignment", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
+			@Override
 			public void onClick(AjaxRequestTarget target) {
 				long assignmentId = this.getModelObject();
 				target.appendJavaScript("sakai.gradebookng.spreadsheet.hideGradeItemAndSyncToolbar('" + assignmentId + "');");
-			}
-			
-			
+			}	
 		});
 		
 
