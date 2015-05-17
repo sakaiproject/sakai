@@ -25,13 +25,17 @@
 		<span wicket:id="notCountedFlag" class="gb-flag-not-counted" wicket:message="title:label.gradeitem.notcounted"></span>
 	</div>
 
-	<!--  this comes from the wicket bootstrap module, needs to be sorted out. -->
+	<!-- dropdown -->
 	<div class="btn-group">
 	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
 	    	<span class="caret"></span>
 	    </a>
 	    <ul class="dropdown-menu dropdown-menu-right">
-	   		<li><a href="#">Edit Item Details</a></li>
+	   		<li><a wicket:id="editAssignmentDetails" href="#"><wicket:message key="assignment.option.edit" /></a></li>
+	   		<li><a wicket:id="viewAssignmentGradeStatistics" href="#"><wicket:message key="assignment.option.viewgradestatistics" /></a></li>
+			<li><a wicket:id="moveAssignmentLeft" href="#" class="move-assignment-left"><wicket:message key="assignment.option.moveleft" /></a></li>
+			<li><a wicket:id="moveAssignmentRight" href="#" class="move-assignment-right"><wicket:message key="assignment.option.moveright" /></a></li>
+			<li><a wicket:id="hideAssignment" href="#"><wicket:message key="assignment.option.hide" /></a></li>
 	    </ul>
     </div>
 

@@ -113,21 +113,8 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 		// check instructor
 		checkInstructor(siteId);
 		
-		
 		//update the order
-		try {
-			this.businessService.updateAssignmentOrder(siteId, assignmentId, order);
-		} catch (IdUnusedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (PermissionException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
+		this.businessService.updateAssignmentOrder(siteId, assignmentId, order);
 	}
 	
 	/**

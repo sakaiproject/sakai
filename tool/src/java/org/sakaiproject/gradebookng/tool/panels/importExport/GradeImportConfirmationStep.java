@@ -63,7 +63,7 @@ public class GradeImportConfirmationStep extends Panel {
                 boolean errors = false;
                 //Create new GB items
                 for (Assignment assignment : assignmentsToCreate) {
-                    businessService.addAssignmentToGradebook(assignment);
+                    businessService.addAssignment(assignment);
                 }
 
                 List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
