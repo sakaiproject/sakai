@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Category;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.shared.TypeD;
@@ -603,6 +604,12 @@ public class PublishedItemData
 					if (!this.getTypeId().equals(TypeD.MATCHING)) {
 						if (this.getTypeId().equals(TypeD.TRUE_FALSE)) {
 							answerKey = a.getText();
+						} else if (TypeD.CALCULATED_QUESTION.equals(this.getTypeId())) {
+							if (StringUtils.isEmpty(answerKey)) {
+								answerKey = a.getLabel() +" = "+ a.getText().substring(0, a.getText().indexOf("|")) ;
+							} else {
+								answerKey += "," + a.getLabel() +" = "+ a.getText().substring(0, a.getText().indexOf("|")) ;
+							}
 						} else {
 							if (("").equals(answerKey)) {
 								answerKey = a.getLabel();
