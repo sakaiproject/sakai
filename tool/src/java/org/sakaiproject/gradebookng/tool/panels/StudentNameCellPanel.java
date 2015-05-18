@@ -43,7 +43,7 @@ public class StudentNameCellPanel extends Panel {
 		
 		//get reference to parent page modal window
 		GradebookPage gradebookPage = (GradebookPage) this.getPage();
-		final ModalWindow gradeSummary = gradebookPage.getStudentGradeSummaryWindow();
+		final ModalWindow gradeSummary = gradebookPage.getDarkModalWindow();
 		
 		//link
 		AjaxLink<String> link = new AjaxLink<String>("link") {

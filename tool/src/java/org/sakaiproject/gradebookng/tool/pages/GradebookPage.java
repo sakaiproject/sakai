@@ -12,6 +12,7 @@ import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.MaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
@@ -52,9 +53,8 @@ public class GradebookPage extends BasePage {
 	
 	private static final long serialVersionUID = 1L;
 	
-	AddGradeItemWindow addGradeItemWindow;
+	ModalWindow modalWindow;
 	
-	ModalWindow studentGradeSummary;
 	
 	Form<Void> form;
 
@@ -69,17 +69,25 @@ public class GradebookPage extends BasePage {
 		form = new Form<Void>("form");
 		add(form);
 		
-		form.add(new AddGradeItemButton("addGradeItem"));
+		modalWindow = new ModalWindow("modalWindow");
+		modalWindow.setContent(new EmptyPanel(modalWindow.getContentId()));
+		//modalWindow.setResizable(false);
+		//modalWindow.setUseInitialHeight(true);
+		form.add(modalWindow);
 		
-		addGradeItemWindow = new AddGradeItemWindow("addGradeItemWindow");
-		form.add(addGradeItemWindow);
+	
 		
-		//details window TODO move these windows and fix up the naming
-		studentGradeSummary = new ModalWindow("studentGradeSummary");
-		studentGradeSummary.setResizable(false);
-		studentGradeSummary.setUseInitialHeight(true);
+		AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
+			@Override
+			public void onSubmit(AjaxRequestTarget target, Form form) {
+				ModalWindow window = getDarkModalWindow();
+				window.setContent(new AddGradeItemPanel(window.getContentId()));
+				window.show(target);
+			}
+		};
+		addGradeItem.setDefaultFormProcessing(false);
+		form.add(addGradeItem);
 		
-		form.add(studentGradeSummary);
 		
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
@@ -235,53 +243,23 @@ public class GradebookPage extends BasePage {
 
 	}
 	
-	/**
-	 * Add grade button
-	 */
-	private class AddGradeItemButton extends AjaxButton {
-
-		private static final long serialVersionUID = 1L;
-
-		public AddGradeItemButton(String componentId) {
-			super(componentId);
-			this.setDefaultFormProcessing(false);			
-		}
-		
-		
-		@Override
-		public void onSubmit(AjaxRequestTarget target, Form form) {
-			
-			//open window
-			addGradeItemWindow.show(target);
-		}
-		
-	}
 	
 	/**
-	 * Window for adding a grade item
-	 *
-	 */
-	private class AddGradeItemWindow extends ModalWindow {
-
-		private static final long serialVersionUID = 1L;
-
-		public AddGradeItemWindow(String componentId) {
-			super(componentId);
-			
-			this.setContent(new AddGradeItemPanel(this.getContentId()));
-			this.setUseInitialHeight(false);
-			this.setMaskType(MaskType.TRANSPARENT); //this is actually overriden in the styles to be the standard 10% opacity
-
-		}
-		
-	}
-	
-	/**
-	 * Getter for panels to get at the window
+	 * Getter for panels to get at a modal window
 	 * @return
 	 */
-	public ModalWindow getStudentGradeSummaryWindow() {
-		return this.studentGradeSummary;
+	public ModalWindow getDarkModalWindow() {
+		this.modalWindow.setMaskType(MaskType.SEMI_TRANSPARENT); //overridden to black
+		return this.modalWindow;
+	}
+	
+	/**
+	 * Getter for panels to get at the update ungraded items window
+	 * @return
+	 */
+	public ModalWindow getLightModalWindow() {
+		this.modalWindow.setMaskType(MaskType.TRANSPARENT); //overridden to 10% standard opacity
+		return this.modalWindow;
 	}
 	
 	

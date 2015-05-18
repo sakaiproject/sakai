@@ -2,25 +2,23 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.link.ExternalLink;
 import org.apache.wicket.markup.html.link.Link;
+import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.pages.EditGradebookItemPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.apache.wicket.AttributeModifier;
 
 /**
  * 
@@ -156,6 +154,22 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				target.appendJavaScript("sakai.gradebookng.spreadsheet.hideGradeItemAndSyncToolbar('" + assignmentId + "');");
 			}	
 		});
+		
+		//get reference to parent page modal window
+		GradebookPage gradebookPage = (GradebookPage) this.getPage();
+		final ModalWindow window = gradebookPage.getLightModalWindow();
+		
+		add(new AjaxLink<Long>("setUngraded", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				
+				window.setContent(new UpdateUngradedItemsPanel(window.getContentId(), this.getModel(), window));
+				window.show(target);
+			}	
+		});
+		
+		
 		
 
 	}
