@@ -58,6 +58,10 @@
 				height: 100%;
 				overflow: hidden;
 				position: relative;
+				font-size: 0.9em;
+				& a:hover{
+					border: 0px;
+				}
 			}
 			
 			&__title{
@@ -89,9 +93,9 @@
 			}
 			&__options{
 				overflow: hidden;
-   				font-size: 90%;
-    			padding: 5px;
-    			margin: 0px 0px 10px 0px
+				font-size: 90%;
+				padding: 5px;
+				margin: 0px 0px 10px 0px
 			}
 			&__users {
 				border-top: solid 0.5em $footerApp__chat__header__background;
@@ -122,14 +126,15 @@
 				
 			}
 			&__user--link{
-				  margin-left: 5px;
-				  text-decoration: none !important;
-				  height: 30px;
-				  width: 140px;
-				  float: left;
-				  &:hover{
-				  	text-decoration: none;
-				  }
+				margin-left: 5px;
+				text-decoration: none !important;
+				height: 30px;
+				width: 170px;
+				float: left;
+				color: $footerApp__chat__header__background;
+				&:hover{
+					text-decoration: none;
+				}
 			}
 			&__connection--bullet{
 				float: left;
@@ -147,11 +152,10 @@
   				float: left;
   				margin: 3px;
   				height: 30px;
-			}
-
-			&__checkbox--options{
-				margin-right: 3px;
-				margin-left: -1px;
+				width: 120px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 			&__connection--ping{
 			 	display: none;
@@ -198,6 +202,9 @@
 	  					overflow: hidden;
 						position: relative;
 						height: 33px;
+						& a{
+							color: $footerApp__chat__header__color;
+						}
 				}
 				&container{
 					 position: fixed;
