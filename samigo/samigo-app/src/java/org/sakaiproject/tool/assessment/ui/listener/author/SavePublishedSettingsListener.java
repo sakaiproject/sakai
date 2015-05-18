@@ -288,7 +288,10 @@ implements ActionListener
 	    // if late submissions not allowed and late submission date is null, set late submission date to due date
 	    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.equals(assessmentSettings.getLateHandling()) &&
 	    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-	    	assessmentSettings.setRetractDate(dueDate);
+	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+	    	if (autoSubmitEnabled) {
+	    		assessmentSettings.setRetractDate(dueDate);
+	    	}
 	    }
 
 	    // if auto-submit is enabled, make sure late submission date is set
