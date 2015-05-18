@@ -295,7 +295,7 @@ public class GradebookNgBusinessService {
 		
 		//over limit check, get max points for assignment and check if the newGrade is over limit
 		//we still save it but we return the warning
-		Assignment assignment = this.gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+		Assignment assignment = this.getAssignment(assignmentId);
 		Double maxPoints = assignment.getPoints();
 		
 		Double newGradePoints = NumberUtils.toDouble(newGrade);
@@ -716,6 +716,46 @@ public class GradebookNgBusinessService {
     	 try {
     		 gradebookService.updateAssignment(gradebook.getUid(), original.getName(), assignment);
     		 return true;
+    	 } catch (Exception e) {
+    		 log.error("An error occurred updating the assignment", e);
+    	 }
+    	 
+		 return false;
+     }
+     
+     /**
+      * Updates ungraded items in the given assignment with the given grade
+      * 
+      * @param assignmentId
+      * @param grade
+      * @return
+      */
+     public boolean updateUngradedItems(long assignmentId, double grade) {
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 //get students
+    	 List<String> studentUuids = this.getGradeableUsers();
+    	 
+    	 //get grades (only returns those where there is a grade)
+    	 List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignmentId, studentUuids);
+
+    	 //iterate and trim the studentUuids list down to those that don't have grades
+    	 for(GradeDefinition def: defs) {
+    		 
+    		 //don't remove those where the grades are blank, they need to be updated too
+    		 if(StringUtils.isNotBlank(def.getGrade())) {
+    			 studentUuids.remove(def.getStudentUid());
+    		 }
+    	 }
+    	
+    	 try {
+	    	 //for each student remaining, add the grade
+	    	 for(String studentUuid : studentUuids) {
+	    		 //TODO if this is slow doing it one by one, might be able to batch it
+	    		 gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, String.valueOf(grade), null);
+	    	 }
+	    	 return true;
     	 } catch (Exception e) {
     		 log.error("An error occurred updating the assignment", e);
     	 }
