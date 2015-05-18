@@ -1,0 +1,13 @@
+.#{$namespace}portalWrapper{
+	color: $swapped-view-text-color;
+	&.swapped-view{
+		.#{$namespace}headerLogo{
+			background: $swapped-view-primary;
+		}
+		#mastLogin{
+			#loginLinks{
+				background: $swapped-view-primary;
+			}
+		}
+	}
+}
