@@ -5,10 +5,12 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 
@@ -28,8 +30,9 @@ public class ConfirmCopyAssessmentListener implements ActionListener {
 		// #3 - permission checking before proceeding - daisyf
 		AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
 		author.setOutcome("confirmCopyAssessment");
-		EditAssessmentListener editAssessmentListener = new EditAssessmentListener(); 
-		if (!editAssessmentListener.passAuthz(context, assessment.getCreatedBy())) {
+
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		if (!authzBean.isUserAllowedToEditAssessment(assessmentId, assessment.getCreatedBy(), false)) {
 			author.setOutcome("author");
 			return;
 		}

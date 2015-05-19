@@ -52,8 +52,9 @@
 				#end
 			</table>
 			<p class="act">
-				<input type="submit" accesskey="s" class="active" name="eventSubmit_doDelete_assignment" value="$tlang.getString("delet")" />
-				<input type="submit" accesskey="x" name="eventSubmit_doCancel_delete_assignment" value="$tlang.getString("gen.can")" />
+				<input type="submit" accesskey="s" id="delete" onclick="ASN.disableControls(); ASN.showSpinner( 'deleteSpinner' );" class="active" name="eventSubmit_doDelete_assignment" value="$tlang.getString("delet")" />
+				<input type="submit" accesskey="x" id="cancel" onclick="ASN.disableControls(); ASN.showSpinner( 'deleteSpinner' );" name="eventSubmit_doCancel_delete_assignment" value="$tlang.getString("gen.can")" />
+				<img id="deleteSpinner" class="spinner" src="/library/image/indicator.gif" />
 			</p>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>

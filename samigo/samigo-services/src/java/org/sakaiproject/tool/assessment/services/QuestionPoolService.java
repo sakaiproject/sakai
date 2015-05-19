@@ -155,14 +155,12 @@ public class QuestionPoolService
   /**
    * Get pool id's by agent.
    */
-  public List getPoolIdsByAgent(String agentId)
+  public List<Long> getPoolIdsByAgent(String agentId)
   {
-    List idList = null;
+    List<Long> idList = null;
     try
     {
-      idList =
-        PersistenceService.getInstance().getQuestionPoolFacadeQueries().
-          getPoolIdsByAgent(agentId);
+      idList = PersistenceService.getInstance().getQuestionPoolFacadeQueries().getPoolIdsByAgent(agentId);
     }
     catch(Exception e)
     {

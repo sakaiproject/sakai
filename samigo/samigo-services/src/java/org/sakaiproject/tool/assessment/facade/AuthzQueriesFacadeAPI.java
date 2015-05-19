@@ -61,8 +61,7 @@ public interface AuthzQueriesFacadeAPI
   public List getAuthorizationByAgentAndFunction(String agentId,
       String functionId);
 
-  public List getAuthorizationByFunctionAndQualifier(String functionId,
-      String qualifierId);
+  public List<AuthorizationData> getAuthorizationByFunctionAndQualifier(String functionId, String qualifierId);
 
   public boolean checkMembership(String siteId);
 

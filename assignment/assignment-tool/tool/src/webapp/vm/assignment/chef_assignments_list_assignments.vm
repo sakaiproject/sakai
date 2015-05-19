@@ -126,10 +126,11 @@ function duplicateLink(lnk) {
 						$tlang.getString("gen.view2")
 					</label>
 					<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-					<select id="view" name="view" size="1" tabindex="3" onchange="document.viewForm.submit();">
+					<select id="view" name="view" size="1" tabindex="3" onchange="ASN.disableControls();ASN.showSpinner( 'viewSpinner' );document.viewForm.submit();">
 						<option value="lisofass1" #if($!view.equals('lisofass1'))selected="selected"#end >$!tlang.getString('lisofass1')</option>
 						<option value="lisofass2" #if($!view.equals('lisofass2'))selected="selected"#end >$!tlang.getString('lisofass2')</option>
 					</select>
+					<img id="viewSpinner" class="spinner" src="/library/image/indicator.gif" />
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			</div>
@@ -405,7 +406,9 @@ function duplicateLink(lnk) {
 											#if (!$assignment.draft && $!service.allowGradeSubmission($assignment.getReference()))#if($prevAction) | #end
 											#set ($gradeScale = $assignmentContent.getTypeOfGrade())
 											## show "view submissions" link for ungraded type of assignment
-												<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end <span class="skip">: $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>#end										
+												<a href="#" onclick="if(allowClick(this)){ASN.disableControls();ASN.showSpinner( 'viewSubmissionsSpinner_$assignmentReference' );window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >#if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end <span class="skip">: $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</span></a>
+												<img id="viewSubmissionsSpinner_$assignmentReference" class="spinner" src="/library/image/indicator.gif" />
+											#end
 										</div>
 									#else
 										#if ($!allowAddAssignment)
@@ -540,7 +543,7 @@ function duplicateLink(lnk) {
 									$tlang.getString("gen.viewallgroupssections")
 								#elseif( $groupTitleList.size() > 0 )
 									<div class="groupsContainer">
-										<h4 class="collapse" onclick="toggleGroups( this ); resizeFrame();">
+										<h4 class="collapse" onclick="ASN.toggleGroups( this ); resizeFrame();">
 											$groupTitleList.size()
 											#if( $groupTitleList.size() == 1 )
 												$tlang.getString( "selected.group" )
@@ -611,8 +614,9 @@ function duplicateLink(lnk) {
 											#set($totalNumber = $ungradedNumber)
 										#end
 									#end
-									<a href="#" onclick="if(allowClick(this)){window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >
+									<a href="#" onclick="if(allowClick(this)){ASN.disableControls();ASN.showSpinner( 'viewSubmissionsSpinner2_$assignmentReference' );window.location='#toolLinkParam("$action" "doGrade_assignment" "assignmentId=$validator.escapeUrl($assignmentReference)")';}" >
 									<span class="skip"> #if ($withGrade && $gradeScale != 1)$!tlang.getString("gen.assign.gra")#else$!tlang.getString("viewsubmissions")#end : $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64)). </span> <span class="skip">$!tlang.getString("gen.subm2"): </span>$!totalNumber/<span class="skip">$!tlang.getString("ungra"): </span>$!ungradedNumber</a>
+									<img id="viewSubmissionsSpinner2_$assignmentReference" class="spinner" src="/library/image/indicator.gif" />
 								#end
 								</td>
 								#end

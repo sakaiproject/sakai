@@ -190,21 +190,24 @@ public class SearchAccessPage extends BasePage implements Serializable {
 		if(hierarchySelectOptions == null || hierarchySelectOptions.size() == 0){
 			hierarchySelectOptions = new HashMap<String, List<SelectOption>>();
 			HierarchyNodeSerialized rootNode = projectLogic.getRootNodeId();
-			Set<HierarchyNodeSerialized> nodes = projectLogic.getDirectNodes(rootNode.id);
-			List<SelectOption> options = new ArrayList<SelectOption>();
-			if(nodes != null){
-				for(HierarchyNodeSerialized node : nodes){
-					options.add(new SelectOption(node.description, node.id));
-				}
-			}
-			Collections.sort(options, optionComparator);
-			hierarchySelectOptions.put(rootNode.id, options);
 			nodeSelects = new HashMap<String, SelectOption>();
-			//since nothing is selected, set the node selection to null
-			nodeSelects.put(rootNode.id, null);
-			//add the root node as the first selection
 			nodeSelectOrder = new ArrayList<String>();
-			nodeSelectOrder.add(rootNode.id);
+			if(rootNode != null && rootNode.id != null && !"".equals(rootNode.id)){
+				Set<HierarchyNodeSerialized> nodes = projectLogic.getDirectNodes(rootNode.id);
+				List<SelectOption> options = new ArrayList<SelectOption>();
+				if(nodes != null){
+					for(HierarchyNodeSerialized node : nodes){
+						options.add(new SelectOption(node.description, node.id));
+					}
+				}
+				Collections.sort(options, optionComparator);
+				hierarchySelectOptions.put(rootNode.id, options);
+				
+				//since nothing is selected, set the node selection to null
+				nodeSelects.put(rootNode.id, null);
+				//add the root node as the first selection				
+				nodeSelectOrder.add(rootNode.id);
+			}
 		}
 		final ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
 		DataView dropdowns = new DataView("hierarchyDropdowns", new IDataProvider<String>(){

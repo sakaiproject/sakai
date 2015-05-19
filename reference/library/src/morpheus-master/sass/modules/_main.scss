@@ -1,0 +1,50 @@
+//.#{$namespace}
+.is-logged-out{
+	#content, .#{$namespace}container--footer{
+		margin: #{$header-size * 1.55 } 0 0 #{$tool-menu-width};
+		@media #{$phone}{
+			margin: #{$header-size * 1.55 } 0 0 0;
+		}
+	}
+}
+
+#content, .#{$namespace}container--footer{
+	margin: #{$header-size * 3 } 0 0 #{$tool-menu-width};
+
+	@media #{$phone}{
+		margin: #{$header-size * 1.55 } 20px 0 20px;
+	}
+	
+	#col1of2, #col2of2{
+		display: inline-block;
+		margin: 0 0 0 1%;
+		vertical-align: top;
+		width: 48%;
+		@media #{$phone}{
+			display: block;
+			width: 100%;
+		}
+	}
+}
+
+.#{$namespace}pageColumns--single, .#{$namespace}footer{
+	/* Optimal Typography for 16px Fonts 		//
+	// http://www.pearsonified.com/typography/	//
+	// Approx CPL 97 							*/
+	max-width: #{$default-font-size * 2 + $measure };
+	margin: 0 1em 1em 1em;
+	clear: both;
+}
+
+.#{$namespace}footer{
+	background: $background-color-secondary;
+	padding: 0.8em;
+	font-size: 0.8em;
+	border: 1px solid darken($background-color-secondary, 15%);
+	@include border-radius( 8px );
+	#footer-links{
+		li{
+			display: inline-block;
+		}
+	}
+}

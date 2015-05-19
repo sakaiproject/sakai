@@ -89,12 +89,16 @@ public class ConfirmPublishAssessmentListener
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     SaveAssessmentSettings s = new SaveAssessmentSettings();
     AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.getAssessment(
-        assessmentId);
-    if (!passAuthz(context, assessment.getCreatedBy())){
-      assessmentSettings.setOutcomePublish("editAssessmentSettings");
-      author.setIsErrorInSettings(true);
-      return;
+    AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+    
+    // Check permissions
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (!authzBean.isUserAllowedToPublishAssessment(assessmentId, assessment.getCreatedBy(), false)) {
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_publish_assessment_error");
+        context.addMessage(null,new FacesMessage(err));
+        assessmentSettings.setOutcomePublish("editAssessmentSettings");
+        author.setIsErrorInSettings(true);
+        return;
     }
 
     assessmentBean.setAssessment(assessment);
@@ -169,8 +173,11 @@ public class ConfirmPublishAssessmentListener
     // if late submissions not allowed and late submission date is null, set late submission date to due date
     if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
     		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-    	retractDate = dueDate;
-    	assessmentSettings.setRetractDate(dueDate);
+    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+    	if (autoSubmitEnabled) {
+    		retractDate = dueDate;
+    		assessmentSettings.setRetractDate(dueDate);
+    	}
     }
     // if auto-submit is enabled, make sure late submission date is set
     if (assessmentSettings.getAutoSubmit() && retractDate == null) {
@@ -391,27 +398,6 @@ public class ConfirmPublishAssessmentListener
 	SetFromPageAsAuthorSettingsListener setFromPageAsAuthorSettingsListener = new SetFromPageAsAuthorSettingsListener();
 	setFromPageAsAuthorSettingsListener.processAction(null);
   }
-
-  public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
-    boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-    if (!hasPrivilege){
-      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-		     "denied_publish_assessment_error");
-      context.addMessage(null,new FacesMessage(err));
-    }
-    return hasPrivilege;
-  }
-
-  public boolean isOwner(String ownerId){
-    boolean isOwner = false;
-    String agentId = AgentFacade.getAgentString();
-    isOwner = agentId.equals(ownerId);
-    return isOwner;
-  }  
 
   public void setIsFromActionSelect(boolean isFromActionSelect){
 	  this.isFromActionSelect = isFromActionSelect;

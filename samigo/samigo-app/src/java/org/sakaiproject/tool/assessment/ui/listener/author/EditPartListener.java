@@ -22,11 +22,14 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.List;
 
+import javax.faces.application.FacesMessage;
 import javax.faces.context.FacesContext;
 import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
+import javax.faces.model.SelectItem;
 
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.SectionMetaData;
@@ -41,6 +44,7 @@ import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentS
 import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.AuthorBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.SectionBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.util.FormattedText;
 
@@ -63,29 +67,43 @@ public class EditPartListener
 
   public void processAction(ActionEvent ae) throws AbortProcessingException
   {
-    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-                                                           "assessmentBean");
+	FacesContext context = FacesContext.getCurrentInstance();
+	AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
     SectionBean sectionBean = (SectionBean) ContextUtil.lookupBean("sectionBean");
-    String sectionId = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("sectionId");
+    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
+    String sectionId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("sectionId");
 
     if (sectionId != null){
-	sectionBean.setSectionId(sectionId);
+	  sectionBean.setSectionId(sectionId);
     }
-    else{
-	// i am afraid on returning from removal, EditPartListener is accled to
-	// to re-populate the part
-	// so i can't read sectionId from a form. - daisyf
-	sectionId = sectionBean.getSectionId();
+    else {
+	  // i am afraid on returning from removal, EditPartListener is accled to re-populate the part so i can't read sectionId from a form. - daisyf
+	  sectionId = sectionBean.getSectionId();
     }
-    AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-    isEditPendingAssessmentFlow = author.getIsEditPendingAssessmentFlow();
 
-    
-    //log.info("**SectionId = "+sectionId);
     // #1a. prepare sectionBean
     AssessmentService assessmentService = null;
     SectionFacade section = null;
+
+    List<SelectItem> sectionList = assessmentBean.getSectionList();
+    boolean foundPart = false;
+    for (int i=0; i<sectionList.size();i++){
+      SelectItem s = sectionList.get(i);
+      
+      // only pick this part if it's actually in current assessment
+      if (sectionId.equals((String)s.getValue())) foundPart = true;
+    }
+
+    // Permission check
+    if ((!foundPart) || !authzBean.isUserAllowedToEditAssessment(assessmentBean.getAssessmentId(), assessmentBean.getAssessment().getCreatedBy(), !isEditPendingAssessmentFlow)) {
+      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+      context.addMessage(null,new FacesMessage(err));
+      author.setOutcome("author");
+      return;
+    }
+
     if (isEditPendingAssessmentFlow) {
     	EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.revise", "siteId=" + AgentFacade.getCurrentSiteId() + ", sectionId=" + sectionId, true));
     	assessmentService = new AssessmentService();
@@ -102,34 +120,15 @@ public class EditPartListener
 
     sectionBean.setNoOfItems(String.valueOf(section.getItemSet().size()));
     populateMetaData(section, sectionBean);
-    
-// todo: get poolsavailable and then add the current pool used, because we need to show it as one of the choices.
-
-/* Huong moved to getPoolsAvailable in SectionBean.java 
-    ArrayList poolidlist = sectionBean.getPoolsAvailable();
-      String currpoolid= sectionBean.getSelectedPool();   // current pool used for random draw
-    if (!("".equals(currpoolid)) && (currpoolid !=null)) {
-	//System.out.println("current pool id not null or empty");
-    //now we need to get the poolid and displayName
-      QuestionPoolService delegate = new QuestionPoolService();//
-      QuestionPoolFacade pool= delegate.getPool(new Long(currpoolid), AgentFacade.getAgentString());//
-    // now add the current pool used  to the list, so it's available in the pulldown 
-      poolidlist.add(new SelectItem((pool.getQuestionPoolId().toString()), pool.getDisplayName()));//
-      //System.out.println("added editing pool: "+ pool.getDisplayName());//
-      sectionBean.setPoolsAvailable(poolidlist);//
-    }
-*/
 
     boolean hideRandom = false;
-    if ((sectionBean.getType() == null) || sectionBean.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString()))
-{
+    if ((sectionBean.getType() == null) || sectionBean.getType().equals(SectionDataIfc.QUESTIONS_AUTHORED_ONE_BY_ONE.toString())) {
       int itemsize = Integer.parseInt(sectionBean.getNoOfItems());
       if( itemsize > 0) {
         hideRandom = true;
       }
     }
     sectionBean.setHideRandom(hideRandom);
-
   }
 
   private void populateMetaData(SectionFacade section, SectionBean bean)  {

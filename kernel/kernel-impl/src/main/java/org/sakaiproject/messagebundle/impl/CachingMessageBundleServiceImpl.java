@@ -33,7 +33,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	}
 
 	public void init() {
-		cache = memoryService.newCache(CACHE_NAME);
+		cache = memoryService.getCache(CACHE_NAME);
 		super.init();
 	}
 	

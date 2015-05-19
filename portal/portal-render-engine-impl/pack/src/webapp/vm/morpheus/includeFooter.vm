@@ -43,11 +43,11 @@
                     #if ($showPreferredTzTime == "true")
 
                         ${rloader.site_preferredtime_label}
-                        <span id="preferredTime" class="Mrphs-footer--server-time__preferred"></span>
+                        <span id="preferredTime" class="Mrphs-footer--server-time__preferred" data-preferredtzdisplay="${preferredTzDisplay}" data-preferredserverdateandgmtoffset="${preferredTzGMTOffset}"></span>
 
                     #end
 
-                    <span id="serverTime" class="Mrphs-footer--server-time"></span>
+                    <span id="serverTime" class="Mrphs-footer--server-time" data-servertzdisplay="${serverTzDisplay}" data-serverdateandgmtoffset="${serverTzGMTOffset}"></span>
                 </details>
 
             #end ## END of IF ($showServerTime == "true")

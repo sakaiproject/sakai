@@ -119,7 +119,7 @@ public class IMSJSONRequest {
 				if (readNum>0) {
 					bos.write(buf, 0, readNum); 
 					chars = chars + readNum;
-					// We dont' want a DOS
+					// We dont' want a DOS - Also helps w.r.t. SHA1
 					if ( chars > 10000000 ) {
 						errorMessage = "Message body size exceeded";
 						return;

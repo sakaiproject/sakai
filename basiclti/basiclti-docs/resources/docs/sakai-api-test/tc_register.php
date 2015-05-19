@@ -20,6 +20,9 @@ $response = '{
 $json_response = json_decode($response);
 $json_response->{'@id'} = $cur_base . uniqid();
 $json_response->tool_proxy_guid = $oauth_consumer_key;
+$half = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
+$json_response->tc_oauth_half_secret = $half;
+
 
 try {
     $body = handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret);

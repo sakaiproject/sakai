@@ -284,6 +284,16 @@ $(function() {
 			return false;
 		});
 
+		$('#export-cc-v11').change(function(){		
+			if ($("#export-cc-v11").prop('checked'))
+			    $("#export-cc-v13").prop('checked',false);
+		    });
+
+		$('#export-cc-v13').change(function(){		
+			if ($("#export-cc-v13").prop('checked'))
+			    $("#export-cc-v11").prop('checked',false);
+		    });
+
 		$('#delete-orphan-link').click(function(){
 			if (delete_orphan_enabled) {
 			    delete_orphan_enabled = false;
@@ -2763,3 +2773,12 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
     }
 }
     
+function printView(url) {
+    var i = url.indexOf("/site/");
+    if (i < 0)
+	return url;
+    var j = url.indexOf("/tool/");
+    if (j < 0)
+	return url;
+    return url.substring(0, i) + url.substring(j);
+}

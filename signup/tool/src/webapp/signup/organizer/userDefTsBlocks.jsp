@@ -84,8 +84,8 @@
 				* check input is only numeric
 				*/
 				jQuery(".numericOnly").keydown(function(event) {
-			        // Allow only backspace and delete
-			        if ( event.keyCode == 46 || event.keyCode == 8 ) {
+			        // Allow only backspace, delete and tab 
+			        if ( event.keyCode == 46 || event.keyCode == 8 || event.keyCode == 9) {
 			            // let it happen, don't do anything
 			        }
 			        else {

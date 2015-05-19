@@ -1,0 +1,27 @@
+table{
+	&.login{
+		border: 1px solid $background-color-secondary;
+		@include box-shadow( 0 0 5px rgba( $text-color , 0.25 ) );
+		th{
+			background: $background-color;
+			border-bottom: 1px solid $background-color-secondary;
+			color: $primary-color;
+			font-family: $header-font-family;
+			font-weight: $header-font-weight;
+			font-size: 1.4em;
+		}
+		td{
+			.loginform, .joinform{
+				color: $text-color;
+				label{
+					color: $text-color;
+				}
+				#eid, #pw{
+					display: block;
+					font-size: $default-font-size;
+					width: 100%;
+				}
+			}
+		}
+	}
+}
