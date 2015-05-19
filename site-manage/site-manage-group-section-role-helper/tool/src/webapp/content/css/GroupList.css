@@ -154,3 +154,7 @@ span.validFMess{
 div.act .spinner {
 	padding-top: 5px;
 }
+
+fieldset#rosterOptionsFieldset {
+	margin-bottom: 2em;
+}

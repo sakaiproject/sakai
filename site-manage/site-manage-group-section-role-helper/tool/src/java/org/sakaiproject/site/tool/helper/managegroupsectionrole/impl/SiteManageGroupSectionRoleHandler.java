@@ -53,9 +53,10 @@ import org.sakaiproject.util.RequestFilter;
 
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
-import uk.org.ponder.rsf.components.UIBranchContainer;
-import uk.org.ponder.rsf.components.UIOutput;
 import au.com.bytecode.opencsv.CSVReader;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Membership;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 /**
  * 
  * @author 
@@ -92,16 +93,23 @@ public class SiteManageGroupSectionRoleHandler {
     // selected roles for autocreate groups
     public Map<String, Boolean> selectedRoles = new HashMap<String, Boolean>();
        
-    private static final int OPTION_ASSIGN_BY_ROLES = 1;
+    private static final int OPTION_ASSIGN_BY_ROLES_OR_ROSTER = 1;
     private static final int OPTION_ASSIGN_RANDOM = 2;
-    public int optionAssign = OPTION_ASSIGN_BY_ROLES;
-    
+    public int optionAssign = OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
     public boolean groupSplit = true;
     public String numToSplitGroup = "";
     public String numToSplitUser = "";
-    
     public String groupTitleGroup = "";
     public String groupTitleUser = "";
+    
+    // SAK-29373
+    public CourseManagementService cms;
+    public int rosterOptionAssign = OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
+    public boolean rosterGroupSplit = true;
+    public String rosterNumToSplitGroup = "";
+    public String rosterNumToSplitUser = "";
+    public String rosterGroupTitleGroup = "";
+    public String rosterGroupTitleUser = "";
     
     private String NULL_STRING = "";
     
@@ -204,13 +212,21 @@ public class SiteManageGroupSectionRoleHandler {
 	    selectedRosters = new HashMap<String, Boolean>();
 	    selectedRoles = new HashMap<String, Boolean>();
 	    
-	    optionAssign=OPTION_ASSIGN_BY_ROLES;
+	    optionAssign=OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
 	    groupSplit = true;
 	    numToSplitUser = "";
 	    numToSplitGroup = "";
 	    groupTitleUser = "";
 	    groupTitleGroup = "";
-	    
+
+	    // SAK-29373
+	    rosterOptionAssign = OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
+	    rosterGroupSplit = true;
+	    rosterNumToSplitUser = "";
+	    rosterNumToSplitGroup = "";
+	    rosterGroupTitleUser = "";
+	    rosterGroupTitleGroup = "";
+
 	    importedGroups = null;
 	    
 	    joinableSetName = "";
@@ -854,268 +870,367 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     /**
-     * atuo create group(s) based on selected roster(s) or role(s)
+     * SAK-29373 - Common validation algorithm for both roster and role based random groups
+     * 
+     * @param option flag denoting split by random options, or create group(s) for roster and/or role (1:1)
+     * @param isGroupSplit true = split by number of groups, false = split by number of users per group
+     * @param numToSplitForGroups the number of groups requested
+     * @param numToSplitForUsers the number of users per group requested
+     * @param groupTitleForGroups title requested for split by groups
+     * @param groupTitleForUsers title requested for split by number of users per group
+     * @return 0 if not for random groups, -1 if for random groups and validation fails. Otherwise, returns the 
+     * integer value of the number of groups or number of users per group requested.
+     */
+    private int validateAutoGroupsFields( int option, boolean isGroupSplit, String numToSplitForGroups, String numToSplitForUsers,
+                                          String groupTitleForGroups, String groupTitleForUsers)
+    {
+        int intToSplit = 0;
+        if( OPTION_ASSIGN_RANDOM == option )
+        {
+            String numToSplit = isGroupSplit ? numToSplitForGroups : numToSplitForUsers;
+            String groupTitle = isGroupSplit ? groupTitleForGroups : groupTitleForUsers;
+            if( numToSplit == null )
+            {
+                if( isGroupSplit )
+                {
+                    messages.addMessage( new TargettedMessage( "numToSplit.group.empty.alert", "numToSplit" ) );
+                }
+                else
+                {
+                    messages.addMessage( new TargettedMessage( "numToSplit.user.empty.alert", "numToSplit" ) );
+                }
+                return -1;
+            }
+            else
+            {
+                try
+                {
+                    intToSplit = Integer.parseInt( numToSplit );
+                    if( intToSplit <= 0 )
+                    {
+                        return addAppropriateNotNumberError( isGroupSplit );
+                    }
+                }
+                catch( NumberFormatException ex )
+                {
+                    return addAppropriateNotNumberError( isGroupSplit );
+                }
+            }
+
+            if( groupTitle == null || "".equals( groupTitle ) )
+            {
+                messages.addMessage( new TargettedMessage( "groupTitle.empty.alert", "groupTitle" ) );
+                return -1;
+            }
+        }
+        
+        return intToSplit;
+    }
+
+     /**
+     * Add the appropriate 'is not a number' error to the UI
+     * 
+     * @param isGroupSplit true for split on # of groups, false for split on # of users per group
+     * @return -1 indicating validation failure
+     */
+    private int addAppropriateNotNumberError( boolean isGroupSplit )
+    {
+        if( isGroupSplit )
+        {
+            messages.addMessage( new TargettedMessage( "numToSplit.group.notanumber.alert", "numToSplit" ) );
+        }
+        else
+        {
+            messages.addMessage( new TargettedMessage( "numToSplit.user.notanumber.alert", "numToSplit" ) );
+        }
+        return -1;
+    }
+
+    /**
+     * auto create group(s) based on selected roster(s) or role(s)
      *
      */
     public String processAutoCreateGroup() {
-    	// reset the warning messages
-    	resetTargettedMessageList();
-    			
-    	//check if fields are correct:
-    	int intToSplit=-1;
-    	
-    	if(OPTION_ASSIGN_RANDOM == optionAssign){
-    		String numToSplit = groupSplit ? numToSplitGroup : numToSplitUser;
-        	String groupTitle = groupSplit ? groupTitleGroup : groupTitleUser;
-    		if(numToSplit == null){
-    			if(groupSplit){
-    				messages.addMessage(new TargettedMessage("numToSplit.group.empty.alert","numToSplit"));	
-    			}else{
-    				messages.addMessage(new TargettedMessage("numToSplit.user.empty.alert","numToSplit"));
-    			}    			
-    			return null;
-    		}else{
-    			try {
-    				intToSplit = Integer.parseInt(numToSplit);
-    				if(intToSplit <= 0){
-    					if(groupSplit){
-    	    				messages.addMessage(new TargettedMessage("numToSplit.group.notanumber.alert","numToSplit"));	
-    	    			}else{
-    	    				messages.addMessage(new TargettedMessage("numToSplit.user.notanumber.alert","numToSplit"));
-    	    			}
-    					return null;
-    				}
-				} catch (Exception e) {
-					if(groupSplit){
-	    				messages.addMessage(new TargettedMessage("numToSplit.group.notanumber.alert","numToSplit"));	
-	    			}else{
-	    				messages.addMessage(new TargettedMessage("numToSplit.user.notanumber.alert","numToSplit"));
-	    			}
-					return null;
-				}
-    		}
-    		
-    		if(groupTitle == null || "".equals(groupTitle)){
-    			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle"));
-    			return null;
-    		}
-    	}
-    	    	    	
-    	List<String> rosterList = new Vector<String>();
-    	if (!selectedRosters.isEmpty())
-    	{
-    		for (Iterator<String> iterRosters= selectedRosters.keySet().iterator(); iterRosters.hasNext(); ) {
-    			String roster = iterRosters.next();
-    			if (Boolean.TRUE.equals(selectedRosters.get(roster)))
-    			{
-    				// selected roster
-    				rosterList.add(roster);
-    			}
-    		}
-    	}
-    	
-    	List<String> roleList = new Vector<String>();
-    	if (!selectedRoles.isEmpty())
-    	{
-    		for (Iterator<String> iterRoles = selectedRoles.keySet().iterator(); iterRoles.hasNext(); ) {
-    			String role = iterRoles.next();
-    			if (Boolean.TRUE.equals(selectedRoles.get(role)))
-    			{
-    				// selected role
-    				roleList.add(role);
-    			}
-    		}
-    	}
-    	
-    	if (rosterList.isEmpty() && roleList.isEmpty())
-    	{
-    		// nothing selected, generate alert
-    		messages.addMessage(new TargettedMessage("group.autocreate.selectrosterorrole","Please select at lease one roster or role."));
-    	}
-    	else
-    	{
-    		// go and create the new group
-    		if (!rosterList.isEmpty())
-    		{
-	    		for (String roster:rosterList)
-	    		{
-	    			Group group = site.addGroup();
-        			group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
-		        		
-		        	// roster provider string
-        			//rsf doesn't like "."'s, so these have been escaped.  Now unescape them
-        			roster = roster.replaceAll("-_p_-", ".");
-		        	group.setProviderGroupId(roster);
-		        		
-		        	String title = truncateGroupTitle(roster);
-		        	group.setTitle(title);
-	    		}
-    		}
-	        	
-        	// role based
-        	if (!roleList.isEmpty())
-        	{
-        		if(OPTION_ASSIGN_BY_ROLES == optionAssign){
-	        		for(String role:roleList)
-	        		{
-	        			Group group = site.addGroup();
-	        			// make the provider id as of SITEID_ROLEID
-	        			//group.setProviderGroupId(site.getId() + "_" + role);
-	        			group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
-	        			group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
-	
-			        	String title = truncateGroupTitle(role);
-			        	group.setTitle(title);
-	        			
-	        			// get the authz group
-	                	String siteReference = siteService.siteReference(site.getId());
-	                	try
-	                	{
-	                		AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
-	                		Set<String> usersHasRole = siteGroup.getUsersHasRole(role);
-	                		if (usersHasRole != null)
-	                		{
-	                			for (Iterator<String> uIterator = usersHasRole.iterator(); uIterator.hasNext();)
-	                			{
-	                				String userId = uIterator.next();
-	                				Member member = site.getMember(userId);
-	            					group.addMember(userId, role, member.isActive(), false);
-	                			}
-	                		}
-	                	}
-	                	catch (GroupNotDefinedException e)
-	                	{
-	                		M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference);
-	                	}
-	        		}
-        		}else{
-        			createRandomGroups(roleList, intToSplit);
-        		}
-        	}
-        		
-    		// save the changes
-    		try
-    		{
-    			siteService.save(site);
-    			// reset the form params
-    			resetParams();
-	        } 
-	        catch (IdUnusedException e) {
-	        	M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
-	            return null;
-	        } 
-	        catch (PermissionException e) {
-	        	M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
-	            return null;
-	        }
-        	
-    	}
+        // reset the warning messages
+        resetTargettedMessageList();
+
+        // Check if fields are valid
+        int intToSplit = validateAutoGroupsFields( optionAssign, groupSplit, numToSplitGroup, numToSplitUser, groupTitleGroup, groupTitleUser );
+        int rosterIntToSplit = validateAutoGroupsFields( rosterOptionAssign, rosterGroupSplit, rosterNumToSplitGroup, rosterNumToSplitUser, rosterGroupTitleGroup, rosterGroupTitleUser );
+        if( intToSplit == -1 || rosterIntToSplit == -1 )
+        {
+            return null;
+        }
+
+        List<String> rosterList = new ArrayList<>();
+        if( selectedRosters != null )
+        {
+            for( String roster : selectedRosters.keySet() )
+            {
+                if (Boolean.TRUE.equals(selectedRosters.get(roster)))
+                {
+                    // RSF doesn't like periods, so these have been escaped; now unescape them
+                    roster = roster.replaceAll("-_p_-", ".");
+                    rosterList.add(roster);
+                }
+            }
+        }
+
+        List<String> roleList = new ArrayList<>();
+        if( selectedRoles != null )
+        {
+            for( String role : selectedRoles.keySet() )
+            {
+                if (Boolean.TRUE.equals(selectedRoles.get(role)))
+                {
+                    // selected role
+                    roleList.add(role);
+                }
+            }
+        }
+
+        if (rosterList.isEmpty() && roleList.isEmpty())
+        {
+            // nothing selected, generate alert
+            messages.addMessage(new TargettedMessage("group.autocreate.selectrosterorrole","Please select at lease one roster or role."));
+        }
+        else
+        {
+            // Roster based
+            if (!rosterList.isEmpty())
+            {
+                // SAK-29373
+                if( OPTION_ASSIGN_RANDOM == rosterOptionAssign )
+                {
+                    createRandomGroupsForRoster( rosterList.get( 0 ), rosterIntToSplit );
+                }
+                else
+                {
+                    for (String roster:rosterList)
+                    {
+                        Group group = site.addGroup();
+                        group.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+                        group.setProviderGroupId(roster);
+
+                        String groupTitle = truncateGroupTitle(roster);
+                        group.setTitle(groupTitle);
+                    }
+                }
+            }
+
+            // role based
+            if (!roleList.isEmpty())
+            {
+                if(OPTION_ASSIGN_BY_ROLES_OR_ROSTER == optionAssign){
+                    for(String role:roleList)
+                    {
+                        Group group = site.addGroup();
+                        // make the provider id as of SITEID_ROLEID
+                        //group.setProviderGroupId(site.getId() + "_" + role);
+                        group.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+                        group.getProperties().addProperty(SiteConstants.GROUP_PROP_ROLE_PROVIDERID, role);
+
+                        String groupTitle = truncateGroupTitle(role);
+                        group.setTitle(groupTitle);
+
+                        // get the authz group
+                        String siteReference = siteService.siteReference(site.getId());
+                        try
+                        {
+                            AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
+                            Set<String> usersHasRole = siteGroup.getUsersHasRole(role);
+                            if (usersHasRole != null)
+                            {
+                                for( String userId : usersHasRole )
+                                {
+                                    Member member = site.getMember(userId);
+                                    group.addMember(userId, role, member.isActive(), false);
+                                }
+                            }
+                        }
+                        catch (GroupNotDefinedException e)
+                        {
+                            M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference);
+                        }
+                    }
+                }else{
+                    createRandomGroupsForRole( roleList.get( 0 ), intToSplit );
+                }
+            }
+
+            // save the changes
+            try
+            {
+                siteService.save(site);
+                // reset the form params
+                resetParams();
+            } 
+            catch (IdUnusedException e) {
+                M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+                return null;
+            } 
+            catch (PermissionException e) {
+                M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+                return null;
+            }
+        }
 
         return "done";
     }
     
-    private void createRandomGroups(List<String> roleList, int unit){
-    	String groupTitle = groupSplit ? groupTitleGroup : groupTitleUser;
-    	
-    	if(groupTitle != null && !"".equals(groupTitle)){
-    		//get list of all users:
+    /**
+     * SAK-29373 - Create random groups of users from the given roster.
+     * This could be random number of users in specified number of groups,
+     * or vice versa.
+     * 
+     * @param providerID the provider ID selected
+     * @param unit the number of groups or users per group requested
+     */
+    private void createRandomGroupsForRoster( String providerID, int unit )
+    {
+        String groupTitle = rosterGroupSplit ? rosterGroupTitleGroup: rosterGroupTitleUser;
+        if( StringUtils.isNotBlank( groupTitle ) && StringUtils.isNotBlank( providerID ) )
+        {
+            Set<String> userSet = new HashSet<>();
+            try
+            {
+                Set<Membership> sectionMembers = cms.getSectionMemberships( providerID );
+                for( Membership member : sectionMembers )
+                {
+                    String userEID = member.getUserId();
+                    try
+                    {
+                        String userID = userDirectoryService.getUserId( userEID );
+                        userSet.add( userID );
+                    }
+                    catch( UserNotDefinedException ex )
+                    {
+                        M_log.debug( this + ".createRandomGroupsForRoster: user not defined = " + userEID, ex );
+                    }
+                }
+            }
+            catch( IdNotFoundException ex )
+            {
+                M_log.debug( this + ".createRandomGroupsForRoster: can't find section for provider ID = " + providerID, ex );
+            }
 
-    		List<String> usersList = new ArrayList<String>();
+            createRandomGroups( rosterGroupSplit, new ArrayList<>( userSet ), groupTitle, unit );
+        }
+    }
 
-    		for(String role:roleList)
-    		{
-    			// get the authz group
-    			String siteReference = siteService.siteReference(site.getId());
+    /**
+     * Common algorithm called to create random groups.
+     * 
+     * @param isGroupSplit true = split by # of groups, false = split by # of users per group
+     * @param userIDs list of user IDs to include in the groups
+     * @param groupTitle the title prefix of the groups requested
+     * @param unit the amount of groups or users per group requested
+     */
+    private void createRandomGroups( boolean isGroupSplit, List<String> userIDs, String groupTitle, int unit )
+    {
+        int numOfGroups = -1;
+        int numOfUsersPerGroup = -1;
+        int totalNumOfUsers = userIDs.size();
+        
+        // Determine number of users per group and number of groups to create
+        if( isGroupSplit )
+        {
+            numOfGroups = unit > totalNumOfUsers ? totalNumOfUsers : unit;
+            if( numOfGroups > 0 )
+            {
+                numOfUsersPerGroup = totalNumOfUsers / numOfGroups;
+            }
+        }
+        else
+        {
+            numOfUsersPerGroup = unit > totalNumOfUsers ? totalNumOfUsers : unit;
+            if( numOfUsersPerGroup > 0 )
+            {
+                numOfGroups = totalNumOfUsers / numOfUsersPerGroup;
+            }
+        }
 
-    			try
-    			{
-    				AuthzGroup siteGroup = authzGroupService.getAuthzGroup(siteReference);
-    				Set<String> usersHasRole = siteGroup.getUsersHasRole(role);
-    				if (usersHasRole != null)
-    				{
-    					for (Iterator<String> uIterator = usersHasRole.iterator(); uIterator.hasNext();)
-    					{
-    						String userId = uIterator.next();
-    						if(!usersList.contains(userId)){
-    							usersList.add(userId);
-    						}
-    					}
-    				}
-    			}
-    			catch (GroupNotDefinedException e)
-    			{
-    				M_log.debug(this + ".processAutoCreateGroup: no authzgroup found for " + siteReference);
-    			}
-    		}
+        int groupCount = 0;
+        List<Group> groupList = new ArrayList<>();
+        while( groupCount < numOfGroups )
+        {
+            // Create the group
+            Group group = site.addGroup();
+            group.getProperties().addProperty( Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString() );
+            group.setTitle( groupTitle + "-" + (groupCount + 1) );
 
-    		//split users into random groups:
+            int userCount = 0;
+            while( userCount < numOfUsersPerGroup && userIDs.size() > 0 )
+            {
+                // Pick a random user
+                int index = (int)(Math.random() * (userIDs.size() - 1));
+                String userID = userIDs.get( index );
+                Member member = site.getMember( userID );
 
-    		int numOfGroups=-1;
-    		int numOfUsersPerGroup=-1;
-    		if(groupSplit){
-    			numOfGroups = (unit > usersList.size()) ? usersList.size() : unit;
-				if(numOfGroups > 0){
-	    			numOfUsersPerGroup = usersList.size()/numOfGroups;
-				}
-    		}else{
-    			numOfUsersPerGroup = (unit > usersList.size()) ? usersList.size() : unit;
-				if(numOfUsersPerGroup > 0){
-	    			numOfGroups = usersList.size()/numOfUsersPerGroup;
-				}
-    		}
+                // Add the user to the group
+                group.addMember( userID, member.getRole().getId(), member.isActive(), false );
+                userIDs.remove( index );
+                userCount++;
+            }
 
-    		int groupCount = 0;
-    		List<Group> gList = new ArrayList<Group>();
-    		while(groupCount < numOfGroups){
-    			Group group = site.addGroup();
-    			group.getProperties().addProperty(group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+            groupCount++;
+            groupList.add( group );
+        }
 
-    			//Title
-    			StringBuffer title = new StringBuffer();
+        // All the groups have been created, but there are some users still left to be assigned (remainders)
+        while( userIDs.size() > 0 )
+        {
+            // Pick a random user
+            int userIndex = (int)(Math.random() * (userIDs.size() - 1));
+            String userID = userIDs.get( userIndex );
 
-    			title.append(groupTitle);
+            // Pick a random group
+            int groupIndex = (int)(Math.random() * (groupList.size() - 1));
+            Group group = groupList.get( groupIndex );
 
-    			title.append("-");
-    			title.append(groupCount+1);
-    			group.setTitle(title.toString());
+            // Add the user to the group
+            Member member = site.getMember( userID );
+            group.addMember( userID, member.getRole().getId(), member.isActive(), false );
+            userIDs.remove( userIndex );
+        }
+    }
 
-    			int userCount = 0;
+    /**
+     * Create random groups of users from the given role.
+     * This could be random number of users in specified number of groups,
+     * or vice versa.
+     * 
+     * @param role the desired role to create groups for
+     * @param unit the number of groups or users per group requested
+     */
+    private void createRandomGroupsForRole( String role, int unit )
+    {
+        String groupTitle = groupSplit ? groupTitleGroup : groupTitleUser;
+        if( StringUtils.isNotBlank( groupTitle ) && StringUtils.isNotBlank( role ) )
+        {
+            List<String> usersList = new ArrayList<>();
+            String siteReference = siteService.siteReference( site.getId() );
 
-    			while(userCount < numOfUsersPerGroup && usersList.size() > 0){
-    				int index = (int)(Math.random() * (usersList.size() - 1));
-    				String userId = usersList.get(index);
-    				Member member = site.getMember(userId);
-    				group.addMember(userId, member.getRole().getId(), member.isActive(), false);
+            try
+            {
+                // Build the user ID list
+                AuthzGroup siteGroup = authzGroupService.getAuthzGroup( siteReference );
+                Set<String> usersWithRole = siteGroup.getUsersHasRole( role );
+                if( usersWithRole != null )
+                {
+                    for( String userID : usersWithRole )
+                    {
+                        usersList.add( userID );
+                    }
+                }
+            }
+            catch( GroupNotDefinedException ex )
+            {
+                M_log.debug( this + ".processAutoCreateGroup: no authzgroup found for " + siteReference, ex );
+            }
 
-    				//remove this user now:
-    				usersList.remove(index);
-
-    				userCount++;
-    			}       		
-
-    			groupCount++;
-    			
-    			// add the group object to list
-    			gList.add(group);
-    		}
-    		
-			// all the groups has been created, but there are some users still left to be assigned
-			while (usersList.size() > 0)
-			{
-				// pick a random user
-				int index = (int)(Math.random() * (usersList.size() - 1));
-				String userId = usersList.get(index);
-				// pick a random group
-				int gIndex = (int)(Math.random() * (gList.size() - 1));
-				Group group = gList.get(gIndex);
-				// add user to group
-				Member member = site.getMember(userId);
-				group.addMember(userId, member.getRole().getId(), member.isActive(), false);
-				//remove this user now:
-				usersList.remove(index);
-    		}
-    	}
-
+            createRandomGroups( groupSplit, usersList, groupTitle, unit );
+        }
     }
 
     /**
