@@ -200,7 +200,7 @@
 		var openSize = ((262 * this.openWindows) + 50);
 		$(portal.chat.domSelectors.pcChatWinScroller).css("width", openSize + "px");
 		
-		$(portal.chat.domSelectors.pcChatWinContainer).css("right", "225px");
+		$(portal.chat.domSelectors.pcChatWinContainer).css("right", "245px");
 		if ($(portal.chat.domSelectors.footerApp).position().left < openSize) {
 			$(portal.chat.domSelectors.pcChatScrollBar).show();
 		}
@@ -309,7 +309,7 @@
 		$(portal.chat.domSelectors.pcChatWinScroller).css("width", openSize + "px");
 		var right = $(portal.chat.domSelectors.pcChatWinContainer).css("right");
 		right = right.substring(0,right.indexOf("px"))-0;
-		if (right!=225) {
+		if (right!=245) {
 			$(portal.chat.domSelectors.pcChatWinContainer).css("right", (right + 262) + "px");
 		}
 		if ($(portal.chat.domSelectors.footerApp).position().left > openSize) {
@@ -840,7 +840,7 @@
         var panelUuid = params.panelUuid;
         var from = params.from;
         var dateString = params.dateString;
-        var alt = params.alt;
+        var alt = params.fromDisplayName;
 
         var avatarPermitted;
         if ($(portal.chat.domSelectors.pcChatAvatarPerm).length === 1) {
@@ -849,11 +849,16 @@
             avatarPermitted =false;
         }
 
-        var avatarOrName = "";
+
+	var avatarElement = {
+		left: "",
+		right: ""
+	};
+
+	var messageAlign = (from === panelUuid) ? 'right' : 'left'
+
         if (avatarPermitted) {
-            avatarOrName = "<img src=\"/direct/profile/" + from + "/image\" alt=\"" + alt + "\" title=\"" + alt + "\"/>";
-        } else {
-            avatarOrName="<span class=\"" +portal.chat.domNames.pcDisplayName +"\">" + alt + "</span>";
+            avatarElement[messageAlign] = "<img src=\"/direct/profile/" + from + "/image\" alt=\"" + alt + "\" title=\"" + alt + "\"/>";
         }
 
         // Escape markup
@@ -862,9 +867,19 @@
         // Decode any unicode escapes
         content = JSON.parse('"' + content + '"');
 
-		var messagePanel = $(portal.chat.domSelectors.pcChatMessagesPre + panelUuid);
+	var messagePanel = $(portal.chat.domSelectors.pcChatMessagesPre + panelUuid);
 
-		messagePanel.append("<li>"+ avatarOrName + "<div class=\"" + portal.chat.domNames.pcMessage +"\">" + content + "</div><span class=\"" + portal.chat.domNames.pcMessage + "date\">" + dateString + "</span></li>");
+	var chatMessage =
+		"<li>" +
+			avatarElement.left +
+			"<div class=\"" + portal.chat.domNames.pcMessage + " " + portal.chat.domNames.pcMessage + "__" + messageAlign + "\">"+
+				"<div class=\""+ portal.chat.domNames.pcMessage + "content\" >" + content + "</div>" +
+				"<div class=\"" + portal.chat.domNames.pcMessage + "header\"> <span class=\"" + portal.chat.domNames.pcMessage + "name\" >" + alt + "</span> <span class=\"" +  portal.chat.domNames.pcMessage + "date\">" +  dateString + "</span></div>" +
+			"</div>" +
+			avatarElement.right +
+		"</li>";
+
+	messagePanel.append (chatMessage);
     };
 
     $(document).ready(function () {
@@ -1083,7 +1098,7 @@
             var right = $(portal.chat.domSelectors.pcChatWinContainer).css("right");
             right = right.substring(0, right.indexOf("px")) - 0;
             if (openSize > freeSpace) {
-                if (right == 225) {
+                if (right == 245) {
                     return;
                 }
                 $(portal.chat.domSelectors.pcChatWinContainer).css("right",(right + 262) + "px");
@@ -1098,7 +1113,7 @@
             var right = $(portal.chat.domSelectors.pcChatWinContainer).css("right");
             right = right.substring(0, right.indexOf("px")) - 0;
             if (openSize > freeSpace) {
-                if (openSize + right - 225 < freeSpace) return;
+                if (openSize + right - 245 < freeSpace) return;
                 $(portal.chat.domSelectors.pcChatWinContainer).css("right",(right - 262) + "px");
             }
         });

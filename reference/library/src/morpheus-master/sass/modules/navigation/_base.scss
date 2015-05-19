@@ -105,6 +105,12 @@
 	z-index: 99;
 	a{
 		color: $background-color;
+		font-family: $header-font-family;
+		position: relative;
+		top: 4px;
+	}
+	select{
+		border: 1px solid darken( $primary-color, 10% );
 	}
 }
 

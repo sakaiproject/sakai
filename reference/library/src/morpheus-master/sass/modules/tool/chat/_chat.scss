@@ -58,6 +58,10 @@
 				height: 100%;
 				overflow: hidden;
 				position: relative;
+				font-size: 0.9em;
+				& a:hover{
+					border: 0px;
+				}
 			}
 			
 			&__title{
@@ -89,9 +93,9 @@
 			}
 			&__options{
 				overflow: hidden;
-   				font-size: 90%;
-    			padding: 5px;
-    			margin: 0px 0px 10px 0px
+				font-size: 90%;
+				padding: 5px;
+				margin: 0px 0px 10px 0px
 			}
 			&__users {
 				border-top: solid 0.5em $footerApp__chat__header__background;
@@ -122,14 +126,15 @@
 				
 			}
 			&__user--link{
-				  margin-left: 5px;
-				  text-decoration: none !important;
-				  height: 30px;
-				  width: 140px;
-				  float: left;
-				  &:hover{
-				  	text-decoration: none;
-				  }
+				margin-left: 5px;
+				text-decoration: none !important;
+				height: 30px;
+				width: 170px;
+				float: left;
+				color: $footerApp__chat__header__background;
+				&:hover{
+					text-decoration: none;
+				}
 			}
 			&__connection--bullet{
 				float: left;
@@ -147,11 +152,10 @@
   				float: left;
   				margin: 3px;
   				height: 30px;
-			}
-
-			&__checkbox--options{
-				margin-right: 3px;
-				margin-left: -1px;
+				width: 120px;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 			&__connection--ping{
 			 	display: none;
@@ -198,6 +202,9 @@
 	  					overflow: hidden;
 						position: relative;
 						height: 33px;
+						& a{
+							color: $footerApp__chat__header__color;
+						}
 				}
 				&container{
 					 position: fixed;
@@ -215,10 +222,85 @@
 	    		&minimised{
 	    			margin-top: 260px;
 	    		}
-	    		&message{
-	    		    width: 170px;
-	    			overflow: hidden;
-	    		}
+				&message{
+					position: relative;
+					padding: 0px;
+					-webkit-border-radius: 5px;
+					-moz-border-radius: 5px;
+					border-radius: 3px;
+					border: #fff solid 1px;
+					display: inline-block;
+					width: 80%;
+					margin-left: 5px;
+					margin-top: 10px;
+					padding: 14px 2px 2px 2px;
+					&__left{
+						background: $footerApp__chat__message__left__background;
+						border: $footerApp__chat__message__left__border solid 1px;
+						margin-left: 5px;
+						&:after{
+							content: '';
+							position: absolute;
+							border-style: solid;
+							border-width: 3px 5px 3px 0;
+							border-color: transparent $footerApp__chat__message__left__background;
+							display: block;
+							width: 0;
+							z-index: 1;
+							margin-top: -1px;
+							left: -4px;
+							top: 77%;
+						}
+						&:before{
+							content: '';
+							position: absolute;
+							border-style: solid;
+							border-width: 3px 5px 3px 0;
+							border-color: transparent $footerApp__chat__message__left__border;
+							display: block;
+							width: 0;
+							z-index: 0;
+							margin-top: -1px;
+							left: -5px;
+							top: 77%;
+						}
+					}
+					&__right{
+						background: $footerApp__chat__message__right__background;
+						border: $footerApp__chat__message__right__border solid 1px;
+						margin-right: 5px;
+						&:after{
+							content: '';
+							position: absolute;
+							border-style: solid;
+							border-width: 3px 0 3px 5px;
+							border-color: transparent $footerApp__chat__message__right__background;
+							display: block;
+							width: 0;
+							z-index: 1;
+							margin-top: -1px;
+							right: -3px;
+							top: 77%;
+						}
+						&:before{
+							content: '';
+							position: absolute;
+							border-style: solid;
+							border-width: 3px 0 3px 5px;
+							border-color: transparent $footerApp__chat__message__right__border;
+							display: block;
+							width: 0;
+							z-index: 0;
+							margin-top: -1px;
+							right: -5px;
+							top: 77%;
+						}
+					}
+					&content{
+						margin: 5px 3px 0px 3px;
+						line-height: 1.2;
+					 }
+				}
 	    		&displayname{
 					display: block;
     				font-weight: bold;
@@ -230,12 +312,12 @@
 					margin-left: -20px;
     				margin-top: 3px;    		
 	    		}
-	    		&messagedate{
-	    			font-size: 90%;
-				    color: #555;
-				    position: absolute;
-				    right: 3px;
-				    top: 3px;
+				&messageheader{
+				  color: #555;
+				  position: absolute;
+				  right: 3px;
+				  top: 3px;
+				  font-size: 0.7em;
 	    		}
 	    		
 	    		&editorwrapper {
@@ -261,26 +343,13 @@
 				    margin: 0;
 				    
 					li{
-						margin: 2px 0px;
-						vertical-align: text-top;
-						position: relative;
-						border-bottom: 1px solid #EEE;
-						padding: 2px 35px 5px;
-						min-height: 30px;
-						
+						padding-left: 3px;
 						img{
-							vertical-align: text-top;
-						    max-width: 10%;
-						    max-height: 80%;
-						    border: 1px solid #ccc;
-						    margin-right: 5px;
-						    margin-left: 2px;
-						    position: absolute;
-						    top: 2px;
-						    left: 2px;
-						    float: left;
+							max-width: 10%;
+							width: 10%;
+							border: 1px solid #ccc;
+							margin-left: 2px;
 						}
-					
 					}
 				}
 	    		&connections{
@@ -288,8 +357,6 @@
 				    padding: 0;
 				    margin: 0;
 	    		}
-	    		
-	    		
 			}
 			
 			/*Videochat controls */
