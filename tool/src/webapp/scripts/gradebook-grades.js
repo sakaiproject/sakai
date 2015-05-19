@@ -613,9 +613,8 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
       //                                  model.columnKey,
       //                                  order);
     } else {
-      // determine the new position of the grade item in relation to all other grade items
       GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
-                                        targetModel.columnKey,
+                                        sourceModel.columnKey,
                                         newOrder);
     }
 
