@@ -26,6 +26,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupColumnDragAndDrop();
   this.setupToolbar();
   this.setupRowSelector();
+  this.setupConcurrencyCheck()
 
   this._refreshColumnOrder();
 
@@ -866,6 +867,47 @@ GradebookSpreadsheet.prototype.hideGradeItemAndSyncToolbar = function(assignment
 };
 
 
+GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
+  var self = this;
+
+  function showConcurrencyNotification(data) {
+    $("#gradeItemsConcurrentUserWarning").show();
+  };
+
+  function hideConcurrencyNotification() {
+    $("#gradeItemsConcurrentUserWarning").hide();
+  };
+
+  function handleConcurrencyCheck(data) {
+    if ($.isEmptyObject(data.data)) {
+      // nobody messing with my..
+      hideConcurrencyNotification();
+      return;
+    }
+
+    // there are *other* people doing things!
+    showConcurrencyNotification(data.data);
+  };
+
+  function performConcurrencyCheck() {
+    GradebookAPI.isAnotherUserEditing(self.$table.data("siteid"), handleConcurrencyCheck);
+  };
+
+  // Check for concurrent editors.. and again every 20 seconds
+  // (note: there's a 30 second cache so no point checking more regularly)
+  performConcurrencyCheck();
+  var concurrencyCheckInterval = setInterval(performConcurrencyCheck, 20 * 1000);
+
+
+  $("#gradeItemsConcurrentUserWarning").on("click", ".gb-message-close", function() {
+    // dismiss the message
+    $("#gradeItemsConcurrentUserWarning").addClass("hide");
+    // and stop checking (they know!)
+    clearInterval(concurrencyCheckInterval);
+  });
+};
+
+
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
  */
@@ -1445,6 +1487,11 @@ GradebookToolbar.prototype.setupToggleCategories = function() {
  */
 GradebookAPI = {};
 
+GradebookAPI.isAnotherUserEditing = function(siteId, onSuccess, onError) {
+  var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
+  GradebookAPI._GET(endpointURL, null, onSuccess, onError);
+};
+
 GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError) {
   GradebookAPI._POST("/direct/gbng/assignment-order", {
                                                         siteId: siteId,
@@ -1453,13 +1500,25 @@ GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuc
                                                       })
 };
 
-GradebookAPI._POST = function(url, data, onSuccess, onError) {
+GradebookAPI._GET = function(url, data, onSuccess, onError, onComplete) {
+  $.ajax({
+    type: "GET",
+    url: url,
+    data: data,
+    success: onSuccess || $.noop,
+    error: onError || $.noop,
+    complete: onComplete || $.noop
+  });
+};
+
+GradebookAPI._POST = function(url, data, onSuccess, onError, onComplete) {
   $.ajax({
     type: "POST",
     url: url,
     data: data,
-    onSuccess: onSuccess || $.noop,
-    onError: onError || $.noop
+    success: onSuccess || $.noop,
+    error: onError || $.noop,
+    complete: onComplete || $.noop
   });
 };
 
