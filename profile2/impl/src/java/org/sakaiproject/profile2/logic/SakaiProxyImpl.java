@@ -1067,6 +1067,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean isMessagingEnabledGlobally() {
 		return serverConfigurationService.getBoolean("profile2.messaging.enabled", true);
 	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isSearchEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.search.enabled", true);
+	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isConnectionsEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.connections.enabled", true);
+	}
 	
 	/**
  	* {@inheritDoc}
