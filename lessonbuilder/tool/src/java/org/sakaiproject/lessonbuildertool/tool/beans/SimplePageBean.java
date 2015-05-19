@@ -7119,10 +7119,6 @@ public class SimplePageBean {
 					throw new Exception();
 				}
 			}catch(Exception ex) {
-				if(canEditPage()) {
-					setErrMessage(messageLocator.getMessage("simplepage.broken-css"));
-				}
-				
 				resourceCache.put(collectionId, new ArrayList<ContentResource>());
 			}
 		}
