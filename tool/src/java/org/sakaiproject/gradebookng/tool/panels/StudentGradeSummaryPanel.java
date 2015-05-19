@@ -79,17 +79,20 @@ public class StudentGradeSummaryPanel extends Panel {
 	    		
 	    		//note, gradeInfo may be null
 	    		String rawGrade;
+	    		String comment;
 	    		if(gradeInfo != null) {
 	    			rawGrade = gradeInfo.getGrade();
+	    			comment = gradeInfo.getGradeComment();
 	    		} else {
 	    			rawGrade = "";
+	    			comment = "";
 	    		}
 	    		
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getName()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatDueDate(assignment.getDueDate())));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatGrade(rawGrade))); 
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getWeight()));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), gradeInfo.getGradeComment())); 
+	    		repeatingView.add(new Label(repeatingView.newChildId(), comment)); 
 
 	    		item.add(repeatingView);
     		} 

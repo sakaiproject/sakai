@@ -53,9 +53,10 @@ public class GradebookPage extends BasePage {
 	
 	private static final long serialVersionUID = 1L;
 	
-	ModalWindow modalWindow;
-	
-	
+	ModalWindow addGradeItemWindow;
+	ModalWindow studentGradeSummaryWindow;
+	ModalWindow updateUngradedItemsWindow;
+
 	Form<Void> form;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
@@ -69,18 +70,32 @@ public class GradebookPage extends BasePage {
 		form = new Form<Void>("form");
 		add(form);
 		
-		modalWindow = new ModalWindow("modalWindow");
-		modalWindow.setContent(new EmptyPanel(modalWindow.getContentId()));
-		//modalWindow.setResizable(false);
-		//modalWindow.setUseInitialHeight(true);
-		form.add(modalWindow);
+		/**
+		 * Note that SEMI_TRANSPARENT has a 100% black background and TRANSPARENT is overridden to 10% opacity
+		 */
+		addGradeItemWindow = new ModalWindow("addGradeItemWindow");
+		addGradeItemWindow.setMaskType(MaskType.TRANSPARENT);
+		addGradeItemWindow.setResizable(false);
+		addGradeItemWindow.setUseInitialHeight(false);
+		form.add(addGradeItemWindow);
 		
-	
+		studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
+		studentGradeSummaryWindow.setMaskType(MaskType.SEMI_TRANSPARENT);
+		studentGradeSummaryWindow.setResizable(false);
+		studentGradeSummaryWindow.setUseInitialHeight(false);
+		form.add(studentGradeSummaryWindow);
+		
+		updateUngradedItemsWindow = new ModalWindow("updateUngradedItemsWindow");
+		updateUngradedItemsWindow.setMaskType(MaskType.TRANSPARENT);
+		updateUngradedItemsWindow.setResizable(false);
+		updateUngradedItemsWindow.setUseInitialHeight(true);
+		form.add(updateUngradedItemsWindow);
+		
 		
 		AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form form) {
-				ModalWindow window = getDarkModalWindow();
+				ModalWindow window = getAddGradeItemWindow();
 				window.setContent(new AddGradeItemPanel(window.getContentId()));
 				window.show(target);
 			}
@@ -245,22 +260,21 @@ public class GradebookPage extends BasePage {
 	
 	
 	/**
-	 * Getter for panels to get at a modal window
+	 * Getters for panels to get at modal windows
 	 * @return
 	 */
-	public ModalWindow getDarkModalWindow() {
-		this.modalWindow.setMaskType(MaskType.SEMI_TRANSPARENT); //overridden to black
-		return this.modalWindow;
+	public ModalWindow getAddGradeItemWindow() {
+		return this.addGradeItemWindow;
 	}
 	
-	/**
-	 * Getter for panels to get at the update ungraded items window
-	 * @return
-	 */
-	public ModalWindow getLightModalWindow() {
-		this.modalWindow.setMaskType(MaskType.TRANSPARENT); //overridden to 10% standard opacity
-		return this.modalWindow;
+	public ModalWindow getStudentGradeSummaryWindow() {
+		return this.studentGradeSummaryWindow;
 	}
+	
+	public ModalWindow getUpdateUngradedItemsWindow() {
+		return this.updateUngradedItemsWindow;
+	}
+
 	
 	
 	

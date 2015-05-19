@@ -155,16 +155,17 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}	
 		});
 		
-		//get reference to parent page modal window
-		GradebookPage gradebookPage = (GradebookPage) this.getPage();
-		final ModalWindow window = gradebookPage.getLightModalWindow();
 		
 		add(new AjaxLink<Long>("setUngraded", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				final ModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
+				
 				window.setContent(new UpdateUngradedItemsPanel(window.getContentId(), this.getModel(), window));
+				window.showUnloadConfirmation(false);
 				window.show(target);
 			}	
 		});

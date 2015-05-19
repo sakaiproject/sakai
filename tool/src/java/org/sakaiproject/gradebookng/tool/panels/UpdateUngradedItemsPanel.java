@@ -53,9 +53,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 	private ModalWindow window;
 	
 	private IModel<Long> model;
-	
-	//private transient GradeOverride override;
-		
+			
 	private static final double DEFAULT_GRADE = 0;
 
 	public UpdateUngradedItemsPanel(String id, IModel<Long> model, ModalWindow window) {
@@ -73,41 +71,42 @@ public class UpdateUngradedItemsPanel extends Panel {
 		//form model
 		GradeOverride override = new GradeOverride();
 		override.setGrade(DEFAULT_GRADE);
-		
 		CompoundPropertyModel<GradeOverride> formModel = new CompoundPropertyModel<GradeOverride>(override);
 		
 		//build form
-		Form<GradeOverride> form = new Form<GradeOverride>("form", formModel) {
+		//modal window forms must be submitted via AJAX so we do not specify an onSubmit here
+		Form<GradeOverride> form = new Form<GradeOverride>("form", formModel);
+		
+		AjaxButton submit = new AjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
-
 			@Override
-			public void onSubmit() {
-				GradeOverride override = this.getModelObject();
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
-				//TODO validation of the fields here
+				GradeOverride override = (GradeOverride) form.getModelObject();
 				
-				//TODO send an ajax request to do the work and add a throbber
-				//close the window when it's finished.
-				//if(businessService.updateUngradedItems(assignmentId, override.getGrade())) {
-					//GradebookPage rval = new GradebookPage();
-					//rval.info(getString("message.updateungradeditems.success"));
-					//setResponsePage(rval);
-				//} else {
-					//error(getString("message.edititem.error"));
-				//}
+				boolean success = businessService.updateUngradedItems(assignmentId, override.getGrade());
 				
+				if(success) {
+					window.close(target);
+					setResponsePage(new GradebookPage());
+				} else {
+					
+					System.out.println("error");
+					//error(getString("message.edititem.error")); //need feedbackpanel for this
+				}
 			}
 		};
+		form.add(submit);
 		
-		//Button cancel = new Button("cancel") {
-		//	private static final long serialVersionUID = 1L;
-		//	@Override
-		//	public void onSubmit() {
-				//window.close(target);
-		//	}
-		//};
-		//cancel.setDefaultFormProcessing(false);
-        //form.add(cancel);
+		AjaxButton cancel = new AjaxButton("cancel") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				window.close(target);
+			}
+		};
+		cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
 		
 		form.add(new TextField<Double>("grade").setRequired(true));
 
@@ -117,7 +116,6 @@ public class UpdateUngradedItemsPanel extends Panel {
 	/**
 	 * Model for this form
 	 */
-	
 	class GradeOverride implements Serializable {
 		
 		private static final long serialVersionUID = 1L;

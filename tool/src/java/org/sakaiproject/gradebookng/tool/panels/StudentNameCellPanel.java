@@ -41,25 +41,19 @@ public class StudentNameCellPanel extends Panel {
 		String lastName = (String) modelData.get("lastName");
 		GbStudentSortType sortType = (GbStudentSortType) modelData.get("sortType");
 		
-		//get reference to parent page modal window
-		GradebookPage gradebookPage = (GradebookPage) this.getPage();
-		final ModalWindow gradeSummary = gradebookPage.getDarkModalWindow();
 		
 		//link
 		AjaxLink<String> link = new AjaxLink<String>("link") {
-			
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			public void onClick(AjaxRequestTarget target) {
 				
-				gradeSummary.setContent(new StudentGradeSummaryPanel(gradeSummary.getContentId(), model, gradeSummary));
-				gradeSummary.show(target);
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				final ModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
 				
-				//TODO
-				//when this appears we want to alter the css so it is
-				//opacity: 0.8; 
-				//filter: alpha(opacity=80);  
+				window.setContent(new StudentGradeSummaryPanel(window.getContentId(), model, window));
+				window.show(target);
 			}
 			
 		};

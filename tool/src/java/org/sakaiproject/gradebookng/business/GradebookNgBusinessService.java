@@ -748,10 +748,17 @@ public class GradebookNgBusinessService {
     			 studentUuids.remove(def.getStudentUid());
     		 }
     	 }
+    	 
+    	 if(studentUuids.isEmpty()) {
+    		 log.debug("Setting default grade. No students are ungraded.");
+    	 }
     	
     	 try {
 	    	 //for each student remaining, add the grade
 	    	 for(String studentUuid : studentUuids) {
+	    		 
+	    		 log.debug("Setting default grade. Values of assignmentId: " + assignmentId + ", studentUuid: " + studentUuid + ", grade: " + grade);
+	    		 
 	    		 //TODO if this is slow doing it one by one, might be able to batch it
 	    		 gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, String.valueOf(grade), null);
 	    	 }
