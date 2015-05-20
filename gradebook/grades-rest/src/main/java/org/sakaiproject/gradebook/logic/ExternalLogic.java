@@ -933,15 +933,6 @@ public class ExternalLogic {
         return removed;
     }
 
-    public boolean removeGradebookItemByName(String gradebookId, String itemName) {
-        boolean removed = false;
-        if (gradebookService.isAssignmentDefined(gradebookId, itemName)) {
-            Assignment a = gradebookService.getAssignment(gradebookId, itemName);
-            gradebookService.removeAssignment(a.getId());
-        }
-        return removed;
-    }
-
     /**
      * String type: gets the printable name of this server
      */

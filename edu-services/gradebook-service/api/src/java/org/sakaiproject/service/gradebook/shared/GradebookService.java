@@ -182,13 +182,29 @@ public interface GradebookService {
 			throws GradebookNotFoundException;
 
 	/**
+	 * Get an assignment based on its id
 	 * 
 	 * @param gradebookUid
-	 * @param gbItemId
-	 * @return the associated Assignment with the given gbItemId
+	 * @param assignmentId
+	 * @return the associated Assignment with the given assignmentId
 	 * @throws AssessmentNotFoundException
 	 */
 	public Assignment getAssignment(String gradebookUid, Long assignmentId)
+		throws AssessmentNotFoundException;
+	
+	/**
+	 * Get an assignment based on its name.
+	 * This is provided for backward compatibility only.
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @return the associated Assignment with the given name
+	 * @throws AssessmentNotFoundException
+	 * 
+	 * @deprecated Use {@link getAssignment(String, Long)} instead.
+	 */
+	@Deprecated
+	public Assignment getAssignment(String gradebookUid, String assignmentName)
 		throws AssessmentNotFoundException;
 
 	/**
