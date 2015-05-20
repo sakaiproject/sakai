@@ -393,9 +393,13 @@
   margin-left: 10px;
   position: relative;
 }
+#gradeItemsTogglePanel .gradebook-item-filter {
+  margin-left: 20px;
+}
 #gradeItemsTogglePanel label {
   float: left;
   width: 90%;
+  width: calc(100% - 20px);
 }
 #gradeItemsTogglePanel label.category-partial-filter .gradebook-item-category-filter-signal:before {
   font-family: 'nyu-classes-icons';
