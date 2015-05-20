@@ -46,95 +46,95 @@ public class MyPrivacy extends BasePage {
 
 	private static final Logger log = Logger.getLogger(MyPrivacy.class);
 	private transient ProfilePrivacy profilePrivacy;
-		
+
 	public MyPrivacy() {
-		
+
 		log.debug("MyPrivacy()");
 
 		disableLink(myPrivacyLink);
-		
+
 		//get current user
 		final String userUuid = sakaiProxy.getCurrentUserId();
 
 		//get the privacy record for this user from the database, or a default if none exists
 		profilePrivacy = privacyLogic.getPrivacyRecordForUser(userUuid, false);
-		
+
 		//if null, throw exception
 		if(profilePrivacy == null) {
 			throw new ProfilePrivacyNotDefinedException("Couldn't retrieve privacy record for " + userUuid);
 		}
-		
+
 		Label heading = new Label("heading", new ResourceModel("heading.privacy"));
 		add(heading);
-		
+
 		Label infoLocked = new Label("infoLocked");
 		infoLocked.setOutputMarkupPlaceholderTag(true);
 		infoLocked.setVisible(false);
 		add(infoLocked);
-		
+
 		//feedback for form submit action
 		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
 		final String formFeedbackId = formFeedback.getMarkupId();
 		add(formFeedback);
-		
-		
-		
+
+
+
 		//create model
 		CompoundPropertyModel<ProfilePrivacy> privacyModel = new CompoundPropertyModel<ProfilePrivacy>(profilePrivacy);
-		
-		//setup form		
+
+		//setup form
 		Form<ProfilePrivacy> form = new Form<ProfilePrivacy>("form", privacyModel);
 		form.setOutputMarkupId(true);
-		
-		
+
+
 		//setup LinkedHashMap of privacy options for strict things
 		final LinkedHashMap<Integer, String> privacySettingsStrict = new LinkedHashMap<Integer, String>();
 		privacySettingsStrict.put(ProfileConstants.PRIVACY_OPTION_EVERYONE, new StringResourceModel("privacy.option.everyone", this,null).getString());
 		privacySettingsStrict.put(ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
 		privacySettingsStrict.put(ProfileConstants.PRIVACY_OPTION_ONLYME, new StringResourceModel("privacy.option.onlyme", this,null).getString());
-		
+
 		//model that wraps our options
 		IModel dropDownModelStrict = new Model() {
 			public ArrayList<Integer> getObject() {
 				 return new ArrayList(privacySettingsStrict.keySet());
-			} 
+			}
 		};
-		
+
 		//setup LinkedHashMap of privacy options for more relaxed things
 		final LinkedHashMap<Integer, String> privacySettingsRelaxed = new LinkedHashMap<Integer, String>();
 		privacySettingsRelaxed.put(ProfileConstants.PRIVACY_OPTION_EVERYONE, new StringResourceModel("privacy.option.everyone", this,null).getString());
 		privacySettingsRelaxed.put(ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
-		
+
 		//model that wraps our options
 		IModel dropDownModelRelaxed = new Model() {
 			public ArrayList<Integer> getObject() {
 				 return new ArrayList(privacySettingsRelaxed.keySet());
-			} 
+			}
 		};
-		
+
 		//setup LinkedHashMap of privacy options for super duper strict things!
 		final LinkedHashMap<Integer, String> privacySettingsSuperStrict = new LinkedHashMap<Integer, String>();
 		privacySettingsSuperStrict.put(ProfileConstants.PRIVACY_OPTION_ONLYFRIENDS, new StringResourceModel("privacy.option.onlyfriends", this,null).getString());
 		privacySettingsSuperStrict.put(ProfileConstants.PRIVACY_OPTION_NOBODY, new StringResourceModel("privacy.option.nobody", this,null).getString());
-		
+
 		//model that wraps our options
 		IModel dropDownModelSuperStrict = new Model() {
 			public ArrayList<Integer> getObject() {
 				 return new ArrayList(privacySettingsSuperStrict.keySet());
-			} 
+			}
 		};
-		
+
 		//when using DDC with a compoundPropertyModel we use this constructor: DDC<T>(String,IModel<List<T>>,IChoiceRenderer<T>)
 		//and the ID of the DDC field maps to the field in the CompoundPropertyModel
-		
+
 		//the AjaxFormComponentUpdatingBehavior is to allow the DDC and checkboxes to fadeaway any error/success message
 		//that might be visible since the form has changed and it needs to be submitted again for it to take effect
-		
+
 		//profile image privacy
 		WebMarkupContainer profileImageContainer = new WebMarkupContainer("profileImageContainer");
 		profileImageContainer.add(new Label("profileImageLabel", new ResourceModel("privacy.profileimage")));
-		DropDownChoice profileImageChoice = new DropDownChoice("profileImage", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		DropDownChoice profileImageChoice = new DropDownChoice("profileImage", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		profileImageChoice.setMarkupId("imageprivacyinput");
 		profileImageChoice.setOutputMarkupId(true);
 		profileImageContainer.add(profileImageChoice);
@@ -147,9 +147,9 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
-		
-		
+
+
+
 		//basicInfo privacy
 		WebMarkupContainer basicInfoContainer = new WebMarkupContainer("basicInfoContainer");
 		basicInfoContainer.add(new Label("basicInfoLabel", new ResourceModel("privacy.basicinfo")));
@@ -166,7 +166,7 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		//contactInfo privacy
 		WebMarkupContainer contactInfoContainer = new WebMarkupContainer("contactInfoContainer");
 		contactInfoContainer.add(new Label("contactInfoLabel", new ResourceModel("privacy.contactinfo")));
@@ -183,7 +183,7 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		//staffInfo privacy
 		WebMarkupContainer staffInfoContainer = new WebMarkupContainer("staffInfoContainer");
 		staffInfoContainer.add(new Label("staffInfoLabel", new ResourceModel("privacy.staffinfo")));
@@ -200,7 +200,7 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		//studentInfo privacy
 		WebMarkupContainer studentInfoContainer = new WebMarkupContainer("studentInfoContainer");
 		studentInfoContainer.add(new Label("studentInfoLabel", new ResourceModel("privacy.studentinfo")));
@@ -217,7 +217,7 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		//businesInfo privacy
 		WebMarkupContainer businessInfoContainer = new WebMarkupContainer("businessInfoContainer");
 		businessInfoContainer.add(new Label("businessInfoLabel", new ResourceModel("privacy.businessinfo")));
@@ -234,9 +234,9 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		businessInfoContainer.setVisible(sakaiProxy.isBusinessProfileEnabled());
-		
+
 		//socialNetworkingInfo privacy
 		WebMarkupContainer socialNetworkingInfoContainer = new WebMarkupContainer("socialNetworkingInfoContainer");
 		socialNetworkingInfoContainer.add(new Label("socialNetworkingInfoLabel", new ResourceModel("privacy.socialinfo")));
@@ -253,8 +253,8 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
-		
+
+
 		//personalInfo privacy
 		WebMarkupContainer personalInfoContainer = new WebMarkupContainer("personalInfoContainer");
 		personalInfoContainer.add(new Label("personalInfoLabel", new ResourceModel("privacy.personalinfo")));
@@ -271,7 +271,7 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		//birthYear privacy
 		WebMarkupContainer birthYearContainer = new WebMarkupContainer("birthYearContainer");
 		birthYearContainer.add(new Label("birthYearLabel", new ResourceModel("privacy.birthyear")));
@@ -288,7 +288,7 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-				
+
 		//myFriends privacy
 		WebMarkupContainer myFriendsContainer = new WebMarkupContainer("myFriendsContainer");
 		myFriendsContainer.add(new Label("myFriendsLabel", new ResourceModel("privacy.myfriends")));
@@ -305,7 +305,9 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
+		myFriendsContainer.setVisible(sakaiProxy.isConnectionEnabledGlobally());
+
 		//myStatus privacy
 		WebMarkupContainer myStatusContainer = new WebMarkupContainer("myStatusContainer");
 		myStatusContainer.add(new Label("myStatusLabel", new ResourceModel("privacy.mystatus")));
@@ -322,11 +324,13 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
+		myStatusContainer.setVisible(sakaiProxy.isProfileStatusEnabled());
+
 		// gallery privacy
 		WebMarkupContainer myPicturesContainer = new WebMarkupContainer("myPicturesContainer");
 		myPicturesContainer.add(new Label("myPicturesLabel", new ResourceModel("privacy.mypictures")));
-		DropDownChoice myPicturesChoice = new DropDownChoice("myPictures", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		DropDownChoice myPicturesChoice = new DropDownChoice("myPictures", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		myPicturesChoice.setMarkupId("picturesprivacyinput");
 		myPicturesChoice.setOutputMarkupId(true);
 		myPicturesContainer.add(myPicturesChoice);
@@ -338,13 +342,13 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		myPicturesContainer.setVisible(sakaiProxy.isProfileGalleryEnabledGlobally());
-		
+
 		// messages privacy
 		WebMarkupContainer messagesContainer = new WebMarkupContainer("messagesContainer");
 		messagesContainer.add(new Label("messagesLabel", new ResourceModel("privacy.messages")));
-		DropDownChoice messagesChoice = new DropDownChoice("messages", dropDownModelSuperStrict, new HashMapChoiceRenderer(privacySettingsSuperStrict));             
+		DropDownChoice messagesChoice = new DropDownChoice("messages", dropDownModelSuperStrict, new HashMapChoiceRenderer(privacySettingsSuperStrict));
 		messagesChoice.setMarkupId("messagesprivacyinput");
 		messagesChoice.setOutputMarkupId(true);
 		messagesContainer.add(messagesChoice);
@@ -356,13 +360,13 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
 		messagesContainer.setVisible(sakaiProxy.isMessagingEnabledGlobally());
-		
+
 		// kudos privacy
 		WebMarkupContainer myKudosContainer = new WebMarkupContainer("myKudosContainer");
 		myKudosContainer.add(new Label("myKudosLabel", new ResourceModel("privacy.mykudos")));
-		DropDownChoice kudosChoice = new DropDownChoice("myKudos", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		DropDownChoice kudosChoice = new DropDownChoice("myKudos", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		kudosChoice.setMarkupId("kudosprivacyinput");
 		kudosChoice.setOutputMarkupId(true);
 		myKudosContainer.add(kudosChoice);
@@ -374,11 +378,13 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
+
+		myKudosContainer.setVisible(sakaiProxy.isMyKudosEnabledGlobally());
+
 		// wall privacy
 		WebMarkupContainer myWallContainer = new WebMarkupContainer("myWallContainer");
 		myWallContainer.add(new Label("myWallLabel", new ResourceModel("privacy.mywall")));
-		DropDownChoice myWallChoice = new DropDownChoice("myWall", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		DropDownChoice myWallChoice = new DropDownChoice("myWall", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		myWallChoice.setMarkupId("wallprivacyinput");
 		myWallChoice.setOutputMarkupId(true);
 		myWallContainer.add(myWallChoice);
@@ -392,11 +398,11 @@ public class MyPrivacy extends BasePage {
         });
 		myWallContainer.setVisible(sakaiProxy.isWallEnabledGlobally());
 
-		
+
 		// online status privacy
 		WebMarkupContainer onlineStatusContainer = new WebMarkupContainer("onlineStatusContainer");
 		onlineStatusContainer.add(new Label("onlineStatusLabel", new ResourceModel("privacy.onlinestatus")));
-		DropDownChoice onlineStatusChoice = new DropDownChoice("onlineStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));             
+		DropDownChoice onlineStatusChoice = new DropDownChoice("onlineStatus", dropDownModelRelaxed, new HashMapChoiceRenderer(privacySettingsRelaxed));
 		onlineStatusChoice.setMarkupId("onlinestatusprivacyinput");
 		onlineStatusChoice.setOutputMarkupId(true);
 		onlineStatusContainer.add(onlineStatusChoice);
@@ -408,8 +414,9 @@ public class MyPrivacy extends BasePage {
             	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
-		
-		
+
+		onlineStatusContainer.setVisible(sakaiProxy.isOnlineStatusEnabledGlobally());
+
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
 			protected void onSubmit(AjaxRequestTarget target, Form form) {
@@ -417,28 +424,28 @@ public class MyPrivacy extends BasePage {
 				if(save(form)){
 					formFeedback.setDefaultModel(new ResourceModel("success.privacy.save.ok"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
-					
+
 					//post update event
 					sakaiProxy.postEvent(ProfileConstants.EVENT_PRIVACY_UPDATE, "/profile/"+userUuid, true);
 
 				} else {
 					formFeedback.setDefaultModel(new ResourceModel("error.privacy.save.failed"));
-					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
+					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
 				}
-				
+
 				//resize iframe
 				target.appendJavascript("setMainFrameHeight(window.name);");
-				
+
 				//PRFL-775 - set focus to feedback message so it is announced to screenreaders
 				target.appendJavascript("$('#" + formFeedbackId + "').focus();");
-				
+
 				target.addComponent(formFeedback);
             }
 		};
 		submitButton.setModel(new ResourceModel("button.save.settings"));
 		submitButton.setOutputMarkupId(true);
 		form.add(submitButton);
-		
+
 		//cancel button
 		/*
 		AjaxFallbackButton cancelButton = new AjaxFallbackButton("cancel", new ResourceModel("button.cancel"), form) {
@@ -449,7 +456,7 @@ public class MyPrivacy extends BasePage {
         cancelButton.setDefaultFormProcessing(false);
         form.add(cancelButton);
 		*/
-		
+
 		if(!sakaiProxy.isPrivacyChangeAllowedGlobally()){
 			infoLocked.setDefaultModel(new ResourceModel("text.privacy.cannot.modify"));
 			infoLocked.setVisible(true);
@@ -467,20 +474,20 @@ public class MyPrivacy extends BasePage {
 			messagesChoice.setEnabled(false);
 			myWallChoice.setEnabled(false);
 			onlineStatusChoice.setEnabled(false);
-			
+
 			submitButton.setEnabled(false);
 			submitButton.setVisible(false);
-			
+
 			form.setEnabled(false);
 		}
-        
+
         add(form);
 	}
-	
-	
+
+
 	//called when the form is to be saved
 	private boolean save(Form<ProfilePrivacy> form) {
-		
+
 		//get the backing model - its elems have been updated with the form params
 		ProfilePrivacy profilePrivacy = (ProfilePrivacy) form.getModelObject();
 
@@ -491,10 +498,7 @@ public class MyPrivacy extends BasePage {
 			log.info("Couldn't save ProfilePrivacy for: " + profilePrivacy.getUserUuid());
 			return false;
 		}
-	
+
 	}
-	
+
 }
-
-
-

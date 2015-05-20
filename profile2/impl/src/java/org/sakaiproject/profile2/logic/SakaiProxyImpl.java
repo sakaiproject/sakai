@@ -69,35 +69,35 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 
 /**
  * Implementation of SakaiProxy for Profile2.
- * 
+ *
  * @author Steve Swinsburg (s.swinsburg@lancaster.ac.uk)
  *
  */
 public class SakaiProxyImpl implements SakaiProxy {
 
 	private static final Logger log = Logger.getLogger(SakaiProxyImpl.class);
-    
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getCurrentSiteId(){
 		return toolManager.getCurrentPlacement().getContext();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public User getCurrentUser() {
 		return userDirectoryService.getCurrentUser();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -110,7 +110,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return eid;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -137,7 +137,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return name;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -150,7 +150,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return email;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -163,7 +163,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return email;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -176,7 +176,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return email;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -186,13 +186,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 			u = userDirectoryService.getUser(userId);
 			if (u != null) {
 				return true;
-			} 
+			}
 		} catch (UserNotDefinedException e) {
 			log.info("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
 		return false;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -202,20 +202,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 			u = userDirectoryService.getUserByEid(eid);
 			if (u != null) {
 				return true;
-			} 
+			}
 		} catch (UserNotDefinedException e) {
 			log.info("User with eid: " + eid + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
 		return false;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isSuperUser() {
 		return securityService.isSuperUser();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -223,15 +223,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return StringUtils.equals(sessionManager.getCurrentSessionUserId(), UserDirectoryService.ADMIN_ID);
 	}
 
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isSuperUserAndProxiedToUser(String userId) {
 		return (isSuperUser() && !StringUtils.equals(userId, getCurrentUserId()));
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -244,7 +244,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return type;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -255,11 +255,11 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (UserNotDefinedException e) {
 			log.info("User with id: " + userId + " does not exist : " + e.getClass() + " : " + e.getMessage());
 		}
-		
+
 		return u;
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -273,7 +273,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return u;
 	}
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -284,14 +284,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		else
 			return "Profile";
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public List<User> getUsers(List<String> userIds) {
 		return userDirectoryService.getUsers(userIds);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -303,14 +303,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return uuids;
 	}
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public SakaiPerson getSakaiPerson(String userId) {
-		
+
 		SakaiPerson sakaiPerson = null;
-		
+
 		try {
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
@@ -318,15 +318,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return sakaiPerson;
 	}
-  
+
 	/**
  	* {@inheritDoc}
  	*/
 	public byte[] getSakaiPersonJpegPhoto(String userId) {
-		
+
 		SakaiPerson sakaiPerson = null;
 		byte[] image = null;
-    
+
 		try {
 			//try normal user type
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
@@ -340,21 +340,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 					image = sakaiPerson.getJpegPhoto();
 				}
 			}
-			
+
 		} catch (Exception e) {
 			log.error("SakaiProxy.getSakaiPersonJpegPhoto(): Couldn't get SakaiPerson Jpeg photo for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return image;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getSakaiPersonImageUrl(String userId) {
-		
+
 		SakaiPerson sakaiPerson = null;
 		String url = null;
-    
+
 		try {
 			//try normal user type
 			sakaiPerson = sakaiPersonManager.getSakaiPerson(userId, sakaiPersonManager.getUserMutableType());
@@ -368,20 +368,20 @@ public class SakaiProxyImpl implements SakaiProxy {
 					url = sakaiPerson.getPictureUrl();
 				}
 			}
-			
+
 		} catch (Exception e) {
 			log.error("SakaiProxy.getSakaiPersonImageUrl(): Couldn't get SakaiPerson image URL for: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 		return url;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public SakaiPerson getSakaiPersonPrototype() {
-		
+
 		SakaiPerson sakaiPerson = null;
-		
+
 		try {
 			sakaiPerson = sakaiPersonManager.getPrototype();
 		} catch (Exception e) {
@@ -389,14 +389,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return sakaiPerson;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public SakaiPerson createSakaiPerson(String userId) {
-		
+
 		SakaiPerson sakaiPerson = null;
-		
+
 		try {
 			sakaiPerson = sakaiPersonManager.create(userId, sakaiPersonManager.getUserMutableType());
 		} catch (Exception e) {
@@ -406,14 +406,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean updateSakaiPerson(SakaiPerson sakaiPerson) {
 		//the save is void, so unless it throws an exception, its ok (?)
 		//I'd prefer a return value from sakaiPersonManager. this wraps it.
-		
+
 		try {
 			sakaiPersonManager.save(sakaiPerson);
 			return true;
@@ -423,16 +423,16 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return false;
 	}
-	
-	
-	
+
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public int getMaxProfilePictureSize() {
 		return serverConfigurationService.getInt("profile2.picture.max", ProfileConstants.MAX_IMAGE_UPLOAD_SIZE);
 	}
-	
+
 	private String getProfileGalleryPath(String userId) {
 		String slash = Entity.SEPARATOR;
 
@@ -452,7 +452,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	 * {@inheritDoc}
 	 */
 	public String getProfileGalleryImagePath(String userId, String imageId) {
-		
+
 		StringBuilder path = new StringBuilder(getProfileGalleryPath(userId));
 
 		path.append(ProfileConstants.GALLERY_IMAGE_MAIN);
@@ -473,14 +473,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		return path.toString();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getProfileImageResourcePath(String userId, int type) {
-		
+
 		String slash = Entity.SEPARATOR;
-		
+
 		StringBuilder path = new StringBuilder();
 		path.append(slash);
 		path.append("private");
@@ -492,25 +492,25 @@ public class SakaiProxyImpl implements SakaiProxy {
 		path.append(type);
 		path.append(slash);
 		path.append(ProfileUtils.generateUuid());
-		
+
 		return path.toString();
-		
+
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean saveFile(String fullResourceId, String userId, String fileName, String mimeType, byte[] fileData) {
-		
+
 		ContentResourceEdit resource = null;
 		boolean result = true;
-		
+
 		try {
-			
+
 			enableSecurityAdvisor();
-			
+
 			try {
-								
+
 				resource = contentHostingService.addResource(fullResourceId);
 				resource.setContentType(mimeType);
 				resource.setContent(fileData);
@@ -532,7 +532,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				log.error("SakaiProxy.saveFile(): failed: " + e.getClass() + " : " + e.getMessage());
 				result = false;
 			}
-			
+
 		} catch (Exception e) {
 			log.error("SakaiProxy.saveFile():" + e.getClass() + ":" + e.getMessage());
 			result = false;
@@ -540,21 +540,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 			disableSecurityAdvisor();
 		}
 		return result;
-		
+
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public MimeTypeByteArray getResource(String resourceId) {
-		
+
 		MimeTypeByteArray mtba = new MimeTypeByteArray();
-		
+
 		if(StringUtils.isBlank(resourceId)) {
 			return null;
 		}
-		
+
 		try {
 			enableSecurityAdvisor();
 			try {
@@ -575,24 +575,24 @@ public class SakaiProxyImpl implements SakaiProxy {
 		finally	{
 			disableSecurityAdvisor();
 		}
-		
+
 		return null;
 	}
-	
-	
-	
+
+
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean removeResource(String resourceId) {
-		
+
 		boolean result = false;
-		
+
 		try {
 			enableSecurityAdvisor();
 
 			contentHostingService.removeResource(resourceId);
-			
+
 			result = true;
 		} catch (Exception e) {
 			log.error("SakaiProxy.removeResource() failed for resourceId "
@@ -601,42 +601,42 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} finally {
 			disableSecurityAdvisor();
 		}
-		
+
 		return result;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public List<User> searchUsers(String search) {
 		return userDirectoryService.searchUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public List<User> searchExternalUsers(String search) {
 		return userDirectoryService.searchExternalUsers(search, ProfileConstants.FIRST_RECORD, ProfileConstants.MAX_RECORDS);
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public void postEvent(String event,String reference,boolean modify) {
 		eventTrackingService.post(eventTrackingService.newEvent(event,reference,modify));
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public void sendEmail(final String userId, final String subject, String message) {
-		
+
 		class EmailSender {
 			private String userId;
 			private String subject;
 			private String message;
-			
+
 			public final String MULTIPART_BOUNDARY = "======sakai-multi-part-boundary======";
 			public final String BOUNDARY_LINE = "\n\n--"+MULTIPART_BOUNDARY+"\n";
 			public final String TERMINATION_LINE = "\n\n--"+MULTIPART_BOUNDARY+"--\n\n";
@@ -657,21 +657,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 					//get User to send to
 					User user = userDirectoryService.getUser(userId);
-					
+
 					if (StringUtils.isBlank(user.getEmail())){
 						log.error("SakaiProxy.sendEmail() failed. No email for userId: " + userId);
 						return;
 					}
-					
+
 					//do it
 					emailService.sendToUsers(Collections.singleton(user), getHeaders(user.getEmail(), subject), formatMessage(subject, message));
-					
+
 					log.info("Email sent to: " + userId);
 				} catch (UserNotDefinedException e) {
 					log.error("SakaiProxy.sendEmail() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 				}
 			}
-			
+
 			/** helper methods for formatting the message */
 			private String formatMessage(String subject, String message) {
 				StringBuilder sb = new StringBuilder();
@@ -685,10 +685,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sb.append(message);
 				sb.append(HTML_END);
 				sb.append(TERMINATION_LINE);
-				
+
 				return sb.toString();
 			}
-			
+
 			private String htmlPreamble(String subject) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01 Transitional//EN\"\n");
@@ -698,10 +698,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sb.append(subject);
 				sb.append("</title></head>\n");
 				sb.append("<body>\n");
-				
+
 				return sb.toString();
 			}
-			
+
 			private List<String> getHeaders(String emailTo, String subject){
 				List<String> headers = new ArrayList<String>();
 				headers.add("MIME-Version: 1.0");
@@ -711,10 +711,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 				if (StringUtils.isNotBlank(emailTo)) {
 					headers.add("To: " + emailTo);
 				}
-				
+
 				return headers;
 			}
-			
+
 			private String getFrom(){
 				StringBuilder sb = new StringBuilder();
 				sb.append("From: ");
@@ -722,44 +722,44 @@ public class SakaiProxyImpl implements SakaiProxy {
 				sb.append(" <");
 				sb.append(serverConfigurationService.getString("setup.request", "no-reply@" + getServerName()));
 				sb.append(">");
-				
+
 				return sb.toString();
 			}
-			
+
 			private String formatSubject(String subject) {
 				StringBuilder sb = new StringBuilder();
 				sb.append("Subject: ");
 				sb.append(subject);
-				
+
 				return sb.toString();
 			}
-			
-			
+
+
 		}
-		
+
 		//instantiate class to format, then send the mail
 		new EmailSender(userId, subject, message).send();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public void sendEmail(List<String> userIds, final String emailTemplateKey, final Map<String,String> replacementValues) {
-		
+
 		//get list of Users
 		final List<User> users = new ArrayList<User>(getUsers(userIds));
-		
+
 		//only ever use one thread whether sending to one user or many users
 		Thread sendMailThread = new Thread() {
-			
+
 			public void run() {
 				//get the rendered template for each user
 				RenderedTemplate template = null;
-				
+
 				for(User user : users) {
 					log.info("SakaiProxy.sendEmail() attempting to send email to: " + user.getId());
-					try { 
-						template = emailTemplateService.getRenderedTemplateForUser(emailTemplateKey, user.getReference(), replacementValues); 
+					try {
+						template = emailTemplateService.getRenderedTemplateForUser(emailTemplateKey, user.getReference(), replacementValues);
 						if (template == null) {
 							log.error("SakaiProxy.sendEmail() no template with key: " + emailTemplateKey);
 							return;	//no template
@@ -769,7 +769,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 						log.error("SakaiProxy.sendEmail() error retrieving template for user: " + user.getId() + " with key: " + emailTemplateKey + " : " + e.getClass() + " : " + e.getMessage());
 						continue; //try next user
 					}
-					
+
 					//send
 					sendEmail(user.getId(), template.getRenderedSubject(), template.getRenderedHtmlMessage());
 				}
@@ -777,7 +777,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		};
 		sendMailThread.start();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -786,33 +786,33 @@ public class SakaiProxyImpl implements SakaiProxy {
 	}
 
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getServerName() {
 		return serverConfigurationService.getServerName();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getPortalUrl() {
 		return serverConfigurationService.getPortalUrl();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getServerUrl() {
 		return serverConfigurationService.getServerUrl();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getFullPortalUrl() {
-		return getServerUrl() + getPortalPath(); 
+		return getServerUrl() + getPortalPath();
 	}
 
 	/**
@@ -821,7 +821,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public String getPortalPath() {
 		return serverConfigurationService.getString("portalPath", "/portal");
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -836,14 +836,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getUserHomeUrl();
 	}
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getServiceName() {
 		return serverConfigurationService.getString("ui.service", ProfileConstants.SAKAI_PROP_SERVICE_NAME);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -853,15 +853,15 @@ public class SakaiProxyImpl implements SakaiProxy {
 			userEdit = userDirectoryService.editUser(userId);
 			userEdit.setEmail(email);
 			userDirectoryService.commitEdit(userEdit);
-			
+
 			log.info("User email updated for: " + userId);
 		}
-		catch (Exception e) {  
+		catch (Exception e) {
 			log.error("SakaiProxy.updateEmailForUser() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 	}
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -872,39 +872,39 @@ public class SakaiProxyImpl implements SakaiProxy {
 			userEdit.setFirstName(firstName);
 			userEdit.setLastName(lastName);
 			userDirectoryService.commitEdit(userEdit);
-			
+
 			log.info("User name details updated for: " + userId);
 		}
-		catch (Exception e) {  
+		catch (Exception e) {
 			log.error("SakaiProxy.updateNameForUser() failed for userId: " + userId + " : " + e.getClass() + " : " + e.getMessage());
 		}
 	}
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getDirectUrlToUserProfile(final String userId, final String extraParams) {
 		String portalUrl = getFullPortalUrl();
 		String siteId = getUserMyWorkspace(userId);
-		
+
 		ToolConfiguration toolConfig = getFirstInstanceOfTool(siteId, ProfileConstants.TOOL_ID);
 		if(toolConfig == null) {
 			//if the user doesn't have the Profile2 tool installed in their My Workspace,
 			log.warn("SakaiProxy.getDirectUrlToUserProfile() failed to find " + ProfileConstants.TOOL_ID + " installed in My Workspace for userId: " + userId);
-			
+
 			//just return a link to their My Workspace
 			StringBuilder url = new StringBuilder();
 			url.append(portalUrl);
 			url.append("/site/");
 			url.append(siteId);
 			return url.toString();
-			
+
 		}
-		
+
 		String pageId = toolConfig.getPageId();
 		String placementId = toolConfig.getId();
-				
+
 		try {
 			StringBuilder url = new StringBuilder();
 			url.append(portalUrl);
@@ -919,18 +919,18 @@ public class SakaiProxyImpl implements SakaiProxy {
 				url.append("=");
 				url.append(URLEncoder.encode(extraParams,"UTF-8"));
 			}
-		
+
 			return url.toString();
 		}
 		catch(Exception e) {
 			log.error("SakaiProxy.getDirectUrl():" + e.getClass() + ":" + e.getMessage());
 			return null;
 		}
-		
+
 	}
 
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -954,7 +954,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				"profile2.profile.business.enabled",
 				ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_BUSINESS_ENABLED);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -997,34 +997,34 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean isWallEnabledGlobally() {
 		return serverConfigurationService.getBoolean(
 				"profile2.wall.enabled",
-				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_ENABLED);		
+				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_ENABLED);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isWallDefaultProfilePage() {
 		return serverConfigurationService.getBoolean(
 				"profile2.wall.default",
-				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_DEFAULT);	
+				ProfileConstants.SAKAI_PROP_PROFILE2_WALL_DEFAULT);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isProfileConversionEnabled() {
 		return serverConfigurationService.getBoolean("profile2.convert", ProfileConstants.SAKAI_PROP_PROFILE2_CONVERSION_ENABLED);
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isProfileImageImportEnabled() {
 		return serverConfigurationService.getBoolean("profile2.import.images", ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_IMAGES_ENABLED);
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -1032,40 +1032,37 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getBoolean("profile2.import", ProfileConstants.SAKAI_PROP_PROFILE2_IMPORT_ENABLED);
 
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getProfileImportCsvPath() {
 		return serverConfigurationService.getString("profile2.import.csv", null);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isTwitterIntegrationEnabledGlobally() {
 		return serverConfigurationService.getBoolean("profile2.integration.twitter.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_ENABLED);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getTwitterSource() {
 		return serverConfigurationService.getString("profile2.integration.twitter.source", ProfileConstants.SAKAI_PROP_PROFILE2_TWITTER_INTEGRATION_SOURCE);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isProfileGalleryEnabledGlobally() {
-		return serverConfigurationService.getBoolean("profile2.gallery.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_GALLERY_ENABLED);
-	}
-	
-	/**
- 	* {@inheritDoc}
- 	*/
-	public boolean isMessagingEnabledGlobally() {
-		return serverConfigurationService.getBoolean("profile2.messaging.enabled", true);
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.gallery.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_GALLERY_ENABLED);
+		}
 	}
 
 	/**
@@ -1092,13 +1089,13 @@ public class SakaiProxyImpl implements SakaiProxy {
 		// return user type specific setting, defaulting to global one
 		return serverConfigurationService.getBoolean("profile2.picture.change." + userType + ".enabled", globallyEnabled);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public int getProfilePictureType() {
 		String pictureType = serverConfigurationService.getString("profile2.picture.type", ProfileConstants.PICTURE_SETTING_UPLOAD_PROP);
-				
+
 		//if 'upload'
 		if(pictureType.equals(ProfileConstants.PICTURE_SETTING_UPLOAD_PROP)) {
 			return ProfileConstants.PICTURE_SETTING_UPLOAD;
@@ -1113,47 +1110,47 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		//gravatar is not an enforceable setting, hence no block here. it is purely a user preference.
 		//but can be disabled
-		
+
 		//otherwise return default
 		else {
 			return ProfileConstants.PICTURE_SETTING_DEFAULT;
 		}
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public List<String> getAcademicEntityConfigurationSet() {
-		
+
 		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.academic", ProfileConstants.ENTITY_SET_ACADEMIC);
 		String[] parameters = StringUtils.split(configuration, ',');
-		
+
 		List<String> tempList = Arrays.asList(parameters);
 		List<String> list = new ArrayList<String>(tempList);
-		
+
 		return list;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public List<String> getMinimalEntityConfigurationSet() {
 		String configuration = serverConfigurationService.getString("profile2.profile.entity.set.minimal", ProfileConstants.ENTITY_SET_MINIMAL);
 		String[] parameters = StringUtils.split(configuration, ',');
-		
+
 		List<String> tempList = Arrays.asList(parameters);
 		List<String> list = new ArrayList<String>(tempList);
-		
+
 		return list;
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String ensureUuid(String userId) {
-		
+
 		//check for userId
 		try {
 			User u = userDirectoryService.getUser(userId);
@@ -1163,7 +1160,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (UserNotDefinedException e) {
 			//do nothing, this is fine, cotninue to next check
 		}
-		
+
 		//check for eid
 		try {
 			User u = userDirectoryService.getUserByEid(userId);
@@ -1173,41 +1170,41 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (UserNotDefinedException e) {
 			//do nothing, this is fine, continue
 		}
-		
+
 		log.error("User: " + userId + " could not be found in any lookup by either id or eid");
 		return null;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean currentUserMatchesRequest(String userUuid) {
-		
+
 		//get current user
 		String currentUserUuid = getCurrentUserId();
-		
+
 		//check match
 		if(StringUtils.equals(currentUserUuid, userUuid)) {
 			return true;
 		}
-		
+
 		return false;
 	}
 
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isPrivacyChangeAllowedGlobally() {
 		return serverConfigurationService.getBoolean("profile2.privacy.change.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PRIVACY_CHANGE_ENABLED);
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public HashMap<String, Object> getOverriddenPrivacySettings() {
-		
+
 		HashMap<String, Object> props = new HashMap<String, Object>();
 		props.put("profileImage", serverConfigurationService.getInt("profile2.privacy.default.profileImage", ProfileConstants.DEFAULT_PRIVACY_OPTION_PROFILEIMAGE));
 		props.put("basicInfo", serverConfigurationService.getInt("profile2.privacy.default.basicInfo", ProfileConstants.DEFAULT_PRIVACY_OPTION_BASICINFO));
@@ -1228,7 +1225,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		return props;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -1236,31 +1233,31 @@ public class SakaiProxyImpl implements SakaiProxy {
 		String config = serverConfigurationService.getString("profile2.invisible.users", ProfileConstants.SAKAI_PROP_INVISIBLE_USERS);
 		return ProfileUtils.getListFromString(config, ProfileConstants.SAKAI_PROP_LIST_SEPARATOR);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isConnectionAllowedBetweenUserTypes(String requestingUserType, String targetUserType) {
-		
+
 		if(isSuperUser()){
 			return true;
 		}
-		
+
 		String configuration = serverConfigurationService.getString("profile2.allowed.connection.usertypes." + requestingUserType);
 		if(StringUtils.isBlank(configuration)) {
 			return true;
 		}
-		
+
 		String[] values = StringUtils.split(configuration, ',');
 		List<String> valueList = Arrays.asList(values);
 
 		if(valueList.contains(targetUserType)){
 			return true;
 		}
-		
+
 		return false;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -1275,70 +1272,70 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return false;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isOfficialImageEnabledGlobally() {
 		return serverConfigurationService.getBoolean("profile2.official.image.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_OFFICIAL_IMAGE_ENABLED);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isUsingOfficialImageButAlternateSelectionEnabled() {
-		
-		if(isOfficialImageEnabledGlobally() && 
+
+		if(isOfficialImageEnabledGlobally() &&
 			getProfilePictureType() != ProfileConstants.PICTURE_SETTING_OFFICIAL &&
 			isProfilePictureChangeEnabled()) {
 			return true;
 		}
 		return false;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getOfficialImageSource() {
 		return serverConfigurationService.getString("profile2.official.image.source", ProfileConstants.OFFICIAL_IMAGE_SETTING_DEFAULT);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getOfficialImagesDirectory() {
 		return serverConfigurationService.getString("profile2.official.image.directory", "/official-photos");
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getOfficialImagesFileSystemPattern() {
 		return serverConfigurationService.getString("profile2.official.image.directory.pattern", "TWO_DEEP");
 	}
-	
-	
+
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getOfficialImageAttribute() {
 		return serverConfigurationService.getString("profile2.official.image.attribute", ProfileConstants.USER_PROPERTY_JPEG_PHOTO);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String createUuid() {
 		return idManager.createUuid();
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isUserActive(String userUuid) {
 		return activityService.isUserActive(userUuid);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -1352,28 +1349,28 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public Long getLastEventTimeForUser(String userUuid) {
 		return activityService.getLastEventTimeForUser(userUuid);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public Map<String, Long> getLastEventTimeForUsers(List<String> userUuids) {
 		return activityService.getLastEventTimeForUsers(userUuids);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public String getServerConfigurationParameter(String key, String def) {
 		return serverConfigurationService.getString(key, def);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean isUserMyWorkspace(String siteId) {
 		return siteService.isUserSite(siteId);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -1390,14 +1387,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return false;
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
 	public boolean checkForSite(String siteId) {
 		return siteService.siteExists(siteId);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1415,7 +1412,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 				"profile2.search.maxSearchResultsPerPage",
 				ProfileConstants.DEFAULT_MAX_SEARCH_RESULTS_PER_PAGE);
 	}
-	
+
 	/**
  	* {@inheritDoc}
  	*/
@@ -1429,7 +1426,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	public boolean isUserAllowedAddSite(String userUuid) {
 		return siteService.allowAddSite(userUuid);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1444,10 +1441,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		} catch (PermissionException e) {
 			e.printStackTrace();
 		}
-		
+
 		return site;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1463,7 +1460,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 		}
 		return true;
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1475,49 +1472,49 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<Site> getUserSites() {
 		return siteService.getSites(SelectionType.ACCESS, null, null, null, SortType.TITLE_ASC, null);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public Tool getTool(String id) {
 		return toolManager.getTool(id);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public List<String> getToolsRequired(String category) {
 		return serverConfigurationService.getToolsRequired(category);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isGoogleIntegrationEnabledGlobally() {
 		return serverConfigurationService.getBoolean("profile2.integration.google.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_GOOGLE_INTEGRATION_ENABLED);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isLoggedIn() {
 		return StringUtils.isNotBlank(getCurrentUserId());
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
 	public boolean isProfileFieldsEnabled() {
 		return serverConfigurationService.getBoolean("profile2.profile.fields.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_FIELDS_ENABLED);
 	}
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -1525,10 +1522,86 @@ public class SakaiProxyImpl implements SakaiProxy {
 		return serverConfigurationService.getBoolean("profile2.profile.status.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PROFILE_STATUS_ENABLED);
 
 	}
-	
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isMenuEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.menu.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MENU_ENABLED);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isConnectionEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.connection.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_CONNECTION_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isMessagingEnabledGlobally() {
+		if(isConnectionEnabledGlobally()) {
+			return serverConfigurationService.getBoolean("profile2.messaging.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MESSAGING_ENABLED);
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isSearchEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.search.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_SEARCH_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isPrivacyEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.privacy.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PRIVACY_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isPreferenceEnabledGlobally() {
+		if(!isMenuEnabledGlobally()){
+			return false;
+		} else {
+			return serverConfigurationService.getBoolean("profile2.preference.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_PREFERENCE_ENABLED);
+		}
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isMyKudosEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.myKudos.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_MY_KUDOS_ENABLED);
+	}
+
+	/**
+	* {@inheritDoc}
+	*/
+	public boolean isOnlineStatusEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.onlineStatus.enabled", ProfileConstants.SAKAI_PROP_PROFILE2_ONLINE_STATUS_ENABLED);
+	}
+
 	// PRIVATE METHODS FOR SAKAIPROXY
-	
-	
+
+
 	/**
 	 * Setup a security advisor for this transaction
 	 */
@@ -1546,21 +1619,21 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private void disableSecurityAdvisor(){
 		securityService.popAdvisor();
 	}
-	
+
 	/**
 	 * Gets the siteId of the given user's My Workspace
 	 * Generally ~userId but may not be
-	 * 
+	 *
 	 * @param userId
 	 * @return
 	 */
 	private String getUserMyWorkspace(String userId) {
 		return siteService.getUserSiteId(userId);
 	}
-		
+
 	/**
 	 * Gets the ToolConfiguration of a page in a site containing a given tool
-	 * 
+	 *
 	 * @param siteId	siteId
 	 * @param toolId	toolId ie sakai.profile2
 	 * @return
@@ -1574,66 +1647,66 @@ public class SakaiProxyImpl implements SakaiProxy {
 			return null;
 		}
 	}
-	
-	
+
+
 	/**
 	 * init
 	 */
 	public void init() {
 		log.info("Profile2 SakaiProxy init()");
-		
+
 		//process the email templates
 		//the list is injected via Spring
 		emailTemplateService.processEmailTemplates(emailTemplates);
-		
+
 	}
 
-	
-	
+
+
 	@Setter
 	private ToolManager toolManager;
-	
+
 	@Setter
 	private SecurityService securityService;
-	
+
 	@Setter
 	private SessionManager sessionManager;
-	
+
 	@Setter
 	private SiteService siteService;
-	
+
 	@Setter
 	private UserDirectoryService userDirectoryService;
-	
+
 	@Setter
 	private SakaiPersonManager sakaiPersonManager;
-	
+
 	@Setter
 	private ContentHostingService contentHostingService;
-	
+
 	@Setter
 	private EventTrackingService eventTrackingService;
-	
+
 	@Setter
 	private EmailService emailService;
-	
+
 	@Setter
 	private ServerConfigurationService serverConfigurationService;
-	
+
 	@Setter
 	private EmailTemplateService emailTemplateService;
-	
+
 	@Setter
 	private IdManager idManager;
-	
+
 	@Setter
 	private ActivityService activityService;
-	
+
 
 	//INJECT OTHER RESOURCES
 	@Setter
 
 	private ArrayList<String> emailTemplates;
-	
-	
+
+
 }
