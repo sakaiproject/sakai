@@ -338,13 +338,13 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     				// has changed or property has been set forcing a db update every time.
     				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
 
-    				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getName(), studentUid);
+    				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
     				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
     				String newComment = (String) studentUidsToComments.get(studentUid);
 
     				if ( alwaysUpdate || (newComment != null && !newComment.equals(oldComment)) || (newComment == null && oldComment != null) ) {
     					changedStudents.add(studentUid);
-    					setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, newComment);
+    					setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, newComment);
     				}
     			}
 
@@ -848,15 +848,15 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				// score has actually changed or property has been set forcing a db update every time.
 				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
 
-				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getName(), studentUid);
+				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
 				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
 
 				if ( alwaysUpdate || (comment != null && !comment.equals(oldComment)) ||
 						(comment == null && oldComment != null) ) {
 					if(comment != null)
-						setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, comment);
+						setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, comment);
 					else
-						setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, null);
+						setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, null);
 				}
 				return null;
 			}
