@@ -257,6 +257,9 @@ public class PageHandler extends BasePortalHandler
 				for (Iterator i = tools.iterator(); i.hasNext();)
 				{
 					ToolConfiguration placement = (ToolConfiguration) i.next();
+					boolean thisTool = portal.getSiteHelper().allowTool(site,
+								placement);
+					if (!thisTool) continue; // Skip this tool if not allowed
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{
