@@ -1024,7 +1024,14 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	    return returnList;
 	}
 
-	private Gradebook getGradebook(Long id) {
+	/**
+	 * Internal method to get a gradebook based on its id.
+	 * @param id
+	 * @return
+	 * 
+	 * NOTE: When the UI changes, this is to be turned private again
+	 */
+	public Gradebook getGradebook(Long id) {
 		return (Gradebook)getHibernateTemplate().load(Gradebook.class, id);
 	}
 
@@ -1113,8 +1120,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	}
   }
 
+  /**
+   * Get all assignment grade records for the given students
+   * 
+   * @param gradebookId
+   * @param studentUids
+   * @return
+   * 
+   * NOTE When the UI changes, this needs to be made private again
+   */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
+  public List getAllAssignmentGradeRecords(final Long gradebookId, final Collection studentUids) {
   	HibernateCallback hc = new HibernateCallback() {
   		public Object doInHibernate(Session session) throws HibernateException {
   			if(studentUids.size() == 0) {
@@ -1152,8 +1168,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  	return (List)getHibernateTemplate().execute(hc);
 	  }
 
+  /**
+   * Get a list of assignments, sorted
+   * @param gradebookId
+   * @param sortBy
+   * @param ascending
+   * @return
+   * 
+   * NOTE: When the UI changes, this needs to go back to private
+   */
   @SuppressWarnings({ "rawtypes", "unchecked" })
-  private List getAssignments(final Long gradebookId, final SortType sortBy, final boolean ascending) {
+  public List getAssignments(final Long gradebookId, final SortType sortBy, final boolean ascending) {
   	return (List)getHibernateTemplate().execute(new HibernateCallback() {
   		public Object doInHibernate(Session session) throws HibernateException {
   			List assignments = getAssignments(gradebookId, session);
@@ -2241,8 +2266,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
      * student based on the assignment's category
      * @param gradeRecords
      * @return void
+     * 
+     * NOTE: When the UI changes, this needs to be made private again
      */
-    private void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords) {
+    public void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords) {
         if(gradeRecords == null || gradeRecords.size() < 1) {
             return;
         }

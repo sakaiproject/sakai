@@ -89,7 +89,8 @@ public interface GradebookService {
         INVALID_DECIMAL
     }
 	
-	public static Comparator<?> lettergradeComparator = new Comparator<Object>() 
+	@SuppressWarnings("rawtypes")
+	public static Comparator lettergradeComparator = new Comparator() 
 	{
 		public int compare(Object o1, Object o2) 
 		{
