@@ -125,12 +125,14 @@
                         class="portlet title-tools title reset Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" rsf:id="pagetitlelink"></a>
                 </h2>
             </div>
-            <div class="action">
-                <a class="lb-button lb-button-primary" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
+<!-- i18n -->
+            <div class="action" role="menubar" aria-label="page functions">
+                <a class="lb-button lb-button-primary" href="#" rsf:id="show-pages" id="show-pages" role="button"></a>
                 <a class="lb-button lb-button-primary" href="#" rsf:id="print-view" id="print-view"
-                   onclick="window.open(printView(window.location.href));return false" role="note"></a>
+                   onclick="window.open(printView(window.location.href));return false" role="button"></a>
 
-                <div rsf:id="gradingSpan" class="gradingarea">
+<!--i18n-->
+                <div rsf:id="gradingSpan" class="gradingarea" role="heading" aria-level="2" title="grading">
                     <a href="#" rsf:id="gradingBack" class="usebutton grading-nextprev">&#60;</a>
                     <img class="statusImg" src="$context/images/no-status.png" id="statusImg" alt=""/>
                     <span class="comments-points" rsf:id="msg=simplepage.comments-points"></span>
@@ -143,8 +145,8 @@
                     <a href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
                 </div>
                     <span class="nextprev buttonset">
-                        <a href="#" rsf:id="prev" class="nextprev">next</a>
-                        <a href="#" rsf:id="next" class="nextprev">next</a>
+                        <a href="#" rsf:id="prev" class="nextprev" role="button">next</a>
+                        <a href="#" rsf:id="next" class="nextprev" role="button">next</a>
                     </span>
                 <a class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#" id="directurl" rsf:id="directurl"> 
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
@@ -168,11 +170,12 @@
             </div>
         </div>
 
-        <div rsf:id="tool-bar:" class="lb-toolbar" id="toolbar" role="toolbar" aria-labelledby="tool-bar::toolbar-label">
+<!--i18n-->
+        <div rsf:id="tool-bar:" class="lb-toolbar" id="toolbar" role="toolbar" aria-label="content tools">
             <div class="toolbar-left">
                 <!-- Add Text Button -->
                 <div class="toolbar-item"> 
-                  <a href="#" rsf:id="add-text"> 
+                  <a href="#" rsf:id="add-text" role="button"> 
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                         <img src="/lessonbuilder-tool/images/new-text.png"/> 
 		    </div>
@@ -185,7 +188,7 @@
 
                 <!-- Add Link Button -->
                 <div class="toolbar-item"> 
-                  <a href="#"  rsf:id="add-resource">
+                  <a href="#"  rsf:id="add-resource" role="button">
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/link.png" alt=""/> 
 		    </div>
@@ -198,7 +201,7 @@
                   
                 <!-- New Embed Button -->
                 <div class="toolbar-item"> 
-                  <a href="#"  rsf:id="add-multimedia">
+                  <a href="#"  rsf:id="add-multimedia" role="button">
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/embed.png" alt=""/> 
 		    </div>
@@ -211,7 +214,7 @@
                   
                 <!-- Add Subpage -->
                 <div class="toolbar-item"> 
-                  <a href="#" class="subpage-link" rsf:id="subpage-link">
+                  <a href="#" class="subpage-link" rsf:id="subpage-link" role="button">
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/new-subpage.png" alt=""/> 
 		    </div>
@@ -226,13 +229,13 @@
                 <div id="addContentDropdown" class="toolbar-item lb-dropdown"> 
                     <ul>
                         <li class="tabTrigger">
-                            <a href="#" class="lb-button lb-button-toolbar" role="menuitem"> 
+                            <a href="#" class="lb-button lb-button-toolbar" role="button" aria-haspopup="true"> 
                                 <span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
                                 <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/down.png"/> 
                             </a>
-                            <ul id="addContentDiv">
+                            <ul id="addContentDiv" role="menu">
                                 <li rsf:id="assignment-li">
-                                    <a href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
+                                    <a role="menuitem" href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
                                 </li>
                                 <li rsf:id="quiz-li">
                                     <a role="menuitem" href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a>
@@ -268,11 +271,11 @@
                 <div id="addPagesDropdown" class="toolbar-item lb-dropdown"> 
                     <ul>
                         <li class="tabTrigger">
-                            <a href="#" class="lb-button lb-button-toolbar"> 
+                            <a href="#" class="lb-button lb-button-toolbar" role="button" aria-haspopup="true"> 
                                  <span rsf:id="msg=simplepage.more-tools"></span>&nbsp;&nbsp; 
                                 <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/down.png"/> 
                             </a>
-                            <ul>
+                            <ul role="menu">
                                 <li rsf:id="title-descrip">
                                     <a href="#" role="menuitem" rsf:id="edit-title" id="edit-title"><span
                                             rsf:id="msg=simplepage.page_settings"></span></a>
@@ -299,7 +302,7 @@
                 </div>
 
                 <!-- Reorder Button -->
-                <div class="toolbar-item"> 
+                <div class="toolbar-item" role="button"> 
                   <a href="#"  rsf:id="reorder">
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/sort.png" alt=""/> 
@@ -312,7 +315,7 @@
                 </div>
 
                 <!-- Permissions Button -->
-                <div class="toolbar-item"> 
+                <div class="toolbar-item" role="button"> 
                   <a href="#"  rsf:id="permissions">
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/lock.png" alt=""/> 
@@ -325,7 +328,7 @@
                 </div>
 
                 <!-- Help Button -->
-                <div class="toolbar-item"> 
+                <div class="toolbar-item" role="button"> 
                   <a href="#"  rsf:id="help">
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/info-circle.png" alt=""/> 
