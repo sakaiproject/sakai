@@ -210,14 +210,14 @@ $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 
 // Make a split-secret if desired
 $oauth_splitsecret = in_array('OAuth.splitSecret', $tc_capabilities);
-$tp_oauth_half_secret = false;
+$tp_half_secret = false;
 if ( $oauth_splitsecret ) {
-    $tp_oauth_half_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
-    if ( strlen($tp_oauth_half_secret) != 128 ) {
-        echo('<p style="color: red">Warning secret length of '.strlen($tp_oauth_half_secret)." should be 128</p>\n");
+    $tp_half_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
+    if ( strlen($tp_half_secret) != 128 ) {
+        echo('<p style="color: red">Warning secret length of '.strlen($tp_half_secret)." should be 128</p>\n");
     }
-    $tp_profile->security_contract->tp_oauth_half_secret = $tp_oauth_half_secret;
-    echo("Provider Half Secret:\n".$tp_oauth_half_secret."\n");
+    $tp_profile->security_contract->tp_half_secret = $tp_half_secret;
+    echo("Provider Half Secret:\n".$tp_half_secret."\n");
 } else {
     $tp_profile->security_contract->shared_secret = $secret;
 }
@@ -257,7 +257,7 @@ togglePre("Registration Request",htmlent_utf8($body));
 
 $more_headers = array();
 if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
-    $more_headers[] = 'VND-IMS-ACKNOWLEDGE-URL: '.$cur_base.'tp_commit.php?correlation=49201-48842';
+    $more_headers[] = 'VND-IMS-CONFIRM-URL: '.$cur_base.'tp_commit.php?correlation=49201-48842';
 }
 
 $response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers);
@@ -271,17 +271,17 @@ togglePre("Registration Response Headers",htmlent_utf8(get_body_received_debug()
 
 togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
-$tc_oauth_half_secret = false;
+$tc_half_secret = false;
 if ( $last_http_response == 201 || $last_http_response == 200 ) {
-    if ( $oauth_splitsecret && $tp_oauth_half_secret ) {
+    if ( $oauth_splitsecret && $tp_half_secret ) {
         $responseObject = json_decode($response);
-        if ( isset($responseObject->tc_oauth_half_secret) ) {
-            $tc_oauth_half_secret = $responseObject->tc_oauth_half_secret;
-            echo("<p>tc_oauth_half_secret: ".$tc_oauth_half_secret."</p>\n");
-            if ( strlen($tc_oauth_half_secret) != 128 ) {
-                echo('<p style="color: red">Warning secret length of '.strlen($tc_oauth_half_secret)." should be 128</p>\n");
+        if ( isset($responseObject->tc_half_secret) ) {
+            $tc_half_secret = $responseObject->tc_half_secret;
+            echo("<p>tc_half_secret: ".$tc_half_secret."</p>\n");
+            if ( strlen($tc_half_secret) != 128 ) {
+                echo('<p style="color: red">Warning secret length of '.strlen($tc_half_secret)." should be 128</p>\n");
             }
-            $split_secret = $tc_oauth_half_secret . $tp_oauth_half_secret;
+            $split_secret = $tc_half_secret . $tp_half_secret;
             $_SESSION['split_secret'] = $split_secret;
             echo("<p>Split Secret: ".$split_secret."</p>\n");
         } else {
