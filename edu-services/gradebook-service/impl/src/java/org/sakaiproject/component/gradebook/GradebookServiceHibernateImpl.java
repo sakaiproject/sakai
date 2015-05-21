@@ -771,6 +771,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setName(assignmentDefinition.getName().trim());
 				assignment.setPointsPossible(assignmentDefinition.getPoints());
 				assignment.setReleased(assignmentDefinition.isReleased());
+				assignment.setExtraCredit(assignmentDefinition.isExtraCredit());
 				updateAssignment(assignment, session);
 				return null;
 			}
