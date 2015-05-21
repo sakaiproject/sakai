@@ -1956,6 +1956,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				retVal.setTypeOfSubmission(existingContent.getTypeOfSubmission());
 				retVal.setTypeOfGrade(existingContent.getTypeOfGrade());
 				retVal.setMaxGradePoint(existingContent.getMaxGradePoint());
+				retVal.setFactor(existingContent.getFactor());
 				retVal.setGroupProject(existingContent.getGroupProject());
 				retVal.setIndividuallyGraded(existingContent.individuallyGraded());
 				retVal.setReleaseGrades(existingContent.releaseGrades());
@@ -4435,9 +4436,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										// numeric cell type?
 										String grade = submission.getGradeForUser(userId) == null ? submission.getGradeDisplay():
                                                                                     submission.getGradeForUser(userId);
+										int factor = submission.getAssignment().getContent().getFactor();
+										int dec = (int)Math.log10(factor);
 
 										//We get float number no matter the locale it was managed with.
-										NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,null);
+										NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,null);
 										float f = nbFormat.parse(grade).floatValue();
 
 										// remove the String-based cell first
@@ -4449,7 +4452,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										cell.setCellValue(f);
 			
 										style = wb.createCellStyle();
-										style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
+										String format ="#,##0.";
+										for (int j=0; j<dec; j++) {
+											format = format.concat("0");
+										}
+										style.setDataFormat(wb.createDataFormat().getFormat(format));
 										cell.setCellStyle(style);
 									}
 									catch (Exception e)
@@ -4497,9 +4504,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									{
 										// numeric cell type?
 										String grade = submission.getGradeDisplay();
+										int factor = submission.getAssignment().getContent().getFactor();
+										int dec = (int)Math.log10(factor);
 			
 										//We get float number no matter the locale it was managed with.
-										NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,null);
+										NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,null);
 										float f = nbFormat.parse(grade).floatValue();
 										
 										// remove the String-based cell first
@@ -4511,7 +4520,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 										cell.setCellValue(f);
 			
 										style = wb.createCellStyle();
-										style.setDataFormat(wb.createDataFormat().getFormat("#,##0.0"));
+										String format ="#,##0.";
+										for (int j=0; j<dec; j++) {
+											format = format.concat("0");
+										}
+										style.setDataFormat(wb.createDataFormat().getFormat(format));
 										cell.setCellStyle(style);
 									}
 									catch (Exception e)
@@ -6694,6 +6707,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 							nContent.setInstructions(instructions);
 							nContent.setMaxGradePoint(oContent.getMaxGradePoint());
+							nContent.setFactor(oContent.getFactor());
 							nContent.setReleaseGrades(oContent.releaseGrades());
 							nContent.setTimeLastModified(oContent.getTimeLastModified());
 							nContent.setTitle(oContent.getTitle());
@@ -7124,7 +7138,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			M_log.warn(" canSubmit(String, Assignment) " + e.getMessage() + " assignment ref=" + a.getReference());
 			return false;
 		}
+	}
+	
+	public Integer getScaleFactor() {		
+		Integer decimals = m_serverConfigurationService.getInt("assignment.grading.decimals", AssignmentConstants.DEFAULT_DECIMAL_POINT);
 		
+		return (int)Math.pow(10.0, decimals);
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -8583,6 +8602,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected int m_typeOfGrade;
 
 		protected int m_maxGradePoint;
+		
+		protected int m_factor;
 
 		protected boolean m_groupProject;
 
@@ -8646,6 +8667,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_typeOfSubmission = Assignment.ASSIGNMENT_SUBMISSION_TYPE_NOT_SET;
 			m_typeOfGrade = Assignment.GRADE_TYPE_NOT_SET;
 			m_maxGradePoint = 0;
+			m_factor = getScaleFactor();
 			m_timeCreated = TimeService.newTime();
 			m_timeLastModified = TimeService.newTime();
 		}
@@ -8735,6 +8757,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 			try
 			{
+				String factor = StringUtils.trimToNull(el.getAttribute("scaled_factor"));
+				if (factor == null)
+				{
+					factor = String.valueOf(AssignmentConstants.DEFAULT_SCALED_FACTOR);
+				}
+				m_factor = Integer.valueOf(factor);
 				// %%%zqian
 				// read the scaled max grade point first; if there is none, get the old max grade value and multiple by 10
 				String maxGradePoint = StringUtils.trimToNull(el.getAttribute("scaled_maxgradepoint"));
@@ -8743,7 +8771,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					maxGradePoint = StringUtils.trimToNull(el.getAttribute("maxgradepoint"));
 					if (maxGradePoint != null)
 					{
-						maxGradePoint = maxGradePoint + "0";
+						maxGradePoint = maxGradePoint + factor.substring(1);
 					}
 				}
 				if (maxGradePoint != null)
@@ -8942,15 +8970,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
 							try
 							{
+								String factor = StringUtils.trimToNull(attributes.getValue("scaled_factor"));
+								if (factor == null)
+								{
+									factor = String.valueOf(AssignmentConstants.DEFAULT_SCALED_FACTOR);
+								}
+								m_factor = Integer.parseInt(factor);
 								// %%%zqian
-								// read the scaled max grade point first; if there is none, get the old max grade value and multiple by 10
+								// read the scaled max grade point first; if there is none, get the old max grade value and multiple by "factor"
 								String maxGradePoint = StringUtils.trimToNull(attributes.getValue("scaled_maxgradepoint"));
 								if (maxGradePoint == null)
 								{
 									maxGradePoint = StringUtils.trimToNull(attributes.getValue("maxgradepoint"));
 									if (maxGradePoint != null)
 									{
-										maxGradePoint = maxGradePoint + "0";
+										maxGradePoint = maxGradePoint + factor.substring(1);
 									}
 								}
 								m_maxGradePoint = maxGradePoint != null ? Integer.parseInt(maxGradePoint) : m_maxGradePoint;
@@ -9071,6 +9105,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			content.setAttribute("submissiontype", String.valueOf(m_typeOfSubmission));
 			content.setAttribute("typeofgrade", String.valueOf(m_typeOfGrade));
 			content.setAttribute("scaled_maxgradepoint", String.valueOf(m_maxGradePoint));
+			content.setAttribute("scaled_factor", String.valueOf(m_factor));
 			content.setAttribute("datecreated", getTimeString(m_timeCreated));
 			content.setAttribute("lastmod", getTimeString(m_timeLastModified));
 
@@ -9127,6 +9162,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				m_typeOfSubmission = content.getTypeOfSubmission();
 				m_typeOfGrade = content.getTypeOfGrade();
 				m_maxGradePoint = content.getMaxGradePoint();
+				m_factor = content.getFactor();
 				m_groupProject = content.getGroupProject();
 				m_individuallyGraded = content.individuallyGraded();
 				m_releaseGrades = content.releaseGrades();
@@ -9400,23 +9436,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			return m_maxGradePoint;
 		}
+		
+		public int getFactor() 
+		{
+			return m_factor;
+		}
 
 		/**
-		 * Get the maximum grade for grade type = SCORE_GRADE_TYPE(3) Formated to show one decimal place
+		 * Get the maximum grade for grade type = SCORE_GRADE_TYPE(3) Formated to show "factor" decimal places
 		 * 
 		 * @return The maximum grade score.
 		 */
 		public String getMaxGradePointDisplay()
 		{
-			// formated to show one decimal place, for example, 1000 to 100.0
-			String one_decimal_maxGradePoint = m_maxGradePoint / 10 + "." + (m_maxGradePoint % 10);
+			// get the number of decimals
+			int factor = getFactor();
+			// formated to show factor decimal places, for example, 1000 to 100.0
 			// get localized number format
-			NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);				
+			NumberFormat nbFormat = FormattedText.getNumberFormat((int)Math.log10(factor),(int)Math.log10(factor),false);				
 			// show grade in localized number format
-			Double dblGrade = new Double(one_decimal_maxGradePoint);
-			one_decimal_maxGradePoint = nbFormat.format(dblGrade);
+			Double dblGrade = new Double(m_maxGradePoint/(double)factor);
+			String decimal_maxGradePoint = nbFormat.format(dblGrade);
 			
-			return one_decimal_maxGradePoint;
+			return decimal_maxGradePoint;
 		}
 
 		/**
@@ -9843,6 +9885,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 			m_maxGradePoint = maxPoints;
 		}
+		
+		public void setFactor(int factor)
+		{
+			m_factor = factor;
+		}
 
 		/**
 		 * Set whether this project can be a group project.
@@ -10101,6 +10148,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected String m_feedbackText;
 
 		protected String m_grade;
+		
+		protected int m_factor;
 
 		protected boolean m_submitted;
 
@@ -10659,6 +10708,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_id = el.getAttribute("id");
 			m_context = el.getAttribute("context");
 
+			String factor = StringUtils.trimToNull(el.getAttribute("scaled_factor"));
+			if (factor == null) {
+				factor = String.valueOf(AssignmentConstants.DEFAULT_SCALED_FACTOR);
+			}
+			m_factor = Integer.parseInt(factor);
 			// %%%zqian
 			// read the scaled grade point first; if there is none, get the old grade value
 			String grade = StringUtils.trimToNull(el.getAttribute("scaled_grade"));
@@ -10670,8 +10724,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					try
 					{
 						Integer.parseInt(grade);
-						// for the grades in points, multiple those by 10
-						grade = grade + "0";
+						// for the grades in points, multiple those by factor
+						grade = grade + factor.substring(1);
 					}
 					catch (Exception e)
 					{
@@ -10946,6 +11000,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_context = attributes.getValue("context");
 							// M_log.info(this + " BASE SUBMISSION : CONSTRUCTOR : m_context : " + m_context);
 
+							String factor = StringUtils.trimToNull(attributes.getValue("scaled_factor"));
+							if (factor == null) {
+								factor = String.valueOf(AssignmentConstants.DEFAULT_SCALED_FACTOR);
+							}
 							// %%%zqian
 							// read the scaled grade point first; if there is none, get the old grade value
 							String grade = StringUtils.trimToNull(attributes.getValue("scaled_grade"));
@@ -10957,8 +11015,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									try
 									{
 										Integer.parseInt(grade);
-										// for the grades in points, multiple those by 10
-										grade = grade + "0";
+										// for the grades in points, multiple those by factor
+										grade = grade + factor.substring(1);
 									}
 									catch (Exception e)
 									{
@@ -11155,6 +11213,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			submission.setAttribute("id", m_id == null ? "" : m_id);
 			submission.setAttribute("context", m_context == null ? "" : m_context);
 			submission.setAttribute("scaled_grade", m_grade == null ? "" : m_grade);
+			submission.setAttribute("scaled_factor", String.valueOf(m_factor));
 			submission.setAttribute("assignment", m_assignment == null ? "" : m_assignment);
 
 			submission.setAttribute("datesubmitted", getTimeString(m_timeSubmitted));
@@ -11602,7 +11661,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								// return grade with locale decimal separator
 								String decSeparator = FormattedText.getDecimalSeparator();
 								rv = StringUtils.replace(gString, (",".equals(decSeparator)?".":","), decSeparator);
-								NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);
+								NumberFormat nbFormat = FormattedText.getNumberFormat((int)Math.log10(m.getContent().getFactor()),(int)Math.log10(m.getContent().getFactor()),false);
 								DecimalFormat dcformat = (DecimalFormat) nbFormat;
 								Double dblGrade = dcformat.parse(rv).doubleValue();
 								rv = nbFormat.format(dblGrade);
@@ -11641,33 +11700,35 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				if (grade != null && grade.length() > 0 && !"0".equals(grade))
 				{
-					String one_decimal_gradePoint = "";
+					int factor = getAssignment().getContent().getFactor();
+					int dec = (int)Math.log10(factor);
+					String decimal_gradePoint = "";
 					try
 					{
 						Integer.parseInt(grade);
-						// if point grade, display the grade with one decimal place
-						one_decimal_gradePoint =  grade.substring(0, grade.length() - 1) + "." + grade.substring(grade.length() - 1);
+						// if point grade, display the grade with factor decimal place
+						decimal_gradePoint =  grade.substring(0, grade.length() - dec) + "." + grade.substring(grade.length() - dec);
 					}
 					catch (NumberFormatException e) {
 						try {
 							Float.parseFloat(grade);
-							one_decimal_gradePoint = grade;
+							decimal_gradePoint = grade;
 						}
 						catch (Exception e1) {
 							return grade;
 						}
 					}
 					// get localized number format
-					NumberFormat nbFormat = FormattedText.getNumberFormat(1,1,false);				
+					NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);				
 					// show grade in localized number format
 					try {
-						Double dblGrade = new Double(one_decimal_gradePoint);
-						one_decimal_gradePoint = nbFormat.format(dblGrade);
+						Double dblGrade = new Double(decimal_gradePoint);
+						decimal_gradePoint = nbFormat.format(dblGrade);
 					}
 					catch (Exception e) {
 						return grade;
 					}
-					return one_decimal_gradePoint;
+					return decimal_gradePoint;
 				}
 				else
 				{
