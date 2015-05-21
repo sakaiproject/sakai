@@ -108,6 +108,7 @@
 
 
       </script>
+	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       
  
       </head>
