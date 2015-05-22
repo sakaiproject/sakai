@@ -36,7 +36,7 @@ By default source is morpheus-master and target is morpheus-default, but you can
 
 `mvn clean install -Pcompile-skin -Dsakai.skin.source=<morpheus-source> -Dsakai.skin.target=<morpheus-target>`
 
-We have uploaded a icons version compiled by:
+We have uploaded a non-icons version compiled by:
 
 `mvn clean install -Pcompile-skin -Dsakai.skin.target=morpheus-default-noicons -Dsakai.skin.customization.file=./src/morpheus-master/sass/examples/_customization_example_withouticons.scss`
 
@@ -48,8 +48,16 @@ You can use and test your own compass instalation to generate skins by typing in
 
 `compass compile --css-dir=../webapp/skin/morpheus-custom --http-path=/library/skin/morpheus-custom`
 
+# Icons
+
 ## Icons license
 
-Most of the icons are from [Picol](http://http://www.picol.org/), **License:** Creative Commons (Attribution-Share Alike 3.0 Unported). A few more icons have been drawn by Eduardo Rey.
+Some of the icons are from [Picol](http://http://www.picol.org/), **License:** Creative Commons (Attribution-Share Alike 3.0 Unported).
 
-If the number of icons grows enough, we can upgrade morpheus with vector fonts. Now, it's smaller having 4 sprite sets depending on color.
+Eduardo Rey's icons are all [GNU GENERAL PUBLIC LICENSE](https://github.com/SedueRey/morpheus-icons/blob/master/LICENSE)
+
+### Note about icons
+
+There's a [github repository](https://github.com/SedueRey/morpheus-icons) I, Eduardo, have created with all base SVG and a little script to generate all sets we are using.
+
+If the number of icons grows enough, we can upgrade morpheus and the exporting script with vector fonts. Now, it's smaller having 4 sprite sets depending on color.
