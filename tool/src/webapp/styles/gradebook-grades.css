@@ -479,8 +479,30 @@ div.wicket-modal div.w_content_container {
 div.wicket-modal div.w_content_container > div > h2:first-child,
 div.wicket-modal div.w_content_container > div > form > h2:first-child {
   /* remove the large morpheus top padding and margin from the first header element */
-  padding-top: 0;
-  margin-top: 0;
+  padding: 0 0 20px;
+  margin: 0 0 20px;
+  border-bottom: 1px solid #EEE;
+}
+div.wicket-modal .w_topLeft,
+div.wicket-modal .w_top,
+div.wicket-modal .w_topRight,
+div.wicket-modal .w_bottomLeft,
+div.wicket-modal .w_bottom,
+div.wicket-modal .w_bottomRight {
+  background-image: none !important;
+}
+div.wicket-modal div.w_left,
+div.wicket-modal div.w_right {
+  background-image: none !important;
+}
+div.wicket-modal a.w_close {
+  margin: 6px;
+}
+div.wicket-modal div.w_caption {
+  cursor: move;
+}
+div.wicket-modal div.w_right > div {
+  box-shadow: 0 0 5px 2px #444;
 }
 
 /* wrapper for the feedback panel list */
