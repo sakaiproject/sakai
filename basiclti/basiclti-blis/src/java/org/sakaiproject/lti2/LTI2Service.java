@@ -298,10 +298,10 @@ public class LTI2Service extends HttpServlet {
 			key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 			secret = (String) deploy.get(LTIService.LTI_SECRET);
 			secret = SakaiBLTIUtil.decryptSecret(secret);
-			ack = request.getHeader("VND-IMS-ACKNOWLEDGE-URL");
+			ack = request.getHeader("VND-IMS-CONFIRM-URL");
 			if ( ack == null || ack.length() < 1 ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, "Re-registration requires VND-IMS-ACKNOWLEDGE-URL header", null);
+				doErrorJSON(request, response, jsonRequest, "Re-registration requires VND-IMS-CONFIRM-URL header", null);
 				return;
 			}
 		}
@@ -338,15 +338,15 @@ public class LTI2Service extends HttpServlet {
 		}
 
 		String shared_secret = null;
-		String tc_oauth_half_secret = null;
-		String tp_oauth_half_secret = (String) security_contract.get(LTI2Constants.TP_OAUTH_HALF_SECRET);
-		if ( tp_oauth_half_secret != null ) {
+		String tc_half_secret = null;
+		String tp_half_secret = (String) security_contract.get(LTI2Constants.TP_HALF_SECRET);
+		if ( tp_half_secret != null ) {
 			// TODO: Check validity of returned tp half secret here.
 			SecureRandom random = new SecureRandom();
 			byte bytes[] = new byte[512/8];
 			random.nextBytes(bytes);
-			tc_oauth_half_secret =  PortableShaUtil.bin2hex(bytes);
-			shared_secret = tc_oauth_half_secret + tp_oauth_half_secret;
+			tc_half_secret =  PortableShaUtil.bin2hex(bytes);
+			shared_secret = tc_half_secret + tp_half_secret;
 		} else {
 			shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
 		}
@@ -359,7 +359,7 @@ public class LTI2Service extends HttpServlet {
 
 		// Blank out the new shared secret or half shared secret
 		security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
-		security_contract.put(LTI2Constants.TP_OAUTH_HALF_SECRET, "*********");
+		security_contract.put(LTI2Constants.TP_HALF_SECRET, "*********");
 
 		// Make sure that the requested services are a subset of the offered services
 		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
@@ -417,7 +417,7 @@ public class LTI2Service extends HttpServlet {
 		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
 		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
-		jsonResponse.put(LTI2Constants.TC_OAUTH_HALF_SECRET, tc_oauth_half_secret);
+		jsonResponse.put(LTI2Constants.TC_HALF_SECRET, tc_half_secret);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);
