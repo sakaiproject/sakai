@@ -442,7 +442,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
       self.$fixedColumns.
           show().
           css("left", self.$spreadsheet[0].scrollLeft + "px").
-          css("top", self.$table.find("tbody").position().top - 1);
+          css("top", self.$table.find("tbody").position().top);
     } else {
       self.$fixedColumns.hide();
     }
