@@ -101,4 +101,22 @@ public class SectionCmImpl extends AbstractMembershipContainerCmImpl
         public void setMaxSize(Integer maxSize) {
 	    this.maxSize = maxSize;
 	}
+
+	@Override
+	public String getTitle() {
+		if (isTitleEmpty() && enrollmentSet != null) {
+			return enrollmentSet.getTitle();
+		}
+
+		return title;
+	}
+
+	@Override
+	public String getDescription() {
+		if (isDescriptionEmpty() && enrollmentSet != null) {
+			return enrollmentSet.getDescription();
+		}
+
+		return description;
+	}
 }

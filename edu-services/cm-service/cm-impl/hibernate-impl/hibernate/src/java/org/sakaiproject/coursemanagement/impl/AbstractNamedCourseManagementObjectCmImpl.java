@@ -59,4 +59,12 @@ public abstract class AbstractNamedCourseManagementObjectCmImpl
 			.append(getDescription())
 			.toString();
 	}
+
+	protected boolean isTitleEmpty() {
+		return title == null || title.length() == 0;
+	}
+
+	protected boolean isDescriptionEmpty() {
+		return description == null || description.length() == 0;
+	}
 }
