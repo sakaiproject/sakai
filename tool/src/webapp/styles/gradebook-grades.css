@@ -63,6 +63,9 @@
   overflow: hidden;
   line-height: 1.4em;
 }
+#gradebookGrades th .gb-title .gb-external-app-flag {
+  float: left;
+}
 #gradebookGrades th .gb-average,
 #gradebookGrades th .gb-due-date {
   font-size: 0.8em;
@@ -396,10 +399,6 @@
 #gradeItemsTogglePanel label {
   float: left;
   width: 90%;
-}
-#gradeItemsTogglePanel label.category-partial-filter .gradebook-item-category-filter-signal:before {
-  font-family: 'nyu-classes-icons';
-  content: '\e060';
 }
 #gradeItemsTogglePanel .gradebook-filter-partial-signal {
   display: block;
