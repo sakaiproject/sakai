@@ -2064,18 +2064,40 @@ $(function() {
 	dropDownViaClick = false;
 
 	// Dropdown jQuery - for #addContentDropdown and #addPagesDropdown
-	$("li.tabTrigger").hover(function(){
-		$('ul:first',this).stop().show();
-	}, function(){
-		$('ul:first',this).stop().hide();
-	});
-	$("li.tabTrigger a").focus(function(){
-		$(this).parent().find('ul').show();
-	});
-	$("li.tabTrigger ul li:last-child a").blur(function(){
-		$(this).parent().parent().hide();
-	});
-
+	//	$("li.tabTrigger").hover(function(){
+	///		$('ul:first',this).stop().show();
+	//	}, function(){
+	//		$('ul:first',this).stop().hide();
+	//	});
+	// opening on hover causes trouble with screen readers, and the rest of Sakai
+	// doesn't do it that way
+	$("li.tabTrigger a.lb-button").click(function(){
+		var hidden = ($(this).parent().find('ul').css("display") === "none");
+		if (hidden) {
+		    $(this).parent().find('ul').show().attr('aria-expanded','true');
+		    $(this).attr('aria-expanded','true');
+		} else {
+		    $(this).parent().find('ul').hide().attr('aria-expanded','false');
+		    $(this).attr('aria-expanded','false');
+		}
+	    });
+	// only support this for mouse. When using Voiceover I can't get
+	// consistent behavior with any of the focus options
+	$("li.tabTrigger").mouseenter(function() {
+		$(this).find('ul').show().attr('aria-expanded','true');
+		$(this).find('a.lb-button').attr('aria-expanded','true');
+	    });
+	$("li.tabTrigger").mouseleave(function() {
+		$(this).find('ul').hide().attr('aria-expanded','false');
+		$(this).find('a.lb-button').attr('aria-expanded','false');
+	    });
+	// escape closes menu. Voiceover assumes this
+	$("li.tabTrigger").on('keyup',function(evt) {
+		if (evt.which == 27) {
+		    $(this).find('ul').hide().attr('aria-expanded','false');
+		    $(this).find('a.lb-button').attr('aria-expanded','false');
+		};
+	    });
 	return false;
 });
 

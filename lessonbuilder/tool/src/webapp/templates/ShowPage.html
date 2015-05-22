@@ -77,7 +77,7 @@
     }
 </script>
 
-<div class="portletBody" id="outer" role="application" style="z-index:1">
+<div class="portletBody" id="outer" style="z-index:1">
 
     <div rsf:id="needPermissions">
         <p rsf:id="msg=simplepage.needpermissions"></p>
@@ -107,9 +107,9 @@
     <br rsf:id="breakAfterWarnings"/>
 
     <div rsf:id="titlediv" class="neoPortletTitleWrap">
-        <div class="portletTitle title-tools">
+        <div class="portletTitle title-tools" role="navigation">
             <div class="title">
-                <div rsf:id="crumbdiv" class="fullwidth breadcrumbs" role="navigation">
+                <div rsf:id="crumbdiv" class="fullwidth breadcrumbs">
                     <a href="#" rsf:id="resetbutton2" class="reload">
                         <img rsf:id="resetimage2" src="/library/image/transparent.gif"/>
                     </a>
@@ -131,8 +131,10 @@
                 <a class="lb-button lb-button-primary" href="#" rsf:id="print-view" id="print-view"
                    onclick="window.open(printView(window.location.href));return false" role="button"></a>
 
+<!-- using H2 rather than a landmark because the obvious landmarks switch into forms mode, which prevents it from being read as intended -->
 <!--i18n-->
-                <div rsf:id="gradingSpan" class="gradingarea" role="heading" aria-level="2" title="grading">
+                <div rsf:id="gradingSpan" class="gradingarea">
+                    <h2 id="gradingheader" class="offscreen">Grading</h2>
                     <a href="#" rsf:id="gradingBack" class="usebutton grading-nextprev">&#60;</a>
                     <img class="statusImg" src="$context/images/no-status.png" id="statusImg" alt=""/>
                     <span class="comments-points" rsf:id="msg=simplepage.comments-points"></span>
@@ -171,7 +173,7 @@
         </div>
 
 <!--i18n-->
-        <div rsf:id="tool-bar:" class="lb-toolbar" id="toolbar" role="toolbar" aria-label="content tools">
+        <div rsf:id="tool-bar:" class="lb-toolbar" id="toolbar" role="application" aria-label="content tools">
             <div class="toolbar-left">
                 <!-- Add Text Button -->
                 <div class="toolbar-item"> 
@@ -179,7 +181,6 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                         <img src="/lessonbuilder-tool/images/new-text.png"/> 
 		    </div>
-		    <br/>
 		    <div class="toolbar-label">
 		      TEXT
 		    </div>
@@ -192,7 +193,6 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/link.png" alt=""/> 
 		    </div>
-		    <br/>
 		    <div class="toolbar-label">
 		      LINK
 		    </div>
@@ -205,7 +205,6 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/embed.png" alt=""/> 
 		    </div>
-		    <br/>
 		    <div class="toolbar-label">
 		      EMBED
 		    </div>
@@ -218,7 +217,6 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/new-subpage.png" alt=""/> 
 		    </div>
-		    <br/>
 		    <div class="toolbar-label">
 		      SUBPAGE
 		    </div>
@@ -229,11 +227,11 @@
                 <div id="addContentDropdown" class="toolbar-item lb-dropdown"> 
                     <ul>
                         <li class="tabTrigger">
-                            <a href="#" class="lb-button lb-button-toolbar" role="button" aria-haspopup="true"> 
+                            <a id="addContentTrigger" href="#" class="lb-button lb-button-toolbar" role="button" aria-haspopup="true" aria-owns="addContentDiv" aria-controls="addContentDiv" aria-expanded="false"> 
                                 <span rsf:id="msg=simplepage.add-content"></span>&nbsp;&nbsp;
                                 <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/down.png"/> 
                             </a>
-                            <ul id="addContentDiv" role="menu">
+                            <ul id="addContentDiv" role="menu" aria-expanded="false">
                                 <li rsf:id="assignment-li">
                                     <a role="menuitem" href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
                                 </li>
@@ -258,7 +256,7 @@
                                 <li rsf:id="blti-tool:">
                                     <a href="#" role="menuitem" rsf:id="add-blti-tool"><span rsf:id="msg.simplepage.blti"></span></a>
                                 </li>
-                                <li rsf:id="blti-li">
+                                <li rsf:id="blti-li" id="xx">
                                     <a href="#" role="menuitem" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
                                 </li>
                             </ul>
@@ -271,11 +269,11 @@
                 <div id="addPagesDropdown" class="toolbar-item lb-dropdown"> 
                     <ul>
                         <li class="tabTrigger">
-                            <a href="#" class="lb-button lb-button-toolbar" role="button" aria-haspopup="true"> 
+                            <a href="#" class="lb-button lb-button-toolbar" role="button" aria-haspopup="true" aria-owns="moreOptionsDiv" aria-controls="moreOptionsDiv" aria-expanded="false"> 
                                  <span rsf:id="msg=simplepage.more-tools"></span>&nbsp;&nbsp; 
                                 <img class="toolbar-icon-img" src="/lessonbuilder-tool/images/down.png"/> 
                             </a>
-                            <ul role="menu">
+                            <ul id="moreOptionsDiv" role="menu" aria-expanded="false">
                                 <li rsf:id="title-descrip">
                                     <a href="#" role="menuitem" rsf:id="edit-title" id="edit-title"><span
                                             rsf:id="msg=simplepage.page_settings"></span></a>
@@ -307,7 +305,6 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/sort.png" alt=""/> 
 		    </div>
-		    <br/>
 		    <div class="toolbar-label">
 		      REORDER
 		    </div>
@@ -320,7 +317,6 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/lock.png" alt=""/> 
 		    </div>
-		    <br/>
 		    <div class="toolbar-label">
 		      PERMISSIONS
 		    </div>
@@ -333,7 +329,6 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/info-circle.png" alt=""/> 
 		    </div>
-		    <br/>
 		    <div class="toolbar-label">
 		      TIPS
 		    </div>

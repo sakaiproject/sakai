@@ -339,7 +339,7 @@
 }
 .portletBody .lb-dropdown ul li:hover > ul,
 .portletBody .lb-dropdown ul li:focus > ul {
-  display: block;
+/*  display: block; */
 }
 .portletBody .lb-dropdown ul a {
   display: block;
