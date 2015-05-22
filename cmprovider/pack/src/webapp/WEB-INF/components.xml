@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+  <bean id="hibernateService" class="org.sakaiproject.cmprovider.CmProviderHibernateService">
+    <property name="sessionFactory">
+      <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
+    </property>
+  </bean>
+
+  <bean id="AbstractCmEntityProvider" abstract="true" class="org.sakaiproject.cmprovider.AbstractCmEntityProvider">
+    <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
+    <property name="cmAdmin" ref="org.sakaiproject.coursemanagement.api.CourseManagementAdministration" />
+    <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
+    <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
+    <property name="hibernateService" ref="hibernateService" />
+  </bean>
+
+  <bean id="org.sakaiproject.cmprovider.api.AcademicSessionEntityProvider"
+    class="org.sakaiproject.cmprovider.AcademicSessionEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.CanonicalCourseEntityProvider"
+    class="org.sakaiproject.cmprovider.CanonicalCourseEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.CourseOfferingEntityProvider"
+    class="org.sakaiproject.cmprovider.CourseOfferingEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.CourseSetEntityProvider"
+    class="org.sakaiproject.cmprovider.CourseSetEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.EnrollmentEntityProvider"
+    class="org.sakaiproject.cmprovider.EnrollmentEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.EnrollmentSetEntityProvider"
+    class="org.sakaiproject.cmprovider.EnrollmentSetEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.SectionEntityProvider"
+    class="org.sakaiproject.cmprovider.SectionEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.SectionCategoryEntityProvider"
+    class="org.sakaiproject.cmprovider.SectionCategoryEntityProviderImpl" parent="AbstractCmEntityProvider" />
+
+  <bean id="org.sakaiproject.cmprovider.api.MeetingEntityProvider"
+    class="org.sakaiproject.cmprovider.MeetingEntityProviderImpl" parent="AbstractCmEntityProvider" />
+</beans>

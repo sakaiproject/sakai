@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+  <name>Course Management Provider</name>
+  <groupId>org.sakaiproject.cmprovider</groupId>
+  <artifactId>cmprovider-base</artifactId>
+  
+  <organization>
+    <name>Texas State University</name>
+    <url>http://www.txstate.edu</url>
+  </organization>
+  <inceptionYear>2014</inceptionYear>
+  
+  <version>11-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <parent>
+    <groupId>org.sakaiproject</groupId>
+    <artifactId>master</artifactId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <modules>
+    <module>api</module>
+    <module>impl</module>
+    <module>pack</module>
+  </modules>
+</project>
