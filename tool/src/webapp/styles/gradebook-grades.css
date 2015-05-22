@@ -43,6 +43,9 @@
 #gradebookGrades table.table-striped>tbody>tr:nth-of-type(even) {
   background-color: #FFF;
 }
+#gradebookGrades table.table-striped>tbody>tr:nth-of-type(even):hover {
+  background-color: #f5f5f5;
+}
 #gradebookGrades th,
 #gradebookGrades td {
   min-width: 180px;
