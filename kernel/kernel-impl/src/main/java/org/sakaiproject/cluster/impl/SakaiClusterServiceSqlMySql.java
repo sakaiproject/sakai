@@ -34,7 +34,7 @@ public class SakaiClusterServiceSqlMySql extends SakaiClusterServiceSqlDefault
 	 */
 	public String getListExpiredServers(long timeout)
 	{
-		return "select SERVER_ID from SAKAI_CLUSTER where SERVER_ID != ? and UPDATE_TIME < CURRENT_TIMESTAMP() - INTERVAL " + timeout + " SECOND";
+		return "select SERVER_ID_INSTANCE from SAKAI_CLUSTER where SERVER_ID_INSTANCE != ? and UPDATE_TIME < CURRENT_TIMESTAMP() - INTERVAL " + timeout + " SECOND";
 	}
 
 	/**

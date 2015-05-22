@@ -2,7 +2,7 @@
 <script type="text/javascript">
 	focus_path = [ "selected-item" ];
 </script>
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	<!--
 	function submitform(id)
 	{

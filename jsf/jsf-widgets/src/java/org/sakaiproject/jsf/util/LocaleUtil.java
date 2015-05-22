@@ -54,6 +54,7 @@ public class LocaleUtil {
 	
 	private static Object sakaiResourceLoader = null;
 	private static Method sakaiResourceLoaderGetLocale;
+	private static Method sakaiResourceLoaderGetOrientation;
 	private static boolean isInitialized = false;
 	
 	private static void init() {
@@ -64,6 +65,7 @@ public class LocaleUtil {
 				if (log.isDebugEnabled()) log.debug("Found Sakai ResourceLoader class");
 				Constructor sakaiResourceLoaderConstructor = sakaiResourceLoaderClass.getConstructor();
 				sakaiResourceLoaderGetLocale = sakaiResourceLoaderClass.getMethod("getLocale");
+				sakaiResourceLoaderGetOrientation = sakaiResourceLoaderClass.getMethod("getOrientation",new Class[]{Locale.class});
 				sakaiResourceLoader = sakaiResourceLoaderConstructor.newInstance();
 			} catch (ClassNotFoundException e) {
 				if (log.isDebugEnabled()) log.debug("Did not find Sakai ResourceLoader class; will use standard JSF localization");
@@ -113,4 +115,21 @@ public class LocaleUtil {
 		return localized;
 	}
 
+	public static String getOrientation(Locale loc) {
+		String orientation = "ltr";
+		init();	
+		if (sakaiResourceLoader != null) {
+			try {
+				orientation = (String) sakaiResourceLoaderGetOrientation.invoke(sakaiResourceLoader, new Object[]{loc});
+			} catch (IllegalArgumentException e) {
+				if (log.isErrorEnabled()) log.error(e);
+			} catch (IllegalAccessException e) {
+				if (log.isErrorEnabled()) log.error(e);
+			} catch (InvocationTargetException e) {
+				if (log.isErrorEnabled()) log.error(e);
+			}
+		}
+		return orientation;
+	}
+	
 }

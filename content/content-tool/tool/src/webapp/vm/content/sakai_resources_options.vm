@@ -1,6 +1,6 @@
 <!-- sakai_resources_options.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
 
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	<!--
 	function submitform(id)
 	{

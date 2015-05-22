@@ -13,6 +13,7 @@ VALIDATOR.firstNameValid = false;
 VALIDATOR.lastNameValid = false;
 VALIDATOR.termsChecked = false;
 VALIDATOR.isPasswordPolicyEnabled = false;
+VALIDATOR.lastSentPasswordLength = 0; // SAK-29099
 
 // Validate the password from the form
 VALIDATOR.validatePassword = function() {
@@ -25,6 +26,11 @@ VALIDATOR.validatePassword = function() {
 	var strengthInfo = VALIDATOR.get("strengthInfo");
 	var strengthBar = VALIDATOR.get("strengthBar");
 	var strengthBarMeter = VALIDATOR.get("strengthBarMeter");
+	
+	// SAK-29099 - password likely hasn't changed, so abort
+	if (pw.length === VALIDATOR.lastSentPasswordLength) {
+		return;
+	}
 	
 	// If the password policy is enabled and the password field has a value
 	if (VALIDATOR.isPasswordPolicyEnabled && pw.length > 0) {
@@ -53,6 +59,9 @@ VALIDATOR.validatePassword = function() {
 					VALIDATOR.passwordValid = true;
 					VALIDATOR.passwordStrong = true;
 				}
+				
+				// SAK-29099 - track current length of input password
+				VALIDATOR.lastSentPasswordLength = pw.length;
 	    	}
 	    });
 		
@@ -99,7 +108,7 @@ VALIDATOR.validatePassword = function() {
 	
 	// Verify the passwords match (which in turn validates the form)
 	VALIDATOR.verifyPasswordsMatch();
-}
+};
 
 // Verify the passwords match
 VALIDATOR.verifyPasswordsMatch = function() {
@@ -119,7 +128,7 @@ VALIDATOR.verifyPasswordsMatch = function() {
 	}
 	
 	VALIDATOR.validateActivateForm();
-}
+};
 
 // Validate the first name on the form
 VALIDATOR.validateFirstName = function() {
@@ -130,7 +139,7 @@ VALIDATOR.validateFirstName = function() {
 	}
 	
 	VALIDATOR.validateActivateForm();
-}
+};
 
 // Validate the last name on the form
 VALIDATOR.validateLastName = function() {
@@ -141,7 +150,7 @@ VALIDATOR.validateLastName = function() {
 	}
 	
 	VALIDATOR.validateActivateForm();
-}
+};
 
 VALIDATOR.validateTermsChecked = function() {
 	VALIDATOR.termsChecked = true;
@@ -152,7 +161,7 @@ VALIDATOR.validateTermsChecked = function() {
 	}
 
 	VALIDATOR.validateActivateForm();
-}
+};
 
 // Conditionally show/hide the strength info message
 VALIDATOR.displayStrengthInfo = function() {
@@ -168,12 +177,12 @@ VALIDATOR.displayStrengthInfo = function() {
 		
 		VALIDATOR.display(strengthInfo, showStrengthInfo);
 	}
-}
+};
 
 // Validate the form (enable/disable the submit button)
 VALIDATOR.validateActivateForm = function() {
 	var submitButton = VALIDATOR.get("addDetailsSub");
-	if (submitButton != null)
+	if (submitButton !== null)
 	{
 		if (VALIDATOR.firstNameValid && VALIDATOR.lastNameValid && VALIDATOR.passwordValid && VALIDATOR.passwordsMatch && VALIDATOR.termsChecked) {
 			submitButton.disabled = false;
@@ -182,7 +191,7 @@ VALIDATOR.validateActivateForm = function() {
 			submitButton.disabled = true;
 		}
 	}
-}
+};
 
 // bbailla2 - enables/disables the Transfer memberships button as well as the yes button based on how the required fields are filled
 VALIDATOR.checkTransferStatus = function() {
@@ -205,17 +214,17 @@ VALIDATOR.checkTransferStatus = function() {
 			transfer.disabled = true;
 		}
 	}
-}
+};
 
 // Get an element by ID
 VALIDATOR.get = function(id) {
 	return document.getElementById(id);
-}
+};
 
 //Determine if the given string is empty/null
 VALIDATOR.isEmpty = function(inputString) {
 	return inputString === null || inputString.length === 0 || inputString.replace(/^\s*/, "").replace(/\s*$/, "") === "";
-}
+};
 
 // Show/hide the given element
 VALIDATOR.display = function(element, show) {
@@ -225,7 +234,7 @@ VALIDATOR.display = function(element, show) {
 	else {
 		element.style.display = "none";
 	}
-}
+};
 
 // Original document ready function
 $(document).ready(function() {

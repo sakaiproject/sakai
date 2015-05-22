@@ -7,7 +7,10 @@ function show_editor(client_id, frame_id) {
 		setBlockDivs();
 		retainHideUnhideStatus('none');
 	}
-	document.getElementById(client_id + "_toggle").style.display = "none";
+	var toggle=document.getElementById(client_id + "_toggle");
+	if(toggle!==null){
+		toggle.style.display = "none";
+	}
 }
 
 function encodeHTML(text) {

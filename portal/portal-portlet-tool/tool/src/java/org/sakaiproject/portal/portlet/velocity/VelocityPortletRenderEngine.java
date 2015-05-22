@@ -80,8 +80,8 @@ public class VelocityPortletRenderEngine implements PortletRenderEngine
 	{
 		Context vc = ((VelocityPortletRenderContext) rcontext)
 				.getVelocityContext();
-		vengine.getTemplate("neoskin/macros.vm");
-		vengine.mergeTemplate("neoskin/" + template + ".vm",
+		vengine.getTemplate("morpheus/macros.vm");
+		vengine.mergeTemplate("morpheus/" + template + ".vm",
 				((VelocityPortletRenderContext) rcontext).getVelocityContext(),
 				out);
 

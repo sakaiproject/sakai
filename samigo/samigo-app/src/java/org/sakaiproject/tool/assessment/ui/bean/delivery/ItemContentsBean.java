@@ -34,6 +34,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.MediaData;
@@ -248,7 +249,7 @@ public class ItemContentsBean implements Serializable {
 	 * @return String representation of the points.
 	 */
 	public double getPoints() {
-		return SectionContentsBean.roundTo2Decimals(points);
+		return MathUtils.round(points, 2);
 	}
 
 	/**
@@ -304,7 +305,7 @@ public class ItemContentsBean implements Serializable {
      * @return String representation of the discount.
      */
     public double getDiscount() {
-    	 return SectionContentsBean.roundTo2Decimals(discount);
+    	 return MathUtils.round(discount, 2);
     }
 
     /**
@@ -471,7 +472,7 @@ public class ItemContentsBean implements Serializable {
 	 * @return String representation of the max points.
 	 */
 	public double getRoundedMaxPoints() {
-		return SectionContentsBean.roundTo2Decimals(maxPoints);
+		return MathUtils.round(maxPoints, 2);
 	}
 
 	/**
@@ -1235,8 +1236,9 @@ public class ItemContentsBean implements Serializable {
 	 */
 	public String getPointsDisplayString() {
 		String pointsDisplayString = "";
+System.out.println("zz01: " + points);
 		if (showStudentQuestionScore) {
-			pointsDisplayString = SectionContentsBean.roundTo2Decimals(points)
+			pointsDisplayString = MathUtils.round(points, 2)
 					+ "/";
 		}
 		return pointsDisplayString;
@@ -1246,7 +1248,8 @@ public class ItemContentsBean implements Serializable {
 		if (text != null) {
 			//text = text.replaceAll("<.*?>", " ");
 			//text = FormattedText.convertFormattedTextToPlaintext(text);
-			text = FormattedText.stripHtmlFromText(text, true); // SAM-2277
+			//text = FormattedText.stripHtmlFromText(text, true); // SAM-2277
+			text = FormattedText.stripHtmlFromText( text, false, true ).trim(); // SAM-2499
 		}
 		return text;
 
@@ -1283,7 +1286,7 @@ public class ItemContentsBean implements Serializable {
   }
 
   public Double getUpdatedScore () {
-	  return itemData.getScore();
+	  return MathUtils.round(itemData.getScore(), 2);
   }
 	 
   public void setUpdatedScore(Double score) {

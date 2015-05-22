@@ -30,7 +30,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.api.privacy.PrivacyManager;
-import org.sakaiproject.api.privacy.PrivacyRecord;
 import org.sakaiproject.test.SakaiTestBase;
 
 public class PrivacyTest extends SakaiTestBase

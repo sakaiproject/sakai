@@ -36,21 +36,6 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
 
     public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer) throws LTIException {
 
-        String ltiRole = null;
-
-        if (!trustedConsumer) {
-            ltiRole = (String) payload.get(BasicLTIConstants.ROLES);
-            if (ltiRole == null) {
-                ltiRole = "";
-            } else {
-                ltiRole = ltiRole.toLowerCase();
-            }
-        }
-
-        if (M_log.isDebugEnabled()) {
-            M_log.debug("ltiRole=" + ltiRole);
-        }
-
         // Check if the user is a member of the site already
         boolean userExistsInSite = false;
         try {
@@ -71,6 +56,26 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
         // Otherwise, add them to the site
         if (!userExistsInSite && trustedConsumer) {
             throw new LTIException( "launch.site.user.missing", "user_id="+user.getId()+ ", siteId="+site.getId(), null);
+        }
+
+        String ltiRole = null;
+
+        if (trustedConsumer) {
+            // If the launch is from a trusted consumer, just return the user's
+            // role in the site. No need to map.
+            Member member = site.getMember(user.getId());
+            return new AbstractMap.SimpleImmutableEntry(ltiRole, member.getRole().getId());
+        } else {
+            ltiRole = (String) payload.get(BasicLTIConstants.ROLES);
+            if (ltiRole == null) {
+                ltiRole = "";
+            } else {
+                ltiRole = ltiRole.toLowerCase();
+            }
+        }
+
+        if (M_log.isDebugEnabled()) {
+            M_log.debug("ltiRole=" + ltiRole);
         }
 
         try {

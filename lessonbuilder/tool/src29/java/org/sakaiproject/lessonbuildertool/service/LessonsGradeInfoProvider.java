@@ -72,7 +72,7 @@ public class LessonsGradeInfoProvider implements ExternalAssignmentProvider {
     public void destroy() {
         log.info("DESTROY and unregister LessonsGradeInfoProvider");
         geaService.unregisterExternalAssignmentProvider(getAppKey());
-	cache.destroy();
+	cache.close();
 	cache = null;
     }
 

@@ -719,8 +719,8 @@ public class SakaiProxyImpl implements SakaiProxy {
 				StringBuilder sb = new StringBuilder();
 				sb.append("From: ");
 				sb.append(getServiceName());
-				sb.append(" <no-reply@");
-				sb.append(getServerName());
+				sb.append(" <");
+				sb.append(serverConfigurationService.getString("setup.request", "no-reply@" + getServerName()));
 				sb.append(">");
 				
 				return sb.toString();
@@ -1066,6 +1066,20 @@ public class SakaiProxyImpl implements SakaiProxy {
  	*/
 	public boolean isMessagingEnabledGlobally() {
 		return serverConfigurationService.getBoolean("profile2.messaging.enabled", true);
+	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isSearchEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.search.enabled", true);
+	}
+
+	/**
+ 	* {@inheritDoc}
+ 	*/
+	public boolean isConnectionsEnabledGlobally() {
+		return serverConfigurationService.getBoolean("profile2.connections.enabled", true);
 	}
 	
 	/**

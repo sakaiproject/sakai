@@ -68,7 +68,6 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	protected String m_relativeAccessPoint = null;
 
 	/** A cache of calls to the service and the results. */
-	protected Cache m_callCache = null; // TODO remove this after 10 - KNL-1229
 	/** The # seconds to cache gets. 0 disables the cache. */
 	protected int m_cacheSeconds = 0;
 
@@ -347,20 +346,6 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 			m_storage = newStorage();
 			m_storage.open();
 
-			// <= 0 indicates no caching desired
-			if ((m_cacheSeconds > 0) && (m_cacheCleanerSeconds > 0))
-			{
-                boolean useLegacy = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
-                if (useLegacy) {
-                    m_callCache = memoryService().newCache(
-                            "org.sakaiproject.alias.api.AliasService.callCache",
-                            aliasReference(""));
-                    M_log.info("org.sakaiproject.alias.api.AliasService.callCache is enabled, will be removed after Sakai 10");
-                } else {
-                    M_log.info("org.sakaiproject.alias.api.AliasService.callCache is disabled, will be removed after Sakai 10");
-                }
-			}
-
 			// register as an entity producer
 			entityManager().registerEntityProducer(this, REFERENCE_ROOT);
 
@@ -558,31 +543,9 @@ public abstract class BaseAliasService implements AliasService, SingleStorageUse
 	{
 		// check the cache
 		String ref = aliasReference(alias);
-		if (m_callCache != null)
-		{
-			String t = (String) m_callCache.get(ref);
-			if ( t != null )
-			{
-				return t;
-			}
-			else
-			{
-				if (m_callCache.containsKey(ref))
-				{
-					M_log.warn("Null Cache Entry found, should not happen SAK-12447 ref="+ref);
-				}
-			}
-		}
 
 		BaseAliasEdit a = (BaseAliasEdit) m_storage.get(alias);
 		if (a == null) throw new IdUnusedException(alias);
-
-		// cache
-		if (m_callCache != null) {
-			if ( a.getTarget() != null ) {
-				m_callCache.put(ref, a.getTarget());
-			}
-		}
 
 		return a.getTarget();
 

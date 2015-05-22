@@ -170,7 +170,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 		}
 
 		public boolean authenticateWithProviderFirst(String loginId) {
-			return !loginId.equals("LOGINprovidernotfirst");
+			return !loginId.equals("loginprovidernotfirst");
 		}
 
 		public boolean findUserByEmail(UserEdit edit, String email) {
@@ -202,8 +202,8 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 
 		public UserEdit getAuthenticatedUser(String loginId, String password) {
 			log.debug("getAuthenticatedUser " + loginId + ", " + password);
-			if (!loginId.startsWith("LOGINprovide")) return null;
-			String eid = loginId.substring("LOGIN".length());
+			if (!loginId.startsWith("loginprovide")) return null;
+			String eid = loginId.substring("login".length());
 			if (password.equals(eid + "PW")) {
 				if (eid.equals("providercreated")) {
 					return createOrUpdateUserAfterAuthentication(eid, password);

@@ -1,5 +1,8 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_revise.vm,v 1.5 2005/06/14 20:13:33 suiyy.umich.edu Exp $
 
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
+</script>
+
 <script type="text/javascript">
 focus_path = [ "activitytitle" ];
 
@@ -299,8 +302,12 @@ function resizeFrame(){
         }
     }
 }
-</script>
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
+
+$(function() {
+    if($('.alertMessage').length ===1){
+        $('.alertMessage').attr('tabindex',-1).focus();
+    };
+});
 </script>
 
 

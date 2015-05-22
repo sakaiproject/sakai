@@ -99,7 +99,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.rsf.state.support.TMLFixer;
-
+import org.apache.commons.lang.StringUtils;
 /**
  *
  * @author casong
@@ -113,6 +113,13 @@ public class DeliveryBean
 {
   private static Log log = LogFactory.getLog(DeliveryBean.class);
 
+  //SAM-2517
+  private ServerConfigurationService serverConfigurationService;
+  
+  private static final String MATHJAX_ENABLED = "mathJaxEnabled";
+  private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
+  private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP, "");
+  
   private String assessmentId;
   private String assessmentTitle;
   private Boolean honorPledge = Boolean.FALSE;
@@ -3726,13 +3733,20 @@ public class DeliveryBean
 				  
 				  if (item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE.longValue() || 
 						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CORRECT_SINGLE_SELECTION.longValue() ||
-						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue()) {
-
+						  item.getItemData().getTypeId().longValue() == TypeIfc.MULTIPLE_CHOICE_SURVEY.longValue() ||
+						  item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()) {
 					  item.setUnanswered(true);
-					  for (int k=0; k<item.getSelectionArray().size(); k++) {
-						  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
-						  //selection.setResponse(false);
-						  selection.setResponseFromCleanRadioButton();
+					  if(item.getItemData().getTypeId().longValue() == TypeIfc.MATRIX_CHOICES_SURVEY.longValue()){
+						  for (int k=0; k<item.getMatrixArray().size(); k++) {
+							  MatrixSurveyBean selection = (MatrixSurveyBean)item.getMatrixArray().get(k);
+							  selection.setResponseFromCleanRadioButton();
+						  }
+					  }else{
+						  for (int k=0; k<item.getSelectionArray().size(); k++) {
+							  SelectionBean selection = (SelectionBean)item.getSelectionArray().get(k);
+							  //selection.setResponse(false);
+							  selection.setResponseFromCleanRadioButton();
+						  }
 					  }
 					  
 					  ArrayList itemGradingData = new ArrayList();
@@ -3987,6 +4001,19 @@ public class DeliveryBean
 	  
 	  public boolean getFirstTimeTaking() {
 		  return firstTimeTaking;
+	  }
+	  //SAM-2517
+	  public boolean getIsMathJaxEnabled(){ 
+		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
+		  String strMathJaxEnabled = getCurrentSite(siteId).getProperties().getProperty(MATHJAX_ENABLED); 
+		  return StringUtils.contains(strMathJaxEnabled, "sakai.samigo");
+	  }
+	  public String getMathJaxHeader(){
+		  StringBuilder headMJ = new StringBuilder();
+		  headMJ.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['$$','$$'],['\\\\(','\\\\)']] }, TeX: { equationNumbers: { autoNumber: 'AMS' } }\n});\n</script>\n");
+		  headMJ.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n");
+		  return headMJ.toString();
 	  }
 	  
 }

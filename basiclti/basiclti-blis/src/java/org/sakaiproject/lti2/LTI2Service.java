@@ -26,6 +26,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.TreeMap;
 
+import java.security.SecureRandom;
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -46,6 +48,7 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.sakaiproject.basiclti.util.PortableShaUtil;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIService;
@@ -218,6 +221,7 @@ public class LTI2Service extends HttpServlet {
 
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, cnf);
 		List<String> capabilities = consumer.getCapability_offered();
+		LTI2Util.allowSplitSecret(capabilities);
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			LTI2Util.allowEmail(capabilities);
@@ -294,10 +298,10 @@ public class LTI2Service extends HttpServlet {
 			key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
 			secret = (String) deploy.get(LTIService.LTI_SECRET);
 			secret = SakaiBLTIUtil.decryptSecret(secret);
-			ack = request.getHeader("VND-IMS-ACKNOWLEDGE-URL");
+			ack = request.getHeader("VND-IMS-CONFIRM-URL");
 			if ( ack == null || ack.length() < 1 ) {
 				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-				doErrorJSON(request, response, jsonRequest, "Re-registration requires VND-IMS-ACKNOWLEDGE-URL header", null);
+				doErrorJSON(request, response, jsonRequest, "Re-registration requires VND-IMS-CONFIRM-URL header", null);
 				return;
 			}
 		}
@@ -333,15 +337,29 @@ public class LTI2Service extends HttpServlet {
 			return;
 		}
 
-		String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
+		String shared_secret = null;
+		String tc_half_secret = null;
+		String tp_half_secret = (String) security_contract.get(LTI2Constants.TP_HALF_SECRET);
+		if ( tp_half_secret != null ) {
+			// TODO: Check validity of returned tp half secret here.
+			SecureRandom random = new SecureRandom();
+			byte bytes[] = new byte[512/8];
+			random.nextBytes(bytes);
+			tc_half_secret =  PortableShaUtil.bin2hex(bytes);
+			shared_secret = tc_half_secret + tp_half_secret;
+		} else {
+			shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
+		}
+
 		if ( shared_secret == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "JSON missing shared_secret", null);
 			return;
 		}
 
-		// Blank out the new shared secret
+		// Blank out the new shared secret or half shared secret
 		security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
+		security_contract.put(LTI2Constants.TP_HALF_SECRET, "*********");
 
 		// Make sure that the requested services are a subset of the offered services
 		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
@@ -399,6 +417,7 @@ public class LTI2Service extends HttpServlet {
 		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
 		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
+		jsonResponse.put(LTI2Constants.TC_HALF_SECRET, tc_half_secret);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);

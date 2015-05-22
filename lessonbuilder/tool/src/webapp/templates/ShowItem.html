@@ -45,7 +45,7 @@ if (winh > newsize)
 
 if (newsize > 32760) newsize = 32760;
 
-iframe.style.height = (newsize + 40) + 'px';
+iframe.style.height = (newsize + 50) + 'px';
 setMainFrameHeight(window.name);
 
 }
@@ -123,7 +123,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
         <div role="navigation" class="neoPortletTitleWrap">
             <div class="portletTitle title-tools">
                 <div class="title">
-                    <a href="#" rsf:id="resetbutton2" class="title-tools reset reload"><img rsf:id="resetimage2" src="/library/image/transparent.gif"/></a>
+                    <a href="#" rsf:id="resetbutton2" class="title-tools reset reload Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"><img rsf:id="resetimage2" src="/library/image/transparent.gif"/></a>
                     <span rsf:id="crumb:"><a style="background:none" href="#" rsf:id="crumb-link"></a><span rsf:id="crumb-follow"></span></span>
                     <span class="returnheader nextprev"><a style="background:none; width:auto" href="#" class="usebutton nextprev" rsf:id="return"></a></span>
                     <span rsf:id="returnwarning" class="returnwarning"></span>
@@ -131,15 +131,15 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
                 <div class="action">
                     
                     <span class="returnheader nextprev"><a style="background:none; width: auto" href="#" rsf:id="prev" class="usebutton nextprev">prev</a><a href="#" rsf:id="next" style="background:none; width:auto" class="usebutton nextprev">next</a></span>
-                    <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl">
+                    <a href="#" rsf:id="directurl" id="directurl" class="title-tools tool-directurl Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl">
                       <img rsf:id="directimage" src="/library/image/transparent.gif"/>
 	            </a>
-		    <div rsf:id="directurl-div" class="portlet title-tools direct-url-wrap">
+		    <div rsf:id="directurl-div" class="portlet title-tools direct-url-wrap Mrphs-directUrl Mrphs-directUrl__dropDown">
 		      <input rsf:id="directurl-input" type="checkbox" class="portlet title-tools short-url"/>
 		      <span rsf:id="directurl-shorten">Short URL</span>
 		      <textarea rsf:id="directurl-textarea" class="portlet title-tools"></textarea>
 		    </div>
-                    <a href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help"><img rsf:id="helpimage2" src="/library/image/transparent.gif" /><span rsf:id="helpnewwindow2" class="offscreen"></span></a>
+                    <a href="#" rsf:id="helpbutton2" target="_blank" class="title-tools help Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--help-popup"><img rsf:id="helpimage2" src="/library/image/transparent.gif" /><span rsf:id="helpnewwindow2" class="offscreen"></span></a>
 
                 </div>
             <div style="clear:both"> </div>

@@ -158,6 +158,11 @@ public class FakeUserDirectoryService implements UserDirectoryService {
 		return (new FakeUser()).getId();
 	}
 
+	public boolean checkDuplicatedEmail(User user) {
+		//TODO Not used in the tests
+		return false;
+	}
+	
 	public List getUsers() {
 		// TODO Auto-generated method stub
 		return null;

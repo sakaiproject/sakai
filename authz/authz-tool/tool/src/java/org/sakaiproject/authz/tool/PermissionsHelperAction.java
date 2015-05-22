@@ -22,14 +22,7 @@
 package org.sakaiproject.authz.tool;
 
 import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.Vector;
+import java.util.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,11 +39,13 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
+import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.SessionState;
@@ -108,6 +103,9 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 	/** State attribute for permission description */
 	public static final String STATE_PERMISSION_DESCRIPTIONS = "permission.descriptions";
+
+	/** the prefix to permission title for permission description entry in bundle file */
+	public static final String PREFIX_PERMISSION_DESCRIPTION = "desc-";
 
 	/** Modes. */
 	public static final String MODE_MAIN = "main";
@@ -173,16 +171,8 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		}
 
 		String template = buildHelperContext(portlet, context, rundata, sstate);
-		if (template == null)
-		{
-			addAlert(sstate, rb.getString("java.alert.prbset"));
-		}
-		else
-		{
-			return template;
-		}
-
-		return null;
+		// May be null.
+		return template;
 	}
 
 	protected void initHelper(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
@@ -193,7 +183,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
 		String description = (String) toolSession.getAttribute(PermissionsHelper.DESCRIPTION);
 		String rolesRef = (String) toolSession.getAttribute(PermissionsHelper.ROLES_REF);
-		
 		if (rolesRef == null) rolesRef = targetRef;
 
 		toolSession.setAttribute(STARTED, Boolean.valueOf(true));
@@ -222,7 +211,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	/**
 	 * build the context.
 	 * 
-	 * @return The name of the template to use.
+	 * @return The name of the template to use. <code>null</code> can be returned.
 	 */
 	static public String buildHelperContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
@@ -279,6 +268,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			{
 				M_log.warn("PermissionsAction.buildHelperContext: no permission: " + realmId);
 				cleanupState(state);
+				addAlert(state, rb.getFormattedMessage("alert_permission", new Object[]{realmId}));
 				return null;
 			}
 		}
@@ -390,7 +380,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				for(Object function : functions)
 				{
 					String desc = (String) function;
-					String descKey = PermissionsHelper.PREFIX_PERMISSION_DESCRIPTION + function;
+					String descKey = PREFIX_PERMISSION_DESCRIPTION + function;
 					if (keySet.contains(descKey))
 					{
 						// use function description
@@ -400,7 +390,6 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 					functionDescriptions.put((String) function, desc);
 				}
 				context.put("functionDescriptions", functionDescriptions);
-			
 			}
 		}
 
@@ -449,8 +438,12 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				rolesAbilities.put(role.getId(), locks);
 			}
 		}
-		
 
+		PermissionLimiter limiter = getPermissionLimiter();
+
+		context.put("limiter", limiter);
+
+        context.put("roleName", new RoleNameLookup());
 		context.put("realm", viewEdit != null ? viewEdit : edit);
 		context.put("prefix", prefix);
 		context.put("description", description);
@@ -465,6 +458,48 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		return TEMPLATE_MAIN;
 	}
+	/**
+	 * Find a map of permissions based on a config prefix.
+	 * If there aren't any permissions list all are allowed.
+	 *
+	 * @param configPrefix The prefix to get permissions for.
+	 */
+	private static Map<String, Set<String>> getPermissions(String configPrefix)
+	{
+		Map<String, Set<String>> roleMap = new HashMap<String, Set<String>>();
+		ServerConfigurationService scs = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
+		String roleList = scs.getString(configPrefix+ "roles", "");
+		Set<String> defaultPermissionSet = createPermissionSet(configPrefix, "default");
+		for (String roleName :roleList.split(","))
+		{
+			roleName = roleName.trim();
+			if (roleName.length() == 0)
+			{
+				continue;
+			}
+			Set<String> permissionSet = createPermissionSet(configPrefix, roleName);
+			roleMap.put(roleName, (permissionSet.size() > 0)?permissionSet:defaultPermissionSet);
+
+		}
+		return roleMap;
+	}
+	
+	private static Set<String> createPermissionSet(String config, String roleName)
+	{
+		String permissionList = org.sakaiproject.component.cover.ServerConfigurationService.getString(config +roleName,"");
+		Set<String> permissionSet = new HashSet<String>();
+		for (String permissionName : permissionList.split(","))
+		{
+			permissionName = permissionName.trim();
+			if (permissionName.length() > 0)
+			{
+				permissionSet.add(permissionName);
+			}
+		}
+		return permissionSet;
+	}
+
+
 	/**
 	 * Remove the state variables used internally, on the way out.
 	 */
@@ -531,7 +566,13 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			// commit the change
 			try
 			{
-				AuthzGroupService.save(edit);
+				removeEmptyRoles(edit);
+
+				if (hasNothingSet(edit)) {
+					AuthzGroupService.removeAuthzGroup(edit);
+				} else {
+					AuthzGroupService.save(edit);
+				}
 			}
 			catch (GroupNotDefinedException e)
 			{
@@ -545,6 +586,26 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		// clean up state
 		cleanupState(state);
+	}
+
+	/**
+	 * Removes all the roles in an AuthzGroup that don't have any permissions set on them.
+	 * @param edit The AuthzGroup to cleanup.
+	 */
+	private void removeEmptyRoles(AuthzGroup edit) {
+		for (Role role : edit.getRoles()) {
+			if(role.getAllowedFunctions().isEmpty()) {
+				edit.removeRole(role.getId());
+			}
+		}
+	}
+
+	/**
+	 * @param edit The AuthzGroup to check.
+	 * @return <code>true</code> if there are no roles and no members in this AuthzGroup.
+	 */
+	private boolean hasNothingSet(AuthzGroup edit) {
+		return edit.getRoles().isEmpty() && edit.getMembers().isEmpty();
 	}
 
 	/**
@@ -566,6 +627,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		List abilities = (List) state.getAttribute(STATE_ABILITIES);
 		List roles = (List) state.getAttribute(STATE_ROLES);
 
+		PermissionLimiter limiter = getPermissionLimiter();
 		// look for each role's ability field
 		for (Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 		{
@@ -574,8 +636,14 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			for (Iterator iLocks = abilities.iterator(); iLocks.hasNext();)
 			{
 				String lock = (String) iLocks.next();
+				boolean checked = (data.getParameters().getString(role.getId() + lock) != null);
+				// Don't allow changes to some permissions.
+				if ( !(limiter.isEnabled(role.getId(), lock, role.isAllowed(lock))) )
+				{
+					M_log.debug("Can't change permission '"+ lock+ "' on role '"+role.getId()+ "'.");
+					continue;
+				}
 
-				boolean checked = data.getParameters().getBoolean(role.getId() + lock);
 				if (checked)
 				{
 					// we have an ability! Make sure there's a role
@@ -607,4 +675,67 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			}
 		}
 	}
+
+	public static PermissionLimiter getPermissionLimiter() {
+		Map allowedPermissions = getPermissions("realm.allowed."); // Whitelisted permissions for some roles
+		Map frozenPermissions = getPermissions("realm.frozen."); // Permissions that can't be changed
+		Map addOnlyPermissions = getPermissions("realm.add.only."); // Permissions that can only be added.	}
+		return new PermissionLimiter(allowedPermissions, frozenPermissions, addOnlyPermissions);
+	}
+
+	/**
+	 * The class is put into the velocity context to limit the permission that can be set.
+	 */
+	public static class PermissionLimiter
+	{
+		private Map<String, Set<String>> allowedPermissions;
+		private Map<String, Set<String>> frozenPermissions;
+		private Map<String, Set<String>> addOnlyPermissions;
+
+		/**
+		 * Create a permission limiter. This is put into the velocity context to remove complex logic from the template.
+		 *
+		 * @param allowedPermissions A complete set of permissions for a role. If the role exists in this map but the
+		 *                           permission isn't present the user can't set it.
+		 * @param frozenPermissions A set of permissions that can't be changed for each role.
+		 * @param addOnlyPermissions A set of permissions which the user can only grant and can't take away.
+		 */
+		public PermissionLimiter(Map<String, Set<String>> allowedPermissions, Map<String, Set<String>> frozenPermissions,
+								 Map<String, Set<String>> addOnlyPermissions)
+		{
+			this.allowedPermissions = allowedPermissions;
+			this.frozenPermissions = frozenPermissions;
+			this.addOnlyPermissions = addOnlyPermissions;
+		}
+
+		public boolean isEnabled(String roleId, String permission, boolean enabled)
+		{
+			// Sysadmin doesn't have any restrictions
+			if (SecurityService.isSuperUser()) {
+				return true;
+			}
+			if (frozenPermissions.containsKey(roleId)) {
+				if ( frozenPermissions.get(roleId).contains(permission) ) {
+					return false;
+				}
+			}
+			// Only check when permission is enabled.
+			if (enabled && addOnlyPermissions.containsKey(roleId)) {
+				if ( addOnlyPermissions.get(roleId).contains(permission) ) {
+					return false;
+				}
+			}
+			if (allowedPermissions.containsKey(roleId)) {
+				return allowedPermissions.get(roleId).contains(permission);
+			}
+			return true;
+		}
+	}
+
+ 	public static class RoleNameLookup {
+
+ 		public String getName(String roleId) {
+ 			return AuthzGroupService.getRoleName(roleId);
+ 		}
+ 	}
 }

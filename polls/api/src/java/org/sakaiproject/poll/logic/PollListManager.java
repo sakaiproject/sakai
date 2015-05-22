@@ -176,4 +176,12 @@ public interface PollListManager extends EntityProducer {
      * @return
      */
     public boolean isPollPublic(Poll poll);
+
+    /**
+     * Is user allowed to delete the votes on a poll?
+     *
+     * @param poll - the poll object
+     * @return true or false
+     */
+    public boolean userCanDeletePoll(Poll poll);
 }

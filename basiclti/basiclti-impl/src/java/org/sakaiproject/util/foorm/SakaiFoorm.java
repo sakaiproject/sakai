@@ -55,16 +55,24 @@ public class SakaiFoorm extends Foorm {
 			String query = "SELECT * FROM " + table;
 			query = getPagedSelect(query, 0, 1, m_sql.getVendor());
 			Connection conn = null;
+			Statement st = null;
+			ResultSet rs = null;
 			boolean failed = false;
 			try {
 				conn = m_sql.borrowConnection();
-				Statement st = conn.createStatement(); 
-				ResultSet rs =  st.executeQuery(query);
+				st = conn.createStatement(); 
+				rs =  st.executeQuery(query);
 				ResultSetMetaData md = rs.getMetaData();
 				sqls = formAdjustTable(table,model, m_sql.getVendor(), md);
 			} catch (SQLException e) {
 				failed = true;
 			} finally {
+				try {
+					if ( st != null ) st.close();
+					if ( rs != null ) rs.close();
+				} catch (SQLException sqlex) {
+					M_log.error("Error attempt to close Statement or ResultSet", sqlex);
+				}
 				if ( conn != null ) m_sql.returnConnection(conn);
 			}
 			if ( failed ) { // table must not exist

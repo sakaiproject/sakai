@@ -77,7 +77,6 @@ import org.sakaiproject.portal.charon.handlers.LoginHandler;
 import org.sakaiproject.portal.charon.handlers.LogoutHandler;
 import org.sakaiproject.portal.charon.handlers.NavLoginHandler;
 import org.sakaiproject.portal.charon.handlers.OpmlHandler;
-import org.sakaiproject.portal.charon.handlers.PDAHandler;
 import org.sakaiproject.portal.charon.handlers.PageHandler;
 import org.sakaiproject.portal.charon.handlers.PresenceHandler;
 import org.sakaiproject.portal.charon.handlers.ReLoginHandler;
@@ -206,8 +205,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	private String gatewaySiteUrl;
 
-	private String gatewayPdaSiteUrl;
-
 	private WorksiteHandler worksiteHandler;
 
 	private SiteHandler siteHandler;
@@ -219,8 +216,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	// public String String PROP_PARENT_ID = "sakai:parent-id";
 
 	private String PROP_SHOW_SUBSITES  = SiteService.PROP_SHOW_SUBSITES ;
-	
-	private final String PROP_PDA_HTML_INCLUDE = "sakai:pdaHtmlInclude";
 	
 	// 2.3 back port
 	// public String PROP_SHOW_SUBSITES = "sakai:show-subsites";
@@ -462,13 +457,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	{
 
 		String errorMessage = null;
-		String sitePdaHtmlInclude = null;
 		// find the site, for visiting
 		Site site = null;
 		try
 		{
 			site = siteHelper.getSiteVisit(siteId);
-			sitePdaHtmlInclude = site.getProperties().getProperty(PROP_PDA_HTML_INCLUDE);
 		}
 		catch (IdUnusedException e)
 		{
@@ -529,7 +522,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 
 		PortalRenderContext rcontext = startPageContext(siteType, title, siteSkin, req);
-		if (sitePdaHtmlInclude != null) rcontext.put("sitePdaHtmlInclude", sitePdaHtmlInclude);
 
 		// Make the top Url where the "top" url is
 		String portalTopUrl = Web.serverUrl(req)
@@ -788,35 +780,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	}
 
 
-	private boolean usePdaHandler(HttpServletRequest req)
-	{
-		if ( req == null) return false;
-
-		checkMobile(req);
-		
-		//check sakai.properties to see if auto redirect is enabled
-		//defaults to true - if set to false, skip the PDA check
-		if(!ServerConfigurationService.getBoolean("portal.pda.autoredirect", true)){
-			if(M_log.isDebugEnabled()) {
-				M_log.debug("Auto redirect for mobile devices is disabled, classic view will be used preferentially.");
-			}
-			return false;
-		}
-		
-		//check if we have a cookie to force classic view, skip the PDA check
-		Cookie c = findCookie(req, Portal.PORTAL_MODE_COOKIE_NAME);
-		if ((c != null) && (c.getValue().equals(Portal.FORCE_CLASSIC_COOKIE_VALUE))) {
-			if(M_log.isDebugEnabled()) {
-				M_log.debug("Cookie found, classic view will be used preferentially.");
-			}
-			return false;
-		}
-		
-		return isMobileDevice;
-		
-	}
-
-
 	/**
 	 * Respond to navigation / access requests.
 	 *
@@ -871,17 +834,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
-			PortalHandler ph;
-			boolean pdaHandler = usePdaHandler(req);
-			
-			if(M_log.isDebugEnabled()){
-				M_log.debug("Using pdaHandler: " + pdaHandler);
-			}
-
 			// begin SAK-19089
-			// if not logged in and accessing "/" and not from PDA, redirect to gatewaySiteUrl
-			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option) || "/pda".equals(option)) 
-					/* && (!pdaHandler) */ && (session.getUserId() == null)) 
+			// if not logged in and accessing "/", redirect to gatewaySiteUrl
+			if ((gatewaySiteUrl != null) && (option == null || "/".equals(option) ) 
+					&& (session.getUserId() == null)) 
 			{
 				// redirect to gatewaySiteURL 
 				res.sendRedirect(gatewaySiteUrl);
@@ -889,25 +845,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			}
 			// end SAK-19089
 
-			// begin SAK-22991
-			// if not logged in and from PDA, redirect to gatewayPdaSiteUrl
-			if ((gatewayPdaSiteUrl != null) && (option == null ||  "/pda".equals(option)) && (session.getUserId() == null)) 
-			{
-				// redirect to gatewaySiteURL 
-				res.sendRedirect(gatewayPdaSiteUrl);
-				return;
-			}
-			
-			// end SAK-19089
-			// SAK-22633 - Only forward site urls to PDAHandler
-			if (pdaHandler && parts.length > 1 && "site".equals(parts[1])){
-				//Mobile access
-				ph = handlerMap.get("pda");
-				parts[1] = "pda";
-			} else{
-				ph = handlerMap.get(parts[1]);
-			}
-
+			// Look up the handler and dispatch
+			PortalHandler ph = handlerMap.get(parts[1]);
 			if (ph != null)
 			{
 				stat = ph.doGet(parts, req, res, session);
@@ -1002,10 +941,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		String context = req.getContextPath() + req.getServletPath() + loginPath;
 		
-		if ("/pda".equals(returnPath)) {
-			context = req.getContextPath() + req.getServletPath() + returnPath + loginPath;
-		}
-		
 		tool.help(req, res, context, loginPath);
 	}
 
@@ -1082,19 +1017,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		//check mobile
 		isMobileDevice = agentInfo.detectMobileQuick();
 		
-		//check tablet if needed
-		boolean tabletsUseMobileView = ServerConfigurationService.getBoolean("portal.tablets.use.mobile", false);
-		if(tabletsUseMobileView && !isMobileDevice) {
-			isMobileDevice = agentInfo.detectTierTablet();
-		}
-		
 		//set session param so we don't need to do this again
 		session.setAttribute("is_mobile_device", Boolean.valueOf(isMobileDevice));		
 		
 		if(M_log.isDebugEnabled()){
 			M_log.debug("User-Agent: " + userAgent);
 			M_log.debug("Mobile device: " + isMobileDevice);
-			M_log.debug("portal.tablets.use.mobile: " + tabletsUseMobileView);
 		}
 		
 	}
@@ -1104,6 +1032,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 */
 	public void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext)
 	{
+		// SAK-29115: This should no longer be used under morpheus
+		// I will leave the code in but disabled
+
+		M_log.error("setupMobileDevice should no longer be used");
+		return;
+		/* Begin removal for SAK-29115
 		if ( req == null) return;
 		
 		checkMobile(req);
@@ -1117,6 +1051,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		//for now just always assume we have a small display.
 		rcontext.put("mobileSmallDisplay",Boolean.TRUE);
+		end removal for SAK-29115 */
 		
 
 		// Old WURFL code left here for reference in case people want to flesh out the detection
@@ -1298,22 +1233,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
-			PortalHandler ph;
-			boolean pdaHandler = usePdaHandler(req);
-			
-			if(M_log.isDebugEnabled()){
-				M_log.debug("Using pdaHandler: " + pdaHandler);
-			}
-			
-			// SAK-22633 - Only forward site urls to PDAHandler
-			if (pdaHandler && parts.length > 1 && "site".equals(parts[1])){
-				//Mobile access
-				ph = handlerMap.get("pda");
-				parts[1] = "pda";
-			}else{
-				ph = handlerMap.get(parts[1]);
-			}
-
+			// Look up handler and dispatch
+			PortalHandler ph = handlerMap.get(parts[1]);
 			if (ph != null)
 			{
 				stat = ph.doPost(parts, req, res, session);
@@ -1556,8 +1477,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		retval.setProperty("sakai.html.head", head);
 		retval.setProperty("sakai.html.head.css", headCss);
 		retval.setProperty("sakai.html.head.lang", rloader.getLocale().getLanguage());
-		retval.setProperty("sakai.html.head.css.base", SessionManager.getCurrentSession().getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL) == "pda" ? "" : headCssToolBase);
-		retval.setProperty("sakai.html.head.css.skin", SessionManager.getCurrentSession().getAttribute(PortalService.SAKAI_CONTROLLING_PORTAL) == "pda" ? "" : headCssToolSkin);
+		retval.setProperty("sakai.html.head.css.base", headCssToolBase);
+		retval.setProperty("sakai.html.head.css.skin", headCssToolSkin);
 		retval.setProperty("sakai.html.head.js", headJs.toString());
 
 		return retval;
@@ -1714,12 +1635,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		StringBuilder portalPageUrl = new StringBuilder();
 		
-		//SAK-26625 direct tool links need to be prefixed with pda instead of site to remain inside the pda portal
-		if(isMobileDevice) {
-			portalPageUrl.append("/pda/");
-		} else {
-			portalPageUrl.append("/site/");
-		}
+		portalPageUrl.append("/site/");
 		portalPageUrl.append(p.getSiteId());
 		portalPageUrl.append("/page/");
 		portalPageUrl.append(page);
@@ -1822,8 +1738,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String serviceVersion = ServerConfigurationService.getString(
 					"version.service", "?");
 			String sakaiVersion = ServerConfigurationService.getString("version.sakai",
-			"?");
-			String kernelVersion = ServerConfigurationService.getString("version.kernel",
 			"?");
 			String server = ServerConfigurationService.getServerId();
 			String[] bottomNav = ServerConfigurationService.getStrings("bottomnav");
@@ -1941,7 +1855,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavCopyright", copyright);
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
-			rcontext.put("bottomNavKernelVersion", kernelVersion);
 			rcontext.put("bottomNavServer", server);
 		}
 	}
@@ -1959,7 +1872,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 			// for a possible second link
 			String logInOutUrl2 = null;
-			String logInOutUrl2Pda = null;
 			String message2 = null;
 			String image2 = null;
 
@@ -2012,8 +1924,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 						logInOutUrl2 = ServerConfigurationService.getString("portalPath")
 						+ "/xlogin";
 						
-						logInOutUrl2Pda = ServerConfigurationService.getString("portalPath")
-						+ "/pda/xlogin";
 					}
 				}
 			}
@@ -2059,7 +1969,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				rcontext.put("loginImage1", image1);
 				rcontext.put("loginHasImage1", Boolean.valueOf(image1 != null));
 				rcontext.put("loginLogInOutUrl2", logInOutUrl2);
-				rcontext.put("loginLogInOutUrl2Pda", logInOutUrl2Pda);
 				rcontext.put("loginHasLogInOutUrl2", Boolean
 						.valueOf(logInOutUrl2 != null));
 				rcontext.put("loginMessage2", message2);
@@ -2153,8 +2062,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		
 		gatewaySiteUrl = ServerConfigurationService.getString("gatewaySiteUrl", null);
 		
-		gatewayPdaSiteUrl = ServerConfigurationService.getString("gatewayPdaSiteUrl", null);
-		
 		sakaiTutorialEnabled = ServerConfigurationService.getBoolean("portal.use.tutorial", true);
 
 		basicAuth = new BasicAuth();
@@ -2180,7 +2087,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		addHandler(worksiteHandler);
 		addHandler(new WorksiteResetHandler());
 		addHandler(new RssHandler());
-		addHandler(new PDAHandler());
 		addHandler(new AtomHandler());
 		addHandler(new OpmlHandler());
 		addHandler(new NavLoginHandler());

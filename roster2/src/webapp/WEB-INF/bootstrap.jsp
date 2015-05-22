@@ -25,7 +25,7 @@
     <head>
         <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
         <link rel="stylesheet" type="text/css" href="/sakai-roster2-tool/css/roster.css" />
-        <link rel="stylesheet" type="text/css" href="/sakai-roster2-tool/css/jquery.cluetip.css" />
+        <link rel="stylesheet" type="text/css" href="/library/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" />
         <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.10.3/css/smoothness/jquery-ui.min.css" />
 
         <script type="text/javascript">

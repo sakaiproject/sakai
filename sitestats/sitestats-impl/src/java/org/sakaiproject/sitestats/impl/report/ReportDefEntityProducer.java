@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 
+import org.sakaiproject.entity.api.ContentExistsAware;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
@@ -38,7 +39,7 @@ import org.sakaiproject.sitestats.api.report.ReportManager;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-public class ReportDefEntityProducer implements EntityProducer, EntityTransferrer {
+public class ReportDefEntityProducer implements EntityProducer, EntityTransferrer, ContentExistsAware {
 	private ReportManager			M_rm;
 		
 	// --- Sakai services --------------------------------
@@ -182,5 +183,21 @@ public class ReportDefEntityProducer implements EntityProducer, EntityTransferre
 	public HttpAccess getHttpAccess() {
 		return null;
 	}
+
+	/**
+	 * This implementation simply checks if we have reports in the site. If so, consider it content.
+	 * 
+	 * @see org.sakaiproject.entity.api.ContentExistsAware#hasContent()
+	 */
+	@Override
+	public boolean hasContent(String siteId) {
+		List<ReportDef> existingReportDefinitions = M_rm.getReportDefinitions(siteId, false, true);
+		if(!existingReportDefinitions.isEmpty()){
+			return true;
+		}
+		return false;
+	}
+
+	
 
 }

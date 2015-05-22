@@ -31,7 +31,6 @@
 		<property name="providerName" value="org.sakaiproject.user.api.UserDirectoryProvider"/>
 
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
- 		<property name="caseSensitiveId"><value>false</value></property>
  		<property name="separateIdEid"><value>true</value></property>
 
         <property name="passwordService" ref="org.sakaiproject.user.impl.PasswordService"/>

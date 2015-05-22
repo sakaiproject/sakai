@@ -95,12 +95,12 @@ public interface QuestionPoolServiceAPI
   /**
    * Save a question to a pool.
    */
-  public void addItemToPool(String itemId, Long poolId);
+  public void addItemToPool(Long itemId, Long poolId);
 
   /**
    * Move a question to a pool.
    */
-  public void moveItemToPool(String itemId, Long sourceId, Long destId);
+  public void moveItemToPool(Long itemId, Long sourceId, Long destId);
 
   /**
    * Is a pool a descendant of the other?
@@ -120,7 +120,7 @@ public interface QuestionPoolServiceAPI
   /**
    * removes a Question from the question pool. This does not  *delete* the question itself
    */
-  public void removeQuestionFromPool(String questionId, Long poolId);
+  public void removeQuestionFromPool(Long questionId, Long poolId);
 
   /**
    * Copy a subpool to a pool.

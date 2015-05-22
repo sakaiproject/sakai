@@ -1,5 +1,5 @@
 <!-- sakai_filepicker_attach.vm, version: Id:  $, use with org.sakaiproject.content.tool.FilePickerAction.java -->
-<script language="JavaScript" type="text/JavaScript">
+<script type="text/javascript">
 	<!--
 		function openCopyrightWindow(theURL,winName,winSettings) 
 		{ 
@@ -20,6 +20,7 @@
 		}
 	//-->
 </script>
+
 <div class="portletBody specialLink">
 	#if ($alertMessage)
 		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
@@ -42,6 +43,21 @@
 			$tlang.getString("att.fin")
 		#end	
 	</div>
+
+	<form name="doattachitem" style="display:none" id="doattachitem" action="#toolForm("FilePickerAction" "Main")" method=post enctype="multipart/form-data">
+	<input type="hidden" name="sakai_action" value="doAttachitem">
+	<input type="hidden" name="itemId" id="doattachitemid" />
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+
+	<script type="text/javascript">
+	function doattachsubmit(itemId) {
+	   document.getElementById('doattachitemid').setAttribute('value',itemId);
+	   var f = document.getElementById('doattachitem');
+	   f.submit();
+	   return false;
+	}
+	</script>
 
 	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post" enctype="multipart/form-data">
 		<input type="hidden" name="source" value="0" />
@@ -272,7 +288,7 @@
 												|
 											#end
 											#set ($itemsOnLine = $itemsOnLine + 1)
-											<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
+											<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${item.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
 										#end
 									#end
 								#end
@@ -443,7 +459,7 @@
 														|
 													#end
 													#set ($itemsOnLine = $itemsOnLine + 1)
-													<a href="#toolLinkParam("FilePickerAction" "doAttachitem" "itemId=$validator.escapeUrl(${root.id})")" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy")</a>
+													<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${root.id})')" title ="$tlang.getString('att.copy')">$tlang.getString("att.copy") <span class="skip">$validator.escapeHtml($item.name)</span></a>
 												#end
 											#end
 										#end

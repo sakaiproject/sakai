@@ -287,5 +287,59 @@
 			<ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
 		</property>
 	</bean>
+
+    <!-- Job to backfill roles into a site from a template -->
+    <bean id="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob" singleton="true">
+        <property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+        <property name="authzService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+        <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
+    </bean>
+
+    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.BackFillRoleJob"
+          class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobBeanWrapper"
+          singleton="true" init-method="init">
+        <property name="beanId">
+            <value>org.sakaiproject.component.app.scheduler.jobs.backfillrole.BackFillRoleJob</value>
+        </property>
+        <property name="jobName">
+            <value>Backfill roles from templates</value>
+        </property>
+        <property name="resourceBundleBase" value="org.sakaiproject.component.app.scheduler.jobs.backfillrole.Messages"/>
+        <property name="configurableJobProperties">
+            <set>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="site.id"/>
+                    <property name="descriptionResourceKey" value="site.id.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="interval"/>
+                    <property name="descriptionResourceKey" value="interval.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="type"/>
+                    <property name="descriptionResourceKey" value="type.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+                <bean class="org.sakaiproject.component.app.scheduler.jobs.SpringConfigurableJobProperty">
+                    <property name="required" value="false"/>
+                    <property name="labelResourceKey" value="role"/>
+                    <property name="descriptionResourceKey" value="role.description"/>
+                    <property name="defaultValue" value=""/>
+                </bean>
+
+            </set>
+        </property>
+        <property name="schedulerManager">
+            <ref bean="org.sakaiproject.api.app.scheduler.SchedulerManager" />
+        </property>
+    </bean>
+
+    <import resource="backfill-tool.xml"/>
    
 </beans>

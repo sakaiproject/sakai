@@ -1789,7 +1789,7 @@ public class DiscussionForumTool
     
     // if the topic is not moderated (and already exists), all of the pending messages must be approved
     if (selectedTopic != null && selectedTopic.getTopic() != null &&
-    		!selectedTopic.getTopicModerated() && selectedTopic.getTopic().getId() != null)
+    		!selectedTopic.getTopic().getModerated() && selectedTopic.getTopic().getId() != null)
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
@@ -1877,7 +1877,7 @@ public class DiscussionForumTool
 	  
     // if the topic is not moderated, all of the messages must be approved
     if (selectedTopic != null && selectedTopic.getTopic().getId() != null &&
-    		!selectedTopic.getTopicModerated())
+    		!selectedTopic.getTopic().getModerated())
     {
     	forumManager.approveAllPendingMessages(selectedTopic.getTopic().getId());
     }
@@ -3953,13 +3953,13 @@ public class DiscussionForumTool
     	LOG.debug("selectedTopic is null in isDisplayTopicDeleteOption()");
     	return false;
     }
-	  Topic topic = selectedTopic.getTopic();
+	  DiscussionTopic topic = selectedTopic.getTopic();
 	  if (topic == null || topic.getId() == null)
 		  return false;
 	  
 	  Topic topicInDb = forumManager.getTopicById(topic.getId());
 	  
-	  return topicInDb != null && uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum());
+	  return topicInDb != null && selectedForum != null && uiPermissionsManager != null && uiPermissionsManager.isChangeSettings(topic,selectedForum.getForum());
   }
   
   private void setupForum() {
@@ -4698,7 +4698,7 @@ public class DiscussionForumTool
   public String processDfMsgRevisedPost()
   {
 	//checks whether the user can post to the forum & topic based on the passed in message id
-	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, true)){
+	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, false)){
 		return gotoMain();
 	}
 	try{
@@ -9180,9 +9180,6 @@ public class DiscussionForumTool
 	}
 
 	private List transformItemList(List members) {
-		Map<String, List<JSONObject>> allParticipantsMap = new HashMap<String, List<JSONObject>>(1);
-		allParticipantsMap.put("allParticipants", new ArrayList<JSONObject>(1));
-
 		Map<String, List<JSONObject>> rolesMap = new HashMap<String, List<JSONObject>>(1);
 		rolesMap.put("roles", new ArrayList<JSONObject>(1));
 
@@ -9194,9 +9191,7 @@ public class DiscussionForumTool
 
 		for (Iterator iterator = members.iterator(); iterator.hasNext();) {
 			MembershipItem item = (MembershipItem) iterator.next();
-			if (MembershipItem.TYPE_ALL_PARTICIPANTS.equals(item.getType())) {
-				parseAllParticipants(item, allParticipantsMap);
-			} else if (MembershipItem.TYPE_ROLE.equals(item.getType())) {
+			if (MembershipItem.TYPE_ROLE.equals(item.getType())) {
 				parseRoles(item, rolesMap);
 			} else if (MembershipItem.TYPE_GROUP.equals(item.getType())) {
 				parseGroups(item, groupsMap);
@@ -9223,8 +9218,7 @@ public class DiscussionForumTool
                 }
 			}
 		}
-		List allItemsList = new ArrayList(3);
-		allItemsList.add(allParticipantsMap);
+		List allItemsList = new ArrayList();
 		allItemsList.add(rolesMap);
 
 		// we only need the userIds to setup the individual user data
@@ -9291,16 +9285,6 @@ public class DiscussionForumTool
 			}
 		}
 		jsonMembershipItem.element("groups", memberGroupsArray);
-	}
-
-	private void parseAllParticipants(MembershipItem item, Map<String, List<JSONObject>> allParticipantsMap) {
-		List<JSONObject> allParticipantsList = allParticipantsMap.get("allParticipants");
-		if (allParticipantsList == null) {
-			allParticipantsList = new ArrayList<JSONObject>();
-		}
-		JSONObject jsonMembershipItem = new JSONObject();
-		jsonMembershipItem.element("name", item.getName()).element("membershipItemId", item.getId());
-		allParticipantsList.add(jsonMembershipItem);
 	}
 
 	public void setRankManager(RankManager rankManager) {
@@ -9854,7 +9838,7 @@ public class DiscussionForumTool
     				String msgIdStr = getExternalParameterByKey(CURRENT_MESSAGE_ID);
     				long msgId = Long.parseLong(msgIdStr);
     				if(tmpSelectedMessage == null || tmpSelectedMessage.getMessage() == null 
-    						|| (tmpSelectedMessage.getMessage().getId() != msgId)){
+    						|| (!tmpSelectedMessage.getMessage().getId().equals(msgId))){
     					Message threadMessage = messageManager.getMessageByIdWithAttachments(msgId);
     					tmpSelectedMessage = new DiscussionMessageBean(threadMessage, messageManager);
     					//selected message has changed, make sure we set the selected thread head
@@ -9874,7 +9858,7 @@ public class DiscussionForumTool
     			String forumIdStr = getExternalParameterByKey(CURRENT_FORUM_ID);
     			long forumId = Long.parseLong(forumIdStr);
     			if(tmpSelectedForum == null || tmpSelectedForum.getForum() == null 
-    					|| (tmpSelectedForum.getForum().getId() != forumId)){
+    					|| (!tmpSelectedForum.getForum().getId().equals(forumId))){
     				DiscussionForum forum = forumManager.getForumById(forumId);
     				tmpSelectedForum = getDecoratedForum(forum);
     				//forum changed, so make sure you use that forum's site id:
@@ -9889,7 +9873,7 @@ public class DiscussionForumTool
     			String topicIdStr = getExternalParameterByKey(CURRENT_TOPIC_ID);
     			long topicId = Long.parseLong(topicIdStr);
     			if(tmpSelectedTopic == null || tmpSelectedTopic.getTopic() == null 
-    					|| (tmpSelectedTopic.getTopic().getId() != topicId)){
+    					|| (!tmpSelectedTopic.getTopic().getId().equals(topicId))){
     				//selected message doesn't match the current message input,
     				//verify user has access to parameter message and use that one
 
@@ -9919,12 +9903,12 @@ public class DiscussionForumTool
     			return false;
     		}
     		//check topic belongs to the forum
-    		if(tmpSelectedForum.getForum().getId() != tmpSelectedTopic.getTopic().getBaseForum().getId()){
+    		if(!tmpSelectedForum.getForum().getId().equals(tmpSelectedTopic.getTopic().getBaseForum().getId())){
     			LOG.info(methodCalled + ": topic: " + tmpSelectedTopic.getTopic().getId() + " does not belong to the forum: " + tmpSelectedForum.getForum().getId() + ". user: " + getUserId());
     			return false;    				
     		}
     		//check message belongs to the topic
-    		if(checkCurrentMessageId && tmpSelectedMessage.getMessage().getTopic().getId() != tmpSelectedTopic.getTopic().getId()){
+    		if(checkCurrentMessageId && !tmpSelectedMessage.getMessage().getTopic().getId().equals(tmpSelectedTopic.getTopic().getId())){
     			LOG.info(methodCalled + ": message: " + tmpSelectedMessage.getMessage().getId() + " does not belong to the topic: " + tmpSelectedTopic.getTopic().getId() + ".  user: " + getUserId());
     			return false;
     		}

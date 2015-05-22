@@ -194,6 +194,9 @@ DefaultView,NavigationCaseReporter {
 		df.setTimeZone(tz);
 		//m_log.debug("got timezone: " + tz.getDisplayName());
 
+		UIOutput.make(tofill, "poll_list_remove_confirm", messageLocator.getMessage("poll_list_remove_confirm"));
+		UIOutput.make(tofill, "poll_list_reset_confirm", messageLocator.getMessage("poll_list_reset_confirm"));
+
 		UIForm deleteForm = UIForm.make(tofill, "delete-poll-form");
 		// Create a multiple selection control for the tasks to be deleted.
 		// We will fill in the options at the loop end once we have collected them.
@@ -267,7 +270,7 @@ DefaultView,NavigationCaseReporter {
 				UIVerbatim.make(pollrow,"poll-close-date","  ");
 
 			if (pollCanEdit(poll)) {
-				UIInternalLink editLink = UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),  
+				UIInternalLink editLink = UIInternalLink.make(pollrow,"poll-revise",messageLocator.getMessage("action_revise_poll"),
 						new PollViewParameters(AddPollProducer.VIEW_ID,poll.getPollId().toString()));
 				editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("action_revise_poll")+ ":" + poll.getText()));
 
@@ -291,8 +294,9 @@ DefaultView,NavigationCaseReporter {
 
 		if (renderDelete) 
 			UICommand.make(deleteForm, "delete-polls",  UIMessage.make("poll_list_delete"),
-			"#{pollToolBean.processActionDelete}").decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_list_delete_tooltip")));
-			
+					"#{pollToolBean.processActionDelete}").decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_list_delete_tooltip")));
+			UICommand.make(deleteForm, "reset-polls-votes",  UIMessage.make("poll_list_reset"),
+					"#{pollToolBean.processActionResetVotes}").decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("poll_list_reset_tooltip")));
 		}
 	}
 
@@ -337,14 +341,6 @@ DefaultView,NavigationCaseReporter {
 	}
 
 	private boolean pollCanDelete(Poll poll) {
-		if (externalLogic.isUserAdmin())
-			return true;
-		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_DELETE_ANY, externalLogic.getCurrentLocationReference()))
-			return true;
-
-		if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_DELETE_OWN, externalLogic.getCurrentLocationReference()) && poll.getOwner().equals(externalLogic.getCurrentUserId())) 
-			return true;
-
-		return false;
+		return pollListManager.userCanDeletePoll(poll);
 	}
 }

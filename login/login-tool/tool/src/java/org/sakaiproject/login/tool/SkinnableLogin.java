@@ -74,16 +74,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	/** Session attribute to show that session was successfully authenticated through the container. */
 	public static final String ATTR_CONTAINER_SUCCESS = "sakai.login.container.success";
 
-	/** Marker to indicate we are logging in the PDA Portal and should put out abbreviated HTML */
-	public static final String PDA_PORTAL_SUFFIX = "/pda/";
-
-	/** The Neo-portal in 2.9+ introduced a portal.neoprefix config variable */
-	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
-
-	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
-
-	private static String portalSkinPrefix;
-
 	// Services are transient because the class is serializable but the services aren't
 	private transient ServerConfigurationService serverConfigurationService;
 
@@ -92,6 +82,12 @@ public class SkinnableLogin extends HttpServlet implements Login {
 	private transient LoginService loginService;
 
 	private static ResourceLoader rb = new ResourceLoader("auth");
+	
+	// the list of login choices that could be supplied
+	enum AuthChoices {
+		CONTAINER,
+		XLOGIN
+	}
 
 
 	private String loginContext;
@@ -111,8 +107,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				.get(ServerConfigurationService.class);
 
 		siteService = (SiteService) ComponentManager.get(SiteService.class);
-
-		portalSkinPrefix = serverConfigurationService.getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
 
 		log.info("init()");
 	}
@@ -188,7 +182,16 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			}
 			return;
 		}
+		
+		//SAK-29092 if an auth is specified in the URL, skip any other checks and go straight to it
+		String authPreferred = req.getParameter("auth");
+		log.debug("authPreferred: " + authPreferred);
 
+		if(StringUtils.equalsIgnoreCase(authPreferred, AuthChoices.XLOGIN.toString())) {
+			log.debug("Going straight to xlogin");
+			skipContainer = true;
+		}
+		
 		// see if we need to check container
 		boolean checkContainer = serverConfigurationService.getBoolean("container.login", false);
 		if (checkContainer && !skipContainer)
@@ -221,8 +224,13 @@ public class SkinnableLogin extends HttpServlet implements Login {
 				}
 				String helperPath = helperUrl == null ? null : helperUrl.getPath();
 
+				if(StringUtils.equalsIgnoreCase(authPreferred, AuthChoices.CONTAINER.toString())) {
+					log.debug("Going straight to container login");
+					showAuthChoice = false;
+				}
+				
 				if (showAuthChoice && !(StringUtils.isEmpty(helperPath) || helperPath.equals("/portal") || 
-						helperPath.equals("/portal/") || helperPath.equals("/portal/pda") || helperPath.equals("/portal/pda/"))) {
+						helperPath.equals("/portal/") )) {
 					String xloginUrl = serverConfigurationService.getPortalUrl() + "/xlogin";
 
 					// Present the choice template
@@ -240,22 +248,14 @@ public class SkinnableLogin extends HttpServlet implements Login {
 			}
 		}
 
-		// PDA or not?
 		String portalUrl = (String) session.getAttribute(Tool.HELPER_DONE_URL);
-		boolean isPDA = false;
-		if ( portalUrl != null ) {
-			isPDA = (portalUrl.indexOf (PDA_PORTAL_SUFFIX) > -1);
-		}
-		log.debug("isPDA: " + isPDA);
 
 		// Present the xlogin template
 		LoginRenderContext rcontext = startPageContext("", req, res);
 
-		rcontext.put("isPDA", isPDA);
-
 		// Decide whether or not to put up the Cancel
 		String actualPortal = serverConfigurationService.getPortalUrl();
-				if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
+		if ( portalUrl != null && portalUrl.indexOf("/site/") < 1 && portalUrl.startsWith(actualPortal) ) {
 			rcontext.put("doCancel", Boolean.TRUE);
 		}
 
@@ -406,13 +406,6 @@ public class SkinnableLogin extends HttpServlet implements Login {
 		if (StringUtils.isEmpty(skin))
 		{
 			skin = serverConfigurationService.getString("skin.default", "default");
-		}
-
-		String templates = serverConfigurationService.getString("portal.templates", "neoskin");
-
-		if ("neoskin".equals(templates) && portalSkinPrefix != null && !StringUtils.startsWith(skin, portalSkinPrefix)) {
-			// Don't add the prefix twice
-			skin = portalSkinPrefix + skin;
 		}
 
 		String skinRepo = serverConfigurationService.getString("skin.repo");

@@ -193,6 +193,11 @@
                             #set($siteType = false)
                             #set($siteType = $!templateSite.type)
 
+                            #if (
+                                ($siteType == $projectSiteType && $canAddProject) || 
+                                ($courseSiteTypeStrings.contains($siteType) && $canAddCourse) ||
+                                ($siteType == $portfolioSiteType && $canAddPortfolio)
+                             )
                             #if($siteTypePrev != $siteType)
 
                               #if ($siteType == "course")
@@ -228,6 +233,7 @@
                                 <div class="templateSettingsPlaceholder"></div>
                             </li>
                             #set($siteTypePrev = $!templateSite.type)
+                            #end
                         #end
                 </ul>
             </div>   ## end of child of  div#templateSettings

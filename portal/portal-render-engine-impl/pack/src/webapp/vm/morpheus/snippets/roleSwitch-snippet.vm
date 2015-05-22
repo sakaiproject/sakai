@@ -3,7 +3,9 @@
 <div id="roleSwitch" class="Mrphs-roleSwitch">
 
     #if ($roleSwitchState)
-        <a href="$switchRoleUrl"  id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span></a>
+
+        <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor"><span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span></a>
+
     #else
 
         #if ($roleswapdropdown)
@@ -21,10 +23,11 @@
             </select>
 
         #else
-        
-            <a href="$switchRoleUrl" id="roleSwitchAnchor"><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>
-        #end ##if ($roleswapdropdown)
-        
-    #end ##if ($roleSwitchState)
+ 
+            <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link"><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>
+
+        #end ## END OF IF ($roleswapdropdown)
+
+    #end ## END of IF ($roleSwitchState)
+
 </div>
-    

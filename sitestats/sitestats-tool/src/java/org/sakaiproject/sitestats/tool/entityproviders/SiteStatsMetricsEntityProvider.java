@@ -80,7 +80,7 @@ public class SiteStatsMetricsEntityProvider extends AbstractEntityProvider imple
 		Map<String,Object> map = new HashMap<String, Object>();
 		map.put("Number_of_total_events_processed", statsUpdateManager.getNumberOfEventsProcessed());
 		map.put("Reset_or_Init_time", (new Date(statsUpdateManager.getResetTime()).toString()) + "( " + statsUpdateManager.getResetTime() + " ms)");
-		map.put("Total_time_ellapsed_since_reset", statsUpdateManager.getTotalTimeEllapsedSinceReset() + " ms");
+		map.put("Total_time_ellapsed_since_reset", statsUpdateManager.getTotalTimeElapsedSinceReset() + " ms");
 		map.put("Total_time_spent_processing_events", statsUpdateManager.getTotalTimeInEventProcessing() + " ms");
 		map.put("Number_of_events_processed_per_sec", statsUpdateManager.getNumberOfEventsProcessedPerSec());
 		map.put("Number_of_events_generated_in_Sakai_per_sec", statsUpdateManager.getNumberOfEventsGeneratedPerSec());
@@ -114,7 +114,7 @@ public class SiteStatsMetricsEntityProvider extends AbstractEntityProvider imple
 	
 	@EntityCustomAction(action = "get-time-ellapsed-since-reset", viewKey = EntityView.VIEW_LIST)
 	public ActionReturn getTimeEllapsedSinceReset(Search search, Map<String, Object> params) {
-		return new ActionReturn(statsUpdateManager.getTotalTimeEllapsedSinceReset());
+		return new ActionReturn(statsUpdateManager.getTotalTimeElapsedSinceReset());
 	}
 	
 	@EntityCustomAction(action = "get-time-spent-processing-events", viewKey = EntityView.VIEW_LIST)

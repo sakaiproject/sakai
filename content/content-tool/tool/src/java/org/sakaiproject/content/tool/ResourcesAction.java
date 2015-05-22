@@ -23,11 +23,9 @@ package org.sakaiproject.content.tool;
 
 import java.io.File;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.net.URLEncoder;
 import java.text.Format;
 import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
@@ -119,9 +117,10 @@ import org.sakaiproject.exception.OverQuotaException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
-import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.Group;
+import org.sakaiproject.site.api.SitePage;
+import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeBreakdown;
@@ -142,22 +141,13 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.FileItem;
 import org.w3c.dom.Element;
 
-import java.io.PrintWriter;
-import java.io.IOException;
-
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.sakaiproject.util.RequestFilter;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.api.app.scheduler.SchedulerManager;
 import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
-import org.quartz.JobExecutionContext;
 import org.quartz.JobDetail;
-import org.quartz.JobDataMap;
 import org.quartz.Trigger;
 
 /**
@@ -563,6 +553,8 @@ public class ResourcesAction
 	private static final String MODE_RESTORE = "restore";
 	
 	protected static final String MODE_REVISE_METADATA = "revise_metadata";
+	
+	protected static final String MODE_MAKE_SITE_PAGE = "make_site_page";
 
 	
 
@@ -792,6 +784,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	/** state attribute indicating whether we're using the Creative Commons dialog instead of the "old" copyright dialog */
 	protected static final String STATE_USING_CREATIVE_COMMONS = PREFIX + SYS + "usingCreativeCommons";
 
+	/** The title of the new page to be created in the site */
+	protected static final String STATE_PAGE_TITLE = PREFIX + REQUEST+ "page_title";
+	
+	protected static final String STATE_MAKE_PAGE_ENTITY_ID = PREFIX + REQUEST+ "entity_id";
+	
+	
 	/** vm files for each mode. */
 	private static final String TEMPLATE_DAV = "content/chef_resources_webdav";
 	
@@ -819,6 +817,9 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	private static final String TEMPLATE_RESTORE = "content/sakai_resources_restore";
 
 	private static final String TEMPLATE_REVISE_METADATA = "content/sakai_resources_properties";
+
+	protected static final String TEMPLATE_MAKE_SITE_PAGE = "content/sakai_make_site_page";
+
 
 	public static final String TYPE_HTML = MIME_TYPE_DOCUMENT_HTML;
 
@@ -3135,7 +3136,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				permissions.add(ContentPermissions.CREATE);
 			}
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.DELETE)) || ContentHostingService.allowRemoveCollection(id))
+			if(ContentHostingService.allowRemoveCollection(id))
 			{
 				permissions.add(ContentPermissions.DELETE);
 			}
@@ -3143,7 +3144,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				permissions.add(ContentPermissions.READ);
 			}
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.REVISE)) || ContentHostingService.allowUpdateCollection(id))
+			if(ContentHostingService.allowUpdateCollection(id))
 			{
 				permissions.add(ContentPermissions.REVISE);
 			}
@@ -3158,7 +3159,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				permissions.add(ContentPermissions.CREATE);
 			}
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.DELETE)) || ContentHostingService.allowRemoveResource(id))
+			if(ContentHostingService.allowRemoveResource(id))
 			{
 				permissions.add(ContentPermissions.DELETE);
 			}
@@ -3166,7 +3167,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			{
 				permissions.add(ContentPermissions.READ);
 			}
-			if((inheritedPermissions != null && inheritedPermissions.contains(ContentPermissions.REVISE)) || ContentHostingService.allowUpdateResource(id))
+			if(ContentHostingService.allowUpdateResource(id))
 			{
 				permissions.add(ContentPermissions.REVISE);
 			}
@@ -4890,11 +4891,92 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			template = buildMoreContext(portlet, context, data, state);
 		}
+		else if(mode.equals(MODE_MAKE_SITE_PAGE))
+		{
+			template = buildMakeSitePageContext(portlet, context, data, state);
+		}
 
 		return template;
 
 	}	// buildMainPanelContext
 
+	public String buildMakeSitePageContext(VelocityPortlet portlet, Context context,
+			RunData data, SessionState state) {	
+		logger.debug(this + ".buildMakeSitePage()");
+		
+		context.put("tlang", trb);
+		context.put("page", state.getAttribute(STATE_PAGE_TITLE));
+		
+		return TEMPLATE_MAKE_SITE_PAGE;
+	}
+	
+	
+	public void doMakeSitePage(RunData data) {
+
+		SessionState state = ((JetspeedRunData)data).getPortletSessionState (((JetspeedRunData)data).getJs_peid ());
+		ParameterParser params = data.getParameters ();
+
+		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		String entityId = (String) state.getAttribute(STATE_MAKE_PAGE_ENTITY_ID);
+		ContentEntity entity;
+		try {
+			boolean isFolder = entityId.endsWith(Entity.SEPARATOR);
+			
+			if (isFolder) {
+				entity = ContentHostingService.getCollection(entityId);
+			} else {
+				entity = ContentHostingService.getResource(entityId);
+			}
+		} catch (Exception e) {
+			addAlert(state, trb.getString("alert.resource.not.found"));
+			state.setAttribute(STATE_MODE, MODE_LIST);
+			return;
+		}
+		String url = entity.getUrl();
+		String title = params.getString("page");
+		state.setAttribute(STATE_PAGE_TITLE, title);
+		if (title == null || title.trim().length() == 0) {
+			addAlert(state, trb.getString("alert.page.empty"));
+			return;
+		}
+		
+		Placement placement = ToolManager.getCurrentPlacement();
+		String context = null;
+		if (placement != null) {
+			context = placement.getContext();
+			try {
+				Tool tr = ToolManager.getTool("sakai.iframe");
+				
+				Site site = SiteService.getSite(context);
+				for (SitePage page: (List<SitePage>)site.getPages()) {
+					if (title.equals(page.getTitle())) {
+						addAlert(state, trb.getString("alert.page.exists"));
+						return;
+					}
+				}
+				SitePage newPage = site.addPage();
+				newPage.setTitle(title);
+				ToolConfiguration tool = newPage.addTool();
+				tool.setTool("sakai.iframe", tr);
+				tool.setTitle(title);
+				tool.getPlacementConfig().setProperty("source", url);
+				SiteService.save(site);
+				
+				// Get it to showup in the tool menu.
+				scheduleTopRefresh();
+				state.setAttribute(STATE_MODE, MODE_LIST);
+				state.removeAttribute(STATE_PAGE_TITLE);
+
+			} catch (IdUnusedException e) {
+				logger.warn("Somehow we couldn't find the site.", e);
+			} catch (PermissionException e) {
+				logger.info("No permission to add page.", e);
+				addAlert(state, trb.getString("alert.page.permission"));
+			}
+		}
+	}
+
+	
 	/**
 	*  Setup for customization
 	**/
@@ -6638,6 +6720,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				case PRINT_FILE:
 					printFile(state, data, selectedItemId);
 					break;
+				case MAKE_SITE_PAGE:
+					// Stash the selected entity ID.
+					state.setAttribute(STATE_MAKE_PAGE_ENTITY_ID, selectedItemId);
+					state.setAttribute(STATE_MODE, MODE_MAKE_SITE_PAGE);
+					state.removeAttribute(STATE_PAGE_TITLE); // Remove title if cancel was pressed.
+					break;
 				default:
 					sAction.initializeAction(reference);
 					sAction.finalizeAction(reference);
@@ -8228,21 +8316,28 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			pipe.setErrorEncountered(true);
 			pipe.setErrorMessage(trb.getString("alert.noperm"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("PermissionException " + e);
 		}
 		catch (IdUnusedException e)
 		{
 			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unknown"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("IdUnusedException ", e);
 		}
 		catch (TypeException e)
 		{
 			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unknown"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("TypeException ", e);
 		}
 		catch (InUseException e)
 		{
 			pipe.setErrorEncountered(true);
+			pipe.setErrorMessage(trb.getString("alert.unknown"));
+			addAlert(pipe.getErrorMessage());
 			logger.warn("InUseException ", e);
 		}
 		catch (OverQuotaException e)
@@ -8291,7 +8386,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 
 		if (state.getAttribute(STATE_FILE_UPLOAD_MAX_SIZE) == null)
 		{
-			String uploadMax = ServerConfigurationService.getString("content.upload.max");
+			String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
 			String uploadCeiling = ServerConfigurationService.getString("content.upload.ceiling");
 			
 			if(uploadMax == null && uploadCeiling == null)

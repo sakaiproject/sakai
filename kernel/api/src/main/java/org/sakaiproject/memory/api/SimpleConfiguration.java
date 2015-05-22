@@ -31,7 +31,7 @@ import java.util.Properties;
  * Send questions to Aaron Zeckoski
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class SimpleConfiguration implements Configuration {
+public class SimpleConfiguration<K, V> implements Configuration<K, V> {
 
     boolean stats = false;
     long maxEntries = -1;

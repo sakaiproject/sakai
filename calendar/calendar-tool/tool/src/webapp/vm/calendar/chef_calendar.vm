@@ -28,6 +28,7 @@ calendar Portlet
 		<li><img src = "#imageLink("$config.getProperty('legend.icon15')")" border="0" alt="" /> $tlang.getString('legend.key15')</li>
 		<li><img src = "#imageLink("$config.getProperty('legend.icon16')")" border="0" alt="" /> $tlang.getString('legend.key16')</li>
 	</ul>
+	<div class="clear"></div>
 #end
 
 #* Calendar Event Icons macro

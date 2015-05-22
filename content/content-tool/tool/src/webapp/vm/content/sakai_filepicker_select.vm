@@ -112,6 +112,21 @@ $(document).ready(function() {
 		#end	
 	</div>
 
+	<form name="doattachitem" style="display:none" id="doattachitem" action="#toolForm("ResourcesAction" "Main")" method=post enctype="multipart/form-data">
+	<input type="hidden" name="sakai_action" value="doAttachitem">
+	<input type="hidden" name="itemId" id="doattachitemid" />
+	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+	</form>
+
+	<script type="text/javascript">
+	function doattachsubmit(itemId) {
+	   document.getElementById('doattachitemid').setAttribute('value',itemId);
+	   var f = document.getElementById('doattachitem');
+	   f.submit();
+	   return false;
+	}
+	</script>
+
 	<form name="attachForm" id="attachForm" action="#toolForm("FilePickerAction" "Main")" method="post">
 		<input type="hidden" name="source" value="0" />
 		<input type="hidden" name="collectionId" value="$validator.escapeHtml($collectionId)" />
@@ -322,7 +337,7 @@ $(document).ready(function() {
 								#end
 							#elseif($item.canSelect())
 								<div class="itemAction" style="margin:0;">
-									<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
+									<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${item.id})')" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
 								</div>
 							#end
 						#end
@@ -528,7 +543,7 @@ $(document).ready(function() {
 								#end
 									#elseif($item.canSelect())
 										<div class="itemAction">
-											<a href="#toolLinkParam("ResourcesAction" "doAttachitem" "itemId=$validator.escapeUrl(${item.id})")" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
+											<a href="#" onclick="return doattachsubmit('$validator.escapeUrl(${item.id})')" title ="$tlang.getString('att.select')">$tlang.getString("att.select")</a>
 										</div>
 									#end
 								#end

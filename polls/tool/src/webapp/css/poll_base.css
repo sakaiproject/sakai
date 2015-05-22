@@ -32,7 +32,7 @@ thead tr .headerSortDown a {
 	border: none;
 	cursor: hand;
 }
-.portletBody #sortableTable .reset-order #reset-order-link span {
+.portletBody #sortableTable .reset-order #reset-order-link span, #poll_list_remove_confirm, #poll_list_reset_confirm  {
 	display: none;
 }
 .addItem {

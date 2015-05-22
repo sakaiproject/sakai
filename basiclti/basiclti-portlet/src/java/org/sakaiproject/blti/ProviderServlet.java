@@ -589,8 +589,7 @@ public class ProviderServlet extends HttpServlet {
             }
         } catch (Exception e) {
             M_log.warn(e.getLocalizedMessage(), e);
-            new LTIException( "launch.tool.search", "tool_id="+tool_id, e);
-
+            throw new LTIException( "launch.tool.search", "tool_id="+tool_id, e);
         }
 
         if (M_log.isDebugEnabled()) {
@@ -601,37 +600,30 @@ public class ProviderServlet extends HttpServlet {
         // Otherwise, add tool to the site
         ToolConfiguration toolConfig = null;
         if(BasicLTIUtil.isBlank(toolPlacementId)) {
-            if(trustedConsumer) {
-                new LTIException("launch.site.tool.missing", "tool_id="+tool_id + ", siteId="+site.getId(), null);
+            try {
+                SitePage sitePageEdit = null;
+                sitePageEdit = site.addPage();
+                sitePageEdit.setTitle(tool_id);
 
-            } else {
+                toolConfig = sitePageEdit.addTool();
+                toolConfig.setTool(tool_id, ToolManager.getTool(tool_id));
+                toolConfig.setTitle(tool_id);
+
+                Properties propsedit = toolConfig.getPlacementConfig();
+                propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID));
+                pushAdvisor();
                 try {
-                    SitePage sitePageEdit = null;
-                    sitePageEdit = site.addPage();
-                    sitePageEdit.setTitle(tool_id);
-
-                    toolConfig = sitePageEdit.addTool();
-                    toolConfig.setTool(tool_id, ToolManager.getTool(tool_id));
-                    toolConfig.setTitle(tool_id);
-
-                    Properties propsedit = toolConfig.getPlacementConfig();
-                    propsedit.setProperty(BASICLTI_RESOURCE_LINK,  (String) payload.get(BasicLTIConstants.RESOURCE_LINK_ID));
-                    pushAdvisor();
-                    try {
-                        SiteService.save(site);
-                        M_log.info("Tool added, tool_id="+tool_id + ", siteId="+site.getId());
-                    } catch (Exception e) {
-                        new LTIException( "launch.site.save", "tool_id="+tool_id + ", siteId="+site.getId(), e);
-
-                    } finally {
-                        popAdvisor();
-                    }
-                    toolPlacementId = toolConfig.getId();
-
+                    SiteService.save(site);
+                    M_log.info("Tool added, tool_id="+tool_id + ", siteId="+site.getId());
                 } catch (Exception e) {
-                    new LTIException( "launch.tool.add", "tool_id="+tool_id + ", siteId="+site.getId(), e);
-
+                    throw new LTIException( "launch.site.save", "tool_id="+tool_id + ", siteId="+site.getId(), e);
+                } finally {
+                    popAdvisor();
                 }
+                toolPlacementId = toolConfig.getId();
+
+            } catch (Exception e) {
+                throw new LTIException( "launch.tool.add", "tool_id="+tool_id + ", siteId="+site.getId(), e);
             }
         }
 

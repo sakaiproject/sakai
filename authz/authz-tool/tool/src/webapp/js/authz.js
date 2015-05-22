@@ -1,88 +1,48 @@
 $(document).ready(function(){
+	// When the checkboxes change update the cell.
+	$('input:checkbox').change(function(){
+		$(this).parents('td').toggleClass('active', this.checked);
+	}).change();
     $("table.checkGrid tr:even").addClass("evenrow");
-    $(':checked').parents('td').addClass('active');
+    // Save the default selected
     $(':checked').parents('td').addClass('defaultSelected');
-    $('input:checkbox').click(function(){
-        if (this.checked) {
-            $(this).parents('td').addClass('active');
-        }
-        else {
-            $(this).parents('td').removeClass('active');
-        }
+    
+    $('.permissionDescription').hover(function(e){
+        $(this).parents('tr').children('td').toggleClass('rowHover', e.type == "mouseenter");
     });
     
-    $('.permissionDescription').mouseenter(function(){
-        $(this).parents('tr').children('td').addClass('rowHover');
-    }).mouseleave(function(){
-        $(this).parents('tr').children('td').removeClass('rowHover');
+    $('th').hover(function(event){
+    	var col = ($(this).prevAll().size());
+        $('.' + col).add(this).toggleClass('rowHover', event.type == "mouseenter");
     });
     
-    $('th').mouseenter(function(){
-        var col = ($(this).prevAll().size());
-        $(this).addClass('rowHover');
-        $('.' + col).addClass('rowHover');
-    }).mouseleave(function(){
-        var col = ($(this).prevAll().size());
-        $(this).removeClass('rowHover');
-        $('.' + col).removeClass('rowHover');
-    });
-    $('th#permission').mouseenter(function(){
-        $('.checkGrid td.checkboxCell').addClass('rowHover');
-    }).mouseleave(function(){
-        $('.checkGrid td.checkboxCell').removeClass('rowHover');
+    $('th#permission').hover(function(event){
+        $('.checkGrid td.checkboxCell').toggleClass('rowHover', event.type == "mouseenter");
     });
     
     $('th#permission a').click(function(e){
-        if ($('.checkGrid :checked').length > 0) {
-            $('.checkGrid input').attr('checked', '');
-            $('.checkGrid td.checkboxCell').removeClass('active');
-        }
-        else {
-            $('.checkGrid input').attr('checked', 'checked');
-            $('.checkGrid td.checkboxCell').addClass('active');
-            
-        }
+        $('.checkGrid input').prop('checked', ($('.checkGrid :checked').length == 0)).change();
         e.preventDefault();
-        
     });
     $('.permissionDescription a').click(function(e){
-        if ($(this).parents('tr').children('td').children('label').children('input:checked').length > 0) {
-            $(this).parents('tr').children('td').children('label').children('input').attr('checked', '');
-            $(this).parents('tr').children('td').removeClass('active');
-            
-        }
-        else {
-            $(this).parents('tr').children('td').children('label').children('input').attr('checked', 'checked');
-            $(this).parents('tr').children('td').addClass('active');
-            $(this).removeClass('active');
-        }
+        var anyChecked = $(this).parents('tr').find('input:checked').not('[disabled]').length > 0;
+        $(this).parents('tr').find('input:checkbox').not('[disabled]').prop('checked', !anyChecked).change();
         e.preventDefault();
-        
     });
     $('th.role a').click(function(e){
         var col = ($(this).parent('th').prevAll().size());
-        if ($('.' + col + ' label input:checked').length > 0) {
-            $('.' + col + ' label input').attr('checked', '');
-            $('.' + col).removeClass('active');
-        }
-        else {
-            $('.' + col + ' label input').attr('checked', 'checked');
-            $('.' + col).addClass('active');
-        }
+        var anyChecked = $('.' + col + ' input:checked').not('[disabled]').length > 0;
+        $('.' + col + ' input').not('[disabled]').prop('checked', !anyChecked).change();
         e.preventDefault();
-        
     });
     
     $('#clearall').click(function(e){
-        $("input").attr("checked", "");
-        $('td').removeClass('active');
+        $("input").not('[disabled]').prop("checked", false).change();
         e.preventDefault();
     });
     $('#restdef').click(function(e){
-        $("input").attr("checked", "");
-        $('td').removeClass('active');
-        $(".defaultSelected").addClass("active");
-        $(".defaultSelected input ").attr("checked", "checked");
+        $("input").prop("checked", false);
+        $(".defaultSelected input").prop("checked", true).change();
         e.preventDefault();
     });
     

@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/content/chef_resources_webdav.vm,v 1.7 2005/06/08 15:19:32 gsilver.umich.edu Exp $
 <!-- chef_resources_webdav.vm, use with org.chefproject.ContentListAction.java -->
-<script language="JavaScript" type="text/JavaScript">
+<script type="text/javascript">
 <!--
 	function openCopyrightWindow(theURL,winName,winSettings) 
 	{ 
@@ -55,7 +55,7 @@
 </script>
 ## to prevent horiz scroll on IE
 <!--[if IE]>
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 		document.body.style.width='96%'
 	</script>
 <![endif]--> 
@@ -65,7 +65,11 @@
 
 <div class="portletBody specialLink">
 	<ul class="navIntraTool actionToolBar">
+        #if("$!dropboxMode" == "true")
+		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site.dropbox")</a></span></li>
+        #else
 		<li class="firstToolBarItem"><span><a href="#toolLink("ResourcesAction" "doCancel")">$tlang.getString("list.site")</a></span></li>
+        #end
 		<li><span class="current">$tlang.getString('dav.webdav')</span></li>
 	</ul>
 	#if($menu)#toolbar($menu)#end

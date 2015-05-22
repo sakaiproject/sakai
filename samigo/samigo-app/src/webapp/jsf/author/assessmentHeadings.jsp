@@ -21,7 +21,7 @@
 -->
 <h:panelGroup rendered="#{authorization.adminQuestionPool or authorization.adminTemplate}">
 <f:verbatim><ul class="navIntraTool actionToolbar" role="menu"> 
-<li role="menuitem" class="firstToolBarItem"> <span></f:verbatim>
+<li role="menuitem" class="firstToolBarItem"> <span class="current"></f:verbatim>
       <h:outputText value="#{generalMessages.assessment}"/>
 <f:verbatim></span></li></f:verbatim>
 <h:panelGroup rendered="#{authorization.adminTemplate and template.showAssessmentTypes}">

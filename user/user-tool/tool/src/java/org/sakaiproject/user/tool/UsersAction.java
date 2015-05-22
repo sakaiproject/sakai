@@ -90,6 +90,11 @@ import org.sakaiproject.util.StringUtil;
 import org.sakaiproject.portal.util.PortalUtils;
 
 import au.com.bytecode.opencsv.CSVReader;
+import java.text.MessageFormat;
+import org.apache.commons.lang.ArrayUtils;
+import org.sakaiproject.accountvalidator.logic.ValidationLogic;
+import org.sakaiproject.accountvalidator.model.ValidationAccount;
+import org.sakaiproject.util.PasswordCheck;
 
 /**
  * <p>
@@ -118,7 +123,16 @@ public class UsersAction extends PagedResourceActionII
 
 	private static final String SAK_PROP_UNENROLL_BEFORE_DELETE = "user.unenroll.before.delete";
 
-    private static final String USER_TEMPLATE_PREFIX = "!user.template.";
+	private static final String CONFIG_CREATE_BLURB = "create-blurb";
+	private static final String CONFIG_FORCE_EID_EQUALS_EMAIL = "force-eid-equals-email";
+	private static final String CONFIG_VALIDATE_THROUGH_EMAIL = "validate-through-email";
+	private static final String STATE_SUCCESS_MESSAGE = "successMessage";
+
+	// SAK-29182
+	private static final String SAK_PROP_INVALID_EMAIL_DOMAINS = "invalidEmailInIdAccountString";
+	private static final String SAK_PROP_INVALID_EMAIL_DOMAINS_CUSTOM_MESSAGE = "user.email.invalid.domain.message";
+
+	private static final String USER_TEMPLATE_PREFIX = "!user.template.";
 
 	/**
 	 * {@inheritDoc}
@@ -176,6 +190,21 @@ public class UsersAction extends PagedResourceActionII
 		if (state.getAttribute("create-type") == null)
 		{
 			state.setAttribute("create-type", config.getInitParameter("create-type", ""));
+		}
+
+		if (state.getAttribute(CONFIG_VALIDATE_THROUGH_EMAIL) == null)
+		{
+			state.setAttribute(CONFIG_VALIDATE_THROUGH_EMAIL, new Boolean(config.getInitParameter(CONFIG_VALIDATE_THROUGH_EMAIL, "false")));
+		}
+
+		if (state.getAttribute(CONFIG_FORCE_EID_EQUALS_EMAIL) == null)
+		{
+			state.setAttribute(CONFIG_FORCE_EID_EQUALS_EMAIL, new Boolean(config.getInitParameter(CONFIG_FORCE_EID_EQUALS_EMAIL, "false")));
+		}
+
+		if (state.getAttribute(CONFIG_CREATE_BLURB) == null)
+		{
+			state.setAttribute(CONFIG_CREATE_BLURB, config.getInitParameter(CONFIG_CREATE_BLURB, ""));
 		}
 		
 		if (state.getAttribute("user.recaptcha-enabled") == null)
@@ -259,8 +288,8 @@ public class UsersAction extends PagedResourceActionII
 		context.put(Menu.CONTEXT_ACTION, state.getAttribute(STATE_ACTION));
 
 		//put successMessage into context and remove from state
-	    context.put("successMessage", state.getAttribute("successMessage"));
-	    state.removeAttribute("successMessage");
+		context.put("successMessage", state.getAttribute(STATE_SUCCESS_MESSAGE));
+		state.removeAttribute(STATE_SUCCESS_MESSAGE);
 
 		// SAK-23568
 		pwHelper.addJavaScriptParamsToContext(context);
@@ -387,6 +416,15 @@ public class UsersAction extends PagedResourceActionII
 	} // buildListContext
 
 	/**
+	 * @author bjones86 - SAK-29182
+	 * @return a list of strings contained in the invalidEmailInIdAccountString sakai.property, or an empty list if not set
+	 */
+	private List<String> getInvalidEmailDomains()
+	{
+		return Arrays.asList( ArrayUtils.nullToEmpty( ServerConfigurationService.getStrings( SAK_PROP_INVALID_EMAIL_DOMAINS ) ) );
+	}
+
+	/**
 	 * Build the context for the new user mode.
 	 */
 	private String buildNewContext(SessionState state, Context context)
@@ -434,13 +472,30 @@ public class UsersAction extends PagedResourceActionII
 		// put the service in the context
 		context.put("service", UserDirectoryService.getInstance());
 
+		String blurb = (String) state.getAttribute(CONFIG_CREATE_BLURB);
+		if (!StringUtils.isEmpty(blurb))
+		{
+			context.put("createBlurb", blurb);
+		}
+
 		// is the type to be pre-set
 		context.put("type", state.getAttribute("create-type"));
+
+		boolean isValidatedWithAccountValidator = isValidatedWithAccountValidator(state);
+		boolean isEidEditable = isEidEditable(state);
+
+		// if the tool is configured to validate through email, we will use AccountValidator to set name fields, etc. So we indicate this in the context to hide fields that are redundant
+		context.put("isValidatedWithAccountValidator", isValidatedWithAccountValidator);
+
+		// If we're using account validator, an email needs to be sent
+		// If the eid is not editable, the email will be used as the eid
+		context.put("emailRequired", isValidatedWithAccountValidator || !isEidEditable);
 
 		// password is required when using Gateway New Account tool
 		// attribute "create-user" is true only for New Account tool
 		context.put("pwRequired", state.getAttribute("create-user"));
 
+		context.put("displayEid", isEidEditable);
 		String value = (String) state.getAttribute("valueEid");
 		if (value != null) context.put("valueEid", value);
 
@@ -702,10 +757,25 @@ public class UsersAction extends PagedResourceActionII
 			
 		List<ImportedUser> users = (List<ImportedUser>)state.getAttribute("importedUsers");
 		if(users !=null && users.size() > 0) {
-		
+			//Check if the email is duplicated
+			boolean allowEmailDuplicates = ServerConfigurationService.getBoolean("user.email.allowduplicates",true);
+			
+			
 			for(ImportedUser user: users) {
 				try {
+					
+					TempUser tempUser = new TempUser(user.getEid(), user.getEmail(), null, null, user.getEid(), user.getPassword(), null);
+					
+					if (!allowEmailDuplicates && UserDirectoryService.checkDuplicatedEmail(tempUser)){
+						addAlert(state, rb.getString("useact.theuseemail1") + ":" + tempUser.getEmail());
+						
+						//Try to import the rest
+						continue;
+					}
+					
 					User newUser = UserDirectoryService.addUser(null, user.getEid(), user.getFirstName(), user.getLastName(), user.getEmail(), user.getPassword(), user.getType(), user.getProperties());
+			
+					
 				}
 				catch (UserAlreadyDefinedException e){
 					//ok, just skip
@@ -726,7 +796,7 @@ public class UsersAction extends PagedResourceActionII
 			}
 			
 			//set a message to show it was successful
-			state.setAttribute("successMessage", rb.getString("import.success"));
+			state.setAttribute(STATE_SUCCESS_MESSAGE, rb.getString("import.success"));
 			
 			//cleanup
 			state.removeAttribute("importedUsers");
@@ -859,10 +929,21 @@ public class UsersAction extends PagedResourceActionII
 		// read the form - if rejected, leave things as they are
 		if (!readUserForm(data, state)) return;
 
+
+		
 		// commit the change
 		UserEdit edit = (UserEdit) state.getAttribute("user");
 		if (edit != null)
 		{
+			
+			//Check if the email is duplicated
+			boolean allowEmailDuplicates = ServerConfigurationService.getBoolean("user.email.allowduplicates",true);
+			
+			if (!allowEmailDuplicates && UserDirectoryService.checkDuplicatedEmail(edit)){
+				addAlert(state, rb.getString("useact.theuseemail1"));
+				return;
+			}
+			
 			try
 			{
 				UserDirectoryService.commitEdit(edit);
@@ -900,23 +981,32 @@ public class UsersAction extends PagedResourceActionII
 
 		if ((user != null) && ((Boolean) state.getAttribute("create-login")).booleanValue())
 		{
-			try
+			if (isValidatedWithAccountValidator(state))
 			{
-				// login - use the fact that we just created the account as external evidence
-				Evidence e = new ExternalTrustedEvidence(user.getEid());
-				Authentication a = AuthenticationManager.authenticate(e);
-				if (!UsageSessionService.login(a, (HttpServletRequest) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_REQUEST)))
+				// Don't log the user in, their account is not activated yet.
+				// inform them that an email has been sent
+				state.setAttribute(STATE_SUCCESS_MESSAGE, rb.getFormattedMessage("email.validation.success", user.getEmail()));
+			}
+			else
+			{
+				try
 				{
-					addAlert(state, rb.getString("useact.tryloginagain"));
+					// login - use the fact that we just created the account as external evidence
+					Evidence e = new ExternalTrustedEvidence(user.getEid());
+					Authentication a = AuthenticationManager.authenticate(e);
+					if (!UsageSessionService.login(a, (HttpServletRequest) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_REQUEST)))
+					{
+						addAlert(state, rb.getString("useact.tryloginagain"));
+					}
 				}
-			}
-			catch (AuthenticationException ex)
-			{
-				Log.warn("chef", "UsersAction.doSave: authentication failure: " + ex);
-			}
+				catch (AuthenticationException ex)
+				{
+					Log.warn("chef", "UsersAction.doSave: authentication failure: " + ex);
+				}
 
-			// redirect to home (on next build)
-			state.setAttribute("redirect", "");
+				// redirect to home (on next build)
+				state.setAttribute("redirect", "");
+			}
 		}
 
 	} // doSave
@@ -1129,11 +1219,12 @@ public class UsersAction extends PagedResourceActionII
 	private boolean readUserForm(RunData data, SessionState state)
 	{
 		// boolean parameters and values
-		// --------------Mode--singleUser-createUser-typeEnable
-		// Admin New-----new---false------false------true
-		// Admin Update--edit--false------false------true
-		// Gateway New---null---false------true-------false
-		// Account Edit--edit--true-------false------false
+		// --------------Mode----singleUser-createUser-typeEnable
+		// Admin New-----new-----false------false------true
+		// Admin Update--edit----false------false------true
+		// Admin Delete--remove--false------false------false
+		// Gateway New---null----false------true-------false
+		// Account Edit--edit----true-------false------false
 
 		// read the form
 		String id = StringUtils.trimToNull(data.getParameters().getString("id"));
@@ -1155,6 +1246,28 @@ public class UsersAction extends PagedResourceActionII
         String mode = (String) state.getAttribute("mode");
 		boolean singleUser = ((Boolean) state.getAttribute("single-user")).booleanValue();
 		boolean createUser = ((Boolean) state.getAttribute("create-user")).booleanValue();
+
+		// SAK-29182 - enforce invalid domains when creating a user through Gateway -> New Account
+		boolean isEidEditable = isEidEditable( state );
+		if( createUser && !isEidEditable )
+		{
+			for( String domain : getInvalidEmailDomains() )
+			{
+				if( email.toLowerCase().endsWith( domain.toLowerCase() ) )
+				{
+					String defaultMsg = rb.getFormattedMessage( "email.invalid.domain", new Object[] { domain } );
+					String customMsg = ServerConfigurationService.getString( SAK_PROP_INVALID_EMAIL_DOMAINS_CUSTOM_MESSAGE, "" );
+					if( !customMsg.isEmpty() )
+					{
+						String institution = ServerConfigurationService.getString( "ui.institution", "" );
+						customMsg = new MessageFormat( customMsg, rb.getLocale() ).format( new Object[] { institution, domain }, new StringBuffer(), null ).toString();
+					}
+
+					addAlert( state, customMsg.isEmpty() ? defaultMsg : customMsg );
+					return false;
+				}
+			}
+		}
 
 		boolean typeEnable = false;
 		String type = null;
@@ -1199,9 +1312,11 @@ public class UsersAction extends PagedResourceActionII
 		}
 		
 		
-		//insure valid email address
+		//Ensure valid email address. Empty emails are invalid iff email validation is required. For non-empty email Strings, use EmailValidator.
 		//email.matches(".+@.+\\..+")
-		if(email != null && !EmailValidator.getInstance().isValid(email)) {
+		boolean validateWithAccountValidator = isValidatedWithAccountValidator(state);
+		boolean emailInvalid = StringUtils.isEmpty(email) ? validateWithAccountValidator : !EmailValidator.getInstance().isValid(email);
+		if(emailInvalid) {
 				addAlert(state, rb.getString("useact.invemail"));	
 				return false;
 		}
@@ -1265,35 +1380,62 @@ public class UsersAction extends PagedResourceActionII
 		if (user == null)
 		{
 			// make sure we have eid
-			if (eid == null)
+			if (isEidEditable)
 			{
-				addAlert(state, rb.getString("usecre.eidmis"));
-				return false;
+				if (eid == null)
+				{
+					addAlert(state, rb.getString("usecre.eidmis"));
+					return false;
+				}
 			}
 			
-			// if in create mode, make sure we have a password
-			if (createUser)
+			else
 			{
-				if (pw == null)
+				// eid is not editable, so we're using the email as the eid
+				if (email == null)
 				{
-					addAlert(state, rb.getString("usecre.pasismis"));
+					addAlert(state, rb.getString("useact.invemail"));
 					return false;
-				}				
+				}
+				eid = email;
 			}
 
-			// make sure we have matching password fields
-			if (StringUtil.different(pw, pwConfirm))
-			{
-				addAlert(state, rb.getString("usecre.pass"));
-				return false;
-			}
-
-			// SAK-23568 - make sure password meets policy requirements
+			// if we validate through email, passwords will be handled in AccountValidator
 			TempUser tempUser = new TempUser(eid, null, null, null, eid, pw, null);
-			if (!validatePassword(pw, tempUser, state)) {
-				return false;
+			if (!validateWithAccountValidator)
+			{
+				// if in create mode, make sure we have a password
+				if (createUser)
+				{
+					if (pw == null)
+					{
+						addAlert(state, rb.getString("usecre.pasismis"));
+						return false;
+					}
+				}
+
+				// make sure we have matching password fields
+				if (StringUtil.different(pw, pwConfirm))
+				{
+					addAlert(state, rb.getString("usecre.pass"));
+					return false;
+				}
+
+				// SAK-23568 - make sure password meets policy requirements
+				if (!validatePassword(pw, tempUser, state)) {
+					return false;
+				}
 			}
 
+			//Check if the email is duplicated
+			boolean allowEmailDuplicates = ServerConfigurationService.getBoolean("user.email.allowduplicates",true);
+			
+			if (!allowEmailDuplicates && UserDirectoryService.checkDuplicatedEmail(tempUser)){
+					addAlert(state, rb.getString("useact.theuseemail1"));
+					return false;
+			}
+			
+			
 			try
 			{
 				// add the user in one step so that all you need is add not update permission
@@ -1303,24 +1445,35 @@ public class UsersAction extends PagedResourceActionII
 				if (!SecurityService.isSuperUser()) {
 					id = null;
 				}
-				User newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, properties);
+				User newUser;
+				if (validateWithAccountValidator)
+				{
+					// the eid is their email address. The password is random
+					newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, PasswordCheck.generatePassword(), type, properties);
+					// Invoke AccountValidator to send an email to the user containing a link to a form on which they can set their name and password
+					ValidationLogic validationLogic = (ValidationLogic) ComponentManager.get(ValidationLogic.class);
+					validationLogic.createValidationAccount(newUser.getId(), ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT);
+				}
+				else
+				{
+					newUser = UserDirectoryService.addUser(id, eid, firstName, lastName, email, pw, type, properties);
 
-                                if (SecurityService.isSuperUser()) {
-                                        if(disabled == 1){
-                                                try {
-                                                        UserEdit editUser = UserDirectoryService.editUser(newUser.getId());
-                                                        editUser.getProperties().addProperty("disabled", "true");
-                                                        newUser = editUser;
-                                                } catch (UserNotDefinedException e) {
-                                                        addAlert(state, rb.getString("usecre.disableFailed"));
-                                                        return false;
-                                                } catch (UserLockedException e) {
-                                                        addAlert(state, rb.getString("usecre.disableFailed"));
-                                                        return false;
-                                                }
-                                        }
-                                }
-
+					if (SecurityService.isSuperUser()) {
+						if(disabled == 1){
+							try {
+								UserEdit editUser = UserDirectoryService.editUser(newUser.getId());
+								editUser.getProperties().addProperty("disabled", "true");
+								newUser = editUser;
+							} catch (UserNotDefinedException e) {
+								addAlert(state, rb.getString("usecre.disableFailed"));
+								return false;
+							} catch (UserLockedException e) {
+								addAlert(state, rb.getString("usecre.disableFailed"));
+								return false;
+							}
+						}
+					}
+				}
 
 				// put the user in the state
 				state.setAttribute("newuser", newUser);
@@ -1821,7 +1974,41 @@ public class UsersAction extends PagedResourceActionII
 		}
 		return provided;
 	}
-    /**
+
+	/**
+	 * Determines whether Account Validator is to be used to ensure that users don't enter bogus email addresses.
+	 * This is only required in the gateway's New Account tool if you're not admin.
+	 * If this is true, the user account will be inactive (ie. it will be assigned a random unguessable password).
+	 * Then, Account Validator will send an email to the user containing a link to a form where they can activate their account by setting their password.
+	 * @return true if the state says that this is the gateway's New Account tool, and you're not a super user, and validate-through-email is set in the tool properties
+	 */
+	private boolean isValidatedWithAccountValidator(SessionState state)
+	{
+		boolean isGatewayTool = (boolean) state.getAttribute("create-user");
+		if (isGatewayTool && !SecurityService.isSuperUser())
+		{
+			return (boolean) state.getAttribute(CONFIG_VALIDATE_THROUGH_EMAIL);
+		}
+		return false;
+	}
+
+	private boolean isEidEditable(SessionState state)
+	{
+		if (SecurityService.isSuperUser())
+		{
+			return true;
+		}
+
+		boolean isGatewayTool = (boolean) state.getAttribute("create-user");
+		if (!isGatewayTool)
+		{
+			return true;
+		}
+
+		return !(Boolean)state.getAttribute(CONFIG_FORCE_EID_EQUALS_EMAIL);
+	}
+
+	/**
      * Determine user types by looking at realms that start with "!user.template."
      * Doesn't include sample type
      *

@@ -45,7 +45,7 @@ public class ToolUtils
 {
 
 	public static final String PORTAL_INLINE_EXPERIMENTAL = "portal.inline.experimental";
-	public static final String PORTAL_INLINE_EXPERIMENTAL_DEFAULT = "true";
+	public static final boolean PORTAL_INLINE_EXPERIMENTAL_DEFAULT = true;
 
 	/**
 	 * Determine if this is an inline request.
@@ -68,9 +68,7 @@ public class ToolUtils
 		}
 
 		// Fall back to the system default
-		String trinity = ServerConfigurationService.getString(PORTAL_INLINE_EXPERIMENTAL, 
-			PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
-		return "true".equals(trinity);
+		return ServerConfigurationService.getBoolean(PORTAL_INLINE_EXPERIMENTAL, PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
 	}
 
 	/**
@@ -107,7 +105,7 @@ public class ToolUtils
 	 * @param <code>page</code>
 	 *		The page
 	 * @param <code>portalPrefix</code>
-	 *		The controlling portal.  Typically "portal" or "pda".  No slashes should be included
+	 *		The controlling portal.  Typically "site".  No slashes should be included
 	 */
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page, String portalPrefix)
 	{
@@ -124,7 +122,7 @@ public class ToolUtils
 	 * @param <code>page</code>
 	 *		The page
 	 * @param <code>portalPrefix</code>
-	 *		The controlling portal.  Typically "portal" or "pda".  No slashes should be included
+	 *		The controlling portal.  Typically "site".  No slashes should be included
 	 * @param <code>reset</code>
 	 *		Should we reset the tool as part of this GET reference (typically true)
 	 * @param <code>effectiveSiteId</code>
@@ -155,18 +153,16 @@ public class ToolUtils
 		if ( count != 1 ) return pageUrl;
 		if ( isPortletPlacement(pageTool) ) return pageUrl;
 
-		String trinity = ServerConfigurationService.getString(PORTAL_INLINE_EXPERIMENTAL, 
-			PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
-		if ( ! "true".equals(trinity) ) return pageUrl;
+		boolean trinity = ServerConfigurationService.getBoolean(PORTAL_INLINE_EXPERIMENTAL, PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
+		if (!trinity) return pageUrl;
 
-		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + Web.escapeUrl(effectiveSiteId) );
+		pageUrl = Web.returnUrl(req, "/" + portalPrefix + "/" + effectiveSiteId);
 		if (reset) {
 			pageUrl = pageUrl + "/tool-reset/";
 		} else {
 			pageUrl = pageUrl + "/tool/";
 		}
-		pageUrl = pageUrl + Web.escapeUrl(pageTool.getId());
-		return pageUrl;
+		return pageUrl + pageTool.getId();
 	}
 
 	/**

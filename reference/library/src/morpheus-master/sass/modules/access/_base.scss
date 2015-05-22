@@ -1,0 +1,113 @@
+##{$namespace}xlogin{
+	
+	position: fixed;
+	top: calc(50% - 15em);
+	left: calc(50% - 15em);
+	width: 29em;
+	min-height: 14em;
+
+	background: $background-color-secondary;
+	@include box-shadow( 0 0 5px rgba( $text-color , 0.25 ) );
+	.logo{
+		background: $primary-color url($logo) no-repeat center center;
+		width: 100%;
+		height: 64px;
+		margin: 0 auto;
+		overflow: hidden;
+		@include border-radius( 0px );
+		@include transition( all 0.5s linear);
+		img{
+			opacity: 0;
+			height: 0px;
+			width: 100%;
+			@include transition( all 0.5s linear);
+			@include border-radius( 128px );
+		}
+		&.gravatar{
+			height: 128px;
+			width:  128px;
+			border: 2px solid $primary-color;
+			@include border-radius( 128px );
+			img{
+				opacity: 1;
+				height: auto;
+			}
+		}
+	}
+	h1{
+		padding: 0.6em;
+  		font-size: 1.8em;
+  		color: $primary-color;
+  		text-align: center;
+	}
+	.alertMessage{
+		background: $errorcolor;
+		border: 1px solid darken( $errorcolor, 30% );
+		color: darken( $errorcolor, 30% );
+		padding: 0.8em;
+		text-align: center;
+	}
+	fieldset{
+		padding: 1em;
+		label{
+			font-family: $header-font-family;
+			font-weight: $header-font-weight;
+			font-size: 1.2em;
+			display: inline-block;
+			min-width: 38%;
+			min-height: 3em;
+		}
+		input[type="text"],input[type="password"]{
+			display: inline-block;
+			min-width: 56%;
+			border: 1px solid darken($background-color-secondary, 15%);
+			padding: 0.3em;
+		}
+		input[type="submit"]{
+			font-size: 1.1em;
+			margin: 0 0 1em 0;
+		}
+		p{
+			text-align: right;
+		}
+	}
+
+	&.with-errors{
+		input[type="text"],input[type="password"]{			
+			border: 1px solid darken($errorcolor, 15%);
+			background: $errorcolor;
+		}
+	}
+
+	&.loadedByAjax{
+		z-index: 1010;
+		@include box-shadow( 0 0 15px rgba( $text-color , 0.25 ) );
+	}
+
+	@media #{$phone}{
+		position: absolute;
+		top:   0;
+		left:  10%;
+		width: 80%;
+		margin: 2em auto;
+	}
+
+}
+
+#Mrphs-xlogin-container{
+	opacity: 0;
+	@include transition(opacity 0.25s linear);
+	&.loaded{
+		opacity: 1;
+	}
+}
+
+#loginPortalMask{
+	background: rgba(0,0,0,0.5);
+	position: fixed;
+	height: 100%;
+	width:  100%;
+	top:  0;
+	left: 0;
+	z-index: 1000;
+}

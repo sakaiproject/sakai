@@ -86,6 +86,13 @@
 		 		
 		 		<h:column>
 		 			<f:facet name="header">
+		 				<h:outputText value="#{samLiteMessages.samlite_discount}" />
+		        	</f:facet>
+		 			<h:outputText value="#{question.questionDiscount}"/>
+		 		</h:column>
+		 		
+		 		<h:column>
+		 			<f:facet name="header">
 		          		<h:outputText value="#{samLiteMessages.samlite_answers}" />
 		        	</f:facet>
 		 			<h:panelGrid>

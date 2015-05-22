@@ -96,10 +96,13 @@ public class GradingBean {
 
 		String gradebookId = null;
 
+		Integer maxpoints = null;
 		if (studentPage != null) {
 		    gradebookId = topItem.getAltGradebook();
+		    maxpoints = topItem.getAltPoints();
 		} else {
 		    gradebookId = commentItem.getGradebookId();
+		    maxpoints = commentItem.getGradebookPoints();
 		}
 
 		Double newpoints = Double.valueOf(points);
@@ -107,8 +110,8 @@ public class GradingBean {
 		if (newpoints.equals(comment.getPoints())) {
 			return true;
 		}
-		
-		if (newpoints < 0.0 || newpoints > commentItem.getGradebookPoints()) {
+
+		if (newpoints < 0.0 || newpoints > maxpoints) {
 			return false;
 		}
 

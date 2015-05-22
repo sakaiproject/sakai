@@ -28,6 +28,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.Locale;
+import java.util.HashMap;
+import java.util.regex.Pattern;
+import java.util.regex.Matcher;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,6 +45,7 @@ import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -57,6 +61,9 @@ import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.tool.api.Tool;
+import org.sakaiproject.tool.api.ToolException;
+import org.sakaiproject.tool.api.ToolSession;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -76,8 +83,6 @@ import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.util.Validator;
-
-import org.sakaiproject.portal.charon.handlers.PDAHandler;
 
 /**
  * @author ieb
@@ -108,6 +113,27 @@ public class SiteHandler extends WorksiteHandler
 	private String mutableSitename ="-";
 	// This can be replaced by the page on which a tool appears.
 	private String mutablePagename ="-";
+
+	// SAK-29180 - Normalize the properties, keeping the legacy pda sakai.properties names through Sakai-11 at least
+	private static final String BYPASS_URL_PROP = "portal.bypass";
+	private static final String LEGACY_BYPASS_URL_PROP = "portal.pda.bypass";
+	private static final String DEFAULT_BYPASS_URL = "\\.jpg$|\\.gif$|\\.js$|\\.png$|\\.jpeg$|\\.prf$|\\.css$|\\.zip$|\\.pdf\\.mov$|\\.json$|\\.jsonp$\\.xml$|\\.ajax$|\\.xls$|\\.xlsx$|\\.doc$|\\.docx$|uvbview$|linktracker$|hideshowcolumns$";
+
+	// Make sure to lower-case the matching regex (i.e. don't use IResourceListener below)
+	private static final String BYPASS_QUERY_PROP = "portal.bypass.query";
+	private static final String LEGACY_BYPASS_QUERY_PROP = "portal.pda.bypass.query";
+	private static final String DEFAULT_BYPASS_QUERY = "wicket:interface=.*iresourcelistener:|wicket:ajax=true";
+
+	private static final String BYPASS_TYPE_PROP = "portal.bypass.type";
+	private static final String LEGACY_BYPASS_TYPE_PROP = "portal.pda.bypass.type";
+	private static final String DEFAULT_BYPASS_TYPE = "^application/|^image/|^audio/|^video/|^text/xml|^text/plain";
+
+	private static final String IFRAME_SUPPRESS_PROP = "portal.iframesuppress";
+	private static final String LEGACY_IFRAME_SUPPRESS_PROP = "portal.pda.iframesuppress";
+
+	// SAK-27774 - We are going inline default but a few tools need a crutch 
+	// This is Sakai 11 only so please do not back-port or merge this default value
+	private static final String IFRAME_SUPPRESS_DEFAULT = ":all:sakai.rsf.evaluation";
 
 	public SiteHandler()
 	{
@@ -354,9 +380,8 @@ public class SiteHandler extends WorksiteHandler
 		}
 
 		// Check for incomplete URLs in the case of inlined tools
-		String trinity = ServerConfigurationService.getString(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, 
-			ToolUtils.PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
-		if ( "true".equals(trinity) && toolId == null) {
+		boolean trinity = ServerConfigurationService.getBoolean(ToolUtils.PORTAL_INLINE_EXPERIMENTAL, ToolUtils.PORTAL_INLINE_EXPERIMENTAL_DEFAULT);
+		if (trinity && toolId == null) {
 			String pagerefUrl = ToolUtils.getPageUrl(req, site, page, getUrlFragment(),
 				false, null, null);
 			// http://localhost:8080/portal/site/963b28b/tool/0996adf
@@ -371,10 +396,6 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
-		// Create and initialize a copy of the PDA Handler
-		PDAHandler pdah = new PDAHandler();
-		pdah.register(portal,portalService,servletContext);
-
 		// See if we can buffer the content, if not, pass the request through
 		String TCP = null;
 		String toolPathInfo = null;
@@ -388,7 +409,7 @@ public class SiteHandler extends WorksiteHandler
 				commonToolId = siteTool.getToolId();
 
 				// Does the tool allow us to buffer?
-				allowBuffer = pdah.allowBufferContent(req, site, siteTool);
+				allowBuffer = allowBufferContent(req, site, siteTool);
 				log.debug("allowBuffer="+allowBuffer+" url="+req.getRequestURL());
 
 				if ( allowBuffer ) {
@@ -396,7 +417,7 @@ public class SiteHandler extends WorksiteHandler
 					toolPathInfo = Web.makePath(parts, 5, parts.length);
 
 					// Should we bypass buffering based on the request?
-					boolean matched = pdah.checkBufferBypass(req, siteTool);
+					boolean matched = checkBufferBypass(req, siteTool);
 
 					if ( matched ) {
 						log.debug("Bypassing buffer to forwardTool per configuration");
@@ -422,7 +443,7 @@ public class SiteHandler extends WorksiteHandler
 		if ( allowBuffer ) {
 			log.debug("Starting the buffer process...");
 
-			BC = pdah.bufferContent(req, res, session, toolId,
+			BC = bufferContent(req, res, session, toolId,
 					TCP, toolPathInfo, siteTool);
 
 			// If the buffered response was not parseable
@@ -676,10 +697,6 @@ public class SiteHandler extends WorksiteHandler
 		{
 			skin = ServerConfigurationService.getString("skin.default");
 		}
-		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
-		String prefix = portalService.getSkinPrefix();
-        // Don't add the prefix twice
-        if ( "neoskin".equals(templates) && !StringUtils.startsWith(skin, prefix) ) skin = prefix + skin;
 		return skin;
 	}
 
@@ -883,5 +900,257 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("allowAddSite",allowAddSite);
 		}
 	}
+
+// XXXX
+
+
+	/*
+	 * Check to see if this request should bypass buffering
+	 */
+	public boolean checkBufferBypass(HttpServletRequest req, ToolConfiguration siteTool)
+	{
+		String uri = req.getRequestURI();
+		String commonToolId = siteTool.getToolId();
+		boolean matched = false;
+		// Check the URL for a pattern match
+		String pattern = null;
+		Pattern p = null;
+		Matcher m = null;
+		pattern = ServerConfigurationService .getString(LEGACY_BYPASS_URL_PROP, DEFAULT_BYPASS_URL);
+		pattern = ServerConfigurationService .getString(BYPASS_URL_PROP, pattern);
+		pattern = ServerConfigurationService .getString(LEGACY_BYPASS_URL_PROP+"."+commonToolId, pattern);
+		pattern = ServerConfigurationService .getString(BYPASS_URL_PROP+"."+commonToolId, pattern);
+		if ( pattern.length() > 1 ) {
+			p = Pattern.compile(pattern);
+			m = p.matcher(uri.toLowerCase());
+			if ( m.find() ) {
+				matched = true;
+			}
+		}
+
+		// Check the query string for a pattern match
+		pattern = ServerConfigurationService .getString(LEGACY_BYPASS_QUERY_PROP, DEFAULT_BYPASS_QUERY);
+		pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP, pattern);
+		pattern = ServerConfigurationService .getString(LEGACY_BYPASS_QUERY_PROP+"."+commonToolId, pattern);
+		pattern = ServerConfigurationService .getString(BYPASS_QUERY_PROP+"."+commonToolId, pattern);
+		String queryString = req.getQueryString();
+		if ( queryString == null ) queryString = "";
+		if ( pattern.length() > 1 ) {
+			p = Pattern.compile(pattern);
+			m = p.matcher(queryString.toLowerCase());
+			if ( m.find() ) {
+				matched = true;
+			}
+		}
+
+		// wicket-ajax request can not be buffered (PRFL-405)
+		if (Boolean.valueOf(req.getHeader("wicket-ajax"))) {
+			matched = true;
+		}
+		return matched;
+	}
+
+	/*
+	 * Check to see if this tool allows the buffering of content
+	 */
+	public boolean allowBufferContent(HttpServletRequest req, Site site, ToolConfiguration siteTool)
+	{
+		String tidAllow = ServerConfigurationService.getString(LEGACY_IFRAME_SUPPRESS_PROP, IFRAME_SUPPRESS_DEFAULT);
+		tidAllow = ServerConfigurationService.getString(IFRAME_SUPPRESS_PROP, tidAllow);
+
+		if (tidAllow.indexOf(":none:") >= 0) return false;
+
+		// JSR-168 portlets do not operate in iframes
+		if ( portal.isPortletPlacement(siteTool) ) return false;
+
+		// If the property is set and :all: is not specified, then the 
+		// tools in the list are the ones that we accept
+		if (tidAllow.trim().length() > 0 && tidAllow.indexOf(":all:") < 0)
+		{
+			if (tidAllow.indexOf(siteTool.getToolId()) < 0) return false;
+		}
+
+		// If the property is set and :all: is specified, then the 
+		// tools in the list are the ones that we render the old way
+		if (tidAllow.indexOf(":all:") >= 0)
+		{
+			if (tidAllow.indexOf(siteTool.getToolId()) >= 0) return false;
+		}
+
+		// Need to make sure the user is allowed to visit this tool
+		ToolManager toolManager = (ToolManager) ComponentManager.get(ToolManager.class.getName());
+		boolean allowedUser = toolManager.allowTool(site, siteTool);
+		if ( ! allowedUser ) return false;
+
+		return true;
+	}
+
+	/*
+	 * Optionally actually grab the tool's output and include it in the same
+	 * frame.  Return value is a bit complex. 
+	 * Boolean.FALSE - Some kind of failure
+	 * ByteArrayServletResponse - Something that needs to be simply sent out (i.e. not bufferable)
+	 * Map - Buffering is a success and map contains buffer pieces
+	 */
+	public Object bufferContent(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, String toolContextPath, String toolPathInfo, 
+			ToolConfiguration siteTool)
+	{
+		log.debug("bufferContent starting");
+		// Produce the buffered response
+		ByteArrayServletResponse bufferedResponse = new ByteArrayServletResponse(res);
+
+		try {
+			// Prepare the session for the tools.  Handles session reset, reseturl
+			// and helpurl for neo tools - we don't need the returned map
+			Map discard = portal.includeTool(res, req, siteTool, true);
+
+			boolean retval = doToolBuffer(req, bufferedResponse, session, placementId,
+					toolContextPath, toolPathInfo);
+			log.debug("bufferContent retval="+retval);
+
+			// Cleanup transient session bits - SAK-25857
+			ToolSession ts = session.getToolSession(siteTool.getId());
+			if ( ts != null ) {
+				ts.removeAttribute(Portal.SAKAI_PORTAL_ALLOW_NEO);
+				ts.removeAttribute(Portal.SAKAI_PORTAL_HELP_ACTION);
+				ts.removeAttribute(Portal.SAKAI_PORTAL_RESET_ACTION);
+			}
+
+
+			if ( ! retval ) return Boolean.FALSE;
+
+			// If the tool did a redirect - tell our caller to just complete the response
+			if ( bufferedResponse.getRedirect() != null ) return bufferedResponse;
+
+			// Check the response contentType for a pattern match
+			String commonToolId = siteTool.getToolId();
+			String pattern = ServerConfigurationService .getString(LEGACY_BYPASS_TYPE_PROP, DEFAULT_BYPASS_TYPE);
+			pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP, pattern);
+			pattern = ServerConfigurationService .getString(LEGACY_BYPASS_TYPE_PROP+"."+commonToolId, pattern);
+			pattern = ServerConfigurationService .getString(BYPASS_TYPE_PROP+"."+commonToolId, pattern);
+			if ( pattern.length() > 0 ) {
+				String contentType = res.getContentType();
+				if ( contentType == null ) contentType = "";
+				Pattern p = Pattern.compile(pattern);
+				Matcher mc = p.matcher(contentType.toLowerCase());
+				if ( mc.find() ) return bufferedResponse;
+			}
+		} catch (ToolException e) {
+			e.printStackTrace();
+			return Boolean.FALSE;
+		} catch (IOException e) {
+			e.printStackTrace();
+			return Boolean.FALSE;
+		}
+
+		String responseStr = bufferedResponse.getInternalBuffer();
+		if (responseStr == null || responseStr.length() < 1) return Boolean.FALSE;
+
+		String responseStrLower = responseStr.toLowerCase();
+		int headStart = responseStrLower.indexOf("<head");
+		headStart = findEndOfTag(responseStrLower, headStart);
+		int headEnd = responseStrLower.indexOf("</head");
+		int bodyStart = responseStrLower.indexOf("<body");
+		bodyStart = findEndOfTag(responseStrLower, bodyStart);
+
+		// Some tools (Blogger for example) have multiple 
+		// head-body pairs - browsers seem to not care much about
+		// this so we will do the same - so that we can be
+		// somewhat clean - we search for the "last" end
+		// body tag - for the normal case there will only be one
+		int bodyEnd = responseStrLower.lastIndexOf("</body");
+		// If there is no body end at all or it is before the body 
+		// start tag we simply - take the rest of the response
+		if ( bodyEnd < bodyStart ) bodyEnd = responseStrLower.length() - 1;
+
+		String tidAllow = ServerConfigurationService.getString(LEGACY_IFRAME_SUPPRESS_PROP, IFRAME_SUPPRESS_DEFAULT);
+		tidAllow = ServerConfigurationService.getString(IFRAME_SUPPRESS_PROP, tidAllow);
+		if( tidAllow.indexOf(":debug:") >= 0 )
+			log.info("Frameless HS="+headStart+" HE="+headEnd+" BS="+bodyStart+" BE="+bodyEnd);
+
+		if (bodyEnd > bodyStart && bodyStart > headEnd && headEnd > headStart
+				&& headStart > 1)
+		{
+			Map m = new HashMap<String,String> ();
+			String headString = responseStr.substring(headStart + 1, headEnd);
+			String bodyString = responseStr.substring(bodyStart + 1, bodyEnd);
+			if (tidAllow.indexOf(":debug:") >= 0)
+			{
+				System.out.println(" ---- Head --- ");
+				System.out.println(headString);
+				System.out.println(" ---- Body --- ");
+				System.out.println(bodyString);
+			}
+			m.put("responseHead", headString);
+			m.put("responseBody", bodyString);
+			log.debug("responseHead "+headString.length()+
+					" bytes, responseBody "+bodyString.length()+" bytes");
+			return m;
+		}
+		log.debug("bufferContent could not find head/body content");
+		// log.debug(responseStr);
+		return bufferedResponse;
+	}
+
+	private int findEndOfTag(String string, int startPos)
+	{
+		if (startPos < 1) return -1;
+		for (int i = startPos; i < string.length(); i++)
+		{
+			if (string.charAt(i) == '>') return i;
+		}
+		return -1;
+	}
+
+	public boolean doToolBuffer(HttpServletRequest req, HttpServletResponse res,
+			Session session, String placementId, String toolContextPath,
+			String toolPathInfo) throws ToolException, IOException
+	{
+
+		if (portal.redirectIfLoggedOut(res)) return false;
+
+		// find the tool from some site
+		ToolConfiguration siteTool = SiteService.findTool(placementId);
+		if (siteTool == null)
+		{
+			return false;
+		}
+
+		// find the tool registered for this
+		ActiveTool tool = ActiveToolManager.getActiveTool(siteTool.getToolId());
+		if (tool == null)
+		{
+			return false;
+		}
+
+		// permission check - visit the site (unless the tool is configured to
+		// bypass)
+		if (tool.getAccessSecurity() == Tool.AccessSecurity.PORTAL)
+		{
+
+			try
+			{
+				SiteService.getSiteVisit(siteTool.getSiteId());
+			}
+			catch (IdUnusedException e)
+			{
+				portal.doError(req, res, session, Portal.ERROR_WORKSITE);
+				return false;
+			}
+			catch (PermissionException e)
+			{
+				return false;
+			}
+		}
+
+		log.debug("doToolBuffer siteTool="+siteTool+" TCP="+toolContextPath+" TPI="+toolPathInfo);
+
+		portal.forwardTool(tool, req, res, siteTool, siteTool.getSkin(), toolContextPath,
+				toolPathInfo);
+
+		return true;
+	}
+
 
 }

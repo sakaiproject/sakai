@@ -10,14 +10,38 @@
   <filter>
     <filter-name>sakai.request</filter-name>
     <filter-class>org.sakaiproject.util.RequestFilter</filter-class>
+    <!-- This also stops the session cookie being set -->
+    <init-param>
+      <param-name>sakai.session.auth</param-name>
+      <param-value>basic</param-value>
+    </init-param>
+  </filter>
+  <!-- OAuth Filters -->
+  <filter>
+    <filter-name>oauth.pre</filter-name>
+    <filter-class>org.sakaiproject.oauth.filter.OAuthPreFilter</filter-class>
+  </filter>
+  <filter>
+    <filter-name>oauth.post</filter-name>
+    <filter-class>org.sakaiproject.oauth.filter.OAuthPostFilter</filter-class>
   </filter>
 
+  <filter-mapping>
+    <filter-name>oauth.pre</filter-name>
+    <servlet-name>sakai.entitybroker.direct</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
+  </filter-mapping>
   <filter-mapping>
     <filter-name>sakai.request</filter-name>
     <servlet-name>sakai.entitybroker.direct</servlet-name>
     <dispatcher>REQUEST</dispatcher>
     <dispatcher>FORWARD</dispatcher>
     <dispatcher>INCLUDE</dispatcher>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>oauth.post</filter-name>
+    <servlet-name>sakai.entitybroker.direct</servlet-name>
+    <dispatcher>REQUEST</dispatcher>
   </filter-mapping>
 
   <servlet>

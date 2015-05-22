@@ -85,6 +85,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		
 	// key passed as parameters
 	public final static String KEY_GROUP_ID				= "groupId";
+	public final static String KEY_ROLE_ID				= "roleId";
 	public final static String KEY_VIEW_TYPE			= "viewType";
 	public final static String KEY_BY_GROUP				= "byGroup";
 	public final static String KEY_ENROLLMENT_SET_ID	= "enrollmentSetId";
@@ -215,6 +216,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		String groupId = getGroupIdValue(parameters);
 		String viewType = getViewTypeValue(parameters);
 		boolean byGroup = getByGroupValue(parameters);
+		String roleId = getRoleIdValue(parameters);
 
 		String enrollmentSetId = getEnrollmentSetIdValue(parameters);
 		String enrollmentStatus = getEnrollmentStatusValue(parameters);
@@ -241,7 +243,7 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 
 		if (VIEW_OVERVIEW.equals(viewType)) {
 
-			List<RosterMember> rosterMembers = getMembership(currentUserId, site.getId(), groupId);
+			List<RosterMember> rosterMembers = getMembership(currentUserId, site.getId(), groupId,roleId);
 
 			if (null != rosterMembers) {
 				addOverviewRows(dataInRows, rosterMembers, header, site.getId());
@@ -271,14 +273,14 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		response.getOutputStream().close();
 	}
 
-	private List<RosterMember> getMembership(String userId, String siteId, String groupId) {
+	private List<RosterMember> getMembership(String userId, String siteId, String groupId,String roleId) {
 		
 		List<RosterMember> rosterMembers;
 		
 		if (DEFAULT_GROUP_ID.equals(groupId)) {
-			rosterMembers = sakaiProxy.getMembership(userId, siteId, null, null, null, null);
+			rosterMembers = sakaiProxy.getMembership(userId, siteId, null, roleId, null, null);
 		} else {
-			rosterMembers = sakaiProxy.getMembership(userId, siteId, groupId, null, null, null);
+			rosterMembers = sakaiProxy.getMembership(userId, siteId, groupId, roleId, null, null);
 		}
 		
 		if (null == rosterMembers) {
@@ -495,6 +497,14 @@ public class RosterPOIEntityProvider extends AbstractEntityProvider implements
 		
 		if (null != parameters.get(KEY_GROUP_ID)) {
 			return parameters.get(KEY_GROUP_ID).toString();
+		}
+		return null;
+	}
+	
+	private String getRoleIdValue(Map<String, Object> parameters) {
+		
+		if (null != parameters.get(KEY_ROLE_ID)) {
+			return parameters.get(KEY_ROLE_ID).toString();
 		}
 		return null;
 	}

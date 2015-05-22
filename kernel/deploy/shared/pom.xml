@@ -250,6 +250,19 @@
             <artifactId>ehcache-terracotta</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- Java 8 Maven Artifact -->
+        <dependency>
+          <groupId>com.zaxxer</groupId>
+          <artifactId>HikariCP</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <!--
+        <dependency>
+          <groupId>com.zaxxer</groupId>
+          <artifactId>HikariCP-java6</artifactId>
+          <scope>compile</scope>
+        </dependency> 
+        -->
         <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>

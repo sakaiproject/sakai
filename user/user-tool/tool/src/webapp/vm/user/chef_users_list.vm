@@ -1,5 +1,5 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_list.vm,v 1.2 2005/05/19 19:53:01 gsilver.umich.edu Exp $
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	focus_path = ["search"];
 </script>
 <div class="portletBody">
@@ -103,8 +103,7 @@
 								</form>
 							#end
 						#end
-					</div>
-				</div> ##end navPanel
+		</div> ##end navPanel
 				
 
 #if ($users.size() > 0)
@@ -127,7 +126,7 @@
 						$validator.escapeHtml($user.Eid)
 		#end
 					</td>
-					<td headers="Name"><h4>$validator.escapeHtml($user.SortName)</h4></td>
+					<td headers="Name">$validator.escapeHtml($user.SortName)</td>
 					<td headers="Email">$validator.escapeHtml($user.Email)</td>
 					<td headers="Type">$validator.escapeHtml($user.Type)</td>
 					<td headers="Id">$validator.escapeHtml($user.Id)

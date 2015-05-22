@@ -16,12 +16,12 @@ $div_id = 1;
 
 function togglePre($title, $content) {
     global $div_id;
-	echo('<h4>'.$title);
-	echo(' (<a href="#" onclick="dataToggle('."'".$div_id."'".');return false;">Toggle</a>)</h4>'."\n");
-	echo('<pre id="'.$div_id.'" style="display:none; border: solid 1px">'."\n");
-	echo($content);
-	echo("</pre>\n");
-	$div_id = $div_id + 1;
+    echo('<h4>'.$title);
+    echo(' (<a href="#" onclick="dataToggle('."'".$div_id."'".');return false;">Toggle</a>)</h4>'."\n");
+    echo('<pre id="'.$div_id.'" style="display:none; border: solid 1px">'."\n");
+    echo($content);
+    echo("</pre>\n");
+    $div_id = $div_id + 1;
 }
 
 ?>
@@ -65,12 +65,13 @@ if ( strlen($output) > 0 ) togglePre("Raw GET Parameters", $output);
 
 echo("<pre>\n");
 
+$secret = isset($_SESSION['split_secret']) ? $_SESSION['split_secret'] : 'secret';
 $re_register = false;
 if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
-	$reg_key = $_POST['oauth_consumer_key'];
-	$reg_password = "secret";
+    $reg_key = $_POST['oauth_consumer_key'];
+    $reg_password = "secret";
     $re_register = false;
-    $context = new BLTI("secret", false, false);
+    $context = new BLTI($secret, false, false);
     if ( $context->valid ) {
         print "<p style=\"color:green\">Launch Validated.<p>\n";
     } else {
@@ -81,15 +82,14 @@ if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
 
         echo('<a href="basecheck.php?b='.urlencode($context->basestring).'" target="_blank">Compare This Base String</a><br/>');
         print "<br/></p>\n";
-
-        die();
+	echo ("<p>Continuing re-registration...</p>\n");
     }
 } else if ( $lti_message_type == "ToolProxyRegistrationRequest" ) {
-	$reg_key = $_POST['reg_key'];
-	$reg_password = $_POST['reg_password'];
+    $reg_key = $_POST['reg_key'];
+    $reg_password = $_POST['reg_password'];
 } else {
-	echo("</pre>");
-	die("lti_message_type not supported ".$lti_message_type);
+    echo("</pre>");
+    die("lti_message_type not supported ".$lti_message_type);
 }
 
 $cur_url = curPageURL();
@@ -100,15 +100,15 @@ $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
 
 $tc_profile_url = $_POST['tc_profile_url'];
 if ( strlen($tc_profile_url) > 1 ) {
-	echo("Retrieving profile from ".$tc_profile_url."\n");
+    echo("Retrieving profile from ".$tc_profile_url."\n");
     $tc_profile_json = do_get($tc_profile_url);
-	echo("Retrieved ".strlen($tc_profile_json)." characters.\n");
-	echo("</pre>\n");
+    echo("Retrieved ".strlen($tc_profile_json)." characters.\n");
+    echo("</pre>\n");
     togglePre("Retrieved Consumer Profile",$tc_profile_json);
     $tc_profile = json_decode($tc_profile_json);
-	if ( $tc_profile == null ) {
-		die("Unable to parse tc_profile error=".json_last_error());
-	}
+    if ( $tc_profile == null ) {
+        die("Unable to parse tc_profile error=".json_last_error());
+    }
 } else {
     die("We must have a tc_profile_url to continue...");
 }
@@ -128,12 +128,15 @@ $result_url = false;
 foreach ($tc_services as $tc_service) {
     // var_dump($tc_service);
     $formats = $tc_service->{'format'};
+    $actions = $tc_service->{'action'};
     $type = $tc_service->{'@type'};
     $id = $tc_service->{'@id'};
     echo("Service id=".$id."\n");
     foreach($formats as $format) {
+        // Canvas includes two entries - only one with POST
+        // The POST entry is the one with a real URL
+        if ( ! in_array("POST",$actions) ) continue;
         if ( $format != "application/vnd.ims.lti.v2.toolproxy+json" ) continue;
-        if ( $id != "tcp:ToolProxy.collection") continue;
         $register_url = $tc_service->endpoint;
     }
 }
@@ -154,7 +157,7 @@ echo("<hr/>");
 
 $tp_profile = json_decode($tool_proxy);
 if ( $tp_profile == null ) {
-	togglePre("Tool Proxy Raw",htmlent_utf8($tool_proxy));
+    togglePre("Tool Proxy Raw",htmlent_utf8($tool_proxy));
     $body = json_encode($tp_profile);
     $body = json_indent($body);
     togglePre("Tool Proxy Parsed",htmlent_utf8($body));
@@ -178,11 +181,25 @@ $tp_profile->tool_profile->product_instance->service_provider->guid = "http://ww
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
 $tp_profile->tool_profile->resource_handler[0]->resource_type->code = "sakai-api-test-01";
 
+// Only ask for parameters we are allowed to ask for 
+// Canvas rejects us if  we ask for a custom parameter that they did 
+// not offer as capability
+$parameters = $tp_profile->tool_profile->resource_handler[0]->message[0]->parameter;
+$newparms = array();
+foreach($parameters as $parameter) {
+    if ( isset($parameter->variable) ) {
+        if ( ! in_array($parameter->variable, $tc_capabilities) ) continue;
+    }
+    $newparms[] = $parameter;
+}
+// var_dump($newparms);
+$tp_profile->tool_profile->resource_handler[0]->message[0]->parameter = $newparms;
+
 // Ask for the kitchen sink...
 foreach($tc_capabilities as $capability) {
-	if ( "basic-lti-launch-request" == $capability ) continue;
-	if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
-	$tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
+    if ( "basic-lti-launch-request" == $capability ) continue;
+    if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
+    $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
 }
 
 // Cause an error on registration
@@ -191,15 +208,29 @@ foreach($tc_capabilities as $capability) {
 $tp_profile->tool_profile->base_url_choice[0]->secure_base_url = $cur_base;
 $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 
-$tp_profile->security_contract->shared_secret = 'secret';
+// Make a split-secret if desired
+$oauth_splitsecret = in_array('OAuth.splitSecret', $tc_capabilities);
+$tp_half_secret = false;
+if ( $oauth_splitsecret ) {
+    $tp_half_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
+    if ( strlen($tp_half_secret) != 128 ) {
+        echo('<p style="color: red">Warning secret length of '.strlen($tp_half_secret)." should be 128</p>\n");
+    }
+    $tp_profile->security_contract->tp_half_secret = $tp_half_secret;
+    echo("Provider Half Secret:\n".$tp_half_secret."\n");
+} else {
+    $tp_profile->security_contract->shared_secret = $secret;
+}
+
+
 $tp_services = array();
 foreach($tc_services as $tc_service) {
-	// var_dump($tc_service);
-	$tp_service = new stdClass;
-	$tp_service->{'@type'} = 'RestServiceProfile';
-	$tp_service->action = $tc_service->action;
-	$tp_service->service = $tc_service->{'@id'};
-	$tp_services[] = $tp_service;
+    // var_dump($tc_service);
+    $tp_service = new stdClass;
+    $tp_service->{'@type'} = 'RestServiceProfile';
+    $tp_service->action = $tc_service->action;
+    $tp_service->service = $tc_service->{'@id'};
+    $tp_services[] = $tp_service;
 }
 // var_dump($tp_services);
 $tp_profile->security_contract->tool_service = $tp_services;
@@ -226,7 +257,7 @@ togglePre("Registration Request",htmlent_utf8($body));
 
 $more_headers = array();
 if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
-    $more_headers[] = 'VND-IMS-ACKNOWLEDGE-URL: '.$cur_base.'tp_commit.php?correlation=49201-48842';
+    $more_headers[] = 'VND-IMS-CONFIRM-URL: '.$cur_base.'tp_commit.php?correlation=49201-48842';
 }
 
 $response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers);
@@ -240,7 +271,24 @@ togglePre("Registration Response Headers",htmlent_utf8(get_body_received_debug()
 
 togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
+$tc_half_secret = false;
 if ( $last_http_response == 201 || $last_http_response == 200 ) {
+    if ( $oauth_splitsecret && $tp_half_secret ) {
+        $responseObject = json_decode($response);
+        if ( isset($responseObject->tc_half_secret) ) {
+            $tc_half_secret = $responseObject->tc_half_secret;
+            echo("<p>tc_half_secret: ".$tc_half_secret."</p>\n");
+            if ( strlen($tc_half_secret) != 128 ) {
+                echo('<p style="color: red">Warning secret length of '.strlen($tc_half_secret)." should be 128</p>\n");
+            }
+            $split_secret = $tc_half_secret . $tp_half_secret;
+            $_SESSION['split_secret'] = $split_secret;
+            echo("<p>Split Secret: ".$split_secret."</p>\n");
+        } else {
+            echo("<p>Error: Tool Consumer did not provide oauth_splitsecret</p>\n");
+        }
+    }
+
   echo('<p><a href="'.$launch_presentation_return_url.'">Continue to launch_presentation_url</a></p>'."\n");
   exit();
 }
@@ -250,11 +298,11 @@ echo("Registration failed, http code=".$last_http_response."\n");
 // Check to see if they slid us the base string...
 $responseObject = json_decode($response);
 if ( $responseObject != null ) {
-	$base_string = $responseObject->base_string;
-	if ( strlen($base_string) > 0 && strlen($LastOAuthBodyBaseString) > 0 && $base_string != $LastOAuthBodyBaseString ) {
-		$compare = compare_base_strings($LastOAuthBodyBaseString, $base_string);
-		togglePre("Compare Base Strings (ours first)",htmlent_utf8($compare));
-	}
+    $base_string = $responseObject->base_string;
+    if ( strlen($base_string) > 0 && strlen($LastOAuthBodyBaseString) > 0 && $base_string != $LastOAuthBodyBaseString ) {
+        $compare = compare_base_strings($LastOAuthBodyBaseString, $base_string);
+        togglePre("Compare Base Strings (ours first)",htmlent_utf8($compare));
+    }
 }
 
 ?>

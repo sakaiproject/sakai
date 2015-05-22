@@ -51,6 +51,17 @@
 		<property name="springMessageLocator" ref="messageLocator"/>
 	</bean>
 
+	<bean class="org.sakaiproject.accountvalidator.tool.producers.RequestAccountProducer" init-method="init">
+		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>
+		<property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
+		<property name="targettedMessageList" ref="targettedMessageList"/>
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
+		<property name="siteService" ref="org.sakaiproject.site.api.SiteService"/>
+		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
+		<property name="springMessageLocator" ref="messageLocator"/>
+	</bean>
+
 	<bean name="accountValidationLocator" class="org.sakaiproject.accountvalidator.tool.otp.AcountValidationLocator">
 		<property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
 		<property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService"/>

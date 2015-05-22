@@ -74,9 +74,9 @@
 
   <properties>
     <sakai.version>11-SNAPSHOT</sakai.version>
-    <!-- kernel only versions -->
-    <sakai.kernel.version>11-SNAPSHOT</sakai.kernel.version>
-    <kernel.spring.version>3.2.3.RELEASE</kernel.spring.version>
+    <!-- Retain this for backward compatibility -->
+    <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
+    <kernel.spring.version>3.2.13.RELEASE</kernel.spring.version>
     <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
     <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
     <kernel.hibernate.jpa.version>1.0.1.Final</kernel.hibernate.jpa.version>
@@ -103,10 +103,11 @@
     <sakai.sigar.version>1.6.4</sakai.sigar.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>3.2.3.RELEASE</sakai.spring.version>
+    <sakai.spring.version>3.2.13.RELEASE</sakai.spring.version>
+    <sakai.spring.security.version>3.2.7.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-    <sakai.spring.test.version>3.2.3.RELEASE</sakai.spring.test.version>
-    <sakai.tomcat.version>7.0.59</sakai.tomcat.version>
+    <sakai.spring.test.version>3.2.13.RELEASE</sakai.spring.test.version>
+    <sakai.tomcat.version>8.0.20</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
@@ -115,13 +116,13 @@
     <sakairsf.components.version>11-SNAPSHOT</sakairsf.components.version>
     <sakairsf.version>11-SNAPSHOT</sakairsf.version>
     <generic-dao.version>0.9.18</generic-dao.version>
-    <reflectutils.version>0.9.19</reflectutils.version>
+    <reflectutils.version>0.9.20</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
     <sakai.msgcntr.version>11-SNAPSHOT</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>1.7</sakai.jdk.version>
+    <sakai.jdk.version>1.8</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
@@ -187,13 +188,17 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.7</version>
+            <version>2.10.3</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
                 <goals>
                   <goal>jar</goal>
                 </goals>
+                <configuration>
+                  <additionalparam>-Xdoclint:none</additionalparam>
+                  <failOnError>false</failOnError>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -597,7 +602,7 @@
       <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
-        <version>3.16.1-GA</version>
+        <version>3.18.0-GA</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1569,7 +1574,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.9.1</version>
+          <version>2.10.3</version>
           <configuration>
             <debug>false</debug>
             <links>
@@ -1581,6 +1586,8 @@
             <verbose>false</verbose>
             <minmemory>256m</minmemory>
             <maxmemory>2048m</maxmemory>
+            <additionalparam>-Xdoclint:none</additionalparam>
+            <failOnError>false</failOnError>
           </configuration>
         </plugin>
         <plugin>
@@ -1791,6 +1798,8 @@
             <!--suppress MavenModelInspection -->
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
+          <!-- This is to stop it stealing focus on developer machines (OSX) -->
+          <argLine>-Djava.awt.headless=true</argLine>
         </configuration>
       </plugin>
       <plugin>

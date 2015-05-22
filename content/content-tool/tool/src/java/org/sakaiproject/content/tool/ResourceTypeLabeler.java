@@ -95,6 +95,9 @@ public class ResourceTypeLabeler
 				case PRINT_FILE:
 					label = ResourcesAction.trb.getString("action.printfile");
 					break;
+				case MAKE_SITE_PAGE:
+					label = ResourcesAction.trb.getString("action.makesitepage");
+					break;
 				default:
 					ResourcesAction.logger.info("No label provided for ResourceToolAction: " + action.getTypeId() + ResourceToolAction.ACTION_DELIMITER + action.getId());
 					label = action.getId();

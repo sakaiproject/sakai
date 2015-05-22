@@ -19,7 +19,7 @@
 
             #end ## END of IF ## END of IF 
 
-            <div #if ( ${sakai_nav_minimized} && ${portal_allow_minimize_navigation} ) class="Mrphs-portalWrapper Mrphs-siteNav is-minimized" #else class="Mrphs-portalWrapper" #end>
+            <div class="Mrphs-portalWrapper">
  
                 ## SkipNav
                 #parse("/vm/morpheus/snippets/skipNav-snippet.vm")

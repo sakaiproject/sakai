@@ -33,11 +33,13 @@ import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.CacheRefresher;
-import org.sakaiproject.memory.api.GenericMultiRefCache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.memory.util.CacheInitializer;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Properties;
+import java.util.UUID;
 
 /**
  * Ehcache based implementation of the MemoryService API which is meant to be friendly to distributed cache management
@@ -77,6 +79,10 @@ public class EhcacheMemoryService implements MemoryService {
             throw new IllegalStateException("init(): Ehcache CacheManager is null!");
         }
         log.info("INIT: " + cacheManager.getStatus() + ", caches: " + Arrays.asList(cacheManager.getCacheNames()));
+        if (serverConfigurationService.getBoolean("memory.ehcache.jmx", true)) {
+            EhCacheJmxRegistration registration = new EhCacheJmxRegistration();
+            registration.register(cacheManager);
+        }
     }
 
     /**
@@ -118,7 +124,7 @@ public class EhcacheMemoryService implements MemoryService {
     }
 
     @Override
-    public <C extends org.sakaiproject.memory.api.Configuration> Cache createCache(String cacheName, C configuration) {
+    public <K, V, C extends org.sakaiproject.memory.api.Configuration<K, V>> Cache createCache(String cacheName, C configuration){
         return new EhcacheCache(makeEhcache(cacheName, configuration));
     }
 
@@ -314,13 +320,6 @@ public class EhcacheMemoryService implements MemoryService {
         return getCache(cacheName);
     }
 
-    @SuppressWarnings("deprecation")
-    @Override
-    public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
-        log.warn("Creating MultiRefCache("+cacheName+"), GenericMultiRefCache is not supported in the distributed MemoryService implementation, the refs handling will do nothing!");
-        return new EhcacheGenericMultiRefCache(makeEhcache(cacheName, null));
-    }
-
     /**
      * @param cacheName the name of the cache
      * @param configuration [OPTIONAL] a config to use when building the cache, if null then use default methods to create cache
@@ -429,17 +428,4 @@ public class EhcacheMemoryService implements MemoryService {
         this.securityService = securityService;
     }
 
-    /**
-     * Temporary only
-     */
-    @SuppressWarnings("deprecation")
-    private class EhcacheGenericMultiRefCache extends EhcacheCache implements GenericMultiRefCache {
-        public EhcacheGenericMultiRefCache(Ehcache cache) {
-            super(cache);
-        }
-        @Override
-        public void put(String key, Object payload, String ref, Collection<String> dependRefs) {
-            super.put(key, payload);
-        }
-    }
 }

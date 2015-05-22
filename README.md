@@ -7,7 +7,7 @@ This is the source code for the Sakai CLE.
 [![Build Status](https://travis-ci.org/sakaiproject/sakai.svg?branch=master)](https://travis-ci.org/sakaiproject/sakai)
 
 
-To build Sakai you need Java 1.7 and Maven 3.2. Once you have clone a copy of this repository you can
+To build Sakai you need Java 1.8 and Maven 3.2. Once you have clone a copy of this repository you can
 build it by running:
 ```
 mvn install
@@ -15,11 +15,11 @@ mvn install
 
 ## Running
 
-Sakai runs on Apache Tomcat 7. Download the latest version from http://tomcat.apache.org and extract the archive.
+Sakai runs on Apache Tomcat 8. Download the latest version from http://tomcat.apache.org and extract the archive.
 *Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
 
 You **must** configure Tomcat according to the instructions on this page:
-https://confluence.sakaiproject.org/display/BOOT/Install+Tomcat+7
+https://confluence.sakaiproject.org/pages/viewpage.action?pageId=75667828
 
 When you are done, deploy Sakai to Tomcat:
 ```
@@ -53,5 +53,7 @@ For filing bugs against Sakai please use our Jira instance: https://jira.sakaipr
 For testing out the latest builds go to the [nightly server page](http://nightly2.sakaiproject.org)
 
 ## Get in touch
+If you have any questions, please join the Sakai developer mailing list: To subscribe send an email to sakai-dev+subscribe@apereo.org
 
-If you have any questions, please join the Sakai developer mailing list: http://collab.sakaiproject.org/mailman/listinfo/sakai-dev
+To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
+https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists

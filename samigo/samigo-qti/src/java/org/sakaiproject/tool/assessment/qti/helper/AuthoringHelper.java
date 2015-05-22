@@ -856,7 +856,7 @@ public class AuthoringHelper
                
                QuestionPoolItemData questionPoolItem = new QuestionPoolItemData();
                questionPoolItem.setQuestionPoolId(questionpool.getQuestionPoolId());
-               questionPoolItem.setItemId(item.getItemIdString());         
+               questionPoolItem.setItemId(item.getItemId());         
                questionpool.addQuestionPoolItem((QuestionPoolItemIfc) questionPoolItem);
                
              } // ... end for each item

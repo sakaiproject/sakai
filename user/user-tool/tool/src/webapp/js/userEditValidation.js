@@ -30,7 +30,7 @@ USER.validateUserId = function () {
     }
 
     USER.validatePassword();
-}
+};
 
 // Validate the password from the form
 USER.validatePassword = function () {

@@ -74,7 +74,7 @@
 
 <f:verbatim></span></li></f:verbatim>
 </h:panelGroup>
-<f:verbatim><li role="menuitem" ><span></f:verbatim>
+<f:verbatim><li role="menuitem" ><span class="current"></f:verbatim>
 
         <h:outputText value="#{questionPoolMessages.qps}"/>
 
@@ -132,7 +132,7 @@
 
 <p class="act">
  
-<h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
+<h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.delete}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
 
   <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelImport}"  >

@@ -59,7 +59,10 @@ public class ValidationAccount {
 	 */
 	public static final int ACCOUNT_STATUS_PASSWORD_RESET = 5;
 	
-	
+	/**
+	 * Status for requested accounts (non-mergeable)
+	 **/
+	public static final int ACCOUNT_STATUS_REQUEST_ACCOUNT = 6;
 	
 	private Long id;
 	private String userId;

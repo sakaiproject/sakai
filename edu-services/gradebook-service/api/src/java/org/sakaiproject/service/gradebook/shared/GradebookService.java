@@ -199,7 +199,14 @@ public interface GradebookService {
 	 * @return Returns a list of Assignment objects describing the assignments
 	 *         that are currently defined in the given gradebook.
 	 */
-	public List getAssignments(String gradebookUid)
+	public List<Assignment> getAssignments(String gradebookUid)
+			throws GradebookNotFoundException;
+	
+	/**
+	 * @return Returns a list of Assignment objects describing the assignments
+	 *         that are currently defined in the given gradebook, sorted by the given sort type.
+	 */
+	public List<Assignment> getAssignments(String gradebookUid, SortType sortBy)
 			throws GradebookNotFoundException;
 
 	/**
@@ -708,30 +715,6 @@ public interface GradebookService {
 		throws InvalidGradeException, GradebookNotFoundException, AssessmentNotFoundException;
 
 	/**
-	 * Get fixed grades for students by using course grade scale.
-	 * @param gradebookUid
-	 * @return Map of enrollment displayId as key, grade as value
-	 * 
-	 */
-	public Map getFixedGrade(String gradebookUid);
-	
-	/**
-	 * Get fixed earned points for students by using course grade scale.
-	 * @param gradebookUid
-	 * @return Map of enrollment displayId as key, point as value string
-	 * 
-	 */
-	public Map getFixedPoint(String gradebookUid);
-
-	/**
-	 * Get old earned points for students by using letter grade scale.
-	 * @param gradebookUid
-	 * @return Map of enrollment displayId as key, point as value string
-	 * 
-	 */
-	public Map getOldPoint(String gradebookUid);
-	
-	/**
 	 * 
 	 * @param gradebookUid
 	 * @return the constant representation of the grade entry type
@@ -748,23 +731,6 @@ public interface GradebookService {
 	 */
 	public Map getEnteredCourseGrade(String gradebookUid);
 
-	/**
-	 * Get a Map of auto calculated CourseGrade for students.
-	 * @param gradebookUid
-	 * @return Map of enrollment displayId as key, point as value
-	 * 
-	 */
-	public Map getCalculatedCourseGrade(String gradebookUid);
-
-	/**
-	 * Get a Map of auto calculated CourseGrade for students.
-	 * @param gradebookUid
-	 * @param mapTheGrades Should we map the grades from points to letters?
-	 * @return Map of enrollment displayId as key, point as value
-	 * 
-	 */
-	public Map getCalculatedCourseGrade(String gradebookUid, boolean mapTheGrades);
-	
 	/**
 	 * Get student's assignment's score as string.
 	 * @param gradebookUid
@@ -844,5 +810,14 @@ public interface GradebookService {
 	 * @return
 	 */
 	public String getAverageCourseGrade(String gradebookUid);
+	
+	/**
+	 * Update the ordering of an assignment. This can be performed on internal and external assignments.
+	 * @param gradebookUid uid of the gradebook
+	 * @param assignmentId id of the assignment in the gradebook
+	 * @param order the new order for this assignment. Note it is 0 based index ordering.
+	 * @return
+	 */
+	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order);
 
 }

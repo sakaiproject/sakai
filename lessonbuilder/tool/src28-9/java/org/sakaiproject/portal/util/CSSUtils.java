@@ -60,7 +60,7 @@ public class CSSUtils
 		String prefix = ServerConfigurationService.getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
 		if (prefix == null) prefix = "";
 
-		String templates = ServerConfigurationService.getString("portal.templates", "neoskin");
+		String templates = ServerConfigurationService.getString("portal.templates", "morpheus");
 
 		if ( "neoskin".equals(templates) && !skinFolder.startsWith(prefix) ) skinFolder = prefix + skinFolder;
 		return skinFolder;

@@ -82,8 +82,8 @@
                 //index will be the begining of 'matrixSurveyRadioTable'
                 var index = myId.indexOf("matrixSurveyRadioTable");
                 var strBefore = myId.substring(0,index+'matrixSurveyRadioTable'.length);
-                //remove table no 
-                var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+2);
+                //This needs to skip past the id which is on index 7 and the colon to add 1
+                var strAfter = myId.substring(index+'matrixSurveyRadioTable'.length+myIdParts[7].length+1);
                 //find rows of mytable	
                 var iRow = mytable.getElementsByTagName('tr');
                 //one header row before the row containing the radio button
@@ -108,11 +108,12 @@
 
 
       </script>
+	<h:outputText value="#{delivery.mathJaxHeader}" escape="false" rendered="#{delivery.actionString=='takeAssessmentViaUrl' and delivery.isMathJaxEnabled}"/>
       
  
       </head>
 	
-      <body onload="<%= request.getAttribute("html.body.onload") %>; setLocation(); checkRadio(); SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment'}"/>); setTimeout('setLocation2()',2)" >
+	<body>
  
       <h:outputText value="<a name='top'></a>" escape="false" />
       
@@ -354,8 +355,7 @@ document.links[newindex].onclick();
       <h:outputText value=" #{deliveryMessages.dash} #{part.nonDefaultText}" escape="false"/>
          </h:panelGroup>
 
-      <h:outputText value="#{part.pointsDisplayString} #{part.maxPoints} #{deliveryMessages.pt}" 
-         rendered="#{delivery.actionString=='reviewAssessment'}"/>
+      <h:outputText value="#{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 </h:panelGrid>
       <f:verbatim></h4></f:verbatim>
       <h:outputText value="#{part.description}" escape="false"/>
@@ -377,9 +377,9 @@ document.links[newindex].onclick();
            <f:verbatim></h5></f:verbatim>
          </h:panelGroup>
 <h:panelGroup>
-<h:outputText value=" #{question.pointsDisplayString} #{question.maxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
+<h:outputText value=" #{question.pointsDisplayString} #{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString=='reviewAssessment'}"/>
 
-        <h:outputText value="#{question.maxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
+        <h:outputText value="#{question.roundedMaxPoints} #{deliveryMessages.pt}" rendered="#{delivery.actionString!='reviewAssessment'}" />
 </h:panelGroup>
 </h:panelGrid>
           <f:verbatim><div class="tier3"></f:verbatim>
@@ -596,7 +596,14 @@ document.links[newindex].onclick();
 </h:form>
 <!-- end content -->
 <f:verbatim></div></f:verbatim>
-<script type="text/JavaScript">fixImplicitLabeling();</script>
+<script type="text/JavaScript">
+	<%= request.getAttribute("html.body.onload") %> 
+	setLocation(); 
+	checkRadio();
+	fixImplicitLabeling();
+	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
+	setTimeout('setLocation2()',2);
+</script>
     </body>
   </html>
 </f:view>

@@ -84,6 +84,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 	private static final String TEMPLATE_KEY_LEGACYUSER = "validate.legacyuser";
 	private static final String TEMPLATE_KEY_PASSWORDRESET = "validate.passwordreset";
 	private static final String TEMPLATE_KEY_DELETED = "validate.deleted";
+	private static final String TEMPLATE_KEY_REQUEST_ACCOUNT = "validate.requestAccount";
 	
 	private static final int VALIDATION_PERIOD_MONTHS = -36;
 	private static Log log = LogFactory.getLog(ValidationLogicImpl.class);
@@ -98,6 +99,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		loadTemplate("validate_legacyUser.xml", TEMPLATE_KEY_LEGACYUSER);
 		loadTemplate("validate_newPassword.xml", TEMPLATE_KEY_PASSWORDRESET);
 		loadTemplate("validate_deleted.xml", TEMPLATE_KEY_DELETED);
+		loadTemplate("validate_requestAccount.xml", TEMPLATE_KEY_REQUEST_ACCOUNT);
 		
 		//seeing the GroupProvider is optional we need to load it here
 		if (groupProvider == null) {
@@ -464,13 +466,13 @@ public class ValidationLogicImpl implements ValidationLogic {
 		replacementValues.put("memberSites", sb.toString());
 		replacementValues.put("displayName", userDisplayName);
 		replacementValues.put("userEid", userEid);
-		replacementValues.put("support.email", serverConfigurationService.getString("support.email"));
+		replacementValues.put("support.email", serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
 		replacementValues.put("institution", serverConfigurationService.getString("ui.institution"));
 		String templateKey = getTemplateKey(accountStatus);
 
 		
 		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
+		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()), serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
 		v.setValidationSent(new Date());
 		v.setStatus(ValidationAccount.STATUS_SENT);
 		
@@ -494,22 +496,26 @@ public class ValidationLogicImpl implements ValidationLogic {
 	 */
 	public String getPageForAccountStatus(Integer accountStatus)
 	{
+		if (accountStatus == null)
+		{
+			log.warn("can't determine which account validation page to use - accountStatus is null. Returning the legacy 'validate'");
+			return "validate";
+		}
+
+		if (accountStatus.equals(ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT))
+		{
+			return "requestAccount";
+		}
+
 		if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false))
 		{
-			if (accountStatus != null)
+			if (accountStatus.equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
 			{
-				if (accountStatus.equals(ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET))
-				{
-					return "passwordReset";
-				}
-				else
-				{
-					return "newUser";
-				}
+				return "passwordReset";
 			}
 			else
 			{
-				log.warn("can't determine which account validation page to use - accountStatus is null");
+				return "newUser";
 			}
 		}
 		return "validate";
@@ -526,6 +532,8 @@ public class ValidationLogicImpl implements ValidationLogic {
 			templateKey  = TEMPLATE_KEY_LEGACYUSER;
 		} else if ( (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus.intValue())) {
 			templateKey  = TEMPLATE_KEY_PASSWORDRESET;
+		} else if ( (ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus.intValue())) {
+			templateKey = TEMPLATE_KEY_REQUEST_ACCOUNT;
 		}
 		return templateKey;
 	}
@@ -747,7 +755,7 @@ public class ValidationLogicImpl implements ValidationLogic {
 		String templateKey = getTemplateKey(account.getAccountStatus());
 		
 		
-		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("support.email"), serverConfigurationService.getString("support.email"));
+		emailTemplateService.sendRenderedMessages(templateKey , userReferences, replacementValues, serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()), serverConfigurationService.getString("setup.request", "no-reply@"+serverConfigurationService.getServerName()));
 	}
 
 

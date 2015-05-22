@@ -416,7 +416,7 @@ public class ExternalLogic {
             throw new IllegalArgumentException("No gradebook found for course (" + siteId
                     + "), gradebook must be installed in each course to use with this");
         }
-        Map<String, String> studentToPoints = gradebookService.getFixedPoint(gbID);
+        Map<String, String> studentToPoints = gradebookService.getImportCourseGrade(gbID);
         ArrayList<String> eids = new ArrayList<String>(studentToPoints.keySet());
         Collections.sort(eids);
         for (String eid : eids) {

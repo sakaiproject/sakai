@@ -197,7 +197,7 @@ public class AcountValidationLocator implements BeanLocator  {
 
                    int accountStatus = item.getAccountStatus();
                    //names are required in all cases except password resets
-                   if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus)
+                   if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus)
                    {
                      if (firstName == null || firstName.isEmpty())
                      {
@@ -253,7 +253,7 @@ public class AcountValidationLocator implements BeanLocator  {
 				
 				
 				//if this is a new account set the password
-				if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus) {
+				if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus) {
 					if (item.getPassword() == null || !item.getPassword().equals(item.getPassword2())) {
 						//Abandon the edit
 						userDirectoryService.cancelEdit(u);

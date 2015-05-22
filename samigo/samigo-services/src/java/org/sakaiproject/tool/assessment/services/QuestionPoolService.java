@@ -155,14 +155,12 @@ public class QuestionPoolService
   /**
    * Get pool id's by agent.
    */
-  public List getPoolIdsByAgent(String agentId)
+  public List<Long> getPoolIdsByAgent(String agentId)
   {
-    List idList = null;
+    List<Long> idList = null;
     try
     {
-      idList =
-        PersistenceService.getInstance().getQuestionPoolFacadeQueries().
-          getPoolIdsByAgent(agentId);
+      idList = PersistenceService.getInstance().getQuestionPoolFacadeQueries().getPoolIdsByAgent(agentId);
     }
     catch(Exception e)
     {
@@ -292,7 +290,7 @@ public class QuestionPoolService
   /**
    * Save a question to a pool.
    */
-  public void addItemToPool(String itemId, Long poolId)
+  public void addItemToPool(Long itemId, Long poolId)
   {
     try
     {
@@ -308,7 +306,7 @@ public class QuestionPoolService
   /**
    * Move a question to a pool.
    */
-  public void moveItemToPool(String itemId, Long sourceId, Long destId)
+  public void moveItemToPool(Long itemId, Long sourceId, Long destId)
   {
     try
     {
@@ -396,7 +394,7 @@ public class QuestionPoolService
   /**
    * removes a Question from the question pool. This does not  *delete* the question itself
    */
-  public void removeQuestionFromPool(String questionId, Long poolId)
+  public void removeQuestionFromPool(Long questionId, Long poolId)
   {
     try
     {

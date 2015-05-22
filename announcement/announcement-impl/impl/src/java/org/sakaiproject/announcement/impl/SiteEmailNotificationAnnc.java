@@ -334,7 +334,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		catch(Exception ignore)
 		{}
 		
-		String userEmail = "no-reply@" + ServerConfigurationService.getServerName();
+		String userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 		//String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
 		//String no_reply_withTitle = "From: \"" + title + "\" <" + userEmail + ">";	
@@ -371,7 +371,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				}
 				
 				// some fallback positions
-				if (userEmail == null) userEmail = "no-reply@" + ServerConfigurationService.getServerName();
+				if (userEmail == null) userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 				if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 				from="From: \"" + userDisplay + "\" <" + userEmail + ">";
 		}

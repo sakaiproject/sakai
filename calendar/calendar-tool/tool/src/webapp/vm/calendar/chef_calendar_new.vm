@@ -1,4 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar_new.vm,v 1.7 2005/06/14 20:13:13 suiyy.umich.edu Exp $
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
+</script>
 
 <script type="text/javascript">
 <!-- For debugger safety -->
@@ -311,8 +313,14 @@ function resizeFrame(){
         }
     }
 }
-</script>
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
+
+
+$(function() {
+    if($('.alertMessage').length ===1){
+        $('.alertMessage').attr('tabindex',-1).focus();
+    };
+});
+
 </script>
 
 <div class="portletBody">

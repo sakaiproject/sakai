@@ -955,15 +955,20 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		if (m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
 			 !m.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
 		{
-			if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference()))
+			boolean isDraft = m.getHeader().getDraft();
+			if (!allowGetMessage(channelReference(ref.getContext(), ref.getContainer()), ref.getReference(), isDraft))
 			{
-				throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
+			    if (isDraft)
+			        throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ_DRAFT), ref.getReference());
+			    else
+			        throw new PermissionException(m_sessionManager.getCurrentSessionUserId(), eventId(SECURE_READ), ref.getReference());
 			}
 		}
 
 		return m;
 
 	} // getMessage
+
 
 	/**
 	 * Check the message read permission for the message
@@ -974,11 +979,30 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	 */
 	protected boolean allowGetMessage(String channelRef, String msgRef)
 	{
-		// Assume this reference is for a message
-
-		// check the message
-		return unlockCheck(SECURE_READ, msgRef);
+		// check the message for default SECURE_READ
+		return allowGetMessage(channelRef, msgRef, false);
 	}
+
+	/**
+	 * Check the message read permission for the message
+	 * 
+	 * @param ref
+	 *        The Reference (assumed to be to a message).
+	 *        isDraft 
+	 *        Whether or not the message is in draft
+	 * @return True if the end user has permission to read the message, or permission to all messages in the channel, false if not.
+	 */
+
+	protected boolean allowGetMessage(String channelRef, String msgRef, boolean isDraft)
+	{
+		// Assume this reference is for a message
+		// check the message
+	    if (isDraft)
+	        return unlockCheck(SECURE_READ_DRAFT, msgRef);
+	    else
+	        return unlockCheck(SECURE_READ,msgRef);
+	}
+
 
 	/**
 	 * Cancel the changes made to a MessageEdit object, and release the lock. The MessageChannelEdit is disabled, and not to be used after this call.

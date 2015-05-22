@@ -57,6 +57,8 @@ import org.sakaiproject.tool.assessment.ui.bean.evaluation.PartData;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.QuestionScoresBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.SubmissionStatusBean;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.TotalScoresBean;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.util.FormattedText;
@@ -117,6 +119,15 @@ public class QuestionScoreListener implements ActionListener,
 
 		// we probably want to change the poster to be consistent
 		String publishedId = ContextUtil.lookupParam("publishedId");
+
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+		PublishedAssessmentService pubService = new PublishedAssessmentService();
+		Long pubId = new Long(publishedId);
+		String assessmentOwner = pubService.getPublishedAssessmentOwner(pubId);
+		if (!authzBean.isUserAllowedToGradeAssessment(publishedId, assessmentOwner, true)) {
+			throw new IllegalArgumentException("QuestionScoreListener unauthorized attempt to get scores for " + publishedId);
+		}
 
 		if (!questionScores(publishedId, bean, false)) {
 			throw new RuntimeException("failed to call questionScores.");
@@ -412,7 +423,7 @@ public class QuestionScoreListener implements ActionListener,
 			}
 			try {
 				bean.setMaxScore(publishedAssessment.getEvaluationModel()
-						.getFixedTotalScore().toString());
+						.getFixedTotalScore());
 			} catch (RuntimeException e) {
 				double score = (double) 0.0;
 				Iterator iter2 = publishedAssessment.getSectionArraySorted()
@@ -427,7 +438,7 @@ public class QuestionScoreListener implements ActionListener,
 							score = idata.getScore().doubleValue();
 					}
 				}
-				bean.setMaxScore(Double.toString(score));
+				bean.setMaxScore(score);
 			}
 			
 			// need to get id from somewhere else, not from data. data only
@@ -630,22 +641,11 @@ public class QuestionScoreListener implements ActionListener,
 					// non-abbreviated answers
 					// for essay questions
 
-					int answerTextLength = 1000;
-					if (!bean.getTypeId().equals("5")) {
-						String s = ServerConfigurationService.getString("samigo.questionScore.answerText.length");
-						if (s != null) {
-							try {
-								answerTextLength = Integer.parseInt(s);
-							}
-							catch (NumberFormatException e) {
-								log.warn("NumberFormatException. Use the default value for answerTextLength");
-							}
-						}
-					}
-					else {
+					int answerTextLength = ServerConfigurationService.getInt("samigo.questionScore.answerText.length", 1000);
+					if (bean.getTypeId().equals("5")) {
 						answerTextLength = 35;
 					}
-					
+
 					// Fix for SAK-6932: Strip out all HTML tags except image tags
  					if (answerText.length() > answerTextLength) {
 						String noHTMLAnswerText;

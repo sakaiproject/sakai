@@ -31,7 +31,7 @@
    </h:commandLink>
 
 <f:verbatim></span></li>
-<li role="menuitem" ><span></f:verbatim>
+<li role="menuitem" ><span class="current"></f:verbatim>
 
       <h:outputText value="#{generalMessages.template}" />
       

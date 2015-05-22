@@ -50,6 +50,7 @@
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
     	<property name="dashboardConfig" ref="org.sakaiproject.dash.app.DashboardConfig" />
+	<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
     </bean>
     
 	<bean id="org.sakaiproject.dash.app.DashboardUserLogic" 
@@ -204,8 +205,8 @@
 
   
 
-  <bean id="org.sakaiproject.dash.dao.SessionFactory"
-      parent="org.sakaiproject.springframework.orm.hibernate.SessionFactoryBase">
+  <bean id="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl.dashboard"
+      class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
       <property name="mappingResources">
           <list>
               <value>org/sakaiproject/dash/dao/JobRunImpl.hbm.xml</value>
@@ -216,14 +217,14 @@
   <bean id="org.sakaiproject.dash.dao.HibernateTransactionManager"
       class="org.springframework.orm.hibernate3.HibernateTransactionManager">
       <property name="sessionFactory">
-          <ref bean="org.sakaiproject.dash.dao.SessionFactory" />
+          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
       </property>
   </bean>
 
   <bean id="org.sakaiproject.dash.dao.DashHibernateDaoTarget"
       class="org.sakaiproject.dash.dao.DashHibernateDao">
       <property name="sessionFactory">
-          <ref bean="org.sakaiproject.dash.dao.SessionFactory" />
+          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
       </property>
   </bean>
 

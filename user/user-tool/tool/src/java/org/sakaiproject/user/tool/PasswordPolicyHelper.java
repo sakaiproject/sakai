@@ -137,7 +137,6 @@ public class PasswordPolicyHelper {
         @Override public String 			getDisplayId() 								{ return null; }
         @Override public String 			getDisplayName() 							{ return null; }
         @Override public String 			getEid() 									{ return null; }
-        @Override public String 			getEmail()									{ return null; }
         @Override public String 			getFirstName() 								{ return null; }
         @Override public String 			getLastName() 								{ return null; }
         @Override public String 			getReference() 								{ return null; }

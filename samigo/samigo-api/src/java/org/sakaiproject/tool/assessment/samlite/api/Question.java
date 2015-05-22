@@ -23,24 +23,30 @@ public class Question {
 	
 	private int questionNumber;
 	private String questionPoints;
+	private String questionDiscount;
 	private List questionLines;
 	private int questionType;
 	private String correctAnswer;
 	private List answers;
 	private boolean hasPoints;
+	private boolean hasDiscount;
 	private String questionTypeAsString;
 	private String feedbackOK;
 	private String feedbackNOK;
+	private boolean randomize;
 	
 	public Question() {
 		this.questionNumber = 0;
 		this.questionPoints = "";
+		this.questionDiscount = "";
 		this.questionLines = new LinkedList();
 		this.questionType = UNDEFINED_QUESTION;
 		this.correctAnswer = "";
 		this.answers = new LinkedList();
 		this.hasPoints = false;
+		this.hasDiscount = false;
 		this.questionTypeAsString = "";
+		this.randomize = false;
 	}
 
 	public void addAnswer(String id, String text, boolean isCorrect) {
@@ -104,8 +110,22 @@ public class Question {
 		this.questionPoints = questionPoints;
 	}
 	
+	public String getQuestionDiscount() {
+		return questionDiscount;
+	}
+	
+	public void setQuestionDiscount(String questionDiscount) {
+		if (null != questionDiscount && !"".equals(questionDiscount))
+			this.hasDiscount = true;
+		this.questionDiscount = questionDiscount;
+	}
+	
 	public boolean hasPoints() {
 		return hasPoints;
+	}
+	
+	public boolean hasDiscount() {
+		return hasDiscount;
 	}
 	
 	public int getQuestionType() {
@@ -156,6 +176,14 @@ public class Question {
 
 	public void setQuestionTypeAsString(String questionTypeAsString) {
 		this.questionTypeAsString = questionTypeAsString;
+	}
+
+	public boolean isRandomize() {
+		return randomize;
+	}
+
+	public void setRandomize(boolean randomize) {
+		this.randomize = randomize;
 	}
 	
 	public String getFeedbackOK() {

@@ -1,12 +1,15 @@
-/*
+/**
+ * Please use 4 spaces for tabs when editing this file. Hard tabs are not portable.
+ *
  * Video controller. 
  * It uses webrtc-adapter.js to handle all the communication
+ *
  */
 (function ($) {
 
     var msiePattern = /.*MSIE ((\d+).\d+).*/
     if ( msiePattern.test(navigator.userAgent) ) {
-    	return;
+        return;
     }
 
     portal.chat.video.statuses = {
@@ -93,7 +96,7 @@
             this.changeCallStatus(peerUUID, portal.chat.video.statuses.CANCELLING);
         }
         this.webrtc.hangUp(peerUUID, skipBye);
-        var chatDiv = $("#pc_chat_with_" + peerUUID);
+        var chatDiv = $(portal.chat.domSelectors.pcChatWithPre + peerUUID);
         chatDiv.removeClass("video_active");
         portal.chat.video.hideMyVideo();
     };
@@ -103,7 +106,7 @@
         if (debug) console.debug('video.startCall(' + peerUUID + ')');
 
         this.showMyVideo();
-        this.webrtc.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
+        this.webrtc.attachMediaStream(document.getElementById(portal.chat.domNames.pcChatVideoLocalVideo), localMediaStream);
     };
 
     portal.chat.video.maximizeVideo = function (videoElement) {
@@ -126,7 +129,7 @@
         var fullscreenEnabled = document.fullscreenEnabled || document.mozFullScreenEnabled || document.webkitFullscreenEnabled;
         
         if (fullscreenEnabled) {
-            var remoteVideo = document.getElementById("pc_chat_" + peerUUID + "_remote_video");
+            var remoteVideo = document.getElementById(portal.chat.domNames.pcChatRemoteVideoPre + peerUUID );
             var fullscreenElement = document.fullscreenElement || document.mozFullScreenElement || document.webkitFullscreenElement;
         
             if (fullscreenElement === remoteVideo){
@@ -154,7 +157,7 @@
 
         if (debug) console.debug('video.successCall(' + peerUUID + ')');
      
-        this.webrtc.attachMediaStream(document.getElementById("pc_chat_" + peerUUID + "_remote_video"), remoteMediaStream);
+        this.webrtc.attachMediaStream(document.getElementById(portal.chat.domNames.pcChatRemoteVideoPre + peerUUID), remoteMediaStream);
         this.setVideoStatus (peerUUID, this.messages.pc_video_status_connection_established, "video");
             
     };
@@ -175,7 +178,7 @@
         if (this.webrtc != null) {
             currentUserIdConnections = Object.keys(this.webrtc.currentPeerConnectionsMap);
         }
-        return currentUserIdConnections;	
+        return currentUserIdConnections;    
     };
 
     portal.chat.video.hasVideoChatActive = function (peerUUID) {
@@ -189,7 +192,7 @@
 
         if (debug) console.debug('video.maximizeVideoCall(' + peerUUID + ')');
 
-        var remoteVideo = document.getElementById("pc_chat_" + peerUUID + "_remote_video");
+        var remoteVideo = document.getElementById(portal.chat.domNames.pcChatRemoteVideoPre + peerUUID);
         this.maximizeVideo (remoteVideo);
     };
 
@@ -199,7 +202,7 @@
 
         this.webrtc.disableLocalVideo();
         $('#enable_local_video').show();
-        $('#pc_chat_local_video').hide();
+        $('#'+portal.chat.domNames.pcChatVideoLocalVideo).hide();
         $('#disable_local_video').hide();
     };
 
@@ -209,7 +212,7 @@
 
         this.webrtc.enableLocalVideo();
         $('#disable_local_video').show();
-        $('#pc_chat_local_video').show();
+        $('#'+portal.chat.domNames.pcChatVideoLocalVideo).show();
         $('#enable_local_video').hide();
     };
 
@@ -259,12 +262,12 @@
     portal.chat.video.getRemoteVideoAgent = function (peerUUID) {
 
         if (debug) console.debug('video.getRemoteVideoAgent(' + peerUUID + ')');
-    	
-    	//Just check video in case we have it in our connections map list   	
-    	if (portal.chat.currentConnectionsMap[peerUUID]){
-    		return portal.chat.currentConnectionsMap[peerUUID].video ? portal.chat.currentConnectionsMap[peerUUID].video : 'none';
-    	}
-    	return 'none';
+        
+        //Just check video in case we have it in our connections map list       
+        if (portal.chat.currentConnectionsMap[peerUUID]){
+            return portal.chat.currentConnectionsMap[peerUUID].video ? portal.chat.currentConnectionsMap[peerUUID].video : 'none';
+        }
+        return 'none';
     };
 
     portal.chat.video.doTimeout = function (peerUUID, timeLimit) {
@@ -274,8 +277,8 @@
         if (this.getCurrentCallStatus(peerUUID) === this.statuses.ESTABLISHING && this.getCurrentCallTime(peerUUID) === timeLimit) {
             this.setVideoStatus(peerUUID, this.messages.pc_video_status_call_timeout, "failed");
             this.doClose(peerUUID);
-            $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
-            $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').hide();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
         }
     };
 
@@ -283,7 +286,7 @@
 
         if (debug) console.debug('video.doAnswerTimeout(' + peerUUID + ', ' + timeLimit + ')');
 
-        if ($('#pc_connection_' + peerUUID + '_videoin').is(":visible")
+        if ($(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).is(":visible")
                 && (!this.webrtc.currentPeerConnectionsMap[peerUUID] || this.getCurrentCallStatus(peerUUID) === this.statuses.CANCELLING)
                 && this.getCurrentCallTime (peerUUID) == timeLimit) {
 
@@ -308,7 +311,7 @@
         }
 
         // If a chat window is already open for this sender, show video.
-        var messagePanel = $("#pc_chat_with_" + peerUUID);
+        var messagePanel = $(portal.chat.domSelectors.pcChatWithPre+ peerUUID);
         if (!messagePanel.length) {
             // No current chat window for this sender. Create one.
             portal.chat.setupChatWindow(peerUUID, true);
@@ -316,8 +319,8 @@
 
         if (incoming) {
             this.showVideoCall(peerUUID);
-            $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').hide();
-            $('#pc_connection_' + peerUUID + '_videoin').show();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).hide();
+            $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).show();
         } else {
             if (!this.getCurrentCall(peerUUID)) {
                 this.setVideoStatus(peerUUID, portal.chat.video.messages.pc_video_status_setup, "waiting");
@@ -357,16 +360,16 @@
 
                                 self.changeCallStatus(peerUUID, self.statuses.ESTABLISHED);
                                 self.setVideoStatus(peerUUID, self.messages.pc_video_status_connection_established, "video");
-                            }, 	
+                            },  
                             function (peerUUID) {
 
                                 // onFailedCallback
 
                                 if (self.debug) console.debug('webrtc: doCall onFailedCallback');
 
-                                $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
-                                $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
-                                $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').hide();
+                                $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
+                                $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
+                                $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
                                 self.setVideoStatus(peerUUID, self.messages.pc_video_status_call_not_accepted, "failed");
                                 self.doClose(peerUUID);
                             }
@@ -392,22 +395,22 @@
 
         this.changeCallStatus(peerUUID, this.statuses.ACCEPTED);
         if (!this.webrtc.currentPeerConnectionsMap[peerUUID]) {
-            $('#pc_connection_' + peerUUID + '_videoin').hide();
-            $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+            $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
             this.setVideoStatus(peerUUID, this.messages.pc_video_status_answer_timeout, "failed");
             return;
         }
         this.setVideoStatus(peerUUID, this.messages.pc_video_status_setup, "waiting");
-        $('#pc_connection_' + peerUUID + '_videoin').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
 
         var self = this;
         
         this.webrtc.answerCall(peerUUID, function (peerUUID, localMediaStream) {
 
             self.showMyVideo();
-            self.webrtc.attachMediaStream(document.getElementById("pc_chat_local_video"), localMediaStream);
+            self.webrtc.attachMediaStream(document.getElementById(portal.chat.domNames.pcChatVideoLocalVideo), localMediaStream);
 
-            $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID +' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
             self.setVideoStatus(peerUUID, self.messages.pc_video_status_setup, "waiting");
         }, function (peerUUID, localMediaStream) {
 
@@ -417,9 +420,9 @@
             self.successCall(peerUUID, localMediaStream);
         }, function () {
 
-            $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
-            $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
-            $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').hide();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
+            $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
             self.setVideoStatus(peerUUID, self.messages.pc_video_status_call_failed, "failed");
             self.closeVideoCall(peerUUID);
         });
@@ -429,7 +432,7 @@
 
         if (debug) console.debug('video.receiveVideoCall(' + peerUUID + ')');
 
-        $('#pc_connection_' + peerUUID + '_videoin').show();
+        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).show();
     };
 
     portal.chat.video.ignoreVideoCall = function (peerUUID) {
@@ -437,21 +440,21 @@
         if (debug) console.debug('video.ignoreVideoCall(' + peerUUID + ')');
 
         this.changeCallStatus(peerUUID, this.statuses.CANCELLED);
-        $('#pc_connection_' + peerUUID + '_videoin').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
         this.setVideoStatus(peerUUID, this.messages.pc_video_status_you_ignored, "finished");
         this.webrtc.signal(peerUUID, JSON.stringify({"bye": "ignore"}));
         this.closeVideoCall(peerUUID);
-        $('#pc_connection_' + peerUUID+ '_videochat_bar > .pc_connection_videochat_bar_left ').show();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
     };
 
     portal.chat.video.showVideoCall = function (peerUUID) {
 
         if (debug) console.debug('video.showVideoCall(' + peerUUID + ')');
 
-        var chatDiv = $("#pc_chat_with_" + peerUUID);
-        $("#pc_chat_" + peerUUID + "_video_content").show();
+        var chatDiv = $(portal.chat.domSelectors.pcChatWithPre+ peerUUID);
+        $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID).show();
         
-        if (!chatDiv.hasClass('pc_minimised')) {
+        if (!chatDiv.hasClass(portal.chat.domNames.pcMinimised)) {
             chatDiv.css('height', '512px');
             chatDiv.css('margin-top', '-212px');
         } else {
@@ -461,10 +464,10 @@
         chatDiv.addClass('video_active');
         chatDiv.attr('data-height', '512');
         
-        $('#pc_connection_' + peerUUID + '_videochat_bar').show();
-        $('#pc_connection_' + peerUUID + '_videoin').hide();
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').hide();
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').show();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID).show();
+        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').show();
     };
 
     portal.chat.video.closeVideoCall = function (peerUUID, ui) {
@@ -475,17 +478,17 @@
             this.setVideoStatus(peerUUID, this.messages.pc_video_status_hangup, "finished");
         }
         this.doClose(peerUUID);
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
     };
 
     portal.chat.video.showMyVideo = function () {
 
         if (debug) console.debug('video.showMyVideo');
 
-        $('#pc_chat_local_video_content').show();
+        $(portal.chat.domSelectors.pcChatLocalVideoContent).show();
         if (!portal.chat.expanded) {
-            $('#pc_content').hide();
+            $(portal.chat.domSelectors.pcChatContent).hide();
             portal.chat.toggleChat();
         }
     };
@@ -496,10 +499,10 @@
 
         if ($('.video_active').length < 1) {
             if (portal.chat.expanded) {
-                $('#pc_content').show();
+                $(portal.chat.domSelectors.pcChatContent).show();
                 portal.chat.toggleChat();
             }
-            $('#pc_chat_local_video_content').hide();
+            $(portal.chat.domSelectors.pcChatLocalVideoContent).hide();
         }
     };
 
@@ -508,28 +511,28 @@
         if (debug) console.debug('video.setVideoStatus(' + peerUUID + ', ' + text + ', ' + state + ')');
 
         if (state != null) {
-            $("#pc_chat_" + peerUUID + "_video_content > .statusElement").hide();
+            $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID +' > '+ portal.chat.domSelectors.pcChatVideoStatusElement).hide();
             
             if (state === 'video') {
-                $("#pc_chat_" + peerUUID + "_video_content > .pc_chat_video_remote").fadeIn();
+                $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID +' > ' +portal.chat.domSelectors.pcChatVideoRemote).fadeIn();
             } else if (state === 'waiting') {
-                $("#pc_chat_"+ peerUUID	+ "_video_content > .bubblingG").show();
+                $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID +' > '+ portal.chat.domSelectors.pcChatBubbling).show();
             } else if (state === 'failed') {
-                $("#pc_chat_"+ peerUUID	+ "_video_content > .pc_chat_video_failed").show();
+                $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID +' > ' + portal.chat.domSelectors.pcChatVideoFailed).show();
                 setTimeout('portal.chat.setupVideoChatBar("' + peerUUID + '",' + !this.hasRemoteVideoAgent(peerUUID) + ');', 5000);
             } else if (state === 'finished') {
-                $("#pc_chat_" + peerUUID + "_video_content > .pc_chat_video_finished").show();
+                $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID +' > ' + portal.chat.domSelectors.pcChatVideoFinished).show();
                 setTimeout('portal.chat.setupVideoChatBar("' + peerUUID + '",' + !this.hasRemoteVideoAgent(peerUUID) + ');', 5000);
             }
         }
         
-        $("#pc_chat_" + peerUUID	+ "_video_content > .pc_chat_video_statusbar > span").text(text);
-        $("#pc_chat_" + peerUUID + "_video_content > .pc_chat_video_statusbar").show();
+        $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID +' > ' + portal.chat.domSelectors.pcChatVideoStatusBar +' > span').text(text);
+        $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID +' > ' + portal.chat.domSelectors.pcChatVideoStatusBar).show();
     };
 
     $(document).ready(function () {
 
-        $('#pc_video_off_checkbox').click( function () {
+        $(portal.chat.domSelectors.pcVideoOffCheckOff).click( function () {
 
             if ($(this).prop('checked')) {
                 portal.chat.setSetting('videoOff', true, /* localStorage */ true);

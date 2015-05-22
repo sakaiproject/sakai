@@ -54,6 +54,17 @@
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-jdbc</artifactId>
     </dependency>
+    <!-- Java 8 Maven Artifact -->
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP-java6</artifactId>
+    </dependency>
+    -->
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>

@@ -23,6 +23,7 @@
 <script type="text/javascript" src="/library/js/jquery/blockUI/2.66/jquery.blockUI.js"></script>
 
 <script type="text/javascript">
+     var honorPledgeIsChecked = true;
      var five_minutes_left = "<h:outputText value="#{deliveryMessages.five_minutes_left1} "/><h:outputText value="#{deliveryMessages.five_minutes_left2} " /><h:outputText value="#{deliveryMessages.five_minutes_left3}" />";
      var button_ok = "<h:outputText value="#{deliveryMessages.button_ok} "/>";
      var please_wait = "<h:outputText value="#{deliveryMessages.please_wait} "/>";
@@ -35,8 +36,19 @@
 		//Turn off browser autocomplete on all forms
 		$("form").attr("autocomplete", "off");
 
+		// If instructor requires honor pledge, we check for it before allowing assessment to start
+		if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
+			honorPledgeIsChecked = false;
+
+			$('#takeAssessmentForm\\:honor_pledge').change(
+				function() { honorPledgeIsChecked = $('#takeAssessmentForm\\:honor_pledge').prop('checked'); }
+			);
+		}
+
 		// Block the UI to avoid user double-clicks
 		$("input[type='submit'][class!='noActionButton']").click(function() { 
+			if (!honorPledgeIsChecked) return false;
+
 			$.blockUI({ message: '<h3>' + please_wait + ' <img src="/library/image/sakai/spinner.gif" /></h3>', overlayCSS: { backgroundColor: '#ccc', opacity: 0.25} });
 		}); 
 
@@ -80,6 +92,15 @@
 			}
 		});		
 	});
+
+	function checkIfHonorPledgeIsChecked() {
+		if(!honorPledgeIsChecked){
+			alert("<h:outputText value='#{deliveryMessages.honor_pledge_select}'/>");
+			$('#takeAssessmentForm\\:honorPledgeRequired').show();
+			return false;
+		}
+		return true;
+	}
 
 	function showTimerWarning() {
 		$('#timer-warning').dialog('open');

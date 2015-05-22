@@ -1,4 +1,4 @@
-<nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="Mrphs-sitesNav">
+<nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="Mrphs-sitesNav" data-max-tools-int="$maxToolsInt" data-max-tools-anchor="${rloader.sit_alltools}">
     <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
 
     <ul class="Mrphs-sitesNav__menu" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
@@ -8,18 +8,18 @@
             #if (${site.isCurrentSite})
 
                 #if (${site.isMyWorkspace})
-
-                    <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace is-selected"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+                    ## Print Nothing
+                    ##<li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace is-selected"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
 
                 #else
 
                     #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 
-                        <li class="Mrphs-sitesNav__menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+                        <li class="Mrphs-sitesNav__menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></li>
 
                     #else
 
-                        <li class="Mrphs-sitesNav__menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+                        <li class="Mrphs-sitesNav__menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></li>
 
                     #end ## END of IF (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 
@@ -28,8 +28,8 @@
             #else
 
                 #if (${site.isMyWorkspace})
-
-                    <li class="Mrphs-sitesNav__menuitem"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+                    ## Print Nothing
+                    ##<li class="Mrphs-sitesNav__menuitem"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
 
                 #else
 
@@ -39,7 +39,7 @@
 
                     #else    
 
-                        <li class="Mrphs-sitesNav__menuitem"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span class="Mrphs- ">${site.siteTitle}</span><span class="Mrphs-sitesNav" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+                        <li class="Mrphs-sitesNav__menuitem"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></li>
 
                     #end
 
@@ -56,14 +56,5 @@
         #end ## END of IF ($tabsSites.tabsMoreSitesShow)
 
     </ul>
-
-    ## Is this still used? Mark Reilly 2014-12-10
-    #if ($tabsAddLogout)
-
-        <div class="galleryLogin Mrphs-MainNav__logout">
-            <a href="$tabsLogoutUrl">${rloader.sit_log}</a>
-        </div>
-
-    #end
 
 </nav> <!-- /Mrphs-sitesNav -->

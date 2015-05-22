@@ -21,19 +21,22 @@ public interface UserNotificationProvider {
 	public static final String SITE_REF_PREFIX	= "/site/";
 
 	/**
-	 * Send an email to newly added user informing password
+	 * Send an email to newly added user informing them of their password.
 	 * 
-	 * @param newnonOfficialAccount
-	 * @param emailId
-	 * @param userName
-	 * @param siteTitle
+	 * @param newUser The newly created user.
+	 * @param newUserPassword The password for the newly created user.
+	 * @param site The site in which the new user was created.
 	 */
-	public void notifyNewUserEmail(User user, String newUserPassword, String siteTitle);
+	public void notifyNewUserEmail(User newUser, String newUserPassword, Site site);
 
 	/**
-	 * send email notification to added participant
+	 * Send email notification to added participant indicating they have been added to a site.
+	 * 
+	 * @param nonOfficialAccount <code>true</code> if the added user is a guest user rather than an official one.
+	 * @param user The user who was newly added to the site.
+	 * @param site The site to which the user was added as a participant.
 	 */
-	public void notifyAddedParticipant(boolean newNonOfficialAccount, User user, String siteTitle); 
+	public void notifyAddedParticipant(boolean nonOfficialAccount, User user, Site site); 
 	
 	/**
 	 * send email notification to template contact people about template usage

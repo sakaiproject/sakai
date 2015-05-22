@@ -130,11 +130,6 @@
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.common</groupId>
-        <artifactId>common-cartridge</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sakaiproject.common</groupId>
 	<artifactId>sakai-import-bb55</artifactId>
         <version>${project.version}</version>
       </dependency>

@@ -100,4 +100,9 @@ public interface PollVoteManager {
      */
     public void deleteVote(Vote vote);
 
+    /**
+     * Delete the given votes
+     * @param votes The votes to delete
+     */
+    public void deleteAll(List<Vote> votes);
 }

@@ -233,4 +233,9 @@ public interface LdapConnectionManagerConfig {
 	 * @param maxResultSize The maximum number of results to ever get back from LDAP.
 	 */
 	public void setMaxResultSize(int maxResultSize);
+
+	/**
+	 * @param enable If <code>true</code> then perform searches for users by Authentication ID.
+	 */
+	public void setEnableAid(boolean enable);
 }

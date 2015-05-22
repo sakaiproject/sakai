@@ -22,8 +22,22 @@
 
 // Validate the password from the form
 USER.validatePassword = function () {
-    var username = USER.trim(USER.get("user_eid").value);
-    var pw = USER.get("user_pw").value;
+    var username = USER.get("user_eid");
+    if (!username)
+    {
+        // There's no userEid; so we'll use the email field instead
+        username = USER.get("email");
+    }
+    username = USER.trim(username.value);
+    var pw = USER.get("user_pw");
+    if (!pw)
+    {
+        // There's no password field to validate; consider the password valid.
+        USER.passwordValid = true;
+        USER.passwordsMatch = true;
+        return;
+    }
+    pw = pw.value;
     var strongMsg = USER.get("strongMsg");
     var moderateMsg = USER.get("moderateMsg");
     var weakMsg = USER.get("weakMsg");
@@ -54,7 +68,12 @@ USER.validatePassword = function () {
 
 // Verify the passwords match
 USER.verifyPasswordsMatch = function () {
-    var pw = USER.get("user_pw").value;
+    var pw = USER.get("user_pw");
+    if (!pw)
+    {
+        return;
+    }
+    pw = pw.value;
     var pw2 = USER.get("user_pw0").value;
     var matchMsg = USER.get("matchMsg");
     var noMatchMsg = USER.get("noMatchMsg");
@@ -70,22 +89,37 @@ USER.verifyPasswordsMatch = function () {
     }
 
     USER.validateForm();
-}
+};
 
 // Validate the user ID from the form
 USER.validateUserId = function () {
-    var userId = USER.trim(USER.get("user_eid").value);
-    USER.userValid = userId.length > 0;
-    USER.validatePassword();
+    var user_eid = USER.get("user_eid");
+    if (user_eid)
+    {
+        var userId = USER.trim(user_eid.value);
+        USER.userValid = userId.length > 0;
+        USER.validatePassword();
+    }
+    else
+    {
+        USER.userValid = true;
+    }
+    USER.validateForm();
 };
 
 // Validate the email address from the form
 USER.validateEmail = function () {
+    var emailRequired = USER.get("email").required;
     var email = USER.trim(USER.get("email").value);
     var emailWarningMsg = USER.get("emailWarningMsg");
 
     if (email.length < 1) {
-        USER.emailValid = true;
+        if (emailRequired) {
+            USER.emailValid = false;
+        }
+        else {
+            USER.emailValid = true;
+        }
     }
     else {
         USER.emailValid = USER.checkEmail(email);
@@ -111,6 +145,15 @@ USER.validateForm = function () {
 
 // Initialization function
 jQuery(document).ready(function () {
-    USER.validateEmail();
     USER.validateUserId();
+    if (!USER.get('user_eid'))
+    {
+        USER.userValid = true;
+    }
+    if (!USER.get("user_pw"))
+    {
+        USER.passwordValid = true;
+        USER.passwordsMatch = true;
+    }
+    USER.validateForm();
 });

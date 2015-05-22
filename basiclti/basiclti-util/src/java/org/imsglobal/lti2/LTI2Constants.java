@@ -38,6 +38,9 @@ public class LTI2Constants {
 	 */
 	public static final String REG_PASSWORD = "reg_password";
 
+        public static final String TC_HALF_SECRET = "tc_half_secret";
+        public static final String TP_HALF_SECRET = "tp_half_secret";
+
 	/**
 	 * TC_PROFILE_URL
 	 * <p>

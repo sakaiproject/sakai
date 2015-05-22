@@ -254,6 +254,17 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
     	return true;
     }
 
+    public boolean userCanDeletePoll(Poll poll) {
+        if (externalLogic.isUserAdmin())
+            return true;
+        if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_DELETE_ANY, externalLogic.getCurrentLocationReference()))
+            return true;
+        if (externalLogic.isAllowedInLocation(PollListManager.PERMISSION_DELETE_OWN, externalLogic.getCurrentLocationReference()) && poll.getOwner().equals(externalLogic.getCurrentUserId()))
+            return true;
+
+        return false;
+    }
+
     public List<Poll> findAllPolls(String siteId) {
         
         Search search = new Search();

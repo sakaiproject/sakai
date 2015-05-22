@@ -31,16 +31,42 @@
 	<a href="voteAdd.html" rsf:id="add-poll">Add</a>
 </div>
 
+<div rsf:id="poll_list_remove_confirm" id="poll_list_remove_confirm"></div>
+<div rsf:id="poll_list_reset_confirm" id="poll_list_reset_confirm"></div>
+
 <script type="text/javascript">
-	$(document).ready(function(){
-	$('#remove-all').click(function(){
-		if ($(this).is(':checked')){
-			$('.checkbox-cell input').attr('checked',true);
-		}
-		else{
-			$('.checkbox-cell input').attr('checked',false);
-		}
-	});	
+    $(document).ready(function () {
+
+        $('#remove-all').change(function () {
+
+            var isChecked = $(this).is(':checked');
+            $('.checkbox-cell input').prop('checked', isChecked);
+            $('#delete-polls').prop('disabled', !isChecked);
+            $('#reset-polls-votes').prop('disabled', !isChecked);
+        });
+
+        $('.checkbox-cell input').change(function () {
+
+            var someChecked = $('.checkbox-cell input:checked').length;
+            $('#delete-polls').prop('disabled', !someChecked);
+            $('#reset-polls-votes').prop('disabled', !someChecked);
+
+            if (!someChecked) {
+                $('#remove-all').prop('checked', false);
+            }
+         });
+
+         $('#delete-polls').click(function () {
+
+             var removeMessage = $('#poll_list_remove_confirm').text();
+             return confirm(removeMessage);
+             });
+
+         $('#reset-polls-votes').click(function () {
+
+             var resetMessage = $('#poll_list_reset_confirm').text();
+             return confirm(resetMessage);
+         });
 	});
 </script>
 
@@ -71,7 +97,7 @@
       <td class="checkbox-cell"><label rsf:id="delete-label" id="check-2" class="skip">Label for element</label><input rsf:id="poll-select" title="Select to remove" type="checkbox" id="check-2" name="deletePoll" value="" /> 
       </td>
     </tr>
-    <tr rsf:id="poll-row:nonvotable"> 
+    <tr rsf:id="poll-row:nonvotable">
       <td><span rsf:id="poll-text">Non Votable Question</span>
          <div class="itemAction"><a href="voteAdd.html" target="_self" rsf:id="poll-revise">Edit</a></div>
         </td>
@@ -85,7 +111,8 @@
 </table>
 
 <p class="act">
-<input type="submit" class="active" rsf:id="delete-polls" name="deleteSelectPoll" value="Update"  accesskey="s" />
+<input type="submit" class="active" rsf:id="delete-polls" id="delete-polls" name="deleteSelectPoll" value="Update"  accesskey="s" disabled="disabled" />
+<input type="submit" class="active" rsf:id="reset-polls-votes" id="reset-polls-votes" name="resetSelectPoll" value="Reset"  accesskey="r" disabled="disabled" />
 </p>
 </form>
 </div>

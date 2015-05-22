@@ -28,8 +28,8 @@ package org.sakaiproject.tool.assessment.data.ifc.questionpool;
  */
 public interface QuestionPoolItemIfc
 {
-  public String getItemId();
-  public void setItemId(String itemId);
+  public Long getItemId();
+  public void setItemId(Long itemId);
   public Long getQuestionPoolId();
   public void setQuestionPoolId(Long questionPoolId);
 }

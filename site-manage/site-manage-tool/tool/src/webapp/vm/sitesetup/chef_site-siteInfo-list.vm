@@ -187,11 +187,25 @@ function printPreview(target){
 				</th>
 				<td>
 					#if ($!published)
-						#if ($!siteJoinable)
-							<span class="highlight">$tlang.getString("sitegen.siteinfolist.sitecan")</span>
-						#else
-							$tlang.getString("sitegen.siteinfolist.sitepar")
-						#end
+						#if ("anonymous" == $!access)
+							#if ($siteJoinable)
+								$tlang.getString("sitegen.siteinfolist.anonjoin")
+							#else
+								$tlang.getString("sitegen.siteinfolist.anon")
+							#end
+						#else #if ("authenticated" == $!access)
+							#if ($siteJoinable)
+								$tlang.getString("sitegen.siteinfolist.authjoin")
+							#else
+								$tlang.getString("sitegen.siteinfolist.auth")
+							#end
+						#else 
+							#if ($!siteJoinable)
+								$tlang.getString("sitegen.siteinfolist.sitecan")
+							#else
+								$tlang.getString("sitegen.siteinfolist.sitepar")
+							#end
+						#end #end
 					#else
 						## unpublished site
 							<span class="highlight">$tlang.getString("sitegen.siteinfolist.siteown")</span>
@@ -206,6 +220,40 @@ function printPreview(target){
 					$!siteModifiedTime
 				</td>
 			</tr>
+		#end
+		
+		#if ($siteJoinable)
+			
+			<tr>
+				<th>
+					&nbsp;
+				</th>
+				<td>
+					
+			#if ($allowUnjoin)
+                    
+					<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+						<input type="hidden" name="itemReference" value="$siteId"/>
+						<input type="submit" class="active" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
+					</form>
+                    
+			#else
+                    
+            		<form name="unjoinSiteForm" class="inlineForm" method="post" action="#toolForm("SiteAction")">
+						<input type="hidden" name="itemReference" value="$siteId"/>
+						<input type="submit" disabled="disabled" name="eventSubmit_doUnjoin" value="$tlang.getString("sitegen.siteinfolist.siteunjoin")"/>
+					</form>
+                    
+			#end
+					
+				</td>
+			</tr>
+				
+		#end
+            
+		#if ($!allowUpdate)
+		
 			<tr>
 				<th>
 					$tlang.getString("sitegen.siteinfolist.usermodify")
@@ -370,19 +418,19 @@ function printPreview(target){
 				<dl class="defList" id="accordion">
 					<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0">
 						<tr>
-							<th>
+							<th scope="col">
 								$tlang.getString("sinfo.list.joinable.title")
 							</th>
-							<th>
+							<th scope="col">
 								$tlang.getString("sinfo.list.joinable.joinable-set")
 							</th>
-							<th>
+							<th scope="col">
 								$tlang.getString("sinfo.list.joinable.size")
 							</th>
-							<th>
+							<th scope="col">
 								$tlang.getString("sinfo.list.joinable.members")
 							</th>
-							<th>
+							<th scope="col">
 								$tlang.getString("sinfo.list.joinable.join")
 							</th>
 						</tr>
@@ -516,7 +564,7 @@ function printPreview(target){
 		<form name="participantForm" id="participantForm" action="#toolForm("SiteAction")" method="post">
 			<table class ="listHier lines nolines"  cellpadding="0" cellspacing="0" border="0" summary ="$tlang.getString("sitegen.siteinfolist.partlist.summary")" id="siteMembers">
 				<tr>
-					<th id="name">
+					<th id="name" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_name")" title ="$tlang.getString("sitegen.siteinfolist.sortname")"> 
 							$tlang.getString("sitegen.siteinfolist.name")
 							#if ($currentSortedBy.equals("participant_name")) 
@@ -529,7 +577,7 @@ function printPreview(target){
 						</a>
 					</th>
 					#if ($hasProviderSet)
-						<th id="coursename">
+						<th id="coursename" scope="col">
 							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_course")" title ="$tlang.getString("sitegen.siteinfolist.sortname1")"> 
 								$tlang.getString("sitegen.siteinfolist.enrolled")
 								#if ($currentSortedBy.equals("participant_course")) 
@@ -543,7 +591,7 @@ function printPreview(target){
 						</th>
 					#end
 					#if ($!isCourseSite)
-						<th id="id">
+						<th id="id" scope="col">
 							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_id")" title ="$tlang.getString("sitegen.siteinfolist.sortid")"> 
 								$tlang.getString("sitegen.siteinfolist.id")
 								#if ($currentSortedBy.equals("participant_id")) 
@@ -555,7 +603,7 @@ function printPreview(target){
 								#end 
 							</a>
 						</th>
-						<th id="credits">
+						<th id="credits" scope="col">
 							<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_credits")" title ="$tlang.getString("sitegen.siteinfolist.sortcred")"> 
 								$tlang.getString("sitegen.siteinfolist.credits")
 								#if ($currentSortedBy.equals("participant_credits")) 
@@ -568,7 +616,7 @@ function printPreview(target){
 							</a>
 						</th>
 					#end
-					<th id="role">
+					<th id="role" scope="col">
 						<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_role")" title ="$tlang.getString("sitegen.siteinfolist.sortrole")"> 
 							$tlang.getString("sitegen.siteinfolist.role")
 							#if ($currentSortedBy.equals("participant_role")) 
@@ -582,7 +630,7 @@ function printPreview(target){
 					</th>
 					#if ($allowUpdateSiteMembership)
 						#if ($!activeInactiveUser && !$!isMyWorkspace)
-							<th id="status">
+							<th id="status" scope="col">
 								<a href="#toolLinkParam("SiteAction" "doSort_roster" "criterion=participant_status")" title ="$tlang.getString("sitegen.siteinfolist.sortstatus")"> 
 								$tlang.getString("sitegen.siteinfolist.status")
 								#if ($currentSortedBy.equals("participant_status")) 
@@ -595,7 +643,7 @@ function printPreview(target){
 							</a>
 							</th>
 						#end
-						<th id="remove" class="screenOnly attach" align="center" >
+						<th id="remove" class="screenOnly attach" align="center" scope="col">
 							<label for="toggleAllSelected">$tlang.getString('sitegen.siteinfolist.remove')</label>
 							<input type="checkbox" name="toggleAllSelected" value="" id="toggleAllSelected" onclick="javascript:toggleSelectAll(this, 'selectedUser')" title="$tlang.getString('sitegen.siteinfolist.remove')"/>
 						</th>
@@ -604,8 +652,7 @@ function printPreview(target){
 				#foreach($participant in $participantList)
 					#set($uniqname = $participant.getUniqname())
 					<tr #if(!$!participant.isActive())class="inactive inactiveBack"#end>
-						<td headers="name">
-							<h5>
+						<th scope="row">
 								#set ($participantName=$participant.getName())
 								#if ($participantName ==", ") 	
 								#else
@@ -617,8 +664,7 @@ function printPreview(target){
 									## for those internal users as Participant objects
 									$displayId
 								#end)
-							</h5>
-						</td>
+						</th>
 						#if ($hasProviderSet)
 							<td headers="coursename">
 								#set($partSection = "")

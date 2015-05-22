@@ -1,67 +1,65 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
-	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-	<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-		 <link href="${pageSkinRepo}/tool_base.css" type="text/css" rel="stylesheet" media="all" />
+<!DOCTYPE html>
+<html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">        
 		<link href="${pageSkinRepo}/${pageSkin}/tool.css" type="text/css" rel="stylesheet" media="all" />
-		<meta http-equiv="Content-Style-Type" content="text/css" />
-		<title>${uiService}</title>
-		<script type="text/javascript" src="/library/js/jquery/1.4.2/jquery-1.4.2.min.js"></script>
-		<script type="text/javascript" language="JavaScript" src="${pageScriptPath}headscripts.js"></script>
-		<meta name="viewport" content="width=device-width"/>
-		#if ( $isPDA )
-			<link href="${pageSkinRepo}/${pageSkin}/pda.css" type="text/css" rel="stylesheet" media="all" />
-		#end
-	</head>
-	<body onload="if ((document.getElementById('pw').passwordfocus != true)) document.getElementById('eid').focus() ;parent.updCourier(doubleDeep, ignoreCourier);">
-		<script type="text/javascript" language="JavaScript">
-			focus_path = ["eid"];
-		</script>
-		<!-- xlogin.vm -->
-		<table class="login" cellpadding="0" cellspacing="0" border="0">
-		<tr>
-			<th colspan="2">${loginRequired}</th>
-		</tr>
-		<tr>
-			<td class="logo"></td>
-			<td class="form">
-				<form method="post" action="${action}" enctype="application/x-www-form-urlencoded">
-				#if (${notify})
-					<div class="alertMessage">${notify}</div>
-				#end
-					<table border="0" class="loginform">
-					<tr>
-						<td><label for="eid">${loginEidWording}</label></td>
-						<td><input name="eid" id="eid" value="${eid}" type="text" size="15"/></td>
-					</tr>
-					<tr>
-						<td><label for="pw">${loginPwWording}</label></td>
-						<td><input name="pw" id="pw" value="${password}" type="password" onfocus="this.passwordfocus = true; " size="15"/></td>
-						<script type="text/javascript" src="/library/js/caps-lock-checker.js"></script>
-					</tr>
-					#if (${loginAdvice})
-					<tr>
-						<td colspan="2">${loginAdvice}</td>
-					</tr>
-					#end
-					<tr>
-						#if (${doCancel})
-						<td colspan="2"><span id="submit"><input name="submit" type="submit" class="loginsubmit" value="${loginWording}"/> <input name="cancel" type="submit" class="loginsubmit" value="${cancelWording}"/></span></td>
-						#else
-						<td colspan="2"><input name="submit" type="submit" id="submit" value="${loginWording}"/></td>
-						#end
-					</tr>
-					#if (${passwordResetUrl})
-					<tr>
-						<td colspan="2"><a href="${passwordResetUrl}">${passwordResetWording}</a></td>
-					</tr>
-					#end
-					</table>
-				</form>
-			</td>
-		</tr>
-		</table>
-		<!-- end xlogin.vm -->
-	</body>
+		<script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
+    </head>
+    <body class="portalBody Mrphs-portalBody">
+    	<form id="Mrphs-xlogin" method="post" action="${action}" #if (${notify}) class="with-errors" #end>
+            <h1>${loginRequired}</h1>
+            <aside class="logo">
+                <img id="gravatar" />
+            </aside>
+        	#if (${notify})
+        		<div class="alertMessage" role="alert">${notify}</div>
+        	#end
+    		<fieldset>	
+    			<label for="eid">${loginEidWording}</label>
+    			<input name="eid" id="eid" value="${eid}" type="text" size="15"/>
+    			<label for="pw">${loginPwWording}</label>
+    			<input name="pw" id="pw" value="${password}" type="password" onfocus="this.passwordfocus = true; " size="15"/>
+    			#if (${loginAdvice})
+    				<aside>${loginAdvice}</aside>
+    			#end
+    			<p class="buttons">
+    			#if (${doCancel})
+    				<input name="submit" type="submit" id="submit" class="loginsubmit" value="${loginWording}"/>
+    				<input name="cancel" type="submit" class="loginsubmit" value="${cancelWording}"/>
+    			#else
+    				<input name="submit" type="submit" id="submit" value="${loginWording}"/>
+    			#end
+    			</p>
+    			#if (${passwordResetUrl})
+    				<p>
+    					<a href="${passwordResetUrl}">${passwordResetWording}</a>
+    				</p>
+    			#end
+    		</fieldset>
+    	</form>
+    	#set ( $d = "$")
+    	<script>
+    		var portal       = 'body';
+    	    var needJQuery   = true;
+    	    var secondJQuery = false;
+    	    if ( window.jQuery ) {
+    	        tver = jQuery.fn.jquery;
+    	        if ( tver.indexOf('1.9.') == 0 ) {
+    	            needJQuery = false;
+    	        } else {
+    	            secondJQuery = true;
+    	        }
+    	    }
+    	    if ( needJQuery ) {
+    	        document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	        document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+    	    }
+    	</script>
+    	<script>
+    	    ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
+    	</script>
+    	<script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
+    	<script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
+    </body>
 </html>

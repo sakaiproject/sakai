@@ -42,6 +42,13 @@
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>
         </dependency>
+        <!-- oAuth dependency -->
+        <dependency>
+            <groupId>org.sakaiproject.oauth</groupId>
+            <artifactId>oauth-api</artifactId>
+            <version>1.2-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
 
         <!-- Sakai K1 dependencies -->
 <!-- -->

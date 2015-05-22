@@ -43,24 +43,21 @@
 				actionListener="#{instructorViewBean.processStudentUidChange}"
 				value="#{msgs.inst_view_prev}"
 				title="#{instructorViewBean.previousStudent.user.displayName}"
-				accesskey="p"
-				tabindex="4" >
+				accesskey="p">
 					<f:param name="studentUid" value="#{instructorViewBean.previousStudent.user.userUid}"/>
 				</h:commandButton>
 			
 			<h:commandButton
 				action="#{instructorViewBean.processCancel}"
 				value="#{instructorViewBean.returnToPageButtonName}"
-				accesskey="l"
-				tabindex="6"/>
+				accesskey="l"/>
 			
 			<h:commandButton
 				disabled="#{instructorViewBean.last}"
 				actionListener="#{instructorViewBean.processStudentUidChange}"
 				value="#{msgs.inst_view_next}"
 				title="#{instructorViewBean.nextStudent.user.displayName}"
-				accesskey="n"
-				tabindex="5">
+				accesskey="n">
 					<f:param name="studentUid" value="#{instructorViewBean.nextStudent.user.userUid}"/>
 			</h:commandButton>
 		</div>
@@ -91,7 +88,7 @@
 			<h:outputText value="#{msgs.course_grade_name}" />
 			<h:panelGroup>
 				<h:outputText id="letterGrade" value="#{instructorViewBean.courseGradeLetter} " />
-				<h:outputText id="cumScore" value="#{instructorViewBean.courseGrade}">
+				<h:outputText id="cumScore" value="#{instructorViewBean.courseGradeRecord}">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
 			</h:panelGroup>	
@@ -112,7 +109,6 @@
 						value="#{msgs.inst_view_save}"
 						action="#{instructorViewBean.processUpdateScores}"
 						accesskey="s"
-						tabindex="9998"
 						title="#{msgs.inst_view_save}"
 						disabled="#{instructorViewBean.allItemsViewOnly}"
 						onclick="disableButton('buttonDiv2', this)"/>
@@ -122,7 +118,6 @@
 						action=""
 						immediate="true"
 						accesskey="c"
-						tabindex="9999"
 						title="#{msgs.inst_view_clear}"
 						disabled="#{instructorViewBean.allItemsViewOnly}"
 						onclick="disableButton('buttonDiv2', this)"/>
@@ -326,7 +321,6 @@
 					value="#{msgs.inst_view_save}"
 					action="#{instructorViewBean.processUpdateScores}"
 					accesskey="s"
-					tabindex="9998"
 					title="#{msgs.inst_view_save}"
 					disabled="#{instructorViewBean.allItemsViewOnly}"
 					onclick="disableButton('buttonDiv1', this)"/>
@@ -336,7 +330,6 @@
 					action=""
 					immediate="true"
 					accesskey="c"
-					tabindex="9999"
 					title="#{msgs.inst_view_clear}"
 					disabled="#{instructorViewBean.allItemsViewOnly}"
 					onclick="disableButton('buttonDiv1', this)"/>

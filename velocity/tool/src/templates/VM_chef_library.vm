@@ -132,7 +132,7 @@
 #macro (chef_start)
 #if ($sakai_fragment=='false')
 <!DOCTYPE html>
-<html lang="#if($language)$language#{else}en#end">
+<html lang="#if($language)$language#{else}en#end" dir="#if($dir)$dir#{else}ltr#end">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <meta http-equiv="Content-Style-Type" content="text/css" />
@@ -149,7 +149,7 @@
     
 #if ($frameRefresh)
 	#foreach ($id in $frameRefresh)
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	try
 	{
 		if (parent.${id}.location.toString().length > 1)
@@ -174,12 +174,12 @@
 	#end
 #end
 #if ($topRefresh)
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 		parent.location.replace(parent.location);
 	</script>
 #end
 #if ($focusChange)
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	try
 	{
 		parent.setFocus(${focusChange});
@@ -569,7 +569,7 @@ ${extra}")
 
 #macro (sakai_courier)
 #if ($courier)
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 updateTime = ${courierTimeout}000;
 updateUrl = "$courier";
 scheduleUpdate();

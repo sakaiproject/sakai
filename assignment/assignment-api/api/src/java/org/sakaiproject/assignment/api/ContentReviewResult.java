@@ -6,7 +6,6 @@ import org.sakaiproject.entity.api.ResourceProperties;
 /**
  * Introduced for SAK-26322 
  * A ContentReviewResult represents the results of a content review item
- * @author bbailla2
  */
 public class ContentReviewResult
 {

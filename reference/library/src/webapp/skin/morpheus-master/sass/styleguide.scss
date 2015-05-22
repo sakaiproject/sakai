@@ -1,9 +1,0 @@
-// import the global style sheet
-@import 'global';
-
-// Add the Color Guide (adds a lot of css not needed for production)
-@import 'toolkit/colors';  // tint-stack, shade-stack etc
-@import "singularitygs"; // require for generate-colour-guide mixin
-
-@import "modules/styleguide/_styleguide";
-@import "modules/colorguide/_colorguide";

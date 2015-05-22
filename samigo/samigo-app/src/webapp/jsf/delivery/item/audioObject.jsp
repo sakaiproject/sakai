@@ -26,6 +26,10 @@
 
 <f:verbatim><div id="audio-recorder-container"></f:verbatim>
 
+<f:verbatim><div id="sakai-recorder-error" style="display:none" class="messageSamigo"></f:verbatim>
+    <h:outputFormat value="#{deliveryMessages.audio_not_allowed} " escape="false"/> 
+<f:verbatim></div></f:verbatim>
+
 <f:verbatim><div id="audio-popup-question"></f:verbatim>
   <h:outputFormat value="#{deliveryMessages.q} " />
   <f:verbatim> <span id="audio-popup-question-number">1</span> </f:verbatim> 

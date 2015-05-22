@@ -814,18 +814,43 @@ public class SubmitToGradingActionListener implements ActionListener {
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
-				if (itemgrading != null) {
-					log.debug("\n:ItemId>>itemTextId>>answerId "+ itemgrading.getPublishedItemId()+itemgrading.getPublishedItemTextId()+itemgrading.getPublishedAnswerId()+"\n");	    
-
-					itemgrading.setAgentId(AgentFacade.getAgentString());
-					itemgrading.setSubmittedDate(new Date());
-					if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
-						itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
+				if ((itemgrading !=null && itemgrading.getItemGradingId() == null) || itemgrading.getItemGradingId().intValue() <= 0) {
+					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) { 
+						answerModified = true;
+						break;
 					}
-					adds.add(itemgrading);
 				}
 			}
+			// Click the Reset Selection link
+			if(item.getUnanswered()) {
+				answerModified = true;
+			}
 
+			if (answerModified) {
+				for (int m = 0; m < grading.size(); m++) {
+					ItemGradingData itemgrading = grading.get(m);
+					if (itemgrading !=null && itemgrading.getItemGradingId() != null && itemgrading.getItemGradingId().intValue() > 0) {
+						// remove all old answer
+						removes.add(itemgrading);
+					} else {
+						// add new answer
+						if (itemgrading.getPublishedAnswerId() != null
+							|| itemgrading.getAnswerText() != null
+							|| (itemgrading.getRationale() != null 
+							&& !itemgrading.getRationale().trim().equals(""))) { 
+							itemgrading.setAgentId(AgentFacade.getAgentString());
+							itemgrading.setSubmittedDate(new Date());
+							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
+								itemgrading.setRationale(TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, itemgrading.getRationale()));
+							}
+							adds.add(itemgrading);
+						}
+					}
+				}
+			}
+			else{
+				handleMarkForReview(grading, adds);
+			}
 			break;
 
 		}

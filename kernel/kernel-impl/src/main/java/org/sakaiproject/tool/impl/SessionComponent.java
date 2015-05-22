@@ -24,6 +24,7 @@ package org.sakaiproject.tool.impl;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -112,6 +113,8 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 
 	protected abstract RebuildBreakdownService rebuildBreakdownService();
 	
+    protected abstract ClusterService clusterManager();
+
 	/**
 	 * Configuration - set the default inactive period for sessions.
 	 *
@@ -340,6 +343,9 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 	 */
 	public Session startSession(String id)
 	{
+		if (isClosing()) {
+			throw new ClosingException();
+		}
 		// create a non portable session object if this is a clustered environment
 		NonPortableSession nPS = new MyNonPortableSession();
 
@@ -480,6 +486,11 @@ public abstract class SessionComponent implements SessionManager, SessionStore
 
 	public void setSessionListener(SessionAttributeListener sessionListener) {
 		this.sessionListener = sessionListener;
+	}
+
+	protected boolean isClosing()
+	{
+		return ClusterService.Status.CLOSING.equals(clusterManager().getStatus());
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************

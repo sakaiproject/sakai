@@ -150,17 +150,17 @@
     <dependency>
       <groupId>org.apache.myfaces.core</groupId>
       <artifactId>myfaces-api</artifactId>
-      <version>1.1.5</version>
+      <version>1.1.10</version>
     </dependency>
     <dependency>
       <groupId>org.apache.myfaces.core</groupId>
       <artifactId>myfaces-impl</artifactId>
-      <version>1.1.5</version>
+      <version>1.1.10</version>
     </dependency>
     <dependency>
       <groupId>org.apache.myfaces.tomahawk</groupId>
       <artifactId>tomahawk</artifactId>
-      <version>1.1.10</version>
+      <version>1.1.14</version>
     </dependency>
     <dependency>
       <groupId>org.sakaiproject.jsf</groupId>
@@ -180,59 +180,6 @@
   <reports />
   <build>
     <plugins>
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-war-plugin</artifactId>
-        <version>2.0</version>
-        <configuration>
-          <webResources>
-            <resource>
-              <!-- this is relative to the this pom.xml directory -->
-              <directory>${basedir}/src/webapp/sakai</directory>
-              <includes>
-                <include>**/*.*</include>
-              </includes>
-            </resource>
-          </webResources>
-        </configuration>
-      </plugin>
-      <plugin>
-        <artifactId>maven-antrun-plugin</artifactId>
-        <executions>
-          <execution>
-            <phase>compile</phase>
-            <configuration>
-              <tasks>
-                <delete dir="${project.build.directory}/${project.build.finalName}/common" />
-                <delete dir="${project.build.directory}/${project.build.finalName}/sakai" />
-                <delete dir="${project.build.directory}/${project.build.finalName}/standalone" />
-                <echo message="Copying common resources into sakai and standalone webapps" />
-                <copy todir="${project.build.directory}/${project.build.finalName}" overwrite="true">
-                  <fileset dir="${basedir}/src/webapp/common" />
-                </copy>
-                <copy todir="${project.build.directory}/${project.build.finalName}_standalone" overwrite="true">
-                  <fileset dir="${basedir}/src/webapp/common" />
-                </copy>
-                <echo message="Copying sakai dependent resources into sakai webapp" />
-                <copy todir="${project.build.directory}/${project.build.finalName}" overwrite="true">
-                  <fileset dir="${basedir}/src/webapp/sakai/">
-                    <include name="**/*" />
-                  </fileset>
-                </copy>
-                <echo message="Copying standalone resources into standalone webapp" />
-                <copy todir="${project.build.directory}/${project.build.finalName}_standalone" overwrite="true">
-                  <fileset dir="${basedir}/src/webapp/standalone/">
-                    <include name="**/*" />
-                  </fileset>
-                </copy>
-              </tasks>
-            </configuration>
-            <goals>
-              <goal>run</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>

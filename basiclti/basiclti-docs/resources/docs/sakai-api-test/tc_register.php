@@ -20,6 +20,9 @@ $response = '{
 $json_response = json_decode($response);
 $json_response->{'@id'} = $cur_base . uniqid();
 $json_response->tool_proxy_guid = $oauth_consumer_key;
+$half = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
+$json_response->tc_half_secret = $half;
+
 
 try {
     $body = handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret);
@@ -46,7 +49,7 @@ if ( $header_key != $oauth_consumer_key ) {
 
 // Lets fire up a thread to send the commit message
 $headers = getallheaders();
-$commit_endpoint = isset($headers['VND-IMS-ACKNOWLEDGE-URL']) ? $headers['VND-IMS-ACKNOWLEDGE-URL'] : false;
+$commit_endpoint = isset($headers['VND-IMS-CONFIRM-URL']) ? $headers['VND-IMS-CONFIRM-URL'] : false;
 
 if ( $commit_endpoint != false ) {
     $ch = curl_init();

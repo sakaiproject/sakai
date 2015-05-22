@@ -181,7 +181,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
         public boolean allowSessionId = ServerConfigurationService.getBoolean("session.parameter.allow", false);
         public boolean allowCcExport = ServerConfigurationService.getBoolean("lessonbuilder.cc-export", true);
         public boolean allowDeleteOrphans = ServerConfigurationService.getBoolean("lessonbuilder.delete-orphans", false);
-        public String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
+        public String portalTemplates = ServerConfigurationService.getString("portal.templates", "morpheus");
 
 
 	// I don't much like the static, because it opens us to a possible race
@@ -202,9 +202,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
     // mp4 means it plays with the flash player if HTML5 doesn't work.
     // flv is also played with the flash player, but it doesn't get a backup <OBJECT> inside the player
     // Strobe claims to handle MOV files as well, but I feel safer passing them to quicktime, though that requires Quicktime installation
-        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v,audio/mpeg";
+        private static final String DEFAULT_MP4_TYPES = "video/mp4,video/m4v,audio/mpeg,audio/mp3";
         private static String[] mp4Types = null;
-        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac";
+        private static final String DEFAULT_HTML5_TYPES = "video/mp4,video/m4v,video/webm,video/ogg,audio/mpeg,audio/ogg,audio/wav,audio/x-wav,audio/webm,audio/ogg,audio/mp4,audio/aac,audio/mp3";
     // jw can also handle audio: audio/mp4,audio/mpeg,audio/ogg
         private static String[] html5Types = null;
     // almost ISO. Full ISO isn't available until Java 7. this uses -0400 where ISO uses -04:00
@@ -1000,11 +1000,11 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						link = UIInternalLink.make(crumb, "crumb-link", e.title, view);
 						UIOutput.make(crumb, "crumb-follow", " > ");
 					} else {
-					    if (inline)
+					    if (inline) {
 						link = UILink.make(crumb, "crumb-link", e.title, reseturl).
 						    decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.reset-button"))).
-						    decorate(new UIFreeAttributeDecorator("class", "title-tools reset"));
-
+						    decorate(new UIFreeAttributeDecorator("class", "title-tools reset Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"));
+					    }
 					    
 					    else
 						UIOutput.make(crumb, "crumb-follow", e.title).decorate(new UIStyleDecorator("bold"));
@@ -1025,10 +1025,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 			}
 		} else {
-		    if (inline && reseturl != null)
-			UILink.make(tofill, "pagetitlelink", currentPage.getTitle(), reseturl);
-		    else
-			UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
+			if (inline && reseturl != null)
+			    UILink.make(tofill, "pagetitlelink", currentPage.getTitle(), reseturl);
+			else
+			    UIOutput.make(tofill, "pagetitle", currentPage.getTitle());
 		}
 
 		// see if there's a next item in sequence.
@@ -3216,16 +3216,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(toolBar, "icondrop");
 
 		// right side
-		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
-		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), 
+		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", null, currentPage, "simplepage.reorder-tooltip");
+		UILink.make(toolBar, "help", (String)null,
 			    getLocalizedURL( isStudent ? "student.html" : "general.html"));
 		if (!studentPage)
-		    createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
+		    createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", null, currentPage, "simplepage.permissions.tooltip");
 
 		// add content menu
-		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
-		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
+		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", null, currentPage, "simplepage.text.tooltip").setItemId(null);
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", null, true, false, currentPage, "simplepage.multimedia.tooltip");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", null, false, false,  currentPage, "simplepage.resource.tooltip");
 		UILink subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
 
 		// content menu not on students
@@ -3314,7 +3314,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private void createStandardToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimpleViewParameters params, String tooltip) {
 		params.viewID = viewID;
-		UILink link = UIInternalLink.make(tofill, ID, messageLocator.getMessage(message), params);
+		if (message != null)
+		    message = messageLocator.getMessage(message);
+		UILink link = UIInternalLink.make(tofill, ID, message, params);
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage(tooltip)));
 	}
 

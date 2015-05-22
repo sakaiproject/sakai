@@ -35,6 +35,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -215,7 +216,7 @@ public class SaveAssessmentSettings
     }
     if (assessmentSettings.getFeedbackDelivery()!=null)
      feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
-    if (assessmentSettings.getFeedbackComponentOption()!=null)
+    if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
         feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
     if (assessmentSettings.getFeedbackAuthoring()!=null)
      feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));

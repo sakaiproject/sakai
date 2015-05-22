@@ -124,19 +124,12 @@ public class HtmlPageFilter implements ContentFilter {
 	}
 
 	private String getSiteSkin(Entity entity) {
-		String siteSkin = serverConfigurationService.getString("skin.default", "default"); 
+		String siteSkin = serverConfigurationService.getString("skin.default"); 
 		if (entity instanceof Site) {
 			Site site =(Site)entity;
 			if (site.getSkin() != null && site.getSkin().length() > 0) {
 				siteSkin = site.getSkin();
 			}
-		}
-
-		String neoPrefix = serverConfigurationService.getString("portal.neoprefix", "neo-");
-		String portalTemplate = serverConfigurationService.getString("portal.templates", "neoskin");
-
-		if ("neoskin".equals(portalTemplate) && !siteSkin.startsWith(neoPrefix)) {
-			siteSkin = neoPrefix + siteSkin;
 		}
 
 		return siteSkin;

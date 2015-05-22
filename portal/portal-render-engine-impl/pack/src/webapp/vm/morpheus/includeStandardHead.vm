@@ -5,7 +5,7 @@
 ##
 
 <!DOCTYPE html>
-<html lang="$!{locale}">
+<html lang="$!{locale}" dir="$!{dir}" class="Mrphs-html">
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,16 +13,9 @@
         #parse("/vm/morpheus/snippets/title-snippet.vm")
 
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
-
-        #if ( $neoChat && $loggedIn )
-
-            <link href="${pageSkinRepo}/${pageSkin}/portalchat.css$!{portalCDNQuery}" rel="stylesheet">
-
-        #end ## END of IF ( $neoChat && $loggedIn )
-
+        
         <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
 
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
-        ${includeExtraHead}
     </head>

@@ -1,3 +1,6 @@
+/**
+ * Please use 4 spaces for tabs when editing this file. Hard tabs are not portable.
+ */
 (function ($) {
 
     portal.chat.video.webrtc = {};
@@ -40,6 +43,7 @@
             data: {
                 'to': peerUUID,
                 'message': content,
+                'siteId': portal.siteId,
                 'video': true
             },
             success: function (text, status) {
@@ -74,8 +78,8 @@
             
             //Limit webRTC connections from firefox 25 and above
             if (this.detectedBrowserVersion < 25) {
-            	this.detectedBrowser = 'none';
-            	return "";
+                this.detectedBrowser = 'none';
+                return "";
             }
             
             navigator.getUserMedia = navigator.mozGetUserMedia;
@@ -84,19 +88,19 @@
             RTCIceCandidate = mozRTCIceCandidate;
             
             if (!MediaStream.prototype.getVideoTracks) {
-            	MediaStream.prototype.getVideoTracks = function () { return []; };
+                MediaStream.prototype.getVideoTracks = function () { return []; };
             }
     
             if (!MediaStream.prototype.getAudioTracks) {
-            	MediaStream.prototype.getAudioTracks = function () { return []; };
-        	}
+                MediaStream.prototype.getAudioTracks = function () { return []; };
+            }
         } else if (navigator.webkitGetUserMedia) {
             this.detectedBrowser = 'chrome';
             this.detectedBrowserVersion = parseInt(navigator.userAgent.match(/Chrom(e|ium)\/([0-9]+)\./)[2], 10);
     
             if (this.detectedBrowserVersion < 26){
-            	this.detectedBrowser = 'none';
-            	return "";
+                this.detectedBrowser = 'none';
+                return "";
             }
             
             navigator.getUserMedia = navigator.webkitGetUserMedia;
@@ -156,7 +160,7 @@
                     if (secs < 10) secs = '0' + secs;
     
                     var formattedDuration = hours + ":" + mins + ":" + secs;  
-                    $('#pc_connection_' + peerUUID + '_time').html(formattedDuration);
+                    $(portal.chat.domSelectors.pcChatVideoTimePre + peerUUID).html(formattedDuration);
                 });
             }, 1000);
     }; // init
@@ -361,7 +365,7 @@
     };
     
     /**
-     * Use this helper function to hook the media stream to a especified element
+     * Use this helper function to hook the media stream to a specified element
      */
     portal.chat.video.webrtc.attachMediaStream = function (element, stream) {
     
@@ -386,11 +390,11 @@
     
         var self = this;
         var mediaConstraints = {
-        		optional: [],
-        		mandatory: {
-        			OfferToReceiveAudio: true,
-        			OfferToReceiveVideo: true
-        		}
+                optional: [],
+                mandatory: {
+                    OfferToReceiveAudio: true,
+                    OfferToReceiveVideo: true
+                }
        };
        
         
@@ -409,7 +413,7 @@
                 , onFailedCallback
                 , mediaConstraints);
         } else {
-        	delete mediaConstraints.optional;
+            delete mediaConstraints.optional;
             peerConnection.createAnswer(function (rtcSessionDescription) {
     
                 self.gotDescription(peerUUID, rtcSessionDescription);
@@ -542,13 +546,15 @@
     /*
      * Called when a message is received from the signalling server (Sakai)
      */
-    portal.chat.video.webrtc.onReceive = function (peerUUID, message) {
+    portal.chat.video.webrtc.onReceive = function (message) {
+
+        var peerUUID = message.from;
     
         if (this.debug) console.debug('webrtc.onReceive(' + peerUUID + ')');
     
         var receivedSignal = JSON.parse(message.content);
     
-        if (this.debug) console.log('SDP: ' +JSON.stringify( receivedSignal.sdp));	
+        if (this.debug) console.log('SDP: ' +JSON.stringify( receivedSignal.sdp));  
         if (this.debug) console.log('Candidate: ' + receivedSignal.candidate);
         if (this.debug) console.log('Bye: ' + receivedSignal.bye);
         
@@ -653,10 +659,10 @@
             
         video.setVideoStatus(peerUUID, video.messages.pc_video_status_user_hung, "finished");
         video.doClose(peerUUID);
-        $('#pc_connection_' + peerUUID + '_videochat_bar > .pc_connection_videochat_bar_left ').show();
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_off').show();
-        $('#pc_connection_' + peerUUID + '_videochat_bar .video_on').hide();
-        $('#pc_connection_' + peerUUID + '_videoin').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
+        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
+        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
     };
     
     /** 
@@ -664,12 +670,12 @@
      */
     portal.chat.video.webrtc.CallConnection = function (pc, success, failed) {
     
-    	this.rtcPeerConnection = pc;
-    	this.onsuccessconn = success;
-    	this.onfailedconn = failed;
-    	this.isCaller = null;
-    	this.remoteMediaStream = null;
-    	this.remoteVideoAgentType = null;
-    	this.startTime = new Date().getTime();
+        this.rtcPeerConnection = pc;
+        this.onsuccessconn = success;
+        this.onfailedconn = failed;
+        this.isCaller = null;
+        this.remoteMediaStream = null;
+        this.remoteVideoAgentType = null;
+        this.startTime = new Date().getTime();
     };
 }) ($PBJQ);

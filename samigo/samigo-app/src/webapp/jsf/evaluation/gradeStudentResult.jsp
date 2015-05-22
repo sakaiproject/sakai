@@ -125,13 +125,13 @@ function toPoint(id)
   <h:column>
     <h:panelGroup>
       <samigo:hideDivision id="part" title = " #{deliveryMessages.p} #{part.number} #{evaluationMessages.dash} #{part.text} #{evaluationMessages.dash}
-       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{part.maxPoints} #{deliveryMessages.pt}" > 
+       #{part.questions-part.unansweredQuestions}#{evaluationMessages.splash}#{part.questions} #{deliveryMessages.ans_q}, #{part.pointsDisplayString} #{part.roundedMaxPoints} #{deliveryMessages.pt}" > 
         <h:dataTable value="#{part.itemContents}" var="question">
           <h:column>
             <f:verbatim><h4 class="tier3"></f:verbatim>
               <h:panelGroup>
                 <h:outputLink value="##{part.number}#{deliveryMessages.underscore}#{question.number}"> 
-                  <h:outputText escape="false" value="#{question.number}#{deliveryMessages.dot} #{question.strippedText} #{question.maxPoints} #{deliveryMessages.pt} ">
+                  <h:outputText escape="false" value="#{question.number}#{deliveryMessages.dot} #{question.strippedText} #{question.roundedMaxPoints} #{deliveryMessages.pt} ">
 				  </h:outputText>
                 </h:outputLink>
               </h:panelGroup>
@@ -170,7 +170,7 @@ function toPoint(id)
 <f:validateDoubleRange/>
 <%--SAK-3776    <f:convertNumber maxFractionDigits="2"/> --%>
             </h:inputText>
-            <h:outputText value=" #{deliveryMessages.splash} #{question.maxPoints} " />
+            <h:outputText value=" #{deliveryMessages.splash} #{question.roundedMaxPoints} " />
             <h:outputText value="#{deliveryMessages.pt}"/>
           <f:verbatim><br/></f:verbatim>
 <h:message for="adjustedScore" style="color:red"/>

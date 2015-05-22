@@ -304,6 +304,15 @@ public interface UserDirectoryService extends EntityProducer
 	User getCurrentUser();
 
 	/**
+	 * Check if the email is used by an user
+	 * @param user
+	 *        The UserEdit to check the email
+	 * @return true if email is duplicated false in other case
+	 * 			
+	 */
+	public boolean checkDuplicatedEmail(User user);
+	
+	/**
 	 * Access a user object.
 	 *
 	 * @param id

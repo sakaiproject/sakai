@@ -68,7 +68,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 
 	private ServletContext context;
 
-	private String defaultSkin = "neoskin";
+	private String defaultSkin = "morpheus";
 
 	private boolean styleAble = false;
 
@@ -93,7 +93,7 @@ public class VelocityPortalRenderEngine implements PortalRenderEngine
 			styleAble = serverConfigurationService.getBoolean("portal.styleable", false);
 			styleAbleContentSummary = serverConfigurationService.getBoolean(
 					"portal.styleable.contentSummary", false);
-			defaultSkin = serverConfigurationService.getString("portal.templates", "neoskin");
+			defaultSkin = serverConfigurationService.getString("portal.templates", "morpheus");
 		}
 		catch (Exception ex)
 		{

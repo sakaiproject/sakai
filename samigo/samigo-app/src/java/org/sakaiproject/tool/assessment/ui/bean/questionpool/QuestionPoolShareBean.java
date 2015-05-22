@@ -27,6 +27,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import javax.faces.context.FacesContext;
 
@@ -103,7 +104,12 @@ public class QuestionPoolShareBean implements Serializable
   		setQuestionPoolId(new Long(qpid));
   		setQuestionPoolOwnerId(thepool.getOwnerId());
   		setQuestionPoolName(thepool.getDisplayName());
-	
+
+  		List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(AgentFacade.getAgentString());
+  		if (!poolsWithAccess.contains(this.getQuestionPoolId()) ) {
+  			throw new IllegalArgumentException("User " + AgentFacade.getAgentString() + " does not have access to question pool id " + this.getQuestionPoolId() + " for sharing");
+  		}
+
   		// order by default
   		sortAgentsWithAccess();
   		sortAgentsWithoutAccess();

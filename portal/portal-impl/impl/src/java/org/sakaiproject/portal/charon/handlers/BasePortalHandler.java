@@ -198,8 +198,9 @@ public abstract class BasePortalHandler implements PortalHandler
 
 	protected void addLocale(PortalRenderContext rcontext, Site site, String userId) {
 		Locale prevLocale = null;
+		ResourceLoader rl = new ResourceLoader(); 
 		if (userId != null) {
-			prevLocale = new ResourceLoader().getLocale();
+			prevLocale = rl.getLocale();
 		}
 
 		Locale locale = setSiteLanguage(site);
@@ -210,6 +211,7 @@ public abstract class BasePortalHandler implements PortalHandler
 		String country = locale.getCountry();
 		if(country.length() > 0) localeString += "-" + country;
 		rcontext.put("locale", localeString);
+		rcontext.put("dir", rl.getOrientation(locale));
 
 		if (prevLocale != null && !prevLocale.equals(locale)) {
 			// if the locale was changed, clear the date/time format which was cached in the previous locale

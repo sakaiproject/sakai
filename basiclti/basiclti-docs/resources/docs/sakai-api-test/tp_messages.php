@@ -188,7 +188,6 @@ $tool_proxy = <<< EOF
      "id" : "xkcd123"
   },
   "security_contract": {
-    "shared_secret": "__SECRET__",
     "tool_service": [
       {
         "@type": "RestService",

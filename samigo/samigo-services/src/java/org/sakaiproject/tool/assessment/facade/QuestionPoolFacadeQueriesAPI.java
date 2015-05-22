@@ -140,7 +140,7 @@ public interface QuestionPoolFacadeQueriesAPI
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void removeItemFromPool(String itemId, Long poolId);
+  public void removeItemFromPool(Long itemId, Long poolId);
 
   /**
    * DOCUMENTATION PENDING
@@ -148,7 +148,7 @@ public interface QuestionPoolFacadeQueriesAPI
    * @param itemId DOCUMENTATION PENDING
    * @param poolId DOCUMENTATION PENDING
    */
-  public void moveItemToPool(String itemId, Long sourceId, Long destId);
+  public void moveItemToPool(Long itemId, Long sourceId, Long destId);
 
   /**
    * DOCUMENTATION PENDING
@@ -185,7 +185,7 @@ public interface QuestionPoolFacadeQueriesAPI
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByAgent(String agentId);
+  public List<Long> getPoolIdsByAgent(String agentId);
 
   /**
    * Return a list of questionPoolId (java.lang.Long)

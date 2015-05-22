@@ -357,4 +357,11 @@ public class AuthzGroupService
         return service.getAuthzUsersInGroups(groupIds);
     }
 
+	public static String getRoleName(String roleId)
+	{
+		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
+		if (service == null) return null;
+
+		return service.getRoleName(roleId);
+	}
 }

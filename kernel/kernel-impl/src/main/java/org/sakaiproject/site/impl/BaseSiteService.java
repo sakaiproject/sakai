@@ -88,11 +88,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteimpl.site-impl";
 	private static final String RESOURCECLASS = "resource.class.siteimpl";
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteimpl";
-	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
-	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
 	private static final String ORIGINAL_SITE_ID_PROPERTY = "original-site-id";
-
-	private static String portalSkinPrefix;
 
 	private ResourceLoader rb = null;
 	// protected ResourceLoader rb = new ResourceLoader("site-impl");
@@ -454,12 +450,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			// <= 0 minutes indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-                boolean useLegacy = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
-                if (useLegacy) {
-                    m_siteCache = new SiteCacheImpl(memoryService(), m_cacheCleanerSeconds, siteReference(""));
-                } else {
-                    m_siteCache = new SiteCacheSafe(memoryService(), eventTrackingService()); // ONLY keep this part -AZ
-                }
+				m_siteCache = new SiteCacheSafe(memoryService(), eventTrackingService());
 			}
 
 			// Register our user-site cache property
@@ -494,8 +485,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SECURE_ADD_PROJECT_SITE);
 			functionManager().registerFunction(SECURE_IMPORT_ARCHIVE);
 			
-			portalSkinPrefix = serverConfigurationService().getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
-
                         
             // sfoster9@uwo.ca
             // assign a new JoinSiteDelegate to handle the join methods; provide it services from this class
@@ -3168,15 +3157,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	{
 		// return the skin as just a name, no ".css", and not dependent on the published status, or a null if not defined
 		if (StringUtils.isEmpty(skin)) {
-			skin = serverConfigurationService().getString("skin.default", "default");
-		}
-
-		String templates = serverConfigurationService().getString("portal.templates", "neoskin");
-		if("neoskin".equals(templates))
-		{
-			if (StringUtils.isNotEmpty(portalSkinPrefix)) {
-				skin = portalSkinPrefix + skin;
-			}
+			skin = serverConfigurationService().getString("skin.default");
 		}
 
 		if (!skin.endsWith(".css")) return skin;

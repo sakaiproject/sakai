@@ -13,7 +13,7 @@
     <link href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 
   <sakai:view toolCssHref="./css/podcaster.css">
-  <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js" language="JavaScript" ></script> 
+  <script type="text/javascript" src="jsf/widget/datepicker/datepicker.js"></script> 
 
   <h:form id="podRev" enctype="multipart/form-data">
 

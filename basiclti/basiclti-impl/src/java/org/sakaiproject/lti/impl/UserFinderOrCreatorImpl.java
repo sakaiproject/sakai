@@ -72,7 +72,11 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
         // otherwise this will fail since they don't exist. Perhaps this should be addressed?
         if (trustedConsumer) {
             try {
-                user = userDirectoryService.getUser(user_id);
+                if (BasicLTIUtil.isNotBlank((String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID))) {
+                    user = userDirectoryService.getUserByEid(eid);
+                } else {
+                    user = userDirectoryService.getUser(user_id);
+                }
             } catch (UserNotDefinedException e) {
                 throw new LTIException("launch.user.invalid", "user_id=" + user_id, e);
             }

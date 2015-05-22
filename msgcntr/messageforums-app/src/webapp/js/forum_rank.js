@@ -32,8 +32,6 @@ Licenses.
     
     var templates = {
         toTokenTemplate: '<div class="sakai-ppkr-token token-ind sakai-ppkr-to-%membershipItemId" title="%eid" id="sakai-ppkr-to-%membershipItemIdAgain">%displayName <span class="ppkr-remove">x</span></div>',
-        toAllTokenTemplate: '<div class="sakai-ppkr-token token-all token-hidden token-role-%membershipItemId" id="token-role-%membershipItemIdAgain">%displayNames <span class="ppkr-remove">x</span></div>',
-        choiceTemplate: '<a id="role-choice-%membershipItemId" class="sakai-ppkr-select-all " href="#">%displayNames</a>',
         choiceSeparator: '<span class="role-choice-separator"> &nbsp; </span>',
         sourceItem: '<div id="source-list-%membershipItemId" class="role-%roleId%groupsClasses" title="%titleEid">%displayName</div>',
         collectionItem: '<div id="%membershipItemId" title="%memberEid">%displayName</div>'
@@ -350,42 +348,12 @@ Licenses.
             displayName: recipientRow.text()
         });
     };
-    
-    var buildAllToken = function (roleName, roleId) {
-        return fluid.stringTemplate(templates.toAllTokenTemplate, {
-            membershipItemId: roleId, 
-            membershipItemIdAgain: roleId, 
-            displayName: roleName
-        });
-    };
-    
-    var buildAllChoice = function (roleName, roleId) {
-        return fluid.stringTemplate(templates.choiceTemplate, {
-            membershipItemId: roleId, 
-            displayName: roleName
-        });         
-    };
    
     var buildMailToBox = function () {
     	// restore previous state - handling going to add attachment page and back
         var needsTokens = !restoreSelectionFromParentWindow();
-        var allParticipants = getJSONData("allParticipants").allParticipants[0];
         
 	// assignToBox is the box above the 'Add Individual..' button. It contains the selected results.  
-	// sakai-ppkr-to-choice contains the available categories below the box.  Not used here for Rank feature.    
-        assignToBox.append(buildAllToken("All Participant", allParticipants.membershipItemId));
-        //$(".sakai-ppkr-to-choice").append(buildAllChoice("Add all participant", allParticipants.membershipItemId) + templates.choiceSeparator);
-        var roles = getJSONData("roles").roles;
-        for (var i = 0; i < roles.length; i++) {
-            var role = roles[i];
-            if (needsTokens) {
-                assignToBox.append(buildAllToken("All " + role.roleId, role.membershipItemId));
-            }
-            //$(".sakai-ppkr-to-choice").append(buildAllChoice("Add all " + role.roleId, role.membershipItemId));
-            if (i < roles.length - 1) {
-                // $('.sakai-ppkr-to-choice').append(templates.choiceSeparator);
-            }
-        }
 
 	// CW-2780 CW-2779:  build already selected individuals,  in EditRank page
 	buildExistingUsers();

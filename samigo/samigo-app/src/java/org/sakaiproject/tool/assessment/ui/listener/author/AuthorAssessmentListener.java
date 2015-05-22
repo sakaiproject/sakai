@@ -83,9 +83,13 @@ public class AuthorAssessmentListener
     lookupBean("assessmentSettings");
     author.setOutcome("createAssessment");
     author.setFirstFromPage("editAssessment");
-    if (!passAuthz(context)){
-      author.setOutcome("author");
-      return;
+    
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (!authzBean.isUserAllowedToCreateAssessment()) {
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_create_assessment_error");
+        context.addMessage(null,new FacesMessage(err));
+        author.setOutcome("author");
+        return;
     }
 
     // pass authz test, move on
@@ -172,15 +176,4 @@ public class AuthorAssessmentListener
     }
   }
 
-  public boolean passAuthz(FacesContext context){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean(
-                         "authorization");
-    boolean hasPrivilege = authzBean.getCreateAssessment();
-    if (!hasPrivilege){
-      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-                  "denied_create_assessment_error");
-      context.addMessage(null,new FacesMessage(err));
-    }
-    return hasPrivilege;
-  }
 }

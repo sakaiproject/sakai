@@ -101,24 +101,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	public void init() {
 		//nothing realy to do
 		M_log.info("init()");
-		
-		
-		//do we need to load data?
-		Map<String, String> replacementValues = new HashMap<String, String>();
-		
-		// put placeholders for replacement values 
-		replacementValues.put("userName", "");
-        replacementValues.put("userEid", "");
-        replacementValues.put("localSakaiName", "");
-        replacementValues.put("currentUserName", "");
-        replacementValues.put("currentUserDisplayName", "");
-        replacementValues.put("localSakaiURL", "");
-        replacementValues.put("siteName", "");
-        replacementValues.put("productionSiteName", "");
-        replacementValues.put("newNonOfficialAccount", "false");
-        replacementValues.put("newPassword", "");
-        replacementValues.put("productionSiteName", "");
-        
+
     	loadTemplate("notifyAddedParticipants.xml", NOTIFY_ADDED_PARTICIPANT);
     	loadTemplate("notifyNewuser.xml", NOTIFY_NEW_USER);
     	loadTemplate("notifyTemplateUse.xml", NOTIFY_TEMPLATE_USE);
@@ -133,7 +116,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	}
 	
 	public void notifyAddedParticipant(boolean newNonOfficialAccount,
-			User user, String siteTitle) {
+			User user, Site site) {
 		
 		String from = serverConfigurationService.getBoolean(NOTIFY_FROM_CURRENT_USER, false)?
 				getCurrentUserEmailAddress():getSetupRequestEmailAddress();
@@ -162,16 +145,18 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			 Map<String, String> replacementValues = new HashMap<String, String>();
 			 replacementValues.put("userName", user.getDisplayName());
 			 replacementValues.put("userEid", user.getEid());
-			 replacementValues.put("localSakaiName",serverConfigurationService.getString(
-	    				"ui.service", ""));
+			 replacementValues.put("localSakaiName", productionSiteName);
 			 replacementValues.put("currentUserName",userDirectoryService.getCurrentUser().getDisplayName());
 			 replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
 			 String nonOfficialAccountUrl = serverConfigurationService.getString("nonOfficialAccount.url", null);
 			 replacementValues.put("hasNonOfficialAccountUrl", nonOfficialAccountUrl!=null?Boolean.TRUE.toString().toLowerCase():Boolean.FALSE.toString().toLowerCase());
 			 replacementValues.put("nonOfficialAccountUrl",nonOfficialAccountUrl);
-			 replacementValues.put("siteName", siteTitle);
+			 replacementValues.put("siteName", site.getTitle());
 			 replacementValues.put("productionSiteName", productionSiteName);
 			 replacementValues.put("newNonOfficialAccount", Boolean.valueOf(newNonOfficialAccount).toString().toLowerCase());
+			 replacementValues.put("xloginText", serverConfigurationService.getString("xlogin.text", "Login"));
+			 replacementValues.put("loginText", serverConfigurationService.getString("login.text", "Login"));
+			 replacementValues.put("siteUrl", site.getUrl());
 			 
 			 // send email
 			 emailTemplateServiceSend(NOTIFY_ADDED_PARTICIPANT, null, user, from, to, headerTo, replyTo, replacementValues);
@@ -182,7 +167,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 	}
 
 	public void notifyNewUserEmail(User user, String newUserPassword,
-			String siteTitle) {
+			Site site) {
 		
 		
 		String from = getSetupRequestEmailAddress();
@@ -208,7 +193,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 			replacementValues.put("userEid", user.getEid());
 			replacementValues.put("localSakaiUrl", serverConfigurationService.getPortalUrl());
 			replacementValues.put("newPassword",newUserPassword);
-			replacementValues.put("siteName", siteTitle);
+			replacementValues.put("siteName", site.getTitle());
 			replacementValues.put("productionSiteName", productionSiteName);
 
 			// send email
@@ -405,7 +390,7 @@ public class ETSUserNotificationProviderImpl implements UserNotificationProvider
 		from = requestEmail;
 		to = currentUserEmail;
 		headerTo = currentUserEmail;
-		replyTo = "no-reply@" + serverConfigurationService.getServerName();
+		replyTo = serverConfigurationService.getString("setup.request","no-reply@" + serverConfigurationService.getServerName());
 		emailTemplateServiceSend(NOTIFY_SITE_CREATION_CONFIRMATION, (new ResourceLoader()).getLocale(), currentUser, from, to, headerTo, replyTo, replacementValues);
 		
 	}
