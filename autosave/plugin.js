@@ -11,20 +11,10 @@
 
     CKEDITOR.plugins.add("autosave", {
         lang: 'ca,de,en,es,fr,ja,pl,pt-br,sv,zh,zh-cn', // %REMOVE_LINE_CORE%
-        version: 0.11,
+        requires: 'notification',
+        version: 0.12,
         init: function(editor) {
             CKEDITOR.document.appendStyleSheet(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'css/autosave.min.css'));
-
-            editor.on('uiSpace', function (event) {
-                if (event.data.space == 'bottom') {
-
-                    event.data.html += '<div class="autoSaveMessage" unselectable="on"><div unselectable="on" id="'
-                        + autoSaveMessageId(event.editor)
-                        + '"class="hidden">'
-                        + event.editor.lang.autosave.autoSaveMessage
-                        + '</div></div>';
-                }
-            }, editor, null, 100);
 
             editor.on('instanceReady', function(){
                 if (typeof (jQuery) === 'undefined') {
@@ -68,10 +58,6 @@
                 SaveData(autoSaveKey, editorInstance);
             }
         });
-    }
-
-    function autoSaveMessageId(editorInstance) {
-        return 'cke_autoSaveMessage_' + editorInstance.name;
     }
 
     var timeOutId = 0,
@@ -205,7 +191,7 @@
                 return;
             }
 
-            var confirmMessage = editorInstance.lang.autosave.loadSavedContent.replace("{0}", moment(autoSavedContentDate).lang(editorInstance.config.language).format(editorInstance.lang.autosave.dateFormat));
+            var confirmMessage = editorInstance.lang.autosave.loadSavedContent.replace("{0}", moment(autoSavedContentDate).locale(editorInstance.config.language).format(editorInstance.lang.autosave.dateFormat));
             if (confirm(confirmMessage)) {
                 // Open DIFF Dialog
                 editorInstance.openDialog('autosaveDialog');
@@ -224,15 +210,8 @@
         var compressedJSON = LZString.compressToUTF16(JSON.stringify({ data: editorInstance.getSnapshot(), saveTime: new Date() }));
         localStorage.setItem(autoSaveKey, compressedJSON);
 
-        var autoSaveMessage = document.getElementById(autoSaveMessageId(editorInstance));
-
-        if (autoSaveMessage) {
-            autoSaveMessage.className = "show";
-
-            setTimeout(function() {
-                autoSaveMessage.className = "hidden";
-            }, 2000);
-        }
+        var notification = new CKEDITOR.plugins.notification( editorInstance, { message: editorInstance.lang.autosave.autoSaveMessage, type: 'success' } );
+        notification.show();
     }
 
     function RemoveStorage(autoSaveKey) {
@@ -256,7 +235,7 @@
             newTextLines: newtxt,
             opcodes: opcodes,
             baseTextName: editorInstance.lang.autosave.loadedContent,
-            newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).lang(editorInstance.config.language).format(editorInstance.lang.autosave.dateFormat)) + '\'',
+            newTextName: editorInstance.lang.autosave.autoSavedContent + (moment(jsonSavedContent.saveTime).locale(editorInstance.config.language).format(editorInstance.lang.autosave.dateFormat)) + '\'',
             contextSize: 3,
             viewType: dialog.getContentElement('general', 'diffType').getValue() == "inline" ? 1 : 0
         }).outerHTML + '</div>');

@@ -91,20 +91,4 @@ table.diff th.author {
 del{background-color:#EE9999 !important;text-decoration: underline !important}
 ins{background-color:#99EE99 !important;text-decoration: underline !important}
 
-div.autoSaveMessage div{left:42%;position:absolute;padding:2px;top:4px;font-weight:bold}
-
-.hidden {
-	opacity: 0; 
-	visibility: hidden;
-}
-
-.show { 
-	opacity: 1; 
-	visibility: visible;
-	-webkit-transition: visibility 0.2s linear, opacity 0.2s linear;
-	-moz-transition: visibility 0.2s linear, opacity 0.2s linear; 
-	-o-transition: visibility 0.2s linear, opacity 0.2s linear; 
-	transition: visibility 0.2s linear, opacity 0.2s linear; 
-}
-
 a.cke_dialog_autosave_ok span {width:auto!important}
