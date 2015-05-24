@@ -83,11 +83,13 @@
 				<artifactId>twitter4j-core</artifactId>
 				<version>3.0.5</version>
 			</dependency>
+			<!--
 			<dependency>
 				<groupId>org.wicketstuff</groupId>
 				<artifactId>objectautocomplete</artifactId>
 				<version>1.4.21</version>
 			</dependency>
+			-->
 			<dependency>
 				<groupId>org.sakaiproject</groupId>
 				<artifactId>generic-dao</artifactId>

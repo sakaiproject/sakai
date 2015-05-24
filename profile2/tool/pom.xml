@@ -28,10 +28,12 @@
 			<groupId>org.apache.wicket</groupId>
 			<artifactId>wicket-spring</artifactId>
     	</dependency>
+    	<!--  
   		<dependency>
 	    	<groupId>org.wicketstuff</groupId>
   			<artifactId>objectautocomplete</artifactId>
   		</dependency>
+  		-->
 		<dependency>
 			<groupId>org.slf4j</groupId>
 			<artifactId>slf4j-log4j12</artifactId>
