@@ -104,7 +104,7 @@ public class RemoveWallItem extends Panel {
             	window.close(target);
 			}
 		};
-		submitButton.add(new FocusOnLoadBehaviour());
+		//submitButton.add(new FocusOnLoadBehaviour());
 		
 		final AttributeModifier accessibilityLabel;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {

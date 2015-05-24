@@ -156,7 +156,7 @@ public class MyWallPanel extends Panel {
 							"error.wall.post.empty"));
 					formFeedback.add(new AttributeModifier("class", true,
 							new Model<String>("alertMessage")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 					return;
 				}
 				
@@ -165,17 +165,17 @@ public class MyWallPanel extends Panel {
 							"error.wall.post.failed"));
 					formFeedback.add(new AttributeModifier("class", true,
 							new Model<String>("alertMessage")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 				} else {
 					
 					replaceSelf(target, userUuid);
 				}
 			}
 			
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator() {
-				return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
-			}
+			//@Override
+			//protected IAjaxCallDecorator getAjaxCallDecorator() {
+			//	return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
+			//}
 		};
 		submitButton.setModel(new ResourceModel("button.wall.post"));
 		myWallPostContainer.add(submitButton);
@@ -242,8 +242,8 @@ public class MyWallPanel extends Panel {
 		newPanel.setOutputMarkupId(true);
 		MyWallPanel.this.replaceWith(newPanel);
 		if (null != target) {
-			target.addComponent(newPanel);
-			target.appendJavascript("setMainFrameHeight(window.name);");
+			target.add(newPanel);
+			target.appendJavaScript("setMainFrameHeight(window.name);");
 		}
 		
 	}

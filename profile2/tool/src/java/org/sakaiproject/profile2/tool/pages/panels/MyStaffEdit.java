@@ -245,9 +245,9 @@ public class MyStaffEdit extends Panel {
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
-						target.addComponent(newPanel);
+						target.add(newPanel);
 						//resize iframe
-						target.appendJavascript("setMainFrameHeight(window.name);");
+						target.appendJavaScript("setMainFrameHeight(window.name);");
 					}
 				
 				} else {
@@ -256,14 +256,14 @@ public class MyStaffEdit extends Panel {
 					
 					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.academic.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("save-failed-error")));	
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 				}
             }
 			
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator() {
-				return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
-			}
+			//@Override
+			//protected IAjaxCallDecorator getAjaxCallDecorator() {
+			//	return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
+			//}
 		};
 		form.add(submitButton);
 		
@@ -277,9 +277,9 @@ public class MyStaffEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
-					target.addComponent(newPanel);
+					target.add(newPanel);
 					//resize iframe
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 					//need a scrollTo action here, to scroll down the page to the section
 				}
             	

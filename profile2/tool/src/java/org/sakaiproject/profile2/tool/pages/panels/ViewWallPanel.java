@@ -133,29 +133,29 @@ public class ViewWallPanel extends Panel {
 							"error.wall.post.empty"));
 					formFeedback.add(new AttributeModifier("class", true,
 							new Model<String>("alertMessage")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 					return;
 				}
 				
 				if (false == save(form, userUuid)) {
 					formFeedback.setDefaultModel(new ResourceModel("error.wall.post.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 				} else {
 					ViewWallPanel newPanel = new ViewWallPanel(ViewWallPanel.this.getId(), userUuid);
 					newPanel.setOutputMarkupId(true);
 					ViewWallPanel.this.replaceWith(newPanel);
 					if (null != target) {
-						target.addComponent(newPanel);
-						target.appendJavascript("setMainFrameHeight(window.name);");
+						target.add(newPanel);
+						target.appendJavaScript("setMainFrameHeight(window.name);");
 					}
 				}
 			}
 			
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator() {
-				return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
-			}
+			//@Override
+			//protected IAjaxCallDecorator getAjaxCallDecorator() {
+			//	return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
+			//}
 		};
 		submitButton.setModel(new ResourceModel("button.wall.post"));
 		viewWallPostContainer.add(submitButton);

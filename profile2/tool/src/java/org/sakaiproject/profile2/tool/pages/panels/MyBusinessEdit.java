@@ -168,8 +168,8 @@ public class MyBusinessEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				MyBusinessEdit.this.replaceWith(newPanel);
 				if (target != null) {
-					target.addComponent(newPanel);
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.add(newPanel);
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
 
 			}
@@ -203,10 +203,10 @@ public class MyBusinessEdit extends Panel {
 					newPanel.setOutputMarkupId(true);
 					MyBusinessEdit.this.replaceWith(newPanel);
 					if (target != null) {
-						target.addComponent(newPanel);
+						target.add(newPanel);
 						// resize iframe
 						target
-								.appendJavascript("setMainFrameHeight(window.name);");
+								.appendJavaScript("setMainFrameHeight(window.name);");
 					}
 
 				} else {
@@ -214,7 +214,7 @@ public class MyBusinessEdit extends Panel {
 							"error.profile.save.business.failed"));
 					formFeedback.add(new AttributeModifier("class", true,
 							new Model<String>("save-failed-error")));
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 				}
 			}
 		};
@@ -258,8 +258,8 @@ public class MyBusinessEdit extends Panel {
 				MyBusinessEdit.this.replaceWith(newPanel);
 
 				if (target != null) {
-					target.addComponent(newPanel);
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.add(newPanel);
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
 			}
 		};
@@ -289,10 +289,10 @@ public class MyBusinessEdit extends Panel {
 				MyBusinessEdit.this.replaceWith(newPanel);
 
 				if (target != null) {
-					target.addComponent(newPanel);
+					target.add(newPanel);
 					// resize iframe
 					target
-							.prependJavascript("setMainFrameHeight(window.name);");
+							.prependJavaScript("setMainFrameHeight(window.name);");
 				}
 			}
 		};

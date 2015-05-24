@@ -110,8 +110,8 @@ public class MyStatusPanel extends Panel {
 				if(statusLogic.clearUserStatus(userId)) {
 					status.setVisible(false); //hide status
 					this.setVisible(false); //hide clear link
-					target.addComponent(status);
-					target.addComponent(this);
+					target.add(status);
+					target.add(this);
 				}
 			}
 			
@@ -158,7 +158,7 @@ public class MyStatusPanel extends Panel {
 					"countChars('#" + statusField.getMarkupId() + "');" +
 					"});" +
 				"</script>");
-		add(statusJavascript);
+		//add(statusJavascript);
 
         
         
@@ -207,22 +207,22 @@ public class MyStatusPanel extends Panel {
 					clearLink.setVisible(true);
 					
 					if(target != null) {
-						target.addComponent(newStatus);
-						target.addComponent(clearLink);
+						target.add(newStatus);
+						target.add(clearLink);
 						status=newStatus; //update reference
 						
 						//reset the field
-						target.appendJavascript("autoFill('#" + statusField.getMarkupId() + "', '" + defaultStatus + "');");
+						target.appendJavaScript("autoFill('#" + statusField.getMarkupId() + "', '" + defaultStatus + "');");
 						
 						//reset the counter
-						target.appendJavascript("countChars('#" + statusField.getMarkupId() + "');");
+						target.appendJavaScript("countChars('#" + statusField.getMarkupId() + "');");
 
 					}
 					
 				} else {
 					log.error("Couldn't save status for: " + userId);
 					String js = "alert('Failed to save status. If the problem persists, contact your system administrator.');";
-					target.prependJavascript(js);	
+					target.prependJavaScript(js);	
 				}
 				
             }

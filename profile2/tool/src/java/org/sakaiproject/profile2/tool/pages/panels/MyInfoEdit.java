@@ -196,9 +196,9 @@ public class MyInfoEdit extends Panel {
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
-						target.addComponent(newPanel);
+						target.add(newPanel);
 						//resize iframe
-						target.appendJavascript("setMainFrameHeight(window.name);");
+						target.appendJavaScript("setMainFrameHeight(window.name);");
 					}
 				
 				} else {
@@ -207,15 +207,15 @@ public class MyInfoEdit extends Panel {
 					
 					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("save-failed-error")));	
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 				}
 				
             }
 			
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator() {
-				return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
-			}
+			//@Override
+			//protected IAjaxCallDecorator getAjaxCallDecorator() {
+			//	return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
+			//}
 			
 		};
 		submitButton.setModel(new ResourceModel("button.save.changes"));
@@ -231,9 +231,9 @@ public class MyInfoEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
-					target.addComponent(newPanel);
+					target.add(newPanel);
 					//resize iframe
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
             	
             }

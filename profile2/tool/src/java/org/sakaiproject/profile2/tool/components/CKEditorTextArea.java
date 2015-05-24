@@ -12,6 +12,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.calldecorator.AjaxCallDecorator;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
@@ -276,7 +277,7 @@ public class CKEditorTextArea extends TextArea<String> {
 		// CKEditorTextArea.this.add(JavascriptPackageResource.getHeaderContribution(new JavascriptResourceReference(
 		// CKEditorTextArea.class, CKEditorTextArea.CKEDITOR_JQUERY_ADAPTER)));
 
-		this.add(new CKEditorBehavior());
+		//this.add(new CKEditorBehavior());
 		this.behavior = new CustomAjaxFormComponentUpdatingBehavior("onblur");
 		this.add(this.behavior);
 		this.setOutputMarkupId(true);
@@ -352,9 +353,9 @@ public class CKEditorTextArea extends TextArea<String> {
 
 		@Override
 		public void renderHead(final IHeaderResponse response) {
-			response.renderJavascript("var CKEDITOR_BASEPATH = '/library/editor/ckeditor/';", "ckeditorpath");
-			response.renderJavascriptReference("/library/editor/ckeditor/ckeditor.js", "ckeditor");
-			response.renderJavascriptReference("/library/editor/ckeditor/adapters/jquery.js", "ckeditoradapter");
+			//response.renderJavascript("var CKEDITOR_BASEPATH = '/library/editor/ckeditor/';", "ckeditorpath");
+			//response.renderJavascriptReference("/library/editor/ckeditor/ckeditor.js", "ckeditor");
+			//response.renderJavascriptReference("/library/editor/ckeditor/adapters/jquery.js", "ckeditoradapter");
 		}
 
 		/**
@@ -370,7 +371,8 @@ public class CKEditorTextArea extends TextArea<String> {
 
 				callbackFunctionBuilder.append("ck_").append(CKEditorTextArea.this.getMarkupId())
 						.append(".postAjaxWicket = function() {")
-						.append(CKEditorTextArea.this.behavior.getEventHandlerToCall()).append("}");
+						//.append(CKEditorTextArea.this.behavior.getEventHandlerToCall()).append("}");
+						;
 
 				callbackFunctionBuilder.append(";\n");
 
@@ -529,9 +531,9 @@ public class CKEditorTextArea extends TextArea<String> {
 		 * 
 		 * @return ajax post function.
 		 */
-		public CharSequence getEventHandlerToCall() {
-			return this.getEventHandler();
-		}
+		//public CharSequence getEventHandlerToCall() {
+		//	return this.getEventHandler();
+		//}
 
 	};
 	

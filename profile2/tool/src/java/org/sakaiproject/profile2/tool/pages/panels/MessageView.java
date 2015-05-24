@@ -262,21 +262,21 @@ public class MessageView extends Panel {
         		if(message != null) {
         			//clear this field
         			replyField.setModelObject(null);
-        			target.addComponent(replyField);
+        			target.add(replyField);
         			
         			//create new item and add it to the list
         			//do we need to register this with the listview?
         			Component item = buildItem(message);
-        			target.prependJavascript(String.format(
+        			target.prependJavaScript(String.format(
                                     "var item=document.createElement('%s');item.id='%s';Wicket.$('%s').appendChild(item);",
                                     "tr", item.getMarkupId(), messageListContainer.getMarkupId()));
-        			target.addComponent(item);
+        			target.add(item);
 
         			//repaint the list of messages in this thread
         			//target.addComponent(messageListContainer);
         			
         			//resize
-    				target.appendJavascript("setMainFrameHeight(window.name);");
+    				target.appendJavaScript("setMainFrameHeight(window.name);");
         		}
         		
             }
@@ -288,7 +288,7 @@ public class MessageView extends Panel {
 					formFeedback.setDefaultModel(new ResourceModel("error.message.required.body"));
 				}
 				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
-				target.addComponent(formFeedback);
+				target.add(formFeedback);
 			}
 		};
 		replyForm.add(replyButton);

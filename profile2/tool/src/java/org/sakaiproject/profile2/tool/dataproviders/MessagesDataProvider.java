@@ -19,11 +19,9 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.wicket.injection.web.InjectorHolder;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
 import org.sakaiproject.profile2.model.Message;
 import org.sakaiproject.profile2.tool.models.DetachableMessageModel;
@@ -44,10 +42,6 @@ public class MessagesDataProvider implements IDataProvider<Message> {
 	protected ProfileMessagingLogic messagingLogic;
 	
 	public MessagesDataProvider(String threadId) {
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.threadId = threadId;
 	}
 	
@@ -56,10 +50,15 @@ public class MessagesDataProvider implements IDataProvider<Message> {
 	 * 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#iterator(int, int)
 	 */
-	public Iterator<Message> iterator(int first, int count){
+	public Iterator<Message> iterator(long first, long count){
+		
+		//deference for backwards compatibility
+		//should really check bounds here 
+		int f = (int) first;
+		int c = (int) count;	
 		
 		try {
-			List<Message> slice = messagingLogic.getMessagesInThread(threadId).subList(first, first + count);
+			List<Message> slice = messagingLogic.getMessagesInThread(threadId).subList(f, f + c);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -73,7 +72,7 @@ public class MessagesDataProvider implements IDataProvider<Message> {
 	 * 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#size()
 	 */
-	public int size(){
+	public long size(){
 		return messagingLogic.getMessagesInThreadCount(threadId);
 	}
 
