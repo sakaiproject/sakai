@@ -26,7 +26,6 @@ package org.sakaiproject.tool.assessment.ui.bean.author;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
@@ -36,8 +35,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.Map;
-
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.model.SelectItem;
@@ -45,16 +42,13 @@ import javax.faces.model.SelectItem;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.spring.SpringBeanLocator;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
-import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
 import org.sakaiproject.tool.api.ToolSession;
@@ -70,7 +64,6 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.RegisteredSecureDeli
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SecuredIPAddressIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.AuthzQueriesFacadeAPI;
-import org.sakaiproject.tool.assessment.facade.GradebookFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
 import org.sakaiproject.tool.assessment.integration.context.IntegrationContextFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.GradebookServiceHelper;
@@ -100,16 +93,6 @@ public class PublishedAssessmentSettingsBean
   private static final boolean integrated =
       integrationContextFactory.isIntegrated();
 
-  
-  /**
-   *  we use the calendar widget which uses 'MM/dd/yyyy hh:mm:ss a'
-   *  used to take the internal format from calendar picker and move it
-   *  transparently in and out of the date properties
-   *
-   */
-  // private static final String DISPLAY_DATEFORMAT = "MM/dd/yyyy hh:mm:ss a";
-  //private String display_dateFormat= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.GeneralMessages","output_data_picker_w_sec");
-  //private SimpleDateFormat displayFormat = new SimpleDateFormat(display_dateFormat);
 
   private String displayDateFormat;
   private SimpleDateFormat displayFormat;
@@ -165,7 +148,6 @@ public class PublishedAssessmentSettingsBean
   private String feedbackDelivery; // immediate, on specific date , no feedback
   private String feedbackComponentOption; // 2 = select options, 1 = total scores only 
   private String feedbackAuthoring;
-  private String editComponents; // 0 = cannot
   private boolean showQuestionText = false;
   private boolean showStudentResponse = false;
   private boolean showCorrectResponse = false;
@@ -191,7 +173,6 @@ public class PublishedAssessmentSettingsBean
 
   private String outcome;
   
-  private boolean isValidDate = true;;
   private boolean isValidStartDate = true;
   private boolean isValidDueDate = true;
   private boolean isValidRetractDate = true;
@@ -211,6 +192,13 @@ public class PublishedAssessmentSettingsBean
   
   private String bgColorSelect;
   private String bgImageSelect;
+  
+  // SAM-2323 jQuery-UI datepicker
+  private TimeUtil tu = new TimeUtil();
+  private final String HIDDEN_START_DATE_FIELD = "startDateISO8601";
+  private final String HIDDEN_END_DATE_FIELD = "endDateISO8601";
+  private final String HIDDEN_RETRACT_DATE_FIELD = "retractDateISO8601";
+  private final String HIDDEN_FEEDBACK_DATE_FIELD = "feedbackDateISO8601";
   
   /*
    * Creates a new AssessmentBean object.
@@ -1053,151 +1041,13 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
     }
 
     try {
-      //dateString = displayFormat.format(date);
-      TimeUtil tu = new TimeUtil();
       dateString = tu.getDisplayDateTime(displayFormat, date);
-
     }
     catch (Exception ex) {
       // we will leave it as an empty string
-      log.warn("Unable to format date.");
-      ex.printStackTrace();
+      log.warn("Unable to format date.", ex);
     }
     return dateString;
-  }
-
-  /**
-   * format according to internal requirements of calendar widget
-   * @param dateString "MM-dd-yyyy hh:mm:ss a"
-   * @return Date object
-   */
-  private Date getDateFromDisplayFormat(String dateString) {
-    Date date = null;
-    this.isValidDate = true;
-    if (dateString == null || dateString.trim().equals("")) {
-      return date;
-    }
-    if (!dateValidation(dateString)) {
-    	this.isValidDate = false;
-    	return null;
-    }
-    try {
-      //date = (Date) displayFormat.parse(dateString);
-      TimeUtil tu = new TimeUtil();
-      date = tu.getServerDateTime(displayFormat, dateString);
-
-    }
-    catch (Exception ex) {
-      // we will leave it as a null date
-      log.warn("Unable to format date.");
-      ex.printStackTrace();
-    }
-
-    return date;
-  }
-
-  private boolean dateValidation(String dateString) {
-	  int date = 0;
-	  int month = 0;
-	  int year = 0;
-	  int hour = 0;
-	  int minute = 0;
-	  int second = 0;
-	  String amPM = "";
-	  
-	  String [] splittedDateString = dateString.split(" ");
-	  if (splittedDateString.length != 3) {
-		  return false;
-	  }
-	  // Verify for MM/dd/yyyy format or dd/MM/yyyy format
-	  String [] dateArray = splittedDateString[0].split("/");
-	  if (dateArray.length != 3) {
-		  return false;
-	  }
-	  try {
-		  if (displayDateFormat.toLowerCase().startsWith("dd")) {
-			  date = Integer.parseInt(dateArray[0]);
-			  month = Integer.parseInt(dateArray[1]);
-			  year = Integer.parseInt(dateArray[2].substring(0, 4));
-		  }
-		  else {
-			  date = Integer.parseInt(dateArray[1]);
-			  month = Integer.parseInt(dateArray[0]);
-			  year = Integer.parseInt(dateArray[2].substring(0, 4));
-		  }
-	  }
-	  catch(NumberFormatException  ne){
-		  log.error("NumberFormatException: " + ne.getMessage());
-		  return false;
-	  }
-	  catch(IndexOutOfBoundsException ie) {
-		  log.error("IndexOutOfBoundsException: " + ie.getMessage());
-		  return false;
-	  }
-	  if (month > 12 || month < 1) {
-		  return false;
-	  }
-	  if ((month == 1 || month == 3 || month == 5 || month == 7 || month == 8 || month == 10 || month == 12) && (date > 31 || date < 1)) {
-		  return false;
-	  }
-	  if ((month == 4 || month == 6 || month == 9 || month == 11) && (date > 30 || date < 1)) {
-		  return false;
-	  }
-	  if (month == 2) {
-		  if (date < 1) {
-			  return false;
-		  }
-		  if (isLeapYear(year) == true) {
-			  if (date > 29) {
-				  return false;
-			  }
-		  }
-		  else {
-			  if (date > 28) {
-				  return false;
-			  }
-		  }
-	  }  
-	  
-	  // Verify for hh:mm:ss format
-	  String [] time = splittedDateString[1].split(":");
-	  if (splittedDateString.length != 3) {
-		  return false;
-	  }
-	  hour = Integer.parseInt(time[0]);
-	  minute = Integer.parseInt(time[1]);
-	  second = Integer.parseInt(time[2]);
-	  if (hour < 0 || hour > 24) {
-		  return false;
-	  }
-	  if (minute < 0 || minute > 60) {
-		  return false;
-	  }
-	  if (second < 0 || second > 60) {
-		  return false;
-	  }
-	  
-	  // Verify for AM or PM format
-	  amPM = splittedDateString[2];
-	  if (!(amPM.toUpperCase().equals("AM") || amPM.toUpperCase().equals("PM"))) {
-		  return false;
-	  }
-	  return true;
-  }
-  
-  
-  private boolean isLeapYear(int year) {
-	  if (year % 100 == 0) {
-		  if (year % 400 == 0) { 
-			  return true; 
-		  }
-	  }
-	  else {
-		  if ((year % 4) == 0) { 
-			  return true; 
-		  }
-	  }
-	  return false;
   }
 
   public String getStartDateString()
@@ -1212,14 +1062,16 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
    
   public void setStartDateString(String startDateString)
   {
-	this.isValidStartDate = true;  
-	Date tempDate = getDateFromDisplayFormat(startDateString);
-	if (!this.isValidDate) {
-		this.isValidStartDate = false;
-		this.originalStartDateString = startDateString;
+	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+
+	if (tempDate != null) {
+		this.isValidStartDate = true;
+		this.startDate = tempDate;
 	}
 	else {
-		this.startDate= tempDate;
+		log.error("setStartDateString could not parse hidden start date: " + ContextUtil.lookupParam(HIDDEN_START_DATE_FIELD));
+		this.isValidStartDate = false;
+		this.originalStartDateString = startDateString;
 	}
   }
 
@@ -1232,18 +1084,22 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return getDisplayFormatFromDate(dueDate);
 	}	  
   }
+
   public void setDueDateString(String dueDateString)
   {
-	this.isValidDueDate = true;
-	Date tempDate = getDateFromDisplayFormat(dueDateString);
-	if (!this.isValidDate) {
+	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
+	
+	if (tempDate != null) {
+		this.isValidDueDate = true;
+		this.dueDate = tempDate;
+	}
+	else {
+		log.error("setDueDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_END_DATE_FIELD));
 		this.isValidDueDate = false;
 		this.originalDueDateString = dueDateString;
 	}
-	else {
-		this.dueDate= tempDate;
-	}
   }
+
   public String getRetractDateString()
   {
     if (!this.isValidRetractDate) {
@@ -1253,18 +1109,22 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return getDisplayFormatFromDate(retractDate);
 	}	  	  
   }
+
   public void setRetractDateString(String retractDateString)
   {
-	this.isValidRetractDate = true;
-	Date tempDate = getDateFromDisplayFormat(retractDateString);
-	if (!this.isValidDate) {
+	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
+
+	if (tempDate != null) {
+		this.isValidRetractDate = true;
+		this.retractDate = tempDate;
+	}
+	else {
+		log.error("setRetractDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_RETRACT_DATE_FIELD));
 		this.isValidRetractDate = false;
 		this.originalRetractDateString = retractDateString;
 	}
-	else {
-		this.retractDate= tempDate;
-	}
   }
+
   public String getFeedbackDateString()
   {
     if (!this.isValidFeedbackDate) {
@@ -1274,17 +1134,20 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return getDisplayFormatFromDate(feedbackDate);
 	}	  	  	  
   }
+
   public void setFeedbackDateString(String feedbackDateString)
   {
-	this.isValidFeedbackDate = true;
-	Date tempDate = getDateFromDisplayFormat(feedbackDateString);
-	if (!this.isValidDate) {
-		this.isValidFeedbackDate = false;
-		this.originalFeedbackDateString = feedbackDateString;
+	Date tempDate = tu.parseISO8601String(ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+	
+	if (tempDate != null) {
+		this.isValidFeedbackDate = true;
+		this.feedbackDate = tempDate;
 	}
 	else {
-		this.feedbackDate= tempDate;
-	}	  
+		log.error("setFeedbackDateString could not parse hidden date field: " + ContextUtil.lookupParam(HIDDEN_FEEDBACK_DATE_FIELD));
+		this.isValidFeedbackDate = false;
+		this.originalFeedbackDateString = feedbackDateString;
+	} 
   }
   
   public String getPublishedUrl() {
@@ -1436,21 +1299,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 		return "editPublishedAssessmentSettings";
 	}
 
-  private String createUniqueKey(String key, Map map) {
-     if (!map.containsKey(key)) {
-        return key;
-     } else {
-        int index = 1;
-        String ukey = key + " (" + index + ")";
-        while (map.containsKey(ukey)) {
-           index++;
-           ukey = key + " (" + index + ")";
-        }
-        return ukey;
-     }
-  }
-
-	  /**
+  /**
 	 * Returns all groups for site
 	 * @return
 	 */

@@ -142,9 +142,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	// the file types for zip download
 	protected static final String ZIP_COMMENT_FILE_TYPE = ".txt";
 	protected static final String ZIP_SUBMITTED_TEXT_FILE_TYPE = ".html";
-        
+
 	// SAK-17606 - Property for whether an assignment uses anonymous grading (user settable)
 	protected static final String NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING = "new_assignment_check_anonymous_grading";
+
+	// SAK-29314
+	private static final String SUBMISSION_ATTR_IS_USER_SUB = "isUserSubmission";
 
 //	spring service injection
 	
@@ -2233,6 +2236,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		catch(IdUnusedException iue)
 		{
 			// A bit terminal, this.
+			M_log.error("addSubmission called with unknown assignmentId: " + assignmentId);
 		}
 
 		// SAK-21525
@@ -4633,7 +4637,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 
                         			commitEdit(s);
                         			// clear the permission
-                        		} finally {
+                        		} 
+                        		catch (Exception e)
+                        		{
+                        			M_log.warn("getSubmitterGroupList: exception thrown while creating empty submission for group who has not submitted: " + e.getMessage());
+                        		}
+                        		finally {
                         			securityService.popAdvisor(securityAdvisor);
                         		}
 	                        }
@@ -4792,7 +4801,15 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 								AssignmentSubmissionEdit s = addSubmission(contextString, a.getId(), u.getId());
 								if (s != null)
 								{
-									s.setSubmitted(false);
+									// Note: If we had s.setSubmitted(false);, this would put it in 'draft mode'
+									s.setSubmitted(true);
+									/*
+									 * SAK-29314 - Since setSubmitted represents whether the submission is in draft mode state, we need another property. So we created isUserSubmission.
+									 * This represents whether the submission was geenrated by a user.
+									 * We set it to false because these submissions are generated so that the instructor has something to grade;
+									 * the user did not in fact submit anything.
+									 */
+									s.setIsUserSubmission(false);
 									s.setAssignment(a);
 
 									// set the resubmission properties
@@ -4811,6 +4828,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 									commitEdit(s);
 									rv.put(u, s);
 								}
+							}
+							catch (Exception e)
+							{
+								M_log.warn("getSubmitterMap: exception thrown while creating empty submission for student who has not submitted: " + e.getMessage());
 							}
 							finally
 							{
@@ -7007,7 +7028,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	 */
 	public boolean canSubmit(String context, Assignment a)
 	{
-		// submissions are never allowed to non-electronic assignments	--bbailla2
+		// submissions are never allowed to non-electronic assignments
 		if (a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 		{
 			return false;
@@ -10092,7 +10113,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected boolean m_gradeReleased;
 
 		protected boolean m_honorPledgeFlag;
-                
+
 		// SAK-17606
 		protected String m_anonymousSubmissionId;
 
@@ -10109,6 +10130,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		protected String m_reviewIconUrl;
 
         protected String m_reviewError;
+		
+		// SAK-29314
+		protected boolean m_isUserSubmission;
 		
 		protected Assignment m_asn;
 		
@@ -10191,9 +10215,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			
 		}
 
-		// SAK-26322	--bbailla2
 		/**
-		 * Essentially the same as getReviewScore() only it acts upon the ContentResource parameter rather than that which is returned by firstAcceptableAttachment().
+		 * SAK-26322 - Essentially the same as getReviewScore() only it acts upon the ContentResource parameter rather than that which is returned by firstAcceptableAttachment().
 		 * TODO: consider deleting getReviewScore(). If not possible, then refactor to eliminate code duplication
 		 */
 		private int getReviewScore(ContentResource cr)
@@ -10293,9 +10316,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			
 		}
 
-		//SAK-26322	--bbailla2
 		/**
-		 * Essentially the same as getReviewReport(), only it acts upon the ContentResource that is passed rather than that which is returned from getFirstAcceptableAttachment()
+		 * SAK-26322 - Essentially the same as getReviewReport(), only it acts upon the ContentResource that is passed rather than that which is returned from getFirstAcceptableAttachment()
 		 * TODO: consider removing getReviewReport(). If this is not possible, eliminate code duplication
 		 */
 		private String getReviewReport(ContentResource cr)
@@ -10325,7 +10347,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 		}
 		
-		//TODO: delete this and all calling methods if there are no repercussions	--bbailla2
+		//TODO: delete this and all calling methods if there are no repercussions
 		private ContentResource getFirstAcceptableAttachement() {
 			String contentId = null;
 			try {
@@ -10345,9 +10367,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 
 		/**
-		 * SAK-26322
-		 * Gets all attachments in m_submittedAttachments that are acceptable to the content review service
-		 * @author bbailla2
+		 * SAK-26322 - Gets all attachments in m_submittedAttachments that are acceptable to the content review service
 		 */
 		private List<ContentResource> getAllAcceptableAttachments()
 		{
@@ -10432,9 +10452,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
             }
         }
 
-		//SAK-26322	--bbailla2
 		/**
-		 * Essentially the same as getReviewError(), only it acts upon the ContentResource that is passed rather than that which is returned from getFirstAcceptableAttachment()
+		 * SAK-26322 - Essentially the same as getReviewError(), only it acts upon the ContentResource that is passed rather than that which is returned from getFirstAcceptableAttachment()
 		 */
 		private String getReviewError(ContentResource cr)
 		{
@@ -10451,7 +10470,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				Long status = contentReviewService.getReviewStatus(contentId);
 				String errorMessage = null;
 
-				// TODO: we can remove this null check if we use yoda statements below	--bbailla2
+				// TODO: we can remove this null check if we use yoda statements below
 				if (status != null)
 				{
 					if (status.equals(ContentReviewItem.REPORT_ERROR_NO_RETRY_CODE))
@@ -10506,7 +10525,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return m_reviewIconUrl;
 		}
 
-		// SAK-26322	--bbailla2
 		/**
 		 * @inheritDoc
 		 */
@@ -10591,6 +10609,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_feedbackText = "";
 			m_grade = "";
 			m_timeLastModified = TimeService.newTime();
+			
+			// SAK-29314
+			m_isUserSubmission = true;
+			
                         m_submitterId = submitterId;
 
 			if (submitterId == null)
@@ -10677,9 +10699,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_submittedText = FormattedText.decodeFormattedTextAttribute(el, "submittedtext");
 			m_feedbackComment = FormattedText.decodeFormattedTextAttribute(el, "feedbackcomment");
 			m_feedbackText = FormattedText.decodeFormattedTextAttribute(el, "feedbacktext");
-                        
+
 			// SAK-17606
 			m_anonymousSubmissionId = el.getAttribute("anonymousSubmissionId");
+			
+			// SAK-29314
+			m_isUserSubmission = getBool(el.getAttribute(SUBMISSION_ATTR_IS_USER_SUB));
 
 			m_submitterId = el.getAttribute("submitterid");
 			m_submissionLog = new ArrayList();
@@ -10700,21 +10725,31 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				M_log.debug(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading logs : " + e);
 			}
 
-                        intString = el.getAttribute("numberofgrades");
-                        try
-                       {
-                               numAttributes = Integer.parseInt(intString);
-                               for (int x = 0; x < numAttributes; x++)
-                               {
-                                       attributeString = "grade" + x;
-                                       tempString = el.getAttribute(attributeString);
-                                       if (tempString != null) m_grades.add(tempString);
-                               }
-                       }
-                       catch (Exception e)
-                       {
-                               M_log.warn(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading grades : " + e);
-                       }
+			intString = el.getAttribute("numberofgrades");
+			if (intString == null)
+			{
+				M_log.debug("BaseAssignmentSubmission: numberofgrades property not found");
+			}
+			else
+			{
+				try
+				{
+					numAttributes = Integer.parseInt(intString);
+					for (int x = 0; x < numAttributes; x++)
+					{
+						attributeString = "grade" + x;
+						tempString = el.getAttribute(attributeString);
+						if (tempString != null) 
+						{
+							m_grades.add(tempString);
+						}
+					}
+				}
+				catch (Exception e)
+				{
+					M_log.warn(" BaseAssignmentSubmission: CONSTRUCTOR : Exception reading grades : " + e);
+				}
+			}
 
 			// READ THE SUBMITTERS
 			m_submitters = new ArrayList();
@@ -10951,9 +10986,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							m_submittedText = formattedTextDecodeFormattedTextAttribute(attributes, "submittedtext");
 							m_feedbackComment = formattedTextDecodeFormattedTextAttribute(attributes, "feedbackcomment");
 							m_feedbackText = formattedTextDecodeFormattedTextAttribute(attributes, "feedbacktext");
-                                                        
-                                                        // SAK-17606
-                                                        m_anonymousSubmissionId = m_id.substring(27)+" (" + rb.getString("grading.anonymous.title")  + ")";
+
+							// SAK-17606
+							m_anonymousSubmissionId = m_id.substring(27)+" (" + rb.getString("grading.anonymous.title")  + ")";
+
+							// SAK-29314
+							m_isUserSubmission = getBool(attributes.getValue(SUBMISSION_ATTR_IS_USER_SUB));
 
 							m_submitterId = attributes.getValue("submitterid");
 
@@ -10978,19 +11016,29 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 							}
 
 							intString = attributes.getValue("numberofgrades");
-							try
+							if (intString == null)
 							{
-							    numAttributes = NumberUtils.toInt(intString);
-							    for (int x = 0; x < numAttributes; x++)
-							    {
-							        attributeString = "grade" + x;
-							        tempString = attributes.getValue(attributeString);
-							        if (tempString != null) m_grades.add(tempString);
-							    }
+								M_log.debug("BaseAssignmentSubmission: numberofgrades property not found");
 							}
-							catch (Exception e)
+							else
 							{
-							    M_log.warn(" BaseAssignmentSubmission: error parsing 'numberofgrades' property : " + e);
+								try
+								{
+									numAttributes = NumberUtils.toInt(intString);
+									for (int x = 0; x < numAttributes; x++)
+									{
+										attributeString = "grade" + x;
+										tempString = attributes.getValue(attributeString);
+										if (tempString != null)
+										{
+											m_grades.add(tempString);
+										}
+									}
+								}
+								catch (Exception e)
+								{
+									M_log.warn(" BaseAssignmentSubmission: error parsing 'numberofgrades' property : " + e);
+								}
 							}
 
 							// READ THE SUBMITTERS
@@ -11119,9 +11167,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			submission.setAttribute("gradereleased", getBoolString(m_gradeReleased));
 			submission.setAttribute("pledgeflag", getBoolString(m_honorPledgeFlag));
 			submission.setAttribute("hideduedate", getBoolString(m_hideDueDate));
-                        
-                        // SAK-17606
-                        submission.setAttribute("anonymousSubmissionId", m_anonymousSubmissionId);
+
+			// SAK-17606
+			submission.setAttribute("anonymousSubmissionId", m_anonymousSubmissionId);
+
+			// SAK-29314
+			submission.setAttribute(SUBMISSION_ATTR_IS_USER_SUB, getBoolString(m_isUserSubmission));
 
 			if (M_log.isDebugEnabled()) M_log.debug(this + " BaseAssignmentSubmission: SAVED REGULAR PROPERTIES");
 
@@ -11252,9 +11303,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			m_honorPledgeFlag = submission.getHonorPledgeFlag();
 			m_properties = new BaseResourcePropertiesEdit();
 			m_properties.addAll(submission.getProperties());
-                        
-                        // SAK-17606
-                        m_anonymousSubmissionId = submission.getAnonymousSubmissionId();
+
+			// SAK-17606
+			m_anonymousSubmissionId = submission.getAnonymousSubmissionId();
+
+			// SAK-29314
+			m_isUserSubmission = submission.isUserSubmission();
 		}
 
 		/**
@@ -11686,7 +11740,6 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return m_submittedAttachments;
 		}
 
-		//SAK-26322	--bbailla2
 		/**
 		 * @inheritDoc
 		 */
@@ -12073,6 +12126,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				String anonTitle = rb.getString("grading.anonymous.title") ;
 				return this.getId().substring(27) + " (" + anonTitle + ")";
 		}
+
+		/**
+		 * SAK-29314 - Determines whether this submission was submitted by a user or by the system
+		 */
+		public boolean isUserSubmission()
+		{
+			return m_isUserSubmission;
+		}
 		
 	} // AssignmentSubmission
 	
@@ -12431,7 +12492,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			//Send the attachment to the review service
 
 			try {
-				//SAK-26322	--bbailla2
+				//SAK-26322
 				List<ContentResource> resources = getAllAcceptableAttachments(attachments);
 				Assignment ass = this.getAssignment();			
 				if (ass != null)
@@ -12629,6 +12690,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
             this.m_reviewError = error;
         }
 
+		// SAK-29314
+		public void setIsUserSubmission(boolean isUserSubmission)
+		{
+			this.m_isUserSubmission = isUserSubmission;
+		}
 
 	} // BaseAssignmentSubmissionEdit
 

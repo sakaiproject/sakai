@@ -36,6 +36,8 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+import org.sakaiproject.util.Resource;
+import org.sakaiproject.util.ResourceLoader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -62,6 +64,15 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 	/** A provider of additional Abilities for a userId. */
 	protected GroupProvider m_provider = null;
+
+    /** A provider of additional roles for a userId. */
+    protected RoleProvider m_roleProvider = null;
+
+ 	private static final String DEFAULT_RESOURCECLASS = "org.sakaiproject.localization.util.AuthzImplProperties";
+ 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.authzimpl.authz-impl";
+ 	private static final String RESOURCECLASS = "resource.class.authzimpl";
+ 	private static final String RESOURCEBUNDLE = "resource.bundle.authzimpl";
+ 	private ResourceLoader rb = null;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -178,6 +189,17 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		m_provider = provider;
 	}
 
+	/**
+	 * Configuration: set the az role provider helper service.
+	 * 
+	 * @param provider
+	 *        the az role provider helper service.
+	 */
+	public void setRoleProvider(RoleProvider provider)
+	{
+		m_roleProvider = provider;
+	}
+
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Dependencies
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -243,6 +265,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		
 		try
 		{
+			// Get resource bundle
+			String resourceClass = serverConfigurationService().getString(RESOURCECLASS, DEFAULT_RESOURCECLASS);
+			String resourceBundle = serverConfigurationService().getString(RESOURCEBUNDLE, DEFAULT_RESOURCEBUNDLE);
+			rb = new Resource().getLoader(resourceClass, resourceBundle);
+			
 			m_relativeAccessPoint = REFERENCE_ROOT;
 
 			// construct storage and read
@@ -264,6 +291,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 			{
 				m_provider = (GroupProvider) ComponentManager.get(GroupProvider.class.getName());
 			}
+
+			// try and find a role provider.
+            if (m_roleProvider == null) {
+                m_roleProvider = (RoleProvider) ComponentManager.get(RoleProvider.class.getName());
+            }
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName()));
 		}
@@ -1523,4 +1555,62 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
     public Set getMaintainRoles(){
         return m_storage.getMaintainRoles();
     }
+
+	/**
+  	 * {@inheritDoc}
+ 	 */
+	public Set<String> getAdditionalRoles() {
+
+ 		Set<String> roles = new HashSet<String>();
+ 		if (isAllowedAnon()) {
+ 			roles.add(".anon");
+ 		}
+ 		if (isAllowedAuth()) {
+ 			roles.add(".auth");
+ 		}
+ 		if (m_roleProvider != null) {
+ 			roles.addAll(m_roleProvider.getAllAdditionalRoles());
+ 		}
+ 		return roles;
+ 	}
+ 
+ 	/**
+ 	 * {@inheritDoc}
+ 	 */
+ 	public boolean isRoleAssignable(String roleId) {
+ 		return !roleId.startsWith(".");
+ 	}
+ 
+ 	/**
+ 	 * {@inheritDoc}
+ 	 */
+ 	public String getRoleName(String roleId) {
+
+ 		String role = null;
+ 		if (".anon".equals(roleId)) {
+ 			role = rb.getString("role.anon");
+ 		} else if (".auth".equals(roleId)) {
+ 			role = rb.getString("role.auth");
+ 		} else if (m_roleProvider != null) {
+ 			role = m_roleProvider.getDisplayName(roleId);
+ 		}
+ 		// Never return null 
+ 		return (role == null) ? roleId : role;
+ 	}
+ 	
+ 	/**
+ 	 * Is the current user allowed to grant .anon access to the site?
+ 	 * @return <code>true</code> if .anon can be granted.
+ 	 */
+ 	protected boolean isAllowedAnon() {
+ 		return serverConfigurationService().getBoolean("sitemanage.grant.anon", false);
+ 	}
+ 
+ 	/**
+ 	 * Is the current user allowed to grant .auth access to the site?
+ 	 * @return <code>true</code> if .auth can be granted.
+ 	 */
+ 	protected boolean isAllowedAuth() {
+ 		return serverConfigurationService().getBoolean("sitemanage.grant.auth", false);
+ 	}
 }

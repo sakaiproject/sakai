@@ -3953,13 +3953,13 @@ public class DiscussionForumTool
     	LOG.debug("selectedTopic is null in isDisplayTopicDeleteOption()");
     	return false;
     }
-	  Topic topic = selectedTopic.getTopic();
+	  DiscussionTopic topic = selectedTopic.getTopic();
 	  if (topic == null || topic.getId() == null)
 		  return false;
 	  
 	  Topic topicInDb = forumManager.getTopicById(topic.getId());
 	  
-	  return topicInDb != null && uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum());
+	  return topicInDb != null && selectedForum != null && uiPermissionsManager != null && uiPermissionsManager.isChangeSettings(topic,selectedForum.getForum());
   }
   
   private void setupForum() {
@@ -4698,7 +4698,7 @@ public class DiscussionForumTool
   public String processDfMsgRevisedPost()
   {
 	//checks whether the user can post to the forum & topic based on the passed in message id
-	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, true)){
+	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, false)){
 		return gotoMain();
 	}
 	try{

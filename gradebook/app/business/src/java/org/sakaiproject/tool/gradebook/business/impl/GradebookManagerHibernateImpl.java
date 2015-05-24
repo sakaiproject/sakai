@@ -75,6 +75,8 @@ import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 
 /**
  * Manages Gradebook persistence via hibernate.
+ * 
+ * Note that many of these methods are duplicates of those in the gradebook service API code.
  */
 public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibernateImpl
         implements GradebookManager {

@@ -42,7 +42,6 @@
 					<script type="text/javascript"> $('#groupSelector').hide()</script>
 					#end
 				</div>
-				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 			</form>	
 		</div>
 		#end
@@ -60,11 +59,12 @@
 							<a href="#" title="$thelp.getString("per.lis.head.title")">$thelp.getString("per.lis.head")</a>
 						</th>
 						#foreach($role in $roles)
-							<th class="role"><a href="#"  title="$thelp.getString("per.lis.role.title")">$role.Id</a></th>
+							<th class="role"><a href="#"  title="$thelp.getString("per.lis.role.title")">$roleName.getName($role.Id)</a></th>
 						#end
 					</tr>
-					#foreach($lock in $abilities)
-						<tr>
+						#foreach($lock in $abilities)
+
+							<tr>
 							<td class="permissionDescription unclicked" scope="row">
 								<a href="#" title="$thelp.getString("per.lis.perm.title")">
 									#set($desc = $lock)

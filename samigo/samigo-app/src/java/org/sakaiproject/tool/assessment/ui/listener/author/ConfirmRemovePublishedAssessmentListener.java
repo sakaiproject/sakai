@@ -61,8 +61,7 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     FacesContext context = FacesContext.getCurrentInstance();
 
     // #1 - read the assessmentId from the form
-    String publishedAssessmentId = (String) FacesContext.getCurrentInstance().
-        getExternalContext().getRequestParameterMap().get("publishedAssessmentId");
+    String publishedAssessmentId = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("publishedAssessmentId");
     log.debug("publishedAssessmentId = " + publishedAssessmentId);
     
     // #2 -  and use it to set author bean, goto removeAssessment.jsp
@@ -73,10 +72,15 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     if (publishedAssessment != null) {
     	// #3 - permission checking before proceeding - daisyf
     	AuthorBean author = (AuthorBean) ContextUtil.lookupBean("author");
-    	if (!passAuthz(context, publishedAssessment.getCreatedBy())){
-    		author.setOutcome("author");
-    		return;
-    	}
+    	
+        AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+        if (!authzBean.isUserAllowedToDeleteAssessment(publishedAssessmentId, publishedAssessment.getCreatedBy(), true)) {
+          String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_delete_other_members_assessment_error");
+          context.addMessage(null,new FacesMessage(err));
+  		  author.setOutcome("author");
+  		  return;
+        }
+
     	author.setOutcome("confirmRemovePublishedAssessment");
     	
     	publishedAssessmentBean.setAssessmentId(publishedAssessmentId);
@@ -85,27 +89,6 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
     else {
     	log.warn("publishedAssessment is null");
     }
-  }
-
-  public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    boolean hasPrivilege_any = authzBean.getDeleteAnyAssessment();
-    boolean hasPrivilege_own0 = authzBean.getDeleteOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-    if (!hasPrivilege){
-      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-				     "denied_delete_other_members_assessment_error");
-      context.addMessage(null,new FacesMessage(err));
-    }
-    return hasPrivilege;
-  }
-
-  public boolean isOwner(String ownerId){
-    boolean isOwner = false;
-    String agentId = AgentFacade.getAgentString();
-    isOwner = agentId.equals(ownerId);
-    return isOwner;
   }
 
 }

@@ -1066,16 +1066,19 @@ public class PortletIFrame extends GenericPortlet {
 
         Locale locale = new ResourceLoader().getLocale();
 
+        // You can only access inside the current context in Tomcat 8.
+        // Tomcat 8 advises against unpacking the WARs so this isn't a good long term solution.
+        String rootPath = getPortletConfig().getPortletContext().getRealPath("/");
         if (locale != null){
             // check if localized file exists for current language/locale/variant
             String localizedFile = doc + "_" + locale.toString() + ext;
-            String filePath = getPortletConfig().getPortletContext().getRealPath(".."+localizedFile);
+            String filePath = rootPath+ ".."+localizedFile;
             if ( (new File(filePath)).exists() )
                 return localizedFile;
 
             // otherwise, check if localized file exists for current language
             localizedFile = doc + "_" + locale.getLanguage() + ext;
-            filePath = getPortletConfig().getPortletContext().getRealPath(".."+localizedFile);
+            filePath = rootPath+ ".."+localizedFile;
             if ( (new File(filePath)).exists() )
                 return localizedFile;
         }

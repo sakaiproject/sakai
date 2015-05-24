@@ -259,6 +259,11 @@
 			<value>sakai</value>
 		</property>
 
+		<!-- The timeout for running validation query. Must be less than connectionTimeout. Default is 5000 (5 sec). Cannot be less than 1000 (1 sec). -->
+		<property name="validationTimeout">
+			<value>5000</value>
+		</property>
+
 		<!-- Additional data source properties -->
 		<property name="dataSourceProperties">
 			<props>
@@ -403,7 +408,7 @@
     </bean>
 
 	<!-- Backward property compatibility -->
-    <bean id="javax.sql.BaseDataSource" parent="javax.sql.dbcp.BaseDataSource">
+    <bean id="javax.sql.BaseDataSource" parent="javax.sql.hikaricp.BaseDataSource">
     </bean>
 
     <!-- Shared DataSource for all pooled database connections -->

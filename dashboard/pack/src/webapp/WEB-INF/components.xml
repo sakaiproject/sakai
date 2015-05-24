@@ -50,6 +50,7 @@
     	<property name="dao" ref="org.sakaiproject.dash.dao.DashboardDao" />	
     	<property name="cache" ref="org.sakaiproject.dash.cache" />	
     	<property name="dashboardConfig" ref="org.sakaiproject.dash.app.DashboardConfig" />
+	<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
     </bean>
     
 	<bean id="org.sakaiproject.dash.app.DashboardUserLogic" 

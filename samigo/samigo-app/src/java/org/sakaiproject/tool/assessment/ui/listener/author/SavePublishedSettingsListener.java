@@ -268,25 +268,30 @@ implements ActionListener
 	    	error=true;
 	    	assessmentSettings.setStartDate(new Date());
 	    }
-	    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
-	    	(retractDate != null && startDate == null && retractDate.before(new Date()))) {
-	    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
-	    	error=true;
-	    	isRetractEarlierThanAvaliable = true;
-	    	assessmentSettings.setStartDate(new Date());
-	    }
-	    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
-	    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
-	    	error=true;
+	    if(assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+		    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
+		    	(retractDate != null && startDate == null && retractDate.before(new Date()))) {
+		    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
+		    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
+		    	error=true;
+		    	isRetractEarlierThanAvaliable = true;
+		    	assessmentSettings.setStartDate(new Date());
+		    }
+		    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
+		    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
+		    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
+		    	error=true;
+		    }
 	    }
 
 	    // SAM-1088
 	    // if late submissions not allowed and late submission date is null, set late submission date to due date
 	    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.equals(assessmentSettings.getLateHandling()) &&
 	    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-	    	assessmentSettings.setRetractDate(dueDate);
+	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+	    	if (autoSubmitEnabled) {
+	    		assessmentSettings.setRetractDate(dueDate);
+	    	}
 	    }
 
 	    // if auto-submit is enabled, make sure late submission date is set

@@ -79,6 +79,8 @@ public class SakaiKernelTestBase extends TestCase {
 	 * @throws IOException
 	 */
 	protected static void oneTimeSetup(String sakaiHomeResources, String additional, Properties properties) throws IOException {
+		//Set this property for testing
+		System.setProperty("sakai.test", "src/test/resources/");
 		if (sakaiHomeResources != null) {
 			// TODO Better to store existing sakai.home setting for restoration in the tear down? 
 			TestComponentManagerContainer.setSakaiHome("src/test/resources/" + sakaiHomeResources);

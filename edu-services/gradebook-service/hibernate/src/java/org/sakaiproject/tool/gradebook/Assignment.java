@@ -38,15 +38,18 @@ import org.sakaiproject.service.gradebook.shared.GradebookService;
  */
 public class Assignment extends GradableObject {
 
-    public static String SORT_BY_DATE = "dueDate";
-    public static String SORT_BY_NAME = "name";
-    public static String SORT_BY_MEAN = "mean";
-    public static String SORT_BY_POINTS = "pointsPossible";
-    public static String SORT_BY_RELEASED ="released";
-    public static String SORT_BY_COUNTED = "counted";
-    public static String SORT_BY_EDITOR = "gradeEditor";
-    public static String SORT_BY_SORTING = "sorting";
-    public static String DEFAULT_SORT = SORT_BY_SORTING;
+	/**
+	 * use the SortType enum instead. This remains only for the gradebook tool
+	 */
+	@Deprecated public static String SORT_BY_DATE = "dueDate";
+	@Deprecated public static String SORT_BY_NAME = "name";
+	@Deprecated public static String SORT_BY_MEAN = "mean";
+	@Deprecated public static String SORT_BY_POINTS = "pointsPossible";
+	@Deprecated public static String SORT_BY_RELEASED ="released";
+	@Deprecated public static String SORT_BY_COUNTED = "counted";
+	@Deprecated public static String SORT_BY_EDITOR = "gradeEditor";
+	@Deprecated public static String SORT_BY_SORTING = "sorting";
+	@Deprecated public static String DEFAULT_SORT = SORT_BY_SORTING;
     
     public static String item_type_points = "Points";
     public static String item_type_percentage = "Percentage";

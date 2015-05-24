@@ -63,6 +63,10 @@
                 <goals>
                   <goal>jar</goal>
                 </goals>
+                <configuration>
+                  <additionalparam>-Xdoclint:none</additionalparam>
+                  <failOnError>false</failOnError>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -125,20 +129,20 @@
         <scope>provided</scope>
       </dependency>
       <!-- Java 8 Maven Artifact -->
-      <!--
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP</artifactId>
-        <version>2.3.2</version>
+        <version>2.3.7</version>
         <scope>compile</scope>
       </dependency>
-      -->
+      <!--
       <dependency>
         <groupId>com.zaxxer</groupId>
         <artifactId>HikariCP-java6</artifactId>
         <version>2.3.2</version>
         <scope>provided</scope>
       </dependency>
+      -->
     </dependencies>
   </dependencyManagement>
 

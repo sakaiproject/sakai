@@ -83,35 +83,6 @@
   <body-content>JSP</body-content>
   </tag>
 
-  <!-- ==== display a date picker control ===================== -->
-  <tag>
-  <name>datePicker</name>
-  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.DatePickerTag</tag-class>
-  <body-content>JSP</body-content>
-    <attribute>
-      <name>value</name>
-      <required>true</required>
-      <rtexprvalue>false</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>id</name>
-      <required>true</required>
-      <rtexprvalue>false</rtexprvalue>
-    </attribute>
-    <attribute>
-      <name>size</name>
-      <required>true</required>
-      <rtexprvalue>false</rtexprvalue>
-    </attribute>
-  </tag>
-
-  <!-- helper: display the HTML for date picker popup -->
-  <tag>
-  <name>datePickerPopup</name>
-  <tag-class>org.sakaiproject.tool.assessment.jsf.tag.DatePickerPopupTag</tag-class>
-  <body-content>JSP</body-content>
-  </tag>
-
   <!-- ==== display a hidable division control ================ -->
   <tag>
   <name>hideDivision</name>

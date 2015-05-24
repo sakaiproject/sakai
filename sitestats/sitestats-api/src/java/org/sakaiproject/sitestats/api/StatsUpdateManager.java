@@ -163,7 +163,7 @@ public interface StatsUpdateManager {
 	public long getResetTime();
 	
 	/** Get the total time ellapsed, in milliseconds, since start */
-	public long getTotalTimeEllapsedSinceReset();
+	public long getTotalTimeElapsedSinceReset();
 	
 	/** Get the average number of events processed per second */
 	public double getNumberOfEventsProcessedPerSec();

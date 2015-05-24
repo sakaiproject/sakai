@@ -227,7 +227,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (m_autoDdl)
 			{
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm");
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm_2_4_0_001");
 			}
 
 			super.init();
@@ -678,28 +677,32 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				Iterator<AuthzGroup> it = queueList.iterator();
 				while (it.hasNext()) {
 					AuthzGroup azGroup = it.next();
-					if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: " + azGroup.getId());
+					String azGroupId = azGroup.getId();
+					if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: " + azGroupId);
 
 					numberRefreshed++;
 					long time = 0;
 					long start = System.currentTimeMillis();
 					try {
-						((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
+						// only remove from the cache if the realm was updated during the refresh
+						if (((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup)) {
+							m_realmRoleGRCache.remove(azGroupId);
+						}
 					} catch (Throwable e) {
-						M_log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroup.getId(), e);
+						M_log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroupId, e);
 					} finally {
 						time = (System.currentTimeMillis() - start);
-						refreshQueue.remove(azGroup.getId());
-						if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: " + azGroup.getId() + " took " + time/1e3 + " seconds");
+						refreshQueue.remove(azGroupId);
+						if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: " + azGroupId + " took " + time/1e3 + " seconds");
 					}
 					timeRefreshed += time;
 					if (time > longestRefreshed) {
 						longestRefreshed = time;
-						longestName = azGroup.getId();
+						longestName = azGroupId;
 					}
 					
 					if (it.hasNext() && (time > (refreshMaxTime * 1000L))) {
-						M_log.warn("RefreshAuthzGroupTask.run() " + azGroup.getId() + " took " + time/1e3 + 
+						M_log.warn("RefreshAuthzGroupTask.run() " + azGroupId + " took " + time/1e3 + 
 								" seconds which is longer than the maximum allowed of " + refreshMaxTime + 
 								" seconds, delay processing the rest of the queue");
 						break;
@@ -2592,11 +2595,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			refreshQueue.put(azGroup.getId(), azGroup);
 		}
 
-		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
+		/**
+		 * Update the realm with info from the provider
+		 * 
+		 * @param realm the realm to be refreshed
+		 * @return true if there were changes to the realm as a result of the refresh otherwise false
+		 */
+		protected boolean refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
-			if ((realm == null) || (m_provider == null)) return;
+			if ((realm == null) || (m_provider == null)) return false;
 			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroupInternal() refreshing " + realm.getId());
 
+			boolean realmUpdated = false;
 			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
 
 			// check to see whether this is of group realm or not
@@ -2827,6 +2837,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// if any, do it
 			if ((toDelete.size() > 0) || (toInsert.size() > 0))
 			{
+				realmUpdated = true;
 				// do these each in their own transaction, to avoid possible deadlock
 				// caused by transactions modifying more than one row at a time.
 
@@ -2858,6 +2869,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (M_log.isDebugEnabled()) {
 				M_log.debug("refreshAuthzGroupInternal() deleted: "+ toDelete.size()+ " inserted: "+ toInsert.size()+ " provided: "+ existing.size()+ " nonProvider: "+ nonProvider.size());
 			}
+
+			return realmUpdated;
 		}
 
 		private List<UserAndRole> getGrants(AuthzGroup realm) {

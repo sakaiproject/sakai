@@ -17,21 +17,30 @@
 package org.sakaiproject.delegatedaccess.tool.pages;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.TreeNode;
 
+import org.apache.log4j.Logger;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.AbstractReadOnlyModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 
 /**
  * BaseTreePage is a base page for all pages that want to use AbstractTree.  It extends BasePage as well.
@@ -41,6 +50,7 @@ import org.sakaiproject.delegatedaccess.model.NodeModel;
 
 public abstract class BaseTreePage extends BasePage
 {
+	private static final Logger log = Logger.getLogger(BaseTreePage.class);
 
 	/**
 	 * Returns the tree on this pages. This is used to collapse, expand, ect
@@ -93,6 +103,21 @@ public abstract class BaseTreePage extends BasePage
 			for(int i = 0; i < node.getChildCount(); i++){
 				updateNodeAccessHelper((DefaultMutableTreeNode)node.getChildAt(i), userId, defaultRole);
 			}
+		}
+	}
+	
+	public boolean anyNodesModified(DefaultMutableTreeNode node){
+		boolean modified = false;
+		if(((NodeModel) node.getUserObject()).isModified()){
+			return true;
+		}else{
+			for(int i = 0; i < node.getChildCount(); i++){
+				modified = modified || anyNodesModified((DefaultMutableTreeNode)node.getChildAt(i));
+				if(modified){
+					break;
+				}
+			}
+			return modified;
 		}
 	}
 
@@ -198,5 +223,34 @@ public abstract class BaseTreePage extends BasePage
 		inheritedSpan.add(noInheritedToolsLabel);
 	
 	}
-
+	
+	public void expandTreeToDepth(DefaultMutableTreeNode node, int depth, String userId, List<ListOptionSerialized> blankRestrictedTools, List<String> accessAdminNodeIds, boolean onlyAccessNodes, boolean shopping, boolean shoppingPeriodTool, String filterSearch){
+		projectLogic.addChildrenNodes(node, userId, blankRestrictedTools, onlyAccessNodes, accessAdminNodeIds, shopping, shoppingPeriodTool);
+		//set expand flag to true so to not look for children again:
+		((NodeModel) node.getUserObject()).setAddedDirectChildrenFlag(true);
+		getTree().getTreeState().expandNode(node);
+		if(depth > 0){
+			//recursive function stopper:
+			int newDepth = depth - 1;
+			//count down backwards since we could be deleting these children nodes
+			for(int i = node.getChildCount() - 1; i >= 0; i--){
+				expandTreeToDepth((DefaultMutableTreeNode) node.getChildAt(i), newDepth, userId, blankRestrictedTools, accessAdminNodeIds, onlyAccessNodes, shopping, shoppingPeriodTool, filterSearch);
+			}
+		}else{
+			//make sure all children are collapsed and filter out the ones that need to be filtered
+			//count down backwards since we could be deleting these children nodes
+			for(int i = node.getChildCount() - 1; i >= 0; i--){
+				getTree().getTreeState().collapseNode(node.getChildAt(i));
+				String nodeTitle = ((NodeModel) ((DefaultMutableTreeNode) node.getChildAt(i)).getUserObject()).getNode().description.toLowerCase();
+				if(filterSearch != null && !"".equals(filterSearch.trim()) && !nodeTitle.contains(filterSearch.toLowerCase())){
+					//delete this child:
+					node.remove(i);
+				}
+			}
+		}
+		//check if all of the children have been removed (but don't delete root node)
+		if(node.getParent() != null && node.getChildCount() == 0){
+			((DefaultMutableTreeNode) node.getParent()).remove(node);
+		}
+	}
 }

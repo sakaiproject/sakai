@@ -199,7 +199,14 @@ public interface GradebookService {
 	 * @return Returns a list of Assignment objects describing the assignments
 	 *         that are currently defined in the given gradebook.
 	 */
-	public List getAssignments(String gradebookUid)
+	public List<Assignment> getAssignments(String gradebookUid)
+			throws GradebookNotFoundException;
+	
+	/**
+	 * @return Returns a list of Assignment objects describing the assignments
+	 *         that are currently defined in the given gradebook, sorted by the given sort type.
+	 */
+	public List<Assignment> getAssignments(String gradebookUid, SortType sortBy)
 			throws GradebookNotFoundException;
 
 	/**
@@ -803,5 +810,14 @@ public interface GradebookService {
 	 * @return
 	 */
 	public String getAverageCourseGrade(String gradebookUid);
+	
+	/**
+	 * Update the ordering of an assignment. This can be performed on internal and external assignments.
+	 * @param gradebookUid uid of the gradebook
+	 * @param assignmentId id of the assignment in the gradebook
+	 * @param order the new order for this assignment. Note it is 0 based index ordering.
+	 * @return
+	 */
+	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order);
 
 }

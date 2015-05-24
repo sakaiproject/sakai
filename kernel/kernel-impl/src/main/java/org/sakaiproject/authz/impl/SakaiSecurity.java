@@ -27,9 +27,12 @@ import org.sakaiproject.authz.api.*;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
+import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.Session;
@@ -44,7 +47,7 @@ import java.util.*;
  * SakaiSecurity is a Sakai security service.
  * </p>
  */
-public abstract class SakaiSecurity implements SecurityService
+public abstract class SakaiSecurity implements SecurityService, Observer
 {
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SakaiSecurity.class);
@@ -98,6 +101,11 @@ public abstract class SakaiSecurity implements SecurityService
 	protected abstract EventTrackingService eventTrackingService();
 
     protected abstract FunctionManager functionManager();
+    
+    /**
+     * @return the SiteService collaborator
+     */
+    protected abstract SiteService siteService();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Configuration
@@ -141,6 +149,7 @@ public abstract class SakaiSecurity implements SecurityService
             m_superCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.superCache");
             m_contentCache = memoryService().getCache("org.sakaiproject.authz.api.SecurityService.contentCache");
 		}
+		eventTrackingService().addObserver(this);
 	}
 
     /**
@@ -856,5 +865,28 @@ public abstract class SakaiSecurity implements SecurityService
 		}
 
 		return;
+	}
+
+	@Override
+	public void update(Observable o, Object obj) {
+		if (obj == null || !(obj instanceof Event))
+		{
+			return;
+		}
+
+		Event event = (Event) obj;
+		
+		if (SiteService.EVENT_SITE_USER_INVALIDATE.equals(event.getEvent()))
+		{
+			Site site = null;
+			try {
+				site = siteService().getSite(event.getResource());
+			} catch (IdUnusedException e) {
+				M_log.warn("Security invalidation error when handling an event (" + event.getEvent() + "), for site " + event.getResource());
+			}
+			if (site != null) {
+				resetSecurityCache(site.getReference());
+			}
+		}
 	}
 }

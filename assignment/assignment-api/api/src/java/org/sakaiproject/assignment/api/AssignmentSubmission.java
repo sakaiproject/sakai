@@ -74,18 +74,19 @@ public interface AssignmentSubmission extends Entity
 	public String getAssignmentId();
 
 	/**
-         * Submitter ID is the Sakai Group ID or User ID that created the submission.
-         * @return The GROUP or USER id who submitted this assignement
-         */
-        public String getSubmitterId();
-        /**
-         * Used to record submission history for group submissions.
-         * @return The LIST of submission log entries.
-         */
-        public List getSubmissionLog();
-        public List getGrades();
-        public String getGradeForUser(String id);
-        
+	* Submitter ID is the Sakai Group ID or User ID that created the submission.
+	* @return The GROUP or USER id who submitted this assignement
+	*/
+	public String getSubmitterId();
+	
+	/**
+	* Used to record submission history for group submissions.
+	* @return The LIST of submission log entries.
+	*/
+	public List getSubmissionLog();
+	public List getGrades();
+	public String getGradeForUser(String id);
+
 	/**
 	 * Access the list of Users who submitted this response to the Assignment.
 	 * 
@@ -143,7 +144,7 @@ public interface AssignmentSubmission extends Entity
 	public List getSubmittedAttachments();
 
 	/**
-	 * Access the list of attachments to this response to the Assignment that do not have PROP_INLINE_SUBMISSION set
+	 * SAK-26322 - Access the list of attachments to this response to the Assignment that do not have PROP_INLINE_SUBMISSION set
 	 */
 	public List getVisibleSubmittedAttachments();
 
@@ -282,20 +283,30 @@ public interface AssignmentSubmission extends Entity
 	 */
 	public String getReviewIconUrl();
 
-    /**
-     *
-     * @return error string, if any, returned from review service
-     */
-    public String getReviewError();
+	/**
+	 *
+	 * @return error string, if any, returned from review service
+	 */
+	public String getReviewError();
 
 	/**
-	 * Return a list of objects containing the ContentReviewResults	--bbailla2
+	 * SAK-26322 - Return a list of objects containing the ContentReviewResults
 	 */
 	public List<ContentReviewResult> getContentReviewResults();
-        
-        /**
-        * SAK-17606 - Method to return a specialized string for anonymous grading.
-        * @return
-        */
-        public String getAnonymousSubmissionId();
+
+	/**
+	* SAK-17606 - Method to return a specialized string for anonymous grading.
+	* @return
+	*/
+	public String getAnonymousSubmissionId();
+
+	/**
+	 * SAK-29314 - Represents whether the submission was submitted by a user.
+	 * For instance, if the instructor clicks on 'view submission' for an assignment,
+	 * every student who hasn't yet submitted will then have an AssignmentSubmission object generated with this property set to false.
+	 * This gives the instructor an AssignmentSubmission object to grade, while this property makes it known that it is not a user submission.
+	 * 
+	 * @return 
+	 */
+	public boolean isUserSubmission();
 }

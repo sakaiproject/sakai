@@ -9,7 +9,8 @@ require_once 'OAuth.php';
 // with minimum values to meet the protocol
 function is_lti_request() {
    $good_message_type = $_REQUEST["lti_message_type"] == "basic-lti-launch-request" ||
-        $_REQUEST["lti_message_type"] == "ToolProxyReregistrationRequest";
+        $_REQUEST["lti_message_type"] == "ToolProxyReregistrationRequest" || 
+        $_REQUEST["lti_message_type"] == "ContentItemSelection";
    $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0" || $_REQUEST["lti_version"] == "LTI-2p0";
    if ($good_message_type and $good_lti_version ) return(true);
    return false;
@@ -94,6 +95,7 @@ class BLTI {
         // If this request is not an LTI Launch, either
         // give up or try to retrieve the context from session
         if ( ! is_lti_request() ) {
+            $this->message = 'Request is missing LTI information';
             if ( $usesession === false ) return;
             if ( strlen(session_id()) > 0 ) {
                 $row = $_SESSION['_lti_row'];

@@ -10,7 +10,7 @@
             <span id="portal_js_warn" class="Mrphs-noJs js-warn-no-js">${rloader.sit_noscript_message}</span>
         </noscript>
 
-        <div class="Mrphs-portalWrapper">
+        <div #if( ${roleSwitchState} ) class="Mrphs-portalWrapper swapped-view" #else class="Mrphs-portalWrapper"#end>
 
             ## Skip Nav
             #parse("/vm/morpheus/snippets/skipNav-snippet.vm")
@@ -42,6 +42,8 @@
                 #end ## END of IF (${tabsSites})
 
             </div>
+
+            #parse("/vm/morpheus/moresites.vm")
 
             #parse("/vm/morpheus/includePageWithNav.vm")
 

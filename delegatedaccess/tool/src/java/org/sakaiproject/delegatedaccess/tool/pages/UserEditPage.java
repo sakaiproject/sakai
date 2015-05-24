@@ -28,6 +28,7 @@ import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.MarkupContainer;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -38,17 +39,24 @@ import org.apache.wicket.extensions.markup.html.tree.table.ColumnLocation.Unit;
 import org.apache.wicket.extensions.markup.html.tree.table.IColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.PropertyTreeColumn;
 import org.apache.wicket.extensions.markup.html.tree.table.TreeTable;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.ChoiceRenderer;
+import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.tree.AbstractTree;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.delegatedaccess.model.HierarchyNodeSerialized;
 import org.sakaiproject.delegatedaccess.model.ListOptionSerialized;
 import org.sakaiproject.delegatedaccess.model.NodeModel;
+import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
+import org.sakaiproject.delegatedaccess.util.DelegatedAccessMutableTreeNode;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnAdvancedUserOptions;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnCheckbox;
 import org.sakaiproject.delegatedaccess.utils.PropertyEditableColumnDropdown;
@@ -67,6 +75,10 @@ public class UserEditPage  extends BaseTreePage{
 	private static final Logger log = Logger.getLogger(UserEditPage.class);
 	private String[] defaultRole = null;
 	List<String> accessAdminNodeIds = null;
+	private SelectOption filterHierarchy;
+	private String filterSearch = "";
+	private List<ListOptionSerialized> blankRestrictedTools;
+	private boolean modifiedAlert = false;
 	
 	@Override
 	protected AbstractTree getTree() {
@@ -74,7 +86,8 @@ public class UserEditPage  extends BaseTreePage{
 	}
 
 	public UserEditPage(final String userId, final String displayName){
-
+		blankRestrictedTools = projectLogic.getEntireToolsList();
+		
 		//Form Feedback (Saved/Error)
 		final Label formFeedback = new Label("formFeedback");
 		formFeedback.setOutputMarkupPlaceholderTag(true);
@@ -91,11 +104,102 @@ public class UserEditPage  extends BaseTreePage{
 		//FORM:
 		Form form = new Form("form");
 		add(form);
+		//Filter Forum
+		Form filterForm = new Form("filterform");
+		add(filterForm);
 
 		//Expand Collapse Link:
-		form.add(getExpandCollapseLink());
+		filterForm.add(getExpandCollapseLink());
 
+		//Filter Search:
+		
+		//Dropdown
+		final ChoiceRenderer choiceRenderer = new ChoiceRenderer("label", "value");
+		final PropertyModel<SelectOption> filterHierarchydModel = new PropertyModel<SelectOption>(this, "filterHierarchy");
+		List<SelectOption> hierarchyOptions = new ArrayList<SelectOption>();
+		String[] hierarchy = sakaiProxy.getServerConfigurationStrings(DelegatedAccessConstants.HIERARCHY_SITE_PROPERTIES);
+		if(hierarchy == null || hierarchy.length == 0){
+			hierarchy = DelegatedAccessConstants.DEFAULT_HIERARCHY;
+		}
+		for(int i = 0; i < hierarchy.length; i++){
+			hierarchyOptions.add(new SelectOption(hierarchy[i], "" + i));
+		}
+		final DropDownChoice filterHierarchyDropDown = new DropDownChoice("filterHierarchyLevel", filterHierarchydModel, hierarchyOptions, choiceRenderer);
+		filterHierarchyDropDown.setOutputMarkupPlaceholderTag(true);
+		filterForm.add(filterHierarchyDropDown);
+		//Filter Search field
+		final PropertyModel<String> filterSearchModel = new PropertyModel<String>(this, "filterSearch");
+		final TextField<String> filterSearchTextField = new TextField<String>("filterSearch", filterSearchModel);
+		filterSearchTextField.setOutputMarkupPlaceholderTag(true);
+		filterForm.add(filterSearchTextField);
+		//submit button:
+		filterForm.add(new AjaxButton("filterButton", new StringResourceModel("filter", null)){
 
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
+				//check that no nodes have been modified
+				if(!modifiedAlert && anyNodesModified(rootNode)){
+					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback);
+					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback2);
+					modifiedAlert = true;
+					//call a js function to hide the message in 5 seconds
+					target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
+					target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+				}else{
+					//now go through the tree and make sure its been loaded at every level:
+					Integer depth = null;
+					if(filterHierarchy != null && filterHierarchy.getValue() != null && !"".equals(filterHierarchy.getValue().trim())){
+						try{
+							depth = Integer.parseInt(filterHierarchy.getValue());
+						}catch(Exception e){
+							//number format exception, ignore
+						}
+					}
+					if(depth != null && filterSearch != null && !"".equals(filterSearch.trim())){
+						expandTreeToDepth(rootNode, depth, userId, blankRestrictedTools, accessAdminNodeIds, false, false, false, filterSearch);
+						getTree().updateTree(target);
+					}
+					modifiedAlert = false;
+				}
+			}			
+		});
+		filterForm.add(new AjaxButton("filterClearButton", new StringResourceModel("clear", null)){
+
+			@Override
+			protected void onSubmit(AjaxRequestTarget target, Form<?> arg1) {
+				DefaultMutableTreeNode rootNode = (DefaultMutableTreeNode) getTree().getModelObject().getRoot();
+				//check that no nodes have been modified
+				if(!modifiedAlert && anyNodesModified(rootNode)){
+					formFeedback.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback);
+					formFeedback2.setDefaultModel(new ResourceModel("modificationsPending"));
+					formFeedback2.add(new AttributeModifier("class", true, new Model("alertMessage")));
+					target.addComponent(formFeedback2);
+					modifiedAlert = true;
+					//call a js function to hide the message in 5 seconds
+					target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
+					target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+				}else{
+					filterSearch = "";
+					filterHierarchy = null;
+					target.addComponent(filterSearchTextField);
+					target.addComponent(filterHierarchyDropDown);
+
+					((NodeModel) rootNode.getUserObject()).setAddedDirectChildrenFlag(false);
+					rootNode.removeAllChildren();				
+					getTree().getTreeState().collapseAll();
+					getTree().updateTree(target);
+					modifiedAlert = false;
+				}
+			}
+		});
+		
 		//tree:
 
 		//create a map of the realms and their roles for the Role column
@@ -107,10 +211,10 @@ public class UserEditPage  extends BaseTreePage{
 			}
 		}
 		//set the size of the role Column (shopper becomes)
-		int roleColumnSize = 40 + largestRole.length() * 6;
-		if(roleColumnSize < 115){
+		int roleColumnSize = 80 + largestRole.length() * 6;
+		if(roleColumnSize < 155){
 			//for "Choose One" default option
-			roleColumnSize = 115;
+			roleColumnSize = 155;
 		}
 		boolean singleRoleOptions = false;
 		if(roleMap.size() == 1){
@@ -128,19 +232,19 @@ public class UserEditPage  extends BaseTreePage{
 		columnsList.add(new PropertyTreeColumn(new ColumnLocation(Alignment.MIDDLE, 100, Unit.PROPORTIONAL),	"", "userObject.node.description"));
 		if(sakaiProxy.isSuperUser()){
 			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("accessAdmin", null).getString(), "userObject.accessAdmin", DelegatedAccessConstants.TYPE_ACCESS_ADMIN));
-			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 70, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
+			columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 90, Unit.PX), new StringResourceModel("shoppingPeriodAdmin", null).getString(), "userObject.shoppingPeriodAdmin", DelegatedAccessConstants.TYPE_SHOPPING_PERIOD_ADMIN));
 		}
-		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 55, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
+		columnsList.add(new PropertyEditableColumnCheckbox(new ColumnLocation(Alignment.RIGHT, 68, Unit.PX), new StringResourceModel("siteAccess", null).getString(), "userObject.directAccess", DelegatedAccessConstants.TYPE_ACCESS));
 		if(!singleRoleOptions){
 			columnsList.add(new PropertyEditableColumnDropdown(new ColumnLocation(Alignment.RIGHT, roleColumnSize, Unit.PX), new StringResourceModel("userBecomes", null).getString(),
 					"userObject.roleOption", roleMap, DelegatedAccessConstants.TYPE_ACCESS, sakaiProxy.isSuperUser() ? null : sakaiProxy.getSubAdminOrderedRealmRoles()));
 		}
-		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 96, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
+		columnsList.add(new PropertyEditableColumnList(new ColumnLocation(Alignment.RIGHT, 134, Unit.PX), new StringResourceModel("restrictedToolsHeader", null).getString(),
 				"userObject.restrictedAuthTools", DelegatedAccessConstants.TYPE_ACCESS, DelegatedAccessConstants.TYPE_LISTFIELD_TOOLS));
 		//setup advanced options settings:
 		Map<String, Object> advSettings = new HashMap<String, Object>();
 		advSettings.put(PropertyEditableColumnAdvancedUserOptions.SETTINGS_ALLOW_SET_BECOME_USER, sakaiProxy.isSuperUser() || sakaiProxy.allowAccessAdminsSetBecomeUserPerm());
-		columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 75, Unit.PX), new StringResourceModel("advanced", null).getString(), "", advSettings));
+		columnsList.add(new PropertyEditableColumnAdvancedUserOptions(new ColumnLocation(Alignment.RIGHT, 92, Unit.PX), new StringResourceModel("advanced", null).getString(), "", advSettings));
 		IColumn columns[] = columnsList.toArray(new IColumn[columnsList.size()]);
 
 		//if the user isn't a super user, they should only be able to edit the nodes they 
@@ -155,8 +259,7 @@ public class UserEditPage  extends BaseTreePage{
 			}
 		}
 		
-		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(userId, true, false);
-		final List<ListOptionSerialized> blankRestrictedTools = projectLogic.getEntireToolsList();
+		final TreeModel treeModel = projectLogic.createEntireTreeModelForUser(userId, true, false);		
 		//a null model means the tree is empty
 		tree = new TreeTable("treeTable", treeModel, columns){
 			@Override
@@ -197,7 +300,8 @@ public class UserEditPage  extends BaseTreePage{
 			@Override
 			protected boolean isForceRebuildOnSelectionChange() {
 				return true;
-			};
+			};		
+			
 			@Override
 			protected MarkupContainer newNodeLink(MarkupContainer parent, String id, TreeNode node) {
 				try{
@@ -240,6 +344,7 @@ public class UserEditPage  extends BaseTreePage{
 				//call a js function to hide the message in 5 seconds
 				target.appendJavascript("hideFeedbackTimer('" + formFeedbackId + "');");
 				target.appendJavascript("hideFeedbackTimer('" + formFeedback2Id + "');");
+				modifiedAlert = false;
 			}
 		};
 		form.add(updateButton);

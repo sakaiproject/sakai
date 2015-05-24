@@ -872,6 +872,20 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     return (ItemGradingData) itemGradings.get(0);
   }
 
+  public ItemGradingData getItemGradingData(final Long itemGradingId) {
+    final HibernateCallback hcb = new HibernateCallback() {
+      public Object doInHibernate(Session session) throws HibernateException, SQLException {
+        Query q = session.createQuery("from ItemGradingData i where i.itemGradingId=?");
+        q.setLong(0, itemGradingId);
+        return q.list();
+      };
+    };
+    List itemGradings = getHibernateTemplate().executeFind(hcb);
+    if (itemGradings.size() == 0)
+      return null;
+    return (ItemGradingData) itemGradings.get(0);
+  }
+
   public ItemGradingData getItemGradingData(
       final Long assessmentGradingId, final Long publishedItemId)
   {
