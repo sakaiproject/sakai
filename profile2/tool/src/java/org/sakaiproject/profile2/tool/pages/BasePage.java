@@ -270,18 +270,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		
 		//Tool additions (at end so we can override if required)
 		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
-		
-		//moved to basepage.html
-		//response.render(CssHeaderItem.forUrl("/css/profile2.css"));
-		//response.render(JavaScriptHeaderItem.forUrl("/javascript/profile2.js"));
-		
-		
-		//CKEDITOR moved here
-		//response.renderJavascriptReference(new JavascriptResourceReference(BasePage.class, "/library/editor/ckeditor/adapters/jquery.js"));
-		//response.renderJavascript("var CKEDITOR_BASEPATH = '/library/editor/ckeditor/';", "ckeditorpath");
-		//response.renderJavascriptReference("/library/editor/ckeditor/ckeditor.js", "ckeditor");
-		//response.renderJavascriptReference("/library/editor/ckeditor/adapters/jquery.js", "ckeditoradapter");
-		
+		response.render(CssHeaderItem.forUrl("/profile2-tool/css/profile2.css"));
+		response.render(JavaScriptHeaderItem.forUrl("/profile2-tool/javascript/profile2.js"));		
+				
 	}
 	
 	/* disable caching
