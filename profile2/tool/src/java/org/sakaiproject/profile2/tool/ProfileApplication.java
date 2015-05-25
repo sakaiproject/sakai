@@ -18,8 +18,10 @@ package org.sakaiproject.profile2.tool;
 import java.util.Locale;
 
 import org.apache.wicket.Component;
+import org.apache.wicket.core.request.mapper.CryptoMapper;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.IRequestMapper;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
@@ -49,6 +51,10 @@ public class ProfileApplication extends WebApplication {
 		
 		// Throw RuntimeExceptions so they are caught by the Sakai ErrorReportHandler
         getRequestCycleListeners().add(new SakaiRequestCycleListener());
+        
+        //encrypt URLs
+        IRequestMapper cryptoMapper = new CryptoMapper(getRootRequestMapper(), this);
+        setRootRequestMapper(cryptoMapper);
 		
 	}
 	
