@@ -5,6 +5,10 @@
 	width:   16px;
 }
 
+.blurry{
+	@include filter( blur(0.1em) );
+}
+
 @mixin icon( $width : $icon-size, $height : $icon-size ){
 	border: 0px none;
 	display: inline-block;

@@ -272,6 +272,7 @@
   display: inline-block;
   height: 55px;
   vertical-align: top;
+  text-align: center;
 }
 .portletBody .lb-toolbar .toolbar-item .lb-button .toolbar-icon-img {
   position: relative;
@@ -338,7 +339,7 @@
 }
 .portletBody .lb-dropdown ul li:hover > ul,
 .portletBody .lb-dropdown ul li:focus > ul {
-  display: block;
+/*  display: block; */
 }
 .portletBody .lb-dropdown ul a {
   display: block;
@@ -379,4 +380,17 @@
 }
 a.title-tools{
   color: white !important;
+}
+.toolbar-item a {
+  text-align: center !important;
+}
+.toolbar-label {
+  text-align:center;
+  color:black;
+}
+.lb-button-link {
+  padding-top: .375em !important;
+  padding-bottom: .375em !important;
+  display:inline-block;
+  text-align:center;
 }
