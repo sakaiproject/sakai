@@ -15,24 +15,6 @@
 		margin: 0 auto;
 		overflow: hidden;
 		@include border-radius( 0px );
-		@include transition( all 0.5s linear);
-		img{
-			opacity: 0;
-			height: 0px;
-			width: 100%;
-			@include transition( all 0.5s linear);
-			@include border-radius( 128px );
-		}
-		&.gravatar{
-			height: 128px;
-			width:  128px;
-			border: 2px solid $primary-color;
-			@include border-radius( 128px );
-			img{
-				opacity: 1;
-				height: auto;
-			}
-		}
 	}
 	h1{
 		padding: 0.6em;
