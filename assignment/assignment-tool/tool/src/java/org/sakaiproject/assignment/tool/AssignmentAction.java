@@ -1520,12 +1520,12 @@ public class AssignmentAction extends PagedResourceActionII
 
 				// the attachments from the previous submission
 				List submittedAttachments = s.getSubmittedAttachments();
-				newAttachments = areAttachmentsNew(submittedAttachments, currentAttachments);
+				newAttachments = areAttachmentsModified(submittedAttachments, currentAttachments);
 			}
 			else
 			{
 				// There is no previous submission, attachments are modified if anything has been uploaded
-				newAttachments = currentAttachments != null && !currentAttachments.isEmpty();
+				newAttachments = CollectionUtils.isNotEmpty(currentAttachments);
 			}
 			
 			// put the resubmit information into context
@@ -1615,17 +1615,20 @@ public class AssignmentAction extends PagedResourceActionII
 	} // build_student_view_submission_context
 
 	/**
-	 * Determines if there are new attachments
-	 * @return true if currentAttachments is not empty and isn't equal to oldAttachments
+	 * Determines if the attachments have been modified
+	 * @return true if currentAttachments isn't equal to oldAttachments
 	 */
-	private boolean areAttachmentsNew(List oldAttachments, List currentAttachments)
+	private boolean areAttachmentsModified(List oldAttachments, List currentAttachments)
 	{
-		if (currentAttachments == null || currentAttachments.isEmpty())
+		boolean hasCurrent = CollectionUtils.isNotEmpty(currentAttachments);
+		boolean hasOld = CollectionUtils.isNotEmpty(oldAttachments);
+
+		if (!hasCurrent)
 		{
 			//there are no current attachments
-			return false;
+			return hasOld;
 		}
-		if (oldAttachments == null || oldAttachments.isEmpty())
+		if (!hasOld)
 		{
 			//there are no old attachments (and there are new ones)
 			return true;
