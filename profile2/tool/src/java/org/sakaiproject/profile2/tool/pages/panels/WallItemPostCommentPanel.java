@@ -38,7 +38,6 @@ import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
 import org.sakaiproject.profile2.model.WallItemComment;
-import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 
 /**
  * Panel for commenting on a wall item.

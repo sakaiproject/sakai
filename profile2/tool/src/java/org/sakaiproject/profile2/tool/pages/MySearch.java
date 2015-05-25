@@ -33,7 +33,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.behavior.AbstractBehavior;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.head.IHeaderResponse;
@@ -58,6 +58,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.sakaiproject.profile2.model.Person;
 import org.sakaiproject.profile2.model.ProfileSearchTerm;
 import org.sakaiproject.profile2.tool.components.HashMapChoiceRenderer;
@@ -100,9 +101,8 @@ public class MySearch extends BasePage {
 		disableLink(searchLink);
 		
 		//check for current search cookie	 
-		//TODO fix cookies
-		//searchCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.SEARCH_COOKIE);
-		searchCookie = null;
+		CookieUtils utils = new CookieUtils();
+		searchCookie = utils.getCookie(ProfileConstants.SEARCH_COOKIE);
 		
 		//setup model to store the actions in the modal windows
 		final FriendAction friendActionModel = new FriendAction();
@@ -226,7 +226,8 @@ public class MySearch extends BasePage {
 				
 				// clear cookie if present	 
                 if (null != searchCookie) {	 
-                       // getWebRequestCycle().getWebResponse().clearCookie(searchCookie);	 
+                       CookieUtils utils = new CookieUtils();
+                       utils.remove(ProfileConstants.SEARCH_COOKIE);
                 }
                 
 				//clear the fields, hide self, then repaint
@@ -493,8 +494,7 @@ public class MySearch extends BasePage {
 		    }
 		};
 		
-		//TOOD fix the cookies
-		//resultsListView.add(new MySearchCookieBehavior(resultsListView));
+		resultsListView.add(new MySearchCookieBehavior(resultsListView));
 		resultsContainer.add(resultsListView);
 
 		final PagingNavigator searchResultsNavigator = new PagingNavigator("searchResultsNavigator", resultsListView);
@@ -918,7 +918,7 @@ public class MySearch extends BasePage {
 	}
 		         
 	// behaviour so we can set the current search cookie when the navigator page changes	 
-	private class MySearchCookieBehavior extends AbstractBehavior {
+	private class MySearchCookieBehavior extends Behavior {
 
 		private static final long serialVersionUID = 1L;
 
@@ -935,11 +935,6 @@ public class MySearch extends BasePage {
 			}
 		}
 
-		@Override
-		public void renderHead(IHeaderResponse response) {
-			// TODO Auto-generated method stub
-			
-		}
 	}
 		
 }

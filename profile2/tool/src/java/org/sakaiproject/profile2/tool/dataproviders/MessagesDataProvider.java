@@ -19,6 +19,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -43,6 +44,8 @@ public class MessagesDataProvider implements IDataProvider<Message> {
 	
 	public MessagesDataProvider(String threadId) {
 		this.threadId = threadId;
+		
+		Injector.get().inject(this);
 	}
 	
 	/**

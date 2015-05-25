@@ -25,7 +25,6 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -41,6 +40,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.OnlinePresenceIndicator;
@@ -364,7 +364,7 @@ public class ViewProfile extends BasePage {
 	 * @param parameters
 	 */
 	public ViewProfile(PageParameters parameters) {
-		this(parameters.getString(ProfileConstants.WICKET_PARAM_USERID), parameters.getString(ProfileConstants.WICKET_PARAM_TAB));
+		this(parameters.get(ProfileConstants.WICKET_PARAM_USERID).toString(), parameters.get(ProfileConstants.WICKET_PARAM_TAB).toString());
 	}
 	
 	public ViewProfile(final String userUuid) {

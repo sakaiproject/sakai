@@ -83,13 +83,11 @@
 				<artifactId>twitter4j-core</artifactId>
 				<version>3.0.5</version>
 			</dependency>
-			<!--
 			<dependency>
 				<groupId>org.wicketstuff</groupId>
-				<artifactId>objectautocomplete</artifactId>
-				<version>1.4.21</version>
+				<artifactId>wicketstuff-objectautocomplete</artifactId>
+				<version>6.18.0</version>
 			</dependency>
-			-->
 			<dependency>
 				<groupId>org.sakaiproject</groupId>
 				<artifactId>generic-dao</artifactId>
@@ -118,4 +116,18 @@
 		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</developerConnection>
 		<url>https://source.sakaiproject.org/svn/profile2/trunk</url>
 	</scm>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.3</version>
+				<configuration>
+				  <source>1.7</source>
+				  <target>1.7</target>
+				</configuration>
+		  	</plugin>
+		</plugins>
+	</build>
 </project>

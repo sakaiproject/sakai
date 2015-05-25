@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.dataproviders;
 
 import java.util.Iterator;
 
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -40,6 +41,8 @@ public class WallItemDataProvider implements IDataProvider<WallItem> {
 	
 	public WallItemDataProvider(String userUuid) {
 		this.userUuid = userUuid;
+		
+		Injector.get().inject(this);
 	}
 	
 	@Override

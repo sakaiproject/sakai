@@ -21,13 +21,13 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.markup.html.navigation.paging.AjaxPagingNavigator;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
@@ -39,8 +39,6 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.WallItem;
-import org.sakaiproject.profile2.tool.components.CKEditorConfig;
-import org.sakaiproject.profile2.tool.components.CKEditorTextArea;
 import org.sakaiproject.profile2.tool.components.ErrorLevelsFeedbackMessageFilter;
 import org.sakaiproject.profile2.tool.dataproviders.WallItemDataProvider;
 import org.sakaiproject.profile2.tool.pages.MyProfile;
@@ -135,8 +133,7 @@ public class MyWallPanel extends Panel {
 		// container for posting to my wall
 		WebMarkupContainer myWallPostContainer = new WebMarkupContainer(
 				"myWallPostContainer");
-		final CKEditorTextArea myWallPost = new CKEditorTextArea("myWallPost",new PropertyModel<String>(wallItem, "text"));
-		myWallPost.setEditorConfig(CKEditorConfig.createCkConfig());
+		final TextArea myWallPost = new TextArea("myWallPost",new PropertyModel<String>(wallItem, "text"));
 		myWallPost.setMarkupId("wallpostinput");
 		myWallPost.setOutputMarkupId(true);
 

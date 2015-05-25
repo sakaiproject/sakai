@@ -20,7 +20,6 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -39,8 +38,6 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.components.CKEditorConfig;
-import org.sakaiproject.profile2.tool.components.CKEditorTextArea;
 import org.sakaiproject.profile2.tool.components.ComponentVisualErrorBehaviour;
 import org.sakaiproject.profile2.tool.components.FeedbackLabel;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -216,9 +213,8 @@ public class MyStaffEdit extends Panel {
 		//publications
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
-		CKEditorTextArea publications = new CKEditorTextArea("publications", new PropertyModel(userProfile, "publications"));
+		TextArea publications = new TextArea("publications", new PropertyModel(userProfile, "publications"));
 		publications.setMarkupId("publicationsinput");
-		publications.setEditorConfig(CKEditorConfig.createCkConfig());
 		publications.setOutputMarkupId(true);
 		publicationsContainer.add(publications);
 		

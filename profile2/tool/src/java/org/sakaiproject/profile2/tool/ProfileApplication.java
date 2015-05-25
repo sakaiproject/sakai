@@ -75,23 +75,12 @@ public class ProfileApplication extends WebApplication {
 	}
 	
 	//custom request cycle listener to throw exceptions up to Sakai's error handler
-	private static class SakaiRequestCycleListener extends AbstractRequestCycleListener {
-
+	public class SakaiRequestCycleListener extends AbstractRequestCycleListener {
+		
 		@Override
 		public IRequestHandler onException(RequestCycle cycle, Exception ex) {
-			return null;
-		}
-
-		@Override
-		public void onExceptionRequestHandlerResolved(RequestCycle cycle,
-				IRequestHandler handler, Exception exception) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-
-		
-		
+            return null;
+        }
 	}
 	
 	
@@ -99,8 +88,8 @@ public class ProfileApplication extends WebApplication {
 	}
 	
 	//setup homepage		
-	public Class<Dispatcher> getHomePage() {
-		return Dispatcher.class;
+	public Class<MyProfile> getHomePage() {
+		return MyProfile.class;
 	}
 	
 }

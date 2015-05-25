@@ -18,10 +18,13 @@ package org.sakaiproject.profile2.tool.pages.panels;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxFallbackLink;
-import org.apache.wicket.behavior.StringHeaderContributor;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxButton;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -151,15 +154,7 @@ public class MyStatusPanel extends Panel {
         
         //link the status textfield field with the focus/blur function via this dynamic js 
         //also link with counter
-		StringHeaderContributor statusJavascript = new StringHeaderContributor(
-				"<script type=\"text/javascript\">" +
-					"$(document).ready( function(){" +
-					"autoFill('#" + statusField.getMarkupId() + "', '" + defaultStatus + "');" +
-					"countChars('#" + statusField.getMarkupId() + "');" +
-					"});" +
-				"</script>");
-		//add(statusJavascript);
-
+        //add(new StatusFieldCounterBehaviour());
         
         
         //submit button
@@ -241,6 +236,18 @@ public class MyStatusPanel extends Panel {
 		
 		add(statusFormContainer);
 		
+	}
+	
+	public class StatusFieldCounterBehaviour extends Behavior {
+	 		
+	    public void renderHead(Component component, IHeaderResponse response) {
+	    	response.render(StringHeaderItem.forString("<script type=\"text/javascript\">" +
+					"$(document).ready( function(){" +
+					"autoFill('#" + component.getMarkupId() + "', '" + defaultStatus + "');" +
+					"countChars('#" + component.getMarkupId() + "');" +
+					"});" +
+				"</script>"));
+	    }
 	}
 	
 }

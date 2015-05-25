@@ -17,6 +17,7 @@ package org.sakaiproject.profile2.tool.dataproviders;
 
 import java.util.Iterator;
 
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -39,6 +40,8 @@ public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 
 	public GalleryImageDataProvider(String userUuid) {
 		this.userUuid = userUuid;
+		
+		Injector.get().inject(this);
 	}
 
 	public Iterator<GalleryImage> iterator(long first, long count) {

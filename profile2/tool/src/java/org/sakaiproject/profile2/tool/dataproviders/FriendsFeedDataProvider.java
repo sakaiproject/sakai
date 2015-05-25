@@ -20,6 +20,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -50,6 +51,8 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 	public FriendsFeedDataProvider(final String userUuid) {
 		this.userUuid = userUuid;
 		
+		Injector.get().inject(this);
+		
 		//calculate the number we'll have in the feed, 0 < n < ProfileConstants.MAX_FRIENDS_FEED_ITEMS
 		int count = connectionsLogic.getConnectionsForUserCount(userUuid);
 		subListSize = ProfileConstants.MAX_FRIENDS_FEED_ITEMS;
@@ -63,10 +66,9 @@ public class FriendsFeedDataProvider implements IDataProvider<Person>, Serializa
 	public Iterator<Person> iterator(long first, long count) {
 		
 		//deference for backwards compatibility
-		//should realy check bounds here 
+		//should really check bounds here 
 		int f = (int) first;
-		int c = (int) count;
-				
+		int c = (int) count;		
 		
 		try {
 			List<Person> connections = connectionsLogic.getConnectionsForUser(userUuid).subList(f, f + c);

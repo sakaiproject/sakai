@@ -1,7 +1,6 @@
 package org.sakaiproject.profile2.tool.components;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
