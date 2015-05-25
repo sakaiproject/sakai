@@ -1009,7 +1009,17 @@ public class ListItem
 			this.iconLocation = resourceTypeDef.getIconLocation(this.entity);
 			String[] args = { resourceTypeDef.getLabel() };
 			this.otherActionsLabel = trb.getFormattedMessage("action.other", args);
-			this.name = trb.getFormattedMessage("create.unknown", args);
+			// NOTE: Don't do this at home kids, this is hackery of the worst order!
+			// Resources of type HTML & Text take on default file names:
+			String nameValue = null;
+			if (getResourceType().endsWith("HtmlDocumentType")) {
+			    nameValue = trb.getString("new.type.html");
+			} else if (getResourceType().endsWith("TextDocumentType")) {
+			    nameValue = trb.getString("new.type.text");
+			} else {
+			    nameValue = trb.getFormattedMessage("create.unknown", args); 
+			}
+			this.name = nameValue;
 		}
 
 		this.collection = ResourceType.TYPE_FOLDER.equals(resourceType);
