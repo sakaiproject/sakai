@@ -75,7 +75,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			} else if ("Lesson Builder".equals(assignment.getExternalAppName())) {
 				iconClass = "icon-sakai-lessonbuildertool";
 			}
-			externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag " + iconClass));
+			externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag Mrphs-toolsNav__menuitem--icon icon-active " + iconClass));
 		}
 		add(externalAppFlag);
 
