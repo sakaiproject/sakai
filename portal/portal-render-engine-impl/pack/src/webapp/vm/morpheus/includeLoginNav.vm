@@ -18,10 +18,12 @@
                         #if (${tabsSites.mrphs_profileToolUrl})
 
                             <a id="loginUser" role="menuitem" href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--userlink">
-                                <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
+				<span class="Mrphs-userNav__drop Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></span>
+				<span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
                                 <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
+                            	
                             </a>
-                            <span class="Mrphs-userNav__drop" tabindex="-1"></span>
+				<span class="Mrphs-userNav__drop" tabindex="-1"></span>
 
                         #else
 

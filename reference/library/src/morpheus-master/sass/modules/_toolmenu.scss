@@ -59,6 +59,22 @@
 					}
 				}
 			}
+			.#{$namespace}toolsNav__subnav{
+				background: lighten( $text-color, 3% );
+			}
+			.#{$namespace}toolsNav__subnav li {
+				border-bottom: 1px solid lighten( $text-color, 5% );
+			  	padding-left: 0.5em;
+				a::before {
+						
+				}
+			}
+			.#{$namespace}toolsNav__category::after {
+			   	content: url('images/arrow-down.png');
+				float: right;
+				margin-top : 2px;
+			
+			}
 		}
 	}
 }
