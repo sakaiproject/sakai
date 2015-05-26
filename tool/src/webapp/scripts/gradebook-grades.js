@@ -16,6 +16,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this._CATEGORIES_MAP = {}; // header models keyed on their category
   this._ALL_CATEGORIES = []; // category strings in an alpha sorted list
   this._COLUMN_ORDER = [];   // the order of the columns when categories aren't enabled
+  this._CATEGORY_COLORS_MAP = {} // color for each category
 
 
   // set it all up
@@ -26,7 +27,8 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupColumnDragAndDrop();
   this.setupToolbar();
   this.setupRowSelector();
-  this.setupConcurrencyCheck()
+  this.setupConcurrencyCheck();
+  this.setupColoredCategories();
 
   this._refreshColumnOrder();
 
@@ -440,7 +442,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
       self.$fixedColumns.
           show().
           css("left", self.$spreadsheet[0].scrollLeft + "px").
-          css("top", self.$table.find("tbody").position().top - 1);
+          css("top", self.$table.find("tbody").position().top);
     } else {
       self.$fixedColumns.hide();
     }
@@ -707,8 +709,11 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
   $.each(self._ALL_CATEGORIES, function(i, category) {
     var cellsForCategory = self._CATEGORIES_MAP[category];
 
+    var color = self._CATEGORY_COLORS_MAP[category];
+
     var $categoryCell = $("<td>").addClass("gb-category-header").
-                                  text(category);
+                                  text(category).
+                                  css("backgroundColor", color);
 
     $categoriesRow.append($categoryCell);
 
@@ -905,6 +910,41 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
     // and stop checking (they know!)
     clearInterval(concurrencyCheckInterval);
   });
+};
+
+
+GradebookSpreadsheet.prototype.setupColoredCategories = function() {
+  var self = this;
+
+  self.toolbarModel.$toolbar.find(".gradebook-item-filter-group").each(function() {
+    var $group = $(this);
+    var category = $(this).find(".gradebook-item-category-filter :input").val();
+
+    if (!self._CATEGORY_COLORS_MAP.hasOwnProperty(category)) {
+      self._CATEGORY_COLORS_MAP[category] = self.getRandomColor();
+    }
+
+    var color = self._CATEGORY_COLORS_MAP[category];
+
+    $group.find(".gradebook-item-category-filter-signal").
+           css("backgroundColor", color).
+           css("borderColor", color);
+  });
+};
+
+
+GradebookSpreadsheet.prototype.getRandomColor = function() {
+  var getRandom256 = function(min, max) {
+    var initialValue = parseInt(Math.random() * (max - min) + min);
+    // wash out with white to create a pastel.. pastels are so in right now.
+    return parseInt((initialValue + 255) / 2);
+  };
+
+  var r = getRandom256(180, 250);
+  var g = getRandom256(180, 250);
+  var b = getRandom256(180, 250);
+
+  return "rgb("+r+","+g+","+b+")";
 };
 
 
@@ -1298,7 +1338,8 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
   var updateSignal = function($label, $input) {
     var $categoryGroup = $label.closest(".gradebook-item-filter-group");
     var $categoryFilter = $categoryGroup.find(".gradebook-item-category-filter");
-    var myColor = "#EEE";
+    var category = $categoryFilter.find(":input").val();
+    var myColor = self.gradebookSpreadsheet._CATEGORY_COLORS_MAP[category];
     var $signal = $label.find(".gradebook-item-category-filter-signal");
 
     if ($input.is(":checked")) {

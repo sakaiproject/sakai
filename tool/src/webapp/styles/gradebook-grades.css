@@ -33,6 +33,19 @@
   display: block;
   margin: 0;
 }
+#gradebookGrades table.table-bordered {
+  border: none;
+}
+#gradebookGrades table.table-bordered>thead>tr>td,
+#gradebookGrades table.table-bordered>thead>tr>th {
+  border-bottom-width: 1px;
+}
+#gradebookGrades table.table-striped>tbody>tr:nth-of-type(even) {
+  background-color: #FFF;
+}
+#gradebookGrades table.table-striped>tbody>tr:nth-of-type(even):hover {
+  background-color: #f5f5f5;
+}
 #gradebookGrades th,
 #gradebookGrades td {
   min-width: 180px;
@@ -100,7 +113,7 @@
 /* Distinguish Fixed Columns */
 #gradebookGrades.initialized table thead tr > th:nth-child(3),
 #gradebookGrades.initialized table tbody tr > td:nth-child(3) {
-  border-right: 2px solid #AAA;
+  border-right: 1px solid #AAA;
 }
 /* Categories */
 #gradebookGrades table tr.gb-categories-row td {
@@ -109,7 +122,7 @@
   font-size: 16px;
 }
 #gradebookGrades.initialized table tr.gb-categories-row > td:nth-child(1) {
-  border-right: 2px solid #AAA;
+  border-right: 1px solid #AAA;
 }
 #gradebookGrades.initialized table tr.gb-categories-row > td:nth-child(3) {
   border-right: 1px solid #DDD;
@@ -393,9 +406,13 @@
   margin-left: 10px;
   position: relative;
 }
+#gradeItemsTogglePanel .gradebook-item-filter {
+  margin-left: 20px;
+}
 #gradeItemsTogglePanel label {
   float: left;
   width: 90%;
+  width: calc(100% - 20px);
 }
 #gradeItemsTogglePanel label.category-partial-filter .gradebook-item-category-filter-signal:before {
   font-family: 'nyu-classes-icons';
