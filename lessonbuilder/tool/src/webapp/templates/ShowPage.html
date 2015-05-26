@@ -125,16 +125,14 @@
                         class="portlet title-tools title reset Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" rsf:id="pagetitlelink"></a>
                 </h2>
             </div>
-<!-- i18n -->
-            <div class="action" role="menubar" aria-label="page functions">
+            <div rsf:id="actionmenu" class="action" role="menubar" aria-label="page functions">
                 <a class="lb-button lb-button-primary" href="#" rsf:id="show-pages" id="show-pages" role="button"></a>
                 <a class="lb-button lb-button-primary" href="#" rsf:id="print-view" id="print-view"
                    onclick="window.open(printView(window.location.href));return false" role="button"></a>
 
 <!-- using H2 rather than a landmark because the obvious landmarks switch into forms mode, which prevents it from being read as intended -->
-<!--i18n-->
                 <div rsf:id="gradingSpan" class="gradingarea">
-                    <h2 id="gradingheader" class="offscreen">Grading</h2>
+                    <h2 id="gradingheader" class="offscreen" rsf:id="msg=simplepage.gradingheader"></h2>
                     <a href="#" rsf:id="gradingBack" class="usebutton grading-nextprev">&#60;</a>
                     <img class="statusImg" src="$context/images/no-status.png" id="statusImg" alt=""/>
                     <span class="comments-points" rsf:id="msg=simplepage.comments-points"></span>
@@ -172,7 +170,6 @@
             </div>
         </div>
 
-<!--i18n-->
         <div rsf:id="tool-bar:" class="lb-toolbar" id="toolbar" role="application" aria-label="content tools">
             <div class="toolbar-left">
                 <!-- Add Text Button -->
@@ -181,8 +178,7 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                         <img src="/lessonbuilder-tool/images/new-text.png"/> 
 		    </div>
-		    <div class="toolbar-label">
-		      TEXT
+		    <div class="toolbar-label" rsf:id="msg=simplepage.text.uclabel">
 		    </div>
 		  </a>
                 </div>
@@ -193,8 +189,7 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/link.png" alt=""/> 
 		    </div>
-		    <div class="toolbar-label">
-		      LINK
+		    <div class="toolbar-label" rsf:id="msg=simplepage.link.uclabel">
 		    </div>
                   </a>  
                 </div>
@@ -205,8 +200,7 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/embed.png" alt=""/> 
 		    </div>
-		    <div class="toolbar-label">
-		      EMBED
+		    <div class="toolbar-label" rsf:id="msg=simplepage.multimedia.uclabel">
 		    </div>
                   </a>  
                 </div>
@@ -217,8 +211,7 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/new-subpage.png" alt=""/> 
 		    </div>
-		    <div class="toolbar-label">
-		      SUBPAGE
+		    <div class="toolbar-label" rsf:id="msg=simplepage.subpage.uclabel">
 		    </div>
                   </a>  
                 </div>
@@ -305,8 +298,7 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/sort.png" alt=""/> 
 		    </div>
-		    <div class="toolbar-label">
-		      REORDER
+		    <div class="toolbar-label" rsf:id="msg=simplepage.reorder.uclabel">
 		    </div>
                   </a>  
                 </div>
@@ -317,8 +309,7 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/lock.png" alt=""/> 
 		    </div>
-		    <div class="toolbar-label">
-		      PERMISSIONS
+		    <div class="toolbar-label" rsf:id="msg=simplepage.permissions.uclabel">
 		    </div>
                   </a>  
                 </div>
@@ -329,8 +320,7 @@
 		    <div class="lb-button-link lb-button lb-button-toolbar">
                       <img src="/lessonbuilder-tool/images/info-circle.png" alt=""/> 
 		    </div>
-		    <div class="toolbar-label">
-		      TIPS
+		    <div class="toolbar-label" rsf:id="msg=simplepage.tips.uclabel">
 		    </div>
                   </a>  
                 </div>

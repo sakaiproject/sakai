@@ -691,6 +691,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			simplePageBean.adjustBackPath(params.getBackPath(), currentPage.getPageId(), pageItem.getId(), pageItem.getName());
 		}
 		
+		UIOutput.make(tofill, "actionmenu").decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.menubar.aria")));
+
 		// put out link to index of pages
 		GeneralViewParameters showAll = new GeneralViewParameters(PagePickerProducer.VIEW_ID);
 		showAll.setSource("summary");
@@ -3207,6 +3209,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private void createToolBar(UIContainer tofill, SimplePage currentPage, boolean isStudent) {
 		UIBranchContainer toolBar = UIBranchContainer.make(tofill, "tool-bar:");
+		toolBar.decorate(new UIFreeAttributeDecorator("aria-label", messageLocator.getMessage("simplepage.toolbar.aria")));
 		boolean studentPage = currentPage.getOwner() != null;
 
 		// toolbar
