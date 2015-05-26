@@ -1294,20 +1294,20 @@ public class SakaiBLTIUtil {
 			sess.setUserId(gb_user_id);
 			sess.setUserEid(gb_user_eid);
 			if ( isRead ) {
-				String actualGrade = g.getAssignmentScoreString(siteId, assignment, user_id);
+				String actualGrade = g.getAssignmentScoreString(siteId, assignmentObject.getId(), user_id);
 				Double dGrade = null;
 				if ( actualGrade != null && actualGrade.length() > 0 ) {
 					dGrade = new Double(actualGrade);
 					dGrade = dGrade / assignmentObject.getPoints();
 				}
-				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, assignment, user_id);
+				CommentDefinition commentDef = g.getAssignmentScoreComment(siteId, assignmentObject.getId(), user_id);
 				message = "Result read";
 				Map<String, Object> retMap = new TreeMap<String, Object> ();
 				retMap.put("grade",dGrade);
 				retMap.put("comment",commentDef.getCommentText());
 				retval = retMap;
 			} else if ( isDelete ) {
-				g.setAssignmentScore(siteId, assignment, user_id, null, "External Outcome");
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, null, "External Outcome");
 				M_log.info("Delete Score site=" + siteId + " assignment="+ assignment + " user_id=" + user_id);
 				message = "Result deleted";
 				retval = Boolean.TRUE;
@@ -1316,8 +1316,9 @@ public class SakaiBLTIUtil {
 					throw new Exception("Grade out of range");
 				}
 				theGrade = theGrade * assignmentObject.getPoints();
-				g.setAssignmentScore(siteId, assignment, user_id, theGrade, "External Outcome");
-				g.setAssignmentScoreComment(siteId, assignment, user_id, comment);
+				g.setAssignmentScoreString(siteId, assignmentObject.getId(), user_id, String.valueOf(theGrade), "External Outcome");
+				g.setAssignmentScoreComment(siteId, assignmentObject.getId(), user_id, comment);
+
 
 				M_log.info("Stored Score=" + siteId + " assignment="+ assignment + " user_id=" + user_id + " score="+ theGrade);
 				message = "Result replaced";
