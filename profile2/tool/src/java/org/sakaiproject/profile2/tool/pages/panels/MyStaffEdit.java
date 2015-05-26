@@ -20,6 +20,8 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -214,7 +216,7 @@ public class MyStaffEdit extends Panel {
 		WebMarkupContainer publicationsContainer = new WebMarkupContainer("publicationsContainer");
 		publicationsContainer.add(new Label("publicationsLabel", new ResourceModel("profile.publications")));
 		TextArea publications = new TextArea("publications", new PropertyModel(userProfile, "publications"));
-		publications.setMarkupId("publicationsinput");
+ 		publications.setMarkupId("publicationsinput");
 		publications.setOutputMarkupId(true);
 		publicationsContainer.add(publications);
 		
@@ -256,10 +258,17 @@ public class MyStaffEdit extends Panel {
 				}
             }
 			
-			//@Override
-			//protected IAjaxCallDecorator getAjaxCallDecorator() {
-			//	return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
-			//}
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes){
+			    super.updateAjaxAttributes(attributes);
+			    AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+			        @Override
+			        public CharSequence getBeforeHandler(Component component) {
+			        	return "doUpdateCK()";
+			        }
+			    };
+			    attributes.getAjaxCallListeners().add(myAjaxCallListener);
+			}
+			
 		};
 		form.add(submitButton);
 		

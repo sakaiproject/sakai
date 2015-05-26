@@ -150,6 +150,7 @@ public class MyStatusPanel extends Panel {
 		statusField.setMarkupId("messageinput");
 		statusField.setOutputMarkupId(true);
         statusField.setOutputMarkupPlaceholderTag(true);
+        statusField.add(new StatusFieldCounterBehaviour());
         form.add(statusField);
         
         //link the status textfield field with the focus/blur function via this dynamic js 

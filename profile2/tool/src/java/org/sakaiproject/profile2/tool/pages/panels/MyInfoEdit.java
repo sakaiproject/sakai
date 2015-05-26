@@ -24,6 +24,8 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -210,10 +212,16 @@ public class MyInfoEdit extends Panel {
 				
             }
 			
-			//@Override
-			//protected IAjaxCallDecorator getAjaxCallDecorator() {
-			//	return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
-			//}
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes){
+			    super.updateAjaxAttributes(attributes);
+			    AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+			        @Override
+			        public CharSequence getBeforeHandler(Component component) {
+			        	return "doUpdateCK()";
+			        }
+			    };
+			    attributes.getAjaxCallListeners().add(myAjaxCallListener);
+			}
 			
 		};
 		submitButton.setModel(new ResourceModel("button.save.changes"));
