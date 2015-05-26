@@ -33,7 +33,8 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.extensions.markup.html.tabs.ITab;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.EmptyPanel;
@@ -42,6 +43,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.util.cookies.CookieDefaults;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.sakaiproject.api.common.edu.person.SakaiPerson;
 import org.sakaiproject.profile2.exception.ProfileNotDefinedException;
 import org.sakaiproject.profile2.exception.ProfilePreferencesNotDefinedException;
@@ -258,10 +261,10 @@ public class MyProfile extends BasePage {
 				
 				//show the panel
 				changePicture.setVisible(true);
-				target.addComponent(changePicture);
+				target.add(changePicture);
 				
 				//resize iframe to fit it
-				target.appendJavascript("resizeFrame('grow');");
+				target.appendJavaScript("resizeFrame('grow');");
 			}
 						
 		};
@@ -361,7 +364,7 @@ public class MyProfile extends BasePage {
 	            		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
 	            		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction")));
 	            		addFriendLink.setEnabled(false);
-	            		target.addComponent(addFriendLink);
+	            		target.add(addFriendLink);
 	            	}
 	            }
 	        });
@@ -391,7 +394,7 @@ public class MyProfile extends BasePage {
 	    				} else {
 	    					add(new AttributeModifier("class", true, new Model<String>("icon unlocked")));
 	    				}
-	    				target.addComponent(this);
+	    				target.add(this);
 	    			}
 				}
 			};
@@ -468,7 +471,9 @@ public class MyProfile extends BasePage {
 			}
 		};
 		
-		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
+		
+		CookieUtils utils = new CookieUtils();
+		Cookie tabCookie = utils.getCookie(ProfileConstants.TAB_COOKIE);
 		
 		if (sakaiProxy.isProfileFieldsEnabled()) {
 			tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
@@ -554,7 +559,7 @@ public class MyProfile extends BasePage {
 
 			@Override
 			public void renderHead(IHeaderResponse response) {
-				response.renderOnDomReadyJavascript("resizeFrame('grow');");
+				response.render(OnLoadHeaderItem.forScript("resizeFrame('grow');"));
 			}
         });
         	
@@ -575,7 +580,7 @@ public class MyProfile extends BasePage {
 
 			@Override
 			public void renderHead(IHeaderResponse response) {
-				response.renderOnDomReadyJavascript("resizeFrame('grow');");
+				response.render(OnLoadHeaderItem.forScript("resizeFrame('grow');"));
 			}
 			
 		});

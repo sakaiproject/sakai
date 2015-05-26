@@ -42,8 +42,8 @@ public class CloseButton extends Panel{
 			public void onClick(AjaxRequestTarget target) {
 				if(target != null) {
 					
-					target.prependJavascript("$('#" + parent.getMarkupId() + "').slideUp();");
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.appendJavaScript("$('#" + parent.getMarkupId() + "').slideUp();");
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 
 					//do we also need to remove the component as well?
 					

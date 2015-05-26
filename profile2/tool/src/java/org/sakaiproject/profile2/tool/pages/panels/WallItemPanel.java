@@ -144,7 +144,7 @@ public class WallItemPanel extends Panel {
 				});
 				
 				wallItemActionWindow.show(target);
-				target.appendJavascript("fixWindowVertical();"); 
+				target.appendJavaScript("fixWindowVertical();"); 
 			}
 		};
 
@@ -173,8 +173,8 @@ public class WallItemPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 		
 				postCommentPanel.setVisible(true);
-				target.addComponent(postCommentPanel);
-				target.appendJavascript("$('#" + postCommentPanel.getMarkupId() + "').slideDown();");
+				target.add(postCommentPanel);
+				target.appendJavaScript("$('#" + postCommentPanel.getMarkupId() + "').slideDown();");
 			}
 		};
 
