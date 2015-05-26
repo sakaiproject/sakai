@@ -300,6 +300,10 @@ public class CourseManagementAdministrationHibernateImpl extends
 	}
 
 	public Enrollment addOrUpdateEnrollment(String userId, String enrollmentSetEid, String enrollmentStatus, String credits, String gradingScheme) {
+		return addOrUpdateEnrollment(userId, enrollmentSetEid, enrollmentStatus, credits, gradingScheme, null);
+	}
+
+	public Enrollment addOrUpdateEnrollment(String userId, String enrollmentSetEid, String enrollmentStatus, String credits, String gradingScheme, Date dropDate) {
 		EnrollmentCmImpl enrollment = null;
 		
 		List enrollments = getHibernateTemplate().findByNamedQueryAndNamedParam("findEnrollment",
@@ -307,7 +311,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 				new Object[] {enrollmentSetEid, userId});
 		if(enrollments.isEmpty()) {
 			EnrollmentSet enrollmentSet = (EnrollmentSet)getObjectByEid(enrollmentSetEid, EnrollmentSetCmImpl.class.getName());
-			enrollment = new EnrollmentCmImpl(userId, enrollmentSet, enrollmentStatus, credits, gradingScheme);
+			enrollment = new EnrollmentCmImpl(userId, enrollmentSet, enrollmentStatus, credits, gradingScheme, dropDate);
 			enrollment.setCreatedBy(authn.getUserEid());
 			enrollment.setCreatedDate(new Date());
 			getHibernateTemplate().save(enrollment);
@@ -317,6 +321,7 @@ public class CourseManagementAdministrationHibernateImpl extends
 			enrollment.setCredits(credits);
 			enrollment.setGradingScheme(gradingScheme);
 			enrollment.setDropped(false);
+			enrollment.setDropDate(dropDate);
 			
 			enrollment.setLastModifiedBy(authn.getUserEid());
 			enrollment.setLastModifiedDate(new Date());

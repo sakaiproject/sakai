@@ -262,6 +262,20 @@ public interface CourseManagementAdministration {
 			String enrollmentStatus, String credits, String gradingScheme);
 
 	/**
+	 * Adds an Enrollment to an EnrollmentSet.  If the user is already enrolled in the
+	 * EnrollmentSet, the Enrollment record is updated for the user.
+	 * 
+	 * @param userId
+	 * @param enrollmentSetEid
+	 * @param enrollmentStatus
+	 * @param credits
+	 * @param gradingScheme
+	 * @param dropDate
+	 */
+	public Enrollment addOrUpdateEnrollment(String userId, String enrollmentSetEid,
+			String enrollmentStatus, String credits, String gradingScheme, Date dropDate);
+
+	/**
 	 * Removes an Enrollment from an EnrollmentSet by setting the Enrollment to
 	 * dropped=true.
 	 * 
