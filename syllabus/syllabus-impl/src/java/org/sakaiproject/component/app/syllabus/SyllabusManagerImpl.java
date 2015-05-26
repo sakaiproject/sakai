@@ -729,7 +729,7 @@ public class SyllabusManagerImpl extends HibernateDaoSupport implements Syllabus
           return new TreeSet();
         }
       };             
-      return (Set) getHibernateTemplate().execute(hcb);     
+      return (Set<SyllabusAttachment>) getHibernateTemplate().execute(hcb);
     }
   }  
 

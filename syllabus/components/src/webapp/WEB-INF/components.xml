@@ -66,6 +66,7 @@
 		<property name="contentHostingService">
 			<ref bean="org.sakaiproject.content.api.ContentHostingService" />
 		</property>
+		<property name="entityManager"><ref bean="org.sakaiproject.entity.api.EntityManager"/></property>
 	</bean>
 
 	<bean id="FixPublicSyllabusAttachmentsJob"
