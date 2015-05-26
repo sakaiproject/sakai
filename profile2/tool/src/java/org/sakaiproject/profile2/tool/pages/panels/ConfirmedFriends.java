@@ -95,7 +95,7 @@ public class ConfirmedFriends extends Panel {
 		ConfirmedFriendsDataProvider provider = new ConfirmedFriendsDataProvider(userUuid);
 		
 		//init number of friends
-		numConfirmedFriends = provider.size();
+		numConfirmedFriends = (int) provider.size();
 		
 		//model so we can update the number of friends
 		IModel<Integer> numConfirmedFriendsModel = new Model<Integer>() {
@@ -140,8 +140,8 @@ public class ConfirmedFriends extends Panel {
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				createWorksitePanel.setVisible(true);
-				target.addComponent(createWorksitePanel);
-				target.appendJavascript("fixWindowVertical();");
+				target.add(createWorksitePanel);
+				target.appendJavaScript("fixWindowVertical();");
 			}
 
 		};
@@ -250,21 +250,21 @@ public class ConfirmedFriends extends Panel {
 				            		numConfirmedFriends--;
 				            		
 				            		//remove friend item from display
-				            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+				            		target.appendJavaScript("$('#" + item.getMarkupId() + "').slideUp();");
 				            		
 				            		//update label
-				            		target.addComponent(confirmedFriendsHeading);
+				            		target.add(confirmedFriendsHeading);
 				            		
 				            		//if none left, hide whole thing
 				            		if(numConfirmedFriends==0) {
-				            			target.appendJavascript("$('#" + confirmedFriendsContainer.getMarkupId() + "').fadeOut();");
+				            			target.appendJavaScript("$('#" + confirmedFriendsContainer.getMarkupId() + "').fadeOut();");
 				            		}
 				            	}
 							}
 				        });	
 						
 						connectionWindow.show(target);
-						target.appendJavascript("fixWindowVertical();"); 
+						target.appendJavaScript("fixWindowVertical();"); 
 					}
 				};
 				//ContextImage removeConnectionIcon = new ContextImage("removeConnectionIcon",new Model<String>(ProfileConstants.DELETE_IMG));

@@ -19,7 +19,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -43,11 +43,9 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	private ProfileMessagingLogic messagingLogic;
 	
 	public MessageThreadsDataProvider(String userUuid) {
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.userUuid = userUuid;
+		
+		Injector.get().inject(this);
 	}
 	
 	/**
@@ -56,9 +54,14 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	 * 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#iterator(int, int)
 	 */
-	public Iterator<MessageThread> iterator(int first, int count){
+	public Iterator<MessageThread> iterator(long first, long count){
 		
-		List<MessageThread> slice = messagingLogic.getMessageThreads(userUuid).subList(first, first + count);
+		//deference for backwards compatibility
+		//should really check bounds here 
+		int f = (int) first;
+		int c = (int) count;	
+		
+		List<MessageThread> slice = messagingLogic.getMessageThreads(userUuid).subList(f, f + c);
 		Collections.sort(slice, Collections.reverseOrder());
 		return slice.iterator();
 		
@@ -69,7 +72,7 @@ public class MessageThreadsDataProvider implements IDataProvider<MessageThread> 
 	 * 
 	 * @see org.apache.wicket.markup.repeater.data.IDataProvider#size()
 	 */
-	public int size(){
+	public long size(){
 		return messagingLogic.getMessageThreadsCount(userUuid);
 	}
 

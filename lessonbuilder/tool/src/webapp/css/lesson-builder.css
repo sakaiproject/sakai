@@ -1,0 +1,396 @@
+/*---------------------------------------------------
+    LESS Elements 0.9
+  ---------------------------------------------------
+    A set of useful LESS mixins
+    More info at: http://lesselements.com
+  ---------------------------------------------------*/
+#cluetip {
+  z-index: 10000 !important;
+}
+.portletBody {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+.portletBody .pageTitle {
+  width: auto !important;
+}
+.portletBody .lb-button {
+  font-size: 80%;
+  padding-left: 10px;
+  padding-right: 10px;
+  display: inline-block;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+}
+.portletBody .lb-button-default {
+  color: #333333;
+  border: 1px solid #dddddd;
+  background-color: #cccccc;
+  background: #cccccc;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eeeeee), color-stop(1, #ffffff));
+  background: -ms-linear-gradient(bottom, #eeeeee, #ffffff);
+  background: -moz-linear-gradient(center bottom, #eeeeee 0%, #ffffff 100%);
+  background: -o-linear-gradient(#ffffff, #eeeeee);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
+}
+.portletBody .lb-button-default:hover,
+.portletBody .lb-button-default:active,
+.portletBody .lb-button-default:focus {
+  color: #333333;
+  border: 1px solid #cccccc;
+  background-color: #bbbbbb;
+  background: #bbbbbb;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #dddddd), color-stop(1, #eeeeee));
+  background: -ms-linear-gradient(bottom, #dddddd, #eeeeee);
+  background: -moz-linear-gradient(center bottom, #dddddd 0%, #eeeeee 100%);
+  background: -o-linear-gradient(#eeeeee, #dddddd);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#dddddd', GradientType=0);
+}
+.portletBody .lb-button-primary {
+  color: #ffffff;
+  border: 1px solid #058abc;
+  background-color: #1999cc;
+  background: #1999cc;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #1999cc), color-stop(1, #058abc));
+  background: -ms-linear-gradient(bottom, #1999cc, #058abc);
+  background: -moz-linear-gradient(center bottom, #1999cc 0%, #058abc 100%);
+  background: -o-linear-gradient(#058abc, #1999cc);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#058abc', endColorstr='#1999cc', GradientType=0);
+}
+.portletBody .lb-button-primary:hover,
+.portletBody .lb-button-primary:active,
+.portletBody .lb-button-primary:focus {
+  color: #ffffff;
+  border: 1px solid #058abc;
+  background-color: #058abc;
+  background: #058abc;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #3daad4), color-stop(1, #1999cc));
+  background: -ms-linear-gradient(bottom, #3daad4, #1999cc);
+  background: -moz-linear-gradient(center bottom, #3daad4 0%, #1999cc 100%);
+  background: -o-linear-gradient(#1999cc, #3daad4);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#1999cc', endColorstr='#3daad4', GradientType=0);
+}
+.portletBody .lb-button-toolbar {
+  color: #333333;
+  border: 1px solid #dddddd;
+  background-color: #cccccc;
+  background: #cccccc;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #eeeeee), color-stop(1, #ffffff));
+  background: -ms-linear-gradient(bottom, #eeeeee, #ffffff);
+  background: -moz-linear-gradient(center bottom, #eeeeee 0%, #ffffff 100%);
+  background: -o-linear-gradient(#ffffff, #eeeeee);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#eeeeee', GradientType=0);
+}
+.portletBody .lb-button-toolbar:hover,
+.portletBody .lb-button-toolbar:active,
+.portletBody .lb-button-toolbar:focus {
+  color: #333333;
+  border: 1px solid #cccccc;
+  background-color: #bbbbbb;
+  background: #bbbbbb;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #dddddd), color-stop(1, #eeeeee));
+  background: -ms-linear-gradient(bottom, #dddddd, #eeeeee);
+  background: -moz-linear-gradient(center bottom, #dddddd 0%, #eeeeee 100%);
+  background: -o-linear-gradient(#eeeeee, #dddddd);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#eeeeee', endColorstr='#dddddd', GradientType=0);
+}
+.portletBody .portletTitle {
+  width: 100%;
+  padding: 1em 1em 15px 1em;
+  background: #046184;
+  background: -webkit-gradient(linear, left bottom, left top, color-stop(0, #033d53), color-stop(1, #046184));
+  background: -ms-linear-gradient(bottom, #033d53, #046184);
+  background: -moz-linear-gradient(center bottom, #033d53 0%, #046184 100%);
+  background: -o-linear-gradient(#046184, #033d53);
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#046184', endColorstr='#033d53', GradientType=0);
+  clear: both;
+  float: left;
+}
+.portletBody .portletTitle>.title {
+  float: left;
+}
+.portletBody .portletTitle .title h2 {
+  margin: 0;
+  padding: 0;
+  color: #ffffff;
+  font-size: 150%;
+  font-weight: bold;
+  display: inline;
+}
+.portletBody .portletTitle .title h2.siteTitle {
+  color: #ffffff;
+}
+.portletBody .portletTitle .title a {
+  text-decoration: none;
+}
+.portletBody .portletTitle .title a.reload {
+  background: url(../images/reload.png) center left no-repeat;
+  text-decoration: none !important;
+  height: 1.5em;
+  outline: none;
+}
+.portletBody .portletTitle .title a.reload:hover,
+.portletBody .portletTitle .title a.reload:focus {
+  background: url(../images/reload_h.png) center left no-repeat;
+  text-decoration: none;
+  border: none;
+}
+.portletBody .portletTitle .title a:focus {
+  outline: black dotted thin;
+}
+.portletBody .portletTitle .title img {
+  margin: 0;
+  vertical-align: text-bottom;
+  width: 18px;
+  border: none;
+  height: 18px;
+}
+.portletBody .portletTitle .title img:hover,
+.portletBody .portletTitle .title img:focus {
+  text-decoration: none;
+  border: none;
+}
+/* float left with right block aligned; allows background to expand properly */
+.portletTitle {
+  text-align:right;
+}
+.portletBody .portletTitle .action {
+  display:inline-block;
+}
+.portletBody .portletTitle .action a#jsr-edit {
+  padding: 2px;
+  background: url(../images/page_edit.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a#jsr-edit:hover {
+  background: url(../images/page_edit.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a.help {
+  background: url(../images/help.gif) center right no-repeat;
+  text-align: left;
+  padding: 0;
+  text-decoration: none !important;
+  width: 1em;
+  height: 1.5em;
+  outline: none;
+}
+.portletBody .portletTitle .action a.help:hover {
+  background: url(../images/help_h.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a.help:focus img {
+  background: url(../images/help_h.gif) center right no-repeat;
+}
+.portletBody .portletTitle .action a:focus {
+  outline: black dotted thin;
+}
+.portletBody .portletTitle .action img {
+  margin: 0;
+  vertical-align: text-bottom;
+  width: 18px;
+  border: none;
+  height: 18px;
+}
+.portletBody .portletTitle .action .gradingarea {
+  background-color: #66bdde;
+  margin-left: 1em;
+  padding: 1px 5px;
+  display: inline-block;
+  font-size: 90%;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+}
+.portletBody .portletTitle .action .gradingarea .grading-nextprev {
+  margin-right: 2px;
+}
+.portletBody .portletTitle .action .gradingarea .statusImg {
+  height: 16px;
+  width: 16px;
+}
+.portletBody .portletTitle .action .gradingarea .comments-points {
+  vertical-align: 13%;
+}
+.portletBody .portletTitle .action .gradingarea .uuidBox,
+.portletBody .portletTitle .action .gradingarea .pointsSpan {
+  display: none;
+}
+.portletBody .portletTitle .action .gradingarea .student-points-box {
+  font-size: 100%;
+}
+.portletBody .portletTitle .action .gradingarea .usebutton {
+  background: none;
+  width: auto;
+  *vertical-align: 13%;
+  margin-right: 0.5em;
+}
+.portletBody .portletTitle .action .nextprev {
+  width: auto !important;
+}
+.portletBody .portletTitle .action .nextprev a {
+  width: auto !important;
+}
+.portletBody .lb-content {
+  width: 100%;
+  height: 100%;
+  clear: both;
+  display: block;
+  position: relative;
+}
+.portletBody .lb-content .lb-items {
+  width: 100%;
+  margin-top: 20px;
+  clear: both;
+  display: block;
+  position: relative;
+}
+/* 
+   We need one left aligned and one right aligned block with a background.
+   Right justify the right one and float the left. If we float the right,
+   and the screen is narrow enough that it has to move under the first one,
+   the background won't expand to cover it
+*/
+.portletBody .lb-toolbar {
+  width: 100%;
+  padding: 10px 1em;
+  background-color: #d1eef9;
+  border-bottom: 1px solid #9bdaf3;
+  clear: both;
+  text-align:right;
+}
+.portletBody .lb-toolbar .toolbar-right {
+  display:inline-block;
+}
+.portletBody .lb-toolbar .toolbar-left {
+  display:inline-block;
+  float: left;
+}
+.portletBody .lb-toolbar .toolbar-item {
+  display: inline-block;
+  height: 55px;
+  vertical-align: top;
+  text-align: center;
+}
+.portletBody .lb-toolbar .toolbar-item .lb-button .toolbar-icon-img {
+  position: relative;
+  top: 3px;
+}
+.portletBody .lb-toolbar .toolbar-item .toolbar-label {
+  margin: 0;
+  padding: 0;
+  font-size: 60%;
+  text-align: center;
+  font-weight: bold;
+}
+.portletBody .lb-alerts {
+  width: 85%;
+  margin: 0 auto;
+  top: 10px;
+  position: relative;
+  display: block;
+  clear: both;
+}
+.portletBody .lb-alerts .lb-alert {
+  width: 100%;
+  padding: 0 20px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+}
+.portletBody .lb-alerts .lb-alert .alert-icon-img {
+  position: relative;
+  top: 3px;
+}
+.portletBody .lb-alerts .lb-alert .lb-alert-highlight {
+  margin-top: 20px;
+  padding: 0.5em 0.7em;
+}
+.portletBody .lb-alerts .lb-alert .lb-alert-highlight .lb-alert-icon {
+  float: left;
+  margin-right: 0.3em;
+}
+.portletBody .lb-alerts .lb-alert-danger {
+  background-color: #f6e4ea;
+  border: 1px solid #c34a75;
+}
+.portletBody .lb-alerts .lb-alert-warning {
+  background-color: #fbc713;
+  border: 1px solid #bf9503;
+}
+.portletBody .lb-dropdown ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  position: relative;
+  float: left;
+}
+.portletBody .lb-dropdown ul li {
+  margin: 0;
+  padding: 0;
+  position: relative;
+  float: left;
+}
+.portletBody .lb-dropdown ul li:hover,
+.portletBody .lb-dropdown ul li:focus {
+  background: #f6f6f6;
+}
+.portletBody .lb-dropdown ul li:hover > ul,
+.portletBody .lb-dropdown ul li:focus > ul {
+/*  display: block; */
+}
+.portletBody .lb-dropdown ul a {
+  display: block;
+  color: #333;
+  text-decoration: none;
+  font-size: 12px;
+}
+.portletBody .lb-dropdown ul ul {
+  top: 100%;
+  left: 0;
+  padding: 0;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  display: none;
+  position: absolute;
+  z-index: 1;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  -webkit-box-shadow: -2px 6px 8px rgba(0, 0, 0, 0.2);
+  -moz-box-shadow: -2px 6px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: -2px 6px 8px rgba(0, 0, 0, 0.2);
+}
+.portletBody .lb-dropdown ul ul li {
+  float: none;
+  white-space: nowrap;
+}
+.portletBody .lb-dropdown ul ul a {
+  line-height: 120%;
+  padding: 10px 15px;
+  border: 1px solid transparent;
+}
+.portletBody .lb-dropdown ul ul a:hover {
+  border-bottom: 1px solid #1999cc;
+}
+#directurl, #helpbutton {
+  display: inline-block
+}
+a.title-tools{
+  color: white !important;
+}
+.toolbar-item a {
+  text-align: center !important;
+}
+.toolbar-label {
+  text-align:center;
+  color:black;
+}
+.lb-button-link {
+  padding-top: .375em !important;
+  padding-bottom: .375em !important;
+  display:inline-block;
+  text-align:center;
+}

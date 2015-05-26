@@ -96,6 +96,11 @@
 						<td class="content">
 							<label for="summaryinput" class="accessibility-label"><wicket:message key="accessibility.profile.summaryinput">Enter your personal summary</wicket:message></label>
 							<textarea wicket:id="personalSummary" class="formInputArea" rows="4" cols="40">[personalSummary]</textarea>
+							<script>
+                				CKEDITOR.replace('summaryinput', {
+                					toolbar: [{ name: 'document', items: ['Bold', 'Italic', 'Underline', 'Strike', 'Subscript', 'Superscript', 'NumberedList', 'BulletedList', '-', 'RemoveFormat'] }]   
+                				});
+            				</script>
 						</td>
 					</tr>
 					

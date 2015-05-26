@@ -172,6 +172,12 @@ public class SimpleLdapAttributeMapper implements LdapAttributeMapper {
 		}
 	}
 
+	public String getFindUserByAidFilter(String aid) {
+		String eidAttr = 
+			attributeMappings.get(AttributeMappingConstants.AUTHENTICATION_ATTR_MAPPING_KEY);
+		return eidAttr + "=" + escapeSearchFilterTerm(aid);
+	}
+
 	/**
 	 * Performs {@link LDAPEntry}-to-{@Link LdapUserData} attribute
      * mappings. Assigns the given {@link LDAPEntry}'s DN to the

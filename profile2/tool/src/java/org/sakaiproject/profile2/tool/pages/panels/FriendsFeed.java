@@ -194,7 +194,9 @@ public class FriendsFeed extends Panel {
 			//numFriendsLabel.setVisible(false);
 			//if own FriendsFeed, show search link, otherwise hide
 			if(viewingUserId.equals(ownerUserId)) {
-				viewFriendsLabel.setDefaultModel(new ResourceModel("link.friend.feed.search"));
+				if (sakaiProxy.isSearchEnabledGlobally()) {
+					viewFriendsLabel.setDefaultModel(new ResourceModel("link.friend.feed.search"));
+				}
 			} else {
 				viewFriendsLink.setVisible(false);
 			}

@@ -81,3 +81,9 @@ $(document).ready(function () {
         $(this).addClass("offscreen"); 
     }); 
 });
+
+function doUpdateCK(){
+    for (instance in CKEDITOR.instances) {
+        CKEDITOR.instances[instance].updateElement();
+    }
+}

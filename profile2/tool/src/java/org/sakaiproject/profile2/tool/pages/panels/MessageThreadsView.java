@@ -87,7 +87,7 @@ public class MessageThreadsView extends Panel {
 		
 		//get our list of messages
 		final MessageThreadsDataProvider provider = new MessageThreadsDataProvider(currentUserUuid);
-		int numMessages = provider.size();
+		int numMessages = (int) provider.size();
 		
 		//message list
 		DataView<MessageThread> messageThreadList = new DataView<MessageThread>("messageThreadList", provider) {

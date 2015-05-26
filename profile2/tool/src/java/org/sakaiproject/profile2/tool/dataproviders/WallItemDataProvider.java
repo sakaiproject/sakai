@@ -17,7 +17,7 @@ package org.sakaiproject.profile2.tool.dataproviders;
 
 import java.util.Iterator;
 
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -40,18 +40,20 @@ public class WallItemDataProvider implements IDataProvider<WallItem> {
 	private String userUuid;
 	
 	public WallItemDataProvider(String userUuid) {
-		
-		// inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.userUuid = userUuid;
+		
+		Injector.get().inject(this);
 	}
 	
 	@Override
-	public Iterator<? extends WallItem> iterator(int first, int count) {
+	public Iterator<? extends WallItem> iterator(long first, long count) {
 
-		return wallLogic.getWallItemsForUser(userUuid).subList(first,
-				first + count).iterator();
+		//deference for backwards compatibility
+		//should really check bounds here 
+		int f = (int) first;
+		int c = (int) count;	
+		
+		return wallLogic.getWallItemsForUser(userUuid).subList(f, f + c).iterator();
 	}
 
 	@Override
@@ -60,7 +62,7 @@ public class WallItemDataProvider implements IDataProvider<WallItem> {
 	}
 
 	@Override
-	public int size() {	
+	public long size() {	
 		return wallLogic.getWallItemsCount(userUuid);
 	}
 

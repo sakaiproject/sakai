@@ -1916,17 +1916,17 @@ $(function() {
 	});
 	
 	// don't do this twice. if portal is loaded portal will do it
-        if(typeof portal === 'undefined')
+	if(typeof portal === 'undefined')
 	$('a.tool-directurl').cluetip({
 		local: true,
-		    arrows: true,
-		    cluetipClass: 'jtip',
-		    sticky: true,
-		    cursor: 'pointer',
-		    activation: 'click',
-		    closePosition: 'title',
-		    closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
-		    });
+		arrows: true,
+		cluetipClass: 'jtip',
+		sticky: true,
+		cursor: 'pointer',
+		activation: 'click',
+		closePosition: 'title',
+		closeText: '<img src="/library/image/silk/cross.png" alt="close" />'
+	});
 
 	function submitgrading(item) {
 	    var img = item.parent().children("img");
@@ -2012,7 +2012,7 @@ $(function() {
 			out: buttonRemoveHighlightc
 	};
 
-	var dropdownConfig = {	
+	var dropdownConfig = {
 			interval: 0,
 			sensitivity: 7,
 			over: menuAddHighlight,
@@ -2020,7 +2020,7 @@ $(function() {
 			out: menuRemoveHighlight
 	};
 
-	var dropdowncConfig = {	
+	var dropdowncConfig = {
 			interval: 0,
 			sensitivity: 7,
 			over: menuAddHighlightc,
@@ -2053,18 +2053,54 @@ $(function() {
 	     }
             });
 
-	$("#dropdown").hoverIntent(megaConfig);
-	$("#dropdownc").hoverIntent(megaConfigc);
-	$("#moreDiv").hide();
-	$("#addContentDiv").hide();
-	$("#moreDiv").hoverIntent(dropdownConfig);
-	$("#addContentDiv").hoverIntent(dropdowncConfig);
-	$("#dropdown").click(buttonToggleDropdown);
-	$("#dropdownc").click(buttonToggleDropdownc);
+	//$("#dropdown").hoverIntent(megaConfig);
+	//$("#dropdownc").hoverIntent(megaConfigc);
+	//$("#moreDiv").hide();
+	//$("#addContentDiv").hide();
+	//$("#moreDiv").hoverIntent(dropdownConfig);
+	//$("#addContentDiv").hoverIntent(dropdowncConfig);
+	//$("#dropdown").click(buttonToggleDropdown);
+	//$("#dropdownc").click(buttonToggleDropdownc);
 	dropDownViaClick = false;
 
+	// Dropdown jQuery - for #addContentDropdown and #addPagesDropdown
+	//	$("li.tabTrigger").hover(function(){
+	///		$('ul:first',this).stop().show();
+	//	}, function(){
+	//		$('ul:first',this).stop().hide();
+	//	});
+	// opening on hover causes trouble with screen readers, and the rest of Sakai
+	// doesn't do it that way
+	$("li.tabTrigger a.lb-button").click(function(){
+		var hidden = ($(this).parent().find('ul').css("display") === "none");
+		if (hidden) {
+		    $(this).parent().find('ul').show().attr('aria-expanded','true');
+		    $(this).attr('aria-expanded','true');
+		} else {
+		    $(this).parent().find('ul').hide().attr('aria-expanded','false');
+		    $(this).attr('aria-expanded','false');
+		}
+	    });
+	// only support this for mouse. When using Voiceover I can't get
+	// consistent behavior with any of the focus options
+	$("li.tabTrigger").mouseenter(function() {
+		$(this).find('ul').show().attr('aria-expanded','true');
+		$(this).find('a.lb-button').attr('aria-expanded','true');
+	    });
+	$("li.tabTrigger").mouseleave(function() {
+		$(this).find('ul').hide().attr('aria-expanded','false');
+		$(this).find('a.lb-button').attr('aria-expanded','false');
+	    });
+	// escape closes menu. Voiceover assumes this
+	$("li.tabTrigger").on('keyup',function(evt) {
+		if (evt.which == 27) {
+		    $(this).find('ul').hide().attr('aria-expanded','false');
+		    $(this).find('a.lb-button').attr('aria-expanded','false');
+		};
+	    });
 	return false;
 });
+
 
 function closeSubpageDialog() {
 	$("#subpage-dialog").dialog("close");
