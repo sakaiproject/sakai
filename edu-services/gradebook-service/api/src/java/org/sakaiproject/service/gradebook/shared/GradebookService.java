@@ -23,9 +23,7 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -201,7 +199,7 @@ public interface GradebookService {
 	 * @return the associated Assignment with the given name
 	 * @throws AssessmentNotFoundException
 	 * 
-	 * @deprecated Use {@link getAssignment(String, Long)} instead.
+	 * @deprecated Use {@link #getAssignment(String,Long)} instead.
 	 */
 	@Deprecated
 	public Assignment getAssignment(String gradebookUid, String assignmentName)
@@ -257,7 +255,8 @@ public interface GradebookService {
 	 * given gradebook. This will give clients a chance to avoid the
 	 * ConflictingAssignmentNameException.
 	 * 
-	 * @deprecated. CAN WE CHANGE THIS TO ID?
+	 * This is not deprecated as we currently need the ability to check for duplciate assignment names in the given gradebook
+	 * 
 	 */
 	public boolean isAssignmentDefined(String gradebookUid, String assignmentTitle) 
 			throws GradebookNotFoundException;
@@ -322,7 +321,9 @@ public interface GradebookService {
      */
     public void removeAssignment(Long assignmentId) throws StaleObjectModificationException;
     
-    /**method to get all categories for a gradebook. This method cannot be used outside
+    /**
+     * 
+     * Get the categories for the given gradebook. This method cannot be used outside
      * of the gradebook because it returns the org.sakaiproject.tool.gradebook.Category object.
      * If you require info on the categories from a consumer outside the gradebook, use 
      * {@link #getCategoryDefinitions(String)}
@@ -331,11 +332,12 @@ public interface GradebookService {
      * @return List of categories
      * @throws HibernateException
      * 
-     * @deprecated MOVE THIS TO GRADEBOOK SERVICE AND DITCH IT FROM HERE AS IT CANNOT BE USED
+     * @deprecated 
      */
     public List getCategories(final Long gradebookId);
     
     /**
+     * Get the categories for the given gradebook
 	 * 
 	 * @param gradebookUid
 	 * @return {@link CategoryDefinition}s for the categories defined for the given gradebook.
@@ -428,10 +430,11 @@ public interface GradebookService {
 	public Map<String,String> getImportCourseGrade(String gradebookUid, boolean useDefault);
 
 
-	/**return Object to avoid circular dependency with sakai-gradebook-tool
-	 * 
-	 *  @deprecated FIX THIS TO RETURN PROPER TYPE
-	 *  */
+	/**
+	 * Get the Gradebook. Note that this returns Object to avoid circular dependency with sakai-gradebook-tool
+	 * Consumers will need to cast to {@link org.sakaiproject.tool.gradebook.Gradebook}
+	 *
+	 */
 	public Object getGradebook(String uid) throws GradebookNotFoundException;
 
 	/**
@@ -597,7 +600,22 @@ public interface GradebookService {
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 	
 	/**
-	 * set student's score for assignment.
+	 * Get student's assignment's score as string.
+	 * This is provided for backward compatibility only.
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @return String of score
+	 * 
+	 * @deprecated See {@link #getAssignmentScoreString(String, Long, String)}
+	 */
+	@Deprecated
+	public String getAssignmentScoreString(String gradebookUid, String assignmentName, String studentUid)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
+	
+	/**
+	 * Set student's score for assignment.
 	 * @param gradebookUid
 	 * @param assignmentId
 	 * @param studentUid
@@ -608,7 +626,23 @@ public interface GradebookService {
 	public void setAssignmentScoreString(String gradebookUid, Long assignmentId, String studentUid, String score, String clientServiceDescription)
 			throws GradebookNotFoundException, AssessmentNotFoundException;
 
+	/**
+	 * Set student's score for assignment.
+	 * This is provided for backward compatibility only.
+	 * 
+	 * @param gradebookUid
+	 * @param assignmentName
+	 * @param studentUid
+	 * @param score
+	 * @param clientServiceDescription
+	 * 
+	 * @deprecated See {@link #setAssignmentScoreString(String, Long, String, String, String)}
+	 */
+	@Deprecated
+	public void setAssignmentScoreString(String gradebookUid, String assignmentName, String studentUid, String score, String clientServiceDescription)
+			throws GradebookNotFoundException, AssessmentNotFoundException;
 
+	
 	/**
 	 * Finalize the gradebook's course grades by setting all still-unscored assignments
 	 * to zero scores.

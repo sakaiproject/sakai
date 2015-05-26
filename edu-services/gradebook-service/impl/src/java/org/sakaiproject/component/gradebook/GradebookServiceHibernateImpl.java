@@ -2020,7 +2020,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		final boolean studentRequestingOwnScore = authn.getUserUid().equals(studentUid);
 	  
 		if (gradebookUid == null || assignmentId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScore");
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreString");
 		}	
 
 	  	Double assignmentScore = (Double)getHibernateTemplate().execute(new HibernateCallback() {
@@ -2059,7 +2059,28 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  		return null;
 	  	
 	  	return Double.valueOf(assignmentScore).toString();
-  }
+  	}
+  
+  	@Override
+  	public String getAssignmentScoreString(final String gradebookUid, final String assignmentName, final String studentUid) 
+  			throws GradebookNotFoundException, AssessmentNotFoundException {
+	  
+		if (gradebookUid == null || assignmentName == null || studentUid == null) {
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreString");
+		}	
+
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+			}
+		});
+		
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assignment with name " + assignmentName + " in gradebook " + gradebookUid);
+		}
+		
+		return getAssignmentScoreString(gradebookUid, assignment.getId(), studentUid);
+  	}
   
   	@Override
 	public void setAssignmentScoreString(final String gradebookUid, final Long assignmentId, final String studentUid, final String score, final String clientServiceDescription) 
@@ -2110,6 +2131,23 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		if (log.isInfoEnabled()) log.info("Score updated in gradebookUid=" + gradebookUid + ", assignmentId=" + assignmentId + " by userUid=" + getUserUid() + " from client=" + clientServiceDescription + ", new score=" + score);
 	}
+  	
+  	@Override
+	public void setAssignmentScoreString(final String gradebookUid, final String assignmentName, final String studentUid, final String score, final String clientServiceDescription) 
+			throws GradebookNotFoundException, AssessmentNotFoundException {
+  		
+  		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, assignmentName, session);
+			}
+		});
+		
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assignment with name " + assignmentName + " in gradebook " + gradebookUid);
+		}
+		
+		setAssignmentScoreString(gradebookUid, assignment.getId(), studentUid, score, clientServiceDescription);
+  	}
 
     @Override
 	public void finalizeGrades(String gradebookUid)
