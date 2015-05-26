@@ -20,7 +20,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -57,19 +57,22 @@ public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Seri
 	private transient ProfileConnectionsLogic connectionsLogic;
 	
 	public ConfirmedFriendsDataProvider(final String userUuid) {
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
-		//set userUuid
 		this.userUuid = userUuid;
+		
+		Injector.get().inject(this);
 	}
 
-	public Iterator<Person> iterator(int first, int count) {
+	public Iterator<Person> iterator(long first, long count) {
+		
+		//deference for backwards compatibility
+		//should really check bounds here 
+		int f = (int) first;
+		int c = (int) count;
+		
 		try {
 			List<Person> connections = connectionsLogic.getConnectionsForUser(userUuid);
 			Collections.sort(connections);
-			List<Person> slice = connections.subList(first, first + count);
+			List<Person> slice = connections.subList(f, f + c);
 			return slice.iterator();
 		}
 		catch (Exception e) {
@@ -78,7 +81,7 @@ public class ConfirmedFriendsDataProvider implements IDataProvider<Person>, Seri
 		}
 	}
 
-    public int size() {
+    public long size() {
     	return connectionsLogic.getConnectionsForUserCount(userUuid);
 	}
 

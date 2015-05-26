@@ -185,7 +185,7 @@ public class ComposeNewMessage extends Panel {
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("success")));
 					
 					//target.appendJavascript("$('#" + form.getMarkupId() + "').slideUp();");
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 					
 					//PRFL-797 all fields when successful, to prevent multiple messages.
 					//User can just click Compose message again to get a new form
@@ -193,10 +193,10 @@ public class ComposeNewMessage extends Panel {
 					autocompleteField.setEnabled(false);
 					subjectField.setEnabled(false);
 					messageField.setEnabled(false);
-					target.addComponent(this);
-					target.addComponent(autocompleteField);
-					target.addComponent(subjectField);
-					target.addComponent(messageField);
+					target.add(this);
+					target.add(autocompleteField);
+					target.add(subjectField);
+					target.add(messageField);
 					
 				} else {
 					//error
@@ -205,7 +205,7 @@ public class ComposeNewMessage extends Panel {
 				}
 				
 				formFeedback.setVisible(true);
-				target.addComponent(formFeedback);
+				target.add(formFeedback);
 				
             }
 			
@@ -220,7 +220,7 @@ public class ComposeNewMessage extends Panel {
 				}
 				formFeedback.add(new AttributeModifier("class", true, new Model<String>("alertMessage")));	
 
-				target.addComponent(formFeedback);
+				target.add(formFeedback);
 			}
 		};
 		form.add(sendButton);
@@ -257,7 +257,7 @@ public class ComposeNewMessage extends Panel {
         	} else {
         		formFeedback.setVisible(false);
         	}
-    		target.addComponent(formFeedback);
+    		target.add(formFeedback);
 
 			
 		}

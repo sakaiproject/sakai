@@ -3,14 +3,12 @@
 }
 ul.not_sortabl
 {
-	width: 300px;
 	list-style: none;
 	margin: 4px;
 	padding: 6px;	
 }
 ul.sortable
 {
-	width: 330px;
 	list-style: none;
 	padding: 0;
 }
@@ -20,7 +18,6 @@ ul.sortable a
 } 
 li.sortable_item
 {
-	width: 325px;
 	margin: 5px 0;
 	padding: 5px 0 5px 5px;
 	border: 1px solid #666;
@@ -57,14 +54,13 @@ li.sortable_hover
 .item_control_box
 {	
 	display: inline;
-	position: absolute;
-	left: 260px;
-	width: 85px;
+	position: relative;
+	min-width: 85px;
+	float: right;
 }
 .item_label_box
 {
 	display: inline;
-	width: 245px;
 }
 .hidden
 {
@@ -88,9 +84,12 @@ li.sortable_hover
 	border: 1px solid #ccc;
 	background-color: #99F;
 }
+#page-list{
+	width: 50%;
+	max-width: 825px;
+}
 #page-list td
 {
-	width: 360px;
 	padding: 5px;
 	vertical-align: top;	
 }
@@ -99,5 +98,5 @@ li.sortable_hover
     background-color: #bea;
 }
 .alertMessageContainer {
-	height: 60px;
+	min-height: 60px;
 }

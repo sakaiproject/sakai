@@ -24,11 +24,13 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.IAjaxCallDecorator;
+import org.apache.wicket.ajax.attributes.AjaxCallListener;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -41,8 +43,6 @@ import org.sakaiproject.profile2.logic.ProfileLogic;
 import org.sakaiproject.profile2.logic.ProfileWallLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.UserProfile;
-import org.sakaiproject.profile2.tool.components.CKEditorConfig;
-import org.sakaiproject.profile2.tool.components.CKEditorTextArea;
 import org.sakaiproject.profile2.tool.components.IconWithClueTip;
 import org.sakaiproject.profile2.util.ProfileConstants;
 import org.sakaiproject.profile2.util.ProfileUtils;
@@ -169,9 +169,9 @@ public class MyInfoEdit extends Panel {
 		//personal summary
 		WebMarkupContainer personalSummaryContainer = new WebMarkupContainer("personalSummaryContainer");
 		personalSummaryContainer.add(new Label("personalSummaryLabel", new ResourceModel("profile.summary")));
-		CKEditorTextArea personalSummary = new CKEditorTextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
+		TextArea personalSummary = new TextArea("personalSummary", new PropertyModel(userProfile, "personalSummary"));
 		personalSummary.setMarkupId("summaryinput");
-		personalSummary.setEditorConfig(CKEditorConfig.createCkConfig());
+		//personalSummary.setEditorConfig(CKEditorConfig.createCkConfig());
 		personalSummary.setOutputMarkupId(true);		
 		personalSummaryContainer.add(personalSummary);
 		form.add(personalSummaryContainer);
@@ -196,9 +196,9 @@ public class MyInfoEdit extends Panel {
 					newPanel.setOutputMarkupId(true);
 					thisPanel.replaceWith(newPanel);
 					if(target != null) {
-						target.addComponent(newPanel);
+						target.add(newPanel);
 						//resize iframe
-						target.appendJavascript("setMainFrameHeight(window.name);");
+						target.appendJavaScript("setMainFrameHeight(window.name);");
 					}
 				
 				} else {
@@ -207,14 +207,20 @@ public class MyInfoEdit extends Panel {
 					
 					formFeedback.setDefaultModel(new ResourceModel("error.profile.save.info.failed"));
 					formFeedback.add(new AttributeModifier("class", true, new Model<String>("save-failed-error")));	
-					target.addComponent(formFeedback);
+					target.add(formFeedback);
 				}
 				
             }
 			
-			@Override
-			protected IAjaxCallDecorator getAjaxCallDecorator() {
-				return CKEditorTextArea.getAjaxCallDecoratedToUpdateElementForAllEditorsOnPage();
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes){
+			    super.updateAjaxAttributes(attributes);
+			    AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+			        @Override
+			        public CharSequence getBeforeHandler(Component component) {
+			        	return "doUpdateCK()";
+			        }
+			    };
+			    attributes.getAjaxCallListeners().add(myAjaxCallListener);
 			}
 			
 		};
@@ -231,9 +237,9 @@ public class MyInfoEdit extends Panel {
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
-					target.addComponent(newPanel);
+					target.add(newPanel);
 					//resize iframe
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
             	
             }

@@ -21,14 +21,15 @@
 			<p class="shorttext">
 				<span class="reqStar">*</span>
 				<label for="name${DOT}$i">
-					$tlang.getString("title.name") 
+					$tlang.getString("name.file") 
 				</label>
 				<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
 			</p>
+			<p class="instruction">$tlang.getString("instr.title")</p>
 			#parse("/vm/resources/sakai_properties.vm")
 			<hr class="itemSeparator" />
-		</div>		
-	
+		</div>	
+		
 		#if ($model.resourceTypeDef.hasNotificationDialog())
 			#if($model.isDropbox())
 			 	## SAK-18932 show email checkbox only when possible to use it

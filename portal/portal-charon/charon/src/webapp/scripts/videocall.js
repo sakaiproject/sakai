@@ -1,12 +1,15 @@
-/*
+/**
+ * Please use 4 spaces for tabs when editing this file. Hard tabs are not portable.
+ *
  * Video controller. 
  * It uses webrtc-adapter.js to handle all the communication
+ *
  */
 (function ($) {
 
     var msiePattern = /.*MSIE ((\d+).\d+).*/
     if ( msiePattern.test(navigator.userAgent) ) {
-    	return;
+        return;
     }
 
     portal.chat.video.statuses = {
@@ -175,7 +178,7 @@
         if (this.webrtc != null) {
             currentUserIdConnections = Object.keys(this.webrtc.currentPeerConnectionsMap);
         }
-        return currentUserIdConnections;	
+        return currentUserIdConnections;    
     };
 
     portal.chat.video.hasVideoChatActive = function (peerUUID) {
@@ -259,12 +262,12 @@
     portal.chat.video.getRemoteVideoAgent = function (peerUUID) {
 
         if (debug) console.debug('video.getRemoteVideoAgent(' + peerUUID + ')');
-    	
-    	//Just check video in case we have it in our connections map list   	
-    	if (portal.chat.currentConnectionsMap[peerUUID]){
-    		return portal.chat.currentConnectionsMap[peerUUID].video ? portal.chat.currentConnectionsMap[peerUUID].video : 'none';
-    	}
-    	return 'none';
+        
+        //Just check video in case we have it in our connections map list       
+        if (portal.chat.currentConnectionsMap[peerUUID]){
+            return portal.chat.currentConnectionsMap[peerUUID].video ? portal.chat.currentConnectionsMap[peerUUID].video : 'none';
+        }
+        return 'none';
     };
 
     portal.chat.video.doTimeout = function (peerUUID, timeLimit) {
@@ -357,7 +360,7 @@
 
                                 self.changeCallStatus(peerUUID, self.statuses.ESTABLISHED);
                                 self.setVideoStatus(peerUUID, self.messages.pc_video_status_connection_established, "video");
-                            }, 	
+                            },  
                             function (peerUUID) {
 
                                 // onFailedCallback

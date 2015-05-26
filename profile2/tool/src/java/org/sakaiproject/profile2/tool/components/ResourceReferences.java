@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.components;
 
-import org.apache.wicket.resource.ContextRelativeResource;
+import org.apache.wicket.request.resource.ContextRelativeResource;
 import org.sakaiproject.profile2.util.ProfileConstants;
 
 /**

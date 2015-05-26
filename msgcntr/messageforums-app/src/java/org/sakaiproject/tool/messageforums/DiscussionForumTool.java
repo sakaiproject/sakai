@@ -9965,5 +9965,9 @@ public class DiscussionForumTool
     	}
     	return false;
     }
+	
+	public boolean isShowAvailabilityDates(){
+		return ServerConfigurationService.getBoolean("msgcntr.display.availability.dates", true);
+	}
 }
 

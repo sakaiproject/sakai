@@ -434,6 +434,13 @@ function toggleExtendedDescription(hideShowEl, parent, element) {
     element.toggle();
 }
 
+function toggleDates(hideShowEl, parent, element) {
+    resize();
+    hideShowEl.toggle();
+    parent.slideToggle(resize);
+    element.toggle();
+}
+
 //fix for double click stack traces in IE - SAK-10625
 //add Jquery if necessary
 /*if(typeof($) == "undefined"){

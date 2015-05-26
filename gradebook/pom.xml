@@ -17,18 +17,7 @@
   <modules>
     <module>app</module>
     <module>grades-rest</module>
-    <module>sample-course-grade-converter</module>
   </modules>
-
-  <profiles>
-      <profile>
-          <id>remove-10</id>
-          <modules>
-              <module>sample-grade-finalizer</module>
-              <module>sample-course-grade-converter</module>
-          </modules>
-      </profile>
-  </profiles>
 
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/gradebook/trunk</connection>

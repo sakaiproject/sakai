@@ -17,17 +17,6 @@
         <module>cm-impl/hibernate-pack</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>remove-10</id>
-            <modules>
-                <!-- This test currently isn't functional -->
-                <module>cm-impl/integration-test</module>
-                <module>cm-authz-synchronizer</module>
-            </modules>
-        </profile>
-    </profiles>
-
     <dependencyManagement>
         <dependencies>
             <dependency>

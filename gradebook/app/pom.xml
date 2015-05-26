@@ -14,15 +14,6 @@
   <modules>
     <module>business</module>
     <module>sakai-tool</module>
-    <!--module>standalone-app</module-->
     <module>ui</module>
   </modules>
-  <profiles>
-      <profile>
-          <id>remove-10</id>
-          <modules>
-              <module>standalone-app</module>
-          </modules>
-      </profile>
-  </profiles>
 </project>

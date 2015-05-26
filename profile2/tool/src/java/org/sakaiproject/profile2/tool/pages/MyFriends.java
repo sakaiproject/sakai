@@ -62,9 +62,9 @@ public class MyFriends extends BasePage {
 		confirmedFriends.replaceWith(newPanel);
 		confirmedFriends=newPanel; //keep reference up to date!
 		if(target != null) {
-			target.addComponent(newPanel);
+			target.add(newPanel);
 			//resize iframe
-			target.appendJavascript("setMainFrameHeight(window.name);");
+			target.appendJavaScript("setMainFrameHeight(window.name);");
 		}
 		
 	}

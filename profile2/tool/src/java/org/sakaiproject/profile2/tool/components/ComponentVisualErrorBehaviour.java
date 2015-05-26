@@ -86,11 +86,11 @@ public class ComponentVisualErrorBehaviour extends AjaxFormComponentUpdatingBeha
 
         if(formComponent.isValid() == valid){
             formComponent.add(new AttributeModifier("class", true, new Model("formInputField " + cssClass)));
-            ajaxRequestTarget.addComponent(formComponent);
+            ajaxRequestTarget.add(formComponent);
         }
 
         if(updateComponent!=null){
-            ajaxRequestTarget.addComponent(updateComponent);
+            ajaxRequestTarget.add(updateComponent);
         }
     }
 }
