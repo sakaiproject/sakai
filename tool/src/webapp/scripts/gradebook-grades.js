@@ -1087,6 +1087,14 @@ GradebookEditableCell.prototype.getGradeItemTotalPoints = function() {
 GradebookEditableCell.prototype.enterEditMode = function(withValue) {
   var self = this;
 
+  if (self.loadingEditMode) {
+    var initialValueString = (self.$cell.data("initialValue") || "") + "";
+    self.$cell.data("initialValue", initialValueString + withValue);
+    return;
+  }
+
+  self.loadingEditMode = true;
+
   self.$cell.data("initialValue", withValue);
 
   // Trigger click on the Wicket node so we enter the edit mode
@@ -1118,6 +1126,7 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
 
 GradebookEditableCell.prototype.handleEditSuccess = function() {
   this.setupWicketInputField(this.$cell.data("initialValue"));
+  this.loadingEditMode = false;
 };
 
 
