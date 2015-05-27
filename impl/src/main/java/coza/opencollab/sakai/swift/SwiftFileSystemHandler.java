@@ -8,17 +8,20 @@ import com.google.inject.Module;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.jclouds.apis.ApiMetadata;
 import org.jclouds.ContextBuilder;
 import org.jclouds.http.options.GetOptions;
 import org.jclouds.io.Payload;
 import org.jclouds.io.Payloads;
 import org.jclouds.logging.slf4j.config.SLF4JLoggingModule;
 import org.jclouds.openstack.swift.v1.SwiftApi;
+import org.jclouds.openstack.swift.v1.SwiftApiMetadata;
 import org.jclouds.openstack.swift.v1.domain.SwiftObject;
 import org.jclouds.openstack.swift.v1.features.ContainerApi;
 import org.jclouds.openstack.swift.v1.features.ObjectApi;
 import org.jclouds.openstack.swift.v1.options.CreateContainerOptions;
 import org.jclouds.openstack.swift.v1.options.PutOptions;
+import org.jclouds.osgi.ApiRegistry;
 import org.sakaiproject.content.api.FileSystemHandler;
 import org.springframework.util.FileCopyUtils;
 
@@ -35,6 +38,11 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
      * The provider for the jcloud storage.
      */
     private static final String CLOUD_PROVIDER = "openstack-swift";
+
+    /**
+     * The ApiMetadata class to register and use for Swift.
+     */
+    private static final ApiMetadata CLOUD_API_METADATA = new SwiftApiMetadata();
     /**
      * The connection endpoint to the swift storage.
      */
@@ -234,7 +242,12 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     public void init() {
         Iterable<Module> modules = ImmutableSet.<Module>of(new SLF4JLoggingModule());
 
-        swiftApi = ContextBuilder.newBuilder(CLOUD_PROVIDER)
+        // The metadata must be registered because the ServiceLoader does not detect
+        // the META-INF/services in each api JAR under Tomcat/Spring. Fortunately,
+        // the registry is static and is not really OSGi specific for this use.
+        ApiRegistry.registerApi(CLOUD_API_METADATA);
+
+        swiftApi = ContextBuilder.newBuilder(CLOUD_API_METADATA)
                 .endpoint(endpoint)
                 .credentials(identity, credential)
                 .modules(modules)
