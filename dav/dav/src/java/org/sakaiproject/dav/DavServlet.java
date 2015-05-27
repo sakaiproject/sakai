@@ -1551,7 +1551,8 @@ public class DavServlet extends HttpServlet
 				modificationDate = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime();
 				eTag = modificationDate + "+" + eTag;
 				// SAK-26593 if you don't clean the eTag you may send invalid XML to client
-				eTag = MD5Encoder.encode(md5Helper.digest(eTag.getBytes()));
+				// SAK-29338 Cyberduck started to see our md5 etag as an AWS s3-like checksum so let's add a prefix
+				eTag = "sakai-" + MD5Encoder.encode(md5Helper.digest(eTag.getBytes()));
 				if (M_log.isDebugEnabled()) M_log.debug("Path=" + path + " eTag=" + eTag);
 				creationDate = props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime();
 				resourceLink = mbr.getUrl();
