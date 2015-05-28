@@ -110,6 +110,7 @@ public class GradebookPage extends BasePage {
         
         //get the grade matrix
         final List<StudentGradeInfo> grades = businessService.buildGradeMatrix(assignments);
+
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 		
 		//if the grade matrix is null, we dont have any data
@@ -119,6 +120,9 @@ public class GradebookPage extends BasePage {
 		}
 		
         
+
+        final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentOrder();
+
         final ListDataProvider<StudentGradeInfo> studentGradeMatrix = new ListDataProvider<StudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
         
@@ -182,6 +186,13 @@ public class GradebookPage extends BasePage {
             	@Override
             	public Component getHeader(String componentId) {
             		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, new Model<Assignment>(assignment));
+                String category = assignment.getCategoryName();
+                int order = -1;
+                if (categorizedAssignmentOrder.containsKey(category)) {
+                  order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
+                }
+                panel.add(new AttributeModifier("data-category", category));
+                panel.add(new AttributeModifier("data-categorized-order", order));
     				return panel;
             	}
 

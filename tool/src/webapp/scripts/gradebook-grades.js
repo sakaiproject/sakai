@@ -334,7 +334,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
       $.each($tr.find("td, th"), function(i, th) {
         var $th = $(th);
         var $clone = self._cloneCell($th);
-        model = $th.data("model");
+        var model = $th.data("model");
         if (model) {
           model.setFixedHeaderCell($clone);
         }
@@ -610,11 +610,11 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
 
     if (self.isGroupedByCategory()) {
       // determine the new position of the grade item in relation to grade items in this category
-      var order = $.inArray(model, self._CATEGORIES_MAP[model.getCategory()]);
-      // TODO persist sort order for items within categories
-      //GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
-      //                                  model.columnKey,
-      //                                  order);
+      var order = $.inArray(sourceModel, self._CATEGORIES_MAP[sourceModel.getCategory()]);
+      GradebookAPI.updateCategorizedAssignmentOrder(self.$table.data("siteid"),
+                                                    sourceModel.columnKey,
+                                                    sourceModel.getCategory(),
+                                                    order);
     } else {
       GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
                                         sourceModel.columnKey,
@@ -755,7 +755,7 @@ GradebookSpreadsheet.prototype.disableGroupByCategory = function() {
 
   // reorder based on self.originalOrder
   for(i=0,newColIndex=3; i < self._COLUMN_ORDER.length; i++,newColIndex++) {
-    model = self._COLUMN_ORDER[i];
+    var model = self._COLUMN_ORDER[i];
     model.moveColumnTo(newColIndex);
   }
 
@@ -798,6 +798,21 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
     }
 
     return a > b
+  });
+
+  $.each(self._CATEGORIES_MAP, function(category, models) {
+    self._CATEGORIES_MAP[category] = models.sort(function(a, b) {
+      var order_a = a.getCategorizedOrder();
+      var order_b = b.getCategorizedOrder();
+
+      if (order_a == -1) {
+        return 1;
+      } else if (order_b == -1) {
+        return -1;
+      }
+
+      return order_a > order_b
+    });
   });
 }
 
@@ -1306,6 +1321,11 @@ GradebookHeaderCell.prototype.hide = function() {
 };
 
 
+GradebookHeaderCell.prototype.getCategorizedOrder = function() {
+  return this.$cell.find("[data-categorized-order]").data("categorized-order");
+}
+
+
 /**************************************************************************************
  * GradebookToolbar - all the toolbar actions
  */
@@ -1537,10 +1557,12 @@ GradebookToolbar.prototype.setupToggleCategories = function() {
  */
 GradebookAPI = {};
 
+
 GradebookAPI.isAnotherUserEditing = function(siteId, onSuccess, onError) {
   var endpointURL = "/direct/gbng/isotheruserediting/" + siteId + ".json";
   GradebookAPI._GET(endpointURL, null, onSuccess, onError);
 };
+
 
 GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuccess, onError) {
   GradebookAPI._POST("/direct/gbng/assignment-order", {
@@ -1549,6 +1571,17 @@ GradebookAPI.updateAssignmentOrder = function(siteId, assignmentId, order, onSuc
                                                         order: order
                                                       })
 };
+
+
+GradebookAPI.updateCategorizedAssignmentOrder = function(siteId, assignmentId, category, order, onSuccess, onError) {
+  GradebookAPI._POST("/direct/gbng/categorized-assignment-order", {
+                                                        siteId: siteId,
+                                                        assignmentId: assignmentId,
+                                                        category: category,
+                                                        order: order
+                                                      })
+};
+
 
 GradebookAPI._GET = function(url, data, onSuccess, onError, onComplete) {
   $.ajax({
@@ -1560,6 +1593,7 @@ GradebookAPI._GET = function(url, data, onSuccess, onError, onComplete) {
     complete: onComplete || $.noop
   });
 };
+
 
 GradebookAPI._POST = function(url, data, onSuccess, onError, onComplete) {
   $.ajax({

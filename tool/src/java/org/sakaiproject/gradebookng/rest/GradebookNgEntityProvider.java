@@ -147,6 +147,38 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	
 	
 	
+	@EntityCustomAction(action = "categorized-assignment-order", viewKey = EntityView.VIEW_NEW)
+	public void updateCategorizedAssignmentOrder(EntityReference ref, Map<String, Object> params) {
+
+		// get params
+		String siteId = (String) params.get("siteId");
+		long assignmentId = NumberUtils.toLong((String) params.get("assignmentId"));
+		int order = NumberUtils.toInt((String) params.get("order"));
+
+		// check params supplied are valid 
+		if (StringUtils.isBlank(siteId) || assignmentId == 0 || order < 0) {
+			throw new IllegalArgumentException(
+			"Request data was missing / invalid");
+		}
+		checkValidSite(siteId);
+
+		// check instructor
+		checkInstructor(siteId);
+
+		//update the order
+		try {
+			this.businessService.updateCategorizedAssignmentOrder(siteId, assignmentId, order);
+		} catch (IdUnusedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (PermissionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 	/**
 	 * Helper to check if the user is an instructor. Throws IllegalArgumentException if not.
 	 * We don't currently need the value that this produces so we don't return it.
