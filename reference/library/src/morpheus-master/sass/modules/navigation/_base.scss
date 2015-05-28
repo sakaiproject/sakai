@@ -136,14 +136,14 @@
 		@include border-radius( 0 );
 		margin: 0 0 0 0;
 		padding: 0 0 0 0;
+		min-height: 15px;
 		a{
-			display: block;
-			padding: 0.5em 0.65em;
 			@extend .userNav_link;
+			display: block;
+			padding: 0.85em 0.65em;
 			&:hover{
 				background:  darken( $background-color-secondary, 15% );
 				font-weight: bold;
-				/* color: 		 $background-color-secondary; */
 			}
 			.toolMenuIcon{
 				vertical-align: sub;
@@ -200,31 +200,45 @@
 
 		li{
 			text-align: right;
+			min-height: 41px;
+		}
+
+		.#{$namespace}userNav__drop{
+			&.is-clicked{
+				@include transform( rotate(180deg) );
+				position: relative;
+				top: 3px;
+			}
 		}
 
 		a#loginUser{
 			color: $background-color;
 			display: inline-block;
 			vertical-align:middle;
-			text-decoration :none;
-			.#{$namespace}userNav__submenuitem--username{
-				position:relative;
-				top:-15px;
+			text-decoration: none;
+			&.has-avatar{
+				.#{$namespace}userNav__submenuitem--username{
+					position:relative;
+					top:-15px;
+				}
+				.#{$namespace}userNav__submenuitem--userid{
+					position:relative;
+					top:-15px;
+				}
+				.#{$namespace}userNav__submenuitem--profilepicture{
+					width:32px;
+					height:32px;
+					display:inline-block;
+					background-size: auto 100%;
+					background-position: 50%;
+					border-radius:50%;
+					margin:5px auto 0px;
+				
+				}
 			}
-			.#{$namespace}userNav__submenuitem--userid{
-				position:relative;
-				top:-15px;
+			&.no-avatar{
+				padding: 1em 0;
 			}
-			.#{$namespace}userNav__submenuitem--profilepicture{
-				width:32px;
-				height:32px;
-				display:inline-block;
-				background-size:32px 32px;
-				border-radius:50%;
-				margin:5px auto 0px;
-			
-			}
-			
 		}
 
 		ul{
@@ -260,14 +274,19 @@
 				display: inline-block;
 				vertical-align:middle;
 				text-decoration :none;
-				.#{$namespace}userNav__submenuitem--username{
-					display:none;
+				&.has-avatar{
+					.#{$namespace}userNav__submenuitem--username{
+						display:none;
+					}
+					.#{$namespace}userNav__submenuitem--userid{
+						display:none;
+					}
+					.#{$namespace}userNav__submenuitem--profilepicture{
+						margin:auto 0px;
+					}
 				}
-				.#{$namespace}userNav__submenuitem--userid{
-					display:none;
-				}
-				.#{$namespace}userNav__submenuitem--profilepicture{
-					margin:auto 0px;
+				&.no-avatar{
+					top: 7px;
 				}
 			}
 		}

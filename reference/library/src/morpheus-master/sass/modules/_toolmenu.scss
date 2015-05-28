@@ -5,7 +5,7 @@
 	position: absolute;
 	top: $header-size;
 	width: $tool-menu-width;
-	padding: #{$header-size / 2 } 0 0 0;
+	padding: 35px 0 0 0;
 
 	@include border-radius( 0 0 10px 0 );
 	@include transition(left 0.25s linear);
