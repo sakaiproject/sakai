@@ -53,12 +53,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		assignmentTitle.add(new AttributeModifier("title", assignment.getName()));
 		add(assignmentTitle);
 		
-		WebMarkupContainer averageGradeSection = new WebMarkupContainer("averageGradeSection");
-		averageGradeSection.add(new Label("averagePoints", new Model("TODO")));
-		averageGradeSection.add(new Label("totalPoints", new Model<Double>(assignment.getPoints())));
-		averageGradeSection.setVisible(true);
-		add(averageGradeSection);
-		
+		add(new Label("totalPoints", new Model<Double>(assignment.getPoints())));
 		add(new Label("dueDate", new Model<String>(getDueDate(assignment.getDueDate()))));
 
 		WebMarkupContainer externalAppFlag = new WebMarkupContainer("externalAppFlag");

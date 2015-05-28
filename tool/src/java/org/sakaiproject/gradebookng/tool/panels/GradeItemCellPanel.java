@@ -129,7 +129,7 @@ public class GradeItemCellPanel extends Panel {
 								error("oh dear");
 							break;
 							case OVER_LIMIT:
-								markWarning(this);
+								markOverLimit(this);
 							break;
 							case NO_CHANGE:
 								//do nothing
@@ -251,7 +251,6 @@ public class GradeItemCellPanel extends Panel {
 	
 	private void markSuccessful(Component gradeCell) {
 		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveSuccess"));
-		//TODO attach a timeout here
 	}
 	
 	private void markError(Component gradeCell) {
@@ -260,6 +259,10 @@ public class GradeItemCellPanel extends Panel {
 	
 	private void markWarning(Component gradeCell) {
 		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveWarning"));
+	}
+	
+	private void markOverLimit(Component gradeCell) {
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveOverLimit"));
 	}
 
 	private Component getParentCellFor(Component gradeCell) {

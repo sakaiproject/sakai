@@ -79,7 +79,7 @@
 #gradebookGrades th .gb-title .gb-external-app-flag {
   float: left;
 }
-#gradebookGrades th .gb-average,
+#gradebookGrades th .gb-grade-section,
 #gradebookGrades th .gb-due-date {
   font-size: 0.8em;
   color: #999;
@@ -568,4 +568,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+}
+
+/** temporary override for page width **/
+.Mrphs-pageColumns--single {
+	max-width: none !important;
 }
