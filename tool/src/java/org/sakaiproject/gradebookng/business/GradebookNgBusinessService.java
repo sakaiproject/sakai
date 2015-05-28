@@ -557,7 +557,7 @@ public class GradebookNgBusinessService {
   /**
    * Update the categorized order of an assignment.
    *
-   * @param siteId	the siteId
+   * @param siteId the site's id
    * @param assignmentId the assignment we are reordering
    * @param order the new order
    * @throws JAXBException
@@ -565,9 +565,23 @@ public class GradebookNgBusinessService {
    * @throws PermissionException
    */
   public void updateCategorizedAssignmentOrder(String siteId, long assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
+    Site site = null;
+    try {
+      site = this.siteService.getSite(siteId);
+    } catch (IdUnusedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      return;
+    }
+
     Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
+
+    if (gradebook == null) {
+      log.error(String.format("Gradebook not in site %s", siteId));
+      return;
+    }
+
     Assignment assignmentToMove = gradebookService.getAssignment(gradebook.getUid(), assignmentId);
-    String category = assignmentToMove.getCategoryName();
 
     if (assignmentToMove == null) {
       // TODO Handle assignment not in gradebook
@@ -575,9 +589,16 @@ public class GradebookNgBusinessService {
       return;
     }
 
+    String category = assignmentToMove.getCategoryName();
+
     Map<String, List<Long>> orderedAssignments = getCategorizedAssignmentOrder(siteId);
 
-    orderedAssignments.get(category).remove(assignmentToMove.getId());
+    if (!orderedAssignments.containsKey(category)) {
+      orderedAssignments.put(category, new ArrayList<Long>());
+    } else {
+      orderedAssignments.get(category).remove(assignmentToMove.getId());
+    }
+
     orderedAssignments.get(category).add(order, assignmentToMove.getId());
 
     storeCategorizedAssignmentsOrder(siteId, orderedAssignments);
@@ -610,14 +631,19 @@ public class GradebookNgBusinessService {
    * @throws PermissionException
    */
   private Map<String, List<Long>> getCategorizedAssignmentOrder(String siteId) throws JAXBException, IdUnusedException, PermissionException {
-    Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
-
     Site site = null;
     try {
       site = this.siteService.getSite(siteId);
     } catch (IdUnusedException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+      return null;
+    }
+
+    Gradebook gradebook = (Gradebook)gradebookService.getGradebook(siteId);
+
+    if (gradebook == null) {
+      log.error(String.format("Gradebook not in site %s", siteId));
       return null;
     }
 
@@ -639,6 +665,7 @@ public class GradebookNgBusinessService {
           }
           result.get(ao.getCategory()).add(ao.getOrder(), ao.getAssignmentId());
         }
+
         return result;
       } catch (JAXBException e) {
         e.printStackTrace();
@@ -678,7 +705,7 @@ public class GradebookNgBusinessService {
   /**
    * Store categorized assignment order as XML on a site property
    *
-   * @param siteId	the siteId
+   * @param siteId the site's id
    * @param assignments a list of assignments in their new order
    * @throws JAXBException
    * @throws IdUnusedException

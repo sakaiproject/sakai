@@ -334,7 +334,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
       $.each($tr.find("td, th"), function(i, th) {
         var $th = $(th);
         var $clone = self._cloneCell($th);
-        model = $th.data("model");
+        var model = $th.data("model");
         if (model) {
           model.setFixedHeaderCell($clone);
         }
@@ -610,10 +610,10 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
 
     if (self.isGroupedByCategory()) {
       // determine the new position of the grade item in relation to grade items in this category
-      var order = $.inArray(model, self._CATEGORIES_MAP[model.getCategory()]);
+      var order = $.inArray(sourceModel, self._CATEGORIES_MAP[sourceModel.getCategory()]);
       GradebookAPI.updateCategorizedAssignmentOrder(self.$table.data("siteid"),
-                                                    model.columnKey,
-                                                    model.getCategory(),
+                                                    sourceModel.columnKey,
+                                                    sourceModel.getCategory(),
                                                     order);
     } else {
       GradebookAPI.updateAssignmentOrder(self.$table.data("siteid"),
@@ -755,7 +755,7 @@ GradebookSpreadsheet.prototype.disableGroupByCategory = function() {
 
   // reorder based on self.originalOrder
   for(i=0,newColIndex=3; i < self._COLUMN_ORDER.length; i++,newColIndex++) {
-    model = self._COLUMN_ORDER[i];
+    var model = self._COLUMN_ORDER[i];
     model.moveColumnTo(newColIndex);
   }
 

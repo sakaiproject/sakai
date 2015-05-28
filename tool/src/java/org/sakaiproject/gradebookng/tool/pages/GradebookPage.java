@@ -187,7 +187,10 @@ public class GradebookPage extends BasePage {
             	public Component getHeader(String componentId) {
             		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, new Model<Assignment>(assignment));
                 String category = assignment.getCategoryName();
-                int order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
+                int order = -1;
+                if (categorizedAssignmentOrder.containsKey(category)) {
+                  order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
+                }
                 panel.add(new AttributeModifier("data-category", category));
                 panel.add(new AttributeModifier("data-categorized-order", order));
     				return panel;
