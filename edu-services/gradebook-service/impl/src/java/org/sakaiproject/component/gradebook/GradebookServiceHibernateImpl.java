@@ -880,20 +880,30 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * @param gradebookUid
 	 * @return A mapping from user display IDs to grades.  If no grade is available for a user, default to zero.
 	 */
-	public Map getImportCourseGrade(String gradebookUid)
+	public Map<String, String> getImportCourseGrade(String gradebookUid)
 	{
-		return getImportCourseGrade(gradebookUid, true);
+		return getImportCourseGrade(gradebookUid, true, true);
 	}
-
 
 	/**
 	 * @param gradebookUid
 	 * @param useDefault If true, assume zero for missing grades.  Otherwise, null.
 	 * @return A mapping from user display IDs to grades.
 	 */
-	public Map getImportCourseGrade(String gradebookUid, boolean useDefault)
+	public Map<String, String> getImportCourseGrade(String gradebookUid, boolean useDefault)
 	{
-		HashMap returnMap = new HashMap();
+		return getImportCourseGrade(gradebookUid, useDefault, true);
+	}
+
+	/**
+	 * @param gradebookUid
+	 * @param useDefault If true, assume zero for missing grades.  Otherwise, null.
+	 * @param mapTheGrades If true, map the numerical grade to letter grade. If false, return a string of the numerical grade.
+	 * @return A mapping from user display IDs to grades.
+	 */
+	public Map<String, String> getImportCourseGrade(String gradebookUid, boolean useDefault, boolean mapTheGrades)
+	{
+		HashMap<String, String> returnMap = new HashMap<String, String> ();
 
 		try
 		{
@@ -910,9 +920,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
 			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
-			Map enrollmentMap = new HashMap();
+			Map<String, EnrollmentRecord> enrollmentMap = new HashMap<String, EnrollmentRecord>();
 
-			Map enrollmentMapUid = new HashMap();
+			Map<String, EnrollmentRecord> enrollmentMapUid = new HashMap<String, EnrollmentRecord>();
 			for (Iterator iter = viewableEnrollmentsMap.keySet().iterator(); iter.hasNext(); ) 
 			{
 				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
@@ -926,25 +936,37 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				GradeMapping gradeMap= thisGradebook.getSelectedGradeMapping();
 
-				EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(gradeRecord.getStudentId());
+				EnrollmentRecord enr = enrollmentMapUid.get(gradeRecord.getStudentId());
 				if(enr != null)
 				{
-					if(gradeRecord.getEnteredGrade() != null && !gradeRecord.getEnteredGrade().equalsIgnoreCase(""))
+					// SAK-29243: if we are not mapping grades, we don't want letter grade here
+					if(mapTheGrades && StringUtils.isNotBlank(gradeRecord.getEnteredGrade()))
 					{
 						returnMap.put(enr.getUser().getDisplayId(), gradeRecord.getEnteredGrade());
 					}
 					else
 					{
 						if(!nonAssignment) {
-							String grade = null;
+							Double grade = null;
 
-							if(useDefault) {
-								grade = (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade());
-							} else {
-								grade = (String)gradeMap.getGrade(gradeRecord.getAutoCalculatedGrade());
-                                                        }
+							if(useDefault) 
+							{
+								grade = gradeRecord.getNonNullAutoCalculatedGrade();
+							}
+							else
+							{
+								grade = gradeRecord.getAutoCalculatedGrade();
+							}
 
-							returnMap.put(enr.getUser().getDisplayId(), grade);
+							if(mapTheGrades)
+							{
+								returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(grade));
+							}
+							else
+							{
+								returnMap.put(enr.getUser().getDisplayId(), grade.toString());
+							}
+
 						}
 					}
 				}
@@ -952,7 +974,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			log.error("Error in getImportCourseGrade", e);
 		}
 		return returnMap;
 	}

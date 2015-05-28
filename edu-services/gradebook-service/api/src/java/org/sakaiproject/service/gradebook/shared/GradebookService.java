@@ -564,6 +564,7 @@ public interface GradebookService {
 
 	public Map getImportCourseGrade(String gradebookUid);
 	public Map getImportCourseGrade(String gradebookUid, boolean useDefault);
+	public Map getImportCourseGrade(String gradebookUid, boolean useDefault, boolean mapTheGrades);
 
 
 	/**return Object to avoid circular dependency with sakai-gradebook-tool */
