@@ -124,6 +124,14 @@ public class ContentServiceSqlDefault implements ContentServiceSql
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public String getResourceIdAndFilePath()
+	{
+		return "select RESOURCE_ID, FILE_PATH from CONTENT_RESOURCE where FILE_PATH IS NOT NULL";
+	}
+
+	/**
 	 * returns the sql statement which retrieves the resource uuid from the content_resource table.
 	 */
 	public String getResourceUuidSql()
