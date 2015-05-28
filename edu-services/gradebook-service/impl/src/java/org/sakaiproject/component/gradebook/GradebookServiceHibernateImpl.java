@@ -647,22 +647,21 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@Override
-	public Map<String,String> getImportCourseGrade(String gradebookUid)
+	public Map<String, String> getImportCourseGrade(String gradebookUid)
 	{
-		return getImportCourseGrade(gradebookUid, true);
+		return getImportCourseGrade(gradebookUid, true, true);
 	}
 
-
-	/**
-	 * @param gradebookUid
-	 * @param useDefault If true, assume zero for missing grades.  Otherwise, null.
-	 * @return A mapping from user display IDs to grades.
-	 */
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
-	public Map<String,String> getImportCourseGrade(String gradebookUid, boolean useDefault)
+	public Map<String, String> getImportCourseGrade(String gradebookUid, boolean useDefault)
 	{
-		HashMap<String,String> returnMap = new HashMap<>();
+		return getImportCourseGrade(gradebookUid, useDefault, true);
+	}
+
+	@Override
+	public Map<String, String> getImportCourseGrade(String gradebookUid, boolean useDefault, boolean mapTheGrades)
+	{
+		HashMap<String, String> returnMap = new HashMap<String, String> ();
 
 		try
 		{
@@ -679,9 +678,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			CourseGrade courseGrade = getCourseGrade(gradebookId);
 
 			Map viewableEnrollmentsMap = authz.findMatchingEnrollmentsForViewableCourseGrade(gradebookUid, thisGradebook.getCategory_type(), null, null);
-			Map enrollmentMap = new HashMap();
+			Map<String, EnrollmentRecord> enrollmentMap = new HashMap<String, EnrollmentRecord>();
 
-			Map enrollmentMapUid = new HashMap();
+			Map<String, EnrollmentRecord> enrollmentMapUid = new HashMap<String, EnrollmentRecord>();
 			for (Iterator iter = viewableEnrollmentsMap.keySet().iterator(); iter.hasNext(); ) 
 			{
 				EnrollmentRecord enr = (EnrollmentRecord)iter.next();
@@ -695,25 +694,37 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 				GradeMapping gradeMap= thisGradebook.getSelectedGradeMapping();
 
-				EnrollmentRecord enr = (EnrollmentRecord)enrollmentMapUid.get(gradeRecord.getStudentId());
+				EnrollmentRecord enr = enrollmentMapUid.get(gradeRecord.getStudentId());
 				if(enr != null)
 				{
-					if(gradeRecord.getEnteredGrade() != null && !gradeRecord.getEnteredGrade().equalsIgnoreCase(""))
+					// SAK-29243: if we are not mapping grades, we don't want letter grade here
+					if(mapTheGrades && StringUtils.isNotBlank(gradeRecord.getEnteredGrade()))
 					{
 						returnMap.put(enr.getUser().getDisplayId(), gradeRecord.getEnteredGrade());
 					}
 					else
 					{
 						if(!nonAssignment) {
-							String grade = null;
+							Double grade = null;
 
-							if(useDefault) {
-								grade = (String)gradeMap.getGrade(gradeRecord.getNonNullAutoCalculatedGrade());
-							} else {
-								grade = (String)gradeMap.getGrade(gradeRecord.getAutoCalculatedGrade());
-                                                        }
+							if(useDefault) 
+							{
+								grade = gradeRecord.getNonNullAutoCalculatedGrade();
+							}
+							else
+							{
+								grade = gradeRecord.getAutoCalculatedGrade();
+							}
 
-							returnMap.put(enr.getUser().getDisplayId(), grade);
+							if(mapTheGrades)
+							{
+								returnMap.put(enr.getUser().getDisplayId(), (String)gradeMap.getGrade(grade));
+							}
+							else
+							{
+								returnMap.put(enr.getUser().getDisplayId(), grade.toString());
+							}
+
 						}
 					}
 				}
@@ -721,7 +732,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		catch(Exception e)
 		{
-			e.printStackTrace();
+			log.error("Error in getImportCourseGrade", e);
 		}
 		return returnMap;
 	}
@@ -734,7 +745,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	@SuppressWarnings({ "unchecked", "rawtypes" })
-	private List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) {
+	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) {
 		HibernateCallback hc = new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				if(studentUids == null || studentUids.size() == 0) {

@@ -428,7 +428,14 @@ public interface GradebookService {
 	 * @return A mapping from user display IDs to grades.
 	 */
 	public Map<String,String> getImportCourseGrade(String gradebookUid, boolean useDefault);
-
+	
+	/**
+ 	 * @param gradebookUid
+ 	 * @param useDefault If true, assume zero for missing grades.  Otherwise, null.
+ 	 * @param mapTheGrades If true, map the numerical grade to letter grade. If false, return a string of the numerical grade.
+ 	 * @return A mapping from user display IDs to grades.
+ 	 */
+	public Map<String,String> getImportCourseGrade(String gradebookUid, boolean useDefault, boolean mapTheGrades);
 
 	/**
 	 * Get the Gradebook. Note that this returns Object to avoid circular dependency with sakai-gradebook-tool
@@ -438,6 +445,7 @@ public interface GradebookService {
 	public Object getGradebook(String uid) throws GradebookNotFoundException;
 
 	/**
+	 * Check if there are students that have not submitted
 	 * 
 	 * @param gradebookUid
 	 * @return
@@ -445,6 +453,7 @@ public interface GradebookService {
 	public boolean checkStudentsNotSubmitted(String gradebookUid);
 
 	/**
+	 * Check if a gradeable object with the given id exists
 	 * 
 	 * @param gradableObjectId
 	 * @return true if a gradable object with the given id exists and was not
@@ -461,12 +470,15 @@ public interface GradebookService {
 	public Map<String,String> getViewableSectionUuidToNameMap(String gradebookUid);
 	
 	/**
+	 * Check if the current user has the gradebook.gradeAll permission
+	 * 
 	 * @param gradebookUid
 	 * @return true if current user has the gradebook.gradeAll permission
 	 */
 	public boolean currentUserHasGradeAllPerm(String gradebookUid);
 	
 	/**
+	 * Check if the given user is allowed to grade all students in this gradebook
 	 * 
 	 * @param gradebookUid
 	 * @param userUid

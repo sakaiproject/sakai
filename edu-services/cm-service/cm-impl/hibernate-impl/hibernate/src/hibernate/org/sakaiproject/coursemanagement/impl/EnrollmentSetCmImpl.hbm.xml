@@ -60,7 +60,7 @@
 
 	<query name="findCurrentlyInstructingEnrollmentSets">
         <![CDATA[
-        from EnrollmentSetCmImpl as enrollmentSet where :userId in elements(enrollmentSet.officialInstructors) and
+        from EnrollmentSetCmImpl as enrollmentSet join enrollmentSet.officialInstructors as instructor where :userId = instructor and
         	(enrollmentSet.courseOffering.startDate is null or enrollmentSet.courseOffering.startDate <= current_date()) and
         	(enrollmentSet.courseOffering.endDate is null or enrollmentSet.courseOffering.endDate >= current_date())
         ]]>
