@@ -67,8 +67,7 @@ public class GradebookNgApplication extends WebApplication {
 	
 	/**
 	 * Overrides the exception handler so the stacktrace doesnt consume the screen.
-	 * @author fivium
-	 *
+	 * TODO not sure if this is required...
 	 */
 	public class SakaiRequestCycleListener extends AbstractRequestCycleListener {
 		
