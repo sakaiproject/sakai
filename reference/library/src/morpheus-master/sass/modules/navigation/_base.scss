@@ -191,10 +191,10 @@
 		font-family: $header-font-family;
 		font-weight: $header-font-weight;
 		left: $tool-menu-width;
-		padding: 0.8em;
+		padding: 0.2em;
 		position: absolute;
 		top: $header-size;
-		width: calc(100% - #{$tool-menu-width} - 1.6em);
+		width: calc(100% - #{$tool-menu-width} - 0.4em);
 
 		@include box-shadow( 0 0 2px rgba( $text-color ,0.5) );
 
@@ -204,6 +204,27 @@
 
 		a#loginUser{
 			color: $background-color;
+			display: inline-block;
+			vertical-align:middle;
+			text-decoration :none;
+			.#{$namespace}userNav__submenuitem--username{
+				position:relative;
+				top:-15px;
+			}
+			.#{$namespace}userNav__submenuitem--userid{
+				position:relative;
+				top:-15px;
+			}
+			.#{$namespace}userNav__submenuitem--profilepicture{
+				width:32px;
+				height:32px;
+				display:inline-block;
+				background-size:32px 32px;
+				border-radius:50%;
+				margin:5px auto 0px;
+			
+			}
+			
 		}
 
 		ul{
@@ -222,6 +243,7 @@
 				font-style: normal;
 			}
 		}
+		
 		@media #{$phone}{
 			font-size: 1em;
 			background: transparent;
@@ -235,6 +257,18 @@
 
 			a#loginUser{
 				color: $primary-color;
+				display: inline-block;
+				vertical-align:middle;
+				text-decoration :none;
+				.#{$namespace}userNav__submenuitem--username{
+					display:none;
+				}
+				.#{$namespace}userNav__submenuitem--userid{
+					display:none;
+				}
+				.#{$namespace}userNav__submenuitem--profilepicture{
+					margin:auto 0px;
+				}
 			}
 		}
 	}
