@@ -113,8 +113,14 @@ public class GradeImportUploadStep extends Panel {
                 if (includeGrades) {
                     for (Assignment assignment : assignments) {
                         GradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
-                        line.add(gradeInfo.getGrade());
-                        line.add(gradeInfo.getGradeComment());
+                        if (gradeInfo != null) {
+                            line.add(gradeInfo.getGrade());
+                            line.add(gradeInfo.getGradeComment());
+                        } else {
+                            // Need to account for no grades
+                            line.add(null);
+                            line.add(null);
+                        }
                     }
                 }
                 csvWriter.writeNext(line.toArray(new String[]{}));

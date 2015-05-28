@@ -5,6 +5,7 @@ import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +29,6 @@ public class ImportWizardModel implements Serializable {
     private List<ProcessedGradeItem> gbItemsToCreate;
     private List<ProcessedGradeItem> itemsToCreate;
     private List<ProcessedGradeItem> itemsToUpdate;
-    private List<Assignment> assignmentsToCreate;
+    private List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
 
 }

@@ -204,13 +204,17 @@ public class ImportGradesHelper extends BaseImportHelper {
             ImportColumn importColumn = entry.getValue();
 //            String col = trim(entry.getValue());
 
-
+            // In case there aren't enough data fields in the line to match up with the number of columns needed
+            String lineVal = null;
+            if (i < line.length) {
+                lineVal = trim(line[i]);
+            }
 
             //now check each of the main properties in turn to determine which one to set, otherwise set into props
             if(StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_ID)) {
-                grade.setStudentId(trim(line[i]));
+                grade.setStudentId(lineVal);
             } else if(StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_NAME)) {
-                grade.setStudentName(trim(line[i]));
+                grade.setStudentName(lineVal);
             } else if(ImportColumn.TYPE_ITEM_WITH_POINTS==importColumn.getType()) {
                 String assignmentName = importColumn.getColumnTitle();
                 ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
@@ -219,7 +223,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                     grade.getGradeItemMap().put(assignmentName, importedGradeItem);
                     importedGradeItem.setGradeItemName(assignmentName);
                 }
-                importedGradeItem.setGradeItemScore(trim(line[i]));
+                importedGradeItem.setGradeItemScore(lineVal);
             } else if(ImportColumn.TYPE_ITEM_WITH_COMMENTS==importColumn.getType()) {
                 String assignmentName = importColumn.getColumnTitle();
                 ImportedGradeItem importedGradeItem = grade.getGradeItemMap().get(assignmentName);
@@ -228,12 +232,12 @@ public class ImportGradesHelper extends BaseImportHelper {
                     grade.getGradeItemMap().put(assignmentName, importedGradeItem);
                     importedGradeItem.setGradeItemName(assignmentName);
                 }
-                importedGradeItem.setGradeItemComment(trim(line[i]));
+                importedGradeItem.setGradeItemComment(lineVal);
             } else {
 
                 //only add if not blank
-                if(StringUtils.isNotBlank(trim(line[i]))) {
-                    p.addProperty(importColumn.getColumnTitle(), trim(line[i]));
+                if(StringUtils.isNotBlank(lineVal)) {
+                    p.addProperty(importColumn.getColumnTitle(), lineVal);
                 }
             }
         }
@@ -316,14 +320,17 @@ public class ImportGradesHelper extends BaseImportHelper {
             for (ImportedGrade importedGrade : importedGradeWrapper.getImportedGrades()) {
                 AssignmentStudentGradeInfo assignmentStudentGradeInfo = transformedGradeMap.get(assignment.getId());
                 ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(column.getColumnTitle());
-                GradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentId());
 
                 String actualScore = null;
                 String actualComment = null;
 
-                if (actualGradeInfo != null) {
-                    actualScore = actualGradeInfo.getGrade();
-                    actualComment = actualGradeInfo.getGradeComment();
+                if (assignmentStudentGradeInfo != null) {
+                    GradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentId());
+
+                    if (actualGradeInfo != null) {
+                        actualScore = actualGradeInfo.getGrade();
+                        actualComment = actualGradeInfo.getGradeComment();
+                    }
                 }
                 String importedScore = null;
                 String importedComment = null;
