@@ -8,10 +8,27 @@
 	padding: 35px 0 0 0;
 
 	@include border-radius( 0 0 10px 0 );
-	@include transition(left 0.25s linear);
+	@include transition(all 0.5s linear);
 	
 	@media #{$phone}{
-		left: -#{$tool-menu-width}
+		left: 0;
+		width: #{$icon-size * 2};
+		@if $skin-with-icons {
+			.#{$namespace}toolsNav__menuitem--title{
+				display: none;
+			}	
+		} @else {
+			.#{$namespace}toolsNav__menuitem--title{
+				display: inline-block;
+				width:   #{$icon-size - 5px };
+				height:  $icon-size;
+				letter-spacing: 2em;
+				padding: 0px 0 0 5px;
+				overflow: hidden;
+				@include border-radius( $icon-size );
+				@include box-shadow(  0 0 5px rgba( $background-color ,0.5) );
+			}
+		}
 	}
 }
 
@@ -45,6 +62,9 @@
 				text-decoration: none;
 				&:hover{
 					background: $primary-color;
+				}
+				@media #{$phone}{
+					padding: 0.6em 0.6em;
 				}
 			}
 			&.is-current{

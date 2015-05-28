@@ -13,10 +13,17 @@
             <a href="#tocontent" class="Mrphs-skipNav__link" title="${rloader.sit_jumpcontent}" accesskey="c"><span>${rloader.sit_jumpcontent}</span></a>
         </li>
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
-            <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">&#9776;<span>${rloader.sit_jumptools}</span></a>
+            <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">&raquo;<span>${rloader.sit_jumptools}</span></a>
         </li>
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
-            <a href="#sitetabs" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w"><span>${rloader.sit_jumpworksite}</span></a>
+            <a href="#sitetabs" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
+                <span class="hamburger hamburger-sites">
+                    <span class="top">&mdash;</span>
+                    <span class="middle">&mdash;</span>
+                    <span class="bottom">&mdash;</span>
+                </span>
+                <span>${rloader.sit_jumpworksite}</span>
+            </a>
         </li>
     </ul>
 </nav>
