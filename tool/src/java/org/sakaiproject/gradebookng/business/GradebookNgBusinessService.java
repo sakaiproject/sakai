@@ -657,13 +657,16 @@ public class GradebookNgBusinessService {
         Map<String, List<Long>> result = new HashMap<String, List<Long>>();
         List<AssignmentOrder> assignmentOrders = xmlList.getItems();
 
+        // Sort the assignments by their category and then order
         Collections.sort(assignmentOrders, new AssignmentOrderComparator());
 
         for (AssignmentOrder ao : assignmentOrders) {
+          // add the category if the XML doesn't have it already
           if (!result.containsKey(ao.getCategory())) {
             result.put(ao.getCategory(), new ArrayList<Long>());
           }
-          result.get(ao.getCategory()).add(ao.getOrder(), ao.getAssignmentId());
+
+          result.get(ao.getCategory()).add(ao.getAssignmentId());
         }
 
         return result;
@@ -965,7 +968,20 @@ public class GradebookNgBusinessService {
     class AssignmentOrderComparator implements Comparator<AssignmentOrder> {
       @Override
       public int compare(AssignmentOrder ao1, AssignmentOrder ao2) {
-        return ((Integer) ao1.getOrder()).compareTo(ao2.getOrder());
+        // Deal with uncategorized assignments (nulls!)
+        if (ao1.getCategory() == null && ao2.getCategory() == null) {
+          return ((Integer) ao1.getOrder()).compareTo(ao2.getOrder());
+        } else if (ao1.getCategory() == null) {
+          return 1;
+        } else if (ao2.getCategory() == null) {
+          return -1;
+        }
+        // Deal with friendly categorized assignments
+        if (ao1.getCategory().equals(ao2.getCategory())) {
+          return ((Integer) ao1.getOrder()).compareTo(ao2.getOrder());
+        } else {
+          return ((String) ao1.getCategory()).compareTo(ao2.getCategory());
+        }
       }
     }
 }
