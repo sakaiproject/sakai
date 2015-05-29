@@ -17,7 +17,7 @@
 		overflow: 	hidden;
 		width: 		$tool-menu-width;
 
-		@include transition(width 0.25s linear);
+		@include transition(width 0.5s linear);
 		@media #{$phone}{
 			width: 0px;
 		}
@@ -95,6 +95,7 @@
 	}
 	@media #{$phone}{
 		position: fixed;
+		z-index: 1;
 	}
 }
 
@@ -325,21 +326,31 @@
 			@media #{$phone}{
 				display: block;
 				border: 0px none;
+				font-size: 1.2em;
+				margin: 0.8em 1em;
 				@include border-radius( 0 );
-				.#{$namespace}sitesNav__drop{
-					display: none;
+				ul{
+					width: 80%;
+					li{
+						font-size: 0.85em;
+					}
 				}
 			}
+		}
+		@media #{$phone}{
+			margin: 4em 0 0 0;
 		}
 	}
 	@media #{$phone}{
 		background: $background-color-secondary;
-		display: none;
-		padding: 0 0 1em 0;
-		position: absolute;
-		left: 0;
-		top: $header-size;
-		width: 100%;
-		height: 0;
+		padding: 0 1.5em 0 0;
+		left: -110%;
+		top: 0;
+		position: fixed;
+		min-height: 100%;
+		width: 80%;
+		overflow-x: hidden;
+		overflow-y: auto;
+		@include transition(left 0.5s linear);
 	}
 }
