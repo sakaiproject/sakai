@@ -569,6 +569,17 @@ ul.feedbackPanel {
   left: 20px;
   font-size: 1.4em;
 }
+.gradeSaveOverLimit {
+  background-color: #fcf8e3 !important;
+}
+.gradeSaveOverLimit > div:before {
+  font-family: "gradebook-icons";
+  content: '\f0fe';
+  color: rgb(200,144,0);
+  position: absolute;
+  left: 20px;
+  font-size: 1.4em;
+}
 
 /** temporary override for page width **/
 .Mrphs-pageColumns--single {
