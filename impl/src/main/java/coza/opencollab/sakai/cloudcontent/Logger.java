@@ -1,4 +1,4 @@
-package coza.opencollab.sakai.swift;
+package coza.opencollab.sakai.cloudcontent;
 
 /**
  * This interface allow for a logger for warnings and errors in 

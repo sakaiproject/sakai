@@ -1,4 +1,4 @@
-package coza.opencollab.sakai.swift;
+package coza.opencollab.sakai.cloudcontent;
 
 import java.io.IOException;
 import java.io.InputStream;

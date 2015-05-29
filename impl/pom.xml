@@ -43,6 +43,16 @@
       <artifactId>openstack-swift</artifactId>
       <version>${jclouds.version}</version>
     </dependency>
+    <dependency>
+      <groupId>org.apache.jclouds</groupId>
+      <artifactId>jclouds-blobstore</artifactId>
+      <version>${jclouds.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.jclouds.provider</groupId>
+      <artifactId>aws-s3</artifactId>
+      <version>${jclouds.version}</version>
+    </dependency>
 
     <!-- 3rd party dependencies -->
     <dependency>

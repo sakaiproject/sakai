@@ -1,4 +1,4 @@
-package coza.opencollab.sakai.swift;
+package coza.opencollab.sakai.cloudcontent;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;

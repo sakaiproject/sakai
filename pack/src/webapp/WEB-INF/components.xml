@@ -3,7 +3,11 @@
 
 <beans>
 
-  <bean id="org.sakaiproject.content.api.FileSystemHandler.swift" class="coza.opencollab.sakai.swift.SwiftFileSystemHandler"
+  <bean id="org.sakaiproject.content.api.FileSystemHandler.swift" class="coza.opencollab.sakai.cloudcontent.SwiftFileSystemHandler"
+        init-method="init" destroy-method="destroy">
+  </bean>
+
+  <bean id="org.sakaiproject.content.api.FileSystemHandler.blobstore" class="coza.opencollab.sakai.cloudcontent.BlobStoreFileSystemHandler"
         init-method="init" destroy-method="destroy">
   </bean>
 
