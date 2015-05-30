@@ -65,14 +65,6 @@ public class GradeImportUploadStep extends Panel {
         //get the grade matrix
         grades = businessService.buildGradeMatrix(assignments);
 
-        add(new DownloadLink("downloadBlankTemplate", new LoadableDetachableModel<File>() {
-
-            @Override
-            protected File load() {
-                return buildFile(false);
-            }
-        }).setCacheDuration(Duration.NONE).setDeleteAfterDownload(true));
-
         add(new DownloadLink("downloadFullGradebook", new LoadableDetachableModel<File>() {
 
             @Override

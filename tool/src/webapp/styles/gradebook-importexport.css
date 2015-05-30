@@ -29,3 +29,11 @@
   font-style: italic;
   text-indent: 15px;
 }
+
+#gradebookImportExport .gb-import-export-section h2 {
+  margin: 1.5em 0 0;
+}
+#gradebookImportExport .gb-import-export-section p,
+#gradebookImportExport .gb-import-export-section form {
+  margin: 1em 0 0;
+}
