@@ -25,7 +25,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.Permissions;
-import org.sakaiproject.gradebookng.business.model.GbEditingNotification;
+import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -118,13 +118,14 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	}
 	
 	/**
-	 * Endpoint for getting the flag if another user is editing the gradebook 
+	 * Endpoint for getting the list of cells that have been edited.
+	 * TODO enhance to accept a timestamp so we can filter the list
 	 * This is designed to be polled on a regular basis so must be lightweight
 	 * @param view
 	 * @return
 	 */
 	@EntityCustomAction(action = "isotheruserediting", viewKey = EntityView.VIEW_LIST)
-	public Map<String, GbEditingNotification> isAnotherUserEditing(EntityView view) {
+	public List<GbGradeCell> isAnotherUserEditing(EntityView view) {
 		
 		// get siteId
 		String siteId = view.getPathSegment(2);
