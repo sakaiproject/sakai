@@ -905,7 +905,7 @@ public class GradebookNgBusinessService {
     	 Assignment original = this.getAssignment(assignment.getId());
     	 
     	 try {
-    		 gradebookService.updateAssignment(gradebook.getUid(), original.getName(), assignment);
+    		 gradebookService.updateAssignment(gradebook.getUid(), original.getId(), assignment);
     		 return true;
     	 } catch (Exception e) {
     		 log.error("An error occurred updating the assignment", e);
