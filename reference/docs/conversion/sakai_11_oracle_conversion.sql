@@ -259,6 +259,9 @@ DROP TABLE PERMISSIONS_SRC_TEMP;
 
 -- KNL-1336 - Add status for all nodes in a cluster.
 ALTER TABLE SAKAI_CLUSTER ADD COLUMN STATUS VARCHAR(8);
+-- We rename the column so we don't have update the primary key index
+RENAME COLUMN SAKAI_CLUSTER.SERVER_ID TO SERVER_ID_INSTANCE;
+ALTER TABLE SAKAI_CLUSTER ADD COLUMN SERVER_ID VARCHAR (64); 
 
 -- SAK-27937 Add a course grade option to disable course points
 alter table GB_GRADEBOOK_T add COURSE_POINTS_DISPLAYED number(1,0) default '0' not null;
