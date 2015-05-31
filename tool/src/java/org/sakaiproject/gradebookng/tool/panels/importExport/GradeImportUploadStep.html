@@ -1,23 +1,17 @@
 <wicket:panel xmlns:wicket="http://wicket.apache.org">
 
-    <h2><wicket:message key="importExport.import.heading" /></h2>
+    <section class="gb-import-export-section">
+        <h2><wicket:message key="importExport.export.heading" /></h2>
+          
+        <p><wicket:message key="importExport.export.description" /></p>
+        <p><input type="button" wicket:id="downloadFullGradebook" wicket:message="value:importExport.template.button.fullGradebook"/></p>
+    </section>
 
-    <p><wicket:message key="importExport.import.description" /></p>
+    <section class="gb-import-export-section">
+        <h2><wicket:message key="importExport.import.heading" /></h2>
 
-    <div>
+        <p><wicket:message key="importExport.import.description" /></p>
         <p><wicket:message key="importExport.template.description" /></p>
-        <ul class="exportToolbar">
-          <li>
-            <input type="button" wicket:id="downloadBlankTemplate" wicket:message="value:importExport.template.button.blankTemplate"/>
-          </li>
-          <li>
-            <input type="button" wicket:id="downloadFullGradebook" wicket:message="value:importExport.template.button.fullGradebook"/>
-          </li>
-        </ul>
-    </div>
-
-    <div>
-        <p><wicket:message key="importExport.upload.description" /></p>
 
         <form wicket:id="form">
             <fieldset>
@@ -30,6 +24,6 @@
             </div>
         </form>
 
-    </div>
+    </section>
 
 </wicket:panel>
