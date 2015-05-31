@@ -87,14 +87,6 @@
         <property name="gradebookPermissionService">
         	<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionService"/>
         </property>
-
-        <!-- Temporary support for deprecated methods. -->
-        <property name="frameworkService">
-            <ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
-        </property>
-        <property name="externalAssessmentService">
-            <ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService" />
-        </property>
 	</bean>
 	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"
           class="org.sakaiproject.component.gradebook.GradebookPermissionServiceImpl"

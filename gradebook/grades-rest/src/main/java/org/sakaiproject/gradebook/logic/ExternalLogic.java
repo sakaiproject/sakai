@@ -586,13 +586,13 @@ public class ExternalLogic {
          */
         for (String studentId : studentIds) {
             // too expensive: if (gradebookService.getGradeViewFunctionForUserForStudentForItem(gbID, assignment.getId(), studentId) == null) {
-            String grade = gradebookService.getAssignmentScoreString(gbID, assignment.getName(), studentId);
+            String grade = gradebookService.getAssignmentScoreString(gbID, assignment.getId(), studentId);
             if (grade != null) {
                 GradebookItemScore score = new GradebookItemScore(assignment.getId().toString(),
                         studentId, grade );
                 score.username = studentUserIds.get(studentId);
                 CommentDefinition cd = gradebookService.getAssignmentScoreComment(gbID, assignment
-                        .getName(), studentId);
+                        .getId(), studentId);
                 if (cd != null) {
                     score.comment = cd.getCommentText();
                     score.recorded = cd.getDateRecorded();
@@ -657,7 +657,7 @@ public class ExternalLogic {
                 if (assignment == null) {
                     // try to find by name
                     if (gradebookService.isAssignmentDefined(gradebookId, gbItem.name)) {
-                        assignment = gradebookService.getAssignment(gradebookId, gbItem.name);
+                        assignment = gradebookService.getAssignment(gradebookId, gbItem.id);
                         if (log.isDebugEnabled()) log.debug("found internal assign by name ("+gbItem.name+"): "+assignment);
                     }
                 } else  {
@@ -678,7 +678,7 @@ public class ExternalLogic {
                     // GradebookNotFoundException, ConflictingAssignmentNameException, ConflictingExternalIdException, AssignmentHasIllegalPointsException
                     // fetch the newly created assignment object so we can get the id from it
                     isExternal = true;
-                    assignment = gradebookService.getAssignment(gradebookId, gbItem.name);
+                    assignment = gradebookService.getAssignment(gradebookId, gbItem.id);
                     if (assignment != null) {
                         if (log.isDebugEnabled()) log.debug("found new external assignment ("+assignment+") from name: "+gbItem.name);
                     } else {
@@ -736,7 +736,7 @@ public class ExternalLogic {
                     }
                     */
                     // assignment.setReleased(gbItem.released); // no mod released setting from here
-                    gradebookService.updateAssignment(gradebookId, originalName, assignment);
+                    gradebookService.updateAssignment(gradebookId, assignment.getId(), assignment);
                     // SecurityException, RuntimeException
                     if (log.isDebugEnabled()) log.debug("updated internal assignment ("+assignment+") from item: "+gbItem);
                 }
@@ -821,10 +821,10 @@ public class ExternalLogic {
                     if (isExternal) {
                         gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookId, gbItem.eid, studentId, dScore.toString());
                     } else {
-                        gradebookService.setAssignmentScoreString(gradebookId, gbItem.name, studentId, dScore.toString(), EXTERNAL_DATASOURCE);
+                        gradebookService.setAssignmentScoreString(gradebookId, gbItem.id, studentId, dScore.toString(), EXTERNAL_DATASOURCE);
                     }
                     if (score.comment != null && ! "".equals(score.comment)) {
-                        gradebookService.setAssignmentScoreComment(gradebookId, gbItem.name, studentId, score.comment);
+                        gradebookService.setAssignmentScoreComment(gradebookId, gbItem.id, studentId, score.comment);
                     }
                 } catch (Exception e) {
                     // General errors, caused while performing updates (Tag: generalerrors)
@@ -929,15 +929,6 @@ public class ExternalLogic {
             removed = new GradebookItem(gradebookId, a.getName(), a.getPoints(), a.getDueDate(), a.getCategoryName(), a.isReleased(), a.isCounted());
             removed.id = a.getId();
             removed.deleted = true;
-        }
-        return removed;
-    }
-
-    public boolean removeGradebookItemByName(String gradebookId, String itemName) {
-        boolean removed = false;
-        if (gradebookService.isAssignmentDefined(gradebookId, itemName)) {
-            Assignment a = gradebookService.getAssignment(gradebookId, itemName);
-            gradebookService.removeAssignment(a.getId());
         }
         return removed;
     }

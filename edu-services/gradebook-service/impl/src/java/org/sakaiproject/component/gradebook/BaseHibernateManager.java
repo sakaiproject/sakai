@@ -214,6 +214,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		return filteredRecords;
 	}
 
+	@Deprecated
 	protected Assignment getAssignmentWithoutStats(String gradebookUid, String assignmentName, Session session) throws HibernateException {
 		return (Assignment)session.createQuery(
 			"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false").
@@ -1523,57 +1524,54 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return !q.list().isEmpty();
     }
     
-	private Comment getInternalComment(String gradebookUid, String assignmentName, String studentUid, Session session) {
+	private Comment getInternalComment(String gradebookUid, Long assignmentId, String studentUid, Session session) {
 		Query q = session.createQuery(
-		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.name=:assignmentName and gradableObject.removed=false");
+		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.id=:assignmentId and gradableObject.removed=false");
 		q.setParameter("studentId", studentUid);
 		q.setParameter("gradebookUid", gradebookUid);
-		q.setParameter("assignmentName", assignmentName);
+		q.setParameter("assignmentId", assignmentId);
 		return (Comment)q.uniqueResult();		
 	}
-
-	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+	
+	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+		if (gradebookUid == null || assignmentId == null || studentUid == null) {
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
+		}
+		
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, assignmentId, session);
+			}
+		});
+		
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId);
+		}
+		
 		CommentDefinition commentDefinition = null;
         Comment comment = (Comment)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-            	return getInternalComment(gradebookUid, assignmentName, studentUid, session);
+            	return getInternalComment(gradebookUid, assignmentId, studentUid, session);
             }
         });
         if (comment != null) {
         	commentDefinition = new CommentDefinition();
-        	commentDefinition.setAssignmentName(assignmentName);
+        	commentDefinition.setAssignmentName(assignment.getName());
         	commentDefinition.setCommentText(comment.getCommentText());
         	commentDefinition.setDateRecorded(comment.getDateRecorded());
         	commentDefinition.setGraderUid(comment.getGraderId());
         	commentDefinition.setStudentUid(comment.getStudentId());
         }
 		return commentDefinition;
-	}
-	
-	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long gbItemId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
-		if (gradebookUid == null || gbItemId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
-		}
-		
-		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-			}
-		});
-		
-		if (assignment == null) {
-			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
-		}
-		
-		return getAssignmentScoreComment(gradebookUid, assignment.getName(), studentUid);
+
 	}
 
-	public void setAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
+	public void setAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
 		getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-        		Comment comment = getInternalComment(gradebookUid, assignmentName, studentUid, session);
+        		Comment comment = getInternalComment(gradebookUid, assignmentId, studentUid, session);
         		if (comment == null) {
-        			comment = new Comment(studentUid, commentText, getAssignmentWithoutStats(gradebookUid, assignmentName, session));
+        			comment = new Comment(studentUid, commentText, getAssignmentWithoutStats(gradebookUid, assignmentId, session));
         		} else {
         			comment.setCommentText(commentText);
         		}
