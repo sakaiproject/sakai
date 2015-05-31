@@ -23,6 +23,7 @@
 package org.sakaiproject.component.gradebook;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import java.util.HashSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
@@ -2581,6 +2583,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	 * 
 	 * @see GradebookService.updateAssignmentOrder(java.lang.String gradebookUid, java.lang.Long assignmentId, java.lang.Integer order)
 	 */
+	@Override
 	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, Integer order) {
 		
 		if (!getAuthz().isUserAbleToEditAssessments(gradebookUid)) {
@@ -2653,6 +2656,37 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 	}
 	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+    public List<GradingEvent> getGradingEvents(final String studentId, final long assignmentId) {
+    	
+		if (log.isDebugEnabled()) {
+    		log.debug("getGradingEvents called for studentId:" + studentId);
+    	}
+		
+    	List<GradingEvent> rval = new ArrayList<>();
+        
+        if (studentId == null) {
+        	log.debug("No student id was specified.  Returning an empty GradingEvents object");
+        	return rval;
+        }
+        
+        HibernateCallback hc = new HibernateCallback() {
+            @Override
+            public Object doInHibernate(Session session) throws HibernateException, SQLException {
+                Query q = session.createQuery("from GradingEvent as ge where ge.studentId=:studentId and ge.gradableObject=:assignmentId");
+                q.setParameter("studentId", studentId);
+                q.setParameter("assignmentId", assignmentId, Hibernate.entity(GradableObject.class));
+                return q.list();
+            }
+        };
+
+        rval = (List)getHibernateTemplate().execute(hc);
+        return rval;
+    }
+	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
 	}
@@ -2672,6 +2706,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public void setGradebookPermissionService(GradebookPermissionService gradebookPermissionService) {
 		this.gradebookPermissionService = gradebookPermissionService;
 	}
+
+	
 
 	
 }

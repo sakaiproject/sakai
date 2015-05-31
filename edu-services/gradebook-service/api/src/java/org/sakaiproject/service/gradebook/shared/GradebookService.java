@@ -23,6 +23,7 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -707,4 +708,12 @@ public interface GradebookService {
 	 */
 	public void updateAssignmentOrder(final String gradebookUid, final Long assignmentId, final Integer order);
 
+	 /**
+     * Gets the grading events for the given student and the given assignment
+     * @param studentId
+     * @param assignmentId
+     * @return List of GradingEvent objects.
+     */
+    @SuppressWarnings("rawtypes")
+	public List getGradingEvents(final String studentId, final long assignmentId);
 }
