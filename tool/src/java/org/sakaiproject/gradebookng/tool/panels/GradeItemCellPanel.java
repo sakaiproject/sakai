@@ -91,7 +91,7 @@ public class GradeItemCellPanel extends Panel {
 					
 					//check if grade is over limit and mark the cell with the warning class
 					if(NumberUtils.toDouble(this.originalGrade) > assignmentPoints) {
-						markWarning(this);
+						markOverLimit(this);
 					}
 				}
 				
