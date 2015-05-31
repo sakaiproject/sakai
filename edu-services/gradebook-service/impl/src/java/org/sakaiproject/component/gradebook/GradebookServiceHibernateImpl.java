@@ -2676,9 +2676,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         HibernateCallback hc = new HibernateCallback() {
             @Override
             public Object doInHibernate(Session session) throws HibernateException, SQLException {
-                Query q = session.createQuery("from GradingEvent as ge where ge.studentId=:studentId and ge.gradableObject=:assignmentId");
+                Query q = session.createQuery("from GradingEvent as ge where ge.studentId=:studentId and ge.gradableObject.id=:assignmentId");
                 q.setParameter("studentId", studentId);
-                q.setParameter("assignmentId", assignmentId, Hibernate.entity(GradableObject.class));
+                q.setParameter("assignmentId", assignmentId);
                 return q.list();
             }
         };
