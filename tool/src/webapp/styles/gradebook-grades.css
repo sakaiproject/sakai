@@ -585,3 +585,13 @@ ul.feedbackPanel {
 .Mrphs-pageColumns--single {
 	max-width: none !important;
 }
+
+/* grade log formatting */
+.grade-log-item-wrap {
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
+
+.grade-log-item {
+	margin-bottom: 5px;
+}
