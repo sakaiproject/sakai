@@ -28,8 +28,10 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
+import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbGroupType;
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
@@ -48,8 +50,10 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserNotDefinedException;
 
 
 /**
@@ -962,6 +966,40 @@ public class GradebookNgBusinessService {
     	 }
     	 
 		 return false;
+     }
+     
+     /**
+      * Get the grade log for the given student and assignment
+      * 
+      * @param studentUuid
+      * @param assignmentId
+      * @return
+      */
+     public List<GbGradeLog> getGradeLog(final String studentUuid, final long assignmentId) {
+    	 List<GradingEvent> gradingEvents = this.gradebookService.getGradingEvents(studentUuid, assignmentId);
+    	 
+    	 List<GbGradeLog> rval = new ArrayList<>();
+    	 for(GradingEvent ge: gradingEvents) {
+    		 rval.add(new GbGradeLog(ge));
+    	 }
+    	 
+    	 Collections.reverse(rval);
+    	 
+    	 return rval;
+     }
+     
+     /**
+      * Get the user given a uuid
+      * @param userUuid
+      * @return GbUser or null if cannot be found
+      */
+     public GbUser getUser(String userUuid) {
+    	 try {
+    		 User u = userDirectoryService.getUser(userUuid);
+    		 return new GbUser(u);
+    	 } catch (UserNotDefinedException e) {
+    		return null; 
+    	 }
      }
     
 

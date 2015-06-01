@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -11,7 +12,9 @@ import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -20,7 +23,9 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
  * The panel for the cell of a grade item
@@ -236,6 +241,21 @@ public class GradeItemCellPanel extends Panel {
 		}
 									
 		//menu
+		
+		//grade log
+		add(new AjaxLink<Map<String,Object>>("viewGradeLog", model){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				final ModalWindow window = gradebookPage.getGradeLogWindow();
+				
+				window.setContent(new GradeLogPanel(window.getContentId(), this.getModel(), window));
+				window.show(target);
+				
+			}
+		});
 		
 
 	}
