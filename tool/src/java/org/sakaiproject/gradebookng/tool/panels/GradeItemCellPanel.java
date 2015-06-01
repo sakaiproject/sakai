@@ -58,13 +58,18 @@ public class GradeItemCellPanel extends Panel {
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final Boolean isExternal = (Boolean) modelData.get("isExternal");
 		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
+	
 		
 		//note, gradeInfo may be null
 		String rawGrade;
+		final String gradeComment;
+		
 		if(gradeInfo != null) {
 			rawGrade = gradeInfo.getGrade();
+			gradeComment = gradeInfo.getGradeComment();
 		} else {
 			rawGrade = "";
+			gradeComment = "";
 		}
 		
 		//get grade
@@ -97,6 +102,11 @@ public class GradeItemCellPanel extends Panel {
 					//check if grade is over limit and mark the cell with the warning class
 					if(NumberUtils.toDouble(this.originalGrade) > assignmentPoints) {
 						markOverLimit(this);
+					}
+					
+					//check if we have a comment and mark the cell with the comment icon
+					if(StringUtils.isNotBlank(gradeComment)) {
+						markHasComment(this);
 					}
 				}
 				
@@ -257,6 +267,38 @@ public class GradeItemCellPanel extends Panel {
 			}
 		});
 		
+		//grade comment
+		AjaxLink<Map<String,Object>> editGradeComment = new AjaxLink<Map<String,Object>>("editGradeComment", model){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				final ModalWindow window = gradebookPage.getGradeCommentWindow();
+				
+				//window.setContent(new GradeLogPanel(window.getContentId(), this.getModel(), window));
+				//window.showUnloadConfirmation(false);
+				//window.show(target);
+				
+			}
+		};
+		
+		//the label changes depending on the state so we wrap it in a model
+		IModel<String> editGradeCommentModel = new Model<String>(){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject() {
+				if(StringUtils.isNotBlank(gradeComment)){
+					return getString("comment.option.edit");
+				} else {
+					return getString("comment.option.add");
+				}
+			}
+		};
+		
+		editGradeComment.add(new Label("editGradeCommentLabel", editGradeCommentModel));
+		add(editGradeComment);
 
 	}
 	
@@ -270,20 +312,26 @@ public class GradeItemCellPanel extends Panel {
 	}
 	
 	private void markSuccessful(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveSuccess"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-success"));
 	}
 	
 	private void markError(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveError"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-error"));
 	}
 	
 	private void markWarning(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveWarning"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-warning"));
 	}
 	
 	private void markOverLimit(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveOverLimit"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-over-limit"));
 	}
+	
+	private void markHasComment(Component gradeCell) {
+		getParentCellFor(gradeCell).add(AttributeModifier.append("class", "has-comment"));
+	}
+	
+	
 
 	private Component getParentCellFor(Component gradeCell) {
 		return gradeCell.getParent().getParent();

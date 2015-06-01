@@ -534,10 +534,10 @@ ul.feedbackPanel {
 }
 
 /* feedback styles for the grade saving state */
-.gradeSaveSuccess {
+.grade-save-success {
   background-color: #dff0d8 !important;
 }
-.gradeSaveSuccess > div:before {
+.grade-save-success > div:before {
   font-family: "gradebook-icons";
   content: "\f05d";
   color: green;
@@ -546,10 +546,10 @@ ul.feedbackPanel {
   font-size: 1.4em;
 }
 
-.gradeSaveError {
+.grade-save-error {
 	background-color: #ffbbbb !important;
 }
-.gradeSaveError > div:before {
+.grade-save-error > div:before {
   font-family: "gradebook-icons";
   content: "\f06a";
   color: rgb(204,0,0);
@@ -558,10 +558,10 @@ ul.feedbackPanel {
   font-size: 1.4em;
 }
 
-.gradeSaveWarning {
+.grade-save-warning {
   background-color: #fcf8e3 !important;
 }
-.gradeSaveWarning > div:before {
+.grade-save-warning > div:before {
   font-family: "gradebook-icons";
   content: "\f071";
   color: rgb(200,144,0);
@@ -569,16 +569,20 @@ ul.feedbackPanel {
   left: 20px;
   font-size: 1.4em;
 }
-.gradeSaveOverLimit {
+.grade-save-over-limit {
   background-color: #fcf8e3 !important;
 }
-.gradeSaveOverLimit > div:before {
+.grade-save-over-limit > div:before {
   font-family: "gradebook-icons";
   content: '\f0fe';
   color: rgb(200,144,0);
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+}
+
+.has-comment {
+	
 }
 
 /** temporary override for page width **/

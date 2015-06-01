@@ -57,6 +57,7 @@ public class GradebookPage extends BasePage {
 	ModalWindow studentGradeSummaryWindow;
 	ModalWindow updateUngradedItemsWindow;
 	ModalWindow gradeLogWindow;
+	ModalWindow gradeCommentWindow;
 
 	Form<Void> form;
 
@@ -97,6 +98,12 @@ public class GradebookPage extends BasePage {
 		gradeLogWindow.setResizable(false);
 		gradeLogWindow.setUseInitialHeight(false);
 		form.add(gradeLogWindow);
+		
+		gradeCommentWindow = new ModalWindow("gradeCommentWindow");
+		gradeCommentWindow.setMaskType(MaskType.TRANSPARENT);
+		gradeCommentWindow.setResizable(false);
+		gradeCommentWindow.setUseInitialHeight(false);
+		form.add(gradeCommentWindow);
 		
 		
 		AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
@@ -295,6 +302,10 @@ public class GradebookPage extends BasePage {
 	
 	public ModalWindow getGradeLogWindow() {
 		return this.gradeLogWindow;
+	}
+	
+	public ModalWindow getGradeCommentWindow() {
+		return this.gradeCommentWindow;
 	}
 
 	
