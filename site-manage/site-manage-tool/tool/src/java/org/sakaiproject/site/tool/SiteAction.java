@@ -10724,32 +10724,23 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						addAlert(state, rb.getString("java.addalias"));
 					} else {
 						try {
-							// first, clear any alias set to this channel
-							AliasService.removeTargetAliases(channelReference); // check
-							// to
-							// see
-							// whether
-							// the
-							// alias
-							// has
-							// been
-							// used
-							try {
-								String target = AliasService.getTarget(alias);
-								boolean targetsThisSite = site.getReference().equals(target);
-								if (!(targetsThisSite)) {
-									addAlert(state, rb.getString("java.emailinuse") + " ");
-								}
-							} catch (IdUnusedException ee) {
-								try {
-									AliasService.setAlias(alias,
-											channelReference);
-								} catch (IdUsedException exception) {
-								} catch (IdInvalidException exception) {
-								} catch (PermissionException exception) {
-								}
+							String target = AliasService.getTarget(alias);
+							boolean targetsThisSite = site.getReference().equals(target) ||
+									channelReference.equals(target);
+							if (!(targetsThisSite)) {
+								addAlert(state, rb.getString("java.emailinuse") + " ");
 							}
-						} catch (PermissionException exception) {
+						} catch (IdUnusedException ee) {
+							try {
+								AliasService.setAlias(alias,
+										channelReference);
+							} catch (IdUsedException exception) {
+								M_log.warn(this + ".saveFeatures setAlias IdUsedException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+							} catch (IdInvalidException exception) {
+								M_log.warn(this + ".saveFeatures setAlias IdInvalidException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+							} catch (PermissionException exception) {
+								M_log.warn(this + ".saveFeatures setAlias PermissionException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+							}
 						}
 					}
 				}
