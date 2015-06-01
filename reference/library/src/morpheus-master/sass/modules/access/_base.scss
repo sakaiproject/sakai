@@ -38,12 +38,20 @@
 			display: inline-block;
 			min-width: 38%;
 			min-height: 3em;
+			@media #{$phone}{
+				display: block;
+				min-height: 0.5em;
+			}
 		}
 		input[type="text"],input[type="password"]{
 			display: inline-block;
 			min-width: 56%;
 			border: 1px solid darken($background-color-secondary, 15%);
 			padding: 0.3em;
+			@media #{$phone}{
+				display: block;
+				width: 95%;
+			}
 		}
 		input[type="submit"]{
 			font-size: 1.1em;
@@ -51,6 +59,9 @@
 		}
 		p{
 			text-align: right;
+			@media #{$phone}{
+				margin: 1em 0 0 0;
+			}
 		}
 	}
 
