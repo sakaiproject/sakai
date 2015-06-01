@@ -954,7 +954,9 @@ public class UIPermissionsManagerImpl implements UIPermissionsManager {
 	  List userMemberships = new ArrayList();
 	  // first, add the user's role
 	  final String currRole = getCurrentUserRole(siteId);
-	  userMemberships.add(currRole);
+	  if (currRole != null && !currRole.isEmpty()) {
+		  userMemberships.add(currRole);
+	  }
 	  // now, add any groups the user is a member of
 	  try {
 		  Site site = SiteService.getSite(toolManager.getCurrentPlacement().getContext());
