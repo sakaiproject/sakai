@@ -226,3 +226,91 @@ table.rosterPicturesSingleColumn td {
     display: table-cell;
     padding-right: 10px;
 }
+
+/* Table display for large screen sizes */
+@media only screen and (min-width: 800px) and (max-width: 1100px) {
+	.roster-member {
+		font-size: 0.85em;
+	}
+	.roster-groups-selector {
+		max-width: 100px !important;
+	}
+}
+@media only screen and (min-width: 800px) {
+	.rosterPicture {
+		border:0px none;
+		max-width:95%;
+		max-height:auto;
+	}
+	
+	.rosterActions {
+		display: inline;
+		float: right;
+		margin-top:0;
+	}
+	
+	.rosterActions .connection-add a, .rosterActions .connection-self {
+		width: 24px;
+	  	height: 24px;
+	  	overflow: hidden;
+	  	display: inline-block;
+	  	text-indent: 11000px;
+	  	/*background: rgba(255,0,0,0.1); */
+	  	position: absolute;
+	  	margin: 0 0 0 -21px;
+	  	z-index: 99;	
+	}
+	
+	#roster-members {
+	    display: block;
+	}
+	
+	.roster-member {
+	    border-width: 0px;
+	    border-bottom: 1px solid #F0F0F0;
+	    -moz-border-radius: 0px;
+	    -webkit-border-radius: 0px;
+	    border-radius: 0px;
+	    padding: 3px;
+	    margin-bottom: 3px;
+	}
+	
+	.roster-picture {
+	    width: 30px;
+	    height: 30px;
+	    text-align: center;
+	}
+	
+	.roster-info {
+	    float: none;
+	}
+	
+	.roster-table {
+	    display: inline;
+	    width: calc(100% - 24px);
+	}
+	
+	.roster-table-row {
+	    display: inline-block;
+	    width: 15%;
+	}
+	
+	.roster-table-cell {
+	    display: inline-block;
+	    vertical-align: middle;
+	}
+	
+	.roster-table-cell:first-child {
+	    display: none;
+	}
+	
+	.roster-table-row:first-child {
+	    display: inline-block;
+	    width: 40%;
+	}
+	
+	.roster-groups-selector {
+		padding: 0px;
+		max-width: 200px;
+	}
+}
