@@ -109,9 +109,20 @@
 		font-family: $header-font-family;
 		position: relative;
 		top: 4px;
+		@media #{$phone}{
+			color: $primary-color;
+			font-size: 1.1em;
+		}
 	}
 	select{
 		border: 1px solid darken( $primary-color, 10% );
+	}
+	@media #{$phone}{
+		right: 0;
+		z-index: 0;
+		select{
+			max-width: 120px;
+		}
 	}
 }
 
