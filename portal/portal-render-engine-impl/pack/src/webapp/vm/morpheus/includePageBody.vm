@@ -29,6 +29,13 @@
                 #set( $i = $i + 1 )
 
                 #if ($tool)
+                    
+                    <!-- start Tool Container -->
+                    
+                    #set($toolTitleClass = ${tool.toolId.trim().replace(".", '-').toLowerCase()})
+
+                    <div class="Mrphs-container Mrphs-${toolTitleClass}">
+                    
                     <!-- start Tool Header -->
 
                     #if (${tool.suppressTitle}) 
@@ -37,7 +44,8 @@
 
                         #if (${tool.hasRenderResult})
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+
+                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav">
 
                                 #if (${tool.toolShowResetButton})
 
@@ -153,6 +161,10 @@
                     #end ## END of IF ( ${bufferedResponse} && ${responseBody} )
 
                     <!-- end Tool Body -->
+                    
+                    </div>
+
+                    <!-- end Tool Container -->
 
                 #end ## END of IF ($tool)
 
@@ -169,6 +181,12 @@
                     #set( $i = $i + 1)
 
                     #if ($tool) 
+
+                        <!-- start Tool Container -->
+
+                        #set($toolTitleClass = ${tool.toolId.trim().replace(".", '-').toLowerCase()})
+
+                        <div class="Mrphs-container Mrphs-${toolTitleClass}">
 
                         <!-- start include tool -->
                         <!-- start Tool Col2 -->
@@ -248,6 +266,10 @@
                         <!-- end Tool Body -->
 
                         <!-- end include tool -->
+
+                        </div>
+                        
+                        <!-- end Tool Container -->
 
                     #end ## END of IF ($tool)
 
