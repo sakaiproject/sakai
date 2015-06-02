@@ -40,45 +40,5 @@ public class StudentNameColumnHeaderPanel extends Panel {
 		List<GbStudentSortType> sortOrders = Arrays.asList(GbStudentSortType.values());
 		
 		//TODO use the list to render the dropdown, changing the text as appropriate
-		
-		add(new FilterForm("filterForm"));
 	}
-	
-	private class FilterForm extends Form<StringModel> {
-		
-		public FilterForm(String id){
-			super(id);
-			
-			StringModel stringModel = new StringModel();
-			
-			//if we already have a filter, set it into the model
-			//if(StringUtils.isNotBlank(search)){
-			//	searchModel.setSearch(search);
-			//}
-			setDefaultModel(new CompoundPropertyModel<StringModel>(stringModel));
-			
-			TextField<String> filter = new TextField<String>("filter");
-			
-			filter.add(new AjaxFormComponentUpdatingBehavior("onchange"){
-
-				@Override
-				protected void onUpdate(AjaxRequestTarget target) {
-					final Object value = getComponent().getDefaultModelObject();
-					
-					System.out.println("value:" + value);
-					
-				}
-				
-			});
-			add(filter);
-			
-		}
-		
-		public void onSubmit(){
-			//ignore, might need to set default processing false
-		}
-		
-	}
-	
-	
 }

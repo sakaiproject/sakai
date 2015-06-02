@@ -473,6 +473,24 @@
   font-family: 'gradebook-icons';
   content: '\f00d';
 }
+/* Student filter */
+#gradebookGrades .filtered-by-studentFilter {
+  display: none;
+}
+#gradebookGrades .gb-student-filter {
+  position: relative;
+}
+#gradebookGrades .gb-student-filter-clear:before {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  font-family: 'gradebook-icons';
+  content: '\f057';
+  color: #CCC;
+}
+#gradebookGrades .gb-student-filter-clear:hover {
+  text-decoration: none;
+}
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
