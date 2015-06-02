@@ -29,6 +29,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupRowSelector();
   this.setupConcurrencyCheck();
   this.setupColoredCategories();
+  this.setupStudentFilter();
 
   this._refreshColumnOrder();
 
@@ -186,8 +187,14 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
       event.preventDefault();
       event.stopPropagation();
 
-      $targetCell = aCell.getRow().prevAll(":visible:first").
-                      find(".gb-cell:nth-child("+($cell.index()+1)+")");
+      var $targetRow = aCell.getRow().prevAll(":visible:first");
+
+      if ($targetRow.length == 0) {
+        // all rows above are hidden! Jump to the header
+        $targetRow = self.$table.find("thead tr:last");
+      }
+
+      $targetCell = $targetRow.find(".gb-cell:nth-child("+($cell.index()+1)+")");
 
     // can we go up a row to the thead
     } else if ($row.index() == 0 && $row.parent().is("tbody")) {
@@ -206,7 +213,7 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
       event.preventDefault();
       event.stopPropagation();
 
-      $targetCell = self.$table.find("tbody tr:first").
+      $targetCell = self.$table.find("tbody tr:visible:first").
                       find(".gb-cell:nth-child("+($cell.index()+1)+")");   
     } else if ($row.index() < $row.siblings().last().index()) {
       event.preventDefault();
@@ -492,7 +499,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
 
   // Clicks on the fixed header return you to the real header cell
-  self.$fixedColumnsHeader.find("> *").on("mousedown", function(event) {
+  self.$fixedColumnsHeader.find("thead tr > *").on("mousedown", function(event) {
     event.preventDefault();
     $(document).scrollTop(self.$table.offset().top - 10);
     self.$spreadsheet.scrollLeft(0);
@@ -960,6 +967,34 @@ GradebookSpreadsheet.prototype.getRandomColor = function() {
   var b = getRandom256(180, 250);
 
   return "rgb("+r+","+g+","+b+")";
+};
+
+
+GradebookSpreadsheet.prototype.setupStudentFilter = function() {
+  var self = this;
+
+  function applyFilter(query) {
+    self.$spreadsheet.find(".filtered-by-studentFilter").removeClass("filtered-by-studentFilter");
+
+    if (query != "") {
+      var $allStudentLabels = self.$spreadsheet.find("tbody .gb-student-cell.gb-cell .gb-student-label:not(:icontains('"+query+"'))");
+      $allStudentLabels.each(function() {
+        $(this).closest("tr").addClass("filtered-by-studentFilter");
+      });
+    }
+  };
+
+  self.$table.on("keyup", ".gb-student-filter :input", function(event) {
+    var query = $(event.target).val();
+    applyFilter(query);
+
+    // update fixed header
+    self.$fixedColumnsHeader.find(".gb-student-filter :input").val(query);
+  });
+
+  self.$table.on("click", "#studentFilterClear", function() {
+    $(this).siblings(":input").val("").trigger("keyup").focus();
+  });
 };
 
 
@@ -1634,6 +1669,33 @@ GradebookWicketEventProxy = {
     }
   },
 };
+
+
+/**************************************************************************************
+ * jQuery extension to support case-insensitive :contains
+ */
+(function( $ ) {
+  function icontains( elem, text ) {
+      return (
+          elem.textContent ||
+          elem.innerText ||
+          $( elem ).text() ||
+          ""
+      ).toLowerCase().indexOf( (text || "").toLowerCase() ) > -1;
+  };
+
+  $.expr[':'].icontains = $.expr.createPseudo ?
+      $.expr.createPseudo(function( text ) {
+          return function( elem ) {
+              return icontains( elem, text );
+          };
+      }) :
+      function( elem, i, match ) {
+          return icontains( elem, match[3] );
+      };
+
+})( jQuery );
+
 
 
 /**************************************************************************************

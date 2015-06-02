@@ -6,10 +6,9 @@
 	
 	<div wicket:id="title" class="gb-title"></div>
 	
-	<div>
-		<form wicket:id="filterForm">
-			<input type="text" wicket:id="filter" wicket:message="placeholder:placeholder.students" />
-		</form>
+	<div class="gb-student-filter">
+	  <input type="text" id="studentFilterInput" wicket:message="placeholder:placeholder.students" />
+	  <a id="studentFilterClear" class="gb-student-filter-clear" href="javascript:void(0);"></a>
 	</div>
 	
 	<!--  this comes from the wicket bootstrap module, needs to be sorted out. -->
