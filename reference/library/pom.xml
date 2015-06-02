@@ -63,6 +63,9 @@
 		</profile>
 		<profile>
 			<id>compile-skin</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
 			<pluginRepositories>
 				<pluginRepository>
 					<id>rubygems-releases</id>
