@@ -5504,6 +5504,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		
 		context.put("item", item);
+
+		final boolean showFilter = ServerConfigurationService.getBoolean("resources.filter.show", Boolean.FALSE);
+		context.put("showFilter", showFilter);
+
+		final boolean showQuirks = ServerConfigurationService.getBoolean("resources.filter.showquirks", Boolean.FALSE);
+		context.put("showQuirks", showQuirks);
 		
 		String chhbeanname = "";
 		if (item.entity != null && item.entity.getProperties() != null)

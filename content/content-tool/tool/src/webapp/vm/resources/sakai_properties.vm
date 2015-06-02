@@ -648,15 +648,17 @@
 					</td>
 				</tr>
 			#end
-			#if (${item.html})
+			#if ($showFilter && ${item.html})
 				<tr>
 					<th>
 						$tlang.getFormattedMessage("props.html_filter", $model.serviceName)
 					</th>
 					<td>
 						<select name="html_filter${DOT}$i" size="1">
-							<option value="auto"#if($item.htmlFilter == "auto")selected="yes"#end>$tlang.getString("props.automatic")</option>
+							<option value="auto" #if($item.htmlFilter == "auto")selected="yes"#end>$tlang.getString("props.automatic")</option>
+							#if ($showQuirks)
 							<option value="yes" #if($item.htmlFilter == "yes")selected="yes"#end>$tlang.getString("props.always")</option>
+							#end
 							<option value="no" #if($item.htmlFilter == "no")selected="yes"#end>$tlang.getString("props.never")</option>
 						</select>
 					</td>
