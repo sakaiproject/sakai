@@ -69,7 +69,7 @@ function handleReportsTriangleDisclosure(btn)
 						<span class="highlight"> - $tlang.getString("gen.returned")</span>
                         #elseif (!$submission.getSubmitted())
                                 <span class="highlight"> - $submission.getStatus() </span>
-			#elseif (!$!nonElectronicType)
+			#elseif (!$!nonElectronicType && $!submission.isUserSubmission())
 				<span class="highlight"> - $tlang.getString("gen.subm4")</span>
 			#end
 		</h3>
