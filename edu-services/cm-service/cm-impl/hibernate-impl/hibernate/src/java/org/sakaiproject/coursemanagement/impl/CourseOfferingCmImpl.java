@@ -138,4 +138,22 @@ public class CourseOfferingCmImpl extends CrossListableCmImpl
 	public void setStatus(String status) {
 		this.status = status;
 	}
+
+	@Override
+	public String getTitle() {
+		if (isTitleEmpty() && canonicalCourse != null) {
+			return canonicalCourse.getTitle();
+		}
+
+		return title;
+	}
+
+	@Override
+	public String getDescription() {
+		if (isDescriptionEmpty() && canonicalCourse != null) {
+			return canonicalCourse.getDescription();
+		}
+
+		return description;
+	}
 }

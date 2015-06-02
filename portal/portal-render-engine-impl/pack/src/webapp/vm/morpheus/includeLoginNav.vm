@@ -11,95 +11,76 @@
         #end ## END of IF ($viewAsStudentLink)
 
         <ul id="loginLinks" class="Mrphs-userNav">
-            <li class="Mrphs-userNav__popup js-toggle-user-nav" aria-haspopup="true">
-
-                    #if (${displayUserloginInfo})
-
-                        #if (${tabsSites.mrphs_profileToolUrl})
-
-                            <a id="loginUser" role="menuitem" href="${tabsSites.mrphs_profileToolUrl}" class="Mrphs-userNav__submenuitem--userlink">
-                                <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
-                                <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
-                            </a>
-                            <span class="Mrphs-userNav__drop" tabindex="-1"></span>
-
-                        #else
-
-                            <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
-                            <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
-                            <span class="Mrphs-userNav__drop" tabindex="-1"></span>
-
-                        #end ## END of IF (${tabsSites.mrphs_profileToolUrl})
-
-                    #end ## END of IF (${displayUserloginInfo})
-
-                <ul class="Mrphs-userNav__subnav is-hidden" role="menu">
 
                 #foreach ( $site in $tabsSites.tabsSites )
 
                     #if (${site.isMyWorkspace})
+                        
+                        <li class="Mrphs-userNav__popup js-toggle-user-nav" aria-haspopup="true">
 
-                        #if (${site.isCurrentSite})
+                                #if (${displayUserloginInfo})
 
-                            <li class="Mrphs-userNav__submenuitem is-selected">
-                                <a href="#" role="menuitem" aria-haspopup="true">
-                                    ##<span>##${rloader.sit_mywor}</span>
-                                    <span>My Account</span>
-                                <span class="Mrphs-userNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
-                                </a>
-                            </li>
+                                    #if (${tabsSites.mrphs_profileToolUrl})
 
-                        #else
+                                        <a id="loginUser" role="menuitem" href="${site.siteUrl}" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                            <span class="Mrphs-userNav__drop Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></span>
+                                            <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
+                                            <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>                                    	
+                                        </a>
 
-                            <li class="Mrphs-userNav__submenuitem">
-                                <a href="${site.siteUrl}#" role="menuitem" aria-haspopup="true">
-                                    ##<span>##${rloader.sit_mywor}</span>
-                                    <span>My Account</span>
-                                    <span class="Mrphs-userNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
-                                </a>
-                            </li>
+                                    #else
 
-                        #end ## END of IF (${site.isCurrentSite})
+                                        <a id="loginUser" role="menuitem" href="${site.siteUrl}" class="no-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
+                                            <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
+                                            <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>
+                                        </a>
 
-                    #end ## END of IF (${site.isMyWorkspace})
+                                    #end ## END of IF (${tabsSites.mrphs_profileToolUrl})
+                                    <span class="Mrphs-userNav__drop" tabindex="-1"></span>
 
-                #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+                                #end ## END of IF (${displayUserloginInfo})
 
-                    #if (${tabsSites.prefsToolUrl})
+                            <ul class="Mrphs-userNav__subnav is-hidden" role="menu">
 
-                        <li class="Mrphs-userNav__submenuitem">
-                            <a role="menuitem" href="${tabsSites.prefsToolUrl}" class="Mrphs-userNav__submenuitem--prefs">
-                                <span>${rloader.sit_preferences}</span>
-                            </a>
-                        </li>
+                                    #if (${tabsSites.prefsToolUrl})
 
-                    #end ## END of IF (${tabsSites.prefsToolUrl})
+                                        <li class="Mrphs-userNav__submenuitem">
+                                            <a role="menuitem" href="${tabsSites.prefsToolUrl}" class="Mrphs-userNav__submenuitem--prefs">
+                                                <span>${rloader.sit_preferences}</span>
+                                            </a>
+                                        </li>
 
-                    #if (${tabsSites.worksiteToolUrl})
+                                    #end ## END of IF (${tabsSites.prefsToolUrl})
 
-                        #if ($allowAddSite)
+                                    #if (${tabsSites.worksiteToolUrl})
 
-                            <li class="Mrphs-userNav__submenuitem">
-                                <a id="addNewSiteLink" role="menuitem" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site" class="Mrphs-userNav__submenuitem--newsite">
-                            <span>${rloader.sit_newsite}</span>
-                                </a>
-                            </li>
+                                        #if ($allowAddSite)
 
-                        #end ## END of IF ($allowAddSite)
+                                            <li class="Mrphs-userNav__submenuitem">
+                                                <a id="addNewSiteLink" role="menuitem" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site" class="Mrphs-userNav__submenuitem--newsite">
+                                            <span>${rloader.sit_newsite}</span>
+                                                </a>
+                                            </li>
 
-                    #end ## END of IF (${tabsSites.prefsToolUrl})
+                                        #end ## END of IF ($allowAddSite)
 
-                    #if (${tabsSites.tutorial})
+                                    #end ## END of IF (${tabsSites.prefsToolUrl})
 
-                        <li class="Mrphs-userNav__submenuitem">
-                            <a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial">
-                                <span>${rloader.sit_tutorial}</span>
-                            </a>
-                        </li>
+                                    #if (${tabsSites.tutorial})
 
-                    #end ## END of IF (${tabsSites.tutorial})
+                                        <li class="Mrphs-userNav__submenuitem">
+                                            <a id="tutorialLink" role="menuitem" href="#" onclick="startTutorial({});" class="Mrphs-userNav__submenuitem--tutorial">
+                                                <span>${rloader.sit_tutorial}</span>
+                                            </a>
+                                        </li>
 
-                </ul>
+                                    #end ## END of IF (${tabsSites.tutorial})
+
+                            #end ## END of IF (${site.isMyWorkspace})
+
+                        #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
+
+                        </ul>
 
             </li>
 

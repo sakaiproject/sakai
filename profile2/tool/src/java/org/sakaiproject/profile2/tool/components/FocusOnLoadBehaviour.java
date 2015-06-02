@@ -16,8 +16,9 @@
 package org.sakaiproject.profile2.tool.components;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.behavior.AbstractBehavior;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.behavior.Behavior;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 
 /*
  * FocusOnLoadBehaviour. 
@@ -34,28 +35,27 @@ import org.apache.wicket.markup.html.IHeaderResponse;
  * 
  */
 
-public class FocusOnLoadBehaviour extends AbstractBehavior {
+public class FocusOnLoadBehaviour extends Behavior {
     
 	private static final long serialVersionUID = 1L;
 	
 	private Component component;
 
-    public void bind( Component component )
-    {
+	@Override
+    public void bind(Component component) {
         this.component = component;
         component.setOutputMarkupId(true);
     }
 
-    public void renderHead( IHeaderResponse iHeaderResponse )
-    {
-        super.renderHead(iHeaderResponse);
-        iHeaderResponse.renderOnLoadJavascript("document.getElementById('" + component.getMarkupId() + "').focus()");
-    }
-
-    public boolean isTemporary()
-    {
+    @Override
+    public boolean isTemporary(Component component) {
         // remove the behavior after component has been rendered       
         return true;
     }
+
+	@Override
+	public void renderHead(Component component, IHeaderResponse response) {
+        response.render(OnDomReadyHeaderItem.forScript("document.getElementById('" + component.getMarkupId() + "').focus()"));		
+	}
 }
 

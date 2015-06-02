@@ -12,6 +12,7 @@ body{
 
 a{
 	outline: none;
+	color: $primary-color;
 }
 
 h1, h2, h3, h4, h5, h6{
@@ -55,4 +56,20 @@ select{
 
 .is-hidden{
 	display: none;
+}
+
+strong, b{
+	font-weight: 700;
+}
+
+i, em{
+	font-style: italic;
+}
+
+u, ins {
+	text-decoration: underline;
+}
+
+s, strike, del {
+	text-decoration: line-through;
 }

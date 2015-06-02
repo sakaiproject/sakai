@@ -105,7 +105,7 @@ public class MyStaffDisplay extends Panel {
 		//staff profile
 		WebMarkupContainer staffProfileContainer = new WebMarkupContainer("staffProfileContainer");
 		staffProfileContainer.add(new Label("staffProfileLabel", new ResourceModel("profile.staffprofile")));
-		staffProfileContainer.add(new Label("staffProfile", staffProfile));
+		staffProfileContainer.add(new Label("staffProfile", ProfileUtils.processHtml(staffProfile)).setEscapeModelStrings(false));
 		add(staffProfileContainer);
 		if(StringUtils.isBlank(staffProfile)) {
 			staffProfileContainer.setVisible(false);
@@ -156,9 +156,9 @@ public class MyStaffDisplay extends Panel {
 				newPanel.setOutputMarkupId(true);
 				thisPanel.replaceWith(newPanel);
 				if(target != null) {
-					target.addComponent(newPanel);
+					target.add(newPanel);
 					//resize iframe
-					target.appendJavascript("setMainFrameHeight(window.name);");
+					target.appendJavaScript("setMainFrameHeight(window.name);");
 				}
 				
 			}

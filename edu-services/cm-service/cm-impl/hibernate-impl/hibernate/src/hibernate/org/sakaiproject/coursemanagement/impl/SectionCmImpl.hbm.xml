@@ -54,16 +54,16 @@
 
 	<query name="findInstructingSections">
         <![CDATA[
-        select sec from SectionCmImpl as sec, EnrollmentSetCmImpl as es
-        	where :userId in elements(es.officialInstructors) and
+        select sec from SectionCmImpl as sec, EnrollmentSetCmImpl as es join es.officialInstructors as instructor
+            where :userId = instructor and
         	sec.enrollmentSet = es
         ]]>
     </query>
 
 	<query name="findInstructingSectionsByAcademicSession">
         <![CDATA[
-        select sec from SectionCmImpl as sec, EnrollmentSetCmImpl as es
-        	where :userId in elements(es.officialInstructors) and
+        select sec from SectionCmImpl as sec, EnrollmentSetCmImpl as es join es.officialInstructors as instructor
+            where :userId = instructor and
         	sec.enrollmentSet = es and
         	sec.courseOffering.academicSession.eid=:academicSessionEid
         ]]>

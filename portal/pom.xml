@@ -35,15 +35,6 @@
         <module>portal-util/util</module>
     </modules>
 
-    <profiles>
-        <profile>
-            <id>remove-10</id>
-            <modules>
-                <module>portal-portlet-tool/tool</module>
-            </modules>
-        </profile>
-    </profiles>
-
     <scm>
         <connection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</connection>
         <developerConnection>scm:svn:https://source.sakaiproject.org/svn/portal/trunk</developerConnection>

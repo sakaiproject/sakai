@@ -79,4 +79,22 @@ public class EnrollmentSetCmImpl extends AbstractNamedCourseManagementObjectCmIm
 		this.officialInstructors = officialInstructors;
 	}
 	
+	@Override
+	public String getTitle() {
+		if (isTitleEmpty() && courseOffering != null) {
+			return courseOffering.getTitle();
+		}
+
+		return title;
+	}
+
+	@Override
+	public String getDescription() {
+		if (isDescriptionEmpty() && courseOffering != null) {
+			return courseOffering.getDescription();
+		}
+
+		return description;
+	}
+
 }

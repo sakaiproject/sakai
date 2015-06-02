@@ -424,8 +424,8 @@ public class Assignments extends AbstractWebService {
     	
     	if (gradebookExists)
     	{
-    		boolean isExternalAssignmentDefined=gradebookService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
-    		boolean isExternalAssociateAssignmentDefined = gradebookService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
+    		boolean isExternalAssignmentDefined=gradebookExternalAssessmentService.isExternalAssignmentDefined(gradebookUid, assignmentRef);
+    		boolean isExternalAssociateAssignmentDefined = gradebookExternalAssessmentService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment);
     		boolean isAssignmentDefined = gradebookService.isAssignmentDefined(gradebookUid, associateGradebookAssignment);
 
     		if (addUpdateRemoveAssignment != null)
@@ -436,7 +436,7 @@ public class Assignments extends AbstractWebService {
     				try
     				{
     					// add assignment to gradebook
-    					gradebookService.addExternalAssessment(gradebookUid,
+    					gradebookExternalAssessmentService.addExternalAssessment(gradebookUid,
     							assignmentRef, 
     							null,
     							newAssignment_title,
@@ -463,7 +463,7 @@ public class Assignments extends AbstractWebService {
     							try
     							{
     								// add assignment to gradebook
-    								gradebookService.addExternalAssessment(gradebookUid,
+    								gradebookExternalAssessmentService.addExternalAssessment(gradebookUid,
     										assignmentRef, 
     										null,
     										newTitle,
@@ -546,7 +546,7 @@ public class Assignments extends AbstractWebService {
     								if (isExternalAssociateAssignmentDefined)
     								{
     									// the associated assignment is externally maintained
-    									gradebookService.updateExternalAssessmentScores(gradebookUid, associateGradebookAssignment, m);
+    									gradebookExternalAssessmentService.updateExternalAssessmentScores(gradebookUid, associateGradebookAssignment, m);
     								}
     								else if (isAssignmentDefined)
     								{
@@ -558,14 +558,14 @@ public class Assignments extends AbstractWebService {
     										User[] submitters = aSubmission.getSubmitters();
     										String submitterId = submitters[0].getId();
     										String gradeString = StringUtils.trimToNull(aSubmission.getGrade(false));
-    										Double grade = (gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(gradeString)) : null;
-    										gradebookService.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitterId, grade, assignmentToolTitle);
+    										String grade = (gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null;
+    										gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, grade, assignmentToolTitle);
     									}
     								}
     							}
     							else if (isExternalAssignmentDefined)
     							{
-    								gradebookService.updateExternalAssessmentScores(gradebookUid, assignmentRef, m);
+    								gradebookExternalAssessmentService.updateExternalAssessmentScores(gradebookUid, assignmentRef, m);
     							}
     						}
     					}
@@ -580,23 +580,23 @@ public class Assignments extends AbstractWebService {
 
     							if (associateGradebookAssignment != null)
     							{
-    								if (gradebookService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment))
+    								if (gradebookExternalAssessmentService.isExternalAssignmentDefined(gradebookUid, associateGradebookAssignment))
     								{
     									// the associated assignment is externally maintained
-    									gradebookService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
-    											(gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(gradeString)) : null);
+    									gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
+    											(gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null);
     								}
     								else if (gradebookService.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
     								{
     									// the associated assignment is internal one, update records
-    									gradebookService.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
-    											(gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(gradeString)) : null, assignmentToolTitle);
+    									gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(),
+    											(gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null, assignmentToolTitle);
     								}
     							}
     							else
     							{
-    								gradebookService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(),
-    										(gradeString != null && aSubmission.getGradeReleased()) ? Double.valueOf(displayGrade(gradeString)) : null);
+    								gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(),
+    										(gradeString != null && aSubmission.getGradeReleased()) ? displayGrade(gradeString) : null);
     							}
     						}
     						catch (Exception e)
@@ -621,11 +621,11 @@ public class Assignments extends AbstractWebService {
     							if (isExternalAssociateAssignmentDefined)
     							{
     								// if the old associated assignment is an external maintained one
-    								gradebookService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null);
+    								gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null);
     							}
     							else if (isAssignmentDefined)
     							{
-    								gradebookService.setAssignmentScore(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null, assignmentToolTitle);
+    								gradebookService.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[0].getId(), null, assignmentToolTitle);
     							}
     						}
     					}
@@ -636,7 +636,7 @@ public class Assignments extends AbstractWebService {
     						{
     							AssignmentSubmission aSubmission = (AssignmentSubmission) assignmentService.getSubmission(submissionRef);
     							User[] submitters = aSubmission.getSubmitters();
-    							gradebookService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), null);
+    							gradebookExternalAssessmentService.updateExternalAssessmentScore(gradebookUid, assignmentRef, submitters[0].getId(), null);
     						}
     						catch (Exception e)
     						{

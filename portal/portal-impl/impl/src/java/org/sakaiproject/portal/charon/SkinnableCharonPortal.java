@@ -62,7 +62,6 @@ import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
 import org.sakaiproject.portal.api.PortalRenderEngine;
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalSiteHelper;
 import org.sakaiproject.portal.api.SiteNeighbourhoodService;
 import org.sakaiproject.portal.api.SiteView;
@@ -131,6 +130,7 @@ import org.sakaiproject.util.Web;
 
 import au.com.flyingkite.mobiledetect.UAgentInfo;
 import org.apache.commons.lang.ArrayUtils;
+
 
 /**
  * <p/> Charon is the Sakai Site based portal.
@@ -273,8 +273,13 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			{
 			case ERROR_SITE:
 			{
-				siteHandler.doSite(req, res, session, "!error", null, null, null, null,
-					req.getContextPath() + req.getServletPath());
+				// This preseves the "bad" origin site ID.
+				String[] parts = getParts(req);
+				if (parts.length >= 3) {
+					String siteId = parts[2];
+					ThreadLocalManager.set(PortalService.SAKAI_PORTAL_ORIGINAL_SITEID, siteId);
+				}
+				siteHandler.doGet(parts, req, res, session, "!error");
 				break;
 			}
 			case ERROR_WORKSITE:
@@ -818,19 +823,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// recognize what to do from the path
 			String option = URLUtils.getSafePathInfo(req);
 
-			//FindBugs thinks this is not used but is passed to the portal handler
-			String[] parts = {};
-
-			if (option == null || "/".equals(option))
-			{
-				// Use the default handler prefix
-				parts = new String[]{"", handlerPrefix};
-			}
-			else
-			{
-				//get the parts (the first will be "")
-				parts = option.split("/");
-			}
+			String[] parts = getParts(req);
 
 			Map<String, PortalHandler> handlerMap = portalService.getHandlerMap(this);
 
@@ -898,6 +891,25 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		{
 			portalService.setResetState(null);
 		}
+	}
+
+	private String[] getParts(HttpServletRequest req) {
+
+		String option = URLUtils.getSafePathInfo(req);
+		//FindBugs thinks this is not used but is passed to the portal handler
+		String[] parts = {};
+
+		if (option == null || "/".equals(option))
+		{
+			// Use the default handler prefix
+			parts = new String[]{"", handlerPrefix};
+		}
+		else
+		{
+			//get the parts (the first will be "")
+			parts = option.split("/");
+		}
+		return parts;
 	}
 
 	public void doLogin(HttpServletRequest req, HttpServletResponse res, Session session,

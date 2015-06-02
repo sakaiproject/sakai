@@ -43,7 +43,7 @@ public class InitMimeTypes extends HttpServlet{
 
   public void init (ServletConfig config) throws ServletException {
     super.init(config);
-    String path = config.getServletContext().getRealPath("WEB-INF/mime.types");
+    String path = config.getServletContext().getRealPath("/WEB-INF/mime.types");
     log.debug("**** mimetypes path="+path);
     MimetypesFileTypeMap mimeTypeMap = null;
     FileInputStream input = null;

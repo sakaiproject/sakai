@@ -8,36 +8,70 @@ $phone: "only screen and (max-width : #{ $break-small-end })";
 body{
 	@media #{$phone}{
 		&.toolsNav--displayed{
-			#toolMenuWrap{
-				left: 0px;
-				@include box-shadow( 0 8px 8px rgba( $text-color, 1 ) );
-			}
-			.#{$namespace}mainHeader{
-				.#{$namespace}headerLogo{
-					width: $tool-menu-width;
-				}
-			}
 			#skipNav{
-				.js-toggle-sites-nav{
-					display: none;
-				}
 				.js-toggle-tools-nav{
-					color: $background-color;
-					left: 186px;
-					position: absolute;
-					font-size: 2.7em;
+					top: 47px;
+					left: #{ $tool-menu-width * 0.8 };
+					@include transform( rotateZ(180deg) );
 				}
 			}
-			#loginForm{
-				display: none;
+			#toolMenuWrap{
+				width: $tool-menu-width;
+				.Mrphs-toolsNav__menuitem--title{
+					display: inline;
+					letter-spacing: 0px;
+					border: 0px none;
+					@include border-radius( 0 );
+					@include box-shadow( none );
+				}
 			}
 		}
 		&.sitesNav--displayed{
+
+			#toolMenuWrap{
+				display: none;
+			}
 			#linkNav{
-				height: auto;
-				border-top: 5px solid $text-color;
-				display: block;
-				@include box-shadow(0 2px 8px rgba( $text-color, 0.25 ) );
+				left: 0;
+				@include box-shadow( 3em 0 13em rgba(54,54,54,0.75) );
+				ul{
+					&.#{namespace}sitesNav__menu{
+						margin: 1em 0.8em 0 1.2em;
+					}
+				}
+			}
+			.#{$namespace}mainHeader{
+				.#{$namespace}headerLogo{
+					width: 75%;
+					display: block;
+					position: absolute;
+					z-index: 4;
+				}
+			}
+			#skipNav{
+				.js-toggle-tools-nav{
+					display: none;
+				}
+				.js-toggle-sites-nav{
+					left: 77%;
+					.hamburger{
+						.top{
+							@include transform( rotateZ(-45deg) );
+							top: -9px;
+							left: -18px;
+							color: darken($errorcolor, 40%);
+						}
+						.middle{
+			  				opacity: 0;
+			  			}
+			  			.bottom{
+			  				@include transform( rotateZ(45deg) );
+			  				top: -33px;
+			  				left: 26px;
+							color: darken($errorcolor, 40%);
+			  			}
+					}
+				}
 			}
 		}
 	}

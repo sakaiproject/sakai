@@ -23,7 +23,6 @@ package org.sakaiproject.content.impl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -906,21 +905,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			DropboxNotification dropboxNotification = new DropboxNotification(m_securityService, this, m_entityManager, m_siteService,
 					userDirectoryService, m_serverConfigurationService);
 			dbNoti.setAction(dropboxNotification);
-
-			if (m_bodyPathDeleted != null) {
-				File deletedFolder = new File(m_bodyPathDeleted);
-				if (!deletedFolder.exists()) {
-					if (!deletedFolder.mkdirs()) {
-						M_log.error("failed to create bodyPathDeleted " + m_bodyPathDeleted + ". Resource backup to file system has been disabled! Please set with the property: bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService");
-						m_bodyPathDeleted = null;
-					}
-				}
-			} else {
-				if (m_bodyPath != null) {
-					M_log.info("m_bodyPathDeleted is not set as a property. Please set with the property: bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService if you want to allow for deletion of resources");
-				}
-			}
-
 
 			StringBuilder buf = new StringBuilder();
 			if (m_bodyVolumes != null)

@@ -3,15 +3,15 @@
 	@media #{$phone}{
 		display: block;
 		.js-toggle-tools-nav{
-			position: fixed;
-			top: -6px;
-			left:5px;
+			position: absolute;
+			top: 36px;
+			left: 10px;
 			display: block;
-			color: $primary-color;
+			color: $background-color;
 			font-size: 2.7em;
 			z-index: 1;
 			text-decoration: none;
-			@include transition( left 0.25s linear );
+			@include transition( left 0.5s linear );
 			span{
 				display: none;
 			}
@@ -23,26 +23,47 @@
 			}
 		}
 		.js-toggle-sites-nav{
-			background: $primary-color;
 			display: block;
 			height: 32px;
-			left:50px;
+			left:5px;
 			position: fixed;
 			text-decoration: none;
-			top: 12px;
+			top: 5px;
 			width: 32px;
-			z-index: 1;
-			@include border-radius(32px);
-			&:after{
-				content: "S";
-				color: $background-color;
-				font-size: 1.1em;
-				left: 11px;
-				position: relative;
-				top: 3px;
-			}
+			z-index: 2;
+			overflow: hidden;
+			@include transition(left 0.5s linear);
 			span{
 				display: none;
+				&.hamburger{
+					width: 32px;
+					height: 32px;
+					font-size: 2.7em;
+					@include display-flex(inline-flex);
+			  		@include flex-direction(column);
+			  		@include align-items(flex-end);
+			  		@include justify-content(space-between);
+				  	@include transition( all 0.5s linear );
+			  		> span{
+			  			display: block;
+			  			height: 8px;
+			  			color: $primary-color;
+				  		@include transition( all 0.5s linear );
+			  			&.top{
+			  				position: relative;
+			  				top: -25px;
+			  			}
+			  			&.middle{
+			  				position: relative;
+			  				top: -27px;
+			  				opacity: 1;
+			  			}
+			  			&.bottom{
+			  				position: relative;
+			  				top: -29px;
+			  			}
+			  		}
+				}
 			}
 		}
 	}

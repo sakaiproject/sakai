@@ -17,20 +17,25 @@ package org.sakaiproject.profile2.tool.pages;
 
 import java.util.Locale;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnLoadHeaderItem;
+import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.IHeaderContributor;
-import org.apache.wicket.markup.html.IHeaderResponse;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.cookies.CookieDefaults;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.sakaiproject.profile2.logic.ProfileConnectionsLogic;
 import org.sakaiproject.profile2.logic.ProfileExternalIntegrationLogic;
 import org.sakaiproject.profile2.logic.ProfileImageLogic;
@@ -102,7 +107,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		setUserPreferredLocale();
 		
 		//PRFL-791 set base HTML lang attribute
-		add(new LocaleAwareHtmlTag("html")); 
+		//add(new LocaleAwareHtmlTag("html")); 
 		
 		//get currentUserUuid
 		String currentUserUuid = sakaiProxy.getCurrentUserId();
@@ -261,17 +266,18 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	
 	//Style it like a Sakai tool
 	public void renderHead(IHeaderResponse response) {
-		
+				
 		//get the Sakai skin header fragment from the request attribute
-		HttpServletRequest request = getWebRequestCycle().getWebRequest().getHttpServletRequest();
-		response.renderString((String)request.getAttribute("sakai.html.head"));
-		response.renderOnLoadJavascript("setMainFrameHeight( window.name )");
+		HttpServletRequest request = (HttpServletRequest)getRequest().getContainerRequest();
+		
+		response.render(StringHeaderItem.forString((String)request.getAttribute("sakai.html.head")));
+		response.render(OnLoadHeaderItem.forScript("setMainFrameHeight( window.name )"));
 		
 		//Tool additions (at end so we can override if required)
-		response.renderString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />");
-		response.renderCSSReference("css/profile2.css");
-		response.renderJavascriptReference("javascript/profile2.js");
-		
+		response.render(StringHeaderItem.forString("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=UTF-8\" />"));
+		response.render(CssHeaderItem.forUrl("/profile2-tool/css/profile2.css"));
+		response.render(JavaScriptHeaderItem.forUrl("/profile2-tool/javascript/profile2.js"));		
+				
 	}
 	
 	/* disable caching
@@ -315,10 +321,12 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	 */
 	protected void setTabCookie(int tabIndex) {
 		
-		Cookie tabCookie = new Cookie(ProfileConstants.TAB_COOKIE, "" + tabIndex);
-		// don't persist indefinitely
-		tabCookie.setMaxAge(-1);
-		getWebRequestCycle().getWebResponse().addCookie(tabCookie);
+		CookieDefaults defaults = new CookieDefaults();
+		defaults.setMaxAge(-1);
+		
+		CookieUtils utils = new CookieUtils(defaults);
+		utils.save(ProfileConstants.TAB_COOKIE, String.valueOf(tabIndex));
 	}
+	
 	
 }

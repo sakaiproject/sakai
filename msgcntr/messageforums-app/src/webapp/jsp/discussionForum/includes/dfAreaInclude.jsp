@@ -182,6 +182,25 @@ $(document).ready(function() {
 	  </h:dataTable>
 				<f:verbatim></div></f:verbatim>
 				</f:subview>
+				<f:subview id="dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && forum.availabilityRestricted == 'true'}">
+					<h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
+							onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
+						<h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_read_dates}" />
+						
+					</h:outputLink>
+					<h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
+							onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('table.forumHeader')), $(this));">
+						<h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide_dates}" />
+					</h:outputLink>
+					<f:subview id="showDate">
+						<f:verbatim><div class="toggle2" style="display:none;"></f:verbatim>
+					</f:subview>
+						<h:panelGrid columns="1" rendered="#{forum.availabilityRestricted == 'true'}">
+							<h:outputText value="#{msgs.openDate}: #{forum.formattedOpenDate}" />
+							<h:outputText value="#{msgs.closeDate}: #{forum.formattedCloseDate}" />
+						</h:panelGrid>
+					<f:verbatim></div></f:verbatim>
+				</f:subview>
 	  </h:panelGroup>
   </h:panelGrid>
 	  <%-- the topic list  --%>
@@ -321,6 +340,25 @@ $(document).ready(function() {
 			--%>
     <f:verbatim></div></f:verbatim>
     </f:subview>
+			<f:subview id="topic_dates" rendered="#{ForumTool.showAvailabilityDates == 'true' && topic.availabilityRestricted == 'true'}">
+				<h:outputLink id="forum_extended_show2" value="javascript:void(0)" title="#{msgs.cdfm_read_dates}"  styleClass="show" style="#{'display:block'}"
+						onclick="toggleDates($(this).next('.hide'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
+					<h:graphicImage url="/images/collapse.gif" /><h:outputText value="#{msgs.cdfm_read_dates}" />
+					
+				</h:outputLink>
+				<h:outputLink id="forum_extended_hide2" value="javascript:void(0)" title="#{msgs.cdfm_hide_dates}" styleClass="hide" style="#{'display:none'}"
+						onclick="toggleDates($(this).prev('.show'), $('div.toggle2:first', $(this).parents('tr:first')), $(this));">
+					<h:graphicImage url="/images/expand.gif"/> <h:outputText value="#{msgs.cdfm_hide_dates}" />
+				</h:outputLink>
+				<f:subview id="showTopicDate">
+					<f:verbatim><div class="toggle2" style="display:none;"></f:verbatim>
+				</f:subview>
+					<h:panelGrid columns="1" rendered="#{topic.availabilityRestricted == 'true'}">
+						<h:outputText value="#{msgs.openDate}: #{topic.formattedOpenDate}" />
+						<h:outputText value="#{msgs.closeDate}: #{topic.formattedCloseDate}" />
+					</h:panelGrid>
+				<f:verbatim></div></f:verbatim>
+			</f:subview>
 						</h:panelGroup>
 					
 					</h:panelGrid>

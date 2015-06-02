@@ -4338,8 +4338,11 @@ public class DiscussionForumTool
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
 	  GradebookService gradebookService = getGradebookService();
 	  if (gradebookService == null) return;
+	  
+	  Assignment assignment = gradebookService.getAssignment(gradebookUid, gradebookUid);
+	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
-	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, selAssignmentName, studentId);
+	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
 	  if (function == null) {
 		  allowedToGradeItem = false;
 		  selGBItemRestricted = true;
@@ -9965,5 +9968,9 @@ public class DiscussionForumTool
     	}
     	return false;
     }
+	
+	public boolean isShowAvailabilityDates(){
+		return ServerConfigurationService.getBoolean("msgcntr.display.availability.dates", true);
+	}
 }
 

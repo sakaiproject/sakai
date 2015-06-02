@@ -9,9 +9,7 @@
     <body class="portalBody Mrphs-portalBody">
     	<form id="Mrphs-xlogin" method="post" action="${action}" #if (${notify}) class="with-errors" #end>
             <h1>${loginRequired}</h1>
-            <aside class="logo">
-                <img id="gravatar" />
-            </aside>
+            <aside class="logo"></aside>
         	#if (${notify})
         		<div class="alertMessage" role="alert">${notify}</div>
         	#end

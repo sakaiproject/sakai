@@ -106,14 +106,14 @@ public class TwitterPrefsPane extends Panel {
 				
 				if(StringUtils.isBlank(accessCode)) {
 					//TODO change this
-					target.appendJavascript("alert('AccessCode was null.');");
+					target.appendJavaScript("alert('AccessCode was null.');");
 					return;
 				}
 				
 				AccessToken accessToken = getOAuthAccessToken(accessCode);				
 				if(accessToken == null) {
 					//TODO change this
-					target.appendJavascript("alert('AccessToken was null.');");
+					target.appendJavaScript("alert('AccessToken was null.');");
 					return;
 				}
 				
@@ -125,7 +125,7 @@ public class TwitterPrefsPane extends Panel {
 				if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
 					switchContentFragments(linkedFragment(), target);
 				} else {
-					target.appendJavascript("alert('Couldn't save info');");
+					target.appendJavaScript("alert('Couldn't save info');");
 					return;
 				}
 				
@@ -146,8 +146,8 @@ public class TwitterPrefsPane extends Panel {
 				//enable code box and button
 				twitterAuthCode.setEnabled(true);
 				twitterSubmit.setEnabled(true);
-				target.addComponent(twitterAuthCode);
-				target.addComponent(twitterSubmit);
+				target.add(twitterAuthCode);
+				target.add(twitterSubmit);
 				
 			}
 		};
@@ -192,7 +192,7 @@ public class TwitterPrefsPane extends Panel {
 				if(externalIntegrationLogic.updateExternalIntegrationInfo(externalIntegrationInfo)) {
 					switchContentFragments(unlinkedFragment(), target);
 				} else {
-					target.appendJavascript("alert('Couldn't remove info');");
+					target.appendJavaScript("alert('Couldn't remove info');");
 					return;
 				}
 			}
@@ -219,9 +219,9 @@ public class TwitterPrefsPane extends Panel {
 		replacement.setOutputMarkupId(true);
 		currentFragment.replaceWith(replacement);
 		if(target != null) {
-			target.addComponent(replacement);
+			target.add(replacement);
 			//resize iframe
-			target.appendJavascript("setMainFrameHeight(window.name);");
+			target.appendJavaScript("setMainFrameHeight(window.name);");
 		}
 		
 		//must keep reference up to date

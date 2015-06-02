@@ -19,5 +19,11 @@ function toggleSitesNav(){
 
 }
 
+$PBJQ(document).ready(function(){
+	if( $PBJQ('#linkNav').length == 0 ){
+		$PBJQ('.js-toggle-sites-nav').hide();
+	}
+});
+
 $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
 $PBJQ(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);

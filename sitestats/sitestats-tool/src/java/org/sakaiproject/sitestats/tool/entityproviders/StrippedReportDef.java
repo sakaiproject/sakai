@@ -43,8 +43,14 @@ public class StrippedReportDef {
         this.title = reportDef.getTitle();
         this.description = reportDef.getDescription();
         ReportParams params = reportDef.getReportParams();
-        this.from = params.getWhenFrom().getTime();
-        this.to = params.getWhenTo().getTime();
+        // The report parameters might not all be defined and so there may not be a
+        // from / to value.
+        if (params.getWhenFrom() != null) {
+            this.from = params.getWhenFrom().getTime();
+        }
+        if (params.getWhenTo() != null) {
+            this.to = params.getWhenTo().getTime();
+        }
         this.toolIds = params.getWhatToolIds();
         this.eventIds = params.getWhatEventIds();
         this.resourceIds = params.getWhatResourceIds();

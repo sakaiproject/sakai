@@ -206,13 +206,13 @@ public class ChangeProfilePictureUpload extends Panel{
 
 			@Override
 			protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				target.addComponent(feedback);
+				target.add(feedback);
 			}
 			
         	// update feedback panel if validation failed
         	protected void onError(AjaxRequestTarget target, Form form) { 
         		log.debug("ChangeProfilePictureUpload.onSubmit validation failed.");
-        	    target.addComponent(feedback); 
+        	    target.add(feedback); 
         	} 
 
 		};

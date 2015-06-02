@@ -78,7 +78,7 @@ public class RequestedFriends extends Panel {
 		RequestedFriendsDataProvider provider = new RequestedFriendsDataProvider(userUuid);
 		
 		//init number of requests
-		numRequestedFriends = provider.size();
+		numRequestedFriends = (int) provider.size();
 		
 		//model so we can update the number of requests
 		IModel<Integer> numRequestedFriendsModel = new Model<Integer>() {
@@ -172,25 +172,25 @@ public class RequestedFriends extends Panel {
 				            		numRequestedFriends--;
 				            		
 				            		//remove friend item from display
-				            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+				            		target.appendJavaScript("$('#" + item.getMarkupId() + "').slideUp();");
 				            		
 				            		//update label
-				            		target.addComponent(requestedFriendsHeading);
+				            		target.add(requestedFriendsHeading);
 				            		
 				            		//get parent panel and repaint ConfirmedFriends panel via helper method in MyFriends 
 				            		findParent(MyFriends.class).updateConfirmedFriends(target, userUuid);
 				            		
 				            		//if none left, hide everything
 				            		if(numRequestedFriends==0) {
-				            			target.appendJavascript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
-				            			target.appendJavascript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
+				            			target.appendJavaScript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
+				            			target.appendJavaScript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
 				            		}
 				            	}
 							}
 				        });	
 						
 						connectionWindow.show(target);
-						target.appendJavascript("fixWindowVertical();"); 
+						target.appendJavaScript("fixWindowVertical();"); 
 					}
 				};
 				//ContextImage confirmConnectionIcon = new ContextImage("confirmConnectionIcon",new Model<String>(ProfileConstants.ACCEPT_IMG));
@@ -224,22 +224,22 @@ public class RequestedFriends extends Panel {
 				            		numRequestedFriends--;
 				            		
 				            		//remove friend item from display
-				            		target.appendJavascript("$('#" + item.getMarkupId() + "').slideUp();");
+				            		target.appendJavaScript("$('#" + item.getMarkupId() + "').slideUp();");
 				            		
 				            		//update label
-				            		target.addComponent(requestedFriendsHeading);
+				            		target.add(requestedFriendsHeading);
 				            				            		
 				            		//if none left, hide everything
 				            		if(numRequestedFriends==0) {
-				            			target.appendJavascript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
-				            			target.appendJavascript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
+				            			target.appendJavaScript("$('#" + requestedFriendsHeading.getMarkupId() + "').fadeOut();");
+				            			target.appendJavaScript("$('#" + requestedFriendsContainer.getMarkupId() + "').fadeOut();");
 				            		}
 				            	}
 							}
 				        });	
 						
 						connectionWindow.show(target);
-						target.appendJavascript("fixWindowVertical();"); 
+						target.appendJavaScript("fixWindowVertical();"); 
 					}
 				};
 				//ContextImage ignoreConnectionIcon = new ContextImage("ignoreConnectionIcon",new Model<String>(ProfileConstants.CANCEL_IMG));
