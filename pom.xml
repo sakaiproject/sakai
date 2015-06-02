@@ -201,7 +201,80 @@
                 <module>webservices</module>
                 <module>yaft</module>
             </modules>
-        </profile>
+           </profile>
+        <profile>
+            <id>cafe</id>
+            <modules>
+		      	<module>memory</module>
+				<module>kernel</module>
+				<module>entitybroker</module>
+				<module>emailtemplateservice</module>
+				<module>oauth</module>
+				<module>common</module>
+				<module>edu-services</module>
+                <!-- <module>core-deploy</module> -->
+                
+		 		<module>velocity</module>
+		 		<module>jsf</module>
+		 		<module>courier</module>
+		 		<module>config</module>		
+				<module>access</module>
+                <module>alias</module>
+                <module>announcement/announcement-api/api</module>
+                <module>message/message-api/api</module>
+                <!--
+                
+                <module>announcement/announcement-impl/impl</module>
+                <module>announcement/announcement-impl/pack</module>
+                -->
+                <!-- <module>archive</module>-->
+                <module>authz</module>
+                <module>userauditservice</module>
+                
+                <!--  <module>content/content-bundles</module>
+                <module>content/content-help</module>
+                <module>content/content-tool/tool</module>
+	        <module>content/content-copyright/api</module>
+		<module>content/content-copyright/impl</module>
+	        <module>content/content-copyright/pack</module> -->
+                
+                <module>help</module>
+                <module>login</module>
+                <module>master</module>
+                <!-- <module>message</module> -->
+                
+                <module>portal</module>
+                <module>profile2</module>
+                <!-- profile2 - search -->
+                <module>search/search-api/api</module>
+                <module>presence</module> 
+                <module>reference</module>
+                <module>textarea</module>
+                <!--  fck-->
+                <module>msgcntr/messageforums-api</module>
+                <module>samigo/samigo-services</module>
+                <module>samigo/samigo-api</module>
+                <module>samigo/samigo-hibernate</module>
+                <!-- <module>samigo/samigo-pack</module>-->
+                <module>assignment/assignment-api/api</module>
+                <module>taggable/taggable-api/api</module>
+                <module>calendar/calendar-api/api/</module>
+                <module>jobscheduler</module>
+                <!-- ends -->
+                <!-- <module>site</module> -->
+                <module>site-manage</module>
+                <!-- site-manage - -->
+                <module>basiclti</module>
+                <module>lessonbuilder/api</module>
+                <module>shortenedurl</module>
+                <module>reset-pass</module>
+                <!-- ends -->
+                <module>tool</module>
+                <module>user/user-tool/tool</module>
+                <!-- -->
+	    </modules>
+	</profile>
+        
         
         <!-- pack profiles for building release artifacts -->
         <profile>

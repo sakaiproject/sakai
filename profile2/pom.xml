@@ -38,12 +38,12 @@
   </modules>
 
   <profiles>
-    <profile>
+<!--     <profile>
       <id>cafe</id>
       <modules>
         <module>deploy</module>
       </modules>
-    </profile>
+    </profile>-->
     <profile>
         <id>remove-10</id>
         <modules>

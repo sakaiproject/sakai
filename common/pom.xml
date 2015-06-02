@@ -12,34 +12,58 @@
   <version>11-SNAPSHOT</version><!-- ProjectVersion -->
   <artifactId>common</artifactId>
   <packaging>pom</packaging>
-
-  <modules>
-    <module>pack</module>
-    <module>common-composite-component</module>
-    <module>impl</module>
-    <module>edu-person-api</module>
-    <module>manager-api</module>
-    <module>type-api</module>
-    <module>privacy-api</module>
-    <module>privacy-comp-impl</module>
-    <module>privacy-components</module>
-    <module>privacy-hbm</module>
-    <module>privacy-integration-test</module>
-    <!-- archive and import -->
-    <module>archive-api</module>
-    <module>archive-impl/impl2</module>
-    <module>archive-impl/pack</module>
-    <module>import-impl</module>
-    <module>import-handlers/content-handlers</module>
-    <module>import-pack</module>
-    <module>import-util</module>
-    <module>import-parsers/common-cartridge</module>
-    <module>import-parsers/sakai-archive</module>
-    <module>import-parsers/blackboard_5-5</module>
-    <module>import-parsers/blackboard_6/api</module>
-    <module>import-parsers/blackboard_6/impl</module>
-  </modules>
-
+   <profiles>
+        <profile>
+            <id>all</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+			  <modules>
+			    <module>pack</module>
+			    <module>common-composite-component</module>
+			    <module>impl</module>
+			    <module>edu-person-api</module>
+			    <module>manager-api</module>
+			    <module>type-api</module>
+			    <module>privacy-api</module>
+			    <module>privacy-comp-impl</module>
+			    <module>privacy-components</module>
+			    <module>privacy-hbm</module>
+			    <module>privacy-integration-test</module>
+			    <!-- archive and import -->
+			    <module>archive-api</module>
+			    <module>archive-impl/impl2</module>
+			    <module>archive-impl/pack</module>
+			    <module>import-impl</module>
+			    <module>import-handlers/content-handlers</module>
+			    <module>import-pack</module>
+			    <module>import-util</module>
+			    <module>import-parsers/common-cartridge</module>
+			    <module>import-parsers/sakai-archive</module>
+			    <module>import-parsers/blackboard_5-5</module>
+			    <module>import-parsers/blackboard_6/api</module>
+			    <module>import-parsers/blackboard_6/impl</module>
+			  </modules>
+</profile>
+        <profile>
+            <id>cafe</id>
+            <modules>
+				<module>pack</module>
+		<!-- <module>common-composite-component</module>-->
+				<module>impl</module>
+				<module>edu-person-api</module>
+				<module>manager-api</module>
+				<module>type-api</module>
+				<module>privacy-api</module>
+				<module>privacy-comp-impl</module>
+				<module>privacy-components</module>
+				<module>privacy-hbm</module>
+				<module>privacy-integration-test</module>
+				<module>common-composite-component</module>
+				<module>archive-api</module>
+            </modules>
+            </profile>
+            </profiles>
   <scm>
     <connection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</connection>
     <developerConnection>scm:svn:https://source.sakaiproject.org/svn/common/trunk</developerConnection>
