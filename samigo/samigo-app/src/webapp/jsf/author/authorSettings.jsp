@@ -89,6 +89,7 @@
           lockdownGradebook(releaseToVal);
           showHideReleaseGroups();
           checkUncheckTimeBox();
+          checkLastHandling();
         });
       </script>
 
@@ -275,7 +276,7 @@
     <h:outputText value="#{assessmentSettingsMessages.late_accept}" />
     <h:panelGrid columns="3" border="0" columnClasses="alignBottom">
       <f:verbatim>&nbsp;&nbsp;</f:verbatim>
-      <h:selectOneRadio id="lateHandling" value="#{assessmentSettings.lateHandling}"  layout="pageDirection">
+      <h:selectOneRadio id="lateHandling" value="#{assessmentSettings.lateHandling}" onclick="checkLastHandling();" layout="pageDirection">
         <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.no_late}"/>
         <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.yes_late}"/>
       </h:selectOneRadio>
