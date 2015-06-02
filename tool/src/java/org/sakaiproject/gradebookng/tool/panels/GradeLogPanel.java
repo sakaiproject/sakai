@@ -54,7 +54,7 @@ public class GradeLogPanel extends Panel {
 		final List<GbGradeLog> gradeLog = businessService.getGradeLog(studentUuid, assignmentId);
 		
 		//render list        
-        ListView<GbGradeLog> listView = new ListView<GbGradeLog>("gradeLog", gradeLog) {
+        ListView<GbGradeLog> listView = new ListView<GbGradeLog>("log", gradeLog) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -77,7 +77,7 @@ public class GradeLogPanel extends Panel {
         add(listView);
         
         //no entries
-        Label emptyLabel = new Label("gradeLogEmpty", new ResourceModel("grade.log.none"));
+        Label emptyLabel = new Label("empty", new ResourceModel("grade.log.none"));
         emptyLabel.setVisible(gradeLog.isEmpty());
         add(emptyLabel);
         
@@ -93,10 +93,9 @@ public class GradeLogPanel extends Panel {
 	    });
         
         //heading
+        //TODO if user has been deleted since rendering the GradebookPage, handle a null here gracefully
         GbUser user = this.businessService.getUser(studentUuid);
-        String displayId = (user != null) ? user.getDisplayId() : getString("unknown.user.id");
-        String displayName = (user != null) ? user.getDisplayName() : getString("unknown.user.name");
-        add(new Label("gradeLogHeading", new StringResourceModel("heading.gradelog", null, new Object[] {displayName, displayId})));
+        add(new Label("heading", new StringResourceModel("heading.gradelog", null, new Object[] {user.getDisplayName(), user.getDisplayId()})));
       		
 	}
 	

@@ -308,10 +308,7 @@ public class GradebookNgBusinessService {
 			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, newGrade, comment);
 			if(rval == null) {
 				//if we don't have some other warning, it was all OK
-				rval = GradeSaveResponse.OK;
-				
-				//push an event into the cache
-				
+				rval = GradeSaveResponse.OK;				
 			}
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
@@ -1000,6 +997,28 @@ public class GradebookNgBusinessService {
     	 } catch (UserNotDefinedException e) {
     		return null; 
     	 }
+     }
+     
+     /**
+      * Update (or set) the comment for an assignment grade record
+      * @param assignmentId id of assignment
+      * @param studentUuid uuid of student
+      * @param comment the comment
+      * @return true/false
+      */
+     public boolean updateGradeComment(final long assignmentId, final String studentUuid, final String comment) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 try {
+    		 this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
+    		 return true;
+    	 } catch (GradebookNotFoundException | AssessmentNotFoundException e) {
+ 			log.error("An error occurred saving the comment. " + e.getClass() + ": " + e.getMessage());
+    	 }
+    	 
+    	 return false;
      }
     
 

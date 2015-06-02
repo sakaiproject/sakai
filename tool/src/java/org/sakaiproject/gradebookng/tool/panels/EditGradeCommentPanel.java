@@ -1,0 +1,142 @@
+package org.sakaiproject.gradebookng.tool.panels;
+
+import java.io.Serializable;
+import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+import lombok.Getter;
+import lombok.Setter;
+
+import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.markup.repeater.Item;
+import org.apache.wicket.markup.repeater.RepeatingView;
+import org.apache.wicket.markup.repeater.data.DataView;
+import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.CompoundPropertyModel;
+import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.tool.model.GradeInfo;
+import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.service.gradebook.shared.Assignment;
+
+/**
+ * 
+ * Panel for the modal window that allows an instructor to set/update a comment for a grade
+ * 
+ * @author Steve Swinsburg (steve.swinsburg@gmail.com)
+ *
+ */
+public class EditGradeCommentPanel extends Panel {
+
+	private static final long serialVersionUID = 1L;
+	
+	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	protected GradebookNgBusinessService businessService;
+		
+	private ModalWindow window;
+	
+	public EditGradeCommentPanel(String id, IModel<Map<String, Object>> model, ModalWindow window) {
+		super(id, model);
+		this.window = window;
+	}
+	
+	public void onInitialize() {
+		super.onInitialize();
+		
+		//unpack model
+		Map<String,Object> modelData = (Map<String,Object>) this.getDefaultModelObject();
+		final Long assignmentId = (Long) modelData.get("assignmentId");
+		final String studentUuid = (String) modelData.get("studentUuid");
+		
+		//TODO change this to be a lookup, otherwise it is stale
+		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
+
+		//form model
+		GradeComment gradeComment = new GradeComment();
+		gradeComment.setComment(gradeInfo.getGradeComment());
+		CompoundPropertyModel<GradeComment> formModel = new CompoundPropertyModel<GradeComment>(gradeComment);
+		
+		//build form
+		//modal window forms must be submitted via AJAX so we do not specify an onSubmit here
+		Form<GradeComment> form = new Form<GradeComment>("form", formModel);
+		
+		AjaxButton submit = new AjaxButton("submit") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				
+				GradeComment updatedComment = (GradeComment) form.getModelObject();
+				
+				boolean success = businessService.updateGradeComment(assignmentId, studentUuid, updatedComment.getComment());
+								
+				if(success) {
+					window.close(target);
+					//setResponsePage(new GradebookPage());
+				} else {
+					
+					System.out.println("error");
+					error(getString("message.edititem.error")); //need feedbackpanel for this
+				}
+			}
+		};
+		form.add(submit);
+		
+		AjaxButton cancel = new AjaxButton("cancel") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+				window.close(target);
+			}
+		};
+		cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
+        
+        //heading
+        //TODO if user/assignment has been deleted since rendering the GradebookPage, handle nulls here gracefully
+
+        GbUser user = this.businessService.getUser(studentUuid);
+        Assignment assignment = this.businessService.getAssignment(assignmentId);
+        add(new Label("heading", new StringResourceModel("heading.editcomment", null, new Object[] {user.getDisplayName(), user.getDisplayId(), assignment.getName()})));
+      	
+		//textarea
+		form.add(new TextArea<String>("comment"));
+
+		add(form);
+	}
+	
+	/**
+	 * Model for this form
+	 */
+	class GradeComment implements Serializable {
+		
+		private static final long serialVersionUID = 1L;
+		
+		@Getter
+		@Setter
+		private String comment;
+		
+	}
+	
+	
+	
+}

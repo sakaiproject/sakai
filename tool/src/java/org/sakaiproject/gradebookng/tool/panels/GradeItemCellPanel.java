@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -23,7 +22,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
@@ -276,9 +274,9 @@ public class GradeItemCellPanel extends Panel {
 				GradebookPage gradebookPage = (GradebookPage) this.getPage();
 				final ModalWindow window = gradebookPage.getGradeCommentWindow();
 				
-				//window.setContent(new GradeLogPanel(window.getContentId(), this.getModel(), window));
-				//window.showUnloadConfirmation(false);
-				//window.show(target);
+				window.setContent(new EditGradeCommentPanel(window.getContentId(), this.getModel(), window));
+				window.showUnloadConfirmation(false);
+				window.show(target);
 				
 			}
 		};

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:panel>
+		
+		<h3 wicket:id="heading">Comment for Tony Stark (tstark1) - Week 1 Homework</h3>
+		
+		<form class="form-vertical" wicket:id="form">
+		
+			<textarea wicket:id="comment" rows="4" class="form-control form-group"></textarea>
+			
+			<div class="">
+				<input type="submit" wicket:id="submit" wicket:message="value:button.savecomment" />
+				<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+			</div>
+		
+		</form>
+		
+
+	</wicket:panel>
+</body>
+</html>
