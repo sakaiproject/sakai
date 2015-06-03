@@ -596,6 +596,7 @@ public class SelectActionListener
     Date startDate = f.getStartDate();
     Date retractDate = f.getRetractDate();
     Date dueDate = f.getDueDate();
+    boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
     
     if (!Integer.valueOf(1).equals(status)) {
     	return false;
@@ -605,7 +606,7 @@ public class SelectActionListener
     	return false;
     }
     
-    if (retractDate != null && retractDate.before(currentDate)) {
+    if (retractDate != null && retractDate.before(currentDate) && acceptLateSubmission) {
     	return false;
     }
     
@@ -613,9 +614,6 @@ public class SelectActionListener
     	return true;
     }
     
-    boolean acceptLateSubmission = AssessmentAccessControlIfc.
-        ACCEPT_LATE_SUBMISSION.equals(
-        f.getLateHandling());
     int maxSubmissionsAllowed = 9999;
     if ( (Boolean.FALSE).equals(f.getUnlimitedSubmissions())){
       maxSubmissionsAllowed = f.getSubmissionsAllowed().intValue();
@@ -634,28 +632,45 @@ public class SelectActionListener
     }
     
       //2. time to go through all the criteria
-    if (retractDate == null || retractDate.after(currentDate)) {
-    	if (startDate == null || startDate.before(currentDate)) {
-			if (dueDate != null && dueDate.before(currentDate)) {
-				if (acceptLateSubmission) {
-					if (totalSubmitted == 0) {
-						return true;
-					}
-				}
+    // Tests if dueDate has passed
+    if (dueDate != null && dueDate.before(currentDate)) {
+    	// DUE DATE HAS PASSED
+    	if (acceptLateSubmission) {
+    		// LATE SUBMISSION ARE HANDLED: The assessment is available in these situations:
+    		//    * Is the first submission
+    		//    * A retake has been granted 
+    		// (if late submission are handled, a previous test implies that retract date has not yet passed)
+			if (totalSubmitted == 0) {
+				returnValue = true;
+			} else {
 				int actualNumberRetake = 0;
 				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
 					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId())).intValue();
 				}
 				if (actualNumberRetake < numberRetake) {
 					returnValue = true;
+				} else {
+					returnValue = false;
 				}
 			}
-			else {
-				if (totalSubmitted < maxSubmissionsAllowed + numberRetake) {
+    	} else {
+    		// LATE SUBMISSION ARE NOT HANDLED: Test retract date and retakes
+    		if (retractDate == null || retractDate.after(currentDate)) {
+				int actualNumberRetake = 0;
+				if (actualNumberRetakeHash.get(f.getPublishedAssessmentId()) != null) {
+					actualNumberRetake = ((Integer) actualNumberRetakeHash.get(f.getPublishedAssessmentId())).intValue();
+				}
+				if (actualNumberRetake < numberRetake) {
 					returnValue = true;
+				} else {
+					returnValue = false;
 				}
-			}
-		}
+    		}
+    		else{
+	    		// Retract date has passed: Assessment is not available    		
+	    		returnValue = false;
+    		}
+    	}
 	}
 	else {
 		if (totalSubmitted < maxSubmissionsAllowed + numberRetake) {
