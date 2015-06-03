@@ -40,6 +40,8 @@ import org.sakaiproject.mailsender.model.ConfigEntry;
 import org.sakaiproject.mailsender.model.EmailEntry;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.util.StringUtil;
+import org.sakaiproject.util.Web;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.springframework.web.multipart.MultipartFile;
 
 import uk.org.ponder.messageutil.MessageLocator;
@@ -136,6 +138,10 @@ public class EmailBean
 
 		ConfigEntry config = emailEntry.getConfig();
 		User curUser = externalLogic.getCurrentUser();
+
+		String csrfToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token").toString();
+		if (csrfToken != null && !csrfToken.equals(emailEntry.getCsrf()))
+		    return EMAIL_FAILED;
 
 		String fromEmail = "";
 		String fromDisplay = "";
@@ -459,4 +465,5 @@ public class EmailBean
 		
 		return recipientList.toString();
 	}
+
 }
