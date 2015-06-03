@@ -143,6 +143,22 @@
 #gradebookGrades.gb-grouped-by-category .gb-fixed-column-headers-table .gb-categories-row {
   display: table-row;
 }
+#gradebookGrades .gb-category-weight {
+  color: #999;
+}
+#gradebookGrades .gb-category-weight:before {
+  content: "[";
+}
+#gradebookGrades .gb-category-weight:after {
+  content: "]";
+}
+#gradebookGrades .gb-category-label.gb-category-extra-credit:before {
+  font-family: 'gradebook-icons';
+  content: '\f0fe';
+  vertical-align: bottom;
+  margin-right: 4px;
+  color: #999;
+}
 /* Table Cells */
 #gradebookGrades tbody td.gb-cell {
   height: 2.6em;

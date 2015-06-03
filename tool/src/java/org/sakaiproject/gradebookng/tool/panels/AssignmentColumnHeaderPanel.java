@@ -82,6 +82,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 		add(new AttributeModifier("data-category", assignment.getCategoryName()));
+		if (assignment.getWeight() != null) {
+			add(new AttributeModifier("data-category-weight", String.format("%s%%", Math.round(assignment.getWeight() * 100))));
+		}
+		add(new AttributeModifier("data-category-extra-credit", assignment.isCategoryExtraCredit()));
 
 		//menu
 		add(new Link<Long>("editAssignmentDetails", Model.of(assignment.getId())){
