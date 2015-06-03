@@ -40,6 +40,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -218,36 +219,39 @@ public class GradebookNgBusinessService {
 	
 	
 	
+	
 	/**
-	 * Save the grade for a student's assignment
+	 * Save the grade and comment for a student's assignment. Ignores the concurrency check.
 	 * 
 	 * @param assignmentId	id of the gradebook assignment
 	 * @param studentUuid	uuid of the user
-	 * @param oldGrade 		old grade, passed in for concurrency checking
-	 * @param newGrade		new grade for the assignment/user
+	 * @param grade 		grade for the assignment/user
+	 * @param comment		optional comment for the grade. Can be null.
 	 * 
 	 * @return
 	 */
-	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String oldGrade, final String newGrade) {
+	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, final String grade, final String comment) {
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook == null) {
 			return GradeSaveResponse.ERROR;
 		}
 		
-		return this.saveGrade(assignmentId, studentUuid, oldGrade, newGrade, null);
+		return this.saveGrade(assignmentId, studentUuid, null, grade, comment);
 	}
 	
 	/**
-	 * Save the grade and comment for a student's assignment
+	 * Save the grade and comment for a student's assignment and do concurrency checking
 	 * 
 	 * @param assignmentId	id of the gradebook assignment
 	 * @param studentUuid	uuid of the user
-	 * @param oldGrade 		old grade, passed in for concurrency checking
+	 * @param oldGrade 		old grade, passed in for concurrency checking/ If null, concurrency checking is skipped.
 	 * @param newGrade		new grade for the assignment/user
-	 * @param comment		optional comment for the grade
+	 * @param comment		optional comment for the grade. Can be null.
 	 * 
 	 * @return
+	 * 
+	 * TODO make the concurrency check a boolean instead of the null oldGrade
 	 */
 	public GradeSaveResponse saveGrade(final Long assignmentId, final String studentUuid, String oldGrade, String newGrade, final String comment) {
 		
@@ -282,7 +286,8 @@ public class GradebookNgBusinessService {
 		}
 
 		//concurrency check, if stored grade != old grade that was passed in, someone else has edited.
-		if(!StringUtils.equals(storedGrade, oldGrade)) {	
+		//if oldGrade == null, ignore concurrency check
+		if(oldGrade != null && !StringUtils.equals(storedGrade, oldGrade)) {	
 			return GradeSaveResponse.CONCURRENT_EDIT;
 		}
 		
@@ -305,13 +310,11 @@ public class GradebookNgBusinessService {
 		
 		//save
 		try {
+			//note, you must pass in the comment or it wil lbe nulled out by the GB service
 			gradebookService.saveGradeAndCommentForStudent(gradebook.getUid(), assignmentId, studentUuid, newGrade, comment);
 			if(rval == null) {
 				//if we don't have some other warning, it was all OK
-				rval = GradeSaveResponse.OK;
-				
-				//push an event into the cache
-				
+				rval = GradeSaveResponse.OK;				
 			}
 		} catch (InvalidGradeException | GradebookNotFoundException | AssessmentNotFoundException e) {
 			log.error("An error occurred saving the grade. " + e.getClass() + ": " + e.getMessage());
@@ -1000,6 +1003,53 @@ public class GradebookNgBusinessService {
     	 } catch (UserNotDefinedException e) {
     		return null; 
     	 }
+     }
+     
+     /**
+      * Get the comment for a given student assignment grade
+      * 
+      * @param assignmentId id of assignment
+      * @param studentUuid uuid of student
+      * @return the comment or null if none
+      */
+     public String getAssignmentGradeComment(final long assignmentId, final String studentUuid){
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 try {
+        	 CommentDefinition def = this.gradebookService.getAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid);
+    		 if(def != null){
+    			 return def.getCommentText();
+    		 }
+    	 } catch (GradebookNotFoundException | AssessmentNotFoundException e) {
+ 			log.error("An error occurred retrieving the comment. " + e.getClass() + ": " + e.getMessage());
+    	 }
+    	 return null;
+     }
+     
+     /**
+      * Update (or set) the comment for a student's assignment
+      * 
+      * @param assignmentId id of assignment
+      * @param studentUuid uuid of student
+      * @param comment the comment
+      * @return true/false
+      */
+     public boolean updateAssignmentGradeComment(final long assignmentId, final String studentUuid, final String comment) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 try {
+    		 //could do a check here to ensure we aren't overwriting someone else's comment that has been updated in the interim...
+    		 this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
+    		 return true;
+    	 } catch (GradebookNotFoundException | AssessmentNotFoundException e) {
+ 			log.error("An error occurred saving the comment. " + e.getClass() + ": " + e.getMessage());
+    	 }
+    	 
+    	 return false;
      }
     
 

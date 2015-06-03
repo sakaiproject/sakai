@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.List;
+import java.awt.List;
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -23,7 +24,6 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.tool.model.GradeInfo;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
@@ -41,6 +41,10 @@ public class GradeItemCellPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 		
 	IModel<Map<String,Object>> model;
+	
+	AjaxEditableLabel<String> gradeCell;
+	
+	String comment;
 
 	public GradeItemCellPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);
@@ -58,13 +62,17 @@ public class GradeItemCellPanel extends Panel {
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final Boolean isExternal = (Boolean) modelData.get("isExternal");
 		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
+	
 		
 		//note, gradeInfo may be null
 		String rawGrade;
+		
 		if(gradeInfo != null) {
 			rawGrade = gradeInfo.getGrade();
+			this.comment = gradeInfo.getGradeComment();
 		} else {
 			rawGrade = "";
+			this.comment = "";
 		}
 		
 		//get grade
@@ -75,7 +83,7 @@ public class GradeItemCellPanel extends Panel {
 			add(new Label("grade", Model.of(formattedGrade)));
 			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
 		} else {
-			AjaxEditableLabel<String> gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
+			gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				
 				private static final long serialVersionUID = 1L;
 				
@@ -97,6 +105,11 @@ public class GradeItemCellPanel extends Panel {
 					//check if grade is over limit and mark the cell with the warning class
 					if(NumberUtils.toDouble(this.originalGrade) > assignmentPoints) {
 						markOverLimit(this);
+					}
+					
+					//check if we have a comment and mark the cell with the comment icon
+					if(StringUtils.isNotBlank(comment)) {
+						markHasComment(this);
 					}
 				}
 				
@@ -121,7 +134,7 @@ public class GradeItemCellPanel extends Panel {
 					} else {
 						
 						//for concurrency, get the original grade we have in the UI and pass it into the service as a check
-						GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, this.originalGrade, newGrade);
+						GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, this.originalGrade, newGrade, comment);
 						
 						//TODO here, add the message
 						switch (result) {
@@ -172,12 +185,10 @@ public class GradeItemCellPanel extends Panel {
 						public CharSequence getBeforeSendHandler(Component component) {
 							return "GradebookWicketEventProxy.updateLabel.handleBeforeSend('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, settings);";
 						}
-
 						@Override
 						public CharSequence getSuccessHandler(Component component) {
 							return "GradebookWicketEventProxy.updateLabel.handleSuccess('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, data, textStatus);";
 						}
-
 						@Override
 						public CharSequence getFailureHandler(Component component) {
 							return "GradebookWicketEventProxy.updateLabel.handleFailure('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, errorMessage, textStatus);";
@@ -202,12 +213,10 @@ public class GradeItemCellPanel extends Panel {
 						public CharSequence getBeforeSendHandler(Component component) {
 							return "GradebookWicketEventProxy.updateEditor.handleBeforeSend('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, settings);";
 						}
-
 						@Override
 						public CharSequence getSuccessHandler(Component component) {
 							return "GradebookWicketEventProxy.updateEditor.handleSuccess('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, data, textStatus);";
 						}
-
 						@Override
 						public CharSequence getFailureHandler(Component component) {
 							return "GradebookWicketEventProxy.updateEditor.handleFailure('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, errorMessage, textStatus);";
@@ -218,11 +227,6 @@ public class GradeItemCellPanel extends Panel {
 						}
 					};
 					attributes.getAjaxCallListeners().add(myAjaxCallListener);
-				}
-				
-				/* for setting the original grade at construction time */
-				public void setOriginalGrade(String grade) {
-					this.originalGrade = grade;
 				}
 
 				private void addSpecialAttributes() {
@@ -257,6 +261,59 @@ public class GradeItemCellPanel extends Panel {
 			}
 		});
 		
+		//grade comment
+		AjaxLink<Map<String,Object>> editGradeComment = new AjaxLink<Map<String,Object>>("editGradeComment", model){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick(AjaxRequestTarget target) {
+				
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				final ModalWindow window = gradebookPage.getGradeCommentWindow();
+				
+				final EditGradeCommentPanel panel = new EditGradeCommentPanel(window.getContentId(), this.getModel(), window);
+				window.setContent(panel);
+				window.showUnloadConfirmation(false);
+				window.setWindowClosedCallback(new ModalWindow.WindowClosedCallback() {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClose(AjaxRequestTarget target) {
+						comment = panel.getComment();
+						
+						if(StringUtils.isNotBlank(comment)) {
+							
+							//TODO this is not working correctly. needs adjustment
+							markHasComment(gradeCell);
+							target.add(gradeCell);
+							
+							
+							//todo need to update self so the label on the dropdown gets updated
+							
+						};
+						
+					}
+				});
+				window.show(target);
+				
+			}
+		};
+		
+		//the label changes depending on the state so we wrap it in a model
+		IModel<String> editGradeCommentModel = new Model<String>(){
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public String getObject() {
+				if(StringUtils.isNotBlank(comment)){
+					return getString("comment.option.edit");
+				} else {
+					return getString("comment.option.add");
+				}
+			}
+		};
+		
+		editGradeComment.add(new Label("editGradeCommentLabel", editGradeCommentModel));
+		add(editGradeComment);
 
 	}
 	
@@ -269,24 +326,41 @@ public class GradeItemCellPanel extends Panel {
 		return StringUtils.removeEnd(grade, ".0");		
 	}
 	
+	/**
+	 * TODO these need work so that they append, not replace, as they can wipe out the comment icon.
+	 * likewise for hte comment icon, we need to have some logic that cheks if it has already been added
+	 * 
+	 */
+	
 	private void markSuccessful(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveSuccess"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-success"));
 	}
 	
 	private void markError(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveError"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-error"));
 	}
 	
 	private void markWarning(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveWarning"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-warning"));
 	}
 	
 	private void markOverLimit(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell gradeSaveOverLimit"));
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-over-limit"));
 	}
-
+	
+	private void markHasComment(Component gradeCell) {
+		getParentCellFor(gradeCell).add(AttributeModifier.append("class", "has-comment"));
+	}
+	
+	
+	/**
+	 * Get the parent container for the grade cell so we can style it
+	 * @param gradeCell
+	 * @return
+	 */
 	private Component getParentCellFor(Component gradeCell) {
 		return gradeCell.getParent().getParent();
 	}
+	
 	
 }
