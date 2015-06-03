@@ -54,6 +54,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -6251,8 +6252,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
-				String toolIdString = tool.get(m_ltiService.LTI_ID).toString();
-				boolean toolStealthed = tool.get(m_ltiService.LTI_VISIBLE).toString().equals("1");
+				String toolIdString = ObjectUtils.toString(tool.get(m_ltiService.LTI_ID));
+				boolean toolStealthed = "1".equals(ObjectUtils.toString(tool.get(m_ltiService.LTI_VISIBLE)));
 				boolean ltiToolSelected = ltiSelectedTools.contains(toolIdString); 
 
 				try
