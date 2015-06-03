@@ -61,7 +61,7 @@ To fix a bug or add a feature, the general Git workflow is:
 
 * Make your ***local*** commit:
 
-  `$ git commit -m "SAK-29469 Add some documentation about contributing"
+  `$ git commit -m "SAK-29469 Add some documentation about contributing"`
 
 * Share branch back to ***origin***:
 
