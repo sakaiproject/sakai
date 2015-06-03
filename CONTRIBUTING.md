@@ -24,19 +24,19 @@ To work on and contribute to Sakai:
 
 * `Clone` your ***origin*** repository onto your local workstation (this example uses HTTPS as the transport mechanism):
 
-  `$ git clone https://github.com/GITHUBACCOUNTNAME/sakai`
+  `git clone https://github.com/GITHUBACCOUNTNAME/sakai`
  
 * Add a `remote` to receive updates from the ***upstream*** repository:
 
-  `$ git remote add upstream https://github.com/sakaiproject/sakai`
+  `git remote add upstream https://github.com/sakaiproject/sakai`
 
 * Update your ***local*** repository frequently to stay up to date:
 
-  `$ git checkout master` (switch to ***local*** `master` branch)
+  `git checkout master` (switch to ***local*** `master` branch)
   
-  `$ git pull upstream master` (`pull` in any ***upstream*** changes)
+  `git pull upstream master` (`pull` in any ***upstream*** changes)
   
-  `$ git push origin master` (`push` the changes up to the ***origin***)
+  `git push origin master` (`push` the changes up to the ***origin***)
 
 ## Working on bugs and features
 
@@ -50,22 +50,22 @@ To fix a bug or add a feature, the general Git workflow is:
 
 * Create a ***local*** branch using Jira reference for the branch name:
 
-  `$ git checkout -b SAK-29469`
+  `git checkout -b SAK-29469`
 
 
 * Do work
 
 * Add changed or new files:
 
-  `$ git add -u`
+  `git add -u`
 
 * Make your ***local*** commit:
 
-  `$ git commit -m "SAK-29469 Add some documentation about contributing"`
+  `git commit -m "SAK-29469 Add some documentation about contributing"`
 
 * Share branch back to ***origin***:
 
-  `$ git push origin SAK-29469`
+  `git push origin SAK-29469`
 
 * [Create a pull request (PR)](https://help.github.com/articles/creating-a-pull-request/) using GitHub from the branch against the ***upstream*** `master` for review by others
 
@@ -75,22 +75,21 @@ You will often receive friendly advice to improve or fix the changes you propose
   
 * Change to your ***local*** branch:
 
-  `$ git checkout SAK-29469`
-
+  `git checkout SAK-29469`
 
 * Make changes and/or improvements in response to PR comments
 
 * Add changed or new files:
 
-  `$ git add -u`
+  `git add -u`
 
-* Update existing commit:
+* Update existing commit (this updates the previous commit rather than making a new one):
 
-  `$ git commit --amend -C HEAD`
+  `git commit --amend -C HEAD`
 
-* Share your new ***local*** changes back to the ***origin*** branch and the original PR (by force):
+* Share your new ***local*** changes back to the ***origin*** branch and the original PR (by force is required for amending commits. You should only ever push by force into your own repo):
 
-  `$ git push -f origin SAK-29469`
+  `git push -f origin SAK-29469`
 
 * Make a comment on the existing PR to alert reviewers to your changes
 
