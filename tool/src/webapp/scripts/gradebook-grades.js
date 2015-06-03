@@ -16,7 +16,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this._CATEGORIES_MAP = {}; // header models keyed on their category
   this._ALL_CATEGORIES = []; // category strings in an alpha sorted list
   this._COLUMN_ORDER = [];   // the order of the columns when categories aren't enabled
-  this._CATEGORY_COLORS_MAP = {} // color for each category
+  this._CATEGORY_DATA = {} // info about each category including weighting and color
 
 
   // set it all up
@@ -28,10 +28,11 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupToolbar();
   this.setupRowSelector();
   this.setupConcurrencyCheck();
-  this.setupColoredCategories();
   this.setupStudentFilter();
 
   this._refreshColumnOrder();
+
+  this.setupColoredCategories();
 
   // mark the $spreadsheet as initialized
   this.$spreadsheet.addClass("initialized")
@@ -715,11 +716,24 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
 
   $.each(self._ALL_CATEGORIES, function(i, category) {
     var cellsForCategory = self._CATEGORIES_MAP[category];
+    var categoryData = self._CATEGORY_DATA[category];
 
-    var color = self._CATEGORY_COLORS_MAP[category];
+    var color = self._CATEGORY_DATA[category].color;
+
+    function categoryCellLabel() {
+      var $label = $("<span>").addClass("gb-category-label").text(categoryData.label);
+      if (categoryData.weight) {
+        var $weight = $("<span>").addClass("gb-category-weight").text(categoryData.weight);
+        $label.append(" ").append($weight);
+      }
+      if (categoryData.isExtraCredit) {
+        $label.addClass("gb-category-extra-credit");
+      }
+      return $label;
+    };
 
     var $categoryCell = $("<td>").addClass("gb-category-header").
-                                  text(category).
+                                  append(categoryCellLabel()).
                                   css("backgroundColor", color);
 
     $categoriesRow.append($categoryCell);
@@ -781,6 +795,7 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
 
   self._CATEGORIES_MAP = {};
   self._ALL_CATEGORIES = [];
+  self._CATEGORY_DATA = {};
 
   self._COLUMN_ORDER = self.$table.find("thead tr th.gb-grade-item-column-cell").map(function() {
     return $(this).data("model");
@@ -794,6 +809,13 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
 
     if ($.inArray(category, self._ALL_CATEGORIES) == -1) {
       self._ALL_CATEGORIES.push(category);
+      if (category != "Uncategorized") {
+        self._CATEGORY_DATA[category] = model.getCategoryData();
+      } else {
+        self._CATEGORY_DATA["Uncategorized"] = {
+          label: "Uncategorized",
+        };
+      }
     }
   });
 
@@ -942,11 +964,11 @@ GradebookSpreadsheet.prototype.setupColoredCategories = function() {
     var $group = $(this);
     var category = $(this).find(".gradebook-item-category-filter :input").val();
 
-    if (!self._CATEGORY_COLORS_MAP.hasOwnProperty(category)) {
-      self._CATEGORY_COLORS_MAP[category] = self.getRandomColor();
+    if (!self._CATEGORY_DATA[category].hasOwnProperty("color")) {
+      self._CATEGORY_DATA[category]["color"] = self.getRandomColor();
     }
 
-    var color = self._CATEGORY_COLORS_MAP[category];
+    var color = self._CATEGORY_DATA[category].color;
 
     $group.find(".gradebook-item-category-filter-signal").
            css("backgroundColor", color).
@@ -1214,6 +1236,7 @@ function GradebookHeaderCell($cell, gradebookSpreadsheet) {
 
   this.setColumnKey();
   this.truncateTitle();
+  this.setupTooltip();
 };
 
 
@@ -1283,10 +1306,29 @@ GradebookHeaderCell.prototype.getCategory = function() {
   var category = null;
 
   if (this.$cell.hasClass("gb-grade-item-column-cell")) {
-    category = this.$cell.find("[data-category]").data("category");
+    category = this.getCategoryData() ? this.getCategoryData().label : null;
   }
 
   return category || "Uncategorized";
+};
+
+
+GradebookHeaderCell.prototype.getCategoryData = function() {
+  var category_data = null;
+
+  if (this.$cell.hasClass("gb-grade-item-column-cell")) {
+    var $category = this.$cell.find("[data-category]");
+
+    if ($category.length > 0) {
+      category_data = {
+        label: $category.data("category"),
+        weight: $category.data("category-weight"),
+        isExtraCredit: $category.data("category-extra-credit")
+      };
+    }
+  }
+
+  return category_data;
 };
 
 
@@ -1361,6 +1403,21 @@ GradebookHeaderCell.prototype.getCategorizedOrder = function() {
 }
 
 
+GradebookHeaderCell.prototype.setupTooltip = function() {
+  if (this.$cell.hasClass("gb-grade-item-column-cell")) {
+    var $title = this.$cell.find(".gb-title > span");
+    var tooltip = $title.attr("title");
+
+    tooltip += " (" + this.getCategory() + ")";
+
+    this.$cell.attr("title", tooltip);
+
+    // remove the $title[@title] so it doesn't conflict with the outer title
+    $title.removeAttr("title");
+  }
+};
+
+
 /**************************************************************************************
  * GradebookToolbar - all the toolbar actions
  */
@@ -1403,7 +1460,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     var $categoryGroup = $label.closest(".gradebook-item-filter-group");
     var $categoryFilter = $categoryGroup.find(".gradebook-item-category-filter");
     var category = $categoryFilter.find(":input").val();
-    var myColor = self.gradebookSpreadsheet._CATEGORY_COLORS_MAP[category];
+    var myColor = self.gradebookSpreadsheet._CATEGORY_DATA[category].color;
     var $signal = $label.find(".gradebook-item-category-filter-signal");
 
     if ($input.is(":checked")) {
