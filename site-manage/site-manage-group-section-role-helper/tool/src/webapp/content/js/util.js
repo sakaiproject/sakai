@@ -45,12 +45,30 @@ setupAutoCreate = function(){
         }
         resetFrame();
     });
+     $("#rosterOption").click(function(){
+        if (this.checked) {
+            $("#rosterRandomGroupCreateDiv").fadeOut();
+        }
+        else {
+            $("#rosterRandomGroupCreateDiv").fadeIn();
+        }
+        resetFrame();
+    });
     $('#randomOption').click(function(){
         if (this.checked) {
             $("#randomGroupCreateDiv").fadeIn();
         }
         else {
             $("#randomGroupCreateDiv").fadeOut();
+        }
+        resetFrame();
+    });
+    $("#rosterRandomOption").click(function(){
+        if (this.checked) {
+            $("#rosterRandomGroupCreateDiv").fadeIn();
+        }
+        else {
+            $("#rosterRandomGroupCreateDiv").fadeOut();
         }
         resetFrame();
     });
@@ -62,12 +80,28 @@ setupAutoCreate = function(){
             $('#groupFields').slideDown();
         }
     });
+    $("#rosterGroupSplit").click(function(){
+        if (this.checked) {
+            $("p").removeClass("optGroupSelectSelected");
+            $(this).parent("p").addClass("optGroupSelectSelected");
+            $("#rosterUserFields").slideUp();
+            $("#rosterGroupFields").slideDown();
+        }
+    });
     $('#userSplit').click(function(){
         if (this.checked) {
             $('p').removeClass('optGroupSelectSelected');
             $(this).parent('p').addClass('optGroupSelectSelected');
             $('#userFields').slideDown();
             $('#groupFields').slideUp();
+        }
+    });
+    $("#rosterUserSplit").click(function(){
+        if (this.checked) {
+            $("p").removeClass("optGroupSelectSelected");
+            $(this).parent("p").addClass("optGroupSelectSelected");
+            $("#rosterUserFields").slideDown();
+            $("#rosterGroupFields").slideUp();
         }
     });
 };
@@ -81,7 +115,8 @@ checkEnableSave = function(){
     if ($('#roleList tbody :checked').length === 0) {
         $('#roleOptionsFieldset').fadeOut('fast');
     }
-    else 
+    else
+    {
         if ($('#roleList tbody :checked').length === 1) {
             $('#roleOptionsFieldset').fadeIn('slow');
             resizeFrame('grow');
@@ -92,6 +127,23 @@ checkEnableSave = function(){
             $('#randomGroupCreateDiv').fadeOut('slow');
             resizeFrame('grow');
         }
+    }
+
+     if ($("#rosterList tbody :checked").length === 0) {
+        $("#rosterOptionsFieldset").fadeOut("fast");
+    }
+    else {
+        if ($("#rosterList tbody :checked").length === 1) {
+            $("#rosterOptionsFieldset").fadeIn("slow");
+            resizeFrame("grow");
+        }
+        else {
+            $("#rosterOption").prop("checked", true);
+            $("#rosterOptionsFieldset").fadeOut("slow");
+            $("#rosterRandomGroupCreateDiv").fadeOut("slow");
+            resizeFrame("grow");
+        }
+    }
 };
 
 setupValidation = function(){
@@ -99,8 +151,8 @@ setupValidation = function(){
 
     $('#save').click(function(e){
         var validForm = true;
-        if ($("#randomOption").prop('checked') == true) {
-            if ($("#groupSplit").prop('checked') == true) {
+        if ($("#randomOption").prop('checked') === true) {
+            if ($("#groupSplit").prop('checked') === true) {
                 if ($('#groupTitle-group').val() === '') {
                     $('#groupTitle-group').parent('p').addClass('validationFail');
                     validForm = false;
@@ -117,7 +169,7 @@ setupValidation = function(){
                 }
                 
             }
-            if ($("#userSplit").prop('checked') == true) {
+            if ($("#userSplit").prop('checked') === true) {
                 if ($('#groupTitle-user').val() === '') {
                     $('#groupTitle-user').parent('p').addClass('validationFail');
                     validForm = false;
@@ -137,10 +189,45 @@ setupValidation = function(){
                 
             }
         }
+         if ($("#rosterRandomOption").prop("checked") === true) {
+            if ($("#rosterGroupSplit").prop("checked") === true) {
+                if ($("#roster-groupTitle-group").val() === "") {
+                    $("#roster-groupTitle-group").parent("p").addClass("validationFail");
+                    validForm = false;
+                }
+                else {
+                    $("#roster-groupTitle-group").parent("p").removeClass("validationFail");
+                }
+                if ($("#roster-numToSplit-group").val() === "" || isNaN($("#roster-numToSplit-group").val())) {
+                    $("#roster-numToSplit-group").parent("p").addClass("validationFail");
+                    validForm = false;
+                }
+                else {
+                    $("#roster-numToSplit-group").parent("p").removeClass("validationFail");
+                }
+            }
+            if ($("#rosterUserSplit").prop("checked") === true) {
+                if ($("#roster-groupTitle-user").val() === "") {
+                    $("#roster-groupTitle-user").parent("p").addClass("validationFail");
+                    validForm = false;
+                }
+                else {
+                    $("#roster-groupTitle-user").parent("p").removeClass("validationFail");
+                }
+                if ($("#roster-numToSplit-user").val() === "" || isNaN($("#roster-numToSplit-user").val())) {
+                    $("#roster-numToSplit-user").parent("p").addClass("validationFail");
+                    validForm = false;
+                }
+                else {
+                    $("#roster-numToSplit-user").parent("p").removeClass("validationFail");
+                }
+            }
+        }
         if (validForm === false) {
             return false;
         }
         else{
+            disableButtonsActivateSpinner( "save", "cancel", "autoGroupsSpinner" );
             return true;
         }
     });
@@ -150,11 +237,11 @@ setupValidation = function(){
 //this function needs jquery 1.1.2 or later - it resizes the parent iframe without bringing the scroll to the top
 function resizeFrame(updown){
     var clientH;
-    if (top.location != self.location) {
+    if (top.location !== self.location) {
         var frame = parent.document.getElementById(window.name);
     }
     if (frame) {
-        if (updown == 'shrink') {
+        if (updown === 'shrink') {
             clientH = document.body.clientHeight - 30;
         }
         else {
