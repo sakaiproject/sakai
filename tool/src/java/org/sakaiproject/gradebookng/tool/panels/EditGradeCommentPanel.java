@@ -54,6 +54,7 @@ public class EditGradeCommentPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 		
 	private ModalWindow window;
+	private String comment;
 	
 	public EditGradeCommentPanel(String id, IModel<Map<String, Object>> model, ModalWindow window) {
 		super(id, model);
@@ -68,12 +69,12 @@ public class EditGradeCommentPanel extends Panel {
 		final Long assignmentId = (Long) modelData.get("assignmentId");
 		final String studentUuid = (String) modelData.get("studentUuid");
 		
-		//TODO change this to be a lookup, otherwise it is stale
-		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
+		//fetch current comment
+		this.comment = this.businessService.getAssignmentGradeComment(assignmentId, studentUuid);
 
 		//form model
 		GradeComment gradeComment = new GradeComment();
-		gradeComment.setComment(gradeInfo.getGradeComment());
+		gradeComment.setComment(comment);
 		CompoundPropertyModel<GradeComment> formModel = new CompoundPropertyModel<GradeComment>(gradeComment);
 		
 		//build form
@@ -87,11 +88,14 @@ public class EditGradeCommentPanel extends Panel {
 				
 				GradeComment updatedComment = (GradeComment) form.getModelObject();
 				
-				boolean success = businessService.updateGradeComment(assignmentId, studentUuid, updatedComment.getComment());
+				boolean success = businessService.updateAssignmentGradeComment(assignmentId, studentUuid, updatedComment.getComment());
 								
 				if(success) {
+					//update member var
+					comment = updatedComment.getComment();
+					
+					//trigger a close
 					window.close(target);
-					//setResponsePage(new GradebookPage());
 				} else {
 					
 					System.out.println("error");
@@ -113,7 +117,6 @@ public class EditGradeCommentPanel extends Panel {
         
         //heading
         //TODO if user/assignment has been deleted since rendering the GradebookPage, handle nulls here gracefully
-
         GbUser user = this.businessService.getUser(studentUuid);
         Assignment assignment = this.businessService.getAssignment(assignmentId);
         add(new Label("heading", new StringResourceModel("heading.editcomment", null, new Object[] {user.getDisplayName(), user.getDisplayId(), assignment.getName()})));
@@ -122,6 +125,14 @@ public class EditGradeCommentPanel extends Panel {
 		form.add(new TextArea<String>("comment"));
 
 		add(form);
+	}
+	
+	/**
+	 * Getter for the comment string so we can update components on the parent page when the comment is saved here
+	 * @return
+	 */
+	public String getComment() {
+		return this.comment;
 	}
 	
 	/**
