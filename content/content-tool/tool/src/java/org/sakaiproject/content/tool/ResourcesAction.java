@@ -4203,7 +4203,6 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			// notshow the public option or notification when in dropbox mode
 			context.put("dropboxMode", Boolean.TRUE);
 			// allow filtering of dropboxes by group (SAK-14625)
-			String collectionId = (String) state.getAttribute (STATE_COLLECTION_ID);
 			String homeCollectionId = (String) state.getAttribute(STATE_HOME_COLLECTION_ID);
 			String containingCollectionId = ContentHostingService.getContainingCollectionId(homeCollectionId);
 			//Boolean showDropboxGroupFilter = Boolean.valueOf(homeCollectionId.equals(collectionId));			
@@ -4237,6 +4236,40 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				{
 					// something failed, group filter will be hidden
 				}
+			}
+
+			//SAK-11647 - Group-aware dropboxes
+			try
+			{
+				String currentUser = SessionManager.getCurrentSessionUserId();
+				Site site = SiteService.getSite(currentSiteId);
+				
+				if ((!ContentHostingService.isDropboxMaintainer(currentSiteId))&&(ContentHostingService.isDropboxGroups(currentSiteId)))
+				{
+					context.put("dropboxGroupPermission_enabled",Boolean.TRUE);
+					
+					List<Group> site_groups = new ArrayList<Group>();
+					
+					Set allGroupsUsers = new TreeSet<String>();
+					
+					site_groups.addAll(site.getGroupsWithMember(currentUser));
+					if (site_groups.size()>0)
+					{
+						for (Group g : site_groups)
+						{
+							allGroupsUsers.addAll(g.getUsers());
+						}
+					}
+					context.put("dropboxGroupPermission_allGroupsUsers",allGroupsUsers);
+				}
+				else
+				{
+					context.put("dropboxGroupPermission_enabled",Boolean.FALSE);
+				}
+			}
+			catch (IdUnusedException e)
+			{
+				logger.warn("DropboxGroupPermission error: "+e.toString());
 			}
 		}
 		else
@@ -5471,6 +5504,12 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		
 		context.put("item", item);
+
+		final boolean showFilter = ServerConfigurationService.getBoolean("resources.filter.show", Boolean.FALSE);
+		context.put("showFilter", showFilter);
+
+		final boolean showQuirks = ServerConfigurationService.getBoolean("resources.filter.showquirks", Boolean.FALSE);
+		context.put("showQuirks", showQuirks);
 		
 		String chhbeanname = "";
 		if (item.entity != null && item.entity.getProperties() != null)

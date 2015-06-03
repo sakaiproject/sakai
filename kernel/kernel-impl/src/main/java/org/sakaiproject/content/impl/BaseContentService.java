@@ -932,6 +932,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			functionManager.registerFunction(AUTH_RESOURCE_HIDDEN, true);
 
 			functionManager.registerFunction(AUTH_DROPBOX_OWN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_GROUPS, false);
 			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN, false);
 
 			// quotas
@@ -1471,13 +1472,27 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		
 		// if this resource is a dropbox, you need dropbox maintain permission
+		// Changed in SAK-11647 to enable group-aware dropboxes
 		if (id.startsWith(COLLECTION_DROPBOX))
 		{
 			// only for /group-user/SITEID/USERID/ refs.
 			String[] parts = StringUtil.split(id, "/");
 			if (parts.length >= 3)
 			{
-				return AUTH_DROPBOX_MAINTAIN;
+				String ref = null;
+				if (id != null)
+				{
+					ref = getReference(id);
+				}
+
+				//Before SAK-11647 any dropbox id asked for dropbox.maintain permission.
+				//Now we must support groups permission, so we ask for this permission too.
+				//Groups permission gives full access to dropboxes of users in current user's groups. 
+				//A different logic can be achieved here depending of lock parameter received.
+				if (m_securityService.unlock(AUTH_DROPBOX_MAINTAIN, ref))
+					return AUTH_DROPBOX_MAINTAIN;
+				else if (m_securityService.unlock(AUTH_DROPBOX_GROUPS, ref))
+					return AUTH_DROPBOX_GROUPS;
 			}
 		}
 
@@ -1683,6 +1698,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		boolean isAllowed = m_securityService.isSuperUser();
 		if(! isAllowed)
 		{
+			//SAK-11647 - Changes in this function.
 			lock = convertLockIfDropbox(lock, id);
 
 			// make a reference from the resource id, if specified
@@ -1746,6 +1762,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			return;
 		}
 
+		//SAK-11647 - Changes in this function.
 		lock = convertLockIfDropbox(lock, id);
 
 		// make a reference from the resource id, if specified
@@ -9800,8 +9817,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// form the site's dropbox collection
 		rv = COLLECTION_DROPBOX + siteId + "/";
 
-		// for maintainers, use the site level
-		if (isDropboxMaintainer(siteId))
+		// for maintainers or users with groups access, use the site level
+		if ((isDropboxMaintainer(siteId))||(isDropboxGroups(siteId)))
 		{
 			// return the site's dropbox collection
 			return rv;
@@ -10129,6 +10146,26 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// if the user has dropbox maintain in the site, they are the dropbox maintainer
 		// (dropbox maintain in their myWorkspace just gives them access to their own dropbox)
 		return m_securityService.unlock(AUTH_DROPBOX_MAINTAIN, m_siteService.siteReference(siteId));
+	}
+
+	/**
+	 * Determine whether the user has the dropbox.groups permission 
+	 * 
+	 * @return True if user has dropbox.groups permission, false otherwise.
+	 */
+	public boolean isDropboxGroups(String siteId)
+	{
+		String dropboxId = null;
+
+		// make sure we are in a worksite, not a workspace
+		if (m_siteService.isUserSite(siteId) || m_siteService.isSpecialSite(siteId))
+		{
+			return false;
+		}
+
+		// if the user has dropbox maintain in the site, they are the dropbox maintainer
+		// (dropbox maintain in their myWorkspace just gives them access to their own dropbox)
+		return m_securityService.unlock(AUTH_DROPBOX_GROUPS, m_siteService.siteReference(siteId));
 	}
 
 	/******************************************************************************************************************************************************************************************************************************************************

@@ -99,6 +99,7 @@ public class ContentHostingService
 	public static java.lang.String AUTH_GROUP_RESOURCE_READ = org.sakaiproject.content.api.ContentHostingService.AUTH_GROUP_RESOURCE_READ;
 	public static java.lang.String AUTH_RESOURCE_HIDDEN = org.sakaiproject.content.api.ContentHostingService.AUTH_RESOURCE_HIDDEN;
 	public static java.lang.String AUTH_DROPBOX_OWN = org.sakaiproject.content.api.ContentHostingService.AUTH_DROPBOX_OWN;
+	public static java.lang.String AUTH_DROPBOX_GROUPS = org.sakaiproject.content.api.ContentHostingService.AUTH_DROPBOX_GROUPS;
 	public static java.lang.String AUTH_DROPBOX_MAINTAIN = org.sakaiproject.content.api.ContentHostingService.AUTH_DROPBOX_MAINTAIN;
 	
 	public static java.lang.String PROP_ALTERNATE_REFERENCE = org.sakaiproject.content.api.ContentHostingService.PROP_ALTERNATE_REFERENCE;
@@ -921,6 +922,14 @@ public class ContentHostingService
 		if (service == null) return false;
 
 		return service.isDropboxMaintainer(param0);
+	}
+
+	public static boolean isDropboxGroups(java.lang.String param0)
+	{
+		org.sakaiproject.content.api.ContentHostingService service = getInstance();
+		if (service == null) return false;
+
+		return service.isDropboxGroups(param0);
 	}
 
 	public static java.lang.String getDropboxDisplayName()

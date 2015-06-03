@@ -104,10 +104,15 @@ public class HtmlPageFilter implements ContentFilter {
 		
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
-		final String header = MessageFormat.format(headerTemplate, skinRepo, siteSkin, title);
-		final String footer = footerTemplate;
-		
-		return new WrappedContentResource(content, header, footer, detectHtml);
+
+		StringBuilder header = new StringBuilder();
+		if (detectHtml) {
+			String docType = serverConfigurationService.getString("content.html.doctype", "<!DOCTYPE html>");
+			header.append(docType + "\n");
+		}
+		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title));
+        
+		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
 	}
 
 	private String getTitle(final ContentResource content) {

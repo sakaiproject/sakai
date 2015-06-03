@@ -309,6 +309,7 @@ if ( window.jQuery ) {
 			#foreach($item in $site)
 				#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 				#set($dqid=$item.id.replaceAll("\"", "&quot;"))
+				#if ((!$dropboxGroupPermission_enabled) || ($item.isDropbox() && $item.DropboxOwner && $dropboxGroupPermission_allGroupsUsers.contains($item.DropboxOwner)))
 				#if(!$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) )
 				#set($itemcount = $itemcount + 1)
 				#set ($addCount=($addCount - 1))
@@ -491,6 +492,7 @@ if ( window.jQuery ) {
 					#end
 				</tr>
 				#end ## if !$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) 
+				#end ##if ((!$dropboxGroupPermission_enabled) || ($item.isDropbox() && $item.DropboxOwner && $dropboxGroupPermission_allGroupsUsers.contains($item.DropboxOwner)))
 			#end ## foreach $item in $this_site
 		
 			############################################# Begin "Other sites" section
