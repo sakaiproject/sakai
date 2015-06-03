@@ -43,6 +43,9 @@ import org.sakaiproject.user.api.UsersShareEmailUDP;
  */
 public class SampleUserDirectoryProvider implements UserDirectoryProvider, UsersShareEmailUDP, DisplayAdvisorUDP
 {
+	// Use the standard example domain name for examples.
+	public static final String EMAIL_DOMAIN = "@example.edu";
+
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(SampleUserDirectoryProvider.class);
 
@@ -77,31 +80,31 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		try
 		{
 			Info[] realNames = new Info[] {
-				new Info("Victor", "van Dijk", "vvd@local.host"),
-				new Info("Peter", "van Keken", "pvk@local.host"),
-				new Info("Ben van", "der Pluijm", "bvdp@local.host"),
-				new Info("Rob", "van der Voo", "rvdv@local.host"),
-				new Info("Aimee", "de L'Aigle", "adlg@local.host"),
-				new Info("Wong", "Kar-Wai", "wkw@local.host"),
-				new Info("John", "Fitz Gerald", "jfg@local.host"),
+				new Info("Victor", "van Dijk", "vvd" + EMAIL_DOMAIN),
+				new Info("Peter", "van Keken", "pvk" + EMAIL_DOMAIN),
+				new Info("Ben van", "der Pluijm", "bvdp" + EMAIL_DOMAIN),
+				new Info("Rob", "van der Voo", "rvdv" + EMAIL_DOMAIN),
+				new Info("Aimee", "de L'Aigle", "adlg" + EMAIL_DOMAIN),
+				new Info("Wong", "Kar-Wai", "wkw" + EMAIL_DOMAIN),
+				new Info("John", "Fitz Gerald", "jfg" + EMAIL_DOMAIN),
 				new Info("El", 
-							new String("Niño".getBytes(), "UTF-8"), 
-							"warmPacificWater@local.host"),
+							new String("Niño".getBytes(), "UTF-8"),
+						"warmPacificWater" + EMAIL_DOMAIN),
 				new Info(new String("Ângeolo".getBytes(), "UTF-8"),
-							"Haslip", 
-							"ah@local.host"),
-				new Info("Albert", "Zimmerman", "az@local.host"),
-				new Info("Albert", "Albertson", "aa@local.host"),
-				new Info("Zachary", "Anderson", "za@local.host"),
-				new Info("Zachary", "Zurawik", "zz@local.host"),
-				new Info("Bhaktavatsalam", "Bhayakridbhayanashanachar", "bb@local.host"),
+							"Haslip",
+						"ah" + EMAIL_DOMAIN),
+				new Info("Albert", "Zimmerman", "az" + EMAIL_DOMAIN),
+				new Info("Albert", "Albertson", "aa" + EMAIL_DOMAIN),
+				new Info("Zachary", "Anderson", "za" + EMAIL_DOMAIN),
+				new Info("Zachary", "Zurawik", "zz" + EMAIL_DOMAIN),
+				new Info("Bhaktavatsalam", "Bhayakridbhayanashanachar", "bb" + EMAIL_DOMAIN),
 			};
 			
 			// fill a set of users
 			m_info = new Hashtable<String, Info>();
-			m_info.put("user1", new Info("user1", "One", "User", "user1@local.host"));
-			m_info.put("user2", new Info("user2", "Two", "User", "user2@local.host"));
-			m_info.put("user3", new Info("user3", "Three", "User", "user3@local.host"));
+			m_info.put("user1", new Info("user1", "One", "User", "user1" + EMAIL_DOMAIN));
+			m_info.put("user2", new Info("user2", "Two", "User", "user2" + EMAIL_DOMAIN));
+			m_info.put("user3", new Info("user3", "Three", "User", "user3" + EMAIL_DOMAIN));
 
 			if (m_courseStudents > 0)
 			{
@@ -114,25 +117,25 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 								realNames[i-1].firstName, realNames[i-1].lastName, realNames[i-1].email));
 					} else {
 						m_info.put("student" + zeroPaddedId, new Info("student" + zeroPaddedId,
-								zeroPaddedId, "Student", "student" + zeroPaddedId + "@local.host"));
+								zeroPaddedId, "Student", "student" + zeroPaddedId + EMAIL_DOMAIN));
 					}
 				}
 			}
 
-			m_info.put("instructor", new Info("instructor", "The", "Instructor", "instructor@local.host"));
-			m_info.put("instructor1", new Info("instructor1", "The", "Instructor1", "instructor1@local.host"));
-			m_info.put("instructor2", new Info("instructor2", "The", "Instructor2", "instructor2@local.host"));
-			m_info.put("da1", new Info("da1", "Dept", "Admin", "da1@local.host"));
-			m_info.put("ta", new Info("ta", "The", "Teaching-Assistant", "ta@local.host"));
+			m_info.put("instructor", new Info("instructor", "The", "Instructor", "instructor" + EMAIL_DOMAIN));
+			m_info.put("instructor1", new Info("instructor1", "The", "Instructor1", "instructor1" + EMAIL_DOMAIN));
+			m_info.put("instructor2", new Info("instructor2", "The", "Instructor2", "instructor2" + EMAIL_DOMAIN));
+			m_info.put("da1", new Info("da1", "Dept", "Admin", "da1" + EMAIL_DOMAIN));
+			m_info.put("ta", new Info("ta", "The", "Teaching-Assistant", "ta" + EMAIL_DOMAIN));
 
 			//SAK-25394 more ta's for testing purposes
-			m_info.put("ta1", new Info("ta1", "The", "Teaching-Assistant1", "ta1@local.host"));
-			m_info.put("ta2", new Info("ta2", "The", "Teaching-Assistant2", "ta2@local.host"));
-			m_info.put("ta3", new Info("ta2", "The", "Teaching-Assistant3", "ta3@local.host"));
+			m_info.put("ta1", new Info("ta1", "The", "Teaching-Assistant1", "ta1" + EMAIL_DOMAIN));
+			m_info.put("ta2", new Info("ta2", "The", "Teaching-Assistant2", "ta2" + EMAIL_DOMAIN));
+			m_info.put("ta3", new Info("ta2", "The", "Teaching-Assistant3", "ta3" + EMAIL_DOMAIN));
 
 			//SAK-25267 used for integration with uPortal
-			m_info.put("student", new Info("student", "The", "Student", "student@local.host"));
-			m_info.put("faculty", new Info("faculty", "The", "Faculty", "faculty@local.host"));
+			m_info.put("student", new Info("student", "The", "Student", "student" + EMAIL_DOMAIN));
+			m_info.put("faculty", new Info("faculty", "The", "Faculty", "faculty" + EMAIL_DOMAIN));
 
 			M_log.info("init()");
 		}
@@ -275,8 +278,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 	{
 		if ((edit == null) || (email == null)) return false;
 
-		// assume a "@local.host"
-		int pos = email.indexOf("@local.host");
+		int pos = email.indexOf(EMAIL_DOMAIN);
 		if (pos != -1)
 		{
 			String id = email.substring(0, pos);
@@ -304,8 +306,7 @@ public class SampleUserDirectoryProvider implements UserDirectoryProvider, Users
 		// get a UserEdit to populate
 		UserEdit edit = factory.newUser();
 
-		// assume a "@local.host"
-		int pos = email.indexOf("@local.host");
+		int pos = email.indexOf(EMAIL_DOMAIN);
 		if (pos != -1)
 		{
 			String id = email.substring(0, pos);
