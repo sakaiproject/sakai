@@ -25,6 +25,8 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6662,6 +6664,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// publish the site or not based on the template choice
 				site.setPublished(state.getAttribute(STATE_TEMPLATE_PUBLISH) != null?true:false);
 				
+				// Update the icons URL.
+				String newSiteIconUrl = transferSiteResource(templateSite.getId(), site.getId(), site.getIconUrl());
+				site.setIconUrl(newSiteIconUrl);
+				
 				userNotificationProvider.notifyTemplateUse(templateSite, UserDirectoryService.getCurrentUser(), site);	
 			}
 				
@@ -9789,39 +9795,48 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String accessUrl = ServerConfigurationService.getAccessUrl();
 		if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && accessUrl != null)
 		{
-			// stripe out the access url, get the relative form of "url"
-			Reference ref = EntityManager.newReference(siteAttribute.replaceAll(accessUrl, ""));
 			try
 			{
-				ContentResource resource = m_contentHostingService.getResource(ref.getId());
-				// the new resource
-				ContentResource nResource = null;
-				String nResourceId = resource.getId().replaceAll(oSiteId, nSiteId);
+				String siteUrl = URLDecoder.decode(siteAttribute, "UTF-8");
+				// stripe out the access url, get the relative form of "url"
+				Reference ref = EntityManager.newReference(siteUrl.replaceAll(accessUrl, ""));
 				try
 				{
-					nResource = m_contentHostingService.getResource(nResourceId);
-				}
-				catch (Exception n2Exception)
-				{
-					// copy the resource then
+					ContentResource resource = m_contentHostingService.getResource(ref.getId());
+					// the new resource
+					ContentResource nResource = null;
+					String nResourceId = resource.getId().replaceAll(oSiteId, nSiteId);
 					try
 					{
-						nResourceId = m_contentHostingService.copy(resource.getId(), nResourceId);
 						nResource = m_contentHostingService.getResource(nResourceId);
 					}
-					catch (Exception n3Exception)
+					catch (Exception n2Exception)
 					{
+						// copy the resource then
+						try
+						{
+							nResourceId = m_contentHostingService.copy(resource.getId(), nResourceId);
+							nResource = m_contentHostingService.getResource(nResourceId);
+						}
+						catch (Exception n3Exception)
+						{
+						}
 					}
+					// get the new resource url
+					rv = nResource != null?nResource.getUrl(false):"";
 				}
 				
-				// get the new resource url
-				rv = nResource != null?nResource.getUrl(false):"";
+				catch (Exception refException)
+				{
+					M_log.warn(this + ":transferSiteResource: cannot find resource with ref=" + ref.getReference() + " " + refException.getMessage());
+				}
 				
 			}
-			catch (Exception refException)
-			{
-				M_log.warn(this + ":transferSiteResource: cannot find resource with ref=" + ref.getReference() + " " + refException.getMessage());
-			}
+			catch (UnsupportedEncodingException uee)
+				{
+				// Should never happen as somewhere without UTF-8 is very strange.
+				throw new RuntimeException(uee);
+				}
 		}
 		
 		return rv;
@@ -15020,7 +15035,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			siteInfo.site_type = templateSite.getType();
 			siteInfo.title = StringUtils.trimToNull(params.getString("siteTitleField"));
 			siteInfo.term = StringUtils.trimToNull(params.getString("selectTermTemplate"));
-			siteInfo.iconUrl = templateSite.getIconUrl();
+			siteInfo.iconUrl = templateSite.getIconUrl(); // If it's inside the site we'll change it when we make the copy
 			// description is site-specific. Shouldn't come from template
 			// siteInfo.description = templateSite.getDescription();
 			siteInfo.short_description = templateSite.getShortDescription();
