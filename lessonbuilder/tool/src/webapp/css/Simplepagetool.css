@@ -83,6 +83,12 @@
 .neoPortletTitleWrap {
 	padding-bottom: 4px;
 }
+.portletTitle .title, .portletTitle .action {
+	padding-bottom: 0px !important;
+}
+.breadcrumbs a[title="Reset"] {
+
+}
 .breadcrumbs span {
 	display: inline-block;
 }
@@ -94,28 +100,25 @@
     margin-left:0;
 }
 .breadcrumbs + .singlePageTitle {
-    display:none;
-}
-.breadcrumbs + h2 > .siteTitle {
-    display:none;
+    display:none
 }
 .italic {
-	font-style: italic;
+	font-style: italic
 }
 .indent {
-	margin-left: 20px;
+	margin-left: 20px
 }
 .indent2 {
-	margin-left: 50px;
+	margin-left: 50px
 }
 .indent3 {
-	margin-left: 70px;
+	margin-left: 70px
 }
 .lessons-messages{
 	white-space: pre-line;
 }
 .hidden {
-	visibility: hidden;
+	visibility: hidden
 }
 .rightJustify {
 	position: absolute;
@@ -216,6 +219,9 @@ a.ui-button:link, a.ui-button:visited {
 a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
 	background-color: #eee;
+}
+#edit-title {
+	margin-left: 1em
 }
 .ui-button-text {
 	padding: 0.25em 0.8em !important
@@ -632,6 +638,46 @@ ul#toolbar li.dropdown a {
 ul#toolbar li em {
     font-style:normal;
 }
+.dropDownDiv {
+	position: absolute;
+	width: 350px;
+	margin-top: 0;
+	margin-left: 0.5em;
+	background-color: #EEE;
+	padding: 5px !important;
+	background: #eeeeee !important;
+	background: -moz-linear-gradient(top, #eeeeee 0%, #e4e4e4 100%) !important;
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#eeeeee), color-stop(100%,#e4e4e4)) !important;
+	background: -webkit-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+	background: -o-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+	background: -ms-linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+	background: linear-gradient(top, #eeeeee 0%,#e4e4e4 100%) !important;
+    border: 1px solid #d1d1d1 !important;
+    z-index: 10;
+    -webkit-box-shadow: 1px 1px 3px 2px #eeeeee;
+    box-shadow: 1px 1px 3px 2px #eeeeee;
+}
+.dropDownDiv  ul {
+    margin:0;
+    padding: 0;
+}
+.dropDownDiv li {
+    border-top:1px solid #ccc !important;
+    background: #fff !important;
+    padding:5px !important;
+    margin:0;
+    display:block;
+}
+.dropDownDiv li:first-child {
+    border-top:none !important;
+}
+.dropDownDiv li a {
+    display:block;
+    padding: 5px 0 !important;
+}
+.dropDownDiv li div {
+    font-size: .85em !important
+}
 span.nextprev {
 	/*
 margin-left: 20px;
@@ -689,6 +735,16 @@ background-color: #e8e8e8
 }
 .details-row td:hover {
     background: #fff
+}
+.gradingarea {
+	margin-left: 1em;
+	padding: 1px 5px;
+	display: inline-block;
+	font-size: 90%;
+	background-color: #acf;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
 }
 .backgroundHighlight {
 	border: 2px solid black;
@@ -847,10 +903,67 @@ div[role="dialog"] {
     
 */
 .neoPortletTitleWrap {
-    border-radius:0;
-    width: 100%;
+    border-radius:0
 }
-
+.portletTitle {
+    width: 100%;
+    height: 100%;
+/*    overflow: hidden; */
+}
+.portletTitle .action {
+    padding: 2px -1px 6px 2px;
+    float: right;
+    vertical-align: middle;
+}
+.Mrphs-toolTitleNav .action {
+    display: inline-block;
+}			      
+.portletTitle .action a#jsr-edit {
+    padding: 2px;
+    background: url(../images/page_edit.gif) center right no-repeat;
+}
+.portletTitle .action a#jsr-edit:hover {
+    background: url(../images/page_edit.gif) center right no-repeat
+}
+.portletTitle .action img {
+    margin: 0;
+    vertical-align: text-bottom;
+    width: 18px;
+    border: none;
+    height: 18px;
+}
+.portletTitle .action a.help{
+    background: url(../images/help.gif) center right no-repeat;
+    text-align: left;
+    padding: 0;
+    text-decoration: none !important;
+    width: 1em;
+    height: 1.5em;
+    outline: none;
+}
+.portletTitle .title a:focus, .portletTitle .action a:focus {
+    outline: black dotted thin
+}
+.portletTitle .action a.help:hover, .portletTitle .action a.help:focus img {
+    background: url(../images/help_h.gif) center right no-repeat
+}
+.portletTitle .action a.tool-directurl{
+    text-decoration:none;
+}
+.portletTitle .action a.tool-directurl{
+    padding:2px;
+    background: url(/library/image/silk/link.png) center right no-repeat;
+}
+.portletTitle .action a.tool-directurl:hover{
+    background: url(/library/image/silk/link_go.png) center right no-repeat;
+}
+.portletTitle .action a.Mrphs-toolTitleNav__link--directurl{
+    background: none;
+    display:inline
+}
+.portletTitle .action a.Mrphs-toolTitleNav__link--directurl:hover{
+    background: none
+}
 a.Mrphs-toolTitleNav__link--help-popup {
     display:inline
 }
@@ -867,6 +980,44 @@ a.Mrphs-toolTitleNav__link--reset {
     overflow:auto;
     width:250px;
     display:block;
+}
+.portletTitle .title {
+/*    padding: 2px 4px 6px 0; */
+/*    height: 1em; */
+    float: left;
+/*    color: #000; */
+}
+.portletTitle .title img {
+    margin: 0;
+    vertical-align: text-bottom;
+    width: 18px;
+    border: none;
+    height: 18px;
+}
+.portletTitle .title h2 {
+    display: inline;
+    margin: 0;
+    padding: 0;
+/*    color: #444; */
+/*    font-weight: bold; */
+/*    font-family: 'Helvetica Neue', Arial, sans-serif; */
+/*    font-size: 1.2em !important; */
+}
+.portletTitle .title h2 a {
+    text-decoration: none;    
+}
+.portletTitle .title h2 .siteTitle {
+    color: #333
+}
+.portletTitle .title a.reload {
+    background: url(../images/reload.gif) center left no-repeat;
+    text-decoration: none !important;
+    border: 1px solid #fff;
+    height: 1.5em;
+    outline: none;
+}
+.portletTitle .title a.reload:hover, .portletTitle .title a.reload:focus {
+    background: url(../images/reload_h.gif) center left no-repeat
 }
 
 /*
@@ -891,6 +1042,77 @@ a.Mrphs-toolTitleNav__link--reset {
 }
 
 /*
+.edit-col {
+    position: absolute !important;
+    clip: rect(1px 1px 1px 1px);
+    clip: rect(1px, 1px, 1px, 1px);
+    top: -1px;
+    right:-2px;
+    z-index:3;
+    padding:0;
+    float:none;
+}
+
+.mainList li:hover .edit-col{
+    display:block;
+    clip:auto;    
+}
+.mainList li:hover .edit-colHidden {
+    display:none;
+}
+.mainList li.canEdit > div {
+    padding: 0 !important
+}
+
+.mainList li .edit-col a.ui-button:link, .mainList li .edit-col a.ui-button:visited {
+    text-decoration: none !important;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
+    border-radius: 0;
+    -webkit-border-bottom-left-radius: 5px;
+    -moz-border-radius-bottomleft: 5px;
+    border-bottom-left-radius: 5px;
+    width:30px;
+    height:30px;
+    background-image: url(/library/image/silk/application_edit.png);
+    background-position:center center;
+    background-repeat: no-repeat;
+}
+
+.mainList li .edit-col a span {
+    display: none;
+}
+.mainList li.canEdit:hover {
+    border:1px solid #ccc;
+}
+.mainList li.assessmentType  .edit-col, 
+    .mainList li.commentsType  .edit-col, 
+    .mainList li.studentContentType  .edit-col, 
+    .mainList li.resourceType  .edit-col, 
+    .mainList li.assignmentType  .edit-col, 
+    .mainList li.forumType   .edit-col, 
+    .mainList li.pageType  .edit-col, 
+    .mainList li.assessmentType  .edit-col,  
+    .mainList li.studentContentType  .edit-col, 
+    .mainList li.resourceType  .edit-col, 
+    .mainList li.assignmentType  .edit-col, 
+    .mainList li.forumType   .edit-col, 
+    .mainList li.pageType  .edit-col {
+}
+.editInProgress {
+    background:#eee !important;
+    border:1px dashed #aaa !important;
+}
+.editInProgress * {
+    opacity:.50;    
+}
+
+*/
+ /*
+end alternate treatment for list
+*/
+
+/*
  this may actually be better css, but for the moment I'm
  doing this just for print
 */
@@ -906,3 +1128,19 @@ width: calc(100% - 50px);
 }
 }
 
+.Mrphs-toolTitleNav__title {
+  width: auto !important;
+}
+.Mrphs-container--toolTitleNav {
+  text-align:right;
+}
+.Mrphs-toolTitleNav__title {
+  float:left;
+  text-align:left;
+}
+.returnwarning, .returnheader, .Mrphs-toolTitleNav__addLeft .usebutton span {
+  font-size: .75em;
+}
+.Mrphs-toolTitleNav__addRight {
+  display:inline-block
+}
