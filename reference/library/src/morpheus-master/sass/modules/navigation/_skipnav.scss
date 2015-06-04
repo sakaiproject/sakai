@@ -9,7 +9,7 @@
 			display: block;
 			color: $background-color;
 			font-size: 2.7em;
-			z-index: 1;
+			z-index: 10;
 			text-decoration: none;
 			@include transition( left 0.5s linear );
 			span{
@@ -30,8 +30,8 @@
 			text-decoration: none;
 			top: 5px;
 			width: 32px;
-			z-index: 2;
 			overflow: hidden;
+			z-index: 30;
 			@include transition(left 0.5s linear);
 			span{
 				display: none;
