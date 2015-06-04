@@ -12,6 +12,6 @@
 		<configuration name="allowMultipleInstances" value="true" />
         <!-- Filter the HTML from the editor to prevent xss attacks -->
         <configuration name="filterHtml" value="default" />
-        <configuration name="sakai-portal:suppresstitle" value="true" />
+<!--        <configuration name="sakai-portal:suppresstitle" value="true" /> -->
 	</tool>	
 </registration>
