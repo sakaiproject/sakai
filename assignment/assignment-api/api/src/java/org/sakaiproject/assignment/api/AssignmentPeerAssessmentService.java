@@ -12,17 +12,17 @@ public interface AssignmentPeerAssessmentService extends ScheduledInvocationComm
 	
 	public void removeScheduledPeerReview(String assignmentId);
 	
-	public List<PeerAssessmentItem> getPeerAssessmentItems(String assignmentId, String assessorUserId);
+	public List<PeerAssessmentItem> getPeerAssessmentItems(String assignmentId, String assessorUserId, Integer scaledFactor);
 	
 	public PeerAssessmentItem getPeerAssessmentItem(String submissionId, String assessorUserId);
 	
 	public void savePeerAssessmentItem(PeerAssessmentItem item);
 	
-	public List<PeerAssessmentItem> getPeerAssessmentItems(String submissionId);
+	public List<PeerAssessmentItem> getPeerAssessmentItems(String submissionId, Integer scaledFactor);
 	
-	public List<PeerAssessmentItem> getPeerAssessmentItemsByAssignmentId(String assignmentId);
+	public List<PeerAssessmentItem> getPeerAssessmentItemsByAssignmentId(String assignmentId, Integer scaledFactor);
 	
-	public List<PeerAssessmentItem> getPeerAssessmentItems(Collection<String> submissionsIds);
+	public List<PeerAssessmentItem> getPeerAssessmentItems(Collection<String> submissionsIds, Integer scaledFactor);
 	
 	/**
 	 * returns true if the score was updated and saved

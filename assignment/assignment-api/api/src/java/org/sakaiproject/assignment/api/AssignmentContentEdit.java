@@ -82,6 +82,12 @@ public interface AssignmentContentEdit extends AssignmentContent, AttachmentCont
 	public void setMaxGradePoint(int maxPoints);
 
 	/**
+	 * 
+	 * @return The number of decimal points to store the grade score 
+	 */
+	public void setFactor(int factor);
+	
+	/**
 	 * Set whether this project can be a group project.
 	 * 
 	 * @param groupProject -

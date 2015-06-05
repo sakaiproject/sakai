@@ -35,6 +35,7 @@ import javax.xml.parsers.SAXParserFactory;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.impl.conversion.api.SerializableSubmissionAccess;
 import org.sakaiproject.assignment.impl.conversion.impl.SAXSerializablePropertiesAccess;
 import org.sakaiproject.entity.api.serialize.EntityParseException;
@@ -66,6 +67,8 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 	protected List<String> submitterIds = new ArrayList<String>();
 
 	protected String grade = null;
+	
+	protected int m_factor;
 
 	protected String assignment = null;
 
@@ -143,6 +146,7 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 		submission.setAttribute("id", this.id);
 		submission.setAttribute("context", this.context);
 		submission.setAttribute("scaled_grade", this.grade);
+		submission.setAttribute("scaled_factor", String.valueOf(this.m_factor));
 		submission.setAttribute("assignment", this.assignment);
 		submission.setAttribute("datesubmitted", this.datesubmitted);
 		submission.setAttribute("datereturned", this.datereturned);
@@ -397,7 +401,13 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 					{
 						setFeedbacktext_html(StringUtils.trimToNull(attributes.getValue("feedbacktext-formatted")));
 					}
-						
+					
+					// get number of decimals
+					String factor = StringUtils.trimToNull(attributes.getValue("scaled_factor"));
+					if (factor == null) {
+						factor = String.valueOf(AssignmentConstants.DEFAULT_SCALED_FACTOR);
+					}
+					m_factor = Integer.valueOf(factor);
 					
 					// get grade
 					String grade = StringUtils.trimToNull(attributes.getValue("scaled_grade"));
@@ -409,8 +419,8 @@ public class AssignmentSubmissionAccess implements SerializableSubmissionAccess,
 							try
 							{
 								Integer.parseInt(grade);
-								// for the grades in points, multiple those by 10
-								grade = grade + "0";
+								// for the grades in points, multiple those by factor
+								grade = grade + factor.substring(1);
 							}
 							catch (Exception e)
 							{

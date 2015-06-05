@@ -866,4 +866,13 @@ public class AssignmentService {
 			return null;
 		return service.escapeInvalidCharsEntry(param0);
 	}
+	
+	
+	public static Integer getScaleFactor() {
+		org.sakaiproject.assignment.api.AssignmentService service = getInstance();
+		if (service == null) {
+			return null;
+		}
+		return service.getScaleFactor();
+	}
 }
