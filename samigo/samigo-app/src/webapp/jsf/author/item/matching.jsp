@@ -96,6 +96,12 @@
 <br/><h:message for="answerptr" styleClass="validate"/>
   </div>
 <br/>
+      <div class="tier5">
+          <h:selectBooleanCheckbox id="extraCredit" value="#{itemauthor.currentItem.isExtraCredit}" disabled="#{author.isEditPoolFlow}" />
+          <h:outputLabel value="#{authorMessages.extra_credit}" />
+      </div>
+      <br />
+
   <!-- 2 TEXT -->
   <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
   <br/>

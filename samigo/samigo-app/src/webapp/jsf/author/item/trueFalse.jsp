@@ -101,6 +101,11 @@
   </h:panelGrid>
 </h:panelGrid>
 </div><br/>
+     <div class="tier5">
+         <h:selectBooleanCheckbox id="extraCredit" value="#{itemauthor.currentItem.isExtraCredit}" disabled="#{author.isEditPoolFlow}" />
+         <h:outputLabel value="#{authorMessages.extra_credit}" />
+     </div>
+     <br />
 
   <!-- 2 TEXT -->
  <div class="longtext">

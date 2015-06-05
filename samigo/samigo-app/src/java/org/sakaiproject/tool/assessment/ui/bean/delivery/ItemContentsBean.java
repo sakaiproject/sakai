@@ -1480,7 +1480,6 @@ System.out.println("zz01: " + points);
   {
 	  this.saCharCount = saCharCount;
   }
-  
   // SAM-2368
   // This class allows jsp to call a method with the current EL expression version
   // #{itemContents.htmlStripped[question.text]} is using the Map Trick.

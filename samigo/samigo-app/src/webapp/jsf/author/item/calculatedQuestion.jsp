@@ -112,6 +112,12 @@ confirmation dialog
 		<br/>
 	</div>
 
+	<div class="tier5">
+		<h:selectBooleanCheckbox id="extraCredit" value="#{itemauthor.currentItem.isExtraCredit}" disabled="#{author.isEditPoolFlow}" />
+		<h:outputLabel value="#{authorMessages.extra_credit}" />
+	</div>
+	<br />
+
     <%-- 2 QUESTION TEXT --%>
     <div class="longtext"> <h:outputLabel value="#{authorMessages.q_text}" />
     <br/></div>

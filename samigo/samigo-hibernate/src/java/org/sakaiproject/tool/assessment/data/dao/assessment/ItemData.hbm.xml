@@ -33,6 +33,7 @@
     <property name="createdDate" type="timestamp" column="CREATEDDATE" not-null="true" />
     <property name="lastModifiedBy" type="string" length="255" column="LASTMODIFIEDBY" not-null="true" />
     <property name="lastModifiedDate" type="timestamp" column="LASTMODIFIEDDATE" not-null="true" />
+    <property name="isExtraCredit" type="boolean" column="ISEXTRACREDIT" not-null="false" />
 
 <!--
     <property name="typeId">

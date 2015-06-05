@@ -258,6 +258,8 @@ public class ItemService
     cloned.setItemFeedbackSet(newItemFeedbackSet);
     cloned.setItemAttachmentSet(newItemAttachmentSet);
 
+    cloned.setIsExtraCredit(item.getIsExtraCredit());
+
     return cloned;
   }
 

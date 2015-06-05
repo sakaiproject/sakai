@@ -88,6 +88,12 @@
 </div>
 <br/>
 
+    <div class="tier5">
+        <h:selectBooleanCheckbox id="extraCredit" value="#{itemauthor.currentItem.isExtraCredit}" disabled="#{author.isEditPoolFlow}" />
+        <h:outputLabel value="#{authorMessages.extra_credit}" />
+    </div>
+    <br />
+
 <!-- 1 ANSWER -->
 <div class="longtext">
   <h:outputLabel value="#{authorMessages.answer} " />  

@@ -1061,3 +1061,8 @@ td.feedbackColumn2 {
   vertical-align: bottom;
   padding-bottom: 15px;
 }
+
+.extraCreditLabel {
+	font-weight: bold;
+	color: #004400;
+}

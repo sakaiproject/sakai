@@ -711,6 +711,9 @@ public class ItemAddListener
      		item = new PublishedItemFacade();
      	}
       }
+
+      item.setIsExtraCredit(bean.getIsExtraCredit());
+
       item.setScore(Double.valueOf(bean.getItemScore()));
       item.setDiscount(Double.valueOf(bean.getItemDiscount()));
       item.setHint("");
