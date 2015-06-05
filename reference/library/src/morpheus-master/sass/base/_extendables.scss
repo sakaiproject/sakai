@@ -40,9 +40,14 @@
 	padding: 0.35em 0.55em !important;
 	text-decoration: none;
 	@include background-image( linear-gradient( $begin-color , $end-color ) );
-	@include border-radius( 4px );
+	@include border-radius( 2px );
 	&:hover{
-		@include background-image( linear-gradient( $end-color , $begin-color ) );
+		@if $button-gradiant {
+			@include background-image( linear-gradient( $end-color , $begin-color ) );
+		}
+		@else {
+			@include background-image( linear-gradient( darken($begin-color , 10%) , darken($begin-color , 10%) )  );
+		}
 	}
 	a{
 		color:   $text-color;

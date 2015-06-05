@@ -1,18 +1,18 @@
 //.#{$namespace}
 .is-logged-out{
 	#content, .#{$namespace}container--footer{
-		margin: #{$header-size * 1.55 } 0 0 #{$tool-menu-width};
+		margin: #{$header-size + 15px } 0 0 #{$tool-menu-width};
 		@media #{$phone}{
-			margin: #{$header-size * 1.55 } 0 0 #{$icon-size * 3};
+			margin: #{$header-size + 15px } 0 0 #{$icon-size * 3};
 		}
 	}
 }
 
 #content, .#{$namespace}container--footer{
-	margin: #{$header-size * 3 } 0 0 #{$tool-menu-width};
+	margin: #{$header-size * 2 + 15px } 0 0 #{$tool-menu-width};
 
 	@media #{$phone}{
-		margin: #{$header-size * 1.55 } 20px 0 #{$icon-size * 3};
+		margin: #{$header-size + 15px } 20px 0 #{$icon-size * 3};
 	}
 	
 	#col1of2, #col2of2{
@@ -31,7 +31,7 @@
 	/* Optimal Typography for 16px Fonts 		//
 	// http://www.pearsonified.com/typography/	//
 	// Approx CPL 97 							*/
-	max-width: #{$default-font-size * 2 + $measure };
+	/*max-width: #{$default-font-size * 2 + $measure };*/
 	margin: 0 1em 1em 1em;
 	clear: both;
 }

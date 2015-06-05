@@ -21,17 +21,23 @@ $header-font-family: "Raleway", Arial, sans-serif !default;
 $header-font-weight: 300 !default;										// 300, 400 or 700 as you wish
 
 /* Color palette */
-$background-color: 			 #F8F8F8 !default;
-$background-color-secondary: #efeae5 !default;
+$background-color: 			 #313131 !default;
+$background-color-secondary: #F8F8F8 !default;
 
 $tool-background-color:		 #F8F8F8 !default;
+$toolMenuColor: 		#F8F8F8 !default;
 
-$primary-color:    			 #2a97cc !default;
+$primary-color:    			 #0083af !default;
 $secondary-color:  			 #F00 !default;
 
 $text-color:				 #363636 !default;
+$button-text-color:			#F8F8F8 !default;
+$button-text-color-secondary:			$text-color !default;
 
+$button-gradiant:	false !default;
 $button-color: 				 $primary-color !default;
+$button-color-secondary:		#87c2ca;
+
 $okcolor: 					 #dff0d8 !default;
 $errorcolor: 			 	 #f2dede !default;
 $warncolor: 			 	 #fcf8e3 !default;

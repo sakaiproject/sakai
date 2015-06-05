@@ -1,10 +1,10 @@
 
 .#{$namespace}toolTitleNav{
-	background: $tool-background-color;
+	background: $primary-color;
 	margin: 1em 0 0 0;
-
+	padding: 0.5em;
 	.#{$namespace}toolTitleNav__title{
-		color: lighten( $text-color, 35% );
+		color: lighten( $text-color, 70% );
 		display: inline-block;
 		font-size: 1.5em;
 		width: calc(100% - 74px);
@@ -26,6 +26,9 @@
 					height: 50px;
 				}
 			}
+		}
+		a{
+			color: lighten( $text-color, 70% );
 		}
 	}
 
@@ -61,5 +64,6 @@
 
 .portletBody{
 	background: $tool-background-color;
-	padding: #{$default-font-size / 2} 0 0 0;
+	padding: #{$default-font-size / 2};
+	padding-bottom: 40px;
 }
