@@ -54,8 +54,9 @@
                                         <h2 class="Mrphs-toolTitleNav__title">
                                             <a href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
                                                 <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
-                                                ${tool.toolRenderResult.getTitle()}
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
                                             </a>
+					    <span class="Mrphs-toolTitleNav__addLeft"></span>
                                         </h2>
 
                                     #else
@@ -63,15 +64,16 @@
                                         <h2 class="Mrphs-toolTitleNav__title">
                                             <a class="Mrphs-toolTitleNav__link--inline" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
                                                 <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
-                                                ${tool.toolRenderResult.getTitle()}
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
                                             </a>
+					    <span class="Mrphs-toolTitleNav__addLeft"></span>
                                         </h2>
 
                                     #end ## END of IF ($!{tool.toolInline})
 
                                 #else 
 
-                                    <h2 class="Mrphs-toolTitleNav__title">${tool.toolRenderResult.getTitle()}</h2>
+                                    <h2 class="Mrphs-toolTitleNav__title"><span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span><span class="Mrphs-toolTitleNav__addLeft"></span></h2>
 
                                 #end ## END of IF (${tool.toolShowResetButton})
 
@@ -81,6 +83,7 @@
 
                                 #end ## END of IF (${tool.toolJSR168Edit} )
 
+				<span class="Mrphs-toolTitleNav__addRight"></span>
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
                                     <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}"></a>
