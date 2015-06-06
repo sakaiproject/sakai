@@ -1238,6 +1238,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   	
 	//note, this is duplicated in the tool GradebookManagerHibernateImpl class  
 	Comparator comp;
+	
+	if(sortBy == null) {
+		sortBy = SortType.SORT_BY_SORTING; //default
+	}
   	
   	switch (sortBy) {
 	  	
