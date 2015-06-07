@@ -486,11 +486,12 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		for (Iterator<RosterMember> i = members.iterator(); i.hasNext(); ) {
             RosterMember member = i.next();
+			String userId = member.getUserId();
 
-			userIds.add(member.getEid());
+			userIds.add(userId);
 
             // If this member is not in the authzGroup, remove them.
-            if (authzGroup.getMember(member.getUserId()) == null) {
+            if (authzGroup.getMember(userId) == null) {
                 i.remove();
             }
 		}
@@ -509,9 +510,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 		
 		// determine filtered membership
 		for (RosterMember member : members) {
+			String userId = member.getUserId();
 			
-			// skip if privacy restricted
-			if (hiddenUserIds.contains(member.getEid())) {
+			// skip if privacy restricted and not the current user
+			if (!userId.equals(currentUserId) && hiddenUserIds.contains(userId)) {
 				continue;
 			}
 			
@@ -541,8 +543,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 			membership.addAll(site.getMembers());
 		} else if (null != site.getGroup(groupId)) {
 			// get all members of requested groupId
-			membership.addAll(site.getGroup(groupId)
-						.getMembers());
+			membership.addAll(site.getGroup(groupId).getMembers());
 		} else {
 			// assume invalid groupId specified
 			return null;
