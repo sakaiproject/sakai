@@ -36,7 +36,7 @@
 			display: inline-block;
 			margin: 0 0.8em 0 0;
 			a{
-				@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $background-color );
+				@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $button-text-color );
 			}
 		}
 	}
@@ -44,7 +44,7 @@
 	&.is-maximized{
 		.siteNavWrap{
 			height: calc( #{$header-size} - 1em);
-			padding: 0.6em 0 0.4em 0;
+			padding: 0.6em 0 0.4em 0.6em;
 			width: calc( 100% - 100px - #{$tool-menu-width} );
 			overflow: auto;
 
@@ -66,7 +66,7 @@
 			form{
 				font-size: 0.9em;
 				input[type="submit"]{
-					@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $background-color );
+					@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $button-text-color );
 				}
 				input[type="text"],input[type="password"]{
 					margin: 0 0 0 0.5em;
@@ -141,7 +141,7 @@
 	position: absolute;
 	width: $tool-menu-width;
 	z-index: 99;
-	@include border-radius( 4px );
+	@include border-radius( 2px );
 	@include box-shadow( 0 0 4px rgba( $text-color ,0.35) );
 	li{
 		display: block;
@@ -188,7 +188,7 @@
 			display: none;
 		}
 		a{
-			@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $background-color );
+			@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $button-text-color );
 		}
 	}
 	.#{$namespace}loginUser__menuitem{
@@ -225,7 +225,7 @@
 		}
 
 		a#loginUser{
-			color: $background-color;
+			color: $button-text-color;
 			display: inline-block;
 			vertical-align:middle;
 			text-decoration: none;
@@ -312,7 +312,7 @@
 			display: inline-block;
 			border: 1px solid darken( $background-color-secondary, 10% );
 			background: darken( $background-color-secondary, 5% );
-			@include border-radius( 4px );
+			@include border-radius( 2px );
 			margin: 0 0.7em 0 0;
 			padding: 0.1em 0.5em 0.1em 0.5em;
 			a{
@@ -321,6 +321,9 @@
 			}
 			&.is-selected{
 				background: lighten($background-color, 10%);
+				a{
+					color: #{$button-text-color};
+				}
 			}
 			.#{$namespace}sitesNav__drop{
 				background: url( 'images/arrow.png') no-repeat top left;

@@ -1,8 +1,9 @@
 .navIntraTool{
 	font-size: 0.8em;
 	border-top: 1px solid $background-color-secondary;
-	padding: #{$default-font-size / 2} 0 0 0;
-	margin: 0 0 0.75em 0;
+	background-color : darken($tool-background-color, 10%);
+	padding:  5px 10px;
+	margin: 0 0 0.1em $tool-background-color;
 	li{
 		display: inline-block;
 		margin: 0.4em 0.5em 0.4em 0 !important;
@@ -11,11 +12,22 @@
 			padding: 0 0 0 0;
 			border-left: 0px none;
 			a{
-				@include sakai-button( $background-color, darken( $background-color, 10% ), darken( $background-color, 10% ), $text-color );
+				@if $button-gradiant {
+					@include sakai-button( $button-color, darken( $button-color, 10% ), darken( $button-color, 10% ), $button-text-color );
+				}
+				@else {
+					@include sakai-button( $button-color, $button-color, darken( $button-color, 10% ), $button-text-color );
+				}
 			}
 			&.current{
 				a{
-					@include sakai-button( $primary-color, darken( $primary-color, 5% ), $primary-color, $background-color );
+					@if $button-gradiant {
+						@include sakai-button( $primary-color, darken( $primary-color, 5% ), $primary-color, $background-color );
+					}
+					@else {
+						@include sakai-button( $primary-color, $primary-color, $primary-color, $background-color );
+					}
+
 				}
 			}
 			&.inactive{
@@ -23,9 +35,21 @@
 			}
 		}
 		a{
-			@include sakai-button( $background-color, darken( $background-color, 10% ), darken( $background-color, 10% ), $text-color );
+			@if $button-gradiant {
+				@include sakai-button( $button-color, darken( $button-color, 10% ), darken( $button-color, 10% ), $button-text-color );
+			} 
+			@else {
+				@include sakai-button( $button-color, $button-color, $button-color, $button-text-color );
+			}
+
 			&.current{
-				@include sakai-button( $primary-color, darken( $primary-color, 5% ), $primary-color, $background-color );
+				@if $button-gradiant {
+					@include sakai-button( $primary-color, darken( $primary-color, 5% ), $primary-color, $background-color );
+				} 
+				@else {
+					@include sakai-button( $primary-color, $primary-color, $primary-color, $background-color );
+				}
+
 			}
 		}
 		.searchField{
