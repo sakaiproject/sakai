@@ -25,6 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9786,13 +9790,22 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private String transferSiteResource(String oSiteId, String nSiteId, String siteAttribute) {
 		String rv = "";
 		
-		String accessUrl = ServerConfigurationService.getAccessUrl();
-		if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && accessUrl != null)
+		String access = ServerConfigurationService.getAccessUrl();
+		if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && access != null)
 		{
-			// stripe out the access url, get the relative form of "url"
-			Reference ref = EntityManager.newReference(siteAttribute.replaceAll(accessUrl, ""));
+			Reference ref = null;
 			try
 			{
+				URI accessUrl = new URI(access);
+				URI url = new URI(siteAttribute);
+				String path = url.getPath();
+				String accessPath = accessUrl.getPath();
+				
+				// stripe out the access url, get the relative form of "url"
+				String contentRef = path.replaceAll(accessPath, "");
+				
+				ref = EntityManager.newReference(contentRef);
+				
 				ContentResource resource = m_contentHostingService.getResource(ref.getId());
 				// the new resource
 				ContentResource nResource = null;
@@ -9817,6 +9830,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// get the new resource url
 				rv = nResource != null?nResource.getUrl(false):"";
 				
+			}
+			catch (URISyntaxException use)
+			{
+				M_log.warn("Couldn't update site resource: "+ siteAttribute + " "+ use.getMessage());
 			}
 			catch (Exception refException)
 			{
