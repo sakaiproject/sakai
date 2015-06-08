@@ -20,12 +20,12 @@
 				#if($item.canChangeDisplayName() )
 					<span class="reqStar">*</span>
 					<label for="displayName${DOT}$i">
-						$tlang.getString("title.name") 
+						$tlang.getString("label.display") 
 					</label>
 					<input type="text" size="40" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" maxlength="512"/>
 				#else
 					<label for="displayName_display${DOT}$i">
-						$tlang.getString("title.name") 
+						$tlang.getString("label.display") 
 					</label>
 					<input type="text" size="40" id="displayName_display${DOT}$i" disabled="disabled" value="$validator.escapeHtml("$!item.name")" />
 					<input type="hidden" id="displayName${DOT}$i" name="displayName${DOT}$i" value="$validator.escapeHtml("$!item.name")" />
