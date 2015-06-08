@@ -464,7 +464,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
        eventTrackingService.postEvent(message,objectReference);
     }
 
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit, final Boolean is_equal_weight_assignments)
     throws ConflictingCategoryNameException, StaleObjectModificationException {
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
@@ -496,12 +496,13 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     			ca.setGradebook(gb);
     			ca.setName(name);
     			ca.setWeight(weight);
-                ca.setDrop_lowest(drop_lowest);
-                ca.setDropHighest(dropHighest);
-                ca.setKeepHighest(keepHighest);
-                //ca.setItemValue(itemValue);
+    			ca.setDrop_lowest(drop_lowest);
+    			ca.setDropHighest(dropHighest);
+    			ca.setKeepHighest(keepHighest);
+    			//ca.setItemValue(itemValue);
     			ca.setRemoved(false);
     			ca.setExtraCredit(is_extra_credit);
+    			ca.setEqualWeightAssignments(is_equal_weight_assignments);
 
     			Long id = (Long)session.save(ca);
 
@@ -510,6 +511,12 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	};
 
     	return (Long)getHibernateTemplate().execute(hc);
+    }
+
+    // Created as a part of SAK-14556 to maintain compatability with other tools
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit)
+            throws ConflictingCategoryNameException, StaleObjectModificationException {
+        return createCategory(gradebookId, name, weight, drop_lowest, dropHighest, keepHighest, is_extra_credit, false);
     }
 
     public List getCategories(final Long gradebookId) throws HibernateException {

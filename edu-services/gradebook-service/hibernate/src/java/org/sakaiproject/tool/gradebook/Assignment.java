@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 
@@ -76,6 +77,7 @@ public class Assignment extends GradableObject {
     private boolean released;
     private Category category;
     private Double averageTotal;
+    private Double averagePercent;
     private boolean ungraded;
     private Boolean extraCredit = Boolean.FALSE;
 	private Double assignmentWeighting;
@@ -422,6 +424,8 @@ public class Assignment extends GradableObject {
         int numScored = 0;
         BigDecimal total = new BigDecimal("0");
         BigDecimal pointsTotal = new BigDecimal("0");
+        BigDecimal avgPercent = new BigDecimal("0");
+
         for (AssignmentGradeRecord record : gradeRecords) {
             // Skip grade records that don't apply to this gradable object
             if(!record.getGradableObject().equals(this)) {
@@ -450,12 +454,21 @@ public class Assignment extends GradableObject {
             	pointsTotal = pointsTotal.add(new BigDecimal(points.toString()));
             	numScored++;
             }
+            
+            Double doublePercent = points / getPointsPossible();
+            BigDecimal percent = new BigDecimal(doublePercent.toString());
+            avgPercent = avgPercent.add(percent);
+
+
         }
         if (numScored == 0) {
         	mean = null;
         	averageTotal = null;
+            averagePercent = null;
         } else {
         	BigDecimal bdNumScored = new BigDecimal(numScored);
+
+            	avgPercent = avgPercent.divide(bdNumScored, GradebookService.MATH_CONTEXT);
         	if(!ungraded && pointsPossible > 0)
         	{
         		mean = Double.valueOf(total.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
@@ -465,6 +478,7 @@ public class Assignment extends GradableObject {
         		mean = null;
         	}
         	averageTotal = Double.valueOf(pointsTotal.divide(bdNumScored, GradebookService.MATH_CONTEXT).doubleValue());
+        	averagePercent = avgPercent.doubleValue();
         }
     }
 
@@ -489,6 +503,15 @@ public class Assignment extends GradableObject {
 			this.averageTotal = averageTotal;
 		}
 
+		public Double getAveragePercent()
+		{
+			return averagePercent;
+		}
+
+		public void setAveragePercent(Double averagePercent)
+		{
+			this.averagePercent = averagePercent;
+		}
 
 		public boolean getUngraded()
 		{
@@ -613,4 +636,36 @@ public class Assignment extends GradableObject {
 	public void setHideInAllGradesTable(boolean hideInAllGradesTable) {
 		this.hideInAllGradesTable = hideInAllGradesTable;
 	}
+
+		public boolean getIsCategoryEqualWeightAssignments() {
+			Category category = getCategory();
+			boolean equalWeightAssignments = false;
+
+			if(category != null) {
+				equalWeightAssignments  = category.isEqualWeightAssignments();
+			}
+
+			return equalWeightAssignments;
+		}
+
+		public Double getOverallWeight(){
+			Double overallWeight = null;
+			if(getIsCategoryEqualWeightAssignments()) {
+				Double catWeight = getCategory().getWeight();
+				int numberOfAssignments = 0;
+				int numExtraCreditAssignments = 0;
+				for(Iterator<Assignment> i = getCategory().getAssignmentList().iterator(); i.hasNext(); ) {
+					Assignment item = i.next();
+					if(item.isExtraCredit()) {
+						numExtraCreditAssignments++;
+					}
+					if(item.isCounted()){
+						numberOfAssignments++;
+					}
+				}
+
+				overallWeight = catWeight / (numberOfAssignments - numExtraCreditAssignments);
+			}
+			return overallWeight;
+		}
 }
