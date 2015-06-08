@@ -52,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -1464,6 +1465,11 @@ public class AssignmentAction extends PagedResourceActionII
 			if (assignment.getContent().getAllowReviewService())
 			{
 				context.put("plagiarismNote", rb.getFormattedMessage("gen.yoursubwill", contentReviewService.getServiceName()));
+				if (!contentReviewService.allowAllContent() && assignmentSubmissionTypeTakesAttachments(assignment))
+				{
+					context.put("plagiarismFileTypes", rb.getFormattedMessage("gen.onlythefoll", getContentReviewAcceptedFileTypesMessage()));
+					context.put("content_review_acceptedMimeTypes", getContentReviewAcceptedMimeTypes());
+				}
 			}
 			if (assignment.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
 			{
@@ -1685,6 +1691,61 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		return stripped;
 	}
+
+	/**
+	 * Get a list of accepted mime types suitable for an 'accept' attribute in an html file picker
+	 * @throws illegal argument exception if the assignment accepts all attachments
+	 */
+	private String getContentReviewAcceptedMimeTypes()
+	{
+		if (contentReviewService.allowAllContent())
+		{
+			throw new IllegalArgumentException("getContentReviewAcceptedMimeTypes invoked, but the content review service accepts all attachments");
+		}
+
+		StringBuilder mimeTypes = new StringBuilder();
+		Collection<SortedSet<String>> mimeTypesCollection = contentReviewService.getAcceptableExtensionsToMimeTypes().values();
+		String delimiter = "";
+		for (SortedSet<String> mimeTypesList : mimeTypesCollection)
+		{
+			for (String mimeType : mimeTypesList)
+			{
+				mimeTypes.append(delimiter).append(mimeType);
+				delimiter = ",";
+			}
+		}
+		return mimeTypes.toString();
+	}
+
+	/**
+	 * return true if the assignment's submission type takes attachments.
+	 * @throws IllegalArgumentException if assignment is null
+	 */
+	private boolean assignmentSubmissionTypeTakesAttachments(Assignment assignment)
+	{
+		if (assignment == null)
+		{
+			throw new IllegalArgumentException("assignmentSubmissionTypeTakesAttachments invoked with assignment = null");
+		}
+		
+		int submissionType = assignment.getContent().getTypeOfSubmission();
+
+		if (submissionType == Assignment.ATTACHMENT_ONLY_ASSIGNMENT_SUBMISSION)
+		{
+			return true;
+		}
+		if (submissionType == Assignment.TEXT_AND_ATTACHMENT_ASSIGNMENT_SUBMISSION)
+		{
+			return true;
+		}
+		if (submissionType == Assignment.SINGLE_ATTACHMENT_SUBMISSION)
+		{
+			return true;
+		}
+
+		return false;
+	}
+	
 
 	/**
 	 * build the student view of showing a group assignment error with eligible groups
@@ -2512,6 +2573,12 @@ public class AssignmentAction extends PagedResourceActionII
 		
 		// Keep the use review service setting
 		context.put("value_UseReviewService", state.getAttribute(NEW_ASSIGNMENT_USE_REVIEW_SERVICE));
+		if (!contentReviewService.allowAllContent())
+		{
+			String fileTypesMessage = getContentReviewAcceptedFileTypesMessage();
+			String contentReviewNote = rb.getFormattedMessage("content_review.note", new Object[]{fileTypesMessage});
+			context.put("content_review_note", contentReviewNote);
+		}
 		context.put("turnitin_forceSingleAttachment", ServerConfigurationService.getBoolean("turnitin.forceSingleAttachment", false));
 		context.put("value_AllowStudentView", state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW) == null ? Boolean.toString(ServerConfigurationService.getBoolean("turnitin.allowStudentView.default", false)) : state.getAttribute(NEW_ASSIGNMENT_ALLOW_STUDENT_VIEW));
 		
@@ -2796,6 +2863,41 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 	} // setAssignmentFormContext
+
+	/**
+	 * Get a user facing String message represeting the list of file types that are accepted by the content review service
+	 * They appear in this form: PowerPoint (.pps, .ppt, .ppsx, .pptx), plain text (.txt), ...
+	 */
+	private String getContentReviewAcceptedFileTypesMessage()
+	{
+		StringBuilder sb = new StringBuilder();
+		Map<String, SortedSet<String>> fileTypesToExtensions = contentReviewService.getAcceptableFileTypesToExtensions();
+		// The delimiter is a comma. Commas still need to be internationalized (the arabic comma is not the english comma)
+		String i18nDelimiter = rb.getString("content_review.accepted.types.delimiter") + " ";
+		String i18nLParen = " " + rb.getString("content_review.accepted.types.lparen");
+		String i18nRParen = rb.getString("content_review.accepted.types.rparen");
+		String fDelimiter = "";
+		// don't worry about conjunctions; just separate with commas
+		for (Map.Entry<String, SortedSet<String>> entry : fileTypesToExtensions.entrySet())
+		{
+			String fileType = entry.getKey();
+			SortedSet<String> extensions = entry.getValue();
+			sb.append(fDelimiter).append(fileType).append(i18nLParen);
+			String eDelimiter = "";
+			for (String extension : extensions)
+			{
+				sb.append(eDelimiter).append(extension);
+				// optimized by java compiler
+				eDelimiter = i18nDelimiter;
+			}
+			sb.append(i18nRParen);
+			
+			// optimized by java compiler
+			fDelimiter = i18nDelimiter;
+		}
+
+		return sb.toString();
+	}
 
 	/**
 	 * how many gradebook items has been assoicated with assignment
@@ -16857,22 +16959,52 @@ public class AssignmentAction extends PagedResourceActionII
 						m_securityService.pushAdvisor(sa);
 						ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, "Assignments", contentType, fileContentStream, props);
 						
+						Site s = null;
 						try
 						{
-							Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
-							if (singleFileUpload && attachments.size() > 1)
+							s = SiteService.getSite(siteId);
+						}
+						catch (IdUnusedException iue)
+						{
+							M_log.warn(this + ":doAttachUpload: Site not found!" + iue.getMessage());
+						}
+
+						// Check if the file is acceptable with the ContentReviewService
+						boolean blockedByCRS = false;
+						if (allowReviewService && contentReviewService != null && contentReviewService.isSiteAcceptable(s))
+						{
+							String assignmentReference = (String) state.getAttribute(VIEW_SUBMISSION_ASSIGNMENT_REFERENCE);
+							Assignment a = getAssignment(assignmentReference, "doAttachUpload", state);
+							if (a.getContent().getAllowReviewService())
 							{
-								//SAK-26319	- the assignment type is 'single file upload' and the user has existing attachments, so they must be uploading a 'newSingleUploadedFile'
-								state.setAttribute("newSingleUploadedFile", ref);
-							}
-							else
-							{
-								attachments.add(ref);
+								if (!contentReviewService.isAcceptableContent(attachment))
+								{
+									addAlert(state, rb.getFormattedMessage("review.file.not.accepted", new Object[]{contentReviewService.getServiceName(), getContentReviewAcceptedFileTypesMessage()}));
+									blockedByCRS = true;
+									// TODO: delete the file? Could we have done this check without creating it in the first place?
+								}
 							}
 						}
-						catch(Exception ee)
+
+						if (!blockedByCRS)
 						{
-							M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+							try
+							{
+								Reference ref = EntityManager.newReference(m_contentHostingService.getReference(attachment.getId()));
+								if (singleFileUpload && attachments.size() > 1)
+								{
+									//SAK-26319	- the assignment type is 'single file upload' and the user has existing attachments, so they must be uploading a 'newSingleUploadedFile'	--bbailla2
+									state.setAttribute("newSingleUploadedFile", ref);
+								}
+								else
+								{
+									attachments.add(ref);
+								}
+							}
+							catch(Exception ee)
+							{
+								M_log.warn(this + "doAttachUpload cannot find reference for " + attachment.getId() + ee.getMessage());
+							}
 						}
 						
 						state.setAttribute(ATTACHMENTS, attachments);

@@ -687,7 +687,10 @@ $(document).ready(function() {
 					</div>
 					<!-- Start TII custom options -->
 					#if($reviewServiceName.equals("Turnitin"))
-					$tlang.getString("content_review.note")
+
+					#if ($content_review_note)
+						$content_review_note
+					#end
 					$tlang.getString("review.submit.papers.repository")
 					<br/>
 					<div class="indnt1">
