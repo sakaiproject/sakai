@@ -21,6 +21,7 @@
 package org.sakaiproject.coursemanagement.impl;
 
 import java.io.Serializable;
+import java.util.Date;
 
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
@@ -36,15 +37,21 @@ public class EnrollmentCmImpl extends AbstractPersistentCourseManagementObjectCm
 	private String credits;
 	private String gradingScheme;
 	private boolean dropped;
+	private Date dropDate;
 	
 	public EnrollmentCmImpl() {}
 	
 	public EnrollmentCmImpl(String userId, EnrollmentSet enrollmentSet, String enrollmentStatus, String credits, String gradingScheme) {
+		this(userId, enrollmentSet, enrollmentStatus, credits, gradingScheme, null);		
+	}
+	
+	public EnrollmentCmImpl(String userId, EnrollmentSet enrollmentSet, String enrollmentStatus, String credits, String gradingScheme, Date dropDate) {
 		this.userId = userId;
 		this.enrollmentSet = enrollmentSet;
 		this.enrollmentStatus = enrollmentStatus;
 		this.credits = credits;
 		this.gradingScheme = gradingScheme;
+		this.dropDate = dropDate;
 	}
 	
 	public String getUserId() {
@@ -88,4 +95,12 @@ public class EnrollmentCmImpl extends AbstractPersistentCourseManagementObjectCm
 	public void setDropped(boolean dropped) {
 		this.dropped = dropped;
 	}	
+
+	public Date getDropDate() {
+		return dropDate;
+	}
+
+	public void setDropDate(Date dropDate) {
+		this.dropDate = dropDate;
+	}
 }
