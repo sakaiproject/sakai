@@ -37,46 +37,50 @@
 
             a {
 	            font-weight: bold;
-            }
-        }
-
-        li.folder {
-            padding: 3px;
-
-            a {
-                padding-left: 21px;
-                background: url(../../image/silk/folder.png) center left no-repeat !important;
-                &:hover {
-                    padding-left: 21px;
-                    background: url(../../image/silk/folder_go.png) center left no-repeat !important
+                &.inactive {
+                    color: Gray;
+                    @include opacity(0.5);
                 }
             }
-        }
 
-        li.upfolder{
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            margin-bottom: 2em;
-
-            a {
-                border: 1px solid #ccc;
+            &.folder {
                 padding: 3px;
-                display: inline-block;
-                &:hover {
-                    border: 1px solid #aaa;
-                    background: #ffe;
+
+                a {
+                    padding-left: 21px;
+                    background: url(../../image/silk/folder.png) center left no-repeat !important;
+                    &:hover {
+                        padding-left: 21px;
+                        background: url(../../image/silk/folder_go.png) center left no-repeat !important
+                    }
                 }
             }
-        }
 
-        li.file {
-            padding: 3px;
+            &.upfolder{
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                margin-bottom: 2em;
 
-            a {
-                padding: 6px;
-                padding-left: 21px;
-                background: url(../../image/sakai/generic.gif) center left no-repeat;
+                a {
+                    border: 1px solid #ccc;
+                    padding: 3px;
+                    display: inline-block;
+                    &:hover {
+                        border: 1px solid #aaa;
+                        background: #ffe;
+                    }
+                }
+            }
+
+            &.file {
+                padding: 3px;
+
+                a {
+                    padding: 6px;
+                    padding-left: 21px;
+                    background: url(../../image/sakai/generic.gif) center left no-repeat;
+                }
             }
         }
     }
