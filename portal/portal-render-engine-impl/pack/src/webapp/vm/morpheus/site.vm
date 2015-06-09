@@ -196,6 +196,7 @@
 <![endif]-->
  
         #parse("/vm/morpheus/includeAnalytics.vm")
+        #parse("/vm/morpheus/includePASystem.vm")
 
         #parse("/vm/morpheus/includeCookieNotice.vm")
 
