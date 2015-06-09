@@ -6542,7 +6542,7 @@ public class AssignmentAction extends PagedResourceActionII
 						// SAK-26322 - add inline as an attachment for the content review service
 						if (a.getContent().getAllowReviewService() && !isHtmlEmpty(text))
 						{
-							prepareInlineForContentReview(text, sEdit, state, submitter);
+							prepareInlineForContentReview(text, sEdit, state, u);
 						}
 
 						if (submitter != null) {
@@ -6594,7 +6594,7 @@ public class AssignmentAction extends PagedResourceActionII
 							// SAK-26322 - add inline as an attachment for the content review service
 							if (a.getContent().getAllowReviewService() && !isHtmlEmpty(text))
 							{
-								prepareInlineForContentReview(text, edit, state, submitter);
+								prepareInlineForContentReview(text, edit, state, u);
 							}
 							
 							if (attachments != null)
@@ -6665,7 +6665,7 @@ public class AssignmentAction extends PagedResourceActionII
 	/**
 	 * Takes the inline submission, prepares it as an attachment to the submission and queues the attachment with the content review service
 	 */
-	private void prepareInlineForContentReview(String text, AssignmentSubmissionEdit edit, SessionState state, User submitter)
+	private void prepareInlineForContentReview(String text, AssignmentSubmissionEdit edit, SessionState state, User student)
 	{
 		//We will be replacing the inline submission's attachment
 		//firstly, disconnect any existing attachments with AssignmentSubmission.PROP_INLINE_SUBMISSION set
@@ -6689,8 +6689,9 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		
 		//now prepare the new resource
-		//provide lots of info for forensics - filename=InlineSubmission_siteId_assignmentId_userDisplayId_(on ehalf of)_date.html
-		String currentDisplayName = UserDirectoryService.getCurrentUser().getDisplayId();
+		//provide lots of info for forensics - filename=InlineSub_assignmentId_userDisplayId_(for_studentDisplayId)_date.html
+		User currentUser = UserDirectoryService.getCurrentUser();
+		String currentDisplayName = currentUser.getDisplayId();
 		String siteId = (String) state.getAttribute(STATE_CONTEXT_STRING);
 		SimpleDateFormat dform = ((SimpleDateFormat) DateFormat.getDateInstance());
 		//avoid semicolons in filenames, right?
@@ -6698,9 +6699,11 @@ public class AssignmentAction extends PagedResourceActionII
 		StringBuilder sb_resourceId = new StringBuilder("InlineSub_");
 		String u = "_";
 		sb_resourceId.append(edit.getAssignmentId()).append(u).append(currentDisplayName).append(u);
-		if (submitter != null)
+		boolean isOnBehalfOfStudent = student != null && !student.equals(currentUser);
+		if (isOnBehalfOfStudent)
 		{
-			sb_resourceId.append("for_").append(submitter.getDisplayId()).append(u);
+			// We're submitting on behalf of somebody
+			sb_resourceId.append("for_").append(student.getDisplayId()).append(u);
 		}
 		sb_resourceId.append(dform.format(new Date()));
 
@@ -6753,11 +6756,7 @@ public class AssignmentAction extends PagedResourceActionII
 			m_securityService.pushAdvisor(sa);
 			ContentResource attachment = m_contentHostingService.addAttachmentResource(resourceId, siteId, toolName, contentType, contentStream, inlineProps);
 			// TODO: need to put this file in some kind of list to improve performance with web service impls of content-review service
-			String contentUserId = UserDirectoryService.getCurrentUser().getId();
-			if(submitter != null){
-				//this is a submission on behalf of a student, so grab that student's id instead
-				contentUserId = submitter.getId();
-			}
+			String contentUserId = isOnBehalfOfStudent ? student.getId() : currentUser.getId();
 			contentReviewService.queueContent(contentUserId, siteId, edit.getAssignment().getReference(), Arrays.asList(attachment));
 
 			try
