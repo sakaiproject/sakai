@@ -1,0 +1,12 @@
+.pasystem-section {
+  margin: 20px 0 30px;
+}
+.pasystem-section-header {
+  overflow: hidden;
+}
+.pasystem-section-header h3 {
+  float: left;
+}
+.pasystem-table .actions {
+    text-align: right;
+}
