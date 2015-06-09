@@ -176,7 +176,7 @@
         <dependency>
         	<groupId>com.spatial4j</groupId>
         	<artifactId>spatial4j</artifactId>
-        	<version>0.4.1</version>
+            <version>${sakai.spatial4j.version}</version>
         	<scope>compile</scope>
         </dependency>
         <dependency>
@@ -195,6 +195,30 @@
             <groupId>org.ow2.asm</groupId>
             <artifactId>asm-commons</artifactId>
             <version>${sakai.asm.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.java.dev.jna</groupId>
+            <artifactId>jna</artifactId>
+            <version>${sakai.jna.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr-runtime</artifactId>
+            <version>${sakai.antlr-runtime.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-all</artifactId>
+            <version>${sakai.groovy.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>apache-log4j-extras</artifactId>
+            <version>${sakai.log4j.version}</version>
             <scope>compile</scope>
         </dependency>
         <!-- jackson libs need to be in shared with spring -->
