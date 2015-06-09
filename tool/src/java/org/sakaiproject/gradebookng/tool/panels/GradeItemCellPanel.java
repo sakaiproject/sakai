@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.awt.List;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -45,6 +44,8 @@ public class GradeItemCellPanel extends Panel {
 	AjaxEditableLabel<String> gradeCell;
 	
 	String comment;
+	GradeCellSaveStyle gradeSaveStyle;
+	
 
 	public GradeItemCellPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);
@@ -169,7 +170,7 @@ public class GradeItemCellPanel extends Panel {
 					
 					//refresh the components we need
 					target.addChildren(getPage(), FeedbackPanel.class);
-					target.add(this.getParent().getParent());
+					target.add(getParentCellFor(this));
 					target.add(this);
 				}
 				
@@ -234,6 +235,7 @@ public class GradeItemCellPanel extends Panel {
 					parentCell.add(new AttributeModifier("data-assignmentid", assignmentId));
 					parentCell.add(new AttributeModifier("data-studentuuid", studentUuid));
 					parentCell.add(new AttributeModifier("class", "gb-grade-item-cell"));
+					parentCell.setOutputMarkupId(true); //must output so we can manipulate the classes through ajax
 				}
 			};
 
@@ -281,13 +283,10 @@ public class GradeItemCellPanel extends Panel {
 						comment = panel.getComment();
 						
 						if(StringUtils.isNotBlank(comment)) {
-							
-							//TODO this is not working correctly. needs adjustment
 							markHasComment(gradeCell);
-							target.add(gradeCell);
-							
-							
-							//todo need to update self so the label on the dropdown gets updated
+							target.add(getParentCellFor(gradeCell));
+
+							//TODO need to update self so the label on the dropdown gets updated
 							
 						};
 						
@@ -327,29 +326,51 @@ public class GradeItemCellPanel extends Panel {
 	}
 	
 	/**
-	 * TODO these need work so that they append, not replace, as they can wipe out the comment icon.
-	 * likewise for hte comment icon, we need to have some logic that cheks if it has already been added
+	 * Set the enum value so we can use it when we style.
+	 * TODO collapse these into one
 	 * 
 	 */
-	
 	private void markSuccessful(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-success"));
+		this.gradeSaveStyle = GradeCellSaveStyle.SUCCESS;
+		styleGradeCell(gradeCell);
 	}
 	
 	private void markError(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-error"));
+		this.gradeSaveStyle = GradeCellSaveStyle.ERROR;
+		styleGradeCell(gradeCell);
 	}
 	
 	private void markWarning(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-warning"));
+		this.gradeSaveStyle = GradeCellSaveStyle.WARNING;
+		styleGradeCell(gradeCell);
 	}
 	
 	private void markOverLimit(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", "gb-grade-item-cell grade-save-over-limit"));
+		this.gradeSaveStyle = GradeCellSaveStyle.OVER_LIMIT;
+		styleGradeCell(gradeCell);
 	}
 	
 	private void markHasComment(Component gradeCell) {
-		getParentCellFor(gradeCell).add(AttributeModifier.append("class", "has-comment"));
+		styleGradeCell(gradeCell); //maintains existing save style
+	}
+	
+	/**
+	 * Builder for styling the cell. Aware of the cell 'save style' as well as if it has comments and adds styles accordingly
+	 * @param gradeCell the cell to style
+	 */
+	private void styleGradeCell(Component gradeCell) {
+		
+		ArrayList<String> cssClasses = new ArrayList<>();
+		cssClasses.add("gb-grade-item-cell"); //always
+		if(this.gradeSaveStyle != null) {
+			cssClasses.add(gradeSaveStyle.getCss()); //the particular style for this cell that has been computed previously
+		}
+		if(StringUtils.isNotBlank(this.comment)) {
+			cssClasses.add("has-comment"); //if comments
+		}
+		
+		//replace the cell styles with the new set
+		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", StringUtils.join(cssClasses, " ")));
 	}
 	
 	
@@ -360,6 +381,30 @@ public class GradeItemCellPanel extends Panel {
 	 */
 	private Component getParentCellFor(Component gradeCell) {
 		return gradeCell.getParent().getParent();
+	}
+	
+	/**
+	 * Enum for encapsulating the grade cell save css class that is to be applied
+	 *
+	 */
+	enum GradeCellSaveStyle {
+		
+		SUCCESS("grade-save-success"),
+		ERROR("grade-save-error"),
+		WARNING("grade-save-warning"),
+		OVER_LIMIT("grade-save-over-limit");
+		
+		private String css;
+		
+		GradeCellSaveStyle(String css) {
+			this.css = css;
+		}
+		
+		public String getCss() {
+			return this.css;
+		}
+		
+
 	}
 	
 	
