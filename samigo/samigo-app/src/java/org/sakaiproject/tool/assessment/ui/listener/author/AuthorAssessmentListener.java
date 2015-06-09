@@ -86,7 +86,7 @@ public class AuthorAssessmentListener
     
     AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
     if (!authzBean.isUserAllowedToCreateAssessment()) {
-        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_create_assessment_error");
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_assessment.createAssessment_error");
         context.addMessage(null,new FacesMessage(err));
         author.setOutcome("author");
         return;
