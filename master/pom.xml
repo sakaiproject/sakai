@@ -102,6 +102,7 @@
     <sakai.quartz.version>1.8.6</sakai.quartz.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.sigar.version>1.6.4</sakai.sigar.version>
+    <sakai.asm.version>4.1</sakai.asm.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
     <sakai.spring.version>3.2.13.RELEASE</sakai.spring.version>
@@ -884,6 +885,16 @@
       	<groupId>com.vividsolutions</groupId>
       	<artifactId>jts</artifactId>
       	<version>${sakai.jts.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${sakai.asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-commons</artifactId>
+        <version>${sakai.asm.version}</version>
       </dependency>
       <!-- Sakai apis -->
       <dependency>

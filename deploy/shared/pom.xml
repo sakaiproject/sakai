@@ -68,18 +68,6 @@
             define these jars as dependencies. -->
         
         <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm</artifactId>
-            <version>1.5.3</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>asm</groupId>
-            <artifactId>asm-attrs</artifactId>
-            <version>1.5.3</version>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
             <groupId>cglib</groupId>
             <artifactId>cglib-nodep</artifactId>
             <version>3.1</version>
@@ -196,6 +184,18 @@
         	<artifactId>elasticsearch</artifactId>
         	<version>${sakai.elasticsearch.version}</version>
         	<scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm</artifactId>
+            <version>${sakai.asm.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-commons</artifactId>
+            <version>${sakai.asm.version}</version>
+            <scope>compile</scope>
         </dependency>
         <!-- jackson libs need to be in shared with spring -->
         <dependency>
