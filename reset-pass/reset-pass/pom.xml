@@ -47,7 +47,7 @@
     <dependency>
         <groupId>joda-time</groupId>
         <artifactId>joda-time</artifactId>
-        <version>2.7</version>
+        <version>${joda.time.version}</version>
     </dependency>
 <!-- RSF dependencies -->
     <dependency>
