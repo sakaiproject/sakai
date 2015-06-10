@@ -1,5 +1,3 @@
--- Popup screens
-
 CREATE TABLE pasystem_popup_screens (
   uuid varchar2(255) PRIMARY KEY ,
   descriptor varchar2(255),
@@ -40,8 +38,6 @@ CREATE TABLE pasystem_popup_dismissed (
 CREATE INDEX popup_dismissed_lower_user_eid on pasystem_popup_dismissed (lower(user_eid));
 CREATE INDEX popup_dismissed_state on pasystem_popup_dismissed (state);
 
--- Banners
-
 CREATE TABLE pasystem_banner_alert
 ( uuid VARCHAR2(255) NOT NULL PRIMARY KEY,
   message VARCHAR2(4000) NOT NULL,
@@ -53,19 +49,13 @@ CREATE TABLE pasystem_banner_alert
 );
 
 
--- Magic '-123' value here never gets used: if the merge succeeds it
--- takes NEXTVAL from the sequence.  If it fails (because the function
--- is already defined), then nothing gets inserted.  We just include
--- the placeholder to keep Oracle happy.
--- 
-
 MERGE INTO SAKAI_REALM_FUNCTION srf
 USING (
-SELECT -123 as function_key, 
+SELECT -123 as function_key,
 'pasystem.manage' as function_name
 FROM dual
-) t on (srf.function_name = t.function_name) 
-WHEN NOT MATCHED THEN 
+) t on (srf.function_name = t.function_name)
+WHEN NOT MATCHED THEN
 INSERT (function_key, function_name)
 VALUES (SAKAI_REALM_FUNCTION_SEQ.NEXTVAL, t.function_name);
 
@@ -81,4 +71,3 @@ CREATE TABLE pasystem_banner_dismissed (
 
 CREATE INDEX banner_dismissed_lcase_eid on pasystem_banner_dismissed (lower(user_eid));
 CREATE INDEX banner_dismissed_state on pasystem_banner_dismissed (state);
-

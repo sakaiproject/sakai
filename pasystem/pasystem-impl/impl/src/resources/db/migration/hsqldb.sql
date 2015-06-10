@@ -1,5 +1,3 @@
--- Popup screens
-
 CREATE TABLE pasystem_popup_screens (
   uuid VARCHAR(255) PRIMARY KEY,
   descriptor VARCHAR(255),
@@ -30,9 +28,6 @@ CREATE TABLE pasystem_popup_dismissed (
 
 ALTER TABLE pasystem_popup_dismissed add constraint unique_popup_dismissed unique (user_eid,state, uuid);
 
-
-
--- Banners
 CREATE TABLE pasystem_banner_alert
 ( uuid VARCHAR(255) PRIMARY KEY,
   message VARCHAR(4000) NOT NULL,
@@ -43,7 +38,6 @@ CREATE TABLE pasystem_banner_alert
   end_time BIGINT DEFAULT NULL,
   banner_type VARCHAR(255) DEFAULT 'warning'
 );
-
 
 CREATE TABLE pasystem_banner_dismissed (
   uuid varchar(255),

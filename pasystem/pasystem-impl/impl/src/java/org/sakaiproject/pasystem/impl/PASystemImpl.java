@@ -28,20 +28,26 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Helper;
 import com.github.jknack.handlebars.Options;
 import com.github.jknack.handlebars.Template;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import org.flywaydb.core.Flyway;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.db.cover.SqlService;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.Banners;
 import org.sakaiproject.pasystem.api.I18n;
 import org.sakaiproject.pasystem.api.PASystem;
+import org.sakaiproject.pasystem.api.PASystemException;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.Popups;
 import org.sakaiproject.pasystem.impl.banners.BannerStorage;
@@ -157,36 +163,52 @@ class PASystemImpl implements PASystem {
     }
 
     private void runDBMigration(final String vendor) {
+        String migrationFile = "db/migration/" + vendor + ".sql";
+        InputStream is = PASystemImpl.class.getClassLoader().getResourceAsStream(migrationFile);
 
-        // We run this in a separate thread because Flyway will look to the
-        // current thread's class loader for its files.  The system StartStop
-        // thread has an unpredictable classloader state so we provide our own.
+        if (is == null) {
+            throw new PASystemException("Failed to find migration file: " + migrationFile);
+        }
 
-        Thread migrationRunner = new Thread() {
-            @Override
-            public void run() {
-                Flyway flyway = new Flyway();
-
-                flyway.setLocations("db/migration/" + vendor);
-                flyway.setBaselineOnMigrate(true);
-                flyway.setTable("pasystem_schema_version");
-
-                flyway.setDataSource(ServerConfigurationService.getString("url@javax.sql.BaseDataSource"),
-                        ServerConfigurationService.getString("username@javax.sql.BaseDataSource"),
-                        ServerConfigurationService.getString("password@javax.sql.BaseDataSource"));
-
-                flyway.migrate();
-            }
-        };
-
-        migrationRunner.setContextClassLoader(PASystemImpl.class.getClassLoader());
-        migrationRunner.start();
+        InputStreamReader migrationInput = new InputStreamReader(is);
 
         try {
-            migrationRunner.join();
-        } catch (InterruptedException e) {
-            LOG.warn("Interruption during DB migration", e);
+            Connection db = SqlService.borrowConnection();
+
+            try {
+                for (String sql : parseMigrationFile(migrationInput)) {
+                    try {
+                        PreparedStatement ps = db.prepareStatement(sql);
+                        ps.execute();
+                        ps.close();
+                    } catch (SQLException e) {
+                        LOG.warn("runDBMigration: " + e + "(sql: " + sql + ")");
+                    }
+                }
+            } catch (IOException e) {
+                throw new PASystemException("Failed to read migration file: " + migrationFile, e);
+            } finally {
+                SqlService.returnConnection(db);
+
+                try {
+                    migrationInput.close();
+                } catch (IOException e) {}
+            }
+        } catch (SQLException e) {
+            throw new PASystemException("Database migration failed", e);
         }
+    }
+
+    private String[] parseMigrationFile(InputStreamReader migrationInput) throws IOException {
+        StringBuilder sb = new StringBuilder();
+        char[] buf = new char[4096];
+
+        int len;
+        while ((len = migrationInput.read(buf)) > 0) {
+            sb.append(buf, 0, len);
+        }
+
+        return sb.toString().replace("\n", " ").split(";\\s*");
     }
 
     private String getBannersFooter(Handlebars handlebars, Map<String, Object> context) {
