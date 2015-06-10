@@ -4134,5 +4134,127 @@ public class SakaiScript extends AbstractWebService {
         return Xml.writeDocumentToString(dom);
     }
 
+/**
+     * Adds LTI tool to a site 
+     *
+     * @param    sessionid    a valid session id
+     * @param    siteId        site identifier where to add the LTI tool
+     * @param    toolTitle    custom title for the tool. May be empty for default value 
+     * @param    properties    comma separated list of LTI properties. Example : final.allowlori:false,final.allowroster:false,imsti.allowlori:,imsti.allowroster:on,imsti.allowoutcomes:,final.allowoutcomes:false,imsti.allowsettings:,final.allowsettings:false,imsti.contentlink:,final.contentlink:false,imsti.custom:,final.custom:false,final.debug:false,imsti.encryptedsecret:,imsti.frameheight:,final.frameheight:false,imsti.key:KEY,final.key:false,imsti.launch:http://MYURL,final.launch:false,final.maximize:false,final.newpage:false,imsti.pagetitle:Virtual Meeting,final.pagetitle:false,final.releaseemail:false,final.releasename:false,imsti.secret:SECRETKEY,final.secret:false,imsti.splash:,final.splash:false,imsti.tooltitle:Virtual Meeting,final.tooltitle:false,imsti.xml:,final.xml:false,imsti.maximize:,imsti.newpage:,imsti.debug:,imsti.releaseemail:on,imsti.releasename:on
+     * @return    Success or exception message    
+     *
+     */
+    @WebMethod
+    @Path("/addLTITool")
+    @Produces("text/plain")
+    @GET
+    public String addLTITool(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "siteId", partName = "siteId") @QueryParam("siteId") String siteId,
+            @WebParam(name = "toolTitle", partName = "toolTitle") @QueryParam("toolTitle") String toolTitle,
+            @WebParam(name = "properties", partName = "properties") @QueryParam("properties") String properties
+        ){
+        
+        Session session = establishSession(sessionid);
+
+        boolean customTitle = false;
+
+        String toolid = "sakai.basiclti";
+
+        try {
+
+            //get site
+            Site siteEdit = siteService.getSite(siteId);
+
+            //add the page
+            SitePage sitePageEdit = siteEdit.addPage();
+            sitePageEdit.setTitle(toolTitle);
+            sitePageEdit.setTitleCustom(true);
+            sitePageEdit.setLayout(0);
+            sitePageEdit.setPosition(0);
+            sitePageEdit.setPopup(false);
+
+            // Check that the tool is visible (not stealthed) and available for this site type (category)
+            if (!securityService.isSuperUser(session.getUserId())) {
+
+                Set categories = new HashSet<String>();
+                Set<Tool> visibleTools = toolManager.findTools(categories, null);
+
+                boolean toolVisible = false;
+                for (Tool tool : visibleTools) {
+                    if (tool.getId().equals(toolid)) {
+                        toolVisible = true;
+                    }
+                }
+
+                if (!toolVisible) {
+                    LOG.warn("WS addLTITool(): Permission denied. Must be super user to add a stealthed tool to a site.");
+                    throw new RuntimeException("WS addLTITool(): Permission denied. Must be super user to add a stealthed tool to a site.");
+                }
+
+                categories.add(siteEdit.getType());
+                Set<Tool> availableTools = toolManager.findTools(categories, null);
+
+                boolean toolAvailable = false;
+                for (Tool tool : availableTools) {
+                    if (tool.getId().equals(toolid)) {
+                        toolAvailable = true;
+                    }
+                }
+
+                if (!toolAvailable) {
+                    LOG.warn("WS addLTITool(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+                    throw new RuntimeException("WS addLTITool(): Permission denied. Must be super user to add a tool which is not available for this site type.");
+                }
+            }
+
+            //add the tool
+            ToolConfiguration tool = sitePageEdit.addTool();
+            
+            //set LTI properties
+            setToolProperties(tool, properties);
+
+            tool.setTool(toolid, toolManager.getTool(toolid));
+
+            if (StringUtils.isNotBlank(toolTitle)) {
+                tool.setTitle(toolTitle);
+            } else {
+                tool.setTitle(toolManager.getTool(toolid).getTitle());
+            }
+
+            siteService.save(siteEdit);
+            LOG.info("WS addLTITool(): LTI tool added for site:" + siteId);
+
+            return "success";
+        } catch (Exception e) {
+            LOG.error("WS addLTITool(): " + e.getClass().getName() + " : " + e.getMessage());
+            e.printStackTrace();
+            return e.getClass().getName() + " : " + e.getMessage();
+        }
+    }
+    
+    private void setToolProperties(ToolConfiguration tool, String propList) {
+        if(propList != null) {
+            for(String prop : propList.split(",")) {
+                if(StringUtils.isNotEmpty(prop)) {
+                    int index = prop.indexOf(":");
+                    if(index >= 0) {
+                        try {
+                            String propName = prop.substring(0, index);
+                            String propValue = prop.substring(index+1);
+                            
+                            if(StringUtils.isNotEmpty(propValue)) {
+                                Properties propsedit = tool.getPlacementConfig();
+                                propsedit.setProperty(propName, propValue);
+                            }
+                        } catch(Exception e){
+                            LOG.error("SakaiScript: setToolProperties(): " + e.getClass().getName() + " : " + e.getMessage());
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 }
