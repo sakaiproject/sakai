@@ -73,7 +73,9 @@ import org.sakaiproject.util.Web;
 import org.springframework.context.MessageSource;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 
 /**
  * <p>
@@ -98,6 +100,12 @@ public class AjaxServer extends HttpServlet
 
    private static MessageSource messageSource;
    private static SiteService siteService;
+   private static SimplePageToolDao simplePageToolDao;
+
+   public void setSimplePageToolDao(Object dao) {
+       System.out.println("setdao " + dao);
+       simplePageToolDao = (SimplePageToolDao) dao;
+   }
 
    /** Our log (commons). */
    private static Log log = LogFactory.getLog(AjaxServer.class);
@@ -456,6 +464,69 @@ public class AjaxServer extends HttpServlet
     }	    
 
 
+    public static String toggleGrouped(String itemId, String csrfToken) {
+
+	if (itemId == null) {
+	    log.error("Ajax togglegrouped passed null itemid");
+	    return null;
+	}
+
+	itemId = itemId.trim();
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax togglegrouped passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax togglegrouped passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax togglegrouped passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	String grouped = item.getAttribute("groupedWithAbove");
+	if ("true".equals(grouped)) {
+	    item.removeAttribute("groupedWithAbove");
+	    grouped = "false";
+	} else {
+	    item.setAttribute("groupedWithAbove", "true");
+	    grouped = "true";
+	}
+
+	simplePageToolDao.quickUpdate(item);
+
+	return grouped;
+    }
+
+    public static boolean checkCsrf(String csrfToken) {
+	Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+	if (sessionToken != null && sessionToken.toString().equals(csrfToken)) {
+	    return true;
+	}
+	else
+	    return false;
+    }
+
+   @SuppressWarnings("unchecked")
+   protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+   {
+       doGet(req, res);
+   }
+
    @SuppressWarnings("unchecked")
    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
    {
@@ -489,8 +560,11 @@ public class AjaxServer extends HttpServlet
 	  String locale = req.getParameter("locale");
 	  String groups = req.getParameter("groups");
 	  out.print(groupErrors(siteid, locale, groups));
+      } else if (op.equals("togglegrouped")) {
+	  String itemId = req.getParameter("itemid");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(toggleGrouped(itemId, csrfToken));
       }
-      
    }
    
     public void setMessageSource(MessageSource s) {
