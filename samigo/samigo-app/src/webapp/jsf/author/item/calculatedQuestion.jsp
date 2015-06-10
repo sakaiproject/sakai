@@ -242,7 +242,7 @@ confirmation dialog
 	      	</h:column>
 	
 		</h:dataTable>
-		<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" 
+		<h:outputLabel value="<p>#{authorMessages.no_variables_defined}</p>" escape="false"
 				rendered="#{itemauthor.currentItem.calculatedQuestion.variablesList eq '[]'}"/>
 	</div>
 
@@ -294,7 +294,7 @@ confirmation dialog
 	  			</h:selectOneMenu>          
 	      </h:column>
 		</h:dataTable>
-		<h:outputLabel value="<p>#{authorMessages.no_formulas_defined}</p>" 
+		<h:outputLabel value="<p>#{authorMessages.no_formulas_defined}</p>" escape="false"
 				rendered="#{itemauthor.currentItem.calculatedQuestion.formulasList eq '[]'}"/>
 	</div>
 
@@ -335,7 +335,7 @@ confirmation dialog
             <h:outputText value="#{calculation.status}" />
           </h:column>
         </h:dataTable>
-        <h:outputLabel value="<p>#{authorMessages.calc_question_no_calculations}</p>" 
+        <h:outputLabel value="<p>#{authorMessages.calc_question_no_calculations}</p>" escape="false"
                 rendered="#{! itemauthor.currentItem.calculatedQuestion.hasCalculations}"/>
     </div>
 
