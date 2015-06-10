@@ -17,8 +17,11 @@ package org.sakaiproject.profile2.tool.entityprovider;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
@@ -32,15 +35,12 @@ import org.sakaiproject.entitybroker.entityprovider.annotations.EntityCustomActi
 import org.sakaiproject.entitybroker.entityprovider.annotations.EntityURLRedirect;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.ActionsExecutable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Createable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Inputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Redirectable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.RequestAware;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Resolvable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Sampleable;
-import org.sakaiproject.entitybroker.entityprovider.capabilities.Updateable;
 import org.sakaiproject.entitybroker.entityprovider.extension.ActionReturn;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.entityprovider.extension.RequestGetter;
@@ -177,6 +177,14 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 			try {
 				out.write(bytes);
 				ActionReturn actionReturn = new ActionReturn("BASE64", image.getMimeType(), out);
+				
+				Map<String,String> headers = new HashMap<>();
+				headers.put("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
+				headers.put("Cache-Control","no-cache, must-revalidate, max-age=0");
+				headers.put("Pragma", "no-cache");
+				
+				actionReturn.setHeaders(headers);
+				
 				return actionReturn;
 			} catch (IOException e) {
 				throw new EntityException("Error retrieving profile image for " + id + " : " + e.getMessage(), ref.getReference());
@@ -186,7 +194,11 @@ public class ProfileEntityProvider extends AbstractEntityProvider implements Cor
 		final String url = image.getUrl();
 		if(StringUtils.isNotBlank(url)) {
 			try {
-				requestGetter.getResponse().sendRedirect(url);
+				HttpServletResponse res = requestGetter.getResponse();
+				res.addHeader("Expires", "Mon, 01 Jan 2001 00:00:00 GMT");
+				res.addHeader("Cache-Control","no-cache, must-revalidate, max-age=0");
+				res.addHeader("Pragma", "no-cache");
+				res.sendRedirect(url);
 			} catch (IOException e) {
 				throw new EntityException("Error redirecting to external image for " + id + " : " + e.getMessage(), ref.getReference());
 			}
