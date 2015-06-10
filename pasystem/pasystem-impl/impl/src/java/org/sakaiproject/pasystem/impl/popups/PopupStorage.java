@@ -63,7 +63,7 @@ public class PopupStorage implements Popups, Acknowledger {
                             public String call(DBConnection db) throws SQLException {
                                 String uuid = UUID.randomUUID().toString();
 
-                                db.run("INSERT INTO PASYSTEM_POPUP_SCREENS (uuid, descriptor, start_time, end_time, open_campaign) VALUES (?, ?, ?, ?, ?)")
+                                db.run("INSERT INTO pasystem_popup_screens (uuid, descriptor, start_time, end_time, open_campaign) VALUES (?, ?, ?, ?, ?)")
                                         .param(uuid)
                                         .param(popup.getDescriptor())
                                         .param(popup.getStartTime())
@@ -92,7 +92,7 @@ public class PopupStorage implements Popups, Acknowledger {
                             @Override
                             public Void call(DBConnection db) throws SQLException {
 
-                                db.run("UPDATE PASYSTEM_POPUP_SCREENS SET descriptor = ?, start_time = ?, end_time = ?, open_campaign = ? WHERE uuid = ?")
+                                db.run("UPDATE pasystem_popup_screens SET descriptor = ?, start_time = ?, end_time = ?, open_campaign = ? WHERE uuid = ?")
                                         .param(popup.getDescriptor())
                                         .param(popup.getStartTime())
                                         .param(popup.getEndTime())
@@ -124,7 +124,7 @@ public class PopupStorage implements Popups, Acknowledger {
                             @Override
                             public List<Popup> call(DBConnection db) throws SQLException {
                                 List<Popup> popups = new ArrayList<Popup>();
-                                try (DBResults results = db.run("SELECT * from PASYSTEM_POPUP_SCREENS")
+                                try (DBResults results = db.run("SELECT * from pasystem_popup_screens")
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
                                         popups.add(Popup.create(result.getString("uuid"),
@@ -148,7 +148,7 @@ public class PopupStorage implements Popups, Acknowledger {
                         new DBAction<String>() {
                             @Override
                             public String call(DBConnection db) throws SQLException {
-                                try (DBResults results = db.run("SELECT template_content from PASYSTEM_POPUP_CONTENT where uuid = ?")
+                                try (DBResults results = db.run("SELECT template_content from pasystem_popup_content where uuid = ?")
                                         .param(uuid)
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
@@ -170,7 +170,7 @@ public class PopupStorage implements Popups, Acknowledger {
                         new DBAction<Optional<Popup>>() {
                             @Override
                             public Optional<Popup> call(DBConnection db) throws SQLException {
-                                try (DBResults results = db.run("SELECT * from PASYSTEM_POPUP_SCREENS WHERE UUID = ?")
+                                try (DBResults results = db.run("SELECT * from pasystem_popup_screens WHERE UUID = ?")
                                         .param(uuid)
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
@@ -197,7 +197,7 @@ public class PopupStorage implements Popups, Acknowledger {
                             public List<String> call(DBConnection db) throws SQLException {
                                 List<String> users = new ArrayList<String>();
 
-                                try (DBResults results = db.run("SELECT user_eid from PASYSTEM_POPUP_ASSIGN WHERE UUID = ? AND user_eid is not NULL")
+                                try (DBResults results = db.run("SELECT user_eid from pasystem_popup_assign WHERE UUID = ? AND user_eid is not NULL")
                                         .param(uuid)
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
@@ -216,7 +216,7 @@ public class PopupStorage implements Popups, Acknowledger {
         //
         // Add an empty record if one is missing
         try {
-            db.run("INSERT INTO PASYSTEM_POPUP_CONTENT (uuid) VALUES (?)")
+            db.run("INSERT INTO pasystem_popup_content (uuid) VALUES (?)")
                     .param(uuid)
                     .executeUpdate();
         } catch (SQLException e) {
@@ -224,7 +224,7 @@ public class PopupStorage implements Popups, Acknowledger {
         }
 
         // Set the content CLOB
-        db.run("UPDATE PASYSTEM_POPUP_CONTENT set template_content = ? WHERE uuid = ?")
+        db.run("UPDATE pasystem_popup_content set template_content = ? WHERE uuid = ?")
                 .param(new InputStreamReader(templateContent.getInputStream()),
                         templateContent.getLength())
                 .param(uuid)
@@ -233,12 +233,12 @@ public class PopupStorage implements Popups, Acknowledger {
 
     private void setPopupAssignees(DBConnection db, String uuid, Optional<List<String>> assignToUsers) throws SQLException {
         if (assignToUsers.isPresent()) {
-            db.run("DELETE FROM PASYSTEM_POPUP_ASSIGN where uuid = ? AND user_eid is not NULL")
+            db.run("DELETE FROM pasystem_popup_assign where uuid = ? AND user_eid is not NULL")
                     .param(uuid)
                     .executeUpdate();
 
             for (String userEid : assignToUsers.get()) {
-                db.run("INSERT INTO PASYSTEM_POPUP_ASSIGN (uuid, user_eid) VALUES (?, ?)")
+                db.run("INSERT INTO pasystem_popup_assign (uuid, user_eid) VALUES (?, ?)")
                         .param(uuid)
                         .param(userEid)
                         .executeUpdate();
@@ -253,19 +253,19 @@ public class PopupStorage implements Popups, Acknowledger {
                         new DBAction<Boolean>() {
                             @Override
                             public Boolean call(DBConnection db) throws SQLException {
-                                db.run("DELETE FROM PASYSTEM_POPUP_ASSIGN where uuid = ?")
+                                db.run("DELETE FROM pasystem_popup_assign where uuid = ?")
                                         .param(uuid)
                                         .executeUpdate();
 
-                                db.run("DELETE FROM PASYSTEM_POPUP_DISMISSED where uuid = ?")
+                                db.run("DELETE FROM pasystem_popup_dismissed where uuid = ?")
                                         .param(uuid)
                                         .executeUpdate();
 
-                                db.run("DELETE FROM PASYSTEM_POPUP_CONTENT where uuid = ?")
+                                db.run("DELETE FROM pasystem_popup_content where uuid = ?")
                                         .param(uuid)
                                         .executeUpdate();
 
-                                db.run("DELETE FROM PASYSTEM_POPUP_SCREENS WHERE uuid = ?")
+                                db.run("DELETE FROM pasystem_popup_screens WHERE uuid = ?")
                                         .param(uuid)
                                         .executeUpdate();
 

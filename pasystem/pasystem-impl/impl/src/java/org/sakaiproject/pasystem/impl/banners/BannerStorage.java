@@ -59,7 +59,7 @@ public class BannerStorage implements Banners, Acknowledger {
                             @Override
                             public List<Banner> call(DBConnection db) throws SQLException {
                                 List<Banner> banners = new ArrayList<Banner>();
-                                try (DBResults results = db.run("SELECT * from PASYSTEM_BANNER_ALERT")
+                                try (DBResults results = db.run("SELECT * from pasystem_banner_alert")
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
                                         banners.add(new Banner(result.getString("uuid"),
@@ -85,7 +85,7 @@ public class BannerStorage implements Banners, Acknowledger {
                         new DBAction<Optional<Banner>>() {
                             @Override
                             public Optional<Banner> call(DBConnection db) throws SQLException {
-                                try (DBResults results = db.run("SELECT * from PASYSTEM_BANNER_ALERT WHERE UUID = ?")
+                                try (DBResults results = db.run("SELECT * from pasystem_banner_alert WHERE uuid = ?")
                                         .param(uuid)
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
@@ -108,8 +108,8 @@ public class BannerStorage implements Banners, Acknowledger {
     @Override
     public List<Banner> getRelevantBanners(final String serverId, final String userEid) {
         final String sql = ("SELECT alert.*, dismissed.state as dismissed_state, dismissed.dismiss_time as dismissed_time" +
-                " from PASYSTEM_BANNER_ALERT alert" +
-                " LEFT OUTER JOIN PASYSTEM_BANNER_DISMISSED dismissed on dismissed.uuid = alert.uuid" +
+                " from pasystem_banner_alert alert" +
+                " LEFT OUTER JOIN pasystem_banner_dismissed dismissed on dismissed.uuid = alert.uuid" +
                 "  AND ((? = '') OR dismissed.user_eid = ?)" +
                 " where ACTIVE = 1 AND" +
 
@@ -171,7 +171,7 @@ public class BannerStorage implements Banners, Acknowledger {
                     public String call(DBConnection db) throws SQLException {
                         String id = UUID.randomUUID().toString();
 
-                        db.run("INSERT INTO PASYSTEM_BANNER_ALERT (uuid, message, hosts, active, start_time, end_time, banner_type) VALUES (?, ?, ?, ?, ?, ?, ?)")
+                        db.run("INSERT INTO pasystem_banner_alert (uuid, message, hosts, active, start_time, end_time, banner_type) VALUES (?, ?, ?, ?, ?, ?, ?)")
                                 .param(id)
                                 .param(banner.getMessage())
                                 .param(banner.getHosts())
@@ -195,7 +195,7 @@ public class BannerStorage implements Banners, Acknowledger {
                 new DBAction<Void>() {
                     @Override
                     public Void call(DBConnection db) throws SQLException {
-                        db.run("UPDATE PASYSTEM_BANNER_ALERT SET message = ?, hosts = ?, active = ?, start_time = ?, end_time = ?, banner_type = ? WHERE uuid = ?")
+                        db.run("UPDATE pasystem_banner_alert SET message = ?, hosts = ?, active = ?, start_time = ?, end_time = ?, banner_type = ? WHERE uuid = ?")
                                 .param(banner.getMessage())
                                 .param(banner.getHosts())
                                 .param(Integer.valueOf(banner.isActive() ? 1 : 0))
@@ -219,11 +219,11 @@ public class BannerStorage implements Banners, Acknowledger {
                 new DBAction<Void>() {
                     @Override
                     public Void call(DBConnection db) throws SQLException {
-                        db.run("DELETE FROM PASYSTEM_BANNER_DISMISSED WHERE uuid = ?")
+                        db.run("DELETE FROM pasystem_banner_dismissed WHERE uuid = ?")
                                 .param(uuid)
                                 .executeUpdate();
 
-                        db.run("DELETE FROM PASYSTEM_BANNER_ALERT WHERE uuid = ?")
+                        db.run("DELETE FROM pasystem_banner_alert WHERE uuid = ?")
                                 .param(uuid)
                                 .executeUpdate();
 

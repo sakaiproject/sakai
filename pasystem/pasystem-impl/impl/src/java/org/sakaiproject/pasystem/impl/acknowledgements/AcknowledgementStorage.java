@@ -44,7 +44,7 @@ public class AcknowledgementStorage {
     private final String tableName;
 
     public AcknowledgementStorage(NotificationType type) {
-        tableName = "PASYSTEM_" + type + "_dismissed";
+        tableName = ("PASYSTEM_" + type + "_dismissed").toLowerCase();
     }
 
     /**

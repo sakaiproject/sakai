@@ -69,17 +69,17 @@ public class PopupForUser {
         String sql = ("SELECT popup.uuid, popup.descriptor, popup.start_time, popup.end_time, popup.open_campaign, content.template_content " +
 
                 // Find a popup screen
-                " FROM PASYSTEM_POPUP_SCREENS popup" +
+                " FROM pasystem_popup_screens popup" +
 
                 // And its content
-                " INNER JOIN PASYSTEM_POPUP_CONTENT content on content.uuid = popup.uuid" +
+                " INNER JOIN pasystem_popup_content content on content.uuid = popup.uuid" +
 
                 // That is either assigned to the current user
-                " LEFT OUTER JOIN PASYSTEM_POPUP_ASSIGN assign " +
+                " LEFT OUTER join pasystem_popup_assign assign " +
                 " on assign.uuid = popup.uuid AND assign.user_eid = ?" +
 
                 // Which the current user hasn't yet dismissed
-                " LEFT OUTER JOIN PASYSTEM_POPUP_DISMISSED dismissed " +
+                " LEFT OUTER JOIN pasystem_popup_dismissed dismissed " +
                 " on dismissed.uuid = popup.uuid AND dismissed.user_eid = ?" +
 
                 " WHERE " +
