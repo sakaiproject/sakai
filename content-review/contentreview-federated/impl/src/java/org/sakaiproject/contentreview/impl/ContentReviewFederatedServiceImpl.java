@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.SortedSet;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -252,11 +253,39 @@ public class ContentReviewFederatedServiceImpl implements ContentReviewService {
 		return null;
 	}
 
+	public boolean allowAllContent()
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+			return provider.allowAllContent();
+		return true;
+	}
+
 	public boolean isAcceptableContent(ContentResource arg0) {
 		ContentReviewService provider = getSelectedProvider();
 		if (provider != null)
 			return provider.isAcceptableContent(arg0);
 		return false;
+	}
+
+	public Map<String, SortedSet<String>> getAcceptableExtensionsToMimeTypes()
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			return provider.getAcceptableExtensionsToMimeTypes();
+		}
+		return null;
+	}
+
+	public Map<String, SortedSet<String>> getAcceptableFileTypesToExtensions()
+	{
+		ContentReviewService provider = getSelectedProvider();
+		if (provider != null)
+		{
+			return provider.getAcceptableFileTypesToExtensions();
+		}
+		return null;
 	}
 
 	public boolean isSiteAcceptable(Site arg0) {

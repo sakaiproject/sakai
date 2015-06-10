@@ -1,0 +1,138 @@
+/* access.scss : Styles for access servlet (/access/) directory listings */
+@import "defaults";
+
+@import "base/extendables";
+@import "base/defaults";
+
+.directoryIndex {
+    margin-top: 2em;
+    padding: 1em;
+
+    a {
+	    text-decoration: none !important;
+    }
+
+    .textPanel {
+        font-size: .95em;
+        line-height: 150%;
+        padding: 5px 5px  5px  21px;
+    }
+
+    ul {
+        list-style: none;
+        margin: .5em 0 0 0;
+        padding: 0;
+
+        li {
+            list-style: none;
+            vertical-align: middle;
+            padding: .3em 0;
+            margin: 0;
+
+            img {
+                margin: 0 5px 0  0;
+                vertical-align: top;
+                border: none;
+            }
+
+            a {
+	            font-weight: bold;
+                &.inactive {
+                    color: Gray;
+                    @include opacity(0.5);
+                }
+            }
+
+            &.folder {
+                padding: 3px;
+
+                a {
+                    padding-left: 21px;
+                    background: url(../../image/silk/folder.png) center left no-repeat !important;
+                    &:hover {
+                        padding-left: 21px;
+                        background: url(../../image/silk/folder_go.png) center left no-repeat !important
+                    }
+                }
+            }
+
+            &.upfolder{
+                position: absolute;
+                top: 2px;
+                left: 2px;
+                margin-bottom: 2em;
+
+                a {
+                    border: 1px solid #ccc;
+                    padding: 3px;
+                    display: inline-block;
+                    &:hover {
+                        border: 1px solid #aaa;
+                        background: #ffe;
+                    }
+                }
+            }
+
+            &.file {
+                padding: 3px;
+
+                a {
+                    padding: 6px;
+                    padding-left: 21px;
+                    background: url(../../image/sakai/generic.gif) center left no-repeat;
+                }
+            }
+        }
+    }
+}
+
+p#toggle {
+    text-align: right;
+    margin: 0 0 1em 0;
+    font-weight: bold;
+}
+
+$background-pos: center left no-repeat !important;
+
+.doc, .rtf, .docx, .docm, .dotx, .dotm {
+	background: url(../../image/sakai/word.gif) $background-pos
+}
+.ppt, .pps, .pptx, .pptm, .ppsx, .potx, .potm, .ppam {
+	background: url(../../image/sakai/ppt.gif) $background-pos
+}
+.xls, .xlsx, .csv, .xlsx, .xlsm, .xltx, .xltm, .xlsb, .xlam {
+	background: url(../../image/sakai/excel.gif) $background-pos
+}
+.mdb {
+	background: url(../../image/sakai/access.gif) $background-pos
+}
+.gif, .jpg, .jpeg, .png {
+	background: url(../../image/sakai/image.gif) $background-pos
+}
+.html, .htm {
+	background: url(../../image/sakai/html.gif) $background-pos
+}
+.txt, .java {
+	background: url(../../image/sakai/text.gif) $background-pos
+}
+.zip, .tar, .sit, .hqx {
+	background: url(../../image/sakai/compressed.gif) $background-pos
+}
+.mov, .mpeg, .avi {
+	background: url(../../image/sakai/movie.gif) $background-pos
+}
+.mp3, .wav, .aiff {
+	background: url(../../image/sakai/audio.gif) $background-pos
+}
+.pdf {
+	background: url(../../image/sakai/pdf.gif) $background-pos
+}
+.ai, .ps, .psd {
+	background: url(../../image/sakai/postscript.gif) $background-pos
+}
+.ram, .rm {
+	background: url(../../image/sakai/real.gif) $background-pos
+}
+.swf {
+	background: url(../../image/sakai/shockwave.gif) $background-pos
+}

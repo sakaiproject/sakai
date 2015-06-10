@@ -1,6 +1,6 @@
 //.#{$namespace}
 #toolMenuWrap{
-	background: $text-color;
+	background: $toolMenuColor;
 	display: block;
 	position: absolute;
 	top: $header-size;
@@ -44,6 +44,7 @@
 	@media #{$phone}{
 		display: none;
 	}
+	display: none;
 }
 
 #toolMenu{
@@ -62,6 +63,7 @@
 				text-decoration: none;
 				&:hover{
 					background: $primary-color;
+					color: #{$toolMenuColor};
 				}
 				@media #{$phone}{
 					padding: 0.6em 0.6em;
@@ -70,7 +72,7 @@
 			&.is-current{
 				background: $background-color;
 				a{
-					color: $primary-color;
+					color: $toolMenuColor;
 					span{
 						font-weight: 700;
 					}
@@ -88,6 +90,7 @@
 						background: lighten( $text-color, 5% );
 						&:hover{
 							background: $primary-color;
+							color: #{$toolMenuColor};
 						}
 						@media #{$phone}{
 							padding: 0.6em 0.6em;
@@ -102,6 +105,7 @@
 							}
 							&:hover{
 								background: $background-color;
+								color: #{$toolMenuColor};
 							}
 						}
 					}

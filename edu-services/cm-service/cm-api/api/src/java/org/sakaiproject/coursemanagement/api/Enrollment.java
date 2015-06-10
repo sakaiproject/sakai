@@ -21,6 +21,8 @@
 
 package org.sakaiproject.coursemanagement.api;
 
+import java.util.Date;
+
 /**
  * The official relationship of a student to something that gets a final grade
  * (or equivalent).
@@ -46,4 +48,6 @@ public interface Enrollment {
 	public boolean isDropped();
 	public void setDropped(boolean dropped);
 
+	public Date getDropDate();
+	public void setDropDate(Date dropDate);
 }

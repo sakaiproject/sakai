@@ -76,6 +76,8 @@ public class EntitySite implements Site {
     private String title;
     private String shortDescription;
     private String htmlShortDescription;
+    private String contactName;
+    private String contactEmail;
     private String description;
     private String htmlDescription;
     private String iconUrl;
@@ -167,6 +169,8 @@ public class EntitySite implements Site {
         getUserRoles(); // populate the user roles
     }
 
+    
+
     public EntitySite(Site site, boolean includeGroups) {
         this.site = site;
         this.id = site.getId();
@@ -208,6 +212,23 @@ public class EntitySite implements Site {
         }
     }
 
+    /**
+     * Copies the info items from the supplied site. Useful when you want a
+     * sparse object, for JSON purposes for example.
+     */
+    public void copyInfo(Site site) {
+
+        this.site = site;
+        this.id = site.getId();
+        this.title = site.getTitle();
+        this.shortDescription = site.getShortDescription();
+        this.htmlShortDescription = site.getHtmlShortDescription();
+        this.description = site.getDescription();
+
+        ResourceProperties rp = site.getProperties();
+        this.contactName = rp.getProperty(PROP_SITE_CONTACT_NAME);
+        this.contactEmail = rp.getProperty(PROP_SITE_CONTACT_EMAIL);
+    }
 
     @EntityId
     public String getId() {
@@ -278,6 +299,14 @@ public class EntitySite implements Site {
     public void setShortDescription(String shortDescription) {
         this.shortDescription = shortDescription;
         this.htmlShortDescription = Web.escapeHtml(shortDescription);
+    }
+
+    public String getContactName() {
+        return contactName;
+    }
+
+    public String getContactEmail() {
+        return contactEmail;
     }
 
     @EntitySummary

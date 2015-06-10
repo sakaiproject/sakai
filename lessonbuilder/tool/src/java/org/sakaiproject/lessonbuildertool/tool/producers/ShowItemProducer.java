@@ -199,8 +199,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 		}
 	    }
 
-	    String helpurl = (String)toolSession.getAttribute("sakai-portal:help-action");
-	    String reseturl = (String)toolSession.getAttribute("sakai-portal:reset-action");
+	    // currently only support 11
+	    String helpurl = null; /* (String)toolSession.getAttribute("sakai-portal:help-action"); */
+	    String reseturl = null; /* (String)toolSession.getAttribute("sakai-portal:reset-action"); */
 	    String skinName = null;
 	    String skinRepo = null;
 	    String iconBase = null;
@@ -210,18 +211,9 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    boolean inline = false;
 	    String portalTemplates = ServerConfigurationService.getString("portal.templates", "");
 
-	    if (httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
-		if (reseturl == null)
-		    reseturl = "/portal/site/" + simplePageBean.getCurrentSiteId() + "/tool-reset/" + ((ToolConfiguration)placement).getPageId() + "?panel=Main";
-		if (helpurl == null)
-		    helpurl = "/portal/help/main?help=" + toolId;
-	    } else if (httpServletRequest.getRequestURI().startsWith("/portal/pda/")) {
-		reseturl = null;
-		helpurl = null;
-	    }
-
-	    if ("morpheus".equals(portalTemplates))
+	    if ("morpheus".equals(portalTemplates) && httpServletRequest.getRequestURI().startsWith("/portal/site/")) {
 		inline = true;
+	    }
 
 	    if (helpurl != null || reseturl != null) {
 
@@ -280,13 +272,16 @@ public class ShowItemProducer implements ViewComponentProducer, NavigationCaseRe
 	    if (item != null)
 		simplePageBean.adjustBackPath(params.getBackPath(), params.getSendingPage(), item.getId(), item.getName());
 
+	    UIComponent nav = UIOutput.make(tofill, "nav");
+	    if (inline)
+		nav.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+
 	    String returnView = params.getReturnView();
 
 	    // return to lesson doesn't make sense for resources, since they aren't separate applications in
 	    // the same sense. But we do want breadcrumbs.
 	    if (sendingPage != -1 && breadcrumbs != null && breadcrumbs.size() > 0) {
 		SimplePageBean.PathEntry entry = breadcrumbs.get(breadcrumbs.size()-1);
-
 
 		if (item != null && item.getType() == SimplePageItem.RESOURCE) {
 		    int index = 0;

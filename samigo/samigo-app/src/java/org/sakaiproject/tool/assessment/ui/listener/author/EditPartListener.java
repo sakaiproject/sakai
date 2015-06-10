@@ -98,10 +98,7 @@ public class EditPartListener
 
     // Permission check
     if ((!foundPart) || !authzBean.isUserAllowedToEditAssessment(assessmentBean.getAssessmentId(), assessmentBean.getAssessment().getCreatedBy(), !isEditPendingAssessmentFlow)) {
-      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
-      context.addMessage(null,new FacesMessage(err));
-      author.setOutcome("author");
-      return;
+      throw new IllegalArgumentException("Permission check for sectionId failed: " + sectionId);
     }
 
     if (isEditPendingAssessmentFlow) {

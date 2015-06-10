@@ -43,10 +43,35 @@ h4{
 }
 
 input[type="submit"],input[type="button"]{
-	@include sakai-button(  $background-color-secondary, 
-							darken( $background-color-secondary, 15% ), 
-							darken( $background-color-secondary, 25% ), 
-							darken( $background-color-secondary, 55% ) );
+	@if $button-gradiant {
+		@include sakai-button(  $button-color-secondary, 
+							darken( $button-color-secondary, 15% ), 
+							darken( $button-color-secondary, 25% ), 
+							$button-text-color-secondary );
+	}
+	@else{
+		
+		@include sakai-button(  $button-color-secondary, 
+							$button-color-secondary, 
+							$button-color-secondary, 
+							$button-text-color-secondary );
+	}
+}
+
+input[type="reset"],input[type="button"]{
+	@if $button-gradiant {
+		@include sakai-button(  darken($button-color-secondary,5%), 
+							darken( $button-color-secondary, 20% ), 
+							darken( $button-color-secondary, 30% ), 
+							$button-text-color-secondary );
+	}
+	@else{
+		
+		@include sakai-button(  darken($button-color-secondary,5%), 
+							darken($button-color-secondary,5%), 
+							darken($button-color-secondary,5%), 
+							$button-text-color-secondary );
+	}
 }
 
 select{

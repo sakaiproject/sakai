@@ -912,4 +912,10 @@ public interface AssignmentService extends EntityProducer
 	 * Params: AssignmentSubmission s
 	 */
 	public boolean assignmentUsesAnonymousGrading(Assignment a);
+	
+	/**
+	 * Get Scale Factor from the property assignment.grading.decimals
+	 * @return
+	 */
+	public Integer getScaleFactor();
 }

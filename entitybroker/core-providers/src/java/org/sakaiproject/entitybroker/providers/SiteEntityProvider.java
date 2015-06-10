@@ -633,6 +633,19 @@ RESTful, ActionsExecutable, Redirectable, RequestStorable, DepthLimitable {
            return sites;
         }
 
+    @EntityCustomAction(action = "info", viewKey = "")
+    public EntitySite getInfo(EntityReference ref) {
+
+        String siteId = ref.getId();
+
+        Site site = getSiteById(siteId);
+
+        // Get a sparse entity, just with the info
+        EntitySite es = new EntitySite();
+        es.copyInfo(site);
+
+        return es;
+    }
 
     /**
      * @param site

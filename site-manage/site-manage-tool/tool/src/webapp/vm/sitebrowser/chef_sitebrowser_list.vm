@@ -1,6 +1,10 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/sitebrowser/chef_sitebrowser_list.vm,v 1.2 2005/06/06 16:26:15 suiyy.umich.edu Exp $ -->
+<div id="dialog"></div>
 <script type="text/javascript" language="JavaScript">
 	focus_path = ["search"];
+    $(document).ready(function () {
+		sakai.getSiteInfo('getSiteDesc','dialog','$tlang.getString("sitegen.siteinfolist.nosd")','$tlang.getString("sitegen.siteinfolist.nold")');
+    });
 </script>
 	
 <div class="portletBody">
@@ -133,9 +137,12 @@
 	                #end
                         <td headers="title">
 							<h4>
-                             <a href="#toolLinkParam("$action" "doVisit" "id=$validator.escapeUrl($site.Id)")" title="$tlang.getString("list.go") $validator.escapeHtml($site.Title) $tlang.getString("site")">
-                                        $validator.escapeHtml($site.Title)
-                               </a>
+                                <a href="$site.Url" target="_top">
+                                $validator.escapeHtml($site.getTitle())
+                                </a>
+                                <a href="#" id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
+                                    <img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
+                                </a>
 							  </h4> 
                        </td>
 

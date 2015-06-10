@@ -2,6 +2,8 @@ package org.sakaiproject.assignment.api.model;
 
 import java.io.Serializable;
 
+import org.sakaiproject.assignment.api.AssignmentConstants;
+
 public class PeerAssessmentItem implements Serializable{
 
 	private static final long serialVersionUID = -8376570648172966170L;
@@ -16,6 +18,8 @@ public class PeerAssessmentItem implements Serializable{
 	private boolean submitted;
 	//transient variables for displaying information in the UI
 	private String assessorDisplayName;
+	 
+	private Integer scaledFactor = AssignmentConstants.DEFAULT_SCALED_FACTOR;
 	
 	public String getSubmissionId() {
 		return submissionId;
@@ -53,9 +57,9 @@ public class PeerAssessmentItem implements Serializable{
 	public void setAssignmentId(String assignmentId) {
 		this.assignmentId = assignmentId;
 	}
-	//score is stored as a integer value in the DB, but is really a decimal value (divide by 10)
+	//score is stored as a integer value in the DB, but is really a decimal value (divide by "factor")
 	public String getScoreDisplay(){
-		return getScore() == null ? "" : "" + score/10.0;
+		return getScore() == null ? "" : "" + score/(double)getScaledFactor();
 	}
 	//transient variable that is only set for UI
 	public String getAssessorDisplayName(){
@@ -64,6 +68,12 @@ public class PeerAssessmentItem implements Serializable{
 	//transient variable that is only set for UI
 	public void setAssessorDisplayName(String assessorDisplayName) {
 		this.assessorDisplayName = assessorDisplayName;
+	}
+	public Integer getScaledFactor() {
+		return scaledFactor;
+	}
+	public void setScaledFactor(Integer scaledFactor) {
+		this.scaledFactor = scaledFactor;
 	}
 	public boolean isSubmitted() {
 		return submitted;

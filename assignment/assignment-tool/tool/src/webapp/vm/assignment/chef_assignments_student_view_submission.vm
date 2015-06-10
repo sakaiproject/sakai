@@ -705,7 +705,12 @@ function enableSubmitUnlessNoFile(checkForFile)
 							#if ($plagiarismNote)
 								<p>
 									<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
-									<em>$plagiarismNote</em>
+									<em>
+										$plagiarismNote
+										#if ($plagiarismFileTypes)
+											$plagiarismFileTypes
+										#end
+									</em>
 								</p>
 							#end
 							</p>
@@ -774,7 +779,12 @@ function enableSubmitUnlessNoFile(checkForFile)
 					#if ($plagiarismNote)
 						<p>
 							<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
-							<em>$plagiarismNote</em>
+							<em>
+								$plagiarismNote
+								#if ($plagiarismFileTypes)
+									$plagiarismFileTypes
+								#end
+							</em>
 						</p>
 					#end
 					#if ($unsubmittableInline && ""!="$!value_submission_text")
@@ -855,7 +865,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 											</td>
 											<td>
 												<div id="clonableUploadW"> 
-													<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
 													<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 												</div>
 											</td>
@@ -895,7 +905,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 											<label for="upload">$tlang.getString("att.upl")</label>
 										</td>
 										<td>
-											<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
+											<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
 											<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
@@ -970,7 +980,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 								<br>
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
-								<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/>
+								<input type="file" name="upload" class="upload" id="clonableUpload" #if ($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/>
 								<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 								<span class="navIntraToolLink">
 									<input

@@ -25,6 +25,10 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -54,6 +58,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.WildcardFileFilter;
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -6251,8 +6256,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (allTools != null && !allTools.isEmpty()) {
 			for (Map<String, Object> tool : allTools) {
 				Set keySet = tool.keySet();
-				String toolIdString = tool.get(m_ltiService.LTI_ID).toString();
-				boolean toolStealthed = tool.get(m_ltiService.LTI_VISIBLE).toString().equals("1");
+				String toolIdString = ObjectUtils.toString(tool.get(m_ltiService.LTI_ID));
+				boolean toolStealthed = "1".equals(ObjectUtils.toString(tool.get(m_ltiService.LTI_VISIBLE)));
 				boolean ltiToolSelected = ltiSelectedTools.contains(toolIdString); 
 
 				try
@@ -9785,13 +9790,22 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private String transferSiteResource(String oSiteId, String nSiteId, String siteAttribute) {
 		String rv = "";
 		
-		String accessUrl = ServerConfigurationService.getAccessUrl();
-		if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && accessUrl != null)
+		String access = ServerConfigurationService.getAccessUrl();
+		if (siteAttribute!= null && siteAttribute.indexOf(oSiteId) != -1 && access != null)
 		{
-			// stripe out the access url, get the relative form of "url"
-			Reference ref = EntityManager.newReference(siteAttribute.replaceAll(accessUrl, ""));
+			Reference ref = null;
 			try
 			{
+				URI accessUrl = new URI(access);
+				URI url = new URI(siteAttribute);
+				String path = url.getPath();
+				String accessPath = accessUrl.getPath();
+				
+				// stripe out the access url, get the relative form of "url"
+				String contentRef = path.replaceAll(accessPath, "");
+				
+				ref = EntityManager.newReference(contentRef);
+				
 				ContentResource resource = m_contentHostingService.getResource(ref.getId());
 				// the new resource
 				ContentResource nResource = null;
@@ -9816,6 +9830,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// get the new resource url
 				rv = nResource != null?nResource.getUrl(false):"";
 				
+			}
+			catch (URISyntaxException use)
+			{
+				M_log.warn("Couldn't update site resource: "+ siteAttribute + " "+ use.getMessage());
 			}
 			catch (Exception refException)
 			{
@@ -10724,32 +10742,23 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						addAlert(state, rb.getString("java.addalias"));
 					} else {
 						try {
-							// first, clear any alias set to this channel
-							AliasService.removeTargetAliases(channelReference); // check
-							// to
-							// see
-							// whether
-							// the
-							// alias
-							// has
-							// been
-							// used
-							try {
-								String target = AliasService.getTarget(alias);
-								boolean targetsThisSite = site.getReference().equals(target);
-								if (!(targetsThisSite)) {
-									addAlert(state, rb.getString("java.emailinuse") + " ");
-								}
-							} catch (IdUnusedException ee) {
-								try {
-									AliasService.setAlias(alias,
-											channelReference);
-								} catch (IdUsedException exception) {
-								} catch (IdInvalidException exception) {
-								} catch (PermissionException exception) {
-								}
+							String target = AliasService.getTarget(alias);
+							boolean targetsThisSite = site.getReference().equals(target) ||
+									channelReference.equals(target);
+							if (!(targetsThisSite)) {
+								addAlert(state, rb.getString("java.emailinuse") + " ");
 							}
-						} catch (PermissionException exception) {
+						} catch (IdUnusedException ee) {
+							try {
+								AliasService.setAlias(alias,
+										channelReference);
+							} catch (IdUsedException exception) {
+								M_log.warn(this + ".saveFeatures setAlias IdUsedException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+							} catch (IdInvalidException exception) {
+								M_log.warn(this + ".saveFeatures setAlias IdInvalidException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+							} catch (PermissionException exception) {
+								M_log.warn(this + ".saveFeatures setAlias PermissionException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+							}
 						}
 					}
 				}

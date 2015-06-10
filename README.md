@@ -42,8 +42,7 @@ Sakai is an [Apereo Foundation](http://www.apereo.org) project and follows the F
 
 ## Contributing
 
-To contribute to the Sakai project please follow the workflow on:
-https://confluence.sakaiproject.org/display/SAKDEV/Git+Setup
+See [our dedicated page](CONTRIBUTING.md) for more information on contributing to Sakai.
 
 ## Bugs
 

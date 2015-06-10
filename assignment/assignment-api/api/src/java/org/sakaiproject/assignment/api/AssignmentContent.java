@@ -124,6 +124,12 @@ public interface AssignmentContent extends Entity, AttachmentContainer
 	 * @return int The maximum grade score, or zero if the grade type is not SCORE_GRADE_TYPE(3).
 	 */
 	public int getMaxGradePoint();
+	
+	/**
+	 * 
+	 * @return The number of decimal points to store the grade score 
+	 */
+	public int getFactor();
 
 	/**
 	 * Get the maximum grade for grade type = SCORE_GRADE_TYPE(3) Formated to show one decimal place

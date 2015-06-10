@@ -43,6 +43,10 @@ public class AssignmentConstants {
 	public final static int NOTE_READ_BY_OTHER = 2;
 	
 	public final static int NOTE_READ_AND_WRITE_BY_OTHER = 3;
+	
+	public final static int DEFAULT_SCALED_FACTOR = 10;
+	
+	public final static int DEFAULT_DECIMAL_POINT = 2;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * EVENT STRINGS
