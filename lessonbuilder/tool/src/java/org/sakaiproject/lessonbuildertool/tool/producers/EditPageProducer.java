@@ -115,7 +115,8 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 		Collection<String> groups = null;
 
-        boolean isPrerequisite = false;
+		boolean isPrerequisite = false;
+		boolean hasBreak = false;
 
 		if (itemId != null && itemId != -1) {
 			SimplePageItem i = simplePageBean.findItem(itemId);
@@ -129,7 +130,8 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			    // should be impossible for text item; underlying object missing
 			}
 
-            isPrerequisite = i.isPrerequisite();
+			isPrerequisite = i.isPrerequisite();
+			hasBreak = "true".equals(i.getAttribute("groupedWithAbove"));
 		}
 
 		if (simplePageBean.canEditPage()) {
@@ -151,6 +153,9 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			form.parameters.add(new UIELBinding("#{simplePageBean.itemId}", itemId));
 
 			richTextEvolver.evolveTextInput(instructions);
+
+			UIOutput.make(form, "break-block");
+			UIBoundBoolean.make(form, "question-break", "#{simplePageBean.breakabove}",hasBreak);
 
 			if (page.getOwner() == null) {
 			    // these options don't apply on student pages

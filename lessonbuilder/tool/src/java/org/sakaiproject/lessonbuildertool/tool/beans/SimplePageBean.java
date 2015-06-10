@@ -223,6 +223,7 @@ public class SimplePageBean {
 	private boolean required;
 	private boolean subrequirement;
 	private boolean prerequisite;
+	private boolean breakabove;
 	private boolean newWindow;
 	private String dropDown;
 	private String points;
@@ -783,6 +784,10 @@ public class SimplePageBean {
 		this.prerequisite = prerequisite;
 	}
 	
+	public void setBreakabove(boolean breakabove) {
+		this.breakabove = breakabove;
+	}
+
 	public void setNewWindow(boolean newWindow) {
 		this.newWindow = newWindow;
 	}
@@ -1058,6 +1063,10 @@ public class SimplePageBean {
 
 				item.setHtml(html);
 				item.setPrerequisite(this.prerequisite);
+				if (this.breakabove)
+				    item.setAttribute("groupedWithAbove", "true");
+				else
+				    item.removeAttribute("groupedWithAbove");
 				setItemGroups(item, selectedGroups);
 				update(item);
 			} else {
@@ -2594,6 +2603,11 @@ public class SimplePageBean {
 			i.setName(name);
 			i.setDescription(description);
 			i.setRequired(required);
+			if (this.breakabove)
+			    i.setAttribute("groupedWithAbove", "true");
+			else
+			    i.removeAttribute("groupedWithAbove");
+
 			i.setPrerequisite(prerequisite);
 			i.setSubrequirement(subrequirement);
 			i.setNextPage(subpageNext);
@@ -2857,6 +2871,10 @@ public class SimplePageBean {
 					i.setSakaiId(selectedEntity);
 					i.setName(selectedObject.getTitle());
 				    }
+				    if (this.breakabove)
+					i.setAttribute("groupedWithAbove", "true");
+				    else
+					i.removeAttribute("groupedWithAbove");
 
 				    // reset assignment-specific stuff
 				    i.setDescription("");
@@ -2933,6 +2951,10 @@ public class SimplePageBean {
 				    //	 i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
 				    //  else
 				    // i.setDescription(null);
+				    if (this.breakabove)
+					i.setAttribute("groupedWithAbove", "true");
+				    else
+					i.removeAttribute("groupedWithAbove");
 				    update(i);
 				}
 			    } else {
@@ -3584,6 +3606,10 @@ public class SimplePageBean {
 				    }
 				    // reset quiz-specific stuff
 				    i.setDescription("");
+				    if (this.breakabove)
+					i.setAttribute("groupedWithAbove", "true");
+				    else
+					i.removeAttribute("groupedWithAbove");
 				    update(i);
 				}
 			    } else  // no, add new item
@@ -3690,6 +3716,10 @@ public class SimplePageBean {
 			i.setDescription(description);
 			i.setHtml(mimetype);
 			i.setPrerequisite(this.prerequisite);
+			if (this.breakabove)
+			    i.setAttribute("groupedWithAbove", "true");
+			else
+			    i.removeAttribute("groupedWithAbove");
 			update(i);
 			setItemGroups(i, selectedGroups);
 			return "success";
@@ -5662,6 +5692,10 @@ public class SimplePageBean {
 			// remember who added it, for permission checks
 			item.setAttribute("addedby", getCurrentUserId());
 
+			if (this.breakabove)
+			    item.setAttribute("groupedWithAbove", "true");
+			else
+			    item.removeAttribute("groupedWithAbove");
 			item.setPrerequisite(this.prerequisite);
 
 			if (mimeType != null) {
@@ -5862,6 +5896,10 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
+		if (this.breakabove)
+		    item.setAttribute("groupedWithAbove", "true");
+		else
+		    item.removeAttribute("groupedWithAbove");
 		item.setPrerequisite(this.prerequisite);
 
 		update(item);
@@ -5940,7 +5978,11 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
-        item.setPrerequisite(prerequisite);
+		if (this.breakabove)
+		    item.setAttribute("groupedWithAbove", "true");
+		else
+		    item.removeAttribute("groupedWithAbove");
+		item.setPrerequisite(prerequisite);
 		item.setHtml(mimetype);
 		update(item);
 
@@ -6056,6 +6098,10 @@ public class SimplePageBean {
 			comment.setAnonymous(anonymous);
 			setItemGroups(comment, selectedGroups);
 			comment.setRequired(required);
+			if (this.breakabove)
+			    comment.setAttribute("groupedWithAbove", "true");
+			else
+			    comment.removeAttribute("groupedWithAbove");
 			comment.setPrerequisite(prerequisite);
 			
 			if(maxPoints == null || maxPoints.equals("")) {
@@ -6490,6 +6536,10 @@ public class SimplePageBean {
 		    item.setGradebookPoints(pointsInt);
 		else
 		    item.setGradebookPoints(null);
+		if (this.breakabove)
+		    item.setAttribute("groupedWithAbove", "true");
+		else
+		    item.removeAttribute("groupedWithAbove");
 		item.setPrerequisite(prerequisite);
 		
 		update(item);
@@ -6652,6 +6702,10 @@ public class SimplePageBean {
 			page.setShowComments(comments);
 			page.setForcedCommentsAnonymous(forcedAnon);
 			page.setRequired(required);
+			if (this.breakabove)
+			    page.setAttribute("groupedWithAbove", "true");
+			else
+			    page.removeAttribute("groupedWithAbove");
 			page.setPrerequisite(prerequisite);
 			page.setGroupOwned(groupOwned);
 			
