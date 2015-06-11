@@ -42,7 +42,7 @@ $(function () {
                       deleteURL: $(this).prop("href")
                      }));
 
-        $(document.body).append($modal);
+        $(this).closest(".portletBody").append($modal);
 
         $modal.modal();
       });
