@@ -9,12 +9,6 @@
 	response.addHeader("Pragma", "no-cache");
 %>
 
-<% try{ %>
-<jsp:useBean id="msgs" class="org.sakaiproject.util.ResourceLoader" scope="session">
-   <jsp:setProperty name="msgs" property="baseName" value="calendar"/>
-</jsp:useBean>
-<% }catch(Exception e) {return;} %>
-
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
 	<sakai:script contextBase="/jsf-resource/" path="/inputColor/inputColor.js"/>
