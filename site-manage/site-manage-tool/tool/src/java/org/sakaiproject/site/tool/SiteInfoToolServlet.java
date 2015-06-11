@@ -385,19 +385,31 @@ public class SiteInfoToolServlet extends HttpServlet
 		if (currentLocale!=null){
 			String fullLocale = currentLocale.toString();
 			xslFileName = "participants-all-attrs_" + fullLocale + ".xsl";
-			if (getClass().getClassLoader().getResourceAsStream(xslFileName) == null){
+			InputStream inputStream = getClass().getClassLoader().getResourceAsStream(xslFileName);
+			if (inputStream == null){
 				xslFileName = "participants-all-attrs_" + currentLocale.getCountry() + ".xsl";
-				if (getClass().getClassLoader().getResourceAsStream(xslFileName) == null){
+				inputStream = getClass().getClassLoader().getResourceAsStream(xslFileName);
+				if (inputStream == null){
 					//We use the default file
 					xslFileName = "participants-all-attrs.xsl";
+				}
+			}
+
+			if (inputStream != null) {
+				try {
+					inputStream.close();
+				} catch (IOException e) {
+					log.error("Could not close inputStream in generatePDF");
 				}
 			}
 		}
 		String configFileName = "userconfig.xml";
 		DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
+		InputStream configInputStream = null;
 		try 
 		{
-			Configuration cfg = cfgBuilder.build(getClass().getClassLoader().getResourceAsStream(configFileName));
+			configInputStream = getClass().getClassLoader().getResourceAsStream(configFileName);
+			Configuration cfg = cfgBuilder.build(configInputStream);
 			
 			FopFactory fopFactory = FopFactory.newInstance();
 			fopFactory.setUserConfig(cfg);
@@ -425,11 +437,22 @@ public class SiteInfoToolServlet extends HttpServlet
 
 			Source src = new DOMSource(doc);
 			transformer.transform(src, new SAXResult(fop.getDefaultHandler()));
-		} catch (Exception e) 
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			log.warn(this+".generatePDF(): " + e);
 			return;
+		}
+		finally
+		{
+			if (configInputStream != null) {
+				try {
+					configInputStream.close();
+				} catch (IOException e) {
+					log.error("Could not close the configInputStream in generatePDF");
+				}
+			}
 		}
 	}
 	

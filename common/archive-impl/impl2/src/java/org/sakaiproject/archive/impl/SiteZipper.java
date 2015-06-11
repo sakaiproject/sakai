@@ -118,8 +118,9 @@ public class SiteZipper {
 			log.info("Creating zip file: " + compressedArchivePath);
 			zipFile.createNewFile();
 		}
-		
-		FileOutputStream fOut = null;
+
+        FileOutputStream fOut = null;
+        FileInputStream zip = null;
         BufferedOutputStream bOut = null;
         ZipArchiveOutputStream zOut = null;
         
@@ -128,19 +129,20 @@ public class SiteZipper {
             bOut = new BufferedOutputStream(fOut);
             zOut = new ZipArchiveOutputStream(bOut);
             addFileToZip(zOut, archivePath, ""); //add the directory which will then add all files recursively
+
+            //create a sha1 hash of the zip
+            String hashPath = m_storagePath + siteId + "-" + timestamp + ".sha1";
+            log.info("Creating hash: " + hashPath);
+            zip  = new FileInputStream(compressedArchivePath);
+            String hash = DigestUtils.sha1Hex(zip);
+            FileUtils.writeStringToFile(new File(hashPath), hash);
         } finally {
             zOut.finish();
             zOut.close();
             bOut.close();
             fOut.close();
+            zip.close();
         }
-		
-		//create a sha1 hash of the zip
-		String hashPath = m_storagePath + siteId + "-" + timestamp + ".sha1";
-		log.info("Creating hash: " + hashPath);
-		FileInputStream zip  = new FileInputStream(compressedArchivePath);
-		String hash = DigestUtils.sha1Hex(zip);
-		FileUtils.writeStringToFile(new File(hashPath), hash);
 		
 		return true;
 	}

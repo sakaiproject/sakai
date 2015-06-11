@@ -426,9 +426,12 @@ public class CCExport {
 		} catch (Exception e) {
 		    log.error("Lessons export error outputting file " + e);
 		} finally {
-		    if (contentStream != null) {
-			contentStream.close();
-		    }
+			if (contentStream != null) {
+				contentStream.close();
+			}
+			if (instream != null) {
+				instream.close();
+			}
 		}
 	    }
 	} catch (Exception e) {
