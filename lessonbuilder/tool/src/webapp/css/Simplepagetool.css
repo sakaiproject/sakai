@@ -1244,14 +1244,16 @@ margin-left:1px;
   padding-left: 3px;
   padding-right: 3px;
 }
-#col1 {
-  margin-left:0px !important;
-  margin-right:0px !important;
-}
 .edit-col + .right-col {
 width:calc(100% - 80px);
 }
 }
+@media only screen and (max-width: 800px) {
+#content {
+  margin-right:10px !important;
+  margin-left: 30px !important;
+  width: calc(100% - 21px) !important;
+}}
 @media only screen and (max-width: 600px) {
 div.group-col {
   display:none !important;
