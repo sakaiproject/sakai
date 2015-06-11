@@ -103,8 +103,7 @@ public class PASystemServlet extends HttpServlet {
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         checkAccessControl();
 
-        Locale userLocale = PreferencesService.getLocale(SessionManager.getCurrentSessionUserId());
-        I18n i18n = paSystem.getI18n(this.getClass().getClassLoader(), "org/sakaiproject/pasystem/tool/i18n", userLocale);
+        I18n i18n = paSystem.getI18n(this.getClass().getClassLoader(), "org.sakaiproject.pasystem.tool.i18n.pasystem");
 
         response.setHeader("Content-Type", "text/html");
 

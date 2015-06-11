@@ -22,37 +22,31 @@
  *
  **********************************************************************************/
 
-package org.sakaiproject.pasystem.api;
+package org.sakaiproject.pasystem.impl.common;
 
-import java.util.Locale;
+import java.util.MissingResourceException;
+import org.sakaiproject.pasystem.api.I18n;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
- * The interface for the PA System service.
+ * An I18N implementation based on Sakai's ResourceLoader.
  */
-public interface PASystem {
+public class SakaiI18n implements I18n {
 
-    public void init();
+    private ResourceLoader resourceLoader;
 
-    public void destroy();
+    public SakaiI18n(ClassLoader loader, String resourceBase) {
+        resourceLoader = new ResourceLoader(resourceBase, loader);
+    }
 
-    /**
-     * Return the HTML to be appended to the bottom of each portal page.
-     */
-    public String getFooter();
+    @Override
+    public String t(String key) {
+        String result = resourceLoader.getString(key);
 
-    /**
-     * Return the popups sub-service.
-     */
-    public Popups getPopups();
+        if (result == null) {
+            throw new RuntimeException("Missing translation for key: " + key);
+        }
 
-    /**
-     * Return the banners sub-service
-     */
-    public Banners getBanners();
-
-    /**
-     * Return an I18N translator for a given file and locale.
-     */
-    public I18n getI18n(ClassLoader loader, String resourceBase);
+        return result;
+    }
 }
-    

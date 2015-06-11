@@ -37,7 +37,6 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.sakaiproject.authz.cover.FunctionManager;
@@ -51,7 +50,7 @@ import org.sakaiproject.pasystem.api.PASystemException;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.Popups;
 import org.sakaiproject.pasystem.impl.banners.BannerStorage;
-import org.sakaiproject.pasystem.impl.common.JSONI18n;
+import org.sakaiproject.pasystem.impl.common.SakaiI18n;
 import org.sakaiproject.pasystem.impl.popups.PopupForUser;
 import org.sakaiproject.pasystem.impl.popups.PopupStorage;
 import org.sakaiproject.portal.util.PortalUtils;
@@ -73,8 +72,6 @@ class PASystemImpl implements PASystem {
 
     private static final String POPUP_SCREEN_SHOWN = "pasystem.popup.screen.shown";
 
-    private Map<String, I18n> i18nStore;
-
     @Override
     public void init() {
         if (ServerConfigurationService.getBoolean("auto.ddl", false) || ServerConfigurationService.getBoolean("pasystem.auto.ddl", false)) {
@@ -82,8 +79,6 @@ class PASystemImpl implements PASystem {
         }
 
         FunctionManager.registerFunction("pasystem.manage");
-
-        i18nStore = new ConcurrentHashMap<String, I18n>(1);
     }
 
     @Override
@@ -94,8 +89,7 @@ class PASystemImpl implements PASystem {
     public String getFooter() {
         StringBuilder result = new StringBuilder();
 
-        Locale userLocale = PreferencesService.getLocale(SessionManager.getCurrentSessionUserId());
-        I18n i18n = getI18n(this.getClass().getClassLoader(), "i18n", userLocale);
+        I18n i18n = getI18n(this.getClass().getClassLoader(), "org.sakaiproject.pasystem.impl.i18n.pasystem");
         Handlebars handlebars = loadHandleBars(i18n);
 
         Session session = SessionManager.getCurrentSession();
@@ -132,20 +126,8 @@ class PASystemImpl implements PASystem {
     }
 
     @Override
-    public I18n getI18n(ClassLoader loader, String resourceBase, Locale locale) {
-        String language = "en";
-
-        if (locale != null) {
-            language = locale.getLanguage();
-        }
-
-        String i18nKey = resourceBase + "::" + language + "::" + loader.hashCode();
-
-        if (!i18nStore.containsKey(i18nKey)) {
-            i18nStore.put(i18nKey, new JSONI18n(loader, resourceBase, locale));
-        }
-
-        return i18nStore.get(i18nKey);
+    public I18n getI18n(ClassLoader loader, String resourceBase) {
+        return new SakaiI18n(loader, resourceBase);
     }
 
     private Handlebars loadHandleBars(final I18n i18n) {
