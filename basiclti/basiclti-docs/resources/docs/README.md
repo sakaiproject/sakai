@@ -1,6 +1,10 @@
 Sakai LTI Internal Documentation
 --------------------------------
 
+Sakai has a unit test that we keep up-to-date with the latest LTi specifications.  It functions as both Consumer and Provider and exercises both standard services and Sakai's particular extensions.  I make this tool available online at
+
+* https://online.dr-chuck.com/sakai-api-test
+
 This folder contains the test plans for Sakai in the form of Excel spreadsheets above.
 
 The developer/configuration documentation is in the form of Word documents:
