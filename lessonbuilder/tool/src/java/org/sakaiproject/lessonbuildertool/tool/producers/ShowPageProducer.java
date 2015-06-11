@@ -1156,6 +1156,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				else if ("true".equals(i.getAttribute("groupedWithAbove"))) {
 				    if (prevTableRow != null) /* will be null for top row */
 					prevTableRow.decorate(new UIFreeAttributeDecorator("class", prevClasses + " right-col-bottom"));
+				    tableRow.decorate(new UIStyleDecorator("offscreen"));
+				    UIOutput.make(tableRow, "section-td");
+				    tableRow = UIBranchContainer.make(tableContainer, "item:");
+
 				    itemClassName = itemClassName + " right-col-top";
 				}
 
