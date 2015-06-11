@@ -7,7 +7,7 @@
 		color: lighten( $text-color, 70% );
 		display: inline-block;
 		font-size: 1.5em;
-		width: calc(100% - 74px);
+		width: calc(100% - 90px);
 
 		& ~ .#{$namespace}directUrl__dropDown{
 			display: none;
@@ -29,23 +29,36 @@
 		}
 		a{
 			color: lighten( $text-color, 70% );
+			margin-right: 0.25em;
+
 		}
 	}
 
 	.#{$namespace}toolTitleNav__link{
-		vertical-align: bottom;
+		vertical-align: 0%;
+		color: lighten( $text-color, 70% );
+		text-decoration :none;
+		margin-right: 0.25em;
 		@include icon();
 		&--directurl{
-			@include base-sprite(link);
+			@extend .fa;
+			@extend .fa-link;
+			@extend .fa-lg;
 		}
 		&--help-popup{
-			@include base-sprite(help);
+			@extend .fa;
+			@extend .fa-question;
+			@extend .fa-lg;
 		}
 		&--edit{
-			@include base-sprite(edit);	
+			@extend .fa;
+			@extend .fa-pencil;
+			@extend .fa-lg;	
 		}
 		&--reset{
-			@include base-sprite(reload);	
+			@extend .fa;
+			@extend .fa-home;
+			@extend .fa-lg;	
 		}
 	}
 
