@@ -46,7 +46,7 @@
 			height: calc( #{$header-size} - 1em);
 			padding: 0.6em 0 0.4em 0.6em;
 			width: calc( 100% - 100px - #{$tool-menu-width} );
-			overflow: auto;
+			overflow: hidden;
 
 			background-color: $background-color-secondary; // Old browsers
 			@include filter-gradient($background-color-secondary, darken($background-color-secondary, 5%), horizontal); // IE6-8
@@ -308,12 +308,13 @@
 
 #linkNav{
 	ul{
+		margin: 0 50px 0 0;
 		li{
 			display: inline-block;
 			border: 1px solid darken( $background-color-secondary, 10% );
 			background: darken( $background-color-secondary, 5% );
 			@include border-radius( 2px );
-			margin: 0 0.7em 0 0;
+			margin: 0 0.7em 1.2em 0;
 			padding: 0.1em 0.5em 0.1em 0.5em;
 			a{
 				@extend .userNav_link;
@@ -368,4 +369,55 @@
 		overflow-y: auto;
 		@include transition(left 0.5s linear);
 	}
+	&.scrolled-sites{
+		@media #{$desktop}{
+			#show-all-sites{
+				display: inline-block;
+				cursor: pointer;
+				position: absolute;
+				text-align: center;
+				font-size: 2em;
+				color: $primary-color;
+				top: 1px;
+				right: 100px;
+				border-left: 1px solid darken( $background-color-secondary, 5% );
+				padding: 0 0 0 0.4em;
+				outline: 0;
+				> div{
+					display: inline-block;
+				}
+				#how-many-hidden{
+					font-size: 0.6em;
+					vertical-align: middle;
+					margin: 0 0 2px 2px;
+				}
+				&.opened{
+					right: 10px;
+					border-left: 0px none;
+					> div {
+						color: $secondary-color;
+						@include transform( rotateZ(45deg) );
+					}
+				}
+			}
+		}
+	}
+	&.opened{
+		@media #{$desktop}{
+			position: absolute;
+			width: calc( 100% - 100px - #{$tool-menu-width} );
+			background: $background-color-secondary;
+			padding: 9px 0 0 13px;
+			margin: -9px 0px 0px -13px;
+			z-index: 999;
+			@include box-shadow( 0px 4px 5px 5px rgba( 0, 0, 0, 0.15 ) );
+			#how-many-hidden{
+				display: none;
+			}
+		}
+	}
+}
+
+#show-all-sites{
+	display: none;
 }
