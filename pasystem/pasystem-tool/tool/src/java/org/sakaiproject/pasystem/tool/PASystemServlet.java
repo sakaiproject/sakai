@@ -67,7 +67,6 @@ import org.slf4j.LoggerFactory;
  */
 public class PASystemServlet extends HttpServlet {
 
-    private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String FLASH_MESSAGE_KEY = "pasystem-tool.flash.errors";
 
     private static final Logger LOG = LoggerFactory.getLogger(PASystemServlet.class);
@@ -143,7 +142,9 @@ public class PASystemServlet extends HttpServlet {
     }
 
     private void checkAccessControl() {
-        if (!SecurityService.unlock("pasystem.manage", ADMIN_SITE_REALM)) {
+        String siteId = ToolManager.getCurrentPlacement().getContext();
+
+        if (!SecurityService.unlock("pasystem.manage", "/site/" + siteId)) {
             LOG.error("Access denied to PA System management tool for user " + SessionManager.getCurrentSessionUserId());
             throw new PASystemException("Access denied");
         }
