@@ -136,12 +136,12 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
 
   // return 13
   } else if (isEditableCell && event.keyCode == 13) {
-    self.getCellModel($eventTarget).enterEditMode();
+    self.getCellModel($eventTarget).enterEditMode(event.keyCode);
 
   // 0-9 48-57
   } else if (isEditableCell && event.keyCode >= 48 && event.keyCode <= 57) {
     event.preventDefault();
-    self.getCellModel($eventTarget).enterEditMode(event.keyCode - 48);
+    self.getCellModel($eventTarget).enterEditMode(event.keyCode);
 
   // DEL 8
   } else if (isEditableCell && event.keyCode == 8) {
@@ -1156,18 +1156,27 @@ GradebookEditableCell.prototype.getGradeItemTotalPoints = function() {
 };
 
 
-GradebookEditableCell.prototype.enterEditMode = function(withValue) {
+GradebookEditableCell.prototype.enterEditMode = function(keyCode) {
   var self = this;
+
+  var initialValue = "";
+
+  if (keyCode && typeof keyCode == "number") {
+    // only buffer 0-9 key strokes
+    if (keyCode >= 48 && keyCode <= 57) {
+      initialValue = keyCode - 48;
+    }
+  }
 
   if (self.loadingEditMode) {
     var initialValueString = (self.$cell.data("initialValue") || "") + "";
-    self.$cell.data("initialValue", initialValueString + withValue);
+    self.$cell.data("initialValue", initialValueString + initialValue);
     return;
   }
 
   self.loadingEditMode = true;
 
-  self.$cell.data("initialValue", withValue);
+  self.$cell.data("initialValue", initialValue);
 
   // Trigger click on the Wicket node so we enter the edit mode
   self.$cell.find("span[id^='label']").trigger("click");
