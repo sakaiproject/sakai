@@ -1,5 +1,5 @@
 CREATE TABLE pasystem_popup_screens (
-  uuid VARCHAR(255) PRIMARY KEY,
+  uuid CHAR(36) PRIMARY KEY,
   descriptor VARCHAR(255),
   start_time BIGINT,
   end_time BIGINT,
@@ -7,19 +7,19 @@ CREATE TABLE pasystem_popup_screens (
 );
 
 CREATE TABLE pasystem_popup_content (
-  uuid varchar(255) PRIMARY KEY,
+  uuid char(36) PRIMARY KEY,
   template_content LONGVARCHAR,
   FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
 CREATE TABLE pasystem_popup_assign (
-  uuid varchar(255),
+  uuid char(36),
   user_eid varchar(255) DEFAULT NULL,
    FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
 CREATE TABLE pasystem_popup_dismissed (
-  uuid varchar(255),
+  uuid char(36),
   user_eid varchar(255) DEFAULT NULL,
   state varchar(50) DEFAULT NULL,
   dismiss_time BIGINT,
@@ -29,7 +29,7 @@ CREATE TABLE pasystem_popup_dismissed (
 ALTER TABLE pasystem_popup_dismissed add constraint unique_popup_dismissed unique (user_eid,state, uuid);
 
 CREATE TABLE pasystem_banner_alert
-( uuid VARCHAR(255) PRIMARY KEY,
+( uuid CHAR(36) PRIMARY KEY,
   message VARCHAR(4000) NOT NULL,
   hosts VARCHAR(512) DEFAULT NULL,
   active INT DEFAULT 0,
@@ -40,7 +40,7 @@ CREATE TABLE pasystem_banner_alert
 );
 
 CREATE TABLE pasystem_banner_dismissed (
-  uuid varchar(255),
+  uuid char(36),
   user_eid varchar(255) DEFAULT NULL,
   state varchar(50) DEFAULT NULL,
   dismiss_time BIGINT,

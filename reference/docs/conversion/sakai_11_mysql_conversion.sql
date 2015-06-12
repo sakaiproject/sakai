@@ -309,7 +309,7 @@ ALTER TABLE CM_ENROLLMENT_T ADD COLUMN DROP_DATE DATE;
 -- SAK-29422 Incorporate NYU's "public announcement system"
 
 CREATE TABLE `pasystem_popup_screens` (
-  `uuid` VARCHAR(255) PRIMARY KEY,
+  `uuid` CHAR(36) PRIMARY KEY,
   `descriptor` VARCHAR(255),
   `start_time` BIGINT,
   `end_time` BIGINT,
@@ -319,20 +319,20 @@ CREATE TABLE `pasystem_popup_screens` (
 );
 
 CREATE TABLE `pasystem_popup_content` (
-  `uuid` varchar(255) PRIMARY KEY,
+  `uuid` char(36) PRIMARY KEY,
   `template_content` MEDIUMTEXT,
   FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid)
 );
 
 CREATE TABLE `pasystem_popup_assign` (
-  `uuid` varchar(255),
+  `uuid` char(36),
   `user_eid` varchar(255) DEFAULT NULL,
    FOREIGN KEY (uuid) REFERENCES pasystem_popup_screens(uuid),
    INDEX `user_eid` (`user_eid`)
 );
 
 CREATE TABLE `pasystem_popup_dismissed` (
-  `uuid` varchar(255),
+  `uuid` char(36),
   `user_eid` varchar(255) DEFAULT NULL,
   `state` varchar(50) DEFAULT NULL,
   `dismiss_time` BIGINT,
@@ -344,7 +344,7 @@ CREATE TABLE `pasystem_popup_dismissed` (
 
 
 CREATE TABLE pasystem_banner_alert
-( `uuid` VARCHAR(255) PRIMARY KEY,
+( `uuid` CHAR(36) PRIMARY KEY,
   `message` VARCHAR(4000) NOT NULL,
   `hosts` VARCHAR(512) DEFAULT NULL,
   `active` INT(1) NOT NULL DEFAULT 0,
@@ -356,7 +356,7 @@ CREATE TABLE pasystem_banner_alert
 INSERT IGNORE INTO SAKAI_REALM_FUNCTION (FUNCTION_NAME) VALUES ('pasystem.manage');
 
 CREATE TABLE `pasystem_banner_dismissed` (
-  `uuid` varchar(255),
+  `uuid` char(36),
   `user_eid` varchar(255) DEFAULT NULL,
   `state` varchar(50) DEFAULT NULL,
   `dismiss_time` BIGINT,
