@@ -72,6 +72,12 @@
 				<h:outputText id="categoryLabel" value="#{msgs.assignment_details_category}" rendered="#{assignmentDetailsBean.categoriesEnabled}" />
 				<h:panelGroup rendered="#{assignmentDetailsBean.categoriesEnabled}" >
 					<h:outputText id="category" value="#{assignmentDetailsBean.assignmentCategory}"  />
+					<h:outputLink value="#"
+						rendered="#{assignmentDetailsBean.isCategoryEqualWeightAssignments}"
+						onclick="javascript:dhtmlPopupToggle('equal_weight_assignments', event);return false;">
+							<h:graphicImage styleClass="infoImg" value="../../../../../library/image/sakai/information.png" />
+					</h:outputLink>
+
 				</h:panelGroup>
 
 				<h:outputText id="dueDateLabel" value="#{msgs.due_date}"/>
@@ -337,5 +343,37 @@ check_change = function(){
 </script>
 		
 	</h:form>
+	  <f:verbatim>
+	  <div style="visibility: hidden; left: 589px; top: 386px;" class="dhtmlPopup" id="dhtmlPopup_equal_weight_assignments">
+		  <table cellspacing="0" cellpadding="0" border="0">
+			  <tbody>
+			  <tr>
+				  <td colspan="2">
+					  <table cellspacing="0" cellpadding="0" border="0" width="100%">
+						  <tbody>
+						  <tr>
+							  <td width="100%">
+								  <div class="dhtmlPopupTitleBar" onmouseout="javascript:dhtmlPopupMouseout(event);" onmouseover="javascript:dhtmlPopupMouseover('equal_weight_assignments', event);">Category Information</div>
+							  </td>
+							  <td>
+								  <div class="dhtmlPopupClose">
+									  <a onclick="javascript:dhtmlPopupHide('equal_weight_assignments', event); return false;" title="Close" href="#">
+										  <img border="0" alt="Close" src="dhtmlpopup/dhtmlPopClose.gif">
+									  </a>
+								  </div>
+							  </td>
+						  </tr>
+						  </tbody>
+					  </table>
+				  </td>
+				  </f:verbatim>
+			  </tr>
+			  <tr>
+				  <td>Assignments are weighted equally within this category.
+				  </td>
+			  </tr>
+			  </tbody>
+		  </table>
+	  </div>
   </div>
 </f:view>

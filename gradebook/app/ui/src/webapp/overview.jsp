@@ -152,10 +152,11 @@
 						<h:outputText value="#{msgs.overview_footnote_symbol2}" />
 		      </t:commandSortHeader>
 		    </f:facet>
-
+				<h:outputText rendered="#{gradebookItem.isCategory}" value="<strong>" escape="false" />
 				<h:outputText value="#{gradebookItem}" escape="false">
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER" />
 				</h:outputText>
+				<h:outputText rendered="#{gradebookItem.isCategory}" value="</strong>" escape="false" />
 			</h:column>
 			
 			<h:column rendered="#{overviewBean.weightingEnabled}">
@@ -164,10 +165,27 @@
 						<h:outputText value="#{msgs.overview_weight}"/>
 		      </t:commandSortHeader>
 		    </f:facet>
+				<h:panelGroup rendered="#{gradebookItem.isCategory}">
+					<h:outputText value="<strong>" escape="false" />
+					<h:outputText value="#{gradebookItem.weight}">
+						<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
+					</h:outputText>
+					<h:outputText value="</strong>" escape="false" />
+				</h:panelGroup>
+				<h:panelGroup rendered="#{gradebookItem.assignment && gradebookItem.isCategoryEqualWeightAssignments && gradebookItem.counted}">
+					<h:panelGroup rendered="#{gradebookItem.isExtraCredit}" style="padding-right: .5em !important;">
+						<h:outputText  value="+"/>
+						<h:outputText value="#{gradebookItem.overallWeight}">
+							<f:convertNumber type="percent" maxFractionDigits="2"/>
+						</h:outputText>
+					</h:panelGroup>
+					<h:panelGroup rendered="#{!gradebookItem.isExtraCredit}">
+						<h:outputText value="#{gradebookItem.overallWeight}">
+							<f:convertNumber type="percent" maxFractionDigits="2"/>
+						</h:outputText>
+					</h:panelGroup>
+				</h:panelGroup>
 
-				<h:outputText value="#{gradebookItem.weight}" rendered="#{gradebookItem.isCategory}">
-					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.PRECISE_PERCENTAGE" />
-				</h:outputText>
 			</h:column>
 
             <h:column rendered="#{overviewBean.displayTotalPoints}">

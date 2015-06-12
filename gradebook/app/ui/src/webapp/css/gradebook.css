@@ -202,6 +202,11 @@ td.gbMessageAboveNumber {vertical-align:top; text-align:right; padding-right:2em
     text-decoration: none !important;
 }
 
+.infoImg {
+    vertical-align: middle;
+    margin-left: 0.1em;
+}
+
 #exportPrefsLink {
     text-decoration: none;
     font-weight: bold

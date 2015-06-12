@@ -481,12 +481,25 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 						String studentId = (String) entry.getKey();
 						if(catMap.containsKey(sortColumnId)){
 							Map sortCat = (Map) catMap.get(sortColumnId);
+
+							boolean isEqualWeightAssignmentCategory = ((Category)sortCat.get("category")).isEqualWeightAssignments();
 							//break up the students into two categories: scores and no score
+							// First filter based on category type
+							if(isEqualWeightAssignmentCategory){
+								if(sortCat.containsKey("studentWeightedMean") && sortCat.get("studentWeightedMean") != null){
+									studentCatScore.put(studentId, (Double) sortCat.get("studentWeightedMean"));
+
+								}else{
+									emptyCatList.add(studentIdEnrRecMap.get(studentId));
+								}
+							} else {
 							if(sortCat.containsKey("studentMean") && sortCat.get("studentMean") != null){
 								studentCatScore.put(studentId, (Double) sortCat.get("studentMean"));
 							}else{
 								emptyCatList.add(studentIdEnrRecMap.get(studentId));
 							}
+						}
+
 						}
 					}
 				}

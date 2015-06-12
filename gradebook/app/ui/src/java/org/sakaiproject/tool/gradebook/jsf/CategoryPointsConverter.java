@@ -52,6 +52,7 @@ public class CategoryPointsConverter extends PointsConverter {
 		String formattedScore;
 		boolean notCounted = false;
 		Double studentMean = 0.0;
+		Double studentWeightedMean = 0.0;
 		Double studentTotalPointsEarned = 0.0;
 		Double studentTotalPointsPossible = 0.0;
 		Category cat = null;
@@ -59,6 +60,7 @@ public class CategoryPointsConverter extends PointsConverter {
 		if (value != null) {
 			if (value instanceof Map) {
 				studentMean = (Double) ((Map)value).get("studentMean");
+				studentWeightedMean = (Double) ((Map)value).get("studentWeightedMean");
 				studentTotalPointsEarned = (Double) ((Map)value).get("studentTotalPointsEarned");
 				studentTotalPointsPossible = (Double) ((Map)value).get("studentTotalPointsPossible");
 				
@@ -70,8 +72,11 @@ public class CategoryPointsConverter extends PointsConverter {
 			formattedScore = FacesUtil.getLocalizedString("overview_unassigned_cat_avg");
 		} else {
 			//display percentage
-			formattedScore = super.getAsString(context, component, studentMean) + "%";
-			
+			if(cat.isEqualWeightAssignments()) {
+				formattedScore = super.getAsString(context, component, studentWeightedMean) + "%";
+			} else {
+				formattedScore = super.getAsString(context, component, studentMean) + "%";
+			}
 			if(ServerConfigurationService.getBoolean("gradebook.roster.showCourseGradePoints", false)){
 				Gradebook gradebook = cat.getGradebook();
 				int gradeType = gradebook.getGrade_type();

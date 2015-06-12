@@ -235,6 +235,16 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         }
     }
 
+    public boolean getIsCategoryEqualWeightAssignments() {
+        Category category = assignment.getCategory();
+        if(category != null) {
+            boolean equalWeightAssignments = category.isEqualWeightAssignments();
+            return equalWeightAssignments;
+        } else {
+            return false;
+        }
+    }
+
     
 	protected void init() {
 		if (logger.isDebugEnabled()) logger.debug("loadData assignment=" + assignment + ", previousAssignment=" + previousAssignment + ", nextAssignment=" + nextAssignment);

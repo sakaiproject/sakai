@@ -24,26 +24,11 @@ package org.sakaiproject.tool.gradebook.business.impl;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.StaleObjectStateException;
-import org.hibernate.TransientObjectException;
+import org.hibernate.*;
 import org.sakaiproject.component.gradebook.GradebookServiceHibernateImpl;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingSpreadsheetNameException;
@@ -247,6 +232,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
 			    	stats.put("studentAverageScore", category.getAverageScore());
 			    	stats.put("studentAverageTotalPoints", category.getAverageTotalPoints());
 			    	stats.put("studentMean", category.getMean());
+				stats.put("studentWeightedMean", category.getWeightedMean());
 			    	stats.put("studentTotalPointsEarned", category.getTotalPointsEarned());
 			    	stats.put("studentTotalPointsPossible", category.getTotalPointsPossible());
 			    	
@@ -842,7 +828,7 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
      * @param studentId
      * @param gradebook
      * @param categories
-     * @param gradeRecsthe AssignmentGradeRecords for the given student
+     * @param gradeRecs - the AssignmentGradeRecords for the given student
      * @param countedAssigns - the Assignments in this gradebook that are counted toward the course grade. 
      * use {@link #getCountedAssignments(Session, Long)} to retrieve this list
      * @return the total points earned that count toward the course grade.
@@ -1307,7 +1293,9 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
                     if(assignment.getUngraded())
                         assignment.setNotCounted(true);
                     // for drop score categories pointsPossible comes from the category
-                    assignment.setPointsPossible(category.getItemValue());
+                    if(!category.isEqualWeightAssignments()) {
+                        assignment.setPointsPossible(category.getItemValue());
+                    }
                     updateAssignment(assignment, session);
                 }
                 return null;
@@ -1331,7 +1319,9 @@ public abstract class GradebookManagerHibernateImpl extends GradebookServiceHibe
             for(Iterator iter = assignments.iterator(); iter.hasNext();) {
                 Assignment assignment = (Assignment) iter.next();
                 String oldTitle = (String)oldTitles.get(assignment.getId());
-                assignment.setPointsPossible(category.getItemValue());
+				if(!category.isEqualWeightAssignments()) {
+					assignment.setPointsPossible(category.getItemValue());
+				}
                 if(synchronizer != null && oldTitle != null  && !synchronizer.isProjectSite() && !assignment.getUngraded()) {
                     synchronizer.updateAssignment(oldTitle, assignment.getName(), assignment.getGradebook().getGrade_type());
                 }

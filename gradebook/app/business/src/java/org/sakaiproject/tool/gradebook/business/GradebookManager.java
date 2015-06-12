@@ -425,10 +425,11 @@ public interface GradebookManager {
      * @param pointValue
      * @param relativeWeight
      * @param is_extra_credit
+     * @param is_equal_weight_assignments Are the assignments in the category weighted equally
     * @return id of the new category
     * @throws ConflictingAssignmentNameException StaleObjectModificationException
     */
-    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit) 
+    public Long createCategory(final Long gradebookId, final String name, final Double weight, final Integer drop_lowest, final Integer dropHighest, final Integer keepHighest, final Boolean is_extra_credit, final Boolean is_equal_weight_assignments)
     throws ConflictingCategoryNameException, StaleObjectModificationException;
     
     /**method to get all categories for a gradebook

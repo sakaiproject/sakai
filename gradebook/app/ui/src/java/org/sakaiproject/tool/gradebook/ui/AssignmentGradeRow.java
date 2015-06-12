@@ -39,6 +39,7 @@ public class AssignmentGradeRow implements Serializable {
     private List eventRows;
     private String eventsLogTitle;
     private boolean userCanGrade;
+	private Double overallWeight = null;
     // ScoringAgent integration
     private boolean scoringComponentEnabled;
     private String scoringComponentUrl;
@@ -192,6 +193,14 @@ public class AssignmentGradeRow implements Serializable {
 	 */
 	public void setRetrieveScoreUrl(String retrieveScoreUrl) {
 		this.retrieveScoreUrl = retrieveScoreUrl;
+	}
+	
+	public void setOverallWeight(Double weight) {
+		this.overallWeight = weight;
+	}
+	
+	public Double getOverallWeight(){
+		return this.overallWeight;
 	}
 
 }
