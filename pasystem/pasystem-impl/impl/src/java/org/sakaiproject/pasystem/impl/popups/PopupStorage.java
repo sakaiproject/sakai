@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.sakaiproject.pasystem.api.AcknowledgementType;
 import org.sakaiproject.pasystem.api.Acknowledger;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.Popups;
@@ -278,13 +279,13 @@ public class PopupStorage implements Popups, Acknowledger {
     }
 
     @Override
-    public void acknowledge(final String uuid, final String userEid, final String acknowledgementType) {
+    public void acknowledge(final String uuid, final String userEid, final AcknowledgementType acknowledgementType) {
         new AcknowledgementStorage(AcknowledgementStorage.NotificationType.POPUP).acknowledge(uuid, userEid, acknowledgementType);
     }
 
     @Override
     public void acknowledge(final String uuid, final String userEid) {
-        acknowledge(uuid, userEid, Acknowledger.TEMPORARY);
+        acknowledge(uuid, userEid, AcknowledgementType.TEMPORARY);
     }
 
 }

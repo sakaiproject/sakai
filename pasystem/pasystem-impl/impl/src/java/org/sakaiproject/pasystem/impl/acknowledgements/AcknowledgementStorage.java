@@ -30,6 +30,7 @@ import org.sakaiproject.pasystem.api.Acknowledger;
 import org.sakaiproject.pasystem.impl.common.DB;
 import org.sakaiproject.pasystem.impl.common.DBAction;
 import org.sakaiproject.pasystem.impl.common.DBConnection;
+import org.sakaiproject.pasystem.api.AcknowledgementType;
 
 /**
  * Mark a popup or banner as acknowledged by a user.
@@ -50,18 +51,16 @@ public class AcknowledgementStorage {
     /**
      * Record the fact that a user has acknowledged a particular popup/banner.
      */
-    public void acknowledge(final String uuid, final String userEid, final String acknowledgementType) {
+    public void acknowledge(final String uuid, final String userEid, final AcknowledgementType acknowledgementType) {
         DB.transaction
                 ("Acknowledge a notification on behalf of a user",
                         new DBAction<Void>() {
                             @Override
                             public Void call(DBConnection db) throws SQLException {
-                                String state = (Acknowledger.TEMPORARY.equals(acknowledgementType)) ? Acknowledger.TEMPORARY : Acknowledger.PERMANENT;
-
                                 db.run("INSERT INTO " + tableName + " (uuid, user_eid, state, dismiss_time) values (?, ?, ?, ?)")
                                         .param(uuid)
                                         .param(userEid.toLowerCase())
-                                        .param(state)
+                                        .param(acknowledgementType.dbValue())
                                         .param(System.currentTimeMillis())
                                         .executeUpdate();
 
@@ -82,7 +81,7 @@ public class AcknowledgementStorage {
                             @Override
                             public Void call(DBConnection db) throws SQLException {
                                 db.run("DELETE FROM " + tableName + " WHERE state = ? AND user_eid = ?")
-                                        .param(Acknowledger.TEMPORARY)
+                                        .param(AcknowledgementType.TEMPORARY.dbValue())
                                         .param(userEid)
                                         .executeUpdate();
 

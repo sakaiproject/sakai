@@ -86,11 +86,11 @@ public class Banner implements Comparable<Banner> {
     /**
      * Determine the default acknowledgement type for this banner.
      */
-    public String calculateAcknowledgementType() {
+    public AcknowledgementType calculateAcknowledgementType() {
         if (type.equals(BannerType.MEDIUM)) {
-            return Acknowledger.TEMPORARY;
+            return AcknowledgementType.TEMPORARY;
         } else {
-            return Acknowledger.PERMANENT;
+            return AcknowledgementType.PERMANENT;
         }
     }
 

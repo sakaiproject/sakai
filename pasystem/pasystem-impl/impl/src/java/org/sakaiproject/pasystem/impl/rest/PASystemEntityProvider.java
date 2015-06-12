@@ -40,6 +40,7 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.pasystem.api.Acknowledger;
+import org.sakaiproject.pasystem.api.AcknowledgementType;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -115,7 +116,7 @@ public class PASystemEntityProvider implements EntityProvider, AutoRegisterEntit
         if (acknowledgement == null) {
             acknowledger.acknowledge(uuid, eid);
         } else {
-            acknowledger.acknowledge(uuid, eid, acknowledgement);
+            acknowledger.acknowledge(uuid, eid, AcknowledgementType.of(acknowledgement));
         }
                 
         result.put("status", "SUCCESS");

@@ -33,6 +33,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.pasystem.api.Acknowledger;
+import org.sakaiproject.pasystem.api.AcknowledgementType;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.Banners;
 import org.sakaiproject.pasystem.api.PASystemException;
@@ -117,7 +118,7 @@ public class BannerStorage implements Banners, Acknowledger {
                 " (dismissed.state is NULL OR" +
 
                 // Or was dismissed temporarily
-                "  (dismissed.state = 'temporary'))" +
+                "  (dismissed.state = ?))" +
 
                 " ORDER BY start_time");
 
@@ -130,10 +131,11 @@ public class BannerStorage implements Banners, Acknowledger {
                                 try (DBResults results = db.run(sql)
                                         .param((userEid == null) ? "" : userEid.toLowerCase())
                                         .param((userEid == null) ? "" : userEid.toLowerCase())
+                                        .param(AcknowledgementType.TEMPORARY.dbValue())
                                         .executeQuery()) {
                                     for (ResultSet result : results) {
                                         boolean hasBeenDismissed =
-                                                (Acknowledger.TEMPORARY.equals(result.getString("dismissed_state")) &&
+                                                (AcknowledgementType.TEMPORARY.dbValue().equals(result.getString("dismissed_state")) &&
                                                         (System.currentTimeMillis() - result.getLong("dismissed_time")) < getTemporaryTimeoutMilliseconds());
 
                                         Banner banner = new Banner(result.getString("uuid"),
@@ -241,11 +243,11 @@ public class BannerStorage implements Banners, Acknowledger {
     }
 
     @Override
-    public void acknowledge(final String uuid, final String userEid, final String acknowledgementType) {
+    public void acknowledge(final String uuid, final String userEid, AcknowledgementType acknowledgementType) {
         new AcknowledgementStorage(AcknowledgementStorage.NotificationType.BANNER).acknowledge(uuid, userEid, acknowledgementType);
     }
 
-    private String calculateAcknowledgementType(String uuid) {
+    private AcknowledgementType calculateAcknowledgementType(String uuid) {
         Optional<Banner> banner = getForId(uuid);
 
         if (banner.isPresent()) {

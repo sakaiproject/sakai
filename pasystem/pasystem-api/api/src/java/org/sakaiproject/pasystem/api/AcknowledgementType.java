@@ -24,17 +24,14 @@
 
 package org.sakaiproject.pasystem.api;
 
-/**
- * Methods implemented by things that can be marked as acknowledged (popups and banners).
- */
-public interface Acknowledger {
-    /**
-     * Mark an item as acknowledged with a type-appropriate acknowledgement type.
-     */
-    public void acknowledge(final String uuid, final String userEid);
+public enum AcknowledgementType {
+    TEMPORARY, PERMANENT;
 
-    /**
-     * Mark an item as acknowledged with a specific acknowledgement type.
-     */
-    public void acknowledge(final String uuid, final String userEid, final AcknowledgementType acknowledgementType);
+    public String dbValue() {
+        return toString().toLowerCase();
+    }
+
+    public static AcknowledgementType of(String value) {
+        return valueOf(value.toUpperCase());
+    }
 }
