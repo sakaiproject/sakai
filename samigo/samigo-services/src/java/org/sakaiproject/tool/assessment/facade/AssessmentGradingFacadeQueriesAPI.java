@@ -214,6 +214,8 @@ public interface AssessmentGradingFacadeQueriesAPI
 
   public List getPublishedItemIds(Long assessmentGradingId);
   
+  public List getItemGradingIds(Long assessmentGradingId);
+  
   public HashSet getItemSet(Long publishedAssessmentId, Long sectionId);
   
   public Long getTypeId(Long itemGradingId);
