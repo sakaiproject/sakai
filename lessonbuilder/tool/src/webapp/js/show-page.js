@@ -1944,7 +1944,9 @@ $(function() {
 			$(this).closest('li').prev().addClass('right-col-bottom');
 			$(this).find('img').attr("src","/lessonbuilder-tool/images/merge-icon.gif");
 			$(this).attr('title',msg("simplepage.join-items"));
+			$('<li role="listitem" class="item offscreen"><div><h3>' + '' + '</h3></div></li>').insertBefore($(this).closest('li'));
 		    } else {
+		        $(this).closest('li').prev().remove();
 			$(this).closest('li').removeClass('right-col-top');
 			$(this).closest('li').prev().removeClass('right-col-bottom');
 			$(this).find('img').attr("src","/lessonbuilder-tool/images/split-icon.gif");
