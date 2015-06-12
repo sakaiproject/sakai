@@ -83,6 +83,20 @@ function disableIt()
     }
   }
 }
+
+$(document).ready(function(){
+  $("a.sam-scoretable-deleteattempt").each(function(){
+    this.existingOnclick = this.onclick;
+    this.onclick = null;
+    $(this).click(function(){
+      if ( confirm("Are you sure you want to delete this attempt?") ) {
+        this.existingOnclick();
+      } else {
+        return false;
+      }
+    });
+  });
+});
 </script>
 
 <!-- content... -->
@@ -291,6 +305,30 @@ function disableIt()
   <!-- note that we will have to hook up with the back end to get N at a time -->
 <div class="table-responsive">
   <h:dataTable id="totalScoreTable" value="#{totalScores.agents}" var="description" styleClass="table table-striped table-bordered" columnClasses="textTable">
+
+	<!-- Add Submission Attempt Deleter-->
+	<h:column rendered="true">
+     <f:facet name="header">
+       <h:outputText value="Delete" rendered="true" />
+     </f:facet>
+     <h:panelGroup> <span class="tier2">
+       <h:outputText value="<a name=\"" escape="false" />
+       <h:outputText value="#{description.lastInitial}" />
+       <h:outputText value="\"></a>" escape="false" />
+
+       <h:commandLink styleClass="sam-scoretable-deleteattempt" title="delete attempt" action="totalScores" immediate="true" rendered="true" >
+         <h:outputText value="X" rendered="#{description.submittedDate!=null &&  description.assessmentGradingId ne '-1'}" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.GrantSubmissionListener" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.ResetTotalScoreListener" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.evaluation.TotalScoreListener" />
+         <f:actionListener  type="org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener" />
+         <f:param name="studentid" value="#{description.idString}" />
+         <f:param name="publishedIdd" value="#{totalScores.publishedId}" />
+         <f:param name="gradingData" value="#{description.assessmentGradingId}" />
+       </h:commandLink>
+</span>
+     </h:panelGroup>
+    </h:column>
     
     <!-- NAME/SUBMISSION ID -->
     <h:column rendered="#{totalScores.anonymous eq 'false' && totalScores.sortType ne 'lastName'}">
