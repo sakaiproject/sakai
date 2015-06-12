@@ -615,8 +615,14 @@ ul.feedbackPanel {
   font-size: 1.4em;
 }
 
-.has-comment {
-	
+.has-comment > div:after {
+  font-family: "gradebook-icons";
+  content: '\f075';
+  color: #CCC;
+  position: absolute;
+  right: 5px;
+  top: 0;
+  font-size: 1em;
 }
 
 /** temporary override for page width **/
