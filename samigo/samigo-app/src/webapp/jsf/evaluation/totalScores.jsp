@@ -948,8 +948,6 @@ function disableIt()
    <h:inputTextarea value="#{evaluationMessages.requires_student_submission}" rows="3" styleClass="disabled" disabled="true" cols="30" rendered="#{(totalScores.anonymous eq 'false' || description.assessmentGradingId ne '-1') && description.attemptDate == null}"/>
     </h:column>
   </h:dataTable>
-<h:outputText value="#{author.updateFormTime}" />
-<h:inputHidden value="#{author.currentFormTime}" />
 
 <h:outputText value="#{evaluationMessages.mult_sub_highest}" rendered="#{totalScores.scoringOption eq '1'&& totalScores.multipleSubmissionsAllowed eq 'true' }"/>
 <h:outputText value="#{evaluationMessages.mult_sub_last}" rendered="#{totalScores.scoringOption eq '2' && totalScores.multipleSubmissionsAllowed eq 'true' }"/>
