@@ -56,3 +56,12 @@ If you have any questions, please join the Sakai developer mailing list: To subs
 
 To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
 https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists
+
+## Community supported versions
+[Sakai 10](https://confluence.sakaiproject.org/display/DOC/Sakai+10+Release+Notes) is the recommended version for production use.
+
+[Sakai 2.9](https://confluence.sakaiproject.org/display/DOC/Sakai+2.9+release+notes) is still supported, almost solely for security patches at this point in time.
+
+## Under Development
+[Sakai 11] (https://docs.google.com/presentation/d/1OaF04Kli51nYtsLw_0plmU829NarYUDtQkBnFJtB250/edit#slide=id.p4) is under development. Expected release is Q4 2015.
+
