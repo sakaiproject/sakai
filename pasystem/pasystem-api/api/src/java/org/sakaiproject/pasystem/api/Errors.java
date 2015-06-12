@@ -65,7 +65,7 @@ public class Errors {
     }
 
     public List<Error> toList() {
-        return new ArrayList(errors);
+        return new ArrayList<Error>(errors);
     }
 
     public Map<String, String> toMap() {
