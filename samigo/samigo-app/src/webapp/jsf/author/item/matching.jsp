@@ -165,7 +165,7 @@
       </h:column>
 
      </h:dataTable>
-<h:outputLabel value="<p>#{authorMessages.no_matching_pair}</p>" rendered="#{itemauthor.currentItem.matchItemBeanList eq '[]'}"/>
+<h:outputLabel value="<p>#{authorMessages.no_matching_pair}</p>" escape="false" rendered="#{itemauthor.currentItem.matchItemBeanList eq '[]'}"/>
 
 </div>
         <!-- WYSIWYG -->

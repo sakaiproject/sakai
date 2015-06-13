@@ -46,18 +46,20 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.entity.api.Edit;
 import org.sakaiproject.entity.api.Entity;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.HttpAccess;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.exception.TypeException;
 //permission convert
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -114,6 +116,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
   /** Dependency: a SyllabusManager. */
   private SyllabusManager syllabusManager;
   private ContentHostingService contentHostingService;
+  private EntityManager entityManager;
  
   /** Dependency: a logger component. */
   private Log logger = LogFactory.getLog(SyllabusServiceImpl.class);
@@ -140,7 +143,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 	  
 	  edit.setAction(new SiteEmailNotificationSyllabus());
 
-	  EntityManager.registerEntityProducer(this, REFERENCE_ROOT);	
+	  entityManager.registerEntityProducer(this, REFERENCE_ROOT);	
 	}
 
 	public void destroy()
@@ -167,6 +170,14 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+	
+	public EntityManager getEntityManager() {
+		return entityManager;
+	}
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
 	}
  
   /*
@@ -379,26 +390,10 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
       {
         Element siteElement = doc.createElement(SITE_ARCHIVE);
         siteElement.setAttribute(SITE_NAME, SiteService.getSite(siteId).getId());
-        siteElement.setAttribute(SITE_ID, SiteService.getSite(siteId)
-            .getTitle());
-//sakai2        Iterator pageIter = getSyllabusPages(siteId);
-//        if (pageIter != null)
-//        {
-//          while (pageIter.hasNext())
-//          {
-//            String page = (String) pageIter.next();
-//            if (page != null)
-//            {
-//              Element pageElement = doc.createElement(PAGE_ARCHIVE);
-//              pageElement.setAttribute(PAGE_ID, page);
-//sakai2              pageElement.setAttribute(PAGE_NAME, SiteService.getSite(siteId)
-//sakai2                  .getPage(page).getTitle());
-//sakai2              SyllabusItem syllabusItem = syllabusManager
-//                  .getSyllabusItemByContextId(page);
-   						SyllabusItem syllabusItem = syllabusManager
-   						.getSyllabusItemByContextId(siteId);
-              if (syllabusItem != null)
-              {
+        siteElement.setAttribute(SITE_ID, SiteService.getSite(siteId).getTitle());
+        SyllabusItem syllabusItem = syllabusManager.getSyllabusItemByContextId(siteId);
+        if (syllabusItem != null)
+        {
                 Element syllabus = doc.createElement(SYLLABUS);
                 syllabus.setAttribute(SYLLABUS_ID, syllabusItem
                     .getSurrogateKey().toString());
@@ -438,6 +433,26 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                               .getEmailNotification());
                       Element asset = doc.createElement(SYLLABUS_DATA_ASSET);
 
+                      Set<SyllabusAttachment> syllabusAttachments = syllabusManager.getSyllabusAttachmentsForSyllabusData(syllabusData);
+                      for (SyllabusAttachment s : syllabusAttachments) {
+                          ContentResource cr = null;
+                          try {
+                                  cr = contentHostingService.getResource(s.getAttachmentId());
+                          } catch (PermissionException e) {
+                                  logger.warn("Permission error fetching resource: " + s.getAttachmentId());
+                          } catch (TypeException e) {
+                        	  logger.warn("TypeException error fetching resource: " + s.getAttachmentId());
+                          }
+
+                          if (cr != null) {
+                                  Reference ref = entityManager.newReference(cr.getReference());
+                                  attachments.add(ref);
+                                  Element a = doc.createElement("attachment");
+                                  syllabus_data.appendChild(a);
+                                  a.setAttribute("relative-url", ref.getReference());
+                          }
+                      }
+
                       try
                       {
                         String encoded = new String(Base64.encodeBase64(syllabusData.getAsset().getBytes()),"UTF-8");
@@ -454,13 +469,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 
                     }
                   }
-//sakai2                }
-//                pageElement.appendChild(syllabus);
-//              }
-//              siteElement.appendChild(pageElement);
-//            }
 
-            //sakai2
             siteElement.appendChild(syllabus);      
           }
           results.append("archiving " + getLabel() + ": (" + syDataCount
@@ -576,13 +585,11 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                             Node child2 = allSyllabiNodes.item(j);
                             if (child2.getNodeType() == Node.ELEMENT_NODE)
                             {
-
                               Element syDataElement = (Element) child2;
-                              if (syDataElement.getTagName().equals(
-                                  SYLLABUS_DATA))
+                              if (SYLLABUS_DATA.equals(syDataElement.getTagName()))
                               {
-                              	List attachStringList = new ArrayList();
-                              	
+                                List<String> attachStringList = new ArrayList<String>();
+
                                 syDataCount = syDataCount + 1;
                                 SyllabusData syData = new SyllabusDataImpl();
                                 syData.setView(syDataElement
@@ -595,8 +602,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                                     .setEmailNotification(syDataElement
                                         .getAttribute(SYLLABUS_DATA_EMAIL_NOTIFICATION));
 
-                                NodeList allAssetNodes = syDataElement
-                                    .getChildNodes();
+                                NodeList allAssetNodes = syDataElement.getChildNodes();
                                 int lengthSyData = allAssetNodes.getLength();
                                 for (int k = 0; k < lengthSyData; k++)
                                 {
@@ -604,8 +610,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                                   if (child3.getNodeType() == Node.ELEMENT_NODE)
                                   {
                                     Element assetEle = (Element) child3;
-                                    if (assetEle.getTagName().equals(
-                                        SYLLABUS_DATA_ASSET))
+                                    if (SYLLABUS_DATA_ASSET.equals(assetEle.getTagName()))
                                     {
                                       String charset = trimToNull(assetEle.getAttribute("charset"));
                                       if (charset == null) charset = "UTF-8";
@@ -630,86 +635,56 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
                                       ret = trimToNull(body);
                                       
                                       syData.setAsset(ret);
-/*decode
-                                      NodeList assetStringNodes = assetEle
-                                          .getChildNodes();
-                                      int lengthAssetNodes = assetStringNodes
-                                          .getLength();
-                                      for (int l = 0; l < lengthAssetNodes; l++)
-                                      {
-                                        Node child4 = assetStringNodes.item(l);
-                                        if (child4.getNodeType() == Node.TEXT_NODE)
-                                        {
-                                          Text textNode = (Text) child4;
-                                          syData.setAsset(textNode.getData());
-                                        }
-                                      }*/
                                     }
-                                    if (assetEle.getTagName().equals(
-                                        SYLLABUS_ATTACHMENT))
+                                    else if (SYLLABUS_ATTACHMENT.equals(assetEle.getTagName()))
                                     {
-                                    	Element attachElement = (Element) child3;
-        															String oldUrl = attachElement.getAttribute("relative-url");
-        															if (oldUrl.startsWith("/content/attachment/"))
-        															{
-        																String newUrl = (String) attachmentNames.get(oldUrl);
-        																if (newUrl != null)
-        																{
-        																	////if (newUrl.startsWith("/attachment/"))
-        																		////newUrl = "/content".concat(newUrl);
-
-        																	attachElement.setAttribute("relative-url", Validator
-        																			.escapeQuestionMark(newUrl));
-        																	
-        																	attachStringList.add(Validator.escapeQuestionMark(newUrl));
-
-        																}
-        															}
-        															else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
-        															{
-        																String newUrl = "/content/group/" + siteId
-        																		+ oldUrl.substring(15 + fromSiteId.length());
-        																attachElement.setAttribute("relative-url", Validator
-        																		.escapeQuestionMark(newUrl));
-        																
-        																attachStringList.add(Validator.escapeQuestionMark(newUrl));
-        															}
+                                      Element attachElement = (Element) child3;
+                                      String oldUrl = attachElement.getAttribute("relative-url");
+                                      if (oldUrl.startsWith("/content/attachment/"))
+                                      {
+                                        String newUrl = (String) attachmentNames.get(oldUrl);
+                                        if (newUrl != null)
+                                        {
+                                          attachElement.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
+                                          attachStringList.add(Validator.escapeQuestionMark(newUrl));
+                                        }
+                                      }
+                                      else if (oldUrl.startsWith("/content/group/" + fromSiteId + "/"))
+                                      {
+                                        String newUrl = "/content/group/" + siteId + oldUrl.substring(15 + fromSiteId.length());
+                                        attachElement.setAttribute("relative-url", Validator.escapeQuestionMark(newUrl));
+                                        attachStringList.add(Validator.escapeQuestionMark(newUrl));
+                                      }
                                     }
                                   }
                                 }
 
-                                int initPosition = syllabusManager
-                                    .findLargestSyllabusPosition(syllabusItem)
-                                    .intValue() + 1;
-                                syData = syllabusManager
-                                    .createSyllabusDataObject(
-                                        syData.getTitle(), (new Integer(
-                                            initPosition)), syData.getAsset(),
+                                int initPosition = syllabusManager.findLargestSyllabusPosition(syllabusItem).intValue() + 1;
+                                syData = syllabusManager.createSyllabusDataObject(syData.getTitle(), (new Integer(initPosition)), syData.getAsset(),
                                         syData.getView(), syData.getStatus(),
                                         syData.getEmailNotification(), syData.getStartDate(), syData.getEndDate(), syData.isLinkCalendar(),
                                         syData.getCalendarEventIdStartDate(), syData.getCalendarEventIdEndDate());
-                            		Set attachSet = new TreeSet();
-                            		for(int m=0; m<attachStringList.size(); m++)
-                            		{
-                            			ContentResource cr = contentHostingService.getResource((String)attachStringList.get(m));
-                            			ResourceProperties rp = cr.getProperties();
-//                            			SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
-//                            					(String)attachStringList.get(m),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-                            			SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
-                          					cr.getId(),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-                            			tempAttach.setName(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
-                            			tempAttach.setSize(rp.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
-                            			tempAttach.setType(rp.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
-                            			tempAttach.setUrl(cr.getUrl());
-                            			tempAttach.setAttachmentId(cr.getId());
-                            			
-                            			attachSet.add(tempAttach);
-                            		}
-                            		syData.setAttachments(attachSet);
-                                
-                                syllabusManager.addSyllabusToSyllabusItem(
-                                    syllabusItem, syData, false);
 
+                                Set<SyllabusAttachment> attachSet = new TreeSet<SyllabusAttachment>();
+                                for(int m=0; m<attachStringList.size(); m++)
+                                {
+                                  ContentResource cr = contentHostingService.getResource((String)attachStringList.get(m));
+                                  ResourceProperties rp = cr.getProperties();
+//                                SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
+//                                (String)attachStringList.get(m),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                                  SyllabusAttachment tempAttach = syllabusManager.createSyllabusAttachmentObject(
+                                    cr.getId(),rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                                  tempAttach.setName(rp.getProperty(ResourceProperties.PROP_DISPLAY_NAME));
+                                  tempAttach.setSize(rp.getProperty(ResourceProperties.PROP_CONTENT_LENGTH));
+                                  tempAttach.setType(rp.getProperty(ResourceProperties.PROP_CONTENT_TYPE));
+                                  tempAttach.setUrl(cr.getUrl());
+                                  tempAttach.setAttachmentId(cr.getId());
+
+                                  attachSet.add(tempAttach);
+                                }
+                                syData.setAttachments(attachSet);
+
+                                syllabusManager.addSyllabusToSyllabusItem(syllabusItem, syData, false);
                               }
                             }
                           }
@@ -1227,7 +1202,7 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 												toSyData.getCalendarEventIdStartDate(), toSyData.getCalendarEventIdEndDate());
 						Set attachSet = syllabusManager.getSyllabusAttachmentsForSyllabusData(toSyData);
 						Iterator attachIter = attachSet.iterator();
-						Set newAttachSet = new TreeSet();
+						Set<SyllabusAttachment> newAttachSet = new TreeSet<SyllabusAttachment>();
 						while(attachIter.hasNext())
 						{
 							SyllabusAttachment thisAttach = (SyllabusAttachment)attachIter.next();

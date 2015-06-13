@@ -114,8 +114,8 @@
 			   </h2>
 		       </div>
 	     <div class="action">
-		 <a style="background:none" href="#" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false"  role="note"></a> |
-		 <a style="background:none" href="#" rsf:id="show-pages" id="show-pages" role="note"></a>
+		 <a href="#" class="lessonsToolButton" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false"  role="note"></a>
+		 <a href="#" class="lessonsToolButton" rsf:id="show-pages" id="show-pages" role="note"></a>
 
 		 <span rsf:id="gradingSpan" class="gradingarea">
 		     <a href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
@@ -144,9 +144,9 @@
 	
 		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="clear:both;z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
-			<ul id="toolbar" style="padding:2px; margin:0px">
+			<ul id="toolbar" style="padding:2px; margin:0px; text-align:right">
 				
-				<li class="dropdown" id="dropdownc" style="z-index:900">
+				<li class="dropdown" id="dropdownc" style="float:left; margin-top:0px !important; z-index:900">
 					<span>
 					    <a href="#" onclick="return false;">
 					        <span rsf:id="msg=simplepage.add-content" ></span>
@@ -154,7 +154,7 @@
 					    </a>				
 					</span>
 				</li>
-				<li class="dropdown" rsf:id="dropdown" id="dropdown" style="z-index:900">
+				<li class="dropdown" rsf:id="dropdown" id="dropdown" style="float:left; margin-top: 0px !important; z-index:900">
 					<span>
 					    <a href="#" onclick="return false;">
 					        <span rsf:id="msg=simplepage.more-tools" ></span>
@@ -163,18 +163,18 @@
 					</span>
 				</li>
                 
-		<li rsf:id="remove-student"><a href="#" role="menuitem" rsf:id="remove-page-student" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a></li>
+		<li rsf:id="remove-student" style="float:left; margin-top: 0px !important"><a href="#" role="menuitem" rsf:id="remove-page-student" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a></li>
 
-                <li  style="float:right">
+                <li><span><a href="#" role="menuitem" rsf:id="reorder"></a></span></li>
+                <li><span><a href="#" role="menuitem" rsf:id="help" target="_blank"></a></span></li>
+                <li><span><a href="#" role="menuitem" rsf:id="permissions"></a></span></li>
+                <li>
                     <span rsf:id="title-descrip">
                     <a href="#" role="menuitem" rsf:id="edit-title" id="edit-title"><span><img src="/library/image/silk/cog.png"/></span><span class="skip" rsf:id="edit-title-text"></span></a>
                     </span>
                 </li>
-                
-                <li style="float:right"><span><a href="#" role="menuitem" rsf:id="permissions"></a></span></li>
-                <li style="float:right"><span><a href="#" role="menuitem" rsf:id="help" target="_blank"></a></span></li>
-                <li style="float:right"><span><a href="#" role="menuitem" rsf:id="reorder"></a></span></li>
-			</ul>
+			</ul>                
+
 		</div>
 		
 		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink" role="menu" aria-label="Add content menu">
@@ -288,7 +288,9 @@
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
                                     <ul class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
                 <li rsf:id="item:" id="item" role="listitem" class="item">
-                    <div rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"></a></div></div>
+		    <div rsf:id="section-td"><h3 rsf:id="msg=simplepage.break-here"></h3></div>
+                    <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><img rsf:id="group-icon" /></a></div></div>
+                    <div rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"><img src="../images/edit-icon.gif"/></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                         <div class="statusCol">
                             <img class="status-image icon-image" rsf:id="status" />
@@ -343,12 +345,14 @@
                         <span rsf:id="item-path" class="item-path"></span>
                       </div>
                     </div>
-                    <div rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"></a></div></div>
+                    <div rsf:id="grouptext-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" rsf:id="grouptext-link"><img rsf:id="grouptext-icon"/></a></div></div>
+                    <div rsf:id="edittext-td" class="edit-col"><div><a href="#" class="usebutton itemLink" rsf:id="edit-link"><img src="../images/edit-icon.gif"/></a></div></div>
                     <div rsf:id="itemSpan" class="right-col">
                       <div rsf:id="item-groups-titles-text" class="item-group-titles"></div>
                       <div rsf:id="content" class="textbox"></div>
                     </div>
-                    <div rsf:id="editmm-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"></a></div></div>
+                    <div rsf:id="groupmm-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="iframe-group"><img rsf:id="iframe-icon"/></a></div></div>
+                    <div rsf:id="editmm-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="iframe-edit"><img src="../images/edit-icon.gif"/></a></div></div>
                     <div rsf:id="iframeSpan" class="hideOnDialog right-col"><div>
                       <div rsf:id="item-group-titles2" class="item-group-titles"></div>
 		      <div rsf:id="iframe-link-div">
@@ -383,7 +387,7 @@
 
                     <div rsf:id="notAvailableText"></div>
     
-                    <div rsf:id="imageSpan"><div>
+                    <div rsf:id="imageSpan" class="right-col image-col"><div>
                         <div rsf:id="item-group-titles3" class="item-group-titles"></div>
                         <img rsf:id="image" class="multimedia" />
                         <div style="display:none" rsf:id="imageHeight" class="mm-height"></div>
@@ -397,7 +401,8 @@
                       </div>
                     </div>
 
-                    <div rsf:id="youtube-td" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"></a></div></div>
+                    <div rsf:id="youtubegroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="youtube-group"><img rsf:id="youtubegroup-icon"/></a></div></div>
+                    <div rsf:id="youtube-td" class="edit-col"><div><a href="#" class="usebutton edit-youtube" onclick="return false" rsf:id="youtube-edit"><img src="../images/edit-icon.gif"/></a></div></div>
                     <div rsf:id="youtubeSpan"  id="youtubeSpan"  class="hideOnDialog right-col"><div>
                         <div rsf:id="item-group-titles4" class="item-group-titles"></div>
                         
@@ -414,7 +419,8 @@
                      <span style="display:none" rsf:id="item-path" class="item-path"></span>
                     </div>
 
-                    <div rsf:id="movie-td" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"></a></div></div>
+                    <div rsf:id="moviegroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-movie"><img rsf:id="icon-movie"/></a></div></div>
+                    <div rsf:id="movie-td" class="edit-col"><div><a href="#" class="usebutton edit-movie" onclick="return false" rsf:id="edit-movie"><img src="../images/edit-icon.gif"/></a></div></div>
                     <div rsf:id="movieSpan" class="hideOnDialog right-col"><div>
                         <div rsf:id="item-group-titles5" class="item-group-titles"></div>
 			<div rsf:id="movie-link-div">
@@ -449,7 +455,8 @@
                     </div>
 
 
-                    <div rsf:id="comments-td" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"></a></div></div>
+                    <div rsf:id="commentsgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-comments"></a><img rsf:id="icon-comments"/></div></div>
+                    <div rsf:id="comments-td" class="edit-col"><div><a href="#" class="usebutton edit-comments" onclick="return false" rsf:id="edit-comments"><img src="../images/edit-icon.gif"/></a></div></div>
                     
                     <div rsf:id="commentsSpan" class="commentsCell right-col">
                             <p rsf:id="missing-prereqs" class="instruction"></p>
@@ -493,7 +500,8 @@
                         <span style="display:none" rsf:id="commentsMaxPoints" class="commentsMaxPoints"></span>
                     </div>
                     
-                    <div rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"></a></div></div>
+                    <div rsf:id="studentgroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-student"><img rsf:id="icon-student"/></a></div></div>
+                    <div rsf:id="student-td" class="edit-col"><div><a href="#" class="usebutton edit-student" onclick="return false" rsf:id="edit-student"><img src="../images/edit-icon.gif"/></a></div></div>
                     
                     <div rsf:id="studentSpan" class="right-col">
                             <span rsf:id="student-missing-prereqs"></span>
@@ -596,7 +604,8 @@
 		      </div>
 		    </div>
 
-                    <div rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"></a></div></div>
+                    <div rsf:id="questiongroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-question"><img rsf:id="icon-question"/></a></div></div>
+                    <div rsf:id="question-td" class="edit-col"><div><a href="#" class="usebutton edit-question" onclick="return false" rsf:id="edit-question"><img src="../images/edit-icon.gif"/></a></div></div>
                     
                     <div rsf:id="questionSpan" class="right-col">
                         <div class="questionDiv" rsf:id="questionDiv">
@@ -761,6 +770,8 @@
 			  <p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
 			  <p rsf:id="msg=simplepage.add_caption" id="simplepage.add_caption"></p>
 			  <p rsf:id="msg=simplepage.change_caption" id="simplepage.change_caption"></p>
+			  <p rsf:id="msg=simplepage.join-items" id="simplepage.join-items"></p>
+			  <p rsf:id="msg=simplepage.break-items" id="simplepage.break-items"></p>
 			  <p rsf:id="siteid" id="siteid"></p>
 			  <p rsf:id="locale" id="locale"></p>
 			</div>
@@ -891,6 +902,11 @@
                     
                     <input type="hidden" rsf:id="item-id" id="item-id" />
                     
+                    <p class="checkbox">
+                      <input type="checkbox" name="item-break" id="item-break" rsf:id="item-break" />
+                      <label for="item-break"><span rsf:id="msg=simplepage.break-above"></span></label>
+                    </p>
+
                     <div rsf:id="permDiv" class="">
                          <div id="prereqstuff">
                              <p class="checkbox">
@@ -999,7 +1015,7 @@
 
 			<input type="button" class="bold" id="mm-test-tryother" rsf:id="mm-test-tryother" />
                         <input class="bold" type="submit" id="mm-test" rsf:id="mm-test" />
-                        <input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />
+c                        <input class="bold" type="submit" id="mm-add-item" rsf:id="mm-add-item" />
 			<input type="button" class="bold mm-test-reset" rsf:id="mm-test-start-over" />
                         <input type="submit" rsf:id="mm-cancel" onclick="closeAddMultimediaDialog(); return false" />
                         <input type="hidden" rsf:id="mm-item-id" id="mm-item-id" />
@@ -1051,6 +1067,10 @@
                         <p id="editgroups-mm" class="edit-group">
                           <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
+			<p class="checkbox">
+			  <input type="checkbox" name="multi-break" id="multi-break" rsf:id="multi-break" />
+			  <label for="multi-break"><span rsf:id="msg=simplepage.break-above"></span></label>
+			</p>
                         <p class="checkbox">
                           <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
                           <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1333,6 +1353,10 @@
                         <p rsf:id="editgroups-youtube" id="editgroups-youtube">
                           <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
+			<p class="checkbox">
+			  <input type="checkbox" name="youtube-break" id="youtube-break" rsf:id="youtube-break" />
+			  <label for="youtube-break"><span rsf:id="msg=simplepage.break-above"></span></label>
+			</p>
                         <p class="checkbox">
                             <input type="checkbox" name="youtube-prerequisite" id="youtube-prerequisite" rsf:id="youtube-prerequisite" />
                             <label for="youtube-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1385,6 +1409,11 @@
 						<p id="editgroups-movie" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
+			<p class="checkbox">
+			  <input type="checkbox" name="movie-break" id="movie-break" rsf:id="movie-break" />
+			  <label for="movie-break"><span rsf:id="msg=simplepage.break-above"></span></label>
+			</p>
+
                         <p class="checkbox">
                             <input type="checkbox" name="movie-prerequisite" id="movie-prerequisite" rsf:id="movie-prerequisite" />
                             <label for="movie-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1431,6 +1460,10 @@
                             <label for="comments-max" class="pageTitle indnt2"><span rsf:id="msg=simplepage.comments-max"></span></label>
                             <input type="text" name="comments-max" id="comments-max" rsf:id="comments-max" size="5" maxlength="5"/>
                         </p>    
+			<p class="checkbox">
+			  <input type="checkbox" name="comments-break" id="comments-break" rsf:id="comments-break" />
+			  <label for="comments-break"><span rsf:id="msg=simplepage.break-above"></span></label>
+			</p>
                         <p class="checkbox">
                               <input type="checkbox" name="comments-prerequisite" id="comments-prerequisite" rsf:id="comments-prerequisite" />
                               <label for="comments-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1580,6 +1613,11 @@
                             </div>
                           </div>
 
+			<p class="checkbox">
+			  <input type="checkbox" name="student-break" id="student-break" rsf:id="student-break" />
+			  <label for="student-break"><span rsf:id="msg=simplepage.break-above"></span></label>
+			</p>
+
                         <p class="checkbox">
                           <input type="checkbox" name="student-prerequisite" id="student-prerequisite" rsf:id="student-prerequisite" />
                           <label for="student-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1708,6 +1746,11 @@
                             <label for="question-incorrect-text"><span rsf:id="msg=simplepage.incorrect-text"></span></label><br />
                             <textarea rsf:id="question-incorrect-text" name="question-incorrect-text" id="question-incorrect-text" rows="3" columns="30"></textarea>
                             </div>
+			    <p class="checkbox">
+			      <input type="checkbox" name="question-break" id="question-break" rsf:id="question-break" />
+			      <label for="question-break"><span rsf:id="msg=simplepage.break-above"></span></label>
+			    </p>
+
                             <p class="checkbox">
                             <input type="checkbox" name="question-prerequisite" id="question-prerequisite" rsf:id="question-prerequisite" />
                             <label for="question-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>

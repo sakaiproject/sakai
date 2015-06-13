@@ -547,6 +547,9 @@ $(function() {
 			    }
 			}
 
+
+			$('#youtube-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+
 			if(row.find(".prerequisite-info").text() === 'true') {
 			    $('#youtube-prerequisite').prop('checked',true);
 			} else {
@@ -618,6 +621,7 @@ $(function() {
 			$("#movie-height").val(row.find(".mm-height").text());
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
+			$('#movie-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
 			if (row.find(".movie-prerequisite").text() === 'true') {
 			    $('#movie-prerequisite').prop('checked', true);
 			} else {
@@ -674,6 +678,7 @@ $(function() {
 				$("#comments-required").prop("checked", false);
 			}
 			
+			$('#comments-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
 			var prerequisite = row.find(".commentsitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#comments-prerequisite").prop("checked", true);
@@ -813,6 +818,7 @@ $(function() {
 			}else {
 				$("#student-required").prop("checked", false);
 			}
+			$('#student-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
 			var prerequisite = row.find(".studentitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#student-prerequisite").prop("checked", true);
@@ -1028,6 +1034,7 @@ $(function() {
 			$("#question-gradebook-title").val("");
 			$("#question-max").val("");
 			$("#question-required").prop("checked", false);
+			$("#question-break").prop("checked", false);
 			$("#question-prerequisite").prop("checked", false);
 			$("#question-show-poll").prop("checked", false);
 			$("#multipleChoiceSelect").click();
@@ -1174,6 +1181,7 @@ $(function() {
 				$("#question-required").prop("checked", false);
 			}
 			
+			$('#question-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
 			var prerequisite = row.find(".questionitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#question-prerequisite").prop("checked", true);
@@ -1285,6 +1293,8 @@ $(function() {
 			$("#name").val(row.find(".link-text").text());
 			$("#description").val(row.find(".rowdescription").text());
 					      
+			$('#item-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+
 			var prereq = row.find(".prerequisite-info").text();
 
 			if(prereq === "true") {
@@ -1694,6 +1704,7 @@ $(function() {
 			    }
 			}
 
+			$('#multi-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
 			if(row.find(".prerequisite-info").text() === 'true') {
 			    $('#multi-prerequisite').prop('checked', true);
 			} else {
@@ -1922,6 +1933,28 @@ $(function() {
         resizeFrame('grow');
 	});
 	
+	$('.group-col a').click(function(e) {
+		e.preventDefault();
+		if ($(this).closest('.group-col').hasClass('toprow'))
+		    return;
+		var grouped = toggleGrouped($(this).attr('href').substr(1));
+		if (grouped != null) {
+		    if (grouped === "true") {
+			$(this).closest('li').addClass('right-col-top');
+			$(this).closest('li').prev().addClass('right-col-bottom');
+			$(this).find('img').attr("src","/lessonbuilder-tool/images/merge-icon.gif");
+			$(this).attr('title',msg("simplepage.join-items"));
+			$('<li role="listitem" class="item offscreen"><div><h3>' + '' + '</h3></div></li>').insertBefore($(this).closest('li'));
+		    } else {
+		        $(this).closest('li').prev().remove();
+			$(this).closest('li').removeClass('right-col-top');
+			$(this).closest('li').prev().removeClass('right-col-bottom');
+			$(this).find('img').attr("src","/lessonbuilder-tool/images/split-icon.gif");
+			$(this).attr('title',msg("simplepage.break-items"));
+		    }
+		}
+	    });
+
 	// don't do this twice. if portal is loaded portal will do it
         if(typeof portal === 'undefined')
 	$('a.tool-directurl').cluetip({
@@ -2708,6 +2741,28 @@ function getGroupErrors(groups) {
 	    }});
      return errors;
 }
+
+function toggleGrouped(itemId) {
+    var errors = '';
+    var url = location.protocol + '//' + location.host + 
+	'/lessonbuilder-tool/ajax';
+    var grouped;
+    var csrf = $("#edit-item-dialog input[name='csrf8']").attr('value');
+    $.ajax({type: "POST",
+	    async: false,
+	    url: url,
+	    data: {op: 'togglegrouped', itemid: itemId, csrf: csrf},
+	    success: function(data){
+		grouped = data;
+	    }});
+    if (grouped == null)
+	return null;
+    else
+	return grouped.trim();
+}
+
+
+
 
 var mimeMime = "";
 

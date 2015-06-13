@@ -1,6 +1,6 @@
 <nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="Mrphs-sitesNav" data-max-tools-int="$maxToolsInt" data-max-tools-anchor="${rloader.sit_alltools}">
     <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
-
+    <div id="show-all-sites" tabindex="-1" aria-hidden="true"><div>+</div><span id="how-many-hidden"></span></div>
     <ul class="Mrphs-sitesNav__menu" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
 
         #foreach ( $site in $tabsSites.tabsSites )

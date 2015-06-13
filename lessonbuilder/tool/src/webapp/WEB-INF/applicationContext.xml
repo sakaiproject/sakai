@@ -46,6 +46,7 @@ simplePageBean.addQuiz,
 simplePageBean.alt,
 simplePageBean.anonymous,
 simplePageBean.assigntool,
+simplePageBean.breakabove,
 simplePageBean.cancel,
 simplePageBean.comments,
 simplePageBean.contents,
@@ -417,6 +418,7 @@ simplePageBean.peerEvalAllowSelfGrade
         singleton="true">
       <property name="messageSource"><ref bean="messageSource"/></property>
       <property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
+      <property name="simplePageToolDao" ref="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
     </bean>
 
  </beans>

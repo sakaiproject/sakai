@@ -16,6 +16,7 @@ import org.sakaiproject.tool.api.ToolManager;
 
 import uk.org.ponder.localeutil.LocaleGetter;
 import uk.org.ponder.messageutil.MessageLocator;
+import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
@@ -41,6 +42,9 @@ import uk.org.ponder.rsf.viewstate.ViewParameters;
 public class FormProducer implements ViewComponentProducer, DefaultView,NavigationCaseReporter {
 
 	public static final String VIEW_ID = "form";
+
+	// prefix for targetted messages that are source in tool configuration rather than a resource bundle
+	private final String TOOL_CONFIG_PREFIX = "toolconfig_";
 	
 	/* (non-Javadoc)
 	 * @see uk.org.ponder.rsf.view.ViewComponentProducer#getViewID()
@@ -88,23 +92,31 @@ public class FormProducer implements ViewComponentProducer, DefaultView,Navigati
 			ComponentChecker comp) {
 		// TODO Auto-generated method stub
 
+		Placement placement = toolManager.getCurrentPlacement();
 		
 		if (tml!=null) {
 			if (tml.size() > 0) {
 
 		    	for (int i = 0; i < tml.size(); i ++ ) {
 		    		UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:");
-		    		if (tml.messageAt(i).args != null ) {	    		
-		    			UIVerbatim.make(errorRow, "error", messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(), (String[])tml.messageAt(i).args[0]));
+		    		TargettedMessage tmessage = tml.messageAt(i);
+		    		String messageKey = tmessage.acquireMessageCode();
+		    		if (messageKey.startsWith(TOOL_CONFIG_PREFIX)) {
+		    			// The messageKey begins with toolconfig_, so grab it from tool properties
+		    			String toolConfigKey = messageKey.substring(TOOL_CONFIG_PREFIX.length());
+		    			String message = placement.getConfig().getProperty(toolConfigKey);
+		    			UIVerbatim.make(errorRow, "error", message);
+		    		}
+		    		else if (tmessage.args != null ) {	    		
+		    			UIVerbatim.make(errorRow, "error", messageLocator.getMessage(messageKey, (String[])tmessage.args));
 		    		} else {
-		    			UIVerbatim.make(errorRow, "error", messageLocator.getMessage(tml.messageAt(i).acquireMessageCode()));
+		    			UIVerbatim.make(errorRow, "error", messageLocator.getMessage(messageKey));
 		    		}
 		    		
 		    	}
 		    }
 		}
 		// Get the instructions from the tool placement.
-		Placement placement = toolManager.getCurrentPlacement();
 		if (placement != null) {
 			String instuctions = placement.getConfig().getProperty("instructions");
 			if (instuctions != null && instuctions.length() > 0) {

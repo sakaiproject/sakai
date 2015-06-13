@@ -71,7 +71,7 @@ public interface SyllabusManager
 
   public void removeSyllabusAttachSyllabusData(final SyllabusData syllabusData, final SyllabusAttachment syllabusAttach);
 
-  public Set getSyllabusAttachmentsForSyllabusData(final SyllabusData syllabusData);
+  public Set<SyllabusAttachment> getSyllabusAttachmentsForSyllabusData(final SyllabusData syllabusData);
 
   public SyllabusAttachment getSyllabusAttachment(final String syllabusAttachId);
   

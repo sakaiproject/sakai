@@ -81,7 +81,6 @@
 				<plugins>
 					<plugin>
 						<artifactId>maven-resources-plugin</artifactId>
-						<version>${joda.time.version}</version>
 						<executions>
 							<execution>
 								<id>copy-images</id>

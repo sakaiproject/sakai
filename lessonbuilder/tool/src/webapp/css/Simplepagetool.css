@@ -272,7 +272,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
     position: relative;
     padding-left: 40px
 }*/
-.mainList li.canEdit > div.edit-col {
+.mainList li.canEdit > div.edit-col, .mainList li.canEdit > div.group-col {
 /*    float:left; */
     display: inline-block;
     vertical-align:top;
@@ -338,7 +338,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 	font-weight: bold;
 	padding: 0px 4px !important;
 }
-.edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
+.edit-col .ui-button-text, .group-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
 	/*vertical-align: middle;*/
 }
@@ -1030,7 +1030,7 @@ a.Mrphs-toolTitleNav__link--reset {
  display: inline-block;
  position:relative;
  left:5px;
- width:93%
+ width:85%
 }
 .right-col2 {
  position:relative;
@@ -1064,7 +1064,7 @@ a.Mrphs-toolTitleNav__link--reset {
     padding: 0 !important
 }
 
-.mainList li .edit-col a.ui-button:link, .mainList li .edit-col a.ui-button:visited {
+.mainList li .edit-col a.ui-button:link, .mainList li .edit-col a.ui-button:visited,.mainList li .group-col a.ui-button:link, .mainList li .group-col a.ui-button:visited {
     text-decoration: none !important;
     -webkit-border-radius: 0;
     -moz-border-radius: 0;
@@ -1112,22 +1112,6 @@ a.Mrphs-toolTitleNav__link--reset {
 end alternate treatment for list
 */
 
-/*
- this may actually be better css, but for the moment I'm
- doing this just for print
-*/
-@media print {
-.edit-col {
-float:left;
-clear:left;
-}
-.right-col {
-float:left;
-margin-left: 10px;
-width: calc(100% - 50px);
-}
-}
-
 .Mrphs-toolTitleNav__title {
   width: auto !important;
 }
@@ -1144,3 +1128,138 @@ width: calc(100% - 50px);
 .Mrphs-toolTitleNav__addRight {
   display:inline-block
 }
+#content, #outer, nav.Mrphs-toolTitleNav {
+  xbackground-color:#e8e8e8;
+  xbackground-color:#f0f0f0;
+}
+#content{
+  padding-top: 1px;
+  padding-bottom: 20px;
+}
+div.navIntraTool {
+  border-top:none;
+  xborder-top-color:#e8e8e8;
+  xborder-top-color:#f0f0f0;
+}
+
+/* temporary, to avoid changing old stuff for the moment */
+.edit-col, .group-col {
+  padding-top: 0px !important;
+}
+.mainList > li {
+  margin-top: 0px !important;
+  margin-bottom: 0px !important;
+}
+.image-col {
+ display: inline-block;
+}
+
+/* now formatting for grouped content */
+
+.group-col {
+margin-right: 8px;
+margin-left:8px;
+clear:left;
+display:inline-block;
+position: relative;
+bottom: 13px;
+}
+.group-col img {
+padding-top:1px;
+padding-bottom:1px;
+border:1px solid #d0d0d0;
+background-color:white;
+}
+.toprow img {
+border:1px solid transparent;
+background-color:transparent;
+}
+.edit-col {
+
+display:inline-block;
+
+}
+.right-col {
+postion:static;
+margin-top: 0px !important;
+margin-left: 0px;
+width:calc(100% - 40px);
+}
+
+/* default content */
+.right-col {
+  left: 12px;
+  background-color: #f6f6f6;
+  background-color: white;
+  border-left: solid #c8c8c8 1px;
+  border-right: solid #c8c8c8 1px;
+  padding-top:3px;
+  padding-bottom:3px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+.edit-col + .right-col {
+left:0px;
+width:calc(100% - 10em);
+}
+
+/* links should be spaced as close as possible to each other, so override padding */
+li.resourceType .right-col {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+
+/* separation between areas */
+.right-col-top .right-col {
+ border-top: solid #c8c8c8 1px;
+ margin-top: 10px; 
+ padding-top:10px;
+ border-top-left-radius:5px;
+ border-top-right-radius:5px;
+}
+.right-col-bottom .right-col {
+ padding-bottom:10px;
+ border-bottom: solid #c8c8c8 1px;
+ margin-bottom: 10px;
+ border-bottom-left-radius:5px;
+ border-bottom-right-radius:5px;
+}
+.edit-col a:link,.group-col .ui-button {
+ background:none;
+ border:none;
+}
+.itemclass {
+ margin-top:2.0em !important;
+}
+
+@media only screen and (max-width: 1000px) {
+.group-col {
+margin-right: 1px;
+margin-left:1px;
+}
+.right-col{
+  padding-top:2px;
+  padding-bottom:2px;
+  padding-left: 3px;
+  padding-right: 3px;
+}
+.edit-col + .right-col {
+width:calc(100% - 80px);
+}
+}
+@media only screen and (max-width: 800px) {
+#content {
+  margin-right:10px !important;
+  margin-left: 30px !important;
+  width: calc(100% - 21px) !important;
+}}
+@media only screen and (max-width: 600px) {
+div.group-col {
+  display:none !important;
+}
+.edit-col + .right-col {
+width:calc(100% - 50px);
+}
+}
+
