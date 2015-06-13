@@ -73,26 +73,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
      */
     private String invalidCharactersRegex = "[:*?<|>]";
     /**
-     * The logger for warnings and errors.
-     */
-    private Logger logger = new DefaultLogger();
-    /**
-     * The limit where a error will be made using the Logger.
-     */
-    private long errorLimitForAccountSizeInBytes = -1L;
-    /**
-     * The limit where a warning will be made using the Logger.
-     */
-    private long warningLimitForAccountSizeInBytes = -1L;
-    /**
-     * The limit where a error will be made using the Logger.
-     */
-    private long errorLimitForContainerSizeInBytes = -1L;
-    /**
-     * The limit where a warning will be made using the Logger.
-     */
-    private long warningLimitForContainerSizeInBytes = -1L;
-    /**
      * The maximum buffer size, which dictates the maximum file upload.
      *
      * Because services like S3 require a known size at the beginning of an
@@ -172,65 +152,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
     }
 
     /**
-     * The limit where a error will be made using the Logger.
-     * If the value (default) is negative this will not be tested.
-     * If positive then a exception will be thrown before a new resource is saved
-     * and the bytes used in the account is already over this value.
-     * A error will also be logged to the Logger.
-     * 
-     * Note that this test is run before the save, thus it is possible that
-     * the value can be exceeded after the save with no exception.
-     */
-    public void setErrorLimitForAccountSizeInBytes(long errorLimitForAccountSizeInBytes) {
-        this.errorLimitForAccountSizeInBytes = errorLimitForAccountSizeInBytes;
-    }
-
-    /**
-     * The limit where a warning will be made using the Logger.
-     * If the value (default) is negative this will not be tested.
-     * If positive then a warning will be logged to the Logger.
-     * 
-     * Note that this test is run before the save, thus it is possible that
-     * the value can be exceeded after the save with no warning.
-     */
-    public void setWarningLimitForAccountSizeInBytes(long warningLimitForAccountSizeInBytes) {
-        this.warningLimitForAccountSizeInBytes = warningLimitForAccountSizeInBytes;
-    }
-
-    /**
-     * The limit where a error will be made using the Logger.
-     * If the value (default) is negative this will not be tested.
-     * If positive then a exception will be thrown before a new resource is saved
-     * and the bytes used in the container is already over this value.
-     * A error will also be logged to the Logger.
-     * 
-     * Note that this test is run before the save, thus it is possible that
-     * the value can be exceeded after the save with no exception.
-     */
-    public void setErrorLimitForContainerSizeInBytes(long errorLimitForContainerSizeInBytes) {
-        this.errorLimitForContainerSizeInBytes = errorLimitForContainerSizeInBytes;
-    }
-
-    /**
-     * The limit where a warning will be made using the WarningLogger.
-     * If the value (default) is negative this will not be tested.
-     * If positive then a warning will be logged to the Logger.
-     * 
-     * Note that this test is run before the save, thus it is possible that
-     * the value can be exceeded after the save with no warning.
-     */
-    public void setWarningLimitForContainerSizeInBytes(long warningLimitForContainerSizeInBytes) {
-        this.warningLimitForContainerSizeInBytes = warningLimitForContainerSizeInBytes;
-    }
-
-    /**
-     * The logger for warnings and errors.
-     */
-    public void setLogger(Logger logger) {
-        this.logger = logger;
-    }
-
-    /**
      * Initializes the BlobStore context.
      */
     public void init() {
@@ -279,9 +200,7 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
             return 0L;
         }
         ContainerAndName can = getContainerAndName(id, root, filePath);
-        checkAccountSpace();
         createContainerIfNotExist(can.container);
-        checkContainerSpace(can.container);
 
 
         InputStream in = markableInputStream(stream);
@@ -344,48 +263,6 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         }
     }
     
-    /**
-     * Checks the space used for the account against the space available.
-     * Will call the Logger to report any warning or error.
-     */
-    private void checkAccountSpace() throws IOException{
-        /*
-        if(warningLimitForAccountSizeInBytes <= 0L && errorLimitForAccountSizeInBytes <= 0L){
-            return;
-        }
-        long bytesUsed = swiftApi.getAccountApi(region).get().getBytesUsed();
-        if(errorLimitForAccountSizeInBytes > 0L && errorLimitForAccountSizeInBytes < bytesUsed){
-            logger.errorOnAccountSize(errorLimitForAccountSizeInBytes, bytesUsed);
-            throw new IOException("No more space available for account!\nMax:" + errorLimitForAccountSizeInBytes + "\nUsed:" + bytesUsed);
-        }
-        //check warning after error since we don't want to raise a warning if error already raise.
-        if(warningLimitForAccountSizeInBytes > 0L && warningLimitForAccountSizeInBytes < bytesUsed){
-            logger.warningOnAccountSize(warningLimitForAccountSizeInBytes, bytesUsed);
-        }
-        */
-    }
-    
-    /**
-     * Checks the space used for the container against the space available.
-     * Will call the Logger to report any warning or error.
-     */
-    private void checkContainerSpace(String container) throws IOException{
-        /*
-        if(warningLimitForContainerSizeInBytes <= 0L && errorLimitForContainerSizeInBytes <= 0L){
-            return;
-        }
-        long bytesUsed = swiftApi.getContainerApi(region).get(container).getBytesUsed();
-        if(errorLimitForContainerSizeInBytes > 0L && errorLimitForContainerSizeInBytes < bytesUsed){
-            logger.errorOnContainerSize(errorLimitForContainerSizeInBytes, bytesUsed);
-            throw new IOException("No more space available for container!\nMax:" + errorLimitForContainerSizeInBytes + "\nUsed:" + bytesUsed);
-        }
-        //check warning after error since we don't want to raise a warning if error already raise.
-        if(warningLimitForContainerSizeInBytes > 0L && warningLimitForContainerSizeInBytes < bytesUsed){
-            logger.warningOnContainerSize(warningLimitForContainerSizeInBytes, bytesUsed);
-        }
-        */
-    }
-
     /**
      * Make sure the container exists.
      */
@@ -455,21 +332,5 @@ public class BlobStoreFileSystemHandler implements FileSystemHandler {
         String container;
         String name;
     }
-    
-    /**
-     * A simple implementation that does nothing.
-     */
-    class DefaultLogger implements Logger{
-        @Override
-        public void warningOnAccountSize(long warningLimitInBytes, long bytesUsed) {}
 
-        @Override
-        public void errorOnAccountSize(long maxSizeInBytes, long bytesUsed) {}
-
-        @Override
-        public void warningOnContainerSize(long warningLimitInBytes, long bytesUsed) {}
-
-        @Override
-        public void errorOnContainerSize(long maxSizeInBytes, long bytesUsed) {}
-    };
 }
