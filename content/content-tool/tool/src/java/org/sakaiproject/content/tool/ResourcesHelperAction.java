@@ -644,12 +644,12 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		}
 		context.put("uploadMaxSize", max_file_size_mb);
 		
-		String upload_limit = rb.getFormattedMessage("upload.limit", new String[]{ max_file_size_mb });
-		context.put("upload_limit", upload_limit);
-		
 		String uploadMax = ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE);
-		String instr_uploads= rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax});
+		String instr_uploads = rb.getFormattedMessage("instr.uploads", new String[]{ uploadMax });
 		context.put("instr_uploads", instr_uploads);
+
+		String instr_dnd_uploads = rb.getFormattedMessage("instr.dnd.uploads", new String[]{ uploadMax });
+		context.put("instr_dnd_uploads", instr_dnd_uploads);
 
 		Boolean dragAndDrop = ServerConfigurationService.getBoolean("content.upload.dragndrop", true);
 		String strDragAndDropEnabled = ToolManager.getCurrentPlacement().getConfig().getProperty(TOOL_PROP_DRAGNDROP_ENABLED);
