@@ -47,6 +47,7 @@ import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Enrollment;
 import org.sakaiproject.coursemanagement.api.EnrollmentSet;
 import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
@@ -774,7 +775,14 @@ public class SakaiProxyImpl implements SakaiProxy {
             if (log.isDebugEnabled()) {
                 log.debug("Cache miss on '" + enrollmentSetId + "'");
             }
-            EnrollmentSet enrollmentSet = courseManagementService.getEnrollmentSet(enrollmentSetId);
+
+            EnrollmentSet enrollmentSet = null;
+            try {
+                enrollmentSet = courseManagementService.getEnrollmentSet(enrollmentSetId);
+            } catch (IdNotFoundException idNotFoundException){
+                // This is okay, let this go, as we're not expecting
+                // the site necessarily to be part of coursemanagement.
+            }
 
             if (null == enrollmentSet) {
                 return null;
@@ -972,7 +980,14 @@ public class SakaiProxyImpl implements SakaiProxy {
 
 		for (String sectionId : sectionIds) {
 
-			Section section = courseManagementService.getSection(sectionId);
+			Section section = null;
+			try {
+				section = courseManagementService.getSection(sectionId);
+			} catch (IdNotFoundException idNotFoundException){
+				// This is okay, let this go, as we're not expecting
+				// groups necessarily to be part of coursemanagement.
+			}
+
 			if (null == section) {
 				continue;
 			}
