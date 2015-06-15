@@ -2,7 +2,6 @@ package org.sakaiproject.cmprovider;
 
 import java.util.List;
 
-import org.sakaiproject.cmprovider.api.CourseOfferingEntityProvider;
 import org.sakaiproject.cmprovider.api.data.CourseOfferingData;
 import org.sakaiproject.cmprovider.api.data.MembershipData;
 import org.sakaiproject.cmprovider.api.data.util.DateUtils;
@@ -17,9 +16,9 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  *
  * @author Christopher Schauer
  */
-public class CourseOfferingEntityProviderImpl extends AbstractContainerEntityProvider implements CourseOfferingEntityProvider {
+public class CourseOfferingEntityProvider extends AbstractContainerEntityProvider {
   public String getEntityPrefix() {
-    return ENTITY_PREFIX;
+    return "cm-course-offering";
   }
 
   public Object getSampleEntity() {

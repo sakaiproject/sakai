@@ -2,7 +2,6 @@ package org.sakaiproject.cmprovider;
 
 import java.util.List;
 
-import org.sakaiproject.cmprovider.api.SectionEntityProvider;
 import org.sakaiproject.cmprovider.api.data.MembershipData;
 import org.sakaiproject.cmprovider.api.data.SectionData;
 import org.sakaiproject.coursemanagement.api.Section;
@@ -15,9 +14,9 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  *
  * @author Christopher Schauer
  */
-public class SectionEntityProviderImpl extends AbstractContainerEntityProvider implements SectionEntityProvider {
+public class SectionEntityProvider extends AbstractContainerEntityProvider {
   public String getEntityPrefix() {
-    return ENTITY_PREFIX;
+    return "cm-section";
   }
 
   public Object getSampleEntity() {

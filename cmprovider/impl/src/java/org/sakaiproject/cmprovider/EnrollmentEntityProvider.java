@@ -8,7 +8,6 @@ import org.apache.commons.lang3.NotImplementedException;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.AuthzPermissionException;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.cmprovider.api.EnrollmentEntityProvider;
 import org.sakaiproject.cmprovider.api.data.EnrollmentData;
 import org.sakaiproject.cmprovider.api.data.util.DateUtils;
 import org.sakaiproject.coursemanagement.api.Enrollment;
@@ -21,9 +20,9 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  *
  * @author Christopher Schauer
  */
-public class EnrollmentEntityProviderImpl extends AbstractCmEntityProvider implements EnrollmentEntityProvider {
+public class EnrollmentEntityProvider extends AbstractCmEntityProvider {
   public String getEntityPrefix() {
-    return ENTITY_PREFIX;
+    return "cm-enrollment";
   }
 
   public Object getSampleEntity() {

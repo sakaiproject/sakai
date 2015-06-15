@@ -2,7 +2,6 @@ package org.sakaiproject.cmprovider;
 
 import java.util.List;
 
-import org.sakaiproject.cmprovider.api.CourseSetEntityProvider;
 import org.sakaiproject.cmprovider.api.data.CourseSetData;
 import org.sakaiproject.cmprovider.api.data.MembershipData;
 import org.sakaiproject.coursemanagement.api.CourseSet;
@@ -17,9 +16,9 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  *
  * @author Christopher Schauer
  */
-public class CourseSetEntityProviderImpl extends AbstractContainerEntityProvider implements CourseSetEntityProvider {
+public class CourseSetEntityProvider extends AbstractContainerEntityProvider {
   public String getEntityPrefix() {
-    return ENTITY_PREFIX;
+    return "cm-course-set";
   }
 
   public List getEntities(EntityReference ref, Search search) {

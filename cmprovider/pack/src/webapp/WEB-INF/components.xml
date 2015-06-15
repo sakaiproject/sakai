@@ -17,30 +17,27 @@
     <property name="hibernateService" ref="hibernateService" />
   </bean>
 
-  <bean id="org.sakaiproject.cmprovider.api.AcademicSessionEntityProvider"
-    class="org.sakaiproject.cmprovider.AcademicSessionEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.AcademicSessionEntityProvider"
+    class="org.sakaiproject.cmprovider.AcademicSessionEntityProvider" parent="AbstractCmEntityProvider" />
 
-  <bean id="org.sakaiproject.cmprovider.api.CanonicalCourseEntityProvider"
-    class="org.sakaiproject.cmprovider.CanonicalCourseEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.CanonicalCourseEntityProvider"
+    class="org.sakaiproject.cmprovider.CanonicalCourseEntityProvider" parent="AbstractCmEntityProvider" />
 
-  <bean id="org.sakaiproject.cmprovider.api.CourseOfferingEntityProvider"
-    class="org.sakaiproject.cmprovider.CourseOfferingEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.CourseOfferingEntityProvider"
+    class="org.sakaiproject.cmprovider.CourseOfferingEntityProvider" parent="AbstractCmEntityProvider" />
 
-  <bean id="org.sakaiproject.cmprovider.api.CourseSetEntityProvider"
-    class="org.sakaiproject.cmprovider.CourseSetEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.CourseSetEntityProvider"
+    class="org.sakaiproject.cmprovider.CourseSetEntityProvider" parent="AbstractCmEntityProvider" />
 
-  <bean id="org.sakaiproject.cmprovider.api.EnrollmentEntityProvider"
-    class="org.sakaiproject.cmprovider.EnrollmentEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.EnrollmentEntityProvider"
+    class="org.sakaiproject.cmprovider.EnrollmentEntityProvider" parent="AbstractCmEntityProvider" />
 
-  <bean id="org.sakaiproject.cmprovider.api.EnrollmentSetEntityProvider"
-    class="org.sakaiproject.cmprovider.EnrollmentSetEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.EnrollmentSetEntityProvider"
+    class="org.sakaiproject.cmprovider.EnrollmentSetEntityProvider" parent="AbstractCmEntityProvider" />
 
-  <bean id="org.sakaiproject.cmprovider.api.SectionEntityProvider"
-    class="org.sakaiproject.cmprovider.SectionEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.SectionEntityProvider"
+    class="org.sakaiproject.cmprovider.SectionEntityProvider" parent="AbstractCmEntityProvider" />
 
-  <bean id="org.sakaiproject.cmprovider.api.SectionCategoryEntityProvider"
-    class="org.sakaiproject.cmprovider.SectionCategoryEntityProviderImpl" parent="AbstractCmEntityProvider" />
-
-  <bean id="org.sakaiproject.cmprovider.api.MeetingEntityProvider"
-    class="org.sakaiproject.cmprovider.MeetingEntityProviderImpl" parent="AbstractCmEntityProvider" />
+  <bean id="org.sakaiproject.cmprovider.SectionCategoryEntityProvider"
+    class="org.sakaiproject.cmprovider.SectionCategoryEntityProvider" parent="AbstractCmEntityProvider" />
 </beans>

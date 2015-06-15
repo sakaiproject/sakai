@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.sakaiproject.cmprovider.api.AcademicSessionEntityProvider;
 import org.sakaiproject.cmprovider.api.data.AcademicSessionData;
 import org.sakaiproject.cmprovider.api.data.util.DateUtils;
 import org.sakaiproject.coursemanagement.api.AcademicSession;
@@ -21,10 +20,10 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  *
  * @author Christopher Schauer
  */
-public class AcademicSessionEntityProviderImpl extends AbstractCmEntityProvider implements AcademicSessionEntityProvider {
+public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
 
   public String getEntityPrefix() {
-    return ENTITY_PREFIX;
+    return "cm-academic-session";
   }
 
   public Object getSampleEntity() {

@@ -2,7 +2,6 @@ package org.sakaiproject.cmprovider;
 
 import java.util.List;
 
-import org.sakaiproject.cmprovider.api.CanonicalCourseEntityProvider;
 import org.sakaiproject.cmprovider.api.data.CanonicalCourseData;
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -14,9 +13,9 @@ import org.sakaiproject.entitybroker.entityprovider.search.Search;
  *
  * @author Christopher Schauer 
  */
-public class CanonicalCourseEntityProviderImpl extends AbstractCmEntityProvider implements CanonicalCourseEntityProvider {
+public class CanonicalCourseEntityProvider extends AbstractCmEntityProvider {
   public String getEntityPrefix() {
-    return ENTITY_PREFIX;
+    return "cm-canonical-course";
   }
   
   @Override
