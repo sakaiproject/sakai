@@ -1398,6 +1398,9 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("siteTextEdit", new SiteTextEditUtil());
 		
+		//SAK-29525 Open Template list by default when creating site
+		context.put("isExpandTemplates", ServerConfigurationService.getBoolean("site.setup.creation.expand.template", false));
+		
 		// the last visited template index
 		if (preIndex != null)
 			context.put("backIndex", preIndex);
