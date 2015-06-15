@@ -271,6 +271,11 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         // any deletions at present. See the comments to deleteGradebook
         // for the details.
         HibernateTemplate hibTempl = getHibernateTemplate();
+        
+        List toBeDeletedEvents = hibTempl.find("from GradingEvent as ge where ge.gradableObject=?", asn);
+        int numberDeletedEvents = toBeDeletedEvents.size();
+        hibTempl.deleteAll(toBeDeletedEvents);
+        if (logData.isDebugEnabled()) logData.debug("Deleted " + numberDeletedEvents + "records from gb_grading_event_t");
 
         List toBeDeleted = hibTempl.find("from AssignmentGradeRecord as agr where agr.gradableObject=?", asn);
         int numberDeleted = toBeDeleted.size();
