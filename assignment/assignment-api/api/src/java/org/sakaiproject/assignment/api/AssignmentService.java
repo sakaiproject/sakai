@@ -870,9 +870,14 @@ public interface AssignmentService extends EntityProducer
 	public boolean getAllowGroupAssignmentsInGradebook();
 	
 	/**
+	 * Whether a specific user can submit
+	 */
+	public boolean canSubmit(String context, Assignment a, String userId);
+	/**
 	 * Whether the current user can submit
 	 */
 	public boolean canSubmit(String context, Assignment a);
+
 	
 	public Collection<Group> getSubmitterGroupList(String searchFilterOnly, String allOrOneGroup, String searchString, String aRef, String contextString);
 	/**
