@@ -283,5 +283,6 @@ public interface SimplePageToolDao {
     // returns map of old to new sakaiid's after a site copy or import
     public Map<String,String> getObjectMap(String siteId);
 
+    public boolean doesPageFolderExist(final String siteId, final String folder);
 
 }

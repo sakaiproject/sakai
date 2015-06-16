@@ -86,6 +86,11 @@ public interface SimplePage {
     public void setGroupOwned(Boolean g);
     
     public String getCssSheet();
-    
+
     public void setCssSheet(String cssSheet);
+
+    public void setFolder(String f);
+
+    public String getFolder();
+
 }

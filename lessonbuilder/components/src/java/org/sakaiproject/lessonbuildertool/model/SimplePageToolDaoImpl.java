@@ -1478,4 +1478,19 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	    return objectMap;
 	}
 
+	public boolean doesPageFolderExist(final String siteId, final String folder) {
+
+	    Object [] fields = new Object[2];
+	    fields[0] = siteId;
+	    fields[1] = folder;
+
+	    List<String> counts = sqlService.dbRead("select count(*) from lesson_builder_pages where siteId = ? and folder = ?", fields, null);
+
+	    Long count = new Long(counts.get(0));
+
+	    return (count > 0);
+
+	}
+
+
 }

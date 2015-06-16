@@ -3957,7 +3957,7 @@ public class SimplePageBean {
 				}
 			}
 			
-			//String collectionId = getCollectionId(false);
+			//String collectionId = getCollectionIdfalse);
 			// 	user specified a file, create it
 			name = file.getOriginalFilename();
 			if (name == null || name.length() == 0)
@@ -3977,8 +3977,8 @@ public class SimplePageBean {
 			mimeType = file.getContentType();
 			try {
 				ContentResourceEdit res = contentHostingService.addResource(collectionId, 
-						  	Validator.escapeResourceName(base),
-						  	Validator.escapeResourceName(extension),
+						        fixFileName(collectionId, Validator.escapeResourceName(base), Validator.escapeResourceName(extension)),
+							"",
 						  	MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 				res.setContentType(mimeType);
 				res.setContent(file.getInputStream());
@@ -5334,6 +5334,22 @@ public class SimplePageBean {
 		this.multipartMap = multipartMap;
 	}
 
+	public String fixFileName(String collectionId, String name, String extension) {
+	    if(extension.equals("") || extension.startsWith(".")) {
+		// do nothing                                                                                               
+	    } else {
+		extension = "." + extension;
+	    }
+	    name = Validator.escapeResourceName(name.trim()) + Validator.escapeResourceName(extension);
+	    // allow for possible addition of -NN for uniqueness
+	    int maxname = 250 - collectionId.length() - 3;
+	    if (name.length() > maxname)
+		name = org.apache.commons.lang.StringUtils.abbreviateMiddle(name, "_", maxname);
+	    return name;
+	}
+
+
+
 // for group-owned student pages, put it in the worksite of the current user
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
@@ -5341,6 +5357,7 @@ public class SimplePageBean {
 		boolean hiddenDir = ServerConfigurationService.getBoolean("lessonbuilder.folder.hidden",false);
 		String pageOwner = getCurrentPage().getOwner();
 		String collectionId;
+		String folder = null;
 		if (pageOwner == null) {
 			collectionId = contentHostingService.getSiteCollection(siteId);
 			if (baseDir != null) {
@@ -5366,12 +5383,52 @@ public class SimplePageBean {
 				}
 			    }
 			}
+			// actual folder. Use hierarchy of files
+			SimplePage page = getCurrentPage();
+			String folderString = page.getFolder();
+			if (folderString != null) {
+			    folder = collectionId + folderString; 
+			} else {
+			    Path path = getPagePath(page, new HashSet<Long>());
+			    String title = path.title;
+
+			    // there's a limit of 255 to resource names. Leave 30 chars for the file.
+			    // getPagePath limits folder names in the hiearchy to 30, but in weird situations
+			    // we could a very deep hierarchy and the whole thing could get too long. If that
+			    // happens, just use the page name. We assume the collection ID will be /group/UUID, 
+			    // so it will always be reasonable. In theory we could have to do yet another test
+			    // on collection ID.
+
+			    // 33 is a name of length 30 and -NN for duplicates
+			    // actual length is 255, but I worry about weird characters I don't understand
+			    if (title.length() > (250 - collectionId.length() - 33)) {
+				title = Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(getPageTitle(),"_",30)) + "/";
+			    }
+			    
+			    // make sure folder names are unique
+			    if (simplePageToolDao.doesPageFolderExist(getCurrentSiteId(), title)) {
+				String base = title.substring(0, title.length() - 1);
+				for (int suffix = 1; suffix < 100; suffix++) {
+				    String trial = base + "-" + suffix + "/";
+				    if (!simplePageToolDao.doesPageFolderExist(getCurrentSiteId(), trial)) {
+					title = trial;
+					break;
+				    }
+				}
+			    }
+
+			    folder = collectionId + title;
+			    page.setFolder(title);			    
+			    simplePageToolDao.quickUpdate(page);
+			}
+			// folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
 		}else {
 			collectionId = "/user/" + getCurrentUserId() + "/stuff4/";
+			// actual folder -- just use page name for student content
+			folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
 		}
 
 	    // folder we really want
-		String folder = collectionId + Validator.escapeResourceName(getPageTitle()) + "/";
 		if (urls)
 			folder = folder + "urls/";
 
@@ -5418,6 +5475,46 @@ public class SimplePageBean {
 
 	    // didn't. do the best we can
 		return collectionId;
+	}
+
+	public class Path {
+	    public int level;
+	    public String title;
+	    public Path(int level, String title) {
+		this.level = level;
+		this.title = title;
+	    }
+	}
+
+    // not implemented for student pages
+	public Path getPagePath(SimplePage page, Set<Long>seen) {
+	    seen.add(page.getPageId());
+	    List<SimplePageItem> items = simplePageToolDao.findPageItemsBySakaiId(Long.toString(page.getPageId()));
+	    if (items == null || items.size() == 0) {
+		return new Path(0, Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+	    }
+	    else {
+		int minlevel = 9999;
+		String bestPath = "";
+		for (SimplePageItem i: items) {
+		    SimplePage p = simplePageToolDao.getPage(i.getPageId());
+		    if (p == null)
+			continue;
+		    if (p.getOwner() != null)  // probably can't happen
+			continue;
+		    if (seen.contains(p.getPageId()))  // already seen this page, we're in a loop
+			continue;
+		    Path path = getPagePath(p, seen);
+		    // there can be loops in the network
+		    if (path.level < minlevel) {
+			minlevel = path.level;
+			bestPath = path.title;
+		    }
+		}
+		if (bestPath.equals(""))
+		    return new Path(0, Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+		return new Path(minlevel + 1, bestPath + Validator.escapeResourceName(org.apache.commons.lang.StringUtils.abbreviateMiddle(page.getTitle(),"_",30)) + "/");
+	    }
 	}
 
 	public boolean isHtml(SimplePageItem i) {
@@ -5528,8 +5625,8 @@ public class SimplePageBean {
 				mimeType = file.getContentType();
 				try {
 					ContentResourceEdit res = contentHostingService.addResource(collectionId, 
-							  	Validator.escapeResourceName(base),
-							  	Validator.escapeResourceName(extension),
+						                fixFileName(collectionId, Validator.escapeResourceName(base), Validator.escapeResourceName(extension)),
+								"",
 							  	MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 					if (isCaption)
 					    res.setContentType("text/vtt");
@@ -5616,8 +5713,8 @@ public class SimplePageBean {
 				try {
 					// 	urls aren't something people normally think of as resources. Let's hide them
 					ContentResourceEdit res = contentHostingService.addResource(collectionId, 
-							Validator.escapeResourceName(basename),
-							Validator.escapeResourceName(extension),
+						        fixFileName(collectionId, Validator.escapeResourceName(basename), Validator.escapeResourceName(extension)),
+						        "",
 							MAXIMUM_ATTEMPTS_FOR_UNIQUENESS);
 					res.setContentType("text/url");
 					res.setResourceType("org.sakaiproject.content.types.urlResource");

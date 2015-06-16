@@ -411,6 +411,10 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 	if (cssSheet != null && !cssSheet.equals(""))
 	    addAttr(doc, pageElement, "csssheet", cssSheet);
 
+	String folder = page.getFolder();
+	if (folder != null && !folder.equals(""))
+	    addAttr(doc, pageElement, "folder", folder);
+
 	List<SimplePageItem> items = simplePageToolDao.findItemsOnPage(pageId);
 
 	if (items != null) {
@@ -1028,9 +1032,9 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		     if (gradebookPoints != null && !gradebookPoints.equals("")) {
 			 page.setGradebookPoints(Double.valueOf(gradebookPoints));
 		     }
-		     String cssSheet = pageElement.getAttribute("csssheet");
-		     if (cssSheet != null && !cssSheet.equals(""))
-			 page.setCssSheet(cssSheet.replaceFirst("^/group/" + fromSiteId, "/group/" + siteId));
+		     String folder = pageElement.getAttribute("folder");
+		     if (folder != null && !folder.equals(""))
+			 page.setFolder(folder);
 		     simplePageToolDao.quickSaveItem(page);
 		     if (gradebookPoints != null && !gradebookPoints.equals("")) {
 			 gradebookIfc.addExternalAssessment(siteId, "lesson-builder:" + page.getPageId(), null,
