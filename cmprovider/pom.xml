@@ -1,19 +1,28 @@
 <?xml version="1.0"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0">
   <modelVersion>4.0.0</modelVersion>
-  <name>Course Management Provider</name>
   <parent>
     <groupId>org.sakaiproject</groupId>
     <artifactId>master</artifactId>
     <version>11-SNAPSHOT</version>
     <relativePath>../master/pom.xml</relativePath>
   </parent>
+
+  <name>Course Management Provider</name>
   <groupId>org.sakaiproject.cmprovider</groupId>
   <artifactId>cmprovider</artifactId>
+  <version>11-SNAPSHOT</version>
+  <organization>
+      <name>Sakai Project</name>
+      <url>http://sakaiproject.org/</url>
+  </organization>
+  <inceptionYear>2015</inceptionYear>
+
   <packaging>sakai-component</packaging>
   <properties>
     <deploy.target>components</deploy.target>
   </properties>
+
   <dependencies>
     <dependency>
       <groupId>org.sakaiproject.kernel</groupId>
@@ -67,6 +76,7 @@
       <version>${sakai.hibernate.version}</version>
     </dependency>
   </dependencies>
+
   <build>
     <resources>
       <resource>
