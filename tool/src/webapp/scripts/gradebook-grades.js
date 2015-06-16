@@ -1133,6 +1133,7 @@ GradebookEditableCell.prototype.setupKeyboardNavigation = function($input) {
     // ESC 27
     } else if (event.keyCode == 27) {
       self.$cell.focus();
+      self._focusAfterSaveComplete = true;
 
     // arrow keys
     } else if (event.keyCode >= 37 && event.keyCode <= 40) {
@@ -1239,13 +1240,18 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   this.setupCell($("#"+cellId));
   this.setupClick();
   this.setupWicketLabelField();
-  
+
   //bind a timeout to the successful save. An easing would be nice
   $(".grade-save-success").removeClass("grade-save-success", 1000);
 
   //re-setup popover?
   if (this.$cell.is('[data-toggle="popover"]')) {
     this.$cell.popover();
+  }
+
+  if (this._focusAfterSaveComplete) {
+    this.$cell.focus();
+    this._focusAfterSaveComplete = false;
   }
 };
 
