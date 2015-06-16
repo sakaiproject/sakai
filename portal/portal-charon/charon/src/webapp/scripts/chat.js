@@ -984,7 +984,7 @@
                     var uuid = editorId.split(portal.chat.domSelectors.pcChatEditorForPre.substr(1))[1];
                     var isMessageToConnection = false;
                     for (var i=0;i<portal.chat.currentConnections.length;i++) {
-                        if (portal.chat.currentConnections[i] === uuid) {
+                        if (portal.chat.currentConnections[i].uuid === uuid) {
                             isMessageToConnection = true;
                             break;
                         }
