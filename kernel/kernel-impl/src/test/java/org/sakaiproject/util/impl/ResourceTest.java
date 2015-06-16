@@ -1,4 +1,4 @@
-package org.sakaiproject.util;
+package org.sakaiproject.util.impl;
 
 import static org.junit.Assert.*;
 
@@ -6,6 +6,10 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
+import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.thread_local.impl.ThreadLocalComponent;
+import org.sakaiproject.util.Resource;
+import org.sakaiproject.util.ResourceLoader;
 
 /**
  * Test that the Resource class loads things correctly a second time.
@@ -17,8 +21,10 @@ public class ResourceTest {
 
 	@Before
 	public void setUp() throws Exception {
+	    
 		ComponentManager.testingMode = true;
 		ComponentManager.loadComponent(ContentHostingService.class, new Object());
+		ComponentManager.loadComponent(ThreadLocalManager.class, new ThreadLocalComponent());
 
 	}
 
