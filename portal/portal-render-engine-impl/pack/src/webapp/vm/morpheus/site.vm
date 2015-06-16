@@ -167,6 +167,8 @@
  
         #parse("/vm/morpheus/includeAnalytics.vm")
 
+        #parse("/vm/morpheus/includeCookieNotice.vm")
+
         ${includeExtraHead}
     </body>
 </html>
