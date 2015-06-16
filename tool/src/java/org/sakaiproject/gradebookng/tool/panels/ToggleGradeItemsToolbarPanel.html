@@ -4,41 +4,41 @@
 <body>
 <wicket:panel>
 
-<div id="gradeItemsToolbarItemPanel">
-  <a href="javascript:void(0)" id="hideAllGradeItems"><span wicket:message="value:label.toolbar.gradeitemhideall">Hide All</span></a>
-  <a href="javascript:void(0)" id="showAllGradeItems"><span wicket:message="value:label.toolbar.gradeitemshowall">Show All</span></a>
+<div id="gradeItemsToolbarItemPanel" role="menu">
+  <a href="javascript:void(0)" id="hideAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhideall">Hide All</span></a>
+  <a href="javascript:void(0)" id="showAllGradeItems" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowall">Show All</span></a>
   <div wicket:id="categoriesList" class="gradebook-item-filter-group">
     <div class="gradebook-item-category-filter">
-      <label tabindex="0">
+      <label tabindex="0" role="menuitem">
         <span wicket:id="category"></span>
         <span class="gradebook-item-category-filter-signal"></span>
         <input wicket:id="categoryCheckbox" type="checkbox">
       </label>
       <div class="btn-group">
-        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Show dropdown menu">
           <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-right">
-          <li><a class="gb-show-only-this-category" href="#"><span wicket:message="value:label.toolbar.gradeitemshowonlythiscategory">Show only this category</span></a></li>
-          <li><a class="gb-toggle-this-category gb-show-this-category" href="#"><span wicket:message="value:label.toolbar.gradeitemshowthiscategory">Show this category</span></a></li>
-          <li><a class="gb-toggle-this-category gb-hide-this-category" href="#"><span wicket:message="value:label.toolbar.gradeitemhidethiscategory">Hide this category</span></a></li>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <li><a class="gb-show-only-this-category" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowonlythiscategory">Show only this category</span></a></li>
+          <li><a class="gb-toggle-this-category gb-show-this-category" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowthiscategory">Show this category</span></a></li>
+          <li><a class="gb-toggle-this-category gb-hide-this-category" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhidethiscategory">Hide this category</span></a></li>
         </ul>
       </div>
     </div>
     <div wicket:id="assignmentsForCategory" class="gradebook-item-filter">
-      <label tabindex="0">
+      <label tabindex="0" role="menuitem">
         <span wicket:id="assignmentTitle"></span>
         <span class="gradebook-item-category-filter-signal"></span>
         <input wicket:id="assignmentCheckbox" type="checkbox">
       </label>
       <div class="btn-group">
-        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#">
+        <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Open dropdown menu">
           <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu dropdown-menu-right">
-          <li><a class="gb-show-only-this-item" href="#"><span wicket:message="value:label.toolbar.gradeitemshowonlythisitem">Show only this item</span></a></li>
-          <li><a class="gb-toggle-this-item gb-show-this-item" href="#"><span wicket:message="value:label.toolbar.gradeitemshowthisitem">Show this item</span></a></li>
-          <li><a class="gb-toggle-this-item gb-hide-this-item" href="#"><span wicket:message="value:label.toolbar.gradeitemhidethisitem">Hide this item</span></a></li>
+        <ul class="dropdown-menu dropdown-menu-right" role="menu">
+          <li><a class="gb-show-only-this-item" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowonlythisitem">Show only this item</span></a></li>
+          <li><a class="gb-toggle-this-item gb-show-this-item" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowthisitem">Show this item</span></a></li>
+          <li><a class="gb-toggle-this-item gb-hide-this-item" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhidethisitem">Hide this item</span></a></li>
         </ul>
       </div>
     </div>

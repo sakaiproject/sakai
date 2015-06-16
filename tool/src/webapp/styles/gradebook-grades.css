@@ -506,6 +506,9 @@
   font-family: 'gradebook-icons';
   content: '\f057';
   color: #CCC;
+  font-size: 1em;
+  width: 1.2em;
+  text-align: right;
 }
 #gradebookGrades .gb-student-filter-clear:hover {
   text-decoration: none;

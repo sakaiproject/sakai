@@ -1665,9 +1665,11 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
     if ($(this).hasClass("on")) {
       repositionPanel();
-      self.$gradeItemsFilterPanel.show();
+      $(this).attr("aria-expanded", "true");
+      self.$gradeItemsFilterPanel.show().attr("aria-hidden", "false");
     } else {
-      self.$gradeItemsFilterPanel.hide();
+      $(this).attr("aria-expanded", "false");
+      self.$gradeItemsFilterPanel.hide().attr("aria-hidden", "true");
     }
 
     return false;
