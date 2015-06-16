@@ -215,7 +215,13 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
      */
     private List<Person> getConnectionsForUser(String uuid) {
 
-        List<Person> connections = profileConnectionsLogic.getConnectionsForUser(uuid);
+        List<Person> connections = new ArrayList<Person>();
+        try {
+            connections = profileConnectionsLogic.getConnectionsForUser(uuid);
+        } catch (NullPointerException npe) {
+            // TODO: this needs tracing back into the Profile2 code
+            logger.error("NPE thrown by profile service. No connections will be returned for '" + uuid + "'");
+        }
 
         List<Person> filteredConnections = new ArrayList<Person>();
 
