@@ -1123,7 +1123,7 @@ GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
 
   var $input = self.$cell.find(":input:first");
 
-  if (withValue != null) {
+  if (withValue != null && withValue != "") {
     // set the value after the focus to ensure the cursor is
     // positioned after the new value
     $input.focus();
