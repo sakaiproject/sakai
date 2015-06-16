@@ -332,6 +332,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   var $fixedHeader = $("<table>").
                         attr("class", self.$table.attr("class")).
                         addClass("gb-fixed-header-table").
+                        attr("role", "presentation").
                         hide();
 
   $head.find("tr").each(function() {
@@ -401,8 +402,15 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
   // all columns before the grade item columns should be fixed
 
-  self.$fixedColumnsHeader = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-column-headers-table").hide();
-  self.$fixedColumns = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-columns-table").hide();
+  self.$fixedColumnsHeader = $("<table>").attr("class", self.$table.attr("class")).
+                                          addClass("gb-fixed-column-headers-table").
+                                          attr("role", "presentation").
+                                          hide();
+
+  self.$fixedColumns = $("<table>").attr("class", self.$table.attr("class")).
+                                    addClass("gb-fixed-columns-table").
+                                    attr("role", "presentation").
+                                    hide();
 
   var $headers = self.$table.find("thead tr > *:not(.gb-grade-item-column-cell)");
   var $thead = $("<thead>");
