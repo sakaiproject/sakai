@@ -3,14 +3,14 @@ package org.sakaiproject.gradebookng.business.helpers;
 import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportColumn;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
-import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.user.api.User;
@@ -109,7 +109,7 @@ public class TestImportGradesHelper {
     @Test
     public void testProcessImportedGrades() throws Exception {
         List<Assignment> assignments = mockAssignments();
-        List<StudentGradeInfo> grades = mockStudentGrades();
+        List<GbStudentGradeInfo> grades = mockStudentGrades();
         ImportedGradeWrapper importedGradeWrapper = mockImportedGrades();
 
         List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper, assignments, grades);
@@ -164,41 +164,41 @@ public class TestImportGradesHelper {
      * Mock up some student grade data
      * @return
      */
-    private List<StudentGradeInfo> mockStudentGrades() {
-        List<StudentGradeInfo> grades = new ArrayList<StudentGradeInfo>();
+    private List<GbStudentGradeInfo> mockStudentGrades() {
+        List<GbStudentGradeInfo> grades = new ArrayList<GbStudentGradeInfo>();
 
         User user1 = Mockito.mock(User.class);
         Mockito.when(user1.getId()).thenReturn("user1");
         Mockito.when(user1.getEid()).thenReturn("user1");
-        StudentGradeInfo studentGradeInfo1 = new StudentGradeInfo(user1);
+        GbStudentGradeInfo studentGradeInfo1 = new GbStudentGradeInfo(user1);
         GradeDefinition gradeDefinition1 = new GradeDefinition();
         gradeDefinition1.setGrade("1");
         gradeDefinition1.setGradeComment("comment 1");
-        studentGradeInfo1.addGrade(1L, new GradeInfo(gradeDefinition1));
+        studentGradeInfo1.addGrade(1L, new GbGradeInfo(gradeDefinition1));
         grades.add(studentGradeInfo1);
 
-        StudentGradeInfo studentGradeInfo2 = new StudentGradeInfo(user1);
+        GbStudentGradeInfo studentGradeInfo2 = new GbStudentGradeInfo(user1);
         GradeDefinition gradeDefinition2 = new GradeDefinition();
         gradeDefinition2.setGrade("2");
         gradeDefinition2.setGradeComment("comment 2");
-        studentGradeInfo2.addGrade(2L, new GradeInfo(gradeDefinition2));
+        studentGradeInfo2.addGrade(2L, new GbGradeInfo(gradeDefinition2));
         grades.add(studentGradeInfo2);
 
         User user2 = Mockito.mock(User.class);
         Mockito.when(user2.getId()).thenReturn("user2");
         Mockito.when(user2.getEid()).thenReturn("user2");
-        StudentGradeInfo studentGradeInfo3 = new StudentGradeInfo(user2);
+        GbStudentGradeInfo studentGradeInfo3 = new GbStudentGradeInfo(user2);
         GradeDefinition gradeDefinition3 = new GradeDefinition();
         gradeDefinition3.setGrade("5");
         gradeDefinition3.setGradeComment("comment 12");
-        studentGradeInfo3.addGrade(1L, new GradeInfo(gradeDefinition3));
+        studentGradeInfo3.addGrade(1L, new GbGradeInfo(gradeDefinition3));
         grades.add(studentGradeInfo3);
 
-        StudentGradeInfo studentGradeInfo4 = new StudentGradeInfo(user2);
+        GbStudentGradeInfo studentGradeInfo4 = new GbStudentGradeInfo(user2);
         GradeDefinition gradeDefinition4 = new GradeDefinition();
         gradeDefinition4.setGrade("6");
         gradeDefinition4.setGradeComment("comment 22");
-        studentGradeInfo4.addGrade(2L, new GradeInfo(gradeDefinition4));
+        studentGradeInfo4.addGrade(2L, new GbGradeInfo(gradeDefinition4));
         grades.add(studentGradeInfo4);
 
 

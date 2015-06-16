@@ -23,7 +23,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -62,7 +62,7 @@ public class GradeItemCellPanel extends Panel {
 		final Double assignmentPoints = (Double) modelData.get("assignmentPoints");
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final Boolean isExternal = (Boolean) modelData.get("isExternal");
-		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
+		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
 	
 		
 		//note, gradeInfo may be null

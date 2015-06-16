@@ -20,8 +20,8 @@ import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
-import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -35,7 +35,7 @@ public class StudentGradeSummaryPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private StudentGradeInfo gradeInfo;
+	private GbStudentGradeInfo gradeInfo;
 	private ModalWindow window;
 	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
@@ -74,7 +74,7 @@ public class StudentGradeSummaryPanel extends Panel {
         		Assignment assignment = item.getModelObject(); 
 	    		RepeatingView repeatingView = new RepeatingView("dataRow");
 	
-	    		GradeInfo gradeInfo = StudentGradeSummaryPanel.this.gradeInfo.getGrades().get(assignment.getId());
+	    		GbGradeInfo gradeInfo = StudentGradeSummaryPanel.this.gradeInfo.getGrades().get(assignment.getId());
 	    		//TODO exception handling in here
 	    		
 	    		//note, gradeInfo may be null

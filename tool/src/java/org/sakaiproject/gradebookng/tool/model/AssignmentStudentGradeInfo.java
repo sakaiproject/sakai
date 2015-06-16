@@ -7,6 +7,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+
 /**
  * Created by chmaurer on 1/29/15.
  */
@@ -19,10 +21,10 @@ public class AssignmentStudentGradeInfo implements Serializable {
 //    private GradeInfo gradeInfo;
 
     @Getter
-    private Map<String,GradeInfo> studentGrades;
+    private Map<String,GbGradeInfo> studentGrades;
 
     public AssignmentStudentGradeInfo() {
-        this.studentGrades = new HashMap<String, GradeInfo>();
+        this.studentGrades = new HashMap<String, GbGradeInfo>();
     }
 
 
@@ -32,7 +34,7 @@ public class AssignmentStudentGradeInfo implements Serializable {
      * @param studentId
      * @param gradeInfo
      */
-    public void addGrade(String studentId, GradeInfo gradeInfo) {
+    public void addGrade(String studentId, GbGradeInfo gradeInfo) {
         this.studentGrades.put(studentId, gradeInfo);
     }
 

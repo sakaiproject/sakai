@@ -48,13 +48,23 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		super.onInitialize();
 		
 		final Assignment assignment = this.modelData.getObject();
-				
-		Label assignmentTitle = new Label("title", new Model<String>(assignment.getName()));
-		assignmentTitle.add(new AttributeModifier("title", assignment.getName()));
-		add(assignmentTitle);
 		
-		add(new Label("totalPoints", new Model<Double>(assignment.getPoints())));
-		add(new Label("dueDate", new Model<String>(getDueDate(assignment.getDueDate()))));
+		Link<String> title = new Link<String>("title", Model.of(assignment.getName())) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onClick() {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		};
+		title.add(new AttributeModifier("title", assignment.getName()));
+		add(title);
+		
+		
+		add(new Label("totalPoints", Model.of(assignment.getPoints())));
+		add(new Label("dueDate", Model.of(getDueDate(assignment.getDueDate()))));
 
 		WebMarkupContainer externalAppFlag = new WebMarkupContainer("externalAppFlag");
 		if (assignment.getExternalAppName() == null) {

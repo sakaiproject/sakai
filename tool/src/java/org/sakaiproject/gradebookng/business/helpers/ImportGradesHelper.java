@@ -3,12 +3,14 @@ package org.sakaiproject.gradebookng.business.helpers;
 
 import au.com.bytecode.opencsv.CSVReader;
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportColumn;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeItem;
@@ -16,9 +18,8 @@ import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemDetail;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
-import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
@@ -248,7 +249,7 @@ public class ImportGradesHelper extends BaseImportHelper {
 
 
     public static List<ProcessedGradeItem> processImportedGrades(ImportedGradeWrapper importedGradeWrapper,
-                                                                 List<Assignment> assignments, List<StudentGradeInfo> currentGrades) {
+                                                                 List<Assignment> assignments, List<GbStudentGradeInfo> currentGrades) {
         List<ProcessedGradeItem> processedGradeItems = new ArrayList<ProcessedGradeItem>();
         Map<String, Assignment> assignmentNameMap = new HashMap<String, Assignment>();
 
@@ -325,7 +326,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                 String actualComment = null;
 
                 if (assignmentStudentGradeInfo != null) {
-                    GradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentId());
+                    GbGradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentId());
 
                     if (actualGradeInfo != null) {
                         actualScore = actualGradeInfo.getGrade();
@@ -364,11 +365,11 @@ public class ImportGradesHelper extends BaseImportHelper {
         return status;
     }
 
-    private static Map<Long, AssignmentStudentGradeInfo> transformCurrentGrades(List<StudentGradeInfo> currentGrades) {
+    private static Map<Long, AssignmentStudentGradeInfo> transformCurrentGrades(List<GbStudentGradeInfo> currentGrades) {
         Map<Long, AssignmentStudentGradeInfo> assignmentMap = new HashMap<Long, AssignmentStudentGradeInfo>();
 
-        for (StudentGradeInfo studentGradeInfo : currentGrades) {
-            for (Map.Entry<Long, GradeInfo> entry : studentGradeInfo.getGrades().entrySet()) {
+        for (GbStudentGradeInfo studentGradeInfo : currentGrades) {
+            for (Map.Entry<Long, GbGradeInfo> entry : studentGradeInfo.getGrades().entrySet()) {
                 Long assignmentId = entry.getKey();
                 AssignmentStudentGradeInfo assignmentStudentGradeInfo = assignmentMap.get(assignmentId);
                 if (assignmentStudentGradeInfo == null) {

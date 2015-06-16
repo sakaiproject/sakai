@@ -9,6 +9,7 @@ import org.apache.commons.lang.time.StopWatch;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
+import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -32,9 +33,10 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
-import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
@@ -117,14 +119,16 @@ public class GradebookPage extends BasePage {
 		addGradeItem.setDefaultFormProcessing(false);
 		form.add(addGradeItem);
 		
+		//first get any settings data from the session
+		GradebookUiSettings settings = this.getUiSettings();
 		
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
         
         //get the grade matrix
-        final List<StudentGradeInfo> grades = businessService.buildGradeMatrix(assignments);
-
+        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments);
+        
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 		
 		//if the grade matrix is null, we dont have any data
@@ -137,7 +141,8 @@ public class GradebookPage extends BasePage {
 
         final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentOrder();
 
-        final ListDataProvider<StudentGradeInfo> studentGradeMatrix = new ListDataProvider<StudentGradeInfo>(grades);
+        //this could potentially be a sortable data provider
+        final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
         
         //add an empty column that we can use as a handle for selecting the row
@@ -165,7 +170,7 @@ public class GradebookPage extends BasePage {
         	
         	@Override
 			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-				StudentGradeInfo studentGradeInfo = (StudentGradeInfo) rowModel.getObject();
+				GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 				
 				Map<String,Object> modelData = new HashMap<>();
 				modelData.put("userId", studentGradeInfo.getStudentUuid());
@@ -217,9 +222,9 @@ public class GradebookPage extends BasePage {
             	
             	@Override
 				public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-            		StudentGradeInfo studentGrades = (StudentGradeInfo) rowModel.getObject();
+            		GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
             		
-            		GradeInfo gradeInfo = studentGrades.getGrades().get(assignment.getId());
+            		GbGradeInfo gradeInfo = studentGrades.getGrades().get(assignment.getId());
             		
             		Map<String,Object> modelData = new HashMap<>();
     				modelData.put("assignmentId", assignment.getId());
@@ -308,7 +313,12 @@ public class GradebookPage extends BasePage {
 		return this.gradeCommentWindow;
 	}
 
-	
+	/**
+	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only
+	 */
+	public GradebookUiSettings getUiSettings() {
+		return (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
+	}
 	
 	
 	
