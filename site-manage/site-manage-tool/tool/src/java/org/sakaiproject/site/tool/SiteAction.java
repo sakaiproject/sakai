@@ -4349,13 +4349,7 @@ public class SiteAction extends PagedResourceActionII {
 				M_log.warn("IOException creating temp import file",ioe);
 			}
 			finally {
-				try {
-					if (fileInputStream != null) {
-						fileInputStream.close();
-					}
-				} catch (IOException e) {
-					M_log.error("Could not close fileInputStream in doUpload_Mtrl_Frm_File");
-				}
+				IOUtils.closeQuietly(fileInputStream);
 			}
 
 			if (fileSize >= max_bytes) {
@@ -4397,13 +4391,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 			}
 
-			if (fileInput != null) {
-				try {
-					fileInput.close();
-				} catch (IOException e) {
-					M_log.error("Could not close fileInput in doUpload_Mtrl_Frm_File");
-				}
-			}
+			IOUtils.closeQuietly(fileInput);
 		}
 	} // doImportMtrlFrmFile
 
@@ -15427,11 +15415,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			addAlert(state, rb.getString("archive.createsite.failedupload"));
 		}
 		finally {
-			try {
-				fileOutputStream.close();
-			} catch (IOException e) {
-				M_log.error("Could not close fileOutputStream");
-			}
+			IOUtils.closeQuietly(fileOutputStream);
 		}
 		
 		//go to confirm screen

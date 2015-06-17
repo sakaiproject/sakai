@@ -46,6 +46,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -395,13 +396,7 @@ public class SiteInfoToolServlet extends HttpServlet
 				}
 			}
 
-			if (inputStream != null) {
-				try {
-					inputStream.close();
-				} catch (IOException e) {
-					log.error("Could not close inputStream in generatePDF");
-				}
-			}
+			IOUtils.closeQuietly(inputStream);
 		}
 		String configFileName = "userconfig.xml";
 		DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
@@ -446,13 +441,7 @@ public class SiteInfoToolServlet extends HttpServlet
 		}
 		finally
 		{
-			if (configInputStream != null) {
-				try {
-					configInputStream.close();
-				} catch (IOException e) {
-					log.error("Could not close the configInputStream in generatePDF");
-				}
-			}
+			IOUtils.closeQuietly(configInputStream);
 		}
 	}
 	
