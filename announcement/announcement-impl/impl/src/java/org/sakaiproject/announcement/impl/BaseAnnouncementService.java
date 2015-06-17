@@ -1368,7 +1368,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						p.addAll(oProperties);
 
 						// complete the edit
-						nChannel.commitMessage(nMessage, NotificationService.NOTI_NONE);
+						nChannel.commitMessage(nMessage, NotificationService.NOTI_IGNORE);
 						
 //						transversalMap.put(oMessage.getReference(), nMessage.getReference());
 					}
@@ -1430,7 +1430,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 							if(updated){
 								AnnouncementMessageEdit editMsg = aChannel.editAnnouncementMessage(msg.getId());
 								editMsg.setBody(msgBody);
-								aChannel.commitMessage(editMsg, NotificationService.NOTI_NONE);
+								aChannel.commitMessage(editMsg, NotificationService.NOTI_IGNORE);
 							}
 						}
 					}
@@ -1668,7 +1668,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						try {
 							AnnouncementMessageEdit em = editAnnouncementMessage(me.getId());
 							em.getHeaderEdit().setMessage_order(++currentMax);
-							super.commitMessage(em, NotificationService.NOTI_NONE, "");
+							super.commitMessage(em, NotificationService.NOTI_IGNORE, "");
 						} catch (InUseException e) {
 							if (M_log.isDebugEnabled()) {
 								M_log.debug("Exception moving an unreleased item.",e);
