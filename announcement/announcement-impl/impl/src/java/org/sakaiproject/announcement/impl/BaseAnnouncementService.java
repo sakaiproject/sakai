@@ -1668,7 +1668,7 @@ public abstract class BaseAnnouncementService extends BaseMessage implements Ann
 						try {
 							AnnouncementMessageEdit em = editAnnouncementMessage(me.getId());
 							em.getHeaderEdit().setMessage_order(++currentMax);
-							super.commitMessage(em, NotificationService.NOTI_NONE, "");
+							super.commitMessageWithoutNotification(em);
 						} catch (InUseException e) {
 							if (M_log.isDebugEnabled()) {
 								M_log.debug("Exception moving an unreleased item.",e);

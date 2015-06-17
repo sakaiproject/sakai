@@ -238,6 +238,11 @@ public interface MessageChannel extends Entity
 	 * 		  The id for the object to be called when the scheduled notification fires.
 	 */
 	void commitMessage(MessageEdit edit, int priority, String invokee);
+	
+	/**
+	 * Simply commits the edit message and clears the cache (no additional actions like notifications or events)
+	 */
+	void commitMessageWithoutNotification(MessageEdit edit);
 
 	/**
 	 * Cancel the changes made to a MessageEdit object, and release the lock. The MessageEdit is disabled, and not to be used after this call.
