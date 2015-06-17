@@ -128,7 +128,7 @@
 }
 
 .userNav_link{
-	color: darken( $background-color-secondary, 50% );
+	color: $text-color;
 	font-family: $header-font-family;
 	font-size: 0.9em;
 	font-weight: $header-font-weight;
@@ -195,7 +195,9 @@
 		display: inline-block;
 	}
 	.#{$namespace}userNav__drop{
-		background: url( 'images/arrow.png') no-repeat top left;
+		@extend .fa-angle-down;
+		@extend .fa;
+		@extend .fa-lg;
 		@extend .sitesNav__drop;
 	}
 	#loginLinks{
@@ -217,6 +219,7 @@
 		}
 
 		.#{$namespace}userNav__drop{
+			color: $button-text-color;
 			&.is-clicked{
 				@include transform( rotate(180deg) );
 				position: relative;
@@ -322,12 +325,19 @@
 			}
 			&.is-selected{
 				background: lighten($background-color, 10%);
-				a{
-					color: #{$button-text-color};
+				a,span{
+					color: $button-text-color;
+				}
+				.#{$namespace}sitesNav__submenuitem{
+					a,span{
+						color: $text-color;
+					}
 				}
 			}
 			.#{$namespace}sitesNav__drop{
-				background: url( 'images/arrow.png') no-repeat top left;
+				@extend .fa-angle-down;
+				@extend .fa;
+				@extend .fa-lg;
 				@extend .sitesNav__drop;
 				&.is-clicked{
 					@include transform( rotate(180deg) );

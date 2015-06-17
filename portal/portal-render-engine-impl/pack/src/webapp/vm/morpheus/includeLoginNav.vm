@@ -23,7 +23,7 @@
                                     #if (${tabsSites.mrphs_profileToolUrl})
 
                                         <a id="loginUser" role="menuitem" href="${site.siteUrl}" class="has-avatar Mrphs-userNav__submenuitem--userlink #if (${site.isCurrentSite}) current-site #end">
-                                            <span class="Mrphs-userNav__drop Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></span>
+                                            <span class="Mrphs-userNav__submenuitem--profilepicture" style="background-image:url(/direct/profile/${loginUserDispId}/image/thumb)" tabindex="-1"></span>
                                             <span class="Mrphs-userNav__submenuitem--username">${loginUserDispName}</span> 
                                             <span class="Mrphs-userNav__submenuitem--userid">${loginUserDispId}</span>                                    	
                                         </a>
