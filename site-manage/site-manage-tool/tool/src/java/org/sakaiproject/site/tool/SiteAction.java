@@ -9169,9 +9169,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									Site existingSite;
 									try {
 										existingSite = SiteService.getSite(siteId);
-										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 										SessionManager.setCurrentSession(session);
 										SessionManager.setCurrentToolSession(toolSession);
+										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 										importToolIntoSite(existingTools, importTools, existingSite);
 										if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
 											userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
@@ -9244,9 +9244,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									Site existingSite;
 									try {
 										existingSite = SiteService.getSite(siteId);
-										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 										SessionManager.setCurrentSession(session);
 										SessionManager.setCurrentToolSession(toolSession);
+										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
 										// Remove all old contents before importing contents from new site
 										importToolIntoSiteMigrate(existingTools, importTools, existingSite);
 										if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
