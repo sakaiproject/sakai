@@ -18,7 +18,7 @@
 * you may not use this file except in compliance with the License.
 * You may obtain a copy of the License at
 *
-*      http://www.osedu.org/licenses/ECL-2.0
+*      http://www.opensource.org/licenses/ECL-2.0
 *
 * Unless required by applicable law or agreed to in writing, software
 * distributed under the License is distributed on an "AS IS" BASIS,
@@ -46,12 +46,25 @@
          border-width: 0.5px;
          border-color: light grey;
        }
+       
+       #delivPageWrapper
+       {
+            height:1800px;
+            width: 100%
+            float: left;
+       }
+       
+       #delivAssessmentWrapper
+       {
+            width: 96%;
+            float: left;
+       }
       </style>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       <script type='text/javascript' src='/library/js/headscripts.js'></script><script type='text/javascript'>var sakai = sakai || {}; sakai.editor = sakai.editor || {};sakai.editor.enableResourceSearch = false;</script><script type='text/javascript'>var CKEDITOR_BASEPATH='/library/editor/ckeditor/';</script><script type='text/javascript' src='/library/editor/ckeditor/ckeditor.js'></script><script type='text/javascript' src='/library/editor/ckeditor.launch.js'></script>
-	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>	  	  
-      <script type="text/javascript">
+	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>
+          <script type="text/javascript">
 		
 		function whichradio(obj){ 
 
@@ -323,6 +336,10 @@ document.links[newindex].onclick();
  <f:verbatim></div></f:verbatim>
 </h:panelGroup>
 
+<f:verbatim><div id="delivPageWrapper">
+<div id="delivAssessmentWrapper">
+</f:verbatim>
+
 <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
 <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false"  />
 
@@ -585,7 +602,13 @@ document.links[newindex].onclick();
 	<h:commandLink id="hiddenReloadLink" action="#{delivery.same_page}" value="">
 	</h:commandLink>
 
-<f:verbatim></p></f:verbatim>
+<f:verbatim></p><br /><br /></f:verbatim>
+
+<!-- CLOSING THE WRAPPER DIVS -->
+<f:verbatim></div></f:verbatim>
+<%@ include file="/jsf/delivery/questionProgress.jspf" %>
+<f:verbatim></div>
+</f:verbatim>
 
 <!-- DONE BUTTON IN PREVIEW -->
 <h:panelGroup rendered="#{delivery.actionString=='previewAssessment'}">
@@ -605,6 +628,9 @@ document.links[newindex].onclick();
 	fixImplicitLabeling();
 	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
 	setTimeout('setLocation2()',2);
+	transposeTOCTables();
+	questionProgressAccess(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
+    setUpQP();
 </script>
     </body>
   </html>

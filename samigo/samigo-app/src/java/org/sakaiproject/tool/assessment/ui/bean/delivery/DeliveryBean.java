@@ -809,6 +809,16 @@ public class DeliveryBean
   //Settings
   public String getQuestionLayout()
   {
+      if(getSettings().isFormatByQuestion()) {
+          questionLayout = "1";
+      }
+      else if (getSettings().isFormatByPart()) {
+          questionLayout = "2";
+      }
+      else if (getSettings().isFormatByAssessment()) {
+          questionLayout = "3";
+      }
+
     return questionLayout;
   }
 
@@ -1847,7 +1857,7 @@ public class DeliveryBean
     // removeTimedAssessmentFromQueue();
     return returnValue;
   }
-
+  
   public String next_page()
   {
     String nextAction = checkBeforeProceed();
@@ -1894,6 +1904,61 @@ public class DeliveryBean
     if ("1".equals(navigation) && this.actionMode != PREVIEW_ASSESSMENT) {
     	LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
     	linearAccessDeliveryActionListener.saveLastVisitedPosition(this, partIndex, questionIndex);
+    }
+    reload = false;
+    return "takeAssessment";
+  }
+
+  public String goto_question()
+  {
+    String nextAction = checkBeforeProceed();
+    log.debug("***** next Action="+nextAction);
+    if (!("safeToProceed").equals(nextAction)){
+      return nextAction;
+    }
+
+    forGrade = false;
+
+    if (this.actionMode == TAKE_ASSESSMENT
+            || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
+    {
+      syncTimeElapsedWithServer();
+
+      SubmitToGradingActionListener listener =
+        new SubmitToGradingActionListener();
+      try {
+        listener.processAction(null);
+      }
+      catch (FinFormatException e) {
+        log.debug(e.getMessage());
+        return "takeAssessment";
+      }
+      catch (SaLengthException sae) {
+        log.debug(sae.getMessage());
+        return "takeAssessment";
+      }
+    }
+
+    int oPartIndex = partIndex;
+    int oQuestionIndex = questionIndex;
+
+    if (getSettings().isFormatByPart())
+    {
+      String partIndexString = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("partnumber");
+      partIndex = Integer.parseInt(partIndexString);
+    }
+    if (getSettings().isFormatByQuestion())
+    {
+      String questionIndexString = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("questionnumber");
+      questionIndex = Integer.parseInt(questionIndexString);
+    }
+
+    DeliveryActionListener l2 = new DeliveryActionListener();
+    l2.processAction(null);
+
+    if ("1".equals(navigation) && this.actionMode != PREVIEW_ASSESSMENT) {
+      LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
+      linearAccessDeliveryActionListener.saveLastVisitedPosition(this, oPartIndex, oQuestionIndex);
     }
     reload = false;
     return "takeAssessment";

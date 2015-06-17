@@ -653,8 +653,10 @@ public class DeliveryActionListener
   {
     if (ContextUtil.lookupParam("partnumber") != null &&
           !ContextUtil.lookupParam("partnumber").trim().equals("") && 
+            !ContextUtil.lookupParam("partnumber").trim().equals("null") &&
           ContextUtil.lookupParam("questionnumber") != null &&
-          !ContextUtil.lookupParam("questionnumber").trim().equals(""))
+          !ContextUtil.lookupParam("questionnumber").trim().equals("") &&
+            !ContextUtil.lookupParam("questionnumber").trim().equals("null"))
     {
         delivery.setPartIndex(Integer.valueOf
                 (ContextUtil.lookupParam("partnumber")).intValue() - 1);

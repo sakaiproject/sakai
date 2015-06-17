@@ -1,0 +1,177 @@
+<!--
+* $Id: questionProgress.jspf
+* This is an include file to display the quesitonProgress module.
+<%--
+***********************************************************************************
+*
+* Copyright (c) 2004, 2005, 2006 The Sakai Foundation.
+*
+* Licensed under the Educational Community License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.opensource.org/licenses/ECL-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License. 
+*
+**********************************************************************************/
+--%>
+-->
+
+<style>
+
+	#questionProgressPanel
+	{
+	     min-height: 200px;
+	     max-height:auto;
+	     width: 295px;
+	     background: #ddd;
+	     right:0px;
+	     display: none;
+	     position: fixed;
+	     border: 2px solid #004B8D;
+	     padding-bottom: 1em;
+	}
+	#questionProgressClick
+	{
+	     height: 200px;
+	     width: 40px;
+	     background: #004B8D;
+	     right:299px; 
+	     margin-top: 200px;
+	     position: fixed;
+	     display: none;
+	     font-weight: bold;
+		-moz-border-radius-topleft: 15px;
+		border-top-left-radius: 15px;
+		-moz-border-radius-bottomleft: 15px;
+		border-bottom-left-radius: 15px;
+		cursor: pointer;
+	}
+	.currentQuestion {
+	  border: 1px solid #004B8D;
+	  padding: 2px;
+	  background-color:#d6ebff;
+	  border-radius: 2px;
+	}
+       .questionProgressTable {
+         
+       }
+       .questionProgressTable td {
+         border: 1px solid #ddd;
+         text-align: right;
+	     background-color: #ddd;
+       }
+       .questionProgressTable td:hover {
+         background-color: #d6ebff;
+         border-color: #d6ebff;
+         cursor: pointer;
+       }
+       .questionProgressTable a {
+         text-decoration: none;
+	 font-size:100%;
+	 padding: 4px;
+       }
+       .questionProgressTable a img {
+         vertical-align: middle;
+       }
+       img.bublecenter {
+	 vertical-align: middle;
+       }
+       p.progressItem {
+	 padding:0 0 0 0;
+	 margin:0 0 0 0;
+	 line-height:1.5em;
+       }
+       p.progressItem img {
+         vertical-align: middle;
+       }
+
+	.rotateQP {
+	color:white;
+	white-space:nowrap;
+	margin-top:154px;
+
+	/* Safari */
+	-webkit-transform: rotate(-90deg);
+
+	/* Firefox */
+	-moz-transform: rotate(-90deg);
+
+	/* IE */
+	-ms-transform: rotate(-90deg);
+
+	/* Opera */
+	-o-transform: rotate(-90deg);
+
+	/* Internet Explorer */
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+
+	}
+</style>
+
+<f:verbatim><div id='questionProgressPanel'>
+</f:verbatim>
+
+<div class="tier1">
+<h2>
+    <h:outputText value="Question Progress " />
+</h2>
+
+
+<f:verbatim><p class="progressItem"></f:verbatim>
+  <h:graphicImage alt="unanswered icon" url="/images/whiteBubble15.png" /><h:outputText value=" #{deliveryMessages.unans_q}" /><br/>
+  <h:graphicImage alt="answered icon" url="/images/blackBubble15.png" /><h:outputText value=" answered question" escape="false" /><br/>
+  <h:graphicImage alt="marked for review icon" url="/images/questionMarkBubble15.png" rendered="#{delivery.displayMardForReview}" /><h:outputText value=" #{deliveryMessages.q_marked}" rendered="#{delivery.displayMardForReview}"/>
+<f:verbatim></p></f:verbatim>
+
+
+</div>
+<br />
+<div class="tier1">
+    <h:dataTable value="#{delivery.tableOfContents.partsContents}" var="part" rendered="#{delivery.navigation ne '1'}">
+      <h:column>
+      <h:panelGroup>
+        <h:outputText value="#{deliveryMessages.p} #{part.number}:  #{part.nonDefaultText}" /> 
+        <h:dataTable value="#{part.itemContents}" var="question" id="tocquestions" styleClass="questionProgressTable">
+          <h:column>
+            <h:panelGroup>
+
+		<f:verbatim><p class="progressItem"></f:verbatim>
+		<h:graphicImage alt="Loading question..." url="/images/loading.gif" style="display:none;padding-left:1em;"/>
+		<h:commandLink title="#{question.strippedText} (#{question.pointsDisplayString}#{question.roundedMaxPoints} #{deliveryMessages.pt})" action="#{delivery.goto_question}" styleClass="#{((question.number eq delivery.questionIndex+1) and (part.number eq delivery.partIndex+1)) ? 'currentQuestion' : ''}" onmouseup="disableQPLink(this);">
+                <h:outputText escape="false" value="#{question.sequence} " >
+			<f:convertNumber maxFractionDigits="2"/>
+        	</h:outputText>
+
+        <h:graphicImage alt="unanswered icon" url="/images/whiteBubble15.png" rendered="#{question.unanswered && !question.review}" />
+		<h:graphicImage alt="marked for review icon" url="/images/questionMarkBubble15.png" rendered="#{question.review}" />
+		<h:graphicImage alt="answered icon" url="/images/blackBubble15.png" rendered="#{!question.unanswered && !question.review}" />
+
+                <f:param name="partnumber" value="#{part.number}" />
+                <f:param name="questionnumber" value="#{question.number}" />
+              </h:commandLink>
+
+		<f:verbatim></p></f:verbatim>
+		
+            </h:panelGroup>
+          </h:column>
+        </h:dataTable>
+      </h:panelGroup>
+      </h:column>
+    </h:dataTable>
+
+
+</div>
+
+<f:verbatim></div></f:verbatim>
+
+<f:verbatim><div id='questionProgressClick'>
+<p class="rotateQP"><span id="qpOpen">&#9660; Question Progress &#9660;</span><span id="qpClose">&#9650; Question Progress &#9650;</span></p>
+</div><br/>&nbsp;</f:verbatim>
+
+<%@ include file="/js/questionProgress.js" %>-->
