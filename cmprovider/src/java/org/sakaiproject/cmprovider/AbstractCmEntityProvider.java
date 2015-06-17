@@ -17,6 +17,7 @@ import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
 import org.sakaiproject.entitybroker.entityprovider.CoreEntityProvider;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.AutoRegisterEntityProvider;
+import org.sakaiproject.entitybroker.entityprovider.capabilities.RESTful;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Session;
@@ -26,7 +27,7 @@ import org.sakaiproject.tool.api.Session;
  *
  * @author Christopher Schauer
  */
-public abstract class AbstractCmEntityProvider implements CmEntityProvider, CoreEntityProvider, AutoRegisterEntityProvider {
+public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityProvider, AutoRegisterEntityProvider {
 
   /**
   * Create a new entity.
@@ -68,7 +69,7 @@ public abstract class AbstractCmEntityProvider implements CmEntityProvider, Core
    * 403 = current user does not have permission to access this entity
    * 404 = no entity exists with given eid
    */
-  public abstract Object get(String eid);
+  public abstract Object get(String eid) throws IdNotFoundException;
 
   /**
    * Delete an academic session by eid.

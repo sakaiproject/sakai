@@ -8,7 +8,6 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.cmprovider.data.DateUtils;
-import org.sakaiproject.cmprovider.data.ReflectUtils;
 
 /**
  * Validates fields in a request data object. If the fields are invalid, an IllegalArgumentException
@@ -26,7 +25,7 @@ public class FieldValidator {
   public FieldValidator(Object data, Field field) {
     this.data = data;
     this.field = field;
-    this.fieldValue = ReflectUtils.getValueFromField(field, data);
+    this.fieldValue = getValueFromField(field, data);
   }
 
   public void validate() {
@@ -62,9 +61,9 @@ public class FieldValidator {
         return true;
     }
 
-    Field otherField = ReflectUtils.getFieldFromClass(data.getClass(), after.field());
-    Date date1 = DateUtils.getDateFromField(field, data);
-    Date date2 = DateUtils.getDateFromField(otherField, data);
+    Field otherField = getFieldFromClass(data.getClass(), after.field());
+    Date date1 = getDateFromField(field, data);
+    Date date2 = getDateFromField(otherField, data);
 
     if (date1 == null && date2 == null) return true;
     
@@ -77,5 +76,50 @@ public class FieldValidator {
       throw new IllegalArgumentException("Invalid " + data.getClass().getName() + ": " + field.getName() + " and " + field.getName() + " must both be null or both be non-null");
 
     return date1.compareTo(date2);
+  }
+
+  private Object getValueFromField(Field field, Object data) {
+    if (field == null || data == null)
+      throw new IllegalArgumentException("field and data must both be non-null.");
+
+    try {
+      return field.get(data);
+    } catch (IllegalAccessException ex) {
+      throw new RuntimeException("IllegalAccessException for object object: class=" + field.getDeclaringClass().getName() + ", field=" + field.getName());
+    }
+  }
+
+  private Field getFieldFromClass(Class c, String fieldName) {
+    if (c == null || fieldName == null)
+      throw new IllegalArgumentException("c and fieldName must both be non-null");
+
+    try {
+      return c.getField(fieldName);
+    } catch (NoSuchFieldException ex) {
+      throw new RuntimeException("NoSuchFieldException for object: class=" + c.getName() + ", field=" + fieldName);
+    }
+  }
+
+  /**
+   * Gets a Date from a field on an object. If the field is of type date then the value
+   * is simply returned. If the field is of type String and the proper format it will
+   * be converted to a Date and returned.
+   */
+  private Date getDateFromField(Field field, Object object) {
+    if (object == null) return null;
+    if (field == null) throw new IllegalArgumentException("field cannot be null");
+
+    Object fieldValue = getValueFromField(field, object);
+
+    if (fieldValue instanceof Date) return (Date)fieldValue;
+
+    if (fieldValue instanceof String) {
+      String dateStr = (String)fieldValue;
+      if (dateStr.equals("")) return null;
+      Date date = DateUtils.stringToDate(dateStr);
+      if (date != null) return date;
+    }
+
+    throw new IllegalArgumentException("Field " + field.getName() + " must be a Date or String of the form yyyy-MM-dd");
   }
 }

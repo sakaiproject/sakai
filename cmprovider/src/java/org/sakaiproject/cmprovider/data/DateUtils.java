@@ -31,27 +31,4 @@ public class DateUtils {
   public static String dateToString(Date date) {
     return date == null ? null : DATE_FORMAT.format(date);
   }
-
-  /**
-   * Gets a Date from a field on an object. If the field is of type date then the value
-   * is simply returned. If the field is of type String and the proper format it will
-   * be converted to a Date and returned.
-   */
-  public static Date getDateFromField(Field field, Object object) {
-    if (object == null) return null;
-    if (field == null) throw new IllegalArgumentException("field cannot be null");
-
-    Object fieldValue = ReflectUtils.getValueFromField(field, object);
-
-    if (fieldValue instanceof Date) return (Date)fieldValue;
-
-    if (fieldValue instanceof String) {
-      String dateStr = (String)fieldValue;
-      if (dateStr.equals("")) return null;
-      Date date = stringToDate(dateStr);
-      if (date != null) return date;
-    }
-
-    throw new IllegalArgumentException("Field " + field.getName() + " must be a Date or String of the form yyyy-MM-dd");
-  }
 }
