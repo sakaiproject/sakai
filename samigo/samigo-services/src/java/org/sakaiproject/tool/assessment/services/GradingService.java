@@ -1684,7 +1684,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 
 		  String studentAnswerText = null;
 		  if (data.getAnswerText() != null) {
-			  studentAnswerText = data.getAnswerText().trim().replace(',','.');    // in Spain, comma is used as a decimal point
+			  studentAnswerText = data.getAnswerText().replaceAll("\\s+", "").replace(',','.');    // in Spain, comma is used as a decimal point
 		  }
 
 		  if (range) {
@@ -1716,7 +1716,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 			  String answer = st.nextToken().trim();
 
 			  if (answer != null){ 	 
-		             answer = answer.trim().replace(',','.');  // in Spain, comma is used as a decimal point 	 
+		             answer = answer.replaceAll("\\s+", "").replace(',','.');  // in Spain, comma is used as a decimal point 	 
 			  }	 
 		 
 			  try {
