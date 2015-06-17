@@ -1143,6 +1143,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		rcontext.put("timeoutDialogWarningSeconds", Integer.valueOf(ServerConfigurationService.getInt("timeoutDialogWarningSeconds", 600)));
 		// rcontext.put("sitHelp", Web.escapeHtml(rb.getString("sit_help")));
 		// rcontext.put("sitReset", Web.escapeHtml(rb.getString("sit_reset")));
+		
+		//SAK-29457 Add warning about cookie use
+		String cookieNoticeText = rloader.getFormattedMessage("cookie_notice_text", ServerConfigurationService.getString("portal.cookie.policy.warning.url","/library/content/cookie_policy.html"));
+		rcontext.put("cookieNoticeEnabled", ServerConfigurationService.getBoolean("portal.cookie.policy.warning.enabled",false));
+		rcontext.put("cookieNoticeText", cookieNoticeText);
 
 		if (siteType != null && siteType.length() > 0)
 		{

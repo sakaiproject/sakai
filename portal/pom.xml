@@ -86,6 +86,11 @@
                 <artifactId>velocity</artifactId>
                 <version>${sakai.velocity.version}</version>
             </dependency> 
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${sakai.commons.lang3.version}</version>
+            </dependency> 
 			<dependency>
 				<groupId>au.com.flyingkite</groupId>
 				<artifactId>mobiledetect</artifactId>
