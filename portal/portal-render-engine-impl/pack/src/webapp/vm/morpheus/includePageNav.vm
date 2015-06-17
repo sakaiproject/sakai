@@ -12,18 +12,6 @@
 
     <h1 class="skip" tabindex="-1" id="totoolmenu">${rloader.sit_toolshead}</h1>
 
-    ## Added Site name to the Nav for Mobile menus
-
-    #foreach ( $site in $tabsSites.tabsSites )
-
-        #if (${site.isCurrentSite})
-
-            <h2 title="${site.fullTitle}" class="Mrphs-toolsNav__title--current-site">${site.siteTitle}</h2>
-
-        #end ## END of IF (${site.isCurrentSite})
-
-    #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
-
     <nav id="toolMenu" role="navigation" aria-label="${rloader.sit_toolshead}" class="Mrphs-toolsNav__menu">
         <ul>
 		#set( $categoryMap = {})
