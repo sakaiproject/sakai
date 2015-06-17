@@ -2979,9 +2979,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
 		buffer.append(rb.getString("noti.site.url") + " <a href=\""+ siteUrl+ "\">" + siteUrl + "</a>"+ newline);
 		// notification text
-		//Get the actual person that submitted, for a group submission just get anyone from that group
-		String userId = s.getSubmitterId();
-		if (a != null && a.isGroup()) {
+		//Get the actual person that submitted, for a group submission just get the first person from that group (This is why the array is used)
+		String userId = null;
+		if (s.getSubmitterIds() != null && s.getSubmitterIds().size() > 0) {
 		    userId = (String) s.getSubmitterIds().get(0);
 		}
 		if (canSubmit(context,a,userId)) {
