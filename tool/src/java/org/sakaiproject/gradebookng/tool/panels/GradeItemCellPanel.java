@@ -277,6 +277,9 @@ public class GradeItemCellPanel extends Panel {
 			gradeCell.setOutputMarkupId(true);
 						
 			add(gradeCell);
+
+			getParent().add(new AttributeModifier("role", "gridcell"));
+			getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal)));
 		}
 									
 		//menu

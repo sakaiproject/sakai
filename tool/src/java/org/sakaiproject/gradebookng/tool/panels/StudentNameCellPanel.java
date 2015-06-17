@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.Map;
 
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -74,7 +75,8 @@ public class StudentNameCellPanel extends Panel {
 		
 		add(link);
 		
-		
+		getParent().add(new AttributeModifier("scope", "row"));
+		getParent().add(new AttributeModifier("role", "rowheader"));
 
 	}
 	
