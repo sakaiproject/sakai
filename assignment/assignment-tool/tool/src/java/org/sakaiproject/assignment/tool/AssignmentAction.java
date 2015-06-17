@@ -3401,10 +3401,21 @@ public class AssignmentAction extends PagedResourceActionII
 					// Determine next ungraded, next with submission, next ungraded with submission
 					for( int i = index + 1; i < userSubmissions.size(); i++ )
 					{
-						processIfUngraded( userSubmissions.get( i ).getSubmission(), true );
-						processIfHasSubmission( userSubmissions.get( i ).getSubmission(), true );
-						processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), true );
-						
+						if( !nextUngraded )
+						{
+							processIfUngraded( userSubmissions.get( i ).getSubmission(), true );
+						}
+
+						if( !nextWithSubmission )
+						{
+							processIfHasSubmission( userSubmissions.get( i ).getSubmission(), true );
+						}
+
+						if( !nextUngradedWithSubmission )
+						{
+							processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), true );
+						}
+
 						if( nextUngraded && nextWithSubmission && nextUngradedWithSubmission )
 						{
 							break;
@@ -3414,10 +3425,21 @@ public class AssignmentAction extends PagedResourceActionII
 					// Determine previous ungraded, previous with submission, previous ungraded with submission
 					for( int i = index - 1; i >= 0; i-- )
 					{
-						processIfUngraded( userSubmissions.get( i ).getSubmission(), false );
-						processIfHasSubmission( userSubmissions.get( i ).getSubmission(), false );
-						processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), false );
-						
+						if( !prevUngraded )
+						{
+							processIfUngraded( userSubmissions.get( i ).getSubmission(), false );
+						}
+
+						if( !prevWithSubmission )
+						{
+							processIfHasSubmission( userSubmissions.get( i ).getSubmission(), false );
+						}
+
+						if( !prevUngradedWithSubmission )
+						{
+							processIfHasUngradedSubmission( userSubmissions.get( i ).getSubmission(), false );
+						}
+
 						if( prevUngraded && prevWithSubmission && prevUngradedWithSubmission )
 						{
 							break;
@@ -3587,35 +3609,35 @@ public class AssignmentAction extends PagedResourceActionII
 	 */
 	private void applyNavOption( String flag, AssignmentSubmission submission )
 	{
-		if( FLAG_NEXT_UNGRADED.equals( flag ) )
+		if( null != flag )
 		{
-			nextUngraded = true;
-			nextUngradedRef = submission.getReference();
-		}
-		else if( FLAG_PREV_UNGRADED.equals( flag ) )
-		{
-			prevUngraded = true;
-			prevUngradedRef = submission.getReference();
-		}
-		else if( FLAG_NEXT_WITH_SUB.equals( flag ) )
-		{
-			nextWithSubmission = true;
-			nextWithSubmissionRef = submission.getReference();
-		}
-		else if( FLAG_PREV_WITH_SUB.equals( flag ) )
-		{
-			prevWithSubmission = true;
-			prevWithSubmissionRef = submission.getReference();
-		}
-		else if( FLAG_NEXT_UNGRADED_WITH_SUB.equals( flag ) )
-		{
-			nextUngradedWithSubmission = true;
-			nextUngradedWithSubmissionRef = submission.getReference();
-		}
-		else if( FLAG_PREV_UNGRADED_WITH_SUB.equals( flag ) )
-		{
-			prevUngradedWithSubmission = true;
-			prevUngradedWithSubmissionRef = submission.getReference();
+			switch( flag )
+			{
+				case FLAG_NEXT_UNGRADED:
+					nextUngraded = true;
+					nextUngradedRef = submission.getReference();
+					break;
+				case FLAG_PREV_UNGRADED:
+					prevUngraded = true;
+					prevUngradedRef = submission.getReference();
+					break;
+				case FLAG_NEXT_WITH_SUB:
+					nextWithSubmission = true;
+					nextWithSubmissionRef = submission.getReference();
+					break;
+				case FLAG_PREV_WITH_SUB:
+					prevWithSubmission = true;
+					prevWithSubmissionRef = submission.getReference();
+					break;
+				case FLAG_NEXT_UNGRADED_WITH_SUB:
+					nextUngradedWithSubmission = true;
+					nextUngradedWithSubmissionRef = submission.getReference();
+					break;
+				case FLAG_PREV_UNGRADED_WITH_SUB:
+					prevUngradedWithSubmission = true;
+					prevUngradedWithSubmissionRef = submission.getReference();
+					break;
+			}
 		}
 	}
 
