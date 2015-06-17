@@ -1,0 +1,165 @@
+#feedback-technical-item {
+    display: none;
+}
+#feedback-report-technical-wrapper {
+    display: none;
+}
+#feedback-suggest-feature-item {
+    display: none;
+}
+#feedback-help-item {
+    display: none;
+}
+#feedback-suggest-feature-wrapper {
+    display: none;
+}
+#feedback-technical-setup-instruction {
+    display: none;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#feedback-overview {
+    margin-bottom: 5px;
+}
+#feedback-help-wrapper {
+    margin-bottom: 10px;
+}
+#feedback-siteupdaters-wrapper {
+    display: none;
+}
+#feedback-sender-address {
+    display: none;
+}
+#feedback-supplementary-info {
+    display: none;
+}
+#feedback-help-wrapper {
+    display: none;
+}
+
+.feedback-link {
+    margin-bottom: 10px;
+}
+
+#feedback-error-message-wrapper, #feedback-info-message-wrapper {
+    display: none;
+    text-align: center;
+    margin-top: 10px;
+}
+
+#feedback-error-message-wrapper > div {
+    display: inline-block;
+    padding: 5px;
+    border: 1px red solid;
+    border-radius: 1em 1em 1em 1em;
+    color: red;
+}
+
+#feedback-info-message-wrapper > div{
+    display: inline-block;
+    padding: 5px;
+    border: 1px green solid;
+    border-radius: 1em 1em 1em 1em;
+    color: green;
+}
+
+#feedback-error-message-wrapper span, #feedback-info-message-wrapper span {
+    margin-right: 10px;
+    margin-left: 10px;
+}
+
+#feedback-error-message-wrapper img, #feedback-info-message-wrapper img {
+    margin: 0px;
+    padding: 0px;
+}
+
+.feedback-explanation {
+    display: none;
+    width: 50%;
+    border: 1px black solid;
+    border-radius: 1em 1em 1em 1em;
+    margin: 10px 0px 10px 20px;
+    padding: 5px;
+    background-color: #FFFFDD;
+}
+
+#feedback-recaptcha-block {
+    margin-top: 5px;
+}
+
+#feedback-attachments-label {
+    margin-top: 5px;
+}
+
+#feedback-field-table {
+    margin-top: 5px;
+}
+
+#feedback-recaptcha-wrapper {
+    display: none;
+}
+
+#feedback-max-attachments-label {
+    color: red;
+    font-weight: bold;
+}
+
+.feedback-box {
+    background: linear-gradient(center top , #FDFDFD, #F7F7F7) repeat scroll 0% 0% transparent;
+    background: -moz-linear-gradient(center top , #FDFDFD, #F7F7F7) repeat scroll 0% 0% transparent;
+    border: 1px solid #DFE2E4;
+    border-bottom-width: 3px;
+    -moz-border-top-colors: none;
+    -moz-border-right-colors: none;
+    -moz-border-bottom-colors: none;
+    -moz-border-left-colors: none;
+    border-image: none;
+    border-radius: 5px;
+    display: block;
+    float: left;
+    list-style: none outside none;
+    margin: 2px;
+    height: 25em;
+    padding: 2px 8px;
+    width: 175px;
+}
+
+.feedback-box ul.list  {
+    margin-left: 8px;
+    padding-left: 8px;
+}
+
+#feedback-content-problem h3, #feedback-no-panels h3 {
+    background: url('/library/image/silk/page_white_error.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+#feedback-ask-help h3 {
+    background: url('/library/image/silk/user_comment.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+#feedback-tech-problem h3 {
+    background: url('/library/image/silk/bug.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+#feedback-improvement h3 {
+    background: url('/library/image/silk/lightbulb.png') no-repeat scroll left top transparent;
+    padding-left: 20px;
+}
+
+#feedback-toolbar {
+    border-bottom: none;
+    padding: 0 !important;
+}
+
+.clear {
+    clear: both;
+}
+#feedback-no-panels ul {
+	padding-left:10px;
+}
+#feedback-no-panels {
+	width:240px;
+}

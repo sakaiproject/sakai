@@ -1,0 +1,41 @@
+<h2 id="feedback-title">{{translate 'title'}}</h2>
+<div id="feedback-overview" class="instruction">{{translate 'technical_instruction'}}</div>
+<form id="feedback-form" action="/direct/feedback/{{siteId}}/{{url}}" method="POST">
+    <div id="feedback-mandatory-instruction" class="instruction">{{translate 'mandatory_instruction'}}</div>
+    <fieldset>
+    <table id="feedback-field-table" cols="2">
+        <tr>
+            <td id="feedback-title-label"><label for="feedback-title">{{translate 'title_label'}}</label></td>
+            <td id="feedback-title-field"><input id="feedback-title" type="text" name="title" maxlength="40" size="40"/></td>
+        </tr>
+        <tr>
+            <td id="feedback-description-label"><label for="feedback-description">{{translate 'description_label'}}</label></td>
+            <td id="feedback-description-field"><textarea id="feedback-description" name="description" cols="80" rows="5"></textarea></td>
+        </tr>
+        <tr id="feedback-sender-address"><td>{{translate 'sender_address_label'}}</td><td><input type="text" name="senderaddress" size="40"/></td></tr>
+    </table>
+    <input id="feedback-technical-email" value="{{technicalToAddress}}" hidden="hidden"/>
+    <input id="feedback-contactname" value="{{contactName}}" hidden="hidden"/>
+    <input type="hidden" name="siteExists" value="{{siteExists}}"/>
+    <input name="plugins" value="{{plugins}}" type="hidden"/>
+    <input name="screenWidth" value="{{screenWidth}}" type="hidden"/>
+    <input name="screenHeight" value="{{screenHeight}}" type="hidden"/>
+    <input name="oscpu" value="{{oscpu}}" type="hidden"/>
+    <input name="windowWidth" value="{{windowWidth}}" type="hidden"/>
+    <input name="windowHeight" value="{{windowHeight}}" type="hidden"/>
+    <div id="feedback-attachments-label">
+        <span>{{translate 'attachments_label'}}</span>
+        <span id="feedback-max-attachments-label">
+            <span id="feedback-max-attachments-mb"></span>
+            <span id="feedback-attachments-max-suffix">{{translate 'attachments_max_suffix'}}</span>
+        </span>
+    </div>
+    <input id="feedback-attachment" name="attachment" type="file" class="multi"/><br clear="all"/>
+    <div id="feedback-recaptcha-wrapper">
+        <div>Enter the text that you see in the box below:</div>
+        <div id="feedback-recaptcha-block"></div>
+    </div>
+    </fieldset>
+    <input id="feedback-submit-button" type="submit" value="{{translate 'submit_label'}}" />
+    <input id="feedback-cancel-button" type="submit" value="{{translate 'cancel_label'}}" />
+</form>
