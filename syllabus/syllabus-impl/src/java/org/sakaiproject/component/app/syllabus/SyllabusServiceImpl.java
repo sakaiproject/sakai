@@ -1175,14 +1175,19 @@ public class SyllabusServiceImpl implements SyllabusService, EntityTransferrer, 
 							.getSite(toContext).getTitle());
 					SyllabusItem toSyItem = syllabusManager
 							.getSyllabusItemByContextId(toPage);
+					String redirectUrl = fromSyllabusItem.getRedirectURL();
+					if (redirectUrl.indexOf(fromContext) != -1)
+					{
+							redirectUrl = redirectUrl.replaceAll(fromContext, toContext);
+					}
 					if (toSyItem == null) 
 					{
 						toSyItem = syllabusManager.createSyllabusItem(
 								UserDirectoryService.getCurrentUser().getId(),
-								toPage, fromSyllabusItem.getRedirectURL());
+								toPage, redirectUrl);
 					}
 					else if (fromSyllabusItem.getRedirectURL() !=null) {
-	                    toSyItem.setRedirectURL(fromSyllabusItem.getRedirectURL());
+	                    toSyItem.setRedirectURL(redirectUrl);
 	                    syllabusManager.saveSyllabusItem(toSyItem);
 	                }
 
