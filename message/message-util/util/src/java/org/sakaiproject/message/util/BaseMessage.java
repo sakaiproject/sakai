@@ -2730,13 +2730,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 				transientNotification = false;
 			}
 
-			// complete the edit
-			m_storage.commitMessage(this, edit);
-
-			// clear out any thread local caching of this message, since it has just changed
-			m_threadLocalManager.set(edit.getReference(), null);
-			// clear out this messasge in the threadLocalManager findMessages cache
-			removeFromFindMessagesCache(edit);
+			commitMessageWithoutNotification(edit);
 
 			// track event
 			Event event = m_eventTrackingService.newEvent(eventId(((BaseMessageEdit) edit).getEvent()), edit.getReference(), true,
@@ -2754,6 +2748,36 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 
 		} // commitMessage
 		
+		
+		/**
+		 * Simply commits the edit message and clears the cache (no additional actions like notifications or events)
+		 * @param edit
+		 */
+		public void commitMessageWithoutNotification(MessageEdit edit){
+			// check for closed edit
+			if (!edit.isActiveEdit())
+			{
+				try
+				{
+					throw new Exception();
+				}
+				catch (Exception e)
+				{
+					M_log.warn("commitMessageWithoutNotification(): closed MessageEdit", e);
+				}
+				return;
+			}
+
+			// complete the edit
+			m_storage.commitMessage(this, edit);
+			// clear out any thread local caching of this message, since it has just changed
+			m_threadLocalManager.set(edit.getReference(), null);
+			// clear out this messasge in the threadLocalManager findMessages cache
+			removeFromFindMessagesCache(edit);
+
+			// close the edit object
+			((BaseMessageEdit) edit).closeEdit();
+		}
 
 		public void removeFromFindMessagesCache (MessageEdit messageReference) {
 			List msgs = (List) m_threadLocalManager.get(getReference() + ".msgs");
