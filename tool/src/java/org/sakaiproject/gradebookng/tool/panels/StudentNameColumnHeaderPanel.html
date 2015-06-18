@@ -7,13 +7,14 @@
 	<div wicket:id="title" class="gb-title"></div>
 	
 	<div class="gb-student-filter">
-	  <input type="text" id="studentFilterInput" wicket:message="placeholder:placeholder.students" aria-controls="gradebookGradesTable" />
+	  <label for="studentFilterInput" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
+	  <input type="text" id="studentFilterInput" wicket:message="placeholder:filter.students" aria-controls="gradebookGradesTable" />
 	  <a id="studentFilterClear" class="gb-student-filter-clear" href="javascript:void(0);" aria-controls="studentFilterInput" aria-label="Clear student filter"></a>
 	</div>
 	
 	<!--  this comes from the wicket bootstrap module, needs to be sorted out. -->
 	<div class="btn-group">
-	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true">
+	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
 	    	<span class="caret"></span>
 	    </a>
 	    <ul class="dropdown-menu dropdown-menu-right" role="menu">
