@@ -383,8 +383,7 @@ public class ReportsEditPage extends BasePage {
 			}
 		}else{
 			reportDetailsTop.setVisible(true);
-			reportDetailsShow.setVisible(true);
-			reportDetails.add(new AttributeModifier("style", true, new Model("display: none")));
+			reportDetailsShow.setVisible(false);
 		}
 	}
 
