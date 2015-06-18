@@ -58,14 +58,14 @@ public class GradeItemImportSelectionStep extends Panel {
             {
                 info("selected grade(s): " + group.getDefaultModelObjectAsString());
 
-                List<ProcessedGradeItem> processedGradeItems = (List<ProcessedGradeItem>)group.getDefaultModelObject();
+                List<ProcessedGradeItem> selectedGradeItems = (List<ProcessedGradeItem>)group.getDefaultModelObject();
 
-                log.debug("Processed items: " + processedGradeItems.size());
+                log.debug("Processed items: " + selectedGradeItems.size());
 
                 //Process the selected items into the create/update lists
-                List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(processedGradeItems,
+                List<ProcessedGradeItem> itemsToUpdate = filterListByStatus(selectedGradeItems,
                         Arrays.asList(ProcessedGradeItemStatus.STATUS_UPDATE, ProcessedGradeItemStatus.STATUS_NA));
-                List<ProcessedGradeItem> itemsToCreate = filterListByStatus(processedGradeItems,
+                List<ProcessedGradeItem> itemsToCreate = filterListByStatus(selectedGradeItems,
                         Arrays.asList(ProcessedGradeItemStatus.STATUS_NEW));
 
                 log.debug("Filtered Update items: " + itemsToUpdate.size());
@@ -83,7 +83,7 @@ public class GradeItemImportSelectionStep extends Panel {
 
                 //repaint panel
                 Component newPanel = null;
-                importWizardModel.setProcessedGradeItems(processedGradeItems);
+                importWizardModel.setSelectedGradeItems(selectedGradeItems);
                 importWizardModel.setGbItemsToCreate(gbItemsToCreate);
                 importWizardModel.setItemsToCreate(itemsToCreate);
                 importWizardModel.setItemsToUpdate(itemsToUpdate);

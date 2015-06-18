@@ -14,7 +14,15 @@ import java.util.List;
 @Data
 public class ImportWizardModel implements Serializable {
 
+    /**
+     * List of items that have been uploaded
+     */
     private List<ProcessedGradeItem> processedGradeItems;
+
+    /**
+     * List of items that have been selected to import
+     */
+    private List<ProcessedGradeItem> selectedGradeItems;
 
     /**
      * Which step is the new gb item creation currently on
