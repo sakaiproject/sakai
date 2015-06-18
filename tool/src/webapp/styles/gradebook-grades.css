@@ -77,7 +77,10 @@
   line-height: 1.4em;
 }
 #gradebookGrades th .gb-title .gb-external-app-flag {
-  float: left;
+  font-size: 1.2em;
+}
+#gradebookGrades th .gb-title .gb-external-app-flag:before {
+  margin-right: 4px;
 }
 #gradebookGrades th .gb-grade-section,
 #gradebookGrades th .gb-due-date {
