@@ -10,7 +10,8 @@ import java.io.Serializable;
 @Data
 public class ProcessedGradeItemDetail implements Serializable {
 
-    private String studentId;
+    private String studentEid;
+    private String studentUuid;
     private String grade;
     private String comment;
 }

@@ -15,7 +15,8 @@ import java.util.Map;
 @Data
 public class ImportedGrade implements Serializable {
 
-    private String studentId;
+    private String studentEid;
+    private String studentUuid;
     private String studentName;
 
     private Map<String, ImportedGradeItem> gradeItemMap = new HashMap<String, ImportedGradeItem>();
