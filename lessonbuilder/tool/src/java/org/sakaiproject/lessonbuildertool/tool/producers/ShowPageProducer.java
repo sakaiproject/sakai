@@ -726,6 +726,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				UIOutput.make(tofill, "dropdown");
 				UIOutput.make(tofill, "moreDiv");
 				UIOutput.make(tofill, "new-page").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.new-page-tooltip")));
+				createToolBarLink(PermissionsHelperProducer.VIEW_ID, tofill, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 				UIOutput.make(tofill, "import-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.import_cc.tooltip")));
 				UIOutput.make(tofill, "export-cc").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.export_cc.tooltip")));
 			}
@@ -3249,10 +3250,14 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createToolBarLink(ReorderProducer.VIEW_ID, toolBar, "reorder", "simplepage.reorder", currentPage, "simplepage.reorder-tooltip");
 		UILink.make(toolBar, "help", messageLocator.getMessage("simplepage.help"), 
 			    getLocalizedURL( isStudent ? "student.html" : "general.html"));
-		if (!studentPage)
-		    createToolBarLink(PermissionsHelperProducer.VIEW_ID, toolBar, "permissions", "simplepage.permissions", currentPage, "simplepage.permissions.tooltip");
 
 		// add content menu
+		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text1", null, currentPage, "simplepage.text.tooltip").setItemId(null);
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource1", null, false, false,  currentPage, "simplepage.resource.tooltip");
+		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia1", null, true, false, currentPage, "simplepage.multimedia.tooltip");
+		UIInternalLink.makeURL(tofill, "subpage-link1", "#").
+		    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
+
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
@@ -3344,7 +3349,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 	private void createStandardToolBarLink(String viewID, UIContainer tofill, String ID, String message, SimpleViewParameters params, String tooltip) {
 		params.viewID = viewID;
-		UILink link = UIInternalLink.make(tofill, ID, messageLocator.getMessage(message), params);
+		if (message != null)
+		    message = messageLocator.getMessage(message);
+		UILink link = UIInternalLink.make(tofill, ID, message , params);
 		link.decorate(new UITooltipDecorator(messageLocator.getMessage(tooltip)));
 	}
 
