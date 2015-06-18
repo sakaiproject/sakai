@@ -19,6 +19,16 @@
 <h1 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
 
     <main id="$pageWrapperClass" class="Mrphs-mainContent" role="main">
+    ## Added Site name to the Nav for Mobile menus
+    #foreach ( $site in $tabsSites.tabsSites )
+
+        #if (${site.isCurrentSite})
+
+            <h2 title="${site.fullTitle}" class="Mrphs-toolsNav__title--current-site">${site.siteTitle}</h2>
+
+        #end ## END of IF (${site.isCurrentSite})
+
+    #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
 
         #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
 

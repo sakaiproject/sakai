@@ -194,7 +194,9 @@ public class BaseSite implements Site
 	protected boolean m_isSoftlyDeleted = false;
 	protected Date m_softlyDeletedDate = null;
 
-	
+	/** flag to use Dynamic tool categorization instead of toolorder.xml */
+	public static final String DYNAMIC_TOOL_CATEGORIZATION = "portal.toolcategories.dynamic";
+
 	/**
 	 * Construct.
 	 * 
@@ -1177,6 +1179,8 @@ public class BaseSite implements Site
 		Map<String, String> pageCategoriesByTool = siteService.serverConfigurationService().getToolToCategoryMap(
 				getType());
 
+		boolean dynamicToolCategorization = siteService.serverConfigurationService().getBoolean(DYNAMIC_TOOL_CATEGORIZATION, false);
+
 		// get a copy we can modify without changing the site!
 		List pages = new Vector(getPages());
 
@@ -1193,7 +1197,11 @@ public class BaseSite implements Site
 			for (Iterator p = pages.iterator(); p.hasNext();)
 			{
 				SitePage page = (SitePage) p.next();
-				page.getProperties().removeProperty(SitePage.PAGE_CATEGORY_PROP);
+				// Dont remove if use dynamic categorization flag is set.
+				if(!dynamicToolCategorization){
+					// Remove dynamic page category property so that it is added back by the category mentioned in toolorder.xml	
+					page.getProperties().removeProperty(SitePage.PAGE_CATEGORY_PROP);
+				}
 				List tools = page.getTools();
 				for (Iterator t = tools.iterator(); t.hasNext();)
 				{
@@ -1203,10 +1211,13 @@ public class BaseSite implements Site
 						// this page has this tool, so move it from the pages to
 						// the newOrder
 						newOrder.add(page);
-						if (pageCategoriesByTool.get(toolId) != null)
-						{
-							page.getProperties().addProperty(SitePage.PAGE_CATEGORY_PROP,
-									pageCategoriesByTool.get(toolId));
+						if(!dynamicToolCategorization){
+							// Add property if it is categorized in toolorder.xml
+							if (pageCategoriesByTool.get(toolId) != null)
+							{
+								page.getProperties().addProperty(SitePage.PAGE_CATEGORY_PROP,
+										pageCategoriesByTool.get(toolId));
+							}
 						}
 						p.remove();
 						break;

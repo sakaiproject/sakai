@@ -8,6 +8,20 @@ Please use these guidelines and the information in [README.md](README.md) to ass
 
 Bugs and features against Sakai are tracked in our [Jira instance](https://jira.sakaiproject.org/) and contributions must reflect a Jira reference number in the messages and git branch names (e.g., SAK-29469). To file or comment on a bug or feature, you will need a Jira account.
 
+## Pull Requests
+
+Generally when you make a change you will create a pull request that allows other people to examine the code and comment on the changes you've made. Typically you may get comments about:
+
+ * Code style - Does it match the existing code in the file?
+ * Indentation - Are you keeping to the same indentation format (tabs/spaces) and aligning it?
+ * Internationalisation - Does your code support running in a different language?
+ * Accessibility - Are you supporting accessability best practices?
+ * Technical Approach - Is this a sensible technical approach? are there any obvious performance implications?
+ * Minimal Changes - Are you changing only the lines needed to fix this bug add this feature (no bulk reformatting)?
+ * Single Issue - Are you fixing one issue?
+ * Tests - Are the tests passing and have you added tests where sensible/possible?
+ * Commit comments - Have you linked to the issue you're working on? Have you explained why this is the right fix?
+
 ## Initial Git/GitHub setup and advice
 
 You need to do some initial work to set your local environment. In the steps below, the following references are used:

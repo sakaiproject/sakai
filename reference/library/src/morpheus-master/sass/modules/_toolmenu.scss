@@ -33,18 +33,13 @@
 }
 
 .#{$namespace}toolsNav__title--current-site{
-	position: absolute;
-	margin: #{55px - ( $header-size / 2 ) } 0 0 234px;
-	font-size: 1.5em;
-	max-width: $measure;
-	min-width: #{$measure / 2};
-	width: 100%;
-	overflow: hidden;
-	text-overflow: ellipsis;
-	@media #{$phone}{
-		display: none;
-	}
 	display: none;
+	@media #{$phone}{
+		color: $tool-background-color;
+		display: block;
+		font-size: 1.2em;
+		margin: 0 0 0 15px;
+	}
 }
 
 #toolMenu{
@@ -52,7 +47,7 @@
 		padding: 0.8em 0;
 		li{
 			.#{$namespace}toolsNav__menuitem--icon{
-				vertical-align: bottom;
+				margin: 0 0.25em 0 0;
 			}
 			a{
 				border-bottom: 1px solid lighten( $text-color, 5% );

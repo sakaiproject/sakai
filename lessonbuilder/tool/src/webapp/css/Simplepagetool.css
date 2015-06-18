@@ -1241,7 +1241,7 @@ margin-left:1px;
 .right-col{
   padding-top:2px;
   padding-bottom:2px;
-  padding-left: 3px;
+  padding-left: 10px;
   padding-right: 3px;
 }
 .edit-col + .right-col {
@@ -1249,6 +1249,9 @@ width:calc(100% - 80px);
 }
 }
 @media only screen and (max-width: 800px) {
+.contentButton {
+  display:none !important;
+}
 #content {
   margin-right:10px !important;
   margin-left: 30px !important;
@@ -1263,3 +1266,9 @@ width:calc(100% - 50px);
 }
 }
 
+.lessonsToolButton {
+  border-radius:15px !important;
+}
+.contentButton span {
+  padding: 0px !important;
+}

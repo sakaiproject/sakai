@@ -42,7 +42,8 @@
  <!-- IF A SECURE DELIVERY MODULE HAS BEEN SELECTED, INJECT ITS HTML FRAGMENT (IF ANY) HERE -->
  <h:outputText  value="#{delivery.secureDeliveryHTMLFragment}" escape="false" />
 
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div class="portletBody">
+ <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
 
 <!-- content... -->
@@ -236,6 +237,7 @@ function clickSubmitForGrade(){
 
 </h:form>
 <!-- end content -->
+  </div>
 </div>
     </body>
   </html>
