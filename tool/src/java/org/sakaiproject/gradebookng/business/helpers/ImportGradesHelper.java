@@ -376,9 +376,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                     assignmentStudentGradeInfo.setAssignmemtId(assignmentId);
                     assignmentMap.put(assignmentId, assignmentStudentGradeInfo);
                 }
-                assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentUuid(), entry.getValue());
-//                assignmentStudentGradeInfo.setGradeInfo(entry.getValue());
-//                assignmentStudentGradeInfo.setStudentId(studentGradeInfo.getStudentUuid());
+                assignmentStudentGradeInfo.addGrade(studentGradeInfo.getStudentEid(), entry.getValue());
             }
 
         }
