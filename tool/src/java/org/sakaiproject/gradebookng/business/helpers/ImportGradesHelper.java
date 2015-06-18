@@ -51,7 +51,7 @@ public class ImportGradesHelper extends BaseImportHelper {
      * @param is InputStream of the data to parse
      * @return
      */
-    public static ImportedGradeWrapper parseCsv(InputStream is) {
+    public static ImportedGradeWrapper parseCsv(InputStream is, Map<String, String> userMap) {
 
         //manually parse method so we can support arbitrary columns
         CSVReader reader = new CSVReader(new InputStreamReader(is));
@@ -68,7 +68,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                     mapping = mapHeaderRow(nextLine);
                 } else {
                     //map the fields into the object
-                    list.add(mapLine(nextLine, mapping));
+                    list.add(mapLine(nextLine, mapping, userMap));
                 }
                 lineCount++;
             }
@@ -97,7 +97,7 @@ public class ImportGradesHelper extends BaseImportHelper {
      * @param is InputStream of the data to parse
      * @return
      */
-    public static ImportedGradeWrapper parseXls(InputStream is) {
+    public static ImportedGradeWrapper parseXls(InputStream is, Map<String, String> userMap) {
 
         int lineCount = 0;
         List<ImportedGrade> list = new ArrayList<ImportedGrade>();
@@ -115,7 +115,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                     mapping = mapHeaderRow(r);
                 } else {
                     //map the fields into the object
-                    list.add(mapLine(r, mapping));
+                    list.add(mapLine(r, mapping, userMap));
                 }
                 lineCount++;
             }
@@ -193,7 +193,7 @@ public class ImportGradesHelper extends BaseImportHelper {
      * @param mapping
      * @return
      */
-    private static ImportedGrade mapLine(String[] line, Map<Integer,ImportColumn> mapping){
+    private static ImportedGrade mapLine(String[] line, Map<Integer,ImportColumn> mapping, Map<String, String> userMap){
 
         ImportedGrade grade = new ImportedGrade();
         ResourceProperties p = new BaseResourcePropertiesEdit();
@@ -212,7 +212,8 @@ public class ImportGradesHelper extends BaseImportHelper {
 
             //now check each of the main properties in turn to determine which one to set, otherwise set into props
             if(StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_ID)) {
-                grade.setStudentId(lineVal);
+                grade.setStudentEid(lineVal);
+                grade.setStudentUuid(userMap.get(lineVal));
             } else if(StringUtils.equals(importColumn.getColumnTitle(), IMPORT_USER_NAME)) {
                 grade.setStudentName(lineVal);
             } else if(ImportColumn.TYPE_ITEM_WITH_POINTS==importColumn.getType()) {
@@ -295,8 +296,10 @@ public class ImportGradesHelper extends BaseImportHelper {
                 ImportedGradeItem importedGradeItem = importedGrade.getGradeItemMap().get(assignmentName);
                 if (importedGradeItem != null) {
                     ProcessedGradeItemDetail processedGradeItemDetail = new ProcessedGradeItemDetail();
-                    processedGradeItemDetail.setStudentId(importedGrade.getStudentId());
+                    processedGradeItemDetail.setStudentEid(importedGrade.getStudentEid());
+                    processedGradeItemDetail.setStudentUuid(importedGrade.getStudentUuid());
                     processedGradeItemDetail.setGrade(importedGradeItem.getGradeItemScore());
+                    processedGradeItemDetails.add(processedGradeItemDetail);
                 }
 
             }
@@ -325,7 +328,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                 String actualComment = null;
 
                 if (assignmentStudentGradeInfo != null) {
-                    GradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentId());
+                    GradeInfo actualGradeInfo = assignmentStudentGradeInfo.getStudentGrades().get(importedGrade.getStudentEid());
 
                     if (actualGradeInfo != null) {
                         actualScore = actualGradeInfo.getGrade();

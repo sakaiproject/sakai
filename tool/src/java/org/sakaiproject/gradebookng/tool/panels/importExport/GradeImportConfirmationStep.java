@@ -74,12 +74,13 @@ public class GradeImportConfirmationStep extends Panel {
                     //TODO this loops through grades and comments separately...need to figure out a better way
                     for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
                         LOG.debug("Looping through detail items to save");
-                        GradeSaveResponse saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentId(),
+                        GradeSaveResponse saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentUuid(),
                                 processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
-                        if (saved != GradeSaveResponse.OK) {
+                        //Anything other than OK and NO_CHANGE is bad
+                        if (!(saved == GradeSaveResponse.OK || saved == GradeSaveResponse.NO_CHANGE)) {
                             errors = true;
                         }
-                        LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentId() + ", " +
+                        LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentEid() + ", " +
                                 processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
                     }
                 }

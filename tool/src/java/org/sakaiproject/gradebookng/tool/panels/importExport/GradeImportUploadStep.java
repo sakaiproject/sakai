@@ -30,7 +30,9 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by chmaurer on 1/22/15.
@@ -163,8 +165,11 @@ public class GradeImportUploadStep extends Panel {
 
                 try {
                     log.debug("file upload success");
+                    //get all users
+                    Map<String, String> userMap = makeUserMap(grades);
+
                     //turn file into list
-                    ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(), upload.getContentType());
+                    ImportedGradeWrapper importedGradeWrapper = parseImportedGradeFile(upload.getInputStream(), upload.getContentType(), userMap);
 
                     List<ProcessedGradeItem> processedGradeItems = ImportGradesHelper.processImportedGrades(importedGradeWrapper, assignments, grades);
 
@@ -194,14 +199,27 @@ public class GradeImportUploadStep extends Panel {
         }
     }
 
+    /**
+     * Create a map so that we can use the user's eid (from the imported file) to lookup their uuid (used to store the grade by the backend service)
+     * @param grades
+     * @return Map where the user's eid is the key and the uuid is the value
+     */
+    private Map<String, String> makeUserMap(List<StudentGradeInfo> grades) {
+        Map<String, String> userMap = new HashMap<String, String>();
 
-    public ImportedGradeWrapper parseImportedGradeFile(InputStream is, String mimetype){
+        for (StudentGradeInfo studentGradeInfo : grades) {
+            userMap.put(studentGradeInfo.getStudentEid(), studentGradeInfo.getStudentUuid());
+        }
+        return userMap;
+    }
+
+    public ImportedGradeWrapper parseImportedGradeFile(InputStream is, String mimetype, Map<String, String> userMap){
 
         //determine file type and delegate
         if(ArrayUtils.contains(CSV_MIME_TYPES, mimetype)) {
-            return ImportGradesHelper.parseCsv(is);
+            return ImportGradesHelper.parseCsv(is, userMap);
         } else if (ArrayUtils.contains(XLS_MIME_TYPES, mimetype)) {
-            return ImportGradesHelper.parseXls(is);
+            return ImportGradesHelper.parseXls(is, userMap);
         } else {
             log.error("Invalid file type for grade import: " + mimetype);
         }

@@ -28,10 +28,17 @@ import java.util.Map;
  */
 public class TestImportGradesHelper {
 
+    private Map<String, String> userMap() {
+        Map<String, String> userMap = new HashMap<String, String>();
+        userMap.put("student1", "student1");
+        userMap.put("student2", "student2");
+        return userMap;
+    }
+
     @Test
     public void testCsvImport() throws Exception {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.csv");
-        ImportedGradeWrapper importedGradeWrapper = ImportGradesHelper.parseCsv(is);
+        ImportedGradeWrapper importedGradeWrapper = ImportGradesHelper.parseCsv(is, userMap());
         is.close();
 
         testImport(importedGradeWrapper);
@@ -40,7 +47,7 @@ public class TestImportGradesHelper {
     @Test
     public void testXlsImport() throws Exception {
         InputStream is = this.getClass().getClassLoader().getResourceAsStream("grades_import.xls");
-        ImportedGradeWrapper importedGradeWrapper = ImportGradesHelper.parseXls(is);
+        ImportedGradeWrapper importedGradeWrapper = ImportGradesHelper.parseXls(is, userMap());
         is.close();
 
         testImport(importedGradeWrapper);
@@ -222,7 +229,8 @@ public class TestImportGradesHelper {
 
         List<ImportedGrade> importedGrades = new ArrayList<ImportedGrade>();
         ImportedGrade importedGrade1 = new ImportedGrade();
-        importedGrade1.setStudentId("user1");
+        importedGrade1.setStudentUuid("user1");
+        importedGrade1.setStudentEid("user1");
         importedGrade1.setStudentName("User 1");
         Map<String, ImportedGradeItem> gradeMap1 = new HashMap<>();
 
@@ -232,7 +240,8 @@ public class TestImportGradesHelper {
         importedGrades.add(importedGrade1);
 
         ImportedGrade importedGrade2 = new ImportedGrade();
-        importedGrade2.setStudentId("user2");
+        importedGrade2.setStudentEid("user2");
+        importedGrade2.setStudentUuid("user2");
         importedGrade2.setStudentName("User 2");
         Map<String, ImportedGradeItem> gradeMap2 = new HashMap<>();
 
@@ -242,7 +251,8 @@ public class TestImportGradesHelper {
         importedGrades.add(importedGrade2);
 
         ImportedGrade importedGrade3 = new ImportedGrade();
-        importedGrade3.setStudentId("user3");
+        importedGrade3.setStudentEid("user3");
+        importedGrade3.setStudentUuid("user3");
         importedGrade3.setStudentName("User 3");
         Map<String, ImportedGradeItem> gradeMap3 = new HashMap<>();
 
