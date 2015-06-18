@@ -35,7 +35,7 @@
 
     function loadPlugin(editorInstance) {
         var autoSaveKey = editorInstance.config.autosave_SaveKey != null ? editorInstance.config.autosave_SaveKey : 'autosave_' + window.location + "_" + editorInstance.id;
-        var notOlderThan = editorInstance.config.autosave_NotOlderThan != null ? editorInstance.config.autosave_NotOlderThan : 1440;
+        var notOlderThen = editorInstance.config.autosave_NotOlderThen != null ? editorInstance.config.autosave_NotOlderThen : 1440;
         var saveOnDestroy = editorInstance.config.autosave_saveOnDestroy != null ? editorInstance.config.autosave_saveOnDestroy : false;
         var saveDetectionSelectors =
             editorInstance.config.autosave_saveDetectionSelectors != null ? editorInstance.config.autosave_saveDetectionSelectors : "a[href^='javascript:__doPostBack'][id*='Save'],a[id*='Cancel']";
@@ -44,7 +44,7 @@
         CKEDITOR.scriptLoader.load(CKEDITOR.getUrl(CKEDITOR.plugins.getPath('autosave') + 'js/extensions.min.js'), function() {
             GenerateAutoSaveDialog(editorInstance, autoSaveKey);
 
-            CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThan);
+            CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThen);
         });
 
         jQuery(saveDetectionSelectors).click(function() {
@@ -168,7 +168,7 @@
         });
     }
 
-    function CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThan) {
+    function CheckForAutoSavedContent(editorInstance, autoSaveKey, notOlderThen) {
         // Checks If there is data available and load it
         if (localStorage.getItem(autoSaveKey)) {
             var jsonSavedContent = LoadData(autoSaveKey);
@@ -185,7 +185,7 @@
             }
 
             // Ignore if autosaved content is older then x minutes
-            if (moment(new Date()).diff(autoSavedContentDate, 'minutes') > notOlderThan) {
+            if (moment(new Date()).diff(autoSavedContentDate, 'minutes') > notOlderThen) {
                 RemoveStorage(autoSaveKey);
 
                 return;

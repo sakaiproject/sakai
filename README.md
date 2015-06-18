@@ -39,7 +39,7 @@ config.autosave_SaveKey = 'autosaveKey';
 The Default Minutes (Default is 1440 which is one day) after the auto saved content is ignored can be overidden from the config ...
 
 ````js
-config.autosave_NotOlderThan = 1440;
+config.autosave_NotOlderThen = 1440;
 ````
 
 ####Save Content on Destroy
