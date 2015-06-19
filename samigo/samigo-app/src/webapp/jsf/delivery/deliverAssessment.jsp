@@ -63,8 +63,8 @@
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       <script type='text/javascript' src='/library/js/headscripts.js'></script><script type='text/javascript'>var sakai = sakai || {}; sakai.editor = sakai.editor || {};sakai.editor.enableResourceSearch = false;</script><script type='text/javascript'>var CKEDITOR_BASEPATH='/library/editor/ckeditor/';</script><script type='text/javascript' src='/library/editor/ckeditor/ckeditor.js'></script><script type='text/javascript' src='/library/editor/ckeditor.launch.js'></script>
-	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>
-          <script type="text/javascript">
+	  <script type="text/javascript" src="/samigo-app/js/saveForm.js"></script>	  	  
+      <script type="text/javascript">
 		
 		function whichradio(obj){ 
 
@@ -621,6 +621,7 @@ document.links[newindex].onclick();
 <!-- end content -->
 </div>
 <f:verbatim></div></f:verbatim>
+<script type="text/javascript" src="/samigo-app/js/questionProgress.js"></script>
 <script type="text/JavaScript">
 	<%= request.getAttribute("html.body.onload") %> 
 	setLocation(); 
@@ -628,9 +629,9 @@ document.links[newindex].onclick();
 	fixImplicitLabeling();
 	SaveFormContentAsync('deliverAssessment.faces', 'takeAssessmentForm', 'takeAssessmentForm:autoSave', 'takeAssessmentForm:lastSubmittedDate1', 'takeAssessmentForm:lastSubmittedDate2',  <h:outputText value="#{delivery.autoSaveRepeatMilliseconds}"/>, <h:outputText value="#{delivery.actionString=='takeAssessment' or delivery.actionString=='takeAssessmentViaUrl'}"/>); 
 	setTimeout('setLocation2()',2);
-	transposeTOCTables();
-	questionProgressAccess(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
-    setUpQP();
+	questionProgress.transposeTOCTables();
+	questionProgress.access(<h:outputText value="#{delivery.navigation}"/>, <h:outputText value="#{delivery.questionLayout}"/>);
+    questionProgress.setUp();
 </script>
     </body>
   </html>

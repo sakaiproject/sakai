@@ -1860,56 +1860,17 @@ public class DeliveryBean
   
   public String next_page()
   {
-    String nextAction = checkBeforeProceed();
-    log.debug("***** next Action="+nextAction);
-    if (!("safeToProceed").equals(nextAction)){
-      return nextAction;
-    }
 
-    forGrade = false;
-
-    if (this.actionMode == TAKE_ASSESSMENT
-        || this.actionMode == TAKE_ASSESSMENT_VIA_URL)
-    {
-      syncTimeElapsedWithServer();
-	
-      SubmitToGradingActionListener listener =
-        new SubmitToGradingActionListener();
-      try {
-    	  listener.processAction(null);
-      }
-      catch (FinFormatException e) {
-		  log.debug(e.getMessage());
-		  return "takeAssessment";
-	  }
-	  catch (SaLengthException sae) {
-		  log.debug(sae.getMessage());
-		  return "takeAssessment";
-	  }
-    }
-    
-    if (getSettings().isFormatByPart())
-    {
-      partIndex++;
-    }
-    if (getSettings().isFormatByQuestion())
-    {
-      questionIndex++;
-
-    }
-    
-    DeliveryActionListener l2 = new DeliveryActionListener();
-    l2.processAction(null);
-
-    if ("1".equals(navigation) && this.actionMode != PREVIEW_ASSESSMENT) {
-    	LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
-    	linearAccessDeliveryActionListener.saveLastVisitedPosition(this, partIndex, questionIndex);
-    }
-    reload = false;
-    return "takeAssessment";
+   return next_helper(false);
   }
 
   public String goto_question()
+  {
+    return next_helper(true);
+  }
+
+
+  private String next_helper(boolean isGoToQuestion)
   {
     String nextAction = checkBeforeProceed();
     log.debug("***** next Action="+nextAction);
@@ -1925,18 +1886,18 @@ public class DeliveryBean
       syncTimeElapsedWithServer();
 
       SubmitToGradingActionListener listener =
-        new SubmitToGradingActionListener();
+              new SubmitToGradingActionListener();
       try {
         listener.processAction(null);
       }
       catch (FinFormatException e) {
-        log.debug(e.getMessage());
-        return "takeAssessment";
-      }
-      catch (SaLengthException sae) {
-        log.debug(sae.getMessage());
-        return "takeAssessment";
-      }
+		  log.debug(e.getMessage());
+		  return "takeAssessment";
+	  }
+	  catch (SaLengthException sae) {
+		  log.debug(sae.getMessage());
+		  return "takeAssessment";
+	  }
     }
 
     int oPartIndex = partIndex;
@@ -1945,20 +1906,33 @@ public class DeliveryBean
     if (getSettings().isFormatByPart())
     {
       String partIndexString = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("partnumber");
-      partIndex = Integer.parseInt(partIndexString);
+      if(isGoToQuestion) {
+        partIndex = Integer.parseInt(partIndexString);
+      } else {
+        partIndex++;
+      }
     }
     if (getSettings().isFormatByQuestion())
     {
       String questionIndexString = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("questionnumber");
-      questionIndex = Integer.parseInt(questionIndexString);
+      if(isGoToQuestion) {
+        questionIndex = Integer.parseInt(questionIndexString);
+      } else {
+        questionIndex++;
+      }
     }
 
     DeliveryActionListener l2 = new DeliveryActionListener();
     l2.processAction(null);
 
+
     if ("1".equals(navigation) && this.actionMode != PREVIEW_ASSESSMENT) {
       LinearAccessDeliveryActionListener linearAccessDeliveryActionListener = new LinearAccessDeliveryActionListener();
-      linearAccessDeliveryActionListener.saveLastVisitedPosition(this, oPartIndex, oQuestionIndex);
+      if(isGoToQuestion) {
+        linearAccessDeliveryActionListener.saveLastVisitedPosition(this, oPartIndex, oQuestionIndex);
+      } else {
+        linearAccessDeliveryActionListener.saveLastVisitedPosition(this, partIndex, questionIndex);
+      }
     }
     reload = false;
     return "takeAssessment";
