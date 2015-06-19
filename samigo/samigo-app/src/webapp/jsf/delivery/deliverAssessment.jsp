@@ -172,7 +172,8 @@
 				<br /><br />
 		</div>
  
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div class="portletBody">
+ <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
 <!-- content... -->
 <h:form id="takeAssessmentForm" enctype="multipart/form-data"
@@ -595,6 +596,7 @@ document.links[newindex].onclick();
 </h:panelGroup>
 </h:form>
 <!-- end content -->
+</div>
 <f:verbatim></div></f:verbatim>
 <script type="text/JavaScript">
 	<%= request.getAttribute("html.body.onload") %> 

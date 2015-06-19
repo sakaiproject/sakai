@@ -116,6 +116,21 @@
 									</resources>
 								</configuration>
 							</execution>
+							<execution>
+								<id>copy-fonts</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/fonts/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/${sakai.skin.source}/fonts/</directory>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
 						</executions>
 					</plugin>
 					<plugin>
@@ -187,6 +202,12 @@
 								<groupId>rubygems</groupId>
 								<artifactId>compass</artifactId>
 								<version>1.0.3</version>
+								<type>gem</type>
+							</dependency>
+							<dependency>
+								<groupId>rubygems</groupId>
+								<artifactId>font-awesome-sass</artifactId>
+								<version>4.3.2.1</version>
 								<type>gem</type>
 							</dependency>
 						</dependencies>

@@ -67,7 +67,8 @@ window.close();
 
 
 <!--div class="portletBody"-->
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div class="portletBody">
+ <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
  
  <!-- content... -->
 <h3><h:outputText value="#{deliveryMessages.submission}" /></h3>
@@ -155,6 +156,7 @@ window.close();
 
 </h:form>
   <!-- end content -->
+  </div>
 </div>
 
       </body>

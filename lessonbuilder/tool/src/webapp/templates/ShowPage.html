@@ -146,6 +146,30 @@
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
 			<ul id="toolbar" style="padding:2px; margin:0px; text-align:right">
 				
+			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			    <span>
+			    <a rsf:id="add-text1" href="#"><img src="../images/new-text.png"/></a>
+			    </span>
+			  </li>
+
+			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			    <span>
+			    <a href="#" rsf:id="add-resource1"><img src="../images/link.png"/></a>
+			    </span>
+			  </li>
+
+			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			    <span>
+			    <a href="#" rsf:id="add-multimedia1"><img src="../images/embed.png"/></a>
+			    </span>
+			  </li>
+
+			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			    <span>
+			    <a href="#" rsf:id="subpage-link1" class="subpage-link"><img src="../images/new-subpage.png"/></a>
+			    </span>
+			  </li>
+
 				<li class="dropdown" id="dropdownc" style="float:left; margin-top:0px !important; z-index:900">
 					<span>
 					    <a href="#" onclick="return false;">
@@ -154,7 +178,7 @@
 					    </a>				
 					</span>
 				</li>
-				<li class="dropdown" rsf:id="dropdown" id="dropdown" style="float:left; margin-top: 0px !important; z-index:900">
+				<li class="dropdown" rsf:id="dropdown" id="dropdown" style="z-index:900">
 					<span>
 					    <a href="#" onclick="return false;">
 					        <span rsf:id="msg=simplepage.more-tools" ></span>
@@ -162,12 +186,12 @@
 					    </a>				
 					</span>
 				</li>
+
                 
 		<li rsf:id="remove-student" style="float:left; margin-top: 0px !important"><a href="#" role="menuitem" rsf:id="remove-page-student" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a></li>
 
                 <li><span><a href="#" role="menuitem" rsf:id="reorder"></a></span></li>
                 <li><span><a href="#" role="menuitem" rsf:id="help" target="_blank"></a></span></li>
-                <li><span><a href="#" role="menuitem" rsf:id="permissions"></a></span></li>
                 <li>
                     <span rsf:id="title-descrip">
                     <a href="#" role="menuitem" rsf:id="edit-title" id="edit-title"><span><img src="/library/image/silk/cog.png"/></span><span class="skip" rsf:id="edit-title-text"></span></a>
@@ -191,6 +215,11 @@
 		    <a role="menuitem" href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a>
                     <div rsf:id="msg=simplepage.resource-descrip"></div>
 		  </li>
+		  <li>
+		    <a role="menuitem" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
+                    <div rsf:id="msg=simplepage.subpage-descrip"></div>
+		  </li>
+		  <hr style="border:none"/>
 		  <li rsf:id="assignment-li">
 		    <a role="menuitem" href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
                     <div rsf:id="msg=simplepage.assignment-descrip"></div>
@@ -203,6 +232,7 @@
                     <a role="menuitem" class="add-forum-link" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
                     <div rsf:id="msg=simplepage.forum-descrip"></div>
                   </li>
+		  <hr style="border:none"/>
 		  <li rsf:id="question-li">
 		    <a role="menuitem" href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
                     <div rsf:id="msg=simplepage.question-descrip"></div>
@@ -215,10 +245,6 @@
                     <a href="#" role="menuitem" rsf:id="add-content"><span rsf:id="msg.simplepage.add-student-content"></span></a>
                     <div rsf:id="msg=simplepage.student-descrip"></div>
                   </li>
-		  <li>
-		    <a role="menuitem" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
-                    <div rsf:id="msg=simplepage.subpage-descrip"></div>
-		  </li>
                   <li rsf:id="addwebsite-li">
                     <a href="#" role="menuitem" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a>
                     <div rsf:id="msg=simplepage.addwebsite-descrip"></div>
@@ -246,6 +272,11 @@
                     <li rsf:id="remove-li">
                       <a href="#" role="menuitem" rsf:id="remove-page" id="remove-page" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
                       <div rsf:id="msg=simplepage.remove-page-explanation"></div>
+                    </li>
+		    <!-- permissions --> 		
+                    <li>
+                      <a href="#" role="menuitem"  rsf:id="permissions" id="permissions"><span rsf:id="msg=simplepage.permissions"></span></a>
+                      <div rsf:id="msg=simplepage.permissions.tooltip"></div>
                     </li>
                     <li rsf:id="delete-orphan-li">
                       <form action="#" rsf:id="delete-orphan-form" method="post" enctype="multipart/form-data">

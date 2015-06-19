@@ -12,7 +12,7 @@
 	margin: #{$header-size * 2 + 15px } 0 0 #{$tool-menu-width};
 
 	@media #{$phone}{
-		margin: #{$header-size + 15px } 20px 0 #{$icon-size * 3};
+		margin: #{$header-size } 20px 0 #{$icon-size * 3};
 	}
 	
 	#col1of2, #col2of2{
