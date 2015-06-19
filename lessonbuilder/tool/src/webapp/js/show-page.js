@@ -918,6 +918,20 @@ $(function() {
 			return false;
 		});
 		
+		//		$(".mainList li").hover(function() {
+		//			$(this).find('.group-col').show();
+		//			var next = $(this).next();
+		//			if (next.hasClass('offscreen'))
+		//			    next = next.next();
+		//			next.find('.group-col').show();			
+		//		    }, function() {
+		//			$(this).find('.group-col').hide();
+		//			var next = $(this).next();
+		//			if (next.hasClass('offscreen'))
+		//			    next = next.next();
+		//			next.find('.group-col').hide();			
+		//		    });
+
 		$("#update-student").click(function(){
 			if (!insist && $("#student-group-owned").prop("checked")) {
 			    var groups = "";
@@ -1942,14 +1956,14 @@ $(function() {
 		    if (grouped === "true") {
 			$(this).closest('li').addClass('right-col-top');
 			$(this).closest('li').prev().addClass('right-col-bottom');
-			$(this).find('img').attr("src","/lessonbuilder-tool/images/merge-icon.gif");
+			$(this).find('img').attr("src","/lessonbuilder-tool/images/merge.gif");
 			$(this).attr('title',msg("simplepage.join-items"));
 			$('<li role="listitem" class="item offscreen"><div><h3>' + '' + '</h3></div></li>').insertBefore($(this).closest('li'));
 		    } else {
 		        $(this).closest('li').prev().remove();
 			$(this).closest('li').removeClass('right-col-top');
 			$(this).closest('li').prev().removeClass('right-col-bottom');
-			$(this).find('img').attr("src","/lessonbuilder-tool/images/split-icon.gif");
+			$(this).find('img').attr("src","/lessonbuilder-tool/images/cut.gif");
 			$(this).attr('title',msg("simplepage.break-items"));
 		    }
 		}

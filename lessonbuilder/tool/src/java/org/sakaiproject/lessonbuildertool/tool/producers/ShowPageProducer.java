@@ -2793,7 +2793,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	    UILink link = UILink.make(tofill, rsfid2, (String)null, "/" + item.getId());
 	    if (item.getSequence() > 1) {
 		UIOutput.make(tofill, rsfid3)
-		    .decorate(new UIFreeAttributeDecorator("src", "true".equals(item.getAttribute("groupedWithAbove")) ? "/lessonbuilder-tool/images/merge-icon.gif" : "/lessonbuilder-tool/images/split-icon.gif"));
+		    .decorate(new UIFreeAttributeDecorator("src", "true".equals(item.getAttribute("groupedWithAbove")) ? "/lessonbuilder-tool/images/merge.gif" : "/lessonbuilder-tool/images/cut.gif"));
 		link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("true".equals(item.getAttribute("groupedWithAbove")) ? "simplepage.join-items" : "simplepage.break-items")));
 	    } else {
 		div.decorate(new UIStyleDecorator("toprow"));
