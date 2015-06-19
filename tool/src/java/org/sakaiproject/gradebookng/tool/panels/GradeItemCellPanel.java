@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -13,6 +14,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
+import org.apache.wicket.core.util.string.ComponentRenderer;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
@@ -46,7 +48,27 @@ public class GradeItemCellPanel extends Panel {
 	String comment;
 	GradeCellSaveStyle gradeSaveStyle;
 	
+	final List<GradeCellNotification> notifications = new ArrayList<GradeCellNotification>();
+	
+	public enum GradeCellNotification {
+		IS_EXTERNAL("grade.notifications.isexternal"),
+		OVER_LIMIT("grade.notifications.overlimit"),
+		HAS_COMMENT("grade.notifications.hascomment"),
+		CONCURRENT_EDIT("grade.notifications.concurrentedit"),
+		ERROR("grade.notifications.haserror");
 
+		private String message;
+
+		GradeCellNotification(String message) {
+			this.message = message;
+		}
+
+		public String getMessage() {
+			return this.message;
+		}
+
+		}
+	
 	public GradeItemCellPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);
 		this.model = model;
@@ -63,7 +85,6 @@ public class GradeItemCellPanel extends Panel {
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final Boolean isExternal = (Boolean) modelData.get("isExternal");
 		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
-	
 		
 		//note, gradeInfo may be null
 		String rawGrade;
@@ -83,6 +104,7 @@ public class GradeItemCellPanel extends Panel {
 		if(BooleanUtils.isTrue(isExternal)){
 			add(new Label("grade", Model.of(formattedGrade)));
 			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
+			notifications.add(GradeCellNotification.IS_EXTERNAL);
 		} else {
 			gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				
@@ -106,6 +128,7 @@ public class GradeItemCellPanel extends Panel {
 					//check if grade is over limit and mark the cell with the warning class
 					if(NumberUtils.toDouble(this.originalGrade) > assignmentPoints) {
 						markOverLimit(this);
+						notifications.add(GradeCellNotification.OVER_LIMIT);
 					}
 					
 					//check if we have a comment and mark the cell with the comment icon
@@ -157,6 +180,7 @@ public class GradeItemCellPanel extends Panel {
 								markError(this);
 								//TODO fix this message
 								error("concurrent edit, eep");
+								notifications.add(GradeCellNotification.CONCURRENT_EDIT);
 							break;
 							default:
 								throw new UnsupportedOperationException("The response for saving the grade is unknown.");
@@ -172,6 +196,8 @@ public class GradeItemCellPanel extends Panel {
 					target.addChildren(getPage(), FeedbackPanel.class);
 					target.add(getParentCellFor(this));
 					target.add(this);
+
+					refreshPopoverNotifications();
 				}
 				
 				@Override
@@ -182,6 +208,10 @@ public class GradeItemCellPanel extends Panel {
 					extraParameters.put("studentUuid", studentUuid);
 
 					AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+						@Override
+						public CharSequence getPrecondition(Component component) {
+							return "return GradebookWicketEventProxy.updateLabel.handlePrecondition('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs);";
+						}
 						@Override
 						public CharSequence getBeforeSendHandler(Component component) {
 							return "GradebookWicketEventProxy.updateLabel.handleBeforeSend('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, settings);";
@@ -210,6 +240,10 @@ public class GradeItemCellPanel extends Panel {
 					extraParameters.put("studentUuid", studentUuid);
 
 					AjaxCallListener myAjaxCallListener = new AjaxCallListener() {
+						@Override
+						public CharSequence getPrecondition(Component component) {
+							return "return GradebookWicketEventProxy.updateEditor.handlePrecondition('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs);";
+						}
 						@Override
 						public CharSequence getBeforeSendHandler(Component component) {
 							return "GradebookWicketEventProxy.updateEditor.handleBeforeSend('" + getParentCellFor(component.getParent()).getMarkupId() + "', attrs, jqXHR, settings);";
@@ -314,6 +348,7 @@ public class GradeItemCellPanel extends Panel {
 		editGradeComment.add(new Label("editGradeCommentLabel", editGradeCommentModel));
 		add(editGradeComment);
 
+		refreshPopoverNotifications();
 	}
 	
 	/**
@@ -338,6 +373,7 @@ public class GradeItemCellPanel extends Panel {
 	private void markError(Component gradeCell) {
 		this.gradeSaveStyle = GradeCellSaveStyle.ERROR;
 		styleGradeCell(gradeCell);
+		notifications.add(GradeCellNotification.ERROR);
 	}
 	
 	private void markWarning(Component gradeCell) {
@@ -348,10 +384,12 @@ public class GradeItemCellPanel extends Panel {
 	private void markOverLimit(Component gradeCell) {
 		this.gradeSaveStyle = GradeCellSaveStyle.OVER_LIMIT;
 		styleGradeCell(gradeCell);
+		notifications.add(GradeCellNotification.OVER_LIMIT);
 	}
 	
 	private void markHasComment(Component gradeCell) {
 		styleGradeCell(gradeCell); //maintains existing save style
+		notifications.add(GradeCellNotification.HAS_COMMENT);
 	}
 	
 	/**
@@ -408,4 +446,15 @@ public class GradeItemCellPanel extends Panel {
 	}
 	
 	
+	private void refreshPopoverNotifications() {
+		if (!notifications.isEmpty()) {
+			String popoverString = ComponentRenderer.renderComponent(new GradeItemCellPopoverPanel("popover", model, notifications)).toString();
+			getParent().add(new AttributeModifier("data-toggle", "popover"));
+			getParent().add(new AttributeModifier("data-trigger", "focus"));
+			getParent().add(new AttributeModifier("data-placement", "bottom"));
+			getParent().add(new AttributeModifier("data-html", "true"));
+			getParent().add(new AttributeModifier("data-container", "#gradebookGrades"));
+			getParent().add(new AttributeModifier("data-content", popoverString));
+		}
+	}
 }
