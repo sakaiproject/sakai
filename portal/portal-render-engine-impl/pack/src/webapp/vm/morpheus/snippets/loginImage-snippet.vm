@@ -1,4 +1,4 @@
-<ul class="Mrphs-loginUser" role="menu">
+<ul class="Mrphs-loginUser" role="menu" tabindex="999">
 
     #if (${displayUserloginInfo})
 

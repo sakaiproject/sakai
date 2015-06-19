@@ -1,6 +1,6 @@
 #if ($tabsSites.tabsMoreSitesShow)
 
-        <div id="selectSite" class="outscreen">
+        <div id="selectSite" class="outscreen" tabindex="-1">
             <div id="otherSiteSearch"> 
                 <label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
                 <a id="imgSearch" href="#" class="is-hidden"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
