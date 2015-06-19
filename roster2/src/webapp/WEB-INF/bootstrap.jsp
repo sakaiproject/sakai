@@ -41,6 +41,7 @@
                 viewUserDisplayId: ${viewUserDisplayId},
                 officialPicturesByDefault: ${officialPicturesByDefault},
                 viewEmail: ${viewEmail},
+                viewConnections: ${viewConnections},
                 superUser: ${superUser},
                 siteMaintainer: ${siteMaintainer},
                 i18n: {}
