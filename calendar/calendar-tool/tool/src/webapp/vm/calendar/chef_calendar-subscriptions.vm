@@ -15,9 +15,15 @@
 		#if ($institutionalSubscriptionsAvailable)
 			<br/>
 			<h4>$tlang.getString('subs.institutional')</h4>
-			<p class="instruction">
+			<div class="instruction">
 				$tlang.getString('subs.institutional.instruction')
-			</p>
+				<ul>
+					<li>$tlang.getString('subs.institutional.instruction.detailed.1')</li>
+					<li>$tlang.getString('subs.institutional.instruction.detailed.2')</li>
+					<li>$tlang.getString('subs.institutional.instruction.detailed.3')</li>
+					<li>$tlang.getString('subs.institutional.instruction.detailed.4')</li>
+				</ul>
+			</div>
 				<table class="listHier lines nolines" style="width: 75%" cellspacing="0" summary="$tlang.getString('subs.institutional.summary')">
 					<tr> 
 						<th scope="col" id="subscriptionName">$tlang.getString('subs.calendar.name')</th>
@@ -29,7 +35,7 @@
 							#set ($num=$num + 1)
 							<tr> 
 								<td headers="subscriptionName"><label for="check_$num">$calendarEntry.getDisplayName()</label></td>
-								<td headers="checkbox">							
+								<td headers="checkbox">
 									<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"
 									#if($calendarEntry.isSelected())
 									checked="checked"
@@ -81,7 +87,7 @@
 						#set ($num=$num + 1)
 						<tr> 
 							<td headers="subscriptionName"><label for="check_$num">$validator.escapeHtml($calendarEntry.getDisplayName())</label></td>
-							<td headers="checkbox">							
+							<td headers="checkbox">
 								<input type="checkbox" name="$calendarEntry.getReference()" value="$calendarEntry.getReference()" id="check_$num"
 								#if($calendarEntry.isSelected())
 								checked="checked"
