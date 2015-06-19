@@ -274,11 +274,13 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 }*/
 .mainList li.canEdit > div.edit-col, .mainList li.canEdit > div.group-col {
 /*    float:left; */
-    display: inline-block;
     vertical-align:top;
     padding-top: 0.35em;
     padding-left: 0;
     z-index:4
+}
+.mainList li.canEdit > div.edit-col {
+    display: inline-block;
 }
 .mainList li.question, .mainList li.studentContentType  {
     margin-top: 10px;
@@ -1271,4 +1273,27 @@ width:calc(100% - 50px);
 }
 .contentButton span {
   padding: 0px !important;
+}
+.group-col {
+  display:none;
+  position: absolute;
+  left:5px;
+  top:-15px;
+}
+.right-col-top .group-col {
+  left:10px;  
+}
+.group-col img{
+  border:none;
+  background:transparent;
+  xheight: 16px;
+  xwidth: 16px;
+}
+li:hover .group-col {
+  display:inline-block;
+}
+.contentButton a{
+ background-image: none !important;
+ background-color: rgb(248,248,248);
+ background-color: rgb(150,190,200);
 }
