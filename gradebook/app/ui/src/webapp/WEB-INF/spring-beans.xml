@@ -7,17 +7,28 @@
     http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
     http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
 
-    <tx:annotation-driven transaction-manager="gradebookTransactionManager" />
+    <tx:annotation-driven transaction-manager="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
 
 	<!--
 		This Spring configuration file sets up the shared business logic of the application.
 	-->
 
+    <bean id="gradebookTxTemplate" lazy-init="true" abstract="true" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="transactionManager"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/></property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="is*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+                <prop key="get*">PROPAGATION_REQUIRED,readOnly,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+                <prop key="*">PROPAGATION_REQUIRED,+org.sakaiproject.service.gradebook.shared.GradebookException</prop>
+            </props>
+        </property>
+    </bean>
+
 	<!-- Gradebook Manager -->
 	<bean id="org_sakaiproject_tool_gradebook_business_GradebookManager" parent="gradebookTxTemplate">
 		<property name="target">
 			<bean class="org.sakaiproject.tool.gradebook.business.impl.GradebookCalculationImpl">
-				<property name="sessionFactory"><ref bean="gradebookSessionFactory"/></property>
+				<property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
 				<property name="sectionAwareness">
 					<ref bean="org.sakaiproject.section.api.SectionAwareness" />
 				</property>
@@ -33,6 +44,26 @@
 					<ref bean="readonlyExternalAssessmentService"/>
 				</property>
             </bean>
+		</property>
+	</bean>
+
+	<bean id="gradebookHibernateMappings"
+		parent="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
+		<property name="mappingResources">
+			<list>
+				<value>org/sakaiproject/tool/gradebook/Gradebook.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradableObject.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeRecord.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradingEvent.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradingScale.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradebookProperty.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/GradeMapping.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/Spreadsheet.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/Comment.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/Category.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/LetterGradePercenteMapping.hbm.xml</value>
+				<value>org/sakaiproject/tool/gradebook/Permission.hbm.xml</value>
+			</list>
 		</property>
 	</bean>
 
