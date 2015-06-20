@@ -854,6 +854,13 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
             for (Enumeration<Object> e = p.keys(); e.hasMoreElements(); /**/) {
                 String name = (String) e.nextElement();
                 String value = p.getProperty(name);
+		// KNL-1361 - Add support for system-scoped properties
+		if ( name != null && name.endsWith("@System") && name.length() >7 ) {
+			name = name.substring(0,name.length()-7);
+			System.setProperty(name, value);
+			M_log.info("Promoted to system property: "+name);
+			continue;
+		}
                 ConfigItemImpl ci = new ConfigItemImpl(name, value, source);
                 this.addConfigItem(ci, source);
             }
