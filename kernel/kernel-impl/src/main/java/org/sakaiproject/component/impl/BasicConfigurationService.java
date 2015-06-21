@@ -85,6 +85,7 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
 
     private static final String SAKAI_LOCALES_KEY = "locales";
     private static final String SAKAI_LOCALES_MORE = "locales.more"; // default is blank/null
+    private static final String SAKAI_SYSTEM_PROPERTY_SUFFIX = "@SystemProperty";
 
 
     /**********************************************************************************************************************************************************************************************************************************************************
@@ -855,8 +856,9 @@ public class BasicConfigurationService implements ServerConfigurationService, Ap
                 String name = (String) e.nextElement();
                 String value = p.getProperty(name);
 		// KNL-1361 - Add support for system-scoped properties
-		if ( name != null && name.endsWith("@System") && name.length() >7 ) {
-			name = name.substring(0,name.length()-7);
+		if ( name != null && name.endsWith(SAKAI_SYSTEM_PROPERTY_SUFFIX) && 
+			name.length() > SAKAI_SYSTEM_PROPERTY_SUFFIX.length() ) {
+			name = name.substring(0,name.length()-SAKAI_SYSTEM_PROPERTY_SUFFIX.length());
 			System.setProperty(name, value);
 			M_log.info("Promoted to system property: "+name);
 			continue;
