@@ -48,17 +48,6 @@ function setTimeoutInfo (timeoutDialogEnabled, timeoutDialogWarningSeconds)
     portal["timeoutDialog"]["seconds"] = timeoutDialogWarningSeconds;
 }
 
-/*
-   SAK-20576
-   This method can be called by any portal implementation to set various UI state properties
- */
-function setUIToggleState (portal_allow_auto_minimize, portal_allow_minimize_tools, portal_allow_minimize_navigation)
-{
-    portal["toggle"]["allowauto"] = portal_allow_auto_minimize;
-    portal["toggle"]["tools"] = portal_allow_minimize_tools;
-    portal["toggle"]["sitenav"] = portal_allow_minimize_navigation;
-}
-
 /* dhtml_more_tabs
  * displays the More Sites div 
  * note the technique of recasting the function after initalization

@@ -476,7 +476,6 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
-
 		// Include the buffered content if we have it
 		if ( BC instanceof Map ) {
 			if ( req.getMethod().equals("POST") ) {
@@ -490,19 +489,6 @@ public class SiteHandler extends WorksiteHandler
 			Map<String,String> bufferMap = (Map<String,String>) BC;
 			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
 			rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
-		}
-
-
-		// Have we been requested to display minimized and are we logged in?
-		if (session.getUserId() != null ) {
-			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MINIMIZED);
-                        String reqParm = req.getParameter(portal.SAKAI_NAV_MINIMIZED);
-                	String minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
-                	if ( c != null && "true".equals(c.getValue()) ) {
-				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
-			} else if ( reqParm != null &&  "true".equals(reqParm) && ! "false".equals(minStr) ) {
-				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
-			}
 		}
 
 		rcontext.put("siteId", siteId);
