@@ -11,8 +11,9 @@ import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.xmlbeans.impl.piccolo.xml.Piccolo;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;

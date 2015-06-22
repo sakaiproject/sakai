@@ -17,6 +17,7 @@ import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
@@ -27,15 +28,17 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
+import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbGroupType;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
-import org.sakaiproject.gradebookng.tool.model.StudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
@@ -330,8 +333,19 @@ public class GradebookNgBusinessService {
 	 * @param assignments list of assignments
 	 * @return
 	 */
-	public List<StudentGradeInfo> buildGradeMatrix(List<Assignment> assignments) {
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments) {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers());
+	}
+	
+	/**
+	 * Build the matrix of assignments, students and grades for all students, with the specified sortOrder
+	 * 
+	 * @param assignments list of assignments
+	 * @param sortOrder the sort order
+	 * @return
+	 */
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, GbAssignmentGradeSortOrder sortOrder) {
+		return this.buildGradeMatrix(assignments, this.getGradeableUsers(), sortOrder);
 	}
 	
 	/**
@@ -342,7 +356,20 @@ public class GradebookNgBusinessService {
 	 * @param list of uuids
 	 * @return
 	 */
-	public List<StudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids) {
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids) {
+		return this.buildGradeMatrix(assignments, studentUuids, null);
+		
+	}
+	/**
+	 * Build the matrix of assignments and grades for the given users.
+	 * In general this is just one, as we use it for the student summary but could be more for paging etc
+	 * 
+	 * @param assignments list of assignments
+	 * @param list of uuids
+	 * @Param sortOrder the type of sort we want. Wraps assignmentId and direction.
+	 * @return
+	 */
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids, GbAssignmentGradeSortOrder sortOrder) {
 
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
@@ -363,14 +390,14 @@ public class GradebookNgBusinessService {
 		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 		
 		//setup a map as we progressively build this up by adding grades to a student's entry
-		Map<String, StudentGradeInfo> matrix = new LinkedHashMap<String, StudentGradeInfo>();
+		Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<String, GbStudentGradeInfo>();
 		
 		//seed the map for all students so we can progresseively add grades to it
 		//also add the course grade here, to save an iteration later
 		for(User student: students) {
 			
 			//create and add the user info
-			StudentGradeInfo sg = new StudentGradeInfo(student);
+			GbStudentGradeInfo sg = new GbStudentGradeInfo(student);
 
 			//add the course grade
 			sg.setCourseGrade(courseGrades.get(student.getEid()));
@@ -389,21 +416,47 @@ public class GradebookNgBusinessService {
 		
 			//iterate the definitions returned and update the record for each student with any grades
 			for(GradeDefinition def: defs) {
-				StudentGradeInfo sg = matrix.get(def.getStudentUid());
+				GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
 				
 				if(sg == null) {
 					log.warn("No matrix entry seeded for: " + def.getStudentUid() + ". This user may be been removed from the site");
 				} else {
 				
-					sg.addGrade(assignment.getId(), new GradeInfo(def));
+					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
 				}
 			}
 			Temp.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(), stopwatch.getTime());
 		
 		}
 		
-		//return the matrix as a list of StudentGradeInfo
-		return new ArrayList<StudentGradeInfo>(matrix.values());
+		//get the matrix as a list of GbStudentGradeInfo
+		ArrayList<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
+
+		
+
+		//TODO extract this out into own method where it can do the checking
+		if(sortOrder != null) {
+			GradeComparator comparator = new GradeComparator();
+			comparator.setAssignmentId(sortOrder.getAssignmentId());
+			
+			SortDirection direction = sortOrder.getDirection();
+			
+			//sort
+			Collections.sort(items, comparator);
+			
+			//reverse if required
+			if(direction == SortDirection.DESCENDING) {
+				Collections.reverse(items);
+			}
+			
+			//TODO front end neds to know direction of the sort, maybe it can hold a value as to the sort direction
+			//store the sort order in the SESSION, then the frpnt end can just toggle it and its handled here. 
+			
+
+		}
+	
+		
+		return items;
 	}
 	
 	/**
@@ -1084,5 +1137,32 @@ public class GradebookNgBusinessService {
      */
     private String buildCellKey(String studentUuid, long assignmentId) {
     	return studentUuid + "-" + assignmentId;
+    }
+    
+    /**
+     * Comparator class for sorting an assignment by the grades
+     * Note that this must have the assignmentId set into it so we can extract the appropriate grade entry from the map that each student has
+     * 
+     */
+    class GradeComparator implements Comparator<GbStudentGradeInfo> {
+    
+    	@Setter
+    	private long assignmentId;
+    	 
+		@Override
+		public int compare(GbStudentGradeInfo g1, GbStudentGradeInfo g2) {
+						
+			GbGradeInfo info1 = g1.getGrades().get(assignmentId);
+			GbGradeInfo info2 = g2.getGrades().get(assignmentId);
+			
+			//for proper number ordering, these have to be numerical
+			Double grade1 = (info1 != null) ? NumberUtils.toDouble(info1.getGrade()) : null; 
+			Double grade2 = (info2 != null) ? NumberUtils.toDouble(info2.getGrade()) : null; 
+			
+			return new CompareToBuilder()
+			.append(grade1, grade2)
+			.toComparison();
+			
+		}
     }
 }
