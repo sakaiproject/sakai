@@ -4199,6 +4199,7 @@ public class AssignmentAction extends PagedResourceActionII
 				context.put("showAllowResubmission", Boolean.TRUE);
 			}
 			// put the re-submission info into context
+			assignment_resubmission_option_into_state(assignment, null, state);
 			putTimePropertiesInContext(context, state, "Resubmit", ALLOW_RESUBMIT_CLOSEMONTH, ALLOW_RESUBMIT_CLOSEDAY, ALLOW_RESUBMIT_CLOSEYEAR, ALLOW_RESUBMIT_CLOSEHOUR, ALLOW_RESUBMIT_CLOSEMIN);
 			assignment_resubmission_option_into_context(context, state);
 		}
