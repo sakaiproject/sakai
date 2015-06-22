@@ -125,15 +125,6 @@ public interface Portal
 	public static final String SAKAI_NAV_MINIMIZED = "sakai_nav_minimized";
 
 	/**
-         * Constants for SAK-19455 - The NEO Portlet Feature that allows a portlet
-	 * to suppress its title and add to the system breadcrumbs.
-	 */
-        public static final String SAKAI_PORTAL_ALLOW_NEO = "sakai-portal:allow-neo";
-        public static final String SAKAI_PORTAL_HELP_ACTION = "sakai-portal:help-action";
-        public static final String SAKAI_PORTAL_RESET_ACTION = "sakai-portal:reset-action";
-        public static final String SAKAI_PORTAL_SUPPRESSTITLE = "sakai-portal:suppresstitle";
-
-	/**
 	 * Tool property to allow the enabling/disabling of the direct url linking UI
 	 */
 	public static final String TOOL_DIRECTURL_ENABLED_PROP = "sakai:tool-directurl-enabled";

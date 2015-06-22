@@ -14,8 +14,9 @@
 
         #parse("/vm/morpheus/snippets/portalCSS-snippet.vm")
         
+        <link href="${pageScriptPath}jquery/ui/1.8.4/css/ui-lightness/jquery-ui-1.8.4.full.css" rel="stylesheet" />  
         <link href="${pageScriptPath}jquery/cluetip/1.2.10/css/jquery.cluetip.css$!{portalCDNQuery}" rel="stylesheet">
         <link href="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.css$!{portalCDNQuery}" rel="stylesheet">
-
+        <link href="${pageScriptPath}jquery/notify/2.0.1/pnotify.custom.min.css$!{portalCDNQuery}" rel="stylesheet">
         <script src="${pageSkinRepo}/${pageSkin}/js/lib/modernizr.js$!{portalCDNQuery}"></script>
     </head>

@@ -752,14 +752,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		else
 		{
-			String suppressTitleLegacy  = placement.getConfig().getProperty(SAKAI_PORTAL_SUPPRESSTITLE);
-			if ( "true".equals(suppressTitleLegacy) ) {
-				toolMap.put("suppressTitle", Boolean.TRUE);
-				ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
-				ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
-				ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
-			}
-
 			toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
 					+ placement.getId()));
 		}
@@ -1480,12 +1472,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		Session s = SessionManager.getCurrentSession();
 		String userWarning = (String) s.getAttribute("userWarning");
 		if (StringUtils.isNotEmpty(userWarning)) {
-			headJs.append("<script type=\"text/javascript\">window.parent.jQuery.pnotify({pnotify_title: '");
-			headJs.append(rloader.getString("pnotify_notice"));
-			headJs.append("', pnotify_text: '");
-			headJs.append(userWarning);
-			headJs.append("', type: 'error' });</script>");
-			s.removeAttribute("userWarning");
+			headJs.append("<script type=\"text/javascript\">");
+			headJs.append("if ( window.self !== window.top ) {");
+			headJs.append(" setTimeout(function(){ window.top.portal_check_pnotify() }, 3000);");
+			headJs.append("}</script>");
 		}
 
 		// TODO: Should we include jquery here?  See includeStandardHead.vm
@@ -1790,7 +1780,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         rcontext.put("portalVideoChatTimeout", 
 				ServerConfigurationService.getInt("portal.chat.video.timeout", 25));
 
-
                         if(sakaiTutorialEnabled && thisUser != null) {
                         	if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
                         		rcontext.put("tutorial", true);
@@ -1873,6 +1862,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
+			// SAK-25931 - Do not remove this from session here - removal is done by /direct
+	                Session s = SessionManager.getCurrentSession();
+			String userWarning = (String) s.getAttribute("userWarning");
+			rcontext.put("userWarning", new Boolean(StringUtils.isNotEmpty(userWarning)));
 		}
 	}
 

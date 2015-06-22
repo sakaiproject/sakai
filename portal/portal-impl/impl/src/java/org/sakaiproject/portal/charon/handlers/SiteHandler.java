@@ -1018,15 +1018,6 @@ public class SiteHandler extends WorksiteHandler
 					toolContextPath, toolPathInfo);
 			log.debug("bufferContent retval="+retval);
 
-			// Cleanup transient session bits - SAK-25857
-			ToolSession ts = session.getToolSession(siteTool.getId());
-			if ( ts != null ) {
-				ts.removeAttribute(Portal.SAKAI_PORTAL_ALLOW_NEO);
-				ts.removeAttribute(Portal.SAKAI_PORTAL_HELP_ACTION);
-				ts.removeAttribute(Portal.SAKAI_PORTAL_RESET_ACTION);
-			}
-
-
 			if ( ! retval ) return Boolean.FALSE;
 
 			// If the tool did a redirect - tell our caller to just complete the response
