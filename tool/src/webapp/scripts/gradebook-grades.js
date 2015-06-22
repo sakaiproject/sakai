@@ -35,8 +35,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupColoredCategories();
   this.setupPopovers();
 
-  // mark the $spreadsheet as initialized
-  this.$spreadsheet.addClass("initialized")
+  this.ready();
 };
 
 
@@ -693,6 +692,11 @@ GradebookSpreadsheet.prototype.setupToolbar = function() {
 };
 
 
+GradebookSpreadsheet.prototype.toggleCategories = function() {
+  this.toolbarModel.toggleCategories();
+};
+
+
 GradebookSpreadsheet.prototype._cloneCell = function($cell) {
   // clone and sanitize the $cell so it can be used in a fixed header/column
   // and not interfere with javascript bindings already out there
@@ -766,10 +770,6 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     }
   });
 
-  // toggle move left/right menu options
-  self.$table.find(".move-assignment-right, .move-assignment-left").hide();
-  self.$table.find(".move-categorized-assignment-right, .move-categorized-assignment-left").show();
-
   self.$table.find("thead").prepend($categoriesRow);
   self.$spreadsheet.addClass("gb-grouped-by-category");
   self.refreshFixedTableHeader(true);
@@ -788,10 +788,6 @@ GradebookSpreadsheet.prototype.disableGroupByCategory = function() {
     var model = self._COLUMN_ORDER[i];
     model.moveColumnTo(newColIndex);
   }
-
-  // toggle move left/right menu options
-  self.$table.find(".move-assignment-right, .move-assignment-left").show();
-  self.$table.find(".move-categorized-assignment-right, .move-categorized-assignment-left").hide();
 
   self.$spreadsheet.removeClass("gb-grouped-by-category");
   self.refreshFixedTableHeader(true);
@@ -1036,6 +1032,21 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
 GradebookSpreadsheet.prototype.setupPopovers = function() {
   this.$spreadsheet.find('[data-toggle="popover"]').popover();
 };
+
+
+GradebookSpreadsheet.prototype.ready = function() {
+  this.$spreadsheet.addClass("initialized").trigger("ready.gradebookng");
+}
+
+
+GradebookSpreadsheet.prototype.onReady = function(callback) {
+  if (this.$spreadsheet.is(".initialized")) {
+    callback();
+  } else {
+    this.$spreadsheet.on("ready.gradebookng", callback);
+  }
+};
+
 
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
@@ -1686,23 +1697,20 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 };
 
 
+GradebookToolbar.prototype.toggleCategories = function() {
+  if ($("#toggleCategoriesToolbarItem").hasClass("on")) {
+    this.gradebookSpreadsheet.enableGroupByCategory();
+  } else {
+    this.gradebookSpreadsheet.disableGroupByCategory();
+  }
+};
+
 GradebookToolbar.prototype.setupToggleCategories = function() {
   var self = this;
-
-  self.$toolbar.on("click", "#toggleCategoriesToolbarItem", function(event) {
-    event.preventDefault();
-
-    $(this).toggleClass("on");
-
-    if ($(this).hasClass("on")) {
-      self.gradebookSpreadsheet.enableGroupByCategory();
-    } else {
-      self.gradebookSpreadsheet.disableGroupByCategory();
-    }
-
-    return false;
-  })
-}
+  self.gradebookSpreadsheet.onReady(function() {
+      self.toggleCategories();
+  });
+};
 
 
 /**************************************************************************************

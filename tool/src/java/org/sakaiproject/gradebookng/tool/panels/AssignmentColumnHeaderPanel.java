@@ -19,6 +19,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.model.GbSpreadsheetState;
 import org.sakaiproject.gradebookng.tool.pages.EditGradebookItemPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -35,13 +36,16 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	private IModel<Assignment> modelData;
+	private IModel<GbSpreadsheetState> state;
 	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	private GradebookNgBusinessService businessService;
 
-	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
+	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData, IModel<GbSpreadsheetState> state) {
 		super(id);
 		this.modelData = modelData;
+		this.state = state;
+		
 	}
 	
 	@Override
@@ -160,9 +164,19 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				//so we just make sure we get it fresh
 				
 				long assignmentId = this.getModelObject();
-				
-				int order = businessService.getAssignmentSortOrder(assignmentId);
-				businessService.updateAssignmentOrder(assignmentId, (order-1));
+
+				if (state.getObject().isCategoriesEnabled()) {
+					try {
+						int order = businessService.getCategorizedSortOrder(assignmentId);
+						businessService.updateCategorizedAssignmentOrder(assignmentId, (order - 1));
+					} catch (Exception e) {
+						e.printStackTrace();
+						error("error reordering within category");
+					}
+				} else {
+					int order = businessService.getAssignmentSortOrder(assignmentId);
+					businessService.updateAssignmentOrder(assignmentId, (order-1));
+				}
 
 				setResponsePage(new GradebookPage());
 			}
@@ -175,51 +189,25 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			public void onClick() {
 				
 				long assignmentId = this.getModelObject();
-				
-				int order = businessService.getAssignmentSortOrder(assignmentId);
-				businessService.updateAssignmentOrder(assignmentId, (order+1));
-				
-				setResponsePage(new GradebookPage());
-			}
-		});
 
-
-		add(new Link<Long>("moveCategorizedAssignmentLeft", Model.of(assignment.getId())){
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick() {
-				Long assignmentId = this.getModelObject();
-
-				try {
-					int order = businessService.getCategorizedSortOrder(assignmentId);
-					businessService.updateCategorizedAssignmentOrder(assignmentId, (order - 1));
-				} catch (Exception e) {
-					e.printStackTrace();
-					error("error reordering within category");
+				if (state.getObject().isCategoriesEnabled()) {
+					try {
+						int order = businessService.getCategorizedSortOrder(assignmentId);
+						businessService.updateCategorizedAssignmentOrder(assignmentId, (order + 1));
+					} catch (Exception e) {
+						e.printStackTrace();
+						error("error reordering within category");
+					}
+				} else {
+					int order = businessService.getAssignmentSortOrder(assignmentId);
+					businessService.updateAssignmentOrder(assignmentId, (order+1));
 				}
-
+				
+				
 				setResponsePage(new GradebookPage());
 			}
 		});
-
-
-		add(new Link<Long>("moveCategorizedAssignmentRight", Model.of(assignment.getId())){
-			private static final long serialVersionUID = 1L;
-			@Override
-			public void onClick() {
-				Long assignmentId = this.getModelObject();
-
-				try {
-					int order = businessService.getCategorizedSortOrder(assignmentId);
-					businessService.updateCategorizedAssignmentOrder(assignmentId, (order + 1));
-				} catch (Exception e) {
-					e.printStackTrace();
-					error("error reordering within category");
-				}
-
-				setResponsePage(new GradebookPage());
-			}
-		});
+		
 		
 		add(new AjaxLink<Long>("hideAssignment", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
