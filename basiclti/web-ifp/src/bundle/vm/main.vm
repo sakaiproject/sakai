@@ -11,11 +11,6 @@ $tlang.getString("new.page.launch") </p> <p>
 <a href="$source" onclick="window.open('$!source','BasicLTI'); return false;" target="LTI">$tlang.getString("new.page.relaunch")</a>
 </p>
 #else
-#if ($!maximize) 
-<script type="text/javascript" language="JavaScript">
-try { portalMaximizeTool(); } catch (err) { }
-</script>
-#end
 <div class="wcwomenu"> ##style="padding:0; margin:-.3em -2em -1em -2em">
 <iframe 
 	width="100%"
