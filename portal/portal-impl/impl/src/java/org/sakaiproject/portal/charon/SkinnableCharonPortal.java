@@ -752,14 +752,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		else
 		{
-			String suppressTitleLegacy  = placement.getConfig().getProperty(SAKAI_PORTAL_SUPPRESSTITLE);
-			if ( "true".equals(suppressTitleLegacy) ) {
-				toolMap.put("suppressTitle", Boolean.TRUE);
-				ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
-				ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
-				ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
-			}
-
 			toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
 					+ placement.getId()));
 		}
