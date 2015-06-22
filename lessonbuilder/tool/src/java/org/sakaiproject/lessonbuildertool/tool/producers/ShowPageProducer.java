@@ -3256,12 +3256,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource1", null, false, false,  currentPage, "simplepage.resource.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia1", null, true, false, currentPage, "simplepage.multimedia.tooltip");
 		UIInternalLink.makeURL(tofill, "subpage-link1", "#").
-		    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage")));
+		    decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
 
 		createToolBarLink(EditPageProducer.VIEW_ID, tofill, "add-text", "simplepage.text", currentPage, "simplepage.text.tooltip").setItemId(null);
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-multimedia", "simplepage.multimedia", true, false, currentPage, "simplepage.multimedia.tooltip");
 		createFilePickerToolBarLink(ResourcePickerProducer.VIEW_ID, tofill, "add-resource", "simplepage.resource", false, false,  currentPage, "simplepage.resource.tooltip");
-		UILink subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
+		UIComponent subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
+		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
 
 		// content menu not on students
 		if (!studentPage) {
@@ -3282,16 +3283,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		    }
 			
 		    UIOutput.make(tofill, "assignment-li");
-		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment", currentPage, "simplepage.assignment");
+		    createToolBarLink(AssignmentPickerProducer.VIEW_ID, tofill, "add-assignment", "simplepage.assignment-descrip", currentPage, "simplepage.assignment");
 
 		    UIOutput.make(tofill, "quiz-li");
-		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz", currentPage, "simplepage.quiz");
+		    createToolBarLink(QuizPickerProducer.VIEW_ID, tofill, "add-quiz", "simplepage.quiz-descrip", currentPage, "simplepage.quiz");
 
 		    UIOutput.make(tofill, "forum-li");
-		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum", currentPage, "simplepage.forum.tooltip");
+		    createToolBarLink(ForumPickerProducer.VIEW_ID, tofill, "add-forum", "simplepage.forum-descrip", currentPage, "simplepage.forum.tooltip");
 
 		    UIOutput.make(tofill, "question-li");
-		    UILink questionlink = UIInternalLink.makeURL(tofill, "question-link", "#");
+		    UIComponent questionlink = UIInternalLink.makeURL(tofill, "question-link", "#");
+		    questionlink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.question-descrip")));
 
 		    GeneralViewParameters eParams = new GeneralViewParameters(VIEW_ID);
 		    eParams.addTool = GeneralViewParameters.COMMENTS;
