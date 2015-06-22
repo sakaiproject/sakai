@@ -9168,20 +9168,23 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
 							final Session session = SessionManager.getCurrentSession();
 							final ToolSession toolSession = SessionManager.getCurrentToolSession();
+							final String siteId = existingSite.getId();
 							Thread siteImportThread = new Thread(){
 								public void run() {
-									Site existingSite = getStateSite(state);
-									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
-									SessionManager.setCurrentSession(session);
-									SessionManager.setCurrentToolSession(toolSession);
-									importToolIntoSite(existingTools, importTools, existingSite);
-									existingSite = getStateSite(state); // refresh site for
-									// WC and News
-									commitSite(existingSite);
-									if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
-										userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									Site existingSite;
+									try {
+										existingSite = SiteService.getSite(siteId);
+										SessionManager.setCurrentSession(session);
+										SessionManager.setCurrentToolSession(toolSession);
+										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
+										importToolIntoSite(existingTools, importTools, existingSite);
+										if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
+											userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+										}
+										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
+									} catch (IdUnusedException e) {
+										M_log.error(e.getMessage(), e);
 									}
-									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
 								}
 							};
 							siteImportThread.setName(threadName);
@@ -9240,18 +9243,24 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							final String userEmail = UserDirectoryService.getCurrentUser().getEmail();
 							final Session session = SessionManager.getCurrentSession();
 							final ToolSession toolSession = SessionManager.getCurrentToolSession();
+							final String siteId = existingSite.getId();
 							Thread siteImportThread = new Thread(){
 								public void run() {
-									Site existingSite = getStateSite(state);
-									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
-									SessionManager.setCurrentSession(session);
-									SessionManager.setCurrentToolSession(toolSession);
-									// Remove all old contents before importing contents from new site
-									importToolIntoSiteMigrate(existingTools, importTools, existingSite);
-									if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
-										userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+									Site existingSite;
+									try {
+										existingSite = SiteService.getSite(siteId);
+										SessionManager.setCurrentSession(session);
+										SessionManager.setCurrentToolSession(toolSession);
+										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_START, existingSite.getReference(), false));
+										// Remove all old contents before importing contents from new site
+										importToolIntoSiteMigrate(existingTools, importTools, existingSite);
+										if (ServerConfigurationService.getBoolean(SAK_PROP_IMPORT_NOTIFICATION, true)) {
+											userNotificationProvider.notifySiteImportCompleted(userEmail, existingSite.getId(), existingSite.getTitle());
+										}
+										EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
+									} catch (IdUnusedException e) {
+										M_log.error(e.getMessage(), e);
 									}
-									EventTrackingService.post(EventTrackingService.newEvent(SiteService.EVENT_SITE_IMPORT_END, existingSite.getReference(), false));
 								}
 							};
 							siteImportThread.setName(threadName);
