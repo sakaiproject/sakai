@@ -595,44 +595,6 @@ $PBJQ(document).ready(function(){
 //     }
 // }
 
-// // The official way for a tool to request minimized navigation
-// function portalMaximizeTool(){
-//     if (!(portal.toggle.sitenav || portal.toggle.tools))
-//         return;
-//     if (!portal.toggle.allowauto)
-//         return;
-//     sakaiMinimizeNavigation();
-// }
-
-// function sakaiMinimizeNavigation(){
-//     if (!(portal.toggle.sitenav || portal.toggle.tools))
-//         return;
-//     if (portal.toggle.sitenav) {
-//         $PBJQ('#portalContainer').addClass('minimize-site-nav')
-//     }
-//     if (portal.toggle.tools) {
-//         $PBJQ('.nav-tools').addClass('is-minimized');
-//     }
-//     $PBJQ('.js-nav-toggle__icon--max').addClass('is-hidden').removeClass('is-visible');
-//     $PBJQ('#toggleToolMenu').attr('title',$PBJQ('#toggleNormal em').text());
-//     $PBJQ('.js-nav-toggle__icon--normal').addClass('is-visible').removeClass('is-hidden');
-// }
-//
-// function sakaiRestoreNavigation(){
-//     if (!(portal.toggle.sitenav || portal.toggle.tools))
-//         return;
-//     if (portal.toggle.sitenav) {
-//         $PBJQ('#portalContainer').removeClass('minimize-site-nav')
-//     }
-//     if (portal.toggle.tools) {
-//         $PBJQ('#toolMenuWrap').removeClass('minimize-tool-nav');
-//     }
-//     $PBJQ('.js-nav-toggle__icon--max').addClass('is-visible').removeClass('is-hidden');
-//
-//
-//     $PBJQ('js-nav-toggle__icon--normal').addClass('is-hidden').removeClass('is-visible');
-// }
-
 // function updatePresence(){
 //     $PBJQ.ajax({
 //         url: sakaiPresenceFragment,
