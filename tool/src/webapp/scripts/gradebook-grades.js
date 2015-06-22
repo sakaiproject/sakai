@@ -646,7 +646,11 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
     hoverClass: "gb-grade-item-drag-hover",
     tolerance: "pointer",
     drop: function(event, ui) {
-      applyAndPersistOrder(ui.draggable, $(event.target));
+      // let the drop fully complete (DOM handle is removed, droppable updated)
+      // before updating any state
+      setTimeout(function() {
+        applyAndPersistOrder(ui.draggable, $(event.target));
+      });
     }
   });
 
