@@ -33,6 +33,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this._refreshColumnOrder();
 
   this.setupColoredCategories();
+  this.setupPopovers();
 
   // mark the $spreadsheet as initialized
   this.$spreadsheet.addClass("initialized")
@@ -1020,6 +1021,10 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
 };
 
 
+GradebookSpreadsheet.prototype.setupPopovers = function() {
+  this.$spreadsheet.find('[data-toggle="popover"]').popover();
+};
+
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
  */
@@ -1068,6 +1073,7 @@ function GradebookEditableCell($cell, header, gradebookSpreadsheet) {
   this.$spreadsheet = gradebookSpreadsheet.$spreadsheet;
 
   this.setupCell($cell);
+  this.setupClick();
 };
 
 
@@ -1142,7 +1148,6 @@ GradebookEditableCell.prototype.setupWicketInputField = function(withValue) {
 
   self.$cell.data("wicket_input_initialized", true).addClass("gb-cell-editing");
   self.$cell.data("wicket_label_initialized", false);
-  console.log(self.$cell.html());
 };
 
 
@@ -1179,9 +1184,13 @@ GradebookEditableCell.prototype.enterEditMode = function(keyCode) {
   self.$cell.data("initialValue", initialValue);
 
   // Trigger click on the Wicket node so we enter the edit mode
-  self.$cell.find("span[id^='label']").trigger("click");
+  this.getWicketAjaxLabel().trigger("click");
 };
 
+
+GradebookEditableCell.prototype.getWicketAjaxLabel = function() {
+    return this.$cell.find("span[id^='label']");
+};
 
 GradebookEditableCell.prototype.getStudentName = function() {
   return this.$cell.closest("tr").find(".gb-student-cell").text().trim();
@@ -1197,11 +1206,16 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   // The cell has been replaced by Wicket, so replace with the new 
   // DOM node on the model and set it up
   this.setupCell($("#"+cellId));
+  this.setupClick();
   this.setupWicketLabelField();
   
   //bind a timeout to the successful save. An easing would be nice
   $(".grade-save-success").removeClass("grade-save-success", 1000);
-  
+
+  //re-setup popover?
+  if (this.$cell.is('[data-toggle="popover"]')) {
+    this.$cell.popover();
+  }
 };
 
 
@@ -1210,6 +1224,32 @@ GradebookEditableCell.prototype.handleEditSuccess = function() {
   this.loadingEditMode = false;
 };
 
+
+GradebookEditableCell.prototype.isReadyForEdit = function() {
+  return this.$cell.is(".gb-ready-for-edit");
+};
+
+
+GradebookEditableCell.prototype.setupClick = function() {
+  var self = this;
+
+  function onClick(event) {
+    self.enterEditMode();
+  };
+
+  self.$cell.focus(function(event) {
+                     self.$cell.off("click", onClick);
+                     self.$spreadsheet.find(".gb-ready-for-edit").removeClass("gb-ready-for-edit");
+                     setTimeout(function() {
+                       self.$cell.on("click", onClick);
+                       self.$cell.addClass("gb-ready-for-edit");
+                     }, 100);
+                   }).
+             blur(function(event) {
+                    self.$cell.off("click", onClick);
+                    self.$cell.removeClass("gb-ready-for-edit");
+                  });
+    };
 
 /**************************************************************************************
  * GradebookBasicCell basic cell with basic functions
@@ -1714,7 +1754,12 @@ GradebookAPI._POST = function(url, data, onSuccess, onError, onComplete) {
 
 GradebookWicketEventProxy = {
   updateLabel : {
-    handleBeforeSend: $.noop, // function(cellId, attrs, jqXHR, settings) {}
+    handlePrecondition: function(cellId, attrs) {
+      var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
+
+      return model.isReadyForEdit();
+    },
+    handleBeforeSend: $.noop,
     handleSuccess: function(cellId, attrs, jqXHR, data, textStatus) {
       var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
       model.handleEditSuccess && model.handleEditSuccess();
@@ -1723,6 +1768,7 @@ GradebookWicketEventProxy = {
     handleComplete: $.noop // function(cellId, attrs, jqXHR, textStatus) {}
   },
   updateEditor : {
+    handlePrecondition: $.noop,
     handleBeforeSend: function(cellId, attrs, jqXHR, settings) {
       var model = sakai.gradebookng.spreadsheet.getCellModelForWicketParams(attrs.ep);
       model.handleBeforeSave && model.handleBeforeSave();
