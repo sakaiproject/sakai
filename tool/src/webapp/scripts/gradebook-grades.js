@@ -766,6 +766,10 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     }
   });
 
+  // toggle move left/right menu options
+  self.$table.find(".move-assignment-right, .move-assignment-left").hide();
+  self.$table.find(".move-categorized-assignment-right, .move-categorized-assignment-left").show();
+
   self.$table.find("thead").prepend($categoriesRow);
   self.$spreadsheet.addClass("gb-grouped-by-category");
   self.refreshFixedTableHeader(true);
@@ -784,6 +788,10 @@ GradebookSpreadsheet.prototype.disableGroupByCategory = function() {
     var model = self._COLUMN_ORDER[i];
     model.moveColumnTo(newColIndex);
   }
+
+  // toggle move left/right menu options
+  self.$table.find(".move-assignment-right, .move-assignment-left").show();
+  self.$table.find(".move-categorized-assignment-right, .move-categorized-assignment-left").hide();
 
   self.$spreadsheet.removeClass("gb-grouped-by-category");
   self.refreshFixedTableHeader(true);

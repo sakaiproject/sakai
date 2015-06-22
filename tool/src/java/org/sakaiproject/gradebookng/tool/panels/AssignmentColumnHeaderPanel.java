@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.lang.Exception;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -181,7 +182,44 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				setResponsePage(new GradebookPage());
 			}
 		});
-		
+
+
+		add(new Link<Long>("moveCategorizedAssignmentLeft", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick() {
+				Long assignmentId = this.getModelObject();
+
+				try {
+					int order = businessService.getCategorizedSortOrder(assignmentId);
+					businessService.updateCategorizedAssignmentOrder(assignmentId, (order - 1));
+				} catch (Exception e) {
+					e.printStackTrace();
+					error("error reordering within category");
+				}
+
+				setResponsePage(new GradebookPage());
+			}
+		});
+
+
+		add(new Link<Long>("moveCategorizedAssignmentRight", Model.of(assignment.getId())){
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onClick() {
+				Long assignmentId = this.getModelObject();
+
+				try {
+					int order = businessService.getCategorizedSortOrder(assignmentId);
+					businessService.updateCategorizedAssignmentOrder(assignmentId, (order + 1));
+				} catch (Exception e) {
+					e.printStackTrace();
+					error("error reordering within category");
+				}
+
+				setResponsePage(new GradebookPage());
+			}
+		});
 		
 		add(new AjaxLink<Long>("hideAssignment", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;

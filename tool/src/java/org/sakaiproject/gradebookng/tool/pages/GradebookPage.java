@@ -137,7 +137,8 @@ public class GradebookPage extends BasePage {
 			throw new RestartResponseException(NoDataPage.class);
 		}
 		
-        final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentOrder();
+
+        final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentsOrder();
 
         //this could potentially be a sortable data provider
         final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
