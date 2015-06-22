@@ -19,7 +19,6 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.model.GbSpreadsheetState;
 import org.sakaiproject.gradebookng.tool.pages.EditGradebookItemPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -36,15 +35,13 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 
 	private IModel<Assignment> modelData;
-	private IModel<GbSpreadsheetState> state;
 	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	private GradebookNgBusinessService businessService;
 
-	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData, IModel<GbSpreadsheetState> state) {
+	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
 		super(id);
 		this.modelData = modelData;
-		this.state = state;
 		
 	}
 	
@@ -89,7 +86,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		//set the class based on the sortOrder. May not be set for this assignment
 		GradebookPage gradebookPage = (GradebookPage) this.getPage();
 		GradebookUiSettings settings = gradebookPage.getUiSettings();
-		if(settings != null) {
+		if(settings != null && settings.getAssignmentSortOrder() != null) {
 			title.add(new AttributeModifier("class", "gb-sort-" + settings.getAssignmentSortOrder().getDirection().toString().toLowerCase()));
 		}
 		
@@ -165,7 +162,15 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				
 				long assignmentId = this.getModelObject();
 
-				if (state.getObject().isCategoriesEnabled()) {
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+				if (settings == null) {
+					settings = new GradebookUiSettings();
+					gradebookPage.setUiSettings(settings);
+				}
+
+				if (settings.isCategoriesEnabled()) {
 					try {
 						int order = businessService.getCategorizedSortOrder(assignmentId);
 						businessService.updateCategorizedAssignmentOrder(assignmentId, (order - 1));
@@ -190,7 +195,15 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				
 				long assignmentId = this.getModelObject();
 
-				if (state.getObject().isCategoriesEnabled()) {
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+				if (settings == null) {
+					settings = new GradebookUiSettings();
+					gradebookPage.setUiSettings(settings);
+				}
+
+				if (settings.isCategoriesEnabled()) {
 					try {
 						int order = businessService.getCategorizedSortOrder(assignmentId);
 						businessService.updateCategorizedAssignmentOrder(assignmentId, (order + 1));

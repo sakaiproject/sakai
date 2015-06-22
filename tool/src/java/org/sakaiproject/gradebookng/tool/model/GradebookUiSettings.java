@@ -17,6 +17,10 @@ public class GradebookUiSettings implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	public GradebookUiSettings() {
+		this.categoriesEnabled = false;
+	}
+
 	@Getter @Setter
 	private String groupFilter;
 	
@@ -26,4 +30,6 @@ public class GradebookUiSettings implements Serializable {
 	@Getter @Setter
 	private GbAssignmentGradeSortOrder assignmentSortOrder;
 	
+	@Getter @Setter
+	private boolean categoriesEnabled;
 }

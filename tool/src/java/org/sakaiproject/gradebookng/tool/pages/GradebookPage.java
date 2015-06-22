@@ -37,7 +37,6 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.model.GbSpreadsheetState;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
@@ -63,7 +62,6 @@ public class GradebookPage extends BasePage {
 	ModalWindow gradeCommentWindow;
 
 	Form<Void> form;
-	GbSpreadsheetState state;
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
@@ -72,8 +70,6 @@ public class GradebookPage extends BasePage {
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
 		Temp.time("GradebookPage init", stopwatch.getTime());
-
-		state = new GbSpreadsheetState();
 
 		form = new Form<Void>("form");
 		add(form);
@@ -207,7 +203,7 @@ public class GradebookPage extends BasePage {
 
             	@Override
             	public Component getHeader(String componentId) {
-            		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, new Model<Assignment>(assignment), new Model<GbSpreadsheetState>(state));
+            		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, new Model<Assignment>(assignment));
                 String category = assignment.getCategoryName();
                 int order = -1;
                 if (categorizedAssignmentOrder.containsKey(category)) {
@@ -268,15 +264,21 @@ public class GradebookPage extends BasePage {
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                if (state.isCategoriesEnabled()) {
+                GradebookUiSettings settings = getUiSettings();
+                if (settings != null && settings.isCategoriesEnabled()) {
                     add(new AttributeModifier("class", "on"));
                 }
             }
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                state.setCategoriesEnabled(!state.isCategoriesEnabled());
+                GradebookUiSettings settings = getUiSettings();
+                if (settings == null) {
+                    settings = new GradebookUiSettings();
+                }
+                settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
+                setUiSettings(settings);
 
-                if (state.isCategoriesEnabled()) {
+                if (settings.isCategoriesEnabled()) {
                     add(new AttributeModifier("class", "on"));
                 } else {
                     add(new AttributeModifier("class", ""));
