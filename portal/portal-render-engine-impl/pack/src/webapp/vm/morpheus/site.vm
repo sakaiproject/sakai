@@ -126,7 +126,7 @@
         <script src="${pageScriptPath}jquery/cluetip/1.2.10/jquery.cluetip.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.plugins.min.js$!{portalCDNQuery}"></script>
         <script src="${pageSkinRepo}/${pageSkin}/js/morpheus.scripts.min.js$!{portalCDNQuery}"></script>
-        <script src="${pageScriptPath}jquery/notify/1.2.2/jquery.pnotify.min.js$!{portalCDNQuery}"></script>
+        <script src="${pageScriptPath}jquery/notify/2.0.1/pnotify.custom.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/jquery.qtip-latest.min.js$!{portalCDNQuery}"></script>
         <script src="${pageScriptPath}jquery/qtip/tutorial.js$!{portalCDNQuery}"></script>
 
@@ -148,10 +148,10 @@
         #end ## END of IF ($pageTop)
 
         <script>
-        // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
+            // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
             if ( secondJQuery ) {
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
-        jQuery = ${d};  // Return jQuery to point at the tool jQuery
+                jQuery = ${d};  // Return jQuery to point at the tool jQuery
             }
             window.console && console.log('Portal scripts loaded PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
 
@@ -159,6 +159,36 @@
                 setupSiteNav();
                 ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308 
             });
+        </script>
+
+        <script>
+        PNotify.prototype.options.styling = "jqueryui";
+/*
+        PNotify.prototype.options.delay = 60000;  // For easier testing
+        ${d}PBJQ(function(){
+            new PNotify({
+                title: 'Testing title',
+                text: 'Testing text',
+                type: 'notice'
+            });
+        });  // End for easier testing of PNotify styling
+*/
+        function portal_check_pnotify() {
+            ${d}PBJQ.getJSON( "/direct/portal/notify.json", function( data ) {
+                for(i=0; i<data.error.length; i++ ) {
+                     ${d}PBJQ(function(){
+                        new PNotify({
+                            title: '${rloader.getString("pnotify_notice")}',
+                            text: data.error[i],
+                            type: 'notice'
+                        });
+                    });
+                }
+            });
+        }
+    #if ($userWarning) 
+        ${d}PBJQ(document).ready(portal_check_pnotify);
+    #end
         </script>
 
         <!--[if lt IE 9]>

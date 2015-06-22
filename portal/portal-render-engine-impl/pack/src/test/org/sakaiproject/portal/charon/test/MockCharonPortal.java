@@ -250,6 +250,8 @@ public class MockCharonPortal extends HttpServlet
 		rcontext.put("bottomNavServiceVersion", "serviceVersion");
 		rcontext.put("bottomNavSakaiVersion", "sakaiVersion");
 		rcontext.put("bottomNavServer", "server");
+                rcontext.put("userWarning", Boolean.FALSE);
+
 	}
 
 	protected void includeGalleryLogin(PortalRenderContext rcontext) throws IOException
