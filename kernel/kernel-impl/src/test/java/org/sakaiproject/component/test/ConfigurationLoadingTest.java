@@ -72,6 +72,8 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 		// Check that the test sakai-configuration.xml and sakai.properties files have been loaded.
 		Assert.assertTrue(serverConfigurationService.getString("loadedTomcatSakaiProperties").equals("true"));
 		Assert.assertTrue(serverConfigurationService.getString("kernel.test.key").equals("kernel"));
+		// KNL-1361 - Add support for system-scoped properties
+		Assert.assertTrue(System.getProperty("system.test.key").equals("sakai"));
 		ITestComponent testComponent = (ITestComponent)getService(ITestComponent.class.getName());
 		Assert.assertTrue(testComponent.getOverrideString1().equals("nondefault"));
 		Assert.assertTrue(testComponent.getPlaceholderString1().equals("nondefault"));
