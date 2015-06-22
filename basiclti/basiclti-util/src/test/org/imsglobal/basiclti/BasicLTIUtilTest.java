@@ -30,7 +30,7 @@ public class BasicLTIUtilTest {
 	@Test
 	public void testOAuthGET()
 	{
-		String url = BasicLTIUtil.getOAuthURL("http://www.dr-chuck.com/page1.htm?x=1", "12345", "secret");
+		String url = BasicLTIUtil.getOAuthURL("GET", "http://www.dr-chuck.com/page1.htm?x=1", "12345", "secret");
 		// System.out.println("url="+url);
 		assertTrue(url.contains("oauth_consumer_key"));
 		assertTrue(url.contains("oauth_signature="));
