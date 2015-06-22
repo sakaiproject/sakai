@@ -5,7 +5,7 @@ import java.io.Serializable;
 import lombok.Getter;
 import lombok.Setter;
 
-import org.sakaiproject.gradebookng.business.SortDirection;
+import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 
 /**
  * DTO for storing data in the session so that state is preserved between requests.
@@ -24,9 +24,6 @@ public class GradebookUiSettings implements Serializable {
 	 * For sorting based on assignment grades
 	 */
 	@Getter @Setter
-	private long assignmentSort;
-	
-	@Getter @Setter
-	private SortDirection assignmentSortDirection;
+	private GbAssignmentGradeSortOrder assignmentSortOrder;
 	
 }

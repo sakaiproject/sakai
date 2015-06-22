@@ -338,6 +338,18 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
+	 * Build the matrix of assignments and grades for the given users.
+	 * In general this is just one, as we use it for the student summary but could be more for paging etc
+	 * 
+	 * @param assignments list of assignments
+	 * @param list of uuids
+	 * @return
+	 */
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids) {
+		return this.buildGradeMatrix(assignments, studentUuids, null);
+	}
+	
+	/**
 	 * Build the matrix of assignments, students and grades for all students, with the specified sortOrder
 	 * 
 	 * @param assignments list of assignments
@@ -349,20 +361,7 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Build the matrix of assignments and grades for the given users.
-	 * In general this is just one, as we use it for the student summary but could be more for paging etc
-	 * 
-	 * @param assignments list of assignments
-	 * @param list of uuids
-	 * @return
-	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids) {
-		return this.buildGradeMatrix(assignments, studentUuids, null);
-		
-	}
-	/**
-	 * Build the matrix of assignments and grades for the given users.
-	 * In general this is just one, as we use it for the student summary but could be more for paging etc
+	 * Build the matrix of assignments and grades for the given users with the specified sort order
 	 * 
 	 * @param assignments list of assignments
 	 * @param list of uuids
@@ -432,9 +431,7 @@ public class GradebookNgBusinessService {
 		//get the matrix as a list of GbStudentGradeInfo
 		ArrayList<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
 
-		
-
-		//TODO extract this out into own method where it can do the checking
+		//sort the matrix based on the supplied sort order (if any)
 		if(sortOrder != null) {
 			GradeComparator comparator = new GradeComparator();
 			comparator.setAssignmentId(sortOrder.getAssignmentId());
@@ -448,13 +445,7 @@ public class GradebookNgBusinessService {
 			if(direction == SortDirection.DESCENDING) {
 				Collections.reverse(items);
 			}
-			
-			//TODO front end neds to know direction of the sort, maybe it can hold a value as to the sort direction
-			//store the sort order in the SESSION, then the frpnt end can just toggle it and its handled here. 
-			
-
 		}
-	
 		
 		return items;
 	}

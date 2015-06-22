@@ -1,7 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.util.List;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang.BooleanUtils;
@@ -25,7 +25,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.tool.model.GradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -84,7 +84,7 @@ public class GradeItemCellPanel extends Panel {
 		final Double assignmentPoints = (Double) modelData.get("assignmentPoints");
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final Boolean isExternal = (Boolean) modelData.get("isExternal");
-		final GradeInfo gradeInfo = (GradeInfo) modelData.get("gradeInfo");
+		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
 		
 		//note, gradeInfo may be null
 		String rawGrade;
@@ -118,7 +118,6 @@ public class GradeItemCellPanel extends Panel {
 				}
 				
 				@Override
-				//TODO - Is setting a string here overkill since this component is initialised for EVERY cell?
 				protected void onInitialize() {
 					//set original grade, once only
 					super.onInitialize();
@@ -319,9 +318,6 @@ public class GradeItemCellPanel extends Panel {
 						if(StringUtils.isNotBlank(comment)) {
 							markHasComment(gradeCell);
 							target.add(getParentCellFor(gradeCell));
-
-							//TODO need to update self so the label on the dropdown gets updated
-							
 						};
 						
 					}
@@ -441,8 +437,6 @@ public class GradeItemCellPanel extends Panel {
 		public String getCss() {
 			return this.css;
 		}
-		
-
 	}
 	
 	

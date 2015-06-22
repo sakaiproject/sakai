@@ -10,12 +10,14 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
-import org.apache.wicket.markup.html.panel.EmptyPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.SortDirection;
+import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.EditGradebookItemPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -38,9 +40,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
 		super(id);
-		
 		this.modelData = modelData;
-		
 	}
 	
 	@Override
@@ -54,8 +54,27 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 			@Override
 			public void onClick() {
-				// TODO Auto-generated method stub
 				
+				//toggle the sort direction on each click
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				GradebookUiSettings settings = gradebookPage.getUiSettings();
+				
+				//if null, set a default sort, otherwise toggle, save, refresh.
+				if(settings == null) {
+					settings = new GradebookUiSettings();
+					settings.setAssignmentSortOrder(new GbAssignmentGradeSortOrder(assignment.getId(), SortDirection.ASCENDING));
+				} else {
+					GbAssignmentGradeSortOrder sortOrder = settings.getAssignmentSortOrder();
+					SortDirection direction = sortOrder.getDirection();
+					direction = direction.toggle();
+					sortOrder.setDirection(direction);
+					settings.setAssignmentSortOrder(sortOrder);
+				}
+				
+				//save settings
+				gradebookPage.setUiSettings(settings);
+				
+				setResponsePage(new GradebookPage());
 			}
 			
 		};

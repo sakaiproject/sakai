@@ -5,6 +5,12 @@ package org.sakaiproject.gradebookng.business;
  *
  */
 public enum SortDirection {
+	
 	ASCENDING,
-	DESCENDING
+	DESCENDING;
+	
+	// cycles the values
+	public SortDirection toggle() {
+		return values()[(ordinal() + 1) % values().length];
+	}
 }

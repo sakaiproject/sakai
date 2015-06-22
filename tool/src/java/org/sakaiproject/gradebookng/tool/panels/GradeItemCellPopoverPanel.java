@@ -12,6 +12,8 @@ import org.apache.wicket.model.ResourceModel;
 
 public class GradeItemCellPopoverPanel extends Panel {
 
+	private static final long serialVersionUID = 1L;
+
 	public GradeItemCellPopoverPanel(String id, IModel<Map<String,Object>> model, List<GradeItemCellPanel.GradeCellNotification> notifications) {
 		super(id, model);
 

@@ -126,8 +126,8 @@ public class GradebookPage extends BasePage {
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
         
-        //get the grade matrix
-        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments);
+        //get the grade matrix. It should be sorted if we have that info
+        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, (settings != null) ? settings.getAssignmentSortOrder() : null);
         
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 		
@@ -137,8 +137,6 @@ public class GradebookPage extends BasePage {
 			throw new RestartResponseException(NoDataPage.class);
 		}
 		
-        
-
         final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentOrder();
 
         //this could potentially be a sortable data provider
@@ -319,10 +317,17 @@ public class GradebookPage extends BasePage {
 	}
 
 	/**
-	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only
+	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only.
+	 * May return null if there are no current settings
+	 * 
+	 * TODO move this to a helper
 	 */
 	public GradebookUiSettings getUiSettings() {
 		return (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
+	}
+	
+	public void setUiSettings(GradebookUiSettings settings) {
+		Session.get().setAttribute("GBNG_UI_SETTINGS", settings);
 	}
 	
 	

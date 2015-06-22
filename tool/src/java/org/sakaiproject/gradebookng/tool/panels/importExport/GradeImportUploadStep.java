@@ -205,10 +205,10 @@ public class GradeImportUploadStep extends Panel {
      * @param grades
      * @return Map where the user's eid is the key and the uuid is the value
      */
-    private Map<String, String> makeUserMap(List<StudentGradeInfo> grades) {
+    private Map<String, String> makeUserMap(List<GbStudentGradeInfo> grades) {
         Map<String, String> userMap = new HashMap<String, String>();
 
-        for (StudentGradeInfo studentGradeInfo : grades) {
+        for (GbStudentGradeInfo studentGradeInfo : grades) {
             userMap.put(studentGradeInfo.getStudentEid(), studentGradeInfo.getStudentUuid());
         }
         return userMap;
