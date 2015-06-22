@@ -74,11 +74,20 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				//save settings
 				gradebookPage.setUiSettings(settings);
 				
+				//refresh
 				setResponsePage(new GradebookPage());
 			}
 			
 		};
 		title.add(new AttributeModifier("title", assignment.getName()));
+		
+		//set the class based on the sortOrder. May not be set for this assignment
+		GradebookPage gradebookPage = (GradebookPage) this.getPage();
+		GradebookUiSettings settings = gradebookPage.getUiSettings();
+		if(settings != null) {
+			title.add(new AttributeModifier("class", "gb-sort-" + settings.getAssignmentSortOrder().getDirection().toString().toLowerCase()));
+		}
+		
 		add(title);
 		
 		
