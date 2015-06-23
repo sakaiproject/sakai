@@ -17,4 +17,7 @@ public class ProcessedGradeItem implements Serializable {
     private String itemPointValue;
     private ProcessedGradeItemStatus status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
     private List<ProcessedGradeItemDetail> processedGradeItemDetails = new ArrayList<ProcessedGradeItemDetail>();
+
+    private String commentLabel;
+    private ProcessedGradeItemStatus commentStatus = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UNKNOWN);
 }

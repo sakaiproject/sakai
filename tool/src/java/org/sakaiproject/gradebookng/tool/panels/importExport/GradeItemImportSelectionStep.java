@@ -4,6 +4,7 @@ import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.AttributeAppender;
+import org.apache.wicket.behavior.Behavior;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Check;
@@ -146,9 +147,41 @@ public class GradeItemImportSelectionStep extends Panel {
                     item.add(new Label("status", getString("importExport.status." + status.getStatusCode())));
                 }
 
-                String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
+                final String naString = getString("importExport.selection.pointValue.na", new Model(), "N/A");
                 if (naString.equals(item.getModelObject().getItemPointValue()))
                     item.add(new AttributeAppender("class", new Model<String>("comment"), " "));
+
+                PropertyModel<String> commentLabelProp = new PropertyModel<String>(item.getDefaultModel(), "commentLabel");
+                final PropertyModel<ProcessedGradeItemStatus> commentStatusProp = new PropertyModel<ProcessedGradeItemStatus>(item.getDefaultModel(), "commentStatus");
+                final String commentLabel = commentLabelProp.getObject();
+                final ProcessedGradeItemStatus commentStatus = commentStatusProp.getObject();
+
+                item.add(new Behavior() {
+                    @Override
+                    public void afterRender(Component component) {
+                        super.afterRender(component);
+                        if(commentLabel != null){
+                            String rowClass = "comment";
+                            String statusValue = getString("importExport.status." + commentStatus.getStatusCode());
+                            if (commentStatus.getStatusCode() == ProcessedGradeItemStatus.STATUS_EXTERNAL) {
+                                rowClass += " external";
+                                statusValue = new StringResourceModel("importExport.status." + commentStatus.getStatusCode(),
+                                        commentStatusProp, null, commentStatus.getStatusValue()).getString();
+                            }
+
+                            component.getResponse().write(
+                                    "<tr class=\"" + rowClass + "\">" +
+                                        "<td></td>" +
+                                        "<td class=\"item_title\"><span>" + commentLabel + "</span></td>" +
+                                        "<td><span>" + naString + "</span></td>" +
+                                        "<td class=\"item_status\"><span>" + statusValue + "</span></td>" +
+                                    "</tr>"
+
+                            );
+                        }
+                    }
+                });
+
             }
 
         };
