@@ -1,6 +1,19 @@
 ## Header that shows institution and/or banner logos
 
 <header role="banner" class="Mrphs-headerLogo">
+	#if( ${loggedIn} )	
+
+		#foreach ( $site in $tabsSites.tabsSites )
+
+		    #if (${site.isMyWorkspace})
+
+				<a class="Mrphs-my-workspace" href="${site.siteUrl}"><i class="fa fa-home"></i></a>
+
+			#end ## END of IF
+		
+		#end ## END of foreach
+
+	#end
     <span class="Mrphs-headerLogo--institution"></span>
     <span class="Mrphs-headerLogo--banner"></span>
 </header>
