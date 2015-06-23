@@ -4,13 +4,13 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportColumn;
 import org.sakaiproject.gradebookng.business.model.ImportedGrade;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItemStatus;
-import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.user.api.User;
@@ -123,16 +123,22 @@ public class TestImportGradesHelper {
 
         Assert.assertNotNull(processedGradeItems);
 
-        Assert.assertEquals("wrong number of results", 7, processedGradeItems.size());
+        Assert.assertEquals("wrong number of results", 4, processedGradeItems.size());
 
+        //assignment 1
         Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NA, processedGradeItems.get(0).getStatus().getStatusCode());
-        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NA, processedGradeItems.get(1).getStatus().getStatusCode());
-        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE, processedGradeItems.get(2).getStatus().getStatusCode());
-        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE, processedGradeItems.get(3).getStatus().getStatusCode());
-        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NEW, processedGradeItems.get(4).getStatus().getStatusCode());
-        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NEW, processedGradeItems.get(5).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NA, processedGradeItems.get(0).getCommentStatus().getStatusCode());
 
-        ProcessedGradeItemStatus extStatus = processedGradeItems.get(6).getStatus();
+        //assignment 2
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE, processedGradeItems.get(1).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_UPDATE, processedGradeItems.get(1).getCommentStatus().getStatusCode());
+
+        //assignment 3
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NEW, processedGradeItems.get(2).getStatus().getStatusCode());
+        Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_NEW, processedGradeItems.get(2).getCommentStatus().getStatusCode());
+
+        //assignment ext
+        ProcessedGradeItemStatus extStatus = processedGradeItems.get(3).getStatus();
         Assert.assertEquals("wrong status", ProcessedGradeItemStatus.STATUS_EXTERNAL, extStatus.getStatusCode());
         Assert.assertEquals("wrong status name", "From a test", extStatus.getStatusValue());
 
