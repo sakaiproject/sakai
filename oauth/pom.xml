@@ -55,9 +55,9 @@
     <modules>
         <module>api</module>
         <module>impl</module>
-        <module>impl/dao-hbm</module>
-        <module>impl/dao-memory</module>
-        <module>impl/dao-server-config</module>
+        <module>dao-hbm</module>
+        <module>dao-memory</module>
+        <module>dao-server-config</module>
         <module>pack</module>
         <module>tool</module>
     </modules>
