@@ -875,22 +875,8 @@ public class LessonBuilderAccessService {
 						finally
 						{
 							// be a good little program and close the stream - freeing up valuable system resources
-							if (content != null)
-							{
-								content.close();
-							}
-		
-							if (out != null)
-							{
-								try
-								{
-									out.close();
-								}
-								catch (IOException ignore)
-								{
-									// ignore
-								}
-							}
+							IOUtils.closeQuietly(content);
+							IOUtils.closeQuietly(out);
 						}
 		              
 		            } else {
@@ -934,17 +920,7 @@ public class LessonBuilderAccessService {
 						finally
 						{
 							// be a good little program and close the stream - freeing up valuable system resources
-							if (out != null)
-							{
-								try
-								{
-									out.close();
-								}
-								catch (IOException ignore)
-								{
-									// ignore
-								}
-							}
+							IOUtils.closeQuietly(out);
 						}
 		              
 		            } // output multiple ranges
@@ -1235,11 +1211,7 @@ public class LessonBuilderAccessService {
           
             exception = copyRange(istream, out, currentRange.start, currentRange.end);
 
-            try {
-                istream.close();
-            } catch (IOException e) {
-            	// ignore
-            }
+            IOUtils.closeQuietly(istream);
         }
 
         IOUtils.write("\r\n--" + MIME_SEPARATOR + "--\r\n", out);
