@@ -1,18 +1,8 @@
 package org.sakaiproject.gradebookng.business.helpers;
 
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.text.MessageFormat;
-import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
+import au.com.bytecode.opencsv.CSVReader;
 import lombok.extern.apachecommons.CommonsLog;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -32,7 +22,15 @@ import org.sakaiproject.gradebookng.tool.model.AssignmentStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.util.BaseResourcePropertiesEdit;
 
-import au.com.bytecode.opencsv.CSVReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.text.MessageFormat;
+import java.text.ParseException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by chmaurer on 1/21/15.
@@ -254,6 +252,7 @@ public class ImportGradesHelper extends BaseImportHelper {
                                                                  List<Assignment> assignments, List<GbStudentGradeInfo> currentGrades) {
         List<ProcessedGradeItem> processedGradeItems = new ArrayList<ProcessedGradeItem>();
         Map<String, Assignment> assignmentNameMap = new HashMap<String, Assignment>();
+        Map<String, ProcessedGradeItem> assignmentProcessedGradeItemMap = new HashMap<String, ProcessedGradeItem>();
 
         Map<Long, AssignmentStudentGradeInfo> transformedGradeMap = transformCurrentGrades(currentGrades);
 
@@ -264,30 +263,30 @@ public class ImportGradesHelper extends BaseImportHelper {
 
 
         for (ImportColumn column : importedGradeWrapper.getColumns()) {
-            ProcessedGradeItem processedGradeItem = new ProcessedGradeItem();
-
+            boolean needsAdded = false;
             String assignmentName = column.getColumnTitle();
+
+            ProcessedGradeItem processedGradeItem = assignmentProcessedGradeItemMap.get(assignmentName);
+            if (processedGradeItem == null) {
+                processedGradeItem = new ProcessedGradeItem();
+                needsAdded = true;
+            }
+
+            Assignment assignment = assignmentNameMap.get(assignmentName);
+            ProcessedGradeItemStatus status = determineStatus(column, assignment, importedGradeWrapper, transformedGradeMap);
 
             if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
                 processedGradeItem.setItemTitle(assignmentName);
                 processedGradeItem.setItemPointValue(column.getPoints());
-
-
-
+                processedGradeItem.setStatus(status);
             } else if (column.getType() == ImportColumn.TYPE_ITEM_WITH_COMMENTS) {
-                processedGradeItem.setItemTitle(assignmentName + " Comments");
-                processedGradeItem.setItemPointValue("N/A");
-
+                processedGradeItem.setCommentLabel(assignmentName + " Comments");
+                processedGradeItem.setCommentStatus(status);
             } else {
                 //Just get out
                 log.warn("Bad column type - " + column.getType() + ".  Skipping.");
                 continue;
             }
-
-            Assignment assignment = assignmentNameMap.get(assignmentName);
-
-            ProcessedGradeItemStatus status = determineStatus(column, assignment, importedGradeWrapper, transformedGradeMap);
-            processedGradeItem.setStatus(status);
 
             if (assignment != null) {
                 processedGradeItem.setItemId(assignment.getId());
@@ -301,13 +300,17 @@ public class ImportGradesHelper extends BaseImportHelper {
                     processedGradeItemDetail.setStudentEid(importedGrade.getStudentEid());
                     processedGradeItemDetail.setStudentUuid(importedGrade.getStudentUuid());
                     processedGradeItemDetail.setGrade(importedGradeItem.getGradeItemScore());
+                    processedGradeItemDetail.setComment(importedGradeItem.getGradeItemComment());
                     processedGradeItemDetails.add(processedGradeItemDetail);
                 }
 
             }
             processedGradeItem.setProcessedGradeItemDetails(processedGradeItemDetails);
 
-            processedGradeItems.add(processedGradeItem);
+            if (needsAdded) {
+                processedGradeItems.add(processedGradeItem);
+                assignmentProcessedGradeItemMap.put(assignmentName, processedGradeItem);
+            }
         }
 
         return processedGradeItems;

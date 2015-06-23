@@ -70,7 +70,7 @@ public class GradebookPage extends BasePage {
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
 		Temp.time("GradebookPage init", stopwatch.getTime());
-		
+
 		form = new Form<Void>("form");
 		add(form);
 		
@@ -137,7 +137,8 @@ public class GradebookPage extends BasePage {
 			throw new RestartResponseException(NoDataPage.class);
 		}
 		
-        final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentOrder();
+
+        final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentsOrder();
 
         //this could potentially be a sortable data provider
         final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
@@ -258,6 +259,35 @@ public class GradebookPage extends BasePage {
         Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size(), assignments.size()));
         gradeItemSummary.setEscapeModelStrings(false);
         form.add(gradeItemSummary);
+
+        AjaxButton toggleCategoriesToolbarItem = new AjaxButton("toggleCategoriesToolbarItem") {
+            @Override
+            protected void onInitialize() {
+                super.onInitialize();
+                GradebookUiSettings settings = getUiSettings();
+                if (settings != null && settings.isCategoriesEnabled()) {
+                    add(new AttributeModifier("class", "on"));
+                }
+            }
+            @Override
+            protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
+                GradebookUiSettings settings = getUiSettings();
+                if (settings == null) {
+                    settings = new GradebookUiSettings();
+                }
+                settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
+                setUiSettings(settings);
+
+                if (settings.isCategoriesEnabled()) {
+                    add(new AttributeModifier("class", "on"));
+                } else {
+                    add(new AttributeModifier("class", ""));
+                }
+                target.add(this);
+                target.appendJavaScript("sakai.gradebookng.spreadsheet.toggleCategories();");
+            }
+        };
+        form.add(toggleCategoriesToolbarItem);
 
         //section and group dropdown
         final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
