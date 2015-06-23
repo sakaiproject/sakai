@@ -1,6 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -9,9 +11,12 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.xmlbeans.impl.piccolo.xml.Piccolo;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.util.Collections;
@@ -53,8 +58,11 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
       @Override
       protected void populateItem(ListItem<String> categoryItem) {
         String category = categoryItem.getModelObject();
-        
+
+        final GradebookPage gradebookPage = (GradebookPage) this.getPage();
+
         categoryItem.add(new Label("category", category));
+
         CheckBox categoryCheckbox = new CheckBox("categoryCheckbox");
         categoryCheckbox.add(new AttributeModifier("value", category));
         categoryCheckbox.add(new AttributeModifier("checked", "checked"));
@@ -65,13 +73,32 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
           @Override
           protected void populateItem(ListItem<Assignment> assignmentItem) {
-            Assignment assignment = assignmentItem.getModelObject();
-            
+            final Assignment assignment = assignmentItem.getModelObject();
+
+            GradebookUiSettings settings = gradebookPage.getUiSettings();
+            if (settings == null) {
+              settings = new GradebookUiSettings();
+              gradebookPage.setUiSettings(settings);
+            }
+
             assignmentItem.add(new Label("assignmentTitle", assignment.getName()));
-            CheckBox assignmentCheckbox = new CheckBox("assignmentCheckbox");
+
+            CheckBox assignmentCheckbox = new AjaxCheckBox("assignmentCheckbox", Model.of(Boolean.valueOf(settings.isAssignmentVisible(assignment.getId())))) {
+              @Override
+              protected void onUpdate(AjaxRequestTarget target) {
+                  GradebookUiSettings settings = gradebookPage.getUiSettings();
+                  if (settings == null) {
+                      settings = new GradebookUiSettings();
+                  }
+
+                  Boolean value = getModelObject();
+                  settings.setAssignmentVisibility(assignment.getId(), value);
+
+                  gradebookPage.setUiSettings(settings);
+              }
+            };
             assignmentCheckbox.add(new AttributeModifier("value", assignment.getId().toString()));
             assignmentCheckbox.add(new AttributeModifier("data-colidx", assignments.indexOf(assignment)));
-            assignmentCheckbox.add(new AttributeModifier("checked", "checked"));
             assignmentItem.add(assignmentCheckbox);
           }
         });

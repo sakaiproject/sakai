@@ -35,8 +35,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupColoredCategories();
   this.setupPopovers();
 
-  // mark the $spreadsheet as initialized
-  this.$spreadsheet.addClass("initialized")
+  this.ready();
 };
 
 
@@ -693,6 +692,11 @@ GradebookSpreadsheet.prototype.setupToolbar = function() {
 };
 
 
+GradebookSpreadsheet.prototype.toggleCategories = function() {
+  this.toolbarModel.toggleCategories();
+};
+
+
 GradebookSpreadsheet.prototype._cloneCell = function($cell) {
   // clone and sanitize the $cell so it can be used in a fixed header/column
   // and not interfere with javascript bindings already out there
@@ -1028,6 +1032,21 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
 GradebookSpreadsheet.prototype.setupPopovers = function() {
   this.$spreadsheet.find('[data-toggle="popover"]').popover();
 };
+
+
+GradebookSpreadsheet.prototype.ready = function() {
+  this.$spreadsheet.addClass("initialized").trigger("ready.gradebookng");
+}
+
+
+GradebookSpreadsheet.prototype.onReady = function(callback) {
+  if (this.$spreadsheet.is(".initialized")) {
+    callback();
+  } else {
+    this.$spreadsheet.on("ready.gradebookng", callback);
+  }
+};
+
 
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
@@ -1675,26 +1694,28 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
   self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input").on("change", handleCategoryFilterStateChange);
   self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input").on("change", handleGradeItemFilterStateChange);
+
+  // Reinstate hidden columns
+  self.gradebookSpreadsheet.onReady(function() {
+    self.$gradeItemsFilterPanel.find(":input:not(:checked)").trigger("change");
+  });
 };
 
 
+GradebookToolbar.prototype.toggleCategories = function() {
+  if ($("#toggleCategoriesToolbarItem").hasClass("on")) {
+    this.gradebookSpreadsheet.enableGroupByCategory();
+  } else {
+    this.gradebookSpreadsheet.disableGroupByCategory();
+  }
+};
+
 GradebookToolbar.prototype.setupToggleCategories = function() {
   var self = this;
-
-  self.$toolbar.on("click", "#toggleCategoriesToolbarItem", function(event) {
-    event.preventDefault();
-
-    $(this).toggleClass("on");
-
-    if ($(this).hasClass("on")) {
-      self.gradebookSpreadsheet.enableGroupByCategory();
-    } else {
-      self.gradebookSpreadsheet.disableGroupByCategory();
-    }
-
-    return false;
-  })
-}
+  self.gradebookSpreadsheet.onReady(function() {
+      self.toggleCategories();
+  });
+};
 
 
 /**************************************************************************************

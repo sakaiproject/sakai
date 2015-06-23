@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.lang.Exception;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -41,6 +42,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
 		super(id);
 		this.modelData = modelData;
+		
 	}
 	
 	@Override
@@ -84,7 +86,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		//set the class based on the sortOrder. May not be set for this assignment
 		GradebookPage gradebookPage = (GradebookPage) this.getPage();
 		GradebookUiSettings settings = gradebookPage.getUiSettings();
-		if(settings != null) {
+		if(settings != null && settings.getAssignmentSortOrder() != null) {
 			title.add(new AttributeModifier("class", "gb-sort-" + settings.getAssignmentSortOrder().getDirection().toString().toLowerCase()));
 		}
 		
@@ -159,9 +161,27 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				//so we just make sure we get it fresh
 				
 				long assignmentId = this.getModelObject();
-				
-				int order = businessService.getAssignmentSortOrder(assignmentId);
-				businessService.updateAssignmentOrder(assignmentId, (order-1));
+
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+				if (settings == null) {
+					settings = new GradebookUiSettings();
+					gradebookPage.setUiSettings(settings);
+				}
+
+				if (settings.isCategoriesEnabled()) {
+					try {
+						int order = businessService.getCategorizedSortOrder(assignmentId);
+						businessService.updateCategorizedAssignmentOrder(assignmentId, (order - 1));
+					} catch (Exception e) {
+						e.printStackTrace();
+						error("error reordering within category");
+					}
+				} else {
+					int order = businessService.getAssignmentSortOrder(assignmentId);
+					businessService.updateAssignmentOrder(assignmentId, (order-1));
+				}
 
 				setResponsePage(new GradebookPage());
 			}
@@ -174,9 +194,28 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			public void onClick() {
 				
 				long assignmentId = this.getModelObject();
+
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				GradebookUiSettings settings = gradebookPage.getUiSettings();
+
+				if (settings == null) {
+					settings = new GradebookUiSettings();
+					gradebookPage.setUiSettings(settings);
+				}
+
+				if (settings.isCategoriesEnabled()) {
+					try {
+						int order = businessService.getCategorizedSortOrder(assignmentId);
+						businessService.updateCategorizedAssignmentOrder(assignmentId, (order + 1));
+					} catch (Exception e) {
+						e.printStackTrace();
+						error("error reordering within category");
+					}
+				} else {
+					int order = businessService.getAssignmentSortOrder(assignmentId);
+					businessService.updateAssignmentOrder(assignmentId, (order+1));
+				}
 				
-				int order = businessService.getAssignmentSortOrder(assignmentId);
-				businessService.updateAssignmentOrder(assignmentId, (order+1));
 				
 				setResponsePage(new GradebookPage());
 			}

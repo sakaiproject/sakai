@@ -596,6 +596,20 @@ public class GradebookNgBusinessService {
 		this.gradebookService.updateAssignmentOrder(gradebook.getUid(), assignmentId, order);
     }
 
+	/**
+	 * Update the categorized order of an assignment.
+	 *
+	 * @param assignmentId the assignment we are reordering
+	 * @param order the new order
+	 * @throws JAXBException
+	 * @throws IdUnusedException
+	 * @throws PermissionException
+	 */
+	public void updateCategorizedAssignmentOrder(long assignmentId, int order) throws JAXBException, IdUnusedException, PermissionException {
+		String siteId = this.getCurrentSiteId();
+		updateCategorizedAssignmentOrder(siteId, assignmentId, order);
+	}
+
 
   /**
    * Update the categorized order of an assignment.
@@ -634,7 +648,7 @@ public class GradebookNgBusinessService {
 
     String category = assignmentToMove.getCategoryName();
 
-    Map<String, List<Long>> orderedAssignments = getCategorizedAssignmentOrder(siteId);
+    Map<String, List<Long>> orderedAssignments = getCategorizedAssignmentsOrder(siteId);
 
     if (!orderedAssignments.containsKey(category)) {
       orderedAssignments.put(category, new ArrayList<Long>());
@@ -651,9 +665,9 @@ public class GradebookNgBusinessService {
   /**
    * Get the ordered categorized assignment ids for the current site
    */
-  public Map<String, List<Long>> getCategorizedAssignmentOrder() {
+  public Map<String, List<Long>> getCategorizedAssignmentsOrder() {
     try {
-      return getCategorizedAssignmentOrder(getCurrentSiteId());
+      return getCategorizedAssignmentsOrder(getCurrentSiteId());
     } catch (JAXBException e) {
       e.printStackTrace();
     } catch(IdUnusedException e) {
@@ -673,7 +687,7 @@ public class GradebookNgBusinessService {
    * @throws IdUnusedException
    * @throws PermissionException
    */
-  private Map<String, List<Long>> getCategorizedAssignmentOrder(String siteId) throws JAXBException, IdUnusedException, PermissionException {
+  private Map<String, List<Long>> getCategorizedAssignmentsOrder(String siteId) throws JAXBException, IdUnusedException, PermissionException {
     Site site = null;
     try {
       site = this.siteService.getSite(siteId);
@@ -722,6 +736,29 @@ public class GradebookNgBusinessService {
 
     return null;
   }
+
+
+	/**
+	 * Get the  categorized order for an assignment
+	 *
+	 * @param assignmentId	the assignment id
+	 * @throws JAXBException
+	 * @throws IdUnusedException
+	 * @throws PermissionException
+	 */
+	public int getCategorizedSortOrder(Long assignmentId) throws JAXBException, IdUnusedException, PermissionException {
+		String siteId = this.getCurrentSiteId();
+		Gradebook gradebook = getGradebook(siteId);
+
+		if(gradebook != null) {
+			Assignment assignment = gradebookService.getAssignment(gradebook.getUid(), assignmentId);
+
+			Map<String, List<Long>> categorizedOrder = getCategorizedAssignmentsOrder(siteId);
+			return categorizedOrder.get(assignment.getCategoryName()).indexOf(assignmentId);
+		}
+
+		return -1;
+	}
 
 
   /**
