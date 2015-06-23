@@ -1,0 +1,18 @@
+<script type="text/template" id="popup-container-content">
+{{{popupTemplate}}}
+</script>
+
+<script type="text/template" id="popup-container-footer">
+<div class="popup-container-footer">
+  <a href="javascript:void(0)" class="popup-dismiss-button permanent" id="popup-acknowledged-button">{{{t this "popup-acknowledged"}}}</a>
+  <a href="javascript:void(0)" class="popup-dismiss-button temporary" id="popup-later-button">{{{t this "popup-remind-later"}}}</a>
+</div>
+</script>
+
+{{#if popup}}
+<script>
+  if (pasystem) {
+    new PASystemPopup("{{popupUuid}}", "{{sakai_csrf_token}}");
+  }
+</script>
+{{/if}}

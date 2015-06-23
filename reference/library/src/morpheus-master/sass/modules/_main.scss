@@ -1,15 +1,21 @@
 //.#{$namespace}
 .is-logged-out{
 	#content, .#{$namespace}container--footer{
-		margin: #{$header-size + 15px } 0 0 #{$tool-menu-width};
+		margin: 0 0 0 #{$tool-menu-width};
+		padding-top: #{$header-size + 15px };
 		@media #{$phone}{
 			margin: #{$header-size + 15px } 0 0 #{$icon-size * 3};
 		}
 	}
 }
 
+.#{$namespace}portalWrapper {
+	position: relative;
+}
+
 #content, .#{$namespace}container--footer{
-	margin: #{$header-size * 2 + 15px } 0 0 #{$tool-menu-width};
+	margin: 0 0 0 #{$tool-menu-width};
+	padding-top: #{$header-size * 2 + 15px };
 
 	@media #{$phone}{
 		margin: #{$header-size } 20px 0 #{$icon-size * 3};
