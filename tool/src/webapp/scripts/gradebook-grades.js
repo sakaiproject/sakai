@@ -1694,6 +1694,11 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
   self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input").on("change", handleCategoryFilterStateChange);
   self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input").on("change", handleGradeItemFilterStateChange);
+
+  // Reinstate hidden columns
+  self.gradebookSpreadsheet.onReady(function() {
+    self.$gradeItemsFilterPanel.find(":input:not(:checked)").trigger("change");
+  });
 };
 
 
