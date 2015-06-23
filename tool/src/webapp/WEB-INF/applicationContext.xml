@@ -31,5 +31,13 @@
 		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 		<property name="businessService" ref="org.sakaiproject.gradebookng.business.GradebookNgBusinessService" />
 	</bean>
+	
+	<bean
+		id="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
+		class="org.sakaiproject.gradebookng.framework.GradebookNgContextObserver"
+		init-method="init">
+		<property name="entityManager" ref="org.sakaiproject.entity.api.EntityManager" />
+		<property name="gradebookFrameworkService" ref="org_sakaiproject_service_gradebook_GradebookFrameworkService" />
+	</bean>
 
 </beans>
