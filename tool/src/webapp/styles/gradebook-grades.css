@@ -76,6 +76,20 @@
   overflow: hidden;
   line-height: 1.4em;
 }
+#gradebookGrades th .gb-title a:hover {
+  text-decoration: none;
+}
+#gradebookGrades th .gb-title .gb-sort-ascending:before {
+  font-family: 'gradebook-icons';
+  content: '\f0d8';
+}
+#gradebookGrades th .gb-title .gb-sort-descending:before {
+  font-family: 'gradebook-icons';
+  content: '\f0d7';
+}
+#gradebookGrades th .gb-title a:before {
+  margin-right: 4px;
+}
 #gradebookGrades th .gb-title .gb-external-app-flag {
   font-size: 1.2em;
 }
