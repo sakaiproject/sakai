@@ -671,7 +671,7 @@ public class UsersAction extends PagedResourceActionII
 		if (unenrollFirst)
 		{
 			SiteService siteService = (SiteService)ComponentManager.get(SiteService.class);
-			List<Site> sites = siteService.getUserSites(false, user.getId());
+			List<Site> sites = siteService.getUserSites(false, user.getId(), true);
 			if (sites != null && !sites.isEmpty())
 			{
 				// there are sites to unenroll from, present this to the user

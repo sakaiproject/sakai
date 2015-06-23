@@ -901,6 +901,8 @@ public interface SiteService extends EntityProducer
 	 * This is a convenience and performance wrapper for getSites, because there are many places that need
 	 * the complete list of sites for the current user, and getSites is unnecessarily verbose in that case.
 	 * Because the semantics of this call are specific, it can also be optimized by the implementation.
+	 * 
+	 * Unpublished sites are not included; use getSites(boolean, boolean) to control if unpublished sites are included or not.
 	 *
 	 * The sites returned follow the same semantics as those from
 	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition) getSites}.
@@ -917,6 +919,8 @@ public interface SiteService extends EntityProducer
 	 * This is a convenience and performance wrapper for getSites, because there are many places that need
 	 * the complete list of sites for the current user, and getSites is unnecessarily verbose in that case.
 	 * Because the semantics of this call are specific, it can also be optimized by the implementation.
+	 * 
+	 * Unpublished sites are not included; use getSites(boolean, boolean) to control if unpublished sites are included or not.
 	 *
 	 * The sites returned follow the same semantics as those from
 	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition) getSites}.
@@ -927,9 +931,26 @@ public interface SiteService extends EntityProducer
 	List<Site> getUserSites(boolean requireDescription);
 
 	/**
+	 * Access a list of sites that the current user can visit, sorted by title, optionally requiring descriptions.
+	 *
+	 * This is a convenience and performance wrapper for getSites, because there are many places that need
+	 * the complete list of sites for the current user, and getSites is unnecessarily verbose in that case.
+	 * Because the semantics of this call are specific, it can also be optimized by the implementation.
+	 *
+	 * The sites returned follow the same semantics as those from
+	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition) getSites}.
+	 *
+	 * @param requireDescription when true, full descriptions will be included; when false, full descriptions may be omitted.
+	 * @param includeUnpublishedSites when true, unpublished sites will be included; when false, unpublished sites will be omitted.
+	 * @return A List<Site> of those sites the current user can access.
+	 */
+	List<Site> getUserSites(boolean requireDescription, boolean includeUnpublishedSites);
+
+	/**
 	 * Access a list of sites that the specified user can visit, sorted by title, optionally requiring descriptions.
 	 *
-	 * This is a convenience and performance wrapper for getSites.
+	 * This is a convenience and performance wrapper for getSites. Unpublished sites are not included;
+	 * use getSites(boolean, String, boolean) to control if unpublished sites are included or not.
 	 *
 	 * The sites returned follow the same semantics as those from
 	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition, boolean, String) getSites}.
@@ -939,6 +960,23 @@ public interface SiteService extends EntityProducer
 	 * @return A List<Site> of those sites the current user can access.
 	 */
 	List<Site> getUserSites(boolean requireDescription, String userId);
+
+	/**
+	 * Access a list of sites that the specified user can visit, sorted by title, optionally requiring descriptions.
+	 *
+	 * This is a convenience and performance wrapper for getSites.
+	 * 
+	 * Unpublished sites are not included; use getSites(String, boolean) to control if unpublished sites are included or not.
+	 *
+	 * The sites returned follow the same semantics as those from
+	 * {@link #getSites(SelectionType, Object, String, Map, SortType, PagingPosition, boolean, String) getSites}.
+	 *
+	 * @param requireDescription when true, full descriptions will be included; when false, full descriptions may be omitted.
+	 * @param userID the returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @param includeUnpublishedSites when true, unpublished sites will be included; when false, unpublished sites will be omitted.
+	 * @return A List<Site> of those sites the current user can access.
+	 */
+	List<Site> getUserSites(boolean requireDescription, String userID, boolean includeUnpublishedSites);
 
 	/**
 	 * Access a list of Site objects that meet specified criteria.

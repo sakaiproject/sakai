@@ -24,6 +24,18 @@ public class MockSiteService implements SiteService {
 	}
 
 	@Override
+	public List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
+	{
+		return null;
+	}
+
+	@Override
+	public List<Site> getUserSites( boolean requireDescription, String userID, boolean includeUnpublishedSites )
+	{
+		return null;
+	}
+
+	@Override
 	public boolean willArchiveMerge() {
 		// TODO Auto-generated method stub
 		return false;

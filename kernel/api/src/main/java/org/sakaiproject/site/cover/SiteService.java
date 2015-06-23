@@ -24,8 +24,6 @@ package org.sakaiproject.site.cover;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 
 /**
@@ -450,6 +448,14 @@ public class SiteService
 		if (service == null) return null;
 
 		return service.getUserSites(requireDescription);
+	}
+
+	public static List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if( service == null ) return null;
+
+		return service.getUserSites( requireDescription, includeUnpublishedSites );
 	}
 
 	public static java.util.List getSites(org.sakaiproject.site.api.SiteService.SelectionType param0, java.lang.Object param1,
