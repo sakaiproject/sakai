@@ -293,7 +293,7 @@ public interface SiteService extends EntityProducer
 		public static final SelectionType MEMBER = new SelectionType("member", true, true, false, true);
 		
 		/** Get my deleted sites. */
-		public static final SelectionType DELETED = new SelectionType("deleted", true, true, true, false);
+		public static final SelectionType DELETED = new SelectionType("deleted", true, true, false, false);
 
 		/** Get any deleted sites, normally used by admin or purge job. */
 		public static final SelectionType ANY_DELETED = new SelectionType("anyDeleted", false, false, false, false);
