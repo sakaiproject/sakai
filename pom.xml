@@ -86,6 +86,7 @@
                 <module>message</module>
                 <module>msgcntr</module>
                 <module>oauth</module>
+                <module>pasystem</module>
                 <module>podcasts</module>
                 <module>polls</module>
                 <module>portal</module>

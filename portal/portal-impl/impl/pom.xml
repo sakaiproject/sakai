@@ -70,6 +70,10 @@
                 <artifactId>spring-beans</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.pasystem</groupId>
+            <artifactId>pasystem-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>commons-lang</groupId>
             <artifactId>commons-lang</artifactId>
         </dependency>
