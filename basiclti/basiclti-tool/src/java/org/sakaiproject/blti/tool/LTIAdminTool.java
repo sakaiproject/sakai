@@ -890,7 +890,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			    String oauth_secret = old_secret;
 			    oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
 			    // System.out.println("key="+oauth_consumer_key+" secret="+oauth_secret);
-			    BasicLTIUtil.sendOAuthURL("GET", ack, oauth_consumer_key, oauth_secret);
+			    BasicLTIUtil.sendOAuthURL("PUT", ack, oauth_consumer_key, oauth_secret);
 			}
 		} else {
 			String oops = "Unable to update deployment key="+key;

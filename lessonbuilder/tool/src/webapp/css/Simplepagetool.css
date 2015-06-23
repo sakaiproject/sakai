@@ -664,10 +664,11 @@ ul#toolbar li em {
     padding: 0;
 }
 .dropDownDiv li {
-    border-top:1px solid #ccc !important;
+    xborder-top:1px solid #ccc !important;
     background: #fff !important;
-    padding:5px !important;
-    margin:0;
+    xpadding:5px !important;
+    padding: 3px !important;
+    padding-left: 7px !important;
     display:block;
 }
 .dropDownDiv li:first-child {
@@ -675,7 +676,8 @@ ul#toolbar li em {
 }
 .dropDownDiv li a {
     display:block;
-    padding: 5px 0 !important;
+    text-decoration: none;
+    xpadding: 5px 0 !important;
 }
 .dropDownDiv li div {
     font-size: .85em !important

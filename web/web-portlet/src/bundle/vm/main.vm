@@ -12,11 +12,6 @@ $tlang.getString("new.page.launch") </p> <p>
 <a href="$source" onclick="window.open('$!source','_blank'); return false;" target="_blank">$tlang.getString("new.page.relaunch")</a>
 </p>
 #else
-#if ($!maximize) 
-<script type="text/javascript" language="JavaScript">
-try { portalMaximizeTool(); } catch (err) { }
-</script>
-#end
 <script type="text/javascript" language="JavaScript">
 $(document).ready(function() {
 $('.closeMe a').click(function(e){

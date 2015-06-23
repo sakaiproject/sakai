@@ -655,13 +655,14 @@ public class BasicLTIUtil {
 
 	/** 
          * getOAuthURL - Form a GET request signed by OAuth
+	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
 	 */
-	public static String getOAuthURL(String url, String oauth_consumer_key, String oauth_secret)
+	public static String getOAuthURL(String method, String url, String oauth_consumer_key, String oauth_secret)
 	{
-		OAuthMessage om = new OAuthMessage("GET", url, null);
+		OAuthMessage om = new OAuthMessage(method, url, null);
 		om.addParameter(OAuth.OAUTH_CONSUMER_KEY, oauth_consumer_key);
 		om.addParameter(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
 		om.addParameter(OAuth.OAUTH_VERSION, "1.0");
@@ -682,6 +683,7 @@ public class BasicLTIUtil {
 
 	/** 
          * getOAuthURL - Form a GET request signed by OAuth
+	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
@@ -691,7 +693,7 @@ public class BasicLTIUtil {
 	 */
 	public static HttpURLConnection sendOAuthURL(String method, String url, String oauth_consumer_key, String oauth_secret)
 	{
-		String oauthURL = getOAuthURL(url, oauth_consumer_key, oauth_secret);
+		String oauthURL = getOAuthURL(method, url, oauth_consumer_key, oauth_secret);
 
 		try {
 			URL urlConn = new URL(oauthURL);
