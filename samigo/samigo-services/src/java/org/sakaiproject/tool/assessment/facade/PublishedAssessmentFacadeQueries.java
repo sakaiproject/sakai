@@ -1652,6 +1652,30 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return h;
 	}
 
+    /**
+     * Get submission number for the assessment by giving the publishedAssessmentId
+     * for assessment deletion safe check
+     * @param publishedAssessmentId
+     * @return number of submissions
+     */
+	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId) {
+		final String query = "select count(a) from AssessmentGradingData a where a.forGrade=? "
+				+ " and a.publishedAssessmentId=?";
+
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session.createQuery(query);
+				q.setBoolean(0, true);
+				q.setLong(1, publishedAssessmentId.longValue());
+				return q.list();
+			};
+		};
+		List l = getHibernateTemplate().executeFind(hcb);
+
+		return (Integer) l.get(0);
+	}
+
 	public Integer getTotalSubmission(final String agentId,
 			final Long publishedAssessmentId) {
 		final String query = "select count(a) from AssessmentGradingData a where a.forGrade=? "
