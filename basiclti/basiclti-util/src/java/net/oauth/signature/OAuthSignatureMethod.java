@@ -266,6 +266,7 @@ public abstract class OAuthSignatureMethod {
 	private static final Map<String, Class> NAME_TO_CLASS = new ConcurrentHashMap<String, Class>();
     static {
         registerMethodClass("HMAC-SHA1", HMAC_SHA1.class);
+        registerMethodClass("HMAC-SHA256", HMAC_SHA256.class);
         registerMethodClass("PLAINTEXT", PLAINTEXT.class);
         registerMethodClass("RSA-SHA1", RSA_SHA1.class);
         registerMethodClass("HMAC-SHA1" + _ACCESSOR, HMAC_SHA1.class);
