@@ -81,7 +81,7 @@
     </property>
  	<!-- added implementing delete from threaded view -->
 	<property name="deleted">
-		<column name="DELETED" not-null="true" index="MFR_MESSAGE_DELETED_I"/>
+		<column name="DELETED" not-null="true" />
 	</property> 
 	
     

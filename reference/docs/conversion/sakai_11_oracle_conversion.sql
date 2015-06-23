@@ -383,3 +383,6 @@ CREATE INDEX banner_dismissed_lcase_eid on pasystem_banner_dismissed (lower(user
 CREATE INDEX banner_dismissed_state on pasystem_banner_dismissed (state);
 
 -- END SAK-29422 Incorporate NYU's "public announcement system"
+-- SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
+drop index MFR_MESSAGE_DELETED_I;
+-- END SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
