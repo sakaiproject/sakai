@@ -42,6 +42,9 @@ public interface NotificationService
 
 	/** ability / event for notification removal. */
 	static final String SECURE_REMOVE_NOTIFICATION = "notification.remove";
+	
+	/** Notification option value to tell API to skip notification logic. */
+	static final int NOTI_IGNORE = -1;
 
 	/** Notification option value for undefined or no notification. */
 	static final int NOTI_NONE = 0;
