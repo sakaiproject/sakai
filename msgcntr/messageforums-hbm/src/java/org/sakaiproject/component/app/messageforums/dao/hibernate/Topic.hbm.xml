@@ -309,6 +309,7 @@
   </query>
   
   <!-- second check by permissionLevelName if permissionLevel id is null -->
+  <!-- *** If you update this query you need to update the straight join in MessageForumsForumManagerImpl.java *** -->
   <query name="findNumModeratedTopicsForSiteByUserByMembershipWithPermissionLevelName">
     <![CDATA[select count(*) from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic,
     			org.sakaiproject.component.app.messageforums.dao.hibernate.PermissionLevelImpl as pl
