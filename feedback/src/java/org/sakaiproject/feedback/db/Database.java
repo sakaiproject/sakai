@@ -38,6 +38,7 @@ public class Database {
             throw sqlException;
         } finally {
             if (conn != null) {
+                conn.commit();
                 sqlService.returnConnection(conn);
             }
         }
