@@ -28,6 +28,7 @@ import javax.servlet.http.HttpServletRequest;
 import lombok.Data;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.Errors;
+import org.sakaiproject.pasystem.api.MissingUuidException;
 
 /**
  * Maps to and from the banner HTML form and a banner data object.
@@ -51,15 +52,19 @@ public class BannerForm extends BaseForm {
     }
 
     public static BannerForm fromBanner(Banner existingBanner) {
-        String uuid = existingBanner.getUuid();
+        try {
+            String uuid = existingBanner.getUuid();
 
-        return new BannerForm(uuid,
-                existingBanner.getMessage(),
-                existingBanner.getHosts(),
-                existingBanner.getStartTime(),
-                existingBanner.getEndTime(),
-                existingBanner.isActive(),
-                existingBanner.getType());
+            return new BannerForm(uuid,
+                    existingBanner.getMessage(),
+                    existingBanner.getHosts(),
+                    existingBanner.getStartTime(),
+                    existingBanner.getEndTime(),
+                    existingBanner.isActive(),
+                    existingBanner.getType());
+        } catch (MissingUuidException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static BannerForm fromRequest(String uuid, HttpServletRequest request) {

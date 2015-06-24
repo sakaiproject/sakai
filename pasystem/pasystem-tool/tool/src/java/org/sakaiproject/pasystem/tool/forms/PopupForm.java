@@ -33,6 +33,7 @@ import lombok.Data;
 import org.apache.commons.fileupload.disk.DiskFileItem;
 import org.sakaiproject.pasystem.api.Errors;
 import org.sakaiproject.pasystem.api.PASystem;
+import org.sakaiproject.pasystem.api.MissingUuidException;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.TemplateStream;
 import org.sakaiproject.pasystem.tool.handlers.CrudHandler;
@@ -68,15 +69,19 @@ public class PopupForm extends BaseForm {
     }
 
     public static PopupForm fromPopup(Popup existingPopup, PASystem paSystem) {
-        String uuid = existingPopup.getUuid();
-        List<String> assignees = paSystem.getPopups().getAssignees(uuid);
+        try {
+            String uuid = existingPopup.getUuid();
+            List<String> assignees = paSystem.getPopups().getAssignees(uuid);
 
-        return new PopupForm(uuid, existingPopup.getDescriptor(),
-                existingPopup.getStartTime(),
-                existingPopup.getEndTime(),
-                existingPopup.isOpenCampaign(),
-                assignees,
-                Optional.empty());
+            return new PopupForm(uuid, existingPopup.getDescriptor(),
+                    existingPopup.getStartTime(),
+                    existingPopup.getEndTime(),
+                    existingPopup.isOpenCampaign(),
+                    assignees,
+                    Optional.empty());
+        } catch (MissingUuidException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static PopupForm fromRequest(String uuid, HttpServletRequest request) {
@@ -141,6 +146,6 @@ public class PopupForm extends BaseForm {
     }
 
     public Popup toPopup() {
-        return Popup.create(descriptor, startTime, endTime, isOpenCampaign);
+        return Popup.create(uuid, descriptor, startTime, endTime, isOpenCampaign);
     }
 }

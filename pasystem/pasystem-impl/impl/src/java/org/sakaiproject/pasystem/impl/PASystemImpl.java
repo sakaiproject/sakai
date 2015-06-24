@@ -47,6 +47,7 @@ import org.sakaiproject.pasystem.api.Banners;
 import org.sakaiproject.pasystem.api.I18n;
 import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.pasystem.api.PASystemException;
+import org.sakaiproject.pasystem.api.MissingUuidException;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.Popups;
 import org.sakaiproject.pasystem.impl.banners.BannerStorage;
@@ -214,13 +215,17 @@ class PASystemImpl implements PASystem {
 
         if (currentUser != null && currentUser.getEid() != null) {
             for (Banner banner : getBanners().getRelevantBanners(serverId, currentUser.getEid())) {
-                JSONObject bannerData = new JSONObject();
-                bannerData.put("id", banner.getUuid());
-                bannerData.put("message", banner.getMessage());
-                bannerData.put("dismissible", banner.isDismissible());
-                bannerData.put("dismissed", banner.isDismissed());
-                bannerData.put("type", banner.getType());
-                banners.add(bannerData);
+                try {
+                    JSONObject bannerData = new JSONObject();
+                    bannerData.put("id", banner.getUuid());
+                    bannerData.put("message", banner.getMessage());
+                    bannerData.put("dismissible", banner.isDismissible());
+                    bannerData.put("dismissed", banner.isDismissed());
+                    bannerData.put("type", banner.getType());
+                    banners.add(bannerData);
+                } catch (Exception e) {
+                    LOG.warn("Error processing banner: " + banner, e);
+                }
             }
         }
 
@@ -235,24 +240,25 @@ class PASystemImpl implements PASystem {
             return "";
         }
 
-        if (session.getAttribute(POPUP_SCREEN_SHOWN) == null) {
-            Popup popup = new PopupForUser(currentUser).getPopup();
-            if (popup.isActiveNow()) {
-                context.put("popupTemplate", popup.getTemplate());
-                context.put("popupUuid", popup.getUuid());
-                context.put("popup", true);
+        try {
+            if (session.getAttribute(POPUP_SCREEN_SHOWN) == null) {
+                Popup popup = new PopupForUser(currentUser).getPopup();
+                if (popup.isActiveNow()) {
+                    context.put("popupTemplate", popup.getTemplate());
+                    context.put("popupUuid", popup.getUuid());
+                    context.put("popup", true);
 
-                if (currentUser.getEid() != null) {
-                    // Delivered!
-                    session.setAttribute(POPUP_SCREEN_SHOWN, "true");
+                    if (currentUser.getEid() != null) {
+                        // Delivered!
+                        session.setAttribute(POPUP_SCREEN_SHOWN, "true");
+                    }
                 }
             }
-        }
 
-        try {
+
             Template template = handlebars.compile("templates/popup_footer");
             return template.apply(context);
-        } catch (IOException e) {
+        } catch (IOException | MissingUuidException e) {
             LOG.warn("IOException while getting popups footer", e);
             return "";
         }

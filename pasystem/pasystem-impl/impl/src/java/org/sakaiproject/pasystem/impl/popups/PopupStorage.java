@@ -35,6 +35,7 @@ import java.util.Optional;
 import java.util.UUID;
 import org.sakaiproject.pasystem.api.AcknowledgementType;
 import org.sakaiproject.pasystem.api.Acknowledger;
+import org.sakaiproject.pasystem.api.MissingUuidException;
 import org.sakaiproject.pasystem.api.Popup;
 import org.sakaiproject.pasystem.api.Popups;
 import org.sakaiproject.pasystem.api.TemplateStream;
@@ -85,36 +86,42 @@ public class PopupStorage implements Popups, Acknowledger {
 
     @Override
     public void updateCampaign(Popup popup,
-                               Optional<TemplateStream> templateInput,
-                               Optional<List<String>> assignToUsers) {
-        DB.transaction
-                ("Update an existing popup campaign",
-                        new DBAction<Void>() {
-                            @Override
-                            public Void call(DBConnection db) throws SQLException {
+        Optional<TemplateStream> templateInput,
+        Optional<List<String>> assignToUsers) {
+        try {
+            final String uuid = popup.getUuid();
 
-                                db.run("UPDATE pasystem_popup_screens SET descriptor = ?, start_time = ?, end_time = ?, open_campaign = ? WHERE uuid = ?")
-                                        .param(popup.getDescriptor())
-                                        .param(popup.getStartTime())
-                                        .param(popup.getEndTime())
-                                        .param(popup.isOpenCampaign() ? 1 : 0)
-                                        .param(popup.getUuid())
-                                        .executeUpdate();
+            DB.transaction
+                    ("Update an existing popup campaign",
+                            new DBAction<Void>() {
+                                @Override
+                                public Void call(DBConnection db) throws SQLException {
 
-                                setPopupAssignees(db, popup.getUuid(), assignToUsers);
+                                    db.run("UPDATE pasystem_popup_screens SET descriptor = ?, start_time = ?, end_time = ?, open_campaign = ? WHERE uuid = ?")
+                                            .param(popup.getDescriptor())
+                                            .param(popup.getStartTime())
+                                            .param(popup.getEndTime())
+                                            .param(popup.isOpenCampaign() ? 1 : 0)
+                                            .param(uuid)
+                                            .executeUpdate();
 
-                                if (templateInput.isPresent()) {
-                                    setPopupContent(db, popup.getUuid(), templateInput.get());
+                                    setPopupAssignees(db, uuid, assignToUsers);
+
+                                    if (templateInput.isPresent()) {
+                                        setPopupContent(db, uuid, templateInput.get());
+                                    }
+
+                                    db.commit();
+
+                                    LOG.info("Update of popup {} completed", uuid);
+
+                                    return null;
                                 }
-
-                                db.commit();
-
-                                LOG.info("Update of popup {} completed", popup.getUuid());
-
-                                return null;
                             }
-                        }
-                );
+                    );
+        } catch (MissingUuidException e) {
+            throw new RuntimeException("Can't update a popup with no UUID specified", e);
+        }
     }
 
     @Override
