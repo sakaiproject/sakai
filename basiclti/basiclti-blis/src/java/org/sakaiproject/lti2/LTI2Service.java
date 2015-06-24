@@ -337,18 +337,31 @@ public class LTI2Service extends HttpServlet {
 			return;
 		}
 
-		String shared_secret = null;
-		String tc_half_secret = null;
-		String tp_half_secret = (String) security_contract.get(LTI2Constants.TP_HALF_SECRET);
-		if ( tp_half_secret != null ) {
-			// TODO: Check validity of returned tp half secret here.
+		String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
+		String tp_half_shared_secret = (String) security_contract.get(LTI2Constants.TP_HALF_SHARED_SECRET);
+		String tc_half_shared_secret = null;
+
+		if ( tp_half_shared_secret != null ) {
+			if ( ! tp_half_shared_secret.matches("^[a-f0-9]*$") ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				doErrorJSON(request, response, jsonRequest, "tp_half_shared secret lower-case hex only", null);
+				return;
+			}
+			if ( tp_half_shared_secret.length() != 128 ) {
+				response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+				doErrorJSON(request, response, jsonRequest, "tp_half_shared secret must be 128 characters", null);
+				return;
+			}
 			SecureRandom random = new SecureRandom();
 			byte bytes[] = new byte[512/8];
 			random.nextBytes(bytes);
-			tc_half_secret =  PortableShaUtil.bin2hex(bytes);
-			shared_secret = tc_half_secret + tp_half_secret;
+			tc_half_shared_secret =  PortableShaUtil.bin2hex(bytes);
+			if ( shared_secret != null ) security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
+			shared_secret = tc_half_shared_secret + tp_half_shared_secret;
+			security_contract.put(LTI2Constants.TP_HALF_SHARED_SECRET, "*********");
 		} else {
-			shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
+			if ( shared_secret != null ) security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
+			if ( tp_half_shared_secret != null ) security_contract.put(LTI2Constants.TP_HALF_SHARED_SECRET, "*********");
 		}
 
 		if ( shared_secret == null  ) {
@@ -356,10 +369,6 @@ public class LTI2Service extends HttpServlet {
 			doErrorJSON(request, response, jsonRequest, "JSON missing shared_secret", null);
 			return;
 		}
-
-		// Blank out the new shared secret or half shared secret
-		security_contract.put(LTI2Constants.SHARED_SECRET, "*********");
-		security_contract.put(LTI2Constants.TP_HALF_SECRET, "*********");
 
 		// Make sure that the requested services are a subset of the offered services
 		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
@@ -417,7 +426,7 @@ public class LTI2Service extends HttpServlet {
 		jsonResponse.put(LTI2Constants.JSONLD_ID, resourceUrl + SVC_tc_registration + "/" +profile_id);
 		jsonResponse.put(LTI2Constants.TOOL_PROXY_GUID, profile_id);
 		jsonResponse.put(LTI2Constants.CUSTOM_URL, resourceUrl + SVC_Settings + "/" + LTI2Util.SCOPE_ToolProxy + "/" +profile_id);
-		jsonResponse.put(LTI2Constants.TC_HALF_SECRET, tc_half_secret);
+		if ( tc_half_shared_secret != null ) jsonResponse.put(LTI2Constants.TC_HALF_SHARED_SECRET, tc_half_shared_secret);
 		response.setContentType(StandardServices.TOOLPROXY_ID_FORMAT);
 		response.setStatus(HttpServletResponse.SC_CREATED);
 		String jsonText = JSONValue.toJSONString(jsonResponse);

@@ -217,14 +217,14 @@ $oauth_splitsecret = in_array('OAuth.splitSecret', $tc_capabilities);
 // But then expect LTI 2.x launches to fail with a bad signature.
 $oauth_splitsecret = false;
 
-$tp_half_secret = false;
+$tp_half_shared_secret = false;
 if ( $oauth_splitsecret ) {
-    $tp_half_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
-    if ( strlen($tp_half_secret) != 128 ) {
-        echo('<p style="color: red">Warning secret length of '.strlen($tp_half_secret)." should be 128</p>\n");
+    $tp_half_shared_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
+    if ( strlen($tp_half_shared_secret) != 128 ) {
+        echo('<p style="color: red">Warning secret length of '.strlen($tp_half_shared_secret)." should be 128</p>\n");
     }
-    $tp_profile->security_contract->tp_half_secret = $tp_half_secret;
-    echo("Provider Half Secret:\n".$tp_half_secret."\n");
+    $tp_profile->security_contract->tp_half_shared_secret = $tp_half_shared_secret;
+    echo("Provider Half Secret:\n".$tp_half_shared_secret."\n");
 } else {
     $tp_profile->security_contract->shared_secret = $secret;
 }
@@ -278,17 +278,17 @@ togglePre("Registration Response Headers",htmlent_utf8(get_body_received_debug()
 
 togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
-$tc_half_secret = false;
+$tc_half_shared_secret = false;
 if ( $last_http_response == 201 || $last_http_response == 200 ) {
-    if ( $oauth_splitsecret && $tp_half_secret ) {
+    if ( $oauth_splitsecret && $tp_half_shared_secret ) {
         $responseObject = json_decode($response);
-        if ( isset($responseObject->tc_half_secret) ) {
-            $tc_half_secret = $responseObject->tc_half_secret;
-            echo("<p>tc_half_secret: ".$tc_half_secret."</p>\n");
-            if ( strlen($tc_half_secret) != 128 ) {
-                echo('<p style="color: red">Warning secret length of '.strlen($tc_half_secret)." should be 128</p>\n");
+        if ( isset($responseObject->tc_half_shared_secret) ) {
+            $tc_half_shared_secret = $responseObject->tc_half_shared_secret;
+            echo("<p>tc_half_shared_secret: ".$tc_half_shared_secret."</p>\n");
+            if ( strlen($tc_half_shared_secret) != 128 ) {
+                echo('<p style="color: red">Warning secret length of '.strlen($tc_half_shared_secret)." should be 128</p>\n");
             }
-            $split_secret = $tc_half_secret . $tp_half_secret;
+            $split_secret = $tc_half_shared_secret . $tp_half_shared_secret;
             $_SESSION['split_secret'] = $split_secret;
             echo("<p>Split Secret: ".$split_secret."</p>\n");
         } else {

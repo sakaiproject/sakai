@@ -21,7 +21,7 @@ $json_response = json_decode($response);
 $json_response->{'@id'} = $cur_base . uniqid();
 $json_response->tool_proxy_guid = $oauth_consumer_key;
 $half = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
-$json_response->tc_half_secret = $half;
+$json_response->tc_half_shared_secret = $half;
 
 
 try {
