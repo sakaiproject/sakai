@@ -220,15 +220,15 @@ public class LTI2Service extends HttpServlet {
 		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, cnf);
-		List<String> capabilities = consumer.getCapability_offered();
-		LTI2Util.allowSplitSecret(capabilities);
+		consumer.allowSplitSecret();
+		consumer.allowHmac256();
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
-			LTI2Util.allowEmail(capabilities);
+			consumer.allowEmail();
 		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDNAME)) > 0 ) {
-			LTI2Util.allowName(capabilities);
+			consumer.allowName();
 		}
 
 		List<Service_offered> services = consumer.getService_offered();
@@ -236,7 +236,7 @@ public class LTI2Service extends HttpServlet {
 
 		String allowOutcomes = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 		if ("true".equals(allowOutcomes) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWOUTCOMES)) > 0 ) {
-			LTI2Util.allowResult(capabilities);
+			consumer.allowResult();
 
 			services.add(LTI2ResultItem);
 			services.add(StandardServices.LTI1Outcomes(serverUrl+LTI1_PATH));
@@ -250,7 +250,7 @@ public class LTI2Service extends HttpServlet {
 
 		String allowSettings = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED, SakaiBLTIUtil.BASICLTI_SETTINGS_ENABLED_DEFAULT);
 		if ("true".equals(allowSettings) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWSETTINGS)) > 0 ) {
-			LTI2Util.allowSettings(capabilities);
+			consumer.allowSettings();
 
 			services.add(SakaiLTI2Services.BasicSettings(serverUrl+LTI1_PATH));
 			services.add(LTI2LtiLinkSettings);

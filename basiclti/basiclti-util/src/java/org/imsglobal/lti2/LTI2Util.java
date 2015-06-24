@@ -82,7 +82,7 @@ public class LTI2Util {
 		}
 	}
 
-	// Validate incoming capabilities requested against out ToolConsumer
+	// Validate incoming capabilities requested against our ToolConsumer
 	public static String validateCapabilities(ToolConsumer consumer, JSONObject providerProfile) 
 	{
 		List<Properties> theTools = new ArrayList<Properties> ();
@@ -112,35 +112,6 @@ public class LTI2Util {
 			return "Exception:"+ e.getLocalizedMessage();
 		}
 	}
-
-	public static void allowEmail(List<String> capabilities) {
-		capabilities.add("Person.email.primary");
-	}
-
-	public static void allowName(List<String> capabilities) {
-		capabilities.add("User.username");
-		capabilities.add("Person.name.fullname");
-		capabilities.add("Person.name.given");
-		capabilities.add("Person.name.family");
-		capabilities.add("Person.name.full");
-	}
-
-	public static void allowResult(List<String> capabilities) {
-		capabilities.add("Result.sourcedId");
-		capabilities.add("Result.autocreate");
-		capabilities.add("Result.url");
-	}
-
-	public static void allowSettings(List<String> capabilities) {
-		capabilities.add("LtiLink.custom.url");
-		capabilities.add("ToolProxy.custom.url");
-		capabilities.add("ToolProxyBinding.custom.url");
-	}
-
-	public static void allowSplitSecret(List<String> capabilities) {
-		capabilities.add("OAuth.splitSecret");
-	}
-
 
 	// If this code looks like a hack - it is because the spec is a hack.
 	// There are five possible scenarios for GET and two possible scenarios
@@ -439,11 +410,25 @@ public class LTI2Util {
 			if ( resourceDescription == null ) resourceDescription = productDescription;
 			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
 			if ( parameter != null ) theTool.put("parameter", parameter.toString());
-			if ( enabled_capability != null ) theTool.put("enabled_capability", enabled_capability.toString());
+			theTool.put("enabled_capability", enabled_capability.toString());
 			theTool.put("launch", thisLaunch);
 			theTools.add(theTool);
 		}
 		return null;  // All good
+	}
+
+	/**
+	 * Check if a particular capability is enabled
+	 * 
+	 * @param String enabledCapabilityString - The string representation of the JSON
+	 * array of capabilities.
+	 * @param String capability - The capability to look for
+	 */
+	public static boolean enabledCapability(String enabledCapabilityString, String capability)
+	{
+		if ( enabledCapabilityString == null || capability == null ) return false;
+		// For now just look for the string in quotes.
+		return enabledCapabilityString.indexOf("\""+capability+"\"") >= 0 ;
 	}
 
 	public static JSONObject parseSettings(String settings)

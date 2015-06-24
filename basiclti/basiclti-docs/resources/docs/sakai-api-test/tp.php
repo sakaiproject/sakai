@@ -210,6 +210,13 @@ $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 
 // Make a split-secret if desired
 $oauth_splitsecret = in_array('OAuth.splitSecret', $tc_capabilities);
+
+// We don't do oauth_split secret here because we have no storage
+// You can test split secret with this harness but launches will fail.
+// Comment out the line below to make it so this registers with split secret
+// But then expect LTI 2.x launches to fail with a bad signature.
+$oauth_splitsecret = false;
+
 $tp_half_secret = false;
 if ( $oauth_splitsecret ) {
     $tp_half_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
