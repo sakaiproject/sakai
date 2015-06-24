@@ -90,9 +90,9 @@ public class FeedbackTool extends HttpServlet {
             addRecipients(site, emailRecipients, siteUpdaters, serviceName);
         }
         else {
-            String serviceContectName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName});
+            String serviceContactName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName});
             String serviceContactEmail = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
-            emailRecipients.put(serviceContactEmail, serviceContectName);
+            emailRecipients.put(serviceContactEmail, serviceContactName);
         }
 
         if (userId != null) {
@@ -136,8 +136,9 @@ public class FeedbackTool extends HttpServlet {
             contactName = site.getProperties().getProperty(Site.PROP_SITE_CONTACT_NAME);
         }
         else if (!hasViewPermission){
-            contactName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName})
-                    + " <" + sakaiProxy.getConfigString("mail.support", "") + ">";
+            String serviceContactName = rb.getFormattedMessage("technical_team_name", new String[]{serviceName});
+            String serviceContactEmail = sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null);
+            contactName = String.format("%s <%s>" ,serviceContactName, serviceContactEmail);
         }
         setStringAttribute(request, "contactName", contactName);
 
