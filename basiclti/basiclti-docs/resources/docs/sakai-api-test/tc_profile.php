@@ -113,7 +113,8 @@ echo <<< EOF
         "Result.sourcedId" ,
         "Result.autocreate",
         "Result.custom.url",
-        "OAuth.splitSecret"
+        "OAuth.splitSecret",
+        "OAuth.hmac-sha256"
   ],
   "service_offered": [
     {

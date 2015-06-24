@@ -39,6 +39,7 @@ import org.imsglobal.basiclti.BasicLTIConstants;
 
 import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.LTI2Util;
+import org.imsglobal.lti2.objects.ToolConsumer;
 
 import org.sakaiproject.lti.api.LTIService;
 
@@ -78,6 +79,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 
+import net.oauth.OAuth;
 import net.oauth.OAuthAccessor;
 import net.oauth.OAuthConsumer;
 import net.oauth.OAuthMessage;
@@ -823,6 +825,17 @@ public class SakaiBLTIUtil {
 		// Place the custom values into the launch
 		LTI2Util.addCustomToLaunch(ltiProps, custom);
 
+		// Check which kind of signing we are supposed to do
+		String enabled_capability = (String) content.get("enabled_capability");
+		if ( enabled_capability == null ) {
+			enabled_capability = (String) tool.get("enabled_capability");
+		}
+
+		if ( LTI2Util.enabledCapability(enabled_capability, ToolConsumer.OAUTH_HMAC256) ) {
+			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
+			M_log.debug("Launching with SHA256 Signing");
+		}
+
 		return postLaunchHTML(toolProps, ltiProps, rb);
 	}
 
@@ -1006,7 +1019,7 @@ public class SakaiBLTIUtil {
 			return postError("<p>" + getRB(rb, "error.nokey", "Error - must have a secret and a key.")+"</p>");
 		}
 
-		Map<String,String> extra = new HashMap<String,String> ();
+                Map<String,String> extra = new HashMap<String,String> ();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
 				key, secret, org_guid, org_desc, org_url, extra);
 
