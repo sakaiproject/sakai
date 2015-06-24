@@ -168,7 +168,7 @@
         ${d}PBJQ(function(){
             new PNotify({
                 title: 'Testing title',
-                text: 'Testing text',
+                text: 'Testing text text text text text text text text text text',
                 type: 'notice'
             });
         });  // End for easier testing of PNotify styling
