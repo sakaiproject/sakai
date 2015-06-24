@@ -46,6 +46,7 @@ import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIOutput;
+import uk.org.ponder.rsf.components.UILink;
 import uk.org.ponder.rsf.components.UIComponent;
 import uk.org.ponder.rsf.components.decorators.UIFreeAttributeDecorator;
 
@@ -163,9 +164,11 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    continue;
 				}
 
+				String subtype = null;
 				if (i.getType() == 7) {
 					i.setType(1); // Temporarily change multimedia to standard resource
 								  // so that links work properly.
+					subtype = i.getAttribute("multimediaDisplayType");
 				}
 
 				UIContainer row = UIBranchContainer.make(tofill, "item:");
@@ -178,6 +181,12 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    if (text.length() > 100)
 					text = text.substring(0,100);
 				    UIOutput.make(row, "text-snippet", text);
+				} else if ("1".equals(subtype)) {
+				    // embed code, nothing useful to show
+				    UIOutput.make(row, "text-snippet", messageLocator.getMessage("simplepage.embedded-video"));
+				} else if ("3".equals(subtype)) {
+				    // oembed. use the URL
+				    UILink.make(row, "link", i.getAttribute("multimediaUrl"), i.getAttribute("multimediaUrl"));
 				} else if (i.getType() == SimplePageItem.QUESTION) {
 				    String text = i.getAttribute("questionText");
 				    if (text == null)

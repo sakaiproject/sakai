@@ -403,33 +403,33 @@ public class CCExport {
 		}
 
 		try {
-		    if (isHtml) {
-			// treat html separately. Need to convert urls to relative
-			String content = null;
-			if (inSakai)
-			    content = new String(resource.getContent());
-			else {
-			    byte[] b = new byte[(int) infile.length()];  
-			    instream.read(b);  			    
-			    content = new String(b);
+			if (isHtml) {
+				// treat html separately. Need to convert urls to relative
+				String content = null;
+				if (inSakai) {
+					content = new String(resource.getContent());
+				} else {
+					byte[] b = new byte[(int) infile.length()];
+					instream.read(b);
+					content = new String(b);
+				}
+				content = relFixup(content, entry.getValue());
+				out.print(content);
+			} else {
+				if (inSakai) {
+					contentStream = resource.streamContent();
+				} else  {
+					contentStream = instream;
+				}
+				IOUtils.copy(contentStream, out);
 			}
-			content = relFixup(content, entry.getValue());
-			out.print(content);
-		    } else {
-			if (inSakai)
-			    contentStream = resource.streamContent();
-			else 
-			    contentStream = instream;
-			IOUtils.copy(contentStream, out);
-		    }
-
 		} catch (Exception e) {
-		    log.error("Lessons export error outputting file " + e);
+			log.error("Lessons export error outputting file " + e);
 		} finally {
-		    if (contentStream != null) {
-			contentStream.close();
-		    }
+			IOUtils.closeQuietly(contentStream);
+			IOUtils.closeQuietly(instream);
 		}
+
 	    }
 	} catch (Exception e) {
 	    log.error("Lessons export error outputting file, outputAllFiles " + e);
