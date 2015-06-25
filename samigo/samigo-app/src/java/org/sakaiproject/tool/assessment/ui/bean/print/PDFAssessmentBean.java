@@ -373,7 +373,8 @@ public class PDFAssessmentBean implements Serializable {
 
 				StringBuffer contentBuffer = new StringBuffer(); 
 
-				if (!(item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_BLANK) || item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC))) {
+				if (!(TypeIfc.FILL_IN_BLANK.equals(item.getItemData().getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(item.getItemData().getTypeId())  
+					    || TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId()))) {
 					contentBuffer.append("<br />");
 					contentBuffer.append(convertFormattedText(item.getItemData().getText()));
 					contentBuffer.append("<br />");
@@ -402,7 +403,8 @@ public class PDFAssessmentBean implements Serializable {
 						
 					}
 				}
-				if (item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_BLANK) || item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) {
+				if (TypeIfc.FILL_IN_BLANK.equals(item.getItemData().getTypeId()) || TypeIfc.FILL_IN_NUMERIC.equals(item.getItemData().getTypeId())
+						|| TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId())) {
 					if (item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC)) {
 						contentBuffer.append("<br />");
 						contentBuffer.append(deliveryMessages.getString("fin_accepted_instruction"));
@@ -642,6 +644,8 @@ public class PDFAssessmentBean implements Serializable {
 					contentBuffer.append(item.getKey());
 				else
 					contentBuffer.append("--------");
+			} else if(TypeIfc.CALCULATED_QUESTION.equals( item.getItemData().getTypeId() )){
+				contentBuffer.append(item.getAnswerKeyCalcQuestion());
 			}
 			else
 				contentBuffer.append(item.getItemData().getAnswerKey());
@@ -667,6 +671,7 @@ public class PDFAssessmentBean implements Serializable {
 					item.getItemData().getTypeId().equals(TypeIfc.TRUE_FALSE) ||
 					item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_BLANK) ||
 					item.getItemData().getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) ||
+					TypeIfc.CALCULATED_QUESTION.equals(item.getItemData().getTypeId()) ||
 					item.getItemData().getTypeId().equals(TypeIfc.MATCHING)) {
 				contentBuffer.append("<br />");
 				contentBuffer.append(printMessages.getString("correct_feedback"));
