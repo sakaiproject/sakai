@@ -351,8 +351,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			enableResourceStats = true;
 		}
 		if(enableSitePresences == null) {
-			// turn off, by default
-			enableSitePresences = false;// M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
+			enableSitePresences = M_scs.getBoolean("display.users.present", false) || M_scs.getBoolean("presence.events.log", false);
 		}else if(enableSitePresences.booleanValue()){
 			// if turned on, make sure "display.users.present" is true
 			// this feature doesn't work properly with "presence.events.log"

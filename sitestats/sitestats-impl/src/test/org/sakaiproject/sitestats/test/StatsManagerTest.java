@@ -210,7 +210,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		assertEquals(true, M_sm.isEnableSitePresences());
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "true");
@@ -220,7 +220,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		assertEquals(true, M_sm.isEnableSitePresences());
 		
 		M_scs.setProperty("display.users.present", "true");
 		M_scs.setProperty("presence.events.log", "false");
@@ -230,7 +230,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		assertEquals(true, M_sm.isEnableSitePresences());
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "false");
@@ -240,7 +240,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(false, M_sm.isEnableSiteVisits());
 		assertEquals(false, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		assertEquals(false, M_sm.isEnableSitePresences());
 		
 		M_scs.removeProperty("display.users.present");
 		M_scs.removeProperty("presence.events.log");
@@ -250,7 +250,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(false, M_sm.isEnableSiteVisits());
 		assertEquals(false, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		assertEquals(false, M_sm.isEnableSitePresences());
 		
 		// revert
 		M_scs.setProperty("display.users.present", "false");
@@ -261,7 +261,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
 		assertEquals(true, M_sm.isEnableSiteVisits());
 		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		assertEquals(true, M_sm.isEnableSitePresences());
 	}
 	
 	public void testOtherConfig() {
