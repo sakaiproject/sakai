@@ -2349,11 +2349,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  Long sequence = null;
 						  if (answerid != null) {
 							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-							  temptext = answer.getText();
-							  if (temptext == null) {
+							  if(answer != null) {
+								temptext = answer.getText();
+							  	if (temptext == null) {
 								  temptext = "No Answer";
+							  	}
+							  	sequence = answer.getItemText().getSequence();
+							  }	else if(answerid == -1) {
+								  temptext = "None of the Above";
+								  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+								  sequence = itemTextIfc.getSequence();
 							  }
-							  sequence = answer.getItemText().getSequence();
 						  }
 						  else {
 							  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
