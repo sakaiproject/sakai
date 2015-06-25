@@ -12,30 +12,41 @@
 		    float: left;
 		    text-align: left;
 		    vertical-align: bottom;
-		    width: 200px;
+		    width: 225px;
 		    height: 30px;
-		    padding: 5px 5px 0px 7px;
+		    padding: 5px 0px 0px 0px;
 		    position: fixed;
 		    bottom: 0px;
 		    right: 20px;
 		}&--toggle{
-		 	display: inline;
-    		padding: 6px 6px 5px 6px;
-    		color: $footerApp__chat__header__color;
-    		text-decoration: none;
-    		height: 16px;
-    		font-weight: bold;
-		}
+		    display: inline-block;
+		    padding: 2px 0px 0px 10px;
+		    color: $footerApp__chat__header__color;
+		    text-decoration: none;
+		    height: 16px;
+		    font-weight: bold;
+		}&--count.present{
+		    min-width: 15px;
+		    height: 15px;
+		    display: inline-block;
+		    border-radius: 10px;
+		    text-align: center;
+		    margin-right: auto;
+		    vertical-align: text-bottom;
+		    border: 1px solid #FFF;
+		    margin-left: 5px;
+		    padding: 2px;
+		    font-size: 0.8em;
+		  }
 	}
 	&portalChat{
 		    width: 225px;
 		    background-color: $footerApp__chat__background;
-		    border-width: 1px 1px 0 1px;
 		    position: fixed;
-		    bottom: 0px;
+		    bottom: 35px;
 		   
 		    /* Needs to be to the right of the expanded presence block. See presenceArea. */
-		    right: 18px;
+		    right: 20px;
 		    z-index: 2001;
 		    margin: 0px;
 		    padding: 0px;
@@ -80,7 +91,7 @@
     			 	color: $footerApp__chat__color;
     			 	padding: 2px 0px;
     			 	font-size: 1em;
-    			 	margin: 0px;
+    			 	margin: 0px 3px;
     			 }
     			 
 			}
@@ -99,16 +110,6 @@
 			}
 			&__users {
 				border-top: solid 0.5em $footerApp__chat__header__background;
-			}
-			&__count{
-				  border-radius: 50%;
-				  background: #FFF;
-				  width: 23px;
-				  height: 23px;
-				  display: inline-block;
-				  float: right;
-				  text-align: center;
-				  vertical-align: middle;
 			}
 			&__close{
 				padding: 0px !important;
