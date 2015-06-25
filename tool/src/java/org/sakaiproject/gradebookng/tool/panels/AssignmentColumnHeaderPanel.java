@@ -82,6 +82,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			
 		};
 		title.add(new AttributeModifier("title", assignment.getName()));
+		title.add(new Label("label", assignment.getName()));
 		
 		//set the class based on the sortOrder. May not be set for this assignment
 		GradebookPage gradebookPage = (GradebookPage) this.getPage();

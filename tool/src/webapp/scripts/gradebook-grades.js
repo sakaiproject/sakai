@@ -1491,7 +1491,7 @@ GradebookHeaderCell.prototype.getCategorizedOrder = function() {
 
 GradebookHeaderCell.prototype.setupTooltip = function() {
   if (this.$cell.hasClass("gb-grade-item-column-cell")) {
-    var $title = this.$cell.find(".gb-title > span");
+    var $title = this.$cell.find(".gb-title > a");
     var tooltip = $title.attr("title");
 
     tooltip += " (" + this.getCategory() + ")";
