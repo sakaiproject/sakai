@@ -13,6 +13,7 @@
                 <value>org/sakaiproject/sitestats/impl/hbm/SiteVisitsImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/SiteActivityImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/SitePresenceImpl.hbm.xml</value>
+                <value>org/sakaiproject/sitestats/impl/hbm/SitePresenceTotalImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/JobRunImpl.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/ReportDef.hbm.xml</value>
                 <value>org/sakaiproject/sitestats/impl/hbm/ServerStat.hbm.xml</value>
