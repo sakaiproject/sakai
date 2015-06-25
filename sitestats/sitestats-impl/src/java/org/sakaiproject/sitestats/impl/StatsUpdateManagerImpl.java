@@ -1295,6 +1295,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
 				if(spExisting == null) {
 					session.save(sp);
+					doUpdateSitePresenceTotal(session, sp);
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
 					long previousPresence = 0;
@@ -1309,6 +1310,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					spExisting.setDuration(newTotalPresence);				
 					spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
 					session.update(spExisting);
+					doUpdateSitePresenceTotal(session, spExisting);
 				}
 			}catch(HibernateException e){
 				LOG.debug("Probably ddbb error when loading data at java object", e);
@@ -1317,7 +1319,19 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 		}
 	}
-	
+
+	private void doUpdateSitePresenceTotal(Session session, SitePresence sp) throws Exception {
+
+		SitePresenceTotal spt = new SitePresenceTotalImpl(sp);
+		SitePresenceTotal sptExisting = doGetSitePresenceTotal(session, sp.getSiteId(), sp.getUserId());
+		if (sptExisting == null) {
+			session.save(spt);
+		} else {
+			sptExisting.incrementTotalVisits();
+			sptExisting.setLastVisitTime(sp.getLastVisitStartTime());
+			session.update(sptExisting);
+		}
+	}
 
 	// ################################################################
 	// Special site presence methods (visit time tracking)
@@ -1347,6 +1361,35 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 			}
 			
 		}catch(Exception ex2){
+			LOG.debug("Probably ddbb error when loading data at java object", ex2);
+		}
+		return eDb;
+	}
+
+	@SuppressWarnings("unchecked")
+	private SitePresenceTotal doGetSitePresenceTotal(Session session, String siteId, String userId) {
+
+		SitePresenceTotal eDb = null;
+		Criteria c = session.createCriteria(SitePresenceTotalImpl.class);
+		c.add(Expression.eq("siteId", siteId));
+		c.add(Expression.eq("userId", userId));
+
+		try {
+			eDb = (SitePresenceTotal) c.uniqueResult();
+		} catch (HibernateException ex) {
+			try {
+				List es = c.list();
+				if (es != null && es.size() > 0) {
+					LOG.debug("More than 1 result when unique result expected.", ex);
+					eDb = (SitePresenceTotal) es.get(0);
+				} else {
+					eDb = null;
+				}
+			} catch (Exception e3) {
+				LOG.debug("Probably ddbb error when loading data at java object", e3);
+				eDb = null;
+			}
+		} catch (Exception ex2) {
 			LOG.debug("Probably ddbb error when loading data at java object", ex2);
 		}
 		return eDb;
