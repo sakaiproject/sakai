@@ -56,13 +56,13 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 			@Override
 			public void onClick() {
-				
+								
 				//toggle the sort direction on each click
 				GradebookPage gradebookPage = (GradebookPage) this.getPage();
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
 				
 				//if null, set a default sort, otherwise toggle, save, refresh.
-				if(settings == null) {
+				if(settings == null || settings.getAssignmentSortOrder() == null) {
 					settings = new GradebookUiSettings();
 					settings.setAssignmentSortOrder(new GbAssignmentGradeSortOrder(assignment.getId(), SortDirection.ASCENDING));
 				} else {
@@ -84,10 +84,10 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		title.add(new AttributeModifier("title", assignment.getName()));
 		title.add(new Label("label", assignment.getName()));
 		
-		//set the class based on the sortOrder. May not be set for this assignment
+		//set the class based on the sortOrder. May not be set for this assignment so match it
 		GradebookPage gradebookPage = (GradebookPage) this.getPage();
 		GradebookUiSettings settings = gradebookPage.getUiSettings();
-		if(settings != null && settings.getAssignmentSortOrder() != null) {
+		if(settings != null && settings.getAssignmentSortOrder() != null && settings.getAssignmentSortOrder().getAssignmentId() == assignment.getId()) {
 			title.add(new AttributeModifier("class", "gb-sort-" + settings.getAssignmentSortOrder().getDirection().toString().toLowerCase()));
 		}
 		
