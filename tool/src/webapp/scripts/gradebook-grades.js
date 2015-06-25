@@ -332,6 +332,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
   var $fixedHeader = $("<table>").
                         attr("class", self.$table.attr("class")).
                         addClass("gb-fixed-header-table").
+                        attr("role", "presentation").
                         hide();
 
   $head.find("tr").each(function() {
@@ -401,8 +402,15 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
   // all columns before the grade item columns should be fixed
 
-  self.$fixedColumnsHeader = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-column-headers-table").hide();
-  self.$fixedColumns = $("<table>").attr("class", self.$table.attr("class")).addClass("gb-fixed-columns-table").hide();
+  self.$fixedColumnsHeader = $("<table>").attr("class", self.$table.attr("class")).
+                                          addClass("gb-fixed-column-headers-table").
+                                          attr("role", "presentation").
+                                          hide();
+
+  self.$fixedColumns = $("<table>").attr("class", self.$table.attr("class")).
+                                    addClass("gb-fixed-columns-table").
+                                    attr("role", "presentation").
+                                    hide();
 
   var $headers = self.$table.find("thead tr > *:not(.gb-grade-item-column-cell)");
   var $thead = $("<thead>");
@@ -1125,6 +1133,7 @@ GradebookEditableCell.prototype.setupKeyboardNavigation = function($input) {
     // ESC 27
     } else if (event.keyCode == 27) {
       self.$cell.focus();
+      self._focusAfterSaveComplete = true;
 
     // arrow keys
     } else if (event.keyCode >= 37 && event.keyCode <= 40) {
@@ -1231,13 +1240,18 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   this.setupCell($("#"+cellId));
   this.setupClick();
   this.setupWicketLabelField();
-  
+
   //bind a timeout to the successful save. An easing would be nice
   $(".grade-save-success").removeClass("grade-save-success", 1000);
 
   //re-setup popover?
   if (this.$cell.is('[data-toggle="popover"]')) {
     this.$cell.popover();
+  }
+
+  if (this._focusAfterSaveComplete) {
+    this.$cell.focus();
+    this._focusAfterSaveComplete = false;
   }
 };
 
@@ -1651,9 +1665,11 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
     if ($(this).hasClass("on")) {
       repositionPanel();
-      self.$gradeItemsFilterPanel.show();
+      $(this).attr("aria-expanded", "true");
+      self.$gradeItemsFilterPanel.show().attr("aria-hidden", "false");
     } else {
-      self.$gradeItemsFilterPanel.hide();
+      $(this).attr("aria-expanded", "false");
+      self.$gradeItemsFilterPanel.hide().attr("aria-hidden", "true");
     }
 
     return false;

@@ -506,6 +506,9 @@
   font-family: 'gradebook-icons';
   content: '\f057';
   color: #CCC;
+  font-size: 1em;
+  width: 1.2em;
+  text-align: right;
 }
 #gradebookGrades .gb-student-filter-clear:hover {
   text-decoration: none;
@@ -650,9 +653,10 @@ ul.feedbackPanel {
   content: '\f075';
   color: #CCC;
   position: absolute;
-  right: 5px;
+  right: 4px;
   top: 0;
   font-size: 1em;
+  width: 18px;
 }
 
 /** temporary override for page width **/

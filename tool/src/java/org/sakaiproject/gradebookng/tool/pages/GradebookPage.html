@@ -16,7 +16,7 @@
 <wicket:extend>
   <form wicket:id="form">
     <p>
-      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button">
+      <button wicket:id="addGradeItem" class="gb-add-gradebook-item-button" aria-haspopup="true">
       	 <wicket:message key="button.addgradeitem" />
       </button>
     </p>
@@ -31,6 +31,7 @@
       <div id="gradebookGradesToolbar">
         <ul class="gb-toolbar-left">
           <li>
+            <label for="filterByGroup" style="display:none" aria-hidden="true"><wicket:message key="filter.groups" /></label>
             <select id="filterByGroup" wicket:id="groupFilter">
               <option value="1">Section 1</option>
               <option value="2">Section 2</option>
@@ -38,16 +39,16 @@
           </li>
         </ul>
         <ul class="gb-toolbar-right">
-          <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
+          <li><span wicket:id="gradeItemSummary" class="gradebook-item-summary" role="status" aria-live="polite">Viewing <span class="counts"><strong class="visible">8</strong> out of <strong class="total">8</strong></span> Grade Items</span></li>
           <li>
-            <button id="toggleGradeItemsToolbarItem">Show/Hide Items</button>
+            <button id="toggleGradeItemsToolbarItem" aria-popup="true" aria-controls="gradeItemsTogglePanel">Show/Hide Items</button>
           </li>
           <li>
-            <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem">Group By Category</button>
+            <button wicket:id="toggleCategoriesToolbarItem" id="toggleCategoriesToolbarItem" aria-controls="gradebookGradesTable">Group By Category</button>
           </li>
         </ul>
       </div>
-      <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover"></table>
+      <table wicket:id="table" id="gradebookGradesTable" class="table-striped table-bordered table-hover" role="grid"></table>
     </div>
   </form>
 

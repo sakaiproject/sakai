@@ -278,7 +278,10 @@ public class GradeItemCellPanel extends Panel {
 						
 			add(gradeCell);
 		}
-									
+
+		getParent().add(new AttributeModifier("role", "gridcell"));
+		getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal)));
+
 		//menu
 		
 		//grade log
