@@ -447,7 +447,7 @@ public class GradeItemCellPanel extends Panel {
 		if (!notifications.isEmpty()) {
 			String popoverString = ComponentRenderer.renderComponent(new GradeItemCellPopoverPanel("popover", model, notifications)).toString();
 			getParent().add(new AttributeModifier("data-toggle", "popover"));
-			getParent().add(new AttributeModifier("data-trigger", "focus"));
+			getParent().add(new AttributeModifier("data-trigger", "manual"));
 			getParent().add(new AttributeModifier("data-placement", "bottom"));
 			getParent().add(new AttributeModifier("data-html", "true"));
 			getParent().add(new AttributeModifier("data-container", "#gradebookGrades"));

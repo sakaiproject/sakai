@@ -147,6 +147,11 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
   } else if (isEditableCell && event.keyCode == 8) {
     event.preventDefault();
     self.getCellModel($eventTarget).clear();
+
+  // ESC 27
+  } else if (event.keyCode == 27) {
+    event.preventDefault();
+    self.$table.find('[data-toggle="popover"]').popover("hide");
   }
 };
 
@@ -1038,7 +1043,37 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
 
 
 GradebookSpreadsheet.prototype.setupPopovers = function() {
-  this.$spreadsheet.find('[data-toggle="popover"]').popover();
+  this.enablePopovers(this.$table);
+
+  this.$spreadsheet.on("focus", '[data-toggle="popover"]', function(event) {
+    $(event.target).data("popoverTimeout", setTimeout(function() {
+      $(event.target).popover('show');
+    }, 500));
+  });
+};
+
+
+GradebookSpreadsheet.prototype.enablePopovers = function($target) {
+  var $popovers = $target.find('[data-toggle="popover"]');
+
+  $popovers.popover({
+    trigger: 'focus',
+    delay: {
+      show: 500,
+      hide: 0
+    }
+  }).blur(function(event) {
+    clearTimeout($(event.target).data("popoverTimeout"));
+  });
+
+  // Ensure the popover doesn't get in the way of the dropdown menu
+  $popovers.find('.btn-group').on("shown.bs.dropdown", function() {
+    var $popover = $(this).closest('[data-toggle="popover"]');
+    if ($popover.length > 0) {
+      clearTimeout($popover.data("popoverTimeout"));
+      $popover.popover("hide");
+    }
+  });
 };
 
 
@@ -1244,9 +1279,9 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   //bind a timeout to the successful save. An easing would be nice
   $(".grade-save-success").removeClass("grade-save-success", 1000);
 
-  //re-setup popover?
+  //re-enable popover?
   if (this.$cell.is('[data-toggle="popover"]')) {
-    this.$cell.popover();
+    this.gradebookSpreadsheet.enablePopovers(this.$cell);
   }
 
   if (this._focusAfterSaveComplete) {
