@@ -24,7 +24,9 @@ import java.util.Map;
 
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.site.api.Site;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.user.api.User;
+
 
 /**
  * Roster interface to Sakai functionality.
@@ -218,4 +220,8 @@ public interface SakaiProxy {
 	 * Attempts to retrieve the search index for the specified site.
 	 */
     public Map<String, String> getSearchIndex(String siteId);
+
+    public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId);
+
+    public boolean getShowVisits();
 }

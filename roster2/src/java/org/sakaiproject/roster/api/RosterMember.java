@@ -61,6 +61,10 @@ public class RosterMember {
 	private Map<String, String> groups = new HashMap<String, String>();
 	@Getter @Setter
 	private int connectionStatus; // connection status to the current user
+	@Getter @Setter
+	private int totalSiteVisits;
+	@Getter @Setter
+	private long lastVisitTime;
 	
 	public void addGroup(String groupId, String groupTitle) {
 		
