@@ -19,7 +19,9 @@
 package org.sakaiproject.sitestats.test.mocks;
 
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
@@ -29,6 +31,7 @@ import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -353,6 +356,12 @@ public class FakeStatsManager implements StatsManager {
 	public int getPresenceStatsRowCount(String siteId, Date iDate, Date fDate, List<String> userIds, boolean inverseUserSelection, List<String> totalsBy) {
 		// TODO Auto-generated method stub
 		return 0;
+	}
+
+	public Map<String, SitePresenceTotal> getPresenceTotalsForSite(final String siteId) {
+
+		final Map<String, SitePresenceTotal> totals = new HashMap<String, SitePresenceTotal>();
+		return totals;
 	}
 
 	public String getUserNameForDisplay(String userId) {
