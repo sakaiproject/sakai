@@ -452,4 +452,6 @@ public interface FormattedText {
       */
      public NumberFormat getNumberFormat();
 
+     //SAM-2505
+     public String formatEnglishLocale(String text, boolean toEnglish);
 }

@@ -1259,6 +1259,30 @@ public class FormattedTextImpl implements FormattedText
         return makeShortText(text, cutMethod, maxLength, separator);
     }
 
+    /* 
+     * SAM-2505:
+     * Change the character used to separate decimal and thousands from one locale to another. 
+     *
+     * If "toEnglish" is:
+	 *	- false:  the change is done from English locale to non-English locale.
+	 *	- true:  the change is done from non-English locale to English locale.
+     */
+  	public String formatEnglishLocale(String text, boolean toEnglish){
+  		String decSeparatorLocale = getDecimalSeparator();
+  		if(StringUtils.equals(",",decSeparatorLocale)){
+  			String decSeparator = toEnglish?decSeparatorLocale:".";
+  			String miliSeparator = toEnglish?".":decSeparatorLocale;
+  			
+  			int decIndx = StringUtils.indexOf(text, decSeparator);
+  			text = StringUtils.replace(text, miliSeparator, decSeparator);
+  			if(decIndx!=-1){
+  				StringBuilder str = new StringBuilder(text).replace(decIndx, decIndx+1, miliSeparator);
+  				text = str.toString();
+  			}
+  		}
+  		return text;
+  	}
+    
     /**
      * TESTING ONLY
      * SAK-23567 Gets an array with 2 int values {left,right}

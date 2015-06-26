@@ -36,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -71,6 +72,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SectionContentsBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.TextFormat;
+import org.sakaiproject.util.FormattedText;
 
 /**
  * <p>
@@ -723,6 +725,12 @@ public class SubmitToGradingActionListener implements ActionListener {
 				ItemGradingData itemgrading = grading.get(m);
 				itemgrading.setAgentId(AgentFacade.getAgentString());
 				itemgrading.setSubmittedDate(new Date());
+				// SAM-2505
+				if (typeId == 15){
+					String answerText = itemgrading.getAnswerText();
+					if(StringUtils.isNotBlank(answerText))
+						itemgrading.setAnswerText(FormattedText.formatEnglishLocale(answerText, true));
+				}
 			}
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);

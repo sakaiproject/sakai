@@ -216,5 +216,10 @@ public class MockFormattedText implements FormattedText {
     public NumberFormat getNumberFormat() {
     	return getNumberFormat(null,null,null);
     }
+ 
+    @Override
+    public String formatEnglishLocale(String text, boolean toEnglish){
+    	return null;
+    }
     
 }

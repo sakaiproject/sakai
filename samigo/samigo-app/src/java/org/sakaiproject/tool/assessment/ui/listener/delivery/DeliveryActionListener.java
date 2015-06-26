@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Set;
@@ -43,6 +44,7 @@ import javax.faces.event.ActionListener;
 import javax.faces.model.SelectItem;
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.math.util.MathUtils;
@@ -351,6 +353,8 @@ public class DeliveryActionListener
             		  itemGradingHash.put(data.getPublishedItemId(), thisone);
             	  }
 
+            	  //SAM-2505
+            	  itemGradingHash = formatEnglishLocale(itemGradingHash, publishedAssessment, pubService);
             	  // For file upload and audio questions, adding the corresponding itemGradingData into itemGradingHash and itemGradingSet to display correctly in delivery
             	  // this hash compose (itemGradingId, array list of MediaData)
             	  HashMap mediaItemGradingHash = service.getMediaItemGradingHash(ag.getAssessmentGradingId()); 
@@ -379,6 +383,8 @@ public class DeliveryActionListener
 
                   if (itemGradingHash!=null && itemGradingHash.size()>0){
                 	  log.debug("**** DeliveryActionListener #1a");
+                 	  //SAM-2505
+                	  itemGradingHash = formatEnglishLocale(itemGradingHash, publishedAssessment, pubService);
                 	  ag = setAssessmentGradingFromItemData(delivery, itemGradingHash, true);
                 	  setAttemptDateIfNull(ag);
                   }
@@ -567,6 +573,36 @@ public class DeliveryActionListener
     	throw e;
     }
 
+  }
+  
+  //SAM-2505
+  private HashMap formatEnglishLocale(HashMap itemGradingHash, PublishedAssessmentFacade publishedAssessment, PublishedAssessmentService pubService){
+	  
+	  if(publishedAssessment.getData()!=null){
+          HashMap<Long, ItemDataIfc> publishedItemHash = pubService.preparePublishedItemHash(publishedAssessment.getData());
+          Set<Map.Entry<Long, ArrayList>> set = itemGradingHash.entrySet();
+        
+          for(Map.Entry<Long, ArrayList> ig: set){
+        	  Long itemId = ig.getKey();
+        	  ItemDataIfc item = publishedItemHash.get(itemId);
+        	  
+        	  if(item!=null && TypeIfc.CALCULATED_QUESTION.equals(item.getTypeId())){
+        		  ArrayList itemGradingDataList = ig.getValue();
+        		  if(itemGradingDataList!=null){
+            		  for(int i=0;i<itemGradingDataList.size();i++){
+            			  ItemGradingData itemGradingData = (ItemGradingData)itemGradingDataList.get(i);
+            			  String answerText = itemGradingData.getAnswerText();
+            			  if(StringUtils.isNotBlank(answerText)){
+            				  itemGradingData.setAnswerText(FormattedText.formatEnglishLocale(answerText, false));
+            				  itemGradingDataList.set(i, itemGradingData);
+            			  }
+            		  }
+            		  itemGradingHash.put(itemId, itemGradingDataList);
+            	  }
+        	  }
+          }
+      }
+ 	  return itemGradingHash;
   }
   
   protected void registerIrss(DeliveryBean delivery, Event event, boolean isViaURL) {
