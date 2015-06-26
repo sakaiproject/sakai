@@ -224,7 +224,7 @@
                                     </div>
                                 </li>
                            #end
-                            <li id="rowTemplate$templateNum" class="row$siteType" style="display:none">
+                            <li id="rowTemplate$templateNum" class="row$siteType" #if (!$isExpandTemplates) style="display: none"#end>
                                 <div class="templateName" style="white-space: nowrap;">
                                     <input type="radio" name ="templateSiteId"  class="$templateSite.type" value="$templateSite.id" id="Template$templateNum"/>
                                     <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>

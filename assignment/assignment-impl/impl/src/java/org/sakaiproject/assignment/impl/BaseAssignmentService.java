@@ -92,6 +92,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import java.io.*;
+import java.text.Collator;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.text.Normalizer;
 import java.text.NumberFormat;
 import java.util.*;
@@ -13714,8 +13717,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * the AssignmentComparator clas
 	 */
-	static private class AssignmentComparator implements Comparator
+	static class AssignmentComparator implements Comparator
 	{	
+		Collator collator = null;
+		
 		/**
 		 * the criteria
 		 */
@@ -13740,14 +13745,24 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		 */
 		public AssignmentComparator(String criteria, String asc)
 		{
-			m_criteria = criteria;
-			m_asc = asc;
+			this(criteria, asc, false);
 		} // constructor
 		public AssignmentComparator(String criteria, String asc, boolean group)
 		{
 			m_criteria = criteria;
 			m_asc = asc;
 			m_group_submission = group;
+			try
+			{
+				collator= new RuleBasedCollator(((RuleBasedCollator)Collator.getInstance()).getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+			}
+			catch (ParseException e)
+			{
+				// error with init RuleBasedCollator with rules
+				// use the default Collator
+				collator = Collator.getInstance();
+				M_log.warn(this + " AssignmentComparator cannot init RuleBasedCollator. Will use the default Collator instead. " + e);
+			}
 		}
 
 		/**
@@ -13768,7 +13783,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				String name1 = getSubmitterSortname(o1);
 				String name2 = getSubmitterSortname(o2);
-				result = name1.compareTo(name2);
+				result = compareString(name1,name2);
 			}
 			/** *********** for sorting assignments ****************** */
 			else if ("duedate".equals(m_criteria))
@@ -13827,18 +13842,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					}
 				}
 
-				if (s1 == null)
-				{
-					result = -1;
-				}
-				else if (s2 == null)
-				{
-					result = 1;
-				}
-				else
-				{
-					result = s1.compareTo(s2);
-				}
+				result = compareString(s1,s2);
 			}
 			
 			// sort ascending or descending
@@ -13880,6 +13884,21 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 			}
 			return rv;
+		}
+		
+		private int compareString(String s1, String s2) 
+		{
+			int result;
+			if (s1 == null && s2 == null) {
+				result = 0;
+			} else if (s2 == null) {
+				result = 1;
+			} else if (s1 == null) {
+				result = -1;
+			} else {
+				result = collator.compare(s1.toLowerCase(), s2.toLowerCase());
+			}
+			return result;
 		}
 	}
 	

@@ -58,7 +58,6 @@ import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -93,7 +92,6 @@ import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
-import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
@@ -130,6 +128,8 @@ import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
 import org.apache.commons.lang.ArrayUtils;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 
 
 /**
@@ -511,7 +511,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String title = ServerConfigurationService.getString("ui.service","Sakai");
 		if (site != null)
 		{
-			title = title + ":" + site.getTitle();
+			// SAK-29138
+			title = title + ":" + siteHelper.getUserSpecificSiteTitle( site );
 			if (placement != null) title = title + " : " + placement.getTitle();
 		}
 

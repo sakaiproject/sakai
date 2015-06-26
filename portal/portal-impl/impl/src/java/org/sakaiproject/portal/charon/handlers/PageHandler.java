@@ -21,7 +21,6 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
-import java.util.Locale;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -157,9 +156,9 @@ public class PageHandler extends BasePortalHandler
 			return;
 		}
 
-		// form a context sensitive title
+		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ site.getTitle() + " : " + page.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + page.getTitle();
 
 		String siteType = portal.calcSiteType(site.getId());
 		// start the response
