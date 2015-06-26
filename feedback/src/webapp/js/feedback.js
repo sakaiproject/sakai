@@ -57,7 +57,8 @@
                                                     loggedIn: loggedIn, showContentPanel : feedback.showContentPanel,
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
-                                                    showSuggestionsPanel : feedback.showSuggestionsPanel}, 'feedback-content');
+                                                    showSuggestionsPanel : feedback.showSuggestionsPanel,
+                                                    enableTechnical : feedback.enableTechnical}, 'feedback-content');
 
             $(document).ready(function () {
 
