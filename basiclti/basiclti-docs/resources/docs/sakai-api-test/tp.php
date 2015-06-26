@@ -181,26 +181,19 @@ $tp_profile->tool_profile->product_instance->service_provider->guid = "http://ww
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
 $tp_profile->tool_profile->resource_handler[0]->resource_type->code = "sakai-api-test-01";
 
-// Only ask for parameters we are allowed to ask for 
+// Ask for all the parameter mappings we are interested in
 // Canvas rejects us if  we ask for a custom parameter that they did 
 // not offer as capability
-$parameters = $tp_profile->tool_profile->resource_handler[0]->message[0]->parameter;
 $newparms = array();
-foreach($parameters as $parameter) {
-    if ( isset($parameter->variable) ) {
-        if ( ! in_array($parameter->variable, $tc_capabilities) ) continue;
-    }
-    $newparms[] = $parameter;
+foreach($desired_parameters as $parameter) {
+    if ( ! in_array($parameter, $tc_capabilities) ) continue;
+    $np = new stdClass();
+    $np->variable = $parameter;
+    $np->name = strtolower(str_replace(".","_",$parameter));
+    $newparms[] = $np;
 }
 // var_dump($newparms);
 $tp_profile->tool_profile->resource_handler[0]->message[0]->parameter = $newparms;
-
-// Ask for the kitchen sink...
-foreach($tc_capabilities as $capability) {
-    if ( "basic-lti-launch-request" == $capability ) continue;
-    if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
-    $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
-}
 
 // Cause an error on registration
 // $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = "Give.me.the.database.password";
@@ -227,6 +220,15 @@ if ( $oauth_splitsecret ) {
     echo("Provider Half Secret:\n".$tp_half_shared_secret."\n");
 } else {
     $tp_profile->security_contract->shared_secret = $secret;
+}
+
+// Ask for the kitchen sink...
+foreach($tc_capabilities as $capability) {
+    if ( "basic-lti-launch-request" == $capability ) continue;
+    if ( $oauth_splitsecret === false && "OAuth.splitSecret" == $capability ) continue;
+
+    if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
+    $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
 }
 
 

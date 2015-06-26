@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.annotation.Generated;
 
 import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Vars;
+import org.imsglobal.lti2.LTI2Caps;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -31,32 +33,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 })
 public class ToolConsumer {
 
-    public static final String LTI_LAUNCH = "basic-lti-launch-request";
-
-    public static final String USER_ID = "User.id";
-    public static final String USER_USERNAME = "User.username";
-    public static final String USER_IMAGE = "User.image" ;
-
-    public static final String COURSESECTION_SOURCEDID = "CourseSection.sourcedId";
-    public static final String MEMBERSHIP_ROLE = "Membership.role";
-
-    public static final String PERSON_SOURCEDID = "Person.sourcedId";
-    public static final String PERSON_NAME_FULL = "Person.name.full";
-    public static final String PERSON_NAME_GIVEN = "Person.name.given" ;
-    public static final String PERSON_NAME_FAMILY = "Person.name.family" ;
-    public static final String PERSON_EMAIL_PRIMARY = "Person.email.primary" ;
-
-    public static final String LTILINK_CUSTOM_URL = "LtiLink.custom.url";
-    public static final String TOOLPROXY_CUSTOM_URL = "ToolProxy.custom.url";
-    public static final String TOOLPROXYBINDING_CUSTOM_URL = "ToolProxyBinding.custom.url";
-
-    public static final String RESULT_SOURCEDID = "Result.sourcedId" ;
-    public static final String RESULT_AUTOCREATE = "Result.autocreate";
-    public static final String RESULT_URL = "Result.url";
-
-    public static final String OAUTH_SPLITSECRET = "OAuth.splitSecret";
-    public static final String OAUTH_HMAC256 = "OAuth.hmac-sha256";
-
     @JsonProperty("@context")
     private List<Object> _context = new ArrayList<Object>();
     @JsonProperty("@type")
@@ -76,8 +52,13 @@ public class ToolConsumer {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public static String[] STANDARD_CAPABILITIES = {
-        LTI_LAUNCH, USER_ID, COURSESECTION_SOURCEDID, 
-        PERSON_SOURCEDID, MEMBERSHIP_ROLE
+        LTI2Caps.LTI_LAUNCH, 
+        LTI2Vars.USER_ID, 
+        LTI2Vars.PERSON_SOURCEDID, 
+        LTI2Vars.COURSEOFFERING_SOURCEDID, 
+        LTI2Vars.COURSEOFFERING_LABEL,
+        LTI2Vars.COURSEOFFERING_LONGDESCRIPTION,
+        LTI2Vars.MEMBERSHIP_ROLE
     } ;
 
     // Constructor
@@ -194,34 +175,33 @@ public class ToolConsumer {
     }
 
     public void allowEmail() {
-        this.capability_offered.add(PERSON_EMAIL_PRIMARY);
+        this.capability_offered.add(LTI2Vars.PERSON_EMAIL_PRIMARY);
     }
 
     public void allowName() {
-        this.capability_offered.add(USER_USERNAME);
-        this.capability_offered.add(PERSON_NAME_FULL);
-        this.capability_offered.add(PERSON_NAME_GIVEN);
-        this.capability_offered.add(PERSON_NAME_FAMILY);
-        this.capability_offered.add(PERSON_NAME_FULL);
+        this.capability_offered.add(LTI2Vars.PERSON_SOURCEDID);
+        this.capability_offered.add(LTI2Vars.PERSON_NAME_FULL);
+        this.capability_offered.add(LTI2Vars.PERSON_NAME_GIVEN);
+        this.capability_offered.add(LTI2Vars.PERSON_NAME_FAMILY);
     }
 
     public void allowResult() {
-        this.capability_offered.add(RESULT_SOURCEDID);
-        this.capability_offered.add(RESULT_AUTOCREATE);
-        this.capability_offered.add(RESULT_URL);
+        this.capability_offered.add(LTI2Caps.RESULT_AUTOCREATE);
+        this.capability_offered.add(LTI2Vars.RESULT_SOURCEDID);
+        this.capability_offered.add(LTI2Vars.RESULT_URL);
     }
 
     public void allowSettings() {
-        this.capability_offered.add(LTILINK_CUSTOM_URL);
-        this.capability_offered.add(TOOLPROXY_CUSTOM_URL);
-        this.capability_offered.add(TOOLPROXYBINDING_CUSTOM_URL);
+        this.capability_offered.add(LTI2Vars.LTILINK_CUSTOM_URL);
+        this.capability_offered.add(LTI2Vars.TOOLPROXY_CUSTOM_URL);
+        this.capability_offered.add(LTI2Vars.TOOLPROXYBINDING_CUSTOM_URL);
     }
 
     public void allowSplitSecret() {
-        this.capability_offered.add(OAUTH_SPLITSECRET);
+        this.capability_offered.add(LTI2Caps.OAUTH_SPLITSECRET);
     }
 
     public void allowHmac256() {
-        this.capability_offered.add(OAUTH_HMAC256);
+        this.capability_offered.add(LTI2Caps.OAUTH_HMAC256);
     }
 }

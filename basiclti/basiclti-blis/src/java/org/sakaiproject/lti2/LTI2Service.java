@@ -273,7 +273,7 @@ public class LTI2Service extends HttpServlet {
 
 		if ( ! jsonRequest.valid ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-			doErrorJSON(request, response, jsonRequest, "Request is not in a valid format", null);
+			doErrorJSON(request, response, jsonRequest, "Request is not in a valid format:"+jsonRequest.errorMessage, null);
 			return;
 		}
 		// System.out.println(jsonRequest.getPostBody());
@@ -826,7 +826,7 @@ public class LTI2Service extends HttpServlet {
 			if ( json != null ) M_log.info(json.postBody);
 
 			String jsonText = IMSJSONRequest.doErrorJSON(request, response, json, message, e);
-			M_log.debug(jsonText);
+			M_log.info(jsonText);
 		}
 
 	public void destroy() {
