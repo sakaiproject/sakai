@@ -13,22 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-/*
-table.rosterPageHeader {
-	width:95%;
-}
-
-.rosterPageHeaderLeft  {
-	vertical-align:top;
-    text-align:left;
-}
-
-.rosterPageHeaderRight  {
-	vertical-align:top;
-    text-align:right;
-}
-*/
 
 .filterLabel {
 	vertical-align:top;
@@ -72,37 +56,6 @@ table.rosterPageHeader {
 	padding-right:10px;
 }
 
-/*
-table.rosterPicturesFilter {
-	width:20em;
-}
-
-table.rosterPictures {
-	width:20em;
-}
-
-table.rosterPictures td {
-	width:160px;
-	height:15em;
-	vertical-align:top;
-	word-break:break-all;
-	word-wrap:break-word;
-	padding-bottom:1em;
-}
-
-table.rosterPicturesSingleColumn {
-	width:320px;
-}
-
-table.rosterPicturesSingleColumn td {
-	width:160px;
-	vertical-align:top;
-	padding-bottom:1em;
-	word-break:break-all;
-	word-wrap:break-word;
-}
-*/
-
 .rosterPicture {
 	border:1px solid #bbb;
 	width:expression(160 + "px"); /* used for IE */
@@ -121,18 +74,6 @@ table.rosterPicturesSingleColumn td {
 .connection-email {
 	background-image: url(/library/image/silk/email.png);
 }
-
-/* mouse-over actions on tables */
-
-/*
-.rosterTableRow {
-	background-color:#FFFFFF;
-}
-
-.rosterTableRowHighlight {
-	background-color:#FFFFC0;
-}
-*/
 
 @media print  { .noprint  { display: none; } }
 
@@ -227,10 +168,14 @@ table.rosterPicturesSingleColumn td {
     padding-right: 10px;
 }
 
+.roster-last-visit-time-cell {
+    font-size: 0.8em;
+}
+
 /* Table display for large screen sizes */
 @media only screen and (min-width: 800px) and (max-width: 1100px) {
 	.roster-member {
-		font-size: 0.85em;
+		font-size: 0.75em;
 	}
 	.roster-groups-selector {
 		max-width: 100px !important;
@@ -292,12 +237,13 @@ table.rosterPicturesSingleColumn td {
 	
 	.roster-table-row {
 	    display: inline-block;
-	    width: 15%;
+	    width: 9%;
 	}
 	
 	.roster-table-cell {
 	    display: inline-block;
 	    vertical-align: middle;
+        font-size: 0.8em;
 	}
 	
 	.roster-table-cell:first-child {
@@ -313,4 +259,10 @@ table.rosterPicturesSingleColumn td {
 		padding: 0px;
 		max-width: 200px;
 	}
+    .roster-last-visit-time {
+        width: 12%;
+    }
+    .roster-last-visit-time-cell {
+        font-size: 0.7em;
+    }
 }
