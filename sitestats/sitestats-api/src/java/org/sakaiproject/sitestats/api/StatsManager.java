@@ -21,6 +21,7 @@ package org.sakaiproject.sitestats.api;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sakaiproject.javax.PagingPosition;
@@ -329,7 +330,8 @@ public interface StatsManager {
 			final List<String> userIds,
 			final boolean inverseUserSelection,
 			final List<String> totalsBy);
-	
+
+	public Map<String, SitePresenceTotal> getPresenceTotalsForSite(final String siteId);
 	
 	// ################################################################
 	// Resource statistics related methods
