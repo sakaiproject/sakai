@@ -56,6 +56,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
@@ -116,6 +117,9 @@ public abstract class BaseSiteService implements SiteService, Observer
         
     /** sfoster9@uwo.ca - A delegate class to contain the join methods **/
     protected JoinSiteDelegate joinSiteDelegate;
+
+	/** SAK-29138 - a site title advisor **/
+	protected SiteTitleAdvisor m_siteTitleAdvisor;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -489,6 +493,9 @@ public abstract class BaseSiteService implements SiteService, Observer
             // sfoster9@uwo.ca
             // assign a new JoinSiteDelegate to handle the join methods; provide it services from this class
             joinSiteDelegate = new JoinSiteDelegate( this, securityService(), userDirectoryService() );
+			
+			// SAK-29138
+			m_siteTitleAdvisor = (SiteTitleAdvisor) ComponentManager.get( SiteTitleAdvisor.class );
 		}
 		catch (Exception t)
 		{
@@ -3489,4 +3496,18 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return parentId;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserSpecificSiteTitle( Site site, String userID )
+	{
+		if( m_siteTitleAdvisor != null )
+		{
+			return m_siteTitleAdvisor.getUserSpecificSiteTitle( site, userID );
+		}
+		else
+		{
+			return site.getTitle();
+		}
+	}
 }

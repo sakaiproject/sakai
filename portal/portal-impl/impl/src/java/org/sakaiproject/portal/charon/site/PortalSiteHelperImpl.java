@@ -45,7 +45,6 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -330,6 +329,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserSpecificSiteTitle( Site site )
+	{
+		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
+		return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
+	}
+
+	/**
 	 * Explode a site into a map suitable for use in the map
 	 * 
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#convertSiteToMap(javax.servlet.http.HttpServletRequest,
@@ -343,7 +351,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			String toolContextPath, boolean loggedIn)
 	{
 		if (s == null) return null;
-		Map<String, Object> m = new HashMap<String, Object>();
+		Map<String, Object> m = new HashMap<>();
 
 		// In case the effective is different than the actual site
 		String effectiveSite = getSiteEffectiveId(s);
@@ -355,10 +363,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
-		String fullTitle = s.getTitle();
-		String titleStr = FormattedText.makeShortenedText(fullTitle, null, null, null);
-		m.put("siteTitle", Web.escapeHtml(titleStr));
-		m.put("fullTitle", Web.escapeHtml(fullTitle));
+		
+		// SAK-29138
+		String siteTitle = getUserSpecificSiteTitle( s );
+		m.put( "siteTitle", siteTitle );
+		m.put( "fullTitle", siteTitle );
+		
 		m.put("siteDescription", s.getHtmlDescription());
 
 		if ( s.getShortDescription() !=null && s.getShortDescription().trim().length()>0 ){
@@ -389,13 +399,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			List<Site> pwd = getPwd(s, ourParent);
 			if (pwd != null)
 			{
-				List<Map> l = new ArrayList<Map>();
+				List<Map> l = new ArrayList<>();
 				for (int i = 0; i < pwd.size(); i++)
 				{
 					Site site = pwd.get(i);
 					// System.out.println("PWD["+i+"]="+site.getId()+"
 					// "+site.getTitle());
-					Map<String, Object> pm = new HashMap<String, Object>();
+					Map<String, Object> pm = new HashMap<>();
 					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
 					l.add(pm);

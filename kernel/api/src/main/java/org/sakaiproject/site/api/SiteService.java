@@ -1203,4 +1203,17 @@ public interface SiteService extends EntityProducer
 	 */
 	public String getParentSite(String siteId);
 
+	/**
+	 * Given a site and a user ID, return the appropriate site or section title for the user.
+	 * 
+	 * SAK-29138 - Takes into account 'portal.use.sectionTitle' sakai.property; 
+	 * if set to true, this method will return the title of the section the current 
+	 * user is enrolled in for the site (if it can be found). Otherwise, it will 
+	 * return the site title (default behaviour).
+	 * 
+	 * @param site the site in question
+	 * @param userID the ID of the current user
+	 * @return the site or section title
+	 */
+	public String getUserSpecificSiteTitle( Site site, String userID );
 } 
