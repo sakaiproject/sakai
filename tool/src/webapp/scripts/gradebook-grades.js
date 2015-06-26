@@ -147,6 +147,11 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
   } else if (isEditableCell && event.keyCode == 8) {
     event.preventDefault();
     self.getCellModel($eventTarget).clear();
+
+  // ESC 27
+  } else if (event.keyCode == 27) {
+    event.preventDefault();
+    self.$table.find('[data-toggle="popover"]').popover("hide");
   }
 };
 
