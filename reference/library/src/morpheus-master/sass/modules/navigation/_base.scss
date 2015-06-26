@@ -10,6 +10,16 @@
 		display: inline-block;
 		vertical-align: middle;
 	}
+
+	.#{$namespace}my-workspace{
+		color: $toolMenuColor;
+		display: inline-block;
+		font-size: 1.8em;
+		margin: 0 0px 0 0.4em;
+		padding: 0 0 0.7em 0;
+		width: $icon-size;
+		vertical-align: middle;
+	}
 	
 	.#{$namespace}headerLogo{
 		background: $primary-color;
@@ -25,7 +35,7 @@
 			background: url($logo) no-repeat top left;
 			width: 		50px;
 			height: 	30px;
-			display:	block;
+			display:	inline-block;
 			margin:		0.6em 1.5em 0 1.5em;
 		}
 	}
@@ -227,13 +237,15 @@
 			}
 		}
 
-		a#loginUser{
+		#loginUser{
 			color: $button-text-color;
 			display: inline-block;
 			vertical-align:middle;
 			text-decoration: none;
 			&.has-avatar{
 				.#{$namespace}userNav__submenuitem--username{
+					color: $button-text-color;
+					text-decoration: underline;
 					position:relative;
 					top:-15px;
 				}

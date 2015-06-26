@@ -1496,6 +1496,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevel executing with membershipItems: " + membershipList);
 
+	        // hibernate will not like an empty list so return 0
+	        if (membershipList.isEmpty()) return 0;
+
 	        HibernateCallback hcb = new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
 	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL);
@@ -1517,9 +1520,29 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName executing with membershipItems: " + membershipList);
 
+	        // hibernate will not like an empty list so return 0
+	        if (membershipList.isEmpty()) return 0;
+
 	        HibernateCallback hcb = new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
+	            	Query q = null;
+	            	if ("mysql".equals(serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService"))) {
+	                    q = session.createSQLQuery("select straight_join count(*) as NBR " +
+		                		"from MFR_AREA_T area " +
+		                		"inner join MFR_OPEN_FORUM_T openforum on openforum.surrogateKey=area.ID inner " +
+		                		"join MFR_TOPIC_T topic on topic.of_surrogateKey=openforum.ID " +
+		                		"inner join MFR_MEMBERSHIP_ITEM_T membership on topic.ID=membership.t_surrogateKey, " +
+		                		"MFR_PERMISSION_LEVEL_T permission " +
+		                		"where area.CONTEXT_ID = :contextId " +
+		                		"and topic.MODERATED = true " +
+		                		"and (membership.NAME in ( :membershipList ) " +
+		                		"and permission.MODERATE_POSTINGS = true " +
+		                		"and permission.TYPE_UUID <> :customTypeUuid " +
+		                		"and permission.NAME=membership.PERMISSION_LEVEL_NAME)")
+		                		.addScalar("NBR", Hibernate.INTEGER);
+	            	} else {
+	            		q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
+	            	}
 	                q.setParameterList("membershipList", membershipList);
 	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
 	                q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);

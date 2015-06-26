@@ -215,7 +215,7 @@ public class IMSJSONRequest {
 		return retval;
 	}
 
-	/* IMS JSON version of Errors - does the complet request - returns the JSON in case
+	/* IMS JSON version of Errors - does the complete request - returns the JSON in case
 	   the code above us wants to log it. */
 	@SuppressWarnings("static-access")
 	public static String doErrorJSON(HttpServletRequest request,HttpServletResponse response, 
@@ -223,6 +223,7 @@ public class IMSJSONRequest {
 		throws java.io.IOException 
 	{
 		response.setContentType(APPLICATION_JSON);
+		response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 		Map<String, Object> jsonResponse = new TreeMap<String, Object>();
 
 		Map<String, String> status = null;
@@ -232,6 +233,9 @@ public class IMSJSONRequest {
 			status = json.getStatusFailure(message);
 			if ( json.base_string != null ) {
 				jsonResponse.put("base_string", json.base_string);
+			}
+			if ( json.errorMessage != null ) {
+				jsonResponse.put("error_message", json.errorMessage);
 			}
 		}
 		jsonResponse.put(IMSJSONRequest.STATUS, status);

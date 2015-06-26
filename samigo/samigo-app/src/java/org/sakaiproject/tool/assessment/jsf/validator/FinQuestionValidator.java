@@ -54,7 +54,7 @@ public class FinQuestionValidator implements Validator {
 		int i = text.indexOf("{", 0);
 		int j = text.indexOf("}", 0);
 		
-		while (i != -1) {
+		while (i != -1 && j > i) {
 			String number = text.substring(i+1, j);
 			
 			StringTokenizer st = new StringTokenizer(number, "|");

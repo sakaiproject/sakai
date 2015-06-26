@@ -10,6 +10,8 @@ import java.util.Map;
 import javax.annotation.Generated;
 
 import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Vars;
+import org.imsglobal.lti2.LTI2Caps;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
@@ -50,15 +52,20 @@ public class ToolConsumer {
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public static String[] STANDARD_CAPABILITIES = {
-        "basic-lti-launch-request" , "User.id", "User.image" , 
-        "CourseSection.sourcedId", "Person.sourcedId", "Membership.role"
+        LTI2Caps.LTI_LAUNCH, 
+        LTI2Vars.USER_ID, 
+        LTI2Vars.PERSON_SOURCEDID, 
+        LTI2Vars.COURSEOFFERING_SOURCEDID, 
+        LTI2Vars.COURSEOFFERING_LABEL,
+        LTI2Vars.COURSEOFFERING_LONGDESCRIPTION,
+        LTI2Vars.MEMBERSHIP_ROLE
     } ;
 
     // Constructor
     public ToolConsumer(String guid, String tcp, LTI2Config cnf) {
         this._context.add("http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile");
-		NamedContext nc = new NamedContext();
-		nc.setAdditionalProperties("tcp", tcp);
+        NamedContext nc = new NamedContext();
+        nc.setAdditionalProperties("tcp", tcp);
         this._context.add(nc);
         this._type = "ToolConsumerProfile";
         this.lti_version = "LTI-2p0";
@@ -162,4 +169,39 @@ public class ToolConsumer {
         Collections.addAll(this.capability_offered, capabilities);
     }
 
+    // Convienence method
+    public void addCapability(String capability) {
+        this.capability_offered.add(capability);
+    }
+
+    public void allowEmail() {
+        this.capability_offered.add(LTI2Vars.PERSON_EMAIL_PRIMARY);
+    }
+
+    public void allowName() {
+        this.capability_offered.add(LTI2Vars.PERSON_SOURCEDID);
+        this.capability_offered.add(LTI2Vars.PERSON_NAME_FULL);
+        this.capability_offered.add(LTI2Vars.PERSON_NAME_GIVEN);
+        this.capability_offered.add(LTI2Vars.PERSON_NAME_FAMILY);
+    }
+
+    public void allowResult() {
+        this.capability_offered.add(LTI2Caps.RESULT_AUTOCREATE);
+        this.capability_offered.add(LTI2Vars.RESULT_SOURCEDID);
+        this.capability_offered.add(LTI2Vars.RESULT_URL);
+    }
+
+    public void allowSettings() {
+        this.capability_offered.add(LTI2Vars.LTILINK_CUSTOM_URL);
+        this.capability_offered.add(LTI2Vars.TOOLPROXY_CUSTOM_URL);
+        this.capability_offered.add(LTI2Vars.TOOLPROXYBINDING_CUSTOM_URL);
+    }
+
+    public void allowSplitSecret() {
+        this.capability_offered.add(LTI2Caps.OAUTH_SPLITSECRET);
+    }
+
+    public void allowHmac256() {
+        this.capability_offered.add(LTI2Caps.OAUTH_HMAC256);
+    }
 }
