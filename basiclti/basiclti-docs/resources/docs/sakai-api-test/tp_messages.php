@@ -92,54 +92,10 @@ $tool_proxy = <<< EOF
               {
                 "name": "theanswer",
                 "fixed": "42"
-              },
-              {
-                "name": "ltilink_custom_url",
-                "variable": "LtiLink.custom.url"
-              },
-              {
-                "name": "toolproxy_custom_url",
-                "variable": "ToolProxy.custom.url"
-              },
-              {
-                "name": "toolproxybinding_custom_url",
-                "variable": "ToolProxyBinding.custom.url"
-              },
-              {
-                "name": "result_url",
-                "variable": "Result.url"
-              },
-              {
-                "name": "person_email_primary",
-                "variable": "Person.email.primary"
-              },
-              {
-                "name": "person_name_full",
-                "variable": "Person.name.full"
-              },
-              {
-                "name": "person_name_given",
-                "variable": "Person.name.given"
-              },
-              {
-                "name": "person_name_family",
-                "variable": "Person.name.family"
-              },
-              {
-                "name": "user_id",
-                "variable": "User.id"
-              },
-              {
-                "name": "user_image",
-                "variable": "User.image"
-              },
-              {
-                "name": "membership_role",
-                "variable": "Membership.role"
               }
             ],
             "message_type": "basic-lti-launch-request",
-            "enabled_capability" : [ "User.id" ]
+            "enabled_capability" : [ ]
           }
         ],
         "resource_name": {
@@ -200,3 +156,27 @@ $tool_proxy = <<< EOF
   }
 }
 EOF;
+
+$desired_parameters = array(
+    "User.id",
+    "User.image",
+"User.username",
+    "Person.email.primary",
+    "Person.name.full",
+    "Person.name.given",
+    "Person.name.family",
+"CourseOffering.label",
+"CourseOffering.title",
+"CourseOffering.sourcedId",
+"ResourceLink.description",
+"ResourceLink.title",
+"Result.comment",
+"Result.resultScore",
+    "Result.url",
+    "Membership.role",
+    "LtiLink.custom.url",
+    "ToolProxy.custom.url",
+    "ToolProxyBinding.custom.url"
+);
+
+sort($desired_parameters);

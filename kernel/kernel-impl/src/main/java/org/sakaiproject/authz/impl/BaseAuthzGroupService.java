@@ -1361,7 +1361,7 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 		 * @param authzGroupId The ID of the AuthzGroup
 		 * @return The Set (String) of provider IDs
 		 */
-		public Set getProviderIds(String authzGroupId);
+		public Set<String> getProviderIds(String authzGroupId);
 
 		/**
 		 * Get the AuthzGroup IDs associated with a provider ID.

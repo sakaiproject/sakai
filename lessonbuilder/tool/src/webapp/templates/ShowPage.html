@@ -74,7 +74,7 @@
  </script>
 
 
-	 <div class="portletBody" id="outer" role="application" style="z-index:1">
+	 <div class="portletBody" id="outer" style="z-index:1">
 
 		 <div rsf:id="needPermissions">
 			 <p rsf:id="msg=simplepage.needpermissions"></p>
@@ -114,8 +114,8 @@
 			   </h2>
 		       </div>
 	     <div class="action">
-		 <a href="#" class="lessonsToolButton" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false"  role="note"></a>
-		 <a href="#" class="lessonsToolButton" rsf:id="show-pages" id="show-pages" role="note"></a>
+		 <a href="#" class="lessonsToolButton" rsf:id="print-view" id="print-view" onclick="window.open(printView(window.location.href));return false"></a>
+		 <a href="#" class="lessonsToolButton" rsf:id="show-pages" id="show-pages"></a>
 
 		 <span rsf:id="gradingSpan" class="gradingarea">
 		     <a href="#" rsf:id="gradingBack" style="margin-right:2px;background:none" class="usebutton grading-nextprev">&#60;</a><img class="statusImg" src="$context/images/no-status.png" id="statusImg" height="16px" width="16px" alt=""></img><span style="*vertical-align:13%"  rsf:id="msg=simplepage.comments-points"></span><span style="display:none" class="uuidBox" rsf:id="commentsUUID"></span><span style="display:none" class="pointsSpan" rsf:id="commentPoints"></span> <input rsf:id="studentPointsBox"  id="studentPointsBox" type="text" style="font-size:100%"  size="3"></input> / <span rsf:id="topmaxpoints"></span> <a class="usebutton" href="#" rsf:id="msg=simplepage.submit" style="background:none; width:auto; *vertical-align:13%;margin-right:.5em" id="submit-grading"></a> <a style="background:none" href="#" rsf:id="gradingForward" class="usebutton grading-nextprev">&#62;</a>
@@ -142,159 +142,148 @@
         </div>
 		
 	
-		<div rsf:id="tool-bar:" class="navIntraTool" role="toolbar" style="clear:both;z-index:100000" aria-labelledby="tool-bar::toolbar-label">
+		<div rsf:id="tool-bar:" class="navIntraTool" role="application" style="clear:both;z-index:100000" aria-labelledby="tool-bar::toolbar-label">
 			<h3 id="toolbar-label" rsf:id="msg=simplepage.toolbar" class="offscreen"></h3>
-			<ul id="toolbar" style="padding:2px; margin:0px; text-align:right">
+			<ul id="toolbar" role="menubar" style="padding:2px; margin:0px; text-align:right">
 				
-			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			  <li class="contentButton" style="float:left; margin-top:0px !important" >
 			    <span>
-			    <a rsf:id="add-text1" href="#"><img src="../images/new-text.png"/></a>
+			    <a role="menuitem" rsf:id="add-text1" href="#"><img src="../images/new-text.png" alt=""/></a>
 			    </span>
 			  </li>
 
 			  <li class="contentButton" style="float:left; margin-top:0px !important">
 			    <span>
-			    <a href="#" rsf:id="add-resource1"><img src="../images/link.png"/></a>
+			    <a role="menuitem" href="#" rsf:id="add-resource1"><img src="../images/link.png" alt=""/></a>
 			    </span>
 			  </li>
 
 			  <li class="contentButton" style="float:left; margin-top:0px !important">
 			    <span>
-			    <a href="#" rsf:id="add-multimedia1"><img src="../images/embed.png"/></a>
+			    <a role="menuitem" href="#" rsf:id="add-multimedia1"><img src="../images/embed.png" alt=""/></a>
 			    </span>
 			  </li>
 
-			  <li class="contentButton" style="float:left; margin-top:0px !important">
+			  <li class="contentButton" style="float:left; margin-top:0px !important" >
 			    <span>
-			    <a href="#" rsf:id="subpage-link1" class="subpage-link"><img src="../images/new-subpage.png"/></a>
+			    <a role="menuitem" href="#" rsf:id="subpage-link1" class="subpage-link"><img src="../images/new-subpage.png" alt="" /></a>
 			    </span>
 			  </li>
 
-				<li class="dropdown" id="dropdownc" style="float:left; margin-top:0px !important; z-index:900">
+				<li class="dropdown" id="dropdownc" style="float:left; margin-top:0px !important; z-index:900" >
 					<span>
-					    <a href="#" onclick="return false;">
+					    <a href="#" onclick="return false;" aria-expanded="false" aria-haspopup="true" aria-owns="addContentDiv" aria-controls="addContentDiv" role="menuitem">
 					        <span rsf:id="msg=simplepage.add-content" ></span>
-                            &nbsp;&nbsp;<img rsf:id="icondropc" src="/library/image/sakai/icon-dropdn.gif" style="height:15px"/>
+                            &nbsp;&nbsp;<img rsf:id="icondropc" src="/library/image/sakai/icon-dropdn.gif" style="height:15px" alt="" />
 					    </a>				
 					</span>
 				</li>
 				<li class="dropdown" rsf:id="dropdown" id="dropdown" style="z-index:900">
 					<span>
-					    <a href="#" onclick="return false;">
+					    <a role="menuitem" href="#" onclick="return false;" aria-expanded="false" aria-haspopup="true" aria-owns="moreDiv" aria-controls="moreDiv">
 					        <span rsf:id="msg=simplepage.more-tools" ></span>
-                            &nbsp;&nbsp;<img rsf:id="icondrop" src="/library/image/sakai/icon-dropdn.gif" style="height:15px"/>
+                            &nbsp;&nbsp;<img rsf:id="icondrop" src="/library/image/sakai/icon-dropdn.gif" style="height:15px" alt="" />
 					    </a>				
 					</span>
 				</li>
 
                 
-		<li rsf:id="remove-student" style="float:left; margin-top: 0px !important"><a href="#" role="menuitem" rsf:id="remove-page-student" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a></li>
+		<li rsf:id="remove-student" style="float:left; margin-top: 0px !important"><a role="menuitem" href="#" rsf:id="remove-page-student" class="remove-page"><span rsf:id="msg=simplepage.remove-page" role="menuitem"></span></a></li>
 
-                <li><span><a href="#" role="menuitem" rsf:id="reorder"></a></span></li>
-                <li><span><a href="#" role="menuitem" rsf:id="help" target="_blank"></a></span></li>
+                <li><span><a role="menuitem" href="#" rsf:id="reorder"></a></span></li>
+                <li><span><a role="menuitem" href="#" rsf:id="help" target="_blank"></a></span></li>
                 <li>
                     <span rsf:id="title-descrip">
-                    <a href="#" role="menuitem" rsf:id="edit-title" id="edit-title"><span><img src="/library/image/silk/cog.png"/></span><span class="skip" rsf:id="edit-title-text"></span></a>
+                    <a role="menuitem" href="#" rsf:id="edit-title" id="edit-title"><span><img src="/library/image/silk/cog.png"/></span><span class="skip" rsf:id="edit-title-text"></span></a>
                     </span>
                 </li>
 			</ul>                
 
 		</div>
 		
-		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink" role="menu" aria-label="Add content menu">
+		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink" role="menu" aria-label="Add content menu" aria-expanded="false">
 		<ul>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="add-text" class="add-text-link" ><span rsf:id="msg.simplepage.text"></span></a>
-                    <div rsf:id="msg=simplepage.addtext-descrip"></div>
 		  </li>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="add-multimedia" class="add-multimedia"><span rsf:id="msg.simplepage.multimedia"></span></a>
-                    <div rsf:id="msg=simplepage.multimedia-descrip"></div>
 		  </li>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="add-resource" class="add-resource"><span rsf:id="msg.simplepage.resource"></span></a>
-                    <div rsf:id="msg=simplepage.resource-descrip"></div>
 		  </li>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
-                    <div rsf:id="msg=simplepage.subpage-descrip"></div>
 		  </li>
 		  <hr style="border:none"/>
 		  <li rsf:id="assignment-li">
 		    <a role="menuitem" href="#" rsf:id="add-assignment"><span rsf:id="msg.simplepage.assignment"></span></a>
-                    <div rsf:id="msg=simplepage.assignment-descrip"></div>
 		  </li>
 		  <li rsf:id="quiz-li">
 		    <a role="menuitem" href="#" rsf:id="add-quiz"><span rsf:id="msg.simplepage.quiz"></span></a>
-                    <div rsf:id="msg=simplepage.quiz-descrip"></div>
 		  </li>
                   <li rsf:id="forum-li">
                     <a role="menuitem" class="add-forum-link" href="#" rsf:id="add-forum"><span rsf:id="msg.simplepage.forum"></span></a>
-                    <div rsf:id="msg=simplepage.forum-descrip"></div>
                   </li>
 		  <hr style="border:none"/>
 		  <li rsf:id="question-li">
 		    <a role="menuitem" href="#" rsf:id="question-link" class="question-link"><span rsf:id="msg=simplepage.questionLinkText"></span></a>
-                    <div rsf:id="msg=simplepage.question-descrip"></div>
 		  </li>
                   <li rsf:id="student-li">
                     <a href="#" role="menuitem" rsf:id="add-comments"><span rsf:id="msg.simplepage.comments"></span></a>
-                    <div rsf:id="msg=simplepage.comments-descrip"></div>
                   </li>
                   <li rsf:id="studentcontent-li">
                     <a href="#" role="menuitem" rsf:id="add-content"><span rsf:id="msg.simplepage.add-student-content"></span></a>
-                    <div rsf:id="msg=simplepage.student-descrip"></div>
                   </li>
                   <li rsf:id="addwebsite-li">
                     <a href="#" role="menuitem" rsf:id="add-website" class="add-website"><span rsf:id="msg.simplepage.website"></span></a>
-                    <div rsf:id="msg=simplepage.addwebsite-descrip"></div>
                   </li>
                   <li rsf:id="blti-tool:">
                     <a href="#" role="menuitem" rsf:id="add-blti-tool"><span rsf:id="msg.simplepage.blti"></span></a>
-                    <div rsf:id="add-blti-description"></div>
                   </li>
                   <li rsf:id="blti-li">
                     <a href="#" role="menuitem" rsf:id="add-blti"><span rsf:id="msg.simplepage.blti"></span></a>
-                    <div rsf:id="msg=simplepage.blti-descrip"></div>
                   </li>
+                  <li class="offscreen">
+                    <a href="#" id="endContentMenu" role="menuitem"><span rsf:id="msg=simplepage.endmenu"></span></a>
+                  </li>
+
+
 
 		</ul>
 		</div>
 
-		<div rsf:id="moreDiv" id="moreDiv" style="display:none" class="dropDownDiv specialLink" role="menu" aria-label="More menu options">
+		<div rsf:id="moreDiv" id="moreDiv" style="display:none" class="dropDownDiv specialLink" role="menu" aria-label="More menu options" aria-expanded="false">
 		  <ul>
                     <!-- add new page -->
                     <li>
                       <a href="#" role="menuitem"  rsf:id="new-page" id="new-page"><span rsf:id="msg=simplepage.new-page"></span></a>
-                      <div rsf:id="msg=simplepage.newpage-descrip"></div>
                     </li>
                     <!-- remove page -->
                     <li rsf:id="remove-li">
                       <a href="#" role="menuitem" rsf:id="remove-page" id="remove-page" class="remove-page"><span rsf:id="msg=simplepage.remove-page"></span></a>
-                      <div rsf:id="msg=simplepage.remove-page-explanation"></div>
                     </li>
 		    <!-- permissions --> 		
                     <li>
                       <a href="#" role="menuitem"  rsf:id="permissions" id="permissions"><span rsf:id="msg=simplepage.permissions"></span></a>
-                      <div rsf:id="msg=simplepage.permissions.tooltip"></div>
                     </li>
                     <li rsf:id="delete-orphan-li">
                       <form action="#" rsf:id="delete-orphan-form" method="post" enctype="multipart/form-data">
 			<input type="hidden" rsf:id="csrf1" />
 			<input type="submit" style="display:none" rsf:id="delete-orphan" id="delete-orphan"/>
                         <a rsf:id="delete-orphan-link" id="delete-orphan-link" href="#" role="menuitem" class="delete-orphan"><span rsf:id="msg=simplepage.delete-orphan-pages"></span></a>
-			<div rsf:id="msg=simplepage.delete-orphan-pages-desc"></div>
 		      </form>
                     </li>
                     <li>
                       <a href="#" role="menuitem" rsf:id="import-cc" id="import-cc"><span rsf:id="msg=simplepage.import_cc_button"></span></a>
                       <!-- just a message, so will display when it should not-->
-                      <div rsf:id="msg=simplepage.importcc-descrip"></div>
                     </li>
                     <li>
                       <a href="#" role="menuitem" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
                       <!-- just a message, so will display when it should not-->
-                      <div rsf:id="msg=simplepage.exportcc-descrip"></div>
+                    </li>
+                    <li class="offscreen">
+                      <a href="#" id="endMoreMenu" role="menuitem"><span rsf:id="msg=simplepage.endmenu"></span></a>
                     </li>
 		  </ul>
 		</div>

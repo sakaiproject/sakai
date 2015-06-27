@@ -103,6 +103,9 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   $checked = '';
   if ( $iframe ) $checked = 'checked';
   echo("<br/>Launch in iFrame: <input type=\"checkbox\" name=\"iframe\" $checked $disabled value=\"true\">\n");
+  $sha256 = isset($_REQUEST["sha256"]) && $_REQUEST["sha256"] == "true";
+  if ( $sha256 ) $checked = 'checked';
+  echo("<br/>Sign with SHA256: <input type=\"checkbox\" name=\"sha256\" $checked $disabled value=\"true\">\n");
   echo("</fieldset><p>");
   echo("<fieldset><legend>Launch Data</legend>\n");
   foreach ($lmsdata as $k => $val ) {
@@ -138,6 +141,10 @@ addCustom($parms, array(
 
 if ( (isset($_REQUEST["cert_num"]) && $secret != "secret" ) || 
       isset($_POST['launch']) || isset($_POST['debug']) ) {
+
+if ( $sha256 ) {
+    $parms['oauth_signature_method'] = 'HMAC-SHA256';
+}
 
 $parms = signParameters($parms, $endpoint, "POST", $key, $secret, 
 "Finish Launch", $tool_consumer_instance_guid, $tool_consumer_instance_description);

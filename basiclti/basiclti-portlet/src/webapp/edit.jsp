@@ -67,7 +67,7 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
     if ( allow(sp,"launch") || allow(sp,"xml") ||
 		allow(sp,"secret") || allow(sp,"key") || 
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
-        allow(sp,"newpage") || allow(sp,"maximize") ||
+        allow(sp,"newpage") || 
         allow(sp,"frameheight") || allow(sp, "debug") ||
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
 		allow(sp,"custom") || 
@@ -202,7 +202,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% } %>
 
-<% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") || allow(sp, "maximize") ) { %>
+<% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") ) { %>
 <h3><%=rb.getString("launch.information") %></h3>
 <% if ( allow(sp,"newpage") ) { %>
 <p class="checkbox indnt1">
@@ -213,18 +213,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
    />
 <% } %>
 <label for="imsti.newpage"><%=rb.getString("new.page") %></label><%=rb.getString("new.page.detail") %>
-</p>
-<% } %>
-<% if ( allow(sp,"maximize") ) { %>
-<p class="checkbox  indnt1">
-<input type="checkbox" size="10" name="imsti.maximize" id="imsti.maximize" 
-<% if ( ov.getProperty("imsti.maximize",null) != null ) { %>
-  checked="yes" />
-<% } else { %>
-   />
-<% } %>
-<label for="imsti.maximize"><%=rb.getString("maximize.page") %></label>
-<span class="textPanelFooter"><%=rb.getString("maximize.page.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"frameheight") ) { %>

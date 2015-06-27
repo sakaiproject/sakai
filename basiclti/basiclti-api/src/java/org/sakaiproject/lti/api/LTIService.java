@@ -514,6 +514,7 @@ public interface LTIService {
 		"xmlimport:text:hidden=true:maxlength=16384",
 		// LTI 2.x settings
 		"settings:text:hidden=true:maxlength=8096",
+		"enabled_capability:text:hidden=true:maxlength=16384:role=admin",
 		// Sakai LTI 1.x extension settings (see SAK-25621)
 		"settings_ext:text:hidden=true:maxlength=8096",
 		"placement:text:hidden=true:maxlength=256", 
@@ -563,7 +564,7 @@ public interface LTIService {
 		"settings:text:hidden=true:maxlength=8096",
 		// LTI 2.x tool-registration time parameters
 		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=1024:only=lti2",
-		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=1024:only=lti2",
+		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=16384:only=lti2",
 		"allowcustom:checkbox:label=bl_allowcustom",
 		"xmlimport:text:hidden=true:maxlength=16384",
 		"splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=4096",

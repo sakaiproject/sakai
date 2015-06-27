@@ -23,11 +23,9 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Locale;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -36,19 +34,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -61,7 +55,6 @@ import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.site.api.Site;
@@ -80,7 +73,6 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.util.Validator;
 
@@ -374,9 +366,9 @@ public class SiteHandler extends WorksiteHandler
 		// clear the last page visited
 		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 
-		// form a context sensitive title
+		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ site.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site );
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
@@ -476,7 +468,6 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
-
 		// Include the buffered content if we have it
 		if ( BC instanceof Map ) {
 			if ( req.getMethod().equals("POST") ) {
@@ -490,19 +481,6 @@ public class SiteHandler extends WorksiteHandler
 			Map<String,String> bufferMap = (Map<String,String>) BC;
 			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
 			rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
-		}
-
-
-		// Have we been requested to display minimized and are we logged in?
-		if (session.getUserId() != null ) {
-			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MINIMIZED);
-                        String reqParm = req.getParameter(portal.SAKAI_NAV_MINIMIZED);
-                	String minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
-                	if ( c != null && "true".equals(c.getValue()) ) {
-				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
-			} else if ( reqParm != null &&  "true".equals(reqParm) && ! "false".equals(minStr) ) {
-				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
-			}
 		}
 
 		rcontext.put("siteId", siteId);
@@ -1017,15 +995,6 @@ public class SiteHandler extends WorksiteHandler
 			boolean retval = doToolBuffer(req, bufferedResponse, session, placementId,
 					toolContextPath, toolPathInfo);
 			log.debug("bufferContent retval="+retval);
-
-			// Cleanup transient session bits - SAK-25857
-			ToolSession ts = session.getToolSession(siteTool.getId());
-			if ( ts != null ) {
-				ts.removeAttribute(Portal.SAKAI_PORTAL_ALLOW_NEO);
-				ts.removeAttribute(Portal.SAKAI_PORTAL_HELP_ACTION);
-				ts.removeAttribute(Portal.SAKAI_PORTAL_RESET_ACTION);
-			}
-
 
 			if ( ! retval ) return Boolean.FALSE;
 

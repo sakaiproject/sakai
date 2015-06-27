@@ -136,17 +136,7 @@ public class ToolHandler extends BasePortalHandler
 		{
 			Session s = SessionManager.getCurrentSession();
 			ToolSession ts = s.getToolSession(placementId);
-			// Don't lose the neo tool information
-			String allowNeo = (String) ts.getAttribute(Portal.SAKAI_PORTAL_ALLOW_NEO);
-			String helpActionUrl = (String) ts.getAttribute(Portal.SAKAI_PORTAL_HELP_ACTION);
-			String resetActionUrl = (String) ts.getAttribute(Portal.SAKAI_PORTAL_RESET_ACTION);
 			ts.clearAttributes();
-			if ( "true".equals(allowNeo) ) 
-			{
-				ts.setAttribute(Portal.SAKAI_PORTAL_ALLOW_NEO,"true");
-				ts.setAttribute(Portal.SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
-				ts.setAttribute(Portal.SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
-			}
 			portalService.setResetState(null);
 			M_log.debug("Tool state reset");
 		}
@@ -209,7 +199,7 @@ public class ToolHandler extends BasePortalHandler
 
 			// form a context sensitive title
 			String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ site.getTitle() + " : " + siteTool.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + siteTool.getTitle();
 
 			PortalRenderContext rcontext = portal.startPageContext(siteType, title, 
 				siteTool.getSkin(), req);

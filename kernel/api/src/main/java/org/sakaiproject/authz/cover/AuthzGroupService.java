@@ -109,10 +109,10 @@ public class AuthzGroupService
 		return service.getAuthzGroupIds(providerId);
 	}
 
-	public Set getProviderIds(String authzGroupId)
+	public static Set<String> getProviderIds(String authzGroupId)
 	{
 		org.sakaiproject.authz.api.AuthzGroupService service = getInstance();
-		if (service == null) return new HashSet();
+		if (service == null) return new HashSet<>();
 		
 		return service.getProviderIds(authzGroupId);
 	}

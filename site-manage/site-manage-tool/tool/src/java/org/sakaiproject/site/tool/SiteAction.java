@@ -1398,6 +1398,9 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("siteTextEdit", new SiteTextEditUtil());
 		
+		//SAK-29525 Open Template list by default when creating site
+		context.put("isExpandTemplates", ServerConfigurationService.getBoolean("site.setup.creation.expand.template", false));
+		
 		// the last visited template index
 		if (preIndex != null)
 			context.put("backIndex", preIndex);
@@ -4317,7 +4320,8 @@ public class SiteAction extends PagedResourceActionII {
 			addAlert(state, rb.getString("importFile.choosefile"));
 		} else {
 			//Need some other kind of input stream?
-			ResetOnCloseInputStream fileInput = null; 
+			ResetOnCloseInputStream fileInput = null;
+			InputStream fileInputStream = null;
 			long fileSize=0;
 			try { 
 				// Write to temp file, this should probably be in the velocity util?
@@ -4326,7 +4330,7 @@ public class SiteAction extends PagedResourceActionII {
 				// Delete temp file when program exits.
 				tempFile.deleteOnExit();
 	
-				InputStream fileInputStream = fileFromUpload.getInputStream();
+				fileInputStream = fileFromUpload.getInputStream();
 				
 				FileOutputStream outBuf = new FileOutputStream(tempFile);
 				byte[] bytes = new byte[102400];
@@ -4334,8 +4338,7 @@ public class SiteAction extends PagedResourceActionII {
 				while ((read = fileInputStream.read(bytes)) != -1) {
 					outBuf.write(bytes, 0, read);
 				}
-			
-				fileInputStream.close();
+
 				outBuf.flush();
 				outBuf.close();
 			
@@ -4348,6 +4351,10 @@ public class SiteAction extends PagedResourceActionII {
 			catch (IOException ioe) {
 				M_log.warn("IOException creating temp import file",ioe);
 			}
+			finally {
+				IOUtils.closeQuietly(fileInputStream);
+			}
+
 			if (fileSize >= max_bytes) {
 				addAlert(state, rb.getFormattedMessage("importFile.size", new Object[]{max_file_size_mb}));
 			}
@@ -4386,6 +4393,8 @@ public class SiteAction extends PagedResourceActionII {
 					addAlert(state, rb.getString("importFile.invalidfile"));
 				}
 			}
+
+			IOUtils.closeQuietly(fileInput);
 		}
 	} // doImportMtrlFrmFile
 
@@ -6665,6 +6674,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				
 				// publish the site or not based on the template choice
 				site.setPublished(state.getAttribute(STATE_TEMPLATE_PUBLISH) != null?true:false);
+				
+				// Update the icons URL.
+				String newSiteIconUrl = transferSiteResource(templateSite.getId(), site.getId(), site.getIconUrl());
+				site.setIconUrl(newSiteIconUrl);
 				
 				userNotificationProvider.notifyTemplateUse(templateSite, UserDirectoryService.getCurrentUser(), site);	
 			}
@@ -9825,6 +9838,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 				catch (Exception n2Exception)
 				{
+					M_log.warn(this + ":transferSiteResource: cannot find resource with id=" + nResource + " copying it from the original resource " + n2Exception.getMessage());
 					// copy the resource then
 					try
 					{
@@ -9833,6 +9847,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					}
 					catch (Exception n3Exception)
 					{
+						M_log.warn(this + ":transferSiteResource: something happened copying the resource with id="+ resource.getId() + " " + n3Exception.getMessage());
 					}
 				}
 				
@@ -15403,9 +15418,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			tempZipFile.delete();
 		}
 		
+		FileOutputStream fileOutputStream = null;
 		try {
+			fileOutputStream = new FileOutputStream(tempZipFile);
 			//copy contents into this file
-			IOUtils.copyLarge(fi.getInputStream(), new FileOutputStream(tempZipFile));
+			IOUtils.copyLarge(fi.getInputStream(), fileOutputStream);
 			
 			//set path into state so we can process it later
 			state.setAttribute(STATE_UPLOADED_ARCHIVE_PATH, tempZipFile.getAbsolutePath());
@@ -15414,6 +15431,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		} catch (Exception e) {
 			M_log.error(e.getMessage(), e); //general catch all for the various exceptions that occur above. all are failures.
 			addAlert(state, rb.getString("archive.createsite.failedupload"));
+		}
+		finally {
+			IOUtils.closeQuietly(fileOutputStream);
 		}
 		
 		//go to confirm screen

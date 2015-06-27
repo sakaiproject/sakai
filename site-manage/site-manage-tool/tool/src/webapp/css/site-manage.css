@@ -43,10 +43,6 @@ dl.defList dd{
     float: right;
 }
 
-.ui-widget-content{
-    min-width: 30em;
-}
-
 #templateSettings, #siteTypeList, #archiveSettings{
     padding:.5em;
     background:#eee;

@@ -12,7 +12,13 @@ if ( isset($_GET['r_key']) && isset($_GET['r_secret']) ) {
     }
 }
 
+// What is the response type here?
 header("Content-type: application/vnd.ims.lti.v2.toolproxy.id+json; charset=utf-8");
+
+$method = $_SERVER['REQUEST_METHOD'];
+error_log("Commmit Method: $method");
+$VND = isset($_GET['correlation']) ? $_GET['correlation'] : '** MISSING **';
+error_log("tp_commit saw correlation_id of ".$VND);
 
 $headers = getallheaders();
 ob_start();
@@ -25,8 +31,9 @@ var_dump($_POST);
 $result = ob_get_clean();
 error_log($result);
 
-$VND = isset($_GET['correlation']) ? $_GET['correlation'] : '** MISSING **';
-error_log("tp_commit saw correlation_id of ".$VND);
-
-echo "\n";
+if ( $method == "PUT" || $method == "DELETE" ) {
+	http_response_code(200);
+} else {
+	http_response_code(400);
+}
 

@@ -181,26 +181,19 @@ $tp_profile->tool_profile->product_instance->service_provider->guid = "http://ww
 $tp_profile->tool_profile->resource_handler[0]->message[0]->path = "tool.php";
 $tp_profile->tool_profile->resource_handler[0]->resource_type->code = "sakai-api-test-01";
 
-// Only ask for parameters we are allowed to ask for 
+// Ask for all the parameter mappings we are interested in
 // Canvas rejects us if  we ask for a custom parameter that they did 
 // not offer as capability
-$parameters = $tp_profile->tool_profile->resource_handler[0]->message[0]->parameter;
 $newparms = array();
-foreach($parameters as $parameter) {
-    if ( isset($parameter->variable) ) {
-        if ( ! in_array($parameter->variable, $tc_capabilities) ) continue;
-    }
-    $newparms[] = $parameter;
+foreach($desired_parameters as $parameter) {
+    if ( ! in_array($parameter, $tc_capabilities) ) continue;
+    $np = new stdClass();
+    $np->variable = $parameter;
+    $np->name = strtolower(str_replace(".","_",$parameter));
+    $newparms[] = $np;
 }
 // var_dump($newparms);
 $tp_profile->tool_profile->resource_handler[0]->message[0]->parameter = $newparms;
-
-// Ask for the kitchen sink...
-foreach($tc_capabilities as $capability) {
-    if ( "basic-lti-launch-request" == $capability ) continue;
-    if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
-    $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
-}
 
 // Cause an error on registration
 // $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = "Give.me.the.database.password";
@@ -210,16 +203,32 @@ $tp_profile->tool_profile->base_url_choice[0]->default_base_url = $cur_base;
 
 // Make a split-secret if desired
 $oauth_splitsecret = in_array('OAuth.splitSecret', $tc_capabilities);
-$tp_half_secret = false;
+
+// We don't do oauth_split secret here because we have no storage
+// You can test split secret with this harness but launches will fail.
+// Comment out the line below to make it so this registers with split secret
+// But then expect LTI 2.x launches to fail with a bad signature.
+$oauth_splitsecret = false;
+
+$tp_half_shared_secret = false;
 if ( $oauth_splitsecret ) {
-    $tp_half_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
-    if ( strlen($tp_half_secret) != 128 ) {
-        echo('<p style="color: red">Warning secret length of '.strlen($tp_half_secret)." should be 128</p>\n");
+    $tp_half_shared_secret = bin2hex( openssl_random_pseudo_bytes( 512/8 ) ) ;
+    if ( strlen($tp_half_shared_secret) != 128 ) {
+        echo('<p style="color: red">Warning secret length of '.strlen($tp_half_shared_secret)." should be 128</p>\n");
     }
-    $tp_profile->security_contract->tp_half_secret = $tp_half_secret;
-    echo("Provider Half Secret:\n".$tp_half_secret."\n");
+    $tp_profile->security_contract->tp_half_shared_secret = $tp_half_shared_secret;
+    echo("Provider Half Secret:\n".$tp_half_shared_secret."\n");
 } else {
     $tp_profile->security_contract->shared_secret = $secret;
+}
+
+// Ask for the kitchen sink...
+foreach($tc_capabilities as $capability) {
+    if ( "basic-lti-launch-request" == $capability ) continue;
+    if ( $oauth_splitsecret === false && "OAuth.splitSecret" == $capability ) continue;
+
+    if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
+    $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
 }
 
 
@@ -271,17 +280,17 @@ togglePre("Registration Response Headers",htmlent_utf8(get_body_received_debug()
 
 togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
-$tc_half_secret = false;
+$tc_half_shared_secret = false;
 if ( $last_http_response == 201 || $last_http_response == 200 ) {
-    if ( $oauth_splitsecret && $tp_half_secret ) {
+    if ( $oauth_splitsecret && $tp_half_shared_secret ) {
         $responseObject = json_decode($response);
-        if ( isset($responseObject->tc_half_secret) ) {
-            $tc_half_secret = $responseObject->tc_half_secret;
-            echo("<p>tc_half_secret: ".$tc_half_secret."</p>\n");
-            if ( strlen($tc_half_secret) != 128 ) {
-                echo('<p style="color: red">Warning secret length of '.strlen($tc_half_secret)." should be 128</p>\n");
+        if ( isset($responseObject->tc_half_shared_secret) ) {
+            $tc_half_shared_secret = $responseObject->tc_half_shared_secret;
+            echo("<p>tc_half_shared_secret: ".$tc_half_shared_secret."</p>\n");
+            if ( strlen($tc_half_shared_secret) != 128 ) {
+                echo('<p style="color: red">Warning secret length of '.strlen($tc_half_shared_secret)." should be 128</p>\n");
             }
-            $split_secret = $tc_half_secret . $tp_half_secret;
+            $split_secret = $tc_half_shared_secret . $tp_half_shared_secret;
             $_SESSION['split_secret'] = $split_secret;
             echo("<p>Split Secret: ".$split_secret."</p>\n");
         } else {

@@ -41,8 +41,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -57,14 +55,15 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Web;
 
 /**
  * UserPrefsTool is the Sakai end-user tool to view and edit one's preferences.
@@ -1180,23 +1179,25 @@ public class UserPrefsTool
 		ordered.addAll(mySites);
 
 		// Now convert to SelectItem for display in JSF
-                String sitetablabel = getPrefTabLabel();
+		String sitetablabel = getPrefTabLabel();
 		for (Iterator iter = excluded.iterator(); iter.hasNext();)
 		{
 			Site element = (Site) iter.next();
-			// some short descriptins are empty or null
-			String shortdesc = element.getShortDescription();
-			if ((shortdesc == null) || ("".equals(shortdesc))){
-			    shortdesc = element.getTitle();
-			}
 
+			// SAK-29138
+			String title = getUserSpecificSiteTitle( element );
 			SelectItem excludeItem = null;
 
 			if ("1".equals(sitetablabel)) {
-			    excludeItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(element.getTitle(),null,null,null),element.getTitle());
+				excludeItem = new SelectItem(element.getId(), title, title);
 			}
 			else {
-			    excludeItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(shortdesc,null,null,null), shortdesc);
+				// some short descriptins are empty or null
+				String shortdesc = element.getShortDescription();
+				if ((shortdesc == null) || ("".equals(shortdesc))){
+					shortdesc = title;
+				}
+				excludeItem = new SelectItem(element.getId(), shortdesc, shortdesc);
 			}
 			prefExcludeItems.add(excludeItem);
 		}
@@ -1205,18 +1206,20 @@ public class UserPrefsTool
 		{
 			Site element = (Site) iter.next();
 
-			// some short descriptins are empty or null
-			String shortdesc = element.getShortDescription();
-			if ((shortdesc == null) || ("".equals(shortdesc))){
-			    shortdesc = element.getTitle();
-			}
-
+			// SAK-29138
+			String title = getUserSpecificSiteTitle( element );
 			SelectItem orderItem = null;
+
 			if ("1".equals(sitetablabel)) {
-			    orderItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(element.getTitle(),null,null,null), element.getTitle());
+				orderItem = new SelectItem(element.getId(), title, title);
 			}
 			else {
-			    orderItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(shortdesc,null,null,null), shortdesc);
+				// some short descriptins are empty or null
+				String shortdesc = element.getShortDescription();
+				if ((shortdesc == null) || ("".equals(shortdesc))){
+					shortdesc = title;
+				}
+				orderItem = new SelectItem(element.getId(), shortdesc, shortdesc);
 			}
 
 			prefOrderItems.add(orderItem);
@@ -1225,6 +1228,22 @@ public class UserPrefsTool
 		// release lock
 		m_preferencesService.cancel(m_edit);
 		return m_TabOutcome;
+	}
+
+	/**
+	 * SAK-29138 - Get the site or section title for the current user for the current site.
+	 * Takes into account 'portal.use.sectionTitle' sakai.property; if set to true,
+	 * this method will return the title of the section the current user is enrolled
+	 * in for the site (if it can be found). Otherwise, it will return the site
+	 * title (default behaviour)
+	 * 
+	 * @param site the site in question
+	 * @return the site or section title
+	 */
+	public static String getUserSpecificSiteTitle( Site site )
+	{
+		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
+		return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
 	}
 
 	/**

@@ -163,16 +163,6 @@
 
         <script>
         PNotify.prototype.options.styling = "jqueryui";
-/*
-        PNotify.prototype.options.delay = 60000;  // For easier testing
-        ${d}PBJQ(function(){
-            new PNotify({
-                title: 'Testing title',
-                text: 'Testing text',
-                type: 'notice'
-            });
-        });  // End for easier testing of PNotify styling
-*/
         function portal_check_pnotify() {
             ${d}PBJQ.getJSON( "/direct/portal/notify.json", function( data ) {
                 for(i=0; i<data.error.length; i++ ) {
@@ -196,6 +186,7 @@
 <![endif]-->
  
         #parse("/vm/morpheus/includeAnalytics.vm")
+        #parse("/vm/morpheus/includePASystem.vm")
 
         #parse("/vm/morpheus/includeCookieNotice.vm")
 

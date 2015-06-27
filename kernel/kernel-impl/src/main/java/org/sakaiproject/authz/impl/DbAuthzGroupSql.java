@@ -22,7 +22,6 @@
 package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * database methods.

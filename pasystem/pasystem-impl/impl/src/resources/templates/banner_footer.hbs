@@ -1,0 +1,18 @@
+<script id="pasystemBannerAlertsTemplate" type="text/template">
+  <div class="pasystem-banner-alert pasystem-banner-${type}" id="${id}">
+    <span class="pasystem-banner-alert-message">${message}</span>
+    {if dismissible}<a class="pasystem-banner-alert-close" href="javascript:void(0)"></a>{/if}
+  </div>
+</script>
+<script id="pasystemBannerAlertsToggleTemplate" type="text/template">
+  <li class="pasystem-banner-alert-toggle-list-item">
+    <a href="javscript:void(0)" class="pasystem-banner-alert-toggle">
+      {{{t this "Show System Alerts"}}}
+    </a>
+  </li>
+</script>
+<script>
+  if (pasystem) {
+    pasystem['banners'] = new PASystemBannerAlerts({{{bannerJSON}}}, "{{sakai_csrf_token}}");
+  }
+</script>

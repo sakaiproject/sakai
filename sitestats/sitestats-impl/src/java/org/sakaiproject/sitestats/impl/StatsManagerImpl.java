@@ -70,6 +70,7 @@ import org.sakaiproject.sitestats.api.ResourceStat;
 import org.sakaiproject.sitestats.api.SiteActivity;
 import org.sakaiproject.sitestats.api.SiteActivityByTool;
 import org.sakaiproject.sitestats.api.SitePresence;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.SiteVisits;
 import org.sakaiproject.sitestats.api.Stat;
 import org.sakaiproject.sitestats.api.StatsManager;
@@ -1694,6 +1695,26 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			}
 		};
 		return (Integer) getHibernateTemplate().execute(hcb);
+	}
+
+	public Map<String, SitePresenceTotal> getPresenceTotalsForSite(final String siteId) {
+
+		HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				String hql = "FROM SitePresenceTotalImpl st WHERE st.siteId = :siteId";
+				Query q = session.createQuery(hql);
+				q.setString("siteId", siteId);
+				LOG.debug("getPresenceTotalsForSite(): " + q.getQueryString());
+				return q.list();
+			}
+		};
+
+		final Map<String, SitePresenceTotal> totals = new HashMap<String, SitePresenceTotal>();
+		List<SitePresenceTotal> siteTotals = (List<SitePresenceTotal>) getHibernateTemplate().execute(hcb);
+		for (SitePresenceTotal total : siteTotals) {
+			totals.put(total.getUserId(), total);
+		}
+		return totals;
 	}
 
 	

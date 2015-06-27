@@ -519,7 +519,7 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.0.1</version>
+        <version>2.4</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1417,6 +1417,12 @@
       <dependency>
         <groupId>org.sakaiproject</groupId>
         <artifactId>sakai-contentreview-service-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.pasystem</groupId>
+        <artifactId>pasystem-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>

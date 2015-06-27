@@ -22,7 +22,6 @@
 package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
@@ -31,7 +30,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.portal.api.Portal;
@@ -42,7 +40,6 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
-import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
 
 /**
@@ -153,9 +150,9 @@ public class WorksiteHandler extends PageHandler
 		// store the last page visited
 		session.setAttribute(Portal.ATTR_SITE_PAGE + siteId, page.getId());
 
-		// form a context sensitive title
+		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ site.getTitle() + " : " + page.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + page.getTitle();
 
 		// start the response
 		String siteType = portal.calcSiteType(siteId);

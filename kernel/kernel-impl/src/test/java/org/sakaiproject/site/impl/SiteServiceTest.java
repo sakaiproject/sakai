@@ -24,17 +24,13 @@ package org.sakaiproject.site.impl;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.db.api.SqlService;
-import org.sakaiproject.email.api.EmailService;
 import org.sakaiproject.entity.api.EntityManager;
-import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.javax.PagingPosition;
@@ -45,8 +41,6 @@ import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.tool.api.ActiveToolManager;
 import org.sakaiproject.tool.api.SessionManager;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
 
 /**
  * <p>
@@ -174,5 +168,11 @@ public class SiteServiceTest extends DbSiteService
 	public List<String> getSiteIds(SelectionType type, Object ofType, String criteria, Map<String, String> propertyCriteria, SortType sort, PagingPosition page, boolean requireDescription, String userId)
 	{
 		return new ArrayList<String>(0);
+	}
+
+	@Override
+	public String getUserSpecificSiteTitle( Site site, String userID )
+	{
+		return null;
 	}
 }

@@ -326,11 +326,13 @@ public class LTI2Servlet extends HttpServlet {
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", getServiceURL(request), cnf);
 
 		// Normally we would check permissions before we offer capabilities
-		List<String> capabilities = consumer.getCapability_offered();
-		LTI2Util.allowEmail(capabilities);
-		LTI2Util.allowName(capabilities);
-		LTI2Util.allowSettings(capabilities);
-		LTI2Util.allowResult(capabilities);
+		consumer.allowEmail();
+		consumer.allowName();
+		consumer.allowSettings();
+		consumer.allowResult();
+		// Keep our life simple
+                // consumer.allowSplitSecret();
+                // consumer.allowHmac256();
 
 		// Normally we would check permissions before we offer services
 		List<Service_offered> services = consumer.getService_offered();
