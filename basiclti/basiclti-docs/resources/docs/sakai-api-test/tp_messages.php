@@ -165,6 +165,7 @@ $desired_parameters = array(
     "Person.name.full",
     "Person.name.given",
     "Person.name.family",
+"Person.sourcedId",
 "CourseOffering.label",
 "CourseOffering.title",
 "CourseOffering.sourcedId",
