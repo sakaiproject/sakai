@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.behavior.Behavior;
@@ -71,13 +72,29 @@ public class GradeImportConfirmationStep extends Panel {
                 itemsToSave.addAll(itemsToCreate);
                 for (ProcessedGradeItem processedGradeItem : itemsToSave) {
                     LOG.debug("Looping through items to save");
-                    //TODO this loops through grades and comments separately...need to figure out a better way
                     for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
                         LOG.debug("Looping through detail items to save");
                         GradeSaveResponse saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentUuid(),
                                 processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
-                        //Anything other than OK and NO_CHANGE is bad
-                        if (!(saved == GradeSaveResponse.OK || saved == GradeSaveResponse.NO_CHANGE)) {
+
+                        if (saved == GradeSaveResponse.NO_CHANGE) {
+                            //Check for changed comments
+                            String currentComment = businessService.getAssignmentGradeComment(processedGradeItem.getItemId(),
+                                    processedGradeItemDetail.getStudentUuid());
+
+                            currentComment = StringUtils.trimToNull(currentComment);
+                            String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
+                            if (!StringUtils.equals(currentComment, newComment)) {
+                                boolean success = businessService.updateAssignmentGradeComment(processedGradeItem.getItemId(),
+                                        processedGradeItemDetail.getStudentUuid(), newComment);
+                                LOG.info("Saving comment: " + success + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentEid() + ", " +
+                                        processedGradeItemDetail.getComment());
+                                if (!success) {
+                                    errors = true;
+                                }
+                            }
+                        } else if (saved != GradeSaveResponse.OK) {
+                            //Anything other than OK is bad
                             errors = true;
                         }
                         LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentEid() + ", " +
