@@ -6,17 +6,22 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormValidatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.TextArea;
+import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.apache.wicket.util.time.Duration;
+import org.apache.wicket.validation.validator.StringValidator;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -80,10 +85,10 @@ public class EditGradeCommentPanel extends Panel {
 					window.close(target);
 				} else {
 					
-					System.out.println("error");
-					error(getString("message.edititem.error")); //need feedbackpanel for this
+					//TODO need to handle the error here
 				}
 			}
+			
 		};
 		form.add(submit);
 		
@@ -102,10 +107,13 @@ public class EditGradeCommentPanel extends Panel {
         GbUser user = this.businessService.getUser(studentUuid);
         Assignment assignment = this.businessService.getAssignment(assignmentId);
         add(new Label("heading", new StringResourceModel("heading.editcomment", null, new Object[] {user.getDisplayName(), user.getDisplayId(), assignment.getName()})));
-      	
+      	        
 		//textarea
-		form.add(new TextArea<String>("comment"));
+		form.add(new TextArea<String>("comment").add(StringValidator.maximumLength(500)));
 
+		//instant validation
+		//AjaxFormValidatingBehavior.addToAllFormComponents(form, "onkeyup", Duration.ONE_SECOND);
+		
 		add(form);
 	}
 	

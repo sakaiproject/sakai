@@ -1126,7 +1126,7 @@ public class GradebookNgBusinessService {
     		 //could do a check here to ensure we aren't overwriting someone else's comment that has been updated in the interim...
     		 this.gradebookService.setAssignmentScoreComment(gradebook.getUid(), assignmentId, studentUuid, comment);
     		 return true;
-    	 } catch (GradebookNotFoundException | AssessmentNotFoundException e) {
+    	 } catch (GradebookNotFoundException | AssessmentNotFoundException | IllegalArgumentException e) {
  			log.error("An error occurred saving the comment. " + e.getClass() + ": " + e.getMessage());
     	 }
     	 
