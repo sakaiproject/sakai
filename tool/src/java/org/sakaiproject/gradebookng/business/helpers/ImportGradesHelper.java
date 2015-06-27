@@ -349,7 +349,9 @@ public class ImportGradesHelper extends BaseImportHelper {
                 }
 
                 if (column.getType() == ImportColumn.TYPE_ITEM_WITH_POINTS) {
-                    if (importedScore != null && !importedScore.equals(actualScore)) {
+                    String trimmedImportedScore = StringUtils.removeEnd(importedScore, ".0");
+                    String trimmedActualScore = StringUtils.removeEnd(actualScore, ".0");
+                    if (trimmedImportedScore != null && !trimmedImportedScore.equals(trimmedActualScore)) {
                         status = new ProcessedGradeItemStatus(ProcessedGradeItemStatus.STATUS_UPDATE);
                         break;
                     }
