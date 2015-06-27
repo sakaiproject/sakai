@@ -20,7 +20,7 @@ import lombok.Setter;
 
 /**
  * MessageEntity
- * 
+ *
  * @author Earle Nietzel
  *         (earle.nietzel@gmail.com)
  *
@@ -29,7 +29,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class MessageEntity {
-	private long id;
+public class SearchEntity {
 	private String value;
+	private String locale;
 }

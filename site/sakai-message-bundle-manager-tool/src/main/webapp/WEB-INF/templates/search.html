@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:dt="http://github.com/dandelion/datatables">
+<head th:replace="fragments/common :: head" />
+<body>
+  <div th:replace="fragments/common :: bootstrap" />
+  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})" />
+  <div th:if="${isLoadBundlesFromDb} and ${isAdmin}">
+    <div class="portletBody">
+      <div id="menu" th:include="fragments/menus :: main (search)" />
+      <h3 th:text="#{search.searchMessages}">Search Messages</h3>
+      <form id="searchForm" class="form-inline" action="#" th:action="@{/search}" th:object="${searchEntity}" method="post">
+        <label for="searchValue" class="control-label" th:text="#{search.text}">Enter text</label>
+        <input type="text" class="form-control" id="searchValue" th:placeholder="${value}" th:field="*{value}" />
+        <label for="localeSelect" class="control-label" th:text="#{search.locale.select}">Select a Locale</label>
+        <select id="localeSelect" class="form-control" th:field="*{locale}">
+          <option th:each="locale : ${listMessagePropertyLocales}" th:value="${locale}" th:text="${locale}">locale</option>
+        </select>
+        <button type="submit" class="btn btn-primary" name="search" th:text="#{search.search}">Search</button>
+      </form>
+      <div th:switch="${ #lists.isEmpty(properties) }">
+        <div th:case="true">
+          <div class="alert alert-info" role="alert" th:text="#{search.entertext}">Please enter the text to search for in the provided field.</div>
+        </div>
+        <div th:case="false">
+          <table id="searchTable" dt:table="true">
+            <thead>
+              <tr>
+                <th dt:filterable="false" dt:sortable="false" dt:searchable="false"></th>
+                <th th:text="#{mbp.id}" dt:sortable="false" dt:searchable="false">Id</th>
+                <th th:text="#{mbp.moduleName}" dt:sortable="false" dt:searchable="false">Module Name</th>
+                <th th:text="#{mbp.propertyName}">Property Name</th>
+                <th th:text="#{mbp.value}">Value</th>
+                <th th:text="#{mbp.defaultValue}">Default Value</th>
+                <th th:text="#{mbp.locale}" dt:sortable="false" dt:searchable="false">Locale</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr th:each="property : ${properties}">
+                <td><a href="edit" class="btn btn-default btn-xs btn-block" role="button" th:href="@{/edit(id=${property?.id})}" th:text="#{search.edit}">Edit</a></td>
+                <td th:text="${property?.id}">0</td>
+                <td th:text="${property?.moduleName}">moduleName</td>
+                <td th:text="${property?.propertyName}">propertyName</td>
+                <td th:text="${property?.value}">value</td>
+                <td th:text="${property?.defaultValue}">defaultValue</td>
+                <td th:text="${property?.locale}">locale</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
