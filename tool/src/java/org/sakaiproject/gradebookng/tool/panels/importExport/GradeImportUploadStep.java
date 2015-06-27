@@ -1,8 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels.importExport;
 
 import au.com.bytecode.opencsv.CSVWriter;
-
 import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.form.Button;
@@ -19,9 +19,9 @@ import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.helpers.ImportGradesHelper;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.ImportedGradeWrapper;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
-import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -95,7 +95,8 @@ public class GradeImportUploadStep extends Panel {
             header.add("Student Name");
 
             for (Assignment assignment : assignments) {
-                header.add(assignment.getName() + " [" + assignment.getPoints() + "]");
+                String assignmentPoints = assignment.getPoints().toString();
+                header.add(assignment.getName() + " [" + StringUtils.removeEnd(assignmentPoints, ".0") + "]");
                 header.add("*/ " + assignment.getName() + " Comments */");
             }
 
@@ -104,12 +105,12 @@ public class GradeImportUploadStep extends Panel {
             for (GbStudentGradeInfo studentGradeInfo : grades) {
                 List<String> line = new ArrayList<String>();
                 line.add(studentGradeInfo.getStudentEid());
-                line.add(studentGradeInfo.getStudentDisplayName());
+                line.add(studentGradeInfo.getStudentLastName() + ", " + studentGradeInfo.getStudentFirstName());
                 if (includeGrades) {
                     for (Assignment assignment : assignments) {
                         GbGradeInfo gradeInfo = studentGradeInfo.getGrades().get(assignment.getId());
                         if (gradeInfo != null) {
-                            line.add(gradeInfo.getGrade());
+                            line.add(StringUtils.removeEnd(gradeInfo.getGrade(), ".0"));
                             line.add(gradeInfo.getGradeComment());
                         } else {
                             // Need to account for no grades
