@@ -540,7 +540,7 @@ public interface LTIService {
 		"resource_handler:text:label=bl_resource_handler:maxlength=1024:only=lti2",
 		"deployment_id:integer:hidden=true",
 		"lti2_launch:header:fields=launch,consumerkey,secret:only=lti2",
-		"launch:url:label=bl_launch:maxlength=1024",
+		"launch:url:label=bl_launch:maxlength=1024:required=true",
 		"allowlaunch:radio:label=bl_allowlaunch:choices=disallow,allow:only=lti1",
 		"consumerkey:text:label=bl_consumerkey:maxlength=1024",
 		"allowconsumerkey:radio:label=bl_allowconsumerkey:choices=disallow,allow:only=lti1",
