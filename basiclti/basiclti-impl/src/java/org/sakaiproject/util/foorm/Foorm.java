@@ -9,7 +9,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *		   http://www.opensource.org/licenses/ECL-2.0
+ *    http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -45,6 +45,10 @@ public class Foorm {
 	public static String NUMBER_TYPE = "java.lang.Number";
 	public static String STRING_TYPE = "java.lang.String";
 
+	// Anything longer than this is treated as "LONG TEXT"
+	// With multiple megabytes of text possible
+	// Make this larger than 2^16 (65535)
+	public static int MAX_TEXT = 70000;
 
 	// Parse a form field description
 	// field:type:key=value:key2=value2
@@ -1041,11 +1045,13 @@ public class Foorm {
 				if ( errors != null ) errors.put(label, error);
 			}
 
-			String maxs = info.getProperty("maxlength", null);
+			String maxs = adjustMax(info.getProperty("maxlength", null));
 			if (maxs != null && dataField instanceof String) {
 				int maxlength = (new Integer(maxs)).intValue();
 				String truncate = info.getProperty("truncate", "true");
-				if (sdf.length() > maxlength) {
+				if ( maxlength >= MAX_TEXT ) {
+					// We are OK
+				} else if (sdf.length() > maxlength) {
 					if ("true".equals(truncate)) {
 						sdf = sdf.substring(0, maxlength);
 						dataField = sdf;
@@ -1354,7 +1360,7 @@ public class Foorm {
 		String field = info.getProperty("field", null);
 		String type = info.getProperty("type", null);
 		if ( "header".equals(type) ) return null;
-		String maxs = info.getProperty("maxlength", null);
+		String maxs = adjustMax(info.getProperty("maxlength", null));
 		int maxlength = 0;
 		if (maxs != null)
 			maxlength = (new Integer(maxs)).intValue();
@@ -1397,12 +1403,16 @@ public class Foorm {
 					schema = "CLOB";
 				}
 			} else if ("hsqldb".equals(vendor)) {
-				schema = "VARCHAR(" + maxlength + ")";
-			} else {
-				if (maxlength < 512) {
+				if ( maxlength < 4000 ) {
 					schema = "VARCHAR(" + maxlength + ")";
 				} else {
-					schema = "TEXT(" + maxlength + ")";
+					schema = "CLOB";
+				}
+			} else {
+				if (maxlength < 4000) {
+					schema = "VARCHAR(" + maxlength + ")";
+				} else {
+					schema = "MEDIUMTEXT";
 				}
 			}
 		} else if ("radio".equals(type) || "checkbox".equals(type) ) {
@@ -1449,7 +1459,7 @@ public class Foorm {
 			String field = info.getProperty("field", null);
 			String type = info.getProperty("type", null);
 			if ( "header".equals(type) ) continue;
-			String maxs = info.getProperty("maxlength", null);
+			String maxs = adjustMax(info.getProperty("maxlength", null));
 			int maxlength = 0;
 			if (maxs != null) maxlength = (new Integer(maxs)).intValue();
 			if (maxlength < 1) maxlength = 80;
@@ -1473,8 +1483,8 @@ public class Foorm {
 				// ignore
 			}
 
-			// System.out.println( field + " (" + maxlength + ") type="+type);
-			// System.out.println( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
+			System.out.println( field + " (" + maxlength + ") type="+type);
+			System.out.println( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
 			//  If the field is not there...
 			if ( sqlType == null ) {
 				if ( "oracle".equals(vendor) ) {
@@ -1665,6 +1675,18 @@ public class Foorm {
 			int recordCount = (endRec - startRec) + 1;
 			return sqlIn + " limit " + startRec + "," + recordCount;
 		}
+	}
+
+	/**
+	 * Deal with suffixes like "M" and "K"
+         */
+	public String adjustMax(String maxs)
+	{
+		if ( maxs == null ) return null;
+		maxs = maxs.toLowerCase();
+		if ( maxs.endsWith("m")) maxs = maxs.replace("m","000000");
+		if ( maxs.endsWith("k")) maxs = maxs.replace("k","000");
+		return maxs;
 	}
 
 }
