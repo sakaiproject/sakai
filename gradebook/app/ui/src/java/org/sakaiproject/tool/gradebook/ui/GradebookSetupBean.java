@@ -58,6 +58,7 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
     private boolean showDropHighestDisplayed;
     private boolean showDropLowestDisplayed;
     private boolean showKeepHighestDisplayed;
+	private boolean showEqualWeightAssignments;
     private boolean anyCategoriesWithDrops;
 	private List categories;
 	private Gradebook localGradebook;
@@ -133,6 +134,12 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         } else {
             showKeepHighestDisplayed = false;
         }
+
+		if(getAnyCategoriesWithEqualWeightAssignments()) {
+			showEqualWeightAssignments = true;
+		} else {
+			showEqualWeightAssignments = false;
+		}
 	}
     
     /*
@@ -280,6 +287,14 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         this.showKeepHighestDisplayed = showKeepHighestDisplayed;
     }
 
+	public boolean getShowEqualWeightAssignments() {
+		return this.showEqualWeightAssignments;
+	}
+
+	public void setShowEqualWeightAssignments(boolean showEqualWeightAssignments) {
+		this.showEqualWeightAssignments = showEqualWeightAssignments;
+	}
+
     public void setAnyCategoriesWithDropHighest(boolean anyCategoriesWithDropHighest) {
     }
 
@@ -288,6 +303,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 
     public void setAnyCategoriesWithKeepHighest(boolean anyCategoriesWithKeepHighest) {
     }
+    
+	public void setAnyCategoriesWithEqualWeightAssignments(boolean anyCategoriesWithEqualWeightAssignments){
+	}
     
     public boolean getAnyCategoriesWithDropHighest() {
         boolean anyDrops = false;
@@ -336,6 +354,22 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
         }
         return anyDrops;
     }
+
+	public boolean getAnyCategoriesWithEqualWeightAssignments() {
+		boolean anyEquals = false;
+		if(categories !=null) {
+			for(Object obj : categories) {
+				if(obj instanceof Category) {
+					Category category = (Category)obj;
+					anyEquals = category.isEqualWeightAssignments();
+					setShowEqualWeightAssignments(anyEquals);
+					if(anyEquals)
+						break;
+				}
+			}
+		}
+		return anyEquals;
+	}
 
 	/**
 	 * 
@@ -624,9 +658,9 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 					if (categoryId == null) {
 						// must be a new or blank category
 						if (uiCategory.getWeight() != null && uiCategory.getWeight().doubleValue() > 0) {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.isExtraCredit());
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), new Double(uiCategory.getWeight().doubleValue()/100), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.isExtraCredit(), uiCategory.isEqualWeightAssignments());
 						} else {
-							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.isExtraCredit());
+							getGradebookManager().createCategory(localGradebook.getId(), categoryName.trim(), uiCategory.getWeight(), uiCategory.getDrop_lowest(), uiCategory.getDropHighest(), uiCategory.getKeepHighest(), uiCategory.isExtraCredit(), uiCategory.isEqualWeightAssignments());
 						}
 					}
 					else {
@@ -641,6 +675,10 @@ public class GradebookSetupBean extends GradebookDependentBean implements Serial
 						if (uiCategory.isExtraCredit()!=null)
 						{
 							updatedCategory.setExtraCredit(uiCategory.isExtraCredit());
+						}
+						if (uiCategory.isEqualWeightAssignments()!=null)
+						{
+							updatedCategory.setEqualWeightAssignments(uiCategory.isEqualWeightAssignments());
 						}
 						
 						updatedCategory.setDrop_lowest(uiCategory.getDrop_lowest());

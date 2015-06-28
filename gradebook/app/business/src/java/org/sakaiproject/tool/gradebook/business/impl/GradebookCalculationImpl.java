@@ -23,15 +23,7 @@
 package org.sakaiproject.tool.gradebook.business.impl;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -220,6 +212,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 
 		Map cateScoreMap = new HashMap();
 		Map cateTotalScoreMap = new HashMap();
+		Map assignmentsScoreCompleteMap = new HashMap();
 
 		Set assignmentsTaken = new HashSet();
 		for (AssignmentGradeRecord gradeRec : gradeRecs)
@@ -252,23 +245,29 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 								if(cate != null && !cate.isRemoved() && go.getCategory() != null && cate.getId().equals(go.getCategory().getId()))
 								{
 									assignmentsTaken.add(go.getId());
-									literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
-									if(cateScoreMap.get(cate.getId()) != null)
+
+									if (cate.isEqualWeightAssignments())
 									{
-										cateScoreMap.put(cate.getId(), new Double(((Double)cateScoreMap.get(cate.getId())).doubleValue() + pointsEarned.doubleValue()));
+										addAssignmentToMap(assignmentsScoreCompleteMap, cate.getId(), pointsEarned, go);
+										literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue() / go.getPointsPossible() * cate.getWeight())).add(literalTotalPointsEarned);
 									}
 									else
 									{
-										cateScoreMap.put(cate.getId(), new Double(pointsEarned));
+										literalTotalPointsEarned = (new BigDecimal(pointsEarned.doubleValue())).add(literalTotalPointsEarned);
+										if (cateScoreMap.get(cate.getId()) != null) {
+											cateScoreMap.put(cate.getId(), new Double(((Double) cateScoreMap.get(cate.getId())).doubleValue() + pointsEarned.doubleValue()));
+										} else {
+											cateScoreMap.put(cate.getId(), new Double(pointsEarned));
+										}
+										break;
 									}
-									break;
 								}
 							}
 						}
 					}
-					
-						
-					
+
+
+
 				
 			}			
 		}
@@ -310,9 +309,42 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 			for(int i=0; i<categories.size(); i++)
 			{
 				Category cate = (Category) categories.get(i);
-				if(cate != null && !cate.isRemoved() && cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null)
+				if(cate != null && !cate.isRemoved() && ((cateScoreMap.get(cate.getId()) != null && cateTotalScoreMap.get(cate.getId()) != null) || (assignmentsScoreCompleteMap.get(cate.getId()) != null && assignmentsScoreCompleteMap.get(cate.getId()) != null)))
 				{
-					totalPointsEarned += ((Double)cateScoreMap.get(cate.getId())).doubleValue() * cate.getWeight().doubleValue() / ((Double)cateTotalScoreMap.get(cate.getId())).doubleValue();
+					if(cate.isEqualWeightAssignments())
+					{
+						HashMap assignments = (HashMap)assignmentsScoreCompleteMap.get(cate.getId());
+						int numExtraCredit = 0;
+						int numAssignments = 0;
+						Double categoryPointsEarned = 0.0;
+
+						Iterator it = assignments.entrySet().iterator();
+						do {
+							Map.Entry pair = (Map.Entry)it.next();
+							Assignment assn = (Assignment)pair.getKey();
+							Double[] value = (Double[])pair.getValue();
+							if(log.isDebugEnabled())
+							{
+								log.debug("UD: SAKAI-1963: While loop, assn " + assn.getName() + " value " + value[0] + " " + value[1]);
+							}
+
+							if(assn.isExtraCredit())
+							{
+								numExtraCredit++;
+							}
+							categoryPointsEarned += (value[0] / value[1]);
+							numAssignments++;
+
+							it.remove(); // avoids a ConcurrentModificationException
+						} while (it.hasNext());
+						Double points = categoryPointsEarned / (numAssignments - numExtraCredit) * cate.getWeight();
+						totalPointsEarned = totalPointsEarned + points;
+						literalTotalPointsEarned = (new BigDecimal(points.doubleValue() )).add(literalTotalPointsEarned);
+					}
+					else
+					{
+						totalPointsEarned += ((Double) cateScoreMap.get(cate.getId())).doubleValue() * cate.getWeight().doubleValue() / ((Double) cateTotalScoreMap.get(cate.getId())).doubleValue();
+					}
 				}
 			}
 		}
@@ -360,6 +392,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 
 		Set assignmentsTaken = new HashSet();
 		Set categoryTaken = new HashSet();
+		Map assignmentsScoresCompleteMap = new HashMap();
 		for (AssignmentGradeRecord gradeRec : countedGradeRecs)
 		{
 		    if (gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("")) 
@@ -387,6 +420,10 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		                    {
 		                        assignmentsTaken.add(go.getId());
 		                        categoryTaken.add(cate.getId());
+		                        if(cate.isEqualWeightAssignments())
+		                        {
+		                            addAssignmentToMap(assignmentsScoresCompleteMap, cate.getId(), pointsEarned, go);
+		                        }
 		                        break;
 		                    }
 		                }
@@ -426,7 +463,22 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 						totalPointsPossible += pointsPossible.doubleValue();
 					}else if(literalTotal && gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY && assignmentsTaken.contains(asn.getId()))
 					{
-						totalPointsPossible += pointsPossible.doubleValue();
+						Category assignmentCategory = asn.getCategory();
+						if(assignmentCategory.isEqualWeightAssignments())
+						{
+							if(!asn.isExtraCredit())
+							{
+								totalPointsPossible += assignmentCategory.getWeight();
+							}
+							if (log.isDebugEnabled())
+							{
+								log.debug("UD: SAKAI-1963, catTotalPointsPossible: " + assignmentCategory.getWeight() + " totalPointsPossible: " + totalPointsPossible);
+							}
+						}
+						else
+						{
+							totalPointsPossible += pointsPossible.doubleValue();
+						}
 					}
 				}
 			}
@@ -441,4 +493,16 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
     public void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords) {
         super.applyDropScores(gradeRecords);
     }
+
+
+	private void addAssignmentToMap(Map completeScoresMap, Long assignmentCategoryID, Double pointsEarned, Assignment go)
+	{
+		Map assignments = new HashMap<Assignment, Double[]>();
+		if(completeScoresMap.get(assignmentCategoryID) != null) {
+			assignments = (Map) completeScoresMap.get(assignmentCategoryID);
+		}
+		Double[] assignmentPoints = {pointsEarned, go.getPointsPossible()};
+		assignments.put(go, assignmentPoints);
+		completeScoresMap.put(assignmentCategoryID, assignments);
+	}
 }

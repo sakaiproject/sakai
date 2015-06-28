@@ -478,8 +478,39 @@ public class ViewByStudentBean extends EnrollmentTableBean implements Serializab
        					asnGradeRow.setScore(truncateScore(asnGr.getPointsEarned())); 
        				else if (getGradeEntryByLetter())
        					asnGradeRow.setLetterScore(asnGr.getLetterEarned());
+
+
+       				Category assignmentGradeRowCategory = asnGrAssignment.getCategory();
+       				int numOfExtraCreditAssignments = 0;
+       				int numOfDroppedAssignments = 0;
+       				int numOfTotalAssignments = 0;
+       				if(assignmentGradeRowCategory != null && assignmentGradeRowCategory.isEqualWeightAssignments()){
+       					String currentStudent = asnGr.getStudentId();
+
+       					for(int i =0; i < gradeRecords.size(); i++){
+                            AssignmentGradeRecord assignmentGradeRecord = (AssignmentGradeRecord)gradeRecords.get(i);
+                            boolean sameStudent = assignmentGradeRecord.getStudentId().equals(currentStudent);
+                            boolean sameCategory = assignmentGradeRecord.getAssignment().getCategory().getId().equals(assignmentGradeRowCategory.getId());
+                            if(sameStudent && sameCategory){
+                                if(assignmentGradeRecord.getDroppedFromGrade()){
+                                    numOfDroppedAssignments++;
+                                }
+                                if(assignmentGradeRecord.getAssignment().isExtraCredit()){
+                                    numOfExtraCreditAssignments++;
+                                }
+                                if(assignmentGradeRecord.getAssignment().isCounted()) {
+                                    numOfTotalAssignments++;
+                                }
+                            }
+       					}
+       				}
+       				if(numOfTotalAssignments != 0){
+                        logger.debug("NumTotalAssign: " + numOfTotalAssignments + " numOfExtraCreditAssign: " + numOfExtraCreditAssignments + " numOfDropped: " + numOfDroppedAssignments);
+                        Double overallWeight = assignmentGradeRowCategory.getWeight() / (numOfTotalAssignments - numOfExtraCreditAssignments - numOfDroppedAssignments);
+                        asnGradeRow.setOverallWeight(overallWeight);
+       				}
         		}
-            }    		
+    		}
     	}
 
     	Map goEventListMap = getGradebookManager().getGradingEventsForStudent(studentUid, assignments);

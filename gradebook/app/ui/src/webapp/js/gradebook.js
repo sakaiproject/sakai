@@ -300,6 +300,7 @@ function reEnableCategoryDropInputs(component) {
                         || currentElementName.indexOf(":dropHighest") != -1
                         || currentElementName.indexOf(":dropLowest") != -1
                         || currentElementName.indexOf(":keepHighest") != -1
+                        || currentElement.name.indexOf(":equalWeightAssignments") != -1
 					)) {
                         // Recursive function call
                     reEnableCategoryDropInputs(currentElement);
@@ -316,9 +317,11 @@ function toggleVisibilityDropScoresFields() {
     var showDropHighest = getTheElement(formName + ":showDropHighest");
     var showDropLowest = getTheElement(formName + ":showDropLowest");
     var showKeepHighest = getTheElement(formName + ":showKeepHighest");
+    var showEqualWeightAssignments = getTheElement(formName + ":showEqualWeightAssignments");
     var dropHighestVisibility = ""; // an unspecified display makes the column and column header visible
     var dropLowestVisibility = ""; // an unspecified display makes the column and column header visible
     var keepHighestVisibility = ""; // an unspecified display makes the column and column header visible
+    var equalWeightAssignmentsVisibility = "";
     var itemValueVisibility = "";
     var tbl  = document.getElementById(formName + ":categoriesTable");
     if(!tbl) {
@@ -330,10 +333,10 @@ function toggleVisibilityDropScoresFields() {
     var header = thead.item(0);
     var headerRows = header.getElementsByTagName('th');
 
-    if(headerRows.length == 7) {
-        var dropHighestIdx = 3;  // the index of 1st drop column, if Categories is selected
+    if(headerRows.length == 9) {
+        var dropHighestIdx = 4;  // the index of 1st drop column, if Categories is selected
     } else {
-        var dropHighestIdx = 4;  // the index of 1st drop column, if Categories & Weighting is selected
+        var dropHighestIdx = 5;  // the index of 1st drop column, if Categories & Weighting is selected
     }
 
     if(showDropHighest == undefined || showDropHighest.checked == false) {
@@ -345,15 +348,20 @@ function toggleVisibilityDropScoresFields() {
     if(showKeepHighest == undefined || showKeepHighest.checked == false) {
         keepHighestVisibility = "none";      // make the column and column header not visible
     }
+    if(showEqualWeightAssignments == undefined || showEqualWeightAssignments.checked == false) {
+        equalWeightAssignmentsVisibility = "none";
+    }
     if((showDropHighest == undefined || showDropHighest.checked == false)
             && (showDropLowest == undefined || showDropLowest.checked == false)
-            && (showKeepHighest == undefined || showKeepHighest.checked == false)) {
+            && (showKeepHighest == undefined || showKeepHighest.checked == false)
+            && (showEqualWeightAssignments == undefined || showEqualWeightAssignments.checked == false)) {
         itemValueVisibility = "none";      // make the column and column header not visible
     }
 
     headerRows[dropHighestIdx].style.display=dropHighestVisibility;
     headerRows[dropHighestIdx+1].style.display=dropLowestVisibility;
     headerRows[dropHighestIdx+2].style.display=keepHighestVisibility;
+    headerRows[dropHighestIdx+3].style.display=equalWeightAssignmentsVisibility;
   //  headerRows[dropHighestIdx+3].style.display=itemValueVisibility;
     var rows = tbl.getElementsByTagName('tr');
     for (var row=0; row<rows.length;row++) {
@@ -362,6 +370,7 @@ function toggleVisibilityDropScoresFields() {
             cels[dropHighestIdx].style.display=dropHighestVisibility;
             cels[dropHighestIdx+1].style.display=dropLowestVisibility;
             cels[dropHighestIdx+2].style.display=keepHighestVisibility;
+            cels[dropHighestIdx+3].style.display=equalWeightAssignmentsVisibility;
   //          cels[dropHighestIdx+3].style.display=itemValueVisibility; 
         }
     }

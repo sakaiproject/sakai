@@ -225,6 +225,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
     		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
+            	assignmentDefinition.setCategoryEqualWeightAssignments(internalAssignment.getCategory().isEqualWeightAssignments());
     	}
     	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
@@ -415,7 +416,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 					if (assignmentDef.getCategoryName() != null) {
 						if(!newCategory) {}
 						else if(newCategory && categoryCount == 1) {
-							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0, 0, 0, assignmentDef.isCategoryExtraCredit());
+							catId = createCategory(gradebook.getId(), assignmentDef.getCategoryName(), assignmentDef.getWeight(), 0, 0, 0, assignmentDef.isCategoryExtraCredit(),assignmentDef.isCategoryEqualWeightAssignments());
 							Category catTempt = getCategory(catId);
 							
 							catList_tempt.add(catTempt);
@@ -462,7 +463,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Iterator itUpdate = catList.iterator();
 			while(itUpdate.hasNext()){
 				Category catObj = (Category)itUpdate.next();
-				createCategory(gradebook.getId(), catObj.getName(), catObj.getWeight(), catObj.getDrop_lowest(), catObj.getDropHighest(), catObj.getKeepHighest(), catObj.isExtraCredit());				
+				createCategory(gradebook.getId(), catObj.getName(), catObj.getWeight(), catObj.getDrop_lowest(), catObj.getDropHighest(), catObj.getKeepHighest(), catObj.isExtraCredit(), catObj.isEqualWeightAssignments());
 			}
 		}
 		//deal with no categories

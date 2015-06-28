@@ -52,6 +52,7 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
     private Boolean droppedFromGrade;
 
     public static Comparator<AssignmentGradeRecord> numericComparator;
+    public static Comparator<AssignmentGradeRecord> percentageComparator;
 
     static{
     	numericComparator = new Comparator<AssignmentGradeRecord>() {
@@ -81,6 +82,37 @@ public class AssignmentGradeRecord extends AbstractGradeRecord implements Clonea
                     return agr1Points.compareTo(agr2Points);
                 } catch(NumberFormatException e) {
                     return agr1Points.compareTo(agr2Points); // if not number, default to calcComparator functionality
+                }
+            }
+        };
+
+        percentageComparator = new Comparator<AssignmentGradeRecord>() {
+            public int compare(AssignmentGradeRecord agr1, AssignmentGradeRecord agr2) {
+                if(agr1 == null && agr2 == null) {
+                    return 0;
+                }
+                if(agr1 == null) {
+                    return -1;
+                }
+                if(agr2 == null) {
+                    return 1;
+                }
+                Double agr1Percent = agr1.getPointsEarned() / agr1.getAssignment().getPointsPossible();
+                Double agr2Percent = agr2.getPointsEarned() / agr2.getAssignment().getPointsPossible();
+
+                if (agr1Percent == null && agr2Percent == null) {
+                    return 0;
+                }
+                if (agr1Percent == null && agr2Percent != null) {
+                    return -1;
+                }
+                if (agr1Percent != null && agr2Percent == null) {
+                    return 1;
+                }
+                try {
+                    return agr1Percent.compareTo(agr2Percent);
+                } catch(NumberFormatException e) {
+                    return agr1Percent.compareTo(agr2Percent); // if not number, default to calcComparator functionality
                 }
             }
         };

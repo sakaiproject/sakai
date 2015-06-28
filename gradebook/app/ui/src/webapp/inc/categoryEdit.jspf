@@ -10,6 +10,7 @@
       <f:selectItem itemValue="categoriesAndWeighting" itemLabel="#{msgs.opt_categories_and_weighting}" />    
 	</h:selectOneRadio>
 	<div class="indnt2 gbSection">
+		<h:outputText value="#{msgs.opt_show_prefix}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
       <h:selectBooleanCheckbox id="showDropHighest" value="#{gradebookSetupBean.showDropHighestDisplayed}"
           onclick="toggleVisibilityDropScoresFields(this.form);"
 	      rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
@@ -22,8 +23,13 @@
           onclick="toggleVisibilityDropScoresFields(this.form);"
 	      rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
       <h:outputLabel for="showKeepHighest" value="#{msgs.opt_show_keep_highest}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
-	  
-	  <br/>
+	  <h:selectBooleanCheckbox id="showEqualWeightAssignments" value="#{gradebookSetupBean.showEqualWeightAssignments}"
+								 onclick="toggleVisibilityDropScoresFields(this.form);"
+								 rendered="#{gradebookSetupBean.categorySetting == 'categoriesAndWeighting'}"/>
+	  <h:outputLabel for="showEqualWeightAssignments" value="#{msgs.opt_show_equal_weight_assignments}" rendered="#{gradebookSetupBean.categorySetting == 'categoriesAndWeighting'}"/>
+
+
+		<br/>
 	
 		<h:outputText styleClass="instruction" value="#{msgs.categories_drop_info}" rendered="#{(gradebookSetupBean.categorySetting == 'onlyCategories' || gradebookSetupBean.categorySetting == 'categoriesAndWeighting')}"/>
 	</div>
@@ -114,6 +120,12 @@
 					<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.DROP_SCORES"/>
                     </h:inputText>
 					<h:message for="keepHighest" styleClass="alertMessageInline"/>
+				</h:column>
+				<h:column>
+					<f:facet name="header">
+						<h:outputText value="#{msgs.cat_equal_weight_assignments}" />
+					</f:facet>
+					<h:selectBooleanCheckbox id="equalWeightAssignments" value="#{category.isEqualWeightAssignments}" />
 				</h:column>
 				<h:column rendered="#{gradebookSetupBean.isPointGrade && !gradebookSetupBean.isPointGrade}">
 					<f:facet name="header">

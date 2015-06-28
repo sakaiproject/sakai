@@ -46,6 +46,7 @@ public class Assignment implements Serializable {
     private boolean extraCredit;
     //Needed for transfer
     private boolean categoryExtraCredit;
+    private boolean categoryEqualWeightAssignments;
     private Integer sortOrder;
     
 
@@ -205,7 +206,14 @@ public class Assignment implements Serializable {
 		return categoryExtraCredit;
 	}
 
-	public Integer getSortOrder() {
+	public void setCategoryEqualWeightAssignments(boolean categoryEqualWeightAssignments) {
+		this.categoryEqualWeightAssignments = categoryEqualWeightAssignments;
+	}
+	public boolean isCategoryEqualWeightAssignments() {
+		return categoryEqualWeightAssignments;
+	}
+        
+        public Integer getSortOrder() {
 		return sortOrder;
 	}
 	

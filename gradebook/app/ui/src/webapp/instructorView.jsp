@@ -165,21 +165,27 @@
 						<h:outputText value=" (#{msgs.extra_credit})" rendered="#{row.associatedAssignment.isExtraCredit && (row.associatedAssignment.category == null || !row.associatedAssignment.category.isExtraCredit) }"/>
 					</h:panelGroup>
 					
-					<h:outputText value="#{row.name}" styleClass="categoryHeading" rendered="#{row.isCategory}"/>
-					<h:outputText value=" (#{msgs.extra_credit})" rendered="#{row.isCategory && row.isExtraCredit}"/>
-					<h:outputText value=" (" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
-		            <h:outputFormat value="#{msgs.cat_drop_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.dropHighest != 0}" >
+                    <h:panelGroup rendered="#{row.isCategory}">
+                        <h:outputText value="#{row.name}" styleClass="categoryHeading" />
+                        <h:outputText value=" (#{msgs.extra_credit})" rendered="#{row.isCategory && row.isExtraCredit}" />
+                        <h:outputText value=" (#{msgs.cat_equal_weight_items_subtitle})" rendered="#{row.isEqualWeightAssignments}" />
+                        <h:outputText value=" (" styleClass="categoryHeading" rendered="#{row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0}" />
+                        <h:outputFormat value="#{msgs.cat_drop_highest_display}" styleClass="categoryHeading" rendered="#{row.dropHighest != 0}">
 		                <f:param value="#{row.dropHighest}"/>
 		            </h:outputFormat>
-		            <h:outputText value="; " styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 && row.drop_lowest != 0)}" />
-		            <h:outputFormat value="#{msgs.cat_drop_lowest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.drop_lowest != 0}" >
+                        <h:outputText value="; " styleClass="categoryHeading" rendered="#{row.dropHighest != 0 && row.drop_lowest != 0}" />
+                        <h:outputFormat value="#{msgs.cat_drop_lowest_display}" styleClass="categoryHeading" rendered="#{row.drop_lowest != 0}">
 		                <f:param value="#{row.drop_lowest}"/>
 		            </h:outputFormat>
 		            
-		            <h:outputFormat value="#{msgs.cat_keep_highest_display}" styleClass="categoryHeading" rendered="#{row.isCategory && row.keepHighest != 0}" >
+		            <h:outputFormat value="#{msgs.cat_keep_highest_display}" styleClass="categoryHeading" rendered="#{row.keepHighest != 0}" >
 		                <f:param value="#{row.keepHighest}"/>
 		            </h:outputFormat>
-		            <h:outputText value=")" styleClass="categoryHeading" rendered="#{row.isCategory && (row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0)}" />
+                        <h:outputText value=")" styleClass="categoryHeading" rendered="#{row.dropHighest != 0 || row.drop_lowest != 0 || row.keepHighest != 0}"/>
+                    </h:panelGroup>
+
+
+
 					
 				</h:column>
 				
@@ -202,10 +208,26 @@
 							<h:outputText value="#{msgs.inst_view_weight}"/>
 			      </t:commandSortHeader>
 			    </f:facet>
-	
-					<h:outputText value="#{row.weight}" rendered="#{row.isCategory}">
+                    <h:panelGroup rendered="#{row.isCategory}">
+                        <h:outputText value="<strong>" escape="false"/>
+                        <h:outputText value="#{row.weight}">
+                            <f:convertNumber type="percent" maxFractionDigits="2"/>
+                        </h:outputText>
+                        <h:outputText value="</strong>" escape="false"/>
+                    </h:panelGroup>
+                    <h:panelGroup rendered="#{row.assignment && row.associatedAssignment.isCategoryEqualWeightAssignments && row.associatedAssignment.counted}">
+                        <h:panelGroup rendered="#{row.associatedAssignment.isExtraCredit}" style="padding-right: .5em !important;">
+                            <h:outputText  value="+"/>
+                            <h:outputText value="#{row.overallWeight}">
+                                <f:convertNumber type="percent" maxFractionDigits="2"/>
+                            </h:outputText>
+                        </h:panelGroup>
+                        <h:panelGroup rendered="#{!row.associatedAssignment.isExtraCredit && !row.gradeRecord.droppedFromGrade}">
+                            <h:outputText value="#{row.overallWeight}">
 						<f:convertNumber type="percent" maxFractionDigits="2" />
 					</h:outputText>
+                        </h:panelGroup>
+                    </h:panelGroup>
 				</h:column>
 				
 				<h:column>
@@ -271,10 +293,13 @@
 							
 							<h:outputText value="#{msgs.inst_view_not_counted_close}" rendered="#{!row.associatedAssignment.counted}" />
 						</h:panelGroup>
-						
-						<h:outputText value="#{row}" escape="false" rendered="#{row.isCategory}">
+                    <h:panelGroup rendered="#{row.isCategory}">
+                        <h:outputText value="<strong>" escape="false"/>
+                        <h:outputText value="#{row}" escape="false">
 							<f:converter converterId="org.sakaiproject.gradebook.jsf.converter.CLASS_AVG_CONVERTER"/>
 						</h:outputText>
+                        <h:outputText value="</strong>" escape="false"/>
+                    </h:panelGroup>
         </h:column>
         
         <h:column>
