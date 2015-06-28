@@ -533,7 +533,7 @@ public class ServiceServlet extends HttpServlet {
 						Map<String,Object> content = null;
 						String contentStr = pitch.getProperty("contentKey");
 						Long contentKey = foorm.getLongKey(contentStr);
-						if ( contentKey > 0 ) content = ltiService.getContentDao(contentKey, siteId);
+						if ( contentKey >= 0 ) content = ltiService.getContentDao(contentKey, siteId);
 						if ( content != null ) {
 							if ( "basic-lti-savesetting".equals(lti_message_type) ) {
 								setting = request.getParameter("setting");

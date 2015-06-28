@@ -22,8 +22,9 @@ import lombok.extern.apachecommons.CommonsLog;
 
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.mbm.tool.entities.AllFilterEntity;
+import org.sakaiproject.mbm.tool.entities.ModulesFilterEntity;
 import org.sakaiproject.mbm.tool.entities.MessageEntity;
+import org.sakaiproject.mbm.tool.entities.SearchEntity;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -110,60 +111,49 @@ public class MainController {
 	    return "modified";
 	}
 	
-	@RequestMapping(value = "/all", method = RequestMethod.GET)
-	public String showAll(Model model) {
-		log.debug("showAll()");
-		
+	@RequestMapping(value = "/modules", method = RequestMethod.GET)
+	public String showModules(Model model) {
+		log.debug("showModules()");
+
 		List<MessageBundleProperty> properties = Collections.emptyList();
 		model.addAttribute("properties", properties);
-		
-		AllFilterEntity filter = new AllFilterEntity();
+
+		ModulesFilterEntity filter = new ModulesFilterEntity();
 		model.addAttribute(filter);
-		
-	    return "all";
+
+	    return "modules";
 	}
 
-	@RequestMapping(value = "/all", params={"module","locale"}, method = RequestMethod.GET)
-	public String showAllFiltered(@RequestParam String module, @RequestParam String locale, Model model) {
-		if(log.isDebugEnabled()) { log.debug("showAllFiltered(): module=" + module + ", locale=" + locale); }
-	    
-		model.addAttribute("properties", messageBundleService.getAllProperties(locale, module));
-
-	    AllFilterEntity filter = new AllFilterEntity(module, locale);
-		model.addAttribute(filter);
-		
-	    return "all";
-	}
-
-	@RequestMapping(value = "/all", params={"filter"}, method = RequestMethod.POST)
-	public String showAllFiltered(final AllFilterEntity allFilterEntity, final BindingResult bindingResult, final ModelMap model) {
+	@RequestMapping(value = "/modules", params={"filter"}, method = RequestMethod.POST)
+	public String processModules(final ModulesFilterEntity modulesFilterEntity, final BindingResult bindingResult, final ModelMap model) {
 	    if (bindingResult.hasErrors()) {
-	        return "all";
+	        return "modules";
 	    }
-	    log.debug("showAllFiltered(): AllFilteredEntity = " + allFilterEntity);
-	    model.clear();
-	    return "redirect:/all?module=" + allFilterEntity.getModule() + "&locale=" + allFilterEntity.getLocale();
+	    log.debug("processModules(): ModulesFilteredEntity = " + modulesFilterEntity);
+	    model.addAttribute("properties", messageBundleService.getAllProperties(modulesFilterEntity.getLocale(), modulesFilterEntity.getModule()));
+
+	    return "modules";
 	}
-	
+
 	@RequestMapping(value = "/edit", params = { "id" }, method = RequestMethod.GET)
 	public String showEdit(@RequestParam long id, Model model) {
 		log.debug("showEdit()");
-		
+
 		MessageBundleProperty property = messageBundleService.getMessageBundleProperty(id);
 		model.addAttribute(property);
-		
+
 		MessageEntity message = new MessageEntity(id, property.getValue());
 		model.addAttribute(message);
-		
+
 	    return "edit";
 	}
-	
+
 	@RequestMapping(value = "/edit", params={"save"}, method = RequestMethod.POST)
-	public String saveMessageProperty(final MessageEntity messageEntity, final BindingResult bindingResult, final ModelMap model) {
+	public String processSaveEdit(final MessageEntity messageEntity, final BindingResult bindingResult, final ModelMap model) {
 	    if (bindingResult.hasErrors()) {
 	        return "modified";
 	    }
-	    log.debug("saveMessageProperty: MessageEntity = " + messageEntity);
+	    log.debug("processSaveEdit(): MessageEntity = " + messageEntity);
 	    MessageBundleProperty property = messageBundleService.getMessageBundleProperty(messageEntity.getId());
 	    property.setValue(messageEntity.getValue());
 	    if (securityService.isSuperUser()) {
@@ -174,13 +164,13 @@ public class MainController {
 	    model.clear();
 	    return "redirect:/modified";
 	}
-	
+
 	@RequestMapping(value = "/edit", params={"revert"}, method = RequestMethod.POST)
-	public String revertMessageProperty(final MessageEntity messageEntity, final BindingResult bindingResult, final ModelMap model) {
+	public String processRevertEdit(final MessageEntity messageEntity, final BindingResult bindingResult, final ModelMap model) {
 	    if (bindingResult.hasErrors()) {
 	        return "modified";
 	    }
-	    log.debug("revertMessageProperty: MessageEntity = " + messageEntity);
+	    log.debug("processRevertEdit(): MessageEntity = " + messageEntity);
 	    MessageBundleProperty property = messageBundleService.getMessageBundleProperty(messageEntity.getId());
 	    if (securityService.isSuperUser()) {
 	    	messageBundleService.revert(property);
@@ -190,4 +180,28 @@ public class MainController {
 	    model.clear();
 	    return "redirect:/modified";
 	}
+
+	@RequestMapping(value = "/search", method = RequestMethod.GET)
+    public String showSearch(Model model) {
+        log.debug("showSearch()");
+
+        List<MessageBundleProperty> properties = Collections.emptyList();
+        model.addAttribute("properties", properties);
+
+        SearchEntity search = new SearchEntity();
+        model.addAttribute(search);
+
+        return "search";
+    }
+
+    @RequestMapping(value = "/search", params={"search"}, method = RequestMethod.POST)
+    public String processSearch(final SearchEntity searchEntity, final BindingResult bindingResult, final ModelMap model) {
+        if (bindingResult.hasErrors()) {
+            return "search"; 
+        }
+        log.debug("processSearch(): searchEntity = " + searchEntity);
+        model.addAttribute("properties", messageBundleService.search(searchEntity.getValue(), null, null, searchEntity.getLocale()));
+
+        return "search";
+    }
 }
