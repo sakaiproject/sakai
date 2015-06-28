@@ -103,6 +103,7 @@ public class Foorm {
 		if (key instanceof Number)
 			return new Long(((Number) key).longValue());
 		if (key instanceof String) {
+			if ( ((String)key).length() < 1 ) return new Long(-1);
 			try {
 				return new Long((String) key);
 			} catch (Exception e) {
