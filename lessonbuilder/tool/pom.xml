@@ -247,11 +247,11 @@
                   <resources>
                     <resource>
                       <directory>${src1}/webapp/WEB-INF</directory>
-                      <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
+                      <targetPath>${sakai.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
                     </resource>
                     <resource>
                       <directory>${src2}/webapp/WEB-INF</directory>
-                      <targetPath>${project.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
+                      <targetPath>${sakai.build.directory}/lessonbuilder-tool-${project.version}/WEB-INF</targetPath>
                     </resource>
                   </resources>
                 </configuration>
