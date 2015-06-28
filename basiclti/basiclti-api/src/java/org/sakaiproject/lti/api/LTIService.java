@@ -506,17 +506,17 @@ public interface LTIService {
 		"frameheight:integer:label=bl_frameheight:allowed=true",
 		"newpage:checkbox:label=bl_newpage",
 		"debug:checkbox:label=bl_debug",
-		"custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=1024",
+		"custom:textarea:label=bl_custom:rows=5:cols=25:allowed=true:maxlength=16384",
 		"launch:url:label=bl_launch:maxlength=1024:allowed=true",
 		"consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=1024",
 		"secret:text:label=bl_secret:allowed=true:maxlength=1024",
 		"resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin",
-		"xmlimport:text:hidden=true:maxlength=16384",
+		"xmlimport:text:hidden=true:maxlength=1M",
 		// LTI 2.x settings
-		"settings:text:hidden=true:maxlength=8096",
-		"enabled_capability:text:hidden=true:maxlength=16384:role=admin",
+		"settings:text:hidden=true:maxlength=1M",
+		"enabled_capability:text:hidden=true:maxlength=1M:role=admin",
 		// Sakai LTI 1.x extension settings (see SAK-25621)
-		"settings_ext:text:hidden=true:maxlength=8096",
+		"settings_ext:text:hidden=true:maxlength=1M",
 		"placement:text:hidden=true:maxlength=256", 
 		"placementsecret:text:hidden=true:maxlength=512",
 		"oldplacementsecret:text:hidden=true:maxlength=512",
@@ -559,15 +559,15 @@ public interface LTIService {
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		// LTI 1.x user-entered custom
-		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=1024",
+		"custom:textarea:label=bl_custom:rows=5:cols=25:maxlength=16384",
 		// LTI 2.x settings from web services
-		"settings:text:hidden=true:maxlength=8096",
+		"settings:text:hidden=true:maxlength=1M",
 		// LTI 2.x tool-registration time parameters
-		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=1024:only=lti2",
+		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=16384:only=lti2",
 		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=16384:only=lti2",
 		"allowcustom:checkbox:label=bl_allowcustom",
-		"xmlimport:text:hidden=true:maxlength=16384",
-		"splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=4096",
+		"xmlimport:text:hidden=true:maxlength=1M",
+		"splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
 		"created_at:autodate", 
 		"updated_at:autodate" };
 
@@ -599,8 +599,8 @@ public interface LTIService {
 		"consumerkey:text:label=bl_consumerkey:maxlength=1024:hide=insert",
 		"secret:text:label=bl_secret:maxlength=1024:hide=insert",
 		"new_secret:text:label=bl_secret:maxlength=1024:hide=insert",
-		"reg_profile:textarea:label=bl_reg_profile:maxlength=1000000:hide=insert:role=admin",
-		"settings:text:hidden=true:maxlength=8096",   // This is "custom" in the JSON
+		"reg_profile:textarea:label=bl_reg_profile:maxlength=1M:hide=insert:role=admin",
+		"settings:text:hidden=true:maxlength=1M",   // This is "custom" in the JSON
 		"created_at:autodate", 
 		"updated_at:autodate" };
 
@@ -609,7 +609,7 @@ public interface LTIService {
 		"id:key", 
 		"tool_id:integer:hidden=true",
 		"SITE_ID:text:maxlength=99:role=admin",
-		"settings:text:hidden=true:maxlength=8096",
+		"settings:text:hidden=true:maxlength=1M",
 		"created_at:autodate",
 		"updated_at:autodate" };
 
