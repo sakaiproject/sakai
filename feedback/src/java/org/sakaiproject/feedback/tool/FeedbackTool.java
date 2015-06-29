@@ -138,7 +138,6 @@ public class FeedbackTool extends HttpServlet {
         setStringAttribute(request, "featureSuggestionUrl", sakaiProxy.getConfigString("feedback.featureSuggestionUrl", ""));
         setStringAttribute(request, "helpPagesUrl", sakaiProxy.getConfigString("feedback.helpPagesUrl", "/portal/help/main"));
         setStringAttribute(request, "helpPagesTarget", sakaiProxy.getConfigString("feedback.helpPagesTarget", "_blank"));
-        setStringAttribute(request, "helpdeskUrl", sakaiProxy.getConfigString("feedback.helpdeskUrl", ""));
         setStringAttribute(request, "supplementaryInfo", sakaiProxy.getConfigString("feedback.supplementaryInfo", ""));
         request.setAttribute("maxAttachmentsMB", sakaiProxy.getAttachmentLimit());
         setStringAttribute(request, "technicalToAddress", sakaiProxy.getConfigString(Constants.PROP_TECHNICAL_ADDRESS, null));

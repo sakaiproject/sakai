@@ -26,7 +26,6 @@
                 technicalToAddress: '${technicalToAddress}',
                 contactName: '${contactName}',
                 enableTechnical: ${enableTechnical},
-                helpdeskUrl: '${helpdeskUrl}',
                 helpPagesUrl: '${helpPagesUrl}',
                 helpPagesTarget: '${helpPagesTarget}',
                 supplementaryInfo: '${supplementaryInfo}',

@@ -53,7 +53,6 @@
                                                     supplementaryInfo: feedback.supplementaryInfo,
                                                     helpPagesUrl: feedback.helpPagesUrl,
                                                     helpPagesTarget: feedback.helpPagesTarget,
-                                                    helpdeskUrl: feedback.helpdeskUrl,
                                                     loggedIn: loggedIn, showContentPanel : feedback.showContentPanel,
                                                     showHelpPanel : feedback.showHelpPanel,
                                                     showTechnicalPanel : feedback.showTechnicalPanel,
