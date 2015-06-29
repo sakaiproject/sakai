@@ -9,6 +9,7 @@
 
     var msiePattern = /.*MSIE ((\d+).\d+).*/
     if ( msiePattern.test(navigator.userAgent) ) {
+        portal.chat.video.enabled=false;
         return;
     }
 
