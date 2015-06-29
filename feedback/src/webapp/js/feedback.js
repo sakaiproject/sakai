@@ -62,7 +62,6 @@
             $(document).ready(function () {
 
                 if (feedback.helpPagesUrl.length > 0 ) {
-                    $('#feedback-help-item').show().css('display', 'inline');
                     $('#feedback-help-wrapper').show();
                 }
 
@@ -345,10 +344,6 @@
         $('#feedback-helpdesk-item').click(function (e) {
             return feedback.switchState(TECHNICAL, REPORTHELPDESK);
         });
-
-        if (feedback.helpPagesUrl.length > 0 ) {
-            $('#feedback-help-item').show();
-        }
     });
 
     feedback.switchState(HOME);
