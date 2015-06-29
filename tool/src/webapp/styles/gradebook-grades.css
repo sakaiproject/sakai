@@ -533,6 +533,7 @@
   max-width: 300px;
 }
 .gb-popover-notifications li {
+  clear: both;
   margin-bottom: 10px;
 }
 .gb-popover-notifications li:before {
@@ -544,7 +545,7 @@
 }
 .gb-popover-notifications .gb-popover-notification-overlimit:before {
   font-family: "gradebook-icons";
-  content: "\f071";
+  content: "\f0fe";
 }
 .gb-popover-notifications .gb-popover-notification-has-comment:before {
   font-family: "gradebook-icons";
@@ -553,6 +554,15 @@
 .gb-popover-notifications .gb-popover-notification-concurrentedit:before {
   font-family: "gradebook-icons";
   content: '\f040';
+}
+.gb-popover-notifications .gb-popover-edit-comments {
+  float: right;
+  font-size: 0.8em;
+}
+.gb-popover-notifications blockquote {
+  margin: 4px 0 0;
+  padding: 5px 10px;
+  font-size: 0.9em;
 }
 /* Wicket Overrides */
 div.wicket-modal div.w_content_3 {
@@ -625,6 +635,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 
 .grade-save-error {
@@ -637,6 +650,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 
 .grade-save-warning {
@@ -649,6 +665,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 .grade-save-over-limit {
   background-color: #fcf8e3 !important;
@@ -660,6 +679,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 
 .has-comment > div:after {

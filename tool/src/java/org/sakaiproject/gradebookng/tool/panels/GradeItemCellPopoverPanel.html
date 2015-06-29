@@ -8,7 +8,13 @@
         <li wicket:id="saveErrorNotification" class="gb-popover-notification-error text-danger"><span wicket:id="message"></span></li>
         <li wicket:id="concurrentEditNotification" class="gb-popover-notification-concurrentedit text-danger"><span wicket:id="message"></span></li>
         <li wicket:id="isOverLimitNotification" class="gb-popover-notification-overlimit text-warning"><span wicket:id="message"></span></li>
-        <li wicket:id="hasCommentNotification" class="gb-popover-notification-has-comment text-info"><span wicket:id="message"></span></li>
+        <li wicket:id="hasCommentNotification" class="gb-popover-notification-has-comment text-info">
+            <span wicket:id="message"></span>
+            <blockquote>
+                <p><span wicket:id="snippet"></span></p>
+            </blockquote>
+            <p><a href="javascript:void(0);" class="gb-popover-edit-comments" aria-haspopup="true"><wicket:message key="comment.option.edit" /></a></p>
+        </li>
         <li wicket:id="isExternalNotification" class="gb-popover-notification-is-external text-info"><span wicket:id="message"></span></li>
     </ul>
 
