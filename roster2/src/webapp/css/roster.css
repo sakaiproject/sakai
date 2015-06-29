@@ -186,7 +186,10 @@
 		border:0px none;
 		max-width:95%;
 		max-height:auto;
-	}
+		position: relative;
+  		top: 3px;
+  		right: 3px;
+  	}
 	
 	.rosterActions {
 		display: inline;
@@ -203,7 +206,6 @@
 	  	/*background: rgba(255,0,0,0.1); */
 	  	position: absolute;
 	  	margin: 0 0 0 -21px;
-	  	z-index: 99;	
 	}
 	
 	#roster-members {
@@ -238,6 +240,20 @@
 	.roster-table-row {
 	    display: inline-block;
 	    width: 9%;
+	}
+	
+	.roster-member:first-child .roster-table-row .roster-table-cell:first-child {
+		display: block;
+		font-weight: bold;
+  		margin-bottom: 5px;
+  		padding-bottom: 5px;
+  		border-bottom: 1px solid;
+  	}
+	
+	.roster-member:first-child .roster-picture, .roster-member:first-child .rosterActions {
+		padding-top: 30px;
+		position: relative;
+		top: 4px;
 	}
 	
 	.roster-table-cell {
