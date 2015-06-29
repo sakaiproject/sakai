@@ -248,6 +248,12 @@ public class MockStatsManager implements StatsManager {
 		return 0;
 	}
 
+	public Map<String, SitePresenceTotal> getPresenceTotalsForSite(final String siteId) {
+
+		final Map<String, SitePresenceTotal> totals = new HashMap<String, SitePresenceTotal>();
+		return totals;
+	}
+
 	@Override
 	public Map<String, SitePresenceTotal> getPresenceTotalsForSite(final String siteId) {
 
