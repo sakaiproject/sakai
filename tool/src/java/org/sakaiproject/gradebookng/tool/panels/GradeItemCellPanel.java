@@ -322,6 +322,8 @@ public class GradeItemCellPanel extends Panel {
 						if(StringUtils.isNotBlank(comment)) {
 							markHasComment(gradeCell);
 							target.add(getParentCellFor(gradeCell));
+							target.appendJavaScript("sakai.gradebookng.spreadsheet.setupCell('" + getParentCellFor(gradeCell).getMarkupId() + "','" + assignmentId + "', '" + studentUuid + "');");
+							refreshPopoverNotifications();
 						};
 						
 					}

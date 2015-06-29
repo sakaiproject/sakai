@@ -1069,6 +1069,7 @@ GradebookSpreadsheet.prototype.setupPopovers = function() {
     var $notification = $(event.target).closest(".gb-popover-notification-has-comment");
     var cell = self.getCellModelForStudentAndAssignment($notification.data("studentuuid"), $notification.data("assignmentid"));
     cell.$cell.find(".gb-edit-comments").trigger("click");
+    self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
   });
 };
 
@@ -1110,6 +1111,12 @@ GradebookSpreadsheet.prototype.onReady = function(callback) {
   } else {
     this.$spreadsheet.on("ready.gradebookng", callback);
   }
+};
+
+
+GradebookSpreadsheet.prototype.setupCell = function(cellId, assignmentId, studentUuid) {
+  var cellModel = this.getCellModelForStudentAndAssignment(studentUuid, assignmentId);
+  cellModel.handleSaveComplete(cellId)
 };
 
 
