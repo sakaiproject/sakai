@@ -410,22 +410,27 @@ public class GradebookNgBusinessService {
 		//note, the returned list only includes entries where there is a grade for the user
 		//TODO maybe a new gb service method to do this, so we save iterating here?
 		for(Assignment assignment: assignments) {
-			List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
-			Temp.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(), stopwatch.getTime());
+			
+			try {
+				List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
+				Temp.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(), stopwatch.getTime());
 		
-			//iterate the definitions returned and update the record for each student with any grades
-			for(GradeDefinition def: defs) {
-				GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
-				
-				if(sg == null) {
-					log.warn("No matrix entry seeded for: " + def.getStudentUid() + ". This user may be been removed from the site");
-				} else {
-				
-					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
+				//iterate the definitions returned and update the record for each student with any grades
+				for(GradeDefinition def: defs) {
+					GbStudentGradeInfo sg = matrix.get(def.getStudentUid());
+					
+					if(sg == null) {
+						log.warn("No matrix entry seeded for: " + def.getStudentUid() + ". This user may be been removed from the site");
+					} else {
+					
+						sg.addGrade(assignment.getId(), new GbGradeInfo(def));
+					}
 				}
+				Temp.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(), stopwatch.getTime());
+			} catch (SecurityException e) {
+				//tried to access info for a user that we aren't allowed to get for. Skip this user.
+				log.error("Error retrieving grades. Skipping.", e);
 			}
-			Temp.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(), stopwatch.getTime());
-		
 		}
 		
 		//get the matrix as a list of GbStudentGradeInfo
