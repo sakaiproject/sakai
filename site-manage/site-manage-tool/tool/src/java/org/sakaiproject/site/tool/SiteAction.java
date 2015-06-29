@@ -1398,6 +1398,9 @@ public class SiteAction extends PagedResourceActionII {
 		context.put("alertMessage", state.getAttribute(STATE_MESSAGE));
 		context.put("siteTextEdit", new SiteTextEditUtil());
 		
+		//SAK-29525 Open Template list by default when creating site
+		context.put("isExpandTemplates", ServerConfigurationService.getBoolean("site.setup.creation.expand.template", false));
+		
 		// the last visited template index
 		if (preIndex != null)
 			context.put("backIndex", preIndex);
@@ -6672,6 +6675,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// publish the site or not based on the template choice
 				site.setPublished(state.getAttribute(STATE_TEMPLATE_PUBLISH) != null?true:false);
 				
+				// Update the icons URL.
+				String newSiteIconUrl = transferSiteResource(templateSite.getId(), site.getId(), site.getIconUrl());
+				site.setIconUrl(newSiteIconUrl);
+				
 				userNotificationProvider.notifyTemplateUse(templateSite, UserDirectoryService.getCurrentUser(), site);	
 			}
 				
@@ -9831,6 +9838,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 				catch (Exception n2Exception)
 				{
+					M_log.warn(this + ":transferSiteResource: cannot find resource with id=" + nResource + " copying it from the original resource " + n2Exception.getMessage());
 					// copy the resource then
 					try
 					{
@@ -9839,6 +9847,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					}
 					catch (Exception n3Exception)
 					{
+						M_log.warn(this + ":transferSiteResource: something happened copying the resource with id="+ resource.getId() + " " + n3Exception.getMessage());
 					}
 				}
 				

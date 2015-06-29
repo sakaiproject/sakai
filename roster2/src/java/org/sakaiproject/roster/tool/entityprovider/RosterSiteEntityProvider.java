@@ -37,9 +37,11 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.exception.EntityException;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.roster.api.RosterData;
+import org.sakaiproject.roster.api.RosterFunctions;
 import org.sakaiproject.roster.api.RosterMember;
 import org.sakaiproject.roster.api.RosterMemberComparator;
 import org.sakaiproject.roster.api.SakaiProxy;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.user.api.User;
 
 import lombok.Setter;
@@ -70,7 +72,7 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
 	public final static String KEY_PAGE                         = "page";
 	public final static String KEY_ENROLLMENT_SET_ID			= "enrollmentSetId";
 	public final static String KEY_ENROLLMENT_STATUS			= "enrollmentStatus";
-	
+
     @Setter
 	private SakaiProxy sakaiProxy;
 	
@@ -165,9 +167,30 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
             data.setMembers(subList);
             data.setMembersTotal(membershipsSize);
 
+            boolean showVisits = sakaiProxy.getShowVisits();
+
+            Map<String, SitePresenceTotal> sitePresenceTotals = new HashMap<String, SitePresenceTotal>();
+            
+            if (showVisits) {
+                sitePresenceTotals = sakaiProxy.getPresenceTotalsForSite(siteId);
+            }
+
+            boolean viewSiteVisits
+                = developerHelperService.isUserAllowedInEntityReference("/user/" + userId
+                                                    , RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS
+                                                    , "/site/" + siteId);
+
             Map<String, Integer> roleCounts = new HashMap<String, Integer>();
 
             for (RosterMember member : membership) {
+                if (showVisits && viewSiteVisits) {
+                    String memberUserId = member.getUserId();
+                    if (sitePresenceTotals.containsKey(memberUserId)) {
+                        SitePresenceTotal spt = sitePresenceTotals.get(memberUserId);
+                        member.setTotalSiteVisits(spt.getTotalVisits());
+                        member.setLastVisitTime(spt.getLastVisitTime().getTime());
+                    }
+                }
                 String memberRoleId = member.getRole();
                 if (!roleCounts.containsKey(memberRoleId)) {
                     roleCounts.put(memberRoleId, 1);

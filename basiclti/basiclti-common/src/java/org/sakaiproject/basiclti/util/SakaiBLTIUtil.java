@@ -38,6 +38,8 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 
 import org.imsglobal.lti2.LTI2Constants;
+import org.imsglobal.lti2.LTI2Vars;
+import org.imsglobal.lti2.LTI2Caps;
 import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.objects.ToolConsumer;
 
@@ -268,21 +270,22 @@ public class SakaiBLTIUtil {
 				setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
 			}
 			setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
-			setProperty(lti2subst,"CourseOffering.id",site.getId());
+			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_SOURCEDID,site.getId());
+
 			setProperty(props,BasicLTIConstants.CONTEXT_LABEL,site.getTitle());
-			setProperty(lti2subst,"CourseOffering.label",site.getTitle());
-			setProperty(props,BasicLTIConstants.CONTEXT_TITLE,site.getTitle());
-			setProperty(lti2subst,"CourseOffering.title",site.getTitle());
+			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_LABEL,site.getTitle());
+
+			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_LONGDESCRIPTION,site.getTitle());
 			String courseRoster = getExternalRealmId(site.getId());
 			if ( courseRoster != null ) 
 			{
 				setProperty(props,BasicLTIConstants.LIS_COURSE_OFFERING_SOURCEDID,courseRoster);
-				setProperty(lti2subst,"CourseOffering.sourcedId",courseRoster);
+				setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,courseRoster);
 			}
 		}
 
 		// Fix up the return Url
-		String returnUrl =	ServerConfigurationService.getString("basiclti.consumer_return_url",null);
+		String returnUrl = ServerConfigurationService.getString("basiclti.consumer_return_url",null);
 		if ( returnUrl == null ) {
 			returnUrl = getOurServerUrl() + LTI1_PATH + "return-url";  
 			Session s = SessionManager.getCurrentSession();
@@ -665,6 +668,8 @@ public class SakaiBLTIUtil {
 		addSiteInfo(ltiProps, lti2subst, site);
 		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
 
+		// This is for 1.2 - Not likely to be used
+		// http://www.imsglobal.org/lti/ltiv1p2/ltiIMGv1p2.html
 		if ( deploy != null ) {
 			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
 				LTI2_PATH + SVC_tc_profile + "/" + 
@@ -705,7 +710,7 @@ public class SakaiBLTIUtil {
 		if ( title == null ) title = (String) tool.get(LTIService.LTI_TITLE);
 		if ( title != null ) {
 			setProperty(ltiProps,BasicLTIConstants.RESOURCE_LINK_TITLE,title);
-			setProperty(lti2subst,"ResourceLink.title",title);
+			setProperty(lti2subst,LTI2Vars.RESOURCELINK_TITLE,title);
 		}
 
 		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
@@ -715,20 +720,20 @@ public class SakaiBLTIUtil {
 		if ( user != null )
 		{
 			setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
-			setProperty(lti2subst,"User.id",user.getId());
+			setProperty(lti2subst,LTI2Vars.USER_ID,user.getId());
 			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
-			setProperty(lti2subst,"User.username",user.getEid());
+			setProperty(lti2subst,LTI2Vars.USER_USERNAME,user.getEid());
 			if ( releasename == 1 ) {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FULL,user.getDisplayName());
-				setProperty(lti2subst,"Person.name.given",user.getFirstName());
-				setProperty(lti2subst,"Person.name.family",user.getLastName());
-				setProperty(lti2subst,"Person.name.full",user.getDisplayName());
+				setProperty(lti2subst,LTI2Vars.PERSON_NAME_GIVEN,user.getFirstName());
+				setProperty(lti2subst,LTI2Vars.PERSON_NAME_FAMILY,user.getLastName());
+				setProperty(lti2subst,LTI2Vars.PERSON_NAME_FULL,user.getDisplayName());
 			}
 			if ( releaseemail == 1 ) {
 				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
-				setProperty(lti2subst,"Person.email.primary",user.getEmail());
+				setProperty(lti2subst,LTI2Vars.PERSON_EMAIL_PRIMARY,user.getEmail());
 				// Only send the display ID if it's different to the EID.
 				// the anonymous user has a null EID.
 				if (user.getEid() != null && !user.getEid().equals(user.getDisplayId())) {
@@ -758,7 +763,7 @@ public class SakaiBLTIUtil {
 				if ( outcome_url == null ) outcome_url = getOurServerUrl() + LTI1_PATH;  
 				setProperty(ltiProps,BasicLTIConstants.LIS_OUTCOME_SERVICE_URL, outcome_url);  
 				String result_url = getOurServerUrl() + LTI2_PATH + SVC_Result + "/" + result_sourcedid;
-				setProperty(lti2subst, "Result.url", result_url);
+				setProperty(lti2subst, LTI2Vars.RESULT_URL, result_url);
 			}
 
 			// We continue to support the old settings for LTI 2 see SAK-25621
@@ -770,9 +775,9 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps,"ext_ims_lti_tool_setting_url", service_url);  
 				if ( ! isLTI1 ) {
 					String settings_url = getOurServerUrl() + LTI2_PATH +  SVC_Settings + "/";
-					setProperty(lti2subst,"LtiLink.custom.url", settings_url + LTI2Util.SCOPE_LtiLink + "/" + resource_link_id);
-					setProperty(lti2subst,"ToolProxyBinding.custom.url", settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" + resource_link_id);
-					setProperty(lti2subst,"ToolProxy.custom.url", settings_url + LTI2Util.SCOPE_ToolProxy + "/" + key);
+					setProperty(lti2subst,LTI2Vars.LTILINK_CUSTOM_URL, settings_url + LTI2Util.SCOPE_LtiLink + "/" + resource_link_id);
+					setProperty(lti2subst,LTI2Vars.TOOLPROXYBINDING_CUSTOM_URL, settings_url + LTI2Util.SCOPE_ToolProxyBinding + "/" + resource_link_id);
+					setProperty(lti2subst,LTI2Vars.TOOLPROXY_CUSTOM_URL, settings_url + LTI2Util.SCOPE_ToolProxy + "/" + key);
 				}
 			}
 
@@ -831,7 +836,7 @@ public class SakaiBLTIUtil {
 			enabled_capability = (String) tool.get("enabled_capability");
 		}
 
-		if ( LTI2Util.enabledCapability(enabled_capability, ToolConsumer.OAUTH_HMAC256) ) {
+		if ( LTI2Util.enabledCapability(enabled_capability, LTI2Caps.OAUTH_HMAC256) ) {
 			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
 			M_log.debug("Launching with SHA256 Signing");
 		}
@@ -1543,6 +1548,7 @@ public class SakaiBLTIUtil {
         if (key instanceof Number)
             return new Long(((Number) key).longValue());
         if (key instanceof String) {
+            if ( ((String)key).length() < 1 ) return new Long(-1);
             try {
                 return new Long((String) key);
             } catch (Exception e) {

@@ -63,6 +63,8 @@ import org.sakaiproject.roster.api.SakaiProxy;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
@@ -93,6 +95,7 @@ public class SakaiProxyImpl implements SakaiProxy {
 	private ServerConfigurationService serverConfigurationService;
 	private SessionManager sessionManager;
 	private SiteService siteService;
+	private StatsManager statsManager;
 	private ToolManager toolManager;
 	private UserDirectoryService userDirectoryService;
     private RosterMemberComparator memberComparator;
@@ -131,6 +134,10 @@ public class SakaiProxyImpl implements SakaiProxy {
 
         if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO)) {
             functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWOFFICIALPHOTO, true);
+        }
+
+        if (!registered.contains(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS)) {
+            functionManager.registerFunction(RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS, true);
         }
 
         memberComparator = new RosterMemberComparator(getFirstNameLastName());
@@ -1111,5 +1118,13 @@ public class SakaiProxyImpl implements SakaiProxy {
             log.error("Exception whilst retrieving search index for site '" + siteId + "'. Returning null ...", e);
             return null;
         }
+    }
+
+    public Map<String, SitePresenceTotal> getPresenceTotalsForSite(String siteId) {
+        return statsManager.getPresenceTotalsForSite(siteId);
+    }
+
+    public boolean getShowVisits() {
+        return serverConfigurationService.getBoolean("roster.showVisits", false);
     }
 }

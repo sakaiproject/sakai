@@ -6,26 +6,30 @@
 
 .Mrphs-{
 	&footerApp{
-		&__presence{
-		  	background-color: $footerApp__chat__header__background;
-		  	color: $footerApp__chat__header__color;
+		&__presence, &__portalChat{
+		    background-color: $footerApp__chat__header__background;
+		    color: $footerApp__chat__header__color;
 		    float: left;
 		    text-align: left;
 		    vertical-align: bottom;
-		    width: 225px;
 		    height: 30px;
-		    padding: 5px 0px 0px 0px;
+		    padding: 5px 10px 0px 10px;
 		    position: fixed;
 		    bottom: 0px;
 		    right: 20px;
-		}&--toggle{
+		}
+		&__portalChat{
+		    width: 205px;
+		}
+		&--toggle{
 		    display: inline-block;
-		    padding: 2px 0px 0px 10px;
+		    padding: 2px 0px 0px 0px;
 		    color: $footerApp__chat__header__color;
 		    text-decoration: none;
 		    height: 16px;
 		    font-weight: bold;
-		}&--count.present{
+		}
+		&--count.present{
 		    min-width: 15px;
 		    height: 15px;
 		    display: inline-block;
@@ -38,6 +42,58 @@
 		    padding: 2px;
 		    font-size: 0.8em;
 		  }
+		  &--count.empty{
+		  	display: none;
+		  }
+	}
+	&presence {
+		&__area {
+		    background-color: #fff;
+		    border: 1px solid #ccc;
+		    position: fixed;
+		    height: 265px;
+		    width: 175px;
+		    bottom: 30px;
+		    right: 20px;
+
+		    &--wrapper {
+		        width: 100%;
+		        height: 100%;
+		    }
+		    &--title {
+		        font-weight: bold;
+		        padding: 5px;
+		        vertical-align: middle;
+		        color: $footerApp__chat__header__color;
+		        background-color: $footerApp__chat__header__background;
+
+		        &--close {
+		            padding: 0px !important;
+		            content: '';
+		            width: 16px;
+		            height: 16px;
+		            background: url("/library/image/sakai/cross.png") 0 0 no-repeat;
+		            float: right;
+		            text-align: right;
+		            margin-top: 5px;
+			    }
+		    }
+		    &--iframe, &--iframe-div {
+		        height: 242px;
+		        width: 100%;
+		        overflow: auto;
+
+		       .presenceList{
+		            font-size: .8em;
+		            list-style: none;
+		            margin: 0;
+		            padding-left: .1em;
+		            li{
+		                margin-bottom: .2em;
+		            }
+		        }
+		    }
+		}
 	}
 	&portalChat{
 		    width: 225px;
