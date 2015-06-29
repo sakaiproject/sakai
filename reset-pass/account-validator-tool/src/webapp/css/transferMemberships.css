@@ -126,6 +126,7 @@ p, h1, form, button {
 {
 	background-color: transparent;
 	border: 0 none;
+	max-width:500px;
 }
 
 .stylized > form {
@@ -187,6 +188,7 @@ p, h1, form, button {
 	display:block;
 	margin-bottom: 5px;
 	text-align:center;
+	word-break:break-all;
 }
 
 .inputDiv
@@ -211,6 +213,7 @@ p, h1, form, button {
 	border: 1px solid #EEEEEE;
 	display: inline-block;
 	margin: 1em auto;
+	max-width:500px;
 	padding: 1em;
 }
 
