@@ -42,6 +42,7 @@ public class GradeItemCellPanel extends Panel {
 	protected GradebookNgBusinessService businessService;
 		
 	IModel<Map<String,Object>> model;
+	Map<String,Object> modelData;
 	
 	AjaxEditableLabel<String> gradeCell;
 	
@@ -79,7 +80,7 @@ public class GradeItemCellPanel extends Panel {
 		super.onInitialize();
 		
 		//unpack model
-		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
+		modelData = (Map<String,Object>) this.model.getObject();
 		final Long assignmentId = (Long) modelData.get("assignmentId");
 		final Double assignmentPoints = (Double) modelData.get("assignmentPoints");
 		final String studentUuid = (String) modelData.get("studentUuid");
@@ -445,7 +446,11 @@ public class GradeItemCellPanel extends Panel {
 	
 	private void refreshPopoverNotifications() {
 		if (!notifications.isEmpty()) {
-			String popoverString = ComponentRenderer.renderComponent(new GradeItemCellPopoverPanel("popover", model, notifications)).toString();
+			modelData.put("comment", comment);
+
+			GradeItemCellPopoverPanel popover = new GradeItemCellPopoverPanel("popover", Model.ofMap(modelData), notifications);
+			String popoverString = ComponentRenderer.renderComponent(popover).toString();
+
 			getParent().add(new AttributeModifier("data-toggle", "popover"));
 			getParent().add(new AttributeModifier("data-trigger", "manual"));
 			getParent().add(new AttributeModifier("data-placement", "bottom"));
