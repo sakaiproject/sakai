@@ -9,7 +9,6 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -60,7 +59,8 @@ public class StudentGradeSummaryPanel extends Panel {
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
         
 		//TODO catch if this is null, the get(0) will throw an exception
-		this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
+        //TODO also catch the GbException
+        this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
 		
 		//assignment list
 		ListDataProvider<Assignment> listDataProvider = new ListDataProvider<Assignment>(assignments);

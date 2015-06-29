@@ -28,17 +28,17 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.dto.AssignmentOrder;
+import org.sakaiproject.gradebookng.business.exception.GbException;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
+import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbGroupType;
-import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
-import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
@@ -136,10 +136,16 @@ public class GradebookNgBusinessService {
 	 * @param userUuids list of user uuids
 	 * @return
 	 */
-	private List<User> getUsers(List<String> userUuids) {
-		List<User> users = userDirectoryService.getUsers(userUuids);
-		Collections.sort(users, new LastNameComparator()); //TODO this needs to take into account the GbStudentSortType
-		return users;
+	private List<User> getUsers(List<String> userUuids) throws GbException {
+		
+		try {
+			List<User> users = userDirectoryService.getUsers(userUuids);
+			Collections.sort(users, new LastNameComparator()); //TODO this needs to take into account the GbStudentSortType
+			return users;
+		} catch (RuntimeException e) {
+			//an LDAP exception can sometimes be thrown here, catch and rethrow
+			throw new GbException("An error occurred getting the list of users.", e);
+		}
 	}
 	
 	/**
@@ -333,7 +339,7 @@ public class GradebookNgBusinessService {
 	 * @param assignments list of assignments
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments) {
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments) throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers());
 	}
 	
@@ -345,7 +351,7 @@ public class GradebookNgBusinessService {
 	 * @param list of uuids
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids) {
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids) throws GbException {
 		return this.buildGradeMatrix(assignments, studentUuids, null);
 	}
 	
@@ -356,7 +362,7 @@ public class GradebookNgBusinessService {
 	 * @param sortOrder the sort order
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, GbAssignmentGradeSortOrder sortOrder) {
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, GbAssignmentGradeSortOrder sortOrder) throws GbException {
 		return this.buildGradeMatrix(assignments, this.getGradeableUsers(), sortOrder);
 	}
 	
@@ -368,7 +374,7 @@ public class GradebookNgBusinessService {
 	 * @Param sortOrder the type of sort we want. Wraps assignmentId and direction.
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids, GbAssignmentGradeSortOrder sortOrder) {
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids, GbAssignmentGradeSortOrder sortOrder) throws GbException {
 
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
@@ -429,6 +435,7 @@ public class GradebookNgBusinessService {
 				Temp.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(), stopwatch.getTime());
 			} catch (SecurityException e) {
 				//tried to access info for a user that we aren't allowed to get for. Skip this user.
+				//consider rethrowing this? Or should the UI not care.
 				log.error("Error retrieving grades. Skipping.", e);
 			}
 		}
