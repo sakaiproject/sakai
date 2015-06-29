@@ -32,13 +32,6 @@
 	roster.i18n = $.i18n.map;
 
     roster.i18n.months = roster.i18n.months.split(',');
-
-    /*
-    roster.monthMappings = {};
-    roster.i18n.months.forEach(function (m, i) {
-        roster.monthMappings[m] = i + 1;
-    });
-    */
 	
     roster.ADMIN = 'admin';
 

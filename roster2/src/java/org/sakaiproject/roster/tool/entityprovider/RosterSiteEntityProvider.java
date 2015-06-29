@@ -180,8 +180,6 @@ public class RosterSiteEntityProvider extends AbstractEntityProvider implements
                                                     , RosterFunctions.ROSTER_FUNCTION_VIEWSITEVISITS
                                                     , "/site/" + siteId);
 
-            System.out.println("viewSiteVisits: " + viewSiteVisits);
-
             Map<String, Integer> roleCounts = new HashMap<String, Integer>();
 
             for (RosterMember member : membership) {
