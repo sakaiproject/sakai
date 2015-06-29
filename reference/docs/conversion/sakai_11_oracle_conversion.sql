@@ -386,9 +386,19 @@ CREATE INDEX banner_dismissed_state on pasystem_banner_dismissed (state);
 drop index MFR_MESSAGE_DELETED_I;
 -- END SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 
+-- SAK-29546 Add site visit totals per user
+CREATE TABLE SST_PRESENCE_TOTALS (
+                ID NUMBER(19,0) NOT NULL auto_increment,
+                SITE_ID varchar2(99) NOT NULL,
+                USER_ID varchar2(99) NOT NULL,
+                TOTAL_VISITS NUMBER(10,0) NOT NULL,
+                LAST_VISIT_TIME DATE NOT NULL,
+                UNIQUE KEY(SITE_ID, USER_ID),
+                PRIMARY KEY(ID));
+-- END SAK-29546
+
 -- SAK-29595 Reduce size of comment field
 ALTER TABLE GM_COMMENT_T ADD(COMMENT_TEXT_INTERIM VARCHAR2(500));
 UPDATE GM_COMMENT_T SET COMMENT_TEXT_INTERIM = CAST(COMMENT_TEXT AS CHAR(500));
 ALTER TABLE GM_COMMENT_T DROP COLUMN COMMENT_TEXT;
 ALTER TABLE GM_COMMENT_T RENAME COLUMN COMMENT_TEXT_INTERIM TO COMMENT_TEXT;
-

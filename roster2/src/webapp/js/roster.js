@@ -30,6 +30,8 @@
 	});
     
 	roster.i18n = $.i18n.map;
+
+    roster.i18n.months = roster.i18n.months.split(',');
 	
     roster.ADMIN = 'admin';
 
@@ -406,6 +408,12 @@
                     }
 
                     m.enrollmentStatusText = roster.site.enrollmentStatusCodes[m.enrollmentStatusId];
+
+                    if (m.totalSiteVisits > 0) {
+                        m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
+                    } else {
+                        m.formattedLastVisitTime = roster.i18n.no_visits_yet;
+                    }
                 });
 
                 roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
@@ -524,6 +532,7 @@
                 'viewPicture': true,
                 'currentUserId': roster.userId,
                 'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
+                'viewSiteVisits': roster.currentUserPermissions.viewSiteVisits,
                 'viewConnections': (undefined != window.friendStatus)
             };
 
@@ -561,6 +570,16 @@
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
             return frag.replace(/\{1\}/, key);
         }).join();
+    };
+
+    roster.formatDate = function (time) {
+
+        var d = new Date(time);
+        var hours = d.getHours();
+        if (hours < 10)  hours = '0' + hours;
+        var minutes = d.getMinutes();
+        if (minutes < 10) minutes = '0' + minutes;
+        return d.getDate() + " " + roster.i18n.months[d.getMonth()] + " " + d.getFullYear() + " @ " + hours + ":" + minutes;
     };
 
     // Functions and attributes added. All the code from hereon is executed
