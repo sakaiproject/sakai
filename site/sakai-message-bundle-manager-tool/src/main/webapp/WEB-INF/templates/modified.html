@@ -9,7 +9,7 @@
     <div class="portletBody">
       <div id="menu" th:include="fragments/menus :: main (modified)" />
       <h3 th:text="#{modified.modified}">Modified Messages</h3>
-      <table id="modified" dt:table="true">
+      <table id="modified" dt:table="true" dt:export="csv">
         <thead>
           <tr>
             <th dt:filterable="false" dt:sortable="false" dt:searchable="false"></th>
