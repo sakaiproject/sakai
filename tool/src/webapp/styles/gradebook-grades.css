@@ -545,7 +545,7 @@
 }
 .gb-popover-notifications .gb-popover-notification-overlimit:before {
   font-family: "gradebook-icons";
-  content: "\f071";
+  content: "\f0fe";
 }
 .gb-popover-notifications .gb-popover-notification-has-comment:before {
   font-family: "gradebook-icons";
@@ -635,6 +635,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 
 .grade-save-error {
@@ -647,6 +650,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 
 .grade-save-warning {
@@ -659,6 +665,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 .grade-save-over-limit {
   background-color: #fcf8e3 !important;
@@ -670,6 +679,9 @@ ul.feedbackPanel {
   position: absolute;
   left: 20px;
   font-size: 1.4em;
+  height: 1.1em;
+  width: 1.1em;
+  line-height: 1.1em;
 }
 
 .has-comment > div:after {
