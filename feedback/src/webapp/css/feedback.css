@@ -86,10 +86,19 @@
 
 #feedback-attachments-label {
     margin-top: 5px;
+    clear:left;
 }
 
-#feedback-field-table {
-    margin-top: 5px;
+.feedback-form-field{
+	clear: left;
+}
+
+.feedback-form-field label{
+	float:left;
+	text-align:right;
+	display:block;
+	width:155px;
+	padding: 2px 5px;
 }
 
 #feedback-recaptcha-wrapper {
@@ -99,6 +108,7 @@
 #feedback-max-attachments-label {
     color: red;
     font-weight: bold;
+    clear:left;
 }
 
 .feedback-box {

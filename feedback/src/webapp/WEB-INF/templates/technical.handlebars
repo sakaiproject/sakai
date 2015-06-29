@@ -3,20 +3,19 @@
 <form id="feedback-form" action="/direct/feedback/{{siteId}}/{{url}}" method="POST">
     <div id="feedback-mandatory-instruction" class="instruction">{{translate 'mandatory_instruction'}}</div>
     <fieldset>
-    <table id="feedback-field-table" cols="2">
-        <tr>
-            <td id="feedback-title-label"><label for="feedback-title">{{translate 'title_label'}}</label></td>
-            <td id="feedback-title-field"><input id="feedback-title" type="text" name="title" maxlength="40" size="40"/></td>
-        </tr>
-        <tr>
-            <td id="feedback-description-label"><label for="feedback-description">{{translate 'description_label'}}</label></td>
-            <td id="feedback-description-field"><textarea id="feedback-description" name="description" cols="80" rows="5"></textarea></td>
-        </tr>
-        <tr>
-            <td id="feedback-sender-address-label"><label for="feedback-sender-address">{{translate 'sender_address_label'}}</label></td>
-            <td id="feedback-sender-address-field"><input id="feedback-sender-address" type="text" name="senderaddress" size="40"/></td>
-        </tr>
-    </table>
+    <div class="feedback-form-field">
+    	<label for="feedback-title">{{translate 'title_label'}}</label>
+    	<input id="feedback-title" type="text" name="title" maxlength="40" size="40"/>
+    </div>
+    <div class="feedback-form-field">
+    	<label for="feedback-description">{{translate 'description_label'}}</label>
+    	<textarea id="feedback-description" name="description" cols="80" rows="5"></textarea>
+    </div>
+    <div class="feedback-form-field">
+    	<label for="feedback-sender-address">{{translate 'sender_address_label'}}</label>
+    	<input id="feedback-sender-address" type="text" name="senderaddress" size="40"/>
+    </div>
+    
     <input id="feedback-technical-email" value="{{technicalToAddress}}" hidden="hidden"/>
     <input id="feedback-contactname" value="{{contactName}}" hidden="hidden"/>
     <input type="hidden" name="siteExists" value="{{siteExists}}"/>
