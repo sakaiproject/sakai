@@ -15,6 +15,7 @@
         <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
         <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+        <property name="statsManager"><ref bean="org.sakaiproject.sitestats.api.StatsManager"/></property>
         <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
         <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
     </bean>
