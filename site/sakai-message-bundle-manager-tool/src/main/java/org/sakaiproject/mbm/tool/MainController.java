@@ -13,13 +13,18 @@
  ******************************************************************************/
 package org.sakaiproject.mbm.tool;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import lombok.extern.apachecommons.CommonsLog;
 
+import org.joda.time.DateTime;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.mbm.tool.entities.ModulesFilterEntity;
@@ -27,7 +32,11 @@ import org.sakaiproject.mbm.tool.entities.MessageEntity;
 import org.sakaiproject.mbm.tool.entities.SearchEntity;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 import org.sakaiproject.messagebundle.api.MessageBundleService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.user.api.PreferencesService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -36,6 +45,16 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+
+import com.github.dandelion.datatables.core.ajax.DatatablesCriterias;
+import com.github.dandelion.datatables.core.exception.ExportException;
+import com.github.dandelion.datatables.core.export.CsvExport;
+import com.github.dandelion.datatables.core.export.ExportConf;
+import com.github.dandelion.datatables.core.export.ExportUtils;
+import com.github.dandelion.datatables.core.export.HtmlTableBuilder;
+import com.github.dandelion.datatables.core.export.ReservedFormat;
+import com.github.dandelion.datatables.core.html.HtmlTable;
+import com.github.dandelion.datatables.extras.spring3.ajax.DatatablesParams;
 
 /**
  * MainController
@@ -58,6 +77,16 @@ public class MainController {
 	
 	@Autowired
 	private SecurityService securityService;
+
+	@Autowired
+	@Qualifier("org.sakaiproject.mbm.tool.MessageSource")
+	private MessageSource messageSource;
+
+	@Autowired
+	private PreferencesService preferencesService;
+
+	@Autowired
+	private SessionManager sessionManager;
 
 	@ModelAttribute("listMessageProperties")
 	public List<MessageBundleProperty> listMessageProperties() {
@@ -111,6 +140,33 @@ public class MainController {
 	    return "modified";
 	}
 	
+    @RequestMapping(value = "/modified", params = {"dtf=csv","dti=modified"}, method = RequestMethod.GET, produces = "text/csv")
+    public void csv(@DatatablesParams DatatablesCriterias criterias, HttpServletRequest request, HttpServletResponse response) 
+            throws ExportException, IOException {
+        log.debug("csv() export");
+
+        String userId = sessionManager.getCurrentSessionUserId();
+        Locale userLocale = preferencesService.getLocale(userId);
+        List<MessageBundleProperty> list = listModifiedMessageProperties();
+
+        ExportConf csvConf = new ExportConf.Builder(ReservedFormat.CSV)
+            .fileName("messages-" + new DateTime().toString(messageSource.getMessage("modified.csv.date.format", null, userLocale)))
+            .header(true)
+            .exportClass(new CsvExport())
+            .build();
+
+        HtmlTable csvTable = new HtmlTableBuilder<MessageBundleProperty>().newBuilder("modified", list, request, csvConf)
+                .column().fillWithProperty("id").title(messageSource.getMessage("modified.csv.id", null, userLocale))
+                .column().fillWithProperty("moduleName").title(messageSource.getMessage("modified.csv.module", null, userLocale))
+                .column().fillWithProperty("propertyName").title(messageSource.getMessage("modified.csv.property", null, userLocale))
+                .column().fillWithProperty("value").title(messageSource.getMessage("modified.csv.value", null, userLocale))
+                .column().fillWithProperty("defaultValue").title(messageSource.getMessage("modified.csv.default", null, userLocale))
+                .column().fillWithProperty("locale").title(messageSource.getMessage("modified.csv.locale", null, userLocale))
+                .build();
+
+        ExportUtils.renderExport(csvTable, csvConf, response);
+    }
+
 	@RequestMapping(value = "/modules", method = RequestMethod.GET)
 	public String showModules(Model model) {
 		log.debug("showModules()");

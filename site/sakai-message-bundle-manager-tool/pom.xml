@@ -41,6 +41,11 @@
 		    <artifactId>datatables-thymeleaf</artifactId>
 		    <version>0.10.1</version>
 		</dependency>
+		<dependency>
+			<groupId>com.github.dandelion</groupId>
+			<artifactId>datatables-spring3</artifactId>
+			<version>0.10.1</version>
+		</dependency>
         <dependency>
 			<groupId>com.fasterxml.jackson.core</groupId>
 			<artifactId>jackson-core</artifactId>
@@ -77,7 +82,12 @@
 	      <groupId>commons-lang</groupId>
 	      <artifactId>commons-lang</artifactId>
     	</dependency>
-		<!-- Sakai dependencies -->
+		<dependency>
+			<groupId>joda-time</groupId>
+			<artifactId>joda-time</artifactId>
+			<version>${joda.time.version}</version>
+		</dependency>
+        <!-- Sakai dependencies -->
 		<dependency>
 			<groupId>org.sakaiproject.kernel</groupId>
 			<artifactId>sakai-kernel-api</artifactId>
