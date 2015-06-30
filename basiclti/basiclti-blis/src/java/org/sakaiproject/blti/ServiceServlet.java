@@ -664,21 +664,14 @@ public class ServiceServlet extends HttpServlet {
 					String ims_user_id = member.getUserId();
 					mm.put("/user_id",ims_user_id);
 					String ims_role = "Learner";
-
-					// If there is a role mapping, it has precedence over site.update
+					if ( maintainRole != null && maintainRole.equals(role.getId())) ims_role = "Instructor";
 					if ( roleMap.containsKey(role.getId()) ) {
 						ims_role = roleMap.get(role.getId());
-					} 
-					else if (AuthzGroupService.isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/"+siteId))
-					{
-						ims_role = "Instructor";
 					}
-
-					// Using "/role" is inconsistent with to
-					// http://developers.imsglobal.org/ext_membership.html. It
-					// should be roles. If we can determine that nobody is using
-					// the role tag, we should remove it.
-
+                    // This is incorrect according to
+                    // http://developers.imsglobal.org/ext_membership.html. It
+                    // should be roles. If we can determine that nobody is using
+                    // the role tag, we should remove it.
 					mm.put("/role",ims_role);
 					mm.put("/roles",ims_role);
 					User user = null;
