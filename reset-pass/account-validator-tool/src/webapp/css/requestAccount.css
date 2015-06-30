@@ -163,6 +163,7 @@ table.myform {
     display: block;
     margin-bottom: 15px;
     text-align: center;
+    word-break:break-all;
 }
 
 .inputDiv {
