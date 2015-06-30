@@ -1,7 +1,6 @@
 body {
 	background:#cccccc;
 	font-family:'Helvetica Neue',Arial,'Nimbus Sans L','Liberation Sans',sans-serif;
-	font-size:12px;
 }
 p, h1, form, button {
     border: 0;
@@ -42,7 +41,6 @@ p, h1, form, button {
 }
 
 .stylized h1 {
-    font-size: 14px;
     font-weight: bold;
     margin-bottom: 8px;
 }
@@ -72,7 +70,6 @@ p, h1, form, button {
 }
 
 .stylized p {
-    font-size: 11px;
     color: #666666;
 	margin: 1em auto;
 	text-align: center;
@@ -85,7 +82,6 @@ p, h1, form, button {
     font-weight: bold;
     text-align: right;
     width: 21em;
-    font-size: 12px;
     margin-right: 1em;
 }
 
@@ -95,6 +91,11 @@ p, h1, form, button {
 	text-align:left;
 	margin: 0.5em auto;
 	width:50%;
+}
+
+.siteList li
+{
+	list-style: disc inside none;
 }
 
 .transferForm.stylized
@@ -118,7 +119,6 @@ p, h1, form, button {
 	float:none;
 	margin-left:2px;
 	border:0 none;
-	font-size:1em;
 	font-weight:bold;
 }
 
@@ -147,7 +147,6 @@ p, h1, form, button {
 .stylized .inputBox {
     display: block;
     float: left;
-    font-size: 12px;
     padding: 4px 2px;
     border: 1px solid #aacfe4;
     width: 10em;
