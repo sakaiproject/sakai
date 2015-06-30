@@ -2982,9 +2982,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
 		buffer.append(rb.getString("noti.site.url") + " <a href=\""+ siteUrl+ "\">" + siteUrl + "</a>"+ newline);
 		// notification text
-		buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), siteTitle}));
+		//Get the actual person that submitted, for a group submission just get the first person from that group (This is why the array is used)
+		String userId = null;
+		if (s.getSubmitterIds() != null && s.getSubmitterIds().size() > 0) {
+		    userId = (String) s.getSubmitterIds().get(0);
+		}
+		if (canSubmit(context,a,userId)) {
+		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), siteTitle}));
+		}
+		else {
+		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new String[]{a.getTitle(), siteTitle}));
+		}
 	 		
-	 		return buffer.toString();
+	 	return buffer.toString();
 	}
 	/**
 	 * Cancel the changes made to a AssignmentSubmissionEdit object, and release the lock.
@@ -7043,7 +7053,14 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	/**
 	 * {@inheritDoc}
 	 */
-	public boolean canSubmit(String context, Assignment a)
+	public boolean canSubmit(String context, Assignment a) {
+	    return canSubmit (context,a,null);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean canSubmit(String context, Assignment a, String userId)
 	{
 		// submissions are never allowed to non-electronic assignments
 		if (a.getContent().getTypeOfSubmission() == Assignment.NON_ELECTRONIC_ASSIGNMENT_SUBMISSION)
@@ -7054,7 +7071,10 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		// return false if not allowed to submit at all
 		if (!allowAddSubmissionCheckGroups(context, a) && !allowAddAssignment(context) /*SAK-25555 return true if user is allowed to add assignment*/) return false;
 		
-		String userId = SessionManager.getCurrentSessionUserId();
+		//If userId is not defined look it up
+		if (userId == null) {
+		    userId = SessionManager.getCurrentSessionUserId();
+		}
 
 		// if user can submit to this assignment
 		List visibleAssignments = assignments(context, userId);
