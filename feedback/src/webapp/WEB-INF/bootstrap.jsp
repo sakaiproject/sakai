@@ -60,12 +60,12 @@
             <div class="portletBody">
                 <div id="feedback-error-message-wrapper">
                     <div>
-                        <img src="/library/image/silk/exclamation.png" /><span></span><a id="feedback-error-close" href="javascript:;"><img src="/library/image/silk/cross.png" /></a>
+                        <span></span><a href="javascript:;" alt="${i18n.close}" title="${i18n.close}"></a>
                     </div>
                 </div>
                 <div id="feedback-info-message-wrapper">
                     <div>
-                        <img src="/library/image/silk/information.png" /><span></span><a id="feedback-info-close" href="javascript:;"><img src="/library/image/silk/cross.png" /></a>
+                        <span></span><a href="javascript:;" alt="${i18n.close}" title="${i18n.close}"></a>
                     </div>
                 </div>
                 <div id="feedback-content"></div>

@@ -52,6 +52,17 @@
     color: red;
 }
 
+#feedback-error-message-wrapper > div:before {
+	content: "\f06a"; /* fa-exclamation-circle */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: red;
+    font-size: 18px;
+}
+
 #feedback-info-message-wrapper > div{
     display: inline-block;
     padding: 5px;
@@ -60,14 +71,37 @@
     color: green;
 }
 
-#feedback-error-message-wrapper span, #feedback-info-message-wrapper span {
-    margin-right: 10px;
-    margin-left: 10px;
+#feedback-info-message-wrapper > div:before {
+	content: "\f05a"; /* fa-info-circle */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: green;
+    font-size: 18px;
 }
 
-#feedback-error-message-wrapper img, #feedback-info-message-wrapper img {
-    margin: 0px;
+#feedback-error-message-wrapper span, #feedback-info-message-wrapper span {
+    margin-right: 12px;
+    margin-left: 0px;
+}
+
+#feedback-error-message-wrapper a, #feedback-info-message-wrapper a {
+    margin-right: 0px;
     padding: 0px;
+    text-decoration: none;
+}
+
+#feedback-error-message-wrapper a:before, #feedback-info-message-wrapper a:before {
+    content: "\f00d"; /* fa-times */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: red;
+    font-size: 18px;
 }
 
 .feedback-explanation {
@@ -136,24 +170,65 @@
     padding-left: 8px;
 }
 
-#feedback-content-problem h3, #feedback-no-panels h3 {
-    background: url('/library/image/silk/page_white_error.png') no-repeat scroll left top transparent;
-    padding-left: 20px;
+.feedback-box h3 {
+	padding-left: 25px;
+    position:relative;
 }
 
-#feedback-ask-help h3 {
-    background: url('/library/image/silk/user_comment.png') no-repeat scroll left top transparent;
-    padding-left: 20px;
+#feedback-content-problem h3:before, #feedback-no-panels h3:before {
+    content: "\f071"; /* fa-exclamation-triangle */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: red;
+    font-size: 18px;
+    position: absolute;
+    top: 10px;
+    left: 0;
 }
 
-#feedback-tech-problem h3 {
-    background: url('/library/image/silk/bug.png') no-repeat scroll left top transparent;
-    padding-left: 20px;
+#feedback-ask-help h3:before {
+    content: "\f0e5"; /* fa-comment-o */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: blue;
+    font-size: 18px;
+    position: absolute;
+    top: 0px;
+    left: 0;
 }
 
-#feedback-improvement h3 {
-    background: url('/library/image/silk/lightbulb.png') no-repeat scroll left top transparent;
-    padding-left: 20px;
+#feedback-tech-problem h3:before {
+    content: "\f188"; /* fa-bug */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: green;
+    font-size: 18px;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+#feedback-improvement h3:before {
+    content: "\f0eb"; /* fa-lightbulb-o */
+    font-family: FontAwesome;
+    font-style: normal;
+    font-weight: normal;
+    text-decoration: inherit;
+/*--adjust as necessary--*/
+    color: orange;
+    font-size: 18px;
+    position: absolute;
+    top: 10px;
+    left: 0;
 }
 
 #feedback-toolbar {
