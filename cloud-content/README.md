@@ -3,11 +3,19 @@
 The cloud implementation of FileSystemHandler. This implementation writes and
 reads files to and from cloud storage including OpenStack-Swift and S3.
 
+## Authors
+
+This module is based on
+[contributions](https://github.com/OpenCollabZA/sakai-openstack-swift)
+from OpenCollab under the
+[Educational Community License v2.0](http://opensource.org/licenses/ECL-2.0).
+It is also contains contributions from Longsight, Inc.
+
 ## Usage
 
-Clone and build this module like any other Sakai modules. It can be cloned into
-an existing working copy or somewhere parallel. You must use the `sakai:deploy`
-Maven goal to deploy the component pack.
+Build this module like any other Sakai modules. You must use the `sakai:deploy`
+Maven goal to deploy the component pack as usual. It is included in the default
+profile of the top-level build as well.
 
 To use cloud rather than the default file/database storage, settings must be
 configured in two places:

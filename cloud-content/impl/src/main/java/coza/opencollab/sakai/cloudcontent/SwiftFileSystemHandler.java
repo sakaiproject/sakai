@@ -1,5 +1,7 @@
 package coza.opencollab.sakai.cloudcontent;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.io.Closeables;
@@ -420,19 +422,30 @@ public class SwiftFileSystemHandler implements FileSystemHandler {
     }
     
     /**
-     * A simple implementation that does nothing.
+     * A simple implementation that uses typical commons-logging.
      */
-    class DefaultLogger implements Logger{
-        @Override
-        public void warningOnAccountSize(long warningLimitInBytes, long bytesUsed) {}
+    class DefaultLogger implements Logger {
+
+        private Log log = LogFactory.getLog(SwiftFileSystemHandler.class);
 
         @Override
-        public void errorOnAccountSize(long maxSizeInBytes, long bytesUsed) {}
+        public void warningOnAccountSize(long warningLimitInBytes, long bytesUsed) {
+            log.warn("Warning on Swift account size -- warningLimit: " + warningLimitInBytes + ", bytesUsed: " + bytesUsed);
+        }
 
         @Override
-        public void warningOnContainerSize(long warningLimitInBytes, long bytesUsed) {}
+        public void errorOnAccountSize(long maxSizeInBytes, long bytesUsed) {
+            log.error("Error on Swift account size -- maxSize: " + maxSizeInBytes + ", bytesUsed: " + bytesUsed);
+        }
 
         @Override
-        public void errorOnContainerSize(long maxSizeInBytes, long bytesUsed) {}
+        public void warningOnContainerSize(long warningLimitInBytes, long bytesUsed) {
+            log.warn("Warning on Swift container size -- warningLimit: " + warningLimitInBytes + ", bytesUsed: " + bytesUsed);
+        }
+
+        @Override
+        public void errorOnContainerSize(long maxSizeInBytes, long bytesUsed) {
+            log.error("Error on Swift container size -- maxSize: " + maxSizeInBytes + ", bytesUsed: " + bytesUsed);
+        }
     };
 }
