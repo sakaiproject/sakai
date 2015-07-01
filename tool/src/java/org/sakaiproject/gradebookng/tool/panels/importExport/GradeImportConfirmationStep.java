@@ -24,7 +24,9 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by chmaurer on 2/10/15.
@@ -62,9 +64,11 @@ public class GradeImportConfirmationStep extends Panel {
             protected void onSubmit()
             {
                 boolean errors = false;
+                Map<String, Long> assignmentMap = new HashMap<>();
                 //Create new GB items
                 for (Assignment assignment : assignmentsToCreate) {
-                    businessService.addAssignment(assignment);
+                    Long assignmentId = businessService.addAssignment(assignment);
+                    assignmentMap.put(assignment.getName(), assignmentId);
                 }
 
                 List<ProcessedGradeItem> itemsToSave = new ArrayList<ProcessedGradeItem>();
@@ -74,20 +78,25 @@ public class GradeImportConfirmationStep extends Panel {
                     LOG.debug("Looping through items to save");
                     for (ProcessedGradeItemDetail processedGradeItemDetail : processedGradeItem.getProcessedGradeItemDetails()) {
                         LOG.debug("Looping through detail items to save");
-                        GradeSaveResponse saved = businessService.saveGrade(processedGradeItem.getItemId(), processedGradeItemDetail.getStudentUuid(),
+                        Long assignmentId = processedGradeItem.getItemId();
+                        if (assignmentId == null) {
+                            //Should be a newly created gn item
+                            assignmentId = assignmentMap.get(processedGradeItem.getItemTitle());
+                        }
+                        GradeSaveResponse saved = businessService.saveGrade(assignmentId, processedGradeItemDetail.getStudentUuid(),
                                 processedGradeItemDetail.getGrade(), processedGradeItemDetail.getComment());
 
                         if (saved == GradeSaveResponse.NO_CHANGE) {
                             //Check for changed comments
-                            String currentComment = businessService.getAssignmentGradeComment(processedGradeItem.getItemId(),
+                            String currentComment = businessService.getAssignmentGradeComment(assignmentId,
                                     processedGradeItemDetail.getStudentUuid());
 
                             currentComment = StringUtils.trimToNull(currentComment);
                             String newComment = StringUtils.trimToNull(processedGradeItemDetail.getComment());
                             if (!StringUtils.equals(currentComment, newComment)) {
-                                boolean success = businessService.updateAssignmentGradeComment(processedGradeItem.getItemId(),
+                                boolean success = businessService.updateAssignmentGradeComment(assignmentId,
                                         processedGradeItemDetail.getStudentUuid(), newComment);
-                                LOG.info("Saving comment: " + success + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentEid() + ", " +
+                                LOG.info("Saving comment: " + success + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " +
                                         processedGradeItemDetail.getComment());
                                 if (!success) {
                                     errors = true;
@@ -97,7 +106,7 @@ public class GradeImportConfirmationStep extends Panel {
                             //Anything other than OK is bad
                             errors = true;
                         }
-                        LOG.info("Saving grade: " + saved + ", " + processedGradeItem.getItemId() + ", " + processedGradeItemDetail.getStudentEid() + ", " +
+                        LOG.info("Saving grade: " + saved + ", " + assignmentId + ", " + processedGradeItemDetail.getStudentEid() + ", " +
                                 processedGradeItemDetail.getGrade() + ", " + processedGradeItemDetail.getComment());
                     }
                 }
