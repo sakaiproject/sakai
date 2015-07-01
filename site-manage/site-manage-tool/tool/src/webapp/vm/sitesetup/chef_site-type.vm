@@ -51,10 +51,11 @@
         <div id="siteTypeList" 
              #* if templates enabled *# class="indnt3" #*end templates enabled *#>
             #foreach ($type in $siteTypes)
-				#set($courseTypeWithPerm    = ((($courseSiteTypeStrings.contains($type)     && $type == "course")     || $type == "course")    && $canAddCourse ))
-				#set($portfolioTypeWithPerm = ((($portfolioSiteTypeStrings.contains($type) && $type == "portfolio")  || $type == "portfolio") && $canAddPortfolio )) 
-				#set($projectTypeWithPerm   = ((($projectSiteTypeStrings.contains($type)   && $type == "project")    || $type == "project")   && $canAddProject )) 
-				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm)) 
+				#set($courseTypeWithPerm    = (($courseSiteTypeStrings.contains($type) || $type == "course")    && $canAddCourse ))
+				#set($portfolioTypeWithPerm = (($portfolioSiteTypeStrings.contains($type) || $type == "portfolio") && $canAddPortfolio )) 
+				#set($projectTypeWithPerm   = (($projectSiteTypeStrings.contains($type)   || $type == "project")   && $canAddProject )) 
+				#set($otherCustomType = ( (!$courseSiteTypeStrings.contains($type)) && (!$projectSiteTypeStrings.contains($type)) && (!$portfolioSiteTypeStrings.contains($type))))
+				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm) || ($otherCustomType))
                     <p class="checkbox indnt1">
                         <input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
                         <label for = "$type">

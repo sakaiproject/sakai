@@ -241,6 +241,8 @@
         if (portal.chat.video.enabled) {
             if (portal.chat.debug) console.debug('Setting up the video chat bar ...');
             this.setupVideoChatBar(peerUUID, !portal.chat.video.webrtc.isVideoEnabled() || !portal.chat.video.hasRemoteVideoAgent(peerUUID), minimised);
+        } else {
+            this.setupVideoChatBar(peerUUID, true, minimised);
         }
 
         return false;

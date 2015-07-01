@@ -67,6 +67,7 @@ import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
@@ -533,7 +534,7 @@ public class ServiceServlet extends HttpServlet {
 						Map<String,Object> content = null;
 						String contentStr = pitch.getProperty("contentKey");
 						Long contentKey = foorm.getLongKey(contentStr);
-						if ( contentKey > 0 ) content = ltiService.getContentDao(contentKey, siteId);
+						if ( contentKey >= 0 ) content = ltiService.getContentDao(contentKey, siteId);
 						if ( content != null ) {
 							if ( "basic-lti-savesetting".equals(lti_message_type) ) {
 								setting = request.getParameter("setting");
@@ -664,14 +665,21 @@ public class ServiceServlet extends HttpServlet {
 					String ims_user_id = member.getUserId();
 					mm.put("/user_id",ims_user_id);
 					String ims_role = "Learner";
-					if ( maintainRole != null && maintainRole.equals(role.getId())) ims_role = "Instructor";
+
+					// If there is a role mapping, it has precedence over site.update
 					if ( roleMap.containsKey(role.getId()) ) {
 						ims_role = roleMap.get(role.getId());
+					} 
+					else if (AuthzGroupService.isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/"+siteId))
+					{
+						ims_role = "Instructor";
 					}
-                    // This is incorrect according to
-                    // http://developers.imsglobal.org/ext_membership.html. It
-                    // should be roles. If we can determine that nobody is using
-                    // the role tag, we should remove it.
+
+					// Using "/role" is inconsistent with to
+					// http://developers.imsglobal.org/ext_membership.html. It
+					// should be roles. If we can determine that nobody is using
+					// the role tag, we should remove it.
+
 					mm.put("/role",ims_role);
 					mm.put("/roles",ims_role);
 					User user = null;

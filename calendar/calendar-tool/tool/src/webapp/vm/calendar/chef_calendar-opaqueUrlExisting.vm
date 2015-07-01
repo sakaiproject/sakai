@@ -1,8 +1,11 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/calendar/chef_calendar-opaqueUrl2.vm,v 1.5 2005/05/28 03:04:35 ggolden.umich.edu Exp $
 <div class="portletBody"> 
 	<h3>
-		$tlang.getString('ical_opaqueurl_header')
+		$tlang.getString('ical_opaqueurl_header_existing')
 	</h3>
+		<p class="instruction">
+			$tlang.getString('ical_opaqueurl_explanation_existing')
+		</p>
 	#if (!$isMyWorkspace)
 		<p class="instruction">
 			<em>$tlang.getString('ical_opaqueurl_myworkspace')</em>

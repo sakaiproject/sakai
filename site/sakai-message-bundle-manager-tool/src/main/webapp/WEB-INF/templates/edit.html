@@ -3,62 +3,64 @@
 <head th:replace="fragments/common :: head" />
 <body>
   <div th:replace="fragments/common :: bootstrap" />
-  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})"/>
-  <div th:include="fragments/common :: admin (${isAdmin})"/>
+  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})" />
+  <div th:include="fragments/common :: admin (${isAdmin})" />
   <div th:if="${isLoadBundlesFromDb} and ${isAdmin}">
-    <div id="menu" th:include="fragments/menus :: main (edit)" />
-    <h3 th:text="#{edit.edit}">Edit Message</h3>
-    <form class="form-horizontal" action="#" th:action="@{/edit}" th:object="${messageEntity}" method="post">
-      <input type="hidden" th:field="*{id}" />
-      <div id="edit-group" class="form-group">
-        <label class="col-sm-2 control-label" th:text="#{mbp.id}">Id</label>
-        <div class="col-sm-10">
-          <p class="form-control-static" th:text="*{id}">id</p>
+    <div class="portletBody">
+      <div id="menu" th:include="fragments/menus :: main (edit)" />
+      <h3 th:text="#{edit.edit}">Edit Message</h3>
+      <form class="form-horizontal" action="#" th:action="@{/edit}" th:object="${messageEntity}" method="post">
+        <input type="hidden" th:field="*{id}" />
+        <div id="edit-group" class="form-group">
+          <label class="col-sm-2 control-label" th:text="#{mbp.id}">Id</label>
+          <div class="col-sm-10">
+            <p class="form-control-static" th:text="*{id}">id</p>
+          </div>
         </div>
-      </div>
-      <div id="edit-group" class="form-group">
-        <label class="col-sm-2 control-label" th:text="#{mbp.moduleName}">Module Name</label>
-        <div class="col-sm-10">
-          <p class="form-control-static" th:text="${messageBundleProperty.moduleName}">moduleName</p>
+        <div id="edit-group" class="form-group">
+          <label class="col-sm-2 control-label" th:text="#{mbp.moduleName}">Module Name</label>
+          <div class="col-sm-10">
+            <p class="form-control-static" th:text="${messageBundleProperty.moduleName}">moduleName</p>
+          </div>
         </div>
-      </div>
-      <div id="edit-group" class="form-group">
-        <label class="col-sm-2 control-label" th:text="#{mbp.baseName}">Base Name</label>
-        <div class="col-sm-10">
-          <p class="form-control-static" th:text="${messageBundleProperty.baseName}">baseName</p>
+        <div id="edit-group" class="form-group">
+          <label class="col-sm-2 control-label" th:text="#{mbp.baseName}">Base Name</label>
+          <div class="col-sm-10">
+            <p class="form-control-static" th:text="${messageBundleProperty.baseName}">baseName</p>
+          </div>
         </div>
-      </div>
-      <div id="edit-group" class="form-group">
-        <label class="col-sm-2 control-label" th:text="#{mbp.propertyName}">Property Name</label>
-        <div class="col-sm-10">
-          <p class="form-control-static" th:text="${messageBundleProperty.propertyName}">propertyName</p>
+        <div id="edit-group" class="form-group">
+          <label class="col-sm-2 control-label" th:text="#{mbp.propertyName}">Property Name</label>
+          <div class="col-sm-10">
+            <p class="form-control-static" th:text="${messageBundleProperty.propertyName}">propertyName</p>
+          </div>
         </div>
-      </div>
-      <div id="edit-group" class="form-group">
-        <label class="col-sm-2 control-label" th:text="#{mbp.locale}">Locale</label>
-        <div class="col-sm-10">
-          <p class="form-control-static" th:text="${messageBundleProperty.locale}">locale</p>
+        <div id="edit-group" class="form-group">
+          <label class="col-sm-2 control-label" th:text="#{mbp.locale}">Locale</label>
+          <div class="col-sm-10">
+            <p class="form-control-static" th:text="${messageBundleProperty.locale}">locale</p>
+          </div>
         </div>
-      </div>
-      <div id="edit-group" class="form-group">
-        <label class="col-sm-2 control-label" th:text="#{mbp.defaultValue}">Default Value</label>
-        <div class="col-sm-10">
-          <p class="form-control-static" th:text="${messageBundleProperty.defaultValue}">defaultValue</p>
+        <div id="edit-group" class="form-group">
+          <label class="col-sm-2 control-label" th:text="#{mbp.defaultValue}">Default Value</label>
+          <div class="col-sm-10">
+            <p class="form-control-static" th:text="${messageBundleProperty.defaultValue}">defaultValue</p>
+          </div>
         </div>
-      </div>
-      <div id="edit-group" class="form-group">
-        <label for="inputValue" class="col-sm-2 control-label" th:text="#{mbp.value}">Value</label>
-        <div class="col-sm-10">
-          <input type="text" class="form-control" id="inputValue" th:placeholder="${value}" th:field="*{value}" />
+        <div id="edit-group" class="form-group">
+          <label for="inputValue" class="col-sm-2 control-label" th:text="#{mbp.value}">Value</label>
+          <div class="col-sm-10">
+            <input type="text" class="form-control" id="inputValue" th:placeholder="${value}" th:field="*{value}" />
+          </div>
         </div>
-      </div>
-      <div class="form-group">
-        <div class="col-sm-offset-2 col-sm-10">
-          <button class="btn btn-primary" type="submit" name="save" th:text="#{edit.save}">Save</button>
-          <button class="btn btn-default" type="submit" name="revert" th:text="#{edit.revert}">Revert</button>
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button class="btn btn-primary" type="submit" name="save" th:text="#{edit.save}">Save</button>
+            <button class="btn btn-default" type="submit" name="revert" th:text="#{edit.revert}">Revert</button>
+          </div>
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </body>
 </html>
