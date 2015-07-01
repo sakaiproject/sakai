@@ -21,9 +21,6 @@ package org.sakaiproject.sitestats.impl;
 import java.io.Serializable;
 import java.util.Date;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.sitestats.api.SitePresence;
 import org.sakaiproject.sitestats.api.SitePresenceTotal;
 
@@ -36,21 +33,11 @@ public class SitePresenceTotalImpl implements SitePresenceTotal, Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private static final Log LOG = LogFactory.getLog(SitePresenceTotalImpl.class);
-
     private long id;
     private String siteId;
     private String userId;
     private int totalVisits;
-
     private Date lastVisitTime;
-    public void setLastVisitTime(Date lastVisitTime) {
-        if (lastVisitTime == null) {
-            LOG.error("lastVisitTime is null. Setting to current date ...");
-            lastVisitTime = new Date();
-        }
-        this.lastVisitTime = lastVisitTime;
-    }
 
     public SitePresenceTotalImpl() {}
 
