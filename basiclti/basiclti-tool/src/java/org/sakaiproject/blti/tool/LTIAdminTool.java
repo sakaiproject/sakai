@@ -83,8 +83,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	private static String STATE_REDIRECT_URL = "lti:state_redirect_url";
 	private static String STATE_LTI2_TOOL_ID = "lti2:state_tool_id";
 
-	private static String SECRET_HIDDEN = "***************";
-	
 	private static String ALLOW_MAINTAINER_ADD_SYSTEM_TOOL = "lti:allow_maintainer_add_system_tool";
 
 	/** Service Implementations */
@@ -290,8 +288,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
         String formStatus = ltiService.formOutput(tool, fieldInfo);
 		context.put("formStatus", formStatus);
 
-		tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);
-		tool.put(LTIService.LTI_CONSUMERKEY,SECRET_HIDDEN);
+		tool.put(LTIService.LTI_SECRET,LTIService.SECRET_HIDDEN);
+		tool.put(LTIService.LTI_CONSUMERKEY,LTIService.SECRET_HIDDEN);
 		String formOutput = ltiService.formOutput(tool, mappingForm);
 		context.put("formOutput", formOutput);
 		state.removeAttribute(STATE_SUCCESS);
@@ -324,7 +322,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Hide the old tool secret unless it is incomplete
 		if ( ! LTIService.LTI_SECRET_INCOMPLETE.equals(tool.get(LTIService.LTI_SECRET)) ) {
-			tool.put(LTIService.LTI_SECRET,SECRET_HIDDEN);		
+			tool.put(LTIService.LTI_SECRET,LTIService.SECRET_HIDDEN);		
 		}
 
 		// Deal with the differences between LTI 1 and LTI 2
@@ -486,7 +484,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Properties reqProps = data.getParameters().getProperties();
 
 		String newSecret = reqProps.getProperty(LTIService.LTI_SECRET);
-		if ( SECRET_HIDDEN.equals(newSecret) ) {
+		if ( LTIService.SECRET_HIDDEN.equals(newSecret) ) {
 			reqProps.remove(LTIService.LTI_SECRET);
 			newSecret = null;
 		}

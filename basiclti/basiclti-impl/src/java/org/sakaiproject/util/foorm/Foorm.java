@@ -1213,6 +1213,89 @@ public class Foorm {
 	}
 
 	/**
+	 * Check to see if an order clause is valid
+	 *
+	 * A legal order fields is of the form:
+	 *
+	 * [tablename].fieldname [asc|desc]
+	 * 
+	 * @param order
+	 * @param tableName
+	 * @param fieldinfo
+	 * @return null if the order is not valid and a good order string if if is OK
+	 */
+	public String orderCheck(String order, String tableName, String[] fieldinfo) {
+
+		if ( order == null ) return null;
+		String order_seq = null;
+		String order_table = null;
+		String order_field = null;
+
+		String opieces [] = order.trim().split(" ");
+		if ( opieces.length > 2 ) {
+			return null;
+		} else if ( opieces.length == 2 ) {
+			order_seq = opieces[1].toUpperCase();
+			if ( "ASC".equals(order_seq) || "DESC".equals(order_seq) ) {
+				// All good
+			} else {
+				return null;
+			}
+		}
+
+		String [] fpieces = opieces[0].split("\\.");
+		String regex = "^[a-zA-Z0-0_]+$";
+
+		if ( fpieces.length == 1 ) {
+			order_field = fpieces[0];
+		} else if ( fpieces.length == 2 )  {
+			order_table = fpieces[0];
+			order_field = fpieces[1];
+			if ( !order_table.matches(regex) ) {
+				return null;
+			}
+		} else {
+			return null;
+		}
+
+		if ( !order_field.matches(regex) ) {
+			return null;
+		}
+		if ( order_table == null ) {
+			order_table = tableName;
+		} else if ( ! tableName.equals(order_table) ) {
+			return null;
+		}
+
+		// Make sure our field is legit
+		StringBuffer fields = new StringBuffer();
+		boolean found = false;
+		for (String line : fieldinfo) {
+			Properties info = parseFormString(line);
+			String field = info.getProperty("field");
+			String type = info.getProperty("type");
+			if (field == null || type == null) {
+				throw new IllegalArgumentException(
+						"All model elements must include field name and type");
+			}
+			if ( "header".equals(type) ) continue;
+			if ( field.equals(order_field) ) {
+				found = true;
+				break;
+			}
+		}
+		if ( ! found ) {
+			return null;
+		}
+
+		String retval = order_table+"."+order_field;
+		if ( order_seq != null ) {
+			retval = retval + " " + order_seq;
+		}
+		return retval;
+	}
+
+	/**
 	 * 
 	 * @param dataMap
 	 * @return
@@ -1430,7 +1513,7 @@ public class Foorm {
 		// With no data - the software can still enforce required - but	
 		// we leave it up to the insert and update code
 		//if ("true".equals(required) && !(schema.indexOf("NOT NULL") > 0))
-			//schema += " NOT NULL";
+		//schema += " NOT NULL";
 		return "    " + field + " " + schema;
 	}
 
@@ -1680,7 +1763,7 @@ public class Foorm {
 
 	/**
 	 * Deal with suffixes like "M" and "K"
-         */
+	 */
 	public String adjustMax(String maxs)
 	{
 		if ( maxs == null ) return null;
