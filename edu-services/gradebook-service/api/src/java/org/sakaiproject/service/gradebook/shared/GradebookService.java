@@ -360,8 +360,9 @@ public interface GradebookService {
 	 * Create a new Gradebook-managed assignment.
 	 * 
 	 * @param assignmentDefinition
+	 * @return the id of the newly created assignment
 	 */
-	public void addAssignment(String gradebookUid, Assignment assignmentDefinition);
+	public Long addAssignment(String gradebookUid, Assignment assignmentDefinition);
 	
 	/**
 	 * Modify the definition of an existing Gradebook-managed assignment.
