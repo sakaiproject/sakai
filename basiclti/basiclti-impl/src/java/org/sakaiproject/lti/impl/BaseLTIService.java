@@ -377,16 +377,6 @@ public abstract class BaseLTIService implements LTIService {
 
 	/**
 	 * 
-	 * @param key
-	 * @param newProps
-	 * @param siteId
-	 * @param isMaintainRole
-	 * @return
-	 */
-	public abstract Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
-	/**
-	 * 
 	 * {@inheritDoc}
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#updateContent(java.lang.Long, java.util.Map)
@@ -441,13 +431,9 @@ public abstract class BaseLTIService implements LTIService {
 		return updateContentDao(key, (Object) newProps, siteId, true, true);
 	}
 
-	protected abstract Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public boolean deleteContent(Long key) {
 		return deleteContentDao(key, getContext(), isAdmin(), isMaintain());
 	}
-
-	protected abstract boolean deleteContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * 
@@ -558,8 +544,6 @@ public abstract class BaseLTIService implements LTIService {
 		return insertToolDao(newProps, siteId, true, true);
 	}
 
-	protected abstract Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public boolean deleteTool(Long key) {
 		return deleteToolDao(key, getContext(), isAdmin(), isMaintain());
 	}
@@ -567,8 +551,6 @@ public abstract class BaseLTIService implements LTIService {
 	public boolean deleteToolDao(Long key, String siteId) {
 		return deleteToolDao(key, siteId, true, true);
 	}
-
-	abstract boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * 
@@ -599,8 +581,6 @@ public abstract class BaseLTIService implements LTIService {
 		return getToolDao(key, siteId, true);
 	}
 
-	protected abstract Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole);
-
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last) {
 		return getToolsDao(search, order, first, last, getContext(), isAdmin());
 	}
@@ -608,8 +588,6 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId) {
 		return getToolsDao(search, order, first, last, siteId, true);
 	}
-
-	protected abstract List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public Object insertContent(Properties newProps) {
 		return insertContentDao(newProps, getContext(), isAdmin(), isMaintain());
@@ -619,8 +597,6 @@ public abstract class BaseLTIService implements LTIService {
 	{
 		return insertContentDao(newProps, siteId, true, true);
 	}
-
-	protected abstract Object insertContentDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public Map<String, Object> getContent(Long key) {
 		return getContentDao(key, getContext(), isAdmin());
@@ -639,8 +615,6 @@ public abstract class BaseLTIService implements LTIService {
 		return getContentDao(key, siteId, true);
 	}
 
-	protected abstract Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole);
-
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last) 
 	{
 		return getContentsDao(search, order, first, last, getContext(), isAdmin());
@@ -649,8 +623,6 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId) {
 		return getContentsDao(search, order, first, last, siteId, true);
 	}
-
-	protected abstract List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public Object insertToolContent(String id, String toolId, Properties reqProps)
 	{
@@ -873,25 +845,18 @@ public abstract class BaseLTIService implements LTIService {
 		return DEPLOY_MODEL;
 	}
 
-	protected abstract Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public Object insertDeployDao(Properties newProps) {
 		return insertDeployDao(newProps, null, true, true);
 	}
-
-	protected abstract Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public Object updateDeployDao(Long key, Object newProps) {
 		return updateDeployDao(key, newProps, null, true, true);
 	}
 
-	abstract boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public boolean deleteDeployDao(Long key) {
 		return deleteDeployDao(key, null, true, true);
 	}
 
-	protected abstract Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole);
 	public Map<String, Object> getDeployDao(Long key) {
 		return getDeployDao(key, null, true);
 	}
@@ -899,8 +864,6 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last) {
 		return getDeploysDao(search, order, first, last, null, true);
 	}
-
-	protected abstract List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public abstract Object insertProxyBindingDao(Properties newProps);
 	public abstract Object updateProxyBindingDao(Long key, Object newProps);
