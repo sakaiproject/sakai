@@ -26,11 +26,13 @@ package org.sakaiproject.lessonbuildertool.tool.producers;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Collection;
 import java.util.Set;
 import java.util.Map;
 import java.util.HashSet;
 import java.util.HashMap;
 import java.util.Date;
+import java.util.Properties;
 
 import org.sakaiproject.lessonbuildertool.service.LessonEntity;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -44,6 +46,9 @@ import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.cover.ContentTypeImageService;
 import org.sakaiproject.tool.api.ToolManager;
+import org.sakaiproject.site.api.Site;
+import org.sakaiproject.site.api.ToolConfiguration;
+import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.lessonbuildertool.service.LessonsAccess;
 
@@ -79,6 +84,7 @@ import uk.org.ponder.rsf.util.RSFUtil;
  */
 public class PagePickerProducer implements ViewComponentProducer, NavigationCaseReporter, ViewParamsReporter {
 	public static final String VIEW_ID = "PagePicker";
+	private static String SITE_UPD = "site.upd";
 
 	private SimplePageBean simplePageBean;
 	private SimplePageToolDao simplePageToolDao;
@@ -134,7 +140,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
     //   pageMap - a map that starts out having all pages in the site, we remove entries as we show them
     //      that lets us find at the end anything that hasn't been shown
 
-    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, Set<Long>sharedPages, int level, boolean toplevel) {
+    public void findAllPages(SimplePageItem pageItem, List<PageEntry>entries, Map<Long,SimplePage> pageMap, Set<Long>topLevelPages, Set<Long>sharedPages, int level, boolean toplevel, boolean canEditPage) {
 	    // System.out.println("in findallpages " + pageItem.getName() + " " + toplevel);
 	    Long pageId = Long.valueOf(pageItem.getSakaiId());	    
 
@@ -149,14 +155,43 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		return;
 	    }
 
-
-	    // no need to check this if flag already set
-	    if (! somePagesHavePrerequisites) {
+	    // implement hidden. 
+	    if (! canEditPage) {
 	    	SimplePage page = simplePageToolDao.getPage(pageId);
 	    	if (page.isHidden())
-	    		somePagesHavePrerequisites = true;		    
+		    return;
 		if (page.getReleaseDate() != null && page.getReleaseDate().after(new Date()))
-	    		somePagesHavePrerequisites = true;		    
+		    return;
+		if (toplevel) {
+		    if (page.getToolId() != null) {
+			// getCurrentSite is cached, so it's reasonable to get it at this level
+			Site site = simplePageBean.getCurrentSite();
+			SitePage sitePage = site.getPage(page.getToolId());
+			List<ToolConfiguration> tools = sitePage.getTools();
+			// If all the tools on a page require site.upd then only users with site.upd will see
+			// the page in the site nav of Charon... not sure about the other Sakai portals floating
+			// about
+			boolean visible = false;
+			for (ToolConfiguration placement: tools) {
+			    Properties roleConfig = placement.getPlacementConfig();
+			    String roleList = roleConfig.getProperty("functions.require");
+			    String visibility = roleConfig.getProperty("sakai-portal:visible");
+			    // System.out.println("roles " + roleList + " visi " + visibility);
+			    // doesn't require site update, so visible
+			    if ((visibility == null || !visibility.equals("false")) &&
+				(roleList == null || roleList.indexOf(SITE_UPD) < 0)) {
+				// only need one tool on the page to be visible
+				visible = true;
+				break;
+			    }
+			}
+
+			// not visible, ignore it
+			if (!visible)
+			    return;
+		    }
+
+		}
 	    }
 
 	    PageEntry entry = new PageEntry();
@@ -201,7 +236,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 			    nexts.add(item);
 			else  {
 			    // System.out.println("call for subpage " + item.getName() + " " + false);
-			    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level +1, false);
+			    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level +1, false, canEditPage);
 			}
 	    	}
 	    }
@@ -209,7 +244,7 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 	    for (SimplePageItem item: nexts) {
 	    	if (item.getType() == SimplePageItem.PAGE) {
 		    // System.out.println("calling findallpage " + item.getName() + " " + false);
-		    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level, false);
+		    findAllPages(item, entries, pageMap, topLevelPages, sharedPages, level, false, canEditPage);
 	    	}
 	    }
 	}
@@ -304,10 +339,11 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		for (SimplePageItem i : sitePages)
 		    topLevelPages.add(Long.valueOf(i.getSakaiId()));
 
-		// this adds everything you can find from top level pages to entries
+		// this adds everything you can find from top level pages to entries. But make sure user can see
+		// the tool
 		for (SimplePageItem sitePageItem : sitePages) {
 		    // System.out.println("findallpages " + sitePageItem.getName() + " " + true);
-		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true);
+		    findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true, canEditPage);
 		}
 
 		// warn students if we aren't showing all the pages
@@ -425,7 +461,29 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
 		    	    UIOutput.make(row, "itemListContainer").decorate(new UIFreeAttributeDecorator("style", "margin-left: " + (3*level) + "em"));
 		    	    UIOutput.make(row, "itemList");
 			    
+		    Set<String> myGroups = simplePageBean.getMyGroups();
+
                     for(SimplePageItem pageItem : simplePageToolDao.findItemsOnPage(entry.pageId)) {
+
+			// if item is group controlled, skip if user isn't in one of the groups
+			Collection<String>itemGroups = null;
+			try {
+			    itemGroups = simplePageBean.getItemGroups(pageItem, null, false);
+			} catch (IdUnusedException e) {
+			    // underlying assignment, etc, doesn't exist. skip the item
+			    continue;
+			}
+			if (itemGroups != null) {
+			    boolean groupsOk = false;
+			    for (String group: itemGroups) {
+				if (myGroups.contains(group)) {
+				    groupsOk = true;
+				    break;
+				}
+			    }
+			    if (!groupsOk)
+				continue;
+			}
 
                         UIBranchContainer itemListItem = UIBranchContainer.make(row, "item:");
 

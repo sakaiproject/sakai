@@ -2452,7 +2452,7 @@ public class SimplePageBean {
 	    // this adds everything you can find from top level pages to entries
 	    for (SimplePageItem sitePageItem : sitePages) {
 		// System.out.println("findallpages " + sitePageItem.getName() + " " + true);
-		pagePickerProducer().findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true);
+		pagePickerProducer().findAllPages(sitePageItem, entries, pageMap, topLevelPages, sharedPages, 0, true, true);
 	    }
 		    
 	    // everything we didn't find should be deleted. It's items remaining in pagemap
