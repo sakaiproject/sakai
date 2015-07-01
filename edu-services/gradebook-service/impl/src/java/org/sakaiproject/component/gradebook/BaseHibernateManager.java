@@ -1567,6 +1567,11 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 	}
 
 	public void setAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
+		
+		if(StringUtils.length(commentText) > 500) {
+			throw new IllegalArgumentException("Comment is too large. Maximum of 500 characters.");
+		}
+		
 		getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
         		Comment comment = getInternalComment(gradebookUid, assignmentId, studentUid, session);
