@@ -1,21 +1,7 @@
 package org.sakaiproject.gradebookng.business;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.xml.bind.JAXBException;
-
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
@@ -58,6 +44,18 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
+
+import javax.xml.bind.JAXBException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -570,15 +568,18 @@ public class GradebookNgBusinessService {
     /**
      * Add a new assignment definition to the gradebook
      * @param assignment
+	 * @return id of the newly created assignment
      */
-    public void addAssignment(Assignment assignment) {
-        Gradebook gradebook = getGradebook();
+    public Long addAssignment(Assignment assignment) {
+        Long id = null;
+		Gradebook gradebook = getGradebook();
         if(gradebook != null) {
             String gradebookId = gradebook.getUid();
-            this.gradebookService.addAssignment(gradebookId, assignment);
+            id = this.gradebookService.addAssignment(gradebookId, assignment);
             
             //TODO wrap this so we can catch any runtime exceptions
         }
+		return id;
     }
     
     /**
