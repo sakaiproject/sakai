@@ -41,6 +41,9 @@ public interface LTIService {
 	/** This string starts the references to resources in this service. */
 	static final String REFERENCE_ROOT = "/lti";
 
+	/** Our indication that a secret is hidden */
+        public static final String SECRET_HIDDEN = "***************";
+
 	static String WEB_PORTLET = "sakai.web.168";
 	
 	/**
@@ -108,6 +111,16 @@ public interface LTIService {
 	public Object insertToolDao(Properties newProps, String siteId);
 
 	/**
+	 * 
+	 * @param newProps
+	 * @param siteId
+	 * @param isAdminRole
+	 * @param isMaintainRole
+	 * @return
+	 */
+        public Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	/**
 	 * insert lti tool content
 	 * @param id
 	 * @param toolId
@@ -160,6 +173,15 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param siteId
+	 * @param isAdminRole
+	 * @return
+	 */
+        public abstract Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole);
+
+	/**
+	 * 
 	 * @param resourceType
 	 * @return
 	 */
@@ -178,6 +200,16 @@ public interface LTIService {
 	 * @return
 	 */
 	public boolean deleteTool(Long key);
+
+	/**
+	 * 
+	 * @param key
+	 * @param isAdminRole
+	 * @param isMainRole
+	 * @param key
+	 * @return
+	 */
+        public boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * 
@@ -206,6 +238,16 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @param isMaintainRole
+	 * @return
+	 */
+	public Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	/**
+	 * 
 	 * @param search
 	 * @param order
 	 * @param first
@@ -224,6 +266,17 @@ public interface LTIService {
 	 * @return
 	 */
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId);
+
+	/**
+	 * 
+	 * @param search
+	 * @param order
+	 * @param first
+	 * @param last
+	 * @param isAdmin
+	 * @return
+	 */
+	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdmin);
 
 	/**
 	 * 
@@ -253,6 +306,16 @@ public interface LTIService {
 	 * @return
 	 */
 	public Object insertContentDao(Properties newProps, String siteId);
+
+	/**
+	 * 
+	 * @param newProps
+	 * @param siteId
+	 * @param isAdminRole
+	 * @param isMaintainRole
+	 * @return
+	 */
+        public Object insertContentDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * 
@@ -288,9 +351,29 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param key
+	 * @param siteId
+	 * @param isAdminRole
+	 * @return
+	 */
+        public Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole);
+
+
+	/**
+	 * 
+	 * @param key
 	 * @return
 	 */
 	public boolean deleteContent(Long key);
+
+	/**
+	 * 
+	 * @param key
+	 * @param siteId
+	 * @param isAdminRole
+	 * @param isMaintainRole
+	 * @return
+	 */
+	public boolean deleteContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 	
 	/**
 	 * remove the tool content site link
@@ -335,6 +418,17 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @param isAdminRole
+	 * @param isMaintainRole
+	 * @return
+	 */
+	public Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	/**
+	 * 
 	 * @param search
 	 * @param order
 	 * @param first
@@ -342,6 +436,18 @@ public interface LTIService {
 	 * @return
 	 */
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last);
+
+	/**
+	 * 
+	 * @param search
+	 * @param order
+	 * @param first
+	 * @param last
+	 * @param siteId
+	 * @param isAdminRole
+	 * @return
+	 */
+        public  List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	/**
 	 * 
@@ -366,10 +472,19 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param newProps
-	 * @param siteId
 	 * @return
 	 */
 	public Object insertDeployDao(Properties newProps);
+
+	/**
+	 * 
+	 * @param newProps
+	 * @param siteId
+	 * @param isMaintainRole
+	 * @param isAdminRole
+	 * @return
+	 */
+        public Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * 
@@ -382,9 +497,30 @@ public interface LTIService {
 	/**
 	 * 
 	 * @param key
+	 * @param newProps
+	 * @param siteId
+	 * @param isMaintainRole
+	 * @param isAdminRole
+	 * @return
+	 */
+        public Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
+
+	/**
+	 * 
+	 * @param key
 	 * @return
 	 */
 	public boolean deleteDeployDao(Long key);
+
+	/**
+	 * 
+	 * @param key
+	 * @param siteId
+	 * @param isMaintainRole
+	 * @param isAdminRole
+	 * @return
+	 */
+        public boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * Absolutely no checking at all.
@@ -393,6 +529,16 @@ public interface LTIService {
 	 * @return
 	 */
 	public Map<String, Object> getDeployDao(Long key);
+
+	/**
+	 * Absolutely no checking at all.
+	 * 
+	 * @param key
+	 * @param isMaintainRole
+	 * @param isAdminRole
+	 * @return
+	 */
+        public  Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole);
 
 	/**
 	 * Absolutely no checking at all.
@@ -413,10 +559,17 @@ public interface LTIService {
 	 */
 	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last);
 
-
-
-
-
+	/**
+	 * 
+	 * @param search
+	 * @param order
+	 * @param first
+	 * @param last
+	 * @param siteId
+	 * @param isAdminRole
+	 * @return
+	 */
+        public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	/**
 	 * 
