@@ -42,9 +42,14 @@ import javax.faces.application.FacesMessage;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 import javax.faces.event.ActionEvent;
+import org.apache.commons.lang.StringUtils;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzPermissionException;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -59,8 +64,8 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.umem.api.Authz;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 
 
@@ -82,7 +87,7 @@ public class SiteListBean {
 	/** Resource bundle */
 	private transient ResourceLoader	msgs				= new ResourceLoader("org.sakaiproject.umem.tool.bundle.Messages");
 	/** Controller fields */
-	private List						userSitesRows;
+	private List<UserSitesRow>			userSitesRows;
 	/** Getter vars */
 	private boolean						refreshQuery		= false;
 	private boolean						allowed				= false;
@@ -98,12 +103,20 @@ public class SiteListBean {
 	private SiteService					M_site				= (SiteService) ComponentManager.get(SiteService.class.getName());
 	private ToolManager					M_tm				= (ToolManager) ComponentManager.get(ToolManager.class.getName());
 	private Authz						authz				= (Authz) ComponentManager.get(Authz.class.getName());
+	private AuthzGroupService			authzGroupService	= (AuthzGroupService) ComponentManager.get( AuthzGroupService.class.getName() );
+	private UserDirectoryService		userDirectoryService= (UserDirectoryService) ComponentManager.get( UserDirectoryService.class.getName() );
 	private ServerConfigurationService			M_scf				= (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
 	/** Private vars */
 	private RuleBasedCollator					collator;
 	private long						timeSpentInGroups	= 0;
 	private String						portalURL			= M_scf.getPortalUrl();
 	private String						message				= "";
+
+	private final static String frameID = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replaceAll( "[-!~]", "x" );
+	public static String getFrameID()
+	{
+		return frameID;
+	}
 
 	// ######################################################################################
 	// UserSitesRow CLASS
@@ -121,6 +134,7 @@ public class SiteListBean {
 		private String				pubView;
 		private String				userStatus;
 		private String				siteTerm;
+		private boolean				selected;
 
 		{
 			try{
@@ -130,6 +144,7 @@ public class SiteListBean {
 			}
 		}
 		public UserSitesRow() {
+			this.selected = false;
 		}
 
 		public UserSitesRow(String siteId, String siteTitle, String siteType, String groups, String roleName, String pubView, String userStatus, String term) {
@@ -141,6 +156,7 @@ public class SiteListBean {
 			this.pubView = pubView;
 			this.userStatus = userStatus;
 			this.siteTerm = term;
+			this.selected = false;
 		}
 
 		public UserSitesRow(Site site, String groups, String roleName) {
@@ -152,6 +168,7 @@ public class SiteListBean {
 			this.pubView = site.isPublished() ? msgs.getString("status_published") : msgs.getString("status_unpublished");
 			this.userStatus = site.getMember(userId).isActive() ? msgs.getString("site_user_status_active") : msgs.getString("site_user_status_inactive");
 			this.siteTerm = site.getProperties().getProperty(PROP_SITE_TERM);
+			this.selected = false;
 		}
 
 		public String getSiteId() {
@@ -193,7 +210,14 @@ public class SiteListBean {
 		public String getSiteTerm() {
 			return siteTerm;
 		}
-		
+
+		public boolean isSelected() {
+			return selected;
+		}
+
+		public void setSelected( boolean selected ) {
+			this.selected = selected;
+		}
 	}
 
 	public static final Comparator getUserSitesRowComparator(final String fieldName, final boolean sortAscending, final Collator collator) {
@@ -283,7 +307,7 @@ public class SiteListBean {
 	 * @throws SQLException 
 	 */
 	private void doSearch() throws SQLException {
-		userSitesRows = new ArrayList();
+		userSitesRows = new ArrayList<>();
 		Connection c = null;
 		PreparedStatement pst = null;
 		ResultSet rs = null;
@@ -346,7 +370,7 @@ public class SiteListBean {
 	 */
 	private void doSearch2() throws SQLException {
 		long start = (new Date()).getTime();
-		userSitesRows = new ArrayList();
+		userSitesRows = new ArrayList<>();
 		thisUserId = M_session.getCurrentSessionUserId();
 		setSakaiSessionUser(userId);
 		LOG.debug("Switched CurrentSessionUserId: " + M_session.getCurrentSessionUserId());
@@ -371,7 +395,7 @@ public class SiteListBean {
 	 * @deprecated
 	 */
 	private void doSearch3() throws SQLException {
-		userSitesRows = new ArrayList();
+		userSitesRows = new ArrayList<>();
 		timeSpentInGroups = 0;
 		Connection c = null;
 		PreparedStatement pst = null;
@@ -538,7 +562,7 @@ public class SiteListBean {
 		return userSitesRows;
 	}
 
-	public void setUserSitesRows(List userRows) {
+	public void setUserSitesRows(List<UserSitesRow> userRows) {
 		this.userSitesRows = userRows;
 	}
 
@@ -551,9 +575,9 @@ public class SiteListBean {
 	}
 
 	public String getUserDisplayId() {
-		String displayId = null;
+		String displayId;
 		try{
-			displayId = UserDirectoryService.getUser(userId).getDisplayId();
+			displayId = userDirectoryService.getUser(userId).getDisplayId();
 		}catch(UserNotDefinedException e){
 			displayId = userId;
 		}
@@ -580,6 +604,80 @@ public class SiteListBean {
 		this.sitesSortColumn = sitesSortColumn;
 	}
 
+	/**
+	 * SAK-29637 - Action listener for the 'Set to Active' button.
+	 * 
+	 * @param event 
+	 */
+	public void setToInactive( ActionEvent event )
+	{
+		toggleUserStatusInSites( false );
+	}
+
+	/**
+	 * SAK-29637 - Action listener for the 'Set to Inactive' button.
+	 * 
+	 * @param event 
+	 */
+	public void setToActive( ActionEvent event )
+	{
+		toggleUserStatusInSites( true );
+	}
+
+	/**
+	 * SAK-29637 - Utility method to toggle the user's status in the selected sites.
+	 * 
+	 * @param active true = toggle to active, false = toggle to inactive
+	 */
+	private void toggleUserStatusInSites( boolean active )
+	{
+		// Loop through all user rows (user's sites)
+		for( UserSitesRow row : userSitesRows )
+		{
+			if( row.isSelected() )
+			{
+				// Get the site
+				Site site = row.site;
+				if( site == null )
+				{
+					try
+					{
+						site = M_site.getSite( row.getSiteId() );
+					}
+					catch( IdUnusedException ex )
+					{
+						LOG.warn( "site not found, id=" + row.getSiteId(), ex );
+					}
+				}
+
+				if( site != null )
+				{
+					String realmID = site.getReference();
+					try
+					{
+						String roleID = site.getMember( userId ).getRole().getId();
+						AuthzGroup realm = authzGroupService.getAuthzGroup( realmID );
+						boolean isProvided = StringUtils.isNotBlank( realm.getProviderGroupId() );
+						realm.addMember( userId, roleID, active, isProvided );
+						authzGroupService.save( realm );
+					}
+					catch( GroupNotDefinedException ex )
+					{
+						LOG.warn( "realm not found, id=" + realmID, ex );
+					}
+					catch( AuthzPermissionException ex )
+					{
+						LOG.warn( "permission exception updating realm, id=" + realmID, ex );
+					}
+				}
+			}
+		}
+
+		// Refresh the list
+		this.refreshQuery = true;
+		getInitValues();
+	}
+
 	// ######################################################################################
 	// CSV export
 	// ######################################################################################
@@ -597,15 +695,16 @@ public class SiteListBean {
 	
 	/**
 	 * Build a generic tabular representation of the user site membership data export.
+	 * SAK-29637 - modified to obey user's selection
 	 * 
 	 * @param userSites The content of the table
 	 * @return
 	 * 	A table of data suitable to be exported
 	 */
 	private List<List<Object>> buildDataTable(List<UserSitesRow> userSites) {
-		List<List<Object>> table = new LinkedList<List<Object>>();
+		List<List<Object>> table = new LinkedList<>();
 		
-		List<Object> header = new ArrayList<Object>();
+		List<Object> header = new ArrayList<>();
 		header.add(msgs.getString("site_name"));
 		header.add(msgs.getString("site_id"));
 		header.add(msgs.getString("groups"));
@@ -615,20 +714,23 @@ public class SiteListBean {
 		header.add(msgs.getString("status"));
 		header.add(msgs.getString("site_user_status"));
 		table.add(header);
-		
+
 		for (UserSitesRow userSiteRow : userSites) {
-			List<Object> currentRow = new ArrayList<Object>();
-			currentRow.add(userSiteRow.getSiteTitle());
-			currentRow.add(userSiteRow.getSiteId());
-			currentRow.add(userSiteRow.getGroups());
-			currentRow.add(userSiteRow.getSiteType());
-			currentRow.add(userSiteRow.getSiteTerm());
-			currentRow.add(userSiteRow.getRoleName());
-			currentRow.add(userSiteRow.getPubView());
-			currentRow.add(userSiteRow.getUserStatus());
-			table.add(currentRow);
+			if( userSiteRow.isSelected() )
+			{
+				List<Object> currentRow = new ArrayList<>();
+				currentRow.add(userSiteRow.getSiteTitle());
+				currentRow.add(userSiteRow.getSiteId());
+				currentRow.add(userSiteRow.getGroups());
+				currentRow.add(userSiteRow.getSiteType());
+				currentRow.add(userSiteRow.getSiteTerm());
+				currentRow.add(userSiteRow.getRoleName());
+				currentRow.add(userSiteRow.getPubView());
+				currentRow.add(userSiteRow.getUserStatus());
+				table.add(currentRow);
+			}
 		}
-		
+
 		return table;
-	}	
+	}
 }
