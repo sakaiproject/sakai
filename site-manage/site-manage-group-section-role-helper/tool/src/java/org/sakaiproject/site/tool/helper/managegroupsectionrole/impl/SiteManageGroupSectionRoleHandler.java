@@ -1657,11 +1657,12 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     private String processCreateJoinableSetHelper(boolean newSet){
-    	if(joinableSetName == null || "".equals(joinableSetName.trim())){
+    	joinableSetName = joinableSetName.trim();
+    	if(joinableSetName == null || "".equals(joinableSetName)){
 			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
 			return null;
 		}
-    	int joinableSetNumOfGroupsInt = -1;
+    	int joinableSetNumOfGroupsInt;
     	if(joinableSetNumOfGroups == null || "".equals(joinableSetNumOfGroups)){
     		messages.addMessage(new TargettedMessage("numGroups.empty.alert","num-groups"));
 			return null;
@@ -1680,7 +1681,7 @@ public class SiteManageGroupSectionRoleHandler {
     			return null;
 			}
     	}
-    	int joinableSetNumOfMembersInt = -1;
+    	int joinableSetNumOfMembersInt;
     	if(joinableSetNumOfMembers == null || "".equals(joinableSetNumOfMembers)){
     		messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-groups"));
 			return null;
@@ -1698,7 +1699,7 @@ public class SiteManageGroupSectionRoleHandler {
     	}
     	int groupsCreated = 0;
     	Collection siteGroups = site.getGroups();
-    	Set<String> groupTitles = new HashSet<String>();
+    	Set<String> groupTitles = new HashSet<>();
 		if (siteGroups != null && siteGroups.size() > 0)
 		{
 			for (Iterator iGroups = siteGroups.iterator(); iGroups.hasNext();) {
@@ -1707,7 +1708,7 @@ public class SiteManageGroupSectionRoleHandler {
 				if(newSet){
 					//check that this joinable group name doesn't already exist, if so,
 					//warn the user:
-					String joinableSetProp = iGroup.getProperties().getProperty(iGroup.GROUP_PROP_JOINABLE_SET);
+					String joinableSetProp = iGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
 					if(joinableSetProp != null && !"".equals(joinableSetProp) && joinableSetProp.equalsIgnoreCase(joinableSetName)){
 						//already have a joinable set named this:
 						messages.addMessage(new TargettedMessage("joinableset.duplicate.alert","num-max-members"));
@@ -1720,17 +1721,17 @@ public class SiteManageGroupSectionRoleHandler {
     		String groupTitle = joinableSetName + "-" + i;
     		if(!groupTitles.contains(groupTitle)){
     			Group g = site.addGroup();
-    			g.getProperties().addProperty(g.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
-    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET, joinableSetName);
-    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_MAX, joinableSetNumOfMembers);
-    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowPreviewMembership));
-    			g.getProperties().addProperty(g.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));
-    			g.getProperties().addProperty(g.GROUP_PROP_JOINABLE_UNJOINABLE, Boolean.toString(unjoinable));
+    			g.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
+    			g.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET, joinableSetName);
+    			g.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_MAX, joinableSetNumOfMembers);
+    			g.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowPreviewMembership));
+    			g.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));
+    			g.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, Boolean.toString(unjoinable));
     			g.setTitle(joinableSetName + "-" + i);
     			try{
     				siteService.save(site);
     				groupsCreated++;
-    			}catch (Exception e) {
+    			}catch (IdUnusedException | PermissionException e) {
     			}
     		}
     	}
@@ -1744,19 +1745,19 @@ public class SiteManageGroupSectionRoleHandler {
     	
     	boolean updated = false;
     	for(Group group : site.getGroups()){
-    		String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+    		String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
     		if(joinableSet != null && joinableSet.equals(joinableSetNameOrig)){
-    			group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET);
-    			group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET_MAX);
-    			group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_SET_PREVIEW);
-    			group.getProperties().removeProperty(group.GROUP_PROP_JOINABLE_UNJOINABLE);
+    			group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET);
+    			group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_MAX);
+    			group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW);
+    			group.getProperties().removeProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE);
     			updated = true;
     		}
     	}
     	if(updated){
     		try{
     			siteService.save(site);
-    		}catch (Exception e) {
+    		}catch (IdUnusedException | PermissionException e) {
     		}
     	}
     	
@@ -1780,7 +1781,8 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     private String processChangeJoinableSetNameHelper(){
-    	if(joinableSetName == null || "".equals(joinableSetName.trim())){
+    	joinableSetName = joinableSetName.trim();
+    	if(joinableSetName == null || "".equals(joinableSetName)){
 			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
 			return null;
 		}
@@ -1794,7 +1796,7 @@ public class SiteManageGroupSectionRoleHandler {
     					Group iGroup = (Group) iGroups.next();
     					//check that this joinable group name doesn't already exist, if so,
     					//warn the user:
-    					String joinableSetProp = iGroup.getProperties().getProperty(iGroup.GROUP_PROP_JOINABLE_SET);
+    					String joinableSetProp = iGroup.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
     					if(joinableSetProp != null && !"".equals(joinableSetProp) && joinableSetProp.equals(joinableSetName)){
     						//already have a joinable set named this:
     						messages.addMessage(new TargettedMessage("joinableset.duplicate.alert","num-max-members"));
@@ -1805,17 +1807,17 @@ public class SiteManageGroupSectionRoleHandler {
     		}
     		boolean updated = false;
     		for(Group group : site.getGroups()){
-        		String joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+        		String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
         		if(joinableSet != null && joinableSet.equals(joinableSetNameOrig)){
-        			group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_SET, joinableSetName);
-        			group.getProperties().addProperty(group.GROUP_PROP_JOINABLE_UNJOINABLE, Boolean.toString(unjoinable));
+        			group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET, joinableSetName);
+        			group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, Boolean.toString(unjoinable));
         			updated = true;
         		}
         	}
     		if(updated){
     			try{
     				siteService.save(site);
-    			}catch (Exception e) {
+    			}catch (IdUnusedException | PermissionException e) {
     			}
     		}
     	}
@@ -1836,4 +1838,3 @@ public class SiteManageGroupSectionRoleHandler {
     	return returnVal;
     }
 }
-
