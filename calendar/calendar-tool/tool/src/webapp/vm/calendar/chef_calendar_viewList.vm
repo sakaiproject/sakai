@@ -37,6 +37,7 @@
 					<input type="hidden" value="$tlang.getString('view.gotoday')" name="eventSubmit_doFilter" />
 					<label for="timeFilterOption">$tlang.getString('view.show')</label>
 					<select name="timeFilterOption" onchange="document.listform2.submit();" id="timeFilterOption">
+						<option value="SHOW_FUTURE" #if ($timeFilterOption == "SHOW_FUTURE") selected="selected" #end >$tlang.getString('view.future')</option>
 						<option value="SHOW_ALL" #if ($timeFilterOption == "SHOW_ALL") selected="selected" #end >$tlang.getString('view.all')</option>
 						<option value="SHOW_DAY" #if ($timeFilterOption == "SHOW_DAY") selected="selected" #end >$tlang.getString('view.activ')</option>
 						<option value="SHOW_WEEK" #if ($timeFilterOption == "SHOW_WEEK") selected="selected" #end >$tlang.getString('view.activw')</option>
@@ -100,7 +101,9 @@
 					<th>
 						$tlang.getString("viewl.time")
 					</th>
+					#if (!$currentUserIsAStudent)
 					<th>$tlang.getString("view.for")</th>
+					#end
 					#if ($fromColExist) <th>$tlang.getString("gen.from")</th> #end
 					<th>
 						$tlang.getString("viewl.desc")
@@ -145,13 +148,11 @@
 														#if ($noEvent == "false")
 																#foreach ($m in $eventsn)  ##foreach--6
 																		<tr>
-																		<td style="white-space:nowrap;vertical-align:top"  #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
+																		<td #if ($counter == 1) style="white-space:nowrap;vertical-align:top" #else #if ($dayShown == "false") class="chefTopline" #end #end>
 																		#if ($dayShown == "false")
 																				#set ($monthNumber = $m.Range.firstTime().breakdownLocal().Month - 1)
 				## (gsilver: not sure what this </a> is doing here, comment for now - as it does not validate </a>
-																				<a href="#toolLinkParam("$action" "doGomonth" "month=$monthNumber&year=$thisYear")">$aMonth.MonthName</a>
-																				<a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.Month&year=$mu.Year")">$mu.Day</a>, 
-																				<a href="#toolLinkParam("$action" "doGoyear" "year=$thisYear")">$thisYear</a>
+																				<a href="#toolLinkParam("$action" "doDay" "day=$mu.getDay()&month=$mu.Month&year=$mu.Year")">$mu.DayName $aMonth.MonthName.charAt(0)$aMonth.MonthName.substring(1).toLowerCase() $mu.Day</a>
 																		#else
 																			&nbsp;
 																		#end
@@ -171,16 +172,18 @@
 																		</td>
 
 ## For Column																	
-<td>
+#if (!$currentUserIsAStudent)
+<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
 #set ($dr = $m.getGroupRangeForDisplay($cal))
 #if ($!dr && ($dr.equals(""))) $tlang.getString("gen.site") #else $validator.escapeHtml($dr) #end
 </td>
+#end
 ## From Column
 #if ($fromColExist)
 #set ($calObj = $CalendarService.getCalendar($m.CalendarReference))
 ## #if ($calObj.getContext() != $PortalService.CurrentSiteId )
 #set ($site = $SiteService.getSite($calObj.getContext()))
-<td>$!site.Title</td>
+<td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>$!site.Title</td>
 #end
 																		
 																		## description column
