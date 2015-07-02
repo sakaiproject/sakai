@@ -74,6 +74,7 @@
 		<property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService"/>
 		<property name="messageLocator" ref="messageLocator"/>
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
+		<property name="emailTemplateService" ref="org.sakaiproject.emailtemplateservice.service.EmailTemplateService" />
 	</bean>
 	
 	<bean name="claimLocator" class="org.sakaiproject.accountvalidator.tool.otp.ClaimLocator" >
