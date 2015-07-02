@@ -12,14 +12,12 @@
 	  <a id="studentFilterClear" class="gb-student-filter-clear" href="javascript:void(0);" aria-controls="studentFilterInput" aria-label="Clear student filter"></a>
 	</div>
 	
-	<!--  this comes from the wicket bootstrap module, needs to be sorted out. -->
 	<div class="btn-group">
 	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
 	    	<span class="caret"></span>
 	    </a>
 	    <ul class="dropdown-menu dropdown-menu-right" role="menu">
-	   		<!-- <li><a href="#">Sort by Last Name</a></li> -->
-	   		<li><a href="#" role="menuitem" aria-controls="gradebookGradesTable">Sort by First Name</a></li>
+	   		<li><a wicket:id="sortByName" href="#" role="menuitem" aria-controls="gradebookGradesTable"><span wicket:id="sortByNameLabel">Sort by First/Last Name</span></a></li>
 	    </ul>
     </div>
 	

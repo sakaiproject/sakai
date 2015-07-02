@@ -9,7 +9,7 @@ import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
+import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -36,11 +36,10 @@ public class StudentNameCellPanel extends Panel {
 		
 		//unpack model
 		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
-		String userId = (String) modelData.get("userId");
 		String eid = (String) modelData.get("eid");
 		String firstName = (String) modelData.get("firstName");
 		String lastName = (String) modelData.get("lastName");
-		GbStudentSortType sortType = (GbStudentSortType) modelData.get("sortType");
+		GbStudentNameSortOrder nameSortOrder = (GbStudentNameSortOrder) modelData.get("nameSortOrder");
 		
 		
 		//link
@@ -60,7 +59,7 @@ public class StudentNameCellPanel extends Panel {
 		};
 		
 		//name label
-		link.add(new Label("name", getFormattedStudentName(firstName, lastName, sortType)));
+		link.add(new Label("name", getFormattedStudentName(firstName, lastName, nameSortOrder)));
 		
 		//eid label, configurable
 		link.add(new Label("eid", eid){
@@ -89,16 +88,16 @@ public class StudentNameCellPanel extends Panel {
    	 * 
 	 * @param firstName
 	 * @param lastName
-	 * @param sortType
+	 * @param sortOrder
 	 * @return
 	 */
-	private String getFormattedStudentName(String firstName, String lastName, GbStudentSortType sortType) {
+	private String getFormattedStudentName(String firstName, String lastName, GbStudentNameSortOrder sortOrder) {
 		
-		String msg = "formatter.studentname." + sortType.name();
-		if(GbStudentSortType.LAST_NAME == sortType) {
+		String msg = "formatter.studentname." + sortOrder.name();
+		if(GbStudentNameSortOrder.LAST_NAME == sortOrder) {
 			return String.format(getString(msg), lastName, firstName);
 		}
-		if(GbStudentSortType.FIRST_NAME == sortType) {
+		if(GbStudentNameSortOrder.FIRST_NAME == sortOrder) {
 			return String.format(getString(msg), firstName, lastName);
 		}
 		return firstName;

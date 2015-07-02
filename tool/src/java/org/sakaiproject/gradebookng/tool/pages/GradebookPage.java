@@ -32,7 +32,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbStudentSortType;
+import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
@@ -120,14 +120,14 @@ public class GradebookPage extends BasePage {
 		form.add(addGradeItem);
 		
 		//first get any settings data from the session
-		GradebookUiSettings settings = this.getUiSettings();
-		
+		final GradebookUiSettings settings = this.getUiSettings();
+				
         //get list of assignments. this allows us to build the columns and then fetch the grades for each student for each assignment from the map
         final List<Assignment> assignments = this.businessService.getGradebookAssignments();
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
         
         //get the grade matrix. It should be sorted if we have that info
-        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, (settings != null) ? settings.getAssignmentSortOrder() : null);
+        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(), settings.getNameSortOrder());
         
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 		
@@ -164,7 +164,7 @@ public class GradebookPage extends BasePage {
 
         	@Override
         	public Component getHeader(String componentId) {
-        		return new StudentNameColumnHeaderPanel(componentId, GbStudentSortType.LAST_NAME); //TODO this needs to come from somewhere, prefs maybe
+        		return new StudentNameColumnHeaderPanel(componentId, Model.of(settings.getNameSortOrder())); //pass in the sort
         	}
         	
         	@Override
@@ -177,7 +177,7 @@ public class GradebookPage extends BasePage {
 				modelData.put("firstName", studentGradeInfo.getStudentFirstName());
 				modelData.put("lastName", studentGradeInfo.getStudentLastName());
 				modelData.put("displayName", studentGradeInfo.getStudentDisplayName());
-				modelData.put("sortType", GbStudentSortType.LAST_NAME); //TODO this needs to come from somewhere, prefs maybe
+				modelData.put("nameSortOrder", settings.getNameSortOrder()); //pass in the sort
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
@@ -353,7 +353,14 @@ public class GradebookPage extends BasePage {
 	 * TODO move this to a helper
 	 */
 	public GradebookUiSettings getUiSettings() {
-		return (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
+		
+		GradebookUiSettings settings = (GradebookUiSettings) Session.get().getAttribute("GBNG_UI_SETTINGS");
+		
+		if(settings == null) {
+			settings = new GradebookUiSettings();
+		}
+		
+		return settings;
 	}
 	
 	public void setUiSettings(GradebookUiSettings settings) {

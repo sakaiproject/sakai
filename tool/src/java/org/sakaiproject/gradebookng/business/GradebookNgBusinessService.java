@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.business;
 
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
@@ -22,6 +23,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbGroupType;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
@@ -46,6 +48,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
 
 import javax.xml.bind.JAXBException;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -138,7 +141,7 @@ public class GradebookNgBusinessService {
 		
 		try {
 			List<User> users = userDirectoryService.getUsers(userUuids);
-			Collections.sort(users, new LastNameComparator()); //TODO this needs to take into account the GbStudentSortType
+			Collections.sort(users, new LastNameComparator()); //default sort
 			return users;
 		} catch (RuntimeException e) {
 			//an LDAP exception can sometimes be thrown here, catch and rethrow
@@ -350,7 +353,7 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids) throws GbException {
-		return this.buildGradeMatrix(assignments, studentUuids, null);
+		return this.buildGradeMatrix(assignments, studentUuids, null, null);
 	}
 	
 	/**
@@ -360,8 +363,8 @@ public class GradebookNgBusinessService {
 	 * @param sortOrder the sort order
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, GbAssignmentGradeSortOrder sortOrder) throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers(), sortOrder);
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, GbAssignmentGradeSortOrder assignmentSortOrder, GbStudentNameSortOrder nameSortOrder) throws GbException {
+		return this.buildGradeMatrix(assignments, this.getGradeableUsers(), assignmentSortOrder, nameSortOrder);
 	}
 	
 	/**
@@ -372,7 +375,7 @@ public class GradebookNgBusinessService {
 	 * @Param sortOrder the type of sort we want. Wraps assignmentId and direction.
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids, GbAssignmentGradeSortOrder sortOrder) throws GbException {
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids, GbAssignmentGradeSortOrder assignmentSortOrder, GbStudentNameSortOrder nameSortOrder) throws GbException {
 
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
@@ -387,6 +390,14 @@ public class GradebookNgBusinessService {
 		//get uuids as list of Users.
 		//this gives us our base list and will be sorted as per our desired sort method
 		List<User> students = this.getUsers(studentUuids);
+		if(nameSortOrder != null) {
+						
+			if(nameSortOrder == GbStudentNameSortOrder.LAST_NAME) {
+				Collections.sort(students, new LastNameComparator());
+			} else {
+				Collections.sort(students, new FirstNameComparator());
+			}
+		}
 		
 		//because this map is based on eid not uuid, we do the filtering later so we can save an iteration
 		Map<String,String> courseGrades = this.getSiteCourseGrades();
@@ -441,12 +452,12 @@ public class GradebookNgBusinessService {
 		//get the matrix as a list of GbStudentGradeInfo
 		ArrayList<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
 
-		//sort the matrix based on the supplied sort order (if any)
-		if(sortOrder != null) {
+		//sort the matrix based on the supplied assignment sort order (if any)
+		if(assignmentSortOrder != null) {
 			GradeComparator comparator = new GradeComparator();
-			comparator.setAssignmentId(sortOrder.getAssignmentId());
+			comparator.setAssignmentId(assignmentSortOrder.getAssignmentId());
 			
-			SortDirection direction = sortOrder.getDirection();
+			SortDirection direction = assignmentSortOrder.getDirection();
 			
 			//sort
 			Collections.sort(items, comparator);

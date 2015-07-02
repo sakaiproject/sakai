@@ -9,7 +9,10 @@ public enum SortDirection {
 	ASCENDING,
 	DESCENDING;
 	
-	// cycles the values
+	/**
+	 * Get the next sort type
+	 * @return
+	 */
 	public SortDirection toggle() {
 		return values()[(ordinal() + 1) % values().length];
 	}
