@@ -1,4 +1,4 @@
-package coza.opencollab.sakai.swift;
+package coza.opencollab.sakai.cloudcontent;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Method;
+import java.util.Properties;
 import java.util.Random;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -41,13 +42,23 @@ public class SwiftFileHandlerTest {
     }
     
     @BeforeClass
-    public static void setUpClass() {
-        swift.setEndpoint("http://196.252.231.49:35357/v2.0/");
-        swift.setRegion("regionOne");
-        swift.setIdentity("OC:ocsakai");
-        swift.setCredential("00sakai99");
-        swift.setDeleteEmptyContainers(true);
+    public static void setUpClass() throws IOException {
+        Properties props = new Properties();
+        try {
+            props.load(SwiftFileHandlerTest.class.getResourceAsStream("/swift.properties"));
+        } catch(IOException e) {
+            System.out.println("Cannot read Swift configuration (src/test/resources/swift.properties)... Bailing out.");
+            throw e;
+        }
+
+        swift.setEndpoint(props.getProperty("endpoint"));
+        swift.setRegion(props.getProperty("region"));
+        swift.setIdentity(props.getProperty("identity"));
+        swift.setCredential(props.getProperty("credential"));
+        swift.setDeleteEmptyContainers(Boolean.valueOf(props.getProperty("deleteEmptyContainers")));
+
         swift.init();
+
         Random r = new Random(System.currentTimeMillis());
         r.nextBytes(BINARY);
     }

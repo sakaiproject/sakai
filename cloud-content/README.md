@@ -77,3 +77,14 @@ bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService=/content/dele
 If you are not familiar with `sakai-configuration.xml`, it is placed in the same location
 as the properties files. See Confluence for an overview:
 [https://confluence.sakaiproject.org/display/REL/More+Flexible+Sakai+Configuration](More Flexible Sakai Configuration)
+
+
+## Testing
+
+Because the tests work against a real backend, they are disabled by default. To
+run them, you must activate the `swift-tests` profile (e.g.,
+`mvn -Pswift-tests install`) and set your configuration. The settings for the
+Swift tests is in `impl/src/test/resources/swift.properties`. These are
+straightforward and align with the names/values needed for real usage. The
+tests will clean up after themselves unless `deleteEmptyContainers` is set to
+false, which can be used to validate content in a container afterward.
