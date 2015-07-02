@@ -293,12 +293,15 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
 		//Next is an really and excel file with no extension
 		//Last is a html snippet with correct extension
 
-		List <String> fileNames = Arrays.asList("testEXCEL.mp3","testWORD.doc","testHTML.html","testEXCEL","LSNBLDR-359-snippet.html", "testCSS.css", "testHTMLbody.html");
-		List <String> expectedMimes = Arrays.asList("application/vnd.ms-excel","application/msword","text/html","application/vnd.ms-excel","text/html", "text/css", "text/html");
+		List <String> fileNames = Arrays.asList("testEXCEL.mp3","testWORD.doc","testHTML.html","testEXCEL","LSNBLDR-359-snippet.html", "testCSS.css", "testHTMLbody.html","jquery-1.6.1.min.js");
+		List <String> expectedMimes = Arrays.asList("application/vnd.ms-excel","application/msword","text/html","application/vnd.ms-excel","text/html", "text/css", "text/html","application/javascript");
 
 		//Set the mime magic to be true
 		ServerConfigurationService serv = getService(ServerConfigurationService.class);
 		serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.useMimeMagic","true",ServerConfigurationService.UNKNOWN));
+		//Special test to work around KNL-1306 / TIKA-1141
+		serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.count","1",ServerConfigurationService.UNKNOWN));
+		serv.registerConfigItem(BasicConfigItem.makeConfigItem("content.mimeMagic.ignorecontent.extensions.1","js",ServerConfigurationService.UNKNOWN));
 
     	ContentHostingService ch = getService(ContentHostingService.class);
     	SessionManager sm = getService(SessionManager.class);
@@ -311,15 +314,18 @@ public class ContentHostingServiceTest extends SakaiKernelTestBase {
     	//Insert all resources to CHS
 		for (int i=0;i<fileNames.size();i++) {
 			//Add in a slash for CHS
-			String fileName = "/"+fileNames.get(i);
+			String fileName = fileNames.get(i);
+			//Stored in CHS it needs a slash
+			String CHSfileName = "/"+fileName;
 			System.out.println("Loading up file:"+fileName);
-			stream = getClass().getResourceAsStream("/test-documents"+fileName);
+			stream = this.getClass().getResourceAsStream("/test-documents"+CHSfileName);
 			assertNotNull(stream);
 			ResourcePropertiesEdit props = ch.newResourceProperties();
 			props.addProperty (ResourceProperties.PROP_DISPLAY_NAME, fileName);
-			ch.addResource(fileName, "", stream, props ,0);
+			//Put it on the root of the filesystem
+			ch.addResource(CHSfileName, "", stream, props ,0);
 			//Now get it back and check the mime type
-			cr = ch.getResource(fileName);
+			cr = ch.getResource(CHSfileName);
 			System.out.println("Expecting mime:" + expectedMimes.get(i)+" and got " + cr.getContentType());
 			assertEquals(cr.getContentType(), expectedMimes.get(i));
 			stream.close();
