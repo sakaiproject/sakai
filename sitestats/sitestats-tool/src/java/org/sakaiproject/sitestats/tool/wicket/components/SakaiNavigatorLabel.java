@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
-import org.apache.wicket.IClusterable;
+import org.apache.wicket.util.io.IClusterable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.repeater.data.DataView;
@@ -57,21 +57,21 @@ public class SakaiNavigatorLabel extends Label {
 	public SakaiNavigatorLabel(final String id, final DataTable table) {
 		this(id, new PageableComponent() {
 
-			/**
-			 * 
-			 */
 			private static final long	serialVersionUID	= 1L;
 
+			@Override
 			public int getCurrentPage() {
-				return table.getCurrentPage();
+				return (int) table.getCurrentPage();
 			}
-
+			
+			@Override
 			public int getRowCount() {
-				return table.getRowCount();
+				return (int) table.getRowCount();
 			}
-
+			
+			@Override
 			public int getRowsPerPage() {
-				return table.getRowsPerPage();
+				return (int) table.getItemsPerPage();
 			}
 
 		});
@@ -85,21 +85,21 @@ public class SakaiNavigatorLabel extends Label {
 	public SakaiNavigatorLabel(final String id, final DataView table) {
 		this(id, new PageableComponent() {
 
-			/**
-			 * 
-			 */
 			private static final long	serialVersionUID	= 1L;
 
+			@Override
 			public int getCurrentPage() {
-				return table.getCurrentPage();
+				return (int) table.getCurrentPage();
 			}
 
+			@Override
 			public int getRowCount() {
-				return table.getRowCount();
+				return (int) table.getRowCount();
 			}
 
+			@Override
 			public int getRowsPerPage() {
-				return table.getItemsPerPage();
+				return (int) table.getItemsPerPage();
 			}
 
 		});
@@ -114,14 +114,13 @@ public class SakaiNavigatorLabel extends Label {
 						"pager_textStatus", 
 						this, 
 						model,
+						"Viewing {0} - {1} of {2} {3}",
 						new Object[] {
 							new PropertyModel(model, "from"),
 							new PropertyModel(model, "to"),
 							new PropertyModel(model, "of"),
 							new ResourceModel("pager_textItem"),
-						},
-						"Viewing {0} - {1} of {2} {3}")
-						//"Viewing ${from} - ${to} of ${of} items")
+						})
 		);
 	}
 

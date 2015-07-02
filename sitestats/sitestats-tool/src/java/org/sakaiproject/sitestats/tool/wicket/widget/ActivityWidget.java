@@ -25,7 +25,7 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.Page;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
@@ -405,7 +405,7 @@ public class ActivityWidget extends Panel {
 
 			@Override
 			public Page getPageLink() {
-				return new PreferencesPage(new PageParameters("siteId="+siteId));
+				return new PreferencesPage(new PageParameters().set("siteId", siteId));
 			}
 			
 			@Override

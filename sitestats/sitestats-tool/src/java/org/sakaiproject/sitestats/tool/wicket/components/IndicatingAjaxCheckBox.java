@@ -21,12 +21,12 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.extensions.ajax.markup.html.WicketAjaxIndicatorAppender;
+import org.apache.wicket.extensions.ajax.markup.html.AjaxIndicatorAppender;
 
 
 public abstract class IndicatingAjaxCheckBox extends AjaxCheckBox implements IAjaxIndicatorAware {
-	private static final long					serialVersionUID	= 1L;
-	private final WicketAjaxIndicatorAppender	indicatorAppender	= new WicketAjaxIndicatorAppender();
+	private static final long serialVersionUID = 1L;
+	private final AjaxIndicatorAppender indicatorAppender = new AjaxIndicatorAppender();
 
 	
 	public IndicatingAjaxCheckBox(String id) {
@@ -37,6 +37,7 @@ public abstract class IndicatingAjaxCheckBox extends AjaxCheckBox implements IAj
 	@Override
 	protected abstract void onUpdate(AjaxRequestTarget target);
 
+	@Override
 	public String getAjaxIndicatorMarkupId() {
 		return indicatorAppender.getMarkupId();
 	}

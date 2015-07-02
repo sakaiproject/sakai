@@ -50,7 +50,7 @@ public class ReportParams implements Serializable {
 	private String				howSortBy				= ReportManager.HOW_SORT_DEFAULT;	
 	private boolean				howSortAscending		= true;
 	public boolean				howLimitedMaxResults	= false;
-	private int					howMaxResults			= 0;
+	private Integer				howMaxResults			= 0;
 	private String				howPresentationMode		= ReportManager.HOW_PRESENTATION_TABLE;
 	private String				howChartType			= StatsManager.CHARTTYPE_BAR;
 	private String				howChartSource			= StatsManager.T_EVENT;
@@ -343,13 +343,21 @@ public class ReportParams implements Serializable {
 	}
 	
 	/** Get how type, max results (0 for no limit). */
-	public int getHowMaxResults() {
+	public Integer getHowMaxResults() {
 		return howMaxResults;
 	}
 	
 	/** Set how type, max results (0 for no limit). */
-	public void setHowMaxResults(int maxResults) {
-		this.howMaxResults = maxResults;
+	public void setHowMaxResults(Integer maxResults) {
+		
+		if (maxResults == null)
+		{
+			howMaxResults = 0;
+		}
+		else
+		{
+			howMaxResults = maxResults;
+		}
 	}
 	
 	/** Get report presentation mode (see {@link ReportManager#HOW_PRESENTATION_TABLE}, {@link ReportManager#HOW_PRESENTATION_CHART}, {@link ReportManager#HOW_PRESENTATION_BOTH}). */

@@ -26,10 +26,10 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.MarkupStream;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -167,7 +167,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		if(!renderChart) {
 			chartTd.setVisible(false);
 		}else if(renderChart && !renderTable) {
-			chartTd.add(new SimpleAttributeModifier("colspan", "2"));
+			chartTd.add(AttributeModifier.replace("colspan", "2"));
 		}
 		add(chartTd);
 	}
@@ -178,7 +178,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		if(!renderTable) {
 			tableTd.setVisible(false);
 		}else if(renderTable && !renderChart) {
-			tableTd.add(new SimpleAttributeModifier("colspan", "2"));
+			tableTd.add(AttributeModifier.replace("colspan", "2"));
 		}
 		tableLink = new StatelessLink("link") {
 			private static final long	serialVersionUID	= 1L;
@@ -192,7 +192,7 @@ public abstract class WidgetTabTemplate extends Panel {
 				}
 				String siteId = rd.getSiteId();
 				ReportDefModel reportDefModel = new ReportDefModel(rd);
-				setResponsePage(new ReportDataPage(reportDefModel, new PageParameters("siteId="+siteId), getWebPage()));
+				setResponsePage(new ReportDataPage(reportDefModel, new PageParameters().set("siteId", siteId), getWebPage()));
 			}					
 		};
 		tableLink.setOutputMarkupId(true);
@@ -201,7 +201,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		tableJs = new WebMarkupContainer("tableJs") {
 			private static final long	serialVersionUID	= 1L;
 			@Override
-			protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
+			public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
 				StringBuilder js = new StringBuilder();
 				js.append("jQuery('#");
 				js.append(table.getMarkupId());
@@ -234,7 +234,7 @@ public abstract class WidgetTabTemplate extends Panel {
 					tableDataProvider, false
 					);
 		}
-		table.setRowsPerPage(MAX_TABLE_ROWS);
+		table.setItemsPerPage(MAX_TABLE_ROWS);
 		table.setOutputMarkupId(true);
 		tableTd.add(table);
 	}
@@ -377,7 +377,7 @@ public abstract class WidgetTabTemplate extends Panel {
 		IndicatingAjaxDropDownChoice resactionFilter = new IndicatingAjaxDropDownChoice("resactionFilter", resactionFilterOptions, resactionFilterRenderer) {
 			private static final long	serialVersionUID	= 1L;
 			@Override
-			protected CharSequence getDefaultChoice(Object selected) {
+			protected CharSequence getDefaultChoice(String selected) {
 				return "";
 			}
 		};
@@ -396,7 +396,7 @@ public abstract class WidgetTabTemplate extends Panel {
 	private void updateData(AjaxRequestTarget target) {
 		if(renderChart) {
 			chartDataProvider.setReportDef(getChartReportDefinition());
-			target.addComponent(chart);
+			target.add(chart);
 		}
 		if(renderTable) {
 			if(useChartReportDefinitionForTable()) {
@@ -406,9 +406,9 @@ public abstract class WidgetTabTemplate extends Panel {
 			}
 			tableTd.remove(table);
 			createTable();
-			target.addComponent(tableTd);
+			target.add(tableTd);
 		}
-		target.appendJavascript("setMainFrameHeightNoScroll(window.name, 0, 300);");
+		target.appendJavaScript("setMainFrameHeightNoScroll(window.name, 0, 300);");
 	}
 
 	private List<String> getToolIds() {

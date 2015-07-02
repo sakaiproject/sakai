@@ -23,26 +23,29 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.Page;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Resource;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.cycle.RequestCycle;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.request.resource.AbstractResource;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.AjaxChannel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.form.SubmitLink;
 import org.apache.wicket.markup.html.image.Image;
 import org.apache.wicket.markup.html.image.NonCachingImage;
-import org.apache.wicket.markup.html.image.resource.DynamicImageResource;
+import org.apache.wicket.request.resource.DynamicImageResource;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.version.undo.Change;
+import org.apache.wicket.request.http.WebResponse.CacheScope;
+import org.apache.wicket.util.time.Duration;
 import org.sakaiproject.sitestats.tool.wicket.pages.MaximizedImagePage;
 
 public abstract class AjaxLazyLoadImage extends Panel {
@@ -97,8 +100,11 @@ public abstract class AjaxLazyLoadImage extends Panel {
 			}
 			
 			@Override
-			protected String getChannelName() {
-				return getId();
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
+			{
+				super.updateAjaxAttributes(attributes);
+				
+				attributes.setChannel(new AjaxChannel(getId()));
 			}
 		};
 		add(chartRenderAjaxBehavior);
@@ -133,12 +139,12 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	}
 	
 	public CharSequence getCallbackUrl() {
-		return chartRenderAjaxBehavior.getCallbackUrl(false);
+		return chartRenderAjaxBehavior.getCallbackUrl();
 	}
 	
 	public Image renderImage(AjaxRequestTarget target, boolean fullRender) {
 		if(returnPage != null || returnClass != null) {
-			link.add(new AttributeModifier("title", true, new ResourceModel("click_to_max")));
+			link.add(new AttributeModifier("title", new ResourceModel("click_to_max")));
 			link.setEnabled(true);
 		}
 		link.removeAll();
@@ -148,13 +154,13 @@ public abstract class AjaxLazyLoadImage extends Panel {
 		}else{
 			img = createImage("content", getImageData(selectedWidth, selectedHeight));
 		}
-		img.add(new SimpleAttributeModifier("style", "display: none; margin: 0 auto;"));
+		img.add(AttributeModifier.replace("style", "display: none; margin: 0 auto;"));
 		link.add(img);
 		setState((byte) 1);
 		if(fullRender) {
 			if(target != null) {
-				target.addComponent(link);	
-				target.appendJavascript("jQuery('#"+img.getMarkupId()+"').fadeIn();");
+				target.add(link);	
+				target.appendJavaScript("jQuery('#"+img.getMarkupId()+"').fadeIn();");
 			}		
 			setState((byte) 2);
 		}
@@ -167,9 +173,9 @@ public abstract class AjaxLazyLoadImage extends Panel {
 	 * @return The component to show while the real component is being created.
 	 */
 	public Component getLoadingComponent(String markupId) {
-		Label indicator = new Label(markupId, "<img src=\"" + RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR) + "\"/>");
+		Label indicator = new Label(markupId, "<img src=\"" + RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR, null) + "\"/>");
 		indicator.setEscapeModelStrings(false);
-		indicator.add(new AttributeModifier("title", true, new Model("...")));
+		indicator.add(new AttributeModifier("title", new Model("...")));
 		return indicator;
 	}
 
@@ -204,25 +210,25 @@ public abstract class AjaxLazyLoadImage extends Panel {
 			private static final long	serialVersionUID	= 1L;
 
 			@Override
-			protected Resource getImageResource() {
+			protected IResource getImageResource() {
 				return new DynamicImageResource() {
 					private static final long	serialVersionUID	= 1L;
 
 					@Override
-					protected byte[] getImageData() {
+					protected byte[] getImageData(IResource.Attributes attributes) {
 						return imageData;
 					}
 
+					// adapted from https://cwiki.apache.org/confluence/display/WICKET/JFreeChart+and+wicket+example
 					@Override
-					protected void setHeaders(WebResponse response) {
-						response.setHeader("Pragma", "no-cache");
-						response.setHeader("Cache-Control", "no-cache");
-						response.setDateHeader("Expires", 0);
-						response.setContentType("image/png");
-						response.setContentLength(getImageData().length);
-						response.setAjax(true);
+					protected void configureResponse(AbstractResource.ResourceResponse response, IResource.Attributes attributes)
+					{
+						super.configureResponse(response, attributes);
+						
+						response.setCacheDuration(Duration.NONE);
+						response.setCacheScope(CacheScope.PRIVATE);
 					}
-				}.setCacheable(false);
+				};
 			}
 		};
 		chartImage.setOutputMarkupId(true);
@@ -239,55 +245,35 @@ public abstract class AjaxLazyLoadImage extends Panel {
 			protected void respond(AjaxRequestTarget target) {
 				// parse desired image size
 				Request req = RequestCycle.get().getRequest();
-				try{
-					selectedWidth = (int) Float.parseFloat(req.getParameter("width"));					
-				}catch(NumberFormatException e){
-					LOG.debug("NumberFormatException",e);
-					selectedWidth = 400;
-				}
-				try{
-					selectedHeight = (int) Float.parseFloat(req.getParameter("height"));
-					if(selectedHeight < 200) {
-						selectedHeight = 200;
-					}
-				}catch(NumberFormatException e){
-					LOG.debug("NumberFormatException",e);
+
+				selectedWidth = req.getQueryParameters().getParameterValue("width").toInt(400);					
+
+				selectedHeight = req.getQueryParameters().getParameterValue("height").toInt(200);
+				if(selectedHeight < 200)
+				{
 					selectedHeight = 200;
 				}
-				
 				// render chart image
 				renderImage(target, true);
 			}
 
 			@Override
-			public void renderHead(IHeaderResponse response) {
-				response.renderOnDomReadyJavascript(getScript(null, getScript(null, null)));
-				super.renderHead(response);
-			}
-			
-			private String getScript(String onSuccess, String onFailure) {
-				StringBuilder buff = new StringBuilder();
-				buff.append("wicketAjaxGet('");
-				buff.append(getCallbackUrl(false));
-				buff.append("&width='+ jQuery('"+jquerySelectorForContainer+"').width()+'");
-				buff.append("&height='+ jQuery('"+jquerySelectorForContainer+"').height()");
-				buff.append(",function() {");
-				if(onSuccess !=  null) {
-					buff.append(onSuccess);
-				}
-				buff.append("}, function() {");
-				if(onFailure !=  null) {
-					buff.append(onFailure);
-				}
-				buff.append("}");
-				buff.append(",null, '" + getChannelName() + "'");
-				buff.append(")");
-				return buff.toString();
+			public void renderHead(Component component, IHeaderResponse response) {
+				
+				super.renderHead(component, response);
+				response.render(OnDomReadyHeaderItem.forScript(getCallbackScript(component)));
 			}
 			
 			@Override
-			protected String getChannelName() {
-				return getId();
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
+			{
+				super.updateAjaxAttributes(attributes);
+				
+				attributes.setChannel(new AjaxChannel(getId()));
+				
+				String dynamicExtraParams = "return { 'height': jQuery('" + jquerySelectorForContainer
+						+ "').height(), 'width': jQuery('" + jquerySelectorForContainer + "').width() }";
+				attributes.getDynamicExtraParameters().add(dynamicExtraParams);
 			}
 		};	
 		
@@ -312,23 +298,9 @@ public abstract class AjaxLazyLoadImage extends Panel {
 
 	private void setState(byte state) {
 		if(this.state != state){
-			addStateChange(new StateChange(this.state));
+			addStateChange();
 		}
 		this.state = state;
 	}
 	
-	private final class StateChange extends Change {
-		private static final long	serialVersionUID	= 1L;
-
-		private final byte			state;
-
-		public StateChange(byte state) {
-			this.state = state;
-		}
-
-		@Override
-		public void undo() {
-			AjaxLazyLoadImage.this.state = state;
-		}
-	}
 }

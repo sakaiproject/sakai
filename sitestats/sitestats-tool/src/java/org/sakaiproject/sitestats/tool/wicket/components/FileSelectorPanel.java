@@ -25,10 +25,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
+import org.apache.wicket.request.Request;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.markup.head.CssHeaderItem;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.HiddenField;
 import org.apache.wicket.markup.html.internal.HtmlHeaderContainer;
@@ -37,8 +40,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.request.target.basic.EmptyRequestTarget;
+import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.request.handler.EmptyRequestHandler;
 import org.sakaiproject.content.api.ContentCollection;
 import org.sakaiproject.content.api.ContentEntity;
 import org.sakaiproject.exception.IdUnusedException;
@@ -60,7 +63,6 @@ public class FileSelectorPanel extends Panel {
 	private static final String			BASE_DIR			= "/";
 
 	private String						siteId;
-	private String						siteTitle;
 	private boolean						showDefaultBaseFoldersOnly;
 	private String						currentDir			= BASE_DIR;
 
@@ -73,11 +75,6 @@ public class FileSelectorPanel extends Panel {
 	public FileSelectorPanel(String id, String siteId, IModel model, boolean showDefaultBaseFoldersOnly) {
 		super(id, model);
 		this.siteId = siteId;
-		try{
-			this.siteTitle = Locator.getFacade().getSiteService().getSite(siteId).getTitle();
-		}catch(IdUnusedException e){
-			this.siteTitle = siteId;
-		}
 		this.showDefaultBaseFoldersOnly = showDefaultBaseFoldersOnly;
 		
 		// selected files
@@ -87,9 +84,9 @@ public class FileSelectorPanel extends Panel {
 		// hover div (for disabling control)
 		WebMarkupContainer containerHover = new WebMarkupContainer("containerHover");
 		if(isEnabled()) {
-			containerHover.add(new AttributeModifier("style", true, new Model("display: block")));
+			containerHover.add(new AttributeModifier("style", new Model("display: block")));
 		}else{
-			containerHover.add(new AttributeModifier("style", true, new Model("display: none")));
+			containerHover.add(new AttributeModifier("style", new Model("display: none")));
 		}
 		add(containerHover);
 		
@@ -124,7 +121,7 @@ public class FileSelectorPanel extends Panel {
 				filesEncoded.append("|||");
 			}
 			if(!showDefaultBaseFoldersOnly && (StatsManager.RESOURCES_DIR.equals(s) || StatsManager.DROPBOX_DIR.equals(s) || StatsManager.ATTACHMENTS_DIR.equals(s))){
-				filesEncoded.append(s + siteId + "/");
+				filesEncoded.append(s).append(siteId).append("/");
 			}else{
 				filesEncoded.append(s);
 			}
@@ -158,9 +155,9 @@ public class FileSelectorPanel extends Panel {
 
 	@Override
 	public void renderHead(HtmlHeaderContainer container) {
-		container.getHeaderResponse().renderJavascriptReference(BasePage.JQUERYSCRIPT);
-		container.getHeaderResponse().renderJavascriptReference(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js");
-		container.getHeaderResponse().renderCSSReference(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css");
+		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(BasePage.JQUERYSCRIPT));
+		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.js"));
+		container.getHeaderResponse().render(CssHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/html/components/jqueryFileTree/jqueryFileTree.css"));
 		StringBuilder onDomReady = new StringBuilder();
 		onDomReady.append("jQuery('#sitestats-containerInner').fileTree(");
 		onDomReady.append("  {root: '");
@@ -170,7 +167,7 @@ public class FileSelectorPanel extends Panel {
 		onDomReady.append("', duration: 100},");
 		onDomReady.append("  function(file) {return false;}");
 		onDomReady.append(");");
-		container.getHeaderResponse().renderOnDomReadyJavascript(onDomReady.toString());
+		container.getHeaderResponse().render(OnDomReadyHeaderItem.forScript(onDomReady.toString()));
 		super.renderHead(container);
 	}
 	
@@ -217,9 +214,9 @@ public class FileSelectorPanel extends Panel {
 			// get dir
 	    	Request req = RequestCycle.get().getRequest();
 			try{
-				currentDir = req.getParameter("dir");
+				currentDir = req.getQueryParameters().getParameterValue("dir").toString();
 				String enc = "UTF-8";
-				RequestCycle.get().setRequestTarget(EmptyRequestTarget.getInstance());
+				RequestCycle.get().scheduleRequestHandlerAfterCurrent(new EmptyRequestHandler());
 				WebResponse response = (WebResponse) getResponse();
 				response.setContentType("text/html;charset="+enc);
 				OutputStream out = getResponse().getOutputStream();
@@ -248,15 +245,15 @@ public class FileSelectorPanel extends Panel {
 						) {
 							StringBuilder collectionMarkup = new StringBuilder();
 							collectionMarkup.append("  <li class=\"directory collapsed\">");
-							collectionMarkup.append("    <input type=\"checkbox\" value=\""+rm.getResourceId()+"\" "+ (isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "") +"onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
-							collectionMarkup.append("    <a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a>");
+							collectionMarkup.append("    <input type=\"checkbox\" value=\"").append(rm.getResourceId()).append("\" ").append(isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "").append("onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
+							collectionMarkup.append("    <a href=\"#\" rel=\"").append(rm.getResourceId()).append("\">").append(rm.getResourceNameEscaped()).append("</a>");
 							collectionMarkup.append("  </li>");
 							out.write(collectionMarkup.toString().getBytes(encoding));
 						}else{
 							StringBuilder collectionMarkup = new StringBuilder();
 							collectionMarkup.append("  <li class=\"directory expanded\"  style=\"position: static;\">");
-							collectionMarkup.append("    <input type=\"checkbox\" value=\""+rm.getResourceId()+"\" "+ (isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "") +"onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
-							collectionMarkup.append("    <a href=\"#\" rel=\""+rm.getResourceId()+"\">"+rm.getResourceNameEscaped()+"</a>");
+							collectionMarkup.append("    <input type=\"checkbox\" value=\"").append(rm.getResourceId()).append("\" ").append(isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "").append("onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
+							collectionMarkup.append("    <a href=\"#\" rel=\"").append(rm.getResourceId()).append("\">").append(rm.getResourceNameEscaped()).append("</a>");
 							collectionMarkup.append("    <ul style=\"display: block;\" class=\"jqueryFileTree\">");
 							out.write(collectionMarkup.toString().getBytes(encoding));
 							
@@ -270,9 +267,9 @@ public class FileSelectorPanel extends Panel {
 						}
 					}else{
 						StringBuilder markup = new StringBuilder();
-						markup.append("  <li class=\"file ext_"+rm.getResourceExtension()+"\">");
-						markup.append("    <input type=\"checkbox\" value=\""+rm.getResourceId()+"\" "+ (isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "") +"onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
-						markup.append("    <span>"+rm.getResourceNameEscaped()+"</span>");
+						markup.append("  <li class=\"file ext_").append(rm.getResourceExtension()).append("\">");
+						markup.append("    <input type=\"checkbox\" value=\"").append(rm.getResourceId()).append("\" ").append(isSelected(rm.getResourceId()) ? "checked=\"checked\"" : "").append("onchange=\"updateFieldWithSelectedFiles('.selectedFiles')\"/>");
+						markup.append("    <span>").append(rm.getResourceNameEscaped()).append("</span>");
 						markup.append("  </li>");
 						out.write(markup.toString().getBytes(encoding));
 					}

@@ -21,8 +21,9 @@ package org.sakaiproject.sitestats.tool.wicket.providers;
 import java.util.Iterator;
 
 import org.apache.wicket.extensions.markup.html.repeater.util.SortParam;
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -41,16 +42,17 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 	private String					siteType			= SITE_TYPE_ALL;
 
 	public StatisticableSitesDataProvider() {
-		InjectorHolder.getInjector().inject(this);
+		Injector.get().inject(this);
 		
         // set default sort
-        setSort(COL_TITLE, true);
+        setSort(COL_TITLE, SortOrder.ASCENDING);
 	}
 
-	public Iterator iterator(int first, int count) {
+	@Override
+	public Iterator iterator(long first, long count) {
 		// pager
-		int start = first + 1;
-		int end = start + count - 1;
+		int start = (int) first + 1;
+		int end = start + (int) count - 1;
 		PagingPosition pp = new PagingPosition(start, end);
 
 		String type = SITE_TYPE_ALL.equals(getSiteType()) ? null : getSiteType();
@@ -83,11 +85,13 @@ public class StatisticableSitesDataProvider extends SortableSearchableDataProvid
 		}
 	}
 
+	@Override
 	public IModel model(Object object) {
 		return new SiteModel((Site) object);
 	}
 
-	public int size() {
+	@Override
+	public long size() {
 		String type = SITE_TYPE_ALL.equals(getSiteType()) ? null : getSiteType();
 		return Locator.getFacade().getSiteService().countSites(SelectionType.NON_USER, type, getSearchKeyword(), null);
 	}

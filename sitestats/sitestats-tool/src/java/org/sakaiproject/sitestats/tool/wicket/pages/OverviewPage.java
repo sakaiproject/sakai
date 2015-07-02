@@ -18,8 +18,9 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.tool.facade.Locator;
@@ -46,7 +47,7 @@ public class OverviewPage extends BasePage {
 	public OverviewPage(PageParameters pageParameters) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
-			siteId = pageParameters.getString("siteId");
+			siteId = pageParameters.get("siteId").toString();
 		}
 		if(siteId == null){
 			siteId = realSiteId;
@@ -63,7 +64,7 @@ public class OverviewPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference(JQUERYSCRIPT);
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
 	}
 	
 	private void renderBody() {

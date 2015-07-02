@@ -28,7 +28,7 @@ public class SiteStatsAdminApplication extends SiteStatsApplication {
 		super.init();
 
 		// Home page
-		mountBookmarkablePage("/admin", AdminPage.class);
+		mountPage("/admin", AdminPage.class);
 
 		// On wicket session timeout or wicket exception, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(AdminPage.class);
