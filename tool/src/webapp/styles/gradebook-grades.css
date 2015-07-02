@@ -185,6 +185,10 @@
   text-align: center;
   white-space: nowrap;
 }
+#gradebookGrades .gb-external-item-cell {
+  color: #777;
+  font-style: italic;
+}
 #gradebookGrades .gb-grade-item-cell span {
   display: block;
 }
