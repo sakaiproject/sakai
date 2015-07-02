@@ -568,18 +568,19 @@ public class GradebookNgBusinessService {
     /**
      * Add a new assignment definition to the gradebook
      * @param assignment
-	 * @return id of the newly created assignment
+	 * @return id of the newly created assignment or null if there were any errors
      */
     public Long addAssignment(Assignment assignment) {
-        Long id = null;
-		Gradebook gradebook = getGradebook();
-        if(gradebook != null) {
+		
+    	Gradebook gradebook = getGradebook();
+        
+    	if(gradebook != null) {
             String gradebookId = gradebook.getUid();
-            id = this.gradebookService.addAssignment(gradebookId, assignment);
+            return this.gradebookService.addAssignment(gradebookId, assignment);
             
             //TODO wrap this so we can catch any runtime exceptions
         }
-		return id;
+		return null;
     }
     
     /**
