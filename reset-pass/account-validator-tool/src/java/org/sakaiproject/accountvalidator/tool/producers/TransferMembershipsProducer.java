@@ -140,16 +140,10 @@ public class TransferMembershipsProducer extends BaseValidationProducer implemen
 		String activationURL = getViewURL("newUser", va);
 		String linkText = messageLocator.getMessage("validate.wait.transfer.2", new Object[]{u.getDisplayId()});
 
-		UIMessage.make(tofill, "welcome", "validate.welcome", args);
-		UIMessage.make(tofill, "welcome2.1", "validate.wait.transfer.1", args);
-		UILink.make(tofill, "welcome2.2", linkText, activationURL);
-		UIMessage.make(tofill, "transferInstructions", "validate.loginexisting.transfer", args);
-		UIMessage.make(tofill, "validate.alreadyhave", "validate.alreadyhave", args);
-
 		//we need to know which sites they're a member of:
 		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(va.getUserId()), "site.visit", null);
 		Iterator<String> git= groups.iterator();
-		List existingSites = new ArrayList();
+		List<String> existingSites = new ArrayList<>();
 		while (git.hasNext())
 		{
 			String groupRef = git.next();
@@ -170,6 +164,13 @@ public class TransferMembershipsProducer extends BaseValidationProducer implemen
 				}
 			}
 		}
+
+		String welcomeMessage = existingSites.size() == 1 ? "validate.welcome.single" : "validate.welcome.plural";
+		UIMessage.make(tofill, "welcome", welcomeMessage, args);
+		UIMessage.make(tofill, "welcome2.1", "validate.wait.transfer.1", args);
+		UILink.make(tofill, "welcome2.2", linkText, activationURL);
+		UIMessage.make(tofill, "transferInstructions", "validate.loginexisting.transfer", args);
+		UIMessage.make(tofill, "validate.alreadyhave", "validate.alreadyhave", args);
 
 		Object[] displayIdArgs = new Object[]{u.getDisplayId()};
 		UIForm claimForm = UIForm.make(tofill, "claimAccountForm");
