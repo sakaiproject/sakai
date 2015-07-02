@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.BookmarkablePageLink;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -37,7 +37,7 @@ public class SiteLinkPanel extends Panel {
 		super(id);
 		final String siteId = ((Site) model.getObject()).getId();
 		final String siteTitle = ((Site) model.getObject()).getTitle();
-		PageParameters param = new PageParameters("siteId=" + siteId);
+		PageParameters param = new PageParameters().set("siteId", siteId);
 		BookmarkablePageLink link = new BookmarkablePageLink("link", OverviewPage.class, param);
 		link.add(new Label("label", siteTitle));
 		add(link);

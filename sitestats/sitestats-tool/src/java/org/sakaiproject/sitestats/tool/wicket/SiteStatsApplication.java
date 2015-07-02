@@ -21,22 +21,21 @@ package org.sakaiproject.sitestats.tool.wicket;
 import java.util.Locale;
 
 import org.apache.wicket.Component;
-import org.apache.wicket.IRequestTarget;
-import org.apache.wicket.Page;
-import org.apache.wicket.Request;
-import org.apache.wicket.RequestCycle;
-import org.apache.wicket.Response;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.protocol.http.WebApplication;
-import org.apache.wicket.protocol.http.WebRequest;
-import org.apache.wicket.protocol.http.WebRequestCycle;
-import org.apache.wicket.protocol.http.WebResponse;
-import org.apache.wicket.request.RequestParameters;
-import org.apache.wicket.request.target.coding.AbstractRequestTargetUrlCodingStrategy;
+import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.resource.loader.IStringResourceLoader;
 import org.apache.wicket.settings.IExceptionSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
 import org.apache.wicket.util.resource.IResourceStream;
-import org.apache.wicket.util.resource.locator.ResourceStreamLocator;
+import org.apache.wicket.core.util.resource.locator.ResourceStreamLocator;
+import org.apache.wicket.core.util.file.WebApplicationPath;
+import org.apache.wicket.devutils.debugbar.DebugBar;
+import org.apache.wicket.devutils.debugbar.InspectorDebugPanel;
+import org.apache.wicket.devutils.debugbar.PageSizeDebugPanel;
+import org.apache.wicket.devutils.debugbar.SessionSizeDebugPanel;
+import org.apache.wicket.devutils.debugbar.VersionDebugContributor;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.sitestats.tool.facade.SakaiFacade;
 import org.sakaiproject.sitestats.tool.wicket.pages.OverviewPage;
@@ -48,22 +47,21 @@ public class SiteStatsApplication extends WebApplication {
 	
 	private transient SakaiFacade	facade;
 
+	@Override
 	protected void init() {
 		super.init();
 
 		// Configure general wicket application settings
-		addComponentInstantiationListener(new SpringComponentInjector(this));
+		getComponentInstantiationListeners().add(new SpringComponentInjector(this));
 		getResourceSettings().setThrowExceptionOnMissingResource(false);
 		getMarkupSettings().setStripWicketTags(true);
-		getResourceSettings().addStringResourceLoader(new SiteStatsStringResourceLoader());
-		getResourceSettings().addResourceFolder("html");
+		getResourceSettings().getStringResourceLoaders().add(new SiteStatsStringResourceLoader());
+		getResourceSettings().getResourceFinders().add(new WebApplicationPath(getServletContext(), "html"));
 		getResourceSettings().setResourceStreamLocator(new SiteStatsResourceStreamLocator());
 		getDebugSettings().setAjaxDebugModeEnabled(debug);
 
 		// Home page
-		mountBookmarkablePage("/home", OverviewPage.class);
-		// Prevent bad requests from: url(#default#VML)
-		mount(new PassThroughUrlCodingStrategy("/home/panel/Main/none"));
+		mountPage("/home", OverviewPage.class);
 		
 		// On wicket session timeout, redirect to main page
 		getApplicationSettings().setPageExpiredErrorPage(OverviewPage.class);
@@ -78,11 +76,34 @@ public class SiteStatsApplication extends WebApplication {
 		    getDebugSettings().setLinePreciseReportingOnNewComponentEnabled(true);
 		    getDebugSettings().setOutputComponentPath(true);
 		    getDebugSettings().setOutputMarkupContainerClassName(true);
+			getDebugSettings().setDevelopmentUtilitiesEnabled(true);
 		    getMarkupSettings().setStripWicketTags(false);
 			getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_EXCEPTION_PAGE);
+			// register standard debug contributors so that just setting the sitestats.debug property is enough to turn these on
+			// otherwise, you have to turn wicket development mode on to get this populated due to the order methods are called
+			DebugBar.registerContributor(VersionDebugContributor.DEBUG_BAR_CONTRIB, this);
+			DebugBar.registerContributor(InspectorDebugPanel.DEBUG_BAR_CONTRIB, this);
+			DebugBar.registerContributor(SessionSizeDebugPanel.DEBUG_BAR_CONTRIB, this);
+			DebugBar.registerContributor(PageSizeDebugPanel.DEBUG_BAR_CONTRIB, this);
+		}
+		else
+		{
+			// Throw RuntimeDeceptions so they are caught by the Sakai ErrorReportHandler
+			getRequestCycleListeners().add(new AbstractRequestCycleListener()
+			{
+				@Override
+				public IRequestHandler onException(RequestCycle cycle, Exception ex)
+				{
+					if (ex instanceof RuntimeException)
+					{
+						throw (RuntimeException) ex;
+					}
+					return null;
+				}
+			});
 		}
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public Class getHomePage() {
 		return OverviewPage.class;
@@ -96,21 +117,6 @@ public class SiteStatsApplication extends WebApplication {
 		this.facade = facade;
 	}
 
-	@Override
-	public RequestCycle newRequestCycle(Request request, Response response) {
-		if(!debug) {
-			return new WebRequestCycle(this, (WebRequest)request, (WebResponse)response) {
-				@Override
-				public Page onRuntimeException(Page page, RuntimeException e) {
-					// Let Sakai ErrorReportHandler (BugReport) handle errors
-					throw e;
-				}
-			};
-		}else{
-			return super.newRequestCycle(request, response);
-		}
-	}
-
 	/**
 	 * Custom bundle loader to pickup bundles from sitestats-bundles/
 	 * @author Nuno Fernandes
@@ -120,7 +126,8 @@ public class SiteStatsApplication extends WebApplication {
 		private ResourceLoader	events		= new ResourceLoader("Events");
 		private ResourceLoader	nav			= new ResourceLoader("Navigator");
 
-		public String loadStringResource(Component component, String key) {
+		@Override
+		public String loadStringResource(Component component, String key, Locale locale, String style, String variation) {
 			String value = null;
 			if(messages.containsKey(key)) {
 				value = messages.getString(key, null);
@@ -137,7 +144,8 @@ public class SiteStatsApplication extends WebApplication {
 			return value;
 		}
 
-		public String loadStringResource(Class clazz, String key, Locale locale, String style) {
+		@Override
+		public String loadStringResource(Class clazz, String key, Locale locale, String style, String variation) {
 			ResourceLoader msgs = new ResourceLoader("Messages");
 			msgs.setContextLocale(locale);
 			String value = msgs.getString(key, null);
@@ -182,23 +190,4 @@ public class SiteStatsApplication extends WebApplication {
 		}
 	}
 	
-	
-	/** Pass-through coding strategy to unmount paths from Wicket */
-	private class PassThroughUrlCodingStrategy extends AbstractRequestTargetUrlCodingStrategy {
-		public PassThroughUrlCodingStrategy(final String mountPath) {
-			super(mountPath);
-		}
-
-		public IRequestTarget decode(RequestParameters requestParameters) {
-			return null;
-		}
-
-		public CharSequence encode(IRequestTarget requestTarget) {
-			return null;
-		}
-
-		public boolean matches(IRequestTarget requestTarget) {
-			return false;
-		}
-	}
 }

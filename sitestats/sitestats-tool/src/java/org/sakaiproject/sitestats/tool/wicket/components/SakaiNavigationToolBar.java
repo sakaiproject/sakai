@@ -32,8 +32,6 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 {
 	private static final long serialVersionUID = 1L;
 
-	private final DataTable table;
-
 	/**
 	 * Constructor
 	 * 
@@ -43,11 +41,9 @@ public class SakaiNavigationToolBar extends AjaxNavigationToolbar
 	public SakaiNavigationToolBar(final DataTable table)
 	{
 		super(table);
-		this.table = table;
 
 		WebMarkupContainer span = (WebMarkupContainer) get("span");
-		span.add(new AttributeModifier("colspan", true, new Model(
-			String.valueOf(table.getColumns().length))));
+		span.add(new AttributeModifier("colspan", new Model(String.valueOf(table.getColumns().size()))));
 
 		span.get("navigator").replaceWith(newPagingNavigator("navigator", table));
 		span.get("navigatorLabel").replaceWith(newNavigatorLabel("navigatorLabel", table));

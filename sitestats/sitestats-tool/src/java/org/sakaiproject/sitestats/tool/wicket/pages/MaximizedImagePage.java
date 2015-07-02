@@ -19,13 +19,18 @@
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
 import org.apache.wicket.Page;
-import org.apache.wicket.Resource;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.request.resource.IResource;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.image.NonCachingImage;
-import org.apache.wicket.markup.html.image.resource.DynamicImageResource;
-import org.apache.wicket.protocol.http.WebResponse;
+import org.apache.wicket.request.resource.DynamicImageResource;
+import org.apache.wicket.request.resource.AbstractResource;
+import org.apache.wicket.request.http.WebResponse;
+import org.apache.wicket.util.time.Duration;
+
 import org.sakaiproject.sitestats.tool.facade.Locator;
 
 /**
@@ -61,8 +66,8 @@ public abstract class MaximizedImagePage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference(JQUERYSCRIPT);
-		response.renderOnDomReadyJavascript("setMainFrameHeightNoScroll(window.name, 750);");
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
+		response.render(OnDomReadyHeaderItem.forScript("setMainFrameHeightNoScroll(window.name, 750);"));
 	}
 	
 	public abstract byte[] getMaximizedImageData();
@@ -72,24 +77,24 @@ public abstract class MaximizedImagePage extends BasePage {
 		NonCachingImage image = new NonCachingImage("image") {
 			@SuppressWarnings("serial")
 			@Override
-			protected Resource getImageResource() {
+			protected IResource getImageResource() {
 				return new DynamicImageResource() {
 
 					@Override
-					protected byte[] getImageData() {
+					protected byte[] getImageData(IResource.Attributes attributes) {
 						return getMaximizedImageData();
 					}
 
+					// adapted from https://cwiki.apache.org/confluence/display/WICKET/JFreeChart+and+wicket+example
 					@Override
-					protected void setHeaders(WebResponse response) {
-						response.setHeader("Pragma", "no-cache");
-						response.setHeader("Cache-Control", "no-cache");
-						response.setDateHeader("Expires", 0);
-						response.setContentType("image/png");
-						response.setContentLength(getImageData().length);
-						response.setAjax(true);
+					protected void configureResponse(AbstractResource.ResourceResponse response, IResource.Attributes attributes)
+					{
+						super.configureResponse(response, attributes);
+						
+						response.setCacheDuration(Duration.NONE);
+						response.setCacheScope(WebResponse.CacheScope.PRIVATE);
 					}
-				}.setCacheable(false);
+				};
 			}
 		};
 		add(image);

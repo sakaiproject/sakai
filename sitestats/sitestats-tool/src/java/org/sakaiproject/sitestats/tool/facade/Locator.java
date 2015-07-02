@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.facade;
 
-import org.apache.wicket.RequestCycle;
+import org.apache.wicket.Application;
 import org.sakaiproject.sitestats.tool.wicket.SiteStatsApplication;
 
 public class Locator {
@@ -27,7 +27,7 @@ public class Locator {
 	
 	public static SakaiFacade getFacade() {
 		if(facade == null) {
-			facade = ((SiteStatsApplication) RequestCycle.get().getApplication()).getFacade();
+			facade = ((SiteStatsApplication) Application.get()).getFacade();
 		}
 		return facade;
 	}

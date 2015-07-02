@@ -26,17 +26,20 @@ import org.apache.wicket.model.IModel;
 public class SortableSearchableDataProvider extends SortableDataProvider{
 	private String searchKeyword = null;
 
-	public Iterator iterator(int first, int count) {
+	@Override
+	public Iterator iterator(long first, long count) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	@Override
 	public IModel model(Object object) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public int size() {
+	@Override
+	public long size() {
 		// TODO Auto-generated method stub
 		return 0;
 	}

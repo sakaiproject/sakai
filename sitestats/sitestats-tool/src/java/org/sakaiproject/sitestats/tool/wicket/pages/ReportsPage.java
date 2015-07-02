@@ -21,8 +21,9 @@ package org.sakaiproject.sitestats.tool.wicket.pages;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -57,7 +58,7 @@ public class ReportsPage extends BasePage {
 	public ReportsPage(PageParameters pageParameters) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
-			siteId = pageParameters.getString("siteId");
+			siteId = pageParameters.get("siteId").toString();
 		}
 		if(siteId == null){
 			siteId = realSiteId;
@@ -73,7 +74,7 @@ public class ReportsPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference(JQUERYSCRIPT);
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
 	}
 	
 	private void renderBody() {	
@@ -107,7 +108,7 @@ public class ReportsPage extends BasePage {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public void onClick() {
-				PageParameters pageParameters = new PageParameters("siteId="+siteId+",predefined=false");
+				PageParameters pageParameters = new PageParameters().set("siteId", siteId).set("predefined", "false");
 				setResponsePage(new ReportsEditPage(null, pageParameters, ReportsPage.this));
 			}					
 		};
@@ -124,7 +125,7 @@ public class ReportsPage extends BasePage {
 				final ReportDefModel model = (ReportDefModel) item.getModel();
 				item.add(new ReportRowFragment("reportRow", model, ReportDefsProvider.MODE_MYREPORTS));
 				if(((ReportDef) model.getObject()).isHidden()) {
-					item.add(new AttributeModifier("class", true, new Model("hiddenReport")));
+					item.add(new AttributeModifier("class", new Model("hiddenReport")));
 				}
 			}
 			@Override
@@ -149,7 +150,7 @@ public class ReportsPage extends BasePage {
 			private static final long	serialVersionUID	= 1L;
 			@Override
 			public void onClick() {
-				PageParameters pageParameters = new PageParameters("siteId="+siteId+",predefined=true");
+				PageParameters pageParameters = new PageParameters().set("siteId", siteId).set("predefined", "true");
 				setResponsePage(new ReportsEditPage(null, pageParameters, ReportsPage.this));
 			}					
 		};
@@ -163,7 +164,7 @@ public class ReportsPage extends BasePage {
 				final ReportDefModel model = (ReportDefModel) item.getModel();
 				item.add(new ReportRowFragment("reportRow", model, ReportDefsProvider.MODE_PREDEFINED_REPORTS));
 				if(((ReportDef) model.getObject()).isHidden()) {
-					item.add(new AttributeModifier("class", true, new Model("hiddenReport")));
+					item.add(new AttributeModifier("class", new Model("hiddenReport")));
 				}
 			}
 			@Override
@@ -196,7 +197,7 @@ public class ReportsPage extends BasePage {
 			// icon
 			WebMarkupContainer icon = new WebMarkupContainer("icon");
 			if(mode == ReportDefsProvider.MODE_PREDEFINED_REPORTS) {
-				icon.add(new AttributeModifier("src", true, new Model(StatsManager.SILK_ICONS_DIR + "report.png")));
+				icon.add(new AttributeModifier("src", new Model(StatsManager.SILK_ICONS_DIR + "report.png")));
 			}
 			add(icon);
 			
@@ -205,7 +206,7 @@ public class ReportsPage extends BasePage {
 				private static final long	serialVersionUID	= 1L;
 				@Override
 				public void onClick() {
-					setResponsePage(new ReportDataPage(model, new PageParameters("siteId="+siteId), ReportsPage.this));
+					setResponsePage(new ReportDataPage(model, new PageParameters().set("siteId", siteId), ReportsPage.this));
 				}					
 			};
 			
@@ -234,9 +235,9 @@ public class ReportsPage extends BasePage {
 				@Override
 				public void onClick() {
 					if(isPredefinedReport) {
-						setResponsePage(new ReportsEditPage(model, new PageParameters("siteId="+siteId+",predefined=true"), ReportsPage.this));						
+						setResponsePage(new ReportsEditPage(model, new PageParameters().set("siteId", siteId).set("predefined", "true"), ReportsPage.this));						
 					}else{
-						setResponsePage(new ReportsEditPage(model, new PageParameters("siteId="+siteId+",predefined=false"), ReportsPage.this));
+						setResponsePage(new ReportsEditPage(model, new PageParameters().set("siteId", siteId).set("predefined", "false"), ReportsPage.this));
 					}
 				}					
 			};
