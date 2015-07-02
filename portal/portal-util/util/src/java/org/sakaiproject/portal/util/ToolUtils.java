@@ -40,7 +40,19 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
 
+// Yes - crazy and brittle - but better in one place
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
+import org.sakaiproject.util.RequestFilter;
+
+/**
+ * A set of utilities provided by the portal for use by tools.
+ *
+ * Some of the methods pull the HttpServletRequest from ThreadLocal.  This means
+ * they will fail badly if called before the RequestFilter is run.  Generally
+ * this means that the calls are safe in core tool code.
+ */
 public class ToolUtils
 {
 
@@ -48,14 +60,27 @@ public class ToolUtils
 	public static final boolean PORTAL_INLINE_EXPERIMENTAL_DEFAULT = true;
 
 	/**
+	 * Determine if this is an inline request (only use in tool code)
+	 *
+	 * @return True if this is a request where a tool will be inlined.
+	 */
+	public static boolean isInlineRequest()
+	{
+		return (isInlineRequest());
+	}
+
+	/**
 	 * Determine if this is an inline request.
 	 *
 	 * @param <code>req</code>
-	 *		The request object.
+	 *		The request object.  If you have no access to the request object,
+	 *              you can leave this null and we will try to pull the request
+	 *              from ThreadLocal - if we fail it is a RunTime exception.
 	 * @return True if this is a request where a tool will be inlined.
 	 */
 	public static boolean isInlineRequest(HttpServletRequest req)
 	{
+		if ( req == null ) req = getRequestFromThreadLocal();
 		// Note that with wrapped requests, URLUtils.getSafePathInfo may return null
 		// so we use the request URI
 		String uri = req.getRequestURI();
@@ -72,10 +97,27 @@ public class ToolUtils
 	}
 
 	/**
+	 * Captures the rules for getting the URL of a page suitable for a GET request (call only from the tool)
+	 *
+	 * @param <code>site</code>
+	 *		The site that contains the page
+	 * @param <code>page</code>
+	 *		The page URL.   If this has a logged in session, we use it to set the
+	 *		default prefix if available.   This will use the default prefix if called
+	 *		without a session (i.e. through /direct).
+	 */
+	public static String getPageUrl(Site site, SitePage page)
+	{
+		return getPageUrl(null, site, page);
+	}
+
+	/**
 	 * Captures the rules for getting the URL of a page suitable for a GET request
 	 *
 	 * @param <code>req</code>
-	 *		The request object.
+	 *		The request object.  If you have no access to the request object,
+	 *              you can leave this null and we will try to pull the request
+	 *              from ThreadLocal - if we fail it is a RunTime exception.
 	 * @param <code>site</code>
 	 *		The site that contains the page
 	 * @param <code>page</code>
@@ -86,6 +128,7 @@ public class ToolUtils
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page)
 	{
 		// .../portal/site/1234
+		if ( req == null ) req = getRequestFromThreadLocal();
 		String portalPrefix = "site";
 		Session s = SessionManager.getCurrentSession();
 		if ( s != null ) {
@@ -116,7 +159,9 @@ public class ToolUtils
 	 * Captures the rules for getting the URL of a page suitable for a GET request
 	 *
 	 * @param <code>req</code>
-	 *		The request object.
+	 *		The request object.  If you have no access to the request object,
+	 *              you can leave this null and we will try to pull the request
+	 *              from ThreadLocal - if we fail it is a RunTime exception.
 	 * @param <code>site</code>
 	 *		The site that contains the page
 	 * @param <code>page</code>
@@ -134,6 +179,7 @@ public class ToolUtils
 	public static String getPageUrl(HttpServletRequest req, Site site, SitePage page, 
 		String portalPrefix, boolean reset, String effectiveSiteId, String pageAlias)
 	{
+		if ( req == null ) req = getRequestFromThreadLocal();
 		if ( effectiveSiteId == null ) effectiveSiteId = site.getId();
 		if ( pageAlias == null ) pageAlias = page.getId();
 
@@ -223,7 +269,9 @@ public class ToolUtils
 	 * Look through the pages in a site and get the page URL for a tool.
 	 *
 	 * @param <code>req</code>
-	 *		The request object.
+	 *		The request object.  If you have no access to the request object,
+	 *              you can leave this null and we will try to pull the request
+	 *              from ThreadLocal - if we fail it is a RunTime exception.
 	 * @param <code>site</code>
 	 *		The site
 	 * @param <code>pageTool</code>
@@ -232,11 +280,19 @@ public class ToolUtils
 	 */
 	public static String getPageUrlForTool(HttpServletRequest req, Site site, ToolConfiguration pageTool)
 	{
+		if ( req == null ) req = getRequestFromThreadLocal();
 		SitePage thePage = getPageForTool(site, pageTool.getId());
 		if ( thePage == null ) return null;
 		return getPageUrl(req, site, thePage);
 	}
 
+	/**
+	 * Determine if a particular placement is a JSR-168 portlet placement
+	 *
+	 * @param <code>placement</code>
+	 *		The actual placement.
+	 * @return Returns true for JSR_168 portlets
+	 */
 	public static boolean isPortletPlacement(Placement placement)
 	{
 		if (placement == null) return false;
@@ -246,6 +302,64 @@ public class ToolUtils
 		if (toolProps == null) return false;
 		String portletContext = toolProps.getProperty(PortalService.TOOL_PORTLET_CONTEXT_PATH);
 		return (portletContext != null);
+	}
+
+	/**
+	 * Get the base URL for tools not including the ToolId (only works in tools)
+	 *
+	 * @return Returns true for JSR_168 portlets
+	 */
+
+	public static String getToolBaseUrl()
+	{
+		return getToolBaseUrl(null);
+	}
+
+	/**
+	 * Get the base URL for tools not including the ToolId
+	 *
+	 * @param <code>req</code>
+	 *		The request object.  If you have no access to the request object,
+	 *              you can leave this null and we will try to pull the request
+	 *              from ThreadLocal - if we fail it is a RunTime exception.
+	 * @return Returns true for JSR_168 portlets
+	 */
+	public static String getToolBaseUrl(HttpServletRequest req)
+	{
+		if ( req == null ) req = getRequestFromThreadLocal();
+		String retval = ServerConfigurationService.getToolUrl();
+		if ( isInlineRequest(req) ) {
+			String currentSiteId = ToolManager.getCurrentPlacement().getContext();
+			retval = retval.replaceAll("tool$","site/"+currentSiteId+"/tool");
+		}
+		return retval;
+	}
+
+	/**
+	 * Get the servlet request from thread local - call only after RequestFilter has run
+	 *
+	 * @return Returns the current servlet request or throws runtime error
+	 */
+	public static HttpServletRequest getRequestFromThreadLocal()
+	{
+		try {
+			HttpServletRequest req = (HttpServletRequest) ThreadLocalManager.get(RequestFilter.CURRENT_HTTP_REQUEST);
+			return req;
+		} catch (Exception e) {
+			throw new RuntimeException("This utility must be called after RequestFilter has run",e);
+		}
+	}
+
+	/**
+	 * Retriece a request parameter from ThreadLocal (only works after RequestFilter runs)
+	 *
+	 * @param <code>key</code>
+	 *		The request object
+	 * @return Returns true for JSR_168 portlets
+	 */
+	public static String getRequestParameter(String key)
+	{
+		return getRequestFromThreadLocal().getParameter(key);
 	}
 }
 
