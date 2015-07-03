@@ -20,7 +20,6 @@
 		}
 	//-->
 </script>
-<link type="text/css" href="/library/js/jquery/ui/1.11.3/jquery-ui.min.css" rel="stylesheet" />  
 
 
 <div class="portletBody specialLink" id="portletBody">
@@ -116,7 +115,7 @@
 				<input type="button" name="attachButton" id="attachButton"  accesskey="s"
 					onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
-				<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
+				<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"
 					onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');" 
 					value="$tlang.getString("att.cancel")"  />
 			</p>
@@ -491,7 +490,7 @@
 			<input type="button" name="attachButton" id="attachButton"  accesskey="s"
 				onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 				value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
-			<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
+			<input type="button" name="cancelButton" id="cancelButton"  accesskey="x" class="cancelButton"
 				onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');" 
 				value="$tlang.getString("att.cancel")"  />
 		</p>
@@ -507,6 +506,7 @@ includeLatestJQuery('sakai_filepicker_attach.vm');
 <script>
 if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobile..
 	$('#page-title').hide();
+	$('.cancelButton').hide();
 	$("#portletBody").dialog({
 		title: $('#page-title').text(),
 		width: $(window).width() * 0.8,
