@@ -25,10 +25,11 @@ import java.util.Map;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxLink;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
@@ -79,7 +80,7 @@ public class ServerWidePage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference(JQUERYSCRIPT);
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
 	}
 	
 	private void renderBody() {
@@ -156,9 +157,9 @@ public class ServerWidePage extends BasePage {
 				// select view
 				report.setSelectedView(view);
 				// make title, description & notes visible
-				reportTitle.add(new AttributeModifier("style", true, new Model("display: block")));
-				reportDescription.add(new AttributeModifier("style", true, new Model("display: block")));
-				reportNotes.add(new AttributeModifier("style", true, new Model("display: block")));
+				reportTitle.add(new AttributeModifier("style", new Model("display: block")));
+				reportDescription.add(new AttributeModifier("style", new Model("display: block")));
+				reportNotes.add(new AttributeModifier("style", new Model("display: block")));
 				reportChart.renderImage(target, true);
 				// toggle selectors link state
 				for(Component lbl : labels.values()) {
@@ -170,11 +171,11 @@ public class ServerWidePage extends BasePage {
 				this.setVisible(false);
 				labels.get(this).setVisible(true);
 				// mark component for rendering
-				target.addComponent(selectors);
-				target.addComponent(reportTitle);
-				target.addComponent(reportDescription);
-				target.addComponent(reportNotes);
-				target.appendJavascript("setMainFrameHeightNoScroll( window.name, 650 )");
+				target.add(selectors);
+				target.add(reportTitle);
+				target.add(reportDescription);
+				target.add(reportNotes);
+				target.appendJavaScript("setMainFrameHeightNoScroll( window.name, 650 )");
 			}
 		};
 		link.setVisible(true);

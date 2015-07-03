@@ -30,6 +30,8 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.event.EventInfo;
 import org.sakaiproject.sitestats.api.event.ToolInfo;
@@ -53,11 +55,11 @@ public class EventRegistryTree extends Panel {
 		super(id);
 		ul = new WebMarkupContainer("ul");
 		if(toolId != null) {
-			ul.add(new AttributeModifier("style", true, new Model("padding: 0 0 0 20px; display: none;")));
-			ul.add(new AttributeModifier("class", true, new Model("events")));
+			ul.add(new AttributeModifier("style", new Model("padding: 0 0 0 20px; display: none;")));
+			ul.add(new AttributeModifier("class", new Model("events")));
 		}else{
-			ul.add(new AttributeModifier("style", true, new Model("padding: 0px;")));
-			ul.add(new AttributeModifier("class", true, new Model("tools")));
+			ul.add(new AttributeModifier("style", new Model("padding: 0px;")));
+			ul.add(new AttributeModifier("class", new Model("tools")));
 		}
 		add(ul);
 		rows = new Rows("row", eventRegistry, toolId);
@@ -66,8 +68,8 @@ public class EventRegistryTree extends Panel {
 
 	@Override
 	public void renderHead(HtmlHeaderContainer container) {
-		container.getHeaderResponse().renderJavascriptReference(StatsManager.SITESTATS_WEBAPP+"/script/prefs.js");
-		container.getHeaderResponse().renderOnDomReadyJavascript("updateAllToolsSelection()");
+		container.getHeaderResponse().render(JavaScriptHeaderItem.forUrl(StatsManager.SITESTATS_WEBAPP+"/script/prefs.js"));
+		container.getHeaderResponse().render(OnDomReadyHeaderItem.forScript("updateAllToolsSelection()"));
 		super.renderHead(container);
 	}
 
@@ -105,23 +107,23 @@ public class EventRegistryTree extends Panel {
                 
 				listItem.setOutputMarkupId(true);
 				listItem.setMarkupId(toolId);
-				listItem.add(new AttributeModifier("class", true, new Model("tool")));
+				listItem.add(new AttributeModifier("class", new Model("tool")));
 				
 				// nested list: events
 				EventRegistryTree nested = new EventRegistryTree("nested", ti.getEvents(), toolId);
-				nested.add(new AttributeModifier("class", true, new Model(toolId)));
+				nested.add(new AttributeModifier("class", new Model(toolId)));
 				nested.setOutputMarkupId(true);
 				nested.setRenderBodyOnly(true);
 				listItem.add(nested);
 				
 				// navigating images
-				ExternalImage navCollapse = new ExternalImage("navCollapse", "images/nav-minus.gif");
+				ExternalImage navCollapse = new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/nav-minus.gif");
 				listItem.add(navCollapse);
-				ExternalImage navExpand = new ExternalImage("navExpand", "images/nav-plus.gif");
+				ExternalImage navExpand = new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif");
 				listItem.add(navExpand);
-				navCollapse.add(new AttributeModifier("onclick", true, new Model("jQuery(this).parent().find('.events').hide(); jQuery('#"+navExpand.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
-				navExpand.add(new AttributeModifier("onclick", true, new Model("jQuery(this).parent().find('.events').show(); jQuery('#"+navCollapse.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
-				navCollapse.add(new AttributeModifier("style", true, new Model("display: none")));
+				navCollapse.add(new AttributeModifier("onclick", new Model("jQuery(this).parent().find('.events').hide(); jQuery('#"+navExpand.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
+				navExpand.add(new AttributeModifier("onclick", new Model("jQuery(this).parent().find('.events').show(); jQuery('#"+navCollapse.getMarkupId()+"').show(); setMainFrameHeightNoScroll( window.name ); jQuery(this).hide(); return false;")));
+				navCollapse.add(new AttributeModifier("style", new Model("display: none")));
 								
 				// image, label, checkbox
 				String toolName = Locator.getFacade().getEventRegistryService().getToolName(ti.getToolId());
@@ -130,7 +132,7 @@ public class EventRegistryTree extends Panel {
 				listItem.add(new ExternalImage("image", toolIcon));
 				listItem.add(new Label("label", new Model(toolName)));
 				CheckBox toolCheckBox = new CheckBox("checkbox", new PropertyModel(ti, "selected"));
-				AttributeModifier onclick = new AttributeModifier("onclick", true, new Model("selectUnselectEvents(this); updateToolSelection('#"+toolId+"');"));
+				AttributeModifier onclick = new AttributeModifier("onclick", new Model("selectUnselectEvents(this); updateToolSelection('#"+toolId+"');"));
 				toolCheckBox.add(onclick);
 				listItem.add(toolCheckBox);
                 
@@ -144,13 +146,13 @@ public class EventRegistryTree extends Panel {
 			}else if(modelObject instanceof EventInfo){
 				EventInfo ei = (EventInfo) modelObject;
                 
-				listItem.add(new ExternalImage("navCollapse", "images/line-last.gif"));
-				listItem.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
+				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
+				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
 				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png"));
 				String eventName = Locator.getFacade().getEventRegistryService().getEventName(ei.getEventId());
 				listItem.add(new Label("label", new Model(eventName)));
 				CheckBox eventCheckBox = new CheckBox("checkbox", new PropertyModel(ei, "selected"));
-				eventCheckBox.add(new AttributeModifier("onclick", true, new Model("updateToolSelection('#"+currentToolId+"');")));
+				eventCheckBox.add(new AttributeModifier("onclick", new Model("updateToolSelection('#"+currentToolId+"');")));
 				listItem.add(eventCheckBox);
 				
 				WebMarkupContainer nested = new WebMarkupContainer("nested");
@@ -159,8 +161,8 @@ public class EventRegistryTree extends Panel {
                 
 			}else{
 				listItem.setVisible(false);
-				listItem.add(new ExternalImage("navCollapse", "images/line-last.gif"));
-				listItem.add(new ExternalImage("navExpand", "images/nav-plus.gif").setVisible(false));
+				listItem.add(new ExternalImage("navCollapse", StatsManager.SITESTATS_WEBAPP + "/images/line-last.gif"));
+				listItem.add(new ExternalImage("navExpand", StatsManager.SITESTATS_WEBAPP + "/images/nav-plus.gif").setVisible(false));
 				listItem.add(new ExternalImage("image", StatsManager.SILK_ICONS_DIR + "bullet_feed.png").setVisible(false));
 				listItem.add(new Label("label").setVisible(false));
 				listItem.add(new CheckBox("checkbox", new Model(Boolean.FALSE)).setVisible(false));

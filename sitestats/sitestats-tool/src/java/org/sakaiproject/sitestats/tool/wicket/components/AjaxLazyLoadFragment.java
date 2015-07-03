@@ -20,15 +20,17 @@ package org.sakaiproject.sitestats.tool.wicket.components;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.RequestCycle;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
 import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
+import org.apache.wicket.ajax.AjaxChannel;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Fragment;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.version.undo.Change;
 
 
 /**
@@ -55,19 +57,22 @@ public abstract class AjaxLazyLoadFragment extends Panel {
 			protected void respond(AjaxRequestTarget target) {
 				Fragment fragment = getLazyLoadFragment("content");
 				AjaxLazyLoadFragment.this.replace(fragment.setRenderBodyOnly(true));
-				target.addComponent(AjaxLazyLoadFragment.this);
+				target.add(AjaxLazyLoadFragment.this);
 				setState((byte) 2);
 			}
 
 			@Override
-			public void renderHead(IHeaderResponse response) {
-				response.renderOnDomReadyJavascript(getCallbackScript().toString());
-				super.renderHead(response);
+			public void renderHead(Component component, IHeaderResponse response) {
+				response.render(OnDomReadyHeaderItem.forScript(getCallbackScript().toString()));
+				super.renderHead(component, response);
 			}
 			
 			@Override
-			protected String getChannelName() {
-				return getId();
+			protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
+			{
+				super.updateAjaxAttributes(attributes);
+				
+				attributes.setChannel(new AjaxChannel(getId()));
 			}
 
 			@Override
@@ -100,31 +105,17 @@ public abstract class AjaxLazyLoadFragment extends Panel {
 	 * @return The component to show while the real component is being created.
 	 */
 	public Component getLoadingComponent(String markupId) {
-		Label indicator = new Label(markupId, "<img src=\"" + RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR) + "\"/>");
+		Label indicator = new Label(markupId, "<img src=\"" + RequestCycle.get().urlFor(AbstractDefaultAjaxBehavior.INDICATOR, null) + "\"/>");
 		indicator.setEscapeModelStrings(false);
-		indicator.add(new AttributeModifier("title", true, new Model("...")));
+		indicator.add(new AttributeModifier("title", new Model("...")));
 		return indicator;
 	}
 
 	private void setState(byte state) {
 		if(this.state != state){
-			addStateChange(new StateChange(this.state));
+			addStateChange();
 		}
 		this.state = state;
 	}
 	
-	private final class StateChange extends Change {
-		private static final long	serialVersionUID	= 1L;
-
-		private final byte			state;
-
-		public StateChange(byte state) {
-			this.state = state;
-		}
-
-		@Override
-		public void undo() {
-			AjaxLazyLoadFragment.this.state = state;
-		}
-	}
 }

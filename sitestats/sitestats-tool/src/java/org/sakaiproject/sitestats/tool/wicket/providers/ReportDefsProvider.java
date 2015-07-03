@@ -30,7 +30,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.ResourceModel;
@@ -60,14 +60,14 @@ public class ReportDefsProvider implements IDataProvider {
 
 	
 	public ReportDefsProvider(String siteId, int mode, boolean filterWithToolsInSite, boolean includeHidden) {
-		InjectorHolder.getInjector().inject(this);		
+		Injector.get().inject(this);		
 		this.siteId = siteId;
 		this.mode = mode;
 		this.filterWithToolsInSite = filterWithToolsInSite;
 		this.includeHidden = includeHidden;
 	}
 
-	public Iterator iterator(int first, int count) {
+	public Iterator iterator(long first, long count) {
 		return getReportDefs().iterator();		
 	}
 	
@@ -97,7 +97,7 @@ public class ReportDefsProvider implements IDataProvider {
 		return new ReportDefModel((ReportDef) object);
 	}
 
-	public int size() {
+	public long size() {
 		return getReportDefs().size();
 	}
 

@@ -115,7 +115,7 @@ public class StylableSelectOptions extends RepeatingView {
 			setIgnoreAttributeModifier(false);
 		}
 
-		protected void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
+		public void onComponentTagBody(MarkupStream markupStream, ComponentTag openTag) {
 			replaceComponentTagBody(markupStream, openTag, text);
 		}
 		
