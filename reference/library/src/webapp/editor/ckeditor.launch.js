@@ -37,6 +37,11 @@ sakai.editor.editors = sakai.editor.editors || {};
 sakai.editor.enableResourceSearch = false;
 
 sakai.editor.editors.ckeditor = {};
+
+//get path of directory ckeditor 
+var basePath = CKEDITOR.basePath; 
+basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
+
 // Please note that no more parameters should be added to this signature.
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
@@ -117,7 +122,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //SAK-23418
         pasteFromWordRemoveFontStyles : false,
         pasteFromWordRemoveStyles : false,
-        autosave_saveDetectionSelectors : "input[id*='save'],input[name*='save'],input[name*='cancel'],input[id*='cancel']"
+        autosave_saveDetectionSelectors : "input[id*='save'],input[name*='save'],input[name*='cancel'],input[id*='cancel']",
+        //SAK-29598 - Add more templates to CK Editor
+        templates_files: [basePath+"templates/default.js"],
+        templates: 'customtemplates'
     };
 
     //NOTE: The height and width properties are handled discretely here.
@@ -167,10 +175,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		}
 	}
 
-		//get path of directory ckeditor 
-		//
-		var basePath = CKEDITOR.basePath; 
-		basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
 		//To add extra plugins outside the plugins directory, add them here! (And in the variable)
 		(function() { 
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
