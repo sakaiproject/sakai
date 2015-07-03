@@ -289,7 +289,13 @@ public class SakaiProxyImpl implements SakaiProxy {
  	* {@inheritDoc}
  	*/
 	public List<User> getUsers(List<String> userIds) {
-		return userDirectoryService.getUsers(userIds);
+		List<User> rval = new ArrayList<>();
+		try {
+			rval = userDirectoryService.getUsers(userIds);
+		} catch (Exception e) {
+			//I've seen an NPE in the logs from this call...
+		}
+		return rval;
 	}
 	
 	/**
