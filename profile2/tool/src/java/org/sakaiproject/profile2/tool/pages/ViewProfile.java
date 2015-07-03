@@ -20,7 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
@@ -41,6 +40,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.OnlinePresenceIndicator;
@@ -174,11 +174,9 @@ public class ViewProfile extends BasePage {
 			}
 		};
 		
-		HttpServletRequest request = (HttpServletRequest) getRequestCycle().getRequest();
-		//TODO need to fix this. For now the cookie is null
-		Cookie tabCookie = null;
 		
-		//Cookie tabCookie = request.getCookie(ProfileConstants.TAB_COOKIE);
+		CookieUtils utils = new CookieUtils();
+		Cookie tabCookie = utils.getCookie(ProfileConstants.TAB_COOKIE);
 		
 		if (sakaiProxy.isProfileFieldsEnabled()) {
 			tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
