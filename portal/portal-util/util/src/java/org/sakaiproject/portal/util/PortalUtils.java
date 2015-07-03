@@ -99,6 +99,9 @@ public class PortalUtils
              "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
                  getScriptPath() + "jquery/jquery-migrate-1.2.1.min.js" + getCDNQuery() + 
                  "\">'+'\\x3C/script>')\n" +
+             "   document.write('\\x3Cscript type=\"text/javascript\" src=\"" +
+                 getScriptPath() + "jquery/ui/1.11.3/jquery-ui.min.js" + getCDNQuery() + 
+                 "\">'+'\\x3C/script>')\n" +
              "}\n" +
              "</script>\n" +
              "<script type=\"text/javascript\">\n" +
