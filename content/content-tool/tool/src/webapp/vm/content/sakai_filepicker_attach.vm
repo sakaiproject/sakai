@@ -20,51 +20,20 @@
 		}
 	//-->
 </script>
-
-<!-- sakai_resources_list.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
-<!-- this is the new list template, which uses the resources type registry -->
-<script type="text/javascript">
-if ( window.jQuery ) {
-    window.console && console.log("jQuery already loaded "+jQuery.fn.jquery);
-} else {
-    document.write('\x3Cscript type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js?version=">'+'\x3C/script>')
-    document.write('\x3Cscript type="text/javascript" src="/library/js/jquery/jquery-migrate-1.2.1.min.js?version=">'+'\x3C/script>')
-    window.console && console.log("Loaded jQuery");
-}
-</script>
-
-<script type="text/javascript" src="/library/js/bootstrap/3.1.1/js/bootstrap.min.js">
-<!-- // -->
-</script>
-<link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
-<link rel="stylesheet" href="/library/js/bootstrap/3.1.1/css/bootstrap.min.css" />
-<script type="text/javascript" src="/sakai-content-tool/js/content.js">
-<!-- // -->
-</script>
-
-<div class="portletBody specialLink">
+<link type="text/css" href="/library/js/jquery/ui/1.11.3/jquery-ui.min.css" rel="stylesheet" />  
 
 
-<div class="modal" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
-  <div class="modal-dialog modal-lg" role="dialog">
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close"
-onclick="document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');"
-><span aria-hidden="true">&times;</span></button>
-        <h4 class="modal-title" id="myModalLabel">
+<div class="portletBody specialLink" id="portletBody">
+	#if ($alertMessage)
+		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
+	#end
+	<h3 id="page-title">
 		#if($helper_title)
 			$helper_title
 		#else
 			$tlang.getString("att.add")
 		#end
-	</h4>
-      </div>
-      <div class="modal-body">
-
-	#if ($alertMessage)
-		<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div style="display:block;clear:both" ></div>
-	#end
+	</h3>
 	<div class="instruction">
 		#if($helper_instruction)
 			$helper_instruction
@@ -147,11 +116,9 @@ onclick="document.getElementById('attachForm').action='#toolLink("FilePickerActi
 				<input type="button" name="attachButton" id="attachButton"  accesskey="s"
 					onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 					value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
-<!--
 				<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
 					onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');" 
 					value="$tlang.getString("att.cancel")"  />
--->
 			</p>
 		</div>	
 
@@ -524,31 +491,43 @@ onclick="document.getElementById('attachForm').action='#toolLink("FilePickerActi
 			<input type="button" name="attachButton" id="attachButton"  accesskey="s"
 				onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doAddattachments")'; submitform('attachForm');" 
 				value="$tlang.getString("att.finish")" #if($list_has_changed) class="active" #else disabled="disabled" #end />
-<!--
 			<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
 				onclick="javascript: document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');" 
 				value="$tlang.getString("att.cancel")"  />
--->
 		</p>
 		</div>	
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
-      </div>
-<!--
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
-      </div>
--->
-    </div>
-  </div>
 </div>
-<script>
-$('#myModal').modal();
-$('#myModal').on('hidden.bs.modal', function (e) {
-  window.console && console.log("hidden.bs.modal triggered");
-  document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")'; submitform('attachForm');
-})
+
+<script> ## This needs to be closed inorder for the loads to happen before we use "$"
+includeLatestJQuery('sakai_filepicker_attach.vm');
 </script>
-<div style="width:100%, height:200px; min-height:200px">&nbsp;</div>
-</div>
+
+<script>
+if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobile..
+	$('#page-title').hide();
+	$("#portletBody").dialog({
+		title: $('#page-title').text(),
+		width: $(window).width() * 0.8,
+		modal: true,
+		close: function () {
+			document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")';
+			submitform('attachForm');
+		}
+	});
+
+	$(window).resize(function() {
+		var wWidth = $(window).width();
+		var pbr = portalSmallBreakPoint();
+		var dWidth = wWidth * 0.8;
+		if ( wWidth <= pbr ) { ## show off and reduce smoothly at the transition point
+			dWidth = pbr * 0.8;
+			if ( dWidth > (wWidth * 0.95) ) {
+				dWidth = wWidth * 0.95;
+			}
+		}
+		$("#portletBody").dialog("option", "width", dWidth);
+	});
+}
+</script>
