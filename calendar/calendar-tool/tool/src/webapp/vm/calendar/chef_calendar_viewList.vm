@@ -101,7 +101,7 @@
 					<th>
 						$tlang.getString("viewl.time")
 					</th>
-					#if (!$currentUserIsAStudent)
+					#if (!$canViewAudience)
 					<th>$tlang.getString("view.for")</th>
 					#end
 					#if ($fromColExist) <th>$tlang.getString("gen.from")</th> #end
@@ -172,7 +172,7 @@
 																		</td>
 
 ## For Column																	
-#if (!$currentUserIsAStudent)
+#if (!$canViewAudience)
 <td #if ($counter == 1) #else #if ($dayShown == "false") class="chefTopline" #end #end>
 #set ($dr = $m.getGroupRangeForDisplay($cal))
 #if ($!dr && ($dr.equals(""))) $tlang.getString("gen.site") #else $validator.escapeHtml($dr) #end

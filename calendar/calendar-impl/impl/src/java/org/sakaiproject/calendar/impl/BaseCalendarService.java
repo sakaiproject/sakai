@@ -689,6 +689,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_functionManager.registerFunction(AUTH_READ_CALENDAR);
 		m_functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR);
 		m_functionManager.registerFunction(AUTH_OPTIONS_CALENDAR);
+		m_functionManager.registerFunction(AUTH_VIEW_AUDIENCE);
 		
 		// setup cache
 		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);

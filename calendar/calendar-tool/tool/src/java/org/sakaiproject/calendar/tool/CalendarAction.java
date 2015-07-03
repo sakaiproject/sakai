@@ -7431,12 +7431,9 @@ extends VelocityPortletStateAction
 
 		context.put("calendarFormattedText", new CalendarFormattedText());
 
-		String currentUserRole = AuthzGroupService.getUserRole(UserDirectoryService.getCurrentUser().getId(),"/site/"+ToolManager.getCurrentPlacement().getContext());
-		if (currentUserRole != null && !"".equals(currentUserRole) && "student".equalsIgnoreCase(currentUserRole)) {
-			context.put("currentUserIsAStudent", Boolean.valueOf(true));
-		} else {
-			context.put("currentUserIsAStudent", Boolean.valueOf(false));
-		}
+		String currentUserId = UserDirectoryService.getCurrentUser().getId();
+		boolean canViewEventAudience = SecurityService.unlock(currentUserId, org.sakaiproject.calendar.api.CalendarService.AUTH_VIEW_AUDIENCE, "/site/" + ToolManager.getCurrentPlacement().getContext());
+        context.put("canViewAudience", !canViewEventAudience);
 
 	}	 // buildListContext
 	
