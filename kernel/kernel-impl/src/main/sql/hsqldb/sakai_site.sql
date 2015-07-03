@@ -395,7 +395,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-910', '!worksite-900', '!worksite'
 
 -- Create the mercury site.
 
-INSERT INTO SAKAI_SITE VALUES('mercury', 'mercury site', null, null, null, '', '', null, 1, 1, 1, 'access', 'admin', 'admin', NOW(), NOW(), 0, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE VALUES('mercury', 'mercury site', null, null, null, '', '', null, 1, 0, 0, null, 'admin', 'admin', NOW(), NOW(), 0, 0, 0, 0, null);
 INSERT INTO SAKAI_SITE_PAGE VALUES('mercury-100', 'mercury', 'Home', '1', 1, '0' );
 INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('mercury', 'mercury-100', 'is_home_page', 'true' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('mercury-110', 'mercury-100', 'mercury', 'sakai.iframe.site', 1, 'Site Information', NULL );

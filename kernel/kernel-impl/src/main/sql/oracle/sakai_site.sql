@@ -435,7 +435,7 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!worksite-910', '!worksite-900', '!worksite'
 
 -- Create the mercury site.
 
-INSERT INTO SAKAI_SITE VALUES('mercury', 'mercury site', null, null, null, '', '', null, 1, 1, 1, 'access', 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE VALUES('mercury', 'mercury site', null, null, null, '', '', null, 1, 0, 0, null, 'admin', 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, 0, 0, 0, 0, null);
 UPDATE SAKAI_SITE SET CREATEDBY='admin' WHERE SITE_ID = 'mercury';
 UPDATE SAKAI_SITE SET MODIFIEDBY='admin' WHERE SITE_ID = 'mercury';
 UPDATE SAKAI_SITE SET MODIFIEDON=TO_TIMESTAMP('20030624121053597','YYYYMMDDHHMISSFF3') WHERE SITE_ID = 'mercury';
