@@ -65,18 +65,18 @@
 			<dependency>
 				<groupId>org.apache.wicket</groupId>
 				<artifactId>wicket</artifactId>
-				<version>6.18.0</version>
+				<version>6.20.0</version>
 				<type>pom</type>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.wicket</groupId>
 				<artifactId>wicket-spring</artifactId>
-				<version>6.18.0</version>
+				<version>6.20.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.apache.wicket</groupId>
 				<artifactId>wicket-extensions</artifactId>
-				<version>6.18.0</version>
+				<version>6.20.0</version>
 			</dependency>
 			<dependency>
 				<groupId>org.twitter4j</groupId>
