@@ -15,6 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.models;
 
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileMessagingLogic;
@@ -39,6 +40,7 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 */
 	public DetachableMessageModel(Message m){
 		this.id = m.getId();
+		Injector.get().inject(this);
 	}
 	
 	/**
@@ -46,6 +48,7 @@ public class DetachableMessageModel extends LoadableDetachableModel<Message>{
 	 */
 	public DetachableMessageModel(String id){
 		this.id = id;
+		Injector.get().inject(this);
 	}
 	
 	/**
