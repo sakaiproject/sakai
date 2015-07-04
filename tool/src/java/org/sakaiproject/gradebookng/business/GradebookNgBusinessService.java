@@ -1,5 +1,19 @@
 package org.sakaiproject.gradebookng.business;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.xml.bind.JAXBException;
+
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
 
@@ -7,7 +21,9 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.StopWatch;
+import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -21,7 +37,6 @@ import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbGroupType;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
@@ -46,19 +61,6 @@ import org.sakaiproject.tool.gradebook.GradingEvent;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
-
-import javax.xml.bind.JAXBException;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -112,16 +114,53 @@ public class GradebookNgBusinessService {
 	}
 	
 	
-	
 	/**
 	 * Get a list of all users in the current site that can have grades
 	 * 
 	 * @return a list of users as uuids or null if none
 	 */
 	private List<String> getGradeableUsers() {
+		return this.getGradeableUsers(null);
+	}
+	
+	/**
+	 * Get a list of all users in the current site, filtered by the given group, that can have grades
+	 * @param groupFilter GbGroupType to filter on
+	 * 
+	 * @return a list of users as uuids or null if none
+	 */
+	private List<String> getGradeableUsers(GbGroup groupFilter) {
+				
 		try {
 			String siteId = this.getCurrentSiteId();
 			Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(Permissions.VIEW_OWN_GRADES.getValue());
+			
+			//filter the allowed list based on membership
+			if(groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
+			
+				Set<String> groupMembers = new HashSet<>();
+				
+				if(groupFilter.getType() == GbGroup.Type.SECTION) {
+					Set<Membership> members = this.courseManagementService.getSectionMemberships(groupFilter.getId());
+					for(Membership m: members) {
+						if(userUuids.contains(m.getUserId())) {
+							groupMembers.add(m.getUserId());
+						}
+					}
+				}
+				
+				if(groupFilter.getType() == GbGroup.Type.GROUP) {
+					Set<Member> members = this.siteService.getSite(siteId).getGroup(groupFilter.getId()).getMembers();
+					for(Member m: members) {
+						if(userUuids.contains(m.getUserId())) {
+							groupMembers.add(m.getUserId());
+						}
+					}
+				}
+								
+				//only keep the ones we identified in the group
+				userUuids.retainAll(groupMembers);
+			}
 			
 			return new ArrayList<>(userUuids);
 						
@@ -138,7 +177,6 @@ public class GradebookNgBusinessService {
 	 * @return
 	 */
 	private List<User> getUsers(List<String> userUuids) throws GbException {
-		
 		try {
 			List<User> users = userDirectoryService.getUsers(userUuids);
 			Collections.sort(users, new LastNameComparator()); //default sort
@@ -360,11 +398,13 @@ public class GradebookNgBusinessService {
 	 * Build the matrix of assignments, students and grades for all students, with the specified sortOrder
 	 * 
 	 * @param assignments list of assignments
-	 * @param sortOrder the sort order
+	 * @param assignmentSortOrder the assignment sort order
+	 * @param nameSortOrder name sort order
+	 * @param groupFilter if a specific group has been selected (null for all groups)
 	 * @return
 	 */
-	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, GbAssignmentGradeSortOrder assignmentSortOrder, GbStudentNameSortOrder nameSortOrder) throws GbException {
-		return this.buildGradeMatrix(assignments, this.getGradeableUsers(), assignmentSortOrder, nameSortOrder);
+	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, GbAssignmentGradeSortOrder assignmentSortOrder, GbStudentNameSortOrder nameSortOrder, GbGroup groupFilter) throws GbException {
+		return this.buildGradeMatrix(assignments, this.getGradeableUsers(groupFilter), assignmentSortOrder, nameSortOrder);
 	}
 	
 	/**
@@ -372,7 +412,8 @@ public class GradebookNgBusinessService {
 	 * 
 	 * @param assignments list of assignments
 	 * @param list of uuids
-	 * @Param sortOrder the type of sort we want. Wraps assignmentId and direction.
+	 * @Param assignmentSortOrder the assignment sort we want. Wraps assignmentId and direction.
+	 * @param nameSortOrder name sort order
 	 * @return
 	 */
 	public List<GbStudentGradeInfo> buildGradeMatrix(List<Assignment> assignments, List<String> studentUuids, GbAssignmentGradeSortOrder assignmentSortOrder, GbStudentNameSortOrder nameSortOrder) throws GbException {
@@ -484,7 +525,7 @@ public class GradebookNgBusinessService {
 		try {
 			Set<Section> sections = courseManagementService.getSections(siteId);
 			for(Section section: sections){
-				rval.add(new GbGroup(section.getEid(), section.getTitle(), GbGroupType.SECTION));
+				rval.add(new GbGroup(section.getEid(), section.getTitle(), GbGroup.Type.SECTION));
 			}
 		} catch (IdNotFoundException e) {
 			//not a course site or no sections, ignore
@@ -496,7 +537,7 @@ public class GradebookNgBusinessService {
 			Collection<Group> groups = site.getGroups();
 
 			for(Group group: groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), GbGroupType.GROUP));
+				rval.add(new GbGroup(group.getId(), group.getTitle(), GbGroup.Type.GROUP));
 			}
 		} catch (IdUnusedException e) {
 			//essentially ignore and use what we have
@@ -505,12 +546,7 @@ public class GradebookNgBusinessService {
 		
 		Collections.sort(rval);
 		
-		//add the default ALL (this is a UI thing, it might not be appropriate here)
-		//TODO also need to internationalse ths string
-		rval.add(0, new GbGroup(null, "All Sections/Groups", GbGroupType.ALL));
-		
 		return rval;
-		
 	}
 	
 	/**

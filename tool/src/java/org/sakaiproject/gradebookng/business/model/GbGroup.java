@@ -21,7 +21,7 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 	
 	private String id;
 	private String title;
-	private GbGroupType type;
+	private Type type;
 	
 	@Override
 	public int compareTo(GbGroup other) {
@@ -30,6 +30,15 @@ public class GbGroup implements Comparable<GbGroup>, Serializable {
 			.append(this.type, other.getType())
 			.toComparison();
 		
+	}
+	
+	/**
+	 * Type of group
+	 */
+	public enum Type {
+		SECTION,
+		GROUP,
+		ALL;
 	}
 	
 }

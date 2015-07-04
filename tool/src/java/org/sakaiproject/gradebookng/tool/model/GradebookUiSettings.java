@@ -1,13 +1,16 @@
 package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 
 /**
@@ -20,8 +23,11 @@ public class GradebookUiSettings implements Serializable {
 
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * Stores the selected group/section
+	 */
 	@Getter @Setter
-	private String groupFilter;
+	private GbGroup groupFilter;
 	
 	/**
 	 * For sorting based on assignment grades
@@ -54,5 +60,10 @@ public class GradebookUiSettings implements Serializable {
 
 	public void setAssignmentVisibility(Long assignmentId, Boolean visible) {
 		assignmentVisibility.put(assignmentId, visible);
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 }

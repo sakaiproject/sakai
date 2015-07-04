@@ -62,8 +62,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				GradebookUiSettings settings = gradebookPage.getUiSettings();
 				
 				//if null, set a default sort, otherwise toggle, save, refresh.
-				if(settings == null || settings.getAssignmentSortOrder() == null) {
-					settings = new GradebookUiSettings();
+				if(settings.getAssignmentSortOrder() == null) {
 					settings.setAssignmentSortOrder(new GbAssignmentGradeSortOrder(assignment.getId(), SortDirection.ASCENDING));
 				} else {
 					GbAssignmentGradeSortOrder sortOrder = settings.getAssignmentSortOrder();

@@ -11,6 +11,7 @@ import org.apache.wicket.Component;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.MaskType;
@@ -31,9 +32,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -127,7 +127,7 @@ public class GradebookPage extends BasePage {
 		Temp.time("getGradebookAssignments", stopwatch.getTime());
         
         //get the grade matrix. It should be sorted if we have that info
-        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(), settings.getNameSortOrder());
+        final List<GbStudentGradeInfo> grades = businessService.buildGradeMatrix(assignments, settings.getAssignmentSortOrder(), settings.getNameSortOrder(), settings.getGroupFilter());
         
 		Temp.time("buildGradeMatrix", stopwatch.getTime());
 		
@@ -290,35 +290,52 @@ public class GradebookPage extends BasePage {
         form.add(toggleCategoriesToolbarItem);
 
         //section and group dropdown
-        final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
-    
-        DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", groups, new ChoiceRenderer<GbGroup>() {
-          private static final long serialVersionUID = 1L;
-    
-          @Override
-          public Object getDisplayValue(GbGroup g) {
-            return g.getTitle();
-          }
-    
-          @Override
-          public String getIdValue(GbGroup g, int index) {
-            return g.getId();
-          }
-    
-        });
-    
-        //TODO need to subclass the DDC to add the selectionchanged listener
-    
-        groupFilter.setVisible(!groups.isEmpty());
-        groupFilter.setModel(new Model<GbGroup>()); //TODO update this so its aware of the currently selected filter. Maybe the form needs to maintain state and have this as a param?
-        groupFilter.setDefaultModelObject(groups.get(0)); //TODO update this
+        List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+        
+        //add the default ALL group to the list
+        groups.add(0, new GbGroup(null, getString("groups.all"), GbGroup.Type.ALL));
+            
+		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(), groups, new ChoiceRenderer<GbGroup>() {
+		private static final long serialVersionUID = 1L;
+		
+			@Override
+			public Object getDisplayValue(GbGroup g) {
+				return g.getTitle();
+			}
+			
+			@Override
+			public String getIdValue(GbGroup g, int index) {
+				return g.getId();
+			}
+			
+		});
+		
+		groupFilter.add(new AjaxFormComponentUpdatingBehavior("onchange") {
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				
+				GbGroup selected = (GbGroup) groupFilter.getDefaultModelObject();
+				
+				//store selected group (null ok)
+				GradebookUiSettings settings = getUiSettings();
+				settings.setGroupFilter(selected);
+				setUiSettings(settings);
+				
+				//refresh
+				setResponsePage(new GradebookPage());
+			}
+			
+		});
+				
+		//set selected group, or first item in list
+		groupFilter.setModelObject((settings.getGroupFilter() != null) ? settings.getGroupFilter() : groups.get(0));
         groupFilter.setNullValid(false);
         form.add(groupFilter);
 
         add(new ToggleGradeItemsToolbarPanel("gradeItemsTogglePanel", assignments));
         
 		Temp.time("Gradebook page done", stopwatch.getTime());
-
 	}
 	
 	
