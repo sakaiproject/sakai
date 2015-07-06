@@ -60,8 +60,9 @@
 		&.icon-sakai-scheduler{					@extend .fa-clock-o;}
 		&.icon-sakai-basiclti-admin{				@extend .fa-globe;}
 		&.icon-sakai-adminsiteperms{				@extend .fa-gear;}
-		&.icon-sakai-message-bundle-manager{		@extend .fa-gear;}
+		&.icon-sakai-message-bundle-manager{			@extend .fa-gear;}
 		&.icon-sakai-delegatedaccess{				@extend .fa-gear;}
+		&.icon-sakai-web-168{					@extend .fa-globe;}
 	}
 }
 
@@ -126,6 +127,7 @@
 			&.icon-sakai-basiclti-admin{				@extend .fa-globe;}
 			&.icon-sakai-adminsiteperms{				@extend .fa-gear;}
 			&.icon-sakai-delegatedaccess{				@extend .fa-gear;}
+			&.icon-sakai-web-168{					@extend .fa-globe;}
 			&.icon-sakai-see-all-tools{				@extend .fa-plus-square-o;}
 		}
 	}

@@ -849,6 +849,12 @@ public class PortletIFrame extends GenericPortlet {
 			}
 			placement.setTitle(title);
 
+			// icon
+			String fa_icon = request.getParameter("fa_icon");
+			if ( fa_icon != null && fa_icon.length() > 0 ) {
+				placement.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
+			}
+
 			try
 			{
 				Site site = SiteService.getSite(toolConfig.getSiteId());
