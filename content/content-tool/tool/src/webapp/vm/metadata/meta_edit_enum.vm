@@ -1,0 +1,29 @@
+#* @vtlmacrolibrary path="../resources/sakai_metadata-edit.vm" *#
+#* @vtlvariable name="item" type="org.sakaiproject.content.tool.ListItem" *#
+#* @vtlvariable name="site_id" type="java.lang.String" *#
+#* @vtlvariable name="metadataType" type="org.sakaiproject.content.metadata.model.MetadataType" *#
+#* @vtlvariable name="metadataValue" type="java.lang.Object" *#
+#* @vtlvariable name="multipleMetadataType" type="java.util.List<java.lang.String>" *#
+#* @vtlvariable name="groupMetadataLevel" type="int" *#
+#* @vtlvariable name="groupMetadataValue" type="java.util.List<java.lang.Object>" *#
+#* @vtlvariable name="groupMetadataType" type="java.util.List<org.sakaiproject.content.metadata.model.MetadataType>" *#
+#* @vtlvariable name="suffix" type="java.lang.String" *#
+
+<label for="${metadataType.uniqueName}${suffix}">#printMetadataName($metadataType)</label>
+
+<select data-placeholder="#printMetadataDescription($metadataType)" style="width: 350px" name="$!{metadataType.uniqueName}${suffix}"
+        id="$!{metadataType.uniqueName}${suffix}" #if($multipleMetadataType.contains($metadataType.uniqueName)) multiple #end
+        class="chzn-select">
+  #if(!$multipleMetadataType.contains($metadataType.uniqueName))
+    <option></option>
+  #end
+  #foreach($value in ${metadataType.allowedValues})
+    <option #if($metadataValue.equals($value) || $metadataValue.contains($value)) selected #end value="$value">
+        #if($metadataType.isTranslated())
+            $metaLang.getString($metadataType.getValueLabel($value))
+        #else
+            $metadataType.getValueLabel($value)
+        #end
+    </option>
+  #end
+</select>

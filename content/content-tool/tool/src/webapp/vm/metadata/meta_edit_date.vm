@@ -1,0 +1,21 @@
+#* @vtlmacrolibrary path="../resources/sakai_metadata-edit.vm" *#
+#* @vtlvariable name="item" type="org.sakaiproject.content.tool.ListItem" *#
+#* @vtlvariable name="site_id" type="java.lang.String" *#
+#* @vtlvariable name="metadataType" type="org.sakaiproject.content.metadata.model.MetadataType" *#
+#* @vtlvariable name="metadataValue" type="java.lang.Object" *#
+#* @vtlvariable name="multipleMetadataType" type="java.util.List<java.lang.String>" *#
+#* @vtlvariable name="groupMetadataLevel" type="int" *#
+#* @vtlvariable name="groupMetadataValue" type="java.util.List<java.lang.Object>" *#
+#* @vtlvariable name="groupMetadataType" type="java.util.List<org.sakaiproject.content.metadata.model.MetadataType>" *#
+#* @vtlvariable name="suffix" type="java.lang.String" *#
+
+<label for="${metadataType.uniqueName}${suffix}">
+  #printMetadataName($metadataType)
+</label>
+#if($metadataType.date)
+	#resources_dateselectionwidget("$!{metadataType.uniqueName}" "${suffix}" $metadataValue.breakdownLocal() $dateFormat)
+#end
+
+#if($metadataType.time)
+	#resources_timeSelectionWidget("$!{metadataType.uniqueName}" "${suffix}" $metadataValue)
+#end

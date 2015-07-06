@@ -1,0 +1,37 @@
+#* @vtlmacrolibrary path="../resources/sakai_metadata-display.vm" *#
+#* @vtlvariable name="item" type="org.sakaiproject.content.tool.ListItem" *#
+#* @vtlvariable name="site_id" type="java.lang.String" *#
+#* @vtlvariable name="metadataType" type="org.sakaiproject.content.metadata.model.MetadataType" *#
+#* @vtlvariable name="metadataValue" type="java.lang.Object" *#
+#* @vtlvariable name="multipleMetadataType" type="java.util.List<java.lang.String>" *#
+#* @vtlvariable name="groupMetadataLevel" type="int" *#
+#* @vtlvariable name="groupMetadataValue" type="java.util.List<java.lang.Object>" *#
+#* @vtlvariable name="groupMetadataType" type="java.util.List<org.sakaiproject.content.metadata.model.MetadataType>" *#
+#* @vtlvariable name="suffix" type="java.lang.String" *#
+
+#if(!$metadataValue.isEmpty()) ##Do not render empty metadata at all
+
+<label>#printMetadataName($metadataType)</label>
+&nbsp;
+  #if($multipleMetadataType.contains($metadataType.uniqueName))
+    #foreach($value in $metadataValue)
+    <span>
+    #if(${value.firstUnit})
+        $value.firstCount $metaLang.getString("label.lom_duration.${value.firstUnit}")
+    #end
+    #if(${value.secondUnit})
+        $value.secondCount $metaLang.getString("label.lom_duration.${value.secondUnit}")
+    #end
+    </span>
+    #end
+  #else
+  <span>
+  #if(${metadataValue.firstUnit})
+      $metadataValue.firstCount $metaLang.getString("label.lom_duration.${metadataValue.firstUnit}")
+  #end
+  #if(${metadataValue.secondUnit})
+      $metadataValue.secondCount $metaLang.getString("label.lom_duration.${metadataValue.secondUnit}")
+  #end
+  </span>
+  #end
+#end
