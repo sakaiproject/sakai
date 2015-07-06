@@ -27,7 +27,7 @@ ${includeLatestJQuery}
 			</legend>
 			<div class="instruction">
 				#if ($createBlurb)
-					<div>$createBlurb</div>
+					<div class="createBlurb">$createBlurb</div>
 				#end
 				<span class="reqStarInline">*</span> $tlang.getString("usecre.instruc")
 			</div>
