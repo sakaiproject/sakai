@@ -658,6 +658,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					if ( tmp != null ) {
 						String mc = tmp.getProperty(PROP_MENU_CLASS);
 						if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
+						String fa = tmp.getProperty("imsti.fa_icon");
+						if ( fa != null && fa.length() > 0 ) {
+							m.put("menuClass", "fa");
+							m.put("menuClassOverride", collapseToVariable(fa));
+						}
 					}
 				}
 				else
@@ -788,6 +793,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			ServerConfigurationService.getInt("display.users.present.time.delay", 3000)) );
 
 		return theMap;
+	}
+
+	/**
+	 * Collapse a string to only allow characters that can be in variables
+         */
+	public String collapseToVariable(String inp)
+	{
+		if ( inp == null ) return null;
+		return inp.replaceAll("[^-_.a-zA-Z0-9]","");
 	}
 
 	/**

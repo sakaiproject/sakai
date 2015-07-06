@@ -656,6 +656,7 @@ public interface LTIService {
 		"SITE_ID:text:label=bl_content_site_id:required=true:maxlength=99:role=admin",
 		"title:text:label=bl_title:required=true:allowed=true:maxlength=1024",
 		"pagetitle:text:label=bl_pagetitle:required=true:allowed=true:maxlength=1024",
+		"fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
 		"frameheight:integer:label=bl_frameheight:allowed=true",
 		"newpage:checkbox:label=bl_newpage",
 		"debug:checkbox:label=bl_debug",
@@ -687,6 +688,7 @@ public interface LTIService {
 		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
 		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
 		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
+		"fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
 		"description:textarea:label=bl_description:maxlength=4096",
 		"status:radio:label=bl_status:choices=enable,disable",
 		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
@@ -782,6 +784,7 @@ public interface LTIService {
 	static final String LTI_ALLOWTITLE =	"allowtitle";
 	static final String LTI_PAGETITLE =    	"pagetitle";
 	static final String LTI_ALLOWPAGETITLE =	"allowpagetitle";
+	static final String LTI_FA_ICON =    	"fa_icon";
 	static final String LTI_PLACEMENT =    "placement";
 	static final String LTI_DESCRIPTION = "description";
 	static final String LTI_STATUS = 	"status";

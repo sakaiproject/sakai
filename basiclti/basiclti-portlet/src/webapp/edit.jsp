@@ -73,11 +73,16 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 		allow(sp,"custom") || 
 		allow(sp,"allowsettings") || allow(sp, "allowroster") || 
         allow(sp, "allowoutcomes") || allow(sp, "allowlori") || 
-		allow(sp, "contentlink") || allow(sp, "splash")
+		allow(sp, "contentlink") || allow(sp, "splash") ||
+        allow(sp, "fa_icon")
 ) { 
+
     if ( errorMsg != null ) { %>
 		<div class="alertMessage"><%= errorMsg %></div>
 	<% } %>
+
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('portlet edit.jsp');</script>
 
 <ul class="navIntraTool actionToolBar">
 	<li class="firstToolBarItem">
@@ -154,7 +159,7 @@ function switchui()
 if ( document.getElementById("UISwitcher") ) switchui();
 </script>
 
-<% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") ) { %>
+<% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") || allow(sp,"fa_icon") ) { %>
 
 <h3><%=rb.getString("display.information") %></h3>
 <% if ( allow(sp,"pagetitle") ) { %>
@@ -171,6 +176,19 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <span class="textPanelFooter"><%=rb.getString("tool.title.detail") %></span>
 </p>
 <% } %>
+
+<% if ( allow(sp,"fa_icon") ) { %>
+<p  class="shorttext" style="clear:none;">
+<label for="imsti_fa_icon"><%=rb.getString("tool.fa_icon") %></label>
+<input type="text" name="imsti.fa_icon" id="imsti_fa_icon" size="20" value="<%=ov.getProperty("imsti.fa_icon","")%>"> 
+</p>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#imsti_fa_icon'); });</script>
+</p>
+<% } %>
+
 
 <% } %>
 

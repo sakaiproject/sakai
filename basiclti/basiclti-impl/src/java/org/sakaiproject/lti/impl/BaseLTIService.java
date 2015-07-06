@@ -736,6 +736,10 @@ public abstract class BaseLTIService implements LTIService {
 				SitePage sitePage = site.addPage();
 		
 				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
+				String fa_icon = (String)content.get(LTI_FA_ICON);
+				if ( fa_icon != null && fa_icon.length() > 0 ) {
+					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
+				}
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
 				tool.setTitle((String) content.get(LTI_TITLE));
 				
