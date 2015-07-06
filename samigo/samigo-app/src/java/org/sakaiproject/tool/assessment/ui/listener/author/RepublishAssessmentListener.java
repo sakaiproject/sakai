@@ -162,7 +162,7 @@ public class RepublishAssessmentListener implements ActionListener {
 			}
 			
 			Integer scoringType = evaluation.getScoringType();
-			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())) {
+			if (evaluation.getToGradeBook() != null	&& evaluation.getToGradeBook().equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
 
 				try {
 					log.debug("before gbsHelper.removeGradebook()");

@@ -300,7 +300,7 @@ public class ConfirmPublishAssessmentListener
     }
     
     //Gradebook right now only excep if total score >0 check if total score<=0 then throw error.
-    if(assessmentSettings.getToDefaultGradebook())
+    if(assessmentSettings.getToDefaultGradebook().equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK)))
 	{
  	    if(assessmentBean.getTotalScore()<=0)
 		{
@@ -310,18 +310,24 @@ public class ConfirmPublishAssessmentListener
 		}
 	}
 
-    //#2b - check if gradebook exist, if so, if assessment title already exists in GB
+  //#2b - check if gradebook exist, if so, if assessment title already exists in GB
     GradebookExternalAssessmentService g = null;
     if (integrated){
       g = (GradebookExternalAssessmentService) SpringBeanLocator.getInstance().
             getBean("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
     }
+    String toGradebook = assessmentSettings.getToDefaultGradebook();
     try{
-	if (assessmentSettings.getToDefaultGradebook() && gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)){
-        String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");
-        context.addMessage(null,new FacesMessage(gbConflict_err));
-        error=true;
-      }
+    	if (toGradebook!=null && toGradebook.equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK)) &&
+    			gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)) {
+    		String gbConflict_err= ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages" , "gbConflict_error");
+    		context.addMessage(null,new FacesMessage(gbConflict_err));
+    		error=true;
+    	} else if (toGradebook != null && toGradebook.equals(EvaluationModelIfc.TO_EXISTING_GRADEBOOK_ITEM.toString()) &&
+    		  !gbsHelper.isAssignmentDefined(assessmentSettings.getTitle(), g)) {
+    		context.addMessage(null,new FacesMessage("The empty gradebook item is no longer available, please select a new option"));
+    		error=true;
+    	}
     }
     catch(Exception e){
       log.warn("external assessment in GB has the same title:"+e.getMessage());

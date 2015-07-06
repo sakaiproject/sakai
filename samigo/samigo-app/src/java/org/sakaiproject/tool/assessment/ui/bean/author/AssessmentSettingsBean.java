@@ -43,6 +43,7 @@ import javax.faces.model.SelectItem;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentResource;
 import org.sakaiproject.content.api.FilePickerHelper;
 import org.sakaiproject.entity.api.Reference;
@@ -50,6 +51,7 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -173,13 +175,14 @@ public class AssessmentSettingsBean
   // properties of EvaluationModel
   private boolean anonymousGrading;
   private boolean gradebookExists;
-  private boolean toDefaultGradebook;
+  private String toDefaultGradebook;
   private String scoringType;
   private String bgColor;
   private String bgImage;
   private HashMap values = new HashMap(); // contains only "can edit" element
   private String bgColorSelect;
   private String bgImageSelect;
+  private boolean gradebookLinkeable;
 
   // extra properties
   private boolean noTemplate;
@@ -410,7 +413,7 @@ public class AssessmentSettingsBean
         if (evaluation.getAnonymousGrading()!=null)
           this.anonymousGrading = evaluation.getAnonymousGrading().toString().equals("1") ? true : false;
         if (evaluation.getToGradeBook()!=null )
-          this.toDefaultGradebook = evaluation.getToGradeBook().toString().equals("1") ? true : false;
+          this.toDefaultGradebook = evaluation.getToGradeBook().toString();
         if (evaluation.getScoringType()!=null)
           this.scoringType = evaluation.getScoringType().toString();
 
@@ -427,6 +430,10 @@ public class AssessmentSettingsBean
         this.gradebookExists = gbsHelper.gradebookExists(
         	GradebookFacade.getGradebookUId(), g);
         */
+        
+        /* Check if the Assessment can be linked to an existing gradebook item with the same name */
+        this.gradebookLinkeable = gradebookItemAvailable(); // true if there exist an empty GB item with same name as the assignment.
+        
       }
 
       // ip addresses
@@ -915,11 +922,11 @@ public class AssessmentSettingsBean
     this.anonymousGrading = anonymousGrading;
   }
 
-  public boolean getToDefaultGradebook() {
+  public String getToDefaultGradebook() {
     return this.toDefaultGradebook;
   }
 
-  public void setToDefaultGradebook(boolean toDefaultGradebook) {
+  public void setToDefaultGradebook(String toDefaultGradebook) {
     this.toDefaultGradebook = toDefaultGradebook;
   }
 
@@ -1640,5 +1647,34 @@ public class AssessmentSettingsBean
 	  
 	  return selections;
   }
+  
+	  /**
+	   * To be set if an empty, non externally maintained gradebook item exists.
+	   * @return
+	   */
+	  public boolean getGradebookLinkeable() {
+		  return this.gradebookLinkeable;
+	  }
+	  
+	  public void setGradebookLinkeable(boolean pLink) {
+		  this.gradebookLinkeable = pLink;
+	  }
+	
+	  /** 
+	  *
+	  * Returns true if at the time of creating or editing an assessment, there exist an empty GB item with 
+	  * the same title as the assignment for it to be potentially linked to it.
+	  * @return
+	  */
+	 private boolean gradebookItemAvailable() {
+		  GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+		  String gradebookId = ToolManager.getInstance().getCurrentPlacement().getContext();
+		  List allGradebookItems = g.getAssignments(gradebookId);
+		  for(Object a : allGradebookItems) {
+			  org.sakaiproject.service.gradebook.shared.Assignment curGBItem = (org.sakaiproject.service.gradebook.shared.Assignment) a;
+			  if(!curGBItem.isExternallyMaintained() && curGBItem.getName().equals(this.title)) return true;
+		  }
+		  return false;
+	 }
 
 }

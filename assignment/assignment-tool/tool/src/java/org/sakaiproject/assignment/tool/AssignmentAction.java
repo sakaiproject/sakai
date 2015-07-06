@@ -2945,7 +2945,7 @@ public class AssignmentAction extends PagedResourceActionII
 			for (Iterator i=gradebookAssignments.iterator(); i.hasNext();)
 			{
 				org.sakaiproject.service.gradebook.shared.Assignment gAssignment = (org.sakaiproject.service.gradebook.shared.Assignment) i.next();
-				if (!gAssignment.isExternallyMaintained() || gAssignment.isExternallyMaintained() && gAssignment.getExternalAppName().equals(getToolTitle()))
+				if (!gAssignment.isExternallyMaintained())
 				{
 					gradebookAssignmentsExceptSamigo.add(gAssignment);
 				
@@ -8312,6 +8312,12 @@ public class AssignmentAction extends PagedResourceActionII
 				// SAK-17606
 				editAssignmentProperties(a, checkAddDueTime, checkAutoAnnounce, addtoGradebook, associateGradebookAssignment, allowResubmitNumber, aPropertiesEdit, post, resubmitCloseTime, checkAnonymousGrading);
 
+				/* Before posting, handle gradebook item add or associate */
+				if(gradePoints != null && addtoGradebook.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE)) {
+					linkAssignmentToGradebookItem(title,gradePoints,new Date(dueTime.getTime()),addtoGradebook, associateGradebookAssignment);
+				}
+				/* */
+				
 				//TODO: ADD_DUE_DATE
 				// the notification option
 				if (state.getAttribute(Assignment.ASSIGNMENT_INSTRUCTOR_NOTIFICATIONS_VALUE) != null)
@@ -17470,6 +17476,46 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 					}
 				}
+			}
+		}
+	}
+	
+	/**
+	 * Called to associate a new or edited Assignment to a GB item.
+	 * @param pTitle
+	 * @param pGradePoints
+	 * @param pDueTime
+	 * @param pAddToGradbook
+	 * @param pGradebookItem
+	 */
+	private void linkAssignmentToGradebookItem(String pTitle, String pGradePoints, Date pDueTime, String pAddToGradbook, String pGradebookItem) {
+		/*
+		 * IFF an empty GB item with the same name exists, drop it and create a new one linked to the assignment.
+		 */
+		
+		GradebookService g = (GradebookService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookService");
+		GradebookExternalAssessmentService gExternal = (GradebookExternalAssessmentService) ComponentManager.get("org.sakaiproject.service.gradebook.GradebookExternalAssessmentService");
+		String gradebookUid = ToolManager.getInstance().getCurrentPlacement().getContext();
+		
+		if(pAddToGradbook.equals(AssignmentService.GRADEBOOK_INTEGRATION_ASSOCIATE)) {
+			try {
+				
+				if(gExternal.isAssignmentDefined(gradebookUid, pGradebookItem)) {
+					g.removeAssignment( g.getAssignment(gradebookUid,pGradebookItem).getId() );
+				}
+				gExternal.addExternalAssessment(	gradebookUid, 
+													pGradebookItem, 
+													null, 
+													pTitle, 
+													Double.parseDouble(pGradePoints)/10.0, 
+													pDueTime, 
+													getToolTitle(),
+													false, 
+													null);
+													
+													
+			} catch (Exception e) {
+				M_log.warn(this + "Unable to associate assignment with existing GB item");
 			}
 		}
 	}

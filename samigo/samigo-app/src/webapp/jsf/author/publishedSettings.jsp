@@ -3,6 +3,7 @@
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c"  %>
 
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -371,11 +372,26 @@
     </h:panelGroup>
     
     <f:verbatim><br /></f:verbatim>
+    <f:verbatim><br /></f:verbatim>
     
     <!-- GRADEBOOK OPTION -->
     <h:panelGroup rendered="#{publishedSettings.valueMap.toGradebook_isInstructorEditable==true && publishedSettings.gradebookExists==true}">
-      <h:selectBooleanCheckbox value="#{publishedSettings.toDefaultGradebook}" disabled="#{publishedSettings.firstTargetSelected == 'Anonymous Users'}"/>
+      <!-- <h:selectBooleanCheckbox id="toDefaultGradebook" value="#{assessmentSettings.toDefaultGradebook}"/> -->
+      <f:verbatim><br /></f:verbatim>
       <h:outputLabel value="#{assessmentSettingsMessages.gradebook_options}"/>
+      <f:verbatim><br /></f:verbatim>
+      <h:selectOneRadio id="toDefaultGradebook1" value="#{publishedSettings.toDefaultGradebook}"  layout="pageDirection">
+	        <c:choose>
+	        	<c:when test="${ publishedSettings.gradebookLinkeable == true }">
+	        		<f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+	        		<f:selectItem itemValue="4" itemLabel="#{assessmentSettingsMessages.to_associate_existing_gradebook_item}"/>
+	        	</c:when>
+	        	<c:otherwise>
+	          		<f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.to_no_gradebook}"/>
+	          		<f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.to_default_gradebook}"/>
+	        	</c:otherwise>
+	       	</c:choose>
+        </h:selectOneRadio>
     </h:panelGroup>
     <f:verbatim></div></f:verbatim>
     <f:verbatim><br /></f:verbatim>

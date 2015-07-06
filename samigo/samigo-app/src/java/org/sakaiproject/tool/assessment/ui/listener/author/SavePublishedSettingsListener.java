@@ -584,7 +584,7 @@ implements ActionListener
 	    
 		// If there is value set for toDefaultGradebook, we reset it
 		// Otherwise, do nothing
-		if (assessmentSettings.getToDefaultGradebook()) {
+		if (assessmentSettings.getToDefaultGradebook().equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
 			evaluation.setToGradeBook("1");
 		}
 		else {
@@ -619,7 +619,7 @@ implements ActionListener
 		// point = 0.
 		boolean gbError = false;
 
-		if (assessmentSettings.getToDefaultGradebook()) {
+		if (assessmentSettings.getToDefaultGradebook().equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
 			if (assessment.getTotalScore().doubleValue() <= 0) {
 				String gb_err = (String) ContextUtil.getLocalizedString(
 						"org.sakaiproject.tool.assessment.bundle.AuthorMessages","gradebook_exception_min_points");
@@ -656,7 +656,7 @@ implements ActionListener
 			try{
 				assessmentName = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, assessmentSettings.getTitle().trim());
 				gbItemExists = gbsHelper.isAssignmentDefined(assessmentName, g);
-				if (assessmentSettings.getToDefaultGradebook() && gbItemExists && isTitleChanged){
+				if (assessmentSettings.getToDefaultGradebook().equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK)) && gbItemExists && isTitleChanged){
 					String gbConflict_error=ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","gbConflict_error");
 					context.addMessage(null,new FacesMessage(gbConflict_error));
 					return false;
@@ -666,7 +666,7 @@ implements ActionListener
 				log.warn("external assessment in GB has the same title:"+e.getMessage());
 			}
 			
-			if (assessmentSettings.getToDefaultGradebook()) {
+			if (assessmentSettings.getToDefaultGradebook().equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))) {
 				evaluation.setToGradeBook("1");
 			}
 			else {
@@ -679,7 +679,7 @@ implements ActionListener
 			}
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook()!=null && 
-					evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+					evaluation.getToGradeBook().equals(String.valueOf(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK))){
 				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
 					try {
