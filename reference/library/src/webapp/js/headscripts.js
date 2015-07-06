@@ -688,3 +688,28 @@ function includeLatestJQuery(where) {
 // Return the breakpoint between small and medium sized displays - for morpheus currently the same
 function portalSmallBreakPoint() { return 800; } 
 function portalMediumBreakPoint() { return 800; } 
+
+// A function to add an icon picker to a text input field
+var fontawesome_icons = false;
+function fontawesome_icon_picker(selector) {
+	if ( fontawesome_icons ) { // Already loaded
+		$(selector).fontIconPicker({
+			source: fontawesome_icons,
+			extraClass: 'fa',
+			placeHolder: '',
+			emptyIconValue: 'none'
+		});
+	} else {
+		$.getJSON( '/library/js/fontIconPicker/2.0.1-cs/icons.json', function( data ) {
+			fontawesome_icons = data;
+			$(selector).fontIconPicker({
+				source: fontawesome_icons,
+				extraClass: 'fa',
+				placeHolder: '',
+				emptyIconValue: 'none'
+			});
+		}).error(function() { 
+			window.console && console.log("Could not load icons for icon picker."); 
+		});
+	}
+}
