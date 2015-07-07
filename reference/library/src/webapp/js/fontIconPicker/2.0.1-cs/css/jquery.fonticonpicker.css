@@ -2,6 +2,9 @@
  * CSS file for fontIconPicker
  * This file holds the basic CSS
  * {@link https://github.com/micc83/fontIconPicker}
+ *
+ * To Minify by hand :
+ * curl -X POST -s --data-urlencode 'input@jquery.fonticonpicker.css' http://cssminifier.com/raw > jquery.fonticonpicker.min.css
  */
 /* Reset (thx to Eric A. and Kathryn S. Meyer) */
 .icons-selector * {
@@ -11,7 +14,7 @@
 	font-size: 100%;
 	font: inherit;
 	vertical-align: baseline;
-	font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
+	/* font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif; Inherit this */
 }
 .icons-selector,
 .icons-selector:before,
@@ -63,6 +66,7 @@
 
 /* Selected icon */
 .icons-selector .selected-icon i {
+	font-family: FontAwesome;
 	line-height: 40px;
 	font-size: 18px;
 	cursor: default;
@@ -137,6 +141,7 @@
 
 /* Single icon box */
 .icons-selector .fip-box {
+	font-family: FontAwesome;
 	display: inline-block;
 	margin: 2px;
 	width: 60px;
