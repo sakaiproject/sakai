@@ -109,6 +109,9 @@ public interface CalendarService
 	/** Security lock for adding to a calendar. */
 	public static final String AUTH_OPTIONS_CALENDAR = "calendar.options";
 
+	/** Security lock for viewing who the event is for. */
+	public static final String AUTH_VIEW_AUDIENCE = "calendar.view.audience";
+
 	/** The Reference type for a calendar. */
 	public static final String REF_TYPE_CALENDAR = "calendar";
 
