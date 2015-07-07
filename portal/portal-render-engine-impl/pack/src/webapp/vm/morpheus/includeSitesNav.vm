@@ -9,17 +9,34 @@
 
                 #if (${site.isMyWorkspace})
                     ## Print Nothing
-                    ##<li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace is-selected"><a href="#" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+                    ## <a class="Mrphs-my-workspace" href="${site.siteUrl}"><i class="fa fa-home"></i></a>
+                    <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace is-selected">
+                        <a href="#" role="menuitem" aria-haspopup="true">
+                            <i class="fa fa-home"></i>
+                            <span>${rloader.sit_mywor}</span>
+                            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+                        </a>
+                    </li>
 
                 #else
 
                     #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 
-                        <li class="Mrphs-sitesNav__menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></li>
+                        <li class="Mrphs-sitesNav__menuitem is-selected">
+                            <a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
+                                <span>${site.shortDescription}</span>
+                                <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+                            </a>
+                            </li>
 
                     #else
 
-                        <li class="Mrphs-sitesNav__menuitem is-selected"><a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></li>
+                        <li class="Mrphs-sitesNav__menuitem is-selected">
+                            <a href="#" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
+                                <span>${site.siteTitle}</span>
+                                <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+                            </a>
+                        </li>
 
                     #end ## END of IF (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 
@@ -29,17 +46,35 @@
 
                 #if (${site.isMyWorkspace})
                     ## Print Nothing
-                    ##<li class="Mrphs-sitesNav__menuitem"><a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true"><span>${rloader.sit_mywor}</span><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></a></li>
+                    ##  <a class="Mrphs-my-workspace" href="${site.siteUrl}"><i class="fa fa-home"></i></a>
+
+                    <li class="Mrphs-sitesNav__menuitem  Mrphs-sitesNav__menuitem--myworkspace">
+                        <a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
+                            <i class="fa fa-home"></i>
+                            <span>${rloader.sit_mywor}</span>
+                            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+                        </a>
+                    </li>
 
                 #else
 
                     #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 
-                        <li class="Mrphs-sitesNav__menuitem"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.shortDescription}</span></a><span class="Mrphs-sitesNav__dropdown" tabindex="-1" data-site-id="${site.siteId}"></span></li>
+                        <li class="Mrphs-sitesNav__menuitem">
+                            <a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
+                                <span>${site.shortDescription}</span>
+                                <span class="Mrphs-sitesNav__dropdown" tabindex="-1" data-site-id="${site.siteId}"></span>
+                            </a>
+                        </li>
 
                     #else    
 
-                        <li class="Mrphs-sitesNav__menuitem"><a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true"><span>${site.siteTitle}</span></a><span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span></li>
+                        <li class="Mrphs-sitesNav__menuitem">
+                            <a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
+                                <span>${site.siteTitle}</span>
+                                <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+                            </a>
+                        </li>
 
                     #end
 

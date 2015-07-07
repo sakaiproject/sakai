@@ -21,22 +21,22 @@ $header-font-family: "Raleway", Arial, sans-serif !default;
 $header-font-weight: 300 !default;										// 300, 400 or 700 as you wish
 
 /* Color palette */
-$background-color: 			 #313131 !default;
+$background-color: 			 #454545 !default;
 $background-color-secondary: #F8F8F8 !default;
 
-$tool-background-color:		 #F8F8F8 !default;
-$toolMenuColor: 		#F8F8F8 !default;
+$tool-background-color:		 #ffffff !default;
+$toolMenuColor: 			 #F8F8F8 !default;
 
-$primary-color:    			 #0083af !default;
+$primary-color:    			 #43a7c8 !default;
 $secondary-color:  			 #F00 !default;
 
 $text-color:				 #363636 !default;
-$button-text-color:			#F8F8F8 !default;
+$button-text-color:			 #F8F8F8 !default;
 $button-text-color-secondary:			$text-color !default;
 
 $button-gradiant:	false !default;
 $button-color: 				 $primary-color !default;
-$button-color-secondary:		#87c2ca;
+$button-color-secondary:		#8fbbec;
 
 $okcolor: 					 #dff0d8 !default;
 $errorcolor: 			 	 #f2dede !default;
@@ -47,10 +47,10 @@ $swapped-view-text-color:	 #302436 !default;
 
 
 /* Main Menu */
-$header-size : 50px !default;
+$header-size : 3.1em !default;
 
 /* Tool Menu */
-$tool-menu-width: 220px !default;
+$tool-menu-width: 14.5em !default;
 
 /* Golden Ratio width for 16px font http://www.pearsonified.com/typography/ */
 $measure: 960px !default;
