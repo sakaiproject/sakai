@@ -51,6 +51,7 @@
                 <configuration name="imsti.allowlori" />
                 <configuration name="imsti.contentlink" />
                 <configuration name="imsti.splash" />
+                <configuration name="imsti.fa-icon" /> <!-- A font awesome icon line "fa-adjust" -->
 
                 <!-- Setting these to true means the corresponding above values 
 		     cannot be altered by by the instructor.  -->
@@ -75,6 +76,7 @@
                 <configuration name="final.allowlori" value="false"/>
                 <configuration name="final.contentlink" value="false"/>
                 <configuration name="final.splash" value="false"/>
+                <configuration name="final.fa-icon" value="false"/>
 
                 <!-- Allow multiple instances of this tool within one site -->
                 <configuration name="allowMultipleInstances" value="true" />

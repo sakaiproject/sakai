@@ -271,8 +271,16 @@ public class SiteMerger {
 					return;
 				}
 				
+				String serviceName;
+				//Support for attachment.xml created prior to SAK-29456 
+				if (element.getTagName().equals(ContentHostingService.APPLICATION_ID)) 
+				{
+				    serviceName = "org.sakaiproject.content.api.ContentHostingService";
+				}
+				else {
 				// get the service name
-				String serviceName = translateServiceName(element.getTagName());
+				    serviceName = translateServiceName(element.getTagName());
+				}
 
 				// get the service
 				try

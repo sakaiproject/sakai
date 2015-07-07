@@ -139,12 +139,13 @@ public class IMSBLTIPortlet extends GenericPortlet {
 		fieldList.add("releaseemail");
 		fieldList.add("assignment");
 		fieldList.add("newpage");
-		fieldList.add("maximize");
+		// fieldList.add("maximize");
 		fieldList.add("allowsettings");
 		fieldList.add("allowroster");
 		fieldList.add("allowlori");
 		fieldList.add("contentlink");
 		fieldList.add("splash");
+		fieldList.add("fa_icon");
 	}
 
 	// Simple Debug Print Mechanism

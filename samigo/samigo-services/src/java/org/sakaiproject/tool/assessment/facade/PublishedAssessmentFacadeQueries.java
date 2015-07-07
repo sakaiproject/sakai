@@ -754,7 +754,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 							.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK
 									.toString())) {
 				try {
-					gbsHelper.addToGradebook(publishedAssessment, g);
+					gbsHelper.addToGradebook(publishedAssessment, null, g);
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
 					delete(publishedAssessment);

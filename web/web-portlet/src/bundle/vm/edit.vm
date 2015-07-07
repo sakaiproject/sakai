@@ -6,6 +6,11 @@ $(document).ready(function() {
 </script>
 
 <div class="portletBody">
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('web-ifp edit.vm');</script>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
 	<h3>
 		$tlang.getString("gen.custom")
 	</h3>
@@ -34,6 +39,10 @@ $(document).ready(function() {
 			<input type="text" id="title" name="title" value="$title" /><br />
 		</p>
 		#end
+		<p class="shorttext indnt1">
+			<label for="fa_icon"> $tlang.getString("gen.fa_icon")</label>
+			<input type="text" id="fa_icon" name="fa_icon" value="$fa_icon" /><br />
+		</p>
 		<p class="shorttext indnt1">
 			<label for="height">$tlang.getString("gen.height")</label>
 			<select id="height" name="height" size="1" onchange="this.value=='$tlang.getString('gen.heisomelse')'?document.getElementById('customNumber').style.display = 'block':document.getElementById('customNumber').style.display = 'none'">
@@ -76,4 +85,5 @@ $(document).ready(function() {
 		</p>
         <input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
 </div>

@@ -64,11 +64,11 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 	 * @return false: cannot add to gradebook
 	 * @throws java.lang.Exception
 	 */
-	public boolean addToGradebook(PublishedAssessmentData publishedAssessment, GradebookExternalAssessmentService g)
+	public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, GradebookExternalAssessmentService g)
 	{
 		return false;
 	}
-
+	
 	/**
 	 * STUB. NO-OP.
 	 * 
@@ -133,4 +133,10 @@ public class GradebookServiceHelperImpl implements GradebookServiceHelper
 		return false;
 	}
 
+	@Override
+	public Long getExternalAssessmentCategoryId(String gradebookUId,
+			String publishedAssessmentId, GradebookExternalAssessmentService g) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

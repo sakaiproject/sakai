@@ -346,6 +346,12 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
 		}
 
+		// Copy to fa_icon across
+		String fa_icon = (String) tool.get(LTI_FA_ICON);
+		if ( fa_icon != null && fa_icon.length() > 0 ) {
+			newProps.put(LTI_FA_ICON, fa_icon);
+		}
+
 		// If resource_handler is not in content and is in the tool, copy it
 		if ( newProps.getProperty(LTI_RESOURCE_HANDLER) == null && tool.get(LTI_RESOURCE_HANDLER) != null ) {
 			newProps.put(LTI_RESOURCE_HANDLER, (String) tool.get(LTI_RESOURCE_HANDLER));

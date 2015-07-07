@@ -283,6 +283,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			CalendarEdit cal = editCalendar(ref);
 			cal.setExportEnabled(enable);
 			commitCalendar(cal);
+			
+			//Update the cache object if exists
+			if(cache != null) {
+				if(cache.containsKey(ref)) {
+					cache.put(ref,cal);
+				}
+			}
 		}
 		catch ( Exception e)
 		{
