@@ -510,6 +510,7 @@ if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobi
 		title: $('#page-title').text(),
 		width: $(window).width() * 0.8,
 		modal: true,
+		draggable: false,
 		close: function () {
 			$('#attachform').append('<input type="hidden" name="cancelButton" value="$tlang.getString("att.cancel")" /> ');
 			act = '#toolLink("FilePickerAction" "doCancel")';
