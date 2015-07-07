@@ -569,6 +569,8 @@ public class PortletIFrame extends GenericPortlet {
             Properties config = getAllProperties(placement);
             String special = getSpecial(config);
 			context.put("title", validator.escapeHtml(placement.getTitle(), false));
+			String fa_icon = placement.getPlacementConfig().getProperty("imsti.fa_icon");
+			if ( fa_icon != null ) context.put("fa_icon", fa_icon );
 			String source = placement.getPlacementConfig().getProperty(SOURCE);
 			if ( source == null ) source = "";
 			if ( special == null ) context.put("source",source);
