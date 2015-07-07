@@ -1295,9 +1295,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				SitePresence spExisting = doGetSitePresence(session, sp.getSiteId(), sp.getUserId(), sp.getDate());
 				if(spExisting == null) {
 					session.save(sp);
-                                        if (!spc.firstEventIsPresEnd) {
-					doUpdateSitePresenceTotal(session, sp);
-                                        }
+					if (!spc.firstEventIsPresEnd) {
+						doUpdateSitePresenceTotal(session, sp);
+					}
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
 					long previousPresence = 0;
@@ -1312,9 +1312,9 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					spExisting.setDuration(newTotalPresence);				
 					spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
 					session.update(spExisting);
-                                        if (!spc.firstEventIsPresEnd) {
-					doUpdateSitePresenceTotal(session, spExisting);
-                                        }
+					if (!spc.firstEventIsPresEnd) {
+						doUpdateSitePresenceTotal(session, spExisting);
+					}
 				}
 			}catch(HibernateException e){
 				LOG.debug("Probably ddbb error when loading data at java object", e);
