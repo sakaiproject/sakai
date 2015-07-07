@@ -105,8 +105,8 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
             ['BidiLtr', 'BidiRtl' ],
             ['Link','Unlink','Anchor'],
             (sakai.editor.enableResourceSearch
-                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']
-                : ['AudioRecorder','Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula']),
+                ? ['AudioRecorder','ResourceSearch', 'Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']
+                : ['AudioRecorder','Image','Movie','Flash','Table','HorizontalRule','Smiley','SpecialChar','fmath_formula','FontAwesome']),
             '/',
             ['Styles','Format','Font','FontSize'],
             ['TextColor','BGColor'],
@@ -179,6 +179,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		   CKEDITOR.plugins.addExternal('audiorecorder',basePath+'audiorecorder/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('image2',basePath+'image2/', 'plugin.js'); 
 		   CKEDITOR.plugins.addExternal('autosave',basePath+'autosave/', 'plugin.js'); 
+		   CKEDITOR.plugins.addExternal('fontawesome',basePath+'fontawesome/', 'plugin.js'); 
 			 /*
 			  To enable after the deadline uncomment these two lines and add atd-ckeditor to toolbar
 			  and to extraPlugins. This also needs extra stylesheets.
@@ -194,8 +195,13 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 			 //ckconfig.atd_rpc='//localhost/proxy/spellcheck';
 			 //ckconfig.extraPlugins+="atd-ckeditor,";
 			 //ckconfig.contentsCss = basePath+'/atd-ckeditor/atd.css';
-
-			 ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave";
+			 
+			 ckconfig.extraPlugins+="image2,audiorecorder,movieplayer,wordcount,fmath_formula,autosave,fontawesome";
+			 
+			 //SAK-29648
+			 ckconfig.contentsCss = basePath+'/fontawesome/font-awesome/css/font-awesome.min.css';
+			 CKEDITOR.dtd.$removeEmpty.span = false;
+			 CKEDITOR.dtd.$removeEmpty['i'] = false;
     })();
 
 	  CKEDITOR.replace(targetId, ckconfig);
