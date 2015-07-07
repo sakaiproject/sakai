@@ -51,6 +51,7 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.cover.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
+import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.cover.CalendarImporterService;
@@ -483,6 +484,9 @@ extends VelocityPortletStateAction
 		
 		public String getDayName()
 		{
+			SimpleDateFormat df = new SimpleDateFormat("EEE");
+			GregorianCalendar calendar = new GregorianCalendar(getYear(),getMonth()-1,getDay());
+			dayName = df.format(calendar.getTime());
 			return dayName;
 		}
 		
@@ -7426,6 +7430,10 @@ extends VelocityPortletStateAction
 		context.put("config",configProps);		
 
 		context.put("calendarFormattedText", new CalendarFormattedText());
+
+		String currentUserId = UserDirectoryService.getCurrentUser().getId();
+		boolean canViewEventAudience = SecurityService.unlock(currentUserId, org.sakaiproject.calendar.api.CalendarService.AUTH_VIEW_AUDIENCE, "/site/" + ToolManager.getCurrentPlacement().getContext());
+        context.put("canViewAudience", !canViewEventAudience);
 
 	}	 // buildListContext
 	
