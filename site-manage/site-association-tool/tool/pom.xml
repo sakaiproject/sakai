@@ -62,7 +62,7 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi</artifactId>
-            <version>3.10.1</version>
+            <version>${sakai.poi.version}</version>
         </dependency>
     </dependencies>
 </project>
