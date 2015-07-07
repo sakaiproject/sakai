@@ -160,7 +160,7 @@ public void removeExternalAssessment(String gradebookUId,
    * @return false: cannot add to gradebook
    * @throws java.lang.Exception
    */
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
+  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId, 
 		  GradebookExternalAssessmentService g) throws
     Exception
   {
@@ -206,7 +206,9 @@ public void removeExternalAssessment(String gradebookUId,
                               publishedAssessment.getTotalScore().doubleValue(),
                               publishedAssessment.getAssessmentAccessControl().
                               getDueDate(),
-                              appName); // Use the app name from sakai
+                              appName,	// Use the app name from sakai
+                              false,
+                              categoryId); 
         added = true;
       }
     }
@@ -292,5 +294,15 @@ public void removeExternalAssessment(String gradebookUId,
 		  throw new Exception("Encountered an error in update ExternalAssessmentScore.");
 	  }
   }
+
+	public Long getExternalAssessmentCategoryId(String gradebookUId,
+			String publishedAssessmentId, GradebookExternalAssessmentService g) {
+		Long categoryId = null;
+		if (g.isGradebookDefined(gradebookUId)) 
+		{
+			categoryId = g.getExternalAssessmentCategoryId(gradebookUId, publishedAssessmentId);
+		}
+		return categoryId;
+	}
 
 }
