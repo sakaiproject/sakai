@@ -11,6 +11,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.xml.bind.JAXBException;
 
@@ -46,6 +48,7 @@ import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
@@ -461,12 +464,33 @@ public class GradebookNgBusinessService {
 			matrix.put(student.getId(), sg);
 		}
 		Temp.timeWithContext("buildGradeMatrix", "matrix seeded", stopwatch.getTime());
-				
+		
+		//this holds a map of categoryId and the list of assignment ids in each
+		//we build this whilst iterating below to save further iterations when building the category list
+		Map<Long,Set<Long>> categoryAssignments = new TreeMap<>();
+		
 		//iterate over assignments and get the grades for each
 		//note, the returned list only includes entries where there is a grade for the user
-		//TODO maybe a new gb service method to do this, so we save iterating here?
+		//we also build the category lookup map here
 		for(Assignment assignment: assignments) {
 			
+			Long categoryId = assignment.getCategoryId();
+			Long assignmentId = assignment.getId();
+
+			//build the category map (if assignment is categorised)
+			if(categoryId != null) {
+				Set<Long> values;
+				if(categoryAssignments.containsKey(categoryId)) {
+					values = categoryAssignments.get(categoryId);
+					values.add(assignmentId);
+				} else {
+					values = new HashSet<Long>();
+					values.add(assignmentId);
+				}
+				categoryAssignments.put(categoryId, values);
+			}
+			
+			//get grades
 			try {
 				List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
 				Temp.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(), stopwatch.getTime());
@@ -489,6 +513,43 @@ public class GradebookNgBusinessService {
 				log.error("Error retrieving grades. Skipping.", e);
 			}
 		}
+		Temp.timeWithContext("buildGradeMatrix", "matrix built", stopwatch.getTime());
+
+		
+		//build category columns
+		List<CategoryDefinition> categories = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
+		
+		for(CategoryDefinition category: categories) {
+				
+			//use the category mappings for faster lookup of the assignmentIds and grades in the category
+			System.out.println("category: " + category.getId() + " - " + categoryAssignments.get(category.getId()));
+			
+			Set<Long> categoryAssignmentIds = categoryAssignments.get(category.getId());
+			
+			for(User student: students) {
+				
+				//get grades
+				Map<Long,GbGradeInfo> grades = matrix.get(student.getId()).getGrades();
+				
+				//build map of just the grades we want
+				Map<Long,String> gradeMap = new HashMap<>();
+				for(Long assignmentId: categoryAssignmentIds) {
+					GbGradeInfo gradeInfo = grades.get(assignmentId);
+					if(gradeInfo != null) {
+						gradeMap.put(assignmentId,gradeInfo.getGrade());
+					}
+				}
+				
+				Double mean = this.gradebookService.calculateCategoryScore(category, gradeMap);
+				
+			}
+			
+		}
+		Temp.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
+
+		
+		
+		//category totals: calculateStatisticsPerStudent
 		
 		//get the matrix as a list of GbStudentGradeInfo
 		ArrayList<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
@@ -508,6 +569,7 @@ public class GradebookNgBusinessService {
 				Collections.reverse(items);
 			}
 		}
+		Temp.timeWithContext("buildGradeMatrix", "matrix sorted", stopwatch.getTime());
 		
 		return items;
 	}
