@@ -2695,8 +2695,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	@Override
 	public Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap) {
 		
-		BigDecimal numScored = new BigDecimal("0");
-		BigDecimal numOfAssignments = new BigDecimal("0");
+		int numScored = 0;
+		int numOfAssignments = 0;
 		BigDecimal totalEarned = new BigDecimal("0");
 		BigDecimal totalPossible = new BigDecimal("0");
 		
@@ -2714,27 +2714,22 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			totalEarned = totalEarned.add(new BigDecimal(grade));
 			
 			//update total points possible and number of assignments
-			//if(assignment.getPoints() != null && !assignment.isExtraCredit()) {
+			if(assignment.getPoints() != null && !assignment.isExtraCredit()) {
 				totalPossible = totalPossible.add(new BigDecimal(assignment.getPoints().toString()));
-				numOfAssignments.plus();
-			//}
-			//if(!assignment.isExtraCredit()){
-				numScored.plus();
-			//}
+				numOfAssignments++;
+			}
+			if(!assignment.isExtraCredit()){
+				numScored++;
+			}
 			
 		}
 		
-		System.out.println("numScored" + numScored);
-    	System.out.println("numOfAssignments" + numOfAssignments);
-    	System.out.println("totalEarned" + totalEarned);
-    	System.out.println("totalPossible" + totalPossible);
-
-    	if (numScored.intValue() == 0 || numOfAssignments.intValue() == 0 || totalPossible.doubleValue() == 0) {
+    	if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
     		return null;
     	}
 	
-    	BigDecimal rval = totalEarned.divide(numScored, GradebookService.MATH_CONTEXT).divide((totalPossible.divide(numOfAssignments, GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));
-    	return Double.valueOf(rval.doubleValue());
+    	BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).divide((totalPossible.divide(new BigDecimal(numOfAssignments), GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));    	
+    	return Double.valueOf(mean.doubleValue());
 	}
 
 	
