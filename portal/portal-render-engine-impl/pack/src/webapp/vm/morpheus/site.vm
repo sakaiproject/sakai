@@ -18,26 +18,14 @@
             <div #if ( ${tabsSites} ) class="Mrphs-mainHeader is-maximized" #else class="Mrphs-mainHeader is-minimized" #end>
 
                 ## Header
-                #parse("/vm/morpheus/snippets/header-snippet.vm")
+                <div class="Mrphs-topHeader">
+                    #parse("/vm/morpheus/snippets/header-snippet.vm")
+                    #parse("/vm/morpheus/includeLoginNav.vm")
+                </div>
 
                 #if (${tabsSites})
                     ## tabs
                     #parse("/vm/morpheus/includeTabs.vm")
-
-                #else
-
-                    <nav class="Mrphs-loginNav Mrphs-loginNav--no-sites">
-                        <!-- login component -->
-
-                            #if (!${loginTopLogin})
-                                #parse("/vm/morpheus/snippets/loginImage-snippet.vm")
-                            #else
-                                #parse("/vm/morpheus/snippets/loginForm-snippet.vm")
-                                <script src="${pageScriptPath}caps-lock-checker.js$!{portalCDNQuery}"></script>
-                            #end ## END of IF (!${loginTopLogin})
-
-                        <!-- end login component -->
-                    </nav>
 
                 #end ## END of IF (${tabsSites})
 

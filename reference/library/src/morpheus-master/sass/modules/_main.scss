@@ -1,10 +1,9 @@
 //.#{$namespace}
 .is-logged-out{
 	#content, .#{$namespace}container--footer{
-		margin: 0 0 0 #{$tool-menu-width};
-		padding-top: #{$header-size + 15px };
+		margin: 3em 0 0 #{$tool-menu-width};
 		@media #{$phone}{
-			margin: #{$header-size + 15px } 0 0 #{$icon-size * 3};
+			margin: 3em 0 0 #{$icon-size * 3};
 		}
 	}
 }
@@ -15,7 +14,6 @@
 
 #content, .#{$namespace}container--footer{
 	margin: 0 0 0 #{$tool-menu-width};
-	padding-top: #{$header-size * 2 + 15px };
 
 	@media #{$phone}{
 		margin: #{$header-size } 20px 0 #{$icon-size * 3};
@@ -43,11 +41,9 @@
 }
 
 .#{$namespace}footer{
-	background: $background-color-secondary;
+	color: $background-color-secondary;
 	padding: 0.8em;
 	font-size: 0.8em;
-	border: 1px solid darken($background-color-secondary, 15%);
-	@include border-radius( 8px );
 	#footer-links{
 		li{
 			display: inline-block;

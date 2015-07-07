@@ -2,11 +2,11 @@ html[dir="rtl"]{
 	body{
 		.is-logged-out{
 			#content, .#{$namespace}container--footer{
-				margin: #{$header-size * 1.55 } #{$tool-menu-width + 30} 0 0 ;
+				margin: #{$header-size} #{$tool-menu-width + 30} 0 0 ;
 			}
 		}
 		#content, .#{$namespace}container--footer{
-			margin: #{$header-size * 3 } #{$tool-menu-width + 30} 0 0;
+			margin: #{$header-size} #{$tool-menu-width + 30} 0 0;
  		}
 
  		.#{$namespace}mainHeader{
