@@ -717,4 +717,14 @@ public interface GradebookService {
      */
     @SuppressWarnings("rawtypes")
 	public List getGradingEvents(final String studentId, final long assignmentId);
+    
+    /**
+     * Calculate a student's score for a category given the category definition and grades for that student.
+     * 
+     * @param category category to perform the calculations form
+     * @param gradeMap map of assignmentId to grade, to use for the calculations
+     * @return percentage or null if no calculations were made
+     */
+    Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap);
+
 }
