@@ -1426,7 +1426,28 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		HttpServletResponse res, Placement p, String skin, String toolContextPath,
 		String toolPathInfo) throws ToolException
 	{
+		// SAK-29656 - Make sure the request URL and toolContextPath treat tilde encoding the same way
+		//
+		// Since we cannot easily change what the request object already knows as its URL,
+		// we patch the toolContextPath to match the tilde encoding in the request URL.
+		//
+		// This is what we would see in Chrome and Firefox.  Firefox fails with Wicket
+		// Chrome: forwardtool call http://localhost:8080/portal/site/~csev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf
+		//    toolPathInfo null ctx /portal/site/~csev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf
+		// Firefox: http://localhost:8080/portal/site/%7ecsev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf/
+		//    toolPathInfo null ctx /portal/site/~csev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf
 
+		String reqUrl = req.getRequestURL().toString();
+		if ( reqUrl.indexOf(toolContextPath) < 0 ) {
+			M_log.debug("Mismatch between request url " + reqUrl + " and toolContextPath " + toolContextPath);
+			if ( toolContextPath.indexOf("/~") > 0 && reqUrl.indexOf("/~") < 1 ) {
+				if ( reqUrl.indexOf("/%7e") > 0 ) {
+					toolContextPath = toolContextPath.replace("/~","/%7e");
+				} else {
+					toolContextPath = toolContextPath.replace("/~","/%7E");
+				}
+			}
+		}
 		M_log.debug("forwardtool call " + req.getRequestURL().toString() + " toolPathInfo " + toolPathInfo + " ctx " + toolContextPath);
 
 		// if there is a stored request state, and path, extract that from the
