@@ -508,7 +508,7 @@ if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobi
 	$('#page-title').hide();
 	$("#portletBody").dialog({
 		title: $('#page-title').text(),
-		width: $(window).width() * 0.8,
+		width: modalDialogWidth(),
 		modal: true,
 		draggable: false,
 		close: function () {
@@ -519,16 +519,7 @@ if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobi
 		}
 	});
 	$(window).resize(function() {
-		var wWidth = $(window).width();
-		var pbr = portalSmallBreakPoint();
-		var dWidth = wWidth * 0.8;
-		if ( wWidth <= pbr ) { ## show off and reduce smoothly at the transition point
-			dWidth = pbr * 0.8;
-			if ( dWidth > (wWidth * 0.95) ) {
-				dWidth = wWidth * 0.95;
-			}
-		}
-		$("#portletBody").dialog("option", "width", dWidth);
+		$("#portletBody").dialog("option", "width", modalDialogWidth());
 	});
 }
 </script>
