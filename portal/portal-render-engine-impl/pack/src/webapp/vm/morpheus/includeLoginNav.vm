@@ -4,12 +4,6 @@
 
     #if (!${loginTopLogin})
 
-        #if ($viewAsStudentLink)
-
-            #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
-
-        #end ## END of IF ($viewAsStudentLink)
-
         <ul id="loginLinks" class="Mrphs-userNav">
 
                 #foreach ( $site in $tabsSites.tabsSites )
