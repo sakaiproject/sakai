@@ -53,6 +53,45 @@ body.is-logged-out{
 	}
 }
 
+#roleSwitch{
+	background-color: $background-color;
+	color: $background-color-secondary;
+	padding: 1em 0 0 0;
+	i{
+		color: $background-color-secondary;
+		font-size: 1.5em;
+		padding: 0.4em 0.6em;
+		@media #{$phone} {
+			&.clickable{
+				cursor: pointer;
+				display: block;
+			}
+		}
+		
+	}
+	select{
+		vertical-align: text-bottom;
+		@media #{$phone} {
+			display: none;
+			&.active{
+				position: relative;
+				top: -2.8em;
+				left: 3em;
+				border: 4px solid #454545;
+				@include box-shadow( 0.5em 0em 1.1em rgba( $background-color ,0.75) );
+			}
+		}
+	}
+	a{
+		text-decoration: none;
+		span{
+			font-size: 0.8em;
+			vertical-align: text-top;
+			text-decoration: underline;
+		}
+	}
+}
+
 #toolMenu{
 	ul{
 		padding: 0;
