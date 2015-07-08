@@ -277,6 +277,14 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public Integer getTotalSubmission(String agentId, Long publishedAssessmentId);
 
+  /**
+   * Get submission number for the assessment by giving the publishedAssessmentId
+   * for assessment deletion safe check
+   * @param publishedAssessmentId
+   * @return number of submissions
+   */
+  public Integer getTotalSubmissionForEachAssessment(Long publishedAssessmentId);
+
   public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias);
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(

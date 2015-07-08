@@ -808,6 +808,11 @@
       <to-view-id>/jsf/delivery/passwordAccessError.jsp</to-view-id>
       <redirect/>
     </navigation-case>
+    <!--Added another page for remove submissions before delete assessment SAM-2587 -->
+    <navigation-case>
+      <from-outcome>requireRemoveSubmissions</from-outcome>
+      <to-view-id>/jsf/author/requireRemoveSubmissions.jsp</to-view-id>
+    </navigation-case>
     <navigation-case>
       <from-outcome>timeout</from-outcome>
       <to-view-id>/jsf/delivery/timeout.jsp</to-view-id>
