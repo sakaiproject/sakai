@@ -283,6 +283,13 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 			CalendarEdit cal = editCalendar(ref);
 			cal.setExportEnabled(enable);
 			commitCalendar(cal);
+			
+			//Update the cache object if exists
+			if(cache != null) {
+				if(cache.containsKey(ref)) {
+					cache.put(ref,cal);
+				}
+			}
 		}
 		catch ( Exception e)
 		{
@@ -689,6 +696,7 @@ public abstract class BaseCalendarService implements CalendarService, DoubleStor
 		m_functionManager.registerFunction(AUTH_READ_CALENDAR);
 		m_functionManager.registerFunction(AUTH_ALL_GROUPS_CALENDAR);
 		m_functionManager.registerFunction(AUTH_OPTIONS_CALENDAR);
+		m_functionManager.registerFunction(AUTH_VIEW_AUDIENCE);
 		
 		// setup cache
 		SimpleConfiguration cacheConfig = new SimpleConfiguration(0);

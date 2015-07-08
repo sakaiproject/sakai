@@ -1,13 +1,21 @@
 //.#{$namespace}
+body.is-logged-out{
+	#toolMenuWrap{
+		top: 0;
+		@media #{$phone}{
+			top: $header-size;
+		}
+	}
+}
 #toolMenuWrap{
 	background: $toolMenuColor;
 	display: block;
 	position: absolute;
 	top: $header-size;
 	width: $tool-menu-width;
-	padding: 35px 0 0 0;
+	margin: 4em 0 0 0;
 
-	@include border-radius( 0 0 10px 0 );
+	// @include border-radius( 0 0 10px 0 );
 	@include transition(all 0.5s linear);
 	
 	@media #{$phone}{
@@ -30,6 +38,9 @@
 			}
 		}
 	}
+	&.openedLinkNav{
+		margin: 0 0 0 0;
+	}
 }
 
 .#{$namespace}toolsNav__title--current-site{
@@ -42,9 +53,48 @@
 	}
 }
 
+#roleSwitch{
+	background-color: $background-color;
+	color: $background-color-secondary;
+	padding: 1em 0 0 0;
+	i{
+		color: $background-color-secondary;
+		font-size: 1.5em;
+		padding: 0.4em 0.6em;
+		@media #{$phone} {
+			&.clickable{
+				cursor: pointer;
+				display: block;
+			}
+		}
+		
+	}
+	select{
+		vertical-align: text-bottom;
+		@media #{$phone} {
+			display: none;
+			&.active{
+				position: relative;
+				top: -2.8em;
+				left: 3em;
+				border: 4px solid #454545;
+				@include box-shadow( 0.5em 0em 1.1em rgba( $background-color ,0.75) );
+			}
+		}
+	}
+	a{
+		text-decoration: none;
+		span{
+			font-size: 0.8em;
+			vertical-align: text-top;
+			text-decoration: underline;
+		}
+	}
+}
+
 #toolMenu{
 	ul{
-		padding: 0.8em 0;
+		padding: 0;
 		li{
 			.#{$namespace}toolsNav__menuitem--icon{
 				margin: 0 0.25em 0 0;
@@ -68,7 +118,7 @@
 				background: $background-color;
 				a{
 					color: $toolMenuColor;
-					span{
+					.#{$namespace}toolsNav__menuitem--title{
 						font-weight: 700;
 					}
 					&:hover{
@@ -95,7 +145,7 @@
 						a{
 							background: $background-color;
 							color: $primary-color;
-							span{
+							.#{$namespace}toolsNav__menuitem--title{
 								font-weight: 700;
 							}
 							&:hover{

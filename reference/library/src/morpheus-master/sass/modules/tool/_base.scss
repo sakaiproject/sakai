@@ -57,8 +57,9 @@
 		}
 		&--reset{
 			@extend .fa;
-			@extend .fa-home;
+			@extend .fa-share;
 			@extend .fa-lg;	
+			font-size: 0.9em;
 		}
 	}
 
@@ -66,12 +67,9 @@
 
 .#{$namespace}toolBody{
 	background: $tool-background-color;
-	/*padding: 0 #{$default-font-size / 2} #{$default-font-size / 2} #{$default-font-size / 2};
-	@include border-radius(0 0 4px 4px);
-	@include box-shadow( 0 2px 2px rgba( $text-color, 0.15 ) );*/
 	iframe{
 		margin: 1em 0 0 0;
-		border-bottom: 1px solid darken( $tool-background-color, 5% );
+		width: 99%;
 	}
 }
 

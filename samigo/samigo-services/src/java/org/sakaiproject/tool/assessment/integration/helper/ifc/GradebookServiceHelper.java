@@ -48,7 +48,7 @@ public interface GradebookServiceHelper extends Serializable
   public void removeExternalAssessment(String gradebookUId,
      String publishedAssessmentId, GradebookExternalAssessmentService g) throws Exception;
 
-  public boolean addToGradebook(PublishedAssessmentData publishedAssessment,
+  public boolean addToGradebook(PublishedAssessmentData publishedAssessment, Long categoryId,
 		  GradebookExternalAssessmentService g) throws Exception;
 
   public boolean updateGradebook(PublishedAssessmentIfc publishedAssessment,
@@ -62,4 +62,7 @@ public interface GradebookServiceHelper extends Serializable
   
   public void updateExternalAssessmentScores(Long publishedAssessmentId, final Map<String, Double> studentUidsToScores,
 		  GradebookExternalAssessmentService g) throws Exception;
+  
+  public Long getExternalAssessmentCategoryId(String gradebookUId,
+		  String publishedAssessmentId, GradebookExternalAssessmentService g);
 }

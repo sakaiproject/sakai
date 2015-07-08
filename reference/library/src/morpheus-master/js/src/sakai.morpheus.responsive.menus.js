@@ -25,5 +25,11 @@ $PBJQ(document).ready(function(){
 	}
 });
 
+$PBJQ(document).ready(function(){
+  $PBJQ('i.clickable', '#roleSwitch').click( function(){
+    $PBJQ(this).next('select').toggleClass('active');
+  });
+});
+
 $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
 $PBJQ(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);

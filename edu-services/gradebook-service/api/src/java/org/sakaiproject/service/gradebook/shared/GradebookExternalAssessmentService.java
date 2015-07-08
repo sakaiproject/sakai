@@ -333,4 +333,12 @@ public interface GradebookExternalAssessmentService {
 	 */
 	public void setExternalAssessmentToGradebookAssignment(String gradebookUid, String externalId);
 
+	/**
+	 * Get the category of a gradebook with the externalId given
+	 * 
+	 * @param gradebookUId
+	 * @param externalId
+	 * @return
+	 */
+	public Long getExternalAssessmentCategoryId(String gradebookUId, String externalId);
 }

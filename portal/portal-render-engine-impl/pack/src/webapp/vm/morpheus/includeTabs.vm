@@ -29,8 +29,6 @@
 <!-- START VM includeTabs.vm -->
     <div id="Mrphs-sites-nav" class="${tabsCssClass} Mrphs-container Mrphs-container--navs">
 
-        #parse("/vm/morpheus/includeLoginNav.vm")
-
         #parse("/vm/morpheus/includeSitesNav.vm")
 
     </div> <!-- /end of div.tabsCssClass -->

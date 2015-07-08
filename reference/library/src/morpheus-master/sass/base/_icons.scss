@@ -6,8 +6,8 @@
 	@if $skin-with-icons {
 	 	@extend .fa-lg;
 		@extend .fa; 	 
-		&.icon-sakai-iframe-site{ 				@extend .fa-home;}
-		&.icon-sakai-motd{ 					@extend .fa-home;}
+		&.icon-sakai-iframe-site{ 				@extend .fa-university;}
+		&.icon-sakai-motd{ 					@extend .fa-university;}
 		&.icon-sakai-syllabus{					@extend .fa-file-text-o;}
 		&.icon-sakai-schedule{					@extend .fa-calendar;}	
 		&.icon-sakai-signup{					@extend .fa-calendar;}
@@ -63,6 +63,7 @@
 		&.icon-sakai-message-bundle-manager{			@extend .fa-gear;}
 		&.icon-sakai-delegatedaccess{				@extend .fa-gear;}
 		&.icon-sakai-web-168{					@extend .fa-globe;}
+		&.icon-sakai-feedback{					@extend .fa-paper-plane-o;}
 	}
 }
 
@@ -128,6 +129,7 @@
 			&.icon-sakai-adminsiteperms{				@extend .fa-gear;}
 			&.icon-sakai-delegatedaccess{				@extend .fa-gear;}
 			&.icon-sakai-web-168{					@extend .fa-globe;}
+			&.icon-sakai-feedback{					@extend .fa-paper-plane-o;}
 			&.icon-sakai-see-all-tools{				@extend .fa-plus-square-o;}
 		}
 	}

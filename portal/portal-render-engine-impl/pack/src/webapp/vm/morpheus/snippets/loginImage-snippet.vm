@@ -1,11 +1,5 @@
 <ul class="Mrphs-loginUser" role="menu" tabindex="999">
 
-    #if (${displayUserloginInfo})
-
-        <span class="Mrphs-loginUser Mrphs-loginUser__info"><span class="Mrphs-loginUser__name">${loginUserDispName}</span> <span class="Mrphs-loginUser__id">${loginUserDispId}</span></span>
-
-    #end ## END of IF (${displayUserloginInfo})
-
     #if (${loginHasImage1})
 
         <li role="menuitem" class="Mrphs-loginUser__menuitem">
@@ -15,7 +9,10 @@
     #else
 
         <li role="menuitem" class="Mrphs-loginUser__menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message">${loginMessage}</a>
+            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message">
+                <i class="login-Icon"></i>
+                <span class="Mrphs-login-Message">${loginMessage}</span>
+            </a>
         </li>
 
     #end ## END of IF (${loginHasImage1})
@@ -31,7 +28,10 @@
         #else
 
             <li role="menuitem" class="Mrphs-loginUser__menuitem Mrphs-loginUser__menuitemk--alt">
-                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__message">${loginMessage2}</a>
+                <a href="${loginLogInOutUrl2}" title="${loginMessage2}" id="loginLink2" class="Mrphs-loginUser__message">
+                    <i class="login-Icon"></i>
+                    <span class="Mrphs-login-Message">${loginMessage2}</span>
+                </a>
             </li>
 
         #end ## END of IF (${loginHasImage2})

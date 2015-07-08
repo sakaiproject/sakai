@@ -191,6 +191,10 @@
 
     #end ## END of IF ( $subSites )
 
+	#if ($viewAsStudentLink)
+	    #parse("/vm/morpheus/snippets/roleSwitch-snippet.vm")
+	#end ## END of IF ($viewAsStudentLink)
+
 </div>
 
 <!-- END VM includePageNav.vm -->

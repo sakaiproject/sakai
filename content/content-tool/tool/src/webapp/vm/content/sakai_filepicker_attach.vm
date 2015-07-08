@@ -499,24 +499,25 @@
 	</form>						
 </div>
 
-<script> ## This needs to be closed inorder for the loads to happen before we use "$"
+<script> ## This needs to be closed in order for the loads to happen before we use "$"
 includeLatestJQuery('sakai_filepicker_attach.vm');
 </script>
 
 <script>
 if ( $(window).width() > portalSmallBreakPoint() ) { ## Don't go modal when mobile..
 	$('#page-title').hide();
-	$('.cancelButton').hide();
 	$("#portletBody").dialog({
 		title: $('#page-title').text(),
 		width: $(window).width() * 0.8,
 		modal: true,
+		draggable: false,
 		close: function () {
-			document.getElementById('attachForm').action='#toolLink("FilePickerAction" "doCancel")';
+			$('#attachform').append('<input type="hidden" name="cancelButton" value="$tlang.getString("att.cancel")" /> ');
+			act = '#toolLink("FilePickerAction" "doCancel")';
+			document.getElementById('attachForm').action = act.replace('&amp;','&');
 			submitform('attachForm');
 		}
 	});
-
 	$(window).resize(function() {
 		var wWidth = $(window).width();
 		var pbr = portalSmallBreakPoint();

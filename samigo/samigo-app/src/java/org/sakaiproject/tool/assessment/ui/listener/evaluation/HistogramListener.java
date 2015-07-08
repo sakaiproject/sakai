@@ -1827,7 +1827,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     results.put(INCORRECT, Integer.valueOf(0));
     
     for (ItemGradingData score : scores) {
-        if (score.getAutoScore() > 0) {
+        if (score.getAutoScore() != null && score.getAutoScore() > 0) {
             Integer value = results.get(CORRECT);
             results.put(CORRECT, ++value);
         } else {
@@ -1866,7 +1866,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     // us a count of assessmnets that had an incorrect answer 
     Set<Long> assessmentQuestionIncorrect = new HashSet<Long>();
     for (ItemGradingData score : scores) {
-        if (score.getAutoScore() == 0) {
+        if (score.getAutoScore() == null || score.getAutoScore() == 0) {
             assessmentQuestionIncorrect.add(score.getAssessmentGradingId());
         }
     }
