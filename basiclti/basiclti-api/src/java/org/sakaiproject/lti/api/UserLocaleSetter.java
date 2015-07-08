@@ -25,5 +25,5 @@ import org.sakaiproject.user.api.User;
  */
 public interface UserLocaleSetter {
 
-    public void setupUserLocale(Map payload, User user, boolean isTrustedConsumer);
+    public void setupUserLocale(Map payload, User user, boolean isTrustedConsumer, boolean isEmailTrustedConsumer);
 }
