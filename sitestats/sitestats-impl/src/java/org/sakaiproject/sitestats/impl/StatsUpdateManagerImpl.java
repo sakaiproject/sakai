@@ -1296,7 +1296,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 				if(spExisting == null) {
 					session.save(sp);
 					if (!spc.firstEventIsPresEnd) {
-					   doUpdateSitePresenceTotal(session, sp);
+					    doUpdateSitePresenceTotal(session, sp);
 					}
 				}else{
 					long previousTotalPresence = spExisting.getDuration();
@@ -1313,7 +1313,7 @@ public class StatsUpdateManagerImpl extends HibernateDaoSupport implements Runna
 					spExisting.setLastVisitStartTime(sp.getLastVisitStartTime());
 					session.update(spExisting);
 					if (!spc.firstEventIsPresEnd) {
-					   doUpdateSitePresenceTotal(session, spExisting);
+					    doUpdateSitePresenceTotal(session, spExisting);
 					}
 				}
 			}catch(HibernateException e){
