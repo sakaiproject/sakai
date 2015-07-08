@@ -77,6 +77,7 @@ import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -630,6 +631,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				if ( ! ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false) ) addMoreToolsUrl = null;
 
 				String pagePopupUrl = Web.returnUrl(req, "/page/");
+				
+				//SAK-29660 - Refresh tool in the LHS page menu
+				String pageResetUrl = pagerefUrl;
+				if(pagerefUrl != null){
+					if(pagerefUrl.contains("/tool/")){
+						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/tool/", "/tool-reset/");
+					}else if(pagerefUrl.contains("/page/")){
+						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/page/", "/tool-reset/");
+					}
+				}
 				m.put("isPage", Boolean.valueOf(true));
 				m.put("current", Boolean.valueOf(current));
 				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
@@ -639,6 +650,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("pageId", Web.escapeUrl(p.getId()));
 				m.put("jsPageId", Web.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pagerefUrl);
+				m.put("pageResetUrl", pageResetUrl);
 				m.put("toolpopup", Boolean.valueOf(source!=null));
 				m.put("toolpopupurl", source);
 				

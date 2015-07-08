@@ -363,6 +363,16 @@ public class PublishedAssessmentService extends AssessmentService{
         getTotalSubmission(agentId, new Long(publishedAssessmentId));
   }
 
+  /**
+   * @param publishedAssessmentId
+   * @return number of submissions
+   */
+  public Integer getTotalSubmissionForEachAssessment(String publishedAssessmentId){
+    return PersistenceService.getInstance().
+        getPublishedAssessmentFacadeQueries().
+        getTotalSubmissionForEachAssessment(new Long(publishedAssessmentId));
+  }
+
   public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias) {
     return PersistenceService.getInstance().
         getPublishedAssessmentFacadeQueries().
