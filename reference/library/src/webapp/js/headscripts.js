@@ -713,3 +713,18 @@ function fontawesome_icon_picker(selector) {
 		});
 	}
 }
+
+// Return the correct width for a modal dialog.
+function modalDialogWidth() {
+	var wWidth = $(window).width();
+	var pbr = portalSmallBreakPoint();
+	var dWidth = wWidth * 0.8;
+	if ( wWidth <= pbr ) { 
+		dWidth = pbr * 0.8;
+		if ( dWidth > (wWidth * 0.95) ) {
+			dWidth = wWidth * 0.95;
+		}
+	}
+	if ( dWidth < 300 ) dWidth = 300; // Should not happen
+	return Math.round(dWidth);
+}
