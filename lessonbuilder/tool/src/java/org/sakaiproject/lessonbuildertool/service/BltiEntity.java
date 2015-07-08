@@ -484,8 +484,12 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	if ( theTool == null ) {
 		Properties props = new Properties ();
 		props.setProperty(LTIService.LTI_LAUNCH,toolBaseUrl);
-		props.setProperty(LTIService.LTI_TITLE, bltiTitle);
-		props.setProperty(           LTI_PAGETITLE, bltiTitle);
+		if ( toolBaseUrl.equals(launchUrl) ) {
+			props.setProperty(LTIService.LTI_TITLE, bltiTitle);
+		} else {
+			props.setProperty(LTIService.LTI_TITLE, toolBaseUrl);
+		}
+		props.setProperty(LTI_PAGETITLE, bltiTitle);
 		props.setProperty(LTIService.LTI_CONSUMERKEY, LTIService.LTI_SECRET_INCOMPLETE);
 		props.setProperty(LTIService.LTI_SECRET, LTIService.LTI_SECRET_INCOMPLETE);
 		props.setProperty(LTIService.LTI_ALLOWLAUNCH, "1");
