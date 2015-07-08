@@ -4969,6 +4969,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		String url = entity.getUrl();
 		String title = params.getString("page");
+
+		// if the url is hosted by sakai then take out the hostname to make it a relative link
+		String serverName = ServerConfigurationService.getServerName();
+
+		// if the supplied url starts with protocol//serverName:port/
+		Pattern serverUrlPattern = Pattern.compile(String.format("^(https?:)?//%s:?\\d*/", serverName));
+		url = serverUrlPattern.matcher(url).replaceFirst("/");
+
 		state.setAttribute(STATE_PAGE_TITLE, title);
 		if (title == null || title.trim().length() == 0) {
 			addAlert(state, trb.getString("alert.page.empty"));
