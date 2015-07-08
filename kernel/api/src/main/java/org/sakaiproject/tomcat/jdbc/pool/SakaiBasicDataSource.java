@@ -144,7 +144,7 @@ public class SakaiBasicDataSource extends DataSource
 			catch (Throwable t)
 			{
 				String message = "Cannot load JDBC driver class '" + driverClassName + "'";
-				M_log.warn(message, t);
+				M_log.error(message, t);
 				throw new SQLException(message,t);
 			}
 		}

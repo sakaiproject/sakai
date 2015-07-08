@@ -4171,7 +4171,7 @@ public class AssignmentAction extends PagedResourceActionII
 								u = UserDirectoryService.getUser(item.getAssessorUserId());
 								reviewersMap.put(item.getAssessorUserId(), u);
 							} catch (UserNotDefinedException e) {
-								M_log.warn(e.getMessage(), e);
+								M_log.error(e.getMessage(), e);
 							}
 						}
 					}
@@ -4547,7 +4547,7 @@ public class AssignmentAction extends PagedResourceActionII
 						User reviewer = UserDirectoryService.getUser(peerAssessmentItem.getAssessorUserId());
 						context.put("reviewer", reviewer);
 					} catch (UserNotDefinedException e) {
-						M_log.warn(e.getMessage(), e);
+						M_log.error(e.getMessage(), e);
 					}
 				}else{
 					context.put("view_only", false);
@@ -7552,7 +7552,7 @@ public class AssignmentAction extends PagedResourceActionII
 								}
 							}
 						} catch (IdUnusedException | PermissionException e) {
-							M_log.warn(e);
+							M_log.error(e);
 						}
 						
 						validPointGrade(state, gradePoints, scaleFactor);

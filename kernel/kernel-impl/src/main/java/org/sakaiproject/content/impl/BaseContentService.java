@@ -955,7 +955,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			M_log.error("init(): ", t);
 		}
 
 		this.m_useSmartSort = m_serverConfigurationService.getBoolean("content.smartSort", true);
@@ -2662,7 +2662,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("removeCollection(): closed ContentCollectionEdit", e);
+			M_log.error("removeCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -2764,7 +2764,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch (InconsistentException e)
 		{
-			M_log.warn("removeCollection():", e);
+			M_log.error("removeCollection():", e);
 		}
 		finally
 		{
@@ -2790,7 +2790,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("commitCollection(): closed ContentCollectionEdit", e);
+			M_log.error("commitCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -2967,17 +2967,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				{
 					// If change of groups is consistent in superfolder, this should not occur here
 					m_storage.cancelResource(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				} 
 				catch (PermissionException e) 
 				{
 					// If user has permission to change groups in superfolder, this should not occur here
 					m_storage.cancelResource(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				} 
 				catch (ServerOverloadException e) 
 				{
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				}
 			}
 			else
@@ -3000,13 +3000,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				{
 					// If change of groups is consistent in superfolder, this should not occur here
 					m_storage.cancelCollection(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				} 
 				catch (PermissionException e) 
 				{
 					// If user has permission to change groups in superfolder, this should not occur here
 					m_storage.cancelCollection(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				}
 			}
 		}
@@ -3025,7 +3025,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("cancelCollection(): closed ContentCollectionEdit", e);
+			M_log.error("cancelCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -3072,23 +3072,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			catch (IdUnusedException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (TypeException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (PermissionException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (InUseException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (ServerOverloadException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 		}
 	}
@@ -4479,7 +4479,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("removeResource(): closed ContentResourceEdit", e);
+			M_log.error("removeResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -4563,7 +4563,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("removeDeletedResource(): closed ContentResourceEdit", e);
+			M_log.error("removeDeletedResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -4730,7 +4730,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IOException e)
 				{
-					M_log.warn("Failed to close when saving deleted content stream.", e);
+					M_log.error("Failed to close when saving deleted content stream.", e);
 				}
 			}
 		}
@@ -5916,7 +5916,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("commitResource(): closed ContentResourceEdit", e);
+			M_log.error("commitResource(): closed ContentResourceEdit", e);
 			return;
 		}
 		
@@ -6167,7 +6167,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("commitResourceEdit(): closed ContentResourceEdit", e);
+			M_log.error("commitResourceEdit(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -6298,7 +6298,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("cancelResource(): closed ContentResourceEdit", e);
+			M_log.error("cancelResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -7951,7 +7951,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		catch (Exception any)
 		{
 			results.append("import interrputed: " + any.toString() + "\n");
-			M_log.warn("mergeContent(): exception: ", any);
+			M_log.error("mergeContent(): exception: ", any);
 		}
 
 		return results.toString();
@@ -8006,25 +8006,25 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						}
 					} catch (InUseException e6) {
 						// TODO Auto-generated catch block
-						M_log.warn(this + thisKey, e6);
+						M_log.error(this + thisKey, e6);
 					}catch (PermissionException e1) {
-						M_log.warn(this + thisKey, e1);
+						M_log.error(this + thisKey, e1);
 					} catch (IdUnusedException e2) {
-						M_log.warn(this + thisKey, e2);
+						M_log.error(this + thisKey, e2);
 					} catch (TypeException e3) {
-						M_log.warn(this + thisKey, e3);
+						M_log.error(this + thisKey, e3);
 					} 
 	
 				}
 			}
 		} catch (PermissionException e1) {
-			M_log.warn(this + thisKey, e1);
+			M_log.error(this + thisKey, e1);
 		} catch (IdUnusedException e2) {
-			M_log.warn(this + thisKey, e2);
+			M_log.error(this + thisKey, e2);
 		} catch (TypeException e3) {
-			M_log.warn(this + thisKey, e3);
+			M_log.error(this + thisKey, e3);
 		} catch (ServerOverloadException e4) {
-			M_log.warn(this + thisKey, e4);
+			M_log.error(this + thisKey, e4);
 		}
 		
 	}
@@ -8087,28 +8087,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IdUnusedException eee)
 				{
-					M_log.warn(this + toContext, eee);
+					M_log.error(this + toContext, eee);
 				}
 				catch (TypeException eee)
 				{
-					M_log.warn(this + toContext, eee);
+					M_log.error(this + toContext, eee);
 				}
 			}
 			catch(IdUsedException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			catch(IdInvalidException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			catch (PermissionException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			catch (InconsistentException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			finally
 			{
@@ -8120,11 +8120,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch (TypeException e)
 		{
-			M_log.warn(this + toContext, e);
+			M_log.error(this + toContext, e);
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(this + toContext, e);
+			M_log.error(this + toContext, e);
 		}
 
 		if (toCollection != null)
@@ -8538,15 +8538,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				+ StringUtil.limit(r.getProperties().getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION), 30);
 			}
 		} catch (PermissionException e) {
-			M_log.warn("PermissionEception:", e);
+			M_log.error("PermissionEception:", e);
 		} catch (IdUnusedException e) {
-			M_log.warn("IdUnusedException:", e);
+			M_log.error("IdUnusedException:", e);
 		} catch (EntityPropertyNotDefinedException e) {
-			M_log.warn("EntityPropertyNotDefinedException:", e);
+			M_log.error("EntityPropertyNotDefinedException:", e);
 		} catch (EntityPropertyTypeException e) {
-			M_log.warn("EntityPropertyTypeException:", e);
+			M_log.error("EntityPropertyTypeException:", e);
 		} catch (TypeException e) {
-			M_log.warn("TypeException:", e);
+			M_log.error("TypeException:", e);
 		}
 		return rv;
 	}
@@ -8842,7 +8842,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IOException e)
 				{
-					M_log.warn("IOException ", e);
+					M_log.error("IOException ", e);
 				}
 			}
 
@@ -8854,7 +8854,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IOException e)
 				{
-					M_log.warn("IOException ", e);
+					M_log.error("IOException ", e);
 				}
 			}
 		}
@@ -9364,7 +9364,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			try {
 				siteType = m_siteService.getSite(siteId).getType();
 			} catch (IdUnusedException e) {
-				M_log.warn("Quota calculation could not find the site '"+ siteId + "' to determine the type.", M_log.isDebugEnabled()?e:null);
+				M_log.error("Quota calculation could not find the site '"+ siteId + "' to determine the type.", e);
 			}
 
 			// use this quota unless we have one more specific
@@ -9441,7 +9441,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// if we cannot, give up
 		catch (Exception any)
 		{
-			M_log.warn("generateCollections: " + any.getMessage(), any);
+			M_log.error("generateCollections: " + any.getMessage(), any);
 		}
 
 	} // generateCollections
@@ -11819,27 +11819,27 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					catch(TypeException e)
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("TypeException",e);
+						M_log.error("TypeException",e);
 					} 
 					catch (IdUnusedException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("IdUnusedException",e);
+						M_log.error("IdUnusedException",e);
 					} 
 					catch (PermissionException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("PermissionException",e);
+						M_log.error("PermissionException",e);
 					} 
 					catch (InUseException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("InUseException",e);
+						M_log.error("InUseException",e);
 					} 
 					catch (ServerOverloadException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("ServerOverloadException",e);
+						M_log.error("ServerOverloadException",e);
 					}
 				}
 

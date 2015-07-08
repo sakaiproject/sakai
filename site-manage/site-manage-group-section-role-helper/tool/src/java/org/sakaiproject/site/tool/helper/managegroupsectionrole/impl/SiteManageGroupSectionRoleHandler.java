@@ -774,7 +774,7 @@ public class SiteManageGroupSectionRoleHandler {
     			resetParams();
 	        } 
 	        catch (IdUnusedException | PermissionException e) {
-	        	M_log.warn(this + ".processAddGroup: cannot find site " + site.getId(), e);
+	        	M_log.error(this + ".processAddGroup: cannot find site " + site.getId(), e);
 	            return null;
 	        }
     	}
@@ -808,7 +808,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.warn( e );
+                    M_log.error( e );
                 }
             }
 	    	return "confirm";
@@ -833,10 +833,10 @@ public class SiteManageGroupSectionRoleHandler {
 				siteService.save(site);
 			} catch (IdUnusedException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.notfound.alert","cannot find site"));
-				M_log.warn(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
+				M_log.error(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
 			} catch (PermissionException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.permission.alert","not allowed to find site"));
-				M_log.warn(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
+				M_log.error(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
 			}
 	    	
 	    }
@@ -1049,7 +1049,7 @@ public class SiteManageGroupSectionRoleHandler {
                 resetParams();
             } 
             catch (IdUnusedException | PermissionException e) {
-                M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+                M_log.error(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
                 return null;
             }
         }
