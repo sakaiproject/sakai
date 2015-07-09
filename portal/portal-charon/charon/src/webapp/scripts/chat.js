@@ -280,7 +280,7 @@
                 if (chatDiv.hasClass('video_active')) {
                     chatDiv.css('margin-top', '49px');
                 } else {
-                    chatDiv.css('margin-top', '241px');
+                    chatDiv.css('margin-top', '237px');
                 }
             }
             chatDiv.attr('data-height', '318');
@@ -381,7 +381,7 @@
             if (chatDiv.hasClass('video_active')) {
                 chatDiv.css('margin-top', '49px');
             } else {
-                chatDiv.css('margin-top', ((chatDiv.attr('data-height') > 300) ? '241' : '260') + 'px');
+                chatDiv.css('margin-top', ((chatDiv.attr('data-height') > 300) ? '237' : '260') + 'px');
             }
             if (chatSessionString) {
                 chatSession = JSON.parse(chatSessionString);
