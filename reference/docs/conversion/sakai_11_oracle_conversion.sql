@@ -382,6 +382,10 @@ CREATE TABLE pasystem_banner_dismissed (
 CREATE INDEX banner_dismissed_lcase_eid on pasystem_banner_dismissed (lower(user_eid));
 CREATE INDEX banner_dismissed_state on pasystem_banner_dismissed (state);
 
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1500', '!admin', 'PA System', '0', 20, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1550', '!admin-1500', '!admin', 'sakai.pasystem', 1, 'PA System', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1500', 'sitePage.customTitle', 'true');
+
 -- END SAK-29422 Incorporate NYU's "public announcement system"
 -- SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 drop index MFR_MESSAGE_DELETED_I;
