@@ -120,6 +120,7 @@
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
+    <sakai.poi.version>3.12</sakai.poi.version>
     <rsfutil.version>0.8.1-SNAPSHOT</rsfutil.version>
     <sakairsf.components.version>11-SNAPSHOT</sakairsf.components.version>
     <sakairsf.version>11-SNAPSHOT</sakairsf.version>
