@@ -8,6 +8,7 @@ $tool_proxy = <<< EOF
   "nasty_json": "How do you handle these characters < > & ' ",
   "evil_json": "</script><script>alert('evil');</script>",
   "evil_json2": "\"</script><script>alert('evil');</script>",
+  "enabled_capability" : [ ],
   "tool_profile": {
     "product_instance": {
       "product_info": {
@@ -83,8 +84,12 @@ $tool_proxy = <<< EOF
     "resource_handler": [
       {
         "resource_type": {
-			"code" : "__REPLACE__urn:lti:ResourceType:acme.example.com/nitrolab/homework"
-		},
+            "code" : "__REPLACE__urn:lti:ResourceType:acme.example.com/nitrolab/homework"
+        },
+        "resource_name": {
+          "default_value": "Sakai PHP Unit Test",
+          "key": "resource.name"
+        },
         "message": [
           {
             "path": "__LAUNCH_PATH__",
@@ -98,10 +103,14 @@ $tool_proxy = <<< EOF
             "enabled_capability" : [ ]
           }
         ],
-        "resource_name": {
-          "default_value": "Sakai PHP Unit Test",
-          "key": "resource.name"
-        },
+	"icon_info" : [
+          {
+             "icon_style" : [ "FontAwesome" ],
+             "default_location" : {
+                 "path" : "fa-ambulance"
+             }
+          }
+        ],
         "short_name": {
           "default_value": "Sakai Unit",
           "key": "resource.name"
