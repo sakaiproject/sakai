@@ -1220,16 +1220,13 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
       forum.addTopic(topic);
       forumManager.saveDiscussionForum(forum, forum.getDraft().booleanValue(), logEvent, currentUser);
       //sak-5146 forumManager.saveDiscussionForum(forum);
+      if (logEvent) {
+  		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
+  	  }
     }
-    
-    if(logEvent){
-    	if (topic.getId() == null) {
-    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
-    	} else {
-    		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
-    	}
+    else if(logEvent){
+     	EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
     }
-
   }
 
   /*
