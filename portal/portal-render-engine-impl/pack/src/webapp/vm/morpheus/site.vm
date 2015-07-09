@@ -144,6 +144,8 @@
 
         #parse("/vm/morpheus/includeCookieNotice.vm")
 
+        #parse("/vm/morpheus/includeGoogleTagManager.vm")
+
         ${includeExtraHead}
     </body>
 </html>

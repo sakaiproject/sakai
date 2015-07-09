@@ -1024,6 +1024,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				ServerConfigurationService.getBoolean("portal.google.analytics_detail", false));
 		}
 
+		//SAK-29668
+		String googleTagManagerContainerId =  ServerConfigurationService.getString("portal.google.tag.manager.container_id", null);
+		if ( googleTagManagerContainerId != null ) {
+			rcontext.put("googleTagManagerContainerId", googleTagManagerContainerId);
+		}
+
 		Session s = SessionManager.getCurrentSession();
 		rcontext.put("loggedIn", Boolean.valueOf(s.getUserId() != null));
 		rcontext.put("userId", s.getUserId());
