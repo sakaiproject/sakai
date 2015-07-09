@@ -43,9 +43,7 @@ public class CategoryColumnCellPanel extends Panel {
 		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
 		
 		Double score = (Double) modelData.get("score");		
-				
-		//score=  null;
-		
+						
 		//score label
 		add(new Label("score", getCategoryScore(score)));
 		
