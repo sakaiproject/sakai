@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.xml.bind.JAXBException;
 
@@ -238,8 +237,28 @@ public class GradebookNgBusinessService {
 		return null;
 	}
 	
+	/**
+	 * Get a list of categories in the gradebook in the current site
+	 * 
+	 * @return list of categories or null if no gradebook
+	 */
+	public List<CategoryDefinition> getGradebookCategories() {
+		return getGradebookCategories(this.getCurrentSiteId());
+	}
 	
-	
+	/**
+	 * Get a list of categories in the gradebook in the specified site
+	 * 
+	 * @param siteId the siteId
+	 * @return a list of categories or null if no gradebook
+	 */
+	public List<CategoryDefinition> getGradebookCategories(String siteId) {
+		Gradebook gradebook = getGradebook(siteId);
+		if(gradebook != null) {
+			return gradebookService.getCategoryDefinitions(gradebook.getUid());
+		}
+		return null;
+	}
 		
 	/**
 	 * Get a map of course grades for all users in the site, using a grade override preferentially over a calculated one
@@ -522,14 +541,14 @@ public class GradebookNgBusinessService {
 		for(CategoryDefinition category: categories) {
 				
 			//use the category mappings for faster lookup of the assignmentIds and grades in the category
-			System.out.println("category: " + category.getId() + " - " + categoryAssignments.get(category.getId()));
-			
 			Set<Long> categoryAssignmentIds = categoryAssignments.get(category.getId());
 			
 			for(User student: students) {
 				
+				GbStudentGradeInfo sg = matrix.get(student.getId());
+				
 				//get grades
-				Map<Long,GbGradeInfo> grades = matrix.get(student.getId()).getGrades();
+				Map<Long,GbGradeInfo> grades = sg.getGrades();
 				
 				//build map of just the grades we want
 				Map<Long,String> gradeMap = new HashMap<>();
@@ -542,15 +561,13 @@ public class GradebookNgBusinessService {
 				
 				Double mean = this.gradebookService.calculateCategoryScore(category, gradeMap);
 				
+				//add to GbStudentGradeInfo
+				sg.addCategoryAverage(category.getId(), String.valueOf(mean));
 			}
 			
 		}
 		Temp.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
 
-		
-		
-		//category totals: calculateStatisticsPerStudent
-		
 		//get the matrix as a list of GbStudentGradeInfo
 		ArrayList<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
 

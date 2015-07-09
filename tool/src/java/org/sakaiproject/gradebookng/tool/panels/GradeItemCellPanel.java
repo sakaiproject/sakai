@@ -68,7 +68,7 @@ public class GradeItemCellPanel extends Panel {
 			return this.message;
 		}
 
-		}
+	}
 	
 	public GradeItemCellPanel(String id, IModel<Map<String,Object>> model) {
 		super(id, model);

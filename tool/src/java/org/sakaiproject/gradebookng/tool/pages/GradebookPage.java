@@ -39,11 +39,14 @@ import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
+import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
+import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
  * Grades page
@@ -181,6 +184,8 @@ public class GradebookPage extends BasePage {
 				
 				cellItem.add(new StudentNameCellPanel(componentId, Model.ofMap(modelData)));
 				cellItem.add(new AttributeModifier("data-studentUuid", studentGradeInfo.getStudentUuid()));
+				
+				//TODO may need a subclass of Item that does the onComponentTag override and then tag.setName("th");
 			}
         	
         	@Override
@@ -204,13 +209,16 @@ public class GradebookPage extends BasePage {
             	@Override
             	public Component getHeader(String componentId) {
             		AssignmentColumnHeaderPanel panel = new AssignmentColumnHeaderPanel(componentId, new Model<Assignment>(assignment));
-                String category = assignment.getCategoryName();
-                int order = -1;
-                if (categorizedAssignmentOrder.containsKey(category)) {
-                  order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
-                }
-                panel.add(new AttributeModifier("data-category", category));
-                panel.add(new AttributeModifier("data-categorized-order", order));
+            		
+            		String category = assignment.getCategoryName();
+            		
+            		int order = -1;
+            		if (categorizedAssignmentOrder.containsKey(category)) {
+            			order = categorizedAssignmentOrder.get(category).indexOf(assignment.getId());
+            		}
+            		
+            		panel.add(new AttributeModifier("data-category", category));
+            		panel.add(new AttributeModifier("data-categorized-order", order));
     				return panel;
             	}
 
@@ -235,9 +243,6 @@ public class GradebookPage extends BasePage {
     				cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
     				
     				cellItem.setOutputMarkupId(true);
-    				
-    				//TODO may need a subclass of Item that does the onComponentTag override and then tag.setName("th");
-    				
 				}   
             	
             	
@@ -245,6 +250,44 @@ public class GradebookPage extends BasePage {
                                    
             cols.add(column);
         }
+        
+        //render the categories (TODO may be able to pass this list into the matrix to save another lookup in there)
+        List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+        
+        for(final CategoryDefinition category: categories) {
+        	AbstractColumn column = new AbstractColumn(new Model("")) {
+
+        		@Override
+            	public Component getHeader(String componentId) {
+            		CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId, new Model<CategoryDefinition>(category));
+            	
+            		//TODO add required classes here
+            		
+            		return panel;
+        		}
+            	
+            	@Override
+    			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+    				GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
+    				
+            		String score = studentGrades.getCategoryAverages().get(category.getId());
+            		
+            		Map<String,Object> modelData = new HashMap<>();
+    				modelData.put("score", score);
+    				
+    				cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
+    				cellItem.setOutputMarkupId(true);
+    			}
+            	
+            	@Override
+    			public String getCssClass() {
+    				return "gb-category-item-column-cell";
+    			} 
+        		
+        	};
+             
+             cols.add(column);
+         }
        
 		Temp.time("all Columns added", stopwatch.getTime());
         
@@ -264,17 +307,12 @@ public class GradebookPage extends BasePage {
             @Override
             protected void onInitialize() {
                 super.onInitialize();
-                GradebookUiSettings settings = getUiSettings();
-                if (settings != null && settings.isCategoriesEnabled()) {
+                if (settings.isCategoriesEnabled()) {
                     add(new AttributeModifier("class", "on"));
                 }
             }
             @Override
             protected void onSubmit(AjaxRequestTarget target, Form<?> form) {
-                GradebookUiSettings settings = getUiSettings();
-                if (settings == null) {
-                    settings = new GradebookUiSettings();
-                }
                 settings.setCategoriesEnabled(!settings.isCategoriesEnabled());
                 setUiSettings(settings);
 
@@ -365,7 +403,6 @@ public class GradebookPage extends BasePage {
 
 	/**
 	 * Getter for the GradebookUiSettings. Used to store a few UI related settings for the current session only.
-	 * May return null if there are no current settings
 	 * 
 	 * TODO move this to a helper
 	 */
