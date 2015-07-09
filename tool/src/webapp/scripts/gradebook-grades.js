@@ -417,7 +417,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
                                     attr("role", "presentation").
                                     hide();
 
-  var $headers = self.$table.find("thead tr > *:not(.gb-grade-item-column-cell)");
+  var $headers = self.$table.find("thead tr > *:not(.gb-grade-item-column-cell, .gb-category-item-column-cell)");
   var $thead = $("<thead>");
   // append a dummy header row for when categorised
   $thead.append($("<tr>").addClass("gb-categories-row").append($("<td>").attr("colspan", $headers.length)));
