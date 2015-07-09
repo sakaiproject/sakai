@@ -34,6 +34,7 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Util;
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
 import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
 import org.sakaiproject.cheftool.Context;
@@ -995,6 +996,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( profileTool.get(LTIService.LTI_DESCRIPTION) != null ) newTool.put(LTIService.LTI_DESCRIPTION, profileTool.get(LTIService.LTI_DESCRIPTION));
 			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTIService.LTI_PARAMETER));
 			if ( profileTool.get(LTIService.LTI_ENABLED_CAPABILITY) != null ) newTool.put(LTIService.LTI_ENABLED_CAPABILITY, profileTool.get(LTIService.LTI_ENABLED_CAPABILITY));
+		        String fa_icon = LTI2Util.getIconPath((String)profileTool.get("icon_info"), "FontAwesome");
+
+			if ( fa_icon != null ) newTool.put("fa_icon", fa_icon);
 
 			M_log.info("newTool="+newTool);
 			theTools.add(newTool); 

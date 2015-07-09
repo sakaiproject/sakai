@@ -82,7 +82,7 @@ if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
 
         echo('<a href="basecheck.php?b='.urlencode($context->basestring).'" target="_blank">Compare This Base String</a><br/>');
         print "<br/></p>\n";
-	echo ("<p>Continuing re-registration...</p>\n");
+        echo ("<p>Continuing re-registration...</p>\n");
     }
 } else if ( $lti_message_type == "ToolProxyRegistrationRequest" ) {
     $reg_key = $_POST['reg_key'];
@@ -223,9 +223,21 @@ if ( $oauth_splitsecret ) {
 }
 
 // Ask for the kitchen sink...
+$hmac256 = false;
 foreach($tc_capabilities as $capability) {
     if ( "basic-lti-launch-request" == $capability ) continue;
+
     if ( $oauth_splitsecret === false && "OAuth.splitSecret" == $capability ) continue;
+
+    if ( "OAuth.hmac-256" == $capability ) {
+        $hmac256 = true;
+    }
+
+    // promote these up to the top level capabilities
+    if ( "OAuth.splitSecret" == $capability || "OAuth.hmac-sha256" == $capability ) {
+        $tp_profile->enabled_capability[] = $capability;
+        continue;
+    }
 
     if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;
     $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability[] = $capability;
