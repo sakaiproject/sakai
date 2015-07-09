@@ -58,6 +58,7 @@ public class LTI2Constants {
 	public static final String TOOL_PROXY_GUID = "tool_proxy_guid";
 	public static final String SHARED_SECRET = "shared_secret";
 	public static final String CUSTOM = "custom";
+	public static final String ENABLED_CAPABILITY = "enabled_capability";
 	public static final String SECURITY_CONTRACT = "security_contract";
 	public static final String SERVICE = "service";
 	public static final String TOOL_SERVICE = "tool_service";

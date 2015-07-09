@@ -98,7 +98,7 @@ public class LTI2Util {
 			// Check all the capabilities requested by all the tools comparing against consumer
 			List<String> capabilities = consumer.getCapability_offered();
 			for ( Properties theTool : theTools ) {
-				String ec = (String) theTool.get("enabled_capability");
+				String ec = (String) theTool.get(LTI2Constants.ENABLED_CAPABILITY);
 				JSONArray enabled_capability = (JSONArray) JSONValue.parse(ec);
 				if ( enabled_capability != null ) for (Object o : enabled_capability) {
 					ec = (String) o;
@@ -256,11 +256,51 @@ public class LTI2Util {
 		return retval;
 	}
 
+	// Return a JSONArray or null.  Promote a JSONObject to an array
+	public static JSONArray getArray(JSONObject obj, String key)
+	{
+		if ( obj == null ) return null;
+		Object o = obj.get(key);
+		if ( o == null ) return null;
+		if ( o instanceof JSONArray ) return (JSONArray) o;
+		if ( o instanceof JSONObject ) {
+			JSONArray retval = new JSONArray();
+			retval.add(o);
+			return retval;
+		}
+		return null;
+	}
+
+	// Return a JSONObject or null
+	public static JSONObject getObject(JSONObject obj, String key)
+	{
+		if ( obj == null ) return null;
+		Object o = obj.get(key);
+		if ( o == null ) return null;
+		if ( o instanceof JSONObject ) return (JSONObject) o;
+		return null;
+	}
+
+	// Return a String or null
+	public static String getString(JSONObject obj, String key)
+	{
+		if ( obj == null ) return null;
+		Object o = obj.get(key);
+		if ( o == null ) return null;
+		if ( o instanceof String ) return (String) o;
+		return null;
+	}
+
 	// Parse a provider profile with lots of error checking...
 	@SuppressWarnings("unused")
 	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
 	{
 		Object o = null;
+		JSONArray overall_enabled_capability = getArray(jsonObject, LTI2Constants.ENABLED_CAPABILITY);
+		if ( overall_enabled_capability == null  ) {
+			overall_enabled_capability = new JSONArray ();	
+		}
+
 		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
 		if ( tool_profile == null  ) {
 			return "JSON missing tool_profile";
@@ -308,11 +348,10 @@ public class LTI2Util {
 		info.put("vendor_code", vendorCode);
 		info.put("vendor_description", vendorDescription);
 
-		o = forceArray(tool_profile.get("base_url_choice"));
-		if ( ! (o instanceof JSONArray)|| o == null  ) {
+		JSONArray base_url_choices = getArray(tool_profile,"base_url_choice");
+		if ( base_url_choices == null  ) {
 			return "JSON missing base_url_choices";
 		}
-		JSONArray base_url_choices = (JSONArray) o;
 
 		String secure_base_url = null;
 		String default_base_url = null;
@@ -342,11 +381,11 @@ public class LTI2Util {
 			if ( resource_type_code == null ) {
 				return "JSON missing resource_type code";
 			}
-			o = forceArray(resource_handler.get("message"));
-			if ( ! (o instanceof JSONArray)|| o == null ) {
+
+			JSONArray messages = getArray(resource_handler, "message");
+			if ( messages == null ) {
 				return "JSON missing resource_handler / message";
 			}
-			JSONArray messages = (JSONArray) o;
 
 			JSONObject titleObject = (JSONObject) resource_handler.get("resource_name");
 			String title = titleObject == null ? null : (String) titleObject.get("default_value");
@@ -358,7 +397,10 @@ public class LTI2Util {
 			String button = buttonObject == null ? null : (String) buttonObject.get("default_value");
 		
 			JSONObject descObject = (JSONObject) resource_handler.get("description");
-			String resourceDescription = descObject == null ? null : (String) descObject.get("default_value");
+			String resourceDescription = getString(descObject, "default_value");
+
+			// Simplify the icon data structure
+			JSONArray iconInfo = getArray(resource_handler,"icon_info");
 
 			String path = null;
 			JSONArray parameter = null;
@@ -374,17 +416,15 @@ public class LTI2Util {
 				if ( path == null ) {
 					return "A basic-lti-launch-request message must have a path RT="+resource_type_code;
 				} 
-				o = (JSONArray) message.get("parameter");
-				if ( ! (o instanceof JSONArray)) {
-					return "Must be an array: parameter RT="+resource_type_code;
+				parameter = getArray(message,"parameter");
+				enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
+				Iterator<String> iterator = overall_enabled_capability.iterator();
+				while (iterator.hasNext()) {
+					String overall_capability = iterator.next();
+					if ( ! enabled_capability.contains(overall_capability) ) {
+						enabled_capability.add(overall_capability);
+					}
 				}
-				parameter = (JSONArray) o;
-
-				o = (JSONArray) message.get("enabled_capability");
-				if ( ! (o instanceof JSONArray)) {
-					return "Must be an array: enabled_capability RT="+resource_type_code;
-				}
-				enabled_capability = (JSONArray) o;
 			}
 
 			// Ignore everything except launch handlers
@@ -410,8 +450,11 @@ public class LTI2Util {
 			if ( resourceDescription == null ) resourceDescription = productDescription;
 			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
 			if ( parameter != null ) theTool.put("parameter", parameter.toString());
-			theTool.put("enabled_capability", enabled_capability.toString());
+			if ( iconInfo != null ) theTool.put("icon_info",iconInfo.toString());
+			theTool.put(LTI2Constants.ENABLED_CAPABILITY, enabled_capability.toString());
 			theTool.put("launch", thisLaunch);
+			if ( secure_base_url != null ) theTool.put("secure_base_url", secure_base_url);
+			if ( default_base_url != null ) theTool.put("default_base_url", default_base_url);
 			theTools.add(theTool);
 		}
 		return null;  // All good
@@ -429,6 +472,36 @@ public class LTI2Util {
 		if ( enabledCapabilityString == null || capability == null ) return false;
 		// For now just look for the string in quotes.
 		return enabledCapabilityString.indexOf("\""+capability+"\"") >= 0 ;
+	}
+
+	/**
+	 * Extract an icon path by icon_style from an icon_info string
+	 * 
+	 * @param String icon_info - The string representation of the icon_info
+	 * @param String icon_style - The style to look for
+	 */
+	public static String getIconPath(String icon_info, String icon_style)
+	{
+		if ( icon_info == null || icon_info.length() < 1 ) {
+			return null;
+		}
+		Object ii = JSONValue.parse(icon_info);
+		if ( ii == null || ! (ii instanceof JSONArray) ) return null;
+		JSONArray iconInfo = (JSONArray) ii;
+
+		for (Object m : iconInfo) {
+			if ( ! ( m instanceof JSONObject) ) continue;
+			JSONObject jm = (JSONObject) m;
+			JSONArray icon_styles = getArray(jm, "icon_style");
+			if ( icon_styles == null ) continue;
+			if ( ! icon_styles.contains(icon_style) ) continue;
+			JSONObject default_location = getObject(jm, "default_location");
+			if ( default_location == null ) continue;
+			String default_location_path = getString(default_location,"path");
+			if ( default_location_path == null ) continue;
+			return default_location_path;
+		}
+		return null;
 	}
 
 	public static JSONObject parseSettings(String settings)

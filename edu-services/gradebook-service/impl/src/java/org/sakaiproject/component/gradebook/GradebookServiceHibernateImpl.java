@@ -225,6 +225,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     		assignmentDefinition.setCategoryName(internalAssignment.getCategory().getName());
     		assignmentDefinition.setWeight(internalAssignment.getCategory().getWeight());
     		assignmentDefinition.setCategoryExtraCredit(internalAssignment.getCategory().isExtraCredit());
+    		assignmentDefinition.setCategoryId(internalAssignment.getCategory().getId());
     	}
     	assignmentDefinition.setUngraded(internalAssignment.getUngraded());
     	assignmentDefinition.setSortOrder(internalAssignment.getSortOrder());
@@ -2691,6 +2692,51 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         return rval;
     }
 	
+	@Override
+	public Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap) {
+		
+		int numScored = 0;
+		int numOfAssignments = 0;
+		BigDecimal totalEarned = new BigDecimal("0");
+		BigDecimal totalPossible = new BigDecimal("0");
+		
+		List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = category.getAssignmentList();
+		
+		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: assignments) {
+			
+			Long assignmentId = assignment.getId();
+			String grade = gradeMap.get(assignmentId);
+			if(StringUtils.isBlank(grade)) {
+				grade = "0";
+			}
+			
+			//update total points earned
+			totalEarned = totalEarned.add(new BigDecimal(grade));
+			
+			//update total points possible and number of assignments
+			if(assignment.getPoints() != null && !assignment.isExtraCredit()) {
+				totalPossible = totalPossible.add(new BigDecimal(assignment.getPoints().toString()));
+				numOfAssignments++;
+			}
+			if(!assignment.isExtraCredit()){
+				numScored++;
+			}
+			
+		}
+		
+    	if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
+    		return null;
+    	}
+	
+    	BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).divide((totalPossible.divide(new BigDecimal(numOfAssignments), GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));    	
+    	return Double.valueOf(mean.doubleValue());
+	}
+
+	
+
+	
+	
+	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
 	}
@@ -2712,6 +2758,5 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	}
 
 	
-
 	
 }

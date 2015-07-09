@@ -70,6 +70,7 @@ $(function() {
 					e.preventDefault();
 				});
 				$('#peer-eval-create-dialog').dialog('open');
+				$('#peer-eval-create-dialog').dialog("option", "width", modalDialogWidth());
 				$('#createRubricBtn').hide();
 				$('#updateRubricBtn').show();
 			});
@@ -257,6 +258,7 @@ $(function() {
 			($(this).parent()).click(function() {
 				$("<div>" + $(".rubric-graders-cell", this).html() + "</div>").dialog({
 					title: "Graders",
+					width: modalDialogWidth(),
 					modal: true
 				});
 			});

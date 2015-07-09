@@ -22,6 +22,7 @@
 
 package org.sakaiproject.service.gradebook.shared;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -29,7 +30,10 @@ import java.util.List;
  *  Provides information describing a gradebook category that may be useful
  *  to consumers of the shared gradebook services.  Not persisted.
  */
-public class CategoryDefinition {
+public class CategoryDefinition implements Serializable {
+  
+    private static final long serialVersionUID = 1L;
+	
     private Long id;
     private String name;
     private Double weight;
