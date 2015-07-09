@@ -17,6 +17,7 @@
   <sakai:view title="#{msgs.pvt_pvtcompose}">
   	<link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
   	<link rel="stylesheet" href="/library/js/jquery/select2/4.0.0/select2.css" type="text/css" />
+  	<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
 <!--Y:\msgcntr\messageforums-app\src\webapp\jsp\compose.jsp-->
     <h:form id="compose">
            		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
