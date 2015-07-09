@@ -872,6 +872,8 @@ public class SakaiBLTIUtil {
 
 		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, LTI2Constants.LTI2_VERSION_STRING);
 		setProperty(ltiProps, LTI2Constants.REG_KEY,key);
+		// Also duplicate reg_key as the proposed Tool Proxy GUID
+		setProperty(ltiProps, LTI2Constants.TOOL_PROXY_GUID,key);
 		// TODO: Lets show off and encrypt this secret too...
 		setProperty(ltiProps, LTI2Constants.REG_PASSWORD,password);
 		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
