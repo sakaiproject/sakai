@@ -35,6 +35,4 @@ public class CategoryColumnHeaderPanel extends Panel {
 		
 	}
 	
-	
-
 }

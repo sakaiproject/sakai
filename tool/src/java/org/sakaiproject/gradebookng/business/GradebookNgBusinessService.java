@@ -559,10 +559,10 @@ public class GradebookNgBusinessService {
 					}
 				}
 				
-				Double mean = this.gradebookService.calculateCategoryScore(category, gradeMap);
+				Double categoryScore = this.gradebookService.calculateCategoryScore(category, gradeMap);
 				
 				//add to GbStudentGradeInfo
-				sg.addCategoryAverage(category.getId(), String.valueOf(mean));
+				sg.addCategoryAverage(category.getId(), categoryScore);
 			}
 			
 		}

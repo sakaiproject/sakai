@@ -1,5 +1,8 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
@@ -38,7 +41,12 @@ public class CategoryColumnCellPanel extends Panel {
 		
 		//unpack model
 		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
-		String score = (String) modelData.get("score");		
+		
+		Double score = (Double) modelData.get("score");		
+		
+		System.out.println("score: " + score);
+		
+		//score=  null;
 		
 		//score label
 		add(new Label("score", getCategoryScore(score)));
@@ -53,19 +61,25 @@ public class CategoryColumnCellPanel extends Panel {
 	/**
 	 * Helper to format a category score
 	 * 
-	 * The value is a double type string (ie 12.34) that needs to be formatted as a percentage.
-	 * If null, it should return N/A or equivalent.
+	 * The value is a double (ie 12.34) that needs to be formatted as a percentage with two decimal places precision.
+	 * If null, it should return 'N/A' or equivalent translated string.
 	 * 
 	 * @param score
-	 * @return 12.34% type string or N/A
+	 * @return 12.34% type string or N/A if null
 	 */
-	private String getCategoryScore(String score) {
+	private String getCategoryScore(Double score) {
 		
-		if(StringUtils.isBlank(score)){
+		if(score == null){
 			return getString("label.nocategoryscore");
 		}
 		
-		return getString("label.categoryscore", Model.of(score));
+		NumberFormat df = DecimalFormat.getInstance();
+		df.setMinimumFractionDigits(0);
+		df.setMaximumFractionDigits(2);
+		df.setRoundingMode(RoundingMode.DOWN);
+		
+		//TODO does the % need to be internationalised?
+		return df.format(score) + "%"; 
 	}
 	
 	

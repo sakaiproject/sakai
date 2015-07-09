@@ -270,7 +270,7 @@ public class GradebookPage extends BasePage {
     			public void populateItem(Item cellItem, String componentId, IModel rowModel) {
     				GbStudentGradeInfo studentGrades = (GbStudentGradeInfo) rowModel.getObject();
     				
-            		String score = studentGrades.getCategoryAverages().get(category.getId());
+            		Double score = studentGrades.getCategoryAverages().get(category.getId());
             		
             		Map<String,Object> modelData = new HashMap<>();
     				modelData.put("score", score);
