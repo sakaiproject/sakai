@@ -721,7 +721,7 @@ public interface GradebookService {
     /**
      * Calculate a student's score for a category given the category definition and grades for that student.
      * 
-     * @param category category to perform the calculations form
+     * @param category category to perform the calculations for
      * @param gradeMap map of assignmentId to grade, to use for the calculations
      * @return percentage or null if no calculations were made
      */
