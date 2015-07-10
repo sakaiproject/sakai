@@ -49,4 +49,16 @@ $tlang.getString("content.note")
 #if ( $isAdmin ) 
 $tlang.getString("content.admin.note")
 #end
+#if ( ! $isAdmin )
+<script>includeLatestJQuery('lti_content.vm');</script>
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
 </div>

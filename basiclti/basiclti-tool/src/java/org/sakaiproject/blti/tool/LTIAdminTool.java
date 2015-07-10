@@ -74,8 +74,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 	/** Resource bundle using current language locale */
 	protected static ResourceLoader rb = new ResourceLoader("ltitool");
 
-	private boolean inHelper = false;
-
 	private static String STATE_POST = "lti:state_post";
 	private static String STATE_SUCCESS = "lti:state_success";
 	private static String STATE_ID = "lti:state_id";
@@ -123,9 +121,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		Placement placement = toolManager.getCurrentPlacement();
 		String toolReg = placement.getToolId();
-		inHelper = ! ( "sakai.basiclti.admin".equals(toolReg));
-		
-		
 	}
 
 	/**
@@ -148,7 +143,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			RunData data, SessionState state)
 	{
 		// default to site view
-		return buildToolSitePanelContext(portlet, context, data, state);
+		return buildToolSystemPanelContext(portlet, context, data, state);
 	}
 	
 	public String buildToolSitePanelContext(VelocityPortlet portlet, Context context, 
@@ -164,7 +159,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
-		context.put("inHelper",new Boolean(inHelper));
 		context.put("getContext",toolManager.getCurrentPlacement().getContext());
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
@@ -197,8 +191,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		// top navigation menu
 		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
-		menu.add(new MenuEntry(rb.getString("tool.in.site"), false, "doNav_tool_site"));
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), true, "doNav_tool_system"));
+		menu.add(new MenuEntry(rb.getString("tool.in.site"), false, "doNav_tool_site"));
 		context.put("menu", menu);
 		
 		return "lti_tool_site";
@@ -218,7 +212,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// if ( returnUrl != null ) state.setAttribute(STATE_REDIRECT_URL, returnUrl);
 		context.put("ltiService", ltiService);
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
-		context.put("inHelper",new Boolean(inHelper));
 		context.put("doEndHelper", BUTTON + "doEndHelper");
 		state.removeAttribute(STATE_POST);
 		state.removeAttribute(STATE_SUCCESS);
@@ -235,8 +228,8 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		
 		// top navigation menu
 		Menu menu = new MenuImpl(portlet, data, "LTIAdminTool");
-		menu.add(new MenuEntry(rb.getString("tool.in.site"), true, "doNav_tool_site"));
 		menu.add(new MenuEntry(rb.getString("tool.in.system"), false, "doNav_tool_system"));
+		menu.add(new MenuEntry(rb.getString("tool.in.site"), true, "doNav_tool_site"));
 		context.put("menu", menu);
 		
 		return "lti_tool_system";
