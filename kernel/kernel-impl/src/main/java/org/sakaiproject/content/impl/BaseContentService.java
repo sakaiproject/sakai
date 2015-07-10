@@ -245,8 +245,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	private boolean m_useMimeMagic = true;
 
-	List m_ignoreExtensions = null;
-	List m_ignoreMimeTypes = null;
+	List <String> m_ignoreExtensions = null;
+	List <String> m_ignoreMimeTypes = null;
 
 	private static final Detector DETECTOR = new DefaultDetector(MimeTypes.getDefaultMimeTypes());
 	
@@ -5948,7 +5948,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                 else {
                   newmatch = DETECTOR.detect(TikaInputStream.get(buff), metadata).toString();
                   //Redetect without the content as we're ignoring this mime type
-                  if (m_ignoreMimeTypes != null && m_ignoreMimeTypes.contains(FilenameUtils.getExtension(edit.getId()))) {
+                  if (m_ignoreMimeTypes != null && m_ignoreMimeTypes.contains(newmatch)) {
                     newmatch = DETECTOR.detect(null, metadata).toString();
                   }
                 }
