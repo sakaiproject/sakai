@@ -6,10 +6,9 @@ import org.imsglobal.basiclti.BasicLTIProviderUtil;
 
 import java.util.List;
 import java.util.Map;
-
+import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.lti.api.SiteMembershipsSynchroniser;
-
 
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;

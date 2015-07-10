@@ -1150,6 +1150,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.dash</groupId>
+        <artifactId>dashboard-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.delegatedaccess</groupId>
         <artifactId>delegatedaccess-api</artifactId>
         <version>${sakai.version}</version>

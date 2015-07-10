@@ -263,14 +263,14 @@ public class ProviderServlet extends HttpServlet {
 		}
 
 		Map payload = getPayloadAsMap(request);
-		
 
 		// Get the list of highly trusted consumers from sakai.properties.
-		// If the incoming consumer is highly trusted, we use the context_id and site_id as is,
+		// If the incoming consumer is highly trusted, we use the context_id and
+		// site_id as is,
 		// ie without prefixing them with the oauth_consumer_key first.
 		// We also don't both checking their roles in the site.
-        boolean isTrustedConsumer = BasicLTIProviderUtil.isHighlyTrustedConsumer(payload);
-        
+		boolean isTrustedConsumer = BasicLTIProviderUtil.isHighlyTrustedConsumer(payload);
+
 		/*
 		 * Get the list of email trusted consumers from sakai.properties. If the
 		 * incoming consumer is email trusted, we use the email address provided
@@ -280,18 +280,18 @@ public class ProviderServlet extends HttpServlet {
 		 * identified by email address. more details SAK-29372
 		 */
 		boolean isEmailTrustedConsumer = BasicLTIProviderUtil.isEmailTrustedConsumer(payload);
-        
+
 		/*
 		 * Checking if the email trusted consumer property and trusted consumer
 		 * and not both enabled. the case would be an error condition
 		 */
-        if(isTrustedConsumer&&isEmailTrustedConsumer){
-        	M_log.warn("Both Email Trusted and Trusted Consumer property is enabled, this is invalid  IP=" + ipAddress);
-        	response.sendError(HttpServletResponse.SC_FORBIDDEN,
-        			"Both Email Trusted and Trusted Consumer property is enabled, this is invalid ");
-        	return;
-        	
-        }
+		if (isTrustedConsumer && isEmailTrustedConsumer) {
+			M_log.warn("Both Email Trusted and Trusted Consumer property is enabled, this is invalid  IP=" + ipAddress);
+			response.sendError(HttpServletResponse.SC_FORBIDDEN,
+					"Both Email Trusted and Trusted Consumer property is enabled, this is invalid ");
+			return;
+
+		}
 
         try {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.beforeValidation);
