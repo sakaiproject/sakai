@@ -23,10 +23,7 @@
 
 package org.sakaiproject.lessonbuildertool;
 
-import java.util.HashMap;
 import java.util.Map;
-import org.json.simple.JSONObject;
-import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 
 /**
@@ -275,6 +272,9 @@ public class SimplePageItemImpl implements SimplePageItem  {
 	}
 
 	public void setHtml(String html) {
+		if( html == null ) {
+			html = "";
+		}
 		this.html = html;
 	}
 
