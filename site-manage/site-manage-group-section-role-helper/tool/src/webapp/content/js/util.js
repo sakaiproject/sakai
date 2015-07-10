@@ -345,3 +345,20 @@ function adjustCount(caller, countName, buttonName)
         }
     }
 }
+
+function toggleGenPanel( clickedElement )
+{
+    var div = clickedElement.parentNode;
+    if( div.className === "edit collapsed" )
+    {
+        div.className = "edit expanded";
+        $( div ).siblings().show();
+        resizeFrame( "grow" );
+    }
+    else
+    {
+        div.className = "edit collapsed";
+        $( div ).siblings().hide();
+        resizeFrame( "shrink" );
+    }
+}

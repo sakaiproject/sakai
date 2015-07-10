@@ -57,6 +57,7 @@ import java.util.Arrays;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
+
 /**
  * 
  * @author 
@@ -122,6 +123,8 @@ public class SiteManageGroupSectionRoleHandler {
     public boolean allowViewMembership = false;
     public boolean unjoinable = false;
     public boolean unjoinableOrig = false;
+    private int groupsCreated = 0;
+    public List<String> pendingGroupTitles = new ArrayList<>();
 
     // Tool session attribute name used to schedule a whole page refresh.
     public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh"; 
@@ -222,15 +225,25 @@ public class SiteManageGroupSectionRoleHandler {
 
             joinableSetName = "";
             joinableSetNameOrig = "";
-            joinableSetNumOfGroups = "";
-            joinableSetNumOfMembers = "";
-            allowPreviewMembership = false;
-            allowViewMembership = false;
             unjoinable = false;
             unjoinableOrig = false;
+            pendingGroupTitles.clear();
+            resetJoinableSetGroupParams();
         }
 	}
-	 
+
+    /**
+     * Utility method to clear our the params for generating additional groups for a joinable set
+     */
+    public void resetJoinableSetGroupParams()
+    {
+        joinableSetNumOfMembers = "";
+        allowPreviewMembership = false;
+        allowViewMembership = false;
+        joinableSetNumOfGroups = "";
+        groupsCreated = 0;
+    }
+
     /**
      * Gets the groups for the current site
      * @return Map of groups (id, group)
@@ -1672,7 +1685,7 @@ public class SiteManageGroupSectionRoleHandler {
     			return null;
 			}
     	}
-    	int groupsCreated = 0;
+
     	Collection siteGroups = site.getGroups();
     	Set<String> groupTitles = new HashSet<>();
 		if (siteGroups != null && siteGroups.size() > 0)
@@ -1693,7 +1706,7 @@ public class SiteManageGroupSectionRoleHandler {
 			}
 		}
     	for(int i = 1; groupsCreated < joinableSetNumOfGroupsInt && i < 1000; i++){
-    		String groupTitle = joinableSetName + "-" + i;
+    		String groupTitle = joinableSetName + " " + i;
     		if(!groupTitles.contains(groupTitle)){
     			Group g = site.addGroup();
     			g.getProperties().addProperty(Group.GROUP_PROP_WSETUP_CREATED, Boolean.TRUE.toString());
@@ -1702,18 +1715,39 @@ public class SiteManageGroupSectionRoleHandler {
     			g.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET_PREVIEW,Boolean.toString(allowPreviewMembership));
     			g.getProperties().addProperty(Group.GROUP_PROP_VIEW_MEMBERS, Boolean.toString(allowViewMembership));
     			g.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, Boolean.toString(unjoinable));
-    			g.setTitle(joinableSetName + "-" + i);
-    			try{
-    				siteService.save(site);
-    				groupsCreated++;
-    			}catch (IdUnusedException | PermissionException e) {
-    			}
+    			g.setTitle(groupTitle);
+    			groupsCreated++;
+    			pendingGroupTitles.add( groupTitle );
     		}
+    	}
+
+    	if( newSet )
+    	{
+    		saveSite();
+     	}
+    	else
+    	{
+    		resetJoinableSetGroupParams();
     	}
     	
     	return "success";
     }
-    
+
+    /**
+     * Utility method to save the site
+     */
+    private void saveSite()
+    {
+        try
+        {
+            siteService.save( site );
+        }
+        catch( IdUnusedException | PermissionException ex )
+        {
+            M_log.error( ex );
+        }
+    }
+
     public String processDeleteJoinableSet(){
     	// reset the warning messages
     	resetTargettedMessageList();
@@ -1730,10 +1764,7 @@ public class SiteManageGroupSectionRoleHandler {
     		}
     	}
     	if(updated){
-    		try{
-    			siteService.save(site);
-    		}catch (IdUnusedException | PermissionException e) {
-    		}
+    		saveSite();
     	}
     	
     	resetParams();
@@ -1741,21 +1772,20 @@ public class SiteManageGroupSectionRoleHandler {
     	return "success";
     }
    
-    public String processChangeJoinableSetName(){
+    public String processUpdateJoinableSet(){
     	// reset the warning messages
     	resetTargettedMessageList();
     	
-    	String returnVal = processChangeJoinableSetNameHelper();
-    	
-    	if(returnVal == null){
-    		return null;
-    	}else{
+    	String returnVal = processChangeJoinableSetNameHelper( true );
+    	if( returnVal != null && returnVal.equals( "success" ) )
+    	{
     		resetParams();
-    		return returnVal;
     	}
+
+    	return returnVal;
     }
     
-    private String processChangeJoinableSetNameHelper(){
+    private String processChangeJoinableSetNameHelper( boolean save ){
     	joinableSetName = StringUtils.trimToEmpty( joinableSetName );
     	if( StringUtils.isEmpty( joinableSetName ) ){
 			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
@@ -1780,36 +1810,38 @@ public class SiteManageGroupSectionRoleHandler {
     				}
     			}
     		}
-    		boolean updated = false;
+
     		for(Group group : site.getGroups()){
         		String joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
         		if(joinableSet != null && joinableSet.equals(joinableSetNameOrig)){
         			group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_SET, joinableSetName);
         			group.getProperties().addProperty(Group.GROUP_PROP_JOINABLE_UNJOINABLE, Boolean.toString(unjoinable));
-        			updated = true;
         		}
         	}
-    		if(updated){
-    			try{
-    				siteService.save(site);
-    			}catch (IdUnusedException | PermissionException e) {
-    			}
-    		}
     	}
+
+    	if( save )
+    	{
+        	saveSite();
+    	}
+
     	return "success";
     }
     
     public String processGenerateJoinableSet(){
     	// reset the warning messages
     	resetTargettedMessageList();
-    	//since the user could have changed the values and this action doesn't save the changes, reset to the orig values:
-    	joinableSetName = joinableSetNameOrig;
-    	unjoinable = unjoinableOrig;
-    	//generate the new groups since it will check all the required fields
-    	String returnVal = processCreateJoinableSetHelper(false);
-    	if(returnVal != null && "success".equals(returnVal)){
-    		resetParams();
-    	}
+
+    	String returnVal = processChangeJoinableSetNameHelper(false);
+    	if(returnVal != null && "success".equals(returnVal))
+    	{
+        	returnVal = processCreateJoinableSetHelper(false);
+        	if(returnVal != null && "success".equals(returnVal))
+        	{
+        		return null;
+        	}
+        }
+
     	return returnVal;
     }
 }
