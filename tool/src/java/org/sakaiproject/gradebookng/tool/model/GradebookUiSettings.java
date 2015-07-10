@@ -1,7 +1,7 @@
 package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.Map;
 
 import lombok.Getter;
@@ -39,6 +39,7 @@ public class GradebookUiSettings implements Serializable {
 	private boolean categoriesEnabled;
 
 	private Map<Long, Boolean> assignmentVisibility;
+	private Map<String, Boolean> categoryScoreVisiblity;
 	
 	/**
 	 * For sorting based on first name / last name
@@ -49,7 +50,8 @@ public class GradebookUiSettings implements Serializable {
 	public GradebookUiSettings() {
 		//defaults. Note there is no default for assignmentSortOrder as that requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
-		this.assignmentVisibility = new HashMap<Long, Boolean>();
+		this.assignmentVisibility = new ConcurrentHashMap<Long, Boolean>();
+		this.categoryScoreVisiblity = new ConcurrentHashMap<String, Boolean>();
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 	}
 
@@ -60,6 +62,14 @@ public class GradebookUiSettings implements Serializable {
 
 	public void setAssignmentVisibility(Long assignmentId, Boolean visible) {
 		assignmentVisibility.put(assignmentId, visible);
+	}
+
+	public boolean isCategoryScoreVisible(String category) {
+		return (categoryScoreVisiblity.containsKey(category)) ? categoryScoreVisiblity.get(category) : true;
+	}
+
+	public void setCategoryScoreVisibility(String category, Boolean visible) {
+		categoryScoreVisiblity.put(category, visible);
 	}
 	
 	@Override

@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -13,6 +14,7 @@ import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.xmlbeans.impl.piccolo.xml.Piccolo;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
@@ -30,6 +32,7 @@ import java.util.Iterator;
 public class ToggleGradeItemsToolbarPanel extends Panel {
 
   private static final long serialVersionUID = 1L;
+  private final String UNCATEGORIZED = "Uncategorized";  
 
   public ToggleGradeItemsToolbarPanel(String id, final List<Assignment> assignments) {
     super(id);
@@ -40,7 +43,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
     Iterator<Assignment> assignmentIterator = assignments.iterator();
     while (assignmentIterator.hasNext()) {
       Assignment assignment = assignmentIterator.next();
-      String category = assignment.getCategoryName() == null ? "Uncategorized" : assignment.getCategoryName();
+      String category = assignment.getCategoryName() == null ? UNCATEGORIZED : assignment.getCategoryName();
       
       if (!categoriesToAssignments.containsKey(category)) {
         categories.add(category);
@@ -57,7 +60,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
 
       @Override
       protected void populateItem(ListItem<String> categoryItem) {
-        String category = categoryItem.getModelObject();
+        final String category = categoryItem.getModelObject();
 
         final GradebookPage gradebookPage = (GradebookPage) this.getPage();
 
@@ -91,8 +94,8 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
                       settings = new GradebookUiSettings();
                   }
 
-                  Boolean value = getModelObject();
-                  settings.setAssignmentVisibility(assignment.getId(), value);
+                  Boolean value = settings.isAssignmentVisible(assignment.getId());
+                  settings.setAssignmentVisibility(assignment.getId(), !value);
 
                   gradebookPage.setUiSettings(settings);
               }
@@ -102,6 +105,36 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
             assignmentItem.add(assignmentCheckbox);
           }
         });
+
+        WebMarkupContainer categoryScoreFilter = new WebMarkupContainer("categoryScore");
+        categoryScoreFilter.setVisible(category != UNCATEGORIZED);
+        categoryScoreFilter.add(new Label("categoryScoreLabel", new StringResourceModel("label.toolbar.categoryscorelabel", null, new String[] {category})));
+
+        GradebookUiSettings settings = gradebookPage.getUiSettings();
+        if (settings == null) {
+          settings = new GradebookUiSettings();
+          gradebookPage.setUiSettings(settings);
+        }
+
+
+          CheckBox categoryScoreCheckbox = new AjaxCheckBox("categoryScoreCheckbox", new Model<Boolean>(settings.isCategoryScoreVisible(category))) {//Model.of(Boolean.valueOf(settings.isCategoryScoreVisible(category)))) {
+          @Override
+          protected void onUpdate(AjaxRequestTarget target) {
+            GradebookUiSettings settings = gradebookPage.getUiSettings();
+            if (settings == null) {
+              settings = new GradebookUiSettings();
+            }
+      
+            Boolean value = settings.isCategoryScoreVisible(category);
+            settings.setCategoryScoreVisibility(category, !value);
+      
+            gradebookPage.setUiSettings(settings);
+          }
+        };
+        categoryScoreCheckbox.add(new AttributeModifier("value", category));
+        categoryScoreFilter.add(categoryScoreCheckbox);
+
+        categoryItem.add(categoryScoreFilter);
       }
     });
   }

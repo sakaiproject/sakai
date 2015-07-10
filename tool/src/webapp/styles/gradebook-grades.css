@@ -444,12 +444,14 @@
   right: 0;
 }
 #gradeItemsTogglePanel .gradebook-item-category-filter,
-#gradeItemsTogglePanel .gradebook-item-filter {
+#gradeItemsTogglePanel .gradebook-item-filter,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter {
   clear: both;
   margin-left: 10px;
   position: relative;
 }
-#gradeItemsTogglePanel .gradebook-item-filter {
+#gradeItemsTogglePanel .gradebook-item-filter,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter {
   margin-left: 20px;
 }
 #gradeItemsTogglePanel label {
@@ -482,11 +484,14 @@
 #gradeItemsTogglePanel .gradebook-item-filter .gb-show-this-item,
 #gradeItemsTogglePanel .gradebook-item-filter.off .gb-hide-this-item,
 #gradeItemsTogglePanel .gradebook-item-category-filter .gb-show-this-category,
-#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-hide-this-category {
+#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-hide-this-category,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter .gb-show-this-category-score,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter.off .gb-hide-this-category-score {
   display: none;
 }
 #gradeItemsTogglePanel .gradebook-item-filter.off .gb-show-this-item,
-#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-show-this-category {
+#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-show-this-category,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter.off .gb-show-this-category-score {
   display: block;
 }
 /* Concurrent Users Warning */
