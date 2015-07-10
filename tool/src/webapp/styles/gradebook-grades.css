@@ -454,8 +454,11 @@
 #gradeItemsTogglePanel .gradebook-item-category-score-filter {
   margin-left: 20px;
 }
+#gradeItemsTogglePanel .gradebook-item-category-score-filter {
+  font-style: italic;
+}
 #gradeItemsTogglePanel label {
-  float: left;
+  display: inline-block;
   width: 90%;
   width: calc(100% - 20px);
 }
@@ -474,9 +477,18 @@
   margin: 0 5px 0;
   border-bottom: none;
 }
+#gradeItemsTogglePanel .gradebook-item-filter-group {
+  border-bottom: 1px dotted #DDD;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+#gradeItemsTogglePanel .gradebook-item-filter-group:last-child {
+  border-bottom: none;
+  margin: 0;
+}
 #gradeItemsTogglePanel .gradebook-item-filter-group .btn-group {
   float: right;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 #gradeItemsTogglePanel .gradebook-item-filter-group .btn-group .btn.dropdown-toggle {
   padding: 0 4px;
