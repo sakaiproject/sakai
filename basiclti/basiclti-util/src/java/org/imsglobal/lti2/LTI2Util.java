@@ -296,10 +296,6 @@ public class LTI2Util {
 	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
 	{
 		Object o = null;
-		JSONArray overall_enabled_capability = getArray(jsonObject, LTI2Constants.ENABLED_CAPABILITY);
-		if ( overall_enabled_capability == null  ) {
-			overall_enabled_capability = new JSONArray ();	
-		}
 
 		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
 		if ( tool_profile == null  ) {
@@ -418,13 +414,6 @@ public class LTI2Util {
 				} 
 				parameter = getArray(message,"parameter");
 				enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
-				Iterator<String> iterator = overall_enabled_capability.iterator();
-				while (iterator.hasNext()) {
-					String overall_capability = iterator.next();
-					if ( ! enabled_capability.contains(overall_capability) ) {
-						enabled_capability.add(overall_capability);
-					}
-				}
 			}
 
 			// Ignore everything except launch handlers
