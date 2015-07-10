@@ -942,8 +942,8 @@ GradebookSpreadsheet.prototype.refreshSummary = function() {
   var $summary = this.$spreadsheet.find(".gradebook-item-summary");
   var $filterPanel = this.toolbarModel.$gradeItemsFilterPanel;
 
-  var visible = $filterPanel.find(".gradebook-item-filter-group:not(.hide-me) .gradebook-item-filter :input:checked").length;
-  var total = $filterPanel.find(".gradebook-item-filter-group:not(.hide-me) .gradebook-item-filter :input").length
+  var visible = $filterPanel.find(".gradebook-item-filter-group:not(.hide-me) .gradebook-item-filter :input:checked, .gradebook-item-category-score-filter:not(.hide-me) :input:checked").length;
+  var total = $filterPanel.find(".gradebook-item-filter-group:not(.hide-me) .gradebook-item-filter :input, .gradebook-item-category-score-filter:not(.hide-me) :input").length;
 
   $summary.find(".visible").html(visible);
   $summary.find(".total").html(total);

@@ -299,7 +299,7 @@ public class GradebookPage extends BasePage {
         form.add(table);
 
         // Populate the toolbar 
-        Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size(), assignments.size()));
+        Label gradeItemSummary = new Label("gradeItemSummary", new StringResourceModel("label.toolbar.gradeitemsummary", null, assignments.size() + categories.size(), assignments.size() + categories.size()));
         gradeItemSummary.setEscapeModelStrings(false);
         form.add(gradeItemSummary);
 
