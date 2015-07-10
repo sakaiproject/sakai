@@ -260,8 +260,8 @@ public class GradebookPage extends BasePage {
         		@Override
             	public Component getHeader(String componentId) {
             		CategoryColumnHeaderPanel panel = new CategoryColumnHeaderPanel(componentId, new Model<CategoryDefinition>(category));
-            	
-            		//TODO add required classes here
+
+            		panel.add(new AttributeModifier("data-category", category.getName()));
             		
             		return panel;
         		}

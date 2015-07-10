@@ -740,7 +740,7 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     var cellsForCategory = self._CATEGORIES_MAP[category];
     var categoryData = self._CATEGORY_DATA[category];
 
-    var color = self._CATEGORY_DATA[category].color;
+    var color = categoryData.color;
 
     function categoryCellLabel() {
       var $label = $("<span>").addClass("gb-category-label").text(categoryData.label);
@@ -776,6 +776,12 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
 
       newColIndex++;
     });
+
+    if (categoryData.totalHeaderModel) {
+      categoryData.totalHeaderModel.moveColumnTo(newColIndex);
+      numberVisible++;
+      newColIndex++;
+    }
 
     $categoryCell.attr("colspan", numberVisible);
     if (numberVisible == 0) {
@@ -839,6 +845,15 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
         };
       }
     }
+  });
+
+  // take note of any category total column headers
+  self.$table.find("th.gb-category-item-column-cell").each(function() {
+    var $th = $(this);
+    var model = $th.data("model");
+    var category = $th.find("[data-category]:first").data("category");
+    self._CATEGORY_DATA[category]["totalHeaderModel"] = model;
+    self._CATEGORY_DATA[category]["totalHeaderIndex"] = $th.index();
   });
 
   self._ALL_CATEGORIES = self._ALL_CATEGORIES.sort(function(a, b) {
@@ -1409,6 +1424,8 @@ GradebookHeaderCell.prototype.setColumnKey = function() {
   var columnKey;
   if (self.$cell.hasClass("gb-grade-item-column-cell")) {
     columnKey = self.$cell.find("[data-assignmentid]").data("assignmentid");
+  } else if (self.$cell.hasClass("gb-category-item-column-cell")) {
+    columnKey = "category_" + self.$cell.find(".gb-title").text().trim();
   } else if (self.$cell.find(".gb-title").length > 0) {
     columnKey = self.$cell.find(".gb-title").text().trim();
   } else {
