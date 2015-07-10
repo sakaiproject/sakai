@@ -66,7 +66,7 @@
  /* Table Header */
 #gradebookGrades th {
   vertical-align: top;
-  background: #EEE;
+  background: #F0f0f0;
   text-shadow: 1px 1px 0 #FFF;
   font-weight: normal;
 }
@@ -101,6 +101,9 @@
   font-size: 0.8em;
   color: #999;
   line-height: 1.4em;
+}
+#gradebookGrades th.gb-category-item-column-cell {
+  background-color: #EAEAEA;
 }
 
 /* Dropdown Menus */
