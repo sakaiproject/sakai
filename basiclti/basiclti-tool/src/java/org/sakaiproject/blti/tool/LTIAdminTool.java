@@ -1491,7 +1491,14 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		if ( content != null ) { 
 			previousData = content;
 		} else { 
+			String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
 			previousData = (Properties) state.getAttribute(STATE_POST);
+			if ( previousData == null ) {
+				previousData = new Properties();
+			}
+			if ( fa_icon != null ) {
+				((Properties) previousData).setProperty(LTIService.LTI_FA_ICON, fa_icon);
+			}
 		}
 
 		// We will handle the tool_id field ourselves in the Velocity code
