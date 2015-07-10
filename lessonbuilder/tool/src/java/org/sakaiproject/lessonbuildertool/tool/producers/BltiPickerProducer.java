@@ -7,7 +7,7 @@
  *
  * Copyright (c) 2010 Rutgers, the State University of New Jersey
  *
- * Licensed under the Educational Community License, Version 2.0 (the "License");							
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -150,7 +150,7 @@ public LocaleGetter localeGetter;
 
 			SimplePage page = simplePageBean.getCurrentPage();
 
-		String currentItem = null; // default value, normally current
+			String currentItem = null; // default value, normally current
 			if (itemId != null && itemId != -1) {
 			    SimplePageItem i = simplePageToolDao.findItem(itemId);
 			    if (i == null)
@@ -171,6 +171,7 @@ public LocaleGetter localeGetter;
 			    }
 			    toolcount = 1;
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "blti-create:");
+/*
 			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
 			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
 			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
@@ -178,6 +179,10 @@ public LocaleGetter localeGetter;
 			    view.setReturnView(VIEW_ID);
 			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
 			    UIInternalLink.make(link, "blti-create-link", (bltiTool == null ? createLink.label : bltiTool.addText), view);
+*/
+			    UILink.make(link, "blti-create-link", (bltiTool == null ? createLink.label : bltiTool.addText), createLink.Url)
+				.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
+
 			}
 			
 			if ( toolcount > 0 ) {
@@ -186,20 +191,25 @@ public LocaleGetter localeGetter;
 			    UIOutput.make(tofill, "no-blti-tools");
 			    UIOutput.make(tofill, "no-blti-tools-text", messageLocator.getMessage("simplepage.no_blti_tools"));
 			}
-		UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
+
+			UICommand.make(tofill, "cancel", messageLocator.getMessage("simplepage.cancel"), "#{simplePageBean.cancel}");
 
 			// only show manage link if we aren't simulating a native tool
 			if (bltiTool == null) {
 			    UIOutput.make(tofill, "manageblti");
-			if (mainLink != null) {
-			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(mainLink.Url);
-			    view.setReturnView(VIEW_ID);
-			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
-			    UIInternalLink.make(tofill, "blti-main-link", mainLink.label , view);
-			}
+			    if (mainLink != null) {
+/*
+				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
+				view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
+				view.setItemId(((GeneralViewParameters) viewparams).getItemId());
+				view.setSource(mainLink.Url);
+				view.setReturnView(VIEW_ID);
+				view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
+				UIInternalLink.make(tofill, "blti-main-link", mainLink.label , view);
+*/
+				UILink.make(tofill, "blti-main-link", mainLink.label, mainLink.Url)
+					.decorate(new UIFreeAttributeDecorator("title", mainLink.label) );
+			    }
 			}
 
 			Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");

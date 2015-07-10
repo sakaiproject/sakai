@@ -382,6 +382,10 @@ CREATE TABLE pasystem_banner_dismissed (
 CREATE INDEX banner_dismissed_lcase_eid on pasystem_banner_dismissed (lower(user_eid));
 CREATE INDEX banner_dismissed_state on pasystem_banner_dismissed (state);
 
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1500', '!admin', 'PA System', '0', 20, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1550', '!admin-1500', '!admin', 'sakai.pasystem', 1, 'PA System', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1500', 'sitePage.customTitle', 'true');
+
 -- END SAK-29422 Incorporate NYU's "public announcement system"
 -- SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 drop index MFR_MESSAGE_DELETED_I;
@@ -414,3 +418,19 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.view.audience'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.view.audience'));
 -- END SAK-29497
+
+-- SAK-29271 Feedback Tool
+CREATE TABLE sakai_feedback (
+                id number not null primary key,
+                user_id varchar2(99) null,
+                email varchar2(255) not null,
+                site_id varchar2(99) not null,
+                report_type varchar2(15) not null,
+                title varchar2(40) not null,
+                content varchar2(4000) not null,
+                CONSTRAINT cons_report_type CHECK (report_type IN ('content','technical', 'helpdesk')));
+CREATE SEQUENCE sakai_feedback_seq START WITH 1 INCREMENT BY 1 nomaxvalue;
+INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '', '', null, 1, 0, 0, '', 'admin', 'admin', sysdate, sysdate, 1, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '0', 1, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 'sakai.feedback', 1, 'Contact Us', NULL );
+-- END SAK-29271

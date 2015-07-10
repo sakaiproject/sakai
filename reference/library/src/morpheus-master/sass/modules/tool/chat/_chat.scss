@@ -45,6 +45,25 @@
 		  &--count.empty{
 		  	display: none;
 		  }
+		  &--icon{
+		 	@extend .fa;
+			&.icon-sakai-close			{	@extend .fa-times}
+			&.icon-sakai-chat  			{	@extend .fa-comments-o}
+			&.icon-sakai-users 			{	@extend .fa-users}
+			&.icon-sakai-online			{	@extend .fa-circle}
+			&.icon-sakai-offline		{	@extend .fa-circle-o}
+			&.icon-sakai-videocam		{	@extend .fa-video-camera}
+			&.icon-sakai-mic			{	@extend .fa-microphone}
+			&.icon-sakai-bell			{	@extend .fa-bell}
+			&.icon-sakai-toggle-on		{	@extend .fa-toggle-on}
+			&.icon-sakai-toggle-off		{	@extend .fa-toggle-off}
+			&.icon-sakai-stop			{	@extend .fa-stop}
+			&.icon-sakai-maximize		{	@extend .fa-expand}
+			&.icon-sakai-thumbup		{	@extend .fa-thumbs-up}
+			&.icon-sakai-thumbdown		{	@extend .fa-thumbs-down}
+			&.icon-sakai-flagcheckered	{	@extend	.fa-flag-checkered}
+			&.icon-sakai-frown			{	@extend	.fa-frown-o}
+		  }
 	}
 	&presence {
 		&__area {
@@ -68,14 +87,9 @@
 		        background-color: $footerApp__chat__header__background;
 
 		        &--close {
-		            padding: 0px !important;
-		            content: '';
-		            width: 16px;
-		            height: 16px;
-		            background: url("/library/image/sakai/cross.png") 0 0 no-repeat;
-		            float: right;
-		            text-align: right;
-		            margin-top: 5px;
+		        	float: right;
+		        	color: inherit;
+		        	text-align: right;
 			    }
 		    }
 		    &--iframe, &--iframe-div {
@@ -168,13 +182,9 @@
 				border-top: solid 0.5em $footerApp__chat__header__background;
 			}
 			&__close{
-				padding: 0px !important;
-				width: 16px;
-				height: 16px;
-				background: url("/library/image/sakai/cross.png") 0 0 no-repeat;
 				float: right;
 				text-align: right;
-				margin-top: 5px;
+				color: inherit;
 			}
 			&__siteusers,&__connections{
 				a{
@@ -196,9 +206,9 @@
 			&__connection--bullet{
 				float: left;
 				display: inline-block;
-				right: -3px;
+				right: 0px;
 				position: absolute;
-				bottom: 0px;
+				bottom: 8px;
 			}
 			&__user--image{
 			  vertical-align: middle;
@@ -472,64 +482,34 @@
 					  text-align: center;
 					  width: 100%;
 					  height: 0px;
+					  z-index: 100;
 				}
-				&statusfailed{
-					  color: #DEDEDE;
+				&statusfailed, &statusfinished{
 					  text-align: center;
 					  height: 192px;
 					  margin-left: auto;
 					  margin-right: auto;
-					  font-size: 36pt;
+					  font-size: 1.5em;
 					  position: relative;
 					  top: 20px;
-				}
-				&statusfinished{
-					  height: 192px;
-  					  background-image: url('/library/image/sakai/video_back_finish.png');
-  					  background-repeat: no-repeat;
-  					  background-position: 50% 30%;
+					  color: $footerApp__chat__header__color;
+					  background-color: #000;
+					  .Mrphs-footerApp--icon {
+					  	font-size: 3em;
+					  	padding-top: 10px;
+					  }
 				}
 				
 				&videobutton{
-					width:16px;
 					height:16px;
-					margin-left: 2px;
-					margin-top: 1px;
+					margin-left: 5px;
 					text-decoration: none;
 					border : 0px;
 					cursor: hand; 
 					display:inline-block;
 					cursor: pointer;
-					background-repeat:no-repeat;
-					background-position: center;
-					&:hover{
-						 -moz-box-shadow: 0 0 6px #009DCE ;
-    					 -webkit-box-shadow: 0 0 6px #009DCE;
-    					  box-shadow: 0 0 6px #009DCE;
-					}
 				}
-				&videocall{
-					background-image: url('/library/image/sakai/video_call.png');
-				}
-				&videoclose{
-					background-image: url('/library/image/sakai/video_hang.png');
-				}
-				&videomaxi{
-					background-image: url('/library/image/sakai/video_maxi.png');
-				}
-				&videomicenabled{
-					background-image: url('/library/image/sakai/video_mic_enable.png');
-				}
-				&videomicdisabled{
-					background-image: url('/library/image/sakai/video_mic_disable.png');
-				}
-				&videocamenabled{
-					background-image: url('/library/image/sakai/video_cam_enable.png');
-				}
-				&videocamdisabled{
-					background-image: url('/library/image/sakai/video_cam_disable.png');
-				}
-				
+
 				/*Bubbling effect*/
 				&bubblingG{
 					text-align: center;

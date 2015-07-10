@@ -67,8 +67,10 @@ echo("<pre>\n");
 
 $secret = isset($_SESSION['split_secret']) ? $_SESSION['split_secret'] : 'secret';
 $re_register = false;
+$tool_proxy_guid = false;
 if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
     $reg_key = $_POST['oauth_consumer_key'];
+    $tool_proxy_guid = isset($_POST['tool_proxy_guid']) ? $_POST['tool_proxy_guid'] : false;
     $reg_password = "secret";
     $re_register = false;
     $context = new BLTI($secret, false, false);
@@ -294,8 +296,20 @@ togglePre("Registration Response",htmlent_utf8(json_indent($response)));
 
 $tc_half_shared_secret = false;
 if ( $last_http_response == 201 || $last_http_response == 200 ) {
+
+    $responseObject = json_decode($response);
+
+    $tc_tool_proxy_guid = $responseObject->tool_proxy_guid;
+    if ( $tc_tool_proxy_guid ) {
+        echo('<p>Tool consumer returned tool_proxy_guid='.$tc_tool_proxy_guid."</p>\n");
+        if ( $tool_proxy_guid && $tool_proxy_guid != $tc_tool_proxy_guid ) {
+            echo('<p style="color: red;">Error: Returned tool_proxy_guid did not match launch tool_proxy_guid='.$tool_proxy_guid."</p>\n");
+        }
+    } else {
+        echo('<p style="color: red;">Error: Tool Consumer did not include tool_proxy_guid in its response.</p>'."\n");
+    }
+
     if ( $oauth_splitsecret && $tp_half_shared_secret ) {
-        $responseObject = json_decode($response);
         if ( isset($responseObject->tc_half_shared_secret) ) {
             $tc_half_shared_secret = $responseObject->tc_half_shared_secret;
             echo("<p>tc_half_shared_secret: ".$tc_half_shared_secret."</p>\n");

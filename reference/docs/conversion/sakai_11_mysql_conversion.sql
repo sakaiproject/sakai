@@ -366,6 +366,11 @@ CREATE TABLE `pasystem_banner_dismissed` (
    INDEX `state` (`state`)
 );
 
+INSERT INTO SAKAI_SITE_PAGE VALUES('!admin-1500', '!admin', 'PA System', '0', 20, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!admin-1550', '!admin-1500', '!admin', 'sakai.pasystem', 1, 'PA System', NULL );
+INSERT INTO SAKAI_SITE_PAGE_PROPERTY VALUES('!admin', '!admin-1500', 'sitePage.customTitle', 'true');
+
+
 -- END SAK-29422 Incorporate NYU's "public announcement system"
 -- SAK-29571 MFR_MESSAGE_DELETD_I causes bad performance
 drop index MFR_MESSAGE_DELETED_I on MFR_MESSAGE_T;
@@ -398,3 +403,17 @@ INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where RE
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.course'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.view.audience'));
 INSERT INTO SAKAI_REALM_RL_FN VALUES((select REALM_KEY from SAKAI_REALM where REALM_ID = '!site.template.lti'), (select ROLE_KEY from SAKAI_REALM_ROLE where ROLE_NAME = 'Instructor'), (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = 'calendar.view.audience'));
 -- END SAK-29497
+
+-- SAK-29271 Feedback Tool
+CREATE TABLE IF NOT EXISTS sakai_feedback (
+                id INT NOT NULL AUTO_INCREMENT,
+                user_id VARCHAR(99),
+                email VARCHAR(255) NOT NULL,
+                site_id VARCHAR(99) NOT NULL,
+                report_type ENUM('content','technical', 'helpdesk') NOT NULL,
+                title VARCHAR(40) NOT NULL,
+                content TEXT NOT NULL, PRIMARY KEY(id));
+INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '', '', null, 1, 0, 0, '', 'admin', 'admin', NOW(), NOW(), 1, 0, 0, 0, null);
+INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '0', 1, '0' );
+INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 'sakai.feedback', 1, 'Contact Us', NULL );
+-- END SAK-29271

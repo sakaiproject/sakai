@@ -588,9 +588,8 @@ public class Foorm {
 		return formInputText(value.toString(), field, label, required, size, loader);
 	}
 
-	// Produce a form for createing a new object or editing an existing object
 	/**
-	 * 
+	 * Produce a form for creating a new object or editing an existing object
 	 */
 	public String formInput(Object row, String fieldinfo, Object loader) {
 		Properties info = parseFormString(fieldinfo);
@@ -605,19 +604,20 @@ public class Foorm {
 		Object value = getField(row, field);
 		String label = info.getProperty("label", field);
 		
-		// look for tool id prefix
-		if (field.indexOf("_") != -1)
+		// look for fields with a tool id prefix like 694_fa_prefix
+		int pos = field.indexOf("_");
+		if (pos != -1 && field.length() > pos+1)
 		{
-			String[] array = field.split("_");
-			
+			String first = field.substring(0,pos);
+			String second = field.substring(pos+1);
 			try
 			{
 				// the first array item should be an long value
-				Long.parseLong(array[0]);
+				Long.parseLong(first);
 				// reset the input value
-				value = getField(row, array[1]);
+				value = getField(row, second);
 				// reset the input label
-				label = info.getProperty("label", array[1]);
+				label = info.getProperty("label", second);
 			}
 			catch (NumberFormatException e)
 			{
@@ -1015,7 +1015,7 @@ public class Foorm {
 			}
 			if ( "header".equals(type) ) continue;
 			String label = info.getProperty("label", field);
-			// System.out.println("field="+field+" type="+type);
+			logger.fine("field="+field+" type="+type);
 
 			// Check the automatically populate empty date fields
 			if ("autodate".equals(type) && dataMap != null && (!isFieldSet(parms, field)) ) {
@@ -1554,7 +1554,6 @@ public class Foorm {
 			boolean isNullable = false;			
 			try {
 				for( int i = 1; i <= md.getColumnCount(); i++ ) {
-					// System.out.println("F="+field+" SF="+md.getColumnLabel(i));
 					if ( field.equalsIgnoreCase(md.getColumnLabel(i)) ) {
 						sqlLength = md.getColumnDisplaySize(i);
 						autoIncrement = md.isAutoIncrement(i);
@@ -1567,8 +1566,9 @@ public class Foorm {
 				// ignore
 			}
 
-			System.out.println( field + " (" + maxlength + ") type="+type);
-			System.out.println( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
+			logger.fine( field + " (" + maxlength + ") type="+type);
+			logger.fine( field + " (" + sqlLength + ") auto=" + autoIncrement+" type="+sqlType+" null="+isNullable);
+
 			//  If the field is not there...
 			if ( sqlType == null ) {
 				if ( "oracle".equals(vendor) ) {
@@ -1678,7 +1678,6 @@ public class Foorm {
 				c = c.getSuperclass();
 			}
 		} catch(Exception e) {
-			// System.out.println("OOPS");
 			e.printStackTrace();
 		}
 		return className;

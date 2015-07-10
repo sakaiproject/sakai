@@ -1,4 +1,9 @@
 <div class="portletBody">
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('lti_content_config.vm');</script>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
 	<h3>
 		$tlang.getString("content.put")
 	</h3>
@@ -34,6 +39,7 @@ $tlang.getString("need.tool.info")
 #end
 		</p>
 	</form>
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#fa_icon'); });</script>
 #if ( $isAdmin ) 
 $tlang.getString("content.admin.note")
 #end
