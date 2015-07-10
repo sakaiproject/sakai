@@ -373,9 +373,11 @@ public class BltiEntity implements LessonEntity, BltiInterface {
 	    search = "lti_tools.id=" + bltiToolId;
 	List<Map<String,Object>> tools = ltiService.getTools(search,null,0,0);
 	for ( Map<String,Object> tool : tools ) {
-	    String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
+		String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=ContentConfig&tool_id=" 
 			+ tool.get(LTIService.LTI_ID) + "&returnUrl=" + URLEncoder.encode(returnUrl);
-		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE)));
+		String fa_icon = (String) tool.get(LTIService.LTI_FA_ICON);
+
+		list.add(new UrlItem(url, (String) tool.get(LTIService.LTI_TITLE), fa_icon));
 	}
 
 	String url = ServerConfigurationService.getToolUrl() + "/" + toolId + "/sakai.basiclti.admin.helper.helper?panel=Main" + 

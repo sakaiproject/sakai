@@ -382,10 +382,16 @@ public class SimplePageBean {
 	public static class UrlItem {
 		public String Url;
 		public String label;
+		public String fa_icon = null;
 		public UrlItem(String Url, String label) {
 			this.Url = Url;
 			this.label = label;
-	    }
+		}
+		public UrlItem(String Url, String label, String fa_icon) {
+			this.Url = Url;
+			this.label = label;
+			this.fa_icon = fa_icon;
+		}
 	}
 
 	public static class GroupEntry {
