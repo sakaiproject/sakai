@@ -670,7 +670,7 @@ function disableBackButton() {
 function includeLatestJQuery(where) {
 	var psp = "/library/js/";
 	var ver = "";
-	if ( portal ) {
+	if ( typeof portal !== 'undefined' ) {
 		if (portal.pageScriptPath) psp = portal.pageScriptPath;
 		if (portal.portalCDNQuery) ver = portal.portalCDNQuery;
 	}

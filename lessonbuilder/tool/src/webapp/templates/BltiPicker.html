@@ -31,13 +31,13 @@
 		</div>
 
 		<div rsf:id="blti-create:" style="margin-left:2em">
-		  <a href="#" rsf:id="blti-create-link"></a>
+		  <a href="#" target="modal-iframe" onclick="showIframe(this.title);" rsf:id="blti-create-link"></a>
 		</div>
 
 		<div rsf:id="manageblti">
 			<h3 rsf:id="msg=simplepage.blti.tools.manage"></h3>
 			<p rsf:id="msg=simplepage.blti.tools.create"></p>
-			<p><a class="usebutton" id="blti-main-link" href="#" rsf:id="blti-main-link"></a></p>
+			<p><a class="usebutton" target="modal-iframe" onclick="showIframe(this.title);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a></p>
 		</div>
 
 		<form action="#" rsf:id="blti-autosubmit" id="blti-autosubmit">
@@ -60,44 +60,31 @@
 			<input type="hidden" rsf:id="cancel2"/>
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
+		<div id="modal-iframe-div" style="display:none">
+			<iframe name="modal-iframe" id="modal-iframe" src="about:blank" style="width:90%; height:600px"></iframe>
+		</div>
 	</div>
 
-<!-- for now, don't make this a modal until the tools helper is a modal
 <script>
-includeLatestJQuery('sakai_filepicker_attach.vm');
+includeLatestJQuery('BltiPicker.html');
 </script>
 
 <script>
 //<![CDATA[
-if ( $(window).width() > portalSmallBreakPoint() ) {
-        $('#mainhead').hide();
-        $('.cancelButton').hide();
-        $("#portletBody").dialog({
-                title: $('#mainhead').text(),
-                width: $(window).width() * 0.8,
-                modal: true,
-                close: function () {
-			var form = document.getElementById("blti-cancel");
-			if ( form != null ) form.submit();
-                }
-        });
+function showIframe(title) {
+	$("#modal-iframe-div").dialog({
+		title: title,
+		width: modalDialogWidth(),
+		modal: true,
+		draggable: false
+	});
 
-        $(window).resize(function() {
-                var wWidth = $(window).width();
-                var pbr = portalSmallBreakPoint();
-                var dWidth = wWidth * 0.8;
-                if ( wWidth <= pbr ) {
-                        dWidth = pbr * 0.8;
-                        if ( dWidth > (wWidth * 0.95) ) {
-                                dWidth = wWidth * 0.95;
-                        }
-                }
-                $("#portletBody").dialog("option", "width", dWidth);
-        });
+	$(window).resize(function() {
+		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+	});
 }
 //]]>
 </script>
--->
 
 
 </body>
