@@ -292,7 +292,7 @@ public class ReportsEditPage extends BasePage {
 							}else{
 								titleStr = new StringResourceModel("report_save_success", getPage(), reportDefModel).getString();
 							}							
-							info(titleStr);
+							returnPage.info(titleStr);
 							setResponsePage(returnPage);
 						}else{
 							if(getReportDef().isTitleLocalized()) {
