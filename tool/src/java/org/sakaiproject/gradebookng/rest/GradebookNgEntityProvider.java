@@ -24,7 +24,7 @@ import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.Permissions;
+import org.sakaiproject.gradebookng.business.Permission;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.site.api.Site;
@@ -196,7 +196,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("You must be logged in to access GBNG data");
 		}
 		
-		if(!isAllowed(currentUserId, Permissions.GRADE_ALL.getValue(), siteService.siteReference(siteId))) {
+		if(!isAllowed(currentUserId, Permission.GRADE_ALL.getValue(), siteService.siteReference(siteId))) {
 			throw new SecurityException("You do not have instructor-type permissions in this site.");
 		}
 	}
