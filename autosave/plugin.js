@@ -185,7 +185,7 @@
             }
 
             // Ignore if autosaved content is older then x minutes
-            if (moment(new Date()).diff(autoSavedContentDate, 'minutes') > notOlderThen) {
+            if (moment(new Date()).diff(new Date(autoSavedContentDate), 'minutes') > notOlderThen) {
                 RemoveStorage(autoSaveKey);
 
                 return;
