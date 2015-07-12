@@ -238,7 +238,6 @@ foreach($tc_capabilities as $capability) {
     // promote these up to the top level capabilities
     if ( "OAuth.splitSecret" == $capability || "OAuth.hmac-sha256" == $capability ) {
         $tp_profile->enabled_capability[] = $capability;
-        continue;
     }
 
     if ( in_array($capability, $tp_profile->tool_profile->resource_handler[0]->message[0]->enabled_capability) ) continue;

@@ -32,7 +32,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.lti2.LTI2Config;
+import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.LTI2Util;
+import org.imsglobal.lti2.ToolProxy;
+import org.imsglobal.lti2.ToolProxyBinding;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONValue;
@@ -915,34 +918,37 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			return "lti_error";
 		}
 
-		JSONObject providerProfile = (JSONObject) JSONValue.parse(profileText);
-		if ( providerProfile == null ) {
+		ToolProxy toolProxy = null;
+		try {
+			toolProxy = new ToolProxy(profileText);
+			M_log.debug("OBJ:"+toolProxy);
+		} catch (Throwable t ) {
+			t.printStackTrace();
 			M_log.error("error parsing tool profile " + profileText);
 			addAlert(state,rb.getString("deploy.parse.error"));
 			return "lti_error";
 		}
 
-
 		List<Properties> profileTools = new ArrayList<Properties> ();
 		try {
-            String retval = LTI2Util.parseToolProfile(profileTools, info, providerProfile);
-            if ( retval != null ) {
+			String retval = toolProxy.parseToolProfile(profileTools, info);
+			if ( retval != null ) {
 				addAlert(state,rb.getString("deploy.parse.error")+" "+retval);
 				return "lti_error";
-            }
+			}
 		}
-        catch (Exception e ) {
+		catch (Exception e ) {
 			addAlert(state,rb.getString("deploy.parse.exception")+" "+e.getLocalizedMessage());
 			e.printStackTrace();
 			return "lti_error";
-        }
+		}
 
 		String instance_guid = (String) info.get("instance_guid");
 
-        if ( profileTools.size() < 1 ) {
+		if ( profileTools.size() < 1 ) {
 			addAlert(state,rb.getString("deploy.activate.notools"));
 			return "lti_error";
-        }
+		}
 
 		// Check them all first
 		for ( Properties profileTool : profileTools ) {
@@ -986,11 +992,26 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			if ( profileTool.get(LTIService.LTI_TITLE) != null ) newTool.put(LTIService.LTI_TITLE, profileTool.get(LTIService.LTI_TITLE));
 			if ( profileTool.get(LTIService.LTI_TITLE) != null ) newTool.put(LTIService.LTI_PAGETITLE, profileTool.get(LTIService.LTI_TITLE)); // Duplicate by default
 			if ( profileTool.get("button") != null ) newTool.put(LTIService.LTI_PAGETITLE, profileTool.get("button")); // Note different fields
-			if ( profileTool.get(LTIService.LTI_DESCRIPTION) != null ) newTool.put(LTIService.LTI_DESCRIPTION, profileTool.get(LTIService.LTI_DESCRIPTION));
-			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTIService.LTI_PARAMETER));
-			if ( profileTool.get(LTIService.LTI_ENABLED_CAPABILITY) != null ) newTool.put(LTIService.LTI_ENABLED_CAPABILITY, profileTool.get(LTIService.LTI_ENABLED_CAPABILITY));
-		        String fa_icon = LTI2Util.getIconPath((String)profileTool.get("icon_info"), "FontAwesome");
+			if ( profileTool.get(LTIService.LTI_DESCRIPTION) != null ) newTool.put(LTIService.LTI_DESCRIPTION, profileTool.get(LTI2Constants.DESCRIPTION));
+			if ( profileTool.get(LTIService.LTI_PARAMETER) != null ) newTool.put(LTIService.LTI_PARAMETER, profileTool.get(LTI2Constants.PARAMETER));
 
+			// Turn on all the UI allow bits so as to allow overriding
+			newTool.put(LTIService.LTI_ALLOWTITLE, new Integer(1));
+			newTool.put(LTIService.LTI_ALLOWPAGETITLE, new Integer(1));
+			// Might only want to do this if we know they do LtiLink Content Item
+			newTool.put(LTIService.LTI_ALLOWLAUNCH, new Integer(1));
+
+			String tool_proxy_binding = (String) profileTool.get(LTI2Constants.TOOL_PROXY_BINDING);
+			ToolProxyBinding toolProxyBinding = null;
+			try {
+				toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
+			} catch (Throwable t) {
+				addAlert(state,rb.getString("deploy.parse.error")+" tool_proxy_binding");
+				return "lti_error";
+			}
+			
+			newTool.put(LTIService.LTI_TOOL_PROXY_BINDING, tool_proxy_binding);
+			String fa_icon = toolProxyBinding.getIconPath("FontAwesome");
 			if ( fa_icon != null ) newTool.put("fa_icon", fa_icon);
 
 			M_log.info("newTool="+newTool);
@@ -1479,6 +1500,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			addAlert(state, rb.getString("error.tool.not.found"));
 			return "lti_error";
 		}
+
+		// Check if we are supposed to let the tool configure itself
+		Object allow = tool.get(LTIService.LTI_ALLOWCONTENTITEM);
+System.out.println("allow="+allow);
+System.out.println("class="+ allow.getClass().getName());
 
 		Object previousData = null;
 		if ( content != null ) { 

@@ -41,6 +41,7 @@ import org.imsglobal.json.IMSJSONRequest;
 import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.LTI2Util;
+import org.imsglobal.lti2.ToolProxy;
 import org.imsglobal.lti2.objects.Service_offered;
 import org.imsglobal.lti2.objects.StandardServices;
 import org.imsglobal.lti2.objects.ToolConsumer;
@@ -320,17 +321,21 @@ public class LTI2Service extends HttpServlet {
 			return;
 		}
 
-		JSONObject providerProfile = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
-		// System.out.println("OBJ:"+providerProfile);
-		if ( providerProfile == null  ) {
+		ToolProxy toolProxy = null;
+		try {
+			toolProxy = new ToolProxy(jsonRequest.getPostBody());
+			// System.out.println("OBJ:"+toolProxy);
+		} catch (Throwable t ) {
+			t.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "JSON parse failed", null);
 			return;
 		}
 
-		JSONObject default_custom = (JSONObject) providerProfile.get(LTI2Constants.CUSTOM);
 
-		JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
+		JSONObject default_custom = toolProxy.getCustom();
+
+		JSONObject security_contract = toolProxy.getSecurityContract();
 		if ( security_contract == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "JSON missing security_contract", null);
@@ -374,7 +379,7 @@ public class LTI2Service extends HttpServlet {
 		ToolConsumer consumer = getToolConsumerProfile(deploy, profile_id);
 
 		JSONArray tool_services = (JSONArray) security_contract.get(LTI2Constants.TOOL_SERVICE);
-		String retval = LTI2Util.validateServices(consumer, providerProfile);
+		String retval = toolProxy.validateServices(consumer);
 		if ( retval != null ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, retval, null);
@@ -382,7 +387,7 @@ public class LTI2Service extends HttpServlet {
 		}
 
 		// Parse the tool profile bit and extract the tools with error checking
-		retval = LTI2Util.validateCapabilities(consumer, providerProfile);
+		retval = toolProxy.validateCapabilities(consumer);
 		if ( retval != null ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, retval, null);
@@ -405,7 +410,7 @@ public class LTI2Service extends HttpServlet {
 		deployUpdate.put(LTIService.LTI_REG_ACK, ack);
 		deployUpdate.put(LTIService.LTI_REG_PASSWORD, "");
 		if ( default_custom != null ) deployUpdate.put(LTIService.LTI_SETTINGS, default_custom.toString());
-		deployUpdate.put(LTIService.LTI_REG_PROFILE, providerProfile.toString());
+		deployUpdate.put(LTIService.LTI_REG_PROFILE, toolProxy.toString());
 
 		M_log.debug("deployUpdate="+deployUpdate);
 
