@@ -1036,6 +1036,14 @@ GradebookSpreadsheet.prototype.setupColoredCategories = function() {
            css("backgroundColor", color).
            css("borderColor", color);
   });
+
+  $.each(self._CATEGORY_DATA, function(category, data) {
+    if (data.scoreHeaderModel && data.scoreHeaderModel.$cell) {
+      var $colorSwatch = $("<span>").addClass("gb-category-score-swatch");
+      $colorSwatch.css("backgroundColor", data.color);
+      data.scoreHeaderModel.$cell.find(".gb-title").before($colorSwatch);
+    }
+  });
 };
 
 

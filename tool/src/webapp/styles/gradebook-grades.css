@@ -105,6 +105,13 @@
 #gradebookGrades th.gb-category-item-column-cell .gb-title {
   font-style: italic;
 }
+#gradebookGrades th.gb-category-item-column-cell .gb-category-score-swatch {
+  float: left;
+  height: 1em;
+  width: 1em;
+  margin: 3px 5px 0 0;
+  box-shadow: 1px 1px 1px #AAA;
+}
 
 /* Dropdown Menus */
 #gradebookGrades td .btn-group {
