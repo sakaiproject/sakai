@@ -1,7 +1,7 @@
 package org.sakaiproject.gradebookng.tool.model;
 
 import java.io.Serializable;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.HashMap;
 import java.util.Map;
 
 import lombok.Getter;
@@ -50,8 +50,8 @@ public class GradebookUiSettings implements Serializable {
 	public GradebookUiSettings() {
 		//defaults. Note there is no default for assignmentSortOrder as that requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
-		this.assignmentVisibility = new ConcurrentHashMap<Long, Boolean>();
-		this.categoryScoreVisiblity = new ConcurrentHashMap<String, Boolean>();
+		this.assignmentVisibility = new HashMap<Long, Boolean>();
+		this.categoryScoreVisiblity = new HashMap<String, Boolean>();
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 	}
 
