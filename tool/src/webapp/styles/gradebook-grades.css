@@ -102,8 +102,8 @@
   color: #999;
   line-height: 1.4em;
 }
-#gradebookGrades th.gb-category-item-column-cell {
-  background-color: #EAEAEA;
+#gradebookGrades th.gb-category-item-column-cell .gb-title {
+  font-style: italic;
 }
 
 /* Dropdown Menus */
@@ -184,7 +184,8 @@
   height: 2.6em;
 }
 #gradebookGrades .gb-grade-item-cell,
-#gradebookGrades .gb-external-item-cell {
+#gradebookGrades .gb-external-item-cell,
+#gradebookGrades td.gb-category-item-column-cell {
   text-align: center;
   white-space: nowrap;
 }
