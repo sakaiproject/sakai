@@ -25,14 +25,13 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Properties;
+import java.util.HashMap;
 import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.imsglobal.basiclti.BasicLTIUtil;
-import org.imsglobal.lti2.objects.Service_offered;
 import org.imsglobal.lti2.objects.StandardServices;
-import org.imsglobal.lti2.objects.ToolConsumer;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.JSONValue;
@@ -46,72 +45,7 @@ public class LTI2Util {
 	public static final String SCOPE_ToolProxyBinding = "ToolProxyBinding";
 	public static final String SCOPE_ToolProxy = "ToolProxy";
 
-    private static final String EMPTY_JSON_OBJECT = "{\n}\n";
-
-	// Validate the incoming tool_services against a tool consumer
-	public static String validateServices(ToolConsumer consumer, JSONObject providerProfile) 
-	{
-		// Mostly to catch casting errors from bad JSON
-		try {
-			JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
-			if ( security_contract == null  ) {
-				return "JSON missing security_contract";
-			}
-			JSONArray tool_services = (JSONArray) security_contract.get(LTI2Constants.TOOL_SERVICE);
-
-			List<Service_offered> services_offered = consumer.getService_offered();
-
-			if ( tool_services != null ) for (Object o : tool_services) {
-				JSONObject tool_service = (JSONObject) o;
-				String json_service = (String) tool_service.get(LTI2Constants.SERVICE);
-
-				boolean found = false;
-				for (Service_offered service : services_offered ) {
-					String service_id = service.get_id();
-					if ( service_id.equals(json_service) ) {
-						found = true;
-						break;
-					}
-				}
-				if ( ! found ) return "Service not allowed: "+json_service;
-			}
-			return null;
-		}
-		catch (Exception e) {
-			return "Exception:"+ e.getLocalizedMessage();
-		}
-	}
-
-	// Validate incoming capabilities requested against our ToolConsumer
-	public static String validateCapabilities(ToolConsumer consumer, JSONObject providerProfile) 
-	{
-		List<Properties> theTools = new ArrayList<Properties> ();
-		Properties info = new Properties();
-
-		// Mostly to catch casting errors from bad JSON
-		try {
-			String retval = parseToolProfile(theTools, info, providerProfile);
-			if ( retval != null )  return retval;
-
-			if ( theTools.size() < 1 ) return "No tools found in profile";
-
-			// Check all the capabilities requested by all the tools comparing against consumer
-			List<String> capabilities = consumer.getCapability_offered();
-			for ( Properties theTool : theTools ) {
-				String ec = (String) theTool.get(LTI2Constants.ENABLED_CAPABILITY);
-				JSONArray enabled_capability = (JSONArray) JSONValue.parse(ec);
-				if ( enabled_capability != null ) for (Object o : enabled_capability) {
-					ec = (String) o;
-					if ( capabilities.contains(ec) ) continue;
-					return "Capability not permitted="+ec;
-				}
-			}
-			return null;
-		}
-		catch (Exception e ) {
-			return "Exception:"+ e.getLocalizedMessage();
-		}
-	}
+	private static final String EMPTY_JSON_OBJECT = "{\n}\n";
 
 	// If this code looks like a hack - it is because the spec is a hack.
 	// There are five possible scenarios for GET and two possible scenarios
@@ -164,7 +98,7 @@ public class LTI2Util {
 		}
 
 		// Lets get this party started...
-		JSONObject jsonResponse =  null;
+		JSONObject jsonResponse = null;
 		if ( (distinct || bubbleAll) && acceptComplex ) { 
 			jsonResponse = new JSONObject();	
 			jsonResponse.put(LTI2Constants.CONTEXT,StandardServices.TOOLSETTINGS_CONTEXT);
@@ -195,7 +129,7 @@ public class LTI2Util {
 			}
 			jsonResponse.put(LTI2Constants.GRAPH,graph);
 
-		} else if ( distinct ) {  // Simple format output
+		} else if ( distinct ) { // Simple format output
 			jsonResponse = proxy_settings;
 			if ( SCOPE_LtiLink.equals(scope) ) {
 				jsonResponse.putAll(binding_settings);
@@ -235,18 +169,6 @@ public class LTI2Util {
 	}
 
 	// Parse a provider profile with lots of error checking...
-	public static String parseToolProfile(List<Properties> theTools, Properties info, JSONObject jsonObject)
-	{
-		try {
-			return parseToolProfileInternal(theTools, info, jsonObject);
-		} catch (Exception e) {
-			M_log.warning("Internal error parsing tool proxy\n"+jsonObject.toString());
-			e.printStackTrace();
-			return "Internal error parsing tool proxy:"+e.getLocalizedMessage();
-		}
-	}
-
-	// Parse a provider profile with lots of error checking...
 	public static JSONArray forceArray(Object obj) 
 	{
 		if ( obj == null ) return null;
@@ -256,7 +178,7 @@ public class LTI2Util {
 		return retval;
 	}
 
-	// Return a JSONArray or null.  Promote a JSONObject to an array
+	// Return a JSONArray or null. Promote a JSONObject to an array
 	public static JSONArray getArray(JSONObject obj, String key)
 	{
 		if ( obj == null ) return null;
@@ -293,14 +215,15 @@ public class LTI2Util {
 
 	// Parse a provider profile with lots of error checking...
 	@SuppressWarnings("unused")
-	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject jsonObject)
+	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject tool_proxy)
 	{
 		Object o = null;
 
-		JSONObject tool_profile = (JSONObject) jsonObject.get("tool_profile");
-		if ( tool_profile == null  ) {
+		JSONObject tool_profile = (JSONObject) tool_proxy.get("tool_profile");
+		if ( tool_profile == null ) {
 			return "JSON missing tool_profile";
 		}
+	
 		JSONObject product_instance = (JSONObject) tool_profile.get("product_instance");
 		if ( product_instance == null  ) {
 			return "JSON missing product_instance";
@@ -438,59 +361,45 @@ public class LTI2Util {
 			if ( button != null ) theTool.put("button", button);
 			if ( resourceDescription == null ) resourceDescription = productDescription;
 			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
-			if ( parameter != null ) theTool.put("parameter", parameter.toString());
-			if ( iconInfo != null ) theTool.put("icon_info",iconInfo.toString());
+			if ( parameter != null ) theTool.put(LTI2Constants.PARAMETER, parameter.toString());
+			if ( iconInfo != null ) theTool.put(LTI2Constants.ICON_INFO,iconInfo.toString());
 			theTool.put(LTI2Constants.ENABLED_CAPABILITY, enabled_capability.toString());
 			theTool.put("launch", thisLaunch);
 			if ( secure_base_url != null ) theTool.put("secure_base_url", secure_base_url);
 			if ( default_base_url != null ) theTool.put("default_base_url", default_base_url);
+
+			// Turn the tool_proxy into a tool_proxy_binding by having a single 
+			// resource_handler that is the one that corresponds to this tool.
+			ToolProxy local_tool_proxy = new ToolProxy(tool_proxy.toString());
+			JSONObject local_tool_profile = local_tool_proxy.getToolProfile();
+			local_tool_profile.remove(LTI2Constants.RESOURCE_HANDLER);
+			JSONArray handlers = new JSONArray ();
+			handlers.add(resource_handler);
+			local_tool_profile.put(LTI2Constants.RESOURCE_HANDLER, handlers);
+
+			// With a single resource handler it is now a TPB
+			ToolProxyBinding tool_proxy_binding = new ToolProxyBinding(local_tool_proxy.toString());
+			theTool.put(LTI2Constants.TOOL_PROXY_BINDING, tool_proxy_binding.toString());
 			theTools.add(theTool);
 		}
 		return null;  // All good
 	}
 
 	/**
-	 * Check if a particular capability is enabled
+	 * Parse a string and reliably return a JSONObject or null
 	 * 
-	 * @param String enabledCapabilityString - The string representation of the JSON
-	 * array of capabilities.
-	 * @param String capability - The capability to look for
+	 * @param String toolProfileString - The string representation tool_profile.
+	 * This has a single resource_handler object since this is scoped to a single
+	 * tool.
 	 */
-	public static boolean enabledCapability(String enabledCapabilityString, String capability)
+	public static JSONObject parseJSONObject(String toolProfileString)
 	{
-		if ( enabledCapabilityString == null || capability == null ) return false;
-		// For now just look for the string in quotes.
-		return enabledCapabilityString.indexOf("\""+capability+"\"") >= 0 ;
-	}
-
-	/**
-	 * Extract an icon path by icon_style from an icon_info string
-	 * 
-	 * @param String icon_info - The string representation of the icon_info
-	 * @param String icon_style - The style to look for
-	 */
-	public static String getIconPath(String icon_info, String icon_style)
-	{
-		if ( icon_info == null || icon_info.length() < 1 ) {
+		if ( toolProfileString == null || toolProfileString.length() < 1 ) {
 			return null;
 		}
-		Object ii = JSONValue.parse(icon_info);
-		if ( ii == null || ! (ii instanceof JSONArray) ) return null;
-		JSONArray iconInfo = (JSONArray) ii;
-
-		for (Object m : iconInfo) {
-			if ( ! ( m instanceof JSONObject) ) continue;
-			JSONObject jm = (JSONObject) m;
-			JSONArray icon_styles = getArray(jm, "icon_style");
-			if ( icon_styles == null ) continue;
-			if ( ! icon_styles.contains(icon_style) ) continue;
-			JSONObject default_location = getObject(jm, "default_location");
-			if ( default_location == null ) continue;
-			String default_location_path = getString(default_location,"path");
-			if ( default_location_path == null ) continue;
-			return default_location_path;
-		}
-		return null;
+		Object tp = JSONValue.parse(toolProfileString);
+		if ( tp == null || ! (tp instanceof JSONObject) ) return null;
+		return (JSONObject) tp;
 	}
 
 	public static JSONObject parseSettings(String settings)
@@ -594,7 +503,7 @@ public class LTI2Util {
 			return false;
 		}
 		Iterator<?> parameters = json.iterator();
-		while( parameters.hasNext() ){
+		while( parameters.hasNext() ) {
 			Object o = parameters.next();
 			JSONObject parameter = null;
 			try {
@@ -639,12 +548,12 @@ public class LTI2Util {
 	// Place the custom values into the launch
 	public static void addCustomToLaunch(Properties ltiProps, Properties custom) 
 	{
-        Enumeration<?> e = custom.propertyNames();
-        while (e.hasMoreElements()) {
-            String keyStr = (String) e.nextElement();
-            String value =  custom.getProperty(keyStr);
-            setProperty(ltiProps,"custom_"+keyStr,value);
-        }           
+		Enumeration<?> e = custom.propertyNames();
+		while (e.hasMoreElements()) {
+			String keyStr = (String) e.nextElement();
+			String value =  custom.getProperty(keyStr);
+			setProperty(ltiProps,"custom_"+keyStr,value);
+		}	
 	}
 
 	@SuppressWarnings("deprecation")

@@ -41,6 +41,8 @@ import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.LTI2Vars;
 import org.imsglobal.lti2.LTI2Caps;
 import org.imsglobal.lti2.LTI2Util;
+import org.imsglobal.lti2.LTI2Messages;
+import org.imsglobal.lti2.ToolProxyBinding;
 import org.imsglobal.lti2.objects.ToolConsumer;
 
 import org.sakaiproject.lti.api.LTIService;
@@ -831,12 +833,12 @@ public class SakaiBLTIUtil {
 		LTI2Util.addCustomToLaunch(ltiProps, custom);
 
 		// Check which kind of signing we are supposed to do
-		String enabled_capability = (String) content.get("enabled_capability");
-		if ( enabled_capability == null ) {
-			enabled_capability = (String) tool.get("enabled_capability");
-		}
+		String tool_proxy_binding = (String) tool.get("tool_proxy_binding");
+		ToolProxyBinding toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
+		
+		if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST, 
+			LTI2Caps.OAUTH_HMAC256) ) {
 
-		if ( LTI2Util.enabledCapability(enabled_capability, LTI2Caps.OAUTH_HMAC256) ) {
 			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
 			M_log.debug("Launching with SHA256 Signing");
 		}
@@ -884,7 +886,6 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=PostRegister&id="+deployKey);
 
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
-		debug = 1;
 
 		M_log.debug("ltiProps="+ltiProps);
 

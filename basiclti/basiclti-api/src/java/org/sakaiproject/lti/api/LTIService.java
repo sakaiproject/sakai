@@ -664,13 +664,14 @@ public interface LTIService {
 		"launch:url:label=bl_launch:maxlength=1024:allowed=true",
 		"consumerkey:text:label=bl_consumerkey:allowed=true:maxlength=1024",
 		"secret:text:label=bl_secret:allowed=true:maxlength=1024",
-		"resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin",
+		"resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin:only=lti2",
 		"xmlimport:text:hidden=true:maxlength=1M",
 		// LTI 2.x settings
 		"settings:text:hidden=true:maxlength=1M",
-		"enabled_capability:text:hidden=true:maxlength=1M:role=admin",
 		// Sakai LTI 1.x extension settings (see SAK-25621)
 		"settings_ext:text:hidden=true:maxlength=1M",
+		// LTI Content-Item (see SAK-29328)
+		"contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:role=admin",
 		"placement:text:hidden=true:maxlength=256", 
 		"placementsecret:text:hidden=true:maxlength=512",
 		"oldplacementsecret:text:hidden=true:maxlength=512",
@@ -686,13 +687,13 @@ public interface LTIService {
 		"SITE_ID:text:maxlength=99:role=admin",
 		"title:text:label=bl_title:required=true:maxlength=1024",
 		"allowtitle:radio:label=bl_allowtitle:choices=disallow,allow",
+		"fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
 		"pagetitle:text:label=bl_pagetitle:required=true:maxlength=1024",
 		"allowpagetitle:radio:label=bl_allowpagetitle:choices=disallow,allow",
-		"fa_icon:text:label=bl_fa_icon:allowed=true:maxlength=1024",
 		"description:textarea:label=bl_description:maxlength=4096",
 		"status:radio:label=bl_status:choices=enable,disable",
 		"visible:radio:label=bl_visible:choices=visible,stealth:role=admin",
-		"resource_handler:text:label=bl_resource_handler:maxlength=1024:only=lti2",
+		"resource_handler:text:label=bl_resource_handler:maxlength=1024:role=admin:only=lti2",
 		"deployment_id:integer:hidden=true",
 		"lti2_launch:header:fields=launch,consumerkey,secret:only=lti2",
 		"launch:url:label=bl_launch:maxlength=1024:required=true",
@@ -711,6 +712,7 @@ public interface LTIService {
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
 		"allowlori:checkbox:label=bl_allowlori",
+		"allowcontentitem:checkbox:label=bl_allowcontentitem",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		// LTI 1.x user-entered custom
@@ -719,9 +721,9 @@ public interface LTIService {
 		"settings:text:hidden=true:maxlength=1M",
 		// LTI 2.x tool-registration time parameters
 		"parameter:textarea:label=bl_parameter:rows=5:cols=25:maxlength=16384:only=lti2",
-		"enabled_capability:textarea:label=bl_enabled_capability:rows=5:cols=25:maxlength=16384:only=lti2",
+		"tool_proxy_binding:textarea:label=bl_tool_proxy_binding:maxlength=2M:only=lti2:hide=insert:role=admin",
 		"allowcustom:checkbox:label=bl_allowcustom",
-		"xmlimport:text:hidden=true:maxlength=1M",
+		"xmlimport:textarea:hidden=true:maxlength=1M",
 		"splash:textarea:label=bl_splash:rows=5:cols=25:maxlength=16384",
 		"created_at:autodate", 
 		"updated_at:autodate" };
@@ -746,6 +748,7 @@ public interface LTIService {
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
 		"allowlori:checkbox:label=bl_allowlori",
+		"allowcontentitem:checkbox:label=bl_allowcontentitem",
 		"lti2_internal:header:fields=reg_launch,reg_key,reg_secret,reg_password,consumerkey,secret,reg_profile:hide=insert",
 		"reg_launch:url:label=bl_reg_launch:maxlength=1024:role=admin",
 		"reg_key:text:label=bl_reg_key:maxlength=1024:hide=insert:role=admin",
@@ -754,7 +757,7 @@ public interface LTIService {
 		"consumerkey:text:label=bl_consumerkey:maxlength=1024:hide=insert",
 		"secret:text:label=bl_secret:maxlength=1024:hide=insert",
 		"new_secret:text:label=bl_secret:maxlength=1024:hide=insert",
-		"reg_profile:textarea:label=bl_reg_profile:maxlength=1M:hide=insert:role=admin",
+		"reg_profile:textarea:label=bl_reg_profile:maxlength=2M:hide=insert:role=admin",
 		"settings:text:hidden=true:maxlength=1M",   // This is "custom" in the JSON
 		"created_at:autodate", 
 		"updated_at:autodate" };
@@ -784,7 +787,7 @@ public interface LTIService {
 	static final String LTI_ALLOWTITLE =	"allowtitle";
 	static final String LTI_PAGETITLE =    	"pagetitle";
 	static final String LTI_ALLOWPAGETITLE =	"allowpagetitle";
-	static final String LTI_FA_ICON =    	"fa_icon";
+	static final String LTI_FA_ICON =       "fa_icon";
 	static final String LTI_PLACEMENT =    "placement";
 	static final String LTI_DESCRIPTION = "description";
 	static final String LTI_STATUS = 	"status";
@@ -805,8 +808,10 @@ public interface LTIService {
 	static final String LTI_ALLOWROSTER = "allowroster";
 	static final String LTI_ALLOWSETTINGS = "allowsettings";
 	static final String LTI_ALLOWLORI = "allowlori";
+	static final String LTI_ALLOWCONTENTITEM = "allowcontentitem";
 	static final String LTI_SETTINGS = "settings";
 	static final String LTI_SETTINGS_EXT = "settings_ext";
+	static final String LTI_CONTENTITEM = "contentitem";
 	static final String LTI_NEWPAGE =	"newpage";
 	static final String LTI_DEBUG =	"debug";
 	static final String LTI_CUSTOM = 	"custom";
@@ -832,8 +837,9 @@ public interface LTIService {
 	static final String LTI_REG_ACK = "reg_ack";
 	static final String LTI_REG_PASSWORD = "reg_password";
 	static final String LTI_PARAMETER = "parameter";
-	static final String LTI_REG_PROFILE = "reg_profile";
-	static final String LTI_ENABLED_CAPABILITY = "enabled_capability";
+	static final String LTI_REG_PROFILE = "reg_profile"; // A.k.a tool_proxy
+	// A subset of a tool_proxy with only a single resource_handler
+	static final String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
 	// End of BLTI-230 - LTI 2.0
 
 }
