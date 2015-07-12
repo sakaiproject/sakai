@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
@@ -99,6 +100,9 @@ public class GradebookNgBusinessService {
 	@Setter
 	private MemoryService memoryService;
 	
+	@Setter
+	private SecurityService securityService;
+	
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	
 	private Cache cache;
@@ -137,7 +141,7 @@ public class GradebookNgBusinessService {
 			String siteId = this.getCurrentSiteId();
 			
 			//note that this MUST exclude TAs as it is checked in the GradebookService and will throw a SecurityException if invalid users are provided
-			Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(Role.STUDENT.getValue());
+			Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
 			
 			//filter the allowed list based on membership
 			if(groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
@@ -234,7 +238,8 @@ public class GradebookNgBusinessService {
 	public List<Assignment> getGradebookAssignments(String siteId) {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
-			return gradebookService.getAssignments(gradebook.getUid(), SortType.SORT_BY_SORTING);
+			//applies permissions and default sort is SORT_BY_SORTING
+			return gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid());
 		}
 		return null;
 	}
@@ -1268,6 +1273,47 @@ public class GradebookNgBusinessService {
     	 }
     	 
     	 return false;
+     }
+     
+     /**
+      * Get the role of the current user in the current site
+      * @return Role
+      */
+     public GbRole getUserRole() {
+    	 String siteId = this.getCurrentSiteId();
+    	 return this.getUserRole(siteId);
+     }
+     
+     /**
+      * Get the role of the current user in the given site
+      * @param siteId the siteId to check
+      * @return Role
+      */
+     public GbRole getUserRole(String siteId) {
+    	 
+    	 String userId = this.getCurrentUser().getId();
+    	 
+    	 String siteRef;
+    	 try {
+    		 siteRef = this.siteService.getSite(siteId).getReference();
+    	 } catch (IdUnusedException e) {
+ 			e.printStackTrace();
+ 			return null;
+ 		}
+    	 
+    	 GbRole rval;
+    	 
+    	 if(securityService.unlock(userId, GbRole.INSTRUCTOR.getValue(), siteRef)) {
+        	 rval = GbRole.INSTRUCTOR;
+         } else if(securityService.unlock(userId, GbRole.TA.getValue(), siteRef)) {
+        	 rval = GbRole.TA;
+         } else if(securityService.unlock(userId, GbRole.STUDENT.getValue(), siteRef)) {
+        	 rval = GbRole.STUDENT;
+         } else {
+        	 throw new SecurityException("Current user does not have a valid section.role.x permission");
+         }
+    	 
+    	 return rval;
      }
     
 

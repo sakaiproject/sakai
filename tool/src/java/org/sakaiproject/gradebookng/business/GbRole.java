@@ -6,7 +6,7 @@ package org.sakaiproject.gradebookng.business;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public enum Role {
+public enum GbRole {
 
 	STUDENT("section.role.student"),
 	TA("section.role.ta"),
@@ -14,7 +14,7 @@ public enum Role {
 				
 	private String value;
 
-	Role(final String value) {
+	GbRole(final String value) {
         this.value = value;
     }
 
