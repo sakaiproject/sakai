@@ -112,12 +112,12 @@
          <dependency>
           <groupId>org.apache.poi</groupId>
           <artifactId>poi</artifactId>
-          <version>3.10.1</version>
+          <version>${sakai.poi.version}</version>
         </dependency>
         <dependency>
          <groupId>org.apache.poi</groupId>
          <artifactId>poi-ooxml</artifactId>
-         <version>3.10.1</version>
+         <version>${sakai.poi.version}</version>
         </dependency>
     <!--  needed to make the tests work as we need to bring up the Component Manager -->
     <dependency>
