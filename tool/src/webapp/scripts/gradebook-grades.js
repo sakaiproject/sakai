@@ -784,7 +784,10 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
 
     if (categoryData.scoreHeaderModel) {
       categoryData.scoreHeaderModel.moveColumnTo(newColIndex);
-      numberVisible++;
+      categoryData.scoreHeaderModel.setCategoryCell($categoryCell);
+      if (categoryData.scoreHeaderModel.$cell.is(":visible")) {
+        numberVisible++;
+      }
       newColIndex++;
     }
 
