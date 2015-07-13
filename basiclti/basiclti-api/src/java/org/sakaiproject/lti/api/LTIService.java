@@ -196,6 +196,14 @@ public interface LTIService {
 
 	/**
 	 * 
+	 * @param tool
+	 * @param siteId
+	 * @return
+	 */
+	public String getToolLaunch(Map<String, Object> tool, String siteId);
+
+	/**
+	 * 
 	 * @param key
 	 * @return
 	 */

@@ -1502,9 +1502,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		// Check if we are supposed to let the tool configure itself
-		Object allow = tool.get(LTIService.LTI_ALLOWCONTENTITEM);
-System.out.println("allow="+allow);
-System.out.println("class="+ allow.getClass().getName());
+		Long allowContentItem = foorm.getLongNull(tool.get(LTIService.LTI_ALLOWCONTENTITEM));
+System.out.println("allowContentItem="+allowContentItem);
+
+		String launch = (String) ltiService.getToolLaunch(tool, toolManager.getCurrentPlacement().getContext());
+System.out.println("launch="+launch);
 
 		Object previousData = null;
 		if ( content != null ) { 
