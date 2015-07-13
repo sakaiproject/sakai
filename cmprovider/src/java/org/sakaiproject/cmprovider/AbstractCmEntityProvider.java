@@ -220,7 +220,7 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
 
     String errorMessage = "Invalid " + data.getClass().getSimpleName() + ":";
     for (ConstraintViolation violation : constraintViolations) {
-      errorMessage += "\n" + violation.getMessage();
+      errorMessage += "\n" + violation.getPropertyPath() + " " + violation.getMessage();
     }
 
     throw new IllegalArgumentException(errorMessage);

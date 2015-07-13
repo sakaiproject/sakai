@@ -21,7 +21,7 @@ import org.sakaiproject.coursemanagement.api.AcademicSession;
  */
 public class AcademicSessionData implements CmEntityData {
   @NotNull
-  @Size(min=1, message="eid cannot be empty")
+  @Size
   public String eid;
 
   @NotNull
