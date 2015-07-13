@@ -1,7 +1,8 @@
 package org.sakaiproject.cmprovider.data;
 
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
-import org.sakaiproject.cmprovider.data.validation.NotNull;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.sakaiproject.coursemanagement.api.CourseSet;
 
 /**
@@ -19,10 +20,19 @@ import org.sakaiproject.coursemanagement.api.CourseSet;
  */
 public class CourseSetData implements CmEntityData {
 
-  @NotEmpty public String eid;
-  @NotNull public String title = "";
-  @NotNull public String description = "";
-  @NotNull public String category = "";
+  @NotNull
+  @Size(min=1)
+  public String eid;
+  
+  @NotNull
+  public String title = "";
+  
+  @NotNull
+  public String description = "";
+  
+  @NotNull
+  public String category = "";
+  
   public String parent;
 
   public String getId() { return eid; }

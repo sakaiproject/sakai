@@ -3,8 +3,9 @@ package org.sakaiproject.cmprovider.data;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
-import org.sakaiproject.cmprovider.data.validation.NotNull;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl;
 
 /**
@@ -24,12 +25,28 @@ import org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl;
  * @author Christopher Schauer
  */
 public class EnrollmentSetData implements CmEntityData {
-  @NotEmpty public String eid;
-  @NotNull public String title = "";
-  @NotNull public String description = "";
-  @NotEmpty public String category;
-  @NotEmpty public String defaultCredits;
-  @NotEmpty public String courseOffering;
+  @NotNull
+  @Size(min=1)
+  public String eid;
+
+  @NotNull
+  public String title = "";
+  
+  @NotNull
+  public String description = "";
+  
+  @NotNull
+  @Size(min=1)
+  public String category;
+  
+  @NotNull
+  @Size(min=1)
+  public String defaultCredits;
+  
+  @NotNull
+  @Size(min=1)
+  public String courseOffering;
+  
   public List<String> officialInstructors;
 
   public String getId() { return eid; }

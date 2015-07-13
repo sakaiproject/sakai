@@ -1,6 +1,8 @@
 package org.sakaiproject.cmprovider.data;
 
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.sakaiproject.coursemanagement.api.Enrollment;
 
 /**
@@ -18,11 +20,26 @@ import org.sakaiproject.coursemanagement.api.Enrollment;
  * @author Christopher Schauer
  */
 public class EnrollmentData implements CmEntityData {
-  @NotEmpty public String userId;
-  @NotEmpty public String enrollmentSet;
-  @NotEmpty public String status;
-  @NotEmpty public String credits;
-  @NotEmpty public String gradingScheme;
+  @NotNull
+  @Size(min=1)
+  public String userId;
+  
+  @NotNull
+  @Size(min=1)
+  public String enrollmentSet;
+  
+  @NotNull
+  @Size(min=1)
+  public String status;
+  
+  @NotNull
+  @Size(min=1)
+  public String credits;
+  
+  @NotNull
+  @Size(min=1)
+  public String gradingScheme;
+  
   public String dropDate;
   public boolean dropped = false;
 

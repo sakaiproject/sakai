@@ -3,13 +3,17 @@ package org.sakaiproject.cmprovider;
 import java.lang.Class;
 import java.lang.reflect.Field;
 import java.util.Map;
+import java.util.Set;
+
+import javax.validation.ConstraintViolation;
+import javax.validation.Validator;
+import javax.validation.Validation;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.cmprovider.data.CmEntityData;
-import org.sakaiproject.cmprovider.data.validation.FieldValidator;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.CourseManagementAdministration;
 import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
@@ -111,6 +115,12 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
     return new String[] { Formats.JSON };
   }
 
+  private Validator validator;
+
+  public void createValidator() {
+    validator = Validation.buildDefaultValidatorFactory().getValidator();
+  }
+
   /**
    * Subclasses that don't override both updateEntity and createEntity must override this method.
    */
@@ -204,10 +214,15 @@ public abstract class AbstractCmEntityProvider implements RESTful, CoreEntityPro
     if (!(data instanceof CmEntityData))
       throw new IllegalArgumentException("Request body must implement CmEntityData interface.");
 
-    Class c = data.getClass();
-    for (Field field : c.getFields()) {
-      FieldValidator validator = new FieldValidator(data, field);
-      validator.validate();
+    Set<ConstraintViolation<Object>> constraintViolations = validator.validate(data);
+
+    if (constraintViolations.isEmpty()) return;
+
+    String errorMessage = "Invalid " + data.getClass().getSimpleName() + ":";
+    for (ConstraintViolation violation : constraintViolations) {
+      errorMessage += "\n" + violation.getMessage();
     }
+
+    throw new IllegalArgumentException(errorMessage);
   }
 }

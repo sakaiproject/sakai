@@ -1,8 +1,8 @@
 package org.sakaiproject.cmprovider.data;
 
-import org.sakaiproject.cmprovider.data.validation.After;
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
-import org.sakaiproject.cmprovider.data.validation.NotNull;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.sakaiproject.coursemanagement.api.AcademicSession;
 
 /**
@@ -20,11 +20,18 @@ import org.sakaiproject.coursemanagement.api.AcademicSession;
  * @author Christopher Schauer
  */
 public class AcademicSessionData implements CmEntityData {
-  @NotEmpty public String eid;
-  @NotNull public String title = "";
-  @NotNull public String description = "";
+  @NotNull
+  @Size(min=1, message="eid cannot be empty")
+  public String eid;
+
+  @NotNull
+  public String title = "";
+  
+  @NotNull
+  public String description = "";
+  
   public String startDate;
-  @After(field="startDate") public String endDate;
+  public String endDate;
 
   public String getId() { return eid; }
   

@@ -1,7 +1,8 @@
 package org.sakaiproject.cmprovider.data;
 
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
-import org.sakaiproject.cmprovider.data.validation.NotNull;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.sakaiproject.coursemanagement.api.SectionCategory;
 
 /**
@@ -16,8 +17,12 @@ import org.sakaiproject.coursemanagement.api.SectionCategory;
  * @author Christopher Schauer
  */
 public class SectionCategoryData implements CmEntityData {
-  @NotEmpty public String code;
-  @NotNull public String description = "";
+  @NotNull
+  @Size(min=1)
+  public String code;
+  
+  @NotNull
+  public String description = "";
 
   public String getId() { return code; }
 }

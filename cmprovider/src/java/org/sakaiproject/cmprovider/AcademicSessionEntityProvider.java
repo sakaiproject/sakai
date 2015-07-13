@@ -2,6 +2,7 @@ package org.sakaiproject.cmprovider;
 
 import java.util.Arrays;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -61,6 +62,8 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
    */
   public void create(Object entity) {
     AcademicSessionData data = (AcademicSessionData) entity;
+    validateDates(data);
+    
     cmAdmin.createAcademicSession(
       data.eid,
       data.title,
@@ -77,6 +80,8 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
    */
   public void update(Object entity) {
     AcademicSessionData data = (AcademicSessionData) entity;
+    validateDates(data);
+
     AcademicSession updated = cmService.getAcademicSession(data.eid);
     updated.setTitle(data.title);
     updated.setDescription(data.description);
@@ -123,5 +128,20 @@ public class AcademicSessionEntityProvider extends AbstractCmEntityProvider {
     List<String> eidList = Arrays.asList(eidListString.split("\\s*,\\s*"));
     cmAdmin.setCurrentAcademicSessions(eidList);
     return null;
+  }
+
+  private void validateDates(AcademicSessionData data) {
+    Date startDate = DateUtils.stringToDate(data.startDate);
+    Date endDate = DateUtils.stringToDate(data.endDate);
+
+    if (startDate == null && endDate == null) return;
+
+    if (startDate == null || endDate == null) {
+      throw new IllegalArgumentException("Invalid AcademicSessionData: startDate and endDate must both be null or both be non-null");
+    }
+
+    if (startDate.compareTo(endDate) >= 0) {
+      throw new IllegalArgumentException("Invalid CourseOfferingData: startDate must occur before endDate");
+    }
   }
 }

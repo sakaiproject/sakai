@@ -1,5 +1,6 @@
 package org.sakaiproject.cmprovider;
 
+import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.cmprovider.data.CourseOfferingData;
@@ -45,6 +46,8 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
    */
   public void create(Object entity) {
     CourseOfferingData data = (CourseOfferingData) entity;
+    validateDates(data);
+    
     cmAdmin.createCourseOffering(
       data.eid,
       data.title,
@@ -64,6 +67,8 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
    */
   public void update(Object entity) {
     CourseOfferingData data = (CourseOfferingData) entity;
+    validateDates(data);
+
     CourseOffering updated = cmService.getCourseOffering(data.eid);
     updated.setTitle(data.title);
     updated.setDescription(data.description);
@@ -110,5 +115,20 @@ public class CourseOfferingEntityProvider extends AbstractContainerEntityProvide
 
   public void removeMembership(String userId, String containerId) {
     cmAdmin.removeCourseOfferingMembership(userId, containerId);
+  }
+
+  private void validateDates(CourseOfferingData data) {
+    Date startDate = DateUtils.stringToDate(data.startDate);
+    Date endDate = DateUtils.stringToDate(data.endDate);
+
+    if (startDate == null && endDate == null) return;
+
+    if (startDate == null || endDate == null) {
+      throw new IllegalArgumentException("Invalid CourseOfferingData: startDate and endDate must both be null or both be non-null");
+    }
+
+    if (startDate.compareTo(endDate) >= 0) {
+      throw new IllegalArgumentException("Invalid CourseOfferingData: startDate must occur before endDate");
+    }
   }
 }

@@ -1,7 +1,8 @@
 package org.sakaiproject.cmprovider.data;
 
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
-import org.sakaiproject.cmprovider.data.validation.NotNull;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.sakaiproject.coursemanagement.api.Section;
 
 /**
@@ -21,12 +22,28 @@ import org.sakaiproject.coursemanagement.api.Section;
  * @author Christopher Schauer
  */
 public class SectionData implements CmEntityData {
-  @NotEmpty public String eid;
-  @NotEmpty public String title;
-  @NotNull public String description = "";
-  @NotNull public String category = "";
-  @NotEmpty public String courseOffering;
-  @NotEmpty public String enrollmentSet;
+  @NotNull
+  @Size(min=1)
+  public String eid;
+  
+  @NotNull
+  @Size(min=1)
+  public String title;
+  
+  @NotNull
+  public String description = "";
+  
+  @NotNull
+  public String category = "";
+  
+  @NotNull
+  @Size(min=1)
+  public String courseOffering;
+  
+  @NotNull
+  @Size(min=1)
+  public String enrollmentSet;
+  
   public Integer maxSize;
   public String parent;
 

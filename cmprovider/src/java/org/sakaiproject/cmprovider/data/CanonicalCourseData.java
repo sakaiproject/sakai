@@ -1,7 +1,8 @@
 package org.sakaiproject.cmprovider.data;
 
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
-import org.sakaiproject.cmprovider.data.validation.NotNull;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
+
 import org.sakaiproject.coursemanagement.api.CanonicalCourse;
 
 /**
@@ -17,9 +18,15 @@ import org.sakaiproject.coursemanagement.api.CanonicalCourse;
  * @author Christopher Schauer
  */
 public class CanonicalCourseData implements CmEntityData {
-  @NotEmpty public String eid;
-  @NotNull public String title = "";
-  @NotNull public String description = "";
+  @NotNull
+  @Size(min=1)
+  public String eid;
+  
+  @NotNull
+  public String title = "";
+  
+  @NotNull
+  public String description = "";
 
   public String getId() { return eid; }
 

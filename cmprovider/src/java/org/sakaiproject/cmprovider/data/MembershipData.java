@@ -1,6 +1,7 @@
 package org.sakaiproject.cmprovider.data;
 
-import org.sakaiproject.cmprovider.data.validation.NotEmpty;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 /**
  * Represents a membership
@@ -15,10 +16,16 @@ import org.sakaiproject.cmprovider.data.validation.NotEmpty;
  * @author Christopher Schauer
  */
 public class MembershipData {
-  @NotEmpty public String userId;
+  @NotNull
+  @Size(min=1)
+  public String userId;
+  
   public String role;
   public String status;
-  @NotEmpty public String memberContainer;
+  
+  @NotNull
+  @Size(min=1)
+  public String memberContainer;
 
   public String getId() { return userId + "," + memberContainer; }
 

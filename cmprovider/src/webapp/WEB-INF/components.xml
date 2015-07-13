@@ -8,7 +8,7 @@
     </property>
   </bean>
 
-  <bean id="AbstractCmEntityProvider" abstract="true" class="org.sakaiproject.cmprovider.AbstractCmEntityProvider">
+  <bean id="AbstractCmEntityProvider" abstract="true" class="org.sakaiproject.cmprovider.AbstractCmEntityProvider" init-method="createValidator">
     <property name="cmService" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
     <property name="cmAdmin" ref="org.sakaiproject.coursemanagement.api.CourseManagementAdministration" />
     <property name="developerHelperService" ref="org.sakaiproject.entitybroker.DeveloperHelperService" />
