@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Properties;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -306,16 +307,25 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					Map<String,Object> tool = null;
 
 					String toolStr = refId.substring(5);
-					String placementId = req.getParameter("placement");
+					String contentReturn = req.getParameter("contentReturn");
+					Enumeration attrs =  req.getParameterNames();
+					Properties propData = new Properties();
+					while(attrs.hasMoreElements()) {
+						String key = (String) attrs.nextElement();
+						if ( "contentReturn".equals(key) ) continue;
+						if ( key == null ) continue;
+						String value = req.getParameter(key);
+						if ( value == null ) continue;
+						propData.setProperty(key,value);
+					}
 					Long toolKey = foorm.getLongKey(toolStr);
 					if ( toolKey >= 0 )
 					{
 						tool = ltiService.getToolDao(toolKey, ref.getContext());
 						if ( tool != null ) {
 							tool.put(LTIService.LTI_SITE_ID, ref.getContext());
-System.out.println("siteid = "+ref.getContext());
 						}
-						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, rb, placementId);
+						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, rb, contentReturn, propData);
 					}
 				}
 				else if ( refId.startsWith("content:") && refId.length() > 8 ) 

@@ -31,6 +31,8 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONObject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -991,7 +993,8 @@ public class SakaiBLTIUtil {
 	 * This must return an HTML message as the [0] in the array
 	 * If things are successful - the launch URL is in [1]
 	 */
-	public static String[] postContentItemSelectionRequest(Long toolKey, Map<String,Object> tool, ResourceLoader rb, String placementId)
+	public static String[] postContentItemSelectionRequest(Long toolKey, Map<String,Object> tool, 
+		ResourceLoader rb, String contentReturn, Properties dataProps)
 	{
 		if ( tool == null ) {
 			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool is missing or improperly configured.")+"</p>" ); 
@@ -1026,10 +1029,45 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIConstants.CAN_CONFIRM, "false");
 		// setProperty(ltiProps, BasicLTIConstants.TITLE, "");
 		// setProperty(ltiProps, BasicLTIConstants.TEXT, "");
-		setProperty(ltiProps, BasicLTIConstants.DATA, toolKey+"");
 
-		String serverUrl = getOurServerUrl();
-		setProperty(ltiProps, BasicLTIConstants.CONTENT_ITEM_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=PostConfig&id="+toolKey);
+		// Pull in additonal data
+		JSONObject dataJSON = new JSONObject();
+		Enumeration en = dataProps.keys();
+		while (en.hasMoreElements()) {
+			String key = (String) en.nextElement();
+			String value = dataProps.getProperty(key);
+			if ( value == null ) continue;
+
+			// Allow overrides
+			if ( BasicLTIConstants.ACCEPT_MEDIA_TYPES.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.ACCEPT_MEDIA_TYPES, value);
+				continue;
+			} else if ( BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, value);
+				continue;
+			} else if ( BasicLTIConstants.ACCEPT_UNSIGNED.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, value);
+				continue;
+			} else if ( BasicLTIConstants.AUTO_CREATE.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.AUTO_CREATE, value);
+				continue;
+			} else if ( BasicLTIConstants.CAN_CONFIRM.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.CAN_CONFIRM, value);
+				continue;
+			} else if ( BasicLTIConstants.TITLE.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.TITLE, value);
+				continue;
+			} else if ( BasicLTIConstants.TEXT.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.TEXT, value);
+				continue;
+			}
+
+			// Pass in data for use to get back.
+			dataJSON.put(key, value);
+		}
+		setProperty(ltiProps, BasicLTIConstants.DATA, dataJSON.toString());
+
+		setProperty(ltiProps, BasicLTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
 
 		// This must always be there
                 String context = (String) tool.get(LTIService.LTI_SITE_ID);

@@ -27,6 +27,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
 
+import java.net.URLEncoder;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -64,6 +66,7 @@ import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 // import org.sakaiproject.lti.impl.DBLTIService; // HACK
 import org.sakaiproject.util.foorm.SakaiFoorm;
+import org.sakaiproject.vm.ActionURL;
 
 /**
  * <p>
@@ -741,6 +744,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		context.put("tlang", rb);
 		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
 		return "lti_deploy_post_register";
+	}
+
+	public String buildPostContentItemPanelContext(VelocityPortlet portlet, Context context, 
+		RunData data, SessionState state)
+	{
+System.out.println("Welcome back!!!");
+		context.put("tlang", rb);
+		context.put("includeLatestJQuery", PortalUtils.includeLatestJQuery("LTIAdminTool"));
+		return "lti_deploy_post_content";
 	}
 
 	public String buildActivatePanelContext(VelocityPortlet portlet, Context context, 
@@ -1505,8 +1517,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Long allowContentItem = foorm.getLongNull(tool.get(LTIService.LTI_ALLOWCONTENTITEM));
 System.out.println("allowContentItem="+allowContentItem);
 
-		String launch = (String) ltiService.getToolLaunch(tool, toolManager.getCurrentPlacement().getContext());
-System.out.println("launch="+launch);
+		Placement placement = toolManager.getCurrentPlacement();
+                String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId() + 
+			"/sakai.basiclti.admin.helper.helper?panel=PostContentItem&tool_id="
+                        + tool.get(LTIService.LTI_ID);
+
+		String contentConfig = ltiService.getToolLaunch(tool, placement.getContext());
+		contentConfig = contentConfig + "?contentReturn=" + URLEncoder.encode(contentReturn);
+		contentConfig = contentConfig + "&returnUrl=" + URLEncoder.encode(returnUrl);
+		contentConfig = contentConfig + "&tool_id=" + tool.get(LTIService.LTI_ID);
 
 		Object previousData = null;
 		if ( content != null ) { 
@@ -1533,6 +1552,7 @@ System.out.println("launch="+launch);
 		context.put("doAction", BUTTON + "doContentPut");
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("cancelUrl", returnUrl);
 		context.put("returnUrl", returnUrl);
+		context.put("contentConfig", contentConfig);
 		context.put(LTIService.LTI_TOOL_ID,toolKey);
 		context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 		context.put("tool_title", tool.get(LTIService.LTI_TITLE));

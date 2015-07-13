@@ -17,6 +17,11 @@
 #if ( $tool_description ) 
 <p>$validator.escapeHtml($tool_description)</p>
 #end
+#if ( $contentConfig )
+<p>
+<a href="$contentConfig">Proceed to content configuration</a>.
+</p>
+#end
 #if ( $keyField ) 
 $tlang.getString("need.tool.info")
 		$keyField
