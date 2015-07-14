@@ -94,11 +94,4 @@ public class LTI2Constants {
 	public static final String DEFAULT_BASE_URL = "default_base_url";
 	public static final String RESOURCE_NAME = "resource_name";
 
-	/**
-	 * Utility array useful for validating property names when building launch
-	 * data.
-	 */
-	public static final String[] validPropertyNames = { 
-        REG_KEY, REG_PASSWORD, TC_PROFILE_URL };
-
 }

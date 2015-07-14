@@ -267,6 +267,20 @@ public abstract class BaseLTIService implements LTIService {
 	 * 
 	 * {@inheritDoc}
 	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#getToolLaunch(java.util.Map)
+	 */
+	public String getToolLaunch(Map<String, Object> tool, String siteId) {
+		if ( tool == null ) return null;
+		int key = getInt(tool.get(LTIService.LTI_ID));
+		if (key < 0 || siteId == null)
+			return null;
+		return LAUNCH_PREFIX + siteId + "/tool:" + key;
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#formOutput(java.lang.Object,
 	 *      java.lang.String)
 	 */

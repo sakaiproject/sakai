@@ -4,6 +4,7 @@ ini_set("display_errors", 1);
 
 // Load up the LTI Support code
 require_once 'util/lti_util.php';
+require_once 'util/mimeparse.php';
 
 session_start();
 header('Content-Type: text/html; charset=utf-8'); 
@@ -144,15 +145,22 @@ if ( $context->valid ) {
 		$found = true;
     }
 
-    if ( $_POST['content_item_return_url'] ) {
-        print "<p>\n";
-        print '<a href="json/content_json.php';
-        print '?key='.urlencode($_POST['oauth_consumer_key']);
-        print '&secret=secret';
-        print '&accepted='.urlencode($_POST['ext_outcome_data_values_accepted']);
-        print '&url='.urlencode($_POST['content_item_return_url']).'">';
-        print 'Test Content Item</a>.</p>'."\n";
-		$found = true;
+    $ltilink_allowed = false;
+    if ( isset($_POST['accept_media_types']) ) {
+        $ltilink_mimetype = 'application/vnd.ims.lti.v1.ltilink';
+        $m = new Mimeparse;
+        $ltilink_allowed = $m->best_match(array($ltilink_mimetype), $_POST['accept_media_types']);
+    }
+
+    if ( $ltilink_allowed && $_POST['content_item_return_url'] ) {
+        print '<p><form action="json/content_json.php" method="post">'."\n";
+        foreach ( $_POST as $k => $v ) {
+            print '<input type="hidden" name="'.$k.'" ';
+            print 'value="'.htmlentities($v).'"/>';
+        }
+        print '<input type="submit" value="Test Content Item"/>';
+        print "</form></p>\n";
+        $found = true;
     }
 
     if ( ! $found ) {

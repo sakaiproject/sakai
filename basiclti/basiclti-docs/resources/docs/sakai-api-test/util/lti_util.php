@@ -10,7 +10,7 @@ require_once 'OAuth.php';
 function is_lti_request() {
    $good_message_type = $_REQUEST["lti_message_type"] == "basic-lti-launch-request" ||
         $_REQUEST["lti_message_type"] == "ToolProxyReregistrationRequest" || 
-        $_REQUEST["lti_message_type"] == "ContentItemSelection";
+        $_REQUEST["lti_message_type"] == "ContentItemSelectionRequest";
    $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0" || $_REQUEST["lti_version"] == "LTI-2p0";
    if ($good_message_type and $good_lti_version ) return(true);
    return false;

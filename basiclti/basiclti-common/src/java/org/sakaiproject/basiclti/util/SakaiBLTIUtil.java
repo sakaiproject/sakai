@@ -31,6 +31,8 @@ import java.net.URL;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.json.simple.JSONObject;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -303,6 +305,38 @@ public class SakaiBLTIUtil {
 		}
 
 		setProperty(props, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, returnUrl);
+	}
+
+	public static void addUserInfo(Properties ltiProps, Properties lti2subst, Map<String, Object> tool)
+	{
+		int releasename = getInt(tool.get(LTIService.LTI_SENDNAME));
+		int releaseemail = getInt(tool.get(LTIService.LTI_SENDEMAILADDR));
+
+		User user = UserDirectoryService.getCurrentUser();
+		if ( user != null )
+		{
+			setProperty(ltiProps,BasicLTIConstants.USER_ID,user.getId());
+			setProperty(lti2subst,LTI2Vars.USER_ID,user.getId());
+			setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_SOURCEDID,user.getEid());
+			setProperty(lti2subst,LTI2Vars.USER_USERNAME,user.getEid());
+			if ( releasename == 1 ) {
+				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_GIVEN,user.getFirstName());
+				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FAMILY,user.getLastName());
+				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_NAME_FULL,user.getDisplayName());
+				setProperty(lti2subst,LTI2Vars.PERSON_NAME_GIVEN,user.getFirstName());
+				setProperty(lti2subst,LTI2Vars.PERSON_NAME_FAMILY,user.getLastName());
+				setProperty(lti2subst,LTI2Vars.PERSON_NAME_FULL,user.getDisplayName());
+			}
+			if ( releaseemail == 1 ) {
+				setProperty(ltiProps,BasicLTIConstants.LIS_PERSON_CONTACT_EMAIL_PRIMARY,user.getEmail());
+				setProperty(lti2subst,LTI2Vars.PERSON_EMAIL_PRIMARY,user.getEmail());
+				// Only send the display ID if it's different to the EID.
+				// the anonymous user has a null EID.
+				if (user.getEid() != null && !user.getEid().equals(user.getDisplayId())) {
+					setProperty(ltiProps,BasicLTIConstants.EXT_SAKAI_PROVIDER_DISPLAYID,user.getDisplayId());
+				}
+			}
+		}
 	}
 
 	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp)
@@ -846,9 +880,12 @@ public class SakaiBLTIUtil {
 		return postLaunchHTML(toolProps, ltiProps, rb);
 	}
 
-	// An LTI 2.0 Registration launch
-	// This must return an HTML message as the [0] in the array
-	// If things are successful - the launch URL is in [1]
+	/**
+	 * An LTI 2.0 Registration launch
+         *
+	 * This must return an HTML message as the [0] in the array
+	 * If things are successful - the launch URL is in [1]
+	 */
 	public static String[] postRegisterHTML(Long deployKey, Map<String,Object> tool, ResourceLoader rb, String placementId)
 	{
 		if ( tool == null ) {
@@ -896,9 +933,12 @@ public class SakaiBLTIUtil {
 		return retval;
 	}
 
-	// An LTI 2.0 ReRegistration launch
-	// This must return an HTML message as the [0] in the array
-	// If things are successful - the launch URL is in [1]
+	/**
+	 * An LTI 2.0 ReRegistration launch
+	 *
+	 * This must return an HTML message as the [0] in the array
+	 * If things are successful - the launch URL is in [1]
+	 */
 	public static String[] postReRegisterHTML(Long deployKey, Map<String,Object> deploy, ResourceLoader rb, String placementId)
 	{
 		if ( deploy == null ) {
@@ -933,6 +973,121 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=PostRegister&id="+deployKey);
 
 		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
+
+		Map<String,String> extra = new HashMap<String,String> ();
+		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
+				consumerkey, secret, null, null, null, extra);
+
+		M_log.debug("signed ltiProps="+ltiProps);
+
+		boolean dodebug = debug == 1;
+		String postData = BasicLTIUtil.postLaunchHTML(ltiProps, launch_url, dodebug, extra);
+
+		String [] retval = { postData, launch_url };
+		return retval;
+	}
+
+	/**
+	 * An LTI 2.0 ContentItemSelectionRequest launch
+	 *
+	 * This must return an HTML message as the [0] in the array
+	 * If things are successful - the launch URL is in [1]
+	 */
+	public static String[] postContentItemSelectionRequest(Long toolKey, Map<String,Object> tool, 
+		ResourceLoader rb, String contentReturn, Properties dataProps)
+	{
+		if ( tool == null ) {
+			return postError("<p>" + getRB(rb, "error.tool.missing" ,"Tool is missing or improperly configured.")+"</p>" ); 
+		}
+
+		String launch_url = (String) tool.get("launch");
+		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.tool.noreg" ,"This tool is has no launch url.")+"</p>" );
+
+		String consumerkey = (String) tool.get(LTIService.LTI_CONSUMERKEY);
+		String secret = (String) tool.get(LTIService.LTI_SECRET);
+
+		// If secret is encrypted, decrypt it
+		secret = decryptSecret(secret);
+
+		if ( secret == null || consumerkey == null) {
+			return postError("<p>" + getRB(rb, "error.tool.partial" ,"Tool is incomplete, missing a key and secret.")+"</p>" ); 
+		}
+
+		// Start building up the properties
+		Properties ltiProps = new Properties();
+
+		setProperty(ltiProps, BasicLTIConstants.LTI_VERSION, BasicLTIConstants.LTI_VERSION_1);
+		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
+		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
+
+		setProperty(ltiProps, BasicLTIConstants.ACCEPT_MEDIA_TYPES, "application/vnd.ims.lti.v1.ltilink");
+		setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, "iframe,window"); // Nice to add overlay
+		setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, "false");
+		setProperty(ltiProps, BasicLTIConstants.ACCEPT_MULTIPLE, "false");
+		setProperty(ltiProps, BasicLTIConstants.ACCEPT_COPY_ADVICE, "false"); // ???
+		setProperty(ltiProps, BasicLTIConstants.AUTO_CREATE, "true");
+		setProperty(ltiProps, BasicLTIConstants.CAN_CONFIRM, "false");
+		// setProperty(ltiProps, BasicLTIConstants.TITLE, "");
+		// setProperty(ltiProps, BasicLTIConstants.TEXT, "");
+
+		// Pull in additonal data
+		JSONObject dataJSON = new JSONObject();
+		Enumeration en = dataProps.keys();
+		while (en.hasMoreElements()) {
+			String key = (String) en.nextElement();
+			String value = dataProps.getProperty(key);
+			if ( value == null ) continue;
+
+			// Allow overrides
+			if ( BasicLTIConstants.ACCEPT_MEDIA_TYPES.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.ACCEPT_MEDIA_TYPES, value);
+				continue;
+			} else if ( BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, value);
+				continue;
+			} else if ( BasicLTIConstants.ACCEPT_UNSIGNED.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, value);
+				continue;
+			} else if ( BasicLTIConstants.AUTO_CREATE.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.AUTO_CREATE, value);
+				continue;
+			} else if ( BasicLTIConstants.CAN_CONFIRM.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.CAN_CONFIRM, value);
+				continue;
+			} else if ( BasicLTIConstants.TITLE.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.TITLE, value);
+				continue;
+			} else if ( BasicLTIConstants.TEXT.equals(key) ) {
+				setProperty(ltiProps, BasicLTIConstants.TEXT, value);
+				continue;
+			}
+
+			// Pass in data for use to get back.
+			dataJSON.put(key, value);
+		}
+		setProperty(ltiProps, BasicLTIConstants.DATA, dataJSON.toString());
+
+		setProperty(ltiProps, BasicLTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
+
+		// This must always be there
+                String context = (String) tool.get(LTIService.LTI_SITE_ID);
+                Site site = null;
+                try {
+                        site = SiteService.getSite(context);
+                } catch (Exception e) {
+                        dPrint("No site/page associated with Launch context="+context);
+                        return postError("<p>" + getRB(rb, "error.site.missing" ,"Cannot load site.")+context+"</p>" );
+                }
+
+		Properties lti2subst = new Properties();
+
+		addGlobalData(site, ltiProps, lti2subst, rb);
+		addSiteInfo(ltiProps, lti2subst, site);
+		addRoleInfo(ltiProps, lti2subst,  context, (String)tool.get("rolemap"));
+		addUserInfo(ltiProps, lti2subst, tool);
+
+		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
+		debug = 1;
 
 		Map<String,String> extra = new HashMap<String,String> ();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 
