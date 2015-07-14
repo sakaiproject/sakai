@@ -272,27 +272,26 @@ public class GradebookNgBusinessService {
 	 * key = student eid
 	 * value = course grade
 	 * 
-	 * Note that his mpa is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
+	 * Note that his map is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
 	 * 
 	 * @param userUuids
 	 * @return the map of course grades for students, or an empty map
 	 */
-	@SuppressWarnings("unchecked")
 	public Map<String,String> getSiteCourseGrades() {
 		
-		Map<String,String> courseGrades = new HashMap<>();
+		Map<String,String> rval = new HashMap<>();
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook != null) {
 			
 			//get course grades. THis new method for Sakai 11 does the override automatically, so GB1 data is preserved
-			//note that this DOES not have the course grade points earned because that is in GradebookManagerHibernateImpl
-			courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid());
-						
+			rval = gradebookService.getImportCourseGrade(gradebook.getUid());
+									
 		}
-		
-		return courseGrades;
+		return rval;
 	}
+	
+	
 	
 	
 	
@@ -413,7 +412,7 @@ public class GradebookNgBusinessService {
 	
 	/**
 	 * Build the matrix of assignments and grades for the given users.
-	 * In general this is just one, as we use it for the student summary but could be more for paging etc
+	 * In general this is just one, as we use it for the instructor view student summary but could be more for paging etc
 	 * 
 	 * @param assignments list of assignments
 	 * @param list of uuids
@@ -474,7 +473,7 @@ public class GradebookNgBusinessService {
 		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 		
 		//setup a map as we progressively build this up by adding grades to a student's entry
-		Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<String, GbStudentGradeInfo>();
+		Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 		
 		//seed the map for all students so we can progresseively add grades to it
 		//also add the course grade here, to save an iteration later
@@ -1312,6 +1311,29 @@ public class GradebookNgBusinessService {
          } else {
         	 throw new SecurityException("Current user does not have a valid section.role.x permission");
          }
+    	 
+    	 return rval;
+     }
+     
+     /**
+      * Get a map of grades for the given student. Safe to call when logged in as a student. 
+      * @param studentUuid
+      * @param assignments list of assignments the user can
+      * @return map of assignment to GbGradeInfo
+      */
+     public Map<Assignment,GbGradeInfo> getGradesForStudent(String studentUuid) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 //will apply permissions and only return those the student can view
+    	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
+    	 
+    	 Map<Assignment,GbGradeInfo> rval = new LinkedHashMap<>();
+    	 for(Assignment assignment: assignments) {
+    		 GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), studentUuid);
+    		 rval.put(assignment, new GbGradeInfo(def));
+    	 }
     	 
     	 return rval;
      }

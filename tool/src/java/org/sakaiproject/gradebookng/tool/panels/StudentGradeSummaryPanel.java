@@ -17,6 +17,7 @@ import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -110,11 +111,9 @@ public class StudentGradeSummaryPanel extends Panel {
 	        }
 	    });
         
-      //name
-      add(new Label("name", displayName));
-
-      		
-      		
+      //heading
+      add(new Label("heading", new StringResourceModel("heading.studentsummary", null, new Object[]{ displayName })));
+			
       //course grade
       add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
        		

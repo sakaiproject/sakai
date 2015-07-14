@@ -1,9 +1,12 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.markup.html.basic.Label;
@@ -28,22 +31,21 @@ import org.sakaiproject.user.api.User;
 public class StudentPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-	
-	private GbStudentGradeInfo gradeInfo;
-		
+			
 	public StudentPage() {
 
 		//get userId
 		User u = this.businessService.getCurrentUser();
 		
-		//build the grade matrix for the user
-        final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+        //get grades
+        final Map<Assignment, GbGradeInfo> grades = this.businessService.getGradesForStudent(u.getId());
         
-		//TODO catch if this is null, the get(0) will throw an exception
-        //TODO also catch the GbException
-        this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(u.getId())).get(0);
-		
+        //TODO coursegrade
+        //String courseGrade = this.businessService.getCourseGrade(u.getId());
+        String courseGrade = "X";
+        
 		//assignment list
+        List<Assignment> assignments = new ArrayList<Assignment>(grades.keySet());
 		ListDataProvider<Assignment> listDataProvider = new ListDataProvider<Assignment>(assignments);
         
         DataView<Assignment> dataView = new DataView<Assignment>("rows", listDataProvider) {
@@ -55,8 +57,7 @@ public class StudentPage extends BasePage {
         		Assignment assignment = item.getModelObject(); 
 	    		RepeatingView repeatingView = new RepeatingView("dataRow");
 	
-	    		GbGradeInfo gradeInfo = StudentPage.this.gradeInfo.getGrades().get(assignment.getId());
-	    		//TODO exception handling in here
+	    		GbGradeInfo gradeInfo = grades.get(assignment.getId());
 	    		
 	    		//note, gradeInfo may be null
 	    		String rawGrade;
@@ -70,8 +71,8 @@ public class StudentPage extends BasePage {
 	    		}
 	    		
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getName()));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentPage.this.formatDueDate(assignment.getDueDate())));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentPage.this.formatGrade(rawGrade))); 
+	    		repeatingView.add(new Label(repeatingView.newChildId(), formatDueDate(assignment.getDueDate())));
+	    		repeatingView.add(new Label(repeatingView.newChildId(), formatGrade(rawGrade))); 
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getWeight()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), comment)); 
 
@@ -81,10 +82,10 @@ public class StudentPage extends BasePage {
         add(dataView);
 
       //heading
-      add(new Label("heading", new StringResourceModel("heading.studentpage", this, Model.of(u.getDisplayName()))));
+      add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[]{ u.getDisplayName() })));
 		
       //course grade
-      add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
+      add(new Label("courseGrade", courseGrade));
        		
 	}
 	

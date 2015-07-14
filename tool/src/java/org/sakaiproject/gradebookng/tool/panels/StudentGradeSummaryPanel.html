@@ -4,23 +4,25 @@
 <body>
 	<wicket:panel>
 
-		<h2><wicket:message key="heading.studentsummary" /></h2>
-		
-		<h3><span wicket:id="name">Tony Stark</span></h3>
-		
-		<h4><wicket:message key="label.studentsummary.coursegrade" /> <span wicket:id="courseGrade">B+</span></h4>
+		<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
+				
+		<h3><wicket:message key="label.studentsummary.coursegrade" /> <span wicket:id="courseGrade">B+</span></h3>
 
-		<table class="table-striped table-bordered table-hover">
-			<tr>
-			   <th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
-			   <th><wicket:message key="column.header.studentsummary.duedate" /></th>
-			   <th><wicket:message key="column.header.studentsummary.grade" /></th>
-			   <th><wicket:message key="column.header.studentsummary.weight" /></th>
-			   <th><wicket:message key="column.header.studentsummary.comments" /></th>
-			</tr>
-			<tr wicket:id="rows">
-			   <td wicket:id="dataRow"></td>
-			</tr>
+		<table class="table table-striped table-bordered table-hover">
+			<thead>
+				<tr>
+				   <th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+				   <th><wicket:message key="column.header.studentsummary.duedate" /></th>
+				   <th><wicket:message key="column.header.studentsummary.grade" /></th>
+				   <th><wicket:message key="column.header.studentsummary.weight" /></th>
+				   <th><wicket:message key="column.header.studentsummary.comments" /></th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr wicket:id="rows">
+				   <td wicket:id="dataRow"></td>
+				</tr>
+			</tbody>
 		</table>
 		
 		<button type="submit" class="btn btn-secondary" wicket:id="done"><wicket:message key="button.done" /></button>
