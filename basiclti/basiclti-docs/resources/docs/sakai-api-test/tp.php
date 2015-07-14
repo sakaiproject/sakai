@@ -270,11 +270,6 @@ echo("</pre>\n");
 
 if ( strlen($register_url) < 1 || strlen($reg_key) < 1 || strlen($reg_password) < 1 ) die("Cannot call register_url - insufficient data...\n");
 
-unset($_SESSION['reg_key']);
-unset($_SESSION['reg_password']);
-$_SESSION['reg_key'] = $reg_key;
-$_SESSION['reg_password'] = $reg_password;
-
 togglePre("Registration Request",htmlent_utf8($body));
 
 $more_headers = array();

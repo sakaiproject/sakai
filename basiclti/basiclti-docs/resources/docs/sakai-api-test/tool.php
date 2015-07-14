@@ -12,6 +12,8 @@ header('Content-Type: text/html; charset=utf-8');
 // Initialize, all secrets are 'secret', do not set session, and do not redirect
 $key = isset($_POST['oauth_consumer_key']) ? $_POST['oauth_consumer_key'] : false;
 $secret = "secret";
+$_SESSION['oauth_consumer_key'] = $_POST['oauth_consumer_key'];
+$_SESSION['secret'] = "secret";
 $context = new BLTI($secret, false, false);
 ?>
 <html>
@@ -54,8 +56,6 @@ if ( $context->valid ) {
         print "<p>\n";
         print '<a href="json/result_json.php?url='.urlencode($_POST['custom_result_url']).'">';
         print 'Test LTI 2.0 Outcome Service</a>.</p>'."\n";
-		$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
-		$_SESSION['reg_password'] = "secret";
 		$found = true;
     }
 
@@ -74,8 +74,6 @@ if ( $context->valid ) {
 		}
 		print 'x=24">';
         print 'Test LTI 2.0 Settings Service</a>.</p>'."\n";
-		$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
-		$_SESSION['reg_password'] = "secret";
 		$found = true;
     }
 

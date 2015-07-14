@@ -19,12 +19,12 @@ ini_set("display_errors", 1);
 $link_url = isset($_REQUEST['link']) ? $_REQUEST['link'] : false;
 $tool_url = isset($_REQUEST['tool']) ? $_REQUEST['tool'] : false;
 $proxy_url = isset($_REQUEST['proxy']) ? $_REQUEST['proxy'] : false;
-$oauth_consumer_key = isset($_REQUEST['key']) ? $_REQUEST['key'] : $_SESSION['reg_key'];
-$oauth_consumer_secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : $_SESSION['reg_password'];
+$oauth_consumer_key = isset($_REQUEST['key']) ? $_REQUEST['key'] : $_SESSION['oauth_consumer_key'];
+$oauth_consumer_secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : 'secret';
 
 if (strlen($oauth_consumer_secret) < 1 || strlen($oauth_consumer_key) < 1 ) {
     var_dump($_SESSION);
-    die("Must have reg_password and reg_key in sesison");
+    die("Must have oauth_consumer_key in session");
 }
 
 if ( $link_url || $tool_url || $proxy_url ) {

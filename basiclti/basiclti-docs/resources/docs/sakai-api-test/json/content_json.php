@@ -10,8 +10,8 @@ ini_set("display_errors", 1);
 $content_url = isset($_REQUEST['content_url']) ? $_REQUEST['content_url'] : preg_replace("/json.*$/","tool.php?sakai=98765",curPageUrl());
 
 $result_url = isset($_REQUEST['url']) ? $_REQUEST['url'] : $_POST['content_item_return_url'];
-$oauth_consumer_key = isset($_REQUEST['key']) ? $_REQUEST['key'] : $_SESSION['reg_key'];
-$oauth_consumer_secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : $_SESSION['reg_password'];
+$oauth_consumer_key = isset($_REQUEST['key']) ? $_REQUEST['key'] : $_SESSION['oauth_consumer_key'];
+$oauth_consumer_secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : 'secret';
 $title = isset($_REQUEST['title']) ? $_REQUEST['title'] : "The Awesome Sakaiger Title";
 $text = isset($_REQUEST['text']) ? $_REQUEST['text'] : "The Awesome Sakaiger Text";
 
