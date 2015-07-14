@@ -2678,6 +2678,9 @@ public class SiteAction extends PagedResourceActionII {
 			List publicChangeableSiteTypes = (List) state
 					.getAttribute(STATE_PUBLIC_CHANGEABLE_SITE_TYPES);
 
+			context.put("authAllowed", ServerConfigurationService.getBoolean("sitemanage.grant.auth", false));
+			context.put("anonAllowed", ServerConfigurationService.getBoolean("sitemanage.grant.anon", false));
+
 			if (site != null) {
 				// editing existing site
 				context.put("site", site);
