@@ -32,6 +32,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
@@ -68,7 +69,12 @@ public class GradebookPage extends BasePage {
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
-		disableLink(this.gradebookPageLink);	
+		disableLink(this.gradebookPageLink);
+		
+		//students cannot access this page
+		if(role == GbRole.STUDENT) {
+			throw new RestartResponseException(StudentPage.class);
+		}
 		
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();

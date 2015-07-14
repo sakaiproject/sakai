@@ -1,69 +1,51 @@
-package org.sakaiproject.gradebookng.tool.panels;
+package org.sakaiproject.gradebookng.tool.pages;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.basic.Label;
-import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.spring.injection.annot.SpringBean;
-import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.user.api.User;
 
 /**
  * 
- * Cell panel for the student grade summary
+ * The page that students get. Similar to the student grade summary panel that instructors see.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class StudentGradeSummaryPanel extends Panel {
+public class StudentPage extends BasePage {
 
 	private static final long serialVersionUID = 1L;
-	
-	private GbStudentGradeInfo gradeInfo;
-	private ModalWindow window;
-	
-	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
-	
-	public StudentGradeSummaryPanel(String id, IModel<Map<String,Object>> model, ModalWindow window) {
-		super(id, model);
+			
+	public StudentPage() {
+
+		//get userId
+		User u = this.businessService.getCurrentUser();
 		
-		this.window = window;
-	}
-	
-	@Override
-	public void onInitialize() {
-		super.onInitialize();
-		
-		//unpack model
-		Map<String,Object> modelData = (Map<String,Object>) this.getDefaultModelObject();
-		String userId = (String) modelData.get("userId");
-		String displayName = (String) modelData.get("displayName");
-		
-		//build the grade matrix for the user
-        final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+        //get grades
+        final Map<Assignment, GbGradeInfo> grades = this.businessService.getGradesForStudent(u.getId());
         
-		//TODO catch if this is null, the get(0) will throw an exception
-        //TODO also catch the GbException
-        this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
-		
+        //TODO coursegrade
+        //String courseGrade = this.businessService.getCourseGrade(u.getId());
+        String courseGrade = "X";
+        
 		//assignment list
+        List<Assignment> assignments = new ArrayList<Assignment>(grades.keySet());
 		ListDataProvider<Assignment> listDataProvider = new ListDataProvider<Assignment>(assignments);
         
         DataView<Assignment> dataView = new DataView<Assignment>("rows", listDataProvider) {
@@ -75,8 +57,7 @@ public class StudentGradeSummaryPanel extends Panel {
         		Assignment assignment = item.getModelObject(); 
 	    		RepeatingView repeatingView = new RepeatingView("dataRow");
 	
-	    		GbGradeInfo gradeInfo = StudentGradeSummaryPanel.this.gradeInfo.getGrades().get(assignment.getId());
-	    		//TODO exception handling in here
+	    		GbGradeInfo gradeInfo = grades.get(assignment.getId());
 	    		
 	    		//note, gradeInfo may be null
 	    		String rawGrade;
@@ -90,8 +71,8 @@ public class StudentGradeSummaryPanel extends Panel {
 	    		}
 	    		
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getName()));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatDueDate(assignment.getDueDate())));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatGrade(rawGrade))); 
+	    		repeatingView.add(new Label(repeatingView.newChildId(), formatDueDate(assignment.getDueDate())));
+	    		repeatingView.add(new Label(repeatingView.newChildId(), formatGrade(rawGrade))); 
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getWeight()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), comment)); 
 
@@ -99,23 +80,12 @@ public class StudentGradeSummaryPanel extends Panel {
     		} 
         }; 
         add(dataView);
-        
-        //done button
-        add(new AjaxLink<Void>("done") {
-	       
-			private static final long serialVersionUID = 1L;
 
-			@Override
-	        public void onClick(AjaxRequestTarget target){
-	            window.close(target);
-	        }
-	    });
-        
       //heading
-      add(new Label("heading", new StringResourceModel("heading.studentsummary", null, new Object[]{ displayName })));
-			
+      add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[]{ u.getDisplayName() })));
+		
       //course grade
-      add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
+      add(new Label("courseGrade", courseGrade));
        		
 	}
 	

@@ -5,12 +5,14 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
+import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.behavior.AttributeAppender;
 import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.head.IHeaderResponse;
 import org.apache.wicket.markup.head.OnLoadHeaderItem;
 import org.apache.wicket.markup.head.StringHeaderItem;
 import org.apache.wicket.markup.html.IHeaderContributor;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.WebPage;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.link.Link;
@@ -19,6 +21,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 
 
@@ -42,48 +45,97 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	Link<Void> importExportPageLink;
 	Link<Void> permissionsPageLink;
 	
-	
 	final FeedbackPanel feedbackPanel;
 	
-	public BasePage() {
-		
+	/**
+	 * The user's role in the site
+	 */
+	protected GbRole role;
+	
+	public BasePage() {	
 		log.debug("BasePage()");
 		
+		//role check
+		role = this.businessService.getUserRole();
+		
+		//nav container
+		WebMarkupContainer nav = new WebMarkupContainer("gradebookPageNav") {
+			
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				return (role == GbRole.INSTRUCTOR || role == GbRole.TA);
+			}
+			
+		};
+	
     	//grades page
 		gradebookPageLink = new Link<Void>("gradebookPageLink") {
 			private static final long serialVersionUID = 1L;
+			
+			@Override
 			public void onClick() {
 				setResponsePage(new GradebookPage());
 			}
+			
+			@Override
+			public boolean isVisible() {
+				return (role == GbRole.INSTRUCTOR || role == GbRole.TA);
+			}
+			
 		};
-		add(gradebookPageLink);
+		nav.add(gradebookPageLink);
 		
 		//settings page
 		settingsPageLink = new Link<Void>("settingsPageLink") {
 			private static final long serialVersionUID = 1L;
+			
+			@Override
 			public void onClick() {
 				setResponsePage(new SettingsPage());
 			}
+			
+			@Override
+			public boolean isVisible() {
+				return (role == GbRole.INSTRUCTOR);
+			}
 		};
-		add(settingsPageLink);
+		nav.add(settingsPageLink);
 		
-		//settings page
+		//import/export page
 		importExportPageLink = new Link<Void>("importExportPageLink") {
 			private static final long serialVersionUID = 1L;
+			
+			@Override
 			public void onClick() {
 				setResponsePage(new ImportExportPage());
 			}
+			
+			@Override
+			public boolean isVisible() {
+				return (role == GbRole.INSTRUCTOR);
+			}
 		};
-		add(importExportPageLink);
+		nav.add(importExportPageLink);
 		
 		//permissions page
 		permissionsPageLink = new Link<Void>("permissionsPageLink") {
 			private static final long serialVersionUID = 1L;
+			
+			@Override
 			public void onClick() {
 				setResponsePage(new PermissionsPage());
 			}
+			
+			@Override
+			public boolean isVisible() {
+				return (role == GbRole.INSTRUCTOR);
+			}
 		};
-		add(permissionsPageLink);
+		nav.add(permissionsPageLink);
+		
+		add(nav);
 
 		// Add a FeedbackPanel for displaying our messages
         feedbackPanel = new FeedbackPanel("feedback"){

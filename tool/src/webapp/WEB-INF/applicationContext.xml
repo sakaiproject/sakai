@@ -20,7 +20,7 @@
 		<property name="courseManagementService"
 			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
-			
+		<property name="securityService" ref="org.sakaiproject.authz.api.SecurityService" />
 	</bean>
 
 	<bean

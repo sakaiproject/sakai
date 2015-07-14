@@ -1,0 +1,36 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd" >
+<body>
+
+<wicket:head>
+  <wicket:link>
+    <link rel="stylesheet" type="text/css" href="/gradebookng-tool/styles/gradebook-grades.css"/>
+  </wicket:link>
+</wicket:head>
+
+<wicket:extend>
+  
+	<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
+			
+	<h3><wicket:message key="label.studentsummary.coursegrade" /> <span wicket:id="courseGrade">B+</span></h3>
+
+	<table class="table table-striped table-bordered table-hover table-condensed">
+		<thead>
+			<tr>
+			   <th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+			   <th><wicket:message key="column.header.studentsummary.duedate" /></th>
+			   <th><wicket:message key="column.header.studentsummary.grade" /></th>
+			   <th><wicket:message key="column.header.studentsummary.weight" /></th>
+			   <th><wicket:message key="column.header.studentsummary.comments" /></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr wicket:id="rows">
+			   <td wicket:id="dataRow"></td>
+			</tr>
+		</tbody>
+	</table>
+	
+</wicket:extend>
+</body>
+</html>

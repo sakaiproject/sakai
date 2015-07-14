@@ -23,6 +23,7 @@ import org.apache.commons.lang.builder.CompareToBuilder;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.coursemanagement.api.Membership;
 import org.sakaiproject.coursemanagement.api.Section;
@@ -99,6 +100,9 @@ public class GradebookNgBusinessService {
 	@Setter
 	private MemoryService memoryService;
 	
+	@Setter
+	private SecurityService securityService;
+	
 	public static final String ASSIGNMENT_ORDER_PROP = "gbng_assignment_order";
 	
 	private Cache cache;
@@ -137,7 +141,7 @@ public class GradebookNgBusinessService {
 			String siteId = this.getCurrentSiteId();
 			
 			//note that this MUST exclude TAs as it is checked in the GradebookService and will throw a SecurityException if invalid users are provided
-			Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(Role.STUDENT.getValue());
+			Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
 			
 			//filter the allowed list based on membership
 			if(groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
@@ -234,7 +238,8 @@ public class GradebookNgBusinessService {
 	public List<Assignment> getGradebookAssignments(String siteId) {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
-			return gradebookService.getAssignments(gradebook.getUid(), SortType.SORT_BY_SORTING);
+			//applies permissions and default sort is SORT_BY_SORTING
+			return gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid());
 		}
 		return null;
 	}
@@ -267,27 +272,26 @@ public class GradebookNgBusinessService {
 	 * key = student eid
 	 * value = course grade
 	 * 
-	 * Note that his mpa is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
+	 * Note that his map is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
 	 * 
 	 * @param userUuids
 	 * @return the map of course grades for students, or an empty map
 	 */
-	@SuppressWarnings("unchecked")
 	public Map<String,String> getSiteCourseGrades() {
 		
-		Map<String,String> courseGrades = new HashMap<>();
+		Map<String,String> rval = new HashMap<>();
 		
 		Gradebook gradebook = this.getGradebook();
 		if(gradebook != null) {
 			
 			//get course grades. THis new method for Sakai 11 does the override automatically, so GB1 data is preserved
-			//note that this DOES not have the course grade points earned because that is in GradebookManagerHibernateImpl
-			courseGrades = gradebookService.getImportCourseGrade(gradebook.getUid());
-						
+			rval = gradebookService.getImportCourseGrade(gradebook.getUid());
+									
 		}
-		
-		return courseGrades;
+		return rval;
 	}
+	
+	
 	
 	
 	
@@ -408,7 +412,7 @@ public class GradebookNgBusinessService {
 	
 	/**
 	 * Build the matrix of assignments and grades for the given users.
-	 * In general this is just one, as we use it for the student summary but could be more for paging etc
+	 * In general this is just one, as we use it for the instructor view student summary but could be more for paging etc
 	 * 
 	 * @param assignments list of assignments
 	 * @param list of uuids
@@ -469,7 +473,7 @@ public class GradebookNgBusinessService {
 		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 		
 		//setup a map as we progressively build this up by adding grades to a student's entry
-		Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<String, GbStudentGradeInfo>();
+		Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 		
 		//seed the map for all students so we can progresseively add grades to it
 		//also add the course grade here, to save an iteration later
@@ -1268,6 +1272,70 @@ public class GradebookNgBusinessService {
     	 }
     	 
     	 return false;
+     }
+     
+     /**
+      * Get the role of the current user in the current site
+      * @return Role
+      */
+     public GbRole getUserRole() {
+    	 String siteId = this.getCurrentSiteId();
+    	 return this.getUserRole(siteId);
+     }
+     
+     /**
+      * Get the role of the current user in the given site
+      * @param siteId the siteId to check
+      * @return Role
+      */
+     public GbRole getUserRole(String siteId) {
+    	 
+    	 String userId = this.getCurrentUser().getId();
+    	 
+    	 String siteRef;
+    	 try {
+    		 siteRef = this.siteService.getSite(siteId).getReference();
+    	 } catch (IdUnusedException e) {
+ 			e.printStackTrace();
+ 			return null;
+ 		}
+    	 
+    	 GbRole rval;
+    	 
+    	 if(securityService.unlock(userId, GbRole.INSTRUCTOR.getValue(), siteRef)) {
+        	 rval = GbRole.INSTRUCTOR;
+         } else if(securityService.unlock(userId, GbRole.TA.getValue(), siteRef)) {
+        	 rval = GbRole.TA;
+         } else if(securityService.unlock(userId, GbRole.STUDENT.getValue(), siteRef)) {
+        	 rval = GbRole.STUDENT;
+         } else {
+        	 throw new SecurityException("Current user does not have a valid section.role.x permission");
+         }
+    	 
+    	 return rval;
+     }
+     
+     /**
+      * Get a map of grades for the given student. Safe to call when logged in as a student. 
+      * @param studentUuid
+      * @param assignments list of assignments the user can
+      * @return map of assignment to GbGradeInfo
+      */
+     public Map<Assignment,GbGradeInfo> getGradesForStudent(String studentUuid) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 //will apply permissions and only return those the student can view
+    	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
+    	 
+    	 Map<Assignment,GbGradeInfo> rval = new LinkedHashMap<>();
+    	 for(Assignment assignment: assignments) {
+    		 GradeDefinition def = this.gradebookService.getGradeDefinitionForStudentForItem(gradebook.getUid(), assignment.getId(), studentUuid);
+    		 rval.put(assignment, new GbGradeInfo(def));
+    	 }
+    	 
+    	 return rval;
      }
     
 

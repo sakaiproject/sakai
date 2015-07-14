@@ -2,13 +2,11 @@ package org.sakaiproject.gradebookng.business.model;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import lombok.Getter;
 import lombok.Setter;
 
-import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.user.api.User;
 
 /**
