@@ -19,7 +19,11 @@
 #end
 #if ( $contentConfig )
 <p>
-<a href="$contentConfig">Proceed to content configuration</a>.
+$tlang.getString("contentitem.detail")
+</p>
+<p>
+<a href="$contentConfig">$tlang.getString("contentitem.link")</a>
+</p>
 </p>
 #end
 #if ( $keyField ) 

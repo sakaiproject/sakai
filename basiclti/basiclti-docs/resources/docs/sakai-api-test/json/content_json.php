@@ -12,6 +12,8 @@ $content_url = isset($_REQUEST['content_url']) ? $_REQUEST['content_url'] : preg
 $result_url = isset($_REQUEST['url']) ? $_REQUEST['url'] : $_POST['content_item_return_url'];
 $oauth_consumer_key = isset($_REQUEST['key']) ? $_REQUEST['key'] : $_SESSION['reg_key'];
 $oauth_consumer_secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : $_SESSION['reg_password'];
+$title = isset($_REQUEST['title']) ? $_REQUEST['title'] : "The Awesome Sakaiger Title";
+$text = isset($_REQUEST['text']) ? $_REQUEST['text'] : "The Awesome Sakaiger Text";
 
 if (strlen($oauth_consumer_secret) < 1 || strlen($oauth_consumer_key) < 1 
     || strlen($result_url) < 1 ) {
@@ -26,7 +28,10 @@ if ( isset($_REQUEST['send']) ) {
     if ( isset($_REQUEST['data']) ) {
         $parms["data"] = $_REQUEST['data'];
     }
-    $retval = json_encode(getContentJSON($content_url));
+    $json = getContentJSON($content_url);
+    $json->{'@graph'}[0]->{'title'} = $title;
+    $json->{'@graph'}[0]->{'text'} = $text;
+    $retval = json_encode($json);
     $parms["content_items"] = $retval;
 
     $parms = signParameters($parms, $result_url, "POST", 
@@ -53,14 +58,23 @@ if ( isset($_REQUEST['send']) ) {
 Service URL: <input type="text" name="url" size="120" value="<?php echo(htmlentities($result_url));?>"/></br>
 OAuth Consumer Key: <input type="text" name="key" size="80" value="<?php echo(htmlentities($oauth_consumer_key));?>"/></br>
 OAuth Consumer Secret: <input type="text" name="secret" size="80" value="<?php echo(htmlentities($oauth_consumer_secret));?>"/></br>
-</p><p>
+<br/>
+Title: <br>
+<input type="text" name="title" 
+size="80" value="<?php echo(htmlent_utf8($title));?>"/>
+<br/>
+Text: <br>
+<input type="text" name="text" 
+size="80" value="<?php echo(htmlent_utf8($text));?>"/>
+<br/>
 Content URL to send: </br>
 <input type="text" name="content_url" 
 size="80" value="<?php echo(htmlent_utf8($content_url));?>"/>
 </p><p>
 Opaque Data: </br>
-<input type="text" name="data" 
-size="80" value="<?php echo(htmlent_utf8($_REQUEST['data']));?>"/>
+<textarea name="data" rows=5 cols=80>
+<?php echo(htmlent_utf8($_REQUEST['data']));?>
+</textarea>
 </p><p>
 <input type='submit' name='send' value="Send Content Response">
 </form>

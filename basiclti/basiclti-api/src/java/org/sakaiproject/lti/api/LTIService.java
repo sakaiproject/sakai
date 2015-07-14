@@ -679,7 +679,7 @@ public interface LTIService {
 		// Sakai LTI 1.x extension settings (see SAK-25621)
 		"settings_ext:text:hidden=true:maxlength=1M",
 		// LTI Content-Item (see SAK-29328)
-		"contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:role=admin",
+		"contentitem:text:label=bl_contentitem:rows=5:cols=25:maxlength=1M:hidden=true",
 		"placement:text:hidden=true:maxlength=256", 
 		"placementsecret:text:hidden=true:maxlength=512",
 		"oldplacementsecret:text:hidden=true:maxlength=512",
