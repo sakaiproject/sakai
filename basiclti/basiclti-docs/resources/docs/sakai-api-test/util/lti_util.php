@@ -840,6 +840,8 @@ function get_curl($url, $header) {
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  // CURL now ships with no certificates so they all fail
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
   // Make sure that the header is an array and pitch white space
   $LastHeadersSent = trim($header);
@@ -1074,6 +1076,8 @@ function body_curl($url, $method, $body, $header) {
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  // CURL now ships with no certificates so they all fail
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
   // Make sure that the header is an array and pitch white space
   $LastHeadersSent = trim($header);
