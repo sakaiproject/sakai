@@ -2741,7 +2741,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			Gradebook gradebook = getGradebook(gradebookUid);
 	
 			//if not released, don't do any work
-			if(gradebook.isCourseGradeDisplayed()){
+			if(!gradebook.isCourseGradeDisplayed()){
 				return rval;
 			}
 						
