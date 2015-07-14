@@ -41,6 +41,7 @@ import org.apache.commons.logging.LogFactory;
 
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.basiclti.BasicLTIUtil;
+import org.imsglobal.basiclti.BasicLTIProviderUtil;
 
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -263,12 +264,34 @@ public class ProviderServlet extends HttpServlet {
 
 		Map payload = getPayloadAsMap(request);
 
-
 		// Get the list of highly trusted consumers from sakai.properties.
-		// If the incoming consumer is highly trusted, we use the context_id and site_id as is,
+		// If the incoming consumer is highly trusted, we use the context_id and
+		// site_id as is,
 		// ie without prefixing them with the oauth_consumer_key first.
 		// We also don't both checking their roles in the site.
-        boolean isTrustedConsumer = isTrustedConsumer(payload);
+		boolean isTrustedConsumer = BasicLTIProviderUtil.isHighlyTrustedConsumer(payload);
+
+		/*
+		 * Get the list of email trusted consumers from sakai.properties. If the
+		 * incoming consumer is email trusted, we use the email address provided
+		 * by the consumer and look up the "user" info from sakai instead of
+		 * consumer's. This use case is especially valuable if 2 different LMS's
+		 * acting as TP and TC referring to same user and can be uniquely
+		 * identified by email address. more details SAK-29372
+		 */
+		boolean isEmailTrustedConsumer = BasicLTIProviderUtil.isEmailTrustedConsumer(payload);
+
+		/*
+		 * Checking if the email trusted consumer property and trusted consumer
+		 * and not both enabled. the case would be an error condition
+		 */
+		if (isTrustedConsumer && isEmailTrustedConsumer) {
+			M_log.warn("Both Email Trusted and Trusted Consumer property is enabled, this is invalid  IP=" + ipAddress);
+			response.sendError(HttpServletResponse.SC_FORBIDDEN,
+					"Both Email Trusted and Trusted Consumer property is enabled, this is invalid ");
+			return;
+
+		}
 
         try {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.beforeValidation);
@@ -277,7 +300,7 @@ public class ProviderServlet extends HttpServlet {
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterValidation);
 
-            User user = userFinderOrCreator.findOrCreateUser(payload, isTrustedConsumer);
+            User user = userFinderOrCreator.findOrCreateUser(payload, isTrustedConsumer, isEmailTrustedConsumer);
             
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterUserCreation, user);
 
@@ -286,9 +309,9 @@ public class ProviderServlet extends HttpServlet {
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.afterLogin, user);
 
             // This needs to happen after login, when we have a session for the user.
-            userLocaleSetter.setupUserLocale(payload, user, isTrustedConsumer);
+            userLocaleSetter.setupUserLocale(payload, user, isTrustedConsumer,isEmailTrustedConsumer);
             
-            userPictureSetter.setupUserPicture(payload, user, isTrustedConsumer);
+            userPictureSetter.setupUserPicture(payload, user, isTrustedConsumer, isEmailTrustedConsumer);
 
             Site site = findOrCreateSite(payload, isTrustedConsumer);
 
@@ -304,7 +327,7 @@ public class ProviderServlet extends HttpServlet {
 
             invokeProcessors(payload, isTrustedConsumer, ProcessingState.beforeLaunch, user, site);
 
-            syncSiteMembershipsOnceThenSchedule(payload, site, isTrustedConsumer);
+            syncSiteMembershipsOnceThenSchedule(payload, site, isTrustedConsumer, isEmailTrustedConsumer);
 
             // Construct a URL to this tool
             StringBuilder url = new StringBuilder();
@@ -789,27 +812,6 @@ public class ProviderServlet extends HttpServlet {
         sess.setUserEid(user.getEid());
     }
     
-    protected boolean isTrustedConsumer(Map payload) {
-        boolean isTrustedConsumer = false;
-        String oauth_consumer_key = (String) payload.get("oauth_consumer_key");
-
-        final String trustedConsumersConfig = ServerConfigurationService
-                .getString("basiclti.provider.highly.trusted.consumers", null);
-        if(BasicLTIUtil.isNotBlank(trustedConsumersConfig)) {
-            String[] trustedConsumers = trustedConsumersConfig.split(":");
-            List<String> trustedConsumersList = Arrays.asList(trustedConsumers);
-
-            if (trustedConsumersList.contains(oauth_consumer_key)) {
-                isTrustedConsumer = true;
-            }
-        }
-
-        if (M_log.isDebugEnabled()) {
-            M_log.debug("Consumer=" + oauth_consumer_key);
-            M_log.debug("Trusted=" + isTrustedConsumer);
-        }
-        return isTrustedConsumer;
-    }
 
     public void destroy() {
 
@@ -842,7 +844,7 @@ public class ProviderServlet extends HttpServlet {
 		return null;
 	}
 
-    private void syncSiteMembershipsOnceThenSchedule(Map payload, Site site, boolean isTrustedConsumer) throws LTIException {
+    private void syncSiteMembershipsOnceThenSchedule(Map payload, Site site, boolean isTrustedConsumer, boolean isEmailTrustedConsumer) throws LTIException {
 
         if (isTrustedConsumer) return;
 
@@ -902,7 +904,7 @@ public class ProviderServlet extends HttpServlet {
                         then = (new Date()).getTime();
                     }
 
-                    siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, oauth_consumer_key, callbackType);
+                    siteMembershipsSynchroniser.synchroniseSiteMemberships(siteId, membershipsId, membershipsUrl, oauth_consumer_key, isEmailTrustedConsumer,callbackType);
 
                     if (M_log.isDebugEnabled()) {
                         long now = (new Date()).getTime();

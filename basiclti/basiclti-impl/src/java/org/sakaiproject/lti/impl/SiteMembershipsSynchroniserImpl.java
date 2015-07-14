@@ -80,7 +80,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
 		SecurityService.popAdvisor();
 	}
 
-    public void synchroniseSiteMemberships(final String siteId, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, final String callbackType) {
+    public void synchroniseSiteMemberships(final String siteId, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, boolean isEmailTrustedConsumer, final String callbackType) {
 
         Site site = null;
 
@@ -92,17 +92,17 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
         }
 
         if (BasicLTIConstants.LTI_VERSION_1.equals(callbackType)) {
-            synchronizeLTI1SiteMemberships(site, membershipsId, membershipsUrl, oauth_consumer_key);
+            synchronizeLTI1SiteMemberships(site, membershipsId, membershipsUrl, oauth_consumer_key, isEmailTrustedConsumer);
         } else if ("ext-moodle-2".equals(callbackType)) {
             // This is non standard. Moodle's core LTI plugin does not currently do memberships and 
             // a fix for this has been proposed at https://tracker.moodle.org/browse/MDL-41724. I don't
             // think this will ever become core and the first time memberships will appear in core lti
             // is with LTI2. At that point this code will be replaced with standard LTI2 JSON type stuff.
-            synchronizeMoodleExtSiteMemberships(site, membershipsId, membershipsUrl, oauth_consumer_key);
+            synchronizeMoodleExtSiteMemberships(site, membershipsId, membershipsUrl, oauth_consumer_key, isEmailTrustedConsumer);
         }
     }
 
-    private final void synchronizeLTI1SiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key) {
+    private final void synchronizeLTI1SiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, boolean isEmailTrustedConsumer) {
 
         // Lookup the secret
         final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
@@ -140,13 +140,13 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             bw.flush();
             bw.close();
 
-            processMembershipsResponse(connection, site, oauth_consumer_key);
+            processMembershipsResponse(connection, site, oauth_consumer_key, isEmailTrustedConsumer);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private final void synchronizeMoodleExtSiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key) {
+    private final void synchronizeMoodleExtSiteMemberships(final Site site, final String membershipsId, final String membershipsUrl, final String oauth_consumer_key, boolean isEmailTrustedConsumer) {
 
         // Lookup the secret
         final String configPrefix = "basiclti.provider." + oauth_consumer_key + ".";
@@ -214,13 +214,13 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             bw.flush();
             bw.close();
 
-            processMembershipsResponse(connection, site, oauth_consumer_key);
+            processMembershipsResponse(connection, site, oauth_consumer_key, isEmailTrustedConsumer);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    private void processMembershipsResponse(HttpURLConnection connection, Site site, String oauth_consumer_key) throws Exception {
+    private void processMembershipsResponse(HttpURLConnection connection, Site site, String oauth_consumer_key, boolean isEmailTrustedConsumer) throws Exception {
 
         M_log.debug("processMembershipsResponse");
 
@@ -264,7 +264,7 @@ public class SiteMembershipsSynchroniserImpl implements SiteMembershipsSynchroni
             map.put(OAuth.OAUTH_CONSUMER_KEY, oauth_consumer_key);
             map.put("tool_id", "n/a");
 
-            User user = userFinderOrCreator.findOrCreateUser(map, false);
+            User user = userFinderOrCreator.findOrCreateUser(map, false,isEmailTrustedConsumer);
             member.userId = user.getId();
             siteMembershipUpdater.addOrUpdateSiteMembership(map, false, user, site);
         }
