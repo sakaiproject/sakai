@@ -508,4 +508,16 @@ public interface AuthzGroupService extends EntityProducer
      * @return String Set containing all maintain roles.
      */
     public Set<String> getMaintainRoles();
+
+ 	/**
+ 	 * Is the current user allowed to grant .anon access to the site? Defaults to false.
+ 	 * @return <code>true</code> if .anon can be granted.
+ 	 */
+ 	public boolean isAllowedAnon();
+ 
+ 	/**
+ 	 * Is the current user allowed to grant .auth access to the site? Defaults to false.
+ 	 * @return <code>true</code> if .auth can be granted.
+ 	 */
+ 	public boolean isAllowedAuth();
 }
