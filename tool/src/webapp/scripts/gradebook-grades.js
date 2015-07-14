@@ -1582,6 +1582,7 @@ GradebookHeaderCell.prototype.show = function() {
     var newColspan = parseInt(this.$categoryCell.attr("colspan")) + 1;
     this.$categoryCell.attr("colspan", newColspan);
     this.$categoryCell.show();
+    this.gradebookSpreadsheet.refreshFixedTableHeader();
   }
 };
 
@@ -1597,6 +1598,7 @@ GradebookHeaderCell.prototype.hide = function() {
     if (newColspan == 0) {
       this.$categoryCell.hide();
     }
+    this.gradebookSpreadsheet.refreshFixedTableHeader();
   }
 };
 
