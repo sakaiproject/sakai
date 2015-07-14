@@ -727,4 +727,12 @@ public interface GradebookService {
      */
     Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap);
 
+    /**
+     * Get the course grade for a student
+     * 
+     * @param gradebookUid
+     * @param userUuid uuid of the user
+     * @return The CourseGrade for the student
+     */
+	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
 }
