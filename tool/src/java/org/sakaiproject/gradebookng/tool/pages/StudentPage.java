@@ -1,5 +1,8 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -15,10 +18,12 @@ import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.Model;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.user.api.User;
 
 /**
@@ -40,9 +45,8 @@ public class StudentPage extends BasePage {
         //get grades
         final Map<Assignment, GbGradeInfo> grades = this.businessService.getGradesForStudent(u.getId());
         
-        //TODO coursegrade
-        //String courseGrade = this.businessService.getCourseGrade(u.getId());
-        String courseGrade = "X";
+        //get course grade
+        CourseGrade cg = this.businessService.getCourseGrade(u.getId());
         
 		//assignment list
         List<Assignment> assignments = new ArrayList<Assignment>(grades.keySet());
@@ -81,14 +85,22 @@ public class StudentPage extends BasePage {
         }; 
         add(dataView);
 
-      //heading
-      add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[]{ u.getDisplayName() })));
-		
-      //course grade
-      add(new Label("courseGrade", courseGrade));
-       		
-	}
+        //heading
+        add(new Label("heading", new StringResourceModel("heading.studentpage", null, new Object[]{ u.getDisplayName() })));
 	
+        //course grade
+        //if entered grade show only that grade (as the percentage value will be for the calculated grade)
+        //if mapped grade show both mapped grade and calculated percentage
+  
+        if(StringUtils.isBlank(cg.getEnteredGrade()) && StringUtils.isBlank(cg.getMappedGrade())) {
+        	add(new Label("courseGrade", new ResourceModel("label.studentsummary.coursegrade.none")));
+        } else if(StringUtils.isNotBlank(cg.getEnteredGrade())){
+        	add(new Label("courseGrade", cg.getEnteredGrade()));
+        } else {
+        	add(new Label("courseGrade", new StringResourceModel("label.studentsummary.coursegrade.display", null, new Object[] { cg.getMappedGrade(), formatPercentage(cg.getCalculatedGrade()) } )));
+        }
+           		
+	}	
 	/**
 	 * Format a due date
 	 * 
@@ -115,6 +127,22 @@ public class StudentPage extends BasePage {
 		return StringUtils.removeEnd(grade, ".0");		
 	}
 	
+	/**
+	 * Format a percentage to two decimal places
+	 * @param percentage
+	 * @return
+	 */
+	private String formatPercentage(String percentage) {
+		
+		if(StringUtils.isBlank(percentage)) {
+			return null;
+		}
+		
+		BigDecimal rval = new BigDecimal(percentage);
+		rval = rval.setScale(2, RoundingMode.HALF_DOWN); //same as GradebookService
+		return rval.toString() + "%";
+		
+	}
 	
 	
 	

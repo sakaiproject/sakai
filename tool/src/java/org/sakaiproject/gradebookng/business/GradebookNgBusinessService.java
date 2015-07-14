@@ -50,6 +50,7 @@ import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -291,6 +292,19 @@ public class GradebookNgBusinessService {
 		return rval;
 	}
 	
+	/**
+	 * Get the course grade for a student
+	 * 
+	 * @param studentUuid
+	 * @return coursegrade. May have null fields if the coursegrade has not been released
+	 */
+	public CourseGrade getCourseGrade(String studentUuid) {
+		
+		Gradebook gradebook = this.getGradebook();
+		
+		CourseGrade rval = this.gradebookService.getCourseGradeForStudent(gradebook.getUid(), studentUuid);
+		return rval;
+	}
 	
 	
 	
