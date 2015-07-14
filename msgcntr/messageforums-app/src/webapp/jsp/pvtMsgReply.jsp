@@ -36,6 +36,7 @@
 				function fadeInBcc(){
 					$('.bccLink').fadeOut(); 
 					$('.bcc').fadeIn();
+					clearSelection(document.getElementById('pvtMsgReply:list2'));
 					resize();
 				}
 				
@@ -110,7 +111,7 @@
           				<f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
          			</h:selectManyListbox>
          			<f:verbatim>
-				      	<span class="bcc" style="display:none">
+				      	<span>
 			       			&nbsp;			       			
 			       			</f:verbatim>
 			       			<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>
