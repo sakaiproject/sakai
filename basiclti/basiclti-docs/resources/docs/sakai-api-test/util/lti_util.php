@@ -10,7 +10,7 @@ require_once 'OAuth.php';
 function is_lti_request() {
    $good_message_type = $_REQUEST["lti_message_type"] == "basic-lti-launch-request" ||
         $_REQUEST["lti_message_type"] == "ToolProxyReregistrationRequest" || 
-        $_REQUEST["lti_message_type"] == "ContentItemSelection";
+        $_REQUEST["lti_message_type"] == "ContentItemSelectionRequest";
    $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0" || $_REQUEST["lti_version"] == "LTI-2p0";
    if ($good_message_type and $good_lti_version ) return(true);
    return false;
@@ -840,6 +840,8 @@ function get_curl($url, $header) {
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  // CURL now ships with no certificates so they all fail
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
   // Make sure that the header is an array and pitch white space
   $LastHeadersSent = trim($header);
@@ -1074,6 +1076,8 @@ function body_curl($url, $method, $body, $header) {
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  // CURL now ships with no certificates so they all fail
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
   // Make sure that the header is an array and pitch white space
   $LastHeadersSent = trim($header);

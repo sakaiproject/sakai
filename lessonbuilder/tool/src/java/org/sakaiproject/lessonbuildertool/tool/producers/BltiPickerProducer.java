@@ -171,17 +171,14 @@ public LocaleGetter localeGetter;
 			    }
 			    toolcount = 1;
 			    UIBranchContainer link = UIBranchContainer.make(tofill, "blti-create:");
-/*
-			    GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-			    view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-			    view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-			    view.setSource(createLink.Url);
-			    view.setReturnView(VIEW_ID);
-			    view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
-			    UIInternalLink.make(link, "blti-create-link", (bltiTool == null ? createLink.label : bltiTool.addText), view);
-*/
+
 			    UILink.make(link, "blti-create-link", (bltiTool == null ? createLink.label : bltiTool.addText), createLink.Url)
 				.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.blti.config")));
+
+			    if ( createLink.fa_icon != null ) {
+				UIOutput.make(link, "blti-create-icon", "")
+				    .decorate(new UIFreeAttributeDecorator("class", "fa " + createLink.fa_icon));
+			    }
 
 			}
 			
@@ -198,15 +195,6 @@ public LocaleGetter localeGetter;
 			if (bltiTool == null) {
 			    UIOutput.make(tofill, "manageblti");
 			    if (mainLink != null) {
-/*
-				GeneralViewParameters view = new GeneralViewParameters(ShowItemProducer.VIEW_ID);
-				view.setSendingPage(((GeneralViewParameters) viewparams).getSendingPage());
-				view.setItemId(((GeneralViewParameters) viewparams).getItemId());
-				view.setSource(mainLink.Url);
-				view.setReturnView(VIEW_ID);
-				view.setTitle(messageLocator.getMessage("simplepage.return_blti"));
-				UIInternalLink.make(tofill, "blti-main-link", mainLink.label , view);
-*/
 				UILink.make(tofill, "blti-main-link", mainLink.label, mainLink.Url)
 					.decorate(new UIFreeAttributeDecorator("title", mainLink.label) );
 			    }

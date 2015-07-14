@@ -21,6 +21,7 @@
 
 		<h2 rsf:id="mainhead" id="mainhead"></h2>
 
+		<a style="float:right;" role="menuitem" class="usebutton" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a>
 		<p rsf:id="blti-tools-text"></p>
 
 		<div rsf:id="no-blti-tools" class="ui-widget" role="alert">
@@ -31,13 +32,8 @@
 		</div>
 
 		<div rsf:id="blti-create:" style="margin-left:2em">
-		  <a href="#" target="modal-iframe" onclick="showIframe(this.title);" rsf:id="blti-create-link"></a>
-		</div>
-
-		<div rsf:id="manageblti">
-			<h3 rsf:id="msg=simplepage.blti.tools.manage"></h3>
-			<p rsf:id="msg=simplepage.blti.tools.create"></p>
-			<p><a class="usebutton" target="modal-iframe" onclick="showIframe(this.title);" id="blti-main-link" href="#" rsf:id="blti-main-link"></a></p>
+		  <i class="" rsf:id="blti-create-icon"></i>
+		  <a href="#" target="sakai-basiclti-admin-iframe" onclick="showIframe(this.title);" rsf:id="blti-create-link"></a>
 		</div>
 
 		<form action="#" rsf:id="blti-autosubmit" id="blti-autosubmit">
@@ -61,7 +57,7 @@
 			<input type="submit" rsf:id="cancel" class='cancelButton'/>
 		</form>
 		<div id="modal-iframe-div" style="display:none">
-			<iframe name="modal-iframe" id="modal-iframe" src="about:blank" style="width:90%; height:600px"></iframe>
+			<iframe name="sakai-basiclti-admin-iframe" id="sakai-basiclti-admin-iframe" src="/library/image/sakai/spinner.gif" style="height:300px"></iframe>
 		</div>
 	</div>
 
@@ -76,11 +72,18 @@ function showIframe(title) {
 		title: title,
 		width: modalDialogWidth(),
 		modal: true,
-		draggable: false
+		draggable: false,
+		open: function() {
+			$('#sakai-basiclti-admin-iframe').width('100%');
+		},
+		close: function() {
+			$('#sakai-basiclti-admin-iframe').attr('src','/library/image/sakai/spinner.gif');
+		}
 	});
 
 	$(window).resize(function() {
 		$("#modal-iframe-div").dialog("option", "width", modalDialogWidth());
+		$('#sakai-basiclti-admin-iframe').width('100%');
 	});
 }
 //]]>

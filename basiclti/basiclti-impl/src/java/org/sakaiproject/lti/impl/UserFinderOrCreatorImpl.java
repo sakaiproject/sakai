@@ -97,12 +97,12 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
         	if (!findUsersByEmail.isEmpty()) {
         		if (findUsersByEmail.size() > 1) {
         			M_log.warn("multiple user id's exist for emailaddress= " + email);
-        			throw new LTIException("launch.user.multiple.emailaddress", "email=" + email);
+        			throw new LTIException("launch.user.multiple.emailaddress", "email=" + email,null);
         		}
         		user = (User) findUsersByEmail.toArray()[0];
         	} else {
         		M_log.warn("Invalid user for emailaddress= " + email);
-        		throw new LTIException("launch.user.invalid", "email=" + email);
+        		throw new LTIException("launch.user.invalid", "email=" + email,null);
         	}
         	return user;
         }

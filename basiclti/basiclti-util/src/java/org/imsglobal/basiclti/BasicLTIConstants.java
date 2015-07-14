@@ -138,13 +138,13 @@ public class BasicLTIConstants {
 	 */
 	public static final String LAUNCH_PRESENTATION_WIDTH = "launch_presentation_width";
 	/**
-	 * launch_presentation_css_url=http://www.toolconsumer.url/path/to/lti.css 
+	 * launch_presentation_css_url=http://www.toolconsumer.url/path/to/lti.css
 	 * <p>
 	 * This points to a fully qualified URL for a CSS which can be used to style the tool.
-	 * There are no officially defined CSS classes for this file, but the Consumer can 
-	 * apply styles to paragraphs, body, and the various HTML elements.  It is up to the 
+	 * There are no officially defined CSS classes for this file, but the Consumer can
+	 * apply styles to paragraphs, body, and the various HTML elements.  It is up to the
 	 * tool as to whether this CSS is used or not, and in what order this is included relative
-	 * to the tool-specific CSS. 
+	 * to the tool-specific CSS.
 	 */
 	public static final String LAUNCH_PRESENTATION_CSS_URL = "launch_presentation_css_url";
 	/**
@@ -183,11 +183,11 @@ public class BasicLTIConstants {
 	/**
 	 * lis_person_sourcedid=school.edu:user
 	 * <p>
-	 * This field contains the LIS identifier for the user account that is 
-	 * performing this launch.    The example syntax of "school:user" 
+	 * This field contains the LIS identifier for the user account that is
+	 * performing this launch.    The example syntax of "school:user"
 	 * is not the required format – lis_person_sourcedid is simply a
-	 * unique identifier (i.e., a normalized string). This field 
-	 * is optional and its content and meaning are defined by LIS.    
+	 * unique identifier (i.e., a normalized string). This field
+	 * is optional and its content and meaning are defined by LIS.
 	 */
 	public static final String LIS_PERSON_SOURCEDID = "lis_person_sourcedid";
 
@@ -195,9 +195,9 @@ public class BasicLTIConstants {
 	 * lis_course_offering_sourcedid=school.edu:SI182-F08 <br/>
 	 * lis_course_section_sourcedid=school.edu:SI182-001-F08
 	 * <p>
-	 * These fields contain LIS course identifiers associated with the 
-	 * context of this launch.  These fields are optional and their 
-	 * content and meaning are defined by LIS. 
+	 * These fields contain LIS course identifiers associated with the
+	 * context of this launch.  These fields are optional and their
+	 * content and meaning are defined by LIS.
 	 */
 	public static final String LIS_COURSE_OFFERING_SOURCEDID = "lis_course_offering_sourcedid";
 	public static final String LIS_COURSE_SECTION_SOURCEDID = "lis_course_section_sourcedid";
@@ -205,22 +205,22 @@ public class BasicLTIConstants {
 	/**
      * lis_outcome_service_url=http://lmsng.school.edu/service/ltiout/
      * <p>
-     * This field should be no more than 1023 characters long and the TP 
-     * should assume that the URL might change from launch to launch and 
-     * allow for the fact that a TC might change their service URL from 
-     * launch to launch and only use the most recent value for this 
-     * parameter.  The service URL may support various operations / services.  
-     * The TC will respond with a response of 'unimplemented' for services 
-     * it does not support.  
+     * This field should be no more than 1023 characters long and the TP
+     * should assume that the URL might change from launch to launch and
+     * allow for the fact that a TC might change their service URL from
+     * launch to launch and only use the most recent value for this
+     * parameter.  The service URL may support various operations / services.
+     * The TC will respond with a response of 'unimplemented' for services
+     * it does not support.
 	 */
 	public static final String LIS_OUTCOME_SERVICE_URL = "lis_outcome_service_url";
 
 	/**
 	 * lis_result_sourcedid=83873872987329873264783687634
 	 * <p>
-	 * This field contains an identifier that indicates the LIS Result 
-	 * Identifier (if any) associated with this launch. This field is 
-	 * optional and its content and meaning is defined by LIS.    
+	 * This field contains an identifier that indicates the LIS Result
+	 * Identifier (if any) associated with this launch. This field is
+	 * optional and its content and meaning is defined by LIS.
 	 */
 	public static final String LIS_RESULT_SOURCEDID = "lis_result_sourcedid";
 
@@ -245,15 +245,15 @@ public class BasicLTIConstants {
 	public static final String LTI_VERSION_1 = "LTI-1p0";
 	public static final String LTI_VERSION_2 = "LTI-2p0";
 
-   /** 
+   /**
     * tool_consumer_info_product_family_code=desire2learn
     * <p>
-    * In order to better assist tools in using extensions and also making their user 
-    * interface fit into the TC's user interface that they are being called from, 
-    * each TC is encouraged to include the this parameter.   Possible example values 
+    * In order to better assist tools in using extensions and also making their user
+    * interface fit into the TC's user interface that they are being called from,
+    * each TC is encouraged to include the this parameter.   Possible example values
     * for this field might be:
-    * 
-    * 	learn 
+    *
+    * 	learn
     * 	desire2learn
     * 	sakai
     * 	eracer
@@ -263,12 +263,12 @@ public class BasicLTIConstants {
     */
 	public static final String TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE = "tool_consumer_info_product_family_code";
 
-   /** 
+   /**
     * tool_consumer_info_version=9.2.4
     * <p>
     * This field should have a major release number followed by a period.  The format of the minor release is flexible.  Possible vaues for this field might be:
-    * 
-    * 	9.1.7081     
+    *
+    * 	9.1.7081
     * 	2.8-01
     * 	7.1
     * 	8
@@ -292,7 +292,7 @@ public class BasicLTIConstants {
 	/**
 	 * resource_link_title=My Weekly Wiki
 	 * <p>
-	 * A title for the resource. This is the clickable text that appears 
+	 * A title for the resource. This is the clickable text that appears
 	 * in the link. This parameter is recommended.
 	 */
 	public static final String RESOURCE_LINK_TITLE = "resource_link_title";
@@ -300,8 +300,8 @@ public class BasicLTIConstants {
 	/**
 	 * resource_link_description=…
 	 * <p>
-	 * A plain text description of the link’s destination, suitable for 
-	 * display alongside the link. Typically no more than several lines 
+	 * A plain text description of the link’s destination, suitable for
+	 * display alongside the link. Typically no more than several lines
 	 * long. This parameter is optional.
 	 */
 	public static final String RESOURCE_LINK_DESCRIPTION = "resource_link_description";
@@ -324,13 +324,13 @@ public class BasicLTIConstants {
 	/**
 	 * tc_profile_url=http://...
 	 * <p>
-	 * This URL specifies the address where the Tool Provider can retrieve 
-	 * the Tool Consumer Profile.   This URL must be retrievable by a GET 
-	 * request by the Tool Provider.  If the URL is protected from retrieval 
-	 * in general, the Tool Consumer must append the necessary parameters to 
-	 * allow the Tool Provider to retrieve the URL with nothing more than 
-	 * a GET request.  It is legal for this URL to contain a security token 
-	 * that is changed for each ToolProxyRegistrationRequest so the Tool 
+	 * This URL specifies the address where the Tool Provider can retrieve
+	 * the Tool Consumer Profile.   This URL must be retrievable by a GET
+	 * request by the Tool Provider.  If the URL is protected from retrieval
+	 * in general, the Tool Consumer must append the necessary parameters to
+	 * allow the Tool Provider to retrieve the URL with nothing more than
+	 * a GET request.  It is legal for this URL to contain a security token
+	 * that is changed for each ToolProxyRegistrationRequest so the Tool
 	 * Provider must retrieve the tc_profile_url on each request.
 	 */
 	public static final String TC_PROFILE_URL = "tc_profile_url";
@@ -381,15 +381,139 @@ public class BasicLTIConstants {
 	 */
 	public static final String USER_ID = "user_id";
 
-    /**
-     * user_image=http://my.sakai.org/direct/profile/0ae836b9-7fc9-4060-006f-27b2066ac545/image
-     * <p>
-     * This attribute specifies the URI for an image of the user who launched this request.
-     * This image is suitable for use as a "profile picture" or an avatar representing the user.
-     * It is expected to be a relatively small graphic image file using a widely supported image
-     * format (i.e. PNG, JPG, or GIF) with a square aspect ratio. This parameter is optional.
-     */
-    public static final String USER_IMAGE = "user_image";
+	/**
+	 * user_image=http://my.sakai.org/direct/profile/0ae836b9-7fc9-4060-006f-27b2066ac545/image
+	 * <p>
+	 * This attribute specifies the URI for an image of the user who launched this request.
+	 * This image is suitable for use as a "profile picture" or an avatar representing the user.
+	 * It is expected to be a relatively small graphic image file using a widely supported image
+	 * format (i.e. PNG, JPG, or GIF) with a square aspect ratio. This parameter is optional.
+	 */
+	public static final String USER_IMAGE = "user_image";
+
+	/**
+	 * accept_media_types=application/vnd.ims.lti.v1.ltilink,image/*,text/html  (Required)
+	 *
+	 * A comma-separated list of MIME types which can be accepted on the return URL.
+	 * A MIME type of application/vnd.ims.lti.v1.ltilink is used to represent an LTI launch
+	 * request to a TP.  This parameter should use the same format as the Accept header in
+	 * HTTP requests [HTTP, 14].  For example, a value of “image/*; q=0.5, image/png”
+	 * indicates that a PNG image is preferred, but any type of image will be accepted if
+	 * one is not available.  To accept any media type except an LTI link,
+	 * a header of “application/vnd.ims.lti.v1.ltilink; q=0, * /*” could be used.
+	 */
+	public static final String ACCEPT_MEDIA_TYPES = "accept_media_types";
+
+	/**
+	 * accept_presentation_document_targets=embed,frame,iframe,window,popup,overlay (Required)
+	 *
+	 * A comma-separated list of ways in which the selected content item(s)
+	 * can be requested to be opened (via the presentationDocumentTarget element for
+	 * a returned content item).  The possible values for this parameter are:
+	 * embed – insert the item at the current insertion point (for example, using an img tag or an object tag);
+	 * frame – open the item in the same frame as the link;
+	 * iframe –  open the item within an iframe within the same page/frame as the link;
+	 * window – open the item in a new window (or tab);
+	 * popup – open the item in a popup window (using the dimensions provided, if any);
+	 * overlay – open the item over the top of the page where the link exists (for example, using a lightbox).
+	 * none – the item is not intended for display but for storing or processing
+	 * (for example, an assignment submission may just be stored without a link to
+	 * it being added to the course).
+	 */
+	public static final String ACCEPT_PRESENTATION_DOCUMENT_TARGETS = "accept_presentation_document_targets";
+
+	/**
+	 * content_item_return_url=http://lmsng.school.edu/portal/123/page/988/item/261 (Required)
+	 *
+	 * Fully qualified URL where the TP redirects the user back to the TC interface.
+	 * This URL can be used once the TP is finished or if the TP cannot start or
+	 * has some technical difficulty.
+	 */
+	public static final String CONTENT_ITEM_RETURN_URL = "content_item_return_url";
+
+	/**
+	 * accept_unsigned=false | true (Optional)
+	 *
+	 * This indicates whether the TC is willing to accept an unsigned return
+	 * message, or not.  A signed message should always be required when the
+	 * content item is being created automatically in the Tool Consumer without
+	 * further interaction from the user. This parameter is optional; when omitted
+	 * a value of false should be assumed (i.e. the return message should be signed).
+	 */
+	public static final String ACCEPT_UNSIGNED = "accept_unsigned";
+
+	/**
+	 * accept_multiple=false | true (Optional)
+	 *
+	 * This indicates whether the user should be permitted to select more than
+	 * one item.  This parameter is optional; when omitted  a value of false
+	 * should be assumed (i.e. only a single item may be returned).
+	 */
+	public static final String ACCEPT_MULTIPLE = "accept_multiple";
+
+	/**
+	 * accept_copy_advice=false | true (Optional)
+	 *
+	 * This indicates whether the TC is able and willing to make a local copy
+	 * of a content item.  The return message may include a expiresAt parameter
+	 * to indicate that the URL provided will expire and so a copy of the content
+	 * item should be stored locally before the expiry time passes.  Use a value
+	 * of false (the default) to indicate that the TC has no capacity for storing
+	 * local copies of content items.
+	 */
+	public static final String ACCEPT_COPY_ADVICE = "accept_copy_advice";
+
+	/**
+	 * auto_create=false | true (Optional)
+	 *
+	 * This indicates whether any content items returned by the TP would be automatically
+	 * persisted without any option for the user to cancel the operation. This
+	 * parameter is optional; when omitted  a value of false should be assumed
+	 * (i.e. items returned may not be persisted at the TC end).
+	 */
+	public static final String AUTO_CREATE = "auto_create";
+
+	/**
+	 * can_confirm=false | true (Optional)
+	 *
+	 * This indicates whether the TC supports the feature for confirming the
+	 * persistence of content items received.  When a value of true is passed,
+	 * the TP may include a confirm_url parameter in its return message containing
+	 * the endpoint to which a confirmation request should be sent (see below).
+	 * If the TP does not support this feature or does not wish to receive a confirmation
+	 * it may just omit the confirm_url parameter from its return message.
+	 * This option may be used even when the auto_create parameter is set to true
+	 * if a TC is willing to offer the additional reassurance that items have been
+	 * persisted, or to allow a TP to be notified of resource link IDs for any
+	 * LTI links which have been created.
+	 */
+	public static final String CAN_CONFIRM = "can_confirm";
+
+	/**
+	 * title=... (Optional)
+	 *
+	 * Default text to be used as the title or alt text for the content item returned
+	 * by the TP.  This value should normally be short in length, for example,
+	 * suitable for use as a heading.
+	 */
+	public static final String TITLE = "title";
+
+	/**
+	 * text=... (Optional)
+	 *
+	 * Default text to be used as the visible text for the content item returned by the
+	 * TP.  If no text is returned by the TP, the TC may use the value of the title
+	 * parameter instead (if any).  This value may be a long description of the
+	 * content item.
+	 */
+	public static final String TEXT = "text";
+
+	/**
+	 * data=... (Optional)
+	 *
+	 * An opaque value which should be returned by the TP in its response.
+	 */
+	public static final String DATA = "data";
 
 	/**
 	 * ext_sakai_provider_eid=jsmith26
@@ -411,29 +535,6 @@ public class BasicLTIConstants {
 	 */
 	public static final String EXT_SAKAI_PROVIDER_DISPLAYID = "ext_sakai_provider_displayid";
 
-	/**
-	 * Utility array useful for validating property names when building launch
-	 * data.
-	 */
-	public static final String[] validPropertyNames = { CONTEXT_ID,
-		CONTEXT_LABEL, CONTEXT_TITLE, CONTEXT_TYPE,
-		LAUNCH_PRESENTATION_DOCUMENT_TARGET, LAUNCH_PRESENTATION_HEIGHT,
-		LAUNCH_PRESENTATION_LOCALE, LAUNCH_PRESENTATION_RETURN_URL,
-		LAUNCH_PRESENTATION_WIDTH, LIS_PERSON_CONTACT_EMAIL_PRIMARY,
-		LAUNCH_PRESENTATION_CSS_URL, 
-		TOOL_CONSUMER_INFO_PRODUCT_FAMILY_CODE,
-		TOOL_CONSUMER_INFO_VERSION,
-		LIS_PERSON_NAME_FAMILY, LIS_PERSON_NAME_FULL, LIS_PERSON_NAME_GIVEN,
-		LIS_PERSON_SOURCEDID, LIS_COURSE_OFFERING_SOURCEDID, 
-		LIS_COURSE_SECTION_SOURCEDID, 
-        LIS_OUTCOME_SERVICE_URL, LIS_RESULT_SOURCEDID,
-		LTI_MESSAGE_TYPE, LTI_VERSION, RESOURCE_LINK_ID, 
-		RESOURCE_LINK_TITLE, RESOURCE_LINK_DESCRIPTION, ROLES,
-		TC_PROFILE_URL,
-		TOOL_CONSUMER_INSTANCE_CONTACT_EMAIL, TOOL_CONSUMER_INSTANCE_DESCRIPTION,
-		TOOL_CONSUMER_INSTANCE_GUID, TOOL_CONSUMER_INSTANCE_NAME,
-		TOOL_CONSUMER_INSTANCE_URL, USER_ID, USER_IMAGE };
-	
 	/**
 	 * The default site type to use if a site needs to be created. Can be overriden in sakai.properties or as part of the launch.
 	 * This contains a number of preconfigured roles, so that the IMS role vocabulary can be used.

@@ -1795,13 +1795,15 @@ public class SiteAction extends PagedResourceActionII {
 			}
 			context.put("removals", remove);
 			
-			//check if soft deletes are activated
-			context.put("softDelete", softlyDeleting);
-			
 			//check if hard deletes are wanted
 			if(StringUtils.equalsIgnoreCase((String)state.getAttribute(STATE_HARD_DELETE), Boolean.TRUE.toString())) {
 				context.put("hardDelete", true);
+				//SAK-29678 - If it's hard deleted, it's not soft deleted.
+				softlyDeleting = false;
 			}
+			
+			//check if soft deletes are activated
+			context.put("softDelete", softlyDeleting);
 			
 			return (String) getContext(data).get("template") + TEMPLATE[8];
 		case 10:
