@@ -2732,10 +2732,50 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	return Double.valueOf(mean.doubleValue());
 	}
 
-	
+	@Override
+	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid) {
+		
+		org.sakaiproject.service.gradebook.shared.CourseGrade rval = new org.sakaiproject.service.gradebook.shared.CourseGrade();
 
+		try {
+			Gradebook gradebook = getGradebook(gradebookUid);
 	
-	
+			//if not released, don't do any work
+			if(gradebook.isCourseGradeDisplayed()){
+				return rval;
+			}
+						
+			List<Assignment> assignments = getAssignmentsCounted(gradebook.getId());
+						
+			List<CourseGradeRecord> gradeRecords = getPointsEarnedCourseGradeRecords(getCourseGrade(gradebook.getId()), Collections.singletonList(userUuid));
+			
+			if(gradeRecords.size() != 1) {
+				throw new IllegalStateException("More than one course grade record found for student: " + userUuid);
+			}
+			
+			CourseGradeRecord gradeRecord = gradeRecords.get(0);
+
+			//set entered grade
+			rval.setEnteredGrade(gradeRecord.getEnteredGrade());
+						
+			if(!assignments.isEmpty()) {
+				
+				//calculated grade
+				Double calculatedGrade = gradeRecord.getAutoCalculatedGrade();
+				rval.setCalculatedGrade(calculatedGrade.toString());
+
+				//mapped grade
+				GradeMapping gradeMap = gradebook.getSelectedGradeMapping();
+				String mappedGrade = (String)gradeMap.getGrade(calculatedGrade);
+				rval.setMappedGrade(mappedGrade);
+			}
+		}
+		catch(Exception e) {
+			log.error("Error in getCourseGradeForStudent", e);
+		}
+		return rval;
+	}
+
 	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
