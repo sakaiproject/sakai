@@ -636,9 +636,9 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				String pageResetUrl = pagerefUrl;
 				if(pagerefUrl != null){
 					if(pagerefUrl.contains("/tool/")){
-						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/tool/", "/tool-reset/");
+						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/tool/", "/tool-reset/") + "?sakai.state.reset=true";
 					}else if(pagerefUrl.contains("/page/")){
-						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/page/", "/tool-reset/");
+						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/page/", "/tool-reset/") + "?sakai.state.reset=true";
 					}
 				}
 				m.put("isPage", Boolean.valueOf(true));
