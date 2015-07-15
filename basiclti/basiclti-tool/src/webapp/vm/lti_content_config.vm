@@ -17,12 +17,12 @@
 #if ( $tool_description ) 
 <p>$validator.escapeHtml($tool_description)</p>
 #end
-#if ( $contentConfig )
+#if ( $contentLaunch )
 <p>
 $tlang.getString("contentitem.detail")
 </p>
 <p>
-<a href="$contentConfig">$tlang.getString("contentitem.link")</a>
+<a href="$contentLaunch">$tlang.getString("contentitem.link")</a>
 </p>
 </p>
 #end

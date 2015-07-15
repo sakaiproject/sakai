@@ -27,7 +27,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Enumeration;
+
 import java.net.URL;
+import java.net.URLEncoder;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -45,12 +47,15 @@ import org.imsglobal.lti2.LTI2Caps;
 import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.LTI2Messages;
 import org.imsglobal.lti2.ToolProxyBinding;
+import org.imsglobal.lti2.ContentItem;
 import org.imsglobal.lti2.objects.ToolConsumer;
 
 import org.sakaiproject.lti.api.LTIService;
 
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -71,6 +76,7 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.CSSUtils;
+import org.sakaiproject.portal.util.ToolUtils;
 import org.sakaiproject.linktool.LinkToolUtil;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -988,6 +994,59 @@ public class SakaiBLTIUtil {
 	}
 
 	/**
+	 * Build a URL, Adding Sakai's CSRF token
+	 */
+	public static String addCSRFToken(String url)
+	{
+                Session session = SessionManager.getCurrentSession();
+                Object csrfToken = session.getAttribute(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+		if ( url.indexOf("?") < 0 ) {
+			url = url + "?";
+		} else {
+			url = url + "&";
+		}
+		url = url + "sakai_csrf_token=" + URLEncoder.encode(csrfToken.toString());
+		return url;
+	}
+
+	/**
+	 * Create a ContentItem from the current request (may throw runtime)
+	 */
+	public static ContentItem getContentItemFromRequest(Map<String, Object> tool)
+	{
+
+                Placement placement = ToolManager.getCurrentPlacement();
+                String siteId = placement.getContext();
+
+                String toolSiteId = (String) tool.get(LTIService.LTI_SITE_ID);
+                if ( toolSiteId != null && ! toolSiteId.equals(siteId) ) {
+                        throw new RuntimeException("Incorrect site id");
+                }
+
+		HttpServletRequest req = ToolUtils.getRequestFromThreadLocal();
+
+		String lti_log = req.getParameter("lti_log");
+		String lti_errorlog = req.getParameter("lti_errorlog");
+		if ( lti_log != null ) M_log.debug(lti_log);
+		if ( lti_errorlog != null ) M_log.warn(lti_errorlog);
+
+		ContentItem contentItem = new ContentItem(req);
+
+                String oauth_consumer_key = req.getParameter("oauth_consumer_key");
+                String oauth_secret = (String) tool.get(LTIService.LTI_SECRET);
+                oauth_secret = decryptSecret(oauth_secret);
+
+                String URL = getOurServletPath(req);
+                if ( ! contentItem.validate(oauth_consumer_key, oauth_secret, URL) ) {
+                        M_log.warn("Provider failed to validate message: "+contentItem.getErrorMessage());
+                        String base_string = contentItem.getBaseString();
+                        if ( base_string != null ) M_log.warn("base_string="+base_string);
+                        throw new RuntimeException("Failed OAuth validation");
+                }
+		return contentItem;
+	}
+
+	/**
 	 * An LTI 2.0 ContentItemSelectionRequest launch
 	 *
 	 * This must return an HTML message as the [0] in the array
@@ -1020,7 +1079,7 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
 
-		setProperty(ltiProps, BasicLTIConstants.ACCEPT_MEDIA_TYPES, "application/vnd.ims.lti.v1.ltilink");
+		setProperty(ltiProps, ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINK);
 		setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, "iframe,window"); // Nice to add overlay
 		setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, "false");
 		setProperty(ltiProps, BasicLTIConstants.ACCEPT_MULTIPLE, "false");
@@ -1070,14 +1129,14 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIConstants.CONTENT_ITEM_RETURN_URL, contentReturn);
 
 		// This must always be there
-                String context = (String) tool.get(LTIService.LTI_SITE_ID);
-                Site site = null;
-                try {
-                        site = SiteService.getSite(context);
-                } catch (Exception e) {
-                        dPrint("No site/page associated with Launch context="+context);
-                        return postError("<p>" + getRB(rb, "error.site.missing" ,"Cannot load site.")+context+"</p>" );
-                }
+		String context = (String) tool.get(LTIService.LTI_SITE_ID);
+		Site site = null;
+		try {
+			site = SiteService.getSite(context);
+		} catch (Exception e) {
+			dPrint("No site/page associated with Launch context="+context);
+			return postError("<p>" + getRB(rb, "error.site.missing" ,"Cannot load site.")+context+"</p>" );
+		}
 
 		Properties lti2subst = new Properties();
 
