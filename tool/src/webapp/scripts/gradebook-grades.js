@@ -242,8 +242,11 @@ GradebookSpreadsheet.prototype.navigate = function(event, fromCell, direction, e
   //    model.enterEditMode();
   //  }
   //} else if ($targetCell) {
-  if ($targetCell) {
+  if ($targetCell && $targetCell.is(":visible")) {
     $targetCell.focus();
+  } else {
+    // ensure the table retains focus to facilitate continuation of keyboard navigation
+    aCell._focusAfterSaveComplete = true;
   }
 
   return false;
