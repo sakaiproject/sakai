@@ -35,7 +35,6 @@ if ( inIframe() ) {
 <%--<t:outputText style="display:none" styleClass="movePanelMessage" value="#{msgs.prefs_move_panel_message}"/>--%>
 <t:outputText style="display:none" styleClass="movePanelMessage" value="Move selected sites to top of {0}"/>
 <t:outputText style="display:none" styleClass="checkboxFromMessFav" value="#{msgs.prefs_fav_sites_short}"/>
-<t:outputText style="display:none" styleClass="checkboxFromMessAct" value="#{msgs.prefs_active_sites_short}"/>
 <t:outputText style="display:none" styleClass="checkboxFromMessArc" value="#{msgs.prefs_archive_sites_short}"/>
 
 </f:verbatim>
@@ -130,7 +129,7 @@ if ( inIframe() ) {
 <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar"><h:outputText value="#{msgs.prefs_my_workspace}" /></div></div>
 
 		</f:verbatim>
-		<t:dataList id="dt1" value="#{UserPrefsTool.prefTabItems}" 
+		<t:dataList id="dt1" value="#{UserPrefsTool.prefOrderItems}" 
 			var="item" layout="simple" 
 			rowIndexVar="counter"
 			itemStyleClass="dataListStyle">
@@ -158,39 +157,10 @@ if ( inIframe() ) {
 
                 <f:verbatim>
 			<!-- Column #2 -->
-                        <div class="flc-reorderer-column col2"  id="reorderCol2">
-                            <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_active_sites}" /></h4></div>
-		</f:verbatim>
-		<t:dataList id="dt2" value="#{UserPrefsTool.prefDrawerItems}" 
-			var="item" layout="simple" 
-			rowIndexVar="counter"
-			itemStyleClass="dataListStyle">
-                <f:verbatim>
-                   <div class="flc-reorderer-module layoutReorderer-module last-login"
-			id="</f:verbatim>
-                  <t:outputText value="#{item.value}"></t:outputText>
-                 <f:verbatim>">
-                      <div class="demoSelector-layoutReorderer layoutReorderer-module-dragbar">
-		</f:verbatim>
-                <t:outputText value="#{item.label}" styleClass="siteLabel" title="#{item.description}"></t:outputText>
-                <f:verbatim>
-                    <div class="checkBoxContainer">
-                    <input type="checkbox" class="selectSiteCheck" title="
-                </f:verbatim>
-                <h:outputFormat value="#{msgs.prefs_checkbox_select_message}">
-                    <f:param value="#{item.label}" />
-                    <f:param value="#{msgs.prefs_active_sites_short}" />
-                </h:outputFormat>
-                <f:verbatim>"/></div></div></div></f:verbatim>
-		</t:dataList>
-                <f:verbatim></div></f:verbatim>
-
-                <f:verbatim>
-			<!-- Column #3 -->
-                        <div class="flc-reorderer-column fl-container-flex25 fl-force-left col3"  id="reorderCol3">
+                        <div class="flc-reorderer-column fl-container-flex25 fl-force-left col2"  id="reorderCol2">
                             <div class="colTitle layoutReorderer-locked"><h4><h:outputText value="#{msgs.prefs_archive_sites}" /></h4></div>
 		</f:verbatim>
-		<t:dataList id="dt3" value="#{UserPrefsTool.prefHiddenItems}" 
+		<t:dataList id="dt2" value="#{UserPrefsTool.prefHiddenItems}" 
 			var="item" layout="simple" 
 			rowIndexVar="counter"
 			itemStyleClass="dataListStyle">
@@ -235,7 +205,6 @@ if ( inIframe() ) {
 	 	<h:commandButton accesskey="s" id="prefAllSub" styleClass="active formButton" value="#{msgs.update_pref}" action="#{UserPrefsTool.processActionSaveOrder}"></h:commandButton>
 		 <h:commandButton accesskey="x" id="cancel"  value="#{msgs.cancel_pref}" action="#{UserPrefsTool.processActionCancel}" styleClass="formButton"></h:commandButton>
 		<h:inputHidden id="prefTabString" value="#{UserPrefsTool.prefTabString}" />
-		<h:inputHidden id="prefDrawerString" value="#{UserPrefsTool.prefDrawerString}" />
 		<h:inputHidden id="prefHiddenString" value="#{UserPrefsTool.prefHiddenString}" />
 		<h:inputHidden id="reloadTop" value="#{UserPrefsTool.reloadTop}" />
 <f:verbatim>
