@@ -1,12 +1,9 @@
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Iterator;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Vector;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -15,9 +12,7 @@ import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Group;
-import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
-import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -30,7 +25,6 @@ import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
-import uk.org.ponder.rsf.components.UIELBinding;
 import uk.org.ponder.rsf.components.UIForm;
 import uk.org.ponder.rsf.components.UIInput;
 import uk.org.ponder.rsf.components.UIInternalLink;
@@ -38,21 +32,18 @@ import uk.org.ponder.rsf.components.UIMessage;
 import uk.org.ponder.rsf.components.UIOutput;
 import uk.org.ponder.rsf.components.UISelect;
 import uk.org.ponder.rsf.components.UISelectChoice;
-import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.DecoratorList;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
 import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
-import uk.org.ponder.rsf.flow.jsfnav.NavigationCase;
 import uk.org.ponder.rsf.view.ComponentChecker;
 import uk.org.ponder.rsf.view.DefaultView;
 import uk.org.ponder.rsf.view.ViewComponentProducer;
 import uk.org.ponder.rsf.viewstate.RawViewParameters;
 import uk.org.ponder.rsf.viewstate.SimpleViewParameters;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
-import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 import uk.org.ponder.stringutil.StringList;
 
 /**
@@ -64,7 +55,7 @@ public class GroupListProducer
         implements ViewComponentProducer, ActionResultInterceptor, DefaultView {
     
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(GroupListProducer.class);
+	private static final Log M_log = LogFactory.getLog(GroupListProducer.class);
 	
     public static final String VIEW_ID = "GroupList";
     public Map siteGroups;
@@ -107,7 +98,7 @@ public class GroupListProducer
 		
 		UIForm deleteForm = UIForm.make(tofill, "delete-group-form");
 		
-		List<Group> groups = null;
+		List<Group> groups;
 		groups = handler.getGroups();
       
 		if (groups != null && groups.size() > 0)
@@ -125,81 +116,79 @@ public class GroupListProducer
 			UIMessage.make(deleteForm, "group-joinable-set-title","group.joinable-set");
 			UIMessage.make(deleteForm, "group-size-title", "group.number");
 			UIMessage.make(deleteForm, "group-members-title", "group.members");
-			UIMessage.make(deleteForm, "group-remove-title", "editgroup.remove");
 			  
-			for (Iterator<Group> it=groups.iterator(); it.hasNext(); ) {
-            	Group group = it.next();
-            	String groupId = group.getId();
-                UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
-                
-                UIOutput.make(grouprow, "group-title-label", group.getTitle());
-                UIInput name = 
-                    UIInput.make(grouprow, "group-name-input", "#{SitegroupEditHandler.nil}", group.getTitle());
-                UIOutput nameLabel = 
-                    UIOutput.make(grouprow, "group-name-label", messageLocator.getMessage("group.title"));
-                
-                nameLabel.decorate(new UILabelTargetDecorator(name));
-                UIInternalLink editLink = UIInternalLink.make(grouprow,"group-title",group.getTitle(),  
-						new GroupEditViewParameters(GroupEditProducer.VIEW_ID, groupId));
-			editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.revise")+ ":" + group.getTitle()));
-			
+			for( Group group : groups )
+			{
+				String groupId = group.getId();
+				UIBranchContainer grouprow = UIBranchContainer.make(deleteForm, "group-row:", group.getId());
+				
+				UIOutput.make(grouprow, "group-title-label", group.getTitle());
+				UIInput name =
+						UIInput.make(grouprow, "group-name-input", "#{SitegroupEditHandler.nil}", group.getTitle());
+				UIOutput nameLabel =
+						UIOutput.make(grouprow, "group-name-label", messageLocator.getMessage("group.title"));
+				
+				nameLabel.decorate(new UILabelTargetDecorator(name));
+				UIInternalLink editLink = UIInternalLink.make(grouprow,"group-title",group.getTitle(),
+																					 new GroupEditViewParameters(GroupEditProducer.VIEW_ID, groupId));
+				editLink.decorators = new DecoratorList(new UITooltipDecorator(messageLocator.getMessage("editgroup.revise")+ ":" + group.getTitle()));
+				
 				String joinableSet = "---";
-				if(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET) != null){
-					joinableSet = group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET);
+				if(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET) != null){
+					joinableSet = group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET);
 					UIInternalLink.make(grouprow,"group-joinable-set",joinableSet, new CreateJoinableGroupViewParameters(CreateJoinableGroupsProducer.VIEW_ID, joinableSet));
 				}else{
 					UIOutput.make(grouprow,"group-no-joinable-set",joinableSet);
 				}
-
-    			int size = 0;
-    			String groupMembers = "";
-    			try
-    			{
-    				AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference()); 
-    				Collection<Member> gMembers = g != null ? g.getMembers():new Vector<Member>();
-    				size = gMembers.size();
-    				if (size > 0)
-    				{
-	    				for (Iterator<Member> gItr=gMembers.iterator(); gItr.hasNext();){
-	    		        	Member p = (Member) gItr.next();
-	    		        	
-	    		        	// exclude those user with provided roles and rosters
-	    		        	String userId = p.getUserId();
-		    				try
-		    				{
-		    					User u = userDirectoryService.getUser(userId);
-		    					if(!"".equals(groupMembers)){
-		        					groupMembers += ", ";
-		        				}
-		    					groupMembers += u.getDisplayName();
-		    				}
-		    	        	catch (Exception e)
-		    	        	{
-		    	        		M_log.debug(this + "fillInComponent: cannot find user with id " + userId);
-		    	        		// need to remove the group member
-		    	        		size--;
-		    	        	}
-	    				}
-    				}
-    			}
-    			catch (GroupNotDefinedException e)
-    			{
-    				M_log.debug(this + "fillComponent: cannot find group " + group.getReference());
-    			}
-    			String sizeStr = String.valueOf(size);
-    			if(group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_MAX) != null){
-    				sizeStr += " (" + group.getProperties().getProperty(group.GROUP_PROP_JOINABLE_SET_MAX) + ")";
+				
+				int size = 0;
+				String groupMembers = "";
+				try
+				{
+					AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference());
+					Set<Member> gMembers = g != null ? g.getMembers():new HashSet<Member>();
+					size = gMembers.size();
+					if (size > 0)
+					{
+						for( Member p : gMembers )
+						{
+							// exclude those user with provided roles and rosters
+							String userId = p.getUserId();
+							try
+							{
+								User u = userDirectoryService.getUser(userId);
+								if(!"".equals(groupMembers)){
+									groupMembers += ", ";
+								}
+								groupMembers += u.getDisplayName();
+							}
+							catch (Exception e)
+							{
+								M_log.debug(this + "fillInComponent: cannot find user with id " + userId, e);
+								// need to remove the group member
+								size--;
+							}
+						}
+					}
 				}
-    			UIOutput.make(grouprow,"group-size",sizeStr);
-
-    			UIOutput.make(grouprow,"group-members",groupMembers);
-    			
-    			deletable.add(group.getId());
+				catch (GroupNotDefinedException e)
+				{
+					M_log.debug(this + "fillComponent: cannot find group " + group.getReference(), e);
+				}
+				String sizeStr = String.valueOf(size);
+				if(group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) != null){
+					sizeStr += " (" + group.getProperties().getProperty(Group.GROUP_PROP_JOINABLE_SET_MAX) + ")";
+				}
+				UIOutput.make(grouprow,"group-size",sizeStr);
+				
+				UIOutput.make(grouprow,"group-members",groupMembers);
+				
+				deletable.add(group.getId());
 				UISelectChoice delete =  UISelectChoice.make(grouprow, "group-select", deleteselect.getFullID(), (deletable.size()-1));
 				delete.decorators = new DecoratorList(new UITooltipDecorator(UIMessage.make("delete_group_tooltip", new String[] {group.getTitle()})));
 				UIMessage message = UIMessage.make(grouprow,"delete-label","delete_group_tooltip", new String[] {group.getTitle()});
 				UILabelTargetDecorator.targetLabel(message,delete);
-            }
+			}
 			
 			deleteselect.optionlist.setValue(deletable.toStringArray());
 			UICommand.make(deleteForm, "delete-groups",  UIMessage.make("editgroup.removechecked"), "#{SiteManageGroupSectionRoleHandler.processConfirmGroupDelete}");
@@ -219,8 +208,8 @@ public class GroupListProducer
 		tml = handler.messages;
         if (tml.size() > 0) {
 			for (int i = 0; i < tml.size(); i ++ ) {
-				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.valueOf(i).toString());
-				String outString = "";
+				UIBranchContainer errorRow = UIBranchContainer.make(tofill,"error-row:", Integer.toString(i));
+				String outString;
  				if (tml.messageAt(i).args != null ) {
  					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
  				} else {
