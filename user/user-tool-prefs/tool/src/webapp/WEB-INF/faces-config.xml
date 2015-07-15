@@ -37,11 +37,6 @@
             <redirect/>
         </navigation-case>
         <navigation-case>
-            <from-outcome>tabDHTMLMoreSites</from-outcome>
-            <to-view-id>/prefs/tab-dhtml-moresites.jsp</to-view-id>
-            <redirect/>
-        </navigation-case>
-        <navigation-case>
             <from-outcome>noti</from-outcome>
             <to-view-id>/prefs/noti.jsp</to-view-id>
             <redirect/>
