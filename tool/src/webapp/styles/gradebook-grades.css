@@ -462,7 +462,7 @@
 #gradeItemsTogglePanel .gradebook-item-category-score-filter {
   margin-left: 20px;
 }
-#gradeItemsTogglePanel .gradebook-item-category-score-filter {
+#gradeItemsTogglePanel .gradebook-item-category-score-filter label {
   font-style: italic;
 }
 #gradeItemsTogglePanel label {

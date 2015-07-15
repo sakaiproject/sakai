@@ -368,9 +368,12 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
     }
   });
 
-
-
   self.$spreadsheet.prepend($fixedHeader);
+
+  if (reset && self.$fixedColumnsHeader) {
+    // ensure the $fixedColumnsHeader and $fixedHeader are the same height
+    self.$fixedColumnsHeader.find("th").height($fixedHeader.find(".headers th:first").height());
+  }
 
   function positionFixedHeader() {
     if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
@@ -1900,7 +1903,9 @@ GradebookToolbar.prototype.toggleCategories = function() {
 GradebookToolbar.prototype.setupToggleCategories = function() {
   var self = this;
   self.gradebookSpreadsheet.onReady(function() {
-      self.toggleCategories();
+      if ($("#toggleCategoriesToolbarItem").hasClass("on")) {
+        self.gradebookSpreadsheet.enableGroupByCategory();
+      }
   });
 };
 
