@@ -12,8 +12,8 @@
 <sakai:view_content>
 
 <f:verbatim>
-  <!-- No need to load jQuery - MyInfusion includes jQuery 1.6.1 -->
-  <script type="text/javascript" src="/library/js/fluid/1.4/MyInfusion.js">//</script>
+  <!-- No need to load jQuery - MyInfusion includes jQuery -->
+  <script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js">//</script>
   <script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">//</script>
 <script type="text/javascript">
 <!--

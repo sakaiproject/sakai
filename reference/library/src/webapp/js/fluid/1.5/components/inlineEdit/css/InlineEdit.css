@@ -1,0 +1,69 @@
+/* Themed Appearance + Themed States */
+
+.fl-inlineEdit-edit {
+	margin-left : -1px;
+	border      : 2px solid #0085FF;
+}
+
+.fl-inlineEdit-simple-editableText {
+    padding       : 2px 2px 1px 2px;
+    border-bottom : 1px dotted #0086D8;
+}
+
+.fl-inlineEdit-textContainer {
+    display: inline-block;    	
+}
+
+.fl-inlineEdit-text {
+    display             : inline;
+    padding-right       : 20px;
+    background-image    : url('../images/inline_edit_edit_button_16x16.png');
+    background-repeat   : no-repeat;
+    background-position : right center;  
+}
+
+.fl-inlineEdit-focus {
+	border        : 1px solid #0085FF;
+	padding       : 1px 0px 0px 1px;
+	margin-bottom : 1px;
+}
+
+/* Base Appearance & States Appearance */
+.fl-inlineEdit-tooltip {
+    position    : absolute;
+    background  : #FFFABB;
+    border      : 1px solid #C9B857;
+    font        : normal sans-serif;
+    padding     : 3px 5px;
+}
+
+/* Put keyboard focus instruction on a foreground layer */
+.fl-inlineEdit-editModeInstruction {
+    position    : absolute;
+    background  : #0081C1;
+    font        : normal sans-serif;
+    color       : #FFFFFF;
+    padding     : 3px 5px;
+    max-width   : 310px;
+    z-index     : 1;    
+}
+
+/* :hover */
+.fl-inlineEdit-invitation {
+    background  : #E1EDF5;
+    cursor      : pointer;
+}
+
+.fl-inlineEdit-emptyText-invitation  {
+    font-style : italic;
+    color      : #9f9f9f;
+}
+
+.fl-inlineEdit-emptyDefaultViewText {
+    padding-top : 16px;	
+}
+
+/* overrides fss-reset FLUID-3860 */
+p {
+	margin : 0px;
+}

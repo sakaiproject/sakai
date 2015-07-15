@@ -3,7 +3,7 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - reorder view
 <script type="text/javascript"
-  src="/library/js/fluid/1.4/MyInfusion.js"></script>
+  src="/library/js/fluid/1.5/MyInfusion.js"></script>
 
 	<script type="text/javascript" src="/library/js/reorderer.js"></script>
 
