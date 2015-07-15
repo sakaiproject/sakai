@@ -1632,8 +1632,8 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     private String processCreateJoinableSetHelper(boolean newSet){
-    	joinableSetName = joinableSetName.trim();
-    	if(joinableSetName == null || "".equals(joinableSetName)){
+    	joinableSetName = StringUtils.trimToEmpty( joinableSetName );
+    	if( StringUtils.isEmpty( joinableSetName ) ){
 			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
 			return null;
 		}
@@ -1756,8 +1756,8 @@ public class SiteManageGroupSectionRoleHandler {
     }
     
     private String processChangeJoinableSetNameHelper(){
-    	joinableSetName = joinableSetName.trim();
-    	if(joinableSetName == null || "".equals(joinableSetName)){
+    	joinableSetName = StringUtils.trimToEmpty( joinableSetName );
+    	if( StringUtils.isEmpty( joinableSetName ) ){
 			messages.addMessage(new TargettedMessage("groupTitle.empty.alert","groupTitle-group"));
 			return null;
 		}
