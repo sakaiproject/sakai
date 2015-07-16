@@ -42,6 +42,9 @@ body.is-logged-out{
 		li{
 			display: inline-block;
 			margin: 0 0.8em 0 0;
+			@media #{$phone}{
+				margin: 0 0.2em 0 0;
+			}
 			a{
 				.login-Icon{
 					@extend .fa-power-off;
@@ -83,9 +86,6 @@ body.is-logged-out{
 		width: 100%;
 		z-index: 20;
 	}
-}
-
-#roleSwitch{
 }
 
 .userNav_link{
@@ -149,7 +149,6 @@ body.is-logged-out{
 
 }
 
-
 #mastLogin{
 
 	width: calc( 100% - #{$tool-menu-width} - 4px ); //Fix for inline-block margin.
@@ -201,6 +200,14 @@ body.is-logged-out{
 			.#{$namespace}userNav__submenuitem--username{
 				color: $button-text-color;
 				text-decoration: underline;
+				@media #{$phone}{
+					display: none;
+				}
+			}
+			.#{$namespace}userNav__submenuitem--userid{
+				@media #{$phone}{
+					display: none;
+				}
 			}
 			.#{$namespace}userNav__submenuitem--profilepicture{
 				width:32px;
@@ -259,12 +266,66 @@ body.is-logged-out{
 		}
 	}
 }
+.#{$namespace}sitesNav__menuitem--myworkspace{
+	@media #{$phone}{
+		background: $primary-color;
+	}
+	border-right:  1px solid darken( $background-color-secondary, 10% );
+	font-size: 0.95em;
+	left: 0;
+	height:3.3em;
+	@media #{$phone}{
+	 	height:3.1em;
+		border-right: 1px solid darken( $primary-color, 5% );
+	}
+	position: absolute;
+	background: darken( $background-color-secondary, 5% );
+	@media #{$phone}{
+		top: 0;
+	}
+	span{
+		display: none;
+	}
+	.#{namespace}sitesNav__drop{
+		display: none;
+	}
+	&.is-selected{
+		background: $background-color;
+		@media #{$phone}{
+			background: $primary-color;
+		}
+		a{
+			color: $background-color-secondary;
+			@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
+		}
+	}
+	a{
+		display: inline-block;
+		border-right: 0px none;
+		color: $primary-color;
+		@media #{$phone}{
+			color: $background-color-secondary;
+		}
+		padding: 0.6em 0.8em;
+		i{
+			font-size: 1.7em;
+		}
+		&:hover{
+			/*color: $background-color-secondary;*/
+			@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
+		}
+	}
+}
 
 #linkNav{
 	background: darken( $background-color-secondary, 5% );
 	max-height: $header-size;
+	min-height: $header-size;
 	overflow: hidden;
-	@include transition(height 0.5s linear);
+	left: 3.1em;
+	width: calc(100% - 3em);
+	padding-left:3em;
+	// @include transition(height 0.5s linear);
 	ul{
 		font-family: $header-font-family;
 		font-weight: $header-font-weight;
@@ -332,6 +393,9 @@ body.is-logged-out{
 				}
 				&.is-selected{
 					background: $primary-color;
+					a{
+						@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
+					}
 				}
 				a{
 					border-right: 0px none;
@@ -350,7 +414,7 @@ body.is-logged-out{
 	&.scrolled-sites{
 		@media #{$desktop}{
 			ul{
-				width: calc(100% - 2.8em);
+				width: calc(100% - 6.8em);
 			}
 			#show-all-sites{
 				background: darken( $background-color-secondary, 5% );
@@ -358,13 +422,19 @@ body.is-logged-out{
 				cursor: pointer;
 				position: absolute;
 				text-align: center;
-				font-size: 2em;
+				font-size: 1.1em;
 				color: $primary-color;
-				top: 1.5em;
+				/*top: 1.5em;*/
 				right: 0em;
+				width:5.2em;
+				height: 2.1em;
 				border-left: 1px solid darken( $background-color-secondary, 10% );
-				padding: 0 0.5em 0 0.4em;
+				padding: 0.7em 0.5em 0 0.4em;
 				outline: 0;
+				i {
+					font-size: 1.3em;
+					padding-right : 5px;
+				}
 				> div{
 					display: inline-block;
 				}
@@ -401,3 +471,76 @@ body.is-logged-out{
 #show-all-sites{
 	display: none;
 }
+
+#show-all-sites-mobile{
+	color: $background-color-secondary;
+	background: lighten( $background-color, 5% );
+	display: none;
+	cursor: pointer;
+	position: absolute;
+	text-align: center;
+	font-size: 1.5em;
+	top: 0em;
+	right: 0em;
+	width:1.5em;
+	border-left: 1px solid darken( $background-color-secondary, 10% );
+	padding: 0 9px;
+	outline: 0;
+	> div{
+		display: inline-block;
+	}
+	#how-many-hidden-mobile{
+		font-size: 0.8em;
+		vertical-align: middle;
+		margin: 0 4px 2px 2px;
+		display: inline-block;
+	}
+	&.opened{
+		right: 10px;
+		border-left: 0px none;
+		> div {
+			color: $secondary-color;
+			@include transform( rotateZ(45deg) );
+		}
+	}
+}
+.#{$namespace}sitesNav__doubledrop{
+	@extend .fa-angle-double-down;
+	@extend .fa;
+	@extend .fa-lg;
+	padding-left:5px;
+}
+
+.#{$namespace}breadCrumbs{
+	margin:auto;
+	max-width: calc( 50% - 3em);
+}
+
+.#{$namespace}siteStatus{
+	&.is-unpublished{
+		margin-left:1em;
+		width: calc( 100% - 2em);
+		padding: 3px;
+		color :$background-color-secondary;
+		display:block;
+		text-align:center;
+		h4{
+			padding: 3px;
+		}
+		button{
+			@if $button-gradiant {
+				@include sakai-button(  $background-color-secondary, 
+									darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 25% ), 
+									$button-text-color-secondary );
+			}
+			@else{
+				@include sakai-button(  darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 15% ), 
+									darken( $primary-color, 15% ) );
+			}
+		}
+	}
+}
+

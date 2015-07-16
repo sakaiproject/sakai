@@ -3,34 +3,32 @@
 */
 var setupLinkNav = function(){
 	var linknav  = document.getElementById('Mrphs-sites-nav'); // need real DOM Node, not jQuery wrapper
-	
-	var h = $PBJQ("#linkNav").height();
 	var howManyHidden = 0;
-	
-	$PBJQ(".Mrphs-sitesNav__menuitem", "#linkNav").each(function(){
-	    if ( $PBJQ(this).position().top > h){ howManyHidden++ }
-	});
+	if($PBJQ("#linkNav").css("display")=="block"){
+		// for Desktop view get all course 
+		$PBJQ(".Mrphs-sitesNav__menuitem", "#linkNav").each(function(){
+		    if ( $PBJQ(this).position().top > $PBJQ("#linkNav").height()){ howManyHidden++ }
+		});
 
-  if( howManyHidden !== 0 ){
-  	$PBJQ('#linkNav').addClass( 'scrolled-sites' );
-  	$PBJQ('#how-many-hidden').text( howManyHidden );
-  }else{
-  	$PBJQ('#linkNav').removeClass( 'scrolled-sites' );
-  }
+	}else{
+		// for mobile view get all course excluding myworkspace
+		$PBJQ(".Mrphs-sitesNav__menuitem", "#linkNav").each(function(){
+		     howManyHidden++;
+		});
+	}
+
+	if( howManyHidden !== 0 ){
+		$PBJQ('#show-all-sites').css( 'display','block' );
+	  	$PBJQ('#linkNav').addClass( 'scrolled-sites' );
+		$PBJQ('#show-all-sites-mobile').css( 'display','block' );
+	}else{
+	  	$PBJQ('#linkNav').removeClass( 'scrolled-sites' );
+		$PBJQ('#show-all-sites').css( 'display','none' );
+	}
 };
 
 $PBJQ(document).ready(function(){
 	setupLinkNav();
-	$PBJQ('#show-all-sites').on('click', function(){
-		$PBJQ('#linkNav').toggleClass('opened');
-		if( $PBJQ('#linkNav').hasClass('opened') ){
-			$PBJQ('#toolMenuWrap').css('top', $PBJQ('#content').position().top + 'px' );
-		}else{
-			$PBJQ('#toolMenuWrap').removeAttr('style');
-		}
-		$PBJQ('#toolMenuWrap').toggleClass('openedLinkNav');
-		$PBJQ(this).toggleClass('opened');
-	});
 	$( window ).resize(function() {
 		setupLinkNav();
 	});

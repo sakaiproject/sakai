@@ -111,8 +111,14 @@
 
             ${d}PBJQ(document).ready(function() {
                 setupSiteNav();
-                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308 
+                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308 	
             });
+			// Code to not enable jquery mobile ajax
+			${d}PBJQ(document).on("mobileinit", function() {
+				${d}PBJQ.mobile.ajaxEnabled = false;
+				${d}PBJQ.mobile.autoInitializePage = false;
+				${d}PBJQ.mobile.pushStateEnabled = false;
+			});
         </script>
 
         <script>
@@ -134,6 +140,7 @@
         ${d}PBJQ(document).ready(portal_check_pnotify);
     #end
         </script>
+        <script src="${pageScriptPath}jquery/jquerymobile/1.4.5/jquery.mobile.min.js$!{portalCDNQuery}"></script>
 
         <!--[if lt IE 9]>
         <script src="${pageSkinRepo}/${pageSkin}/js/ie/sakai.portal.ie.js$!{portalCDNQuery}"></script>

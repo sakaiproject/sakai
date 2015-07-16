@@ -1,4 +1,5 @@
-#if ($tabsSites.tabsMoreSitesShow)
+## Commenting the check since we need to show moresites view always even if we have 1 site in mobil more
+##if ($tabsSites.tabsMoreSitesShow)
 
         <div id="selectSite" class="outscreen" tabindex="-1">
             <div id="otherSiteSearch"> 
@@ -113,4 +114,4 @@
 
         </div>
 
-    #end ## END of IF ($tabsSites.tabsMoreSitesShow)
+    ##end ## END of IF ($tabsSites.tabsMoreSitesShow)

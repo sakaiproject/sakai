@@ -73,8 +73,8 @@
 		@if $skin-with-icons {
 	 		@extend .fa-lg;
 			@extend .fa; 	 
-			&.icon-sakai-iframe-site{ 				@extend .fa-home;}
-			&.icon-sakai-motd{ 					@extend .fa-home;}
+			&.icon-sakai-iframe-site{ 				@extend .fa-university;}
+			&.icon-sakai-motd{ 					@extend .fa-university;}
 			&.icon-sakai-syllabus{					@extend .fa-file-text-o;}
 			&.icon-sakai-schedule{					@extend .fa-calendar;}	
 			&.icon-sakai-signup{					@extend .fa-calendar;}

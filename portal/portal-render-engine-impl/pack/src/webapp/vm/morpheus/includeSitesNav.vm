@@ -1,24 +1,37 @@
+ <ul class="Mrphs-sitesNav__menu" id="topnav" role="menubar">
+	#foreach ( $site in $tabsSites.tabsSites )
+		 #if (${site.isMyWorkspace})    
+			#if (${site.isCurrentSite})
+			    <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace is-selected">
+			        <a href="#" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
+			            <i class="fa fa-home"></i>
+			            <span>${rloader.sit_mywor}</span>
+			            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+			        </a>
+			    </li>
+			#else	
+			    <li class="Mrphs-sitesNav__menuitem  Mrphs-sitesNav__menuitem--myworkspace">
+			        <a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
+			            <i class="fa fa-home"></i>
+			            <span>${rloader.sit_mywor}</span>
+			            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
+			        </a>
+			    </li>
+			#end 
+		#end ## END of IF (${site.isMyWorkspace})
+	#end		
+ </ul>
+
 <nav id="linkNav" role="navigation" aria-labelledby="sitetabs" class="Mrphs-sitesNav" data-max-tools-int="$maxToolsInt" data-max-tools-anchor="${rloader.sit_alltools}">
     <h1 class="skip" tabindex="-1" id="sitetabs">${rloader.sit_worksiteshead}</h1>
-    <div id="show-all-sites" tabindex="-1" aria-hidden="true"><div>+</div><span id="how-many-hidden"></span></div>
+    <div id="show-all-sites" tabindex="-1" aria-hidden="true"><i class="fa fa-angle-double-left"></i><span>${rloader.sit_more}</span></div>
     <ul class="Mrphs-sitesNav__menu" id="topnav" role="menubar" aria-label="${rloader.sit_worksiteshead}">
 
         #foreach ( $site in $tabsSites.tabsSites )
 
             #if (${site.isCurrentSite})
 
-                #if (${site.isMyWorkspace})
-                    ## Print Nothing
-                    ## <a class="Mrphs-my-workspace" href="${site.siteUrl}"><i class="fa fa-home"></i></a>
-                    <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--myworkspace is-selected">
-                        <a href="#" role="menuitem" aria-haspopup="true">
-                            <i class="fa fa-home"></i>
-                            <span>${rloader.sit_mywor}</span>
-                            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
-                        </a>
-                    </li>
-
-                #else
+                #if (!${site.isMyWorkspace})
 
                     #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 
@@ -44,20 +57,8 @@
 
             #else
 
-                #if (${site.isMyWorkspace})
-                    ## Print Nothing
-                    ##  <a class="Mrphs-my-workspace" href="${site.siteUrl}"><i class="fa fa-home"></i></a>
-
-                    <li class="Mrphs-sitesNav__menuitem  Mrphs-sitesNav__menuitem--myworkspace">
-                        <a href="${site.siteUrl}" title="${rloader.sit_mywor}" role="menuitem" aria-haspopup="true">
-                            <i class="fa fa-home"></i>
-                            <span>${rloader.sit_mywor}</span>
-                            <span class="Mrphs-sitesNav__drop" tabindex="-1" data-site-id="${site.siteId}"></span>
-                        </a>
-                    </li>
-
-                #else
-
+                #if (!${site.isMyWorkspace})
+                
                     #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
 
                         <li class="Mrphs-sitesNav__menuitem">
@@ -83,13 +84,13 @@
             #end ## END of IF (${site.isCurrentSite})
 
         #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
-
+<!-- Commenting More sites button since it is automatically shown when sites overflow @TODO need to be cleaned later 
         #if ($tabsSites.tabsMoreSitesShow)
 
             <li class="Mrphs-sitesNav__menuitem Mrphs-sitesNav__menuitem--more-tab"><a href="javascript:;" onclick="return dhtml_view_sites();" title="${rloader.sit_more}" aria-haspopup="true" class="Mrphs- js-show-more-sites"><span class="Mrphs- more">${rloader.sit_more}</span></a></li>
 
         #end ## END of IF ($tabsSites.tabsMoreSitesShow)
-
+-->
     </ul>
 
 </nav> <!-- /Mrphs-sitesNav -->

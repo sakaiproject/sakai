@@ -6,7 +6,8 @@
     #if ($roleSwitchState)
 
         <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor">
-            <span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span>
+			<i class="fa fa-user-secret exit"></i>
+            <span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span><i class="fa fa-remove exit close"></i>
         </a>
 
     #else
