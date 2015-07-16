@@ -42,6 +42,7 @@ import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Constants;
 import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.ToolProxy;
+import org.imsglobal.lti2.ContentItem;
 import org.imsglobal.lti2.objects.Service_offered;
 import org.imsglobal.lti2.objects.StandardServices;
 import org.imsglobal.lti2.objects.ToolConsumer;
@@ -223,6 +224,8 @@ public class LTI2Service extends HttpServlet {
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, cnf);
 		consumer.allowSplitSecret();
 		consumer.allowHmac256();
+		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_LTILINK));
+		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_FILEITEM));
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			consumer.allowEmail();
