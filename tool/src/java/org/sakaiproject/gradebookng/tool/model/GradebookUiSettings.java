@@ -39,6 +39,7 @@ public class GradebookUiSettings implements Serializable {
 	private boolean categoriesEnabled;
 
 	private Map<Long, Boolean> assignmentVisibility;
+	private Map<String, Boolean> categoryScoreVisibility;
 	
 	/**
 	 * For sorting based on first name / last name
@@ -50,6 +51,7 @@ public class GradebookUiSettings implements Serializable {
 		//defaults. Note there is no default for assignmentSortOrder as that requires an assignmentId which will differ between gradebooks
 		this.categoriesEnabled = false;
 		this.assignmentVisibility = new HashMap<Long, Boolean>();
+		this.categoryScoreVisibility = new HashMap<String, Boolean>();
 		this.nameSortOrder = GbStudentNameSortOrder.LAST_NAME;
 	}
 
@@ -60,6 +62,14 @@ public class GradebookUiSettings implements Serializable {
 
 	public void setAssignmentVisibility(Long assignmentId, Boolean visible) {
 		assignmentVisibility.put(assignmentId, visible);
+	}
+
+	public boolean isCategoryScoreVisible(String category) {
+		return (categoryScoreVisibility.containsKey(category)) ? categoryScoreVisibility.get(category) : true;
+	}
+
+	public void setCategoryScoreVisibility(String category, Boolean visible) {
+		categoryScoreVisibility.put(category, visible);
 	}
 	
 	@Override

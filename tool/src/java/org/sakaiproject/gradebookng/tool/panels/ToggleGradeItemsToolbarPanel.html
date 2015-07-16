@@ -42,6 +42,23 @@
         </ul>
       </div>
     </div>
+    <div wicket:id="categoryScore" class="gradebook-item-category-score-filter">
+      <label tabindex="0" role="menuitem">
+          <span wicket:id="categoryScoreLabel"></span>
+          <span class="gradebook-item-category-filter-signal"></span>
+          <input wicket:id="categoryScoreCheckbox" type="checkbox">
+      </label>
+      <div class="btn-group">
+          <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" aria-popup="true" aria-label="Show dropdown menu">
+              <span class="caret"></span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-right" role="menu">
+              <li><a class="gb-show-only-this-category-score" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowonlythiscategoryscore">Show only this category score</span></a></li>
+              <li><a class="gb-toggle-this-category-score gb-show-this-category-score" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemshowthiscategoryscore">Show this category score</span></a></li>
+              <li><a class="gb-toggle-this-category-score gb-hide-this-category-score" href="#" role="menuitem"><span wicket:message="value:label.toolbar.gradeitemhidethiscategoryscore">Hide this category score</span></a></li>
+          </ul>
+      </div>
+    </div>
   </div>
 </div>
 

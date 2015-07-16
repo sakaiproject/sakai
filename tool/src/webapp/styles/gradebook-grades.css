@@ -66,7 +66,7 @@
  /* Table Header */
 #gradebookGrades th {
   vertical-align: top;
-  background: #EEE;
+  background: #F0f0f0;
   text-shadow: 1px 1px 0 #FFF;
   font-weight: normal;
 }
@@ -101,6 +101,16 @@
   font-size: 0.8em;
   color: #999;
   line-height: 1.4em;
+}
+#gradebookGrades th.gb-category-item-column-cell .gb-title {
+  font-style: italic;
+}
+#gradebookGrades th.gb-category-item-column-cell .gb-category-score-swatch {
+  float: left;
+  height: 1em;
+  width: 1em;
+  margin: 3px 5px 0 0;
+  box-shadow: 1px 1px 1px #AAA;
 }
 
 /* Dropdown Menus */
@@ -181,7 +191,8 @@
   height: 2.6em;
 }
 #gradebookGrades .gb-grade-item-cell,
-#gradebookGrades .gb-external-item-cell {
+#gradebookGrades .gb-external-item-cell,
+#gradebookGrades td.gb-category-item-column-cell {
   text-align: center;
   white-space: nowrap;
 }
@@ -441,16 +452,21 @@
   right: 0;
 }
 #gradeItemsTogglePanel .gradebook-item-category-filter,
-#gradeItemsTogglePanel .gradebook-item-filter {
+#gradeItemsTogglePanel .gradebook-item-filter,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter {
   clear: both;
   margin-left: 10px;
   position: relative;
 }
-#gradeItemsTogglePanel .gradebook-item-filter {
+#gradeItemsTogglePanel .gradebook-item-filter,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter {
   margin-left: 20px;
 }
+#gradeItemsTogglePanel .gradebook-item-category-score-filter label {
+  font-style: italic;
+}
 #gradeItemsTogglePanel label {
-  float: left;
+  display: inline-block;
   width: 90%;
   width: calc(100% - 20px);
 }
@@ -469,9 +485,18 @@
   margin: 0 5px 0;
   border-bottom: none;
 }
+#gradeItemsTogglePanel .gradebook-item-filter-group {
+  border-bottom: 1px dotted #DDD;
+  padding-bottom: 5px;
+  margin-bottom: 5px;
+}
+#gradeItemsTogglePanel .gradebook-item-filter-group:last-child {
+  border-bottom: none;
+  margin: 0;
+}
 #gradeItemsTogglePanel .gradebook-item-filter-group .btn-group {
   float: right;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 #gradeItemsTogglePanel .gradebook-item-filter-group .btn-group .btn.dropdown-toggle {
   padding: 0 4px;
@@ -479,11 +504,14 @@
 #gradeItemsTogglePanel .gradebook-item-filter .gb-show-this-item,
 #gradeItemsTogglePanel .gradebook-item-filter.off .gb-hide-this-item,
 #gradeItemsTogglePanel .gradebook-item-category-filter .gb-show-this-category,
-#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-hide-this-category {
+#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-hide-this-category,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter .gb-show-this-category-score,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter.off .gb-hide-this-category-score {
   display: none;
 }
 #gradeItemsTogglePanel .gradebook-item-filter.off .gb-show-this-item,
-#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-show-this-category {
+#gradeItemsTogglePanel .gradebook-item-category-filter.off .gb-show-this-category,
+#gradeItemsTogglePanel .gradebook-item-category-score-filter.off .gb-show-this-category-score {
   display: block;
 }
 /* Concurrent Users Warning */
