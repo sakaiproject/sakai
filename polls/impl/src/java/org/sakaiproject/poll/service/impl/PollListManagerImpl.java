@@ -126,20 +126,17 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         List<Poll> polls = null;
         // get all allowed sites for this user
         List<String> allowedSites = externalLogic.getSitesForUser(userId, permissionConstant);
+		List<String> filteredRequestedSites = new ArrayList<String>();
         if (! allowedSites.isEmpty()) {
             if (siteIds != null) {
                 if (siteIds.length > 0) {
                     // filter down to just the requested ones
                     for (int j = 0; j < allowedSites.size(); j++) {
                         String siteId = allowedSites.get(j);
-                        boolean found = false;
                         for (int i = 0; i < siteIds.length; i++) {
                             if (siteId.equals(siteIds[i])) {
-                                found = true;
+                                filteredRequestedSites.add(siteId);
                             }
-                        }
-                        if (!found) {
-                            allowedSites.remove(j);
                         }
                     }
                 } else {
@@ -147,7 +144,7 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
                     return new ArrayList<Poll>();
                 }
             }
-            String[] siteIdsToSearch = allowedSites.toArray(new String[allowedSites.size()]);
+            String[] siteIdsToSearch = filteredRequestedSites.toArray(new String[filteredRequestedSites.size()]);
             Search search = new Search();
             if (siteIdsToSearch.length > 0) {
                 search.addRestriction(new Restriction("siteId", siteIdsToSearch));
