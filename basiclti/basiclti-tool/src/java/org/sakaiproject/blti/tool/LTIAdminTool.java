@@ -38,6 +38,7 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Constants;
+import org.imsglobal.lti2.LTI2Messages;
 import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.ToolProxy;
 import org.imsglobal.lti2.ContentItem;
@@ -1019,6 +1020,16 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				addAlert(state,rb.getString("deploy.parse.error")+" tool_proxy_binding");
 				return "lti_error";
 			}
+
+			if ( toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
+				ContentItem.getCapability(ContentItem.TYPE_LTILINK) ) ) {
+				newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+			}
+
+			if ( toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
+				ContentItem.getCapability(ContentItem.TYPE_FILEITEM) ) ) {
+				newTool.put(LTIService.LTI_PL_FILEIMPORT, new Integer(1));
+			}
 			
 			newTool.put(LTIService.LTI_TOOL_PROXY_BINDING, tool_proxy_binding);
 			String fa_icon = toolProxyBinding.getIconPath("FontAwesome");
@@ -1676,13 +1687,13 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		}
 
 		// Check if we are supposed to let the tool configure itself
-		Long allowContentItem = foorm.getLong(tool.get(LTIService.LTI_ALLOWCONTENTITEM));
+		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
 
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		context.put("doAction", BUTTON + "doContentPut");
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("cancelUrl", returnUrl);
 		context.put("returnUrl", returnUrl);
-		if ( allowContentItem > 0 ) context.put("contentLaunch", contentLaunch);
+		if ( allowLinkSelection > 0 ) context.put("contentLaunch", contentLaunch);
 		context.put(LTIService.LTI_TOOL_ID,toolKey);
 		context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 		context.put("tool_title", tool.get(LTIService.LTI_TITLE));

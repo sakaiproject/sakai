@@ -77,10 +77,13 @@ public class ContentItem {
 
 	public static final String ACCEPT_MEDIA_TYPES = "accept_media_types";
 	public static String MEDIA_LTILINK = "application/vnd.ims.lti.v1.ltilink";
-	public static String MEDIA_CC = "application/vnd.ims.lti.v1.ltilink";
+	// http://www.ietf.org/mail-archive/web/ietf-types/current/msg00754.html
+	public static final String MEDIA_CC = "application/imsccml+xml";
 
-	public static String TYPE_LTILINK = "LtiLink";
-
+	public static final String TYPE_LTILINK = "LtiLink";
+	public static final String TYPE_CONTENTITEM = "ContentItem";
+	public static final String TYPE_FILEITEM = "FileItem";
+	public static final String TYPE_IMPORTITEM = "ImportItem";
 
 	HttpServletRequest servletRequest = null;
 
@@ -244,6 +247,14 @@ public class ContentItem {
 	public String getErrorMessage()
 	{
 		return errorMessage;
+	}
+
+	/**
+	 * Get an LTI 2.x Capability String
+	 */
+	public static String getCapability(String type)
+	{
+		return "ContentItem." + type;
 	}
 
 	/**

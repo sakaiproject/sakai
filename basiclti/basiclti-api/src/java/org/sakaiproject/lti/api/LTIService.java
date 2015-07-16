@@ -720,7 +720,12 @@ public interface LTIService {
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
 		"allowlori:checkbox:label=bl_allowlori",
-		"allowcontentitem:checkbox:label=bl_allowcontentitem",
+		// Hide these from end users until they are working in the various Sakai tools
+		"pl_header:header:fields=pl_linkselection,pl_fileimport,pl_contenteditor,pl_assessmentselection",
+		"pl_linkselection:checkbox:label=bl_pl_linkselection",
+		"pl_fileimport:checkbox:label=bl_pl_fileimport:role=admin",
+		"pl_contenteditor:checkbox:label=bl_pl_contenteditor:role=admin",
+		"pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
 		"debug:radio:label=bl_debug:choices=off,on,content",
 		// LTI 1.x user-entered custom
@@ -849,5 +854,9 @@ public interface LTIService {
 	// A subset of a tool_proxy with only a single resource_handler
 	static final String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
 	// End of BLTI-230 - LTI 2.0
+	static final String LTI_PL_LINKSELECTION = "pl_linkselection";
+	static final String LTI_PL_FILEIMPORT = "pl_fileimport";
+	static final String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
+	static final String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
 
 }

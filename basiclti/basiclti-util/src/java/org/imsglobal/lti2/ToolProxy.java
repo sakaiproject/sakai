@@ -153,6 +153,7 @@ public class ToolProxy {
 	{
 		JSONObject message = getMessageOfType(resourceHandler, messageType);
 		JSONArray enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
+		if ( enabled_capability == null ) return false;
 		return enabled_capability.contains(capability);
 	}
 
