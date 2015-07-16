@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://www.opensource.org/licenses/ECL-2.0
+ *			   http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -59,11 +59,14 @@ import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.PagingPosition;
+import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.sitestats.api.CommonStatGrpByDate;
 import org.sakaiproject.sitestats.api.EventStat;
+import org.sakaiproject.sitestats.api.LessonBuilderStat;
 import org.sakaiproject.sitestats.api.Prefs;
 import org.sakaiproject.sitestats.api.PrefsData;
 import org.sakaiproject.sitestats.api.ResourceStat;
@@ -105,10 +108,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	
 	/** Spring bean members */
 	private Boolean						enableSiteVisits						= null;
-	private Boolean                     enableSiteActivity						= null;
+	private Boolean						enableSiteActivity						= null;
 	private Boolean						enableResourceStats						= null;
 	private Boolean						enableSitePresences						= null;
-	private Boolean 				    visitsInfoAvailable						= null;
+	private Boolean						visitsInfoAvailable						= null;
 	private boolean						enableServerWideStats					= true;
 	private boolean						countFilesUsingCHS						= true;
 	private String						chartBackgroundColor					= "white";
@@ -131,6 +134,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	private SiteService					M_ss;
 	private ServerConfigurationService	M_scs;
 	private ToolManager					M_tm;
+	private SimplePageToolDao			lessonBuilderService;
 	private MemoryService				M_ms;
 	private SessionManager				M_sm;
 	private EventTrackingService		M_ets;
@@ -281,6 +285,10 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	public void setToolManager(ToolManager toolManager) {
 		this.M_tm = toolManager;
 	}
+
+	public void setLessonBuilderService(SimplePageToolDao lessonBuilderService) {
+		this.lessonBuilderService = lessonBuilderService;
+	}
 	
 	public void setMemoryService(MemoryService memoryService) {
 		this.M_ms = memoryService;
@@ -385,11 +393,11 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 	
 	private PrefsData parseSitePrefs(InputStream input) throws Exception{
 		Digester digester = new Digester();
-        digester.setValidating(false);
-        
-        digester = DigesterUtil.configurePrefsDigester(digester);
-        
-        return (PrefsData) digester.parse( input );
+		digester.setValidating(false);
+
+		digester = DigesterUtil.configurePrefsDigester(digester);
+
+		return (PrefsData) digester.parse( input );
 	}
 
 	/* (non-Javadoc)
@@ -871,6 +879,218 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		}
 	}
 
+	public String getLessonPageTitle(long pageId) {
+
+		SimplePage lbPage = lessonBuilderService.getPage(pageId);
+		if (lbPage != null) {
+			return lbPage.getTitle();
+		} else {
+			return msgs.getString("page_unknown");
+		}
+	}
+
+	public int getTotalLessonPages(final String siteId) {
+
+		if (siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		} else {
+			// Use SiteStats tables (very fast, relies on resource events)
+			// Build common HQL
+			String hql_ = "select s.siteId, sum(s.count) "
+				+ "from LessonBuilderStatImpl as s "
+				+ "where s.siteId = :siteid "
+				+ "and s.pageAction = :pageAction "
+				+ "and s.pageRef like :pageRefLike "
+				+ "group by s.siteId";
+			final String hql = hql_;
+			final String pageRefLike = "/lessonbuilder/page/%";
+
+			// New files
+			HibernateCallback hcb1 = new HibernateCallback() {
+
+				@SuppressWarnings("unchecked")
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setString("pageAction", "create");
+					q.setString("pageRefLike", pageRefLike);
+					List<Object[]> list = q.list();
+					Long total = Long.valueOf(0);
+					if (list != null && list.size() > 0) {
+						try {
+							total = (Long) (list.get(0))[1];
+						} catch (ClassCastException e) {
+							total = Long.valueOf( ((Integer) (list.get(0))[1]).longValue() );
+						}
+					}
+					return total;
+				}
+			};
+			Long totalNew = (Long) getHibernateTemplate().execute(hcb1);
+
+			// Deleted files
+			HibernateCallback hcb2 = new HibernateCallback() {
+				@SuppressWarnings("unchecked")
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setString("pageAction", "delete");
+					q.setString("pageRefLike", pageRefLike);
+					List<Object[]> list = q.list();
+					Long total = Long.valueOf(0);
+					if (list != null && list.size() > 0) {
+						try {
+							total = (Long) (list.get(0))[1];
+						} catch (ClassCastException e) {
+							total = Long.valueOf( ((Integer) (list.get(0))[1]).longValue() );
+						}
+					}
+					return total;
+				}
+			};
+			Long totalDel = (Long) getHibernateTemplate().execute(hcb2);
+
+			return (int) (totalNew.longValue() - totalDel.longValue());
+		}
+	}
+
+	public int getTotalReadLessonPages(final String siteId) {
+
+		if (siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		} else {
+			// Use SiteStats tables (very fast, relies on resource events)
+			// Build common HQL
+			String hql_ = "select distinct s.pageRef "
+				+ "from LessonBuilderStatImpl as s "
+				+ "where s.siteId = :siteid "
+				+ "and s.pageAction = :pageAction "
+				+ "and s.pageRef like :pageRefLike ";
+			final String hql = hql_;
+			final String pageRefLike = "/lessonbuilder/page/%";
+
+			// New files
+			HibernateCallback hcb1 = new HibernateCallback() {
+
+				@SuppressWarnings("unchecked")
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setString("pageAction", "read");
+					q.setString("pageRefLike", pageRefLike);
+					return q.list();
+				}
+			};
+
+			List<Object[]> read = (List<Object[]>) getHibernateTemplate().execute(hcb1);
+
+			// Deleted files
+			HibernateCallback hcb2 = new HibernateCallback() {
+				@SuppressWarnings("unchecked")
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setString("pageAction", "delete");
+					q.setString("pageRefLike", pageRefLike);
+					return q.list();
+				}
+			};
+
+			List<String> deleted = (List<String>) getHibernateTemplate().execute(hcb2);
+
+			int totalRead = read.size();
+
+			for (Iterator i = read.iterator(); i.hasNext();) {
+				Object o = i.next();
+				if (deleted.contains(o)) {
+					totalRead -= 1;
+				}
+			}
+
+			return totalRead;
+		}
+	}
+
+	public String getMostReadLessonPage(final String siteId) {
+
+		if (siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		} else {
+			// Use SiteStats tables (very fast, relies on resource events)
+			// Build common HQL
+			final String hql = "select s.pageRef, s.pageId, sum(s.count) as total "
+				+ "from LessonBuilderStatImpl as s "
+				+ "where s.siteId = :siteid "
+				+ "and s.pageAction = :pageAction "
+				+ "and s.pageRef like :pageRefLike "
+				+ "and s.userId != '?' group by s.pageRef order by total DESC";
+
+			HibernateCallback hcb = new HibernateCallback() {
+
+				@SuppressWarnings("unchecked")
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setString("pageAction", "read");
+					q.setString("pageRefLike", "/lessonbuilder/page/%");
+					return q.list();
+				}
+			};
+
+			List<Object[]> read = (List<Object[]>) getHibernateTemplate().execute(hcb);
+
+			if (read.size() > 0) {
+				Object[] topRow = read.get(0);
+				String page = getLessonPageTitle((Long) topRow[1]);
+				if (page == null) {
+					page = (String) topRow[0];
+				}
+				return page;
+			} else {
+				return "-";
+			}
+		}
+	}
+
+    public String getMostActiveLessonPageReader(final String siteId) {
+
+		if (siteId == null){
+			throw new IllegalArgumentException("Null siteId");
+		} else {
+			// Use SiteStats tables (very fast, relies on resource events)
+			// Build common HQL
+			final String hql = "select s.userId as user, sum(s.count) as total "
+				+ "from LessonBuilderStatImpl as s "
+				+ "where s.siteId = :siteid "
+				+ "and s.pageAction = :pageAction "
+				+ "and s.pageRef like :pageRefLike "
+				+ "group by s.userId order by total DESC";
+
+			HibernateCallback hcb = new HibernateCallback() {
+
+				@SuppressWarnings("unchecked")
+				public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+					Query q = session.createQuery(hql);
+					q.setString("siteid", siteId);
+					q.setString("pageAction", "read");
+					q.setString("pageRefLike", "/lessonbuilder/page/%");
+					return q.list();
+				}
+			};
+
+			List<Object[]> userRows = (List<Object[]>) getHibernateTemplate().execute(hcb);
+
+			if (userRows.size() > 0) {
+				return (String) userRows.get(0)[0];
+			} else {
+				return "-";
+			}
+		}
+	}
 	
 	// ################################################################
 	// Summary/report methods
@@ -1366,7 +1586,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 								results.add(c);
 							}else{
 								// Special case:
-								//  - group by tool (& event not part of grouping)
+								//	- group by tool (& event not part of grouping)
 								boolean toolAggregated = false;
 								for(Stat s_ : results) {
 									EventStat es_ = (EventStat) s_;
@@ -2040,6 +2260,195 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		};
 		return (List<Stat>) getHibernateTemplate().execute(hcb);
 	}
+
+	public List<Stat> getLessonBuilderStats(final String siteId,
+										final String pageAction,
+										final List<String> resourceIds,
+										final Date iDate,
+										final Date fDate,
+										final List<String> userIds,
+										final boolean inverseUserSelection,
+										final PagingPosition page,
+										final List<String> totalsBy,
+										final String sortBy,
+										final boolean sortAscending,
+										final int maxResults) {
+
+		StatsSqlBuilder sqlBuilder = new StatsSqlBuilder(getDbVendor(),
+				Q_TYPE_LESSON, totalsBy,
+				siteId, (Set<String>)null, null, false, pageAction, resourceIds,
+				iDate, fDate, userIds, inverseUserSelection, sortBy, sortAscending);
+
+		final String hql = sqlBuilder.getHQL();
+
+		final Map<Integer,Integer> columnMap = sqlBuilder.getHQLColumnMap();
+
+		HibernateCallback hcb = new HibernateCallback() {
+
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+
+				Query q = session.createQuery(hql);
+				q.setString("siteid", siteId);
+
+				if (userIds != null && !userIds.isEmpty()) {
+					if (userIds.size() <= 1000) {
+						q.setParameterList("users", userIds);
+					} else {
+						int nUsers = userIds.size();
+						int blockId = 0, startIndex = 0;
+						int blocks = (int) (nUsers / 1000);
+						blocks = (blocks*1000 == nUsers) ? blocks : blocks+1;
+						for (int i = 0; i < blocks - 1; i++) {
+							q.setParameterList("users" + blockId, userIds.subList(startIndex, startIndex + 1000));
+							blockId++;
+							startIndex += 1000;
+						}
+						q.setParameterList("users" + blockId, userIds.subList(startIndex, nUsers));
+					}
+				}
+				if (pageAction != null) {
+					q.setString("action", pageAction);
+				}
+
+				if (resourceIds != null && !resourceIds.isEmpty()) {
+					List<String> simpleResourceIds = new ArrayList<String>();
+					List<String> wildcardResourceIds = new ArrayList<String>();
+					for (String rId : resourceIds) {
+						if (rId.endsWith("/")) {
+							wildcardResourceIds.add(rId + "%");
+						} else {
+							simpleResourceIds.add(rId);
+						}
+					}
+					if (simpleResourceIds.size() > 0) {
+						q.setParameterList("resources", resourceIds);
+					}
+					for (int i=0; i<wildcardResourceIds.size(); i++) {
+						q.setString("resource"+i, wildcardResourceIds.get(i));
+					}
+				}
+
+				if (iDate != null) {
+					q.setDate("idate", iDate);
+				}
+				if (fDate != null) {
+					// adjust final date
+					Calendar c = Calendar.getInstance();
+					c.setTime(fDate);
+					c.add(Calendar.DAY_OF_YEAR, 1);
+					Date fDate2 = c.getTime();
+					q.setDate("fdate", fDate2);
+				}
+				if (page != null) {
+					q.setFirstResult(page.getFirst() - 1);
+					q.setMaxResults(page.getLast() - page.getFirst() + 1);
+				}
+				if (maxResults > 0) {
+					q.setMaxResults(maxResults);
+				}
+
+                if (LOG.isDebugEnabled()) {
+				    LOG.debug("getLessonBuilderStats(): " + q.getQueryString());
+                }
+
+				List<Object[]> records = q.list();
+				List<LessonBuilderStat> results = new ArrayList<LessonBuilderStat>();
+				Set<String> siteUserIds = null;
+				if (inverseUserSelection) {
+					siteUserIds = getSiteUsers(siteId);
+				}
+				if (records.size() > 0) {
+					Calendar cal = Calendar.getInstance();
+					for (Iterator<Object[]> iter = records.iterator(); iter.hasNext();) {
+						if (!inverseUserSelection) {
+							Object[] s = iter.next();
+							LessonBuilderStat stat = new LessonBuilderStatImpl();
+							if (columnMap.containsKey(StatsSqlBuilder.C_SITE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_SITE);
+								stat.setSiteId((String)s[ix]);
+							}
+							if (columnMap.containsKey(StatsSqlBuilder.C_USER)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_USER);
+								stat.setUserId((String)s[ix]);
+							}
+							if (columnMap.containsKey(StatsSqlBuilder.C_PAGE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_PAGE);
+								stat.setPageRef((String)s[ix]);
+							}
+							if (columnMap.containsKey(StatsSqlBuilder.C_PAGE_ACTION)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_PAGE_ACTION);
+								stat.setPageAction((String)s[ix]);
+							}
+							if (columnMap.containsKey(StatsSqlBuilder.C_PAGE_ID)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_PAGE_ID);
+								stat.setPageId((Long)s[ix]);
+							}
+							if (columnMap.containsKey(StatsSqlBuilder.C_DATE)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATE);
+								stat.setDate((Date)s[ix]);
+							}
+							if (columnMap.containsKey(StatsSqlBuilder.C_DATEMONTH)
+									&& columnMap.containsKey(StatsSqlBuilder.C_DATEYEAR)) {
+								int ixY = (Integer) columnMap.get(StatsSqlBuilder.C_DATEYEAR);
+								int ixM = (Integer) columnMap.get(StatsSqlBuilder.C_DATEMONTH);
+								int yr = 0, mo = 0;
+								if (getDbVendor().equals("oracle")){
+									yr = Integer.parseInt((String)s[ixY]);
+									mo = Integer.parseInt((String)s[ixM]) - 1;
+								} else {
+									yr = ((Integer)s[ixY]).intValue();
+									mo = ((Integer)s[ixM]).intValue() - 1;
+								}
+								cal.set(Calendar.YEAR, yr);
+								cal.set(Calendar.MONTH, mo);
+								stat.setDate(cal.getTime());
+							} else if (columnMap.containsKey(StatsSqlBuilder.C_DATEYEAR)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_DATEYEAR);
+								int yr = 0;
+								if (getDbVendor().equals("oracle")){
+									yr = Integer.parseInt((String)s[ix]);
+								} else {
+									yr = ((Integer)s[ix]).intValue();
+								}
+								cal.set(Calendar.YEAR, yr);
+								stat.setDate(cal.getTime());
+							}
+							if (columnMap.containsKey(StatsSqlBuilder.C_TOTAL)) {
+								int ix = (Integer) columnMap.get(StatsSqlBuilder.C_TOTAL);
+								Long total = (Long) s[ix];
+								if (total != null) {
+									stat.setCount(total.longValue());
+								}
+							}
+
+							stat.setPageTitle(getLessonPageTitle(stat.getPageId()));
+
+							results.add(stat);
+						} else {
+							if (siteUserIds != null) {
+								siteUserIds.remove((Object) iter.next());
+							}
+						}
+					}
+				}
+				if (inverseUserSelection) {
+					long id = 0;
+					Iterator<String> iU = siteUserIds.iterator();
+					while (iU.hasNext()) {
+						String userId = iU.next();
+						LessonBuilderStat c = new LessonBuilderStatImpl();
+						c.setId(id++);
+						c.setUserId(userId);
+						c.setSiteId(siteId);
+						c.setCount(0);
+						results.add(c);
+					}
+				}
+				return results;
+			}
+		};
+		return (List<Stat>) getHibernateTemplate().execute(hcb);
+	}
 	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getResourceStatsRowCount(java.lang.String, java.lang.String, java.util.List, java.util.Date, java.util.Date, java.util.List, boolean, org.sakaiproject.javax.PagingPosition, java.lang.String, java.lang.String, boolean)
@@ -2374,6 +2783,9 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 		public static final Integer		C_VISITS			= 10;
 		public static final Integer		C_UNIQUEVISITS		= 11;
 		public static final Integer		C_DURATION			= 12;
+		public static final Integer		C_PAGE			    = 13;
+		public static final Integer		C_PAGE_ACTION	    = 14;
+		public static final Integer		C_PAGE_ID	    	= 15;
 
 		private Map<Integer, Integer>	columnMap;
 		
@@ -2422,6 +2834,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					this.totalsBy = TOTALSBY_ACTIVITYTOTALS_DEFAULT;
 				}else if(queryType == Q_TYPE_PRESENCE){
 					this.totalsBy = TOTALSBY_PRESENCE_DEFAULT;
+				}else if(queryType == Q_TYPE_LESSON){
+					this.totalsBy = TOTALSBY_LESSONS_DEFAULT;
 				}
 			}else{
 				this.totalsBy = totalsBy;
@@ -2520,6 +2934,21 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					selectFields.add("s.resourceAction as resourceAction");
 					columnMap.put(C_RESOURCE_ACTION, columnIndex++);
 				}
+				// page
+				if(totalsBy.contains(T_PAGE)) {
+					selectFields.add("s.pageRef as pageRef");
+					columnMap.put(C_PAGE, columnIndex++);
+				}
+				// lesson page id
+				if (queryType == Q_TYPE_LESSON) {
+					selectFields.add("s.pageId as pageId");
+					columnMap.put(C_PAGE_ID, columnIndex++);
+				}
+				// page action
+				if(totalsBy.contains(T_PAGE_ACTION)) {
+					selectFields.add("s.pageAction as pageAction");
+					columnMap.put(C_PAGE_ACTION, columnIndex++);
+				}
 				// date
 				if(totalsBy.contains(T_DATE)) {
 					selectFields.add("s.date as date");
@@ -2547,7 +2976,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}
 				// total
 				if((queryType == Q_TYPE_EVENT && !totalsBy.contains(T_VISITS) && !totalsBy.contains(T_UNIQUEVISITS))
-					|| queryType == Q_TYPE_RESOURCE) {
+					|| queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) {
 					selectFields.add("sum(s.count) as total");
 					columnMap.put(C_TOTAL, columnIndex++);
 				}else if(queryType == Q_TYPE_ACTIVITYTOTALS) {
@@ -2608,6 +3037,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				}
 			}else if(queryType == Q_TYPE_PRESENCE){
 				return "from SitePresenceImpl as s ";
+			}else if(queryType == Q_TYPE_LESSON){
+				return "from LessonBuilderStatImpl as s ";
 			}else{
 				//if(queryType == Q_TYPE_ACTIVITYTOTALS){
 				return "from SiteActivityImpl as s ";
@@ -2628,10 +3059,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 					&& (totalsBy.contains(T_DATEMONTH) || totalsBy.contains(T_DATEYEAR))) {
 				whereFields.add("s.eventId = '"+SITEVISIT_EVENTID+"'");
 			}
+
 			if(queryType == Q_TYPE_RESOURCE && resourceAction != null) {
 				whereFields.add("s.resourceAction = :action");
 			}
-			if(queryType == Q_TYPE_RESOURCE && resourceIds != null && !resourceIds.isEmpty()) {
+			if(queryType == Q_TYPE_LESSON && resourceAction != null) {
+				whereFields.add("s.pageAction = :action");
+			}
+			if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && resourceIds != null && !resourceIds.isEmpty()) {
 				int simpleSelectionCount = 0;
 				int wildcardSelectionCount = 0;
 				for(String rId : resourceIds) {
@@ -2641,14 +3076,15 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						simpleSelectionCount++;
 					}
 				}
+                final String refType = (queryType == Q_TYPE_RESOURCE) ? "s.resourceRef" : "s.pageRef";
 				if(simpleSelectionCount > 0) {
-					whereFields.add("s.resourceRef in (:resources)");
+					whereFields.add(refType + " in (:resources)");
 				}
 				for(int i=0; i<wildcardSelectionCount; i++) {
-					whereFields.add("s.resourceRef like (:resource"+i+")");
+					whereFields.add(refType + " like (:resource"+i+")");
 				}
 			}
-			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE  || queryType == Q_TYPE_PRESENCE) 
+			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE  || queryType == Q_TYPE_PRESENCE || queryType == Q_TYPE_LESSON) 
 				&& userIds != null) {
 				if(!userIds.isEmpty()) {
 					if(userIds.size() <= 1000) {
@@ -2679,43 +3115,51 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(fDate != null) {
 				whereFields.add("s.date < :fdate");
 			}
-			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_PRESENCE)
+			if((queryType == Q_TYPE_EVENT || queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_PRESENCE || queryType == Q_TYPE_LESSON)
 				&& !showAnonymousAccessEvents) {
 				whereFields.add("s.userId != '?'");
 			}
 			
 			// build 'where' clause
-			if(whereFields.size() > 0) {
+			if (whereFields.size() > 0) {
 				_hql.append("where ");
-				for(int i=0; i<whereFields.size() - 1; i++) {
-					if(whereFields.get(i).startsWith("s.resourceRef")){
+				for (int i=0; i<whereFields.size() - 1; i++) {
+					String previousField = (i != 0) ? whereFields.get(i-1) : null;
+					String currentField = whereFields.get(i);
+					String nextField = whereFields.get(i+1);
+					if (currentField.startsWith("s.resourceRef")
+					    || currentField.startsWith("s.pageRef")) {
 						// this is a resource condition
-						if(i!= 0 && !whereFields.get(i-1).startsWith("s.resourceRef")) {
+						if (i!= 0 && !previousField.startsWith("s.resourceRef") && !previousField.startsWith("s.pageRef")) {
 							_hql.append("(");
 						}
-						_hql.append(whereFields.get(i));
-						if(whereFields.get(i+1).startsWith("s.resourceRef")) {
+						_hql.append(currentField);
+						if (nextField.startsWith("s.resourceRef")
+						    || nextField.startsWith("s.pageRef")) {
 							 // and so is next
 							_hql.append(" or ");
-						}else{
+						} else{
 							// and next is not
 							_hql.append(") and ");
 						}
-					}else{
-						_hql.append(whereFields.get(i));
+					} else {
+						_hql.append(currentField);
 						_hql.append(" and ");
 					}
 				}
 				_hql.append(whereFields.get(whereFields.size() - 1));
-				if(whereFields.size() > 1 && whereFields.get(whereFields.size() - 2).startsWith("s.resourceRef")) {
-					// last was also a resource condition
-					_hql.append(')');
+				if(whereFields.size() > 1) {
+					String lastField = whereFields.get(whereFields.size() - 2);
+					if (lastField.startsWith("s.resourceRef")
+						|| lastField.startsWith("s.pageeRef")) {
+						// last was also a resource condition
+					    _hql.append(')');
+				    }
 				}
 			}			
 			_hql.append(' ');			
 			
 			return _hql.toString();
-			
 		}
 		
 		private String getGroupByClause() {
@@ -2730,8 +3174,8 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(queryType == Q_TYPE_EVENT && anonymousEvents != null && anonymousEvents.size() > 0) {
 					if(dbVendor.equals("oracle")) {
 						// unfortunately, this produces results different from the expected:
-						//  - hibernate-oracle bug (sometimes) producing duplicate lines
-						//  - hack fix in getEventStats() method
+						//	- hibernate-oracle bug (sometimes) producing duplicate lines
+						//	- hack fix in getEventStats() method
 						groupFields.add("s.eventId");
 						groupFields.add("s.userId");
 						// it should be: ( but doesn't work in Hibernate :( )
@@ -2754,8 +3198,14 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE)) {
 				groupFields.add("s.resourceRef");
 			}
-			if(queryType == Q_TYPE_RESOURCE && totalsBy.contains(T_RESOURCE_ACTION)) {
+			if((queryType == Q_TYPE_RESOURCE || queryType == Q_TYPE_LESSON) && totalsBy.contains(T_RESOURCE_ACTION)) {
 				groupFields.add("s.resourceAction");
+			}
+			if(queryType == Q_TYPE_LESSON && totalsBy.contains(T_PAGE)) {
+				groupFields.add("s.pageRef");
+			}
+			if(queryType == Q_TYPE_LESSON && totalsBy.contains(T_PAGE_ACTION)) {
+				groupFields.add("s.pageAction");
 			}
 			if(totalsBy.contains(T_DATE)) {
 				groupFields.add("s.date");
@@ -2815,6 +3265,12 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(queryType == Q_TYPE_RESOURCE && sortBy.equals(T_RESOURCE_ACTION) && totalsBy.contains(T_RESOURCE_ACTION)) {
 					sortField = "s.resourceAction";
 				}
+				if(queryType == Q_TYPE_LESSON && sortBy.equals(T_PAGE) && totalsBy.contains(T_PAGE)) {
+					sortField = "s.pageRef";
+				}
+				if(queryType == Q_TYPE_LESSON && sortBy.equals(T_PAGE_ACTION) && totalsBy.contains(T_PAGE_ACTION)) {
+					sortField = "s.pageAction";
+				}
 				if((sortBy.equals(T_DATE) || sortBy.equals(T_LASTDATE)) 
 						&& 
 						(totalsBy.contains(T_DATE) || totalsBy.contains(T_LASTDATE) )) {
@@ -2835,7 +3291,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						// functions in 'order by' clauses for MySQL.
 						//
 						// Notes: * by default, hibernate columns have the form:
-						//             col_X_0_ , where X is the column number
+						//			   col_X_0_ , where X is the column number
 						sortField = "col_" + (columnMap.get(C_TOTAL)) + "_0_";
 					}
 				}
@@ -2852,7 +3308,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						// functions in 'order by' clauses for MySQL.
 						//
 						// Notes: * by default, hibernate columns have the form:
-						//             col_X_0_ , where X is the column number
+						//			   col_X_0_ , where X is the column number
 						sortField = "col_" + (columnMap.get(C_VISITS)) + "_0_";
 					}
 				}
@@ -2870,7 +3326,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 						// functions in 'order by' clauses for MySQL.
 						//
 						// Notes: * by default, hibernate columns have the form:
-						//             col_X_0_ , where X is the column number
+						//			   col_X_0_ , where X is the column number
 						sortField = "col_" + (columnMap.get(C_UNIQUEVISITS)) + "_0_";
 					}
 				}
@@ -2892,7 +3348,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 
 	
 	// ################################################################
-	//  Site visits related methods
+	//	Site visits related methods
 	// ################################################################
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.sitestats.api.StatsManager#getSiteVisits(java.lang.String)
@@ -3237,7 +3693,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(iDate != null)
 					iDateStr = "and s.date >= :idate ";
 				if(fDate != null)
-					fDateStr = "and s.date < :fdate ";  
+					fDateStr = "and s.date < :fdate ";
 			}
 			final String hql = "select s.siteId, sum(s.count), year(s.date), month(s.date), day(s.date) " + 
 					"from SiteActivityImpl as s " +
@@ -3334,7 +3790,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(iDate != null)
 					iDateStr = "and s.date >= :idate ";
 				if(fDate != null)
-					fDateStr = "and s.date < :fdate ";  
+					fDateStr = "and s.date < :fdate ";
 			}
 			final String hql = "select s.siteId, sum(s.count), year(s.date), month(s.date) " + 
 					"from SiteActivityImpl as s " +
@@ -3426,7 +3882,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 				if(iDate != null)
 					iDateStr = "and s.date >= :idate ";
 				if(fDate != null)
-					fDateStr = "and s.date < :fdate ";  
+					fDateStr = "and s.date < :fdate ";
 			}
 			final String hql = "select s.siteId, sum(s.count), s.eventId " + 
 					"from SiteActivityImpl as s " +
@@ -3525,7 +3981,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(iDate != null)
 				iDateStr = "and s.date >= :idate ";
 			if(fDate != null)
-				fDateStr = "and s.date < :fdate ";   
+				fDateStr = "and s.date < :fdate ";
 			final String hql = "select s.siteId, sum(s.count),s.date " + 
 					"from SiteActivityImpl as s " +
 					"where s.siteId = :siteid " +
@@ -3594,7 +4050,7 @@ public class StatsManagerImpl extends HibernateDaoSupport implements StatsManage
 			if(iDate != null)
 				iDateStr = "and ss.date >= :idate ";
 			if(fDate != null)
-				fDateStr = "and ss.date < :fdate ";  
+				fDateStr = "and ss.date < :fdate ";
 			final String hql = "select sum(ss.count) " +
 					"from SiteActivityImpl as ss " +
 					"where ss.eventId in (:eventlist) " +
