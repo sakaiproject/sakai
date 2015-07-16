@@ -6,6 +6,7 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -90,7 +91,7 @@ public class ZipContentUtil {
 			try {
 				temp = File.createTempFile("sakai_content-", ".tmp");
 				ContentCollection collection = ContentHostingService.getCollection(reference.getId());
-				out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE));
+				out = new ZipOutputStream(new BufferedOutputStream(new FileOutputStream(temp),BUFFER_SIZE), StandardCharsets.UTF_8);
 				storeContentCollection(reference.getId(),collection,out);
 			} finally {
 				if (out != null) {
@@ -214,7 +215,7 @@ public class ZipContentUtil {
 		File temp = null;		
 		try {
 			temp = exportResourceToFile(resource);
-			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ);
+			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ, StandardCharsets.UTF_8);
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
 			while (entries.hasMoreElements()) {
@@ -276,7 +277,7 @@ public class ZipContentUtil {
 		File temp = null;		
 		try {
 			temp = exportResourceToFile(resource);
-			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ);
+			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ, StandardCharsets.UTF_8);
 			Enumeration<? extends ZipEntry> entries = zipFile.entries();
 
 			int i = 0;
