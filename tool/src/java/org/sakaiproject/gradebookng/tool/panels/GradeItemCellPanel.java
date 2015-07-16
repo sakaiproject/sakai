@@ -17,6 +17,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.core.util.string.ComponentRenderer;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -84,7 +85,7 @@ public class GradeItemCellPanel extends Panel {
 		final Long assignmentId = (Long) modelData.get("assignmentId");
 		final Double assignmentPoints = (Double) modelData.get("assignmentPoints");
 		final String studentUuid = (String) modelData.get("studentUuid");
-		final Boolean isExternal = (Boolean) modelData.get("isExternal");
+		final boolean isExternal = (boolean) modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
 		
 		//note, gradeInfo may be null
@@ -102,10 +103,16 @@ public class GradeItemCellPanel extends Panel {
 		final String formattedGrade = this.formatGrade(rawGrade);
 				
 		//if assignment is external, normal label
-		if(BooleanUtils.isTrue(isExternal)){
+		if(isExternal){
 			add(new Label("grade", Model.of(formattedGrade)));
 			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
 			notifications.add(GradeCellNotification.IS_EXTERNAL);
+			
+			if(StringUtils.isNotBlank(comment)) {
+				getParent().add(new AttributeModifier("class", "gb-external-item-cell has-comment"));
+			}
+			
+			
 		} else {
 			gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				
@@ -284,9 +291,19 @@ public class GradeItemCellPanel extends Panel {
 		getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal)));
 
 		//menu
+		WebMarkupContainer menu = new WebMarkupContainer("menu") {
+		
+			@Override
+			public boolean isVisible() {
+				if(isExternal) {
+					return false;
+				}
+				return true;
+			}
+		};
 		
 		//grade log
-		add(new AjaxLink<Map<String,Object>>("viewGradeLog", model){
+		menu.add(new AjaxLink<Map<String,Object>>("viewGradeLog", model){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -329,7 +346,6 @@ public class GradeItemCellPanel extends Panel {
 					}
 				});
 				window.show(target);
-				
 			}
 		};
 		
@@ -348,7 +364,9 @@ public class GradeItemCellPanel extends Panel {
 		};
 		
 		editGradeComment.add(new Label("editGradeCommentLabel", editGradeCommentModel));
-		add(editGradeComment);
+		menu.add(editGradeComment);
+		
+		add(menu);
 
 		refreshPopoverNotifications();
 	}
