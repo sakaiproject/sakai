@@ -648,7 +648,7 @@ function duplicateLink(lnk) {
 							#end
 							#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 								<td headers="remove" class="screenOnly">
-										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" />
+										<input type="checkbox" name="selectedAssignments" value="$assignmentReference" id="check_$assignmentCount" onclick="ASN.checkEnableRemove();" />
 										<label for="check_$assignmentCount" class="skip">$tlang.getString("gen.remove"): $validator.escapeHtml($validator.limit($!assignment.getTitle(), 64))</label>
 								</td>
 							#end
@@ -818,7 +818,7 @@ function duplicateLink(lnk) {
 			</table>
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 				<p class="act">
-					<input type="submit" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" />
+					<input type="submit" id="btnRemove" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" disabled="disabled" />
 				</p>
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

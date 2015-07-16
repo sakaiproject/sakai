@@ -792,3 +792,20 @@ ASN.disableLink = function( link )
     link.className = "noPointers";
     link.disabled = true;
 };
+
+// SAK-29708
+ASN.checkEnableRemove = function()
+{
+    var selected = false;
+    var checkboxes = document.getElementsByName( "selectedAssignments" );
+    for( var i = 0; i < checkboxes.length; i++ )
+    {
+        if( checkboxes[i].checked )
+        {
+            selected = true;
+            break;
+        }
+    }
+
+    document.getElementById( "btnRemove" ).disabled = !selected;
+};
