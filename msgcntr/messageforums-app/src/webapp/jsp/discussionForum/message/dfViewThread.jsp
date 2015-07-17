@@ -17,8 +17,7 @@
 	<h:form id="msgForum" rendered="#{!ForumTool.selectedTopic.topic.draft || ForumTool.selectedTopic.topic.createdBy == ForumTool.userId}">
 
 		<!--jsp/discussionForum/message/dfViewThread.jsp-->
-       		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-       		<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
   			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
 			<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
 			<link rel="stylesheet" type="text/css" href="/library/js/jquery/qtip/jquery.qtip-latest.min.css" />

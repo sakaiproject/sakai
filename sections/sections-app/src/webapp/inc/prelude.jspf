@@ -21,8 +21,7 @@
 		<%= request.getAttribute("sakai.html.head.js") %>
 		<!-- Insert local js here -->
 		<script type="text/javascript" src="${pageContext.request.contextPath}/js/sections.js"> </script>
-		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-		<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+		<script type="text/javascript">includeLatestJQuery('polls');</script>
 		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
         <link type="text/css" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" media="screen" />
         <script>

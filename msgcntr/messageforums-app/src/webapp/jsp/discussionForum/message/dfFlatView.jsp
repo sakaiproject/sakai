@@ -12,8 +12,7 @@
 	<h:form id="msgForum" styleClass="specialLink">
 
 	<!--jsp/discussionForum/message/dfFlatView.jsp-->
-		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-		<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 		<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
   		<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
 		<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>

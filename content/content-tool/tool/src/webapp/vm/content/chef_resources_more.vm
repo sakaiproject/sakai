@@ -198,8 +198,7 @@
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 </div>
-<script type="text/javascript" src="#libraryLink('js/jquery/jquery-1.9.1.min.js')">
-</script>
+<script type="text/javascript">includeLatestJQuery('chef_resources_more');</script>
 <script type="text/javascript">
 	function openCopyrightWindow(theURL,winName,winSettings) 
 	{ 

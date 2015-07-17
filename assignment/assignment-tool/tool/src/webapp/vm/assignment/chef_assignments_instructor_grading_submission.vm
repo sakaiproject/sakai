@@ -1,7 +1,7 @@
 <!-- $Id$ -->
 <!-- start: check_assignments_instructor_grading_submission.vm  -->
 #set( $H = '-' )
-<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+<script type="text/javascript">includeLatestJQuery('assignments');</script>
 <link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
