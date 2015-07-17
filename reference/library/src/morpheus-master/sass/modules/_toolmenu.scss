@@ -14,12 +14,10 @@ body.is-logged-out{
 	top: $header-size;
 	width: $tool-menu-width;
 	margin: 4em 0 0 0;
-
-	// @include border-radius( 0 0 10px 0 );
-	@include transition(all 0.5s linear);
+	transition-duration:0s;
 	
 	@media #{$phone}{
-		left: 0;
+		left: -#{$icon-size * 2};
 		width: #{$icon-size * 2};
 		@if $skin-with-icons {
 			.#{$namespace}toolsNav__menuitem--title{
@@ -49,7 +47,9 @@ body.is-logged-out{
 		color: $tool-background-color;
 		display: block;
 		font-size: 1.2em;
-		margin: 0 0 0 15px;
+		margin: 0 auto;
+		max-width:calc(100% - 6em);
+		text-align:center;
 	}
 }
 
@@ -65,6 +65,18 @@ body.is-logged-out{
 			&.clickable{
 				cursor: pointer;
 				display: block;
+			}
+		}
+		&.exit{
+			color:red;
+			@media #{$phone} {
+				padding: 0px ;
+			}
+		}
+		&.close{
+			font-size : 1em;
+			@media #{$phone} {
+				vertical-align:top;
 			}
 		}
 		
@@ -88,6 +100,9 @@ body.is-logged-out{
 			font-size: 0.8em;
 			vertical-align: text-top;
 			text-decoration: underline;
+			@media #{$phone} {
+				display:none;
+			}
 		}
 	}
 }

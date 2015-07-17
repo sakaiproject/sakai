@@ -3,7 +3,7 @@
 	#content, .#{$namespace}container--footer{
 		margin: 3em 0 0 #{$tool-menu-width};
 		@media #{$phone}{
-			margin: 3em 0 0 #{$icon-size * 3};
+			margin: 3em 0 0 35px;
 		}
 	}
 }
@@ -16,7 +16,7 @@
 	margin: 0 0 0 #{$tool-menu-width};
 
 	@media #{$phone}{
-		margin: #{$header-size } 20px 0 #{$icon-size * 3};
+		margin: calc(#{$header-size} - 1em) 0 0 0;
 	}
 	
 	#col1of2, #col2of2{

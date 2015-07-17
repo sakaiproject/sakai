@@ -2,7 +2,7 @@
  * Toggle user nav in header: 
  */
 
-function toggleUserNav(){
+function toggleUserNav(event){
   event.preventDefault();
   $PBJQ('.Mrphs-userNav__subnav').toggleClass('is-hidden');
   $PBJQ(this).toggleClass('is-clicked');
