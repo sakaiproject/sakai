@@ -29,21 +29,7 @@ package org.sakaiproject.portal.api;
 public interface SiteView
 {
 
-	public static enum View { ALL_SITES_VIEW, DEFAULT_SITE_VIEW, DHTML_MORE_VIEW, SUB_SITES_VIEW, CURRENT_SITE_VIEW }
-	/*
-	 DEFAULT_SITE_VIEW
-	 
-		siteView.setIncludeMyWorksite(true);
-		siteView.setPrefix(prefix);
-		siteView.setMyWorkspaceSiteId(myWorkspaceSiteId);
-		siteView.setIncludeSumary(includeSummary);
-		siteView.setExpandSite(expandSite);
-		siteView.setResetTools(resetTools);
-		siteView.setDoPages(doPages);
-		siteView.setToolContextPath(toolContextPath);
-		siteView.setLoggedIn(loggedIn);
-
-	*/
+	public static enum View { ALL_SITES_VIEW, DHTML_MORE_VIEW, SUB_SITES_VIEW, CURRENT_SITE_VIEW }
 
 	/**
 	 * The prefix for creating site URLs. Eg. If "site" then URLs will come out like /portal/site/...

@@ -96,8 +96,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private int configuredTabsToDisplay = 5;
 
-	private boolean useDHTMLMore = false;
-	
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -132,8 +130,6 @@ public class SiteHandler extends WorksiteHandler
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
 		configuredTabsToDisplay = ServerConfigurationService.getInt(
 				Portal.CONFIG_DEFAULT_TABS, 5);
-		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
-				"portal.use.dhtml.more", true));
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
@@ -828,23 +824,11 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("useDHTMLMore", useDHTMLMore);
-			if (useDHTMLMore)
-			{
-				SiteView siteView = portal.getSiteHelper().getSitesView(
-						SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
-				siteView.setPrefix(prefix);
-				siteView.setToolContextPath(null);
-				rcontext.put("tabsSites", siteView.getRenderContextObject());
-			}
-			else
-			{
-				SiteView siteView = portal.getSiteHelper().getSitesView(
-						SiteView.View.DEFAULT_SITE_VIEW, req, session, siteId);
-				siteView.setPrefix(prefix);
-				siteView.setToolContextPath(null);
-				rcontext.put("tabsSites", siteView.getRenderContextObject());
-			}
+			SiteView siteView = portal.getSiteHelper().getSitesView(
+					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+			siteView.setPrefix(prefix);
+			siteView.setToolContextPath(null);
+			rcontext.put("tabsSites", siteView.getRenderContextObject());
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
