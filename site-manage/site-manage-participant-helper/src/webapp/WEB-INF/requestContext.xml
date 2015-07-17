@@ -14,7 +14,6 @@
     <property name="notiProvider" ref="org.sakaiproject.sitemanage.api.UserNotificationProvider" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
     <property name="validationLogic" ref="org.sakaiproject.accountvalidator.logic.ValidationLogic"/>
-    <property name="securityService" ref="org.sakaiproject.authz.api.SecurityService"/>
   </bean>
   
   <bean id="AddProducer"
