@@ -41,8 +41,6 @@
                 </a>
             </div>
 
-            #if ($useDHTMLMore)
-
                 <div id="otherSitesCategorWrap">
                     ### TODO: format well
 
@@ -95,23 +93,6 @@
                     #end
 
                 </div><!--  end of #otherSitesCategorWrap -->
-
-            #else
-
-                <div id="otherSiteMenuWrap">
-                     <ul id="otherSiteList" role="navigation">
-
-                        #foreach( $site in $tabsSites.tabsMoreSites )
-
-                            <li><a href="${site.siteUrl}" title="${site.fullTitle}" id="${site.siteId}" class="moreSitesLink"><span class="fullTitle">${site.siteTitle}</span></a><a href="javascript:;" id="${site.siteId}" class="toolMenus" tabindex="-1"><span class="skip">Tools</span></a></li>
-
-                        #end    
-
-                      </ul>
-                </div>
-
-            #end
-
         </div>
 
     ##end ## END of IF ($tabsSites.tabsMoreSitesShow)
