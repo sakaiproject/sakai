@@ -6566,19 +6566,22 @@ public class AssignmentAction extends PagedResourceActionII
 						}
 
 						// SAK-17606
-						StringBuilder log = new StringBuilder();
-						log.append(new java.util.Date());
-						log.append(" ");
+						String logEntry = new java.util.Date().toString() + " ";
 						boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 						if(!anonymousGrading){
-								log.append(u.getDisplayName());
-								log.append(" (");
-								log.append(u.getEid());
-								log.append(") ");
+							String subOrDraft = post ? "submitted" : "saved draft";
+							if( submitter != null && !submitter.getEid().equals( u.getEid() ) )
+							{
+								logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
+											rb.getString( "listsub.submitted.on.behalf" ) + " " + u.getDisplayName() + " (" +
+											u.getEid() + ")";
+							}
+							else
+							{
+								logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
+							}
 						}
-						log.append(post ? "submitted" : "saved draft");
-						sEdit.addSubmissionLogEntry(log.toString());
-
+						sEdit.addSubmissionLogEntry( logEntry );
 						AssignmentService.commitEdit(sEdit);
 					}
 				}
@@ -6634,19 +6637,22 @@ public class AssignmentAction extends PagedResourceActionII
 							}
 
 							// SAK-17606
-							StringBuilder log = new StringBuilder();
-							log.append(new java.util.Date());
-							log.append(" ");
+							String logEntry = new java.util.Date().toString() + " ";
 							boolean anonymousGrading = Boolean.parseBoolean(a.getProperties().getProperty(NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING));
 							if(!anonymousGrading){
-									log.append(u.getDisplayName());
-									log.append(" (");
-									log.append(u.getEid());
-									log.append(") ");
+								String subOrDraft = post ? "submitted" : "saved draft";
+								if( submitter != null && !submitter.getEid().equals( u.getEid() ) )
+								{
+									logEntry += submitter.getDisplayName() + " (" + submitter.getEid() + ") " + subOrDraft + " " +
+												rb.getString( "listsub.submitted.on.behalf" ) + " " + u.getDisplayName() + " (" +
+												u.getEid() + ")";
+								}
+								else
+								{
+									logEntry += u.getDisplayName() + " (" + u.getEid() + ") " + subOrDraft;
+								}
 							}
-							log.append(post ? "submitted" : "saved draft");
-							edit.addSubmissionLogEntry(log.toString());
-							
+							edit.addSubmissionLogEntry( logEntry );
 							AssignmentService.commitEdit(edit);
 						}
 					}
