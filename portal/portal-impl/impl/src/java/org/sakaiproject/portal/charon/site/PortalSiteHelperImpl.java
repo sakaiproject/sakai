@@ -1278,10 +1278,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
-			case DEFAULT_SITE_VIEW:
-				return new DefaultSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
-						.getInstance(), ServerConfigurationService.getInstance(),
-						PreferencesService.getInstance());
 			case DHTML_MORE_VIEW:
 				return new MoreSiteViewImpl(this,portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
