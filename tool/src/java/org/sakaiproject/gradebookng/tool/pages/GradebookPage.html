@@ -53,9 +53,10 @@
   </form>
 
   <div wicket:id="gradeItemsTogglePanel" id="gradeItemsTogglePanel" style="display: none;"/>
-  <div id="gradeItemsConcurrentUserWarning" class="messageConfirmation" style="display: none;">
-    <wicket:message key="label.concurrentuserwarning" />
-    <span class="gb-message-close"></span>
+  <div id="gradeItemsConcurrentUserWarning" style="display: none;">
+    <ul class="gb-popover-notifications">
+      <li class="gb-popover-notification-concurrentedit text-danger"><wicket:message key="grade.notifications.concurrentedit" /></li>
+    </ul>
   </div>
 </wicket:extend>
 

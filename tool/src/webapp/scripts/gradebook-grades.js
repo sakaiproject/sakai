@@ -991,22 +991,47 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
   var self = this;
 
   function showConcurrencyNotification(data) {
-    $("#gradeItemsConcurrentUserWarning").show();
+    var message = $("#gradeItemsConcurrentUserWarning");
+
+    $.each(data, function(i, conflict) {
+      var model = self.getCellModelForStudentAndAssignment(conflict.studentUuid, conflict.assignmentId);
+      model.$cell.addClass("gb-cell-out-of-date");
+      if (model.$cell.data("toggle") == "popover") {
+        // append message to current popover
+        var existingPopoverContent = $(model.$cell.data("content").trim());
+        if (existingPopoverContent.find(".gb-popover-notification-concurrentedit").length == 0) {
+          existingPopoverContent.prepend(message.find(".gb-popover-notification-concurrentedit"));
+          model.$cell.attr("data-content", existingPopoverContent[0].outerHTML);
+        }
+      } else {
+        // setup a new popover
+        model.$cell.
+          attr("data-toggle", "popover").
+          data("content", message.html()).
+          data("placement", "bottom").
+          data("html", "true").
+          data("container", "#gradebookGrades");
+
+        self.enablePopovers(model.$cell);
+      }
+    });
   };
 
   function hideConcurrencyNotification() {
-    $("#gradeItemsConcurrentUserWarning").hide();
+    //cells cannot become magically refreshed, so assume those detected
+    //out of date are still out of date
+    //self.$table.find(".gb-cell-out-of-date").removeClass("gb-cell-out-of-date");
   };
 
   function handleConcurrencyCheck(data) {
-    if ($.isEmptyObject(data.data)) {
+    if ($.isEmptyObject(data) || $.isEmptyObject(data.gbng_collection)) {
       // nobody messing with my..
       hideConcurrencyNotification();
       return;
     }
 
     // there are *other* people doing things!
-    showConcurrencyNotification(data.data);
+    showConcurrencyNotification(data.gbng_collection);
   };
 
   function performConcurrencyCheck() {
@@ -1133,11 +1158,14 @@ GradebookSpreadsheet.prototype.setupPopovers = function() {
 
 GradebookSpreadsheet.prototype.enablePopovers = function($target) {
   var self = this;
-  var $popovers = $target.find('[data-toggle="popover"]');
+  var $popovers = $target.is('[data-toggle="popover"]') ? $target : $target.find('[data-toggle="popover"]');
+
+  $popovers.popover("destroy");
 
   $popovers.popover({
     trigger: 'manual'
   }).blur(function(event) {
+    console.log(event.target);
     clearTimeout($(event.target).data("popoverShowTimeout"));
     $(event.target).data("popoverHideTimeout", setTimeout(function() {
       if (!self.popoverClicked) {
@@ -1946,6 +1974,7 @@ GradebookAPI._GET = function(url, data, onSuccess, onError, onComplete) {
     type: "GET",
     url: url,
     data: data,
+    cache: false,
     success: onSuccess || $.noop,
     error: onError || $.noop,
     complete: onComplete || $.noop
