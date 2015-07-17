@@ -12,13 +12,13 @@
    <sakai:view title="#{msgs.cdfm_default_template_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">           
       <h:form id="revise">
         <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-		<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
 		<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>             		             		
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>
 		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
-		<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+		<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 		<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
 <%

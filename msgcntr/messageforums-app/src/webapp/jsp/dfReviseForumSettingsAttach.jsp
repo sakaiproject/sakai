@@ -10,7 +10,7 @@
 <f:view>
 	<sakai:view title="#{msgs.cdfm_discussion_forum_settings}" toolCssHref="/messageforums-tool/css/msgcntr.css">
 	<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-	<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+	<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>      
 	<script type="text/javascript" src="/messageforums-tool/js/jquery.charcounter.js"> </script>
 	<sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
@@ -18,7 +18,7 @@
 	<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 	<sakai:script contextBase="/messageforums-tool" path="/js/datetimepicker.js"/>
 	<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
-	<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+	<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 	<%
 	  	String thisId = request.getParameter("panel");
   		if (thisId == null) 

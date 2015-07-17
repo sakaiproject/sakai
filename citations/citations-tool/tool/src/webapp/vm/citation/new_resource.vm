@@ -23,7 +23,7 @@
 -->
 <script type="text/javascript" src="#libraryLink('js/jquery/1.7.1/jquery-1.7.1.min.js')">	
 </script>
-<script type="text/javascript" src="#libraryLink('js/jquery-ui-latest/js/jquery-ui.min.js')">	
+<script type="text/javascript" src="#libraryLink('js/jquery/ui/1.11.3/jquery-ui.min.js')">	
 </script>
 <link media="all" rel="stylesheet" type="text/css" href="#libraryLink('js/jquery-ui-latest/css/ui-lightness/jquery-ui.css')">
 <link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">

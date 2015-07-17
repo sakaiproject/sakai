@@ -17,7 +17,7 @@
 <link rel="stylesheet" href="/messageforums-tool/css/forum_rank.css" type="text/css" />
 
 <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/json2.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/fluidframework-min.js"></script>
 <script type="text/javascript" src="/messageforums-tool/js/Scroller.js"></script>
