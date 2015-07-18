@@ -34,7 +34,3 @@ $PBJQ(document).ready(function(){
 // Remove toogle sites nav on Skip nav to More sites view @TODO need to clean this toggleSitesNav code since it is not used anymore
 //$PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", toggleSitesNav);
 $PBJQ(".js-toggle-tools-nav", "#skipNav").on("click", toggleToolsNav);
-
-// Swipe left handlers to the more sites tab.
-$PBJQ('.Mrphs-topHeader').on("swiperight",toggleToolsNav);
-
