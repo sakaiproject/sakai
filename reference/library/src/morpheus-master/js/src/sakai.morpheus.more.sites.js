@@ -237,12 +237,6 @@ $PBJQ(document).ready(function(){
 
   });
 
- // Swipe left on header to open more sites tab.
-  $PBJQ('.Mrphs-topHeader').on("swipeleft",function(e){
-	e.preventDefault();
-      return dhtml_view_sites();
-  });
-
   // Open all Sites with mobile view 	
    $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", dhtml_view_sites);
   
