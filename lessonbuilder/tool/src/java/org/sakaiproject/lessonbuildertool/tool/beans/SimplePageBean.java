@@ -4391,7 +4391,7 @@ public class SimplePageBean {
 				entry.setPath(path);
 				entry.setToolId(toolId);
 				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId() + "#" + i.getName(), complete));
 				trackComplete(i, complete);
 				studentPageId = -1L;
 			}else if(path != null) {
@@ -4399,7 +4399,7 @@ public class SimplePageBean {
 				entry.setComplete(true);
 				entry.setToolId(toolId);
 				SimplePage page = getPage(studentPageId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + page.getPageId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + page.getPageId() + "#" + page.getTitle(), true));
 			}
 
 			saveItem(entry);
@@ -4413,7 +4413,7 @@ public class SimplePageBean {
 				entry.setToolId(toolId);
 				entry.setDummy(false);
 				SimplePageItem i = findItem(itemId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId(), complete));
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + i.getSakaiId() + "#" + i.getName(), complete));
 				if (complete != wasComplete)
 				    trackComplete(i, complete);
 				studentPageId = -1L;
@@ -4423,7 +4423,7 @@ public class SimplePageBean {
 				entry.setToolId(toolId);
 				entry.setDummy(false);
 				SimplePage page = getPage(studentPageId);
-				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + page.getPageId(), true));
+				EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.read", "/lessonbuilder/page/" + page.getPageId() + "#" + page.getTitle(), true));
 			}
 
 			update(entry);
