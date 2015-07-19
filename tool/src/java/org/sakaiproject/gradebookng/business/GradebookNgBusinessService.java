@@ -1030,7 +1030,7 @@ public class GradebookNgBusinessService {
     	 }
     	 
     	 //push the edited cell into the map. It will add/update as required
-		 cells.put(buildCellKey(studentUuid, assignmentId), new GbGradeCell(studentUuid, assignmentId));
+		 cells.put(buildCellKey(studentUuid, assignmentId), new GbGradeCell(studentUuid, assignmentId, currentUser.getDisplayName()));
     	 
     	 //push the new/updated cell map into the main map
     	 notifications.put(currentUser.getEid(), cells);

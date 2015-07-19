@@ -24,11 +24,16 @@ public class GbGradeCell implements Serializable {
 	
 	@Getter @Setter
 	private Date lastUpdated;
-	
-	public GbGradeCell(String studentUuid, long assignmentId){
+
+	@Getter
+	private String lastUpdatedBy;
+
+
+	public GbGradeCell(String studentUuid, long assignmentId, String lastUpdatedBy){
 		this.studentUuid = studentUuid;
 		this.assignmentId = assignmentId;
 		this.lastUpdated = new Date();
+		this.lastUpdatedBy = lastUpdatedBy;
 	}
 	
 }
