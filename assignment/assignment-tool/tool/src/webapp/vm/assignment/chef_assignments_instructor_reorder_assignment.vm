@@ -95,7 +95,7 @@
 		<span id="lastItemMoved"  style="display:none"></span>
 
 		<div id="reorder-list-sortingToolBar" class="itemAction">
-			<a class="title" href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
+			<a class="title" id="sortByTitle" href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=title")'; return false;"   title="$tlang.getString("listassig.sorbytit")">
 					$tlang.getString("listassig.sorbytit") 
 					#if ($sortedBy.equals("title")) 
 						#if ($sortedAsc.equals("true")) 
@@ -106,7 +106,7 @@
 					#end 
 				</a>
 				|
-				<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
+				<a href="#" id="sortByOpenDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=opendate")'; return false;"  title="$tlang.getString("listassig.sorbyope")">
 					$tlang.getString("listassig.sorbyope")
 					#if ($sortedBy.equals("opendate")) 
 						#if ($sortedAsc.equals("true")) 
@@ -117,7 +117,7 @@
 					#end 
 				</a>
 				|
-				<a href="#" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
+				<a href="#" id="sortByDueDate" onclick="location='#toolLinkParam("$action" "doSort" "criteria=duedate")'; return false;"  title="$tlang.getString("gen.sorbydue")">
 					$tlang.getString("gen.sorbydue") ##$tlang.getString("gen.due1")
 					#if ($sortedBy.equals("duedate")) 
 						#if ($sortedAsc.equals("true")) 
@@ -150,7 +150,7 @@
 				</span>
 				<span class="close">
 					$!assignment.dueTime.toStringLocalFull()
-				  <select name="position_$validator.escapeUrl("$assignment.id")" onchange="moveRow(this,this.value);" class="selectSet" style="display:none">
+				  <select name="position_$validator.escapeUrl("$assignment.id")" onchange="moveRow(this,this.value);" class="selectSet">
 					#foreach($i in [1..$assignmentsize])
 					<option value="$i"#if("$i" == "$count") selected="selected"#end>$i</option>
 					#end
@@ -162,8 +162,9 @@
 		</ul>
 
 		<p class="act" style="margin:0;padding:.3em 0;">
-			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='reorder';document.reorderForm.submit();return false;" class="active" accesskey="s" />
-			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="javascript:document.reorderForm.onsubmit();document.getElementById('option').value='cancelreorder';document.reorderForm.submit();return false;" accesskey="x" />
+			<input type="button" name="save" value="$tlang.getString("gen.sav")" onclick="ASN.doReorderAction( 'reorder' );" class="active" accesskey="s" />
+			<input type="button" name="cancel" value="$tlang.getString("gen.can")" onclick="ASN.doReorderAction( 'cancelreorder' );" accesskey="x" />
+			<img id="reorderSpinner" class="spinner" src="/library/image/indicator.gif" />
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>						
