@@ -23,7 +23,6 @@ package org.sakaiproject.service.gradebook.shared;
 
 import java.math.MathContext;
 import java.math.RoundingMode;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
@@ -735,4 +734,13 @@ public interface GradebookService {
      * @return The CourseGrade for the student
      */
 	CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid);
+	
+	/**
+	 * Get a list of CourseSections that the current user has access to in the given gradebook.
+	 * This is a combination of sections and groups and is permission filtered.
+	 * @param gradebookUid
+	 * @return list of CourseSection objects.
+	 */
+	@SuppressWarnings("rawtypes")
+	List getViewableSections(String gradebookUid);
 }
