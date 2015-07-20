@@ -156,7 +156,25 @@ if ( $context->valid ) {
             print '<input type="hidden" name="'.$k.'" ';
             print 'value="'.htmlentities($v).'"/>';
         }
-        print '<input type="submit" value="Test Content Item"/>';
+        print '<input type="submit" value="Test LtiLink Content Item"/>';
+        print "</form></p>\n";
+        $found = true;
+    }
+
+    $fileitem_allowed = false;
+    if ( isset($_POST['accept_media_types']) ) {
+        $fileitem_mimetype = 'application/imsccml+xml';
+        $m = new Mimeparse;
+        $fileitem_allowed = $m->best_match(array($fileitem_mimetype), $_POST['accept_media_types']);
+    }
+
+    if ( $fileitem_allowed && $_POST['content_item_return_url'] ) {
+        print '<p><form action="json/fileitem_json.php" method="post">'."\n";
+        foreach ( $_POST as $k => $v ) {
+            print '<input type="hidden" name="'.$k.'" ';
+            print 'value="'.htmlentities($v).'"/>';
+        }
+        print '<input type="submit" value="Test FileItem Content Item"/>';
         print "</form></p>\n";
         $found = true;
     }

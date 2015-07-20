@@ -265,6 +265,31 @@ public interface LTIService {
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last);
 
 	/**
+	 * Gets a list of the launchable tools in the site
+	 */
+	public List<Map<String, Object>> getToolsLaunch();
+
+	/**
+	 * Gets a list of tools that can configure themselves in the site
+	 */
+	public List<Map<String, Object>> getToolsLtiLink();
+
+	/**
+	 * Get a list of tools that can return a FileItem
+	 */
+	public List<Map<String, Object>> getToolsFileItem();
+
+	/**
+	 * Get a list of tools that can return content for the editor
+	 */
+	public List<Map<String, Object>> getToolsContentEditor();
+
+	/**
+	 * Get a list of tools that can function as Assessments
+	 */
+	public List<Map<String, Object>> getToolsAssessmentSelection();
+
+	/**
 	 * 
 	 * @param search
 	 * @param order
@@ -721,9 +746,10 @@ public interface LTIService {
 		"allowsettings:checkbox:label=bl_allowsettings",
 		"allowlori:checkbox:label=bl_allowlori",
 		// Hide these from end users until they are working in the various Sakai tools
-		"pl_header:header:fields=pl_linkselection,pl_fileimport,pl_contenteditor,pl_assessmentselection",
+		"pl_header:header:fields=pl_launch,pl_linkselection,pl_fileitem,pl_contenteditor,pl_assessmentselection",
+		"pl_launch:checkbox:label=bl_pl_launch",
 		"pl_linkselection:checkbox:label=bl_pl_linkselection",
-		"pl_fileimport:checkbox:label=bl_pl_fileimport:role=admin",
+		"pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
 		"pl_contenteditor:checkbox:label=bl_pl_contenteditor:role=admin",
 		"pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
 		"newpage:radio:label=bl_newpage:choices=off,on,content",
@@ -854,8 +880,9 @@ public interface LTIService {
 	// A subset of a tool_proxy with only a single resource_handler
 	static final String LTI_TOOL_PROXY_BINDING = "tool_proxy_binding";
 	// End of BLTI-230 - LTI 2.0
+	static final String LTI_PL_LAUNCH = "pl_launch";
 	static final String LTI_PL_LINKSELECTION = "pl_linkselection";
-	static final String LTI_PL_FILEIMPORT = "pl_fileimport";
+	static final String LTI_PL_FILEITEM = "pl_fileitem";
 	static final String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
 	static final String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
 

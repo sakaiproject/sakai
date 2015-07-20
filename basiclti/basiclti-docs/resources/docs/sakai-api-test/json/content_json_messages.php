@@ -1,6 +1,6 @@
 <?php
 
-function getContentJSON($url) {
+function getLtiLinkJSON($url) {
 
 $return = '{
   "@context" : "http://purl.imsglobal.org/ctx/lti/v1/ContentItem", 
@@ -15,6 +15,25 @@ $return = '{
         "width" : 50,
         "height" : 50
       }
+    }
+  ]
+}';
+
+    $json = json_decode($return);
+    $json->{'@graph'}[0]->url = $url;
+    return $json;
+}
+
+function getFileItemJSON($url) {
+
+$return = '{
+  "@context" : "http://purl.imsglobal.org/ctx/lti/v1/ContentItem", 
+  "@graph" : [ 
+    { "@type" : "FileItem",
+      "@id" : ":item3",
+      "url" : "http://developers.imsglobal.org/images/imscertifiedsm.png",
+      "mediaType" : "application/imsccml+xml",
+      "copyAdvice" : true
     }
   ]
 }';
