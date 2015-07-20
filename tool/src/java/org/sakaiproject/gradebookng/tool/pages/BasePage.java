@@ -38,7 +38,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	private static final Logger log = Logger.getLogger(BasePage.class); 
 	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-	protected GradebookNgBusinessService businessService;
+	public GradebookNgBusinessService businessService;
 	
 	Link<Void> gradebookPageLink;
 	Link<Void> settingsPageLink;
