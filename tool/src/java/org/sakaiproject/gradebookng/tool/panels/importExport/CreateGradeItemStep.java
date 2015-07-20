@@ -13,10 +13,8 @@ import org.sakaiproject.gradebookng.business.model.GbAssignment;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
-import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
-import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -108,8 +106,7 @@ public class CreateGradeItemStep extends Panel {
 
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
 
-        List<CategoryDefinition> categories = ((BasePage) getPage()).businessService.getGradebookCategories();
-        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", gbAssignmentModel, categories);
+        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", gbAssignmentModel);
 
         form.add(gradePanelContent);
 

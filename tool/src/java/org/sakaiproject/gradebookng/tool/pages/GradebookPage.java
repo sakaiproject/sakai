@@ -75,9 +75,7 @@ public class GradebookPage extends BasePage {
 		if(role == GbRole.STUDENT) {
 			throw new RestartResponseException(StudentPage.class);
 		}
-
-    final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
-
+		
 		StopWatch stopwatch = new StopWatch();
 		stopwatch.start();
 		Temp.time("GradebookPage init", stopwatch.getTime());
@@ -92,6 +90,7 @@ public class GradebookPage extends BasePage {
 		addGradeItemWindow.setMaskType(MaskType.TRANSPARENT);
 		addGradeItemWindow.setResizable(false);
 		addGradeItemWindow.setUseInitialHeight(false);
+		addGradeItemWindow.showUnloadConfirmation(false);
 		form.add(addGradeItemWindow);
 		
 		studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
@@ -123,7 +122,7 @@ public class GradebookPage extends BasePage {
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form form) {
 				ModalWindow window = getAddGradeItemWindow();
-				window.setContent(new AddGradeItemPanel(window.getContentId(), categories, window));
+				window.setContent(new AddGradeItemPanel(window.getContentId(), window));
 				window.show(target);
 			}
 		};
@@ -260,6 +259,7 @@ public class GradebookPage extends BasePage {
         }
         
         //render the categories (TODO may be able to pass this list into the matrix to save another lookup in there)
+        final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
         
         for(final CategoryDefinition category: categories) {
         	AbstractColumn column = new AbstractColumn(new Model("")) {
