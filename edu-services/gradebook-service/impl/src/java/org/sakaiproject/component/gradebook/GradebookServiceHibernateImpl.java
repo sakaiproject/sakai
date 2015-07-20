@@ -2775,6 +2775,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		}
 		return rval;
 	}
+	
+	@Override
+	public List<CourseSection> getViewableSections(String gradebookUid) {
+		return this.getAuthz().getViewableSections(gradebookUid);
+	}
 
 	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
