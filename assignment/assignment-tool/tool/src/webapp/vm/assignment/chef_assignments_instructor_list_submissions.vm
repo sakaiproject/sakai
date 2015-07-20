@@ -163,7 +163,7 @@
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
 			#if (!$assignment.isGroup())
-				#if ($!groups.hasNext())
+				#if (!$value_CheckAnonymousGrading.equals("true") && $!groups.hasNext())
 					<div class="navPanel">
 						<div class="viewNav">
 							<label for="view">
