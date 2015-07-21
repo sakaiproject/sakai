@@ -534,7 +534,7 @@ $(document).ready(function() {
 			}
 
 
-			$('#youtube-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+			$('#youtube-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 
 			if(row.find(".prerequisite-info").text() === 'true') {
 			    $('#youtube-prerequisite').prop('checked',true);
@@ -605,7 +605,7 @@ $(document).ready(function() {
 			$("#movie-height").val(row.find(".mm-height").text());
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
-			$('#movie-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+			$('#movie-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			if (row.find(".movie-prerequisite").text() === 'true') {
 			    $('#movie-prerequisite').prop('checked', true);
 			} else {
@@ -660,7 +660,7 @@ $(document).ready(function() {
 				$("#comments-required").prop("checked", false);
 			}
 			
-			$('#comments-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+			$('#comments-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			var prerequisite = row.find(".commentsitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#comments-prerequisite").prop("checked", true);
@@ -798,7 +798,7 @@ $(document).ready(function() {
 			}else {
 				$("#student-required").prop("checked", false);
 			}
-			$('#student-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+			$('#student-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			var prerequisite = row.find(".studentitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#student-prerequisite").prop("checked", true);
@@ -1170,7 +1170,7 @@ $(document).ready(function() {
 				$("#question-required").prop("checked", false);
 			}
 			
-			$('#question-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+			$('#question-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			var prerequisite = row.find(".questionitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#question-prerequisite").prop("checked", true);
@@ -1278,7 +1278,7 @@ $(document).ready(function() {
 			$("#name").val(row.find(".link-text").text());
 			$("#description").val(row.find(".rowdescription").text());
 					      
-			$('#item-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+			$('#item-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 
 			var prereq = row.find(".prerequisite-info").text();
 
@@ -1678,7 +1678,7 @@ $(document).ready(function() {
 			    }
 			}
 
-			$('#multi-break').prop('checked',$(this).closest('li').hasClass('right-col-top'));
+			$('#multi-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			if(row.find(".prerequisite-info").text() === 'true') {
 			    $('#multi-prerequisite').prop('checked', true);
 			} else {

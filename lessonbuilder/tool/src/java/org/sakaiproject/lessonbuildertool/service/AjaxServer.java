@@ -498,12 +498,12 @@ public class AjaxServer extends HttpServlet
 	    return null;
 	}
 	
-	String grouped = item.getAttribute("groupedWithAbove");
+	String grouped = item.getAttribute("groupedWithBelow");
 	if ("true".equals(grouped)) {
-	    item.removeAttribute("groupedWithAbove");
+	    item.removeAttribute("groupedWithBelow");
 	    grouped = "false";
 	} else {
-	    item.setAttribute("groupedWithAbove", "true");
+	    item.setAttribute("groupedWithBelow", "true");
 	    grouped = "true";
 	}
 
