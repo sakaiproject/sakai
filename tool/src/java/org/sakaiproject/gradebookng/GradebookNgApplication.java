@@ -1,17 +1,15 @@
 package org.sakaiproject.gradebookng;
 
+import org.apache.wicket.core.request.handler.PageProvider;
+import org.apache.wicket.core.request.handler.RenderPageRequestHandler;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.AbstractRequestCycleListener;
 import org.apache.wicket.request.cycle.RequestCycle;
 import org.apache.wicket.settings.IExceptionSettings;
-import org.apache.wicket.settings.IRequestCycleSettings;
 import org.apache.wicket.spring.injection.annot.SpringComponentInjector;
+import org.sakaiproject.gradebookng.tool.pages.ErrorPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.gradebookng.tool.pages.ImportExportPage;
-import org.sakaiproject.gradebookng.tool.pages.NoDataPage;
-import org.sakaiproject.gradebookng.tool.pages.PermissionsPage;
-import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 
 /**
  * Main application class
@@ -49,33 +47,25 @@ public class GradebookNgApplication extends WebApplication {
 				
 		// On Wicket session timeout, redirect to main page
 		//getApplicationSettings().setPageExpiredErrorPage(getHomePage());
-		
-		//catch the exception page and redirect somewhere
-		//getApplicationSettings().setInternalErrorPage(SomePage.class);
-		
+				
 		// show internal error page rather than default developer page
-		//getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_INTERNAL_ERROR_PAGE);
+		getExceptionSettings().setUnexpectedExceptionDisplay(IExceptionSettings.SHOW_NO_EXCEPTION_PAGE);
 		
-		// Intercept the stacktrace so it doesnt fill the page
-		getRequestCycleListeners().add(new SakaiRequestCycleListener());
-
+		// Intercept any unexpected error stacktrace and take to our page
+		getRequestCycleListeners().add(new AbstractRequestCycleListener() {
+            @Override
+            public IRequestHandler onException(RequestCycle cycle, Exception e) {
+                return new RenderPageRequestHandler(new PageProvider(new ErrorPage(e)));
+            }
+		});
+		
 		
 
    
 		//to put this app into deployment mode, see web.xml
 	}
 	
-	/**
-	 * Overrides the exception handler so the stacktrace doesnt consume the screen.
-	 * TODO not sure if this is required...
-	 */
-	public class SakaiRequestCycleListener extends AbstractRequestCycleListener {
-		
-		@Override
-		public IRequestHandler onException(RequestCycle cycle, Exception ex) {
-            return null;
-        }
-	}
+	
 	
 	
 	/**

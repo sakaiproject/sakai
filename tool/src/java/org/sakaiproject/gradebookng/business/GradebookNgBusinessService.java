@@ -46,6 +46,7 @@ import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -155,6 +156,7 @@ public class GradebookNgBusinessService {
 			
 				Set<String> groupMembers = new HashSet<>();
 				
+				/* groups handles both
 				if(groupFilter.getType() == GbGroup.Type.SECTION) {
 					Set<Membership> members = this.courseManagementService.getSectionMemberships(groupFilter.getId());
 					for(Membership m: members) {
@@ -163,6 +165,7 @@ public class GradebookNgBusinessService {
 						}
 					}
 				}
+				*/
 				
 				if(groupFilter.getType() == GbGroup.Type.GROUP) {
 					Set<Member> members = this.siteService.getSite(siteId).getGroup(groupFilter.getId()).getMembers();
@@ -181,23 +184,10 @@ public class GradebookNgBusinessService {
 			if(this.getUserRole(siteId) == GbRole.TA) {
 				Gradebook gradebook = this.getGradebook(siteId);
 				User user = this.getCurrentUser();
-				
-				//need list of all groups
-				List<GbGroup> allGroups = this.getSiteSectionsAndGroups();
-				List<String> groupIds = new ArrayList<>();
-				for(GbGroup group: allGroups) {
-					groupIds.add(group.getId());
-				}
-				
+			
+				//get list of sections and groups this TA has access to
 				List courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
-				
-				System.out.println("courseSections: " + courseSections);
-
-				
-				//TODO change the method to get groups to use this for TAs
-				
-				//permissions are working, but if none are set it is throwin an error
-				
+												
 				//get viewable students.
 				List<String> viewableStudents = this.gradebookPermissionService.getViewableStudentsForUser(gradebook.getUid(), user.getId(), new ArrayList<>(userUuids), courseSections);
 				
@@ -208,10 +198,6 @@ public class GradebookNgBusinessService {
 				} else {
 					userUuids.clear(); //TA can't view anyone
 				}
-				
-				System.out.println("userUuids: " + userUuids);
-				
-				
 			}
 			
 			return new ArrayList<>(userUuids);
@@ -667,17 +653,20 @@ public class GradebookNgBusinessService {
 	public List<GbGroup> getSiteSectionsAndGroups() {
 		String siteId = this.getCurrentSiteId();
 		
-		List<GbGroup> rval = new ArrayList<>();
+		List<GbGroup> rval = new ArrayList<>();		
 		
 		//get sections
+		// groups handles both
+		/*
 		try {
 			Set<Section> sections = courseManagementService.getSections(siteId);
-			for(Section section: sections){
+			for(Section section: sections){				
 				rval.add(new GbGroup(section.getEid(), section.getTitle(), GbGroup.Type.SECTION));
 			}
 		} catch (IdNotFoundException e) {
 			//not a course site or no sections, ignore
 		}
+		*/
 		
 		//get groups
 		try {			
@@ -690,6 +679,33 @@ public class GradebookNgBusinessService {
 		} catch (IdUnusedException e) {
 			//essentially ignore and use what we have
 			log.error("Error retrieving groups", e);
+		}
+		
+		//if user is a TA, get the groups they can see and filter the GbGroup list to keep just those
+		
+		if(this.getUserRole(siteId) == GbRole.TA) {
+			Gradebook gradebook = this.getGradebook(siteId);
+			User user = this.getCurrentUser();
+			
+			//need list of all groups as uuids
+			List<String> allGroupIds = new ArrayList<>();
+			for(GbGroup group: rval) {
+				allGroupIds.add(group.getId());
+			}
+						
+			//get the ones the TA can actually view
+			//note that if a group is empty, it will not be included.
+			List<String> viewableGroups = this.gradebookPermissionService.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
+		
+			//remove the ones that the user can't view
+			Iterator<GbGroup> iter = rval.iterator();
+			while (iter.hasNext()) {
+				GbGroup group = iter.next();
+				if(!viewableGroups.contains(group.getId())) {
+					iter.remove();
+				}
+			}
+			
 		}
 		
 		Collections.sort(rval);

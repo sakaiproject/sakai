@@ -70,6 +70,10 @@
 			<artifactId>coursemanagement-api</artifactId>
 		</dependency>
 		<dependency>
+			<groupId>org.sakaiproject.edu-services.sections</groupId>
+			<artifactId>sections-api</artifactId>
+		</dependency>
+		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>

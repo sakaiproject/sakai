@@ -2,7 +2,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 
 /**
- * Page dispalyed where there is no data for the gradebook to render
+ * Page displayed where there is no data for the gradebook to render
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
