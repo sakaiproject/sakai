@@ -1279,11 +1279,12 @@ width:calc(100% - 50px);
 .group-col {
   display:none;
   position: absolute;
-  left:5px;
-  top:-15px;
+  left:15px;
+  top:-10px;
 }
 .right-col-top .group-col {
-  left:10px;  
+  left:20px;
+  top:-20px;
 }
 .group-col img{
   border:none;
@@ -1294,8 +1295,27 @@ width:calc(100% - 50px);
 li:hover .group-col {
   display:inline-block;
 }
-.contentButton a{
- background-image: none !important;
- background-color: rgb(248,248,248);
- background-color: rgb(150,190,200);
+.fa-button-text{
+  font-size:125%;
+}
+.navIntraTool li.contentButton a {
+  padding-top:2px !important;
+  padding-bottom:2px !important;
+  font-family:FontAwesome;
+}
+.fa-item-text {
+  position:relative; 
+  top:3px; 
+  margin-right:2px;
+  font-family:FontAwesome;
+}
+.fa-edit-icon{
+  font-size:200%;
+  font-weight: normal;
+  color: #aaa;
+  font-family:FontAwesome;
+}
+.fa-group-icon {
+  font-size:200%;
+  font-family:FontAwesome;
 }
