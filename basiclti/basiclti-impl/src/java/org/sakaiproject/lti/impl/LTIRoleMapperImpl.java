@@ -12,8 +12,7 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.LTIRoleMapper;
 import org.sakaiproject.user.api.User;
@@ -34,6 +33,11 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
     private SiteService siteService = null;
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
+    }
+    
+    private ServerConfigurationService serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
     }
 
     public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer) throws LTIException {
@@ -104,20 +108,18 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
                     M_log.debug("No match, falling back to determine role");
                 }
 
-                ServerConfigurationService cnf = (ServerConfigurationService) ComponentManager
-                		.get(ServerConfigurationService.class);
-				String maintainRole = site.getMaintainRole();
+		String maintainRole = site.getMaintainRole();
 
 		if (maintainRole == null) {
-		    maintainRole = cnf.getString("lti.role.mapping.Instructor", null);
+		    maintainRole = serverConfigurationService.getString("lti.role.mapping.Instructor", null);
 		}
 
 		boolean isInstructor = ltiRole.indexOf("instructor") >= 0;
-		newRole = cnf.getString("lti.role.mapping.Student", null);
 		if (isInstructor && maintainRole != null) {
 		   newRole = maintainRole;
+		}else{
+		   newRole=serverConfigurationService.getString("lti.role.mapping.Student", null);
 		}
-                
               
 
                 if (M_log.isDebugEnabled()) {

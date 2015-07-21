@@ -1028,7 +1028,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 			if ( toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
 				ContentItem.getCapability(ContentItem.TYPE_FILEITEM) ) ) {
-				newTool.put(LTIService.LTI_PL_FILEIMPORT, new Integer(1));
+				newTool.put(LTIService.LTI_PL_FILEITEM, new Integer(1));
 			}
 			
 			newTool.put(LTIService.LTI_TOOL_PROXY_BINDING, tool_proxy_binding);
