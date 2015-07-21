@@ -1599,18 +1599,16 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  	}
  	
  	/**
- 	 * Is the current user allowed to grant .anon access to the site?
- 	 * @return <code>true</code> if .anon can be granted.
+ 	 * {@inheritDoc}
  	 */
- 	protected boolean isAllowedAnon() {
- 		return serverConfigurationService().getBoolean("sitemanage.grant.anon", false);
+ 	public boolean isAllowedAnon() {
+ 		return serverConfigurationService().getBoolean("realm.grant.anon", false);
  	}
  
  	/**
- 	 * Is the current user allowed to grant .auth access to the site?
- 	 * @return <code>true</code> if .auth can be granted.
+ 	 * {@inheritDoc}
  	 */
- 	protected boolean isAllowedAuth() {
- 		return serverConfigurationService().getBoolean("sitemanage.grant.auth", false);
+ 	public boolean isAllowedAuth() {
+ 		return serverConfigurationService().getBoolean("realm.grant.auth", false);
  	}
 }

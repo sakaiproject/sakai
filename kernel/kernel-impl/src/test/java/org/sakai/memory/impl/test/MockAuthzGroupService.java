@@ -296,4 +296,12 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		// TODO Auto-generated method stub
 		return false;
 	}
+
+    public boolean isAllowedAnon() {
+        return false;
+    }
+
+    public boolean isAllowedAuth() {
+        return false;
+    }
 }
