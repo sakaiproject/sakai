@@ -11725,33 +11725,45 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					int factor = getAssignment().getContent().getFactor();
 					int dec = (int)Math.log10(factor);
-					String decimal_gradePoint = "";
+					String decSeparator = FormattedText.getDecimalSeparator();
+					String decimalGradePoint = "";
 					try
 					{
 						Integer.parseInt(grade);
 						// if point grade, display the grade with factor decimal place
-						decimal_gradePoint =  grade.substring(0, grade.length() - dec) + "." + grade.substring(grade.length() - dec);
+						int length = grade.length();
+						if (length > dec) {
+							decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+						}
+						else {
+							String newGrade = "0".concat(decSeparator);
+							for (int i = length; i < dec; i++) {
+								newGrade = newGrade.concat("0");
+							}
+							decimalGradePoint = newGrade.concat(grade);
+						}
 					}
 					catch (NumberFormatException e) {
 						try {
 							Float.parseFloat(grade);
-							decimal_gradePoint = grade;
+							decimalGradePoint = grade;
 						}
 						catch (Exception e1) {
 							return grade;
 						}
 					}
 					// get localized number format
-					NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);				
+					NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);
+					DecimalFormat dcformat = (DecimalFormat) nbFormat;
 					// show grade in localized number format
 					try {
-						Double dblGrade = new Double(decimal_gradePoint);
-						decimal_gradePoint = nbFormat.format(dblGrade);
+						Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
+						decimalGradePoint = nbFormat.format(dblGrade);
 					}
 					catch (Exception e) {
 						return grade;
 					}
-					return decimal_gradePoint;
+					return decimalGradePoint;
 				}
 				else
 				{
