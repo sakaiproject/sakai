@@ -598,26 +598,30 @@ public class GradebookNgBusinessService {
 			//use the category mappings for faster lookup of the assignmentIds and grades in the category
 			Set<Long> categoryAssignmentIds = categoryAssignments.get(category.getId());
 			
-			for(User student: students) {
-				
-				GbStudentGradeInfo sg = matrix.get(student.getId());
-				
-				//get grades
-				Map<Long,GbGradeInfo> grades = sg.getGrades();
-				
-				//build map of just the grades we want
-				Map<Long,String> gradeMap = new HashMap<>();
-				for(Long assignmentId: categoryAssignmentIds) {
-					GbGradeInfo gradeInfo = grades.get(assignmentId);
-					if(gradeInfo != null) {
-						gradeMap.put(assignmentId,gradeInfo.getGrade());
+			//if there are no assignments in the category (ie its a new category) this will be null, so skip
+			if(categoryAssignmentIds != null) {
+			
+				for(User student: students) {
+					
+					GbStudentGradeInfo sg = matrix.get(student.getId());
+					
+					//get grades
+					Map<Long,GbGradeInfo> grades = sg.getGrades();
+					
+					//build map of just the grades we want
+					Map<Long,String> gradeMap = new HashMap<>();
+					for(Long assignmentId: categoryAssignmentIds) {
+						GbGradeInfo gradeInfo = grades.get(assignmentId);
+						if(gradeInfo != null) {
+							gradeMap.put(assignmentId,gradeInfo.getGrade());
+						}
 					}
+					
+					Double categoryScore = this.gradebookService.calculateCategoryScore(category, gradeMap);
+					
+					//add to GbStudentGradeInfo
+					sg.addCategoryAverage(category.getId(), categoryScore);
 				}
-				
-				Double categoryScore = this.gradebookService.calculateCategoryScore(category, gradeMap);
-				
-				//add to GbStudentGradeInfo
-				sg.addCategoryAverage(category.getId(), categoryScore);
 			}
 			
 		}
