@@ -98,6 +98,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.util.FormatException;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
@@ -2589,6 +2590,16 @@ public class DeliveryActionListener
     AssessmentGradingData ag = delivery.getAssessmentGrading();
 
     delivery.setBeginTime(ag.getAttemptDate());
+
+		// Handle Extended Time Information
+		ExtendedTimeService extendedTimeService = new ExtendedTimeService(publishedAssessment);
+		if (extendedTimeService.hasExtendedTime()) {
+			if (extendedTimeService.getTimeLimit() > 0)
+				publishedAssessment.setTimeLimit(extendedTimeService.getTimeLimit());
+			publishedAssessment.setDueDate(extendedTimeService.getDueDate());
+			publishedAssessment.setRetractDate(extendedTimeService.getRetractDate());
+		}
+    
     String timeLimitInSetting = control.getTimeLimit() == null ? "0" : control.getTimeLimit().toString();
     String timeBeforeDueRetract = delivery.getTimeBeforeDueRetract(timeLimitInSetting);
     boolean isTimedAssessmentBySetting = delivery.getHasTimeLimit() && 
@@ -2620,17 +2631,18 @@ public class DeliveryActionListener
     }
 
     if (isTimedAssessmentBySetting) {
-    	if (fromBeginAssessment) {
-    		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
-    	}
-    	else {
-    		if (delivery.getTimeLimit() != null) {
-    			timeLimit = Integer.parseInt(delivery.getTimeLimit());
-    		}
-    	}
+//    	if (fromBeginAssessment) {
+//    		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
+//    	}
+//    	else {
+//    		if (delivery.getTimeLimit() != null) {
+//    			timeLimit = Integer.parseInt(delivery.getTimeLimit());
+//    		}
+//    	}
+    	timeLimit = delivery.evaluateTimeLimit(publishedAssessment,fromBeginAssessment, extendedTimeService.getTimeLimit());
     }
     else if (delivery.getTurnIntoTimedAssessment()) {
-   		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting, timeBeforeDueRetract));
+   		timeLimit = Integer.parseInt(delivery.updateTimeLimit(timeLimitInSetting));
     }
     
 

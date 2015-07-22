@@ -664,9 +664,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		return getPublishedAssessment(assessmentId, true);
 	}
 
+	/**
+	 * This was created for extended time because the code to get the sections
+	 * was causing slow performance and we don't need that info for extended
+	 * time.
+	 */
+	public PublishedAssessmentFacade getPublishedAssessmentQuick(Long assessmentId) {
+		PublishedAssessmentData a = loadPublishedAssessment(assessmentId);
+		PublishedAssessmentFacade f = new PublishedAssessmentFacade(a, false);
+		f.setStartDate(a.getStartDate());
+		f.setDueDate(a.getDueDate());
+		f.setRetractDate(a.getRetractDate());
+		f.setTimeLimit(a.getTimeLimit());
+		return f;
+	}
+
 	public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo) {
 		PublishedAssessmentData a = loadPublishedAssessment(assessmentId);
-		a.setSectionSet(getSectionSetForAssessment(a));
+		a.setSectionSet(getSectionSetForAssessment(a)); // this is making things slow -pbd
 		String releaseToGroups = "";
 		if (withGroupsInfo) {
 			//TreeMap groupsForSite = getGroupsForSite();

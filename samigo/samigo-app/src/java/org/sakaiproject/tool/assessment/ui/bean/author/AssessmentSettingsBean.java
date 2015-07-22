@@ -50,6 +50,9 @@ import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.section.api.SectionAwareness;
+import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
+import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
@@ -204,6 +207,9 @@ public class AssessmentSettingsBean
   private String releaseToGroupsAsString;
   private String blockDivs;
   
+  private String extendedTimes;
+  private SelectItem[] extendedTimeTargets;
+  
   // SAM-2323 jQuery-UI datepicker
   private TimeUtil tu = new TimeUtil();
   private final String HIDDEN_START_DATE_FIELD = "startDateISO8601";
@@ -274,7 +280,18 @@ public class AssessmentSettingsBean
             this.bgImageSelect=null;
 	    this.bgColorSelect="1";
 	}
-			
+	
+			// Get the extended time information for this assessment
+			short extendedTimeCount = 1;
+			String extendedTimeLabel = "extendedTime" + extendedTimeCount;
+			this.extendedTimes = "";
+			while ((assessment.getAssessmentMetaDataByLabel(extendedTimeLabel) != null)
+					&& (!assessment.getAssessmentMetaDataByLabel(extendedTimeLabel).equals(""))) {
+				String extendedTimeValue = assessment.getAssessmentMetaDataByLabel(extendedTimeLabel);
+				this.extendedTimes = this.extendedTimes.concat(extendedTimeValue + "^");
+				extendedTimeCount++;
+				extendedTimeLabel = "extendedTime" + extendedTimeCount;
+			}
 
       // these are properties in AssessmentAccessControl
       AssessmentAccessControlIfc accessControl = null;
@@ -1641,4 +1658,96 @@ public class AssessmentSettingsBean
 	  return selections;
   }
 
+	public void setExtendedTimes(String extendedTimes) {
+		this.extendedTimes = extendedTimes;
+	}
+
+	public String getExtendedTimes() {
+		return extendedTimes;
+	}
+
+	/**
+	 * Popluate the select item list of extended time targets
+	 * 
+	 * @return
+	 */
+	public SelectItem[] initExtendedTimeTargets() {
+		SelectItem[] extTimeSelectItems = null;
+		Site site = null;
+
+		try {
+			site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
+			Collection groups = site.getGroups();
+			SectionAwareness sectionAwareness = PersistenceService.getInstance().getSectionAwareness();
+			// List sections = sectionAwareness.getSections(site.getId());
+			List enrollments = sectionAwareness.getSiteMembersInRole(site.getId(), Role.STUDENT);
+
+			// Treemaps are used here because they auto-sort
+			TreeMap SectionTargets = new TreeMap<String, String>();
+			TreeMap groupTargets = new TreeMap<String, String>();
+			TreeMap studentTargets = new TreeMap<String, String>();
+
+			// Add groups to target set
+			if (groups != null && groups.size() > 0) {
+				Iterator groupIter = groups.iterator();
+				while (groupIter.hasNext()) {
+					Group group = (Group) groupIter.next();
+					if (!group.getTitle().startsWith("Access: ")) // do not
+																	// include
+																	// Lessons
+																	// groups
+						groupTargets.put("Group: " + group.getTitle(), group.getId());
+				}
+			}
+
+			// Add students to target set
+			if (enrollments != null && enrollments.size() > 0) {
+				for (Iterator iter = enrollments.iterator(); iter.hasNext();) {
+					EnrollmentRecord enrollmentRecord = (EnrollmentRecord) iter.next();
+					String userId = enrollmentRecord.getUser().getUserUid();
+					String userDisplayName = enrollmentRecord.getUser().getSortName();
+					studentTargets.put(userDisplayName, userId);
+				}
+			}
+
+			// Add targets to selectItem array. We put the alpha name in as the
+			// key so it would
+			// be alphabetized. Now we pull it out and build the select item
+			// list.
+			int listSize = 1 + groupTargets.size() + studentTargets.size();
+			extTimeSelectItems = new SelectItem[listSize];
+			extTimeSelectItems[0] = new SelectItem("1", "Select User/Group");
+			int selectCount = 1;
+
+			// Add in groups to select item list
+			Set keySet = groupTargets.keySet();
+			Iterator iter = keySet.iterator();
+			while (iter.hasNext()) {
+				String alphaName = (String) iter.next();
+				String sakaiId = (String) groupTargets.get(alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
+			}
+
+			// Add in students to select item list
+			keySet = studentTargets.keySet();
+			iter = keySet.iterator();
+			while (iter.hasNext()) {
+				String alphaName = (String) iter.next();
+				String sakaiId = (String) studentTargets.get(alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
+			}
+
+		} catch (IdUnusedException ex) {
+			// No site available
+		}
+		return extTimeSelectItems;
+	}
+
+	public SelectItem[] getExtendedTimeTargets() {
+		return extendedTimeTargets;
+	}
+
+	public void setExtendedTimeTargets(SelectItem[] targets) {
+		this.extendedTimeTargets = targets;
+	}
 }
