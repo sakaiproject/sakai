@@ -7,7 +7,7 @@ package org.sakaiproject.gradebookng.business;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public enum Permission {
+public enum GbPermission {
 
 	GRADE_ALL("gradebook.gradeAll"),
 	GRADE_SECTION("gradebook.gradeSection"),
@@ -16,7 +16,7 @@ public enum Permission {
 				
 	private String value;
 
-	Permission(final String value) {
+	GbPermission(final String value) {
         this.value = value;
     }
 

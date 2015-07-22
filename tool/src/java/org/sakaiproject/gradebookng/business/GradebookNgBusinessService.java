@@ -46,6 +46,7 @@ import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -53,6 +54,7 @@ import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
+import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.SortType;
@@ -62,6 +64,7 @@ import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
+import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -94,6 +97,9 @@ public class GradebookNgBusinessService {
 	
 	@Setter
 	private GradebookService gradebookService;
+	
+	@Setter
+	private GradebookPermissionService gradebookPermissionService;
 	
 	@Setter
 	private CourseManagementService courseManagementService;
@@ -141,14 +147,16 @@ public class GradebookNgBusinessService {
 		try {
 			String siteId = this.getCurrentSiteId();
 			
-			//note that this MUST exclude TAs as it is checked in the GradebookService and will throw a SecurityException if invalid users are provided
+			//note that this list MUST exclude TAs as it is checked in the GradebookService and will throw a SecurityException if invalid users are provided
 			Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(GbRole.STUDENT.getValue());
+			
 			
 			//filter the allowed list based on membership
 			if(groupFilter != null && groupFilter.getType() != GbGroup.Type.ALL) {
 			
 				Set<String> groupMembers = new HashSet<>();
 				
+				/* groups handles both
 				if(groupFilter.getType() == GbGroup.Type.SECTION) {
 					Set<Membership> members = this.courseManagementService.getSectionMemberships(groupFilter.getId());
 					for(Membership m: members) {
@@ -157,6 +165,7 @@ public class GradebookNgBusinessService {
 						}
 					}
 				}
+				*/
 				
 				if(groupFilter.getType() == GbGroup.Type.GROUP) {
 					Set<Member> members = this.siteService.getSite(siteId).getGroup(groupFilter.getId()).getMembers();
@@ -169,6 +178,26 @@ public class GradebookNgBusinessService {
 								
 				//only keep the ones we identified in the group
 				userUuids.retainAll(groupMembers);
+			}
+			
+			//if TA, pass it through the gradebook permissions			
+			if(this.getUserRole(siteId) == GbRole.TA) {
+				Gradebook gradebook = this.getGradebook(siteId);
+				User user = this.getCurrentUser();
+			
+				//get list of sections and groups this TA has access to
+				List courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
+												
+				//get viewable students.
+				List<String> viewableStudents = this.gradebookPermissionService.getViewableStudentsForUser(gradebook.getUid(), user.getId(), new ArrayList<>(userUuids), courseSections);
+				
+				System.out.println("viewableStudents: " + viewableStudents);
+				
+				if(viewableStudents != null) {
+					userUuids.retainAll(viewableStudents); //retain only those that are visible to this TA
+				} else {
+					userUuids.clear(); //TA can't view anyone
+				}
 			}
 			
 			return new ArrayList<>(userUuids);
@@ -222,7 +251,7 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Get a list of assignments in the gradebook in the current site
+	 * Get a list of assignments in the gradebook in the current site that the current user is allowed to access
 	 * 
 	 * @return a list of assignments or null if no gradebook
 	 */
@@ -231,7 +260,7 @@ public class GradebookNgBusinessService {
 	}
 	
 	/**
-	 * Get a list of assignments in the gradebook in the specified site, sorted by sort order
+	 * Get a list of assignments in the gradebook in the specified site that the current user is allowed to access, sorted by sort order
 	 * 
 	 * @param siteId the siteId
 	 * @return a list of assignments or null if no gradebook
@@ -239,7 +268,7 @@ public class GradebookNgBusinessService {
 	public List<Assignment> getGradebookAssignments(String siteId) {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
-			//applies permissions and default sort is SORT_BY_SORTING
+			//applies permissions (both student and TA) and default sort is SORT_BY_SORTING
 			return gradebookService.getViewableAssignmentsForCurrentUser(gradebook.getUid());
 		}
 		return null;
@@ -264,6 +293,9 @@ public class GradebookNgBusinessService {
 		Gradebook gradebook = getGradebook(siteId);
 		if(gradebook != null) {
 			return gradebookService.getCategoryDefinitions(gradebook.getUid());
+			
+			//TODO if TA need to filter here
+			
 		}
 		return null;
 	}
@@ -368,6 +400,14 @@ public class GradebookNgBusinessService {
 			log.debug("storedGrade: " + storedGrade);
 			log.debug("oldGrade: " + oldGrade);
 			log.debug("newGrade: " + newGrade);
+		}
+		
+		//if comment longer than 500 chars, error. 
+		//the field is a CLOB, probably by mistake. Loading this field up may cause performance issues
+		//see SAK-29595
+		if(StringUtils.length(comment) > 500) {
+			log.error("Comment too long. Maximum 500 characters.");
+			return GradeSaveResponse.ERROR;
 		}
 
 		//no change
@@ -613,17 +653,20 @@ public class GradebookNgBusinessService {
 	public List<GbGroup> getSiteSectionsAndGroups() {
 		String siteId = this.getCurrentSiteId();
 		
-		List<GbGroup> rval = new ArrayList<>();
+		List<GbGroup> rval = new ArrayList<>();		
 		
 		//get sections
+		// groups handles both
+		/*
 		try {
 			Set<Section> sections = courseManagementService.getSections(siteId);
-			for(Section section: sections){
+			for(Section section: sections){				
 				rval.add(new GbGroup(section.getEid(), section.getTitle(), GbGroup.Type.SECTION));
 			}
 		} catch (IdNotFoundException e) {
 			//not a course site or no sections, ignore
 		}
+		*/
 		
 		//get groups
 		try {			
@@ -638,39 +681,38 @@ public class GradebookNgBusinessService {
 			log.error("Error retrieving groups", e);
 		}
 		
+		//if user is a TA, get the groups they can see and filter the GbGroup list to keep just those
+		
+		if(this.getUserRole(siteId) == GbRole.TA) {
+			Gradebook gradebook = this.getGradebook(siteId);
+			User user = this.getCurrentUser();
+			
+			//need list of all groups as uuids
+			List<String> allGroupIds = new ArrayList<>();
+			for(GbGroup group: rval) {
+				allGroupIds.add(group.getId());
+			}
+						
+			//get the ones the TA can actually view
+			//note that if a group is empty, it will not be included.
+			List<String> viewableGroups = this.gradebookPermissionService.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
+		
+			//remove the ones that the user can't view
+			Iterator<GbGroup> iter = rval.iterator();
+			while (iter.hasNext()) {
+				GbGroup group = iter.next();
+				if(!viewableGroups.contains(group.getId())) {
+					iter.remove();
+				}
+			}
+			
+		}
+		
 		Collections.sort(rval);
 		
 		return rval;
 	}
-	
-	/**
-	 * Get a list of section memberships for the users in the site
-	 * @return
-	 */
-	/*
-	public List<String> getSectionMemberships() {
-		
-		List<Section> sections = getSiteSections();
-		for(Section s: sections) {
-			EnrollmentSet enrollmentSet = s.getEnrollmentSet();
-			
-			Set<Enrollment> enrollments = courseManagementService.getEnrollments(enrollmentSet.getEid());
-			for(Enrollment e: enrollments) {
-				
-				//need to create a DTO for this
-				
-				//a user can be in multiple sections, need a list of sections per user
-				
-				//s.getTitle(); section title
-				//e.getUserId(); user uuid
-			}
-		}
-		
-		return null;
-		
-	}
-	*/
-	
+
 	
 	/**
 	 * Helper to get siteid.
@@ -1385,6 +1427,7 @@ public class GradebookNgBusinessService {
     private String buildCellKey(String studentUuid, long assignmentId) {
     	return studentUuid + "-" + assignmentId;
     }
+    
     
     /**
      * Comparator class for sorting an assignment by the grades

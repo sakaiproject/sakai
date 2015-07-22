@@ -16,7 +16,9 @@
 			ref="org.sakaiproject.user.api.UserDirectoryService" />
 		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
 		<property name="gradebookService"
-			ref="org_sakaiproject_service_gradebook_GradebookService" />
+			ref="org.sakaiproject.service.gradebook.GradebookService" />
+		<property name="gradebookPermissionService"
+			ref="org.sakaiproject.service.gradebook.GradebookPermissionService" />
 		<property name="courseManagementService"
 			ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
 		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
