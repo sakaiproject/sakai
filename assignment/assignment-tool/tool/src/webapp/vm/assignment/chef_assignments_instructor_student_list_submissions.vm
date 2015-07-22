@@ -181,10 +181,12 @@
 											<h5>
 												<a href="#toolLinkParam("AssignmentAction" "doGrade_submission" "assignmentId=$validator.escapeUrl($assignment.Reference)&submissionId=$validator.escapeUrl($submission.Reference)&option=lisofass2")" title="$validator.limit($validator.escapeHtml($assignment.Title), 40)">$validator.limit($validator.escapeHtml($assignment.Title), 40)</a>
 												#if ($allowAddAssignment && $allowSubmitByInstructor)
+												#set( $spinnerID = "submitFor_" + $member.Id + "_" + $validator.escapeUrl($assignment.Reference) )
 												<div class="itemAction">
-													<a href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
+													<a onclick="ASN.disableControls();ASN.showSpinner( '$spinnerID' );" href="#toolLinkParam("AssignmentAction" "doView_submission" "assignmentReference=$validator.escapeUrl($assignment.Reference)&submitterId=$validator.escapeUrl($member.id)")">
 														$tlang.getString("submitforstudent")
 													</a>
+													<img id="$spinnerID" class="spinner" src="/library/image/indicator.gif" />
 												</div>
 												#end
 											#else

@@ -147,27 +147,28 @@ function duplicateLink(lnk) {
 		<div class="listNav">
 			<div  class="instruction">
 				$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
+				<img id="navSpinner" class="spinner" src="/library/image/indicator.gif" />
 			</div>
 			#if ($pagesize != 0)
 				#if ($goFPButton == "true")
 					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
+						<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#else
 					<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
+						<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#end
 				#if ($goPPButton == "true")
 					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" /></fieldset>
+						<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#else
 					<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+						<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#end
@@ -175,7 +176,7 @@ function duplicateLink(lnk) {
 			<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 				<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 				<label for="selectPageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
-				<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
+				<select id="selectPageSize" name="selectPageSize" onchange="ASN.changePageSize();">
 					#foreach ($i in $!pagesizes)
 						<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
 					#end
@@ -185,23 +186,23 @@ function duplicateLink(lnk) {
 			#if ($pagesize != 0)
 				#if ($goNPButton == "true")
 					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="n" /></fieldset>
+						<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="n" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#else
 					<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+						<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#end
 				#if ($goLPButton == "true")
 					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" /></fieldset>
+						<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#else
 					<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-						<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
+						<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
 						<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 					</form>
 				#end

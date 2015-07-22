@@ -13,3 +13,13 @@
 .checkGrid .rowHover{background:#c4dffb !important}
 .checkGrid td.active{background:#DDECFC  !important}
 .checkGrid td.active:hover{background:#cde !important}
+
+.spinner {
+    display: inline;
+    vertical-align: middle;
+    visibility: hidden;
+}
+
+a.noPointers, input.noPointers {
+    pointer-events: none;
+}
