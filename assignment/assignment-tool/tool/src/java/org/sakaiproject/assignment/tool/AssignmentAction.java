@@ -11727,10 +11727,9 @@ public class AssignmentAction extends PagedResourceActionII
 							// the preview grade process might already scaled up the grade by "factor"
 							if (!((String) state.getAttribute(STATE_MODE)).equals(MODE_INSTRUCTOR_PREVIEW_GRADE_SUBMISSION))
 							{
-								validPointGrade(state, grade, factor);
-								
 								if (state.getAttribute(STATE_MESSAGE) == null)
 								{
+									validPointGrade(state, grade, factor);
 									int maxGrade = a.getContent().getMaxGradePoint();
 									try
 									{
