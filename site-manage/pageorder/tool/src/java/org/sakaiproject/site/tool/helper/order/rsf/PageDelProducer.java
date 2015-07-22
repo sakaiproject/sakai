@@ -2,7 +2,6 @@ package org.sakaiproject.site.tool.helper.order.rsf;
 
 import org.sakaiproject.site.tool.helper.order.impl.SitePageEditHandler;
 
-import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.rsf.components.UIBranchContainer;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIMessage;
@@ -18,24 +17,22 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
  *
  */
 public class PageDelProducer implements ViewComponentProducer, ViewParamsReporter {
-    
+
     public static final String VIEW_ID = "PageDel";
-    public MessageLocator messageLocator;
-    public SitePageEditHandler handler;      
-    
-    public String getViewID() {    
+    public SitePageEditHandler handler;
+
+    public String getViewID() {
         return VIEW_ID;
     }
 
     public void fillComponents(UIContainer tofill, ViewParameters viewParams, ComponentChecker arg2) {
         PageEditViewParameters params = (PageEditViewParameters) viewParams;
 
-        UIBranchContainer mode = null;
+        UIBranchContainer mode;
  
         if (params.pageId == null) {
             mode = UIBranchContainer.make(tofill, "mode-failed:");
-            UIOutput.make(mode, "message", messageLocator
-                    .getMessage("error_pageid"));
+            UIMessage.make(mode, "message", "error_pageid");
         }
         else {
             try {
@@ -50,7 +47,7 @@ public class PageDelProducer implements ViewComponentProducer, ViewParamsReporte
             }
         }
     }
-    
+
     public ViewParameters getViewParameters() {
         return new PageEditViewParameters();
     }
