@@ -610,6 +610,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
         }
 
 		Gradebook gradebook = getGradebook(gradebookUid);
+		
+		//if attaching to category
+		if(assignmentDefinition.getCategoryId() != null) {
+			return createAssignmentForCategory(gradebook.getId(), assignmentDefinition.getCategoryId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit());
+		}
+		
 		return createAssignment(gradebook.getId(), assignmentDefinition.getName(), points, assignmentDefinition.getDueDate(), !assignmentDefinition.isCounted(), assignmentDefinition.isReleased(), assignmentDefinition.isExtraCredit());
 	}
 
@@ -643,6 +649,13 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				assignment.setPointsPossible(assignmentDefinition.getPoints());
 				assignment.setReleased(assignmentDefinition.isReleased());
 				assignment.setExtraCredit(assignmentDefinition.isExtraCredit());
+				
+				//if we have a category, get it and set it
+				if (assignmentDefinition.getCategoryId() != null) {
+					Category cat = (Category) session.load(Category.class, assignmentDefinition.getCategoryId());
+					assignment.setCategory(cat);
+				}
+				
 				updateAssignment(assignment, session);
 				return null;
 			}
