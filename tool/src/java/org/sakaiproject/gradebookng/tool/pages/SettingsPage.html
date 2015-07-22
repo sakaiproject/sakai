@@ -3,57 +3,17 @@
 
 <body>
 <wicket:extend>
+
+	<h2><wicket:message key="settingspage.main.heading">Gradebook Setup</wicket:message></h2>
 	
-  <style>
-    /* Temporary styles for placeholder accordion */
-    #gradebookSettingsAccordion {margin-top: 20px}
-    #gradebookSettingsAccordion h4 {padding: 0}
-    #gradebookSettingsAccordion h4 a {border: none !important}
-  </style>
-  <div class="panel-group" id="gradebookSettingsAccordion" role="tablist" aria-multiselectable="true">
-    <div class="panel panel-default">
-      <div class="panel-heading" role="tab" id="gradeReleaseRulesHeading">
-        <h4 class="panel-title">
-          <a class="collapsed" data-toggle="collapse" data-parent="#gradebookSettingsAccordion" href="#gradeReleaseRules" aria-expanded="false" aria-controls="gradeReleaseRules">
-            Grade Release Rules
-          </a>
-        </h4>
-      </div>
-      <div id="gradeReleaseRules" class="panel-collapse collapse" role="tabpanel" aria-labelledby="gradeReleaseRulesHeading">
-        <div class="panel-body">
-          <img src="/gradebookng-tool/images/placeholders/settings_grading_schema.jpg" style="width: 100%;" />
-        </div>
-      </div>
-    </div>
-    <div class="panel panel-default">
-      <div class="panel-heading" role="tab" id="categoriesAndWeightingHeading">
-        <h4 class="panel-title">
-          <a class="collapsed" data-toggle="collapse" data-parent="#gradebookSettingsAccordion" href="#categoriesAndWeighting" aria-expanded="false" aria-controls="categoriesAndWeighting">
-            Categories &amp; Weighting
-          </a>
-        </h4>
-      </div>
-      <div id="categoriesAndWeighting" class="panel-collapse collapse" role="tabpanel" aria-labelledby="categoriesAndWeightingHeading">
-        <div class="panel-body">
-          <img src="/gradebookng-tool/images/placeholders/settings_categories_and_weighting.jpg" style="width: 100%;" />
-        </div>
-      </div>
-    </div>
-    <div class="panel panel-default">
-      <div class="panel-heading" role="tab" id="gradingSchemaHeading">
-        <h4 class="panel-title">
-          <a class="collapsed" data-toggle="collapse" data-parent="#gradebookSettingsAccordion" href="#gradingSchema" aria-expanded="false" aria-controls="gradingSchema">
-            Grading Schema
-          </a>
-        </h4>
-      </div>
-      <div id="gradingSchema" class="panel-collapse collapse" role="tabpanel" aria-labelledby="gradingSchemaHeading">
-        <div class="panel-body">
-          <img src="/gradebookng-tool/images/placeholders/settings_grading_schema.jpg" style="width: 100%;" />
-        </div>
-      </div>
-    </div>
-  </div>
+	<h3><wicket:message key="settingspage.gradeentry.heading">Grade Entry</wicket:message></h3>
+	<p><wicket:message key="settingspage.gradeentry.text">How will graders...</wicket:message></p>
+  
+  	<h3><wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message></h3>
+  
+	<h3><wicket:message key="settingspage.categories.heading">Categories & Weighting</wicket:message></h3>
+	  	
+	<h3><wicket:message key="settingspage.gradingschema.heading">Grading Schema</wicket:message></h3>
 	
 </wicket:extend>
 </body>
