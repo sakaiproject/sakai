@@ -6,6 +6,11 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.UnsupportedCharsetException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
@@ -214,24 +219,46 @@ public class ZipContentUtil {
 		File temp = null;		
 		try {
 			temp = exportResourceToFile(resource);
-			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ);
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			while (entries.hasMoreElements()) {
-				ZipEntry nextElement = entries.nextElement();
-                if(!nextElement.getName().contains("__MACOSX")){
-                    if (nextElement.isDirectory()) {
-                        createContentCollection(rootCollectionId, nextElement);
-                    }
-                    else {
-                        if(!nextElement.getName().contains(".DS_Store")){
-                            createContentResource(rootCollectionId, nextElement, zipFile);
-                        }
-                    }
-                }
-
+			boolean extracted = false;
+			for (String charsetName: getZipCharsets()) {
+				Charset charset;
+				try {
+					charset = Charset.forName(charsetName);
+				} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+					LOG.warn(String.format("%s is not a legal charset.", charsetName));
+					continue;
+				}
+				ZipFile zipFile = null;
+				try {
+					zipFile = new ZipFile(temp, charset);
+					Enumeration<? extends ZipEntry> entries = zipFile.entries();
+					while (entries.hasMoreElements()) {
+						ZipEntry nextElement = entries.nextElement();
+						if (!nextElement.getName().contains("__MACOSX")){
+							if (nextElement.isDirectory()) {
+								createContentCollection(rootCollectionId, nextElement);
+							}
+							else {
+								if(!nextElement.getName().contains(".DS_Store")){
+									createContentResource(rootCollectionId, nextElement, zipFile);
+								}
+							}
+						}
+					}
+					extracted = true;
+					break;
+				} catch (Exception e) {
+					e.printStackTrace();
+					LOG.warn(String.format("Cannot extract archive %s with charset %s.", referenceId, charset));
+				} finally {
+					if (zipFile != null){
+						zipFile.close();
+					}
+				}
 			}
-			zipFile.close();
+			if (!extracted) {
+				LOG.warn(String.format("Cannot extract archives %s with any charset %s.", referenceId, getZipCharsets()));
+			}
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
@@ -276,18 +303,40 @@ public class ZipContentUtil {
 		File temp = null;		
 		try {
 			temp = exportResourceToFile(resource);
-			ZipFile zipFile = new ZipFile(temp,ZipFile.OPEN_READ);
-			Enumeration<? extends ZipEntry> entries = zipFile.entries();
-
-			int i = 0;
-			//use <= getMAX_ZIP_EXTRACT_SIZE() so the returned value will be
-			//larger than the max and then rejected
-			while (entries.hasMoreElements() && i <= getMaxZipExtractFiles()) {
-				ZipEntry nextElement = entries.nextElement();						
-				ret.put(nextElement.getName(), nextElement.getSize());
-				i++;
+			boolean extracted = false;
+			for (String charsetName: getZipCharsets()) {
+				Charset charset;
+				try {
+					charset = Charset.forName(charsetName);
+				} catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+					LOG.warn(String.format("%s is not a legal charset.", charsetName));
+					continue;
+				}
+				ZipFile zipFile = null;
+				try {
+					zipFile = new ZipFile(temp, charset);
+					Enumeration<? extends ZipEntry> entries = zipFile.entries();
+					int i = 0;
+					//use <= getMAX_ZIP_EXTRACT_SIZE() so the returned value will be
+					//larger than the max and then rejected
+					while (entries.hasMoreElements() && i <= getMaxZipExtractFiles()) {
+						ZipEntry nextElement = entries.nextElement();						
+						ret.put(nextElement.getName(), nextElement.getSize());
+						i++;
+					}
+					extracted = true;
+					break;
+				} catch (Exception e) {
+					LOG.warn(String.format("Cannot get menifest of %s with charset %s.", referenceId, charset));
+				} finally {
+					if (zipFile != null){
+						zipFile.close();
+					}
+				}
 			}
-			zipFile.close();
+			if (!extracted) {
+				LOG.warn(String.format("Cannot get menifest of %s with any charset %s.", referenceId, getZipCharsets()));
+			}
 		} 
 		catch (Exception e) {
 			e.printStackTrace();
@@ -438,6 +487,17 @@ public class ZipContentUtil {
 	private String extractZipCollectionName(ContentResource resource) {
 		String tmp = extractName(resource.getId());
 		return tmp.substring(0, tmp.lastIndexOf("."));
+	}
+	
+	private List<String> getZipCharsets() {
+		String[] charsetConfig = ServerConfigurationService.getStrings("content.zip.charset");
+		if (charsetConfig == null) {
+			charsetConfig = new String[0];
+		}
+		List<String> charsets = new ArrayList<>(Arrays.asList(charsetConfig));
+		// Add UTF-8 as fallback
+		charsets.add("UTF-8");
+		return charsets;
 	}
 
 }
