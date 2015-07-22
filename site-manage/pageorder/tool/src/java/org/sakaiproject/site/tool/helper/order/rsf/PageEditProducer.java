@@ -1,5 +1,7 @@
 package org.sakaiproject.site.tool.helper.order.rsf;
 
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -31,7 +33,7 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
     public void fillComponents(UIContainer tofill, ViewParameters paramso, ComponentChecker arg2) {
         PageEditViewParameters params = (PageEditViewParameters) paramso;
 
-        UIBranchContainer mode = null;
+        UIBranchContainer mode;
 
         if (params.pageId != null) {
             if (params.newTitle != null) {
@@ -51,7 +53,7 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                      UIMessage.make(mode, "message", "success_reset", new Object[] {newTitle});
                   }
                }
-               catch (Exception e) {
+               catch (IdUnusedException | PermissionException e) {
                   ErrorUtil.renderError(tofill, e);
                }
             }
@@ -111,7 +113,7 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
                           new Object[] {oldTitle});
                     }
                 } 
-                catch (Exception e) {
+                catch (IdUnusedException | PermissionException e) {
                   ErrorUtil.renderError(tofill, e);
                }
             }
@@ -122,9 +124,8 @@ public class PageEditProducer implements ViewComponentProducer, ViewParamsReport
             UIMessage.make(mode, "message", "error_pageid");
         }
     }
-    
+
     public ViewParameters getViewParameters() {
         return new PageEditViewParameters();
     }
-
 }
