@@ -243,7 +243,16 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				window.setContent(new UpdateUngradedItemsPanel(window.getContentId(), this.getModel(), window));
 				window.showUnloadConfirmation(false);
 				window.show(target);
-			}	
+			}
+			
+			@Override
+			public boolean isVisible() {
+				if(assignment.isExternallyMaintained()) {
+					return false;
+				}
+				return true;
+			}
+			
 		});
 		
 		
