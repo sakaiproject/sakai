@@ -46,11 +46,11 @@ public class StaticHandlerTest extends TestCase {
 			}
 		};
 		// Check we get this correct.
-		assertEquals("text/javascript", handler.getContentType(new File("myfile.js")));
-		assertEquals("text/javascript", handler.getContentType(new File("/somepath/to/myfile.js")));
-		assertEquals("text/javascript", handler.getContentType(new File("another/path/myfile.js")));
+		assertEquals("text/javascript", handler.getContentType(new File("myfile.js").getName()));
+		assertEquals("text/javascript", handler.getContentType(new File("/somepath/to/myfile.js").getName()));
+		assertEquals("text/javascript", handler.getContentType(new File("another/path/myfile.js").getName()));
 		// Check trailing don't don't break things.
-		assertEquals("application/octet-stream", handler.getContentType(new File("file.that.ends.with.dot.")));
+		assertEquals("application/octet-stream", handler.getContentType(new File("file.that.ends.with.dot.").getName()));
 	}
 
 	@Override
