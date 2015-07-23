@@ -53,6 +53,7 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.CommentDefinition;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -1396,6 +1397,32 @@ public class GradebookNgBusinessService {
     	 }
     	 
     	 return rval;
+     }
+     
+     /**
+      * Get the settings for this gradebook
+      * 
+      * @return
+      */
+     public GradebookInformation getGradebookSettings() {
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 GradebookInformation settings = this.gradebookService.getGradebookInformation(gradebook.getUid());
+    	 return settings;
+     }
+     
+     /**
+      * Update the settings for this gradebook
+      * @param settings GradebookInformation settings
+      */
+     public void updateGradebookSettings(GradebookInformation settings) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 //disabled until its in
+    	 //this.gradebookService.updateGradebookInformation(gradebook.getUid(), settings);
      }
     
 
