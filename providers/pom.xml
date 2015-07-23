@@ -12,11 +12,6 @@
   <artifactId>providers-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/providers/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/providers/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/providers/trunk</url>
-  </scm>
   <modules>
     <module>allhands</module>
     <module>cm-authz-provider</module>

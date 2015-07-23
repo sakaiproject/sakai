@@ -23,11 +23,6 @@
         <module>courier-util/util</module>
     </modules>
     
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/courier/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/courier/trunk</url>
-    </scm>
     
     <distributionManagement>
         <site>

@@ -16,11 +16,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</url>
-  </scm>
 
   <packaging>pom</packaging>
   <properties>

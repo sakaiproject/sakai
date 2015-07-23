@@ -111,11 +111,6 @@
 		<system>JIRA</system>
 		<url>http://jira.sakaiproject.org/browse/SAK</url>
 	</issueManagement>
-	<scm>
-		<connection>scm:git:https://source.sakaiproject.org/svn/profile2/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/profile2/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/profile2/trunk</url>
-	</scm>
 	
 	<build>
 		<plugins>

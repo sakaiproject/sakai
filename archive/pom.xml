@@ -12,11 +12,6 @@
   <artifactId>archive-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/archive/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/archive/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/archive/trunk</url>
-  </scm>
   <modules>
     <module>archive-tool/tool</module>
     <module>import-handlers/announcement-handlers</module>

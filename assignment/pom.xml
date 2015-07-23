@@ -22,11 +22,6 @@
     <module>assignment-tool/tool</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/assignment/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/assignment/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>
