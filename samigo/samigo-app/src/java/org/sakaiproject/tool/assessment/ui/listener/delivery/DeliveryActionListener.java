@@ -2372,14 +2372,7 @@ public class DeliveryActionListener
                       {
                           answer.setText("");
                       }
-
-                      double score = new GradingService().getCalcQScore(data, item, answersMap, i);
-                      // mark answer as correct if score > 0
-                      if (score > 0.0) {
-                          fbean.setIsCorrect(true);
-                      } else {
-                          fbean.setIsCorrect(false);
-                      }
+                      fbean.setIsCorrect(service.getCalcQResult(data, item, answersMap, i));
                   }
               }
           }
