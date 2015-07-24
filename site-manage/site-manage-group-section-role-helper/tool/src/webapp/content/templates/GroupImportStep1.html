@@ -4,9 +4,11 @@
     <title>Import groups - select a file</title>
 	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" src="/library/js/jquery.js"></script>
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="../js/util.js"></script>
 </head>
 
 <body>
@@ -25,8 +27,9 @@
         <input type="file" name="groupfile"/>
         <br />
         <p class="act">
-            <input accesskey ="s" rsf:id="continue" class="active" value="Upload and Check" type="submit"/>
-            <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
+            <input accesskey ="s" rsf:id="continue" id="continue" class="active" value="Upload and Check" type="submit" onclick="disableButtonsActivateSpinner( 'content::continue', 'content::cancel', 'importSpinner');" />
+            <input accesskey ="x" rsf:id="cancel" id="cancel" value="Cancel" type="submit" onclick="disableButtonsActivateSpinner( 'content::continue', 'content::cancel', 'importSpinner');" />
+            <img id="importSpinner" class="spinner" src="/library/image/indicator.gif" />
         </p>
         </form>
     </div>
