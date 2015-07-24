@@ -299,6 +299,11 @@ private static final String msgResource =
   {
 	  return ServerConfigurationService.getBoolean("samigo.question.show.showImageMapQuestion",showImageMapQuestion); 
   }
+  
+  public boolean isImageMapQuestion()
+  {
+	  return showImageMapQuestion;
+  }
   /**
     * Set whether ImageMap should be shown.
     * @param showImageMap if this type should be shown
