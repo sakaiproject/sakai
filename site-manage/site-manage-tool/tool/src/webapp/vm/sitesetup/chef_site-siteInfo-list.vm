@@ -275,25 +275,24 @@ function printPreview(target){
 				</th>
 				<td>
 					#if ($!published)
-						#if ("anonymous" == $!access)
-							#if ($siteJoinable)
-								$tlang.getString("sitegen.siteinfolist.anonjoin")
-							#else
-								$tlang.getString("sitegen.siteinfolist.anon")
+						#if ($additionalAccess.size() > 0)
+							<ul class="attachList" style="margin:0">
+								#if ($!siteJoinable)
+									<li>$tlang.getString("sitegen.siteinfolist.sitecan")</li>
+								#else
+									<li>$tlang.getString("sitegen.siteinfolist.sitepar")</li>
+								#end
+							#foreach($role in $additionalAccess)
+								<li>$role</li>
 							#end
-						#else #if ("authenticated" == $!access)
-							#if ($siteJoinable)
-								$tlang.getString("sitegen.siteinfolist.authjoin")
-							#else
-								$tlang.getString("sitegen.siteinfolist.auth")
-							#end
-						#else 
+							</ul>
+						#else
 							#if ($!siteJoinable)
 								$tlang.getString("sitegen.siteinfolist.sitecan")
 							#else
 								$tlang.getString("sitegen.siteinfolist.sitepar")
 							#end
-						#end #end
+						#end
 					#else
 						## unpublished site
 							<span class="highlight">$tlang.getString("sitegen.siteinfolist.siteown")</span>

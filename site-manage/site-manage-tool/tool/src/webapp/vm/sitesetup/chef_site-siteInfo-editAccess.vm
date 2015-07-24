@@ -196,30 +196,31 @@
 			</label>
 		</p>
 		</fieldset>
-		#if ($!authAllowed || $!anonAllowed)
+		#if (!$!disableAdditional)
         <fieldset>
 			<legend>
 				<h4>$tlang.getString("ediacc.addit")</h4>
 			</legend>
  			<p class="instruction">$tlang.getString("ediacc.additin")</p>
- 			<p class="checkbox indnt1">
- 				<input name="access" value="members" type="radio" id="access_members" #if($access == "members")checked="true"#end>
- 				<label for="access_members">$tlang.getString("ediacc.noextra")</label>
- 			</p>
-			#if ($!authAllowed)
- 			<p class="checkbox indnt1">
- 				<input name="access" value="authenticated" type="radio" id="access_authenticated"  #if($access == "authenticated")checked="true"#end>
- 				<label for="access_authenticated">$tlang.getString("ediacc.auth")</label>
- 			</p>
+			#foreach($roleGroup in $additionalRoleGroups)
+				#if ($roleGroup.size > 0)
+					<fieldset style="float: left; width: 20em;">
+						<legend>$roleGroup.name</legend>
+						#foreach($role in $roleGroup.roles)
+							<p class="checkbox indnt1">
+								<label>
+									<input name="role$role.id" type="checkbox" value="true" #if($role.granted)checked="true"#end #if(!$role.editable)disabled="true"#end>
+									$role.name
+								</label>
+							</p>
+						#end
+					</fieldset>
+				#end
 			#end
-			#if ($!anonAllowed)
- 			<p class="checkbox indnt1">
- 				<input name="access" value="anonymous" type="radio" id="access_anonymous" #if($access == "anonymous")checked="true"#end>
- 				<label for="access_anonymous">$tlang.getString("ediacc.anon")</label>
- 			</p>
-			#end
-		</fieldset>
-		#end
+			<div class="clear"></div>
+			</p>
+        </fieldset>
+        #end
 		## site visibility
 		<fieldset>
 		<legend>

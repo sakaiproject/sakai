@@ -73,6 +73,12 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  	private static final String RESOURCECLASS = "resource.class.authzimpl";
  	private static final String RESOURCEBUNDLE = "resource.bundle.authzimpl";
  	private ResourceLoader rb = null;
+ 	
+ 	/**
+	 * The dummy prefix used to encode and decode the the dummy user id for a role.
+	 * Randomly generated on server startup, should not be too long as it will be cached often.
+	 */
+	private String dummyUserPrefix;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -298,6 +304,8 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
             }
 
 			M_log.info("init(): provider: " + ((m_provider == null) ? "none" : m_provider.getClass().getName()));
+			
+			dummyUserPrefix = UUID.randomUUID().toString().substring(0, 8);
 		}
 		catch (Exception t)
 		{
@@ -983,6 +991,29 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 	{
 		return m_storage.getUsersRole(userIds, azGroupId);
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String encodeDummyUserForRole(String roleId) throws IllegalArgumentException {
+		if (roleId == null || roleId.isEmpty()) {
+			throw new IllegalArgumentException("BaseAuthzGroupService#encodeDummyUserForRole: No role ID provided");
+		}
+		return this.dummyUserPrefix + roleId;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public String decodeRoleFromDummyUser(String dummyUserId) throws IllegalArgumentException {
+		if (dummyUserId == null || dummyUserId.isEmpty()) {
+			throw new IllegalArgumentException("BaseAuthzGroupService.decodeRoleFromDummyUser: No dummy user ID provided");
+		}
+		if (!dummyUserId.startsWith(this.dummyUserPrefix) || dummyUserId.equals(this.dummyUserPrefix)) {
+			return null;
+		}
+		return dummyUserId.replaceFirst(this.dummyUserPrefix, "");
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -1555,12 +1586,40 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
     public Set getMaintainRoles(){
         return m_storage.getMaintainRoles();
     }
+    
+    /**
+	 * Gets the roles which shouldn't have members but a user belongs to.
+	 * @param userId
+	 * @return A set of role IDs. By convention these should all start with a dot (".").
+	 */
+	Set<String> getEmptyRoles(String userId)
+	{
+		Set<String> roles = new HashSet<String>();
+		roles.add(ANON_ROLE);
+		if ((userId != null) && (!userDirectoryService().getAnonymousUser().getId().equals(userId)))
+		{
+
+			// A dummy user is created to test role access instead of loading all of the roles and iterating over them.
+			String roleId = decodeRoleFromDummyUser(userId);
+			if (roleId != null){
+				roles.remove(ANON_ROLE);
+				roles.add(roleId);
+			} else {
+				roles.add(AUTH_ROLE);
+				// Get additional roles from provider
+				if (m_roleProvider != null)
+				{
+					roles.addAll((m_roleProvider.getAdditionalRoles(userId)));
+				}
+			}
+		}
+		return roles;
+	}
 
 	/**
   	 * {@inheritDoc}
  	 */
 	public Set<String> getAdditionalRoles() {
-
  		Set<String> roles = new HashSet<String>();
  		if (isAllowedAnon()) {
  			roles.add(".anon");
@@ -1596,6 +1655,21 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
  		}
  		// Never return null 
  		return (role == null) ? roleId : role;
+ 	}
+ 	
+ 	/**
+ 	 * {@inheritDoc}
+ 	 */
+ 	public String getRoleGroupName(String roleGroupId) {
+
+ 		String name = null;
+ 		if ("".equals(roleGroupId)) {
+ 			name = rb.getString("generic.role.group");
+ 		}else if (m_roleProvider != null) {
+ 			name = m_roleProvider.getDisplayName(roleGroupId);
+ 		}
+ 		// Never return null 
+ 		return (name == null) ? roleGroupId : name;
  	}
  	
  	/**
