@@ -450,6 +450,14 @@ public class SiteService
 		return service.getUserSites(requireDescription);
 	}
 
+	public static List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if( service == null ) return null;
+
+		return service.getUserSites( requireDescription, includeUnpublishedSites );
+	}
+
 	public static java.util.List getSites(org.sakaiproject.site.api.SiteService.SelectionType param0, java.lang.Object param1,
 			java.lang.String param2, java.util.Map param3, org.sakaiproject.site.api.SiteService.SortType param4,
 			org.sakaiproject.javax.PagingPosition param5)
