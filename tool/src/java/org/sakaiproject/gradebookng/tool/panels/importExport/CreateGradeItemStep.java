@@ -106,7 +106,7 @@ public class CreateGradeItemStep extends Panel {
 
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
 
-        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", gbAssignmentModel);
+        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", new Model(assignment));
 
         form.add(gradePanelContent);
 
