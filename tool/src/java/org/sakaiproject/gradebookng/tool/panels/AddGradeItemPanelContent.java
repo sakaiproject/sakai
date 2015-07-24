@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.form.DropDownChoice;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
@@ -12,7 +13,8 @@ import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
-import java.util.Arrays;
+import java.util.Map;
+import java.util.HashMap;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -34,14 +36,22 @@ public class AddGradeItemPanelContent extends Panel {
         add(new TextField("title", new PropertyModel(assignment, "name")));
         add(new TextField("points", new PropertyModel(assignment, "points")));
         add(new DateTextField("duedate", new PropertyModel(assignment, "dueDate"), "MM/DD/yy"));
-        //add(new DropDownChoice("category", new Model()));
 
         List<CategoryDefinition> categories = businessService.getGradebookCategories();
-        List<String> categoryNames = new ArrayList<String>();
-        for (CategoryDefinition category : categories) {
-          categoryNames.add(category.getName());
-        }
-        add(new DropDownChoice("category", new PropertyModel(assignment, "categoryName"), categoryNames));
 
+        final Map<Long, String> categoryMap = new HashMap<>();
+        for (CategoryDefinition category : categories) {
+            categoryMap.put(category.getId(), category.getName());
+        }
+
+        add(new DropDownChoice("category", new PropertyModel(assignment, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
+            public Object getDisplayValue(Long value) {
+                return categoryMap.get(value);
+            }
+
+            public String getIdValue(Long object, int index) {
+                return object.toString();
+            }
+        }));
     }
 }
