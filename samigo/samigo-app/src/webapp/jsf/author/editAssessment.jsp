@@ -78,6 +78,30 @@ document.links[newindex].onclick();
 
 //-->
 </script>
+
+<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script language='javascript' src='/samigo-app/js/selection.author.preview.js'></script>
+
+<link href="/samigo-app/css/imageQuestion.author.css" type="text/css" rel="stylesheet" media="all" />
+
+<script type="text/JavaScript">	
+	jQuery(window).load(function(){
+			
+		$('input:hidden[id*=hiddenSerializedCoords_]').each(function(){
+			var myregexp = /hiddenSerializedCoords_(\d+_\d+)_(\d+)/
+			var matches = myregexp.exec(this.id);
+			var sequence = matches[1];
+			var label = matches[2];
+			
+			var sel = new selectionAuthor({selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageMapContainer_'+sequence);
+			try {
+				sel.setCoords(jQuery.parseJSON(this.value));
+				sel.setText(label);
+			}catch(err){}
+			
+		});	
+	});
+</script>
 </head>
 <body onload="document.forms[0].reset(); disableIt(); resetSelectMenus(); ;<%= request.getAttribute("html.body.onload") %>">
 
@@ -375,6 +399,7 @@ document.links[newindex].onclick();
      <h:outputText rendered="#{question.itemData.typeId== 6}" value=" #{authorMessages.file_upload}"/>
      <h:outputText rendered="#{question.itemData.typeId== 14}" value=" #{authorMessages.extended_matching_items}"/>
      <h:outputText rendered="#{question.itemData.typeId== 15}" value=" #{authorMessages.calculated_question}"/><!-- CALCULATED_QUESTION -->
+     <h:outputText rendered="#{question.itemData.typeId== 16}" value=" #{authorMessages.image_map_question}"/><!-- IMAGEMAP_QUESTION -->
 
      <h:outputText value=" #{authorMessages.dash} " />
      <h:inputText id="answerptr" value="#{question.updatedScore}" required="true" disabled="#{author.isEditPoolFlow || (question.itemData.typeId== 14)}"  size="6" onkeydown="inIt()" onchange="toPoint(this.id);" rendered="#{question.itemData.typeId!= 3}">
@@ -461,6 +486,9 @@ document.links[newindex].onclick();
           <h:panelGroup rendered="#{question.itemData.typeId == 15}"><!-- CALCULATED_QUESTION -->
                 <%@ include file="/jsf/author/preview_item/CalculatedQuestion.jsp" %>
           </h:panelGroup>
+          <h:panelGroup rendered="#{question.itemData.typeId == 16}"><!-- IMAGEMAP_QUESTION -->
+                <%@ include file="/jsf/author/preview_item/ImageMapQuestion.jsp" %>
+          </h:panelGroup>   
 <f:verbatim> </div></f:verbatim>
 <h:panelGroup rendered="#{author.isEditPendingAssessmentFlow}">
     <f:verbatim>    <div class="longtext"> </f:verbatim> <h:outputLabel for="changeQType" value="#{authorMessages.ins_new_q} "/>
