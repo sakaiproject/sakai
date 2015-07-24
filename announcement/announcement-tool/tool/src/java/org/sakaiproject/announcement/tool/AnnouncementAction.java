@@ -978,7 +978,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (NullPointerException e)
 		{
-			M_log.warn(this+".buildMainPanelContext ", e);
+			M_log.error(this+".buildMainPanelContext ", e);
 		}
 
 		// get the current channel ID from state object or prolet initial parameter
@@ -1116,7 +1116,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (PermissionException error)
 		{
-			M_log.warn(this+".buildMainPanelContext ", error);
+			M_log.error(this+".buildMainPanelContext ", error);
 		}
 		catch (IdUnusedException error)
 		{
@@ -4011,7 +4011,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			}
 			catch (ParseException e)
 			{
-				M_log.warn(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
+				M_log.error(this + " Cannot init RuleBasedCollator. Will use the default Collator instead.", e);
 			}
 		}
 		// the criteria - asc
@@ -4938,7 +4938,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		catch (Exception e)
 		{
 			addAlert(sstate, rb.getString("java.alert.unknown"));
-			M_log.warn(this+".doOptionsUpdate", e);
+			M_log.error(this+".doOptionsUpdate", e);
 		}
 		
 		// We're omitting processing of the "showAnnouncementBody" since these
@@ -5041,7 +5041,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.warn( this + ".processFormattedTextFromBrowser ", e);
+			M_log.error( this + ".processFormattedTextFromBrowser ", e);
 			return strFromBrowser;
 		}
 	}
@@ -5214,7 +5214,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.warn(this+ ".getState", e);
+			M_log.error(this+ ".getState", e);
 		}
 
 		return null;
@@ -5278,7 +5278,7 @@ public class AnnouncementAction extends PagedResourceActionII
 		}
 		catch (Exception e)
 		{
-			M_log.warn("", e);
+			M_log.error("", e);
 		}
 
 	} // releaseState

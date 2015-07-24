@@ -175,7 +175,7 @@ public class SakaiBasicDataSource extends HikariDataSource
                 } catch (ClassNotFoundException | InstantiationException | IllegalAccessException e) {
                     // TODO Auto-generated catch block
                     String message = "driverClass not specified, might not be able to load the driver'";
-                    M_log.warn(message, e);
+                    M_log.info(message, e);
                 }
             }
         }
@@ -189,7 +189,7 @@ public class SakaiBasicDataSource extends HikariDataSource
         catch (Exception t)
         {
             String message = "Cannot load JDBC driver class '" + driverClassName + "'";
-            M_log.warn(message, t);
+            M_log.error(message, t);
             throw new SQLException(message,t);
         }
     }

@@ -1703,12 +1703,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		    }
 		    catch (PermissionException e)
 		    {
-		        M_log.warn("getCalendar: The current user does not have permission to access " +
+		        M_log.error("getCalendar: The current user does not have permission to access " +
 		                "the calendar for context: " + contextId, e);
 		    }
 		    catch (Exception ex)
 		    {
-		        M_log.warn("getCalendar: Unknown exception occurred retrieving calendar for site: " + contextId, ex);
+		        M_log.error("getCalendar: Unknown exception occurred retrieving calendar for site: " + contextId, ex);
 		        calendar = null;
 		    }
 		}
@@ -2517,11 +2517,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn(" commitEdit(), submissionId=" + submissionRef, e);
+			M_log.error(" commitEdit(), submissionId=" + submissionRef, e);
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(" commitEdit(), submissionId=" + submissionRef, e);
+			M_log.error(" commitEdit(), submissionId=" + submissionRef, e);
 		}
 
 	} // commitEdit(Submission)

@@ -137,9 +137,9 @@ public class SeedSitesAndUsersJob implements Job {
 				collection = createCollection(collectionName);
 				contentHostingService.commitCollection((ContentCollectionEdit) collection);
 			} catch (TypeException te) {
-				log.warn("seedData, wrong collection type: ", te);
+				log.error("seedData, wrong collection type: ", te);
             } catch (PermissionException pe) {
-    			log.warn("seedData, collection permission: ", pe);
+    			log.error("seedData, collection permission: ", pe);
             }
 			
 			if (collection != null) {
@@ -159,11 +159,11 @@ public class SeedSitesAndUsersJob implements Job {
 					resourceEdit.setContentType("text/plain");
 					contentHostingService.commitResource(resourceEdit, NotificationService.NOTI_NONE);
 				} catch (Exception e) {
-					log.warn("seedData, cannot add resource: " + collectionName + fileName + ".txt", e);
+					log.error("seedData, cannot add resource: " + collectionName + fileName + ".txt", e);
 				}
 				totalBytes += rawFile.length;
 			} else {
-				log.warn("seedData, could not get collection: " + collectionName);
+				log.error("seedData, could not get collection: " + collectionName);
 				break;
 			}
 		}
@@ -193,13 +193,13 @@ public class SeedSitesAndUsersJob implements Job {
 			collectionEdit = contentHostingService.addCollection(collectionName);
 			collectionEdit.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, "searchdata");
 		} catch (IdUsedException iue) {
-			log.warn("createCollection, existing collection: ", iue);
+			log.error("createCollection, existing collection: ", iue);
 		} catch (IdInvalidException iie) {
-			log.warn("createCollection, invalid collection id: ", iie);
+			log.error("createCollection, invalid collection id: ", iie);
 		} catch (PermissionException pe) {
-			log.warn("createCollection, collection permission: ", pe);
+			log.error("createCollection, collection permission: ", pe);
 		} catch (InconsistentException ie) {
-			log.warn("createCollection, collection inconsistent: ", ie);
+			log.error("createCollection, collection inconsistent: ", ie);
 		}
 		return collectionEdit;
 	}
@@ -255,12 +255,12 @@ public class SeedSitesAndUsersJob implements Job {
 			try {
 	            user = userDirectoryService.addUser(null, eid, faker.name().firstName(), lastName, eid + "@nowhere.com", faker.letterify("???????"), userType, null);
             } catch (UserIdInvalidException uiue) {
-            	log.warn("createUsers, invalid userId: ", uiue);
+            	log.error("createUsers, invalid userId: ", uiue);
             } catch (UserAlreadyDefinedException uade) {
-            	log.warn("createUsers, already exists: ", uade);
+            	log.error("createUsers, already exists: ", uade);
             	user = createUser(userType);
             } catch (UserPermissionException upe) {
-            	log.warn("createUsers, permission: ", upe);
+            	log.error("createUsers, permission: ", upe);
             }
 			
 		return user;
@@ -283,9 +283,9 @@ public class SeedSitesAndUsersJob implements Job {
 			try {
 				siteService.save(site);
 			} catch (IdUnusedException iue) {
-				log.warn("createEnrollments, site doesn't exist:", iue);
+				log.error("createEnrollments, site doesn't exist:", iue);
 			} catch (PermissionException pe) {
-				log.warn("createEnrollments, site save permission:", pe);
+				log.error("createEnrollments, site save permission:", pe);
 			}
 		}
 	}

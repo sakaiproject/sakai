@@ -499,7 +499,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception t)
 		{
-			M_log.warn(".init(): ", t);
+			M_log.error(".init(): ", t);
 		}
 	}
 
@@ -1309,7 +1309,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception e)
 		{
-			M_log.warn(".addSite(): error copying realm", e);
+			M_log.error(".addSite(): error copying realm", e);
 		}
 
 		// clear the site's notification id in properties
@@ -2506,7 +2506,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}
@@ -2542,7 +2542,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}
