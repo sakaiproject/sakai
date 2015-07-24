@@ -45,6 +45,7 @@ public class Assessment extends AbstractImportable {
 	private List trueFalseQuestions;
 	private List orderingQuestions;
 	private List attachments;
+	private String archiveBasePath;
 	
 	public List getAttachments() {
 		return attachments;
@@ -145,5 +146,13 @@ public class Assessment extends AbstractImportable {
 	public void setVersion(String version) {
 		this.version = version;
 	}	
+
+	public String getArchiveBasePath() {
+		return archiveBasePath;
+	}
 	
+	public void setArchiveBasePath(String path) {
+		this.archiveBasePath = path;
+	}
+
 }

@@ -31,6 +31,7 @@ import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.io.FileInputStream;
 
 import org.sakaiproject.importer.api.HandlesImportable;
 import org.sakaiproject.importer.api.Importable;
@@ -45,6 +46,13 @@ import org.sakaiproject.tool.assessment.facade.QuestionPoolFacade;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.cover.SessionManager;
+import org.sakaiproject.content.cover.ContentHostingService;
+import org.sakaiproject.content.cover.ContentTypeImageService;
+import org.sakaiproject.content.api.ContentResourceEdit;
+import org.sakaiproject.entity.api.ResourceProperties;
+import org.sakaiproject.event.api.NotificationService;
+import org.sakaiproject.exception.InconsistentException;
+import org.sakaiproject.util.Validator;
 
 public class SamigoPoolHandler implements HandlesImportable {
 	// Samigo identifies each question type with an int
@@ -61,6 +69,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 
 	public void handle(Importable thing, String siteId) {
 		QuestionPool importPool = (QuestionPool)thing;
+		String archiveBasePath = importPool.getArchiveBasePath();
 		QuestionPoolFacade pool = new QuestionPoolFacade();
 		pool.setOwnerId(SessionManager.getCurrentSessionUserId());
 		pool.setTitle(importPool.getTitle());
@@ -68,14 +77,14 @@ public class SamigoPoolHandler implements HandlesImportable {
 		// have no idea what the magic number 30 is for, but Samigo used it when I created a question pool in the tool
 		pool.setAccessTypeId(Long.valueOf(30));
 		Set questionItems = new HashSet();
-		questionItems.addAll(doQuestions(importPool.getEssayQuestions(), siteId));
-		questionItems.addAll(doQuestions(importPool.getFillBlankQuestions(), siteId));
-		questionItems.addAll(doQuestions(importPool.getMatchQuestions(), siteId));
-		questionItems.addAll(doQuestions(importPool.getMultiAnswerQuestions(), siteId));
-		questionItems.addAll(doQuestions(importPool.getMultiChoiceQuestions(), siteId));
+		questionItems.addAll(doQuestions(importPool.getEssayQuestions(), siteId, archiveBasePath));
+		questionItems.addAll(doQuestions(importPool.getFillBlankQuestions(), siteId, archiveBasePath));
+		questionItems.addAll(doQuestions(importPool.getMatchQuestions(), siteId, archiveBasePath));
+		questionItems.addAll(doQuestions(importPool.getMultiAnswerQuestions(), siteId, archiveBasePath));
+		questionItems.addAll(doQuestions(importPool.getMultiChoiceQuestions(), siteId, archiveBasePath));
 		// Samigo doesn't have native support for ordering questions. Maybe there's a workaround?
 		// questionItems.addAll(doQuestions(importPool.getOrderingQuestions()));
-		questionItems.addAll(doQuestions(importPool.getTrueFalseQuestions(), siteId));
+		questionItems.addAll(doQuestions(importPool.getTrueFalseQuestions(), siteId, archiveBasePath));
 		QuestionPoolFacade savedPool = qps.savePool(pool);
 		
 		Object[] questionItemsArray = questionItems.toArray();
@@ -93,7 +102,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 		}
 	}
 	
-	private Collection doQuestions(List questions, String siteId) {
+	private Collection doQuestions(List questions, String siteId, String archiveBasePath) {
 		AssessmentQuestion importableQuestion;
 		AssessmentAnswer importableAnswer;
 		AssessmentAnswer importableChoice;
@@ -113,7 +122,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 			Set correctAnswerIDs = importableQuestion.getCorrectAnswerIDs();
 			itemFacade = new ItemFacade();
 			textSet = new HashSet();
-			questionTextString = contextualizeUrls(importableQuestion.getQuestionText(), siteId);
+			questionTextString = contextualizeUrls(importableQuestion.getQuestionText(), siteId, archiveBasePath);
 			if (importableQuestion.getQuestionType() == SamigoPoolHandler.MATCHING) {
 				itemFacade.setInstruction(questionTextString);
 				Collection answers = importableQuestion.getAnswers().values();
@@ -124,7 +133,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 					text = new ItemText();
 					text.setSequence(Long.valueOf(answerIndex));
 					answerIndex++;
-					text.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
+					text.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId, archiveBasePath));
 					answerSet = new HashSet();
 					int choiceIndex = 1;
 					for (Iterator k = choices.iterator();k.hasNext();) {
@@ -136,7 +145,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 						choiceIndex++;
 						// set label A, B, C, D, etc. on answer based on its sequence number
 						answer.setLabel(new Character((char)(64 + choiceIndex)).toString());
-						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId));
+						answer.setText(contextualizeUrls(importableChoice.getAnswerText(), siteId, archiveBasePath));
 						answer.setIsCorrect(Boolean.valueOf(importableAnswer.getChoiceId().equals(importableChoice.getAnswerId())));
 						answerSet.add(answer);
 					}
@@ -178,7 +187,7 @@ public class SamigoPoolHandler implements HandlesImportable {
 						text.setText(questionTextString);
 						answer.setSequence(new Long(1));
 					} else {
-						answer.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId));
+						answer.setText(contextualizeUrls(importableAnswer.getAnswerText(), siteId, archiveBasePath));
 					}
 					
 					answer.setIsCorrect(Boolean.valueOf(correctAnswerIDs.contains(answerId)));
@@ -209,11 +218,42 @@ public class SamigoPoolHandler implements HandlesImportable {
 		
 	}
 	
-	protected String contextualizeUrls(String text, String siteId) {
+	protected String contextualizeUrls(String text, String siteId, String archiveBasePath) {
 		if (text == null) return null;
 		// this regular expression is specifically looking for image urls
 		// but only urls that are not absolute (i.e., do not start "http")
 		String anyRelativeUrl = "src=\"(?!http)/?";
+
+		int next = 0;
+		while (true) {
+		    int i = text.indexOf("src=\"", next);
+		    if (i < 0)
+			break;
+		    int j = text.indexOf("\"", i+5);
+		    next = j;
+		    String url = text.substring(i+5, j);
+		    if (url.startsWith("http") || url.startsWith("/"))
+			continue;
+		    String dataloc = archiveBasePath + "/" + url;
+		    String sakailoc = "/group/" + siteId + "/TQimages/" + url;
+
+		    int lastSlash = sakailoc.lastIndexOf("/");
+		    String name = sakailoc.substring(lastSlash + 1);
+		    String extension = Validator.getFileExtension(name);
+		    String type = ContentTypeImageService.getContentType(extension);
+
+		    // in sakai 10, this will generate containing collections
+		    try {
+			ContentResourceEdit res = ContentHostingService.addResource(sakailoc);
+			res.getPropertiesEdit().addProperty(ResourceProperties.PROP_DISPLAY_NAME, name);
+			res.setContentType(type);
+			res.setContent(new FileInputStream(dataloc));
+			ContentHostingService.commitResource(res, NotificationService.NOTI_NONE);
+		    } catch (Exception e) {
+			System.out.println("attempt to create file " + sakailoc + " failed: " + e);
+		    }
+		}
+
 		return text.replaceAll(anyRelativeUrl, "src=\"/access/content/group/" 
 				+ siteId + "/TQimages/"); 	        } 
 

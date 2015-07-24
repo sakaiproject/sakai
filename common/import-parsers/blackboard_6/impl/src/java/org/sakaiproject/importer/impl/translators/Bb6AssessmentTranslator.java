@@ -61,6 +61,7 @@ public class Bb6AssessmentTranslator implements IMSResourceTranslator{
 				"/questestinterop/assessment/presentation_material/flow_mat/material/mat_extension/mat_formattedtext", descriptor)));
 		rv.setTitle(XPathHelper.getNodeValue("/questestinterop/assessment/@title", descriptor));
 		// from the descriptor, add all the questions to this QuestionPool object
+		rv.setArchiveBasePath(archiveBasePath);
 		List multiChoiceNodes = XPathHelper.selectNodes("//item/itemmetadata/bbmd_questiontype[. = 'Multiple Choice']/ancestor::item", descriptor);
 		List essayNodes = XPathHelper.selectNodes("//item/itemmetadata/bbmd_questiontype[. = 'Essay']/ancestor::item", descriptor);
 		List fillTheBlankNodes = XPathHelper.selectNodes("//item/itemmetadata/bbmd_questiontype[. = 'Fill in the Blank']/ancestor::item", descriptor);
