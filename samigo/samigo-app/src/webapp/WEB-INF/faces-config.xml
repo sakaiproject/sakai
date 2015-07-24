@@ -369,6 +369,11 @@
 	    <value>true</value>
 	</managed-property>
   </managed-bean>
+  <!-- // IMAGEMAP_QUESTION -->
+  <managed-property>
+    <property-name>showImageMapQuestion</property-name>
+    <value>true</value>
+  </managed-property>
   <managed-bean>
     <description>For authorization</description>
     <managed-bean-name>authorization</managed-bean-name>
