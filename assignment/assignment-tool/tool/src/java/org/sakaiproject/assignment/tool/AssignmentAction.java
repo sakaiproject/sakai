@@ -15416,38 +15416,14 @@ public class AssignmentAction extends PagedResourceActionII
 	    }
 	    return retVal;
 	}
-
-	/**
-	 * 
-	 * @return
-	 */
-	public void doDownload_upload_all(RunData data)
-	{
-		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		ParameterParser params = data.getParameters();
-		String flow = params.getString("flow");
-		if ("upload".equals(flow))
-		{
-			// upload
-			doUpload_all(data);
-		}
-		else if ("download".equals(flow))
-		{
-			// upload
-			doDownload_all(data);
-		}
-		else if ("cancel".equals(flow))
-		{
-			// cancel
-			doCancel_download_upload_all(data);
-		}
-	}
 	
 	public void doDownload_all(RunData data)
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
-		
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
+		ParameterParser params = data.getParameters();
+		String downloadUrl = params.getString("downloadUrl");
+		state.setAttribute(STATE_DOWNLOAD_URL, downloadUrl);
 	}
 	
 	public void doUpload_all(RunData data)
@@ -16317,9 +16293,6 @@ public class AssignmentAction extends PagedResourceActionII
 	{
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		state.setAttribute(STATE_MODE, MODE_INSTRUCTOR_GRADE_ASSIGNMENT);
-		ParameterParser params = data.getParameters();
-		String downloadUrl = params.getString("downloadUrl");
-		state.setAttribute(STATE_DOWNLOAD_URL, downloadUrl);
 		cleanUploadAllContext(state);
 	}
 	
