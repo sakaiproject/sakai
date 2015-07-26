@@ -15,6 +15,7 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 
@@ -44,7 +45,7 @@ public class EditGradebookItemPage extends BasePage {
 		Assignment assignment = this.businessService.getAssignment(assignmentId);
 		
 		//form model
-		CompoundPropertyModel<Assignment> formModel = new CompoundPropertyModel<Assignment>(assignment);
+		Model formModel = new Model(assignment);
 		
 		//build form
 		Form<Assignment> form = new Form<Assignment>("form", formModel) {
@@ -75,19 +76,9 @@ public class EditGradebookItemPage extends BasePage {
 			}
 		};
 		cancel.setDefaultFormProcessing(false);
-        form.add(cancel);
-		
-		/**
-		 * Note the wicket:id bindings here are to the properties on the Assignment. They must match (HTML too).
-		 */
-		form.add(new TextField<String>("name").setRequired(true));
-		form.add(new TextField<Double>("points").setRequired(true));
-		form.add(new CheckBox("extraCredit"));
-		form.add(new DateTextField("dueDate", "dd/MM/yyyy")); //TODO make this date string come from ResourceLoader?
-		//there is no way (currently) to edit the category of an assignment. need sto be implemented
-		//form.add(new DropDownChoice("category", new PropertyModel(gbAssignmentModel, "categoryName"), Arrays.asList(new String[] { "A", "B", "C" })));
-		form.add(new CheckBox("released"));
-		form.add(new CheckBox("counted"));
+		form.add(cancel);
+
+		form.add(new AddGradeItemPanelContent("subComponents", formModel));
 
 		add(form);
 	}

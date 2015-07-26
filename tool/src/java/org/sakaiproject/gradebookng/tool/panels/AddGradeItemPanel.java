@@ -20,6 +20,7 @@ import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsExcep
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.lang.Exception;
 
@@ -66,7 +67,7 @@ public class AddGradeItemPanel extends Panel {
 					success = false;
 				}
 				if (success) {
-					getSession().info(new ResourceModel("notification.addgradeitem.success").getObject());
+					getSession().info(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
 					setResponsePage(getPage().getPageClass());
 				} else {
 					target.addChildren(form, FeedbackPanel.class);

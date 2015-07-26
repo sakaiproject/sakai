@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.form.TextField;
@@ -44,7 +45,7 @@ public class AddGradeItemPanelContent extends Panel {
             categoryMap.put(category.getId(), category.getName());
         }
 
-        add(new DropDownChoice("category", new PropertyModel(assignment, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
+        DropDownChoice categoryDropDown = new DropDownChoice("category", new PropertyModel(assignment, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
             public Object getDisplayValue(Long value) {
                 return categoryMap.get(value);
             }
@@ -52,6 +53,12 @@ public class AddGradeItemPanelContent extends Panel {
             public String getIdValue(Long object, int index) {
                 return object.toString();
             }
-        }));
+        });
+        categoryDropDown.setNullValid(true);
+        add(categoryDropDown);
+
+        add(new CheckBox("extraCredit", new PropertyModel(assignment, "extraCredit")));
+        add(new CheckBox("released", new PropertyModel(assignment, "released")));
+        add(new CheckBox("counted", new PropertyModel(assignment, "counted")));
     }
 }
