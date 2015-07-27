@@ -325,17 +325,8 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
     vertical-align: top
 }
 
-.statusCol,.contentCol {
+.statusCol, .contentCol {
  display: inline-block;
-/*
-    position: absolute;
-    top:2px;
-    left:2px;
-    z-index:2;
-*/
-}
-.contentCol {
-
 }
 .link-div h3.link-div-head {
     display:inline;
@@ -490,10 +481,12 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 }
 /* also uses nextprev. this is specific for ShowItem */
 .returnheader a:link, .returnheader a:visited {
-	background-color: #fee !important
+	background-color: #fee !important;
+	color:black !important;
 }
 .returnheader a:hover, returnheader  a:active {
-	background-color: #edd !important
+	background-color: #edd !important;
+	color:black !important;
 }
 /* Comments */
 h3.author {
@@ -580,6 +573,9 @@ vertical-align:top;
 .link-div .usebutton {
 	font-size: 160%
 }
+.link-div {
+	display:inline;
+}
 .add-comment-button {
 	margin: 7px 0px 2px 0px
 }
@@ -619,19 +615,25 @@ a.peer-eval-stats {
 .studentContentTitle {
     display:block;
     margin-bottom: 0.25em;
-    margin-top: 15px;
+    margin-left: 2em;
     font-size: 110%;
 }
 .studentContentTable {
+        margin-top:10px;
 	border: none;
-/*	background-color: #e4edff; */
-	padding: 4px;
-	padding-top: 0.0em;
-	padding-left: 8px;
+	background-color: #e4edff; 
+	padding: 14px 8px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
 }
 .studentContentTable .studentRow{
-/*    padding:5px 0; */
+    padding:1px 8px;
 }
+.studentContentTable .studentLink{
+    padding-left:8px;
+}
+
 
 .duecol {
 	padding-left: 2em !important
@@ -762,7 +764,7 @@ background-color: #e8e8e8
 	background-color: #F8F8F8;
 }
 .linkCell {
-	margin-top: 0.5em
+	margin-top: 1.5em
 }
 .itemcopylink {
 	display: none;
@@ -802,7 +804,15 @@ background-color: #e8e8e8
 	width: 250px;
 }
 
-input[type="submit"].question-submit {
+.addStudentContent {
+ -webkit-border-radius: 3px;
+ -moz-border-radius: 3px;
+ border-radius: 3px;
+ border:solid black 1px;
+ text-decoration:none;
+ font-size:85%;
+}
+input[type="submit"].question-submit,.addStudentContent {
 /*
    height:auto !important;
    box-shadow: none !important;
@@ -817,13 +827,12 @@ input[type="submit"].question-submit {
 
 .questionDiv .contentCol {
  margin-top:5px;
- padding: 5px;
- padding-left: 10px;
+ padding: 15px;
  padding-right: 30px;
-/* background-color: #e4edff; 
+ background-color: #e4edff;
  -webkit-border-radius: 10px;
  -moz-border-radius: 10px;
- border-radius: 10px; */
+ border-radius: 10px;
 }
 
 .questionDivControl {
@@ -1224,7 +1233,12 @@ width:calc(100% - 80px);
 left:0px;
 width:calc(100% - 100px);
 }
-
+li.listType .contentCol {
+width:calc(100% - 20px);
+}
+li.question .contentCol
+width:calc(100% - 50px);  /* because of a 30 px right margin */
+}
 /* links should be spaced as close as possible to each other, so override padding */
 li.resourceType .right-col {
   padding-top: 0px;
