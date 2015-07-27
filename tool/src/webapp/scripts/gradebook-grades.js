@@ -866,6 +866,9 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
     var $th = $(this);
     var model = $th.data("model");
     var category = $th.find("[data-category]:first").data("category");
+
+    self._CATEGORY_DATA[category] = self._CATEGORY_DATA[category] || {};
+
     self._CATEGORY_DATA[category]["scoreHeaderModel"] = model;
     self._CATEGORY_DATA[category]["totalHeaderIndex"] = $th.index();
   });

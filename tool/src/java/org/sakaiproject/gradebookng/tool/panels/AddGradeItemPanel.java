@@ -9,16 +9,16 @@ import org.apache.wicket.feedback.FeedbackMessage;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.model.GbAssignment;
-import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.lang.Exception;
 
@@ -37,16 +37,16 @@ public class AddGradeItemPanel extends Panel {
 	public AddGradeItemPanel(String id, final ModalWindow window) {
 		super(id);
 
-		GbAssignmentModel model = new GbAssignmentModel(new GbAssignment());
+		Assignment assignment = new Assignment();
+		Model model = new Model(assignment);
 
-		Form<?> form = new Form("addGradeItemForm", model);
+		Form form = new Form("addGradeItemForm", model);
 
 		AjaxButton submit = new AjaxButton("submit") {
 			private static final long serialVersionUID = 1L;
 			@Override
-			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
-				GbAssignment model =  (GbAssignment) form.getModelObject();
-				Assignment assignment = model.convert2Assignment();
+			public void onSubmit(AjaxRequestTarget target, Form form) {
+				Assignment assignment =  (Assignment) form.getModelObject();
 
 				boolean success = true;
 				try {
@@ -65,7 +65,7 @@ public class AddGradeItemPanel extends Panel {
 					success = false;
 				}
 				if (success) {
-					getSession().info(new ResourceModel("notification.addgradeitem.success").getObject());
+					getSession().info(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
 					setResponsePage(getPage().getPageClass());
 				} else {
 					target.addChildren(form, FeedbackPanel.class);
