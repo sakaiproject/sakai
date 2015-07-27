@@ -300,6 +300,12 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 .mainList li.question .multipleChoiceForm input.bold {
 /*    margin:5px 0px 0px 20px !important */
 }
+.multipleChoiceAnswer label {
+  margin-left: 5px;
+}
+.shortanswerDiv .bold {
+  display: block;
+}
 .questionStatusText {
 /*    padding: 15px 20px; */
 }
@@ -329,7 +335,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 */
 }
 .contentCol {
-    width:95%;
+
 }
 .link-div h3.link-div-head {
     display:inline;
@@ -580,7 +586,7 @@ vertical-align:top;
 	margin: 0px 0px 2px 0px
 }
 .add-comment-button span, .add-peereval-button span {
-	padding: 2px 8px 2px 8px
+	padding: 4px 8px;
 }
 a.peer-eval-stats {
         font-size:75% !important
@@ -796,9 +802,16 @@ background-color: #e8e8e8
 }
 
 input[type="submit"].question-submit {
+/*
    height:auto !important;
    box-shadow: none !important;
    border: solid 1px #d3d3d3 !important;
+*/
+   margin-top:15px;
+   border-color:#aaa;
+   padding:6px 20px !important;
+   background:none;
+   font-weight: normal;
 }
 
 .questionDiv .contentCol {
@@ -806,10 +819,10 @@ input[type="submit"].question-submit {
  padding: 5px;
  padding-left: 10px;
  padding-right: 30px;
- background-color: #e4edff;
+/* background-color: #e4edff; 
  -webkit-border-radius: 10px;
  -moz-border-radius: 10px;
- border-radius: 10px;
+ border-radius: 10px; */
 }
 
 .questionDivControl {
@@ -1027,9 +1040,6 @@ a.Mrphs-toolTitleNav__link--reset {
 /*
  alternate treatment for list - can go in tool.css
 */
-.edit-col {
-/* top: 0.35em; */
-}
 .right-col {
  display: inline-block;
  position:relative;
@@ -1179,16 +1189,22 @@ border:1px solid transparent;
 background-color:transparent;
 }
 .edit-col {
-
+margin-top:5px;
 display:inline-block;
-
+position:relative!important;
+}
+.right-col a {
+color:inherit;
 }
 .right-col {
 postion:static;
 margin-top: 0px !important;
 margin-left: 0px;
-width:calc(100% - 40px);
+/* for student view, instructor overriden below */
+width:calc(100% - 80px);
 }
+
+
 
 /* default content */
 .right-col {
@@ -1199,13 +1215,13 @@ width:calc(100% - 40px);
   border-right: solid #c8c8c8 1px;
   padding-top:3px;
   padding-bottom:3px;
-  padding-left: 15px;
-  padding-right: 15px;
+  padding-left: 25px;
+  padding-right: 25px;
 }
 
 .edit-col + .right-col {
 left:0px;
-width:calc(100% - 10em);
+width:calc(100% - 100px);
 }
 
 /* links should be spaced as close as possible to each other, so override padding */
@@ -1215,17 +1231,16 @@ li.resourceType .right-col {
 }
 
 /* separation between areas */
-.right-col-top .right-col {
+li.right-col-top .right-col {
  border-top: solid #c8c8c8 1px;
- margin-top: 10px; 
- padding-top:10px;
+ margin-top: 10px !important;
+ padding-top:17px;
  border-top-left-radius:5px;
  border-top-right-radius:5px;
 }
-.right-col-bottom .right-col {
- padding-bottom:10px;
+li.right-col-bottom .right-col {
+ padding-bottom:20px;
  border-bottom: solid #c8c8c8 1px;
- margin-bottom: 10px;
  border-bottom-left-radius:5px;
  border-bottom-right-radius:5px;
 }
@@ -1236,7 +1251,15 @@ li.resourceType .right-col {
 .itemclass {
  margin-top:2.0em !important;
 }
-
+.add-comment-button span {
+font-size: 90%;
+}
+.add-comment-button a {
+ padding: 3px 7px;
+}
+.questionDivControl a, .commentsDiv a.gradingPaneLink{
+ padding: 5px 10px;
+}
 @media only screen and (max-width: 1000px) {
 .group-col {
 margin-right: 1px;
@@ -1245,11 +1268,18 @@ margin-left:1px;
 .right-col{
   padding-top:2px;
   padding-bottom:2px;
-  padding-left: 10px;
-  padding-right: 3px;
+  padding-left: 15px;
+  padding-right: 15px;
+  width:calc(100% - 55px);
 }
 .edit-col + .right-col {
 width:calc(100% - 80px);
+}
+li.right-col-top .right-col {
+ padding-top:12px;
+}
+li.right-col-bottom .right-col {
+ padding-bottom:15px;
 }
 }
 @media only screen and (max-width: 800px) {
@@ -1266,7 +1296,7 @@ div.group-col {
   display:none !important;
 }
 .edit-col + .right-col {
-width:calc(100% - 50px);
+width:calc(100% - 80px);
 }
 }
 
@@ -1284,7 +1314,7 @@ width:calc(100% - 50px);
 }
 .right-col-top .group-col {
   left:20px;
-  top:-20px;
+  top:-9px;
 }
 .group-col img{
   border:none;

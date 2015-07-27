@@ -1878,7 +1878,7 @@ $(document).ready(function() {
         e.preventDefault();
 		var pollGraph = $(this).parents(".questionDiv").find(".questionPollGraph");
 		
-		if($(this).find("span").text() === $(this).parent().find(".show-poll").text()) {
+		if($(this).attr("value") === $(this).parents(".questionDiv").find(".show-poll").text()) {
 			pollGraph.empty();
 			var pollData = [];
 			pollGraph.parent().find(".questionPollData").each(function(index) {
@@ -1891,12 +1891,12 @@ $(document).ready(function() {
 			pollGraph.show();
 			pollGraph.jqBarGraph({data: pollData, height:100, speed:1});
 			
-			$(this).find("span").text($(this).parent().find(".hide-poll").text());
+			$(this).attr("value",($(this).parents(".questionDiv").find(".hide-poll").text()));
 		}else {
 			pollGraph.hide();
 			pollGraph.empty();
 			
-			$(this).find("span").text($(this).parent().find(".show-poll").text());
+			$(this).attr("value",($(this).parents(".questionDiv").find(".show-poll").text()));
 		}
 
         resizeFrame('grow');
