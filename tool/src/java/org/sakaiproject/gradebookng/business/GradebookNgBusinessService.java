@@ -288,17 +288,44 @@ public class GradebookNgBusinessService {
 	 * Get a list of categories in the gradebook in the specified site
 	 * 
 	 * @param siteId the siteId
-	 * @return a list of categories or null if no gradebook
+	 * @return a list of categories or empty if no gradebook
 	 */
 	public List<CategoryDefinition> getGradebookCategories(String siteId) {
 		Gradebook gradebook = getGradebook(siteId);
+		
+		List<CategoryDefinition> rval = new ArrayList<>();
+		
 		if(gradebook != null) {
-			return gradebookService.getCategoryDefinitions(gradebook.getUid());
+			rval = gradebookService.getCategoryDefinitions(gradebook.getUid());
+		}
+		
+		//filter for TAs
+		if(this.getUserRole(siteId) == GbRole.TA) {
+			User user = this.getCurrentUser();
 			
-			//TODO if TA need to filter here
+			//build a list of categoryIds
+			List<Long> allCategoryIds = new ArrayList<>();
+			for(CategoryDefinition cd: rval) {
+				allCategoryIds.add(cd.getId());
+			}
+			
+			//get a list of category ids the user can actually view
+			//TODO edit this API method to remove the category type. It is unused.
+			List<Long> viewableCategoryIds = this.gradebookPermissionService.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds, GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
+			
+			//remove the ones that the user can't view
+			Iterator<CategoryDefinition> iter = rval.iterator();
+			while (iter.hasNext()) {
+				CategoryDefinition categoryDefinition = iter.next();
+				if(!viewableCategoryIds.contains(categoryDefinition.getId())) {
+					iter.remove();
+				}
+			}
 			
 		}
-		return null;
+		
+		
+		return rval;
 	}
 		
 	/**
@@ -700,13 +727,13 @@ public class GradebookNgBusinessService {
 						
 			//get the ones the TA can actually view
 			//note that if a group is empty, it will not be included.
-			List<String> viewableGroups = this.gradebookPermissionService.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
+			List<String> viewableGroupIds = this.gradebookPermissionService.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
 		
 			//remove the ones that the user can't view
 			Iterator<GbGroup> iter = rval.iterator();
 			while (iter.hasNext()) {
 				GbGroup group = iter.next();
-				if(!viewableGroups.contains(group.getId())) {
+				if(!viewableGroupIds.contains(group.getId())) {
 					iter.remove();
 				}
 			}
