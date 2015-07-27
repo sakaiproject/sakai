@@ -866,6 +866,9 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
     var $th = $(this);
     var model = $th.data("model");
     var category = $th.find("[data-category]:first").data("category");
+
+    self._CATEGORY_DATA[category] = self._CATEGORY_DATA[category] || {};
+
     self._CATEGORY_DATA[category]["scoreHeaderModel"] = model;
     self._CATEGORY_DATA[category]["totalHeaderIndex"] = $th.index();
   });
@@ -1135,6 +1138,11 @@ GradebookSpreadsheet.prototype.setupPopovers = function() {
   self.enablePopovers(self.$table);
 
   self.$spreadsheet.on("focus", '[data-toggle="popover"]', function(event) {
+    if (self.suppressPopover) {
+      self.suppressPopover = false;
+      return;
+    }
+
     if (self.$spreadsheet.find(".popover:visible")) {
       self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
     }
@@ -1146,15 +1154,24 @@ GradebookSpreadsheet.prototype.setupPopovers = function() {
   self.$spreadsheet.on("click", ".popover", function(event) {
     self.popoverClicked = true;
   }).on("click", ":not(.popover)", function(event) {
-    self.popoverClicked = false;
-    if (self.$spreadsheet.find(".popover:visible") && $(event.target).closest(".popover").length == 0) {
-      self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
+    if ($(event.target).closest(".popover").length == 0) {
+      self.popoverClicked = false;
+      if (self.$spreadsheet.find(".popover:visible") && $(event.target).closest(".popover").length == 0) {
+        self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
+      }
     }
   }).on("click", ".popover .gb-popover-edit-comments", function(event) {
     var $notification = $(event.target).closest(".gb-popover-notification-has-comment");
     var cell = self.getCellModelForStudentAndAssignment($notification.data("studentuuid"), $notification.data("assignmentid"));
     cell.$cell.find(".gb-edit-comments").trigger("click");
     self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
+  }).on("click", ".popover .gb-popover-close", function(event) {
+    var $link = $(this);
+    var cell = self.getCellModelForStudentAndAssignment($link.data("studentuuid"), $link.data("assignmentid"));
+    self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
+    self.suppressPopover = true;
+    self.popoverClicked = false;
+    cell.$cell.focus();
   });
 };
 
@@ -1168,13 +1185,14 @@ GradebookSpreadsheet.prototype.enablePopovers = function($target) {
   $popovers.popover({
     trigger: 'manual'
   }).blur(function(event) {
-    console.log(event.target);
     clearTimeout($(event.target).data("popoverShowTimeout"));
     $(event.target).data("popoverHideTimeout", setTimeout(function() {
       if (!self.popoverClicked) {
         $(event.target).popover("hide");
       }
     }, 100));
+  }).on("hidden.bs.popover", function() {
+    self.popoverClicked = false;
   });
 
   // Ensure the popover doesn't get in the way of the dropdown menu

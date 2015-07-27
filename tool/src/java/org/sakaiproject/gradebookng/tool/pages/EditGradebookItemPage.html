@@ -12,75 +12,7 @@
 			</h2>
 
 			<div class="form-group">
-				<div class="form-group form-group-sm">
-					<label wicket:for="name" class="col-xs-3 control-label">
-						<wicket:message key="label.editgradeitem.title" />
-					</label>
-					<div class="col-xs-7">
-						<input wicket:id="name" type="text" class="form-control" placeholder="Week 1 assignment" />
-					</div>
-				</div>
-				<div class="form-group form-group-sm">
-					<label wicket:for="points" class="col-xs-3 control-label">
-						<wicket:message key="label.editgradeitem.points" />
-					</label>
-					<div class="col-xs-2">
-						<input wicket:id="points" type="text" class="form-control" placeholder="100" />
-					</div>
-				</div>
-				<div class="form-group form-group-sm">
-					<div class="col-xs-offset-3 col-xs-6">
-						<div class="checkbox">
-							<label>
-								<input wicket:id="extraCredit" type="checkbox" />
-								<wicket:message key="label.editgradeitem.extracredit" />
-							</label>
-						</div>
-					</div>
-				</div>
-				<div class="form-group form-group-sm">
-					<label wicket:for="dueDate" class="col-xs-3 control-label">
-						<wicket:message key="label.editgradeitem.due" />
-					</label>
-					<div class="col-xs-4">
-						<input wicket:id="dueDate" type="text" class="form-control" placeholder="dd/mm/yy" aria-describedby="duedate-help" />
-						<span id="duedate-help" class="help-block">
-							<wicket:message key="label.editgradeitem.due.help" />
-						</span>
-					</div>
-				</div>
-				<!--
-				<div class="form-group form-group-sm">
-					<label wicket:for="categoryName" class="col-xs-3 control-label">
-						<wicket:message key="label.editgradeitem.category" />
-					</label>
-					<div class="col-xs-6">
-						<select wicket:id="categoryName" class="form-control">
-							<option>test</option>
-						</select>
-					</div>
-				</div>
-				-->
-				<div class="form-group form-group-sm">
-					<div class="col-xs-offset-3 col-xs-6">
-						<div class="checkbox">
-							<label> 
-								<input wicket:id="released" type="checkbox" /> 
-								<wicket:message key="label.editgradeitem.release" />
-							</label>
-						</div>
-					</div>
-				</div>
-				<div class="form-group form-group-sm">
-					<div class="col-xs-offset-3 col-xs-6">
-						<div class="checkbox">
-							<label>
-								<input wicket:id="counted" type="checkbox" />
-								<wicket:message key="label.editgradeitem.include" />
-							</label>
-						</div>
-					</div>
-				</div>
+				<div wicket:id="subComponents"></div>
 
 				<div class="col-xs-offset-3 col-xs-5">
 					<input type="submit" class="active" wicket:message="value:button.savechanges" />

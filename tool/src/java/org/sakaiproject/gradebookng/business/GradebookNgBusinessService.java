@@ -1125,7 +1125,7 @@ public class GradebookNgBusinessService {
     	 String currentUserId = this.getCurrentUser().getEid();
     	     	 
     	 //get the notifications for this gradebook
-    	 Map<String,Map<String,GbGradeCell>> notifications = (Map<String,Map<String,GbGradeCell>>) cache.get(gradebookUid);
+    	 Map<String,Map<String,GbGradeCell>> notifications = new HashMap<String,Map<String,GbGradeCell>>((Map<String,Map<String,GbGradeCell>>) cache.get(gradebookUid));
     	 
     	 List<GbGradeCell> rval = new ArrayList<>();
     	 

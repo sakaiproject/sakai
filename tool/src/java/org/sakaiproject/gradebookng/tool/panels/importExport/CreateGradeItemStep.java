@@ -9,9 +9,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
-import org.sakaiproject.gradebookng.business.model.GbAssignment;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
-import org.sakaiproject.gradebookng.tool.model.GbAssignmentModel;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
@@ -50,19 +48,19 @@ public class CreateGradeItemStep extends Panel {
         assignment.setName(processedGradeItem.getItemTitle());
         assignment.setPoints(Double.parseDouble(processedGradeItem.getItemPointValue()));
 
-        GbAssignmentModel gbAssignmentModel = new GbAssignmentModel(new GbAssignment(assignment));
+        Model assignmentModel = new Model(assignment);
 
-        Form<GbAssignmentModel> form = new Form<GbAssignmentModel>("form", gbAssignmentModel)
+        Form form = new Form("form", assignmentModel)
         {
             @Override
             protected void onSubmit()
             {
                 List<Assignment> assignmentsToCreate = new ArrayList<Assignment>();
-                GbAssignmentModel submittedModel = (GbAssignmentModel)getDefaultModel();
-                GbAssignment assignment = (GbAssignment)submittedModel.getObject();
+                Model submittedModel = (Model)getDefaultModel();
+                Assignment assignment = (Assignment)submittedModel.getObject();
 
                 if (assignment != null)
-                    assignmentsToCreate.add(assignment.convert2Assignment());
+                    assignmentsToCreate.add(assignment);
                 LOG.debug("Assignment: " + assignment);
 //                info("assignment: " + getDefaultModelObjectAsString());
                 //Figure out if there are more steps
@@ -106,7 +104,7 @@ public class CreateGradeItemStep extends Panel {
 
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
 
-        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", gbAssignmentModel);
+        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", assignmentModel);
 
         form.add(gradePanelContent);
 
