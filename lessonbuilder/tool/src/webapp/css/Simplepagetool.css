@@ -340,6 +340,7 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 .link-div h3.link-div-head {
     display:inline;
     font-size:100%;
+    margin-left:3px;
 }
 
 .ui-button-text {
