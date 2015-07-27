@@ -737,3 +737,7 @@ ul.feedbackPanel {
 #gradebookGrades .gb-cell-out-of-date.gb-cell-editing > div:before {
   color: #a94442;
 }
+/* Datepicker */
+.ui-datepicker {
+  z-index: 50000 !important;
+}

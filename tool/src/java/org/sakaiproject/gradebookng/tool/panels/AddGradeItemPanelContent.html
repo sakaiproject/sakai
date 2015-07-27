@@ -9,7 +9,7 @@
 					<wicket:message key="label.addgradeitem.title" />
 				</label>
 				<div class="col-xs-7">
-     				<input wicket:id="title" type="text" class="form-control" placeholder="Week 1 assignment" />
+     				<input wicket:id="title" type="text" class="form-control" />
    	 			</div>
 			</div>
 			<div class="form-group form-group-sm">
@@ -17,7 +17,7 @@
 					<wicket:message key="label.addgradeitem.points" />
 				</label>
 				<div class="col-xs-2">
-					<input wicket:id="points" type="text" class="form-control" placeholder="100" />
+					<input wicket:id="points" type="text" class="form-control" />
 				</div>
 			</div>
 			<div class="form-group form-group-sm">
@@ -35,8 +35,38 @@
 					<wicket:message key="label.addgradeitem.due" />
 				</label>
 				<div class="col-xs-4">
-					<input wicket:id="duedate" type="text" class="form-control" placeholder="dd/mm/yy" aria-describedby="duedate-help"/>
-					<span id="duedate-help" class="help-block"><wicket:message key="label.addgradeitem.due.help" /></span>
+                    <div class="input-group">
+                        <input wicket:id="duedate" type="text" class="form-control gb-datepicker" placeholder="mm/dd/yyyy" aria-describedby="duedate-help"/>
+                        <span class="input-group-btn">
+                            <button class="btn btn-sm btn-default invoke-datepicker-btn" type="button"><span class="glyphicon glyphicon-calendar"></span></button>
+                            <button class="btn btn-sm btn-default clear-datepicker-btn" type="button"><span class="glyphicon glyphicon-remove"></span></button>
+                        </span>
+                    </div>
+                    <script>
+                        var initDatePickers = function () {
+                            $('.gb-datepicker').each(function() {
+                                var $datepicker = $(this);
+    
+                                localDatePicker({
+                                    input: '#' + $datepicker.attr('id'),
+                                    useTime: 0,
+                                    icon: 0,
+                                    parseFormat: 'DD/MM/YYYY'
+                                })
+    
+                                // setup input button to trigger date-time picker
+                                $datepicker.siblings().find(".invoke-datepicker-btn").click(function() {
+                                    $datepicker.focus();
+                                });
+    
+                                // add clear action if present
+                                $datepicker.siblings().find(".clear-datepicker-btn").click(function() {
+                                    $datepicker.val("");
+                                });
+                            });
+                        };
+                        initDatePickers();
+                    </script>
 				</div>
 			</div>
 			<div class="form-group form-group-sm">

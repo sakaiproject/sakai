@@ -3,6 +3,13 @@
 	xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
 
 <body>
+	<wicket:head>
+		<wicket:link>
+			<!-- Include Sakai Date Picker -->
+			<script src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+			<script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
+		</wicket:link>
+	</wicket:head>
 	<wicket:extend>
 
 		<form class="form-horizontal" wicket:id="form">

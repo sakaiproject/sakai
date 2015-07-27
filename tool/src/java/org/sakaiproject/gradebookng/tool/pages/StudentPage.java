@@ -114,7 +114,7 @@ public class StudentPage extends BasePage {
 			return getString("label.studentsummary.noduedate");
 		}
 		
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
     	return df.format(date);
 	}
 	
