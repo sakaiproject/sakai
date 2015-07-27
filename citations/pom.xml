@@ -51,9 +51,4 @@
     </dependencies>
   </dependencyManagement>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/citations/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/citations/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/citations/trunk</url>
-  </scm>
 </project>

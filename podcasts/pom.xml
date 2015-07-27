@@ -12,11 +12,6 @@
   <artifactId>podcasts-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/podcasts/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/podcasts/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/podcasts/trunk</url>
-  </scm>
   <modules>
     <module>pack</module>
     <module>podcasts</module>

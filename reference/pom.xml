@@ -12,11 +12,6 @@
   <artifactId>reference-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/reference/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/reference/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/reference/trunk</url>
-  </scm>
   <modules>
     <module>library</module>
   </modules>

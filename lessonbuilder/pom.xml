@@ -233,11 +233,6 @@
         </profile>
     </profiles>
 
-    <scm>
-       <connection>scm:svn:https://source.sakaiproject.org/svn/lessonbuilder/trunk</connection>
-       <developerConnection>scm:svn:https://source.sakaiproject.org/svn/lessonbuilder/trunk</developerConnection>
-       <url>https://source.sakaiproject.org/svn/lessonbuilder/trunk</url>
-    </scm>
 
     <distributionManagement>
         <site>

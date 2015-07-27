@@ -35,11 +35,6 @@
         <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
     </issueManagement>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/sakai/trunk</url>
-    </scm>
 
     <profiles>
         <profile>

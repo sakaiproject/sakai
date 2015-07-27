@@ -47,11 +47,6 @@
         <module>cxf</module>
     </modules>
     
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/webservices/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/webservices/trunk</url>
-    </scm>
     
     <distributionManagement>
         <site>

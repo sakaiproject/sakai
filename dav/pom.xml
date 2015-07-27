@@ -12,11 +12,6 @@
   <artifactId>dav-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/dav/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/dav/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/dav/trunk</url>
-  </scm>
   <modules>
     <module>dav</module>
     <module>dav-common</module>

@@ -13,11 +13,6 @@
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/user/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/user/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/user/trunk</url>
-  </scm>
 
   <profiles>
     <profile>

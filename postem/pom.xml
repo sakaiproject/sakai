@@ -36,9 +36,4 @@
       </dependency>
     </dependencies>
   </dependencyManagement>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/postem/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/postem/trunk</url>
-  </scm>
 </project>

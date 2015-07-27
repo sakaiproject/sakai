@@ -72,11 +72,6 @@
     </profile>
   </profiles>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

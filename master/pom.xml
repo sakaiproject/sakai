@@ -67,9 +67,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/master/trunk</url>
+    <url>https://github.com/sakaiproject/sakai</url>
+    <connection>scm:git:git://github.com/sakaiproject/sakai.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/sakaiproject/sakai.git</developerConnection>
   </scm>
 
   <properties>

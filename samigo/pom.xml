@@ -32,11 +32,6 @@
 		<module>samlite-impl</module>
 	</modules>
 	
-	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/sam/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/sam/trunk</url>
-	</scm>
 
 	<distributionManagement>
 		<site>

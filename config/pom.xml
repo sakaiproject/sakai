@@ -33,11 +33,6 @@
             <timezone>-5</timezone>
         </developer>
     </developers>
-	<scm>
-		<connection>scm:svn:https://source.sakaiproject.org/svn/config/trunk</connection>
-		<developerConnection>scm:svn:https://source.sakaiproject.org/svn/config/trunk</developerConnection>
-		<url>https://source.sakaiproject.org/svn/config/trunk</url>
-	</scm>
 	<modules>
 		<module>configuration/bundles</module>
 		<module>localization/bundles</module>
