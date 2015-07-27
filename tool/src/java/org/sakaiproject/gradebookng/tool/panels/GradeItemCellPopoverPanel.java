@@ -21,6 +21,11 @@ public class GradeItemCellPopoverPanel extends Panel {
 
 		final Map<String, Object> modelData = model.getObject();
 
+		WebMarkupContainer closePopoverLink = new WebMarkupContainer("closePopoverLink");
+		closePopoverLink.add(new AttributeModifier("data-assignmentid", (Long) modelData.get("assignmentId")));
+		closePopoverLink.add(new AttributeModifier("data-studentUuid", (String) modelData.get("studentUuid")));
+		add(closePopoverLink);
+
 		WebMarkupContainer saveErrorNotification = new WebMarkupContainer("saveErrorNotification");
 		saveErrorNotification.setVisible(notifications.contains(GradeItemCellPanel.GradeCellNotification.ERROR));
 		saveErrorNotification.add(new Label("message", new ResourceModel(GradeItemCellPanel.GradeCellNotification.ERROR.getMessage())));
