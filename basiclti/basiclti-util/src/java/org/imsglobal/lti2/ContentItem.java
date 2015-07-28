@@ -77,8 +77,11 @@ public class ContentItem {
 
 	public static final String ACCEPT_MEDIA_TYPES = "accept_media_types";
 	public static String MEDIA_LTILINK = "application/vnd.ims.lti.v1.ltilink";
-	// http://www.ietf.org/mail-archive/web/ietf-types/current/msg00754.html
-	public static final String MEDIA_CC = "application/imsccml+xml";
+	// http://www.iana.org/assignments/media-types/media-types.xhtml
+	public static final String MEDIA_CC_1_1 = "application/vnd.ims.imsccv1p1";
+	public static final String MEDIA_CC_1_2 = "application/vnd.ims.imsccv1p2";
+	public static final String MEDIA_CC_1_3 = "application/vnd.ims.imsccv1p3";
+	public static final String MEDIA_CC = MEDIA_CC_1_3+","+MEDIA_CC_1_2+","+MEDIA_CC_1_3;
 
 	public static final String TYPE_LTILINK = "LtiLink";
 	public static final String TYPE_CONTENTITEM = "ContentItem";
