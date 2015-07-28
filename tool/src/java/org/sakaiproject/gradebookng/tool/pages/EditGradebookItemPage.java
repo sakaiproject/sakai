@@ -45,7 +45,7 @@ public class EditGradebookItemPage extends BasePage {
 		Assignment assignment = this.businessService.getAssignment(assignmentId);
 		
 		//form model
-		Model formModel = new Model(assignment);
+		Model<Assignment> formModel = new Model<Assignment>(assignment);
 		
 		//build form
 		Form<Assignment> form = new Form<Assignment>("form", formModel) {

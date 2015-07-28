@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -13,6 +15,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
+import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.List;
@@ -30,12 +33,12 @@ public class AddGradeItemPanelContent extends Panel {
     @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
   
-    public AddGradeItemPanelContent(String id, Model assignment) {
+    public AddGradeItemPanelContent(String id, Model<Assignment> assignment) {
         super(id, assignment);
 
-        add(new TextField("title", new PropertyModel(assignment, "name")));
-        add(new TextField("points", new PropertyModel(assignment, "points")));
-        add(new DateTextField("duedate", new PropertyModel(assignment, "dueDate"), "MM/dd/yyyy"));
+        add(new TextField<String>("title", new PropertyModel<String>(assignment, "name")));
+        add(new TextField<Double>("points", new PropertyModel<Double>(assignment, "points")));
+        add(new DateTextField("duedate", new PropertyModel<Date>(assignment, "dueDate"), "MM/dd/yyyy")); //TODO needs to come from i18n
 
         List<CategoryDefinition> categories = businessService.getGradebookCategories();
 
@@ -44,8 +47,10 @@ public class AddGradeItemPanelContent extends Panel {
             categoryMap.put(category.getId(), category.getName());
         }
 
-        DropDownChoice categoryDropDown = new DropDownChoice("category", new PropertyModel(assignment, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
-            public Object getDisplayValue(Long value) {
+        DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category", new PropertyModel<Long>(assignment, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
+			private static final long serialVersionUID = 1L;
+
+			public Object getDisplayValue(Long value) {
                 return categoryMap.get(value);
             }
 
@@ -56,8 +61,33 @@ public class AddGradeItemPanelContent extends Panel {
         categoryDropDown.setNullValid(true);
         add(categoryDropDown);
 
-        add(new CheckBox("extraCredit", new PropertyModel(assignment, "extraCredit")));
-        add(new CheckBox("released", new PropertyModel(assignment, "released")));
-        add(new CheckBox("counted", new PropertyModel(assignment, "counted")));
+        add(new CheckBox("extraCredit", new PropertyModel<Boolean>(assignment, "extraCredit")));
+       
+        final AjaxCheckBox released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignment, "released")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				//nothing required
+			}
+        };
+        released.setOutputMarkupId(true);
+        add(released);
+        
+        //if checked, release must also be checked
+        final AjaxCheckBox counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignment, "counted")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				if(this.getModelObject()) {
+					released.setModelObject(true);
+					target.add(released);
+				}
+			}
+        };
+        
+        add(counted);
+        
     }
 }

@@ -38,7 +38,7 @@ public class AddGradeItemPanel extends Panel {
 		super(id);
 
 		Assignment assignment = new Assignment();
-		Model model = new Model(assignment);
+		Model<Assignment> model = new Model<Assignment>(assignment);
 
 		Form form = new Form("addGradeItemForm", model);
 
