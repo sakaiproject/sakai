@@ -367,7 +367,7 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public void removeSectionAttachment(Long sectionAttachmentId);
 
-  public void saveOrUpdateAttachments(List list);
+  public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
   
   public TreeMap getGroupsForSite();
   public PublishedAssessmentFacade getPublishedAssessmentInfoForRemove(Long publishedAssessmentId);

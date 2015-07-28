@@ -20,9 +20,13 @@
  **********************************************************************************/
 package org.sakaiproject.site.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdInvalidException;
@@ -39,37 +43,35 @@ import org.sakaiproject.tool.api.SessionManager;
 import java.util.List;
 
 public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKernelTestBase {
-
+	private static Log log = LogFactory.getLog(SiteAliasCleanupNotificationActionIntegrationTest.class);
 	private Session session;
 
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(SiteAliasCleanupNotificationActionIntegrationTest.class)) {
-			protected void setUp() throws Exception {
-				oneTimeSetup();
-			}
-			protected void tearDown() throws Exception {	
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+			oneTimeSetup();
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
 	
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		startSession();
-		super.setUp();
 	}
 
     /**
      * This does not test anything, it just makes sure we have one active test in the class
      */
+	@Test
     public void testNothing() {
-        assertEquals(1, 1);
+        Assert.assertEquals(1, 1);
     }
 
     /**
      * DISABLED this test since it no longer works, the functionality still does though - KNL-1162
      */
-	@SuppressWarnings("unchecked")
+	@Test
 	public void disabledTestSiteDeletionTriggersSiteAliasDeletion()
 	throws IdInvalidException, IdUsedException, PermissionException {
 		IdManager idManager = getService(IdManager.class);
@@ -85,7 +87,7 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		
 		// sanity check
 		List createdSiteAliases = aliasService.getAliases(site.getReference());
-		assertFalse("Expected at least one alias to be created during fixture setup", 
+		Assert.assertFalse("Expected at least one alias to be created during fixture setup", 
 				createdSiteAliases.isEmpty());
 		
 		// the "real" code exercise
@@ -97,7 +99,7 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		}
 		
 		List remainingSiteAliases = aliasService.getAliases(site.getReference());
-		assertEquals("Expected all site aliases to be deleted on site deletion", 0, 
+		Assert.assertEquals("Expected all site aliases to be deleted on site deletion", 0, 
 				remainingSiteAliases.size());
 	}
 	
@@ -114,9 +116,9 @@ public class SiteAliasCleanupNotificationActionIntegrationTest extends SakaiKern
 		if ( session != null ) session.invalidate();
 	}
 	
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		endSession();
-		super.tearDown();
 	}
 	
 }

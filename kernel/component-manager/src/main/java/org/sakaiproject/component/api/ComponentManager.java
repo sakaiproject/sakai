@@ -39,9 +39,9 @@ public interface ComponentManager
 	 * 
 	 * @param iface
 	 *        The interface Class.
-	 * @return a component instance the type of the class, or null if not found.
+	 * @return a component instance, or null if not found.
 	 */
-	<T> T get(Class<T> iface);
+	<T> T get(Class <T> iface);
 
 	/**
 	 * Find a component that is registered to provide this interface.

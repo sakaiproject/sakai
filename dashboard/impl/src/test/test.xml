@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<beans>
 	<bean id="mockServerConfigurationService" class="org.sakaiproject.dash.mock.MockServerConfigurationService">
 	</bean>
 
@@ -62,24 +62,8 @@
     	class="org.sakaiproject.dash.dao.impl.DashboardDaoImpl"
     	init-method="init">
         <property name="jdbcTemplate">
-            <ref local="jdbcTemplate"/>
+            <ref bean="jdbcTemplate"/>
         </property>
         <property name="serverConfigurationService" ref="mockServerConfigurationService" />
     </bean>
-
-    <bean id="org.sakaiproject.dash.test.DashboardDaoTest"
-        class="org.sakaiproject.dash.test.DashboardDaoTest">
-        <property name="dependencyCheck">
-            <value>false</value>
-        </property>
-        <property name="dashboardDao" ref="org.sakaiproject.dash.dao.DashboardDao" />
-    </bean>
-
-    <bean id="org.sakaiproject.dash.test.DashboardLogicTest"
-        class="org.sakaiproject.dash.test.DashboardLogicTest">
-        <property name="dependencyCheck">
-            <value>false</value>
-        </property>
-    </bean>
-
 </beans>

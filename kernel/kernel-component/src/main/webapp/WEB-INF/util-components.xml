@@ -1,27 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<bean id="org.sakaiproject.id.api.IdManager"
 			class="org.sakaiproject.id.impl.UuidV4IdComponent"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
-	</bean>
+			destroy-method="destroy"/>
 
 	<bean id="org.sakaiproject.thread_local.api.ThreadLocalManager"
 			class="org.sakaiproject.thread_local.impl.ThreadLocalComponent"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
-	</bean>
+			destroy-method="destroy"/>
 
 	<bean id="org.sakaiproject.time.api.TimeService"
 			class="org.sakaiproject.time.impl.BasicTimeService"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 			<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
 			<property name="preferencesService" ref="org.sakaiproject.user.api.PreferencesService"/>
 			<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
@@ -30,8 +25,7 @@
 	<bean id="org.sakaiproject.log.api.LogConfigurationManager"
 			class="org.sakaiproject.log.impl.Log4jConfigurationManager"
 			init-method="init"
-			destroy-method="destroy"
-			singleton="true">
+			destroy-method="destroy">
 
 		<lookup-method name="serverConfigurationService" bean="org.sakaiproject.component.api.ServerConfigurationService" />
  		<lookup-method name="securityService" bean="org.sakaiproject.authz.api.SecurityService" />
@@ -54,9 +48,9 @@
 					</set>
 				</entry>
 				<entry>
-					<key><value>org.hibernate.cache.EhCacheProvider</value></key>
+					<key><value>net.sf.ehcache.hibernate.AbstractEhcacheRegionFactory</value></key>
 					<set>
-						<value>Could not find configuration</value>
+						<value>Couldn't find a specific ehcache configuration for cache named</value>
 					</set>
 				</entry>
 				<entry>
@@ -78,7 +72,7 @@
 
     <bean id="org.sakaiproject.util.api.FormattedText"
             class="org.sakaiproject.util.impl.FormattedTextImpl"
-            init-method="init" singleton="true">
+            init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
     </bean>
@@ -86,7 +80,7 @@
              
      <bean id="org.sakaiproject.util.api.LinkMigrationHelper"
              class="org.sakaiproject.util.impl.LinkMigrationHelperImpl"
-             init-method="init" singleton="true">
+             init-method="init">
          <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
      </bean>
 </beans>

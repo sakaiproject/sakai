@@ -27,11 +27,12 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Locale;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.api.ServerConfigurationService.ConfigData;
 import org.sakaiproject.util.BasicConfigItem;
@@ -39,13 +40,14 @@ import org.sakaiproject.util.BasicConfigItem;
 /**
  * Used for testing protected methods in the BasicConfigurationService
  */
-public class BasicConfigurationServiceTest extends TestCase {
+public class BasicConfigurationServiceTest {
 
     private static Log log = LogFactory.getLog(BasicConfigurationServiceTest.class);
 
     private BasicConfigurationService basicConfigurationService;
     private String SOURCE = "TEST";
 
+    @Before
     public void setUp() throws Exception {
         basicConfigurationService = new BasicConfigurationService();
         basicConfigurationService.addConfigItem( new ConfigItemImpl("name", "Aaron"), SOURCE);
@@ -66,50 +68,53 @@ public class BasicConfigurationServiceTest extends TestCase {
         log.info(basicConfigurationService.getConfigData());
     }
 
+    @Test
     public void testDereferenceString() throws Exception {
         // https://jira.sakaiproject.org/browse/SAK-22148
         String value = null;
         // testing for - String dereferenceValue(String value)
         value = basicConfigurationService.dereferenceValue(null);
-        assertNull(value);
+        Assert.assertNull(value);
         value = basicConfigurationService.dereferenceValue("");
-        assertNotNull(value);
-        assertEquals("", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("", value);
         value = basicConfigurationService.dereferenceValue("  ");
-        assertNotNull(value);
-        assertEquals("  ", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("  ", value);
         value = basicConfigurationService.dereferenceValue("hello world");
-        assertNotNull(value);
-        assertEquals("hello world", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("hello world", value);
         value = basicConfigurationService.dereferenceValue("hello ${name}");
-        assertNotNull(value);
-        assertEquals("hello Aaron", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("hello Aaron", value);
         value = basicConfigurationService.dereferenceValue("hello ${testKeyInvalid}");
-        assertNotNull(value);
-        assertEquals("hello testing invalid=${invalid} testing", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("hello testing invalid=${invalid} testing", value);
         value = basicConfigurationService.dereferenceValue("hello ${testKeyEmpty}");
-        assertNotNull(value);
-        assertEquals("hello ", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("hello ", value);
         value = basicConfigurationService.dereferenceValue("hello ${testKeyNested}");
-        assertNotNull(value);
-        assertEquals("hello testing name=Aaron testing", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("hello testing name=Aaron testing", value);
         value = basicConfigurationService.dereferenceValue("hello ${testKeyNestedMulti}");
-        assertNotNull(value);
-        assertEquals("hello testing az=Aaron Zeckoski nested=testing name=Aaron testing invalid=${invalid}", value);
+        Assert.assertNotNull(value);
+        Assert.assertEquals("hello testing az=Aaron Zeckoski nested=testing name=Aaron testing invalid=${invalid}", value);
     }
 
+    @Test
     public void testDereferenceAll() throws Exception {
         // https://jira.sakaiproject.org/browse/SAK-22148
         int changed = basicConfigurationService.dereferenceConfig();
         ConfigData cd = basicConfigurationService.getConfigData();
-        assertEquals(16, cd.getTotalConfigItems());
-        assertEquals(3, changed); // 4 of them have keys but 1 key is invalid so it will not be replaced
-        assertEquals("Aaron", basicConfigurationService.getConfig("name", "default") );
-        assertEquals("testing name=Aaron testing", basicConfigurationService.getConfig("testKeyNested", "default") );
-        assertEquals("testing az=Aaron Zeckoski nested=testing name=Aaron testing invalid=${invalid}", basicConfigurationService.getConfig("testKeyNestedMulti", "default") );
-        assertEquals("Aaron Zeckoski", basicConfigurationService.getConfig("test7", "default") );
+        Assert.assertEquals(16, cd.getTotalConfigItems());
+        Assert.assertEquals(3, changed); // 4 of them have keys but 1 key is invalid so it will not be replaced
+        Assert.assertEquals("Aaron", basicConfigurationService.getConfig("name", "default") );
+        Assert.assertEquals("testing name=Aaron testing", basicConfigurationService.getConfig("testKeyNested", "default") );
+        Assert.assertEquals("testing az=Aaron Zeckoski nested=testing name=Aaron testing invalid=${invalid}", basicConfigurationService.getConfig("testKeyNestedMulti", "default") );
+        Assert.assertEquals("Aaron Zeckoski", basicConfigurationService.getConfig("test7", "default") );
     }
 
+    @Test
     public void testKNL1038() throws Exception {
         /* KNL-1038 - "${sakai.home}/samigo/answerUploadRepositoryPath"
          * This is basically testing whether replacements work in default values
@@ -117,29 +122,31 @@ public class BasicConfigurationServiceTest extends TestCase {
          */
         String val = null;
         val = basicConfigurationService.getString("name");
-        assertNotSame("", val);
-        assertEquals("Aaron", val);
+        Assert.assertNotSame("", val);
+        Assert.assertEquals("Aaron", val);
 
         // namePlusLast should NOT exist
         val = basicConfigurationService.getString("namePlusLast");
-        assertEquals("", val);
+        Assert.assertEquals("", val);
         val = basicConfigurationService.getString("namePlusLast", "${name} Zeckoski");
-        assertNotSame("", val);
-        assertEquals("Aaron Zeckoski", val);
+        Assert.assertNotSame("", val);
+        Assert.assertEquals("Aaron Zeckoski", val);
     }
 
+    @Test
     public void testKNL_1052() {
         String val;
         val = basicConfigurationService.getString("xxxxxxxAAAZZZZ");
-        assertEquals("", val);
+        Assert.assertEquals("", val);
         val = basicConfigurationService.getString("xxxxxxxAAAZZZZ","DEFAULT");
-        assertEquals("DEFAULT", val);
+        Assert.assertEquals("DEFAULT", val);
 
         basicConfigurationService.addConfigItem( new ConfigItemImpl("xxxxxxxAAAZZZZ", "AZ"), SOURCE);
         val = basicConfigurationService.getString("xxxxxxxAAAZZZZ");
-        assertEquals("AZ", val);
+        Assert.assertEquals("AZ", val);
     }
 
+    @Test
     public void testLocales() {
         Locale locale;
         Locale defaultLocale = Locale.getDefault();
@@ -147,82 +154,82 @@ public class BasicConfigurationServiceTest extends TestCase {
         int lsize = 0;
 
         locale = basicConfigurationService.getLocaleFromString("az");
-        assertNotNull(locale);
-        assertNotSame(defaultLocale, locale);
-        assertEquals(new Locale("az"), locale);
+        Assert.assertNotNull(locale);
+        Assert.assertNotSame(defaultLocale, locale);
+        Assert.assertEquals(new Locale("az"), locale);
 
         locale = basicConfigurationService.getLocaleFromString("az_JP");
-        assertNotNull(locale);
-        assertNotSame(defaultLocale, locale);
-        assertEquals(new Locale("az","JP"), locale);
+        Assert.assertNotNull(locale);
+        Assert.assertNotSame(defaultLocale, locale);
+        Assert.assertEquals(new Locale("az","JP"), locale);
 
         locale = basicConfigurationService.getLocaleFromString("az-JP");
-        assertNotNull(locale);
-        assertNotSame(defaultLocale, locale);
-        assertEquals(new Locale("az","JP"), locale);
+        Assert.assertNotNull(locale);
+        Assert.assertNotSame(defaultLocale, locale);
+        Assert.assertEquals(new Locale("az","JP"), locale);
 
         // blank should become Default Locale to match existing behavior
         locale = basicConfigurationService.getLocaleFromString("");
-        assertNotNull(locale);
-        assertEquals(defaultLocale, locale);
+        Assert.assertNotNull(locale);
+        Assert.assertEquals(defaultLocale, locale);
 
         // invalid format should become Default to match existing behaviors
         locale = basicConfigurationService.getLocaleFromString("_");
-        assertNotNull(locale);
-        assertEquals(defaultLocale, locale);
+        Assert.assertNotNull(locale);
+        Assert.assertEquals(defaultLocale, locale);
 
         locale = basicConfigurationService.getLocaleFromString("__");
-        assertNotNull(locale);
-        assertEquals(defaultLocale, locale);
+        Assert.assertNotNull(locale);
+        Assert.assertEquals(defaultLocale, locale);
 
         // null stays as null
         locale = basicConfigurationService.getLocaleFromString(null);
-        assertNull(locale);
+        Assert.assertNull(locale);
 
 
         // check the basic retrieval
         locales = basicConfigurationService.getSakaiLocales();
-        assertNotNull(locales);
+        Assert.assertNotNull(locales);
         lsize = locales.length;
-        assertTrue( lsize > 0 );
-        assertFalse( hasDuplicate(Arrays.asList(locales)) );
-        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+        Assert.assertTrue( lsize > 0 );
+        Assert.assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        Assert.assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
 
         // test limited set
         basicConfigurationService.addConfigItem( new ConfigItemImpl("locales", "az, az_JP, az_ZW"), SOURCE);
         locales = basicConfigurationService.getSakaiLocales();
-        assertNotNull(locales);
+        Assert.assertNotNull(locales);
         lsize = locales.length;
-        assertTrue( lsize > 0 );
-        assertFalse( hasDuplicate(Arrays.asList(locales)) );
-        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
-        assertEquals(4, lsize);
-        assertTrue( ArrayUtils.contains(locales, new Locale("az")) );
-        assertTrue( ArrayUtils.contains(locales, new Locale("az","JP")) );
-        assertTrue( ArrayUtils.contains(locales, new Locale("az","ZW")) );
+        Assert.assertTrue( lsize > 0 );
+        Assert.assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        Assert.assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+        Assert.assertEquals(4, lsize);
+        Assert.assertTrue( ArrayUtils.contains(locales, new Locale("az")) );
+        Assert.assertTrue( ArrayUtils.contains(locales, new Locale("az","JP")) );
+        Assert.assertTrue( ArrayUtils.contains(locales, new Locale("az","ZW")) );
 
         // test dupes and empty entries (which should just become the default)
         basicConfigurationService.addConfigItem( new ConfigItemImpl("locales", "az, az, az, az, az_JP, az_JP, az_ZW, , "), SOURCE);
         locales = basicConfigurationService.getSakaiLocales();
-        assertNotNull(locales);
+        Assert.assertNotNull(locales);
         lsize = locales.length;
-        assertTrue( lsize > 0 );
-        assertFalse( hasDuplicate(Arrays.asList(locales)) );
-        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
-        assertEquals(4, lsize);
-        assertTrue( ArrayUtils.contains(locales, new Locale("az")) );
-        assertTrue( ArrayUtils.contains(locales, new Locale("az","JP")) );
-        assertTrue( ArrayUtils.contains(locales, new Locale("az","ZW")) );
+        Assert.assertTrue( lsize > 0 );
+        Assert.assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        Assert.assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+        Assert.assertEquals(4, lsize);
+        Assert.assertTrue( ArrayUtils.contains(locales, new Locale("az")) );
+        Assert.assertTrue( ArrayUtils.contains(locales, new Locale("az","JP")) );
+        Assert.assertTrue( ArrayUtils.contains(locales, new Locale("az","ZW")) );
 
         // test empty has at least the default one
         basicConfigurationService.addConfigItem( new ConfigItemImpl("locales", ""), SOURCE);
         locales = basicConfigurationService.getSakaiLocales();
-        assertNotNull(locales);
+        Assert.assertNotNull(locales);
         lsize = locales.length;
-        assertTrue( lsize > 0 );
-        assertFalse( hasDuplicate(Arrays.asList(locales)) );
-        assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
-        assertEquals(1, lsize);
+        Assert.assertTrue( lsize > 0 );
+        Assert.assertFalse( hasDuplicate(Arrays.asList(locales)) );
+        Assert.assertTrue( ArrayUtils.contains(locales, Locale.getDefault()) );
+        Assert.assertEquals(1, lsize);
 }
 
     public static <T> boolean hasDuplicate(Collection<T> list) {
@@ -236,45 +243,47 @@ public class BasicConfigurationServiceTest extends TestCase {
         return false;
     }
 
+    @Test
     public void testKNL_1132() {
         // testing integer and boolean handling
         int intVal = basicConfigurationService.getInt("intVal", -1);
-        assertEquals(11, intVal);
+        Assert.assertEquals(11, intVal);
         intVal = basicConfigurationService.getInt("intVal2", 12); // doesn't exist
-        assertEquals(12, intVal);
+        Assert.assertEquals(12, intVal);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("intVal3", null), SOURCE);
         intVal = basicConfigurationService.getInt("intVal3", 13); // value is null
-        assertEquals(13, intVal);
+        Assert.assertEquals(13, intVal);
 
         boolean booleanValue = basicConfigurationService.getBoolean("booleanVal", false);
-        assertEquals(true, booleanValue);
+        Assert.assertEquals(true, booleanValue);
         booleanValue = basicConfigurationService.getBoolean("booleanVal2", true); // doesn't exist
-        assertEquals(true, booleanValue);
+        Assert.assertEquals(true, booleanValue);
         basicConfigurationService.addConfigItem( new ConfigItemImpl("booleanVal3", null), SOURCE);
         booleanValue = basicConfigurationService.getBoolean("booleanVal3", true); // value is null
-        assertEquals(true, booleanValue);
+        Assert.assertEquals(true, booleanValue);
 
         // NOTE: this is internal only (i.e. no one outside the kernel could encounter this)
         ConfigItemImpl booleanVal4 = new ConfigItemImpl("booleanVal4", null);
         booleanVal4.setDefaultValue(""); // causes an NPE
         basicConfigurationService.addConfigItem( booleanVal4, SOURCE);
         boolean booleanValue4 = basicConfigurationService.getBoolean("booleanVal4", false);
-        assertEquals(false, booleanValue4);    
+        Assert.assertEquals(false, booleanValue4);    
     }
 
+    @Test
     public void testKNL_1137() {
         // verify that types are handled correctly for 
         basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal1", "string", SOURCE));
-        assertEquals(ServerConfigurationService.TYPE_STRING, basicConfigurationService.getConfigItem("defaultedVal1").getType());
+        Assert.assertEquals(ServerConfigurationService.TYPE_STRING, basicConfigurationService.getConfigItem("defaultedVal1").getType());
 
         basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal2", 123, SOURCE));
-        assertEquals(ServerConfigurationService.TYPE_INT, basicConfigurationService.getConfigItem("defaultedVal2").getType());
+        Assert.assertEquals(ServerConfigurationService.TYPE_INT, basicConfigurationService.getConfigItem("defaultedVal2").getType());
 
         basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal3", new String[]{"AZ","BZ"}, SOURCE));
-        assertEquals(ServerConfigurationService.TYPE_ARRAY, basicConfigurationService.getConfigItem("defaultedVal3").getType());
+        Assert.assertEquals(ServerConfigurationService.TYPE_ARRAY, basicConfigurationService.getConfigItem("defaultedVal3").getType());
 
         basicConfigurationService.registerConfigItem(BasicConfigItem.makeDefaultedConfigItem("defaultedVal4", true, SOURCE));
-        assertEquals(ServerConfigurationService.TYPE_BOOLEAN, basicConfigurationService.getConfigItem("defaultedVal4").getType());
+        Assert.assertEquals(ServerConfigurationService.TYPE_BOOLEAN, basicConfigurationService.getConfigItem("defaultedVal4").getType());
     }
 
 }

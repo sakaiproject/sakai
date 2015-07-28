@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Base ShortenedUrlService bean - inject this into your app - it will register the appropriate service or the default -->
 	<bean id="org.sakaiproject.shortenedurl.api.ShortenedUrlService"
     	class="org.sakaiproject.shortenedurl.impl.BaseShortenedUrlService"
-    	singleton="true"
     	init-method="init">
     	<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
 	</bean>
@@ -15,7 +13,6 @@
 	<!-- NoOpUrlService config, default -->
 	<bean id="org.sakaiproject.shortenedurl.api.NoOpUrlService"
     	class="org.sakaiproject.shortenedurl.impl.NoOpUrlService"
-    	singleton="true"
     	init-method="init">
 	</bean>
 
@@ -26,7 +23,6 @@
 	-->
 	<bean id="org.sakaiproject.shortenedurl.api.RandomisedUrlServiceBean"
     	class="org.sakaiproject.shortenedurl.impl.RandomisedUrlService"
-    	singleton="true"
     	init-method="init">
 		<property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
 		<property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
@@ -55,7 +51,6 @@
 	-->
 	<bean id="org.sakaiproject.shortenedurl.api.BitlyUrlService"
     	class="org.sakaiproject.shortenedurl.impl.BitlyUrlService"
-    	singleton="true"
     	init-method="init">
     	<property name="login"><value>${shortenedurl.implementation.bitly.login}</value></property>
     	<property name="apiKey"><value>${shortenedurl.implementation.bitly.key}</value></property>

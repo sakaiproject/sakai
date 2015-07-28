@@ -5,26 +5,30 @@ import java.util.Date;
 import java.util.List;
 
 import org.sakaiproject.conditions.api.EvaluationAction;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.conditions.api.Condition;
 import org.sakaiproject.conditions.api.ConditionService;
 import org.sakaiproject.conditions.api.Rule;
 import org.sakaiproject.event.api.Event;
 
-import junit.framework.TestCase;
-
-public class TestConditionService extends TestCase {
+public class TestConditionService {
 	
 	private ConditionService conditionService;
 	
+	@Before
 	public void setUp() {
 		conditionService = new ToyConditionsService();
 		conditionService.registerConditionTemplates(new MyConditionTemplateSet());
 	}
 	
+	@Test
 	public void testRegisterTemplates() {
-		assertEquals("Gradebook", conditionService.getConditionTemplateSetForService("sakai.service.gradebook").getDisplayName());
+		Assert.assertEquals("Gradebook", conditionService.getConditionTemplateSetForService("sakai.service.gradebook").getDisplayName());
 	}
 	
+	@Test
 	public void testSaveRuleAndNotify() {
 		EvaluationAction command = new ToyCommand();
 		String resourceId = "zach-makes-the-best-conditions";
@@ -34,10 +38,10 @@ public class TestConditionService extends TestCase {
 		conditionService.addRule("gradebook.newgrade",new BaseRule(resourceId, conditions, command, Rule.Conjunction.OR));
 		
 		((ToyConditionsService)conditionService).dispatchAnEvent(newUserEvent());
-		assertEquals(0, ToyMessagePad.messages.size());
+		Assert.assertEquals(0, ToyMessagePad.messages.size());
 		
 		((ToyConditionsService)conditionService).dispatchAnEvent(newGrade69Event());
-		assertEquals("I've been hit!",ToyMessagePad.messages.get(0));
+		Assert.assertEquals("I've been hit!",ToyMessagePad.messages.get(0));
 	}
 
 	private Event newGrade69Event() {
@@ -167,5 +171,4 @@ public class TestConditionService extends TestCase {
 			
 		};
 	}
-
 }

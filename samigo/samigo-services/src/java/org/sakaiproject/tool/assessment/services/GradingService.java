@@ -2073,7 +2073,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
      }
   }
 
-  public void saveOrUpdateAll(Collection c)
+  public void saveOrUpdateAll(Collection<ItemGradingData> c)
   {
     try {
       PersistenceService.getInstance().

@@ -19,7 +19,11 @@
 package org.sakaiproject.sitestats.test;
 
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.replay;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,7 +32,9 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.easymock.EasyMock;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
 import org.sakaiproject.event.api.Event;
@@ -58,46 +64,34 @@ import org.sakaiproject.sitestats.test.mocks.FakeServerConfigurationService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-
-public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests { 
+@ContextConfiguration(locations={
+		"/hbm-db.xml",
+		"/hibernate-test.xml"})
+public class StatsManagerTest extends AbstractJUnit4SpringContextTests { 
 	// AbstractAnnotationAwareTransactionalTests / AbstractTransactionalSpringContextTests
 	private final static boolean			enableLargeMembershipTest = false;
 	
+	@Autowired
 	private StatsManager					M_sm;
+	@Autowired
 	private StatsUpdateManager				M_sum;
+	@Autowired
 	private DB								db;
 	private SiteService						M_ss;
+	@Autowired
 	private FakeServerConfigurationService	M_scs;
 	private ContentHostingService			M_chs;
 	private ContentTypeImageService			M_ctis;
+	@Autowired
 	private FakeEventRegistryService		M_ers;
 	
-	// Spring configuration	
-	public void setStatsManager(StatsManager M_sm) {
-		this.M_sm = M_sm;
-	}
-	public void setStatsUpdateManager(StatsUpdateManager M_sum) {
-		this.M_sum = M_sum;
-	}
-	public void setServerConfigurationService(FakeServerConfigurationService M_scs) {
-		this.M_scs = M_scs;
-	}
-	public void setEventRegistryService(FakeEventRegistryService M_ers) {
-		this.M_ers = M_ers;
-	}
-	public void setDb(DB db) {
-		this.db = db;
-	}
-	
-	@Override
-	protected String[] getConfigLocations() {
-		return new String[] { "hbm-db.xml", "hibernate-test.xml" };
-	}
-
-	// run this before each test starts
-	protected void onSetUpBeforeTransaction() throws Exception {
+	@Before
+	public void onSetUp() throws Exception {
+		db.deleteAll();
 		// Time
 		/*long oneMonthAgoMs = new Date().getTime() - (30 * 24 * 60 * 60 * 1000);
 		long twoMonthAgoMs = new Date().getTime() - (2 * 30 * 24 * 60 * 60 * 1000);
@@ -193,14 +187,8 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		M_ers.setStatsManager(M_sm);
 	}
 
-	// run this before each test starts and as part of the transaction
-	protected void onSetUpInTransaction() {
-		db.deleteAll();
-	}
-
-	
 	// ---- TESTS ----
-	
+	@Test
 	public void testEnableVisibleSiteVisits() {
 		M_scs.setProperty("display.users.present", "true");
 		M_scs.setProperty("presence.events.log", "true");
@@ -208,9 +196,9 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(true, M_sm.isEnableSiteVisits());
-		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "true");
@@ -218,9 +206,9 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(true, M_sm.isEnableSiteVisits());
-		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "true");
 		M_scs.setProperty("presence.events.log", "false");
@@ -228,9 +216,9 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(true, M_sm.isEnableSiteVisits());
-		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.setProperty("display.users.present", "false");
 		M_scs.setProperty("presence.events.log", "false");
@@ -238,9 +226,9 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(false, M_sm.isEnableSiteVisits());
-		assertEquals(false, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(false, M_sm.isEnableSiteVisits());
+		Assert.assertEquals(false, M_sm.isVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		M_scs.removeProperty("display.users.present");
 		M_scs.removeProperty("presence.events.log");
@@ -248,9 +236,9 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(false, M_sm.isEnableSiteVisits());
-		assertEquals(false, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(false, M_sm.isEnableSiteVisits());
+		Assert.assertEquals(false, M_sm.isVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 		
 		// revert
 		M_scs.setProperty("display.users.present", "false");
@@ -259,70 +247,72 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		((StatsManagerImpl)M_sm).setVisitsInfoAvailable(null);
 		((StatsManagerImpl)M_sm).setEnableSitePresences(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(true, M_sm.isEnableSiteVisits());
-		assertEquals(true, M_sm.isVisitsInfoAvailable());
-		assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
+		Assert.assertEquals(true, M_sm.isEnableSiteVisits());
+		Assert.assertEquals(true, M_sm.isVisitsInfoAvailable());
+		Assert.assertEquals(false, M_sm.isEnableSitePresences()); // off, by default
 	}
 	
+	@Test
 	public void testOtherConfig() {
 		// isEnableSiteActivity
 		((StatsManagerImpl)M_sm).setEnableSiteActivity(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(true, M_sm.isEnableSiteActivity());
+		Assert.assertEquals(true, M_sm.isEnableSiteActivity());
 		((StatsManagerImpl)M_sm).setEnableSiteActivity(false);
-		assertEquals(false, M_sm.isEnableSiteActivity());
+		Assert.assertEquals(false, M_sm.isEnableSiteActivity());
 		((StatsManagerImpl)M_sm).setEnableSiteActivity(true);
-		assertEquals(true, M_sm.isEnableSiteActivity());
+		Assert.assertEquals(true, M_sm.isEnableSiteActivity());
 		// isEnableResourceStats
 		((StatsManagerImpl)M_sm).setEnableResourceStats(null);
 		((StatsManagerImpl)M_sm).checkAndSetDefaultPropertiesIfNotSet();
-		assertEquals(true, M_sm.isEnableResourceStats());
+		Assert.assertEquals(true, M_sm.isEnableResourceStats());
 		((StatsManagerImpl)M_sm).setEnableResourceStats(false);
-		assertEquals(false, M_sm.isEnableResourceStats());
+		Assert.assertEquals(false, M_sm.isEnableResourceStats());
 		((StatsManagerImpl)M_sm).setEnableResourceStats(true);
-		assertEquals(true, M_sm.isEnableResourceStats());
+		Assert.assertEquals(true, M_sm.isEnableResourceStats());
 		// isServerWideStatsEnabled
 		((StatsManagerImpl)M_sm).setServerWideStatsEnabled(false);
-		assertEquals(false, M_sm.isServerWideStatsEnabled());
+		Assert.assertEquals(false, M_sm.isServerWideStatsEnabled());
 		((StatsManagerImpl)M_sm).setServerWideStatsEnabled(true);
-		assertEquals(true, M_sm.isServerWideStatsEnabled());
+		Assert.assertEquals(true, M_sm.isServerWideStatsEnabled());
 		// ChartBackgroundColor
 		((StatsManagerImpl)M_sm).setChartBackgroundColor("#000");
-		assertEquals("#000", M_sm.getChartBackgroundColor());
+		Assert.assertEquals("#000", M_sm.getChartBackgroundColor());
 		((StatsManagerImpl)M_sm).setChartBackgroundColor("#fff");
-		assertEquals("#fff", M_sm.getChartBackgroundColor());
+		Assert.assertEquals("#fff", M_sm.getChartBackgroundColor());
 		// isChartIn3D
 		((StatsManagerImpl)M_sm).setChartIn3D(false);
-		assertEquals(false, M_sm.isChartIn3D());
+		Assert.assertEquals(false, M_sm.isChartIn3D());
 		((StatsManagerImpl)M_sm).setChartIn3D(true);
-		assertEquals(true, M_sm.isChartIn3D());
+		Assert.assertEquals(true, M_sm.isChartIn3D());
 		// ChartTransparency
 		((StatsManagerImpl)M_sm).setChartTransparency(0.5f);
-		assertEquals(0.5f, M_sm.getChartTransparency());
+		Assert.assertEquals(0.5f, M_sm.getChartTransparency(), 1e-8);
 		((StatsManagerImpl)M_sm).setChartTransparency(1.0f);
-		assertEquals(1.0f, M_sm.getChartTransparency());
+		Assert.assertEquals(1.0f, M_sm.getChartTransparency(), 1e-8);
 		// isItemLabelsVisible
 		((StatsManagerImpl)M_sm).setItemLabelsVisible(false);
-		assertEquals(false, M_sm.isItemLabelsVisible());
+		Assert.assertEquals(false, M_sm.isItemLabelsVisible());
 		((StatsManagerImpl)M_sm).setItemLabelsVisible(true);
-		assertEquals(true, M_sm.isItemLabelsVisible());
+		Assert.assertEquals(true, M_sm.isItemLabelsVisible());
 		// isShowAnonymousAccessEvents
 		((StatsManagerImpl)M_sm).setShowAnonymousAccessEvents(false);
-		assertEquals(false, M_sm.isShowAnonymousAccessEvents());
+		Assert.assertEquals(false, M_sm.isShowAnonymousAccessEvents());
 		((StatsManagerImpl)M_sm).setShowAnonymousAccessEvents(true);
-		assertEquals(true, M_sm.isShowAnonymousAccessEvents());
+		Assert.assertEquals(true, M_sm.isShowAnonymousAccessEvents());
 		// isLastJobRunDateVisible
 		((StatsManagerImpl)M_sm).setLastJobRunDateVisible(false);
-		assertEquals(false, M_sm.isLastJobRunDateVisible());
+		Assert.assertEquals(false, M_sm.isLastJobRunDateVisible());
 		((StatsManagerImpl)M_sm).setLastJobRunDateVisible(true);
-		assertEquals(true, M_sm.isLastJobRunDateVisible());
+		Assert.assertEquals(true, M_sm.isLastJobRunDateVisible());
 		// isEnableSitePresences
 		((StatsManagerImpl)M_sm).setEnableSitePresences(false);
-		assertEquals(false, M_sm.isEnableSitePresences());
+		Assert.assertEquals(false, M_sm.isEnableSitePresences());
 		((StatsManagerImpl)M_sm).setEnableSitePresences(true);
-		assertEquals(true, M_sm.isEnableSitePresences());
+		Assert.assertEquals(true, M_sm.isEnableSitePresences());
 	}
 	
+	@Test
 	public void testPreferences() {
 		// invalid
 		boolean thrown;
@@ -332,39 +322,39 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		}catch(IllegalArgumentException e) {
 			thrown = true;
 		}
-		assertTrue(thrown);
+		Assert.assertTrue(thrown);
 		try{
 			thrown = false;
 			M_sm.getPreferences(null, false);
 		}catch(IllegalArgumentException e) {
 			thrown = true;
 		}
-		assertTrue(thrown);
+		Assert.assertTrue(thrown);
 		try{
 			thrown = false;
 			M_sm.setPreferences(null, null);
 		}catch(IllegalArgumentException e) {
 			thrown = true;
 		}
-		assertTrue(thrown);
+		Assert.assertTrue(thrown);
 		try{
 			thrown = false;
 			M_sm.setPreferences(null, new PrefsData());
 		}catch(IllegalArgumentException e) {
 			thrown = true;
 		}
-		assertTrue(thrown);
+		Assert.assertTrue(thrown);
 		try{
 			thrown = false;
 			M_sm.setPreferences(FakeData.SITE_A_ID, null);
 		}catch(IllegalArgumentException e) {
 			thrown = true;
 		}
-		assertTrue(thrown);
+		Assert.assertTrue(thrown);
 		
 		// get inexistent preferences (will return default)
-		assertNotNull(M_sm.getPreferences(FakeData.SITE_A_ID, false));
-		assertNotNull(M_sm.getPreferences(FakeData.SITE_A_ID, true));
+		Assert.assertNotNull(M_sm.getPreferences(FakeData.SITE_A_ID, false));
+		Assert.assertNotNull(M_sm.getPreferences(FakeData.SITE_A_ID, true));
 		
 		// #1 add/get preferences
 		PrefsData p1 = new PrefsData();
@@ -373,15 +363,15 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		p1.setItemLabelsVisible(true);
 		p1.setListToolEventsOnlyAvailableInSite(true);
 		p1.setUseAllTools(true);
-		assertTrue(M_sm.setPreferences(FakeData.SITE_A_ID, p1));
+		Assert.assertTrue(M_sm.setPreferences(FakeData.SITE_A_ID, p1));
 		PrefsData p1L = M_sm.getPreferences(FakeData.SITE_A_ID, false);
-		assertNotNull(p1L);
-		assertEquals(p1.isChartIn3D(), p1L.isChartIn3D());
-		assertEquals(p1.getChartTransparency(), p1L.getChartTransparency());
-		assertEquals(p1.isItemLabelsVisible(), p1L.isItemLabelsVisible());
-		assertEquals(p1.isListToolEventsOnlyAvailableInSite(), p1L.isListToolEventsOnlyAvailableInSite());
-		assertEquals(p1.isUseAllTools(), p1L.isUseAllTools());
-		assertEquals(FakeData.EVENT_REGISTRY, p1L.getToolEventsDef());
+		Assert.assertNotNull(p1L);
+		Assert.assertEquals(p1.isChartIn3D(), p1L.isChartIn3D());
+		Assert.assertEquals(p1.getChartTransparency(), p1L.getChartTransparency(), 1e-8);
+		Assert.assertEquals(p1.isItemLabelsVisible(), p1L.isItemLabelsVisible());
+		Assert.assertEquals(p1.isListToolEventsOnlyAvailableInSite(), p1L.isListToolEventsOnlyAvailableInSite());
+		Assert.assertEquals(p1.isUseAllTools(), p1L.isUseAllTools());
+		Assert.assertEquals(FakeData.EVENT_REGISTRY, p1L.getToolEventsDef());
 		
 		// #2 add/get preferences
 		PrefsData p2 = new PrefsData();
@@ -391,15 +381,15 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		p2.setListToolEventsOnlyAvailableInSite(false);
 		p2.setToolEventsDef(FakeData.EVENT_REGISTRY);
 		p2.setUseAllTools(false);
-		assertTrue(M_sm.setPreferences(FakeData.SITE_A_ID, p2));
+		Assert.assertTrue(M_sm.setPreferences(FakeData.SITE_A_ID, p2));
 		PrefsData p2L = M_sm.getPreferences(FakeData.SITE_A_ID, false);
-		assertNotNull(p2L);
-		assertEquals(p2.isChartIn3D(), p2L.isChartIn3D());
-		assertEquals(p2.getChartTransparency(), p2L.getChartTransparency());
-		assertEquals(p2.isItemLabelsVisible(), p2L.isItemLabelsVisible());
-		assertEquals(p2.isListToolEventsOnlyAvailableInSite(), p2L.isListToolEventsOnlyAvailableInSite());
-		assertEquals(p2.isUseAllTools(), p2L.isUseAllTools());
-		assertEquals(FakeData.EVENT_REGISTRY, p2L.getToolEventsDef());
+		Assert.assertNotNull(p2L);
+		Assert.assertEquals(p2.isChartIn3D(), p2L.isChartIn3D());
+		Assert.assertEquals(p2.getChartTransparency(), p2L.getChartTransparency(), 1e-8);
+		Assert.assertEquals(p2.isItemLabelsVisible(), p2L.isItemLabelsVisible());
+		Assert.assertEquals(p2.isListToolEventsOnlyAvailableInSite(), p2L.isListToolEventsOnlyAvailableInSite());
+		Assert.assertEquals(p2.isUseAllTools(), p2L.isUseAllTools());
+		Assert.assertEquals(FakeData.EVENT_REGISTRY, p2L.getToolEventsDef());
 		
 		// #3 get default/edit/set/get preferences
 		PrefsData p3 = M_sm.getPreferences(FakeData.SITE_B_ID, false);
@@ -411,32 +401,34 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		}
 		p3.setToolEventsDef(tiList);
 		p3.setListToolEventsOnlyAvailableInSite(true);
-		assertTrue(M_sm.setPreferences(FakeData.SITE_B_ID, p3));
+		Assert.assertTrue(M_sm.setPreferences(FakeData.SITE_B_ID, p3));
 		PrefsData p3L = M_sm.getPreferences(FakeData.SITE_B_ID, false);
-		assertNotNull(p3L);
-		assertEquals(p3.isChartIn3D(), p3L.isChartIn3D());
-		assertEquals(p3.getChartTransparency(), p3L.getChartTransparency());
-		assertEquals(p3.isItemLabelsVisible(), p3L.isItemLabelsVisible());
-		assertEquals(p3.isListToolEventsOnlyAvailableInSite(), p3L.isListToolEventsOnlyAvailableInSite());
-		assertEquals(p3.isUseAllTools(), p3L.isUseAllTools());
-		assertEquals(FakeData.EVENT_REGISTRY_CHAT, p3L.getToolEventsDef());
+		Assert.assertNotNull(p3L);
+		Assert.assertEquals(p3.isChartIn3D(), p3L.isChartIn3D());
+		Assert.assertEquals(p3.getChartTransparency(), p3L.getChartTransparency(), 1e-8);
+		Assert.assertEquals(p3.isItemLabelsVisible(), p3L.isItemLabelsVisible());
+		Assert.assertEquals(p3.isListToolEventsOnlyAvailableInSite(), p3L.isListToolEventsOnlyAvailableInSite());
+		Assert.assertEquals(p3.isUseAllTools(), p3L.isUseAllTools());
+		Assert.assertEquals(FakeData.EVENT_REGISTRY_CHAT, p3L.getToolEventsDef());
 	}
 
+	@Test
 	public void testSiteUsers() {
 		// invalid
-		assertNull(M_sm.getSiteUsers(null));
-		assertNull(M_sm.getSiteUsers("non_existent_site"));
+		Assert.assertNull(M_sm.getSiteUsers(null));
+		Assert.assertNull(M_sm.getSiteUsers("non_existent_site"));
 		
 		// valid
 		Set<String> siteAUsers =  M_sm.getSiteUsers(FakeData.SITE_A_ID);
 		Set<String> expectedSiteAUsers = new HashSet<String>(Arrays.asList(FakeData.USER_A_ID,FakeData.USER_B_ID));
-		assertEquals(expectedSiteAUsers, siteAUsers);
+		Assert.assertEquals(expectedSiteAUsers, siteAUsers);
 		
 		Set<String> siteBUsers =  M_sm.getSiteUsers(FakeData.SITE_B_ID);
 		Set<String> expectedSiteBUsers = new HashSet<String>(Arrays.asList(FakeData.USER_A_ID));
-		assertEquals(expectedSiteBUsers, siteBUsers);
+		Assert.assertEquals(expectedSiteBUsers, siteBUsers);
 	}
 
+	@Test
 	public void testUsersWithVisits() {
 		// invalid
 		boolean thrown;
@@ -446,7 +438,7 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		}catch(IllegalArgumentException e) {
 			thrown = true;
 		}
-		assertTrue(thrown);
+		Assert.assertTrue(thrown);
 		
 		// valid
 		Event e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
@@ -454,80 +446,81 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		Set<String> expectedSiteA = new HashSet<String>();
 		expectedSiteA.add(FakeData.USER_A_ID);
 		Set<String> expectedSiteB = new HashSet<String>();
-		assertEquals(expectedSiteA, M_sm.getUsersWithVisits(FakeData.SITE_A_ID));
-		assertEquals(expectedSiteB, M_sm.getUsersWithVisits(FakeData.SITE_B_ID));
+		Assert.assertEquals(expectedSiteA, M_sm.getUsersWithVisits(FakeData.SITE_A_ID));
+		Assert.assertEquals(expectedSiteB, M_sm.getUsersWithVisits(FakeData.SITE_B_ID));
 	}
 	
+	@Test
 	public void testResourceInfo() {
 		// #1 getResourceName()
 		// (null)
-		assertNull(M_sm.getResourceName(null, false));
+		Assert.assertNull(M_sm.getResourceName(null, false));
 		
 		// (no location prefix)
-		assertEquals(
+		Assert.assertEquals(
 				FakeData.RES_MYWORKSPACE_A+"-name", 
 				M_sm.getResourceName(FakeData.RES_MYWORKSPACE_A, false));
 		
 		// My Workspace
-		assertEquals(
+		Assert.assertEquals(
 				"[~"+FakeData.USER_A_ID+"] "+FakeData.RES_MYWORKSPACE_A+"-name", 
 				M_sm.getResourceName(FakeData.RES_MYWORKSPACE_A));
-		assertEquals(
+		Assert.assertEquals(
 				"[~"+FakeData.USER_B_ID+"] "+FakeData.RES_MYWORKSPACE_B_F+"-name", 
 				M_sm.getResourceName(FakeData.RES_MYWORKSPACE_B_F));
-		assertEquals(
+		Assert.assertEquals(
 				"[My Workspace] "+FakeData.RES_MYWORKSPACE_NO_F+"-name", 
 				M_sm.getResourceName(FakeData.RES_MYWORKSPACE_NO_F));	
 		
 		// Attachments
-		assertEquals(
+		Assert.assertEquals(
 				"[Attachments] "+FakeData.RES_ATTACH_SITE+"-name", 
 				M_sm.getResourceName(FakeData.RES_ATTACH_SITE));
-		assertEquals(
+		Assert.assertEquals(
 				"[Attachments: Discussion] "+FakeData.RES_ATTACH+"-name", 
 				M_sm.getResourceName(FakeData.RES_ATTACH));
 		
 		// Dropbox
-		assertEquals(
+		Assert.assertEquals(
 				FakeData.RES_DROPBOX_SITE_A+"-name", 
 				M_sm.getResourceName(FakeData.RES_DROPBOX_SITE_A));
-		assertEquals(
+		Assert.assertEquals(
 				"[DropBox] "+FakeData.RES_DROPBOX_SITE_A_USER_A+"-name", 
 				M_sm.getResourceName(FakeData.RES_DROPBOX_SITE_A_USER_A));
-		assertEquals(
+		Assert.assertEquals(
 				"[DropBox: "+FakeData.RES_DROPBOX_SITE_A_USER_A+"-name] "+FakeData.RES_DROPBOX_SITE_A_USER_A_FILE+"-name", 
 				M_sm.getResourceName(FakeData.RES_DROPBOX_SITE_A_USER_A_FILE));
 		
 		// Resources
-		assertEquals(
+		Assert.assertEquals(
 				FakeData.RES_ROOT_SITE_A+"-name", 
 				M_sm.getResourceName(FakeData.RES_ROOT_SITE_A));
-		assertEquals(
+		Assert.assertEquals(
 				FakeData.RES_FILE_SITE_A+"-name", 
 				M_sm.getResourceName(FakeData.RES_FILE_SITE_A));
-		assertEquals(
+		Assert.assertEquals(
 				FakeData.RES_FOLDER_SITE_A+"-name", 
 				M_sm.getResourceName(FakeData.RES_FOLDER_SITE_A));
 		
 		
 		// #2 getResourceImageLibraryRelativePath()
-		assertEquals("image/sakai/folder.gif", M_sm.getResourceImageLibraryRelativePath(FakeData.RES_FOLDER_SITE_A));
-		assertEquals("image/sakai/image.gif", M_sm.getResourceImageLibraryRelativePath(FakeData.RES_DROPBOX_SITE_A_USER_A_FILE));
-		assertEquals("image/sakai/generic.gif", M_sm.getResourceImageLibraryRelativePath(null));
+		Assert.assertEquals("image/sakai/folder.gif", M_sm.getResourceImageLibraryRelativePath(FakeData.RES_FOLDER_SITE_A));
+		Assert.assertEquals("image/sakai/image.gif", M_sm.getResourceImageLibraryRelativePath(FakeData.RES_DROPBOX_SITE_A_USER_A_FILE));
+		Assert.assertEquals("image/sakai/generic.gif", M_sm.getResourceImageLibraryRelativePath(null));
 		
 		
 		// #3 getResourceImage()
-		assertEquals("http://localhost:8080/library/image/sakai/folder.gif", M_sm.getResourceImage(FakeData.RES_FOLDER_SITE_A));
+		Assert.assertEquals("http://localhost:8080/library/image/sakai/folder.gif", M_sm.getResourceImage(FakeData.RES_FOLDER_SITE_A));
 		
 		
 		// #4 getResourceURL()
-		assertEquals(
+		Assert.assertEquals(
 				"http://localhost:8080"+FakeData.RES_FOLDER_SITE_A, 
 				M_sm.getResourceURL(FakeData.RES_FOLDER_SITE_A));
-		assertEquals(
+		Assert.assertEquals(
 				"http://localhost:8080"+FakeData.RES_DROPBOX_SITE_A_USER_A_FILE, 
 				M_sm.getResourceURL(FakeData.RES_DROPBOX_SITE_A_USER_A_FILE));
-		assertNull(M_sm.getResourceURL(null));
+		Assert.assertNull(M_sm.getResourceURL(null));
 		
 		
 		// #5 getTotalResources()
@@ -545,8 +538,8 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		));
 		int totalFiles = M_sm.getTotalResources(FakeData.SITE_A_ID, true);
 		int totalFilesAndFolders = M_sm.getTotalResources(FakeData.SITE_A_ID, false);
-		assertEquals(1, totalFiles);
-		assertEquals(2, totalFilesAndFolders);
+		Assert.assertEquals(1, totalFiles);
+		Assert.assertEquals(2, totalFilesAndFolders);
 		
 	}
 	
@@ -624,185 +617,187 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		return samples;
 	}
 	
+	@Test
 	public void testSummaryMethods() {
 		M_sum.collectEvents(getSampleData());
 		
 		// #1 getSummaryVisitsTotals
 		SummaryVisitsTotals svt = M_sm.getSummaryVisitsTotals(FakeData.SITE_A_ID);
-		assertEquals(2, svt.getTotalUsers());
-		assertEquals(9, svt.getTotalVisits());
-		assertEquals(2, svt.getTotalUniqueVisits());
-		assertEquals((100 * 2) / (double) 2, svt.getPercentageOfUsersThatVisitedSite());
-		assertEquals(1.3, svt.getLast7DaysVisitsAverage());
-		assertEquals(0.3, svt.getLast30DaysVisitsAverage());
-		assertEquals(0.0, svt.getLast365DaysVisitsAverage());
+		Assert.assertEquals(2, svt.getTotalUsers());
+		Assert.assertEquals(9, svt.getTotalVisits());
+		Assert.assertEquals(2, svt.getTotalUniqueVisits());
+		Assert.assertEquals((100 * 2) / (double) 2, svt.getPercentageOfUsersThatVisitedSite(), 1e-8);
+		Assert.assertEquals(1.3, svt.getLast7DaysVisitsAverage(), 1e-8);
+		Assert.assertEquals(0.3, svt.getLast30DaysVisitsAverage(), 1e-8);
+		Assert.assertEquals(0.0, svt.getLast365DaysVisitsAverage(), 1e-8);
 		
 		// #2 getSummaryActivityTotals
 		SummaryActivityTotals sat = M_sm.getSummaryActivityTotals(FakeData.SITE_A_ID);
-		assertEquals(8, sat.getTotalActivity());
-		assertEquals(1.1, sat.getLast7DaysActivityAverage());
-		assertEquals(0.3, sat.getLast30DaysActivityAverage());
-		assertEquals(0.0, sat.getLast365DaysActivityAverage());
+		Assert.assertEquals(8, sat.getTotalActivity());
+		Assert.assertEquals(1.1, sat.getLast7DaysActivityAverage(), 1e-8);
+		Assert.assertEquals(0.3, sat.getLast30DaysActivityAverage(), 1e-8);
+		Assert.assertEquals(0.0, sat.getLast365DaysActivityAverage(), 1e-8);
 		
 		// #3 getSummaryVisitsChartData: week
 		SummaryVisitsChartData svcd = M_sm.getSummaryVisitsChartData(FakeData.SITE_A_ID, StatsManager.VIEW_WEEK);
-		assertEquals(5, svcd.getSiteVisits().size());
-		assertNotNull(svcd.getFirstDay());
+		Assert.assertEquals(5, svcd.getSiteVisits().size());
+		Assert.assertNotNull(svcd.getFirstDay());
 		long[] wv = svcd.getVisits();
 		long[] wuv = svcd.getUniqueVisits();
-		assertEquals(1, wv[0]); // 6
-		assertEquals(1, wuv[0]);
-		assertEquals(0, wv[1]); // 5
-		assertEquals(0, wuv[1]);
-		assertEquals(2, wv[2]); // 4
-		assertTrue(wuv[2] <= 2);
-		assertEquals(0, wv[3]); // 3
-		assertEquals(0, wuv[3]);
-		assertEquals(2, wv[4]); // 2
-		assertEquals(1, wuv[4]);
-		assertEquals(1, wv[5]); // 1
-		assertEquals(1, wuv[5]);
-		assertEquals(3, wv[6]); // 0
-		assertEquals(2, wuv[6]);
+		Assert.assertEquals(1, wv[0]); // 6
+		Assert.assertEquals(1, wuv[0]);
+		Assert.assertEquals(0, wv[1]); // 5
+		Assert.assertEquals(0, wuv[1]);
+		Assert.assertEquals(2, wv[2]); // 4
+		Assert.assertTrue(wuv[2] <= 2);
+		Assert.assertEquals(0, wv[3]); // 3
+		Assert.assertEquals(0, wuv[3]);
+		Assert.assertEquals(2, wv[4]); // 2
+		Assert.assertEquals(1, wuv[4]);
+		Assert.assertEquals(1, wv[5]); // 1
+		Assert.assertEquals(1, wuv[5]);
+		Assert.assertEquals(3, wv[6]); // 0
+		Assert.assertEquals(2, wuv[6]);
 		
 		// #4 getSummaryVisitsChartData: month
 		svcd = M_sm.getSummaryVisitsChartData(FakeData.SITE_A_ID, StatsManager.VIEW_MONTH);
-		assertEquals(5, svcd.getSiteVisits().size());
-		assertNotNull(svcd.getFirstDay());
+		Assert.assertEquals(5, svcd.getSiteVisits().size());
+		Assert.assertNotNull(svcd.getFirstDay());
 		wv = svcd.getVisits();
 		wuv = svcd.getUniqueVisits();
 		for(int i=0; i<wv.length ; i++) {
 			if(i==23) {
-				assertEquals(1, wv[i]);
-				assertEquals(1, wuv[i]);				
+				Assert.assertEquals(1, wv[i]);
+				Assert.assertEquals(1, wuv[i]);				
 			}else if(i==25) {
-				assertEquals(2, wv[i]);
-				assertEquals(2, wuv[i]);				
+				Assert.assertEquals(2, wv[i]);
+				Assert.assertEquals(2, wuv[i]);				
 			}else if(i==27) {
-				assertEquals(2, wv[i]);
-				assertEquals(1, wuv[i]);				
+				Assert.assertEquals(2, wv[i]);
+				Assert.assertEquals(1, wuv[i]);				
 			}else if(i==28) {
-				assertEquals(1, wv[i]);
-				assertEquals(1, wuv[i]);				
+				Assert.assertEquals(1, wv[i]);
+				Assert.assertEquals(1, wuv[i]);				
 			}else if(i==29) {
-				assertEquals(3, wv[i]);
-				assertEquals(2, wuv[i]);				
+				Assert.assertEquals(3, wv[i]);
+				Assert.assertEquals(2, wuv[i]);				
 			}else{
-				assertEquals(0, wv[i]);
-				assertEquals(0, wuv[i]);
+				Assert.assertEquals(0, wv[i]);
+				Assert.assertEquals(0, wuv[i]);
 			}
 		}
 		
 		// #5 getSummaryVisitsChartData: year
 		svcd = M_sm.getSummaryVisitsChartData(FakeData.SITE_A_ID, StatsManager.VIEW_YEAR);
-		assertTrue(svcd.getSiteVisits().size() >= 1);
-		assertNotNull(svcd.getFirstDay());
+		Assert.assertTrue(svcd.getSiteVisits().size() >= 1);
+		Assert.assertNotNull(svcd.getFirstDay());
 		wv = svcd.getVisits();
 		wuv = svcd.getUniqueVisits();
 //		for(int i=0; i<wv.length ; i++) {
 //			if(i==11) {
-//				assertEquals(9, wv[i]);
-//				assertEquals(2, wuv[i]);				
+//				Assert.assertEquals(9, wv[i]);
+//				Assert.assertEquals(2, wuv[i]);				
 //			}else{
-//				assertEquals(0, wv[i]);
-//				assertEquals(0, wuv[i]);
+//				Assert.assertEquals(0, wv[i]);
+//				Assert.assertEquals(0, wuv[i]);
 //			}
 //		}
 		
 		// #6 getSummaryActivityChartData: week, BAR
 		SummaryActivityChartData sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_WEEK, StatsManager.CHARTTYPE_BAR);
-		assertEquals(0, sacd.getActivityByToolTotal());
-		assertNotNull(sacd.getFirstDay());
+		Assert.assertEquals(0, sacd.getActivityByToolTotal());
+		Assert.assertNotNull(sacd.getFirstDay());
 		long[] a = sacd.getActivity();
-		assertEquals(1, a[0]); // 6
-		assertEquals(0, a[1]); // 5
-		assertEquals(2, a[2]); // 4
-		assertEquals(0, a[3]); // 3
-		assertEquals(2, a[4]); // 2
-		assertEquals(1, a[5]); // 1
-		assertEquals(2, a[6]); // 0
+		Assert.assertEquals(1, a[0]); // 6
+		Assert.assertEquals(0, a[1]); // 5
+		Assert.assertEquals(2, a[2]); // 4
+		Assert.assertEquals(0, a[3]); // 3
+		Assert.assertEquals(2, a[4]); // 2
+		Assert.assertEquals(1, a[5]); // 1
+		Assert.assertEquals(2, a[6]); // 0
 		
 		// #7 getSummaryActivityChartData: month, BAR
 		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_MONTH, StatsManager.CHARTTYPE_BAR);
-		assertEquals(0, sacd.getActivityByToolTotal());
-		assertNotNull(sacd.getFirstDay());
+		Assert.assertEquals(0, sacd.getActivityByToolTotal());
+		Assert.assertNotNull(sacd.getFirstDay());
 		a = sacd.getActivity();
 		for(int i=0; i<a.length ; i++) {
 			if(i==23) {
-				assertEquals(1, a[i]);				
+				Assert.assertEquals(1, a[i]);				
 			}else if(i==25) {
-				assertEquals(2, a[i]);				
+				Assert.assertEquals(2, a[i]);				
 			}else if(i==27) {
-				assertEquals(2, a[i]);				
+				Assert.assertEquals(2, a[i]);				
 			}else if(i==28) {
-				assertEquals(1, a[i]);				
+				Assert.assertEquals(1, a[i]);				
 			}else if(i==29) {
-				assertEquals(2, a[i]);				
+				Assert.assertEquals(2, a[i]);				
 			}else{
-				assertEquals(0, a[i]);
+				Assert.assertEquals(0, a[i]);
 			}
 		}
 		
 		// #8 getSummaryActivityChartData: year, BAR
 		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_YEAR, StatsManager.CHARTTYPE_BAR);
-		assertEquals(0, sacd.getActivityByToolTotal());
-		assertNotNull(sacd.getFirstDay());
+		Assert.assertEquals(0, sacd.getActivityByToolTotal());
+		Assert.assertNotNull(sacd.getFirstDay());
 		a = sacd.getActivity();
 //		for(int i=0; i<a.length ; i++) {
 //			if(i==11) {
-//				assertEquals(8, a[i]);
+//				Assert.assertEquals(8, a[i]);
 //			}else{
-//				assertEquals(0, a[i]);
+//				Assert.assertEquals(0, a[i]);
 //			}
 //		}
 		
 		// #9 getSummaryActivityChartData: week, TOOL
 		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_WEEK, StatsManager.CHARTTYPE_PIE);
 		List<SiteActivityByTool> sabt = sacd.getActivityByTool();
-		assertNotNull(sabt);
-		assertEquals(2, sabt.size());
+		Assert.assertNotNull(sabt);
+		Assert.assertEquals(2, sabt.size());
 		for(SiteActivityByTool s : sabt) {
-			assertEquals(FakeData.SITE_A_ID, s.getSiteId());
+			Assert.assertEquals(FakeData.SITE_A_ID, s.getSiteId());
 			ToolInfo ti = s.getTool();
 			if(FakeData.TOOL_CHAT.equals(ti.getToolId())) {
-				assertEquals(6, s.getCount());
+				Assert.assertEquals(6, s.getCount());
 			}else if(StatsManager.RESOURCES_TOOLID.equals(ti.getToolId())) {
-				assertEquals(2, s.getCount());
+				Assert.assertEquals(2, s.getCount());
 			}
 		}
 		
 		// #10 getSummaryActivityChartData: month, TOOL
 		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_MONTH, StatsManager.CHARTTYPE_PIE);
 		sabt = sacd.getActivityByTool();
-		assertNotNull(sabt);
-		assertEquals(2, sabt.size());
+		Assert.assertNotNull(sabt);
+		Assert.assertEquals(2, sabt.size());
 		for(SiteActivityByTool s : sabt) {
-			assertEquals(FakeData.SITE_A_ID, s.getSiteId());
+			Assert.assertEquals(FakeData.SITE_A_ID, s.getSiteId());
 			ToolInfo ti = s.getTool();
 			if(FakeData.TOOL_CHAT.equals(ti.getToolId())) {
-				assertEquals(6, s.getCount());
+				Assert.assertEquals(6, s.getCount());
 			}else if(StatsManager.RESOURCES_TOOLID.equals(ti.getToolId())) {
-				assertEquals(2, s.getCount());
+				Assert.assertEquals(2, s.getCount());
 			}
 		}
 		
 		// #11 getSummaryActivityChartData: year, TOOL
 		sacd = M_sm.getSummaryActivityChartData(FakeData.SITE_A_ID, StatsManager.VIEW_YEAR, StatsManager.CHARTTYPE_PIE);
 		sabt = sacd.getActivityByTool();
-		assertNotNull(sabt);
-		assertEquals(2, sabt.size());
+		Assert.assertNotNull(sabt);
+		Assert.assertEquals(2, sabt.size());
 		for(SiteActivityByTool s : sabt) {
-			assertEquals(FakeData.SITE_A_ID, s.getSiteId());
+			Assert.assertEquals(FakeData.SITE_A_ID, s.getSiteId());
 			ToolInfo ti = s.getTool();
 			if(FakeData.TOOL_CHAT.equals(ti.getToolId())) {
-				assertEquals(6, s.getCount());
+				Assert.assertEquals(6, s.getCount());
 			}else if(StatsManager.RESOURCES_TOOLID.equals(ti.getToolId())) {
-				assertEquals(2, s.getCount());
+				Assert.assertEquals(2, s.getCount());
 			}
 		}
 		
 	}
 	
+	@Test
 	public void testEventStats() {
 		M_sum.collectEvents(getSampleData());
 		Date now = new Date();
@@ -811,98 +806,98 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		
 		// #1 getEventStats()
 		List<Stat> stats = M_sm.getEventStats(FakeData.SITE_A_ID, null);
-		assertEquals(14, stats.size());
+		Assert.assertEquals(14, stats.size());
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW));
-		assertEquals(5, stats.size());
+		Assert.assertEquals(5, stats.size());
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW));
-		assertEquals(6, stats.size());
+		Assert.assertEquals(6, stats.size());
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, new ArrayList<String>());
-		assertEquals(0, stats.size());
+		Assert.assertEquals(0, stats.size());
 		
 		// #2
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(14, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(14, stats.size());
 		int statsCount = M_sm.getEventStatsRowCount(null, null, 
 				null, null, null, false, null);
-		assertEquals(14, statsCount);
+		Assert.assertEquals(14, statsCount);
 		
 		
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				threeDaysBefore, null, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(8, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(8, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null, 
 				threeDaysBefore, null, null, false, null);
-		assertEquals(8, statsCount);
+		Assert.assertEquals(8, statsCount);
 		
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW), 
 				null, today, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(6, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(6, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CHATNEW, FakeData.EVENT_CONTENTNEW),
 				null, today, null, false, null);
-		assertEquals(6, statsCount);
+		Assert.assertEquals(6, statsCount);
 		
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, Arrays.asList(FakeData.USER_B_ID), false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(6, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(6, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, Arrays.asList(FakeData.USER_B_ID), false, null);
-		assertEquals(6, statsCount);
+		Assert.assertEquals(6, statsCount);
 		
 		// test inverse selection
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW), 
 				null, null, null, true, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
-		assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
+		Assert.assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
 		
 		// test paging
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, new PagingPosition(0, 5), 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(6, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(6, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, null, false, null);
-		assertEquals(14, statsCount);
+		Assert.assertEquals(14, statsCount);
 		
 		// test max results
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, new PagingPosition(0, 5), 
 				null, null, false, 3);
-		assertNotNull(stats);
-		assertEquals(3, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(3, stats.size());
 		
 		// test columns with sorting
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_EVENT, StatsManager.T_USER), StatsManager.T_USER, true, 0);
-		assertNotNull(stats);
-		assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
 		for(Stat s : stats) {
 			EventStat es = (EventStat) s;
-			assertNotNull(es.getEventId());
-			assertNotNull(es.getUserId());
-			assertNotNull(es.getCount());
-			assertNull(es.getSiteId());
-			assertNull(es.getDate());
+			Assert.assertNotNull(es.getEventId());
+			Assert.assertNotNull(es.getUserId());
+			Assert.assertNotNull(es.getCount());
+			Assert.assertNull(es.getSiteId());
+			Assert.assertNull(es.getDate());
 		}
-		assertEquals(6, stats.size());
+		Assert.assertEquals(6, stats.size());
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_EVENT, StatsManager.T_USER), StatsManager.T_USER, false, 0);
-		assertNotNull(stats);
-		assertEquals(FakeData.USER_B_ID, stats.get(0).getUserId());
-		assertEquals(6, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(FakeData.USER_B_ID, stats.get(0).getUserId());
+		Assert.assertEquals(6, stats.size());
 		
 		// anonymous
 		Event eAnon = M_sum.buildEvent(today, FakeData.EVENT_CONTENTDEL, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-b");
@@ -910,168 +905,169 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(15, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(15, stats.size());
 		boolean foundAnonymousUser = false;
 		for(Stat s : stats) {
 			if("-".equals(s.getUserId())) {
 				foundAnonymousUser = true;
 			}
 		}
-		assertTrue(foundAnonymousUser);
+		Assert.assertTrue(foundAnonymousUser);
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, null, false, null);
-		assertEquals(15, statsCount);
+		Assert.assertEquals(15, statsCount);
 		stats = M_sm.getEventStats(null, null, 
 				null, null, new ArrayList<String>(), false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(0, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(0, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, new ArrayList<String>(), false, null);
-		assertEquals(0, statsCount);
+		Assert.assertEquals(0, statsCount);
 		
 		// group by: defaults
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(15, stats.size());		
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(15, stats.size());		
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, null, false, null);
-		assertEquals(15, statsCount);
+		Assert.assertEquals(15, statsCount);
 		// group by: site
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_SITE, StatsManager.T_EVENT), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(5, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(5, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_EVENT));
-		assertEquals(5, statsCount);
+		Assert.assertEquals(5, statsCount);
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_SITE, StatsManager.T_TOOL), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(3, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(3, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_TOOL));
-		assertEquals(5, statsCount); // is not 3 because count has not (manually) aggregated by tool
+		Assert.assertEquals(5, statsCount); // is not 3 because count has not (manually) aggregated by tool
 		stats = M_sm.getEventStats(null, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_SITE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_SITE));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		// group by: user
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_USER), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(3, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(3, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_USER));
-		assertEquals(3, statsCount);
+		Assert.assertEquals(3, statsCount);
 		// group by: tool
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW), 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_TOOL), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(2, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(2, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, Arrays.asList(StatsManager.T_TOOL));
-		assertEquals(3, statsCount);  // is not 2 because count has not (manually) aggregated by tool
+		Assert.assertEquals(3, statsCount);  // is not 2 because count has not (manually) aggregated by tool
 		// group by: tool and user (previously, getting wrong results due to STAT-221)
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW), 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_USER, StatsManager.T_TOOL), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(4, stats.size()); // before STAT-221 was 2 (wrong)
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(4, stats.size()); // before STAT-221 was 2 (wrong)
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, Arrays.asList(StatsManager.T_USER, StatsManager.T_TOOL));
-		assertEquals(4, statsCount);
+		Assert.assertEquals(4, statsCount);
 		// group by: event
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_TOOL, StatsManager.T_EVENT), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(3, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(3, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, Arrays.asList(StatsManager.T_TOOL, StatsManager.T_EVENT));
-		assertEquals(3, statsCount);
+		Assert.assertEquals(3, statsCount);
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_EVENT), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(3, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(3, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, Arrays.asList(FakeData.EVENT_CONTENTNEW, FakeData.EVENT_CONTENTDEL, FakeData.EVENT_CHATNEW),
 				null, null, null, false, Arrays.asList(StatsManager.T_EVENT));
-		assertEquals(3, statsCount);
+		Assert.assertEquals(3, statsCount);
 		// group by: date
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_DATE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(6, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(6, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_DATE));
-		assertEquals(6, statsCount);
+		Assert.assertEquals(6, statsCount);
 		// group by: datemonth
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_DATEMONTH), null, false, 0);
-		assertNotNull(stats);
-		assertTrue(stats.size() <= 2);
+		Assert.assertNotNull(stats);
+		Assert.assertTrue(stats.size() <= 2);
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_DATEMONTH));
-		assertTrue(statsCount <= 2);
+		Assert.assertTrue(statsCount <= 2);
 		// group by: dateyear
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_DATEYEAR), null, false, 0);
-		assertNotNull(stats);
-		assertTrue(stats.size() <= 2);
+		Assert.assertNotNull(stats);
+		Assert.assertTrue(stats.size() <= 2);
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_DATEYEAR));
-		assertTrue(statsCount <= 2);
+		Assert.assertTrue(statsCount <= 2);
 		// group by: lastdate
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_LASTDATE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_LASTDATE));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		// group by: visits
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_VISITS), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
-		assertEquals(18, ((SiteVisits)stats.get(0)).getTotalVisits());
-		assertEquals(2, ((SiteVisits)stats.get(0)).getTotalUnique());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
+		Assert.assertEquals(18, ((SiteVisits)stats.get(0)).getTotalVisits());
+		Assert.assertEquals(2, ((SiteVisits)stats.get(0)).getTotalUnique());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_VISITS));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		// group by: uniquevisits
 		stats = M_sm.getEventStats(FakeData.SITE_A_ID, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_UNIQUEVISITS), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
-		assertEquals(18, ((SiteVisits)stats.get(0)).getTotalVisits());
-		assertEquals(2, ((SiteVisits)stats.get(0)).getTotalUnique());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
+		Assert.assertEquals(18, ((SiteVisits)stats.get(0)).getTotalVisits());
+		Assert.assertEquals(2, ((SiteVisits)stats.get(0)).getTotalUnique());
 		statsCount = M_sm.getEventStatsRowCount(FakeData.SITE_A_ID, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_UNIQUEVISITS));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		
 		//System.out.println("Stats: "+stats);
 		//System.out.println("Size: "+stats.size());
 	}
 	
+	@Test
 	public void testResourceStats() {
 		M_sum.collectEvents(getSampleData());
 		Date now = new Date();
@@ -1080,184 +1076,185 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 		
 		// #1
 		List<Stat> stats = M_sm.getResourceStats(FakeData.SITE_A_ID);
-		assertEquals(2, stats.size());
+		Assert.assertEquals(2, stats.size());
 		
 		// #2
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(2, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(2, stats.size());
 		int statsCount = M_sm.getResourceStatsRowCount(null, null, null,
 				null, null, null, false, null);
-		assertEquals(2, statsCount);
+		Assert.assertEquals(2, statsCount);
 		
 		
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
 				sixDaysBefore, null, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
 				sixDaysBefore, null, null, false, null);
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 			
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_REVS, null,
 				null, null, Arrays.asList(FakeData.USER_B_ID), false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_REVS, null,
 				null, null, Arrays.asList(FakeData.USER_B_ID), false, null);
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		
 		// test inverse selection
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_NEW ,null, 
 				null, null, null, true, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
-		assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
+		Assert.assertEquals(FakeData.USER_A_ID, stats.get(0).getUserId());
 		
 		// test paging
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, new PagingPosition(0, 0), 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
 				null, null, null, false, null);
-		assertEquals(2, statsCount);
+		Assert.assertEquals(2, statsCount);
 		
 		// test max results
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, new PagingPosition(0, 0), 
 				null, null, false, 1);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		
 		// test columns with sorting
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_RESOURCE_ACTION), StatsManager.T_RESOURCE_ACTION, true, 0);
-		assertNotNull(stats);
-		assertEquals(ReportManager.WHAT_RESOURCES_ACTION_NEW, ((ResourceStat)stats.get(0)).getResourceAction());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(ReportManager.WHAT_RESOURCES_ACTION_NEW, ((ResourceStat)stats.get(0)).getResourceAction());
 		for(Stat s : stats) {
 			ResourceStat es = (ResourceStat) s;
-			assertNotNull(es.getResourceAction());
-			assertNotNull(es.getCount());
-			assertNull(es.getSiteId());
-			assertNull(es.getDate());
-			assertNull(es.getUserId());
-			assertNull(es.getResourceRef());
+			Assert.assertNotNull(es.getResourceAction());
+			Assert.assertNotNull(es.getCount());
+			Assert.assertNull(es.getSiteId());
+			Assert.assertNull(es.getDate());
+			Assert.assertNull(es.getUserId());
+			Assert.assertNull(es.getResourceRef());
 		}
-		assertEquals(2, stats.size());
+		Assert.assertEquals(2, stats.size());
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_RESOURCE_ACTION), StatsManager.T_RESOURCE_ACTION, false, 0);
-		assertNotNull(stats);
-		assertEquals(ReportManager.WHAT_RESOURCES_ACTION_REVS, ((ResourceStat)stats.get(0)).getResourceAction());
-		assertEquals(2, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(ReportManager.WHAT_RESOURCES_ACTION_REVS, ((ResourceStat)stats.get(0)).getResourceAction());
+		Assert.assertEquals(2, stats.size());
 		
 		// group by: defaults
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, null, 
 				null, null, false, 0);
-		assertNotNull(stats);
-		assertEquals(2, stats.size());		
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(2, stats.size());		
 		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
 				null, null, null, false, null);
-		assertEquals(2, statsCount);
+		Assert.assertEquals(2, statsCount);
 		// group by: site
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_USER));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_SITE, StatsManager.T_RESOURCE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_SITE, StatsManager.T_RESOURCE));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		stats = M_sm.getResourceStats(null, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_SITE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(null, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_SITE));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		// group by: user
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_USER), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_USER));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		// group by: resource
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, Arrays.asList("/content/group/"+FakeData.SITE_A_ID+"/resource_id"), 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_RESOURCE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, Arrays.asList("/content/group/"+FakeData.SITE_A_ID+"/resource_id"),
 				null, null, null, false, Arrays.asList(StatsManager.T_RESOURCE));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		// group by: resource action
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_NEW, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_RESOURCE_ACTION), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, ReportManager.WHAT_RESOURCES_ACTION_NEW, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_RESOURCE_ACTION));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 		// group by: date
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_DATE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(2, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(2, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_DATE));
-		assertEquals(2, statsCount);
+		Assert.assertEquals(2, statsCount);
 		// group by: datemonth
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_DATEMONTH), null, false, 0);
-		assertNotNull(stats);
-		assertTrue(stats.size() <= 2);
+		Assert.assertNotNull(stats);
+		Assert.assertTrue(stats.size() <= 2);
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_DATEMONTH));
-		assertTrue(statsCount <= 2);
+		Assert.assertTrue(statsCount <= 2);
 		// group by: dateyear
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null, 
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_DATEYEAR), null, false, 0);
-		assertNotNull(stats);
-		assertTrue(stats.size() <= 2);
+		Assert.assertNotNull(stats);
+		Assert.assertTrue(stats.size() <= 2);
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null, 
 				null, null, null, false, Arrays.asList(StatsManager.T_DATEYEAR));
-		assertTrue(statsCount <= 2);
+		Assert.assertTrue(statsCount <= 2);
 		// group by: lastdate
 		stats = M_sm.getResourceStats(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, null, 
 				Arrays.asList(StatsManager.T_LASTDATE), null, false, 0);
-		assertNotNull(stats);
-		assertEquals(1, stats.size());
+		Assert.assertNotNull(stats);
+		Assert.assertEquals(1, stats.size());
 		statsCount = M_sm.getResourceStatsRowCount(FakeData.SITE_A_ID, null, null,
 				null, null, null, false, Arrays.asList(StatsManager.T_LASTDATE));
-		assertEquals(1, statsCount);
+		Assert.assertEquals(1, statsCount);
 	}
 	
+	@Test
 	public void testLargeMembershipSite() {
 		// For development only: this tests take too long!
 		if(enableLargeMembershipTest) {
@@ -1275,11 +1272,11 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 				List<Stat> stats = M_sm.getEventStats(null, Arrays.asList(StatsManager.SITEVISIT_EVENTID), 
 						null, null, allUsers, false, null, 
 						null, null, false, 0);
-				assertNotNull(stats);
-				assertEquals(FakeData.SITE_C_USER_COUNT / 2, stats.size());
+				Assert.assertNotNull(stats);
+				Assert.assertEquals(FakeData.SITE_C_USER_COUNT / 2, stats.size());
 				int statsCount = M_sm.getEventStatsRowCount(null, Arrays.asList(StatsManager.SITEVISIT_EVENTID), 
 						null, null, allUsers, false, null);
-				assertEquals(FakeData.SITE_C_USER_COUNT / 2, statsCount);
+				Assert.assertEquals(FakeData.SITE_C_USER_COUNT / 2, statsCount);
 			}
 			
 			// test activity
@@ -1287,11 +1284,11 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 				List<Stat> stats = M_sm.getEventStats(null, Arrays.asList(FakeData.EVENT_CHATNEW), 
 						null, null, allUsers, false, null, 
 						null, null, false, 0);
-				assertNotNull(stats);
-				assertEquals(FakeData.SITE_C_USER_COUNT / 2, stats.size());
+				Assert.assertNotNull(stats);
+				Assert.assertEquals(FakeData.SITE_C_USER_COUNT / 2, stats.size());
 				int statsCount = M_sm.getEventStatsRowCount(null, Arrays.asList(FakeData.EVENT_CHATNEW), 
 						null, null, allUsers, false, null);
-				assertEquals(FakeData.SITE_C_USER_COUNT / 2, statsCount);
+				Assert.assertEquals(FakeData.SITE_C_USER_COUNT / 2, statsCount);
 			}
 			
 			// test resources
@@ -1299,11 +1296,11 @@ public class StatsManagerTest extends AbstractAnnotationAwareTransactionalTests 
 				List<Stat> stats = M_sm.getResourceStats(null, null, null, 
 						null, null, allUsers, false, null, 
 						null, null, false, 0);
-				assertNotNull(stats);
-				assertEquals(FakeData.SITE_C_USER_COUNT, stats.size());
+				Assert.assertNotNull(stats);
+				Assert.assertEquals(FakeData.SITE_C_USER_COUNT, stats.size());
 				int statsCount = M_sm.getResourceStatsRowCount(null, null, null, 
 						null, null, allUsers, false, null);
-				assertEquals(FakeData.SITE_C_USER_COUNT, statsCount);
+				Assert.assertEquals(FakeData.SITE_C_USER_COUNT, statsCount);
 			}
 		}
 	}

@@ -1,22 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
    <bean id="org.sakaiproject.content.api.ContentPrintService"
-	class="org.sakaiproject.content.impl.BasicContentPrintService"
-	singleton="true">
+	class="org.sakaiproject.content.impl.BasicContentPrintService">
     </bean>
 
     <!-- database beans -->
-    <bean id="org.sakaiproject.content.impl.ContentServiceSqlDefault"   class="org.sakaiproject.content.impl.ContentServiceSqlDefault" singleton="true"/>
-    <bean id="org.sakaiproject.content.impl.ContentServiceSqlHSql"      class="org.sakaiproject.content.impl.ContentServiceSqlHSql"    singleton="true"/>
-    <bean id="org.sakaiproject.content.impl.ContentServiceSqlMySql"     class="org.sakaiproject.content.impl.ContentServiceSqlMySql"   singleton="true"/>
-    <bean id="org.sakaiproject.content.impl.ContentServiceSqlOracle"    class="org.sakaiproject.content.impl.ContentServiceSqlOracle"  singleton="true"/>
+    <bean id="org.sakaiproject.content.impl.ContentServiceSqlDefault"   class="org.sakaiproject.content.impl.ContentServiceSqlDefault"/>
+    <bean id="org.sakaiproject.content.impl.ContentServiceSqlHSql"      class="org.sakaiproject.content.impl.ContentServiceSqlHSql"/>
+    <bean id="org.sakaiproject.content.impl.ContentServiceSqlMySql"     class="org.sakaiproject.content.impl.ContentServiceSqlMySql"/>
+    <bean id="org.sakaiproject.content.impl.ContentServiceSqlOracle"    class="org.sakaiproject.content.impl.ContentServiceSqlOracle"/>
 
 	<bean id="org.sakaiproject.content.api.ContentHostingService"
 			class="org.sakaiproject.content.impl.DbContentService"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
 
         <property name="fileSystemHandler">          <ref bean="org.sakaiproject.content.api.FileSystemHandler"/>            </property>
         <property name="memoryService">              <ref bean="org.sakaiproject.memory.api.MemoryService"/>                 </property>
@@ -91,23 +90,21 @@
     </bean>
 
 	<bean id="org.sakaiproject.content.api.ContentHostingHandlerResolver"
-			class="org.sakaiproject.content.impl.ContentHostingHandlerResolverImpl"
-			singleton="true">
+			class="org.sakaiproject.content.impl.ContentHostingHandlerResolverImpl">
 	</bean>
 
 
 
 <!--
 	<bean id="uk.ac.cam.caret.ContentHostingHandlerFileSystemImpl.0000"
-			class="org.sakaiproject.content.impl.ContentHostingHandlerImplFileSystem"
-			singleton="true">
+			class="org.sakaiproject.content.impl.ContentHostingHandlerImplFileSystem">
 			<property name="contentHostingHandlerResolver" ><ref bean="org.sakaiproject.content.api.ContentHostingHandlerResolver"/></property>
 	</bean>
 -->
 
 	<bean id="org.sakaiproject.content.api.ContentTypeImageService"
 			class="org.sakaiproject.content.impl.BasicContentTypeImageService"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
             
         <property name="serverConfigurationService">
         	<ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -145,14 +142,12 @@
 	</bean>
 
 	<bean id="org.sakaiproject.content.impl.LockManagerTarget"
-			class="org.sakaiproject.content.impl.LockManagerImpl"
-			singleton="true">
+			class="org.sakaiproject.content.impl.LockManagerImpl">
         <property name="sessionFactory"> <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/> </property>
 	</bean>
 
 	<bean id="org.sakaiproject.content.api.LockManager"
-			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-			singleton="true">
+			class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
         <property name="transactionManager">  <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>  </property>
         <property name="target">              <ref bean="org.sakaiproject.content.impl.LockManagerTarget"/>                          </property>
 		<property name="transactionAttributes">
@@ -164,7 +159,7 @@
 
 	<bean id="org.sakaiproject.content.api.ResourceTypeRegistry"
 			class="org.sakaiproject.content.impl.DbResourceTypeRegistry"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
         <property name="sqlService"> <ref bean="org.sakaiproject.db.api.SqlService"/> </property>
         <property name="autoDdl">    <value>${auto.ddl}</value>                       </property>
         <property name="threadLocalManager"><ref bean="org.sakaiproject.thread_local.api.ThreadLocalManager"/></property>
@@ -172,7 +167,7 @@
 	
 	<bean id="org.sakaiproject.content.impl.DropboxContextObserver"
 			class="org.sakaiproject.content.impl.DropboxContextObserver"
-            init-method="init" destroy-method="destroy" singleton="true">
+            init-method="init" destroy-method="destroy">
 
         <property name="contentService">
         	<ref bean="org.sakaiproject.content.api.ContentHostingService"/>
@@ -185,16 +180,14 @@
 
 
 	<bean id="org.sakaiproject.content.api.ContentHostingService.collectionSerializer"
-			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer"
-			singleton="true">
+			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentCollectionSerializer">
         <property name="timeService">
         	<ref bean="org.sakaiproject.time.api.TimeService"/>
 		</property>			
 	</bean>
 	
 	<bean id="org.sakaiproject.content.api.ContentHostingService.resourceSerializer"
-			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer"
-			singleton="true">
+			class="org.sakaiproject.content.impl.serialize.impl.Type1BaseContentResourceSerializer">
         <property name="timeService">
         	<ref bean="org.sakaiproject.time.api.TimeService"/>
 		</property>			
@@ -204,7 +197,7 @@
     <bean id="org.sakaiproject.user.api.UserNotificationPreferencesRegistration.content"
       parent="org.sakaiproject.user.api.UserNotificationPreferencesRegistration"
       class="org.sakaiproject.content.user.prefs.ContentUserNotificationPreferencesRegistrationImpl"
-      init-method="init" singleton="true">
+      init-method="init">
       <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
       <property name="bundleLocation"><value>org.sakaiproject.localization.bundle.content.content</value></property>
       <property name="sectionTitleBundleKey"><value>prefs_title</value></property>

@@ -24,12 +24,13 @@ package org.sakaiproject.assesment.service;
 
 import java.util.Map;
 
+import org.junit.Assert;
+import org.junit.Test;
 import org.sakaiproject.tool.assessment.services.GradingService;
-import org.springframework.test.AbstractTransactionalSpringContextTests;
 
-public class GradingServiceTest extends AbstractTransactionalSpringContextTests {
+public class GradingServiceTest {
 	
-	
+	@Test
 	public void testValidate() {
 		GradingService gradingService = new GradingService();
 		
@@ -37,7 +38,7 @@ public class GradingServiceTest extends AbstractTransactionalSpringContextTests 
 			gradingService.validate("2.1");
 		
 		} catch (Exception e) {
-			fail();
+			Assert.fail();
 		}
 		
 		/* FIX me this should work
@@ -50,7 +51,7 @@ public class GradingServiceTest extends AbstractTransactionalSpringContextTests 
 	*/
 		try {
 			gradingService.validate("not a number");
-			fail();
+			Assert.fail();
 		} catch (Exception e) {
 			
 		}
@@ -58,19 +59,19 @@ public class GradingServiceTest extends AbstractTransactionalSpringContextTests 
 		
 		try {
 			Map map = gradingService.validate("6.022E23");
-			assertTrue(map.containsKey(GradingService.ANSWER_TYPE_REAL));
+			Assert.assertTrue(map.containsKey(GradingService.ANSWER_TYPE_REAL));
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 		
 		
 		try {
 			Map map = gradingService.validate("1+9i");
-			assertTrue(map.containsKey(GradingService.ANSWER_TYPE_COMPLEX));
+			Assert.assertTrue(map.containsKey(GradingService.ANSWER_TYPE_COMPLEX));
 		} catch (Exception e) {
 			e.printStackTrace();
-			fail();
+			Assert.fail();
 		}
 	}
 }

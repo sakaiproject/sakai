@@ -24,13 +24,12 @@ package org.sakaiproject.user.impl.test;
 
 import java.util.Collection;
 
-import junit.extensions.TestSetup;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
@@ -73,23 +72,18 @@ public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
 	private static String contextualSiteUid;
 	private static String currentSiteUid;
 
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(ContextualDisplayServiceTest.class)) {
-			protected void setUp() throws Exception {
-				try {
-					oneTimeSetup();
-					oneTimeSetupAfter();
-				} catch (Exception e) {
-					log.warn(e);
-				}
-			}
-			protected void tearDown() throws Exception {
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+            log.debug("starting oneTimeSetup");
+			oneTimeSetup();
+			oneTimeSetupAfter();
+            log.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
-
+	
 	// A full test requires both a display-advising User Directory Provider and a
 	// contextual display provider. An inter-component integration test would manage
 	// via normal Sakai configuration files. For a kernel-internal test, it needs
@@ -106,6 +100,7 @@ public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
 		dbUserService.setContextualUserDisplayService(contextualUserDisplayService);
 	}
 	
+	@Before
 	public void setUp() throws Exception {
 		userDirectoryService = getService(UserDirectoryService.class);
 		siteService = getService(SiteService.class);
@@ -128,6 +123,7 @@ public class ContextualDisplayServiceTest extends SakaiKernelTestBase {
 		contextualSiteUid = site.getReference();
 	}
 	
+	@Test
 	public void testContextualDisplayProvision() throws Exception {
 		User unadvisedUser = userDirectoryService.getUserByEid(UNADVISED_USER_EID);
 		User displayAdvisedUser = userDirectoryService.getUserByEid(DISPLAY_ADVISED_USER_EID);

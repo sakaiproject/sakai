@@ -35,7 +35,7 @@ import java.io.IOException;
 public class EhCacheManagerFactoryBean extends org.springframework.cache.ehcache.EhCacheManagerFactoryBean {
 	private ServerConfigurationService serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class);
     @Override
-    public void afterPropertiesSet() throws IOException, CacheException {
+	public void afterPropertiesSet() {
         super.afterPropertiesSet();
 		//Now look for any custom configuration.
     	CacheManager cm = (CacheManager) this.getObject();

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Session Factory -->
 	<bean id="externalSitestatsSessionFactory"
@@ -10,15 +11,6 @@
 		<property name="hibernateProperties" ref="org.sakaiproject.sitestats.externalDbHibernateProperties"/>
 		<property name="dataSource" ref="org.sakaiproject.sitestats.externalDbDataSource"/>
 		<property name="schemaUpdate" value="@{sitestats.externalDb.auto.ddl}"/>
-		
-		<property name="cacheProvider" ref="org.hibernate.cache.SitestatsCacheProvider"/>
-	</bean>
-	
-	<bean id="org.hibernate.cache.SitestatsCacheProvider"
-		class="org.sakaiproject.springframework.orm.hibernate.SakaiCacheProvider"
-		init-method="init" destroy-method="destroy">
-		<property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService" />
-		<property name="defaultCacheName" value="org.sakaiproject.springframework.orm.hibernate.L2Cache" />
 	</bean>
 	
 	<!-- Transaction Manager -->
@@ -29,7 +21,6 @@
 			<ref bean="externalSitestatsSessionFactory" />
 		</property>
 	</bean>
-	
 	
 	<!-- Hibernate Properties -->
 	<bean id="org.sakaiproject.sitestats.externalDbHibernateProperties"
@@ -45,6 +36,9 @@
 				</prop>
 				<prop key="hibernate.jdbc.use_streams_for_binary">true</prop>
 				<prop key="hibernate.cache.use_query_cache">true</prop>
+				<!-- In case you wish to configure a separate Cache Region
+				     use EhCacheRegionFactory as sakai uses a common Cache -->
+				<prop key="hibernate.cache.region.factory_class">org.hibernate.cache.SingletonEhCacheRegionFactory</prop>
 			</props>
 		</property>
 	</bean>

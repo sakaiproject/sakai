@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
     <bean id="sakai.messagebundle.mappings"
        class="org.sakaiproject.springframework.orm.hibernate.impl.AdditionalHibernateMappingsImpl">
        <property name="mappingResources">
@@ -14,7 +14,7 @@
 <!--  
    <bean id="org.sakaiproject.messagebundle.api.MessageBundleService.target"
          class="org.sakaiproject.messagebundle.impl.MessageBundleServiceImpl"
-         singleton="true" init-method="init" lazy-init="true">
+         init-method="init" lazy-init="true">
       <property name="sessionFactory">
          <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
       </property>
@@ -22,7 +22,7 @@
  -->    
    <bean id="org.sakaiproject.messagebundle.api.MessageBundleService.target"
          class="org.sakaiproject.messagebundle.impl.CachingMessageBundleServiceImpl"
-         singleton="true" init-method="init" destroy-method="destroy" lazy-init="true">
+         init-method="init" destroy-method="destroy" lazy-init="true">
       <property name="sessionFactory" ref="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
       <property name="memoryService" ref="org.sakaiproject.memory.api.MemoryService"/>
       <property name="scheduleSaves" value="true"/>
@@ -31,7 +31,7 @@
 
     <bean id="org.sakaiproject.messagebundle.api.MessageBundleService"
          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-         singleton="true" lazy-init="true">
+         lazy-init="true">
          <property name="transactionManager">
            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager"/>
          </property>

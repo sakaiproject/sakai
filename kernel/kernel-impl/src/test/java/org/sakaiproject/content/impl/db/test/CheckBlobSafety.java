@@ -39,13 +39,15 @@ import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import junit.framework.TestCase;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * @author ieb
  */
-public class CheckBlobSafety extends TestCase
+public class CheckBlobSafety
 {
 
 	private static final Log log = LogFactory.getLog(CheckBlobSafety.class);
@@ -58,23 +60,9 @@ public class CheckBlobSafety extends TestCase
 
 	private Connection con;
 
-	/**
-	 * @param name
-	 */
-	public CheckBlobSafety(String name)
+	@Before
+	public void setUp() throws Exception
 	{
-		super(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception
-	{
-
-		super.setUp();
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
 
 		if (config != null)
@@ -152,14 +140,9 @@ public class CheckBlobSafety extends TestCase
 
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception
+	@After
+	public void tearDown() throws Exception
 	{
-		super.tearDown();
 		Statement stmt = null;
 		try
 		{
@@ -185,6 +168,7 @@ public class CheckBlobSafety extends TestCase
 		}
 	}
 
+	@Test
 	public void testBlob() 
 	{
 		try
@@ -233,7 +217,7 @@ public class CheckBlobSafety extends TestCase
 						din.readFully(bin, 0, size);
 						for (int j = 0; j < size; j++)
 						{
-							assertEquals("Byte Missmatch record " + i + " offset " + j,
+							Assert.assertEquals("Byte Missmatch record " + i + " offset " + j,
 									b[j], bin[j]);
 						}
 						log.info("Checked Record "+i+" of size "+size+ " bytes");
@@ -244,7 +228,7 @@ public class CheckBlobSafety extends TestCase
 					}
 					else
 					{
-						assertEquals("Didnt get any record at " + i, true, false);
+						Assert.assertEquals("Didnt get any record at " + i, true, false);
 					}
 					con.commit();
 				}

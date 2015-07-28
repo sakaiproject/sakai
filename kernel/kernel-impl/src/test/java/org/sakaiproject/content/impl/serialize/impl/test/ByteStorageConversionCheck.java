@@ -25,52 +25,25 @@ import java.util.Random;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Test;
 import org.sakaiproject.util.ByteStorageConversion;
-
-import junit.framework.TestCase;
 
 /**
  * @author ieb
  *
  */
-public class ByteStorageConversionCheck extends TestCase
+public class ByteStorageConversionCheck
 {
 
 	private static final Log log = LogFactory.getLog(ByteStorageConversionCheck.class);
 
-	/**
-	 * @param name
-	 */
-	public ByteStorageConversionCheck(String name)
-	{
-		super(name);
-	}
-
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception
-	{
-		super.setUp();
-	}
-
-	/* (non-Javadoc)
-	 * @see junit.framework.TestCase#tearDown()
-	 */
-	protected void tearDown() throws Exception
-	{
-		super.tearDown();
-	}
-	
+	@Test
 	public void test256Conversion() {
 		byte[] bin = new byte[256];
 		char[] cin = new char[256];
 		byte[] bout = new byte[256];
 
-		
-		
-		
-		
 		{
 			int i = 0;
 			for (byte bx = Byte.MIN_VALUE; bx <= Byte.MAX_VALUE && i < bin.length; bx++)
@@ -91,11 +64,13 @@ public class ByteStorageConversionCheck extends TestCase
 		log.info(sb.toString());
 		
 		for ( int i = 0; i < bin.length; i++ ) {
-			assertEquals("Internal Byte conversion failed at "+bin[i]+"=>"+(int)cin[i]+"=>"+bout[i],bin[i],bout[i]);
+			Assert.assertEquals("Internal Byte conversion failed at "+bin[i]+"=>"+(int)cin[i]+"=>"+bout[i],bin[i],bout[i]);
 		}
 		log.info("Internal Byte conversion test Passed Ok");
 		
 	}
+
+	@Test
 	public void testMaxMinConversion() {
 		byte[] bin = new byte[2];
 		char[] cin = new char[2];
@@ -115,6 +90,8 @@ public class ByteStorageConversionCheck extends TestCase
 			}
 		}
 	}
+
+	@Test
 	public void testRandomConversion() {
 		byte[] bin = new byte[102400];
 		char[] cin = new char[102400];
@@ -128,11 +105,9 @@ public class ByteStorageConversionCheck extends TestCase
 		
 		for ( int i = 0; i < bin.length; i++ ) {
 			if ( bin[i] !=  bout[i] ) {
-				assertEquals("Internal Byte conversion failed at "+bin[i]+"=>"+(int)cin[i]+"=>"+bout[i],bin[i],bout[i]);
+				Assert.assertEquals("Internal Byte conversion failed at "+bin[i]+"=>"+(int)cin[i]+"=>"+bout[i],bin[i],bout[i]);
 			}
 		}
 		log.info("Internal Byte (random set) conversion test Passed Ok");
 	}
-	
-
 }

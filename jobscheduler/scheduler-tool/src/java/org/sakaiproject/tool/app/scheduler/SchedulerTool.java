@@ -33,14 +33,21 @@ import javax.faces.validator.ValidatorException;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
 import org.quartz.InterruptableJob;
+import org.quartz.Job;
+import org.quartz.JobBuilder;
 import org.quartz.JobDataMap;
 import org.quartz.JobDetail;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
+import org.quartz.TriggerBuilder;
+import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 import org.quartz.JobExecutionContext;
+import org.quartz.JobKey;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobBeanWrapper;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobProperty;
 import org.sakaiproject.api.app.scheduler.ConfigurableJobPropertyValidationException;
@@ -527,15 +534,14 @@ public class SchedulerTool
      }
      try
      {
-        List executingJobs = scheduler.getCurrentlyExecutingJobs();
-        
-        for(Iterator i = executingJobs.iterator(); i.hasNext(); ) {
-           JobExecutionContext jobExecContext = (JobExecutionContext)i.next();
-           if(selectedJobDetailWrapper.getJobDetail().getFullName().equals(
-                    jobExecContext.getJobDetail().getFullName()) )
+        List<JobExecutionContext> executingJobs = scheduler.getCurrentlyExecutingJobs();
+        JobKey selected = selectedJobDetailWrapper.getJobDetail().getKey();
+
+        for (JobExecutionContext jobExecutionContext : executingJobs) {
+           if(selected.equals(jobExecutionContext.getJobDetail().getKey()) )
               return 1;
         }
-       return 0;
+        return 0;
      }
      catch (Exception e)
      {
@@ -555,7 +561,12 @@ public class SchedulerTool
   private JobDetail createJobDetail (JobBeanWrapper job)
   {
       JobDetail
-          jd = new JobDetail (jobName, Scheduler.DEFAULT_GROUP, job.getJobClass(), false, true, true);
+          jd = JobBuilder.newJob(job.getJobClass())
+              .withIdentity(jobName, Scheduler.DEFAULT_GROUP)
+              .requestRecovery()
+              .storeDurably()
+              .build();
+          
       JobDataMap
           map = jd.getJobDataMap();
 
@@ -609,8 +620,11 @@ public class SchedulerTool
     	   // this is not a job configured via a JobBeanWrapper
     	   // assume the class is a Job and schedule its execution
           setConfigurableJobBeanWrapper(null);
-          jd = new JobDetail(jobName, Scheduler.DEFAULT_GROUP,
-             Class.forName(selectedClass.toString()), false, true, true);
+          jd = JobBuilder.newJob((Class<? extends Job>) Class.forName(selectedClass.toString()))
+                  .withIdentity(jobName, Scheduler.DEFAULT_GROUP)
+                  .requestRecovery()
+                  .storeDurably()
+                  .build();
        }
        
        // create the job and show the list of jobs
@@ -779,10 +793,11 @@ public class SchedulerTool
     	JobDetail
     		jd = selectedJobDetailWrapper.getJobDetail();
 
-    	Trigger trigger = new CronTrigger(triggerName, Scheduler.DEFAULT_GROUP,
-    		  						    jd.getName(),
-    		  						    Scheduler.DEFAULT_GROUP, triggerExpression);
-    	
+    	Trigger trigger = TriggerBuilder.newTrigger()
+    	        .withIdentity(jd.getKey().getName(), Scheduler.DEFAULT_GROUP)
+    	        .withSchedule(CronScheduleBuilder.cronSchedule(triggerExpression))
+    	        .build();
+    	        
     	TriggerWrapper tempTriggerWrapper = new TriggerWrapperImpl();
     	tempTriggerWrapper.setTrigger(trigger);
       
@@ -965,8 +980,7 @@ public class SchedulerTool
       for (Iterator i = filteredJobDetailWrapperList.iterator(); i.hasNext();)
       {
         JobDetailWrapper jobDetailWrapper = (JobDetailWrapper) i.next();
-        schedulerManager.getScheduler().deleteJob(
-            jobDetailWrapper.getJobDetail().getName(), Scheduler.DEFAULT_GROUP);
+        schedulerManager.getScheduler().deleteJob(jobDetailWrapper.getJobDetail().getKey());
       }
     }
     catch (SchedulerException e)
@@ -985,8 +999,7 @@ public class SchedulerTool
       for (Iterator<TriggerWrapper> i = filteredTriggersWrapperList.iterator(); i.hasNext();)
       {
         triggerWrapper = (TriggerWrapper) i.next();
-        schedulerManager.getScheduler().unscheduleJob(
-            triggerWrapper.getTrigger().getName(), triggerWrapper.getTrigger().getGroup());
+        schedulerManager.getScheduler().unscheduleJob(triggerWrapper.getTrigger().getKey());
         selectedJobDetailWrapper.getTriggerWrapperList().remove(triggerWrapper);
       }
     }
@@ -1002,21 +1015,17 @@ public class SchedulerTool
     try
     {
       Scheduler scheduler = schedulerManager.getScheduler();
-      String[] jobNames = scheduler.getJobNames(Scheduler.DEFAULT_GROUP);
-      jobDetailWrapperList = new ArrayList();
-      for (int i = 0; i < jobNames.length; i++)
-      {
+      Set<JobKey> jobs = scheduler.getJobKeys(GroupMatcher.groupEquals(Scheduler.DEFAULT_GROUP));
+      jobDetailWrapperList = new ArrayList<JobDetailWrapper>();
+      for (JobKey key : jobs) {
         JobDetailWrapper jobDetailWrapper = new JobDetailWrapperImpl();
-        jobDetailWrapper.setJobDetail(scheduler.getJobDetail(jobNames[i],
-            Scheduler.DEFAULT_GROUP));
-        Trigger[] triggerArr = scheduler.getTriggersOfJob(jobNames[i],
-            Scheduler.DEFAULT_GROUP);
+        jobDetailWrapper.setJobDetail(scheduler.getJobDetail(key));
+        List<? extends Trigger> triggers = scheduler.getTriggersOfJob(key);
+        
         List<TriggerWrapper> triggerWrapperList = new ArrayList<TriggerWrapper>();
-        TriggerWrapper tw;
-        for (int j = 0; j < triggerArr.length; j++)
-        {
-          tw = new TriggerWrapperImpl();
-          tw.setTrigger(triggerArr[j]);
+        for (Trigger trigger : triggers) {
+          TriggerWrapper tw = new TriggerWrapperImpl();
+          tw.setTrigger(trigger);
           triggerWrapperList.add(tw);
         }
 
@@ -1249,14 +1258,11 @@ public class SchedulerTool
 
          if (dataMap == null)
          {
-             scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail().getName(),
-                                  selectedJobDetailWrapper.getJobDetail().getGroup());
+             scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail().getKey());
          }
          else
          {
-             scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail().getName(),
-                                  selectedJobDetailWrapper.getJobDetail().getGroup(),
-                                  dataMap);
+             scheduler.triggerJob(selectedJobDetailWrapper.getJobDetail().getKey(), dataMap);
          }
 
        return "success";
@@ -1342,7 +1348,7 @@ public class SchedulerTool
       String value = (String)object;
       try
       {
-        JobDetail jd = schedulerManager.getScheduler().getJobDetail(value, Scheduler.DEFAULT_GROUP);
+        JobDetail jd = schedulerManager.getScheduler().getJobDetail(JobKey.jobKey(value, Scheduler.DEFAULT_GROUP));
         if (jd != null)
         {
           FacesMessage message = new FacesMessage(rb.getString("existing_job_name"));
@@ -1369,8 +1375,7 @@ public class SchedulerTool
       String value = (String)object;
       try
       {
-        Trigger trigger = schedulerManager.getScheduler().getTrigger(
-            (String) value, Scheduler.DEFAULT_GROUP);
+        Trigger trigger = schedulerManager.getScheduler().getTrigger(TriggerKey.triggerKey(value, Scheduler.DEFAULT_GROUP));
         if (trigger != null)
         {
           FacesMessage message = new FacesMessage(rb.getString("existing_trigger_name"));
@@ -1393,15 +1398,16 @@ public class SchedulerTool
       try
       {
         String expression = (String) value;
-        CronTrigger trigger = new CronTrigger();
-        trigger.setCronExpression(expression);
+        CronTrigger trigger = TriggerBuilder.newTrigger()
+                .withSchedule(CronScheduleBuilder.cronSchedule(expression))
+                .build();
 
         // additional checks 
         // quartz does not check for more than 7 tokens in expression
         String[] arr = expression.split("\\s");
         if (arr.length > 7)
         {
-          throw new ParseException("Expression has more than 7 tokens", 7);
+          throw new RuntimeException(new ParseException("Expression has more than 7 tokens", 7));
         }
 
         //(check that last 2 entries are not both * or ? 
@@ -1409,10 +1415,10 @@ public class SchedulerTool
         if (trimmed_expression.endsWith(CRON_CHECK_ASTERISK)
             || trimmed_expression.endsWith(CRON_CHECK_QUESTION_MARK))
         {
-          throw new ParseException("Cannot End in * * or ? ?", 1);
+          throw new RuntimeException(new ParseException("Cannot End in * * or ? ?", 1));
         }
       }
-      catch (ParseException e)
+      catch (RuntimeException e)
       {
         // not giving a detailed message to prevent line wraps
         FacesMessage message = new FacesMessage(rb.getString("parse_exception"));
@@ -1432,7 +1438,7 @@ public class SchedulerTool
     for (Iterator i = jobDetailWrapperList.iterator(); i.hasNext();)
     {
       JobDetailWrapper jobDetailWrapper = (JobDetailWrapper) i.next();
-      if (jobDetailWrapper.getJobDetail().getName().equals(jobName))
+      if (jobDetailWrapper.getJobDetail().getKey().getName().equals(jobName))
       {
         selectedJobDetailWrapper = jobDetailWrapper;
         break;
@@ -1466,14 +1472,11 @@ public class SchedulerTool
 
    public List<SelectItem> getScheduledJobs() throws SchedulerException
    {
-       ArrayList<SelectItem>
-           scheduledJobs = new ArrayList<SelectItem> ();
-       String[]
-           jArr = schedulerManager.getScheduler().getJobNames(Scheduler.DEFAULT_GROUP);
+       ArrayList<SelectItem> scheduledJobs = new ArrayList<SelectItem> ();
+       Set<JobKey> jobKeys = schedulerManager.getScheduler().getJobKeys(GroupMatcher.groupEquals(Scheduler.DEFAULT_GROUP));
 
-       for (int i = 0; i < jArr.length; i++)
-       {
-           scheduledJobs.add(new SelectItem(jArr[i]));
+       for (JobKey key : jobKeys) {
+           scheduledJobs.add(new SelectItem(key.getName()));
        }
 
        return scheduledJobs;

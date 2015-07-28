@@ -22,11 +22,12 @@
 
 package org.sakaiproject.user.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -71,23 +72,16 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 	 * 
 	 * @throws Exception
 	 */
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(RequireLocalAccountLegacyAuthenticationTest.class)) {
-			protected void setUp() throws Exception {
-				if (log.isDebugEnabled()) log.debug("starting setup");
-				try {
-					oneTimeSetup("disable_user_cache");
-					oneTimeSetupAfter();
-				} catch (Exception e) {
-					log.warn(e);
-				}
-				if (log.isDebugEnabled()) log.debug("finished setup");
-			}
-			protected void tearDown() throws Exception {	
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+			if (log.isDebugEnabled()) log.debug("starting setup");
+			oneTimeSetup("disable_user_cache");
+			oneTimeSetupAfter();
+			if (log.isDebugEnabled()) log.debug("finished setup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
 	
 	private static void oneTimeSetupAfter() throws Exception {
@@ -103,6 +97,7 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 		log.debug("addUser eid=" + LOCALLY_STORED_EID + ", id=" + user.getId());
 }
 
+	@Before
 	public void setUp() throws Exception {
 		log.debug("Setting up UserDirectoryServiceIntegrationTest");		
 		userDirectoryService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
@@ -110,24 +105,26 @@ public class RequireLocalAccountLegacyAuthenticationTest extends SakaiKernelTest
 		eventTrackingService = (EventTrackingService)getService(EventTrackingService.class);
 	}
 
+	@Test
 	public void testWithProvidedUserRequired() throws Exception {
 		userDirectoryProvider.setRequireLocalAccount(true);
 		
 		User user = userDirectoryService.authenticate(LOCALLY_STORED_EID, LOCALLY_STORED_PWD);
-		assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
+		Assert.assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
 		user = userDirectoryService.authenticate(PROVIDED_EID, PROVIDED_PWD);
-		assertTrue(user == null);
+		Assert.assertTrue(user == null);
 	}
 	
+	@Test
 	public void testWithProvidedUserGood() throws Exception {
 		userDirectoryProvider.setRequireLocalAccount(false);
 		
 		User user = userDirectoryService.authenticate(LOCALLY_STORED_EID, LOCALLY_STORED_PWD);
-		assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
+		Assert.assertTrue(user.getEmail().equals(LOCALLY_STORED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
 		user = userDirectoryService.authenticate(PROVIDED_EID, PROVIDED_PWD);
-		assertTrue(user.getEmail().equals(PROVIDED_EMAIL));
+		Assert.assertTrue(user.getEmail().equals(PROVIDED_EMAIL));
 		clearUserFromServiceCaches(user.getId());
 	}
 

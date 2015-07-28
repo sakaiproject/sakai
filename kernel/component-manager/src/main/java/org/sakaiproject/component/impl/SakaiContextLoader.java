@@ -35,6 +35,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.util.StringUtils;
 import org.springframework.web.context.ConfigurableWebApplicationContext;
+import org.springframework.web.context.ContextLoader;
 import org.springframework.web.context.WebApplicationContext;
 
 /**
@@ -42,10 +43,10 @@ import org.springframework.web.context.WebApplicationContext;
  * Sakai's extension to Spring's ContextLoader - adds the location of the ComponentManager shared AC, linking the local AC to it as parent, and loading localy hosted components into shared.
  * </p>
  */
-public class ContextLoader extends org.springframework.web.context.ContextLoader
+public class SakaiContextLoader extends ContextLoader
 {
 	/** Our logger. */
-	private static Log M_log = LogFactory.getLog(ContextLoader.class);
+	private static Log M_log = LogFactory.getLog(SakaiContextLoader.class);
 
 	/** Name of servlet context parameter that can specify the config location for loading into the shared component set. */
 	public static final String SHARED_LOCATION_PARAM = "contextSharedLocation";
@@ -59,6 +60,7 @@ public class ContextLoader extends org.springframework.web.context.ContextLoader
 	 * @throws BeansException
 	 *         if the context couldn't be initialized
 	 */
+	@Override
 	public WebApplicationContext initWebApplicationContext(ServletContext servletContext) throws BeansException
 	{
 		WebApplicationContext rv = super.initWebApplicationContext(servletContext);
@@ -101,6 +103,7 @@ public class ContextLoader extends org.springframework.web.context.ContextLoader
 	 *        (not used)
 	 * @return The shared application context
 	 */
+	@Override
 	protected ApplicationContext loadParentContext(ServletContext servletContext) throws BeansException
 	{
 		// get the component manager (we know it's a SpringCompMgr) and from that the shared AC

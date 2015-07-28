@@ -31,41 +31,25 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Map.Entry;
 
-import junit.framework.TestCase;
-
 import org.apache.commons.dbcp.cpdsadapter.DriverAdapterCPDS;
 import org.apache.commons.dbcp.datasources.SharedPoolDataSource;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.util.ByteStorageConversion;
 
-/**
- * @author ieb
- */
-public class MySQLByteStorage extends TestCase
+public class MySQLByteStorage
 {
-
 	private static final Log log = LogFactory.getLog(MySQLByteStorage.class);
 
 	private SharedPoolDataSource tds;
 
-	/**
-	 * @param name
-	 */
-	public MySQLByteStorage(String name)
+	@Before
+	public void setUp() throws Exception
 	{
-		super(name);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#setUp()
-	 */
-	protected void setUp() throws Exception
-	{
-
-		super.setUp();
 		DriverAdapterCPDS cpds = new DriverAdapterCPDS();
 
 		String config = System.getProperty("migrate.config"); // ,"migrate.properties");
@@ -131,18 +115,13 @@ public class MySQLByteStorage extends TestCase
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see junit.framework.TestCase#tearDown()
-	 */
+	@After
 	protected void tearDown() throws Exception
 	{
 		tds.close();
-		super.tearDown();
-
 	}
 
+	@Test
 	public void testBlobData() throws SQLException
 	{
 		// run the test 10 times to make really certain there is no problem
@@ -163,7 +142,7 @@ public class MySQLByteStorage extends TestCase
 
 			for (int i = 0; i < bin.length; i++)
 			{
-				assertEquals("Internal Byte conversion failed at " + bin[i] + "=>"
+				Assert.assertEquals("Internal Byte conversion failed at " + bin[i] + "=>"
 						+ (int) cin[i] + "=>" + bout[i], bin[i], bout[i]);
 			}
 
@@ -199,16 +178,15 @@ public class MySQLByteStorage extends TestCase
                 ByteStorageConversion.toByte(cout, 0, bout, 0, cout.length);
 
                 if (sout != null) {
-                    assertEquals("Input and Output Lenghts are not the same ", sin.length(),
+                    Assert.assertEquals("Input and Output Lenghts are not the same ", sin.length(),
                             sout.length());
                 }
 
 				for (int i = 0; i < bin.length; i++)
 				{
-					assertEquals("Database Byte conversion failed at " + bin[i] + "=>"
+					Assert.assertEquals("Database Byte conversion failed at " + bin[i] + "=>"
 							+ (int) cin[i] + "=>" + bout[i], bin[i], bout[i]);
 				}
-
 			}
 			finally
 			{
@@ -246,6 +224,5 @@ public class MySQLByteStorage extends TestCase
 				}
 			}
 		}
-
 	}
 }

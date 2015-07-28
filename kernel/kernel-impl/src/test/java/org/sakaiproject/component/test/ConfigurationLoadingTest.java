@@ -26,13 +26,12 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import junit.extensions.TestSetup;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 
@@ -46,28 +45,21 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 
 	protected static final String CONFIG = "src/test/webapp/WEB-INF/components.xml";
 
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(ConfigurationLoadingTest.class)) {
-			protected void setUp() throws Exception {
-				try {
-					oneTimeSetup("filesystem", CONFIG);
-				} catch (Exception e) {
-					log.warn(e);
-				}
-			}
-			protected void tearDown() throws Exception {
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+			oneTimeSetup("filesystem", CONFIG);
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
 	
+	@Before
 	public void setUp() throws Exception {
-		
 		serverConfigurationService = (ServerConfigurationService)getService(ServerConfigurationService.class.getName());
 	}
 	
-
+	@Test
 	public void testSakaiProperties() throws Exception {
 		// Check that the test sakai-configuration.xml and sakai.properties files have been loaded.
 		Assert.assertTrue(serverConfigurationService.getString("loadedTomcatSakaiProperties").equals("true"));
@@ -103,6 +95,7 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 		Assert.assertTrue(aliasedObject instanceof ITestComponent);
 	}
 
+	@Test
     public void testStringHandling() throws Exception {
         /*
         stringSetToValue=value
@@ -112,23 +105,23 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
         String s;
         String defaultS = "DEFAULT";
         s = serverConfigurationService.getString("stringSetToValue");
-        assertNotNull(s);
-        assertEquals("value", s);
+        Assert.assertNotNull(s);
+        Assert.assertEquals("value", s);
         s = serverConfigurationService.getString("stringIsEmpty");
-        assertNull(s);
+        Assert.assertNull(s);
         //assertEquals("", s);
         s = serverConfigurationService.getString("stringNotSet");
-        assertNotNull(s);
-        assertEquals("", s);
+        Assert.assertNotNull(s);
+        Assert.assertEquals("", s);
         s = serverConfigurationService.getString("stringSetToValue", defaultS);
-        assertNotNull(s);
-        assertEquals("value", s);
+        Assert.assertNotNull(s);
+        Assert.assertEquals("value", s);
         s = serverConfigurationService.getString("stringIsEmpty", defaultS);
-        assertNull(s);
+        Assert.assertNull(s);
         //assertEquals(defaultS, s);
         s = serverConfigurationService.getString("stringNotSet", defaultS);
-        assertNotNull(s);
-        assertEquals(defaultS, s);
+        Assert.assertNotNull(s);
+        Assert.assertEquals(defaultS, s);
     }
 
     /**
@@ -136,8 +129,9 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * dereferenced recursively. I.e. the property retrieved references another property,
 	 * which references another, and so on. Presumably simpler scenarios work implicitly.
 	 */
+	@Test
 	public void testGetStringDereferencesPlaceholderPropertiesForSimpleProperties() {
-		assertEquals("Property value for \"stringWithNestedPlaceholders\" not dereferenced",
+		Assert.assertEquals("Property value for \"stringWithNestedPlaceholders\" not dereferenced",
 				"str1-str2-str3", serverConfigurationService.getString("stringWithNestedPlaceholders"));
 	}
 	
@@ -148,8 +142,9 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * same treatment as "simple" properties when accessed via 
 	 * {@link ServerConfigurationService#getString(String)}.
 	 */
+	@Test
 	public void testGetStringDereferencesPlaceholderPropertiesForBeanAddressingProperties() {
-		assertEquals("Property value for \"overrideString1@org.sakaiproject.component.test.ITestComponent2\" not dereferenced",
+		Assert.assertEquals("Property value for \"overrideString1@org.sakaiproject.component.test.ITestComponent2\" not dereferenced",
 				"str1-str2-str3", serverConfigurationService.getString("overrideString1@org.sakaiproject.component.test.ITestComponent2"));
 	}
 
@@ -158,51 +153,52 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
      * syntaxes that work: 1) traditional ".count" and ".1", ".2", etc., values,
      * and 2) Comma-separated values directly on a property.
      */
+	@Test
     public void testMultipleStrings() {
         String[] countAndList = serverConfigurationService.getStrings("stringCountAndList");
-        assertEquals("Property with count not loaded properly.", 3, countAndList.length);
-        assertEquals("Property with count should not parse CSV", "this,will,not,split", countAndList[0]);
+        Assert.assertEquals("Property with count not loaded properly.", 3, countAndList.length);
+        Assert.assertEquals("Property with count should not parse CSV", "this,will,not,split", countAndList[0]);
         String splitError = "CSV strings should be split";
 
         String[] stringList = serverConfigurationService.getStrings("stringList");
-        assertEquals(splitError, 3, stringList.length);
-        assertEquals(splitError, "this", stringList[0]);
-        assertEquals(splitError, "should", stringList[1]);
-        assertEquals(splitError, "split", stringList[2]);
+        Assert.assertEquals(splitError, 3, stringList.length);
+        Assert.assertEquals(splitError, "this", stringList[0]);
+        Assert.assertEquals(splitError, "should", stringList[1]);
+        Assert.assertEquals(splitError, "split", stringList[2]);
 
         String[] stringCsv = serverConfigurationService.getStrings("stringCsv");
-        assertEquals(splitError, 3, stringCsv.length);
-        assertEquals(splitError, "this", stringCsv[0]);
-        assertEquals(splitError, "should", stringCsv[1]);
-        assertEquals(splitError, "split", stringCsv[2]);
+        Assert.assertEquals(splitError, 3, stringCsv.length);
+        Assert.assertEquals(splitError, "this", stringCsv[0]);
+        Assert.assertEquals(splitError, "should", stringCsv[1]);
+        Assert.assertEquals(splitError, "split", stringCsv[2]);
 
         String[] stringMixedCsv = serverConfigurationService.getStrings("stringMixedCsv");
-        assertEquals(splitError, 3, stringMixedCsv.length);
-        assertEquals(splitError, "this", stringMixedCsv[0]);
-        assertEquals(splitError, "should", stringMixedCsv[1]);
-        assertEquals(splitError, "also,split", stringMixedCsv[2]);
+        Assert.assertEquals(splitError, 3, stringMixedCsv.length);
+        Assert.assertEquals(splitError, "this", stringMixedCsv[0]);
+        Assert.assertEquals(splitError, "should", stringMixedCsv[1]);
+        Assert.assertEquals(splitError, "also,split", stringMixedCsv[2]);
 
         String[] strings = serverConfigurationService.getStrings("stringLonelyCsv");
-        assertEquals(splitError, 1, strings.length);
-        assertEquals(splitError, "alone", strings[0]);
+        Assert.assertEquals(splitError, 1, strings.length);
+        Assert.assertEquals(splitError, "alone", strings[0]);
 
         String invalidStr = serverConfigurationService.getString("stringInvalidCsv");
-        assertNotNull(invalidStr);
-        assertEquals("\"this\",\"is\",\"invalid", invalidStr);
+        Assert.assertNotNull(invalidStr);
+        Assert.assertEquals("\"this\",\"is\",\"invalid", invalidStr);
         String[] invalid = serverConfigurationService.getStrings("stringInvalidCsv");
-        assertNull(invalid);
+        Assert.assertNull(invalid);
 
         // KNL-1032 - stringCountEmptyList, stringEmptyList
         String[] stringsEmpty = serverConfigurationService.getStrings("stringCountEmptyList");
-        assertNotNull(stringsEmpty);
-        assertEquals(0, stringsEmpty.length);
+        Assert.assertNotNull(stringsEmpty);
+        Assert.assertEquals(0, stringsEmpty.length);
         stringsEmpty = serverConfigurationService.getStrings("stringEmptyList");
-        assertNotNull(stringsEmpty);
-        assertEquals(0, stringsEmpty.length);
+        Assert.assertNotNull(stringsEmpty);
+        Assert.assertEquals(0, stringsEmpty.length);
 
         // also quickly verify non-existent works correctly
         String[] stringsNotExists = serverConfigurationService.getStrings("stringsNotExistsInTheConfigAnywhereXXXXXXXXXXXXXX");
-        assertNull(stringsNotExists);
+        Assert.assertNull(stringsNotExists);
     }
 	
 	/**
@@ -225,10 +221,11 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * <p>As implemented (configured, actually), this test includes verifies that the property 
 	 * count value is correctly dereferenced.</p> 
 	 */
+	@Test
 	public void testGetStringsDereferencesPlaceholderProperties() {
 		String[] expected = new String[] { "str1", "str1-str2", "str1-str2-str3" };
 		String[] actual = serverConfigurationService.getStrings("stringPlaceholderProps");
-		assertTrue("Expected \"stringPlaceholderProps.*\" property values in an array matching " + Arrays.toString(expected) + ", but was " + Arrays.toString(actual), 
+		Assert.assertTrue("Expected \"stringPlaceholderProps.*\" property values in an array matching " + Arrays.toString(expected) + ", but was " + Arrays.toString(actual), 
 				Arrays.equals(expected, actual));
 	}
 	
@@ -236,8 +233,9 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * Verifies that property placeholder dereferencing works when Sakai "promotes" certain 
 	 * properties into the system scope.
 	 */
+	@Test
 	public void testPropertyPromotionDereferencesPlaceholderProperties() {
-		assertEquals("Property value for \"content.upload.dir\" not dereferenced or not placed into \"sakai.content.upload.dir\" system property", 
+		Assert.assertEquals("Property value for \"content.upload.dir\" not dereferenced or not placed into \"sakai.content.upload.dir\" system property", 
 				"/str1-str2-str3", System.getProperty("sakai.content.upload.dir"));
 	}
 	
@@ -248,9 +246,10 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * 
 	 * @see #testStringArrayBeanPropertyOverridingDereferencesPlaceholderProperties()
 	 */
+	@Test
 	public void testBeanStringPropertyPlaceholderDereferencingRecursivelyDereferencesPlaceholderProperties() {
 		ITestComponent testComponent = (ITestComponent)getService(ITestComponent.class.getName() + "2");
-		assertEquals("Bean property placeholder ${stringWithNestedPlaceholders} not dereferenced",
+		Assert.assertEquals("Bean property placeholder ${stringWithNestedPlaceholders} not dereferenced",
 				"str1-str2-str3", testComponent.getPlaceholderString1());
 	}
 	
@@ -259,9 +258,10 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * ensures symmetry between bean property override behaviors and getters on 
 	 * {@link ServerConfigurationService}.
 	 */
+	@Test
 	public void testBeanStringPropertyOverridingDereferencesPlaceholderProperties() {
 		ITestComponent testComponent = (ITestComponent)getService(ITestComponent.class.getName() + "2");
-		assertEquals("Property value not dereferenced when overriding bean string property \"overrideString1\"",
+		Assert.assertEquals("Property value not dereferenced when overriding bean string property \"overrideString1\"",
 				"str1-str2-str3", testComponent.getOverrideString1());
 	}
 	
@@ -269,6 +269,7 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * Verifies that property dereferencing works as usual even for the special Sakai
 	 * Spring bean list property override syntax (propertyName[index]@beanName=val)
 	 */
+	@Test
 	@SuppressWarnings("serial")
 	public void testBeanListPropertyOverridingDereferencesPlaceholderProperties() {
 		ITestComponent testComponent = (ITestComponent)getService(ITestComponent.class.getName() + "2");
@@ -277,7 +278,7 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 			add("str1-str2");
 			add("str1-str2-str3");
 		}};
-		assertEquals("Property values not dereferenced when overriding bean list property", 
+		Assert.assertEquals("Property values not dereferenced when overriding bean list property", 
 				expected, testComponent.getListOverride1());
 	}
 	
@@ -286,28 +287,32 @@ public class ConfigurationLoadingTest extends SakaiKernelTestBase {
 	 * set by properties having the special Sakai Spring bean addressing syntax
 	 * (propertyName@beanName=val,val,val)
 	 */
+	@Test
 	public void testStringArrayBeanPropertyOverridingDereferencesPlaceholderProperties() {
 		ITestComponent testComponent = (ITestComponent)getService(ITestComponent.class.getName() + "2");
 		String[] expected = new String[] { "str1", "str1-str2", "str1-str2-str3" };
 		String[] actual = trim(testComponent.getStringArrayPlaceholder1());
-		assertTrue("Property values not dereferenced when overriding bean string array property as CSV list. Expected " + Arrays.toString(expected) + ", but was " + Arrays.toString(actual),
+		Assert.assertTrue("Property values not dereferenced when overriding bean string array property as CSV list. Expected " + Arrays.toString(expected) + ", but was " + Arrays.toString(actual),
 				Arrays.equals(expected, actual));
 	}
 	
+	@Test
 	public void testGetRawPropertyDoesNotDereferencePlaceholderPropertiesForSimpleProperties() {
-		assertEquals("Property value for \"stringWithNestedPlaceholders\" inappropriately dereferenced",
+		Assert.assertEquals("Property value for \"stringWithNestedPlaceholders\" inappropriately dereferenced",
 				"${stringWithPlaceholder}-str3", serverConfigurationService.getRawProperty("stringWithNestedPlaceholders"));
 	}
 	
 	// highly unlikely to vary by property key syntax
+	@Test
 	public void testGetStringAndGetRawPropertyReturnSameValueForUndefinedProperty() {
-		assertEquals("Mismatched representations of undefined properties",
+		Assert.assertEquals("Mismatched representations of undefined properties",
 				serverConfigurationService.getString("this.property.is.not.defined"),
 				serverConfigurationService.getRawProperty("this.propertie.is.not.defined"));
 	}
 	
+	@Test
 	public void testGetRawPropertyDoesNotDereferencePlaceholderPropertiesForBeanAddressingProperties() {
-		assertEquals("Property value for \"overrideString1@org.sakaiproject.component.test.ITestComponent2\" inappropriately dereferenced",
+		Assert.assertEquals("Property value for \"overrideString1@org.sakaiproject.component.test.ITestComponent2\" inappropriately dereferenced",
 				"${stringWithNestedPlaceholders}", serverConfigurationService.getRawProperty("overrideString1@org.sakaiproject.component.test.ITestComponent2"));
 	}
 

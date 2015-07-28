@@ -633,7 +633,7 @@ public class QuestionPoolFacadeQueries
 
           // a. delete item and pool association in SAM_ITEMMETADATA_T - this is the primary
           // pool that item is attached to
-          ArrayList metaList = new ArrayList();
+          ArrayList<ItemMetaDataIfc> metaList = new ArrayList<>();
           for (int j=0; j<list.size(); j++){
             Long itemId = ((QuestionPoolItemData)list.get(j)).getItemId();
             String query = "from ItemMetaData as meta where meta.item.itemId=? and meta.label=?";
@@ -642,12 +642,15 @@ public class QuestionPoolFacadeQueries
             if (m.size()>0){
               ItemMetaDataIfc meta = (ItemMetaDataIfc)m.get(0);
               meta.setEntry(null);
-	    }
+              metaList.add(meta);
+            }
           }
           try{
-            getHibernateTemplate().saveOrUpdateAll(metaList);
+            for (ItemMetaDataIfc meta : metaList) {
+              getHibernateTemplate().saveOrUpdate(meta);	
+            }
             retryCount = 0;
-	  }
+          }
           catch (DataAccessException e) {
             log.warn("problem delete question and questionpool map inside itemMetaData: "+e.getMessage());
             retryCount = PersistenceService.getInstance().getPersistenceHelper().retryDeadlock(e, retryCount);
@@ -898,7 +901,7 @@ public class QuestionPoolFacadeQueries
         if (parentPoolId != 0) {
         	List<QuestionPoolAccessData> listSubpool = new ArrayList();
         	try {
-        		listSubpool = getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?", 
+        		listSubpool = (List<QuestionPoolAccessData>) getHibernateTemplate().find("from QuestionPoolAccessData as qpa where qpa.questionPoolId=? and qpa.agentId<>?", 
         				new Object[] { Long.valueOf(parentPoolId), ownerId});
         	} catch (Exception e1) {
         		log.warn("problem finding pool: "+e1.getMessage());
@@ -1479,7 +1482,7 @@ public class QuestionPoolFacadeQueries
 			  return q.list();
 		  };
 	  };
-	  List<QuestionPoolAccessData> qpaList = getHibernateTemplate().executeFind(hcb);
+	  List<QuestionPoolAccessData> qpaList = (List<QuestionPoolAccessData>) getHibernateTemplate().executeFind(hcb);
 
 	  List<AgentFacade> agents = new ArrayList();
 	  for (QuestionPoolAccessData pool : qpaList) {

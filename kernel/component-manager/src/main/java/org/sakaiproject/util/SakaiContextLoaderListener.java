@@ -22,11 +22,12 @@
 package org.sakaiproject.util;
 
 import javax.servlet.ServletContextEvent;
+import javax.servlet.ServletContextListener;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.impl.ContextLoader;
+import org.sakaiproject.component.impl.SakaiContextLoader;
 import org.sakaiproject.component.impl.SpringCompMgr;
 
 /**
@@ -34,26 +35,17 @@ import org.sakaiproject.component.impl.SpringCompMgr;
  * Sakai's extension to the Spring ContextLoaderListener - use our ContextLoader, and increment / decrement the child count of the ComponentManager on init / destroy.
  * </p>
  */
-public class ContextLoaderListener extends org.springframework.web.context.ContextLoaderListener
+public class SakaiContextLoaderListener extends SakaiContextLoader implements ServletContextListener
 {
-	private static final Log log = LogFactory.getLog(ContextLoaderListener.class);
-
-	/**
-	 * Create the ContextLoader to use. Can be overridden in subclasses.
-	 * 
-	 * @return the new ContextLoader
-	 */
-	protected org.springframework.web.context.ContextLoader createContextLoader()
-	{
-		return new ContextLoader();
-	}
+	private static final Log log = LogFactory.getLog(SakaiContextLoaderListener.class);
 
 	/**
 	 * Initialize the root web application context.
 	 */
+	@Override
 	public void contextInitialized(ServletContextEvent event)
 	{
-		super.contextInitialized(event);
+		initWebApplicationContext(event.getServletContext());
 
 		// increment the count of children for the component manager
 		((SpringCompMgr) ComponentManager.getInstance()).addChildAc();
@@ -62,9 +54,11 @@ public class ContextLoaderListener extends org.springframework.web.context.Conte
 	/**
 	 * Close the root web application context.
 	 */
+	@Override
 	public void contextDestroyed(ServletContextEvent event)
 	{
-		super.contextDestroyed(event);
+		closeWebApplicationContext(event.getServletContext());
+		//ContextCleanupListener.cleanupAttributes(event.getServletContext());
 		
 		log.info("Destroying Components in "+event.getServletContext().getServletContextName());
 

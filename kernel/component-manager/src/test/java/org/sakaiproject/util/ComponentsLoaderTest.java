@@ -5,8 +5,10 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.*;
 
-import junit.framework.TestCase;
-
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.component.impl.SpringCompMgr;
 import org.springframework.context.ConfigurableApplicationContext;
 
@@ -16,7 +18,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * @author dmccallum@unicon.net
  *
  */
-public class ComponentsLoaderTest extends TestCase {
+public class ComponentsLoaderTest {
 
 	/** the primary SUT */
 	private ComponentsLoader loader;
@@ -28,15 +30,21 @@ public class ComponentsLoaderTest extends TestCase {
 	 */
 	private SpringCompMgr componentMgr;
 	
-	
-	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 		loader = new ComponentsLoader();
 		builder = new ComponentBuilder();
 		componentMgr = new SpringCompMgr(null) {{
 			m_ac = new SakaiApplicationContext();
 		}};
-		super.setUp();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		builder.tearDown();
+		NoisierDefaultListableBeanFactory.noisyClose = false;
+		componentMgr.close();
+		NoisierDefaultListableBeanFactory.noisyClose = true;
 	}
 	
 	/**
@@ -71,6 +79,7 @@ public class ComponentsLoaderTest extends TestCase {
 	 * <code>ClassLoader</code>. This is tested directly in more fine-grained BDD tests.</p>
 	 * 
 	 */
+	@Test
 	public void testLoadRegistersComponentWithComponentManager() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testLoadRegistersComponentWithComponentManager()");
@@ -78,16 +87,18 @@ public class ComponentsLoaderTest extends TestCase {
 		}
 		Component component = builder.buildComponent();
 		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
+		componentMgr.getApplicationContext().refresh();
 		// we are not interested in testing SpringCompMgr, but we can assume the underlying
 		// Spring context is a fully tested, known quantity. Hence the getBean() call
 		// (also for reasons outlined in the javadoc)
-		assertNotNull(componentMgr.getApplicationContext().getBean(component.getBeanId()));
+		Assert.assertNotNull(componentMgr.getApplicationContext().getBean(component.getBeanId()));
 	}
 
 	/**
 	 * This us very similar to the previous test except that now we check that we can also load components
 	 * from JAR files within the lib folder.
 	 */
+	@Test
 	public void testLoadRegisterJarComponentWithManager() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testLoadRegistersComponentWithComponentManager()");
@@ -95,8 +106,9 @@ public class ComponentsLoaderTest extends TestCase {
 		}
 		Component component = builder.buildComponent("test", "Jar1");
 		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
+		componentMgr.getApplicationContext().refresh();
 		for (Component.Jar jar : component.getJars()) {
-			assertNotNull(componentMgr.getApplicationContext().getBean(jar.getBeanId()));
+			Assert.assertNotNull(componentMgr.getApplicationContext().getBean(jar.getBeanId()));
 		}
 	}
 
@@ -106,6 +118,7 @@ public class ComponentsLoaderTest extends TestCase {
 	 * between failures related to loading any given component and failures related
 	 * to the algorithm for walking the entire root components dir. 
 	 */
+	@Test
 	public void testLoadRegistersMultipleComponentsWithComponentManager() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testLoadRegistersMultipleComponentsWithComponentManager()");
@@ -114,8 +127,9 @@ public class ComponentsLoaderTest extends TestCase {
 		Component component1 = builder.buildComponent();
 		Component component2 = builder.buildComponent();
 		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
-		assertNotNull(componentMgr.getApplicationContext().getBean(component1.getBeanId()));
-		assertNotNull(componentMgr.getApplicationContext().getBean(component2.getBeanId()));
+		componentMgr.getApplicationContext().refresh();
+		Assert.assertNotNull(componentMgr.getApplicationContext().getBean(component1.getBeanId()));
+		Assert.assertNotNull(componentMgr.getApplicationContext().getBean(component2.getBeanId()));
 	}
 	
 	/**
@@ -136,6 +150,7 @@ public class ComponentsLoaderTest extends TestCase {
 	 * the current thread is still in the expected state after components
 	 * have been loaded.</p>
 	 */
+	@Test
 	public void testSetsAndUnsetsPackageClassLoaderAsThreadContextClassLoader() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testSetsAndUnsetsPackageClassLoaderAsThreadContextClassLoader()");
@@ -145,7 +160,7 @@ public class ComponentsLoaderTest extends TestCase {
 		ClassLoader existingContextClassLoader = 
 			Thread.currentThread().getContextClassLoader();
 		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
-		assertSame("Should have preserved existing context class loader after components load completed", 
+		Assert.assertSame("Should have preserved existing context class loader after components load completed", 
 				existingContextClassLoader, 
 				Thread.currentThread().getContextClassLoader());
 	}
@@ -161,6 +176,7 @@ public class ComponentsLoaderTest extends TestCase {
 	 * be surprised when the override is never invoked, even if all
 	 * other black box tests in this test case were to succeed.
 	 */
+	@Test
 	public void testLoadDispatch() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testLoadDispatch()");
@@ -177,18 +193,18 @@ public class ComponentsLoaderTest extends TestCase {
 		// a poor-man's mock, here
 		loader = new ComponentsLoader() {
 			protected boolean validComponentsPackage(File dir) {
-				assertEquals(expectedDir, dir);
+				Assert.assertEquals(expectedDir, dir);
 				journal.add("validComponentsPackage");
 				return super.validComponentsPackage(dir);
 			}
 			protected ClassLoader newPackageClassLoader(File dir) {
-				assertEquals(expectedDir, dir);
+				Assert.assertEquals(expectedDir, dir);
 				journal.add("newPackageClassLoader");
 				return super.newPackageClassLoader(dir);
 			}
 			protected void loadComponentPackage(File dir, ConfigurableApplicationContext ac) {
-				assertEquals(expectedDir, dir);
-				assertNotNull(ac);
+				Assert.assertEquals(expectedDir, dir);
+				Assert.assertNotNull(ac);
 				journal.add("loadComponentPackage");
 				super.loadComponentPackage(dir, ac);
 			}
@@ -196,7 +212,7 @@ public class ComponentsLoaderTest extends TestCase {
 		};
 		
 		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
-		assertEquals("Did not invoke delegate methods in the expected order", 
+		Assert.assertEquals("Did not invoke delegate methods in the expected order", 
 				expectedJournal, journal);
 	}
 	
@@ -206,6 +222,7 @@ public class ComponentsLoaderTest extends TestCase {
 	 * {@link ComponentsLoader#loadComponentPackage(File, ConfigurableApplicationContext)},
 	 * which the former test is unable to validate directly.
 	 */
+	@Test
 	public void testLoadComponentPackageDispatch() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testLoadComponentPackageDispatch()");
@@ -221,14 +238,14 @@ public class ComponentsLoaderTest extends TestCase {
 		// a poor-man's mock, here
 		loader = new ComponentsLoader() {
 			protected ClassLoader newPackageClassLoader(File dir) {
-				assertEquals(expectedDir, dir);
+				Assert.assertEquals(expectedDir, dir);
 				journal.add("newPackageClassLoader");
 				return super.newPackageClassLoader(dir);
 			}
 		};
 		loader.loadComponentPackage(new File(component.getDir()),
 				componentMgr.getApplicationContext());
-		assertEquals("Did not invoke newPackageClassLoader()", 
+		Assert.assertEquals("Did not invoke newPackageClassLoader()", 
 				expectedJournal, journal);
 	}
 
@@ -239,6 +256,7 @@ public class ComponentsLoaderTest extends TestCase {
 	 * This test depends on the filesystem order. If the filesystem always returns the files
 	 * alphabetically it won't fail.
 	 */
+	@Test
 	public void testComponentLoadOrder() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testLoadComponentPackageDispatch()");
@@ -266,7 +284,7 @@ public class ComponentsLoaderTest extends TestCase {
 		} finally {
 			System.clearProperty("sakai.components.reverse.load");
 		}
-		assertEquals("The components didn't get sorted.", expectedJournal, journal);
+		Assert.assertEquals("The components didn't get sorted.", expectedJournal, journal);
 	}
 
 	/**
@@ -274,6 +292,7 @@ public class ComponentsLoaderTest extends TestCase {
 	 * processed in a alphabetical order. This test may not break as we might get the correct order back
 	 * from the filesystem.
 	 */
+	@Test
 	public void testJarLoadOrder() {
 		if ( !(builder.isUseable()) ) {
 			sayUnusableBuilder("testLoadComponentPackageDispatch()");
@@ -299,7 +318,7 @@ public class ComponentsLoaderTest extends TestCase {
 		};
 		loader.load(componentMgr.getApplicationContext(), builder.getComponentsRootDir().getAbsolutePath());
 		for(String jar : expectedJournal) {
-			assertTrue("Didn't find the expected jar at the correct position.", journal.poll().endsWith(jar));
+			Assert.assertTrue("Didn't find the expected jar at the correct position.", journal.poll().endsWith(jar));
 		}
 	}
 
@@ -307,12 +326,4 @@ public class ComponentsLoaderTest extends TestCase {
 	private void sayUnusableBuilder(String invokingMethod) {
 		System.out.println("Unable to execute " + invokingMethod +", probably b/c necessary code generation tools are not available. Please see http://maven.apache.org/general.html#tools-jar-dependency for information on making tools.jar visible in the Maven classpaths.");
 	}
-
-	@Override
-	protected void tearDown() throws Exception {
-		builder.tearDown();
-		componentMgr.close();
-		super.tearDown();
-	}
-	
 }

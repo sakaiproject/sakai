@@ -3,6 +3,7 @@ package org.sakaiproject.authz.impl.test;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sakaiproject.authz.impl.DbAuthzGroupSqlDefault;
@@ -31,12 +32,12 @@ public class DbAuthzTest extends SakaiKernelTestBase {
 
 	@Test
 	public void testNull() {
-		assertTrue("Testing oracle in split with null collection.",defaultQuery.equals(sqlOracle.getSelectRealmIdSql(null)));
+		Assert.assertTrue("Testing oracle in split with null collection.",defaultQuery.equals(sqlOracle.getSelectRealmIdSql(null)));
 	}
 
 	@Test
 	public void testEmpty() {
-		assertTrue("Testing oracle in split with empty collection.",defaultQuery.equals(sqlOracle.getSelectRealmIdSql(new HashSet<String>())));
+		Assert.assertTrue("Testing oracle in split with empty collection.",defaultQuery.equals(sqlOracle.getSelectRealmIdSql(new HashSet<String>())));
 	}
 
 	private Set<String> getSet(int size) {
@@ -58,7 +59,7 @@ public class DbAuthzTest extends SakaiKernelTestBase {
 	@Test
 	public void testElements() {
 		for (int k=0; k<tests.length; k++) {
-			assertTrue("Testing oracle in split with "+tests[k]+" elements.",testElement(tests[k]));
+			Assert.assertTrue("Testing oracle in split with "+tests[k]+" elements.",testElement(tests[k]));
 		}
 	}
 

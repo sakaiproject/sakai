@@ -5,7 +5,10 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -22,10 +25,6 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.api.FormattedText;
-
-import junit.extensions.TestSetup;
-import junit.framework.Test;
-import junit.framework.TestSuite;
 
 /**
  * For unit testing parts of the base user directory service
@@ -50,25 +49,18 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
      * 
      * @throws Exception
      */
-    public static Test suite() {
-        TestSetup setup = new TestSetup(new TestSuite(BaseUserDirectoryServiceTest.class)) {
-            protected void setUp() throws Exception {
-                if (log.isDebugEnabled()) log.debug("starting setup");
-                try {
-                    oneTimeSetup();
-                    oneTimeSetupAfter();
-                } catch (Exception e) {
-                    log.warn(e);
-                }
-                if (log.isDebugEnabled()) log.debug("finished setup");
-            }
-            protected void tearDown() throws Exception {    
-                oneTimeTearDown();
-            }
-        };
-        return setup;
-    }
-
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+            if (log.isDebugEnabled()) log.debug("starting setup");
+            oneTimeSetup();
+            oneTimeSetupAfter();
+            if (log.isDebugEnabled()) log.debug("finished setup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
+	}
+	
     private static void oneTimeSetupAfter() throws Exception {
         // This is a workaround until we can make it easier to load sakai.properties
         // for specific integration tests.
@@ -89,6 +81,7 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
     }
 
     @SuppressWarnings("unchecked")
+    @Before
     public void setUp() throws Exception {
         log.debug("Setting up UserDirectoryServiceIntegrationTest");
         userDirectoryService = new BaseUserDirectoryService() {
@@ -139,54 +132,56 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
     /**
      * Test method for {@link org.sakaiproject.user.impl.BaseUserDirectoryService#cleanId(java.lang.String)}.
      */
+    @Test
     public void testCleanId() {
         String id = "asdfghjkl";
         String cleaned = userDirectoryService.cleanId(id);
-        assertNotNull(cleaned);
-        assertEquals(id, cleaned);
+        Assert.assertNotNull(cleaned);
+        Assert.assertEquals(id, cleaned);
 
         id = "012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789";
         cleaned = userDirectoryService.cleanId(id);
-        assertNotNull(cleaned);
-        assertEquals("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345...", cleaned);
+        Assert.assertNotNull(cleaned);
+        Assert.assertEquals("012345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345...", cleaned);
 
         // invalid ids
         id = "";
         cleaned = userDirectoryService.cleanId(id);
-        assertNull(cleaned);
+        Assert.assertNull(cleaned);
 
         id = null;
         cleaned = userDirectoryService.cleanId(id);
-        assertNull(cleaned);
+        Assert.assertNull(cleaned);
     }
 
     /**
      * Test method for {@link org.sakaiproject.user.impl.BaseUserDirectoryService#cleanEid(java.lang.String)}.
      */
+    @Test
     public void testCleanEid() {
         String eid = "asdfghjkl";
         String cleaned = userDirectoryService.cleanEid(eid);
-        assertNotNull(cleaned);
-        assertEquals(eid, cleaned);
+        Assert.assertNotNull(cleaned);
+        Assert.assertEquals(eid, cleaned);
 
         eid = "azeckoski@unicon.net";
         cleaned = userDirectoryService.cleanEid(eid);
-        assertNotNull(cleaned);
-        assertEquals(eid, cleaned);
+        Assert.assertNotNull(cleaned);
+        Assert.assertEquals(eid, cleaned);
 
         eid = "<script>alert('XSS');</script>";
         cleaned = userDirectoryService.cleanEid(eid);
-        assertNotNull(cleaned);
-        assertEquals("scriptalert('xss')script", cleaned);
+        Assert.assertNotNull(cleaned);
+        Assert.assertEquals("scriptalert('xss')script", cleaned);
 
         // empty cases
         eid = "";
         cleaned = userDirectoryService.cleanEid(eid);
-        assertNull(cleaned);
+        Assert.assertNull(cleaned);
 
         eid = null;
         cleaned = userDirectoryService.cleanEid(eid);
-        assertNull(cleaned);
+        Assert.assertNull(cleaned);
     }
 
 }

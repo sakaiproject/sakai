@@ -18,7 +18,12 @@
  */
 package org.sakaiproject.sitestats.test;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.expectLastCall;
+import static org.easymock.EasyMock.getCurrentArguments;
+import static org.easymock.EasyMock.replay;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,9 +35,10 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.easymock.IAnswer;
+import org.junit.Before;
+import org.junit.Test;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentTypeImageService;
-import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Site;
@@ -45,9 +51,13 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.util.ResourceLoader;
-import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
-public class EventAggregatorTestPerf extends AbstractAnnotationAwareTransactionalTests {
+@ContextConfiguration(locations={
+		"/hbm-db.xml",
+		"/hibernate-test.xml"})
+public class EventAggregatorTestPerf extends AbstractJUnit4SpringContextTests {
 	private static final int		MAX_USERS				= 250;
 	private static final int		MAX_RESOURCES			= 50;
 	private static final int		COUNT_USERS_SMALL		= 10;
@@ -80,14 +90,9 @@ public class EventAggregatorTestPerf extends AbstractAnnotationAwareTransactiona
 	public void setEventTrackingService(EventTrackingService M_ets) {
 		this.M_ets = M_ets;
 	}
-	
-	@Override
-	protected String[] getConfigLocations() {
-		return new String[] { "hbm-db.xml", "hibernate-test.xml" };
-	}
 
-	@Override
-	protected void onSetUpBeforeTransaction() throws Exception {
+	@Before
+	public void onSetUp() throws Exception {
 		/** run this before each test starts */
 		LOG.debug("Setting up tests...");
 		
@@ -156,22 +161,20 @@ public class EventAggregatorTestPerf extends AbstractAnnotationAwareTransactiona
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);
 	}
 	
-	// run this before each test starts and as part of the transaction
-	@Override
-	protected void onSetUpInTransaction() {}
-	
-	
 	// --------------------------------------------------------
 	// --- TESTING --------------------------------------------
 	// --------------------------------------------------------
+	@Test
 	public void testSmall() {
 		doBasicTest(COUNT_USERS_SMALL, COUNT_RESOURCES_SMALL, 1);
 	}
 	
+	@Test
 	public void testMedium() {
 		doBasicTest(COUNT_USERS_MEDIUM, COUNT_RESOURCES_MEDIUM, 1);
 	}
 	
+	@Test
 	public void testLarge() {
 		doBasicTest(COUNT_USERS_LARGE, COUNT_RESOURCES_LARGE, 1);
 	}

@@ -89,12 +89,9 @@ public class TestComponentManagerContainer {
 		log.info("Starting Component Manager with ["+configPaths+"]");
 		ComponentManager.setLateRefresh(true);
 
-		 componentManager = (SpringCompMgr) ComponentManager
-				.getInstance();
-		ConfigurableApplicationContext ac = componentManager
-				.getApplicationContext();
-		ClassLoader classLoader = Thread.currentThread()
-				.getContextClassLoader();
+		componentManager = (SpringCompMgr) ComponentManager.getInstance();
+		ConfigurableApplicationContext ac = componentManager.getApplicationContext();
+		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		// Supply any additional configuration.
 		if (props != null) {
 			PropertyOverrideConfigurer beanFactoryPostProcessor = new PropertyOverrideConfigurer();

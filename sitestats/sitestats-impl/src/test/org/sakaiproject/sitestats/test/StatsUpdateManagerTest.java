@@ -19,7 +19,10 @@
 package org.sakaiproject.sitestats.test;
 
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.createMock;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.reset;
 import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.ArrayList;
@@ -29,8 +32,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
-import org.junit.FixMethodOrder;
 
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.FixMethodOrder;
+import org.junit.Test;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -56,39 +62,30 @@ import org.sakaiproject.sitestats.test.data.FakeData;
 import org.sakaiproject.sitestats.test.mocks.FakeEvent;
 import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
-import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.AbstractJUnit4SpringContextTests;
 
 @FixMethodOrder(NAME_ASCENDING)
-public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactionalTests { 
-	// AbstractAnnotationAwareTransactionalTests / AbstractTransactionalSpringContextTests
+@ContextConfiguration(locations={
+		"/hbm-db.xml",
+		"/hibernate-test.xml"})
+public class StatsUpdateManagerTest extends AbstractJUnit4SpringContextTests { 
+
+	@Autowired
 	private StatsUpdateManager			M_sum;
 	private StatsManager				M_sm;
+	@Autowired
 	private DB							db;
 	private SiteService					M_ss;
+	@Autowired
 	private EventTrackingService		M_ets;
+	@Autowired
 	private FakeEventRegistryService	M_ers;
 	
-	// Spring configuration	
-	public void setStatsUpdateManager(StatsUpdateManager M_sum) {
-		this.M_sum = M_sum;
-	}
-	public void setEventTrackingService(EventTrackingService M_ets) {
-		this.M_ets = M_ets;
-	}
-	public void setDb(DB db) {
-		this.db = db;
-	}
-	public void setEventRegistryService(FakeEventRegistryService M_ers) {
-		this.M_ers = M_ers;
-	}
-	
-	@Override
-	protected String[] getConfigLocations() {
-		return new String[] { "hbm-db.xml", "hibernate-test.xml" };
-	}
-
-	// run this before each test starts
-	protected void onSetUpBeforeTransaction() throws Exception {
+	@Before
+	public void onSetUp() throws Exception {
+		db.deleteAll();
 		// Site Service
 		M_ss = createMock(SiteService.class);		
 		// Site A has SiteStats
@@ -125,40 +122,35 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		M_sum.setCollectThreadEnabled(false);
 	}
 
-	// run this before each test starts and as part of the transaction
-	protected void onSetUpInTransaction() {
-		db.deleteAll();
-	}
-
-	
 	// ---- TESTS ----
-	
 	
 	// Basic tests: not much to test, work is on other methods...
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testCollectEvent() {
 		FakeEvent e1 = new FakeEvent(FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, true, 0);
-		assertTrue(M_sum.collectEvent(e1));
+		Assert.assertTrue(M_sum.collectEvent(e1));
 		Event e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, "FakeData.USER_A_ID", "session-id-a");
-		assertTrue(M_sum.collectEvent(e2));
+		Assert.assertTrue(M_sum.collectEvent(e2));
 		
 		// check results
 		List<EventStat> results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(2, results.size());
+		Assert.assertEquals(2, results.size());
 		EventStat es1 = results.get(0);
-		assertEquals(e1.getContext() ,es1.getSiteId());
-		assertEquals(e1.getUserId(), es1.getUserId());
-		assertEquals(e1.getEvent(), es1.getEventId());
-		assertEquals(1, es1.getCount());
+		Assert.assertEquals(e1.getContext() ,es1.getSiteId());
+		Assert.assertEquals(e1.getUserId(), es1.getUserId());
+		Assert.assertEquals(e1.getEvent(), es1.getEventId());
+		Assert.assertEquals(1, es1.getCount());
 		EventStat es2 = results.get(1);
-		assertEquals(e2.getContext(), es2.getSiteId());
-		assertEquals(e2.getUserId(), es2.getUserId());
-		assertEquals(e2.getEvent(), es2.getEventId());
-		assertEquals(1, es2.getCount());
+		Assert.assertEquals(e2.getContext(), es2.getSiteId());
+		Assert.assertEquals(e2.getUserId(), es2.getUserId());
+		Assert.assertEquals(e2.getEvent(), es2.getEventId());
+		Assert.assertEquals(1, es2.getCount());
 	}		
 	
 	// Test invalid events
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testInvalidEvents() {
 		// #1: send invalid events
 		Event e3 = M_sum.buildEvent(new Date(), "unknown.event", "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
@@ -176,176 +168,179 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		Event e15 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group-user/small_ref", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e16 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		((Observer)M_sum).update(new Observable(), "this_is_not_an_event");
-		assertTrue(M_sum.collectEvents((List<Event>)null));
-		assertTrue(M_sum.collectEvents(new ArrayList<Event>()));
-		assertTrue(M_sum.collectEvents(new Event[]{}));
-		assertTrue(M_sum.collectEvents(Arrays.asList(null, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16)));
-		assertTrue(M_sum.collectEvents(new Event[]{null, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16}));
-		assertTrue(M_sum.collectEvent(null));
-		assertTrue(M_sum.collectEvent(e3));
-		assertTrue(M_sum.collectEvent(e4));
-		assertTrue(M_sum.collectEvent(e5));
-		assertTrue(M_sum.collectEvent(e6));
-		assertTrue(M_sum.collectEvent(e7));
-		assertTrue(M_sum.collectEvent(e8));
-		assertTrue(M_sum.collectEvent(e9));
-		assertTrue(M_sum.collectEvent(e10));
-		assertTrue(M_sum.collectEvent(e11));
-		assertTrue(M_sum.collectEvent(e12));
-		assertTrue(M_sum.collectEvent(e13));
-		assertTrue(M_sum.collectEvent(e14));
-		assertTrue(M_sum.collectEvent(e15));
-		assertTrue(M_sum.collectEvent(e16));
+		Assert.assertTrue(M_sum.collectEvents((List<Event>)null));
+		Assert.assertTrue(M_sum.collectEvents(new ArrayList<Event>()));
+		Assert.assertTrue(M_sum.collectEvents(new Event[]{}));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(null, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16)));
+		Assert.assertTrue(M_sum.collectEvents(new Event[]{null, e3, e4, e5, e6, e7, e8, e9, e10, e11, e12, e13, e14, e15, e16}));
+		Assert.assertTrue(M_sum.collectEvent(null));
+		Assert.assertTrue(M_sum.collectEvent(e3));
+		Assert.assertTrue(M_sum.collectEvent(e4));
+		Assert.assertTrue(M_sum.collectEvent(e5));
+		Assert.assertTrue(M_sum.collectEvent(e6));
+		Assert.assertTrue(M_sum.collectEvent(e7));
+		Assert.assertTrue(M_sum.collectEvent(e8));
+		Assert.assertTrue(M_sum.collectEvent(e9));
+		Assert.assertTrue(M_sum.collectEvent(e10));
+		Assert.assertTrue(M_sum.collectEvent(e11));
+		Assert.assertTrue(M_sum.collectEvent(e12));
+		Assert.assertTrue(M_sum.collectEvent(e13));
+		Assert.assertTrue(M_sum.collectEvent(e14));
+		Assert.assertTrue(M_sum.collectEvent(e15));
+		Assert.assertTrue(M_sum.collectEvent(e16));
 		// #1: SST_EVENTS
 		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(0, r1.size());
+		Assert.assertEquals(0, r1.size());
 		// #1: SST_SITEVISITS
 		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(0, r2.size());
+		Assert.assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
 		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
-		assertEquals(0, r3.size());		
+		Assert.assertEquals(0, r3.size());		
 		// #1: SST_RESOURCES
 		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(0, r4.size());	
+		Assert.assertEquals(0, r4.size());	
 	}
 	
 	// Site visits tests
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testSiteVisits() {
 		// #1 Test: 2 site visit (different users)
 		Event eSV1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		Event eSV2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #1: SST_EVENTS
 		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(2, r1.size());
+		Assert.assertEquals(2, r1.size());
 		EventStat es1 = r1.get(0);
 		EventStat es2 = r1.get(1);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
-		assertEquals(eSV1.getEvent(), es1.getEventId());
-		assertEquals(eSV2.getEvent(), es2.getEventId());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
+		Assert.assertEquals(eSV1.getEvent(), es1.getEventId());
+		Assert.assertEquals(eSV2.getEvent(), es2.getEventId());
 		if(eSV1.getUserId().equals(es1.getUserId())) {
-			assertEquals(eSV1.getUserId(), es1.getUserId());
-			assertEquals(eSV2.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es2.getUserId());
 		}else{
-			assertEquals(eSV1.getUserId(), es2.getUserId());
-			assertEquals(eSV2.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es1.getUserId());
 		}
-		assertEquals(1, es1.getCount());
-		assertEquals(1, es2.getCount());
+		Assert.assertEquals(1, es1.getCount());
+		Assert.assertEquals(1, es2.getCount());
 		// #1: SST_SITEVISITS
 		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(1, r2.size());
+		Assert.assertEquals(1, r2.size());
 		SiteVisits sv = r2.get(0);
-		assertEquals(FakeData.SITE_A_ID, sv.getSiteId());
-		assertEquals(2, sv.getTotalVisits());
-		assertEquals(2, sv.getTotalUnique());
+		Assert.assertEquals(FakeData.SITE_A_ID, sv.getSiteId());
+		Assert.assertEquals(2, sv.getTotalVisits());
+		Assert.assertEquals(2, sv.getTotalUnique());
 		// #1: SST_SITEACTIVITY
 		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
-		assertEquals(0, r3.size());		
+		Assert.assertEquals(0, r3.size());		
 		// #1: SST_RESOURCES
 		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(0, r4.size());	
+		Assert.assertEquals(0, r4.size());	
 
 		// #2 Test: 2 site visit (same users)
 		db.deleteAll();
 		eSV1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		eSV2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #2: SST_EVENTS
 		r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(1, r1.size());
+		Assert.assertEquals(1, r1.size());
 		es1 = r1.get(0);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(eSV1.getEvent(), es1.getEventId());
-		assertEquals(eSV1.getUserId(), es1.getUserId());
-		assertEquals(2, es1.getCount());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(eSV1.getEvent(), es1.getEventId());
+		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+		Assert.assertEquals(2, es1.getCount());
 		// #2: SST_SITEVISITS
 		r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(1, r2.size());
+		Assert.assertEquals(1, r2.size());
 		sv = r2.get(0);
-		assertEquals(FakeData.SITE_A_ID, sv.getSiteId());
-		assertEquals(2, sv.getTotalVisits());
-		assertEquals(1, sv.getTotalUnique());
+		Assert.assertEquals(FakeData.SITE_A_ID, sv.getSiteId());
+		Assert.assertEquals(2, sv.getTotalVisits());
+		Assert.assertEquals(1, sv.getTotalUnique());
 		// #2: SST_SITEACTIVITY
 		r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
-		assertEquals(0, r3.size());		
+		Assert.assertEquals(0, r3.size());		
 		// #2: SST_RESOURCES
 		r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(0, r4.size());	
+		Assert.assertEquals(0, r4.size());	
 	}
 	
 	// Activity tests
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testActivityEvent() {
 		// #1 Test: 2 new chat msg (different users)
 		Event eSV1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event eSV2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #1: SST_EVENTS
 		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(2, r1.size());
+		Assert.assertEquals(2, r1.size());
 		EventStat es1 = r1.get(0);
 		EventStat es2 = r1.get(1);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
-		assertEquals(eSV1.getEvent(), es1.getEventId());
-		assertEquals(eSV2.getEvent(), es2.getEventId());
-		assertEquals(1, es1.getCount());
-		assertEquals(1, es2.getCount());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
+		Assert.assertEquals(eSV1.getEvent(), es1.getEventId());
+		Assert.assertEquals(eSV2.getEvent(), es2.getEventId());
+		Assert.assertEquals(1, es1.getCount());
+		Assert.assertEquals(1, es2.getCount());
 		if(eSV1.getUserId().equals(es1.getUserId())) {
-			assertEquals(eSV1.getUserId(), es1.getUserId());
-			assertEquals(eSV2.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es2.getUserId());
 		}else{
-			assertEquals(eSV1.getUserId(), es2.getUserId());
-			assertEquals(eSV2.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es1.getUserId());
 		}
 		// #1: SST_SITEVISITS
 		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(0, r2.size());
+		Assert.assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
 		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
-		assertEquals(1, r3.size());	
+		Assert.assertEquals(1, r3.size());	
 		SiteActivity sa = r3.get(0);
-		assertEquals(FakeData.SITE_A_ID, sa.getSiteId());
-		assertEquals(FakeData.EVENT_CHATNEW, sa.getEventId());
-		assertEquals(2, sa.getCount());
+		Assert.assertEquals(FakeData.SITE_A_ID, sa.getSiteId());
+		Assert.assertEquals(FakeData.EVENT_CHATNEW, sa.getEventId());
+		Assert.assertEquals(2, sa.getCount());
 		// #1: SST_RESOURCES
 		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(0, r4.size());	
+		Assert.assertEquals(0, r4.size());	
 
 		// #2 Test: 2 new chat msg (same users)
 		db.deleteAll();
 		eSV1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		eSV2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// #2: SST_EVENTS
 		r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(1, r1.size());
+		Assert.assertEquals(1, r1.size());
 		es1 = r1.get(0);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(eSV1.getEvent(), es1.getEventId());
-		assertEquals(eSV1.getUserId(), es1.getUserId());
-		assertEquals(2, es1.getCount());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(eSV1.getEvent(), es1.getEventId());
+		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+		Assert.assertEquals(2, es1.getCount());
 		// #2: SST_SITEVISITS
 		r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(0, r2.size());
+		Assert.assertEquals(0, r2.size());
 		// #2: SST_SITEACTIVITY
 		r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
-		assertEquals(1, r3.size());	
+		Assert.assertEquals(1, r3.size());	
 		sa = r3.get(0);
-		assertEquals(FakeData.SITE_A_ID, sa.getSiteId());
-		assertEquals(FakeData.EVENT_CHATNEW, sa.getEventId());
-		assertEquals(2, sa.getCount());
+		Assert.assertEquals(FakeData.SITE_A_ID, sa.getSiteId());
+		Assert.assertEquals(FakeData.EVENT_CHATNEW, sa.getEventId());
+		Assert.assertEquals(2, sa.getCount());
 		// #2: SST_RESOURCES
 		r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(0, r4.size());	
+		Assert.assertEquals(0, r4.size());	
 	}
 	
 	// Resource tests
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testResourceActivity() {
 		// #1 Test: 
 		//		2 new resource    (site-a, user-a and user-b) 
@@ -356,42 +351,43 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		Event e3 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_B_ID+"/resource_id", FakeData.SITE_B_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e4 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_B_ID+"/resource_id", FakeData.SITE_B_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e5 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTREV, "/content/group/"+FakeData.SITE_B_ID+"/resource_id", FakeData.SITE_B_ID, FakeData.USER_B_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(e1, e2, e3, e4, e5)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(e1, e2, e3, e4, e5)));
 		// #1: SST_EVENTS
 		List<EventStat> r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(4, r1.size());
+		Assert.assertEquals(4, r1.size());
 		// #1: SST_SITEVISITS
 		List<SiteVisits> r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(0, r2.size());
+		Assert.assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
 		List<SiteActivity> r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
-		assertEquals(3, r3.size());	
+		Assert.assertEquals(3, r3.size());	
 		// #1: SST_RESOURCES
 		List<ResourceStat> r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(4, r4.size());
+		Assert.assertEquals(4, r4.size());
 		
 		// #2 Test: valid resource events
 		db.deleteAll();
 		Event e6 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/attachment/something/more/and/more", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e7 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/something/more/and/more", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e8 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group-user/something/more/and/more", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(e6, e7, e8)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(e6, e7, e8)));
 		// #1: SST_EVENTS
 		r1 = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(1, r1.size());
+		Assert.assertEquals(1, r1.size());
 		// #1: SST_SITEVISITS
 		r2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(0, r2.size());
+		Assert.assertEquals(0, r2.size());
 		// #1: SST_SITEACTIVITY
 		r3 = (List<SiteActivity>) db.getResultsForClass(SiteActivityImpl.class);
-		assertEquals(1, r3.size());	
+		Assert.assertEquals(1, r3.size());	
 		// #1: SST_RESOURCES
 		r4 = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(3, r4.size());
+		Assert.assertEquals(3, r4.size());
 	}
 	
 	// Site visits, presence time tests
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testSitePresences() {
 		//System.out.println("--- testSitePresences() :: START ---");
 		long minPresenceTime = 100;
@@ -402,25 +398,25 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		Date now = new Date();
 		Event eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		Event eSV2 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1, eSV2)));
 		// ... check SST_PRESENCES
 		List<SitePresence> r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
-		assertEquals(2, r1.size());
+		Assert.assertEquals(2, r1.size());
 		SitePresence es1 = r1.get(0);
 		SitePresence es2 = r1.get(1);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
 		if(eSV1.getUserId().equals(es1.getUserId())) {
-			assertEquals(eSV1.getUserId(), es1.getUserId());
-			assertEquals(eSV2.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es2.getUserId());
 		}else{
-			assertEquals(eSV1.getUserId(), es2.getUserId());
-			assertEquals(eSV2.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es1.getUserId());
 		}
-		assertNotNull(es1.getLastVisitStartTime());
-		assertNotNull(es2.getLastVisitStartTime());
-		assertTrue(es1.getLastVisitStartTime().equals(now) || es1.getLastVisitStartTime().before(now));
-		assertTrue(es2.getLastVisitStartTime().equals(now) || es2.getLastVisitStartTime().before(now));
+		Assert.assertNotNull(es1.getLastVisitStartTime());
+		Assert.assertNotNull(es2.getLastVisitStartTime());
+		Assert.assertTrue(es1.getLastVisitStartTime().equals(now) || es1.getLastVisitStartTime().before(now));
+		Assert.assertTrue(es2.getLastVisitStartTime().equals(now) || es2.getLastVisitStartTime().before(now));
 		
 		// END SITE PRESENCE
 		try{
@@ -430,25 +426,25 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		now = new Date();
 		Event eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		Event eSV2e = M_sum.buildEvent(now, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_B_ID, "session-id-b");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e, eSV2e)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e, eSV2e)));
 		// ... check SST_PRESENCES
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
-		assertEquals(2, r1.size());
+		Assert.assertEquals(2, r1.size());
 		es1 = r1.get(0);
 		es2 = r1.get(1);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(FakeData.SITE_A_ID, es2.getSiteId());
 		if(eSV1.getUserId().equals(es1.getUserId())) {
-			assertEquals(eSV1.getUserId(), es1.getUserId());
-			assertEquals(eSV2.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es2.getUserId());
 		}else{
-			assertEquals(eSV1.getUserId(), es2.getUserId());
-			assertEquals(eSV2.getUserId(), es1.getUserId());
+			Assert.assertEquals(eSV1.getUserId(), es2.getUserId());
+			Assert.assertEquals(eSV2.getUserId(), es1.getUserId());
 		}
-		assertNull(es1.getLastVisitStartTime());
-		assertNull(es2.getLastVisitStartTime());
-		assertTrue(es1.getDuration() >= minPresenceTime);
-		assertTrue(es2.getDuration() >= minPresenceTime);
+		Assert.assertNull(es1.getLastVisitStartTime());
+		Assert.assertNull(es2.getLastVisitStartTime());
+		Assert.assertTrue(es1.getDuration() >= minPresenceTime);
+		Assert.assertTrue(es2.getDuration() >= minPresenceTime);
 
 		
 		// #2 Test: 2 site visit (same users)
@@ -458,7 +454,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		// BEGIN SITE PRESENCE
 		now = new Date();
 		eSV1 = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1)));
 		try{
 			// give it time before ending presence
 			minPresenceTime = 150;
@@ -467,22 +463,22 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		Date now2 = new Date();
 		long secondDuration = now2.getTime() - now.getTime();
 		eSV2 = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2)));
 		// ... check SST_PRESENCES
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
-		assertEquals(1, r1.size());
+		Assert.assertEquals(1, r1.size());
 		es1 = r1.get(0);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(eSV1.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+		Assert.assertNull(es1.getLastVisitStartTime());
 		long totalDuration = es1.getDuration();
 		long firstDuration = totalDuration;
-		assertTrue(totalDuration == secondDuration);
+		Assert.assertTrue(totalDuration == secondDuration);
 		
 		// END SITE PRESENCE
 		now = new Date();
 		eSV1e = M_sum.buildEvent(now, StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV1e)));
 		try{
 			// give it time before ending presence
 			minPresenceTime = 250;
@@ -491,19 +487,19 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		now2 = new Date();
 		secondDuration = now2.getTime() - now.getTime();
 		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
 		// ... check SST_PRESENCES
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
-		assertEquals(1, r1.size());
+		Assert.assertEquals(1, r1.size());
 		es1 = r1.get(0);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(eSV1.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+		Assert.assertNull(es1.getLastVisitStartTime());
 		totalDuration = es1.getDuration();
 		//System.out.println("1. totalDuration: "+totalDuration);
 		//System.out.println("1.   firstDuration: "+firstDuration);
 		//System.out.println("1.   secondDuration: "+secondDuration);
-		assertTrue(totalDuration == firstDuration + secondDuration);
+		Assert.assertTrue(totalDuration == firstDuration + secondDuration);
 		
 		
 		// #3 Test: one pres.end (with one pres.begin already on db)
@@ -519,7 +515,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		sp1.setDuration(firstDuration);
 		sp1.setLastVisitStartTime(now);
 		db.insertObject(sp1);
-		assertTrue(db.getResultsForClass(SitePresenceImpl.class).size() == 1);
+		Assert.assertTrue(db.getResultsForClass(SitePresenceImpl.class).size() == 1);
 		// generate pres.end for processing in SST
 		try{
 			// give it time before ending presence
@@ -529,18 +525,18 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		now2 = new Date();
 		secondDuration = now2.getTime() - now.getTime();
 		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
-		assertEquals(1, r1.size());
+		Assert.assertEquals(1, r1.size());
 		es1 = r1.get(0);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(eSV1.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+		Assert.assertNull(es1.getLastVisitStartTime());
 		totalDuration = es1.getDuration();
 		//System.out.println("2. totalDuration: "+totalDuration);
 		//System.out.println("2.   firstDuration: "+firstDuration);
 		//System.out.println("2.   secondDuration: "+secondDuration);
-		assertTrue(totalDuration == firstDuration + secondDuration);
+		Assert.assertTrue(totalDuration == firstDuration + secondDuration);
 		//System.out.println("--- testSitePresences() :: END ---");
 		
 		
@@ -556,7 +552,7 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		sp1.setDuration(firstDuration);
 		sp1.setLastVisitStartTime(now);
 		db.insertObject(sp1);
-		assertTrue(db.getResultsForClass(SitePresenceImpl.class).size() == 1);
+		Assert.assertTrue(db.getResultsForClass(SitePresenceImpl.class).size() == 1);
 		// generate pres.end for processing in SST
 		try{
 			// give it time before ending presence
@@ -566,42 +562,43 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		now2 = new Date();
 		secondDuration = now2.getTime() - now.getTime();
 		eSV2e = M_sum.buildEvent(now2, StatsManager.SITEVISITEND_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
-		assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
+		Assert.assertTrue(M_sum.collectEvents(Arrays.asList(eSV2e)));
 		r1 = (List<SitePresence>) db.getResultsForClass(SitePresenceImpl.class);
-		assertEquals(1, r1.size());
+		Assert.assertEquals(1, r1.size());
 		es1 = r1.get(0);
-		assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
-		assertEquals(eSV1.getUserId(), es1.getUserId());
-		assertNull(es1.getLastVisitStartTime());
+		Assert.assertEquals(FakeData.SITE_A_ID, es1.getSiteId());
+		Assert.assertEquals(eSV1.getUserId(), es1.getUserId());
+		Assert.assertNull(es1.getLastVisitStartTime());
 		totalDuration = es1.getDuration();
 		//System.out.println("3. totalDuration: "+totalDuration);
 		//System.out.println("3.   firstDuration: "+firstDuration);
 		//System.out.println("3.   secondDuration: "+secondDuration);
-		assertTrue(totalDuration == firstDuration + secondDuration);
+		Assert.assertTrue(totalDuration == firstDuration + secondDuration);
 		//System.out.println("--- testSitePresences() :: END ---");
 	}
 	
 	// Test (remaining) CustomEventImpl fields
 	public void testCustomEventImpl() {
 		CustomEventImpl e1 = new CustomEventImpl(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a", '-');
-		assertEquals(false, e1.getModify());
-		assertEquals(0, e1.getPriority());
+		Assert.assertEquals(false, e1.getModify());
+		Assert.assertEquals(0, e1.getPriority());
 		e1 = new CustomEventImpl(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a", 'm');
-		assertEquals(true, e1.getModify());	
+		Assert.assertEquals(true, e1.getModify());	
 	}
 	
 	// Basic configuration test
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testConfigIsCollectThreadEnabled() {
 		db.deleteAll();
 		M_sum.setCollectThreadUpdateInterval(50);
 		M_sum.setCollectThreadEnabled(true);
 
 		// #1: collect thread enabled/disabled
-		assertEquals(true, M_sum.isCollectThreadEnabled());
+		Assert.assertEquals(true, M_sum.isCollectThreadEnabled());
 		// turn it off
 		M_sum.setCollectThreadEnabled(false);
-		assertEquals(false, M_sum.isCollectThreadEnabled());
+		Assert.assertEquals(false, M_sum.isCollectThreadEnabled());
 		try{
 			// give it time to stop thread
 			Thread.sleep(200);			
@@ -609,10 +606,10 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		M_ets.post(e1);
 		List<EventStat> results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(0, results.size());
+		Assert.assertEquals(0, results.size());
 		// turn it on again
 		M_sum.setCollectThreadEnabled(true);
-		assertEquals(true, M_sum.isCollectThreadEnabled());
+		Assert.assertEquals(true, M_sum.isCollectThreadEnabled());
 		try{
 			// give it time to start thread
 			Thread.sleep(200);			
@@ -625,14 +622,15 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 			}catch(Exception e) {}
 		}
 		results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(1, results.size());
+		Assert.assertEquals(1, results.size());
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testConfigCollectThreadUpdateInterval() {
 		db.deleteAll();
 		// #2: collect thread update interval
-		assertEquals(50, M_sum.getCollectThreadUpdateInterval());
+		Assert.assertEquals(50, M_sum.getCollectThreadUpdateInterval());
 		M_sum.setCollectThreadEnabled(true);
 
 		// make sure it processes
@@ -647,17 +645,17 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 				Thread.sleep(500);			
 			}catch(Exception e) {/* ignore */}
 		}
-		assertEquals(1, results.size());
+		Assert.assertEquals(1, results.size());
 		
 		// make sure it doesn't process it
 		M_sum.setCollectThreadUpdateInterval(500);
-		assertEquals(500, M_sum.getCollectThreadUpdateInterval());
+		Assert.assertEquals(500, M_sum.getCollectThreadUpdateInterval());
 		e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CHATNEW, "/chat/msg/"+FakeData.SITE_A_ID, FakeData.USER_B_ID, "session-id-a");
 		M_ets.post(e1);
 		results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(1, results.size());
+		Assert.assertEquals(1, results.size());
 		M_sum.setCollectThreadUpdateInterval(50);
-		assertEquals(50, M_sum.getCollectThreadUpdateInterval());
+		Assert.assertEquals(50, M_sum.getCollectThreadUpdateInterval());
 		tries = 0;
 		while(results.size() == 1 && tries++ < 3) {
 			results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
@@ -666,73 +664,76 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 				Thread.sleep(500);			
 			}catch(Exception e) {/* ignore */}
 		}
-		assertEquals(2, results.size());
+		Assert.assertEquals(2, results.size());
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testConfigIsCollectAdminEvents() {
 		db.deleteAll();
 		// #3: collect admin events
-		assertEquals(true, M_sum.isCollectAdminEvents());
+		Assert.assertEquals(true, M_sum.isCollectAdminEvents());
 		// make sure it processes admin events
 		Event e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, "admin", "session-id-a");
 		Event e2 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		List<SiteVisits> results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(1, results2.size());
-		assertEquals(2, results2.get(0).getCount());
+		Assert.assertEquals(1, results2.size());
+		Assert.assertEquals(2, results2.get(0).getCount());
 		// make sure it doesn't processes admin events
 		M_sum.setCollectAdminEvents(false);
-		assertEquals(false, M_sum.isCollectAdminEvents());
+		Assert.assertEquals(false, M_sum.isCollectAdminEvents());
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(1, results2.size());
-		assertEquals(3, results2.get(0).getCount());
+		Assert.assertEquals(1, results2.size());
+		Assert.assertEquals(3, results2.get(0).getCount());
 		M_sum.setCollectAdminEvents(true);
-		assertEquals(true, M_sum.isCollectAdminEvents());	
+		Assert.assertEquals(true, M_sum.isCollectAdminEvents());	
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testConfigIsCollectEventsForSiteWithToolOnly() {
 		db.deleteAll();
 		// #4: collect for sites with SiteStats only
-		assertEquals(false, M_sum.isCollectEventsForSiteWithToolOnly());
+		Assert.assertEquals(false, M_sum.isCollectEventsForSiteWithToolOnly());
 		// make sure events get processed for sites with SiteStats only
 		M_sum.setCollectEventsForSiteWithToolOnly(true);
-		assertEquals(true, M_sum.isCollectEventsForSiteWithToolOnly());
+		Assert.assertEquals(true, M_sum.isCollectEventsForSiteWithToolOnly());
 		Event e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		List<SiteVisits> results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(1, results2.size());
+		Assert.assertEquals(1, results2.size());
 		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_B_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(1, results2.size());
+		Assert.assertEquals(1, results2.size());
 		// make sure events get processed for any sites
 		db.deleteAll();
 		M_sum.setCollectEventsForSiteWithToolOnly(false);
-		assertEquals(false, M_sum.isCollectEventsForSiteWithToolOnly());
+		Assert.assertEquals(false, M_sum.isCollectEventsForSiteWithToolOnly());
 		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_A_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(1, results2.size());
+		Assert.assertEquals(1, results2.size());
 		e1 = M_sum.buildEvent(new Date(), StatsManager.SITEVISIT_EVENTID, "/presence/"+FakeData.SITE_B_ID+"-presence", null, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvent(e1);
 		results2 = (List<SiteVisits>) db.getResultsForClass(SiteVisitsImpl.class);
-		assertEquals(2, results2.size());	
+		Assert.assertEquals(2, results2.size());	
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testConfigIsShowAnonymousAccessEvents() {
 		db.deleteAll();
 		// #3: ShowAnonymousAccessEvents
-		assertEquals(true, M_sm.isShowAnonymousAccessEvents());
+		Assert.assertEquals(true, M_sm.isShowAnonymousAccessEvents());
 		// make sure it processes access events from anonymous
 		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, "?", "session-id-a");
 		Event e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		List<ResourceStat> results = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(2, results.size());
+		Assert.assertEquals(2, results.size());
 		// make sure it doesn't processes access events from anonymous
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(true).anyTimes();
@@ -740,29 +741,30 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);		
-		assertEquals(false, M_sm.isShowAnonymousAccessEvents());
+		Assert.assertEquals(false, M_sm.isShowAnonymousAccessEvents());
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		results = (List<ResourceStat>) db.getResultsForClass(ResourceStatImpl.class);
-		assertEquals(2, results.size());
+		Assert.assertEquals(2, results.size());
 		// revert setting
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(true).anyTimes();
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(true).anyTimes();
 		replay(M_sm);
-		assertEquals(true, M_sm.isShowAnonymousAccessEvents());	
+		Assert.assertEquals(true, M_sm.isShowAnonymousAccessEvents());	
 	}
 	
 	@SuppressWarnings("unchecked")
+	@Test
 	public void testConfigIsEventContextSupported() {
 		db.deleteAll();
 		// #3: EventContextSupported
-		assertEquals(true, M_sm.isEventContextSupported());
+		Assert.assertEquals(true, M_sm.isEventContextSupported());
 		// make sure it processes both events
 		Event e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/non_existent_site/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		Event e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_A_ID+"/resource_id", null, FakeData.USER_B_ID, "session-id-a");
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		List<EventStat> results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(2, results.size());
+		Assert.assertEquals(2, results.size());
 		// make sure it processes one of the events
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(false).anyTimes();
@@ -770,21 +772,22 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		expect(M_sm.isEnableSitePresences()).andReturn(true).anyTimes();
 		replay(M_sm);
 		((StatsUpdateManagerImpl)M_sum).setStatsManager(M_sm);		
-		assertEquals(false, M_sm.isEventContextSupported());
+		Assert.assertEquals(false, M_sm.isEventContextSupported());
 		e1 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/non_existent_site/resource_id", FakeData.SITE_A_ID, FakeData.USER_A_ID, "session-id-a");
 		e2 = M_sum.buildEvent(new Date(), FakeData.EVENT_CONTENTNEW, "/content/group/"+FakeData.SITE_B_ID+"/resource_id", null, FakeData.USER_B_ID, "session-id-a");
 		M_sum.collectEvents(Arrays.asList(e1, e2));
 		results = (List<EventStat>) db.getResultsForClass(EventStatImpl.class);
-		assertEquals(3, results.size());
+		Assert.assertEquals(3, results.size());
 		// revert setting
 		reset(M_sm);
 		expect(M_sm.isEventContextSupported()).andReturn(true).anyTimes();
 		expect(M_sm.isShowAnonymousAccessEvents()).andReturn(true).anyTimes();
 		replay(M_sm);
-		assertEquals(true, M_sm.isEventContextSupported());	
+		Assert.assertEquals(true, M_sm.isEventContextSupported());	
 	}
 	
 	// Test JobRun related methods
+	@Test
 	public void testJobRunMethods() {
 		Date now = new Date();
 		Date twentyMinBefore = new Date(now.getTime() - 1200*1000);
@@ -809,43 +812,43 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 
 		// test getEventDateFromLatestJobRun() == null
 		try{
-			assertNull(M_sum.getEventDateFromLatestJobRun());
+			Assert.assertNull(M_sum.getEventDateFromLatestJobRun());
 		}catch(Exception e){
-			fail("There should be no JobRun in database! [1]");
+			Assert.fail("There should be no JobRun in database! [1]");
 		}
 		
 		// test getLatestJobRun() == null
 		try{
-			assertNull(M_sum.getLatestJobRun());
+			Assert.assertNull(M_sum.getLatestJobRun());
 		}catch(Exception e){
-			fail("There should be no JobRun in database! [2]");
+			Assert.fail("There should be no JobRun in database! [2]");
 		}
 		
 		// test save of null JobRun
-		assertFalse(M_sum.saveJobRun(null));
+		Assert.assertFalse(M_sum.saveJobRun(null));
 		
 		// save objects to db
-		assertTrue(M_sum.saveJobRun(jobRun1));
-		assertTrue(M_sum.saveJobRun(jobRun2));
+		Assert.assertTrue(M_sum.saveJobRun(jobRun1));
+		Assert.assertTrue(M_sum.saveJobRun(jobRun2));
 		
 		// test getLatestJobRun()
 		JobRun jr = null;
 		try{
 			jr = M_sum.getLatestJobRun();
 		}catch(Exception e){
-			fail("There is no JobRun in database! [1]");
+			Assert.fail("There is no JobRun in database! [1]");
 		}
-		assertEquals(jobRun2.getStartEventId(), jr.getStartEventId());
-		assertEquals(jobRun2.getEndEventId(), jr.getEndEventId());
-		assertEquals(jobRun2.getJobStartDate(), jr.getJobStartDate());
-		assertEquals(jobRun2.getJobEndDate(), jr.getJobEndDate());
-		assertEquals(jobRun2.getLastEventDate(), jr.getLastEventDate());
+		Assert.assertEquals(jobRun2.getStartEventId(), jr.getStartEventId());
+		Assert.assertEquals(jobRun2.getEndEventId(), jr.getEndEventId());
+		Assert.assertEquals(jobRun2.getJobStartDate(), jr.getJobStartDate());
+		Assert.assertEquals(jobRun2.getJobEndDate(), jr.getJobEndDate());
+		Assert.assertEquals(jobRun2.getLastEventDate(), jr.getLastEventDate());
 
 		// test getEventDateFromLatestJobRun()
 		try{
-			assertEquals(jobRun2.getLastEventDate(), M_sum.getEventDateFromLatestJobRun());
+			Assert.assertEquals(jobRun2.getLastEventDate(), M_sum.getEventDateFromLatestJobRun());
 		}catch(Exception e){
-			fail("There is no JobRun in database! [2]");
+			Assert.fail("There is no JobRun in database! [2]");
 		}
 	}
 	

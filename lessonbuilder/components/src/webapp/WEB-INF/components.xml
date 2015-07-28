@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
-	"http://www.springframework.org/dtd/spring-beans.dtd">
-
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
    <!-- Use the Sakai session factory, pre-configured, instead of one local to TaskList
         we are adding our HBM files to the Sakai session factory instead of creating
@@ -26,8 +25,7 @@
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoTarget"
-        class="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoImpl"
-        singleton="true">
+        class="org.sakaiproject.lessonbuildertool.model.SimplePageToolDaoImpl">
     <property name="sessionFactory">
       <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory" />
     </property>
@@ -39,8 +37,7 @@
 <!-- here's the version our code will access -->
 
   <bean id="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao"
-        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean"
-        singleton="true">
+        class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
     <property name="transactionManager">
       <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalTransactionManager" />
     </property>

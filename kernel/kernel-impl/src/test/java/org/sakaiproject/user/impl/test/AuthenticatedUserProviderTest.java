@@ -22,20 +22,26 @@
 
 package org.sakaiproject.user.impl.test;
 
-import junit.extensions.TestSetup;
-import junit.framework.Assert;
-import junit.framework.Test;
-import junit.framework.TestSuite;
+import java.util.Collection;
+
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.junit.Assert;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
-import org.sakaiproject.user.api.*;
+import org.sakaiproject.user.api.AuthenticatedUserProvider;
+import org.sakaiproject.user.api.User;
+import org.sakaiproject.user.api.UserDirectoryProvider;
+import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
+import org.sakaiproject.user.api.UserFactory;
+import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.impl.DbUserService;
-
-import java.util.Collection;
 
 /**
  *
@@ -51,30 +57,16 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 	private ThreadLocalManager threadLocalManager;
 
 	
-	/**
-	 * A complete integration test run is a lot of overhead to take on for
-	 * such a small suite of tests. But since the tests rely on being set up with
-	 * specially tailored providers, there's not much choice....
-	 * 
-	 * @throws Exception
-	 */
-	public static Test suite() {
-		TestSetup setup = new TestSetup(new TestSuite(AuthenticatedUserProviderTest.class)) {
-			protected void setUp() throws Exception {
-				if (log.isDebugEnabled()) log.debug("starting setup");
-				try {
-					oneTimeSetup("disable_user_cache");
-					oneTimeSetupAfter();
-				} catch (Exception e) {
-					log.warn(e);
-				}
-				if (log.isDebugEnabled()) log.debug("finished setup");
-			}
-			protected void tearDown() throws Exception {	
-				oneTimeTearDown();
-			}
-		};
-		return setup;
+	@BeforeClass
+	public static void beforeClass() {
+		try {
+            log.debug("starting oneTimeSetup");
+			oneTimeSetup("disable_user_cache");
+			oneTimeSetupAfter();
+            log.debug("finished oneTimeSetup");
+		} catch (Exception e) {
+			log.warn(e);
+		}
 	}
 	
 	private static void oneTimeSetupAfter() throws Exception {
@@ -92,19 +84,21 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 		userDirectoryProvider.setSecurityService((SecurityService)getService(SecurityService.class.getName()));
 	}
 
-
+	@Before
 	public void setUp() throws Exception {
 		log.debug("Setting up UserDirectoryServiceIntegrationTest");		
 		userDirectoryService = (UserDirectoryService)getService(UserDirectoryService.class.getName());
 		threadLocalManager = (ThreadLocalManager)getService(ThreadLocalManager.class.getName());
 	}
 	
+	@Test
 	public void testLocalUserFallThrough() throws Exception {
 		User user = userDirectoryService.addUser(null, "local", null, null, null, "localPW", null, null);
 		User authUser = userDirectoryService.authenticate("local", "localPW");
 		Assert.assertTrue(authUser.getId().equals(user.getId()));
 	}
 	
+	@Test
 	public void testExistingProvidedUser() throws Exception {
 		User user = userDirectoryService.getUserByEid("provideduser");
 		Assert.assertTrue(user != null);
@@ -114,6 +108,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 		Assert.assertTrue(failedUser == null);
 	}
 	
+	@Test
 	public void testNewProvidedUsers() throws Exception {
 		User providedByAuthn = userDirectoryService.authenticate("LOGINprovidedauthn", "providedauthnPW");
 		Assert.assertTrue(providedByAuthn != null);
@@ -125,6 +120,7 @@ public class AuthenticatedUserProviderTest extends SakaiKernelTestBase {
 		Assert.assertTrue(user.getId().equals(providedByDelayedAuthn.getId()));
 	}
 	
+	@Test
 	public void testProviderCreatedAndUpdatedLocalUsers() throws Exception {
 		// Authenticate a user who will then magically appear in the Sakai user tables.
 		User providedByAuthn = userDirectoryService.authenticate("LOGINprovidercreated", "providercreatedPW");

@@ -148,6 +148,7 @@ import org.sakaiproject.api.app.scheduler.JobBeanWrapper;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.JobDetail;
+import org.quartz.JobKey;
 import org.quartz.Trigger;
 
 /**
@@ -8665,17 +8666,16 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		try
 		{
 			// get the job scheduler setting and check for whether the content cleanup job has been enabled
-			String[] jobNames = scheduler.getJobNames(Scheduler.DEFAULT_GROUP);
-			for (int i = 0; i < jobNames.length; i++)
-			{
-				JobDetail jobDetail = scheduler.getJobDetail(jobNames[i], Scheduler.DEFAULT_GROUP);
+			Set<JobKey> jobKeys = scheduler.getJobKeys(null);
+			for (JobKey key : jobKeys) {
+				JobDetail jobDetail = scheduler.getJobDetail(key);
 				String beanName = jobDetail.getJobDataMap().getString(JobBeanWrapper.SPRING_BEAN_NAME);
 				if (jobBeanName != null && jobBeanName.equals(beanName))
 				{
 					// found the right quartz job
-					Trigger[] triggerArr = scheduler.getTriggersOfJob(jobDetail.getName(), Scheduler.DEFAULT_GROUP);
+					List<? extends Trigger> triggers = scheduler.getTriggersOfJob(key);
 					// check whether there is any existence of trigger for this job
-					if (triggerArr.length > 0)
+					if (!triggers.isEmpty())
 					{
 						return true;
 					}

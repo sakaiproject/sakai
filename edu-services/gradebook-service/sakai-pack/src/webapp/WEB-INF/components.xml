@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
-<beans>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
 	<!-- Hibernate mappings -->
    <bean id="org.sakaiproject.service.gradebook.hibernateMappings"
@@ -112,24 +113,21 @@
 	</bean>
 	<bean id="org_sakaiproject_service_gradebook_GradebookService"
 		name="org.sakaiproject.service.gradebook.GradebookService"
-		parent="gradebookServiceTemplate"
-		singleton="true">
+		parent="gradebookServiceTemplate">
 		<property name="target">
 			<ref bean="org_sakaiproject_service_gradebook_GradebookServiceTarget"/>
 		</property>
 	</bean>
 	<bean id="org_sakaiproject_service_gradebook_GradebookFrameworkService"
 		name="org.sakaiproject.service.gradebook.GradebookFrameworkService"
-		parent="gradebookServiceTemplate"
-		singleton="true">
+		parent="gradebookServiceTemplate">
 		<property name="target">
 			<ref bean="org_sakaiproject_service_gradebook_GradebookFrameworkServiceTarget"/>
 		</property>
 	</bean>
 	<bean id="org_sakaiproject_service_gradebook_GradebookExternalAssessmentService"
 		name="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"
-		parent="gradebookServiceTemplate"
-		singleton="true">
+		parent="gradebookServiceTemplate">
 		<property name="target">
 			<ref bean="org_sakaiproject_service_gradebook_GradebookExternalAssessmentServiceTarget"/>
 		</property>
@@ -166,8 +164,7 @@
 	<!-- Gradebook Permission Service -->
 	<bean id="org_sakaiproject_service_gradebook_GradebookPermissionService"
 		name="org.sakaiproject.service.gradebook.GradebookPermissionService"
-		parent="gradebookServiceTemplate"
-		singleton="true">
+		parent="gradebookServiceTemplate">
 		<property name="target">
 			<ref bean="org_sakaiproject_service_gradebook_GradebookPermissionServiceTarget"/>
 		</property>

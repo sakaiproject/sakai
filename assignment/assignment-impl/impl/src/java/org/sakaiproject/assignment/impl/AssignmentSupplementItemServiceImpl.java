@@ -262,7 +262,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public AssignmentModelAnswerItem getModelAnswer(String assignmentId)
 	{
-		List<AssignmentModelAnswerItem> rvList = (getHibernateTemplate().findByNamedQueryAndNamedParam("findModelAnswerByAssignmentId", "id", assignmentId));
+		List<AssignmentModelAnswerItem> rvList = (List<AssignmentModelAnswerItem>) getHibernateTemplate().findByNamedQueryAndNamedParam("findModelAnswerByAssignmentId", "id", assignmentId);
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);
@@ -322,7 +322,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public AssignmentNoteItem getNoteItem(String assignmentId)
 	{
-		List<AssignmentNoteItem> rvList = (getHibernateTemplate().findByNamedQueryAndNamedParam("findNoteItemByAssignmentId", "id", assignmentId));
+		List<AssignmentNoteItem> rvList = (List<AssignmentNoteItem>) getHibernateTemplate().findByNamedQueryAndNamedParam("findNoteItemByAssignmentId", "id", assignmentId);
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);
@@ -401,7 +401,7 @@ public class AssignmentSupplementItemServiceImpl extends HibernateDaoSupport imp
 	 */
 	public AssignmentAllPurposeItem getAllPurposeItem(String assignmentId)
 	{
-		List<AssignmentAllPurposeItem> rvList = (getHibernateTemplate().findByNamedQueryAndNamedParam("findAllPurposeItemByAssignmentId", "id", assignmentId));
+		List<AssignmentAllPurposeItem> rvList = (List<AssignmentAllPurposeItem>) getHibernateTemplate().findByNamedQueryAndNamedParam("findAllPurposeItemByAssignmentId", "id", assignmentId);
 		if (rvList != null && rvList.size() == 1)
 		{
 			return rvList.get(0);

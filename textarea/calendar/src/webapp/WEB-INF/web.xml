@@ -17,7 +17,7 @@
 
 	<listener>
 		<listener-class>
-			org.sakaiproject.util.ContextLoaderListener</listener-class>
+			org.sakaiproject.util.SakaiContextLoaderListener</listener-class>
 	</listener>
 
     <!--  Definition of Request header filter that will add cache information to the responses -->
