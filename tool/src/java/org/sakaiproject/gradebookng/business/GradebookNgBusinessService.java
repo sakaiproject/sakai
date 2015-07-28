@@ -791,7 +791,22 @@ public class GradebookNgBusinessService {
         
     	if(gradebook != null) {
             String gradebookId = gradebook.getUid();
-            return this.gradebookService.addAssignment(gradebookId, assignment);
+
+            Long assignmentId = this.gradebookService.addAssignment(gradebookId, assignment);
+
+            // Force the assignment to sit at the end of the list
+            if (assignment.getSortOrder() == null) {
+                List<Assignment> allAssignments = this.gradebookService.getAssignments(gradebookId);
+                int nextSortOrder = allAssignments.size();
+                for (Assignment anotherAssignment : allAssignments) {
+                    if (anotherAssignment.getSortOrder() != null && anotherAssignment.getSortOrder() >= nextSortOrder) {
+                        nextSortOrder = anotherAssignment.getSortOrder() + 1;
+                    }
+                }
+                updateAssignmentOrder(assignmentId, nextSortOrder);
+            }
+
+            return assignmentId;
             
             //TODO wrap this so we can catch any runtime exceptions
         }
