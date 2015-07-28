@@ -11,6 +11,11 @@ body.is-logged-out{
 	.Mrphs-mainHeader .Mrphs-headerLogo .Mrphs-headerLogo--institution{
 		margin: 0.6em 1.5em 0 1em;
 	}
+	.#{$namespace}topHeader{
+		@media #{$phone}{
+			min-height:4.2em;
+		}
+	}
 }
 
 .#{$namespace}mainHeader{
@@ -171,6 +176,9 @@ body.is-logged-out{
 
 	#loginForm{
 		margin: 0 0.8em 0 0;
+		@media #{$phone}{
+			margin: 0 0.3em 0 0;
+		}
 		input[type="text"],input[type="password"],input[type="email"]{
 			padding: 0.35em 0.3em;
 		}
@@ -186,6 +194,12 @@ body.is-logged-out{
 									darken( $background-color-secondary, 15% ), 
 									darken( $background-color-secondary, 15% ), 
 									darken( $primary-color, 15% ) );
+			}
+		}
+		div{
+			display:inline-block;
+			@media #{$phone}{
+				max-width:260px;
 			}
 		}
 	}
