@@ -147,7 +147,9 @@ if ( $context->valid ) {
     if ( isset($_POST['accept_media_types']) ) {
         $ltilink_mimetype = 'application/vnd.ims.lti.v1.ltilink';
         $m = new Mimeparse;
+echo($_POST['accept_media_types']);
         $ltilink_allowed = $m->best_match(array($ltilink_mimetype), $_POST['accept_media_types']);
+var_dump($ltilink_allowed);
     }
 
     if ( $ltilink_allowed && $_POST['content_item_return_url'] ) {
@@ -163,7 +165,7 @@ if ( $context->valid ) {
 
     $fileitem_allowed = false;
     if ( isset($_POST['accept_media_types']) ) {
-        $fileitem_mimetype = 'application/imsccml+xml';
+        $fileitem_mimetype = 'application/vnd.ims.imsccv1p3';
         $m = new Mimeparse;
         $fileitem_allowed = $m->best_match(array($fileitem_mimetype), $_POST['accept_media_types']);
     }
