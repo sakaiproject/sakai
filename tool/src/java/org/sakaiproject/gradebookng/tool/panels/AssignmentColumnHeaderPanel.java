@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.lang.Exception;
+import java.util.Map;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -254,9 +255,40 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}
 			
 		});
-		
-		
-		
+
+		// delete item
+		add(new WebMarkupContainer("deleteGradeItem") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onInitialize() {
+				super.onInitialize();
+
+				add(new AjaxLink<Long>("deleteGradeItemAction", Model.of(assignment.getId())) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					public void onClick(AjaxRequestTarget target) {
+
+						GradebookPage gradebookPage = (GradebookPage) this.getPage();
+						final ModalWindow window = gradebookPage.getDeleteItemWindow();
+						final DeleteItemPanel panel = new DeleteItemPanel(window.getContentId(), this.getModel(), window);
+
+						window.setContent(panel);
+						window.showUnloadConfirmation(false);
+						window.show(target);
+					}
+				});
+			}
+
+			@Override
+			public boolean isVisible() {
+				// TODO add check for permission
+				return true;
+			}
+		});
+
+
 
 	}
 	

@@ -1453,6 +1453,15 @@ public class GradebookNgBusinessService {
      }
     
 
+     /**
+      * Remove an assignment from its gradebook
+      * @param assignmentId the id of theassignment to remove
+      */
+     public void removeAssignment(Long assignmentId) {
+          this.gradebookService.removeAssignment(assignmentId);
+     }
+
+
     /**
      * Comparator class for sorting a list of AssignmentOrders
      */

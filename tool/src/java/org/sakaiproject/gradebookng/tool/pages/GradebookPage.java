@@ -64,6 +64,7 @@ public class GradebookPage extends BasePage {
 	ModalWindow updateUngradedItemsWindow;
 	ModalWindow gradeLogWindow;
 	ModalWindow gradeCommentWindow;
+	ModalWindow deleteItemWindow;
 
 	Form<Void> form;
 
@@ -117,6 +118,11 @@ public class GradebookPage extends BasePage {
 		gradeCommentWindow.setUseInitialHeight(false);
 		form.add(gradeCommentWindow);
 		
+		deleteItemWindow = new ModalWindow("deleteItemWindow");
+		deleteItemWindow.setMaskType(MaskType.TRANSPARENT);
+		deleteItemWindow.setResizable(false);
+		deleteItemWindow.setUseInitialHeight(false);
+		form.add(deleteItemWindow);
 		
 		AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
 			@Override
@@ -406,6 +412,10 @@ public class GradebookPage extends BasePage {
 	
 	public ModalWindow getGradeCommentWindow() {
 		return this.gradeCommentWindow;
+	}
+
+	public ModalWindow getDeleteItemWindow() {
+		return this.deleteItemWindow;
 	}
 
 	/**
