@@ -108,7 +108,7 @@ public class GradeLogPanel extends Panel {
 	private String formatDate(Date date) {
 		//TODO locale formatting via ResourceLoader
 		
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy HH:mm");
+		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
     	return df.format(date);
 	}
 	

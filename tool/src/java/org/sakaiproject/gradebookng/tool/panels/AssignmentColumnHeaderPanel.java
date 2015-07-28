@@ -300,7 +300,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			return getString("label.noduedate");
 		}
 		
-		SimpleDateFormat df = new SimpleDateFormat("dd/MM/yy");
+		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
     	return df.format(assignmentDueDate);
 	}
 

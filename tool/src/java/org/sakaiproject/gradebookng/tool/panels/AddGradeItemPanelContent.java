@@ -35,7 +35,7 @@ public class AddGradeItemPanelContent extends Panel {
 
         add(new TextField("title", new PropertyModel(assignment, "name")));
         add(new TextField("points", new PropertyModel(assignment, "points")));
-        add(new DateTextField("duedate", new PropertyModel(assignment, "dueDate"), "MM/DD/yy"));
+        add(new DateTextField("duedate", new PropertyModel(assignment, "dueDate"), "MM/dd/yyyy"));
 
         List<CategoryDefinition> categories = businessService.getGradebookCategories();
 
