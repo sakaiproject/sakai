@@ -623,7 +623,7 @@ public class SchedulerTool
     }
     catch (Exception e)
     {
-      LOG.error("Failed to create job");
+      LOG.error("Failed to create job. Exception message is: " + e.getMessage());
       return "error";
     }
   }
@@ -734,7 +734,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to create job");
+          LOG.error("Failed to create job. Exception message is: " + e.getMessage());
           return "error";          
       }
   }
@@ -816,7 +816,7 @@ public class SchedulerTool
     }
     catch (Exception e)
     {
-      LOG.error("Failed to create trigger");
+      LOG.error("Failed to create trigger. Exception message is: " + e.getMessage());
       return "error";
     }
     finally
@@ -924,7 +924,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-          LOG.error("Failed to create job");
+          LOG.error("Failed to create job. Exception message is: " + e.getMessage());
           return "error";          
       }
 
@@ -1093,7 +1093,7 @@ public class SchedulerTool
       }
       catch (Exception e)
       {
-        LOG.error("Failed to run job now");
+    	LOG.error("Failed to run job now. Exception message is: " + e.getMessage());
         return "error";
       }
   }
