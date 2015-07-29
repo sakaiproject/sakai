@@ -1472,10 +1472,27 @@ public class GradebookNgBusinessService {
 
      /**
       * Remove an assignment from its gradebook
-      * @param assignmentId the id of theassignment to remove
+      * @param assignmentId the id of the assignment to remove
       */
      public void removeAssignment(Long assignmentId) {
-          this.gradebookService.removeAssignment(assignmentId);
+        Assignment assignment = getAssignment(assignmentId);
+        String category = assignment.getCategoryName();
+
+        this.gradebookService.removeAssignment(assignmentId);
+
+        // remove assignment from the categorized sort order XML
+        Map<String, List<Long>> categorizedOrder = getCategorizedAssignmentsOrder();
+        if (categorizedOrder.containsKey(category)) {
+            boolean removed = categorizedOrder.get(category).remove(assignmentId);
+            if (removed) {
+                try {
+                    storeCategorizedAssignmentsOrder(getCurrentSiteId(), categorizedOrder);
+                } catch (JAXBException | IdUnusedException | PermissionException e) {
+                    e.printStackTrace();
+                    log.error("Unable to storeCategorizedAssignmentsOrder after removing assignmentId: " + assignmentId);
+                }
+            }
+        }
      }
 
 
