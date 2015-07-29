@@ -20,11 +20,12 @@
 <f:view>
   <sakai:view title="#{msgs.pvt_repmsg_ALL}">
   	<link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
-  	<link rel="stylesheet" href="/messageforums-tool/css/select2.css" type="text/css" />
+  	<link rel="stylesheet" href="/library/js/jquery/select2/4.0.0/select2.css" type="text/css" />
+  	<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
     <h:form id="pvtMsgForward">
     <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 	<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-	<sakai:script contextBase="/messageforums-tool" path="/js/select2.min.js"/>
+	<script type="text/javascript" src="/library/js/jquery/select2/4.0.0/select2.min.js"></script>
     <sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
     <sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 	<script type="text/javascript">
