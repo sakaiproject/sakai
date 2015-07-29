@@ -46,12 +46,15 @@
                         var initDatePickers = function () {
                             $('.gb-datepicker').each(function() {
                                 var $datepicker = $(this);
-    
+
                                 localDatePicker({
                                     input: '#' + $datepicker.attr('id'),
                                     useTime: 0,
                                     icon: 0,
-                                    parseFormat: 'DD/MM/YYYY'
+                                    dateFormat: 'MM/DD/YYYY',
+                                    timeFormat: '',
+                                    parseFormat: 'MM/DD/YYYY',
+                                    ashidden: { iso8601: $datepicker.attr('id') + '_iso8601' }
                                 })
     
                                 // setup input button to trigger date-time picker
