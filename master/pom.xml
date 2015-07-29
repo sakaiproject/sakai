@@ -1789,6 +1789,16 @@
 
     <plugins>
       <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-eclipse-plugin</artifactId>
+        <version>2.10</version>
+        <!-- https://issues.apache.org/jira/browse/MECLIPSE-726 -->
+        <configuration>
+          <useProjectReferences>true</useProjectReferences>
+          <workspace>..</workspace>
+        </configuration>
+      </plugin>
+      <plugin>
         <inherited>true</inherited>
         <groupId>org.sakaiproject.maven.plugins</groupId>
         <artifactId>sakai</artifactId>
