@@ -5957,8 +5957,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                     M_log.debug("Magic: Setting content type from " + currentContentType + " to " + newmatch);
                 }
                 edit.setContentType(newmatch);
-            } catch (IOException e) {
-				M_log.warn("IOException when trying to get the resource's data: " + e);
+            } catch (Exception e) {
+				M_log.warn("Exception when trying to get the resource's data: " + e);
 			} 
         }
         
