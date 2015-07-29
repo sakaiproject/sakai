@@ -253,11 +253,11 @@ public class BasePage extends WebPage implements IHeaderContributor {
 
 		//for jQuery
 		response.renderJavascriptReference("/library/js/jquery/jquery-1.9.1.min.js");
-		response.renderJavascriptReference("/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js");
+		response.renderJavascriptReference("/library/js/jquery/ui/1.11.3/jquery-ui.min.js");
 
 		//for datepicker
-		response.renderCSSReference("/library/js/jquery/ui/1.10.3/css/smoothness/jquery-ui.min.css");
-		response.renderCSSReference("/library/js/jquery/ui/1.10.3/css/smoothness/jquery.ui.theme.css");
+		response.renderCSSReference("/library/js/jquery/ui/1.11.3/css/smoothness/jquery-ui.min.css");
+		response.renderCSSReference("/library/js/jquery/ui/1.11.3/css/smoothness/jquery.ui.theme.css");
 		response.renderJavascriptReference("javascript/delegated-access.js");
 		response.renderJavascriptReference("javascript/jquery.asmselect.js");
 		response.renderCSSReference("css/jquery.asmselect.css");

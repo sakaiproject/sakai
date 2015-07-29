@@ -26,7 +26,7 @@
         <link rel="stylesheet" type="text/css" href="/profile2-tool/css/profile2-profile-entity.css" media="all" />
         <link rel="stylesheet" type="text/css" href="/sakai-roster2-tool/css/roster.css" />
         <link rel="stylesheet" type="text/css" href="/library/js/jquery/cluetip/1.2.10/css/jquery.cluetip.css" />
-        <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.10.3/css/smoothness/jquery-ui.min.css" />
+        <link rel="stylesheet" type="text/css" href="/library/js/jquery/ui/1.11.3/css/smoothness/jquery-ui.min.css" />
 
         <script type="text/javascript">
 
@@ -81,8 +81,7 @@
 <!--  Templates End -->
 
 <script type="text/javascript" src="/sakai-roster2-tool/lib/es5-shim.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+<script type="text/javascript">includeLatestJQuery('roster2');</script>
 <script type="text/javascript" src="/library/js/jquery/i18n-properties/1.0.9/jquery.i18n.properties-1.0.9.js"></script>
 <script type="text/javascript" src="/library/js/jquery/jquery-migrate-1.2.1.min.js"></script>
 <script type="text/javascript" src="/profile2-tool/javascript/profile2-eb.js"></script>

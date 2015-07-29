@@ -13,7 +13,7 @@
 
 <f:view>
   <sakai:view id="synopticView">
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 <script type="text/javascript" src="/library/js/jquery/tablesorter/2.0.3/jquery.tablesorter-2.0.3.min.js"></script>
 <f:verbatim>
  <%

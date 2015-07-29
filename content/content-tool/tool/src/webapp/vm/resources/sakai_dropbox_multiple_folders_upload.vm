@@ -1,5 +1,5 @@
 <!-- resources/sakai_dropbox_multiple_folders_upload.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-<script type="text/javascript" src="#libraryLink('js/jquery/jquery-1.9.1.min.js')"></script>
+<script type="text/javascript">includeLatestJQuery('content_dropbox_multiple');</script>
 
 <div class="portletBody specialLink">
 	<h3>
