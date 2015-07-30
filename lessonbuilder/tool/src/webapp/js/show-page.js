@@ -1799,6 +1799,14 @@ $(document).ready(function() {
 			return delete_confirm(event, msg("simplepage.deletecommentsubmissionexist"));
 		    });
 
+		$('.del-item-link').click(function(event) {
+			// edit row is set by edit-comments. We're current in the dialog. need
+			// to look in the actual page row.
+			$("#delete-item-itemid").val($(this).parents("li").find("span.itemid").text());
+			delbutton = $('#delete-item-button');
+			return delete_confirm(event, msg("simplepage.delete_page_confirm"));
+		    });
+
 		$('#delete-student-item').click(function(event) {
 			// edit row is set by edit-comments. We're current in the dialog. need
 			// to look in the actual page row.

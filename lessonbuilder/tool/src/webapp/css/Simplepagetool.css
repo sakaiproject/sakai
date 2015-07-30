@@ -1201,7 +1201,19 @@ background-color:transparent;
 .edit-col {
 margin-top:5px;
 display:inline-block;
-position:relative!important;
+position:absolute;
+background-color:#eee;
+top:-5px;
+right:-1px;
+z-index: 100001;
+-webkit-border-radius: 3px;
+-moz-border-radius: 3px;
+border-radius: 3px;
+border: solid #bbb 1px;
+padding:1px;
+}
+.edit-col span {
+color: #666;
 }
 .right-col a {
 color:inherit;
