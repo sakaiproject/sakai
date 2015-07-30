@@ -78,9 +78,8 @@ public class VelocityServlet extends VelocityViewServlet
 
 		if (path == null)
 		{
-			System.out.println(" SampleServlet.loadConfiguration() : unable to "
+			getVelocityEngine().getLog().debug(" VelocityServlet.loadConfiguration() : unable to "
 					+ "get the current webapp root.  Using '/'. Please fix.");
-
 			path = "/";
 		}
 
@@ -89,7 +88,6 @@ public class VelocityServlet extends VelocityViewServlet
 		/**
 		 * and the same for the log file
 		 */
-
 		p.setProperty("runtime.log", path + p.getProperty("runtime.log"));
 
 		return p;
