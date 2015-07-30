@@ -48,7 +48,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * ApplicationContext.
  * </p>
  * <p>
- * See the {@link org.sakaiproject.api.kernel.component.ComponentManager}interface
+ * See the {@link org.sakaiproject.component.api.ComponentManager}interface
  * for details.
  * </p>
  */
@@ -214,8 +214,8 @@ public class SpringCompMgr implements ComponentManager {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object get(Class iface) {
-		Object component = null;
+	public <T> T get(Class<T> iface) {
+		T component = null;
 
 		try {
 			component = m_ac.getBean(iface.getName(), iface);
