@@ -1223,7 +1223,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     }
     
     if(logEvent){
-    	if (topic.getId() == null) {
+    	if (saveForum) {
     		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_ADD, getEventMessage(topic), false));
     	} else {
     		EventTrackingService.post(EventTrackingService.newEvent(DiscussionForumService.EVENT_FORUMS_TOPIC_REVISE, getEventMessage(topic), false));
