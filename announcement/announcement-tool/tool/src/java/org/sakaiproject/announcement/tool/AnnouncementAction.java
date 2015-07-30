@@ -49,7 +49,7 @@ import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeaderEdit;
 import org.sakaiproject.announcement.cover.AnnouncementService;
 import org.sakaiproject.announcement.tool.AnnouncementActionState.DisplayOptions;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.SecurityAdvisor;
@@ -251,12 +251,19 @@ public class AnnouncementAction extends PagedResourceActionII
    
    private EntityBroker entityBroker;
 
+   private AliasService aliasService;
+
    private RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
 
    private Collator collator = Collator.getInstance();
    
    private static final String DEFAULT_TEMPLATE="announcement/chef_announcements";
-   
+
+
+    public AnnouncementAction() {
+        super();
+        aliasService = ComponentManager.get(AliasService.class);
+    }
    /*
 	 * Returns the current order
 	 * 
@@ -1380,7 +1387,7 @@ public class AnnouncementAction extends PagedResourceActionII
 				+ SiteService.getSiteDisplay(channelRef.getContext()));
 				
 		Reference anncRef = AnnouncementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
-		List aliasList =	AliasService.getAliases( anncRef.getReference() );
+		List aliasList =	aliasService.getAliases( anncRef.getReference() );
 		if ( ! aliasList.isEmpty() )
 		{
 			String alias[] = ((Alias)aliasList.get(0)).getId().split("\\.");
@@ -4913,7 +4920,7 @@ public class AnnouncementAction extends PagedResourceActionII
 			
 			Reference anncRef = AnnouncementService.getAnnouncementReference(ToolManager.getCurrentPlacement().getContext());
 		
-			List aliasList =	AliasService.getAliases( anncRef.getReference() );
+			List aliasList =	aliasService.getAliases( anncRef.getReference() );
 			String oldAlias = null;
 			if ( ! aliasList.isEmpty() )
 			{
@@ -4925,10 +4932,10 @@ public class AnnouncementAction extends PagedResourceActionII
 			if ( alias != null && (oldAlias == null || !oldAlias.equals(alias)) )
 			{
 				// first, clear any alias set to this channel
-				AliasService.removeTargetAliases(anncRef.getReference());
+				aliasService.removeTargetAliases(anncRef.getReference());
 					
             alias += ".rss";
-				AliasService.setAlias(alias, anncRef.getReference());
+				aliasService.setAlias(alias, anncRef.getReference());
 			}
 		}
 		catch (IdUsedException ue)

@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -102,6 +102,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
 	private Portal portal;
+
+	private AliasService aliasService;
 	
 	private boolean lookForPageAliases;
 
@@ -129,6 +131,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
+		aliasService = ComponentManager.get(AliasService.class);
 	}
 
 	/* (non-Javadoc)
@@ -1173,7 +1176,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			try
 			{
 				// Use page#{siteId}:{pageAlias} So we can scan for fist colon and alias can contain any character 
-				String refString = AliasService.getTarget(buildAlias(alias, site));
+				String refString = aliasService.getTarget(buildAlias(alias, site));
 				String aliasPageId = EntityManager.newReference(refString).getId();
 				page = (SitePage) site.getPage(aliasPageId);
 			}
@@ -1196,7 +1199,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			return null;
 		}
 		String alias = null;
-		List<Alias> aliases = AliasService.getAliases(page.getReference());
+		List<Alias> aliases = aliasService.getAliases(page.getReference());
 		if (aliases.size() > 0)
 		{	
 			if (aliases.size() > 1 && log.isWarnEnabled())

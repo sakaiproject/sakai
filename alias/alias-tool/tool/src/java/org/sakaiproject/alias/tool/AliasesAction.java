@@ -28,7 +28,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.sakaiproject.alias.api.AliasEdit;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -39,6 +39,7 @@ import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.api.MenuItem;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdInvalidException;
@@ -69,6 +70,13 @@ public class AliasesAction extends PagedResourceActionII
 	 */
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("admin");
+
+	private AliasService aliasService;
+
+	public AliasesAction() {
+		super();
+		aliasService = ComponentManager.get(AliasService.class);
+	}
 
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
 	{
@@ -149,14 +157,14 @@ public class AliasesAction extends PagedResourceActionII
 	private String buildListContext(SessionState state, Context context)
 	{
 		// put the service in the context
-		context.put("service", AliasService.getInstance());
+		context.put("service", aliasService);
 
 		// put all aliases into the context
 		context.put("aliases", prepPage(state));
 
 		// build the menu
 		Menu bar = new MenuImpl();
-		if (AliasService.allowAdd())
+		if (aliasService.allowAdd())
 		{
 			bar.add(new MenuEntry(rb.getString("alias.new"), null, true, MenuItem.CHECKED_NA, "doNew"));
 		}
@@ -230,7 +238,7 @@ public class AliasesAction extends PagedResourceActionII
 		// we need the form fields for the remove...
 		boolean menuPopulated = false;
 		Menu bar = new MenuImpl();
-		if (AliasService.allowRemoveAlias(alias.getId()))
+		if (aliasService.allowRemoveAlias(alias.getId()))
 		{
 			bar.add(new MenuEntry(rb.getString("alias.remove"), null, true, MenuItem.CHECKED_NA, "doRemove", "alias-form"));
 			menuPopulated = true;
@@ -286,7 +294,7 @@ public class AliasesAction extends PagedResourceActionII
 		// get the alias
 		try
 		{
-			AliasEdit alias = AliasService.edit(id);
+			AliasEdit alias = aliasService.edit(id);
 			state.setAttribute("alias", alias);
 			state.setAttribute("mode", "edit");
 
@@ -342,7 +350,7 @@ public class AliasesAction extends PagedResourceActionII
 		AliasEdit alias = (AliasEdit) state.getAttribute("alias");
 		if (alias != null)
 		{
-			AliasService.commit(alias);
+			aliasService.commit(alias);
 		}
 
 		// cleanup
@@ -375,7 +383,7 @@ public class AliasesAction extends PagedResourceActionII
 				// remove
 				try
 				{
-					AliasService.remove(alias);
+					aliasService.remove(alias);
 				}
 				catch (PermissionException e)
 				{
@@ -384,7 +392,7 @@ public class AliasesAction extends PagedResourceActionII
 			}
 			else
 			{
-				AliasService.cancel(alias);
+				aliasService.cancel(alias);
 			}
 		}
 
@@ -432,7 +440,7 @@ public class AliasesAction extends PagedResourceActionII
 		// remove
 		try
 		{
-			AliasService.remove(alias);
+			aliasService.remove(alias);
 		}
 		catch (PermissionException e)
 		{
@@ -484,7 +492,7 @@ public class AliasesAction extends PagedResourceActionII
 			try
 			{
 				// add the alias, getting an edit clone to it
-				alias = AliasService.add(id);
+				alias = aliasService.add(id);
 
 				// put the alias in the state
 				state.setAttribute("alias", alias);
@@ -526,10 +534,10 @@ public class AliasesAction extends PagedResourceActionII
 
 		if (search != null)
 		{
-			return AliasService.searchAliases(search, first, last);
+			return aliasService.searchAliases(search, first, last);
 		}
 
-		return AliasService.getAliases(first, last);
+		return aliasService.getAliases(first, last);
 	}
 
 	/**
@@ -542,10 +550,10 @@ public class AliasesAction extends PagedResourceActionII
 
 		if (search != null)
 		{
-			return AliasService.countSearchAliases(search);
+			return aliasService.countSearchAliases(search);
 		}
 
-		return AliasService.countAliases();
+		return aliasService.countAliases();
 	}
 
 } // AliasesAction
