@@ -2459,8 +2459,10 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		public List getMessagesPublic(Filter filter, boolean ascending)
 		{
-			return findFilterMessages(new PublicFilter(filter), ascending);
+			String anncRead = eventId(MessageService.SECURE_READ);
+			boolean isChannelPublic = m_securityService.unlock(m_userDirectoryService.getAnonymousUser(), anncRead, this.getReference());
 
+			return findFilterMessages(new PublicFilter(filter, isChannelPublic), ascending);
 		} // getMessagesPublic
 
 
@@ -4577,16 +4579,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	{
 		/** The other filter to check with. May be null. */
 		protected Filter m_filter = null;
+		
+		/** The site. May be public. */
+		protected boolean m_isChannelPublic;
 
-		/**
-		 * Constructor
-		 * 
-		 * @param filter
-		 *        The other filter we check with.
-		 */
-		public PublicFilter(Filter filter)
+ 		/**
+ 		 * Constructor
+ 		 *  @param filter
+ 		 *        The other filter we check with.
+ 		 * @param isChannelPublic
+ 		 *        Whether the channel is public or not
+ 		 */
+		public PublicFilter(Filter filter, boolean isChannelPublic)
 		{
 			m_filter = filter;
+			m_isChannelPublic = isChannelPublic;
 
 		} // PublicFilter
 
@@ -4601,8 +4608,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if (o instanceof Message)
 			{
 				Message msg = (Message) o;
-				if (msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
-					 !msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+				if ((msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
+						!msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+						&& !m_isChannelPublic)
 					return false;
 				else if (msg.getHeader().getDraft())
 					return false;
