@@ -4860,10 +4860,10 @@ public class AssignmentAction extends PagedResourceActionII
 		List submissions = prepPage( state );
 		context.put("submissions", submissions);
 
+		List<SubmitterSubmission> allSubmissions = (List) state.getAttribute(STATE_PAGEING_TOTAL_ITEMS);
 		boolean hasAtLeastOneAnonAssigment = false;
-		for( Object obj : submissions )
+		for( SubmitterSubmission submission : allSubmissions )
 		{
-			SubmitterSubmission submission = (SubmitterSubmission) obj;
 			Assignment assignment = submission.getSubmission().getAssignment();
 			if( AssignmentService.getInstance().assignmentUsesAnonymousGrading( assignment ) )
 			{
