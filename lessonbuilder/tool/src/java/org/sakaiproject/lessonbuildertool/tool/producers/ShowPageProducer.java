@@ -1170,6 +1170,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				prevTableRow = tableRow;
 
 
+				if (canEditPage)
+				    UIOutput.make(tableRow, "itemid", String.valueOf(i.getId()));
+
 				// you really need the HTML file open at the same time to make
 				// sense of the following code
 				if (listItem) { // Not an HTML Text, Element or Multimedia
@@ -2824,6 +2827,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createCommentsDialog(tofill);
 		createStudentContentDialog(tofill, currentPage);
 		createQuestionDialog(tofill, currentPage);
+		createDeleteItemDialog(tofill, currentPage);
 	}
 
     // get encrypted version of session id. This is our equivalent of session.id, except that we
@@ -4072,6 +4076,13 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-question-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-question", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateQuestion}");
 		UICommand.make(form, "cancel-question", messageLocator.getMessage("simplepage.cancel"), null);
+	}
+
+	private void createDeleteItemDialog(UIContainer tofill, SimplePage currentPage) {
+		UIForm form = UIForm.make(tofill, "delete-item-form");
+		makeCsrf(form, "csrf22");
+		UIInput.make(form, "delete-item-itemid", "#{simplePageBean.itemId}");
+		UICommand.make(form, "delete-item-button", "#{simplePageBean.deleteItem}");
 	}
 
 	/*
