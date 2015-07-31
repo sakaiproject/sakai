@@ -370,14 +370,6 @@ log.debug("getEidById agentString s = " + s);
   }
 
   /**
-   * Is this a standlaone environment?
-   * @return false, in this implementation
-   */
-  public boolean isStandaloneEnvironment(){
-    return false;
-  }
-
-  /**
    * Is this an integrated environment?
    * @return true, in this implementation
    */

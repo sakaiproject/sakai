@@ -569,11 +569,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			}
 		}
 
-		/*
-		 * if (AgentFacade.isStandaloneEnvironment())
-		 * control.setReleaseTo("Authenticated Users"); else
-		 * control.setReleaseTo(AgentFacade.getCurrentSiteName());
-		 */
 		EvaluationModel evaluation = (EvaluationModel) assessment
 			.getEvaluationModel();
 		if (evaluation == null) {
