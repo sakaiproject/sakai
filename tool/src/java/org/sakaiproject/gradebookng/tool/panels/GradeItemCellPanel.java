@@ -281,6 +281,7 @@ public class GradeItemCellPanel extends Panel {
 					parentCell.add(new AttributeModifier("data-studentuuid", studentUuid));
 					parentCell.add(new AttributeModifier("class", "gb-grade-item-cell"));
 					parentCell.setOutputMarkupId(true); //must output so we can manipulate the classes through ajax
+					this.add(new AttributeModifier("class", "gb-ajax-editable-label"));
 				}
 			};
 

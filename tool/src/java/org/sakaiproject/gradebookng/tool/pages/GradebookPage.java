@@ -215,7 +215,12 @@ public class GradebookPage extends BasePage {
         cols.add(studentNameColumn);
         
         // course grade column, pull from the studentgrades model
-        cols.add(new PropertyColumn(new ResourceModel("column.header.coursegrade"), "courseGrade"));
+        cols.add(new PropertyColumn(new ResourceModel("column.header.coursegrade"), "courseGrade") {
+            @Override
+            public String getCssClass() {
+                return "gb-course-grade";
+            }
+        });
         
         
         //build the rest of the columns based on the assignment list       

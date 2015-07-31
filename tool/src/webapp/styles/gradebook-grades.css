@@ -224,8 +224,29 @@
 #gradebookGrades tbody td > div {
   width: 100%;
   position: relative;
-  padding: 6px;
   display: block;
+  height: 100%;
+
+}
+#gradebookGrades th {
+  padding: 4px 6px 0;
+}
+#gradebookGrades .gb-ajax-editable-label {
+  width: 100%;
+  position: absolute;
+  top: 50%;
+  margin-top: -0.75em;
+}
+#gradebookGrades .gb-student-label {
+  padding: 4px;
+  display: block;
+}
+#gradebookGrades .gb-course-grade {
+  text-align: center;
+}
+#gradebookGrades .gb-course-grade > div,
+#gradebookGrades .gb-category-item-column-cell > div {
+  line-height: 2.6em;
 }
 #gradebookGrades thead th > span,
 #gradebookGrades tbody th > span {
@@ -243,13 +264,16 @@
   cursor: pointer;
   vertical-align: middle;
 }
-#gradebookGrades .gb-row-selector:before {
+#gradebookGrades .gb-row-selector > div:before {
   font-family: 'gradebook-icons';
   content: '\f054';
   color: #E0E0E0;
   margin-left: 4px;
   font-size: 8px;
   text-shadow: none;
+  position: absolute;
+  top: 50%;
+  margin-top: -4px;
 }
 #gradebookGrades .gb-row-selector:hover:before {
   color: #FFF;
@@ -260,10 +284,6 @@
 }
 #gradebookGrades tbody .gb-highlighted-row {
     outline: 1px solid #3698DB;
-}
-#gradebookGrades .gb-row-selector div,
-#gradebookGrades .gb-row-selector span {
-  display: none;
 }
 /* Fixed header/column */
 #gradebookGrades .gb-fixed-header-table,
@@ -654,6 +674,8 @@ ul.feedbackPanel li span {
   height: 1.1em;
   width: 1.1em;
   line-height: 1.1em;
+  top: 50%;
+  margin-top: -0.55em;
 }
 
 .grade-save-error {
@@ -669,6 +691,8 @@ ul.feedbackPanel li span {
   height: 1.1em;
   width: 1.1em;
   line-height: 1.1em;
+  top: 50%;
+  margin-top: -0.55em;
 }
 
 .grade-save-warning {
@@ -684,6 +708,8 @@ ul.feedbackPanel li span {
   height: 1.1em;
   width: 1.1em;
   line-height: 1.1em;
+  top: 50%;
+  margin-top: -0.55em;
 }
 .grade-save-over-limit {
   background-color: #fcf8e3 !important;
@@ -698,6 +724,8 @@ ul.feedbackPanel li span {
   height: 1.1em;
   width: 1.1em;
   line-height: 1.1em;
+  top: 50%;
+  margin-top: -0.55em;
 }
 
 .has-comment > div:after {
@@ -732,6 +760,7 @@ ul.feedbackPanel li span {
   color: #ccc;
   position: absolute;
   left: 20px;
+  top: calc((100% - 1em) / 2);
 }
 #gradebookGrades .gb-cell-out-of-date:focus > div:before,
 #gradebookGrades .gb-cell-out-of-date.gb-ready-for-edit > div:before,
