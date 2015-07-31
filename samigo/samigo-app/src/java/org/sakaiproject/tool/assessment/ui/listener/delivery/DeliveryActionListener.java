@@ -71,6 +71,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -331,6 +332,8 @@ public class DeliveryActionListener
                       }    	  
                   }
               }
+
+              populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
               
               // If this is a linear access and user clicks on Show Feedback, we do not
               // get data from db. Use delivery bean instead
@@ -2301,6 +2304,22 @@ public class DeliveryActionListener
 
   }
 */
+
+  public void populateSubmissionsRemaining(PublishedAssessmentService service, PublishedAssessmentIfc pubAssessment, DeliveryBean delivery) {
+      AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+
+      int totalSubmissions = service.getTotalSubmission(AgentFacade.getAgentString(), pubAssessment.getPublishedAssessmentId().toString()).intValue();
+      delivery.setTotalSubmissions(totalSubmissions);
+
+      if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
+        // when re-takes are allowed always display 1 as number of remaining submission
+        int submissionsRemaining = control.getSubmissionsAllowed().intValue() - totalSubmissions;
+        if (submissionsRemaining < 1) {
+            submissionsRemaining = 1;
+        }
+        delivery.setSubmissionsRemaining(submissionsRemaining);
+      }
+  }
 
   /**
    * CALCULATED_QUESTION

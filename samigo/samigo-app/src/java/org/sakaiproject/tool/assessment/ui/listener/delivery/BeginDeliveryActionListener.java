@@ -268,6 +268,22 @@ public class BeginDeliveryActionListener implements ActionListener
     }
     return component;
   }
+
+  public void populateSubmissionsRemaining(PublishedAssessmentService service, PublishedAssessmentIfc pubAssessment, DeliveryBean delivery) {
+      AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+
+      int totalSubmissions = service.getTotalSubmission(AgentFacade.getAgentString(), pubAssessment.getPublishedAssessmentId().toString()).intValue();
+      delivery.setTotalSubmissions(totalSubmissions);
+
+      if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
+        // when re-takes are allowed always display 1 as number of remaining submission
+        int submissionsRemaining = control.getSubmissionsAllowed().intValue() - totalSubmissions;
+        if (submissionsRemaining < 1) {
+            submissionsRemaining = 1;
+        }
+        delivery.setSubmissionsRemaining(submissionsRemaining);
+      }
+  }
  
   /**
    * This grabs the assessment and its AssessmentAccessControlIfc &
@@ -328,17 +344,7 @@ public class BeginDeliveryActionListener implements ActionListener
     }
 
     // #1 - set submission remains
-    int totalSubmissions = (service.getTotalSubmission(AgentFacade.getAgentString(),
-        publishedAssessmentId.toString())).intValue();
-    delivery.setTotalSubmissions(totalSubmissions);
-    if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
-      // when there are retaks, we always display 1 as number of remaining submission	
-      int submissionsRemaining = control.getSubmissionsAllowed().intValue() - totalSubmissions;
-      if (submissionsRemaining < 1) {
-    	  submissionsRemaining = 1;
-      }
-      delivery.setSubmissionsRemaining(submissionsRemaining);
-    }
+    populateSubmissionsRemaining(service, pubAssessment, delivery);
 
     // #2 - check if TOC should be made avaliable
     if (control.getItemNavigation() == null)
