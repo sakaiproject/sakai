@@ -32,7 +32,6 @@ import java.util.Iterator;
 public class ToggleGradeItemsToolbarPanel extends Panel {
 
   private static final long serialVersionUID = 1L;
-  private final String UNCATEGORIZED = "Uncategorized";  
 
   public ToggleGradeItemsToolbarPanel(String id, final List<Assignment> assignments) {
     super(id);
@@ -43,7 +42,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
     Iterator<Assignment> assignmentIterator = assignments.iterator();
     while (assignmentIterator.hasNext()) {
       Assignment assignment = assignmentIterator.next();
-      String category = assignment.getCategoryName() == null ? UNCATEGORIZED : assignment.getCategoryName();
+      String category = assignment.getCategoryName() == null ? GradebookPage.UNCATEGORIZED : assignment.getCategoryName();
       
       if (!categoriesToAssignments.containsKey(category)) {
         categories.add(category);
@@ -107,7 +106,7 @@ public class ToggleGradeItemsToolbarPanel extends Panel {
         });
 
         WebMarkupContainer categoryScoreFilter = new WebMarkupContainer("categoryScore");
-        categoryScoreFilter.setVisible(category != UNCATEGORIZED);
+        categoryScoreFilter.setVisible(category != GradebookPage.UNCATEGORIZED);
         categoryScoreFilter.add(new Label("categoryScoreLabel", new StringResourceModel("label.toolbar.categoryscorelabel", null, new String[] {category})));
 
         GradebookUiSettings settings = gradebookPage.getUiSettings();

@@ -741,3 +741,25 @@ ul.feedbackPanel {
 .ui-datepicker {
   z-index: 50000 !important;
 }
+
+/* Student Grade Summary */
+#instructorView.tab-pane {
+  border-top: 1px dotted #EEE;
+  margin-top: 20px;
+  padding-top: 20px;
+}
+#instructorView .gb-summary-category-row td:first-child {
+  font-weight: bold;
+}
+#instructorView .gb-summary-grade-row td:first-child {
+  padding-left: 20px;
+}
+#instructorView .gb-summary-category-row td:nth-child(2),
+#instructorView .gb-summary-category-row td:nth-child(3),
+#instructorView .gb-summary-grade-row td:nth-child(3),
+#instructorView .gb-summary-grade-row td:nth-child(4) {
+ text-align: center;
+}
+#instructorView .gb-summary-course-grade {
+  margin-bottom: 20px;
+}

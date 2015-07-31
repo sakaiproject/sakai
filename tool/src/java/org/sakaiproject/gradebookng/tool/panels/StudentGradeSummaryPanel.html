@@ -5,28 +5,64 @@
 	<wicket:panel>
 
 		<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
-				
-		<h3><wicket:message key="label.studentsummary.coursegrade" /> <span wicket:id="courseGrade">B+</span></h3>
 
-		<table class="table table-striped table-bordered table-hover">
-			<thead>
-				<tr>
-				   <th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
-				   <th><wicket:message key="column.header.studentsummary.duedate" /></th>
-				   <th><wicket:message key="column.header.studentsummary.grade" /></th>
-				   <th><wicket:message key="column.header.studentsummary.weight" /></th>
-				   <th><wicket:message key="column.header.studentsummary.comments" /></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr wicket:id="rows">
-				   <td wicket:id="dataRow"></td>
-				</tr>
-			</tbody>
-		</table>
-		
+		<ul id="studentGradeSummaryTabs" class="nav nav-pills" role="tablist">
+			<li role="presentation" class="active"><a href="#instructorView">Instructor View</a></li>
+			<li role="presentation"><a href="#studentView">Student View</a></li>
+		</ul>
+
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane fade in active" id="instructorView">
+
+				<div class="row gb-summary-course-grade">
+					<div class="col-md-3"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
+					<div class="col-md-9"><span wicket:id="courseGrade">B+</span></div>
+				</div>
+
+				<p><strong><wicket:message key="label.studentsummary.gradeitems" /></strong></p>
+				<table class="table table-bordered table-striped table-hover table-condensed">
+					<thead>
+						<tr>
+							<th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+							<th><wicket:message key="column.header.studentsummary.duedate" /></th>
+							<th><wicket:message key="column.header.studentsummary.grade" /></th>
+							<th><wicket:message key="column.header.studentsummary.weight" /></th>
+							<th><wicket:message key="column.header.studentsummary.comments" /></th>
+						</tr>
+					</thead>
+					<tbody wicket:id="categoriesList">
+						<tr class="gb-summary-category-row">
+							<td wicket:id="category" colspan="2"></td>
+							<td wicket:id="categoryGrade"></td>
+							<td wicket:id="categoryWeight"></td>
+							<td></td>
+						</tr>
+						<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
+							<td wicket:id="title"></td>
+							<td wicket:id="dueDate"></td>
+							<td>
+								<span wicket:id="grade"></span>
+								<span wicket:id="outOf"></span>
+							</td>
+							<td wicket:id="weight"></td>
+							<td wicket:id="comments"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div role="tabpanel" class="tab-pane fade" id="studentView">
+				<h3>TODO</h3>
+			</div>
+		</div>
+
 		<button type="submit" class="btn btn-secondary" wicket:id="done"><wicket:message key="button.done" /></button>
 
+		<script>
+			$('#studentGradeSummaryTabs a').click(function (e) {
+				e.preventDefault()
+				$(this).tab('show')
+			});
+		</script>
 	</wicket:panel>
 </body>
 </html>

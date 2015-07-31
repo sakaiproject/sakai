@@ -1,16 +1,18 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.text.SimpleDateFormat;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.CheckBox;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.RepeatingView;
@@ -22,6 +24,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -62,43 +65,73 @@ public class StudentGradeSummaryPanel extends Panel {
 		//TODO catch if this is null, the get(0) will throw an exception
         //TODO also catch the GbException
         this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
-		
-		//assignment list
-		ListDataProvider<Assignment> listDataProvider = new ListDataProvider<Assignment>(assignments);
-        
-        DataView<Assignment> dataView = new DataView<Assignment>("rows", listDataProvider) {
 
+		final List<String> categories = new ArrayList<String>();
+		final Map<String, List<Assignment>> categoriesToAssignments = new HashMap<String, List<Assignment>>();
+
+		Iterator<Assignment> assignmentIterator = assignments.iterator();
+		while (assignmentIterator.hasNext()) {
+			Assignment assignment = assignmentIterator.next();
+			String category = assignment.getCategoryName() == null ? GradebookPage.UNCATEGORIZED : assignment.getCategoryName();
+
+			if (!categoriesToAssignments.containsKey(category)) {
+				categories.add(category);
+				categoriesToAssignments.put(category, new ArrayList<Assignment>());
+			}
+
+			categoriesToAssignments.get(category).add(assignment);
+		}
+
+		Collections.sort(categories);
+
+		add(new ListView<String>("categoriesList", categories) {
 			private static final long serialVersionUID = 1L;
 
-			@Override 
-        	protected void populateItem(Item<Assignment> item) { 
-        		Assignment assignment = item.getModelObject(); 
-	    		RepeatingView repeatingView = new RepeatingView("dataRow");
-	
-	    		GbGradeInfo gradeInfo = StudentGradeSummaryPanel.this.gradeInfo.getGrades().get(assignment.getId());
-	    		//TODO exception handling in here
-	    		
-	    		//note, gradeInfo may be null
-	    		String rawGrade;
-	    		String comment;
-	    		if(gradeInfo != null) {
-	    			rawGrade = gradeInfo.getGrade();
-	    			comment = gradeInfo.getGradeComment();
-	    		} else {
-	    			rawGrade = "";
-	    			comment = "";
-	    		}
-	    		
-	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getName()));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatDueDate(assignment.getDueDate())));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), StudentGradeSummaryPanel.this.formatGrade(rawGrade))); 
-	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getWeight()));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), comment)); 
+			@Override
+			protected void populateItem(ListItem<String> categoryItem) {
+				final String category = categoryItem.getModelObject();
 
-	    		item.add(repeatingView);
-    		} 
-        }; 
-        add(dataView);
+				categoryItem.add(new Label("category", category));
+
+				// TODO: add category grade and category weight
+				categoryItem.add(new Label("categoryGrade", ""));
+				categoryItem.add(new Label("categoryWeight", ""));
+
+				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoriesToAssignments.get(category)) {
+					private static final long serialVersionUID = 1L;
+
+					@Override
+					protected void populateItem(ListItem<Assignment> assignmentItem) {
+						Assignment assignment = assignmentItem.getModelObject();
+
+						GbGradeInfo gradeInfo = StudentGradeSummaryPanel.this.gradeInfo.getGrades().get(assignment.getId());
+
+						final String rawGrade;
+						String comment;
+						if(gradeInfo != null) {
+							rawGrade = gradeInfo.getGrade();
+							comment = gradeInfo.getGradeComment();
+						} else {
+							rawGrade = "";
+							comment = "";
+						}
+
+						assignmentItem.add(new Label("title", assignment.getName()));
+						assignmentItem.add(new Label("dueDate", StudentGradeSummaryPanel.this.formatDueDate(assignment.getDueDate())));
+						assignmentItem.add(new Label("grade", StudentGradeSummaryPanel.this.formatGrade(rawGrade)));
+						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
+							@Override
+							public boolean isVisible() {
+								return rawGrade != "";
+							}
+						});
+						assignmentItem.add(new Label("weight", assignment.getWeight()));
+						assignmentItem.add(new Label("comments", comment));
+					}
+				});
+			}
+		});
+
         
         //done button
         add(new AjaxLink<Void>("done") {

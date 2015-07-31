@@ -58,7 +58,9 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 public class GradebookPage extends BasePage {
 	
 	private static final long serialVersionUID = 1L;
-	
+
+	public static final String UNCATEGORIZED = "Uncategorized";
+
 	ModalWindow addGradeItemWindow;
 	ModalWindow studentGradeSummaryWindow;
 	ModalWindow updateUngradedItemsWindow;
