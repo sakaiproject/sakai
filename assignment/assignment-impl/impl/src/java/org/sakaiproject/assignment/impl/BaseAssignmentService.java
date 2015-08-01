@@ -104,6 +104,7 @@ import java.util.zip.ZipOutputStream;
 
 //Export to excel
 import java.text.DecimalFormat;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 
 /**
  * <p>
@@ -168,6 +169,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private SecurityService securityService = null;
 	public void setSecurityService(SecurityService securityService){
 		this.securityService = securityService;
+	}
+
+	private DeveloperHelperService developerHelperService = null;
+	public void setDeveloperHelperService( DeveloperHelperService developerHelperService ) {
+		this.developerHelperService = developerHelperService;
 	}
 
 	String newline = "<br />\n";
@@ -2958,7 +2964,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
 		buffer.append(rb.getString("noti.site.url") + " <a href=\""+ siteUrl+ "\">" + siteUrl + "</a>"+ newline);
 		// notification text
-		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), siteTitle}));
+		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
+		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), linkToToolInSite}));
 		
 		return buffer.toString();
 	}
@@ -2987,11 +2994,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (s.getSubmitterIds() != null && s.getSubmitterIds().size() > 0) {
 		    userId = (String) s.getSubmitterIds().get(0);
 		}
+
+		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
 		if (canSubmit(context,a,userId)) {
-		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), siteTitle}));
+		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), linkToToolInSite}));
 		}
 		else {
-		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new String[]{a.getTitle(), siteTitle}));
+		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new String[]{a.getTitle(), linkToToolInSite}));
 		}
 	 		
 	 	return buffer.toString();
