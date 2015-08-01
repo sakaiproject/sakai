@@ -56,7 +56,9 @@
                 <module>citations</module>
                 <module>common</module>
                 <module>config</module>
+                <!--
                 <module>cloud-content</module>
+                -->
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
@@ -135,7 +137,9 @@
                 <module>clogdashboardintegration</module>
                 <module>common</module>
                 <module>config</module>
+                <!--
                 <module>cloud-content</module>
+                -->
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
