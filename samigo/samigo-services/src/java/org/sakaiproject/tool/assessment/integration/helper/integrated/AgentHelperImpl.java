@@ -30,7 +30,8 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.api.Placement;
@@ -65,6 +66,12 @@ public class AgentHelperImpl implements AgentHelper
 {
   private Log log = LogFactory.getLog(AgentHelperImpl.class);
   AgentImpl agent;
+
+  private AuthzGroupService authzGroupService;
+
+  public AgentHelperImpl() {
+    authzGroupService = ComponentManager.get(AuthzGroupService.class);
+  }
 
   /**
    * Get an osid Agent implementation class instance.
@@ -250,7 +257,7 @@ log.debug("getEidById agentString s = " + s);
 
     try
     {
-      AuthzGroup siteAuthzGroup = AuthzGroupService.getAuthzGroup(realmName);
+      AuthzGroup siteAuthzGroup = authzGroupService.getAuthzGroup(realmName);
       if (siteAuthzGroup!=null)
       userRole = siteAuthzGroup.getUserRole(agentString);
       if (userRole!=null)
@@ -435,7 +442,7 @@ log.debug("getEidById agentString s = " + s);
       String realmName = "/site/" + thisSiteId;
 
       //get the roles from the realm and set of users
-      return AuthzGroupService.getUsersRole(inUsers, realmName);
+      return authzGroupService.getUsersRole(inUsers, realmName);
   }
 
   //cwen
@@ -451,7 +458,7 @@ log.debug("getEidById agentString s = " + s);
 
     try
     {
-      AuthzGroup siteAuthzGroup = AuthzGroupService.getAuthzGroup(realmName);
+      AuthzGroup siteAuthzGroup = authzGroupService.getAuthzGroup(realmName);
       if (siteAuthzGroup!=null)
       userRole = siteAuthzGroup.getUserRole(agentString);
       if (userRole!=null)

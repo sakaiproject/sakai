@@ -40,7 +40,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;

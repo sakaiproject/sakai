@@ -21,98 +21,55 @@
 
 package org.sakaiproject.portlets;
 
-import java.lang.Integer;
-
-import java.io.PrintWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.File;
-
-import java.net.URL;
-import java.net.URI;
-import java.net.URLEncoder;
-import java.net.HttpURLConnection;
-
-import java.util.Map;
-import java.util.Set;
-import java.util.Properties;
-import java.util.Iterator;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.ResourceBundle;
-import java.util.Locale;
-import java.util.Date;
-
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.apache.commons.httpclient.util.URIUtil;
-
-import javax.portlet.GenericPortlet;
-import javax.portlet.RenderRequest;
-import javax.portlet.ActionRequest;
-import javax.portlet.ActionResponse;
-import javax.portlet.RenderResponse;
-import javax.portlet.PortletRequest;
-import javax.portlet.PortletException;
-import javax.portlet.PortletURL;
-import javax.portlet.PortletPreferences;
-import javax.portlet.PortletContext;
-import javax.portlet.PortletConfig;
-import javax.portlet.WindowState;
-import javax.portlet.PortletMode;
-import javax.portlet.PortletSession;
-import javax.portlet.ReadOnlyException;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import org.sakaiproject.portlet.util.VelocityHelper;
-import org.sakaiproject.portlet.util.JSPHelper;
-import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.ResourceLoader;
-
-import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.event.api.UsageSession;
-import org.sakaiproject.event.cover.UsageSessionService;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.apache.commons.validator.routines.UrlValidator;
+import org.apache.velocity.VelocityContext;
+import org.apache.velocity.app.VelocityEngine;
+import org.apache.velocity.context.Context;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.GroupNotDefinedException;
+import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.entity.api.Reference;
+import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
-
-import javax.servlet.ServletRequest;
-import org.sakaiproject.thread_local.cover.ThreadLocalManager;
-
+import org.sakaiproject.event.cover.UsageSessionService;
+import org.sakaiproject.exception.IdUnusedException;
+import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.portlet.util.JSPHelper;
+import org.sakaiproject.portlet.util.VelocityHelper;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.tool.api.Placement;
+import org.sakaiproject.tool.api.Session;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
-import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.portal.util.PortalUtils;
+import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.ResourceLoader;
 
-import org.apache.commons.validator.routines.UrlValidator;
+import javax.portlet.*;
+import javax.servlet.ServletRequest;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 // Velocity
-import org.apache.velocity.VelocityContext;
-import org.apache.velocity.context.Context;
-import org.apache.velocity.app.VelocityEngine;
 
 /**
  * a simple PortletIFrame Portlet
@@ -140,6 +97,8 @@ public class PortletIFrame extends GenericPortlet {
 	VelocityEngine vengine = null;
 
 	private PortletContext pContext;
+
+    private AuthzGroupService authzGroupService;
 
 	// TODO: Perhaps these constancts should come from portlet.xml
 
@@ -298,6 +257,7 @@ public class PortletIFrame extends GenericPortlet {
 
 	public void init(PortletConfig config) throws PortletException {
 		super.init(config);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
 
 		pContext = config.getPortletContext();
 		try {
@@ -1204,7 +1164,7 @@ public class PortletIFrame extends GenericPortlet {
 		AuthzGroup 	group;
 		Role 				role;
 
-		group = AuthzGroupService.getAuthzGroup("/site/" + getSiteId());
+		group = authzGroupService.getAuthzGroup("/site/" + getSiteId());
 		if (group == null)
 		{
 			throw new SessionDataException("No current group");

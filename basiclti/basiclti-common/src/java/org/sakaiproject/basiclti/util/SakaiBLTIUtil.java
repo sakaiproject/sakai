@@ -50,6 +50,7 @@ import org.imsglobal.lti2.ToolProxyBinding;
 import org.imsglobal.lti2.ContentItem;
 import org.imsglobal.lti2.objects.ToolConsumer;
 
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.lti.api.LTIService;
 
 import org.sakaiproject.tool.api.Session;
@@ -64,7 +65,7 @@ import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.api.privacy.PrivacyManager;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupProvider;
 import org.sakaiproject.authz.api.Role;
@@ -347,6 +348,7 @@ public class SakaiBLTIUtil {
 
 	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp)
 	{
+		AliasService aliasService = ComponentManager.get(AliasService.class);
 		String theRole = "Learner";
 		if ( SecurityService.isSuperUser() )
 		{
@@ -367,7 +369,7 @@ public class SakaiBLTIUtil {
 			if ( user != null ) {
 				Role role = null;
 				String roleId = null;
-				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
 				if ( realm != null ) role = realm.getUserRole(user.getId());
 				if ( role != null ) roleId = role.getId();
 				if ( roleId != null && roleId.length() > 0 ) setProperty(props, "ext_sakai_role", roleId);
@@ -1296,7 +1298,7 @@ public class SakaiBLTIUtil {
 		String realmId = SiteService.siteReference(siteId);
 		String rv = null;
 		try {
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(realmId);
 			rv = realm.getProviderGroupId();
 		} catch (GroupNotDefinedException e) {
 			dPrint("SiteParticipantHelper.getExternalRealmId: site realm not found"+e.getMessage());

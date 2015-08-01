@@ -78,7 +78,7 @@ import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -203,8 +203,7 @@ public class SiteAction extends PagedResourceActionII {
 	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
 			.get(org.sakaiproject.authz.api.GroupProvider.class);
 
-	private org.sakaiproject.authz.api.AuthzGroupService authzGroupService = (org.sakaiproject.authz.api.AuthzGroupService) ComponentManager
-			.get(org.sakaiproject.authz.api.AuthzGroupService.class);
+	private AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 
 	private org.sakaiproject.archive.api.ArchiveService archiveService = (org.sakaiproject.archive.api.ArchiveService) ComponentManager
 			.get(org.sakaiproject.archive.api.ArchiveService.class);
@@ -2426,7 +2425,7 @@ public class SiteAction extends PagedResourceActionII {
 			// UVa add realm object to context so we can provide last modified time
 			realmId = SiteService.siteReference(site.getId());
 			try {
-				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 				context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
 			} catch (GroupNotDefinedException e) {
 				M_log.warn(this + "  IdUnusedException " + realmId);
@@ -2773,13 +2772,13 @@ public class SiteAction extends PagedResourceActionII {
 					realmTemplate = realmTemplate + "." + siteInfo.site_type;
 				}
 				try {
-					AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
+					AuthzGroup r = authzGroupService.getAuthzGroup(realmTemplate);
 					
 					// bjones86 - SAK-23257
 					context.put("roles", getJoinerRoles(r.getId(), state, null));
 				} catch (GroupNotDefinedException e) {
 					try {
-						AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
+						AuthzGroup rr = authzGroupService.getAuthzGroup("!site.template");
 						
 						// bjones86 - SAK-23257
 						context.put("roles", getJoinerRoles(rr.getId(), state, null));
@@ -3668,8 +3667,8 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("backIndex", "36");
 			}
 
-			context.put("authzGroupService", AuthzGroupService.getInstance());
-			
+			context.put("authzGroupService", authzGroupService);
+
 			if (selectedSect !=null && !selectedSect.isEmpty() && state.getAttribute(STATE_SITE_QUEST_UNIQNAME) == null){
 				context.put("value_uniqname", selectedSect.get(0).getAuthorizerString());
 			}
@@ -6883,12 +6882,12 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if ((providerCourseList != null)
 				&& (providerCourseList.size() != 0)) {
 			try {
-				AuthzGroup realmEdit = AuthzGroupService
+				AuthzGroup realmEdit = authzGroupService
 						.getAuthzGroup(realm);
 				String providerRealm = buildExternalRealm(siteId, state,
 						providerCourseList, StringUtils.trimToNull(realmEdit.getProviderGroupId()));
 				realmEdit.setProviderGroupId(providerRealm);
-				AuthzGroupService.save(realmEdit);
+				authzGroupService.save(realmEdit);
 			} catch (GroupNotDefinedException e) {
 				M_log.error(this + ".updateCourseSiteSections: IdUnusedException, not found, or not an AuthzGroup object", e);
 				addAlert(state, rb.getString("java.realm"));
@@ -7063,7 +7062,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private String buildExternalRealm(String id, SessionState state,
 			List<String> providerIdList, String existingProviderIdString) {
 		String realm = SiteService.siteReference(id);
-		if (!AuthzGroupService.allowUpdate(realm)) {
+		if (!authzGroupService.allowUpdate(realm)) {
 			addAlert(state, rb.getString("java.rosters"));
 			return null;
 		}
@@ -8506,11 +8505,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// list of all removed user
 		List<String> usersDeleted = new Vector<String>();
 	
-		if (AuthzGroupService.allowUpdate(realmId)
+		if (authzGroupService.allowUpdate(realmId)
 						|| SiteService.allowUpdateSiteMembership(s.getId())) {
 			try {
 				// init variables useful for actual edits and mainainersAfterProposedChanges check
-				AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
 				String maintainRoleString = realmEdit.getMaintainRole();
 				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 
@@ -8659,7 +8658,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				// if user doesn't have update, don't let them add or remove any role with site.upd in it.
 
-				if (!AuthzGroupService.allowUpdate(realmId)) {
+				if (!authzGroupService.allowUpdate(realmId)) {
 					// see if any changed have site.upd
 					for (String rolename: roles) {
 						Role role = realmEdit.getRole(rolename);
@@ -8669,7 +8668,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 						}
 				}
-				AuthzGroupService.save(realmEdit);
+				authzGroupService.save(realmEdit);
 				
 				// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
 				// but seems to be a better solution than call this multiple time for every update
@@ -8925,7 +8924,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 	private void addAuthAnonRoles(SessionState state, Site site, boolean auth, boolean anon) {
 		try {
-			AuthzGroup templateGroup = AuthzGroupService.getAuthzGroup("!site.roles");
+			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.roles");
 			if (auth) {
 				if (site.getRole(".anon") != null) {
 					site.removeRole(".anon");
@@ -9470,7 +9469,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								String realm = SiteService.siteReference(site.getId());
 								try 
 								{
-									AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
+									AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
 									if (SiteTypeUtil.isCourseSite(siteType)) 
 									{
 										// also remove the provider id attribute if any
@@ -9480,7 +9479,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									// add current user as the maintainer
 									realmEdit.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
 									
-									AuthzGroupService.save(realmEdit);
+									authzGroupService.save(realmEdit);
 								} catch (GroupNotDefinedException e) {
 									M_log.error(this + ".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
 									addAlert(state, rb.getString("java.realm"));
@@ -9764,7 +9763,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Site site = getStateSite(state);
 		try {
 			// the target realm
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(site.getId()));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(site.getId()));
 			
 			List importSites = new ArrayList(Arrays.asList(params.getStrings("importSites")));
 			for (int i = 0; i < importSites.size(); i++) {
@@ -9774,7 +9773,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					
 					// get realm information
 					String fromRealmId = SiteService.siteReference(fromSite.getId());
-					AuthzGroup fromRealm = AuthzGroupService.getAuthzGroup(fromRealmId);
+					AuthzGroup fromRealm = authzGroupService.getAuthzGroup(fromRealmId);
 					// get all users in the from site
 					Set fromUsers = fromRealm.getUsers();
 					for (Iterator iFromUsers = fromUsers.iterator(); iFromUsers.hasNext();)
@@ -9800,7 +9799,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realm.getId(), false));
 			
 			// save realm
-			AuthzGroupService.save(realm);
+			authzGroupService.save(realm);
 			
 		} catch (GroupNotDefinedException e) {
 			M_log.error(this + ".importSitesUsers: IdUnusedException, " + site.getTitle() + "(" + site.getId() + ") not found, or not an AuthzGroup object", e);
@@ -10067,7 +10066,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				|| (providerCourseSectionList.size() == 0)) {
 			// no section access so remove Provider Id
 			try {
-				AuthzGroup realmEdit1 = AuthzGroupService
+				AuthzGroup realmEdit1 = authzGroupService
 						.getAuthzGroup(realmId);
 				
 				boolean hasNonProvidedMainroleUser = false;
@@ -10091,7 +10090,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				else
 				{
 					realmEdit1.setProviderGroupId(NULL_STRING);
-					AuthzGroupService.save(realmEdit1);
+					authzGroupService.save(realmEdit1);
 				}
 			} catch (GroupNotDefinedException e) {
 				M_log.error(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
@@ -10112,10 +10111,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			String externalRealm = buildExternalRealm(id, state,
 					providerCourseSectionList, null);
 			try {
-				AuthzGroup realmEdit2 = AuthzGroupService
+				AuthzGroup realmEdit2 = authzGroupService
 						.getAuthzGroup(realmId);
 				realmEdit2.setProviderGroupId(externalRealm);
-				AuthzGroupService.save(realmEdit2);
+				authzGroupService.save(realmEdit2);
 			} catch (GroupNotDefinedException e) {
 				M_log.error(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
 						+ "(" + realmId
@@ -10148,7 +10147,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Group group = (Group) iGroups.next();
 			try
 			{
-				AuthzGroup gRealm = AuthzGroupService.getAuthzGroup(group.getReference());
+				AuthzGroup gRealm = authzGroupService.getAuthzGroup(group.getReference());
 				String gProviderId = StringUtils.trimToNull(gRealm.getProviderGroupId());
 				if (gProviderId != null)
 				{
@@ -10157,7 +10156,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						&& !listContainsString(providerCourseSectionList, gProviderId))
 					{
 						// if none of those three lists contains the provider id, remove the group and realm
-						AuthzGroupService.removeAuthzGroup(group.getReference());
+						authzGroupService.removeAuthzGroup(group.getReference());
 					}
 				}
 			}
@@ -10612,7 +10611,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String realmId = SiteService.siteReference((String) state
 				.getAttribute(STATE_SITE_INSTANCE_ID));
 		try {
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			// Filter the roles so we only display user roles
 			for (Role role: (Set<Role>)realm.getRoles()) {
 				if (isUserRole(role)) {
@@ -10644,7 +10643,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (realmId != null)
 		{
 			try {
-				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 				// get all roles that allows at least one permission in the list
 				Set<String> permissionAllowedRoleIds = new HashSet<String>();
 				for(String permission:prohibitPermissionForJoinerRole)
@@ -13769,7 +13768,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String azgId = "!site.template.course";
 		AuthzGroup azgTemplate;
 		try {
-			azgTemplate = AuthzGroupService.getAuthzGroup(azgId);
+			azgTemplate = authzGroupService.getAuthzGroup(azgId);
 		} catch (GroupNotDefinedException e) {
 			M_log.error(this + ".getRolesAllowedToAttachSection: Could not find authz group " + azgId, e);
 			return new HashSet();

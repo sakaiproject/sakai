@@ -26,7 +26,7 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.sakaiproject.api.app.syllabus.SyllabusData;
 import org.sakaiproject.api.app.syllabus.SyllabusManager;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
@@ -37,6 +37,7 @@ public class FixPublicSyllabusAttachmentsJob implements Job {
 
 	private static final Log LOG = LogFactory.getLog(FixPublicSyllabusAttachmentsJob.class);
 	private SyllabusManager syllabusManager;
+	private AuthzGroupService authzGroupService;
 	private String userId = "admin";
 
 	public void execute(JobExecutionContext jobExecutionContext) throws JobExecutionException {
@@ -63,7 +64,7 @@ public class FixPublicSyllabusAttachmentsJob implements Job {
 		UsageSessionService.startSession(userId, "127.0.0.1", FixPublicSyllabusAttachmentsJob.class.getName());
 		
 		// update the user's externally provided realm definitions
-		AuthzGroupService.refreshUser(userId);
+		authzGroupService.refreshUser(userId);
 
 		// post the login event
 		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN, null, true));
@@ -80,6 +81,10 @@ public class FixPublicSyllabusAttachmentsJob implements Job {
 
 	public void setSyllabusManager(SyllabusManager syllabusManager) {
 		this.syllabusManager = syllabusManager;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	public String getUserId() {

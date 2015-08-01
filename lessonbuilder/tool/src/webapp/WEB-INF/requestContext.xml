@@ -246,6 +246,7 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>

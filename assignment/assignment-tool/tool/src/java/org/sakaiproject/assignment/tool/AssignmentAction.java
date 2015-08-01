@@ -98,7 +98,7 @@ import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
@@ -821,6 +821,8 @@ public class AssignmentAction extends PagedResourceActionII
 	private NotificationService m_notificationService = null;
 	
 	private SecurityService m_securityService = null;
+
+	private AuthzGroupService authzGroupService = null;
 	
 	/********************** Supplement item ************************/
 	private AssignmentSupplementItemService m_assignmentSupplementItemService = null;
@@ -2270,7 +2272,7 @@ public class AssignmentAction extends PagedResourceActionII
 		context.put("contextString", contextString);
 		context.put("user", state.getAttribute(STATE_USER));
 		context.put("service", AssignmentService.getInstance());
-		context.put("AuthzGroupService", AuthzGroupService.getInstance());
+		context.put("AuthzGroupService", authzGroupService);
 		context.put("TimeService", TimeService.getInstance());
 		context.put("LongObject", Long.valueOf(TimeService.newTime().getTime()));
 		context.put("currentTime", TimeService.newTime());
@@ -2358,7 +2360,7 @@ public class AssignmentAction extends PagedResourceActionII
 			context.put("groups", (groups != null && groups.size()>0)?Boolean.TRUE:Boolean.FALSE);
 
 			// add active user list
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
 			if (realm != null)
 			{
 				context.put("activeUserIds", realm.getUsers());
@@ -2830,7 +2832,7 @@ public class AssignmentAction extends PagedResourceActionII
 		HashMap<String, List> roleUsers = new HashMap<String, List>();
 		try
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(contextString));
 			Set<Role> roles = realm.getRoles();
 			for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 			{
@@ -7744,7 +7746,7 @@ public class AssignmentAction extends PagedResourceActionII
 		List<String> accessList = new ArrayList<String>();
 		try
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
 			Set<Role> roles = realm.getRoles();
 			for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 			{
@@ -8593,7 +8595,7 @@ public class AssignmentAction extends PagedResourceActionII
 				Set<AssignmentAllPurposeItemAccess> accessSet = new HashSet<AssignmentAllPurposeItemAccess>();
 				try
 				{
-					AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
+					AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(siteId));
 					Set<Role> roles = realm.getRoles();
 					for(Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 					{
@@ -12000,6 +12002,10 @@ public class AssignmentAction extends PagedResourceActionII
 		}
 		if(assignmentPeerAssessmentService == null){
 			assignmentPeerAssessmentService = (AssignmentPeerAssessmentService) ComponentManager.get("org.sakaiproject.assignment.api.AssignmentPeerAssessmentService");
+		}
+
+		if (authzGroupService == null) {
+			authzGroupService = ComponentManager.get(AuthzGroupService.class);
 		}
 		
 

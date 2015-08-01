@@ -51,7 +51,6 @@ import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.calendar.api.*;
 import org.sakaiproject.calendar.cover.CalendarImporterService;

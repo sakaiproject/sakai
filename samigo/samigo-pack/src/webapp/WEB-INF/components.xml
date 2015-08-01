@@ -245,6 +245,7 @@
       <property name="target">
         <bean class="org.sakaiproject.tool.assessment.facade.authz.integrated.AuthzQueriesFacade">
           <property name="sessionFactory"><ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/></property>
+          <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
 	</bean>
       </property>
       <property name="transactionAttributes">
@@ -306,6 +307,7 @@
    <!--  Add a job to auto-submit assessments -->
    <bean id="AutoSubmitAssessments" class="org.sakaiproject.tool.assessment.services.AutoSubmitAssessmentsJob" 
    	init-method="init" destroy-method="destroy">
+       <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
    </bean>
 
    <bean id="org.sakaiproject.api.app.scheduler.JobBeanWrapper.AutoSubmitAssessments"
