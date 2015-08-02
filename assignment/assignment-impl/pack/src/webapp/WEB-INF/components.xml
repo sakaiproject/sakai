@@ -28,6 +28,15 @@
  		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
  		<property name="developerHelperService"><ref bean="org.sakaiproject.entitybroker.DeveloperHelperService"/></property>
 		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
+		<property name="digestService"><ref bean="org.sakaiproject.email.api.DigestService"/></property>
+		<property name="functionManager"><ref bean="org.sakaiproject.authz.api.FunctionManager"/></property>
+		<property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService"/></property>
+		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
+		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tools.api.SessionManager"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tools.api.ToolManager"/></property>
+		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
  		
  		<!--<property name="contentReviewService"><ref bean="org.sakaiproject.contentreview.service.ContentReviewService"/></property>-->
  		
@@ -61,6 +70,9 @@
 		</property>
 		<property name="userDirectoryService">
 			<ref bean="org.sakaiproject.user.api.UserDirectoryService" />
+		</property>
+		<property name="serverConfigurationService">
+			<ref bean="org.sakaiproject.component.api.ServerConfigurationService" />
 		</property>
 	</bean>
 	
@@ -111,6 +123,9 @@
 		</property>
 		<property name="siteService">
 			<ref bean="org.sakaiproject.site.api.SiteService"/>
+		</property>
+		<property name="timeService">
+			<ref bean="org.sakaiproject.time.api.TimeService"/>
 		</property>
     </bean>
 
