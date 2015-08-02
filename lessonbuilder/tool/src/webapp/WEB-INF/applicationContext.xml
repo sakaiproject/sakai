@@ -37,6 +37,7 @@
 	    <value>
 simplePageBean.addAssignment,
 simplePageBean.addBlti,
+simplePageBean.handleFileItem,
 simplePageBean.addComment,
 simplePageBean.addForum,
 simplePageBean.addMultimedia,

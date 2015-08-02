@@ -248,6 +248,11 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 	margin-bottom: 0.5em;
 }
 
+#cc-dialog-label-url {
+	width: 95%;
+	margin-bottom: 0.5em;
+}
+
 .mainList {
     margin: 0;
     padding:0;

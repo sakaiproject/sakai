@@ -282,6 +282,14 @@
                       <a href="#" role="menuitem" rsf:id="export-cc" id="export-cc"><span rsf:id="msg=simplepage.export_cc"></span></a>
                       <!-- just a message, so will display when it should not-->
                     </li>
+                    <li rsf:id="show-lti-import">
+                      <form action="#" rsf:id="lti-import-form" method="post" enctype="multipart/form-data">
+			<input type="hidden" rsf:id="csrf1" />
+			<input type="submit" style="display:none" rsf:id="lti-import" id="lti-import"/>
+                        <a rsf:id="lti-import-link" id="lti-import-link" href="#" role="menuitem" class="lti-import"><span rsf:id="msg=simplepage.import_lti_button"></span></a>
+		      </form>
+                      <!-- just a message, so will display when it should not-->
+                    </li>
                     <li class="offscreen">
                       <a href="#" id="endMoreMenu" role="menuitem"><span rsf:id="msg=simplepage.endmenu"></span></a>
                     </li>

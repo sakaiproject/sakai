@@ -90,6 +90,11 @@ import java.util.regex.Pattern;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import au.com.bytecode.opencsv.CSVParser;
 
+import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.imsglobal.lti2.ContentItem;
+
 /**
  * Backing bean for Simple pages
  * 
@@ -531,6 +536,7 @@ public class SimplePageBean {
         }
 	
 	private ToolManager toolManager;
+	private LTIService ltiService;
 	private SecurityService securityService;
 	private SiteService siteService;
 	private SimplePageToolDao simplePageToolDao;
@@ -1475,6 +1481,10 @@ public class SimplePageBean {
 		return true;
 	    String ref = "/site/" + getCurrentSiteId();
 	    return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref);
+	}
+
+	public void setLtiService(LTIService service) {
+		ltiService = service;
 	}
 
 	public void setToolManager(ToolManager toolManager) {
@@ -3907,7 +3917,10 @@ public class SimplePageBean {
 	
 	private boolean uploadSizeOk(MultipartFile file) {
 	    long uploadedFileSize = file.getSize();
+	    return uploadSizeOk(uploadedFileSize);
+	}
 
+	private boolean uploadSizeOk(long uploadedFileSize) {
 	    if (uploadedFileSize == 0) {
 		setErrMessage(messageLocator.getMessage("simplepage.filezero"));
 		return false;
@@ -5856,45 +5869,134 @@ public class SimplePageBean {
 		return ret && path.delete();
 	}
 
+	public List<Map<String, Object>> getToolsFileItem() {
+		return ltiService.getToolsFileItem();
+	}
+
+	public void handleFileItem() {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		if (toolSession != null) toolSession.setAttribute("lessonbuilder.fileImportDone", "true");
+                String returnedData = ToolUtils.getRequestParameter("data");
+                String contentItems = ToolUtils.getRequestParameter("content_items");
+
+                // Retrieve the tool associated with the content item
+                String toolId = ToolUtils.getRequestParameter("toolId");
+                Long toolKey = SakaiBLTIUtil.getLongNull(toolId);
+                if ( toolKey == 0 || toolKey < 0 ) {
+			setErrKey("simplepage.lti-import-error-id", toolId);
+                        return;
+                }
+
+                Map<String, Object> tool = ltiService.getTool(toolKey);
+                if ( tool == null ) {
+			setErrKey("simplepage.lti-import-error-id", toolId);
+                        return;
+                }
+
+                // Parse, validate and check OAuth signature for the incoming ContentItem
+                ContentItem contentItem = null;
+                try {
+                        contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
+                } catch(Exception e) {
+			setErrKey("simplepage.lti-import-bad-content-item", e.getMessage());
+			e.printStackTrace();
+                        return;
+                }
+		// System.out.println("contentItem="+contentItem);
+
+		// Extract the content item data
+		Map item = (Map) contentItem.getItemOfType(ContentItem.TYPE_FILEITEM);
+		if ( item == null ) {
+			setErrKey("simplepage.lti-import-missing-file-item", null);
+			return;
+		}
+
+		String localUrl = (String) item.get("url");
+		// System.out.println("localUrl="+localUrl);
+
+		InputStream fis = null;
+		if ( localUrl != null && localUrl.length() > 1 ) {
+			try {
+				URL parsedUrl = new URL(localUrl);
+				URLConnection yc = parsedUrl.openConnection();
+				fis = yc.getInputStream();
+			} catch ( Exception e ) {
+				setErrKey("simplepage.lti-import-error-reading-url", localUrl);
+				e.printStackTrace();
+				return;
+			}
+
+			// System.out.println("Importing...");
+			long length = importCcFromStream(fis);
+			if ( length > 0 && toolSession != null) {
+				String successMessage = messageLocator.getMessage("simplepage.lti-import-success-length").replace("{}", length+"");
+				toolSession.setAttribute("lessonbuilder.fileImportDone", successMessage);
+			}
+			return;
+		} else {
+			setErrKey("simplepage.lti-import-missing-url", null);
+		}
+	}
+
+	// Import a Common Cartridge
 	public void importCc() {
 	    if (!canEditPage())
 		return;
 	    if (!checkCsrf())
 		return;
 
+	    // Import an uploaded file
 	    MultipartFile file = null;
-
 	    if (multipartMap.size() > 0) {
 		// user specified a file, create it
 		file = multipartMap.values().iterator().next();
 	    }
 
+	    InputStream fis = null;
 	    if (file != null) {
 		if (!uploadSizeOk(file))
 		    return;
 
+		try {
+		    fis = file.getInputStream();
+		} catch(IOException e) {
+		    setErrKey("simplepage.cc-error", "");
+		    e.printStackTrace();
+		    return;
+		}
+		long length = importCcFromStream(fis);
+		setTopRefresh();
+	    }
+	}
+
+	// Import a Common Cartridge form an InputStream
+	private long importCcFromStream(InputStream fis) {
+
 		File cc = null;
 		File root = null;
+	        long length = 0;
 		try {
 		    cc = File.createTempFile("ccloader", "file");
 		    root = File.createTempFile("ccloader", "root");
 		    if (root.exists()) {
 			if (!root.delete()) {
 			    setErrMessage("unable to delete temp file for load");
-			    return;
+			    return -1;
 			}
 		    }
 		    if (!root.mkdir()) {
 			setErrMessage("unable to create temp directory for load");
-			return;
+			return -1;
 		    }
-		    BufferedInputStream bis = new BufferedInputStream(file.getInputStream());
+		    BufferedInputStream bis = new BufferedInputStream(fis);
 		    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cc));
 		    byte[] buffer = new byte[8096];
 		    int n = 0;
 		    while ((n = bis.read(buffer, 0, 8096)) >= 0) {
-			if (n > 0)
+			if (n > 0) {
 			    bos.write(buffer, 0, n);
+			    length += n;
+			}
 		    }
 		    bis.close();
 		    bos.close();
@@ -5922,11 +6024,11 @@ public class SimplePageBean {
 		    }
 
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject, importtop));
-		    setTopRefresh();
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
 		  
 		    e.printStackTrace();
+		    length = -1;
 		} finally {
 		    if (cc != null)
 			try {
@@ -5940,10 +6042,10 @@ public class SimplePageBean {
 			    
 			}
 		}
-	    }
+		return length;
 	}
 
-    // called by edit dialog to update parameters of a Youtube item
+	// called by edit dialog to update parameters of a Youtube item
 	public void updateYoutube() {
 		if (!itemOk(youtubeId))
 		    return;
