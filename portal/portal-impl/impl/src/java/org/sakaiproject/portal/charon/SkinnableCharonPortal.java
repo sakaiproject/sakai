@@ -89,6 +89,7 @@ import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.TimeoutDialogHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
+import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
@@ -2006,6 +2007,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		addHandler(new ToolHandler());
 		addHandler(new ToolResetHandler());
+		addHandler(new PageResetHandler());
 		addHandler(new PageHandler());
 		addHandler(worksiteHandler);
 		addHandler(new WorksiteResetHandler());
