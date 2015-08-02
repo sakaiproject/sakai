@@ -18,7 +18,6 @@ import org.sakaiproject.assignment.api.model.AssignmentAllPurposeItem;
 import org.sakaiproject.assignment.api.model.AssignmentModelAnswerItem;
 import org.sakaiproject.assignment.api.model.AssignmentNoteItem;
 import org.sakaiproject.assignment.api.model.AssignmentSupplementItemService;
-import org.sakaiproject.assignment.api.AssignmentConstants;
 import org.sakaiproject.assignment.api.AssignmentContent;
 import org.sakaiproject.assignment.api.AssignmentService;
 import org.sakaiproject.assignment.api.AssignmentSubmission;
@@ -26,8 +25,7 @@ import org.sakaiproject.assignment.impl.BaseAssignmentService;
 import org.sakaiproject.assignment.impl.MySecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entitybroker.EntityBroker;
@@ -53,7 +51,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -389,6 +387,10 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 	private GradebookService gradebookService;
 	@Setter
 	private GradebookExternalAssessmentService gradebookExternalService;
+	@Setter
+	private ServerConfigurationService serverConfigurationService;
+	@Setter
+	private TimeService timeService;
 	
 	// HTML is deliberately not handled here, so that it will be handled by RedirectingAssignmentEntityServlet
 	public String[] getHandledOutputFormats() {
@@ -504,7 +506,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 						.allowGetAssignment(assignmentContext); 
 				// check for read permission
 				if (allowReadAssignment
-						&& a.getOpenTime().before(TimeService.newTime())) {
+						&& a.getOpenTime().before(timeService.newTime())) {
 					// this checks if we want to display an assignment link
 					try {
 						Site site = siteService.getSite(assignmentContext); // site id
@@ -524,7 +526,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 						if (allowAddAssignment) {
 							assignData
 									.put("assignmentUrl",
-											ServerConfigurationService
+											serverConfigurationService
 													.getPortalUrl()
 													+ "/directtool/"
 													+ fromTool.getId()
@@ -534,7 +536,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 						} else if (allowSubmitAssignment) {
 							assignData
 									.put("assignmentUrl",
-											ServerConfigurationService
+											serverConfigurationService
 													.getPortalUrl()
 													+ "/directtool/"
 													+ fromTool.getId()
@@ -546,7 +548,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 							// render the appropriate url
 							assignData
 									.put("assignmentUrl",
-											ServerConfigurationService
+											serverConfigurationService
 													.getPortalUrl()
 													+ "/directtool/"
 													+ fromTool.getId()
@@ -616,7 +618,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
 			String assignmentContext = a.getContext(); // assignment context
 			if (allowReadAssignment
-					&& a.getOpenTime().before(TimeService.newTime())) {
+					&& a.getOpenTime().before(timeService.newTime())) {
 				// this checks if we want to display an assignment link
 				try {
 					Site site = siteService.getSite(assignmentContext); 
@@ -628,7 +630,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 					if (allowAddAssignment) {
 						assignData
 								.put("assignmentUrl",
-										ServerConfigurationService
+										serverConfigurationService
 												.getPortalUrl()
 												+ "/directtool/"
 												+ fromTool.getId()
@@ -638,7 +640,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 					} else if (allowSubmitAssignment) {
 						assignData
 								.put("assignmentUrl",
-										ServerConfigurationService
+										serverConfigurationService
 												.getPortalUrl()
 												+ "/directtool/"
 												+ fromTool.getId()
@@ -650,7 +652,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 						// render the appropriate url
 						assignData
 								.put("assignmentUrl",
-										ServerConfigurationService
+										serverConfigurationService
 												.getPortalUrl()
 												+ "/directtool/"
 												+ fromTool.getId()
@@ -708,7 +710,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 
 			String assignmentContext = a.getContext(); // assignment context
 			if (allowReadAssignment
-					&& a.getOpenTime().before(TimeService.newTime())) {
+					&& a.getOpenTime().before(timeService.newTime())) {
 				// this checks if we want to display an assignment link
 				try {
 					Site site = siteService.getSite(assignmentContext); 
@@ -720,7 +722,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 					if (allowAddAssignment) {
 						assignData
 								.put("assignmentUrl",
-										ServerConfigurationService
+										serverConfigurationService
 												.getPortalUrl()
 												+ "/directtool/"
 												+ fromTool.getId()
@@ -730,7 +732,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 					} else if (allowSubmitAssignment) {
 						assignData
 								.put("assignmentUrl",
-										ServerConfigurationService
+										serverConfigurationService
 												.getPortalUrl()
 												+ "/directtool/"
 												+ fromTool.getId()
@@ -742,7 +744,7 @@ public class AssignmentEntityProvider extends AbstractEntityProvider implements 
 						// render the appropriate url
 						assignData
 								.put("assignmentUrl",
-										ServerConfigurationService
+										serverConfigurationService
 												.getPortalUrl()
 												+ "/directtool/"
 												+ fromTool.getId()
