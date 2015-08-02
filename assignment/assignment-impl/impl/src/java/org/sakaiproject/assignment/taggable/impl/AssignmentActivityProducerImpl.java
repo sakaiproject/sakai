@@ -245,6 +245,10 @@ public class AssignmentActivityProducerImpl implements
 		this.siteService = siteService;
 	}
 
+	public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+		this.serverConfigurationService = serverConfigurationService;
+	}
+
 	public void setTaggingManager(TaggingManager taggingManager) {
 		this.taggingManager = taggingManager;
 	}

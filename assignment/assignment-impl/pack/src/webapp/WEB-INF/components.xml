@@ -34,8 +34,8 @@
 		<property name="eventTrackingService"><ref bean="org.sakaiproject.event.api.EventTrackingService"/></property>
 		<property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
 		<property name="idManager"><ref bean="org.sakaiproject.id.api.IdManager"/></property>
-		<property name="sessionManager"><ref bean="org.sakaiproject.tools.api.SessionManager"/></property>
-		<property name="toolManager"><ref bean="org.sakaiproject.tools.api.ToolManager"/></property>
+		<property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager"/></property>
+		<property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager"/></property>
 		<property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService"/></property>
  		
  		<!--use to allow group awareness option in assignments. 
