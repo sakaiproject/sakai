@@ -96,6 +96,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
     if($(checkbox).is(':checked')) {
 	$.ajax({
 		url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+			dataType:'text',
 		    success: function(shortUrl) {
 		    $('.'+textbox).val(shortUrl);
 		}
