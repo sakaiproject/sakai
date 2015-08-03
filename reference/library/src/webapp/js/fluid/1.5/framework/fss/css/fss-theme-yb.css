@@ -1,0 +1,201 @@
+/*
+            Yellow on Black
+========================================
+ * Color Scheme:
+ *     yellow     : #ffff00
+ *     black     : #000000
+ */
+ 
+/* 
+ * General Styling
+ */
+
+.fl-theme-yb,
+.fl-theme-yb *,
+.fl-preview-theme.fl-theme-yb,
+.fl-theme-by.fl-inverted-color,
+.fl-theme-by .fl-inverted-color,
+.fl-theme-by.fl-inverted-color *,
+.fl-theme-by .fl-inverted-color *,
+.fl-preview-theme.fl-theme-by.fl-inverted-color {color:#ff0; background-color:#000; border-color:#ff0;}  
+
+/* Divs, inputs */
+.fl-theme-yb div, 
+.fl-theme-yb input,
+.fl-theme-by .fl-inverted-color div,
+.fl-theme-by .fl-inverted-color input {color:#ff0; background-color:#000; border-color:#ff0}
+
+/* iframes */
+.fl-theme-yb iframe,
+.fl-theme-by .fl-inverted-color iframe {border-color:#ff0;}
+
+/* Links */
+.fl-theme-yb a,
+.fl-theme-by .fl-inverted-color a {color: #ffff00; font-weight:bold; background-color:#000000;}
+
+/* Headers */
+.fl-theme-yb h1,
+.fl-theme-yb h2,
+.fl-theme-yb h3,
+.fl-theme-yb h4,
+.fl-theme-yb h5,
+.fl-theme-yb h6,
+.fl-theme-by .fl-inverted-color h1,
+.fl-theme-by .fl-inverted-color h2,
+.fl-theme-by .fl-inverted-color h3,
+.fl-theme-by .fl-inverted-color h4,
+.fl-theme-by .fl-inverted-color h5,
+.fl-theme-by .fl-inverted-color h6 {color:#ffff00; background-color:#000000; border-color:#ffff00;}
+
+/* Tables */
+.fl-theme-yb th,
+.fl-theme-by .fl-inverted-color th {border:0.1em solid #ffff00; background-color:#ffff00; color:#000000;}
+.fl-theme-yb td,
+.fl-theme-by .fl-inverted-color td {border:0.1em solid #ffff00;}
+
+/* 
+ * FSS Elements
+ */
+ 
+/* Focus */
+.fl-theme-yb .fl-focus:focus,
+.fl-theme-yb .fl-focus :focus,
+.fl-theme-yb.fl-focus :focus,
+.fl-theme-yb .selectable,
+.fl-theme-by .fl-inverted-color .fl-focus:focus,
+.fl-theme-by .fl-inverted-color .fl-focus :focus,
+.fl-theme-by.fl-inverted-color.fl-focus :focus,
+.fl-theme-by .fl-inverted-color .selectable {outline: 0.2em solid #ffff00;}
+ 
+.fl-theme-yb .fl-knockout,
+.fl-theme-by .fl-inverted-color .fl-knockout {background:transparent !important; color:#ffff00;} /* Deprecated: use .fl-noBackgroundImages */
+
+/* Icons */
+.fl-theme-yb .fl-icon,
+.fl-theme-by .fl-inverted-color .fl-icon {background-color:#000000;}
+
+/* Tabs */
+.fl-theme-yb .fl-tabs,
+.fl-theme-by .fl-inverted-color .fl-tabs {border-bottom-color:#ffff00;}
+.fl-theme-yb .fl-tabs li,
+.fl-theme-yb .fl-tabs li *,
+.fl-theme-by .fl-inverted-color .fl-tabs li,
+.fl-theme-by .fl-inverted-color .fl-tabs li * {border-color:#ffff00; border-bottom-color:#ffff00; }
+.fl-theme-yb .fl-tabs li,
+.fl-theme-by .fl-inverted-color .fl-tabs li {background-color:#ffff00;}
+.fl-theme-yb .fl-tabs li *,
+.fl-theme-by .fl-inverted-color .fl-tabs li * {color:#000000; font-weight:bold; background-color:#ffff00;text-decoration:none;}
+
+.fl-theme-yb .fl-tabs li:hover,
+.fl-theme-yb .fl-tabs li:hover *,
+.fl-theme-yb .fl-tabs li a:hover,
+.fl-theme-by .fl-inverted-color .fl-tabs li:hover,
+.fl-theme-by .fl-inverted-color .fl-tabs li:hover *,
+.fl-theme-by .fl-inverted-color .fl-tabs li a:hover {color:#ffff00; background-color:#000000;}
+
+.fl-theme-yb .fl-tabs li.fl-tabs-active,
+.fl-theme-yb .fl-tabs li.fl-tabs-active a,
+.fl-theme-yb .fl-tabs li.fl-tabs-active a:hover, 
+.fl-theme-yb .fl-tabs li.fl-activeTab,
+.fl-theme-yb .fl-tabs li.fl-activeTab:hover,
+.fl-theme-yb .fl-tabs li.fl-activeTab a,
+.fl-theme-yb .fl-tabs li.fl-activeTab a:hover,
+.fl-theme-by .fl-inverted-color .fl-tabs li.fl-tabs-active,
+.fl-theme-by .fl-inverted-color .fl-tabs li.fl-tabs-active a,
+.fl-theme-by .fl-inverted-color .fl-tabs li.fl-tabs-active a:hover,
+.fl-theme-by .fl-inverted-color .fl-tabs li.fl-activeTab,
+.fl-theme-by .fl-inverted-color .fl-tabs li.fl-activeTab:hover,
+.fl-theme-by .fl-inverted-color .fl-tabs li.fl-activeTab a,
+.fl-theme-by .fl-inverted-color .fl-tabs li.fl-activeTab a:hover {background-color: #000000; border-bottom-color:#000000; color:#ffff00;}
+.fl-theme-yb .fl-tab-content,
+.fl-theme-by .fl-inverted-color .fl-tab-content {background-color:#000000; border:1px solid #ff0; border-top:none; color:#ffff00;}
+
+/* Menu */
+.fl-theme-yb .fl-listmenu, 
+.fl-theme-yb .fl-list-menu,
+.fl-theme-by .fl-inverted-color .fl-listmenu,
+.fl-theme-by .fl-inverted-color .fl-list-menu {border:1px solid #ffff00; border-bottom-width:2px; background-color:#000000;}
+.fl-theme-yb .fl-listmenu li, 
+.fl-theme-yb .fl-list-menu li,
+.fl-theme-yb .fl-listmenu li a, 
+.fl-theme-yb .fl-list-menu li a,
+.fl-theme-by .fl-inverted-color .fl-listmenu li,
+.fl-theme-by .fl-inverted-color .fl-list-menu li,
+.fl-theme-by .fl-inverted-color .fl-listmenu li a,
+.fl-theme-by .fl-inverted-color .fl-list-menu li a {font-weight:bold; color:#ffff00; background-color:#000000; border-color:#ffff00; text-decoration:none;}
+.fl-theme-yb .fl-listmenu a:hover, 
+.fl-theme-yb .fl-list-menu a:hover,
+.fl-theme-by .fl-inverted-color .fl-listmenu a:hover,
+.fl-theme-by .fl-inverted-color .fl-list-menu a:hover {background-color:#ffff00; color:#000000;}
+.fl-theme-yb .fl-listmenu .fl-activemenu a, 
+.fl-theme-yb .fl-list-menu .fl-activemenu a,
+.fl-theme-yb .fl-listmenu .fl-activemenu a:hover, 
+.fl-theme-yb .fl-list-menu .fl-activemenu a:hover,
+.fl-theme-by .fl-inverted-color .fl-listmenu .fl-activemenu a,
+.fl-theme-by .fl-inverted-color .fl-list-menu .fl-activemenu a,
+.fl-theme-by .fl-inverted-color .fl-listmenu .fl-activemenu a:hover,
+.fl-theme-by .fl-inverted-color .fl-list-menu .fl-activemenu a:hover { background-color: #ffff00; border-bottom-color:#000000; color: #000000;}
+
+/* Buttons */
+.fl-theme-yb .fl-button-left,
+.fl-theme-yb .fl-button-right,
+.fl-theme-by .fl-inverted-color .fl-button-left,
+.fl-theme-by .fl-inverted-color .fl-button-right {background-image:url('../images/themes/yb/buttons-med-cap.png');}
+.fl-theme-yb .fl-button-inner,
+.fl-theme-by .fl-inverted-color .fl-button-inner {background-image:url('../images/themes/yb/buttons-med-bg.png');}
+
+/* Widgets */
+.fl-theme-yb .fl-widget,
+.fl-theme-by .fl-inverted-color .fl-widget {background-color:#ffff00; border:1px solid #000000;}
+.fl-theme-yb .fl-widget h2,
+.fl-theme-by .fl-inverted-color .fl-widget h2 {color:#ffff00; background-color:#000000;}
+.fl-theme-yb .fl-widget a,
+.fl-theme-by .fl-inverted-color .fl-widget a {color:#ffff00;}
+.fl-theme-yb .fl-widget .fl-icon-more,
+.fl-theme-by .fl-inverted-color .fl-widget .fl-icon-more {background-image:url('../images/themes/yb/icon-widget-More.png'); margin-left:0px;}
+.fl-theme-yb .fl-widget .fl-icon-close,
+.fl-theme-by .fl-inverted-color .fl-widget .fl-icon-close {background-image:url('../images/themes/yb/icon-widget-Close.png'); margin-right:0px;}
+        
+/* Widget titlebar */
+.fl-theme-yb .fl-widget .fl-widget-titlebar,
+.fl-theme-by .fl-inverted-color .fl-widget .fl-widget-titlebar {margin-bottom:3px;}
+.fl-theme-yb .fl-grabbable .fl-widget-titlebar,
+.fl-theme-by .fl-inverted-color .fl-grabbable .fl-widget-titlebar {background-image:url('../images/themes/yb/icon-widget-gripper.png');}
+.fl-theme-yb .fl-grabbable .fl-widget-titlebar h2,
+.fl-theme-by .fl-inverted-color .fl-grabbable .fl-widget-titlebar h2 {display:inline;}
+.fl-theme-yb .fl-widget-titlebar .icon,
+.fl-theme-by .fl-inverted-color .fl-widget-titlebar .icon {background-position:center center;}
+.fl-theme-yb .fl-widget-titlebar .fl-button-right,
+.fl-theme-yb .fl-widget-titlebar .fl-button-left,
+.fl-theme-by .fl-inverted-color .fl-widget-titlebar .fl-button-right,
+.fl-theme-by .fl-inverted-color .fl-widget-titlebar .fl-button-left {color:#ffff00; background-image:url('../images/themes/yb/buttons-titlebar-cap.png'); text-decoration:none;}
+.fl-theme-yb .fl-widget-titlebar .fl-button-inner,
+.fl-theme-by .fl-inverted-color .fl-widget-titlebar .fl-button-inner {background-image:url('../images/themes/yb/buttons-titlebar-bg.png');}
+
+/* Widget options */
+.fl-theme-yb .fl-widget .fl-widget-options,
+.fl-theme-by .fl-inverted-color .fl-widget .fl-widget-options {padding:0px;}
+.fl-theme-yb .fl-widget .fl-widget-options li,
+.fl-theme-by .fl-inverted-color .fl-widget .fl-widget0options li {border-left:1px solid #000000;}
+    
+/* Widget content */
+.fl-theme-yb .fl-widget .fl-widget-content,
+.fl-theme-by .fl-inverted-color .fl-widget .fl-widget-content {background-color:#000000;}
+
+/* 
+ * Infusion Components
+ */
+
+/* Progress */
+.fl-theme-yb .fl-progress-bounds,
+.fl-theme-by .fl-inverted-color .fl-progress-bounds {border-color:#ffff00; background-color:#000000;}
+.fl-theme-yb .fl-progress-fill,
+.fl-theme-by .fl-inverted-color .fl-progress-fill {color:#000000; background-color:#ffff00;}
+
+/* Reorderer */
+.fl-theme-yb .fl-reorderer-dropMarker,
+.fl-theme-by .fl-inverted-color .fl-reorderer-dropMarker {background-color:#f00;}
+
+/* Inline Edit */
+.fl-theme-yb .fl-inlineEdit-edit,
+.fl-theme-by .fl-inverted-color .fl-inlineEdit-edit {background-color:#ffff00; color:#000000; border: 0.1em solid #000000; padding:0.1em; margin:-0.1em;}
