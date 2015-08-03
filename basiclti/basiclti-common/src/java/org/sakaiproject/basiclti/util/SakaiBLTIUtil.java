@@ -348,7 +348,6 @@ public class SakaiBLTIUtil {
 
 	public static void addRoleInfo(Properties props, Properties lti2subst, String context, String roleMapProp)
 	{
-		AliasService aliasService = ComponentManager.get(AliasService.class);
 		String theRole = "Learner";
 		if ( SecurityService.isSuperUser() )
 		{
