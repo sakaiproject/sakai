@@ -2,13 +2,13 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-
+  <!-- These beans are lazy inited as they won't startup unless correctly configured -->
   <bean id="org.sakaiproject.content.api.FileSystemHandler.swift" class="coza.opencollab.sakai.cloudcontent.SwiftFileSystemHandler"
-        init-method="init" destroy-method="destroy">
+        init-method="init" destroy-method="destroy" lazy-init="true">
   </bean>
 
   <bean id="org.sakaiproject.content.api.FileSystemHandler.blobstore" class="coza.opencollab.sakai.cloudcontent.BlobStoreFileSystemHandler"
-        init-method="init" destroy-method="destroy">
+        init-method="init" destroy-method="destroy" lazy-init="true">
   </bean>
 
 </beans>
