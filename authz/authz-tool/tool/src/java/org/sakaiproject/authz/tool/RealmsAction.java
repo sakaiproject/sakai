@@ -26,24 +26,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.Vector;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.api.AuthzPermissionException;
-import org.sakaiproject.authz.api.GroupAlreadyDefinedException;
-import org.sakaiproject.authz.api.GroupIdInvalidException;
-import org.sakaiproject.authz.api.GroupNotDefinedException;
-import org.sakaiproject.authz.api.Member;
-import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.cover.FunctionManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.*;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -57,13 +45,12 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.javax.PagingPosition;
-import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.site.api.SiteService;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.userauditservice.api.UserAuditRegistration;
 import org.sakaiproject.userauditservice.api.UserAuditService;
 import org.sakaiproject.util.ResourceLoader;
@@ -79,20 +66,29 @@ public class RealmsAction extends PagedResourceActionII
 	/** Resource bundle using current language locale */
 	private static ResourceLoader rb = new ResourceLoader("authz-tool");
 
-	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
-	.get(org.sakaiproject.authz.api.GroupProvider.class);
-	
-	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.sitemanage");
-	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
-	
 	private static Log M_log = LogFactory.getLog(RealmsAction.class);
 
 	private AuthzGroupService authzGroupService;
+	private FunctionManager functionManager;
+	private GroupProvider groupProvider;
+	private SecurityService securityService;
+	private SessionManager sessionManager;
+	private ToolManager toolManager;
+	private UserDirectoryService userDirectoryService;
+	private UserAuditRegistration userAuditRegistration;
+	private UserAuditService userAuditService;
 
-	public RealmsAction() {
-		super();
+	public RealmsAction()
+	{
 		authzGroupService = ComponentManager.get(AuthzGroupService.class);
-
+		functionManager = ComponentManager.get(FunctionManager.class);
+		groupProvider = ComponentManager.get(GroupProvider.class);
+		securityService = ComponentManager.get(SecurityService.class);
+		sessionManager = ComponentManager.get(SessionManager.class);
+		toolManager = ComponentManager.get(ToolManager.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+		userAuditRegistration = ComponentManager.get(UserAuditRegistration.class);
+		userAuditService = ComponentManager.get(UserAuditService.class);
 	}
 
 	/**
@@ -390,7 +386,7 @@ public class RealmsAction extends PagedResourceActionII
 		context.put("realm", realm);
 
 		// get all functions
-		List allFunctions = FunctionManager.getRegisteredFunctions();
+		List allFunctions = functionManager.getRegisteredFunctions();
 		Collections.sort(allFunctions);
 		context.put("allLocks", allFunctions);
 
@@ -422,7 +418,7 @@ public class RealmsAction extends PagedResourceActionII
 		context.put("role", role);
 
 		// get all functions
-		List allFunctions = FunctionManager.getRegisteredFunctions();
+		List allFunctions = functionManager.getRegisteredFunctions();
 		Collections.sort(allFunctions);
 		context.put("allLocks", allFunctions);
 
@@ -458,7 +454,7 @@ public class RealmsAction extends PagedResourceActionII
 		context.put("role", role);
 
 		// get all functions
-		List allFunctions = FunctionManager.getRegisteredFunctions();
+		List allFunctions = functionManager.getRegisteredFunctions();
 		Collections.sort(allFunctions);
 		context.put("allLocks", allFunctions);
 
@@ -571,7 +567,7 @@ public class RealmsAction extends PagedResourceActionII
 		try
 		{
 			// make a new site with this id and as a structural copy of site
-			AuthzGroup newRealm = authzGroupService.addAuthzGroup(id, realm, UserDirectoryService.getCurrentUser().getId());
+			AuthzGroup newRealm = authzGroupService.addAuthzGroup(id, realm, userDirectoryService.getCurrentUser().getId());
 		}
 		catch (GroupAlreadyDefinedException e)
 		{
@@ -1299,7 +1295,7 @@ public class RealmsAction extends PagedResourceActionII
 		String id = data.getParameters().getString("target");
 		try
 		{
-			User user = UserDirectoryService.getUser(id);
+			User user = userDirectoryService.getUser(id);
 			state.setAttribute("user", user);
 			state.setAttribute("mode", "editUser");
 		}
@@ -1410,7 +1406,7 @@ public class RealmsAction extends PagedResourceActionII
 
 			try
 			{
-				user = UserDirectoryService.getUserByEid(eid);
+				user = userDirectoryService.getUserByEid(eid);
 			}
 			catch (UserNotDefinedException e)
 			{
@@ -1478,18 +1474,18 @@ public class RealmsAction extends PagedResourceActionII
 	 * Super users are allowed, as well as people with the AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS permission.
 	 */
 	private boolean isAccessAllowed() {
-		if(SecurityService.isSuperUser()) {
+		if(securityService.isSuperUser()) {
 			return true;
 		}
-		String siteId = ToolManager.getCurrentPlacement().getContext();
+		String siteId = toolManager.getCurrentPlacement().getContext();
 		String siteRef = siteId;
 		if(siteId != null && !siteId.startsWith(SiteService.REFERENCE_ROOT)) {
 			siteRef = SiteService.REFERENCE_ROOT + Entity.SEPARATOR + siteId;
 		}
 		
-		String userId = SessionManager.getCurrentSessionUserId();
+		String userId = sessionManager.getCurrentSessionUserId();
 		
-		if(SecurityService.unlock(userId, AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS, siteRef)) {
+		if(securityService.unlock(userId, AuthzGroupService.SECURE_VIEW_ALL_AUTHZ_GROUPS, siteRef)) {
 			M_log.debug("Granting view access to Realms tool for userId: " + userId);
 			return true;
 		}
@@ -1537,7 +1533,7 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			userAuditAction = userAuditService.USER_AUDIT_ACTION_ADD;
 		}
-		String[] userAuditString = {siteId,userEid,userRole,userAuditAction,userAuditRegistration.getDatabaseSourceKey(),UserDirectoryService.getCurrentUser().getEid()};
+		String[] userAuditString = {siteId,userEid,userRole,userAuditAction,userAuditRegistration.getDatabaseSourceKey(),userDirectoryService.getCurrentUser().getEid()};
 		userAuditList.add(userAuditString);
 		
 		state.setAttribute("userAuditList", userAuditList);
