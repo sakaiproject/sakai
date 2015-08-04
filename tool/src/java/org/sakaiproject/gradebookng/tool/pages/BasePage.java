@@ -152,11 +152,9 @@ public class BasePage extends WebPage implements IHeaderContributor {
         			message.getLevel() == FeedbackMessage.DEBUG ||
         			message.getLevel() == FeedbackMessage.FATAL ||
         			message.getLevel() == FeedbackMessage.WARNING){
-        			add(AttributeModifier.replace("class", "messageError"));
-        			feedbackPanel.add(AttributeModifier.append("class", "feedback"));
+        			newMessageDisplayComponent.add(AttributeModifier.replace("class", "messageError"));
         		} else if(message.getLevel() == FeedbackMessage.INFO){
-        			add(AttributeModifier.replace("class", "messageSuccess"));   
-        			feedbackPanel.add(AttributeModifier.append("class", "feedback"));
+        			newMessageDisplayComponent.add(AttributeModifier.replace("class", "messageSuccess"));
         		} 
 
         		return newMessageDisplayComponent;
