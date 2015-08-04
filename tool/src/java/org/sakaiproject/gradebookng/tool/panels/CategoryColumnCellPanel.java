@@ -69,15 +69,17 @@ public class CategoryColumnCellPanel extends Panel {
 			return getString("label.nocategoryscore");
 		}
 		
+		return formatDouble(score);
+	}
+	
+	
+	public static String formatDouble(Double score) {
 		NumberFormat df = DecimalFormat.getInstance();
 		df.setMinimumFractionDigits(0);
 		df.setMaximumFractionDigits(2);
 		df.setRoundingMode(RoundingMode.DOWN);
-		
+
 		//TODO does the % need to be internationalised?
-		return df.format(score) + "%"; 
+		return df.format(score) + "%";
 	}
-	
-	
-	
 }

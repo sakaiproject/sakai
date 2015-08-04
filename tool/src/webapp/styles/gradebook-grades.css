@@ -756,7 +756,9 @@ ul.feedbackPanel {
 }
 .gb-summary-grade-duedate,
 .gb-summary-grade-score,
-.gb-summary-grade-weight {
+.gb-summary-grade-weight,
+.gb-summary-category-grade,
+.gb-summary-category-weight {
   text-align: center;
 }
 #instructorView .gb-summary-course-grade {

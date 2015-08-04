@@ -26,6 +26,7 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
  * 
@@ -39,6 +40,7 @@ public class StudentGradeSummaryPanel extends Panel {
 	private static final long serialVersionUID = 1L;
 	
 	private GbStudentGradeInfo gradeInfo;
+	private List<CategoryDefinition> categories;
 	private ModalWindow window;
 	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
@@ -65,8 +67,9 @@ public class StudentGradeSummaryPanel extends Panel {
 		//TODO catch if this is null, the get(0) will throw an exception
         //TODO also catch the GbException
         this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
+		this.categories = this.businessService.getGradebookCategories();
 
-		final List<String> categories = new ArrayList<String>();
+		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoriesToAssignments = new HashMap<String, List<Assignment>>();
 
 		Iterator<Assignment> assignmentIterator = assignments.iterator();
@@ -75,16 +78,16 @@ public class StudentGradeSummaryPanel extends Panel {
 			String category = assignment.getCategoryName() == null ? GradebookPage.UNCATEGORIZED : assignment.getCategoryName();
 
 			if (!categoriesToAssignments.containsKey(category)) {
-				categories.add(category);
+				categoryNames.add(category);
 				categoriesToAssignments.put(category, new ArrayList<Assignment>());
 			}
 
 			categoriesToAssignments.get(category).add(assignment);
 		}
 
-		Collections.sort(categories);
+		Collections.sort(categoryNames);
 
-		add(new ListView<String>("categoriesList", categories) {
+		add(new ListView<String>("categoriesList", categoryNames) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -93,9 +96,31 @@ public class StudentGradeSummaryPanel extends Panel {
 
 				categoryItem.add(new Label("category", category));
 
-				// TODO: add category grade and category weight
-				categoryItem.add(new Label("categoryGrade", ""));
-				categoryItem.add(new Label("categoryWeight", ""));
+				CategoryDefinition categoryDefinition = null;
+				for (CategoryDefinition aCategoryDefinition : categories) {
+					if (aCategoryDefinition.getName().equals(category)) {
+						categoryDefinition = aCategoryDefinition;
+						break;
+					}
+				}
+
+				if (categoryDefinition != null) {
+					Double score = gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
+					String grade = "";
+					if (score != null) {
+						grade = CategoryColumnCellPanel.formatDouble(score);
+					}
+					categoryItem.add(new Label("categoryGrade", grade));
+
+					String weight = "";
+					if (categoryDefinition.getWeight() == null) {
+						weight = CategoryColumnCellPanel.formatDouble(categoryDefinition.getWeight());
+					}
+					categoryItem.add(new Label("categoryWeight", weight));
+				} else {
+					categoryItem.add(new Label("categoryGrade", ""));
+					categoryItem.add(new Label("categoryWeight", ""));
+				}
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoriesToAssignments.get(category)) {
 					private static final long serialVersionUID = 1L;
