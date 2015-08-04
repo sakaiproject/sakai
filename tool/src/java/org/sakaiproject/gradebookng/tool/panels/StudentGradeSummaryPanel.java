@@ -30,8 +30,6 @@ public class StudentGradeSummaryPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private GbStudentGradeInfo gradeInfo;
-	private List<CategoryDefinition> categories;
 	private ModalWindow window;
 	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
@@ -48,7 +46,7 @@ public class StudentGradeSummaryPanel extends Panel {
 		super.onInitialize();
 
 		Map<String,Object> modelData = (Map<String,Object>) this.getDefaultModelObject();
-		String userId = (String) modelData.get("userId");
+		String eid = (String) modelData.get("eid");
 		String displayName = (String) modelData.get("displayName");
 
 		//done button
@@ -64,7 +62,7 @@ public class StudentGradeSummaryPanel extends Panel {
 		add(new StudentGradeSummaryGradesPanel("instructorView", (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.INSTRUCTOR));
 		add(new StudentGradeSummaryGradesPanel("studentView", (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.STUDENT));
 
-		add(new Label("heading", new StringResourceModel("heading.studentsummary", null, new Object[]{ displayName })));
+		add(new Label("heading", new StringResourceModel("heading.studentsummary", null, new Object[]{ displayName, eid })));
 	}
 
 	/**
