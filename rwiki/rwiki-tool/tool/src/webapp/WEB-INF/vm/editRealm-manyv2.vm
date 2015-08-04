@@ -2,7 +2,7 @@
 #set( $realmCollectionBean = ${requestScope.AuthZGroupCollectionBean} )
 #set( $errorBean = ${requestScope.rsacMap.errorBean} )
 #set( $rlb = ${requestScope.rsacMap.resourceLoaderBean} )
-#set( $title = "${rlb.jsp_edit_section}: ${multiRealmEditBean.localSpace}" )
+#set( $title = "${rlb.jsp_edit_section}: ${util.escapeHtml($multiRealmEditBean.localSpace)}" )
 #header(${title} false "" )  
 <div id="rwiki_container">
   <div class="portletBody">
@@ -108,12 +108,12 @@
                 
                 <tr> 
                   <td colspan="7"> 
-                        <input type="hidden" name="pageName" value="${multiRealmEditBean.getPageName()}" />
+                        <input type="hidden" name="pageName" value="${util.escapeHtml($multiRealmEditBean.getPageName())}" />
                         <input type="hidden" name="panel" value="Main"/>
                         <input type="hidden" name="action" value="editRealmMany"/>
                         <input type="submit" name="command_save" value="${rlb.getString("jsp_button_save")}"/>
                         <input type="submit" name="command_cancel" value="${rlb.getString("jsp_button_cancel")}"/>
-                        <input type="hidden" name="realm" value="${multiRealmEditBean.getLocalSpace()}"/>
+                        <input type="hidden" name="realm" value="${util.escapeHtml($multiRealmEditBean.getLocalSpace())}"/>
                   </td>
                 </tr>
               </table>
