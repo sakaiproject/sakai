@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -156,7 +157,9 @@ public class GradeItemCellPanel extends Panel {
 					super.onSubmit(target);
 					
 					String newGrade = this.getEditor().getValue();
-										
+
+					clearNotifications();
+
 					//perform validation here so we can bypass the backend
 					DoubleValidator validator = new DoubleValidator();
 					
@@ -414,6 +417,13 @@ public class GradeItemCellPanel extends Panel {
 		notifications.add(GradeCellNotification.HAS_COMMENT);
 	}
 	
+	private void clearNotifications() {
+		notifications.clear();
+		if(StringUtils.isNotBlank(comment)) {
+			markHasComment(gradeCell);
+		}
+	}
+	
 	/**
 	 * Builder for styling the cell. Aware of the cell 'save style' as well as if it has comments and adds styles accordingly
 	 * @param gradeCell the cell to style
@@ -467,7 +477,15 @@ public class GradeItemCellPanel extends Panel {
 	
 	
 	private void refreshPopoverNotifications() {
-		if (!notifications.isEmpty()) {
+		if (notifications.isEmpty()) {
+			String[] popoverAttributesToRemove = {"data-toggle", "data-trigger", "data-placement", "data-html", "data-container", "data-content"};
+			List<AttributeModifier> attributes = getParent().getBehaviors(AttributeModifier.class);
+			for (AttributeModifier attribute : attributes) {
+				if (Arrays.asList(popoverAttributesToRemove).contains(attribute.getAttribute())) {
+					getParent().remove(attribute);
+				}
+			}
+		} else {
 			modelData.put("comment", comment);
 
 			GradeItemCellPopoverPanel popover = new GradeItemCellPopoverPanel("popover", Model.ofMap(modelData), notifications);
