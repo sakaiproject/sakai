@@ -437,14 +437,16 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			return;
 		}
 
+		String addBefore = params.getAddBefore();
 		if (params.addTool == GeneralViewParameters.COMMENTS) {
-			simplePageBean.addCommentsSection();
+			simplePageBean.addCommentsSection(addBefore);
 		}else if(params.addTool == GeneralViewParameters.STUDENT_CONTENT) {
-			simplePageBean.addStudentContentSection();
+			simplePageBean.addStudentContentSection(addBefore);
 		}else if(params.addTool == GeneralViewParameters.STUDENT_PAGE) {
 		    simplePageBean.createStudentPage(params.studentItemId);
 			canEditPage = simplePageBean.canEditPage();
 		}
+
 
 		// Find the MSIE version, if we're running it.
 		int ieVersion = checkIEVersion();
@@ -3406,6 +3408,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "subpage-next", "#{simplePageBean.subpageNext}", false);
 		UIBoundBoolean.make(form, "subpage-button", "#{simplePageBean.subpageButton}", false);
 
+		UIInput.make(form, "subpage-add-before", "#{simplePageBean.addBefore}");
 		UICommand.make(form, "create-subpage", messageLocator.getMessage("simplepage.create"), "#{simplePageBean.createSubpage}");
 		UICommand.make(form, "cancel-subpage", messageLocator.getMessage("simplepage.cancel"), null);
 
@@ -3586,6 +3589,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "mm-test-tryother").decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.mm-test-tryother")));
 		UIOutput.make(form, "mm-test-start-over").decorate(new UIFreeAttributeDecorator("value", messageLocator.getMessage("simplepage.mm-test-start-over")));
 		UIInput.make(form, "mm-item-id", "#{simplePageBean.itemId}");
+		UIInput.make(form, "mm-add-before", "#{simplePageBean.addBefore}");
 		UIInput.make(form, "mm-is-mm", "#{simplePageBean.isMultimedia}");
 		UIInput.make(form, "mm-display-type", "#{simplePageBean.multimediaDisplayType}");
 		UIInput.make(form, "mm-is-website", "#{simplePageBean.isWebsite}");
@@ -4085,6 +4089,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		UIInput.make(form, "question-correct-text", "#{simplePageBean.questionCorrectText}");
 		UIInput.make(form, "question-incorrect-text", "#{simplePageBean.questionIncorrectText}");
+		UIInput.make(form, "question-addBefore", "#{simplePageBean.addBefore}");
 		
 		UICommand.make(form, "delete-question-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
 		UICommand.make(form, "update-question", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateQuestion}");

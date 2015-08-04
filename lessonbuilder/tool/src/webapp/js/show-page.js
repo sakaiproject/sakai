@@ -256,7 +256,10 @@ $(document).ready(function() {
 
 		$('.subpage-link').click(function(){
 			closeDropdowns();
+			if ($(this).hasClass("add-at-end"))
+			    addAboveItem = '';
 			oldloc = $(this);
+			$('#subpage-add-before').val(addAboveItem);
 			$('#subpage-dialog').dialog('open');
 			setupdialog($('#subpage-dialog'));
 			return false;
@@ -516,7 +519,7 @@ $(document).ready(function() {
 
 		$(".edit-youtube").click(function(){
 			closeDropdowns();
-            $('li').removeClass('editInProgress');
+			$('li').removeClass('editInProgress');
 			$("#editgroups-youtube").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-youtube").hide();
@@ -549,8 +552,8 @@ $(document).ready(function() {
 			$("#youtubeHeight").val(row.find(".mm-height").text());
 			$("#youtubeWidth").val(row.find(".mm-width").text());
 			$("#description4").val(row.find(".description").text());
-            $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
 			oldloc = $(this);
 			$('#youtube-dialog').dialog('open');
 			setupdialog($('#youtube-dialog'));
@@ -956,6 +959,19 @@ $(document).ready(function() {
 			}
 		});
 		
+		function fixAddBefore(href) {
+			var re = /(&|\?)addBefore=[^&]*(&|$)/;
+			var res = re.exec(href);
+			var n = res[1] + 'addBefore=' + (addAboveItem === null ? "" : addAboveItem) + res[2];
+			return href.replace(re, n);
+
+		}
+
+		$(".add-before-param").click(function() {
+			$(this).attr('href', fixAddBefore($(this).attr('href')));
+			return true;
+		    });
+
 		/* RU Rubrics ********************************************* */
 		$("#peer-eval-check").change(function() {
 			if(!$("#peer-eval-check").prop("checked")) {
@@ -1040,6 +1056,7 @@ $(document).ready(function() {
 			$("#update-question").attr("value", msg("simplepage.save_message"));
 			
 			oldloc = $(this);
+			$("#question-addBefore").val(addAboveItem);
 			$('#question-dialog').dialog('open');
 			setupdialog($('#subpage-dialog'));
 			$("#grouplist").hide();
@@ -1205,10 +1222,11 @@ $(document).ready(function() {
 
 			$("#mm-item-id").val($("#movieEditId").val());
 			$("#mm-is-mm").val('true');
+			$("#mm-add-before").val(addAboveItem);
 			var href=$(this).attr("href");
 			var editingCaption = (href.indexOf("&caption=true&")>0);
 			$("#mm-is-caption").val(editingCaption ? "true" : "false");
-			href=fixhref(href, $("#movieEditId").val(), "true", "false");
+			href=fixAddBefore(fixhref(href, $("#movieEditId").val(), "true", "false"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 
@@ -1537,8 +1555,9 @@ $(document).ready(function() {
 
 			$("#mm-item-id").val($("#item-id").val());
 			$("#mm-is-mm").val('false');
+			$("#mm-add-before").val(addAboveItem);
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, $("#item-id").val(), "false", "false");
+			href=fixAddBefore(fixhref(href, $("#item-id").val(), "false", "false"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 			$(".mm-additional").show();
@@ -1566,9 +1585,10 @@ $(document).ready(function() {
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('true');
 			$("#mm-is-website").val('false');
+			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, "-1", "true", "false");
+			href=fixAddBefore(fixhref(href, "-1", "true", "false"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 			$(".mm-additional").show();
@@ -1590,15 +1610,18 @@ $(document).ready(function() {
 
 		$(".add-resource").click(function(){
 			closeDropdowns();
+			if ($(this).hasClass("add-at-end"))
+			    addAboveItem = '';
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
 
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
+			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-website").val('false');
 			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href,"-1","false","false");
+			href=fixAddBefore(fixhref(href,"-1","false","false"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 			$(".mm-additional").hide();
@@ -1625,9 +1648,10 @@ $(document).ready(function() {
 			$("#mm-item-id").val(-1);
 			$("#mm-is-mm").val('false');
 			$("#mm-is-website").val('true');
+			$("#mm-add-before").val(addAboveItem);
 			$("#mm-is-caption").val('false');
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, "-1","false","true");
+			href=fixAddBefore(fixhref(href, "-1","false","true"));
 			$("#mm-choose").attr("href",href);
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 			$(".mm-additional").hide();
@@ -1750,8 +1774,9 @@ $(document).ready(function() {
 
 			$("#mm-item-id").val($("#multimedia-item-id").val());
 			$("#mm-is-mm").val('true');
+			$("#mm-add-before").val(addAboveItem);
 			var href=$("#mm-choose").attr("href");
-			href=fixhref(href, $("#multimedia-item-id").val(), true, false);
+			href=fixAddBefore(fixhref(href, $("#multimedia-item-id").val(), true, false));
 			$("#add-multimedia-dialog").prev().children(".ui-dialog-title").text($(this).text());
 			$("#mm-choose").attr("href",href);
 			$(".mm-additional").show();
@@ -2029,6 +2054,14 @@ $(document).ready(function() {
 			out: buttonRemoveHighlightc
 	};
 
+	var megaConfiga = {	
+			interval: 200,
+			sensitivity: 7,
+			over: buttonAddHighlighta,
+			timeout: 700,
+			out: buttonRemoveHighlightc
+	};
+
 	var dropdownConfig = {	
 			interval: 0,
 			sensitivity: 7,
@@ -2072,12 +2105,14 @@ $(document).ready(function() {
 
 	$("#dropdown").hoverIntent(megaConfig);
 	$("#dropdownc").hoverIntent(megaConfigc);
+	//	$(".plus-edit-icon").hoverIntent(megaConfiga);
 	$("#moreDiv").hide();
 	$("#addContentDiv").hide();
 	$("#moreDiv").hoverIntent(dropdownConfig);
 	$("#addContentDiv").hoverIntent(dropdowncConfig);
 	$("#dropdown").click(buttonToggleDropdown);
 	$("#dropdownc").click(buttonToggleDropdownc);
+	$(".plus-edit-icon").click(buttonToggleDropdowna);
 	dropDownViaClick = false;
 
 	$("#moreDiv").on('keyup',function(evt) {
@@ -2427,26 +2462,42 @@ $(function() {
 });
 
 var hasBeenInMenu = false;
+var addAboveItem = "";
 
 function buttonAddHighlight() {
+    addAboveItem = '';
     if (!$("#addContentDiv").is(":visible"))
 	addHighlight($("#moreDiv"), $("#dropdown"));
     return false;
 }
 
 function buttonAddHighlightc() {
-    if (!$("#moreDiv").is(":visible"))
+    addAboveItem = '';
+    if (!$("#moreDiv").is(":visible")) {
 	addHighlight($("#addContentDiv"), $("#dropdownc"));
+    }
+    return false;
+}
+
+function buttonAddHighlighta() {
+    if (!$("#moreDiv").is(":visible")) {
+	addAboveItem = $(this).parents("li").find("span.itemid").text();
+	addHighlight($("#addContentDiv"), $("#dropdownc"));
+    }
     return false;
 }
 
 function menuAddHighlight() {
+    addAboveItem = "";
     hasBeenInMenu = true;
     addHighlight($("#moreDiv"), $("#dropdown"));
     return false;
 }
 
 function menuAddHighlightc() {
+    if(!dropDiv.is(":visible")) {
+	addAboveItem = "";
+    }
     hasBeenInMenu = true;
     addHighlight($("#addContentDiv"), $("#downdownc"));
     return false;
@@ -2509,10 +2560,17 @@ function removeHighlight(dropDiv, button) {
 }
 
 function buttonToggleDropdown() {
+    addAboveItem = "";
     toggleDropdown($("#moreDiv"), $("#dropdown"));
 }
 
 function buttonToggleDropdownc() {
+    addAboveItem = "";
+    toggleDropdown($("#addContentDiv"), $("#dropdownc"));
+}
+
+function buttonToggleDropdowna() {
+    addAboveItem = $(this).parents("li").find("span.itemid").text();
     toggleDropdown($("#addContentDiv"), $("#dropdownc"));
 }
 
@@ -2570,7 +2628,7 @@ function reposition() {
     //    dropdown.css("left", "0x");
 }
 
-// Keeps JQuery from getting confused mid-animation
+g// Keeps JQuery from getting confused mid-animation
 function unlockAnimation() {
 	lessonBuilderAnimationLocked = false;
 }

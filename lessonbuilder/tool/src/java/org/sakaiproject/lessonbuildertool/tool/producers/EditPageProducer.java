@@ -164,6 +164,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 			    UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}",isPrerequisite);
 			}
 
+			UIInput.make(form, "addBefore", "#{simplePageBean.addBefore}", gparams.getAddBefore());
 			UICommand.make(form, "save", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.submit}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.save_message")));
 
 			UICommand.make(form, "cancel", messageLocator.getMessage("simplepage.cancel_message"), "#{simplePageBean.cancel}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.cancel_message")));

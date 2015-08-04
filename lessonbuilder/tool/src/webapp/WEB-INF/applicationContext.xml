@@ -36,6 +36,7 @@
 	  <property name="value">
 	    <value>
 simplePageBean.addAssignment,
+simplePageBean.addBefore,
 simplePageBean.addBlti,
 simplePageBean.handleFileItem,
 simplePageBean.addComment,
