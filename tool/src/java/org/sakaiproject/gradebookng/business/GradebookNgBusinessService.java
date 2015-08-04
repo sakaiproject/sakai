@@ -231,7 +231,7 @@ public class GradebookNgBusinessService {
 	 * 
 	 * @return the gradebook for the site
 	 */
-	private Gradebook getGradebook() {
+	public Gradebook getGradebook() {
 		return getGradebook(this.getCurrentSiteId());
 	}
 	

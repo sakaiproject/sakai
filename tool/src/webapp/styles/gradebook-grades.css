@@ -743,15 +743,16 @@ ul.feedbackPanel {
 }
 
 /* Student Grade Summary */
-#instructorView.tab-pane {
+#instructorView.tab-pane,
+#studentView.tab-pane {
   border-top: 1px dotted #EEE;
   margin-top: 20px;
   padding-top: 20px;
 }
-#instructorView .gb-summary-category-row td:first-child {
+.gb-summary-grade-panel .gb-summary-category-row td:first-child {
   font-weight: bold;
 }
-#instructorView .gb-summary-grade-row td:first-child {
+.gb-summary-grade-panel .gb-summary-grade-row td:first-child {
   padding-left: 34px;
 }
 .gb-summary-grade-duedate,
@@ -761,22 +762,22 @@ ul.feedbackPanel {
 .gb-summary-category-weight {
   text-align: center;
 }
-#instructorView .gb-summary-course-grade {
+.gb-summary-grade-panel .gb-summary-course-grade {
   margin-bottom: 20px;
 }
-#instructorView .gb-summary-expand-all {
+.gb-summary-grade-panel .gb-summary-expand-all {
   padding-right: 8px;
 }
-#instructorView .gb-summary-category-toggle:hover,
-#instructorView .gb-summary-category-toggle:active {
+.gb-summary-grade-panel .gb-summary-category-toggle:hover,
+.gb-summary-grade-panel .gb-summary-category-toggle:active {
   text-decoration: none;
 }
-#instructorView .gb-summary-category-toggle:before {
+.gb-summary-grade-panel .gb-summary-category-toggle:before {
   font-family: 'gradebook-icons';
   content: '\f078';
   padding-right: 4px;
 }
-#instructorView .gb-summary-category-toggle.collapsed:before {
+.gb-summary-grade-panel .gb-summary-category-toggle.collapsed:before {
   content: '\f054';
 }
 .gb-summary-navigate-students {

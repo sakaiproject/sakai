@@ -14,66 +14,16 @@
 		<div class="tab-content">
 			<div role="tabpanel" class="tab-pane fade in active" id="instructorView">
 
-				<div class="row gb-summary-course-grade">
-					<div class="gb-summary-course-grade-label col-md-3"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
-					<div class="gb-summary-course-grade-value col-md-9"><span wicket:id="courseGrade">B+</span></div>
-				</div>
+				<div wicket:id="instructorView"></div>
 
-				<div class="row">
-					<div class="col-md-3">
-						<strong><wicket:message key="label.studentsummary.gradeitems" /></strong>
-					</div>
-					<div class="col-md-4">
-						<a href="javascript:void(0);" class="gb-summary-expand-all"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
-						<a href="javascript:void(0);" class="gb-summary-collapse-all"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
-					</div>
+				<div class="gb-summary-navigate-students row">
+					<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
+					<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
 				</div>
-				<table class="table table-bordered table-striped table-hover table-condensed">
-					<thead>
-						<tr>
-							<th colspan="2"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
-							<th class="col-md-1"><wicket:message key="column.header.studentsummary.duedate" /></th>
-							<th class="col-md-1"><wicket:message key="column.header.studentsummary.grade" /></th>
-							<th class="col-md-1"><wicket:message key="column.header.studentsummary.weight" /></th>
-							<th><wicket:message key="column.header.studentsummary.comments" /></th>
-						</tr>
-					</thead>
-					<tbody wicket:id="categoriesList">
-						<tr class="gb-summary-category-row">
-							<td colspan="3">
-								<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
-								<span wicket:id="category"></span>
-							</td>
-							<td class="gb-summary-category-grade" wicket:id="categoryGrade"></td>
-							<td class="gb-summary-category-weight" wicket:id="categoryWeight"></td>
-							<td></td>
-						</tr>
-						<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
-							<td class="gb-summary-grade-title" wicket:id="title"></td>
-							<td class="col-md-1 gb-summary-grade-flags">
-								<span wicket:id="isExtraCredit" class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
-								<span wicket:id="isNotCounted" class="gb-flag-not-counted" wicket:message="title:label.gradeitem.notcounted"></span>
-								<span wicket:id="isNotReleased" class="gb-flag-not-released" wicket:message="title:label.gradeitem.notreleased"></span>
-							</td>
-							<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>
-							<td class="gb-summary-grade-score">
-								<span class="gb-summary-grade-score-raw" wicket:id="grade"></span>
-								<span class="gb-summary-grade-score-outof" wicket:id="outOf"></span>
-							</td>
-							<td class="gb-summary-grade-weight" wicket:id="weight"></td>
-							<td class="gb-summary-grade-comments" wicket:id="comments"></td>
-						</tr>
-					</tbody>
-				</table>
 			</div>
 			<div role="tabpanel" class="tab-pane fade" id="studentView">
-				<h3>TODO</h3>
+				<div wicket:id="studentView"></div>
 			</div>
-		</div>
-
-		<div class="gb-summary-navigate-students row">
-			<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
-			<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
 		</div>
 
 		<div class="gb-summary-modal-actions row">
