@@ -404,7 +404,8 @@ public class FormattedTextImpl implements FormattedText
                 } else {
                     session.setAttribute("userWarning", getResourceLoader().getString("content_has_been_cleaned"));
                 }
-            } else if (logErrors && M_log.isInfoEnabled()) {
+            }
+            if (logErrors && M_log.isInfoEnabled()) {
                 // KNL-1075 - Log errors if desired so they can be easily found
                 String user = "UNKNOWN";
                 try {
