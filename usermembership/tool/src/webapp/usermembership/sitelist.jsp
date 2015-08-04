@@ -49,8 +49,10 @@
 				<h:commandButton type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="USR_MEMBRSHP.invertSelection();" />
 			</t:div>
 			<t:div styleClass="column2">
-				<h:commandButton id="setToInactive1" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"/>
-				<h:commandButton id="setToActive1" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" />
+				<h:commandButton id="setToInactive1" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+				<h:commandButton id="setToActive1" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" 
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
 			</t:div>
 			<t:div styleClass="column3">
 				<h:commandButton id="exportCsv1" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" disabled="true" />
@@ -144,8 +146,10 @@
 				<h:commandButton type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="USR_MEMBRSHP.invertSelection();" />
 			</t:div>
 			<t:div styleClass="column2">
-				<h:commandButton id="setToInactive2" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"/>
-				<h:commandButton id="setToActive2" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" />
+				<h:commandButton id="setToInactive2" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+				<h:commandButton id="setToActive2" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" 
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
 			</t:div>
 			<t:div styleClass="column3">
 				<h:commandButton id="exportCsv2" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" disabled="true" />
@@ -154,7 +158,9 @@
 		</t:div>
 
 		<t:div styleClass="act">
-			<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active"/>
+			<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active"
+											 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( 'sitelistform\\:backSpinner' );" />
+			<h:graphicImage id="backSpinner" url="/../library/image/indicator.gif" styleClass="spinner" alt="Processing" />
 		</t:div>
 	</h:form>
 </sakai:view>
