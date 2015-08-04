@@ -133,6 +133,7 @@ public class SimplePageBean {
 	public static final String GRADES[] = { "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F" };
 	public static final String FILTERHTML = "lessonbuilder.filterhtml";
 	public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
+	public static final String LESSONBUILDER_ADDBEFORE = "sakai.addbefore";
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
@@ -246,7 +247,8 @@ public class SimplePageBean {
 	private Date releaseDate;
 	private boolean hasReleaseDate;
 	private boolean nodownloads;
-
+	private String addBefore;  // add new item before this item
+    
 	private String redirectSendingPage = null;
 	private String redirectViewId = null;
 	private String quiztool = null;
@@ -746,6 +748,11 @@ public class SimplePageBean {
 	public void setNodownloads(boolean n) {
 		this.nodownloads = n;
 	}
+
+	public void setAddBefore(String n) {
+		this.addBefore = n;
+	}
+
         public void setImporttop(boolean i) {
 	    this.importtop = i;
 	}
@@ -1248,6 +1255,7 @@ public class SimplePageBean {
 		//}
 
 		Long itemId = (Long)toolSession.getAttribute(LESSONBUILDER_ITEMID);
+		addBefore = (String)toolSession.getAttribute(LESSONBUILDER_ADDBEFORE);
 
 		if (!itemOk(itemId))
 		    return "permission-failed";
@@ -1255,6 +1263,7 @@ public class SimplePageBean {
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
 		toolSession.removeAttribute(LESSONBUILDER_ITEMID);
+		toolSession.removeAttribute(LESSONBUILDER_ADDBEFORE);
 
 		String[] split = id.split("/");
 
@@ -1371,15 +1380,47 @@ public class SimplePageBean {
 	    // add at the end of the page
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 		// ideally the following should be the same, but there can be odd cases. So be safe
-		int size = items.size();
-		if (size > 0) {
-		    int seq = items.get(size-1).getSequence();
-		    if (seq > size)
-			size = seq;
+		long before = 0;
+		if (addBefore != null && !addBefore.equals("")) {
+		    try {
+			before = Long.parseLong(addBefore);
+		    } catch (Exception e) {
+			// nothing. ignore bad arg
+		    }
 		}
-		size++;
 
-		SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), size, type, id, name);
+		// we have an item id. insert before it
+		int nseq = 0;  // sequence number of new item
+		boolean after = false; // we found the item to insert before
+		if (before > 0) {
+		    // have an item number specified, look for the item to insert before
+		    for (SimplePageItem item: items) {
+			if (item.getId() == before) {
+			    // found item to insert before
+			    // use its sequence and bump up it and all after
+			    nseq = item.getSequence();
+			    after = true;
+			}
+			if (after) {
+			    item.setSequence(item.getSequence() + 1);
+			    simplePageToolDao.quickUpdate(item);
+			}
+		    }			    
+		}
+
+		// if after not set, we didn't find the item; either no item specified or it
+		// isn't on the page
+		if (!after) {
+		    nseq = items.size();
+		    if (nseq > 0) {
+			int seq = items.get(nseq-1).getSequence();
+			if (seq > nseq)
+			    nseq = seq;
+		    }
+		    nseq++;
+		}
+		    
+		SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), nseq, type, id, name);
 
 		// defaults to a fixed width and height, appropriate for some things, but for an
 		// image, leave it blank, since browser will then use the native size
@@ -5762,15 +5803,12 @@ public class SimplePageBean {
 			
 			SimplePageItem item = null;
 			if (itemId == -1 && isMultimedia) {
-				int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
-				item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.MULTIMEDIA, sakaiId, name);
+			    item = appendItem(sakaiId, name, SimplePageItem.MULTIMEDIA);
 			} else if(itemId == -1 && isWebsite) {
 			    String websiteName = name.substring(0,name.indexOf("."));
-			    int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
-			    item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, websiteName);
+			    item = appendItem(sakaiId, websiteName, SimplePageItem.RESOURCE);
 			} else if (itemId == -1) {
-				int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
-				item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, name);
+			    item = appendItem(sakaiId, name, SimplePageItem.RESOURCE);
 			} else if (isCaption) {
 				item = findItem(itemId);
 				if (item == null)
@@ -5830,9 +5868,9 @@ public class SimplePageBean {
 			
 			clearImageSize(item);
 			try {
-				if (itemId == -1)
-					saveItem(item);
-				else
+			    //		if (itemId == -1)
+			    //		saveItem(item);
+			    //		  else
 					update(item);
 			} catch (Exception e) {
 			    System.out.println("save error " + e);
@@ -6098,7 +6136,8 @@ public class SimplePageBean {
 
 	}
 	
-	public void addCommentsSection() {
+	public void addCommentsSection(String ab) {
+		addBefore = ab; // used by appendItem
 		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.comments-section"), SimplePageItem.COMMENTS);
 			item.setDescription(messageLocator.getMessage("simplepage.comments-section"));
@@ -6310,7 +6349,8 @@ public class SimplePageBean {
 		return "failure";
 	}
 	
-	public void addStudentContentSection() {
+	public void addStudentContentSection(String ab) {
+		addBefore = ab; // used by appebdItem
 		if(getCurrentPage().getOwner() == null && canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));

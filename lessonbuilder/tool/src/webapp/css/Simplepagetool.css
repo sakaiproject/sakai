@@ -1211,6 +1211,7 @@ z-index: 100001;
 border-radius: 3px;
 border: solid #bbb 1px;
 padding:1px;
+xwidth:80px;
 }
 .edit-col span {
 color: #666;
