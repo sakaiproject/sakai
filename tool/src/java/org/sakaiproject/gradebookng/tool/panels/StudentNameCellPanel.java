@@ -51,9 +51,13 @@ public class StudentNameCellPanel extends Panel {
 				
 				GradebookPage gradebookPage = (GradebookPage) this.getPage();
 				final ModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
-				
+
+				window.setOutputMarkupId(true);
+
 				window.setContent(new StudentGradeSummaryPanel(window.getContentId(), model, window));
 				window.show(target);
+
+				target.appendJavaScript("new GradebookGradeSummary($(\"#"+window.getMarkupId()+"\"));");
 			}
 			
 		};

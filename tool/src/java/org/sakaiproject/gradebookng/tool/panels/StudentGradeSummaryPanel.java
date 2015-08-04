@@ -102,7 +102,7 @@ public class StudentGradeSummaryPanel extends Panel {
 
 					@Override
 					protected void populateItem(ListItem<Assignment> assignmentItem) {
-						Assignment assignment = assignmentItem.getModelObject();
+						final Assignment assignment = assignmentItem.getModelObject();
 
 						GbGradeInfo gradeInfo = StudentGradeSummaryPanel.this.gradeInfo.getGrades().get(assignment.getId());
 
@@ -117,6 +117,24 @@ public class StudentGradeSummaryPanel extends Panel {
 						}
 
 						assignmentItem.add(new Label("title", assignment.getName()));
+						assignmentItem.add(new WebMarkupContainer("isExtraCredit") {
+							@Override
+							public boolean isVisible() {
+								return assignment.getExtraCredit();
+							}
+						});
+						assignmentItem.add(new WebMarkupContainer("isNotCounted") {
+							@Override
+							public boolean isVisible() {
+								return !assignment.isCounted();
+							}
+						});
+						assignmentItem.add(new WebMarkupContainer("isNotReleased") {
+							@Override
+							public boolean isVisible() {
+								return !assignment.isReleased();
+							}
+						});
 						assignmentItem.add(new Label("dueDate", StudentGradeSummaryPanel.this.formatDueDate(assignment.getDueDate())));
 						assignmentItem.add(new Label("grade", StudentGradeSummaryPanel.this.formatGrade(rawGrade)));
 						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
@@ -149,7 +167,8 @@ public class StudentGradeSummaryPanel extends Panel {
 			
       //course grade
       add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
-       		
+
+			add(new AttributeModifier("data-studentid", userId));
 	}
 	
 	/**
