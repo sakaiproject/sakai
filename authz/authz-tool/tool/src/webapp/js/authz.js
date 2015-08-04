@@ -40,12 +40,6 @@ $(document).ready(function(){
         $("input").not('[disabled]').prop("checked", false).change();
         e.preventDefault();
     });
-    $('#restdef').click(function(e){
-        $("input").prop("checked", false);
-        $(".defaultSelected input").prop("checked", true).change();
-        e.preventDefault();
-    });
-    
 });
 
 var AUTHZ = {};
@@ -94,17 +88,6 @@ AUTHZ.disableControls = function( escape )
     for( i = 0; i < buttons.length; i++ )
     {
         AUTHZ.disableButton( "", buttons[i] );
-    }
-
-    // Get the download/upload links
-    var undoAll = document.getElementById( "restdef" );
-    var links = [undoAll];
-    for( i = 0; i < links.length; i++ )
-    {
-        if( links[i] !== null )
-        {
-            AUTHZ.disableLink( links[i] );
-        }
     }
 };
 

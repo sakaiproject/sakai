@@ -48,7 +48,8 @@
 		#end
 		## end if there are any groups at all			
 		<div class="actionItem itemAction" style="float:left;padding-top:.5em">
-			<a id="restdef" href="#">$thelp.getString("per.lis.restoredef")</a>
+			<input type="button" value="$thelp.getString("per.lis.restoredef")" onclick="AUTHZ.disableControls();AUTHZ.showSpinner( 'undoSpinner' );window.location.reload();" />
+			<img id="undoSpinner" class="spinner" src="/library/image/indicator.gif" />
 		</div>
 	</div>
 	
