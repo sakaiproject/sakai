@@ -14198,68 +14198,86 @@ public class AssignmentAction extends PagedResourceActionII
 			String search = (String) state.getAttribute(VIEW_SUBMISSION_SEARCH);
 			String aRef = (String) state.getAttribute(EXPORT_ASSIGNMENT_REF);
 			Boolean searchFilterOnly = (state.getAttribute(SUBMISSIONS_SEARCH_ONLY) != null && ((Boolean) state.getAttribute(SUBMISSIONS_SEARCH_ONLY)) ? Boolean.TRUE:Boolean.FALSE);
+			Assignment assignment = null;
 
 			
-			try {
-			    if (AssignmentService.getAssignment(aRef).isGroup()) {
-
-			        Collection<Group> submitterGroups = AssignmentService.getSubmitterGroupList("false", allOrOneGroup, "", aRef, contextString);
-
-			        // construct the group-submission list
-			        if (submitterGroups != null && !submitterGroups.isEmpty())
-			        {
-			            for (Iterator<Group> iSubmitterGroupsIterator = submitterGroups.iterator(); iSubmitterGroupsIterator.hasNext();)
-			            {
-			                Group gId = iSubmitterGroupsIterator.next();
-			                // Allow sections to be used for group assigments - https://jira.sakaiproject.org/browse/SAK-22425
-			                //if (gId.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
-			                try
-			                {
-			                    AssignmentSubmission sub = AssignmentService.getSubmission(aRef, gId.getId());
-			                    returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
-			                }
-			                catch (IdUnusedException subIdException)
-			                {
-			                    M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
-			                }
-			                catch (PermissionException subPerException)
-			                {
-			                    M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of group " + gId.getId());
-			                }
-			                //}
-			            }
-			        }
-
-			    } else {
-
-			        //List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-					Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
-
-			        // construct the user-submission list
-					for (User u : submitters.keySet())
-					{
-						String uId = u.getId();
-
-						AssignmentSubmission sub = submitters.get(u);
-						SubmitterSubmission us = new SubmitterSubmission(u, sub);
-						String submittedById = (String)sub.getProperties().get(AssignmentSubmission.SUBMITTER_USER_ID);
-						if ( submittedById != null) {
-							try {
-								us.setSubmittedBy(UserDirectoryService.getUser(submittedById));
-							} catch (UserNotDefinedException ex1) {
-								M_log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
-							}
-						}
-						returnResources.add(us);
-					}
-			    }
-
-			} catch (PermissionException aPerException) {
-			    M_log.warn(":getSubmitterGroupList: Not allowed to get assignment " + aRef + " " + aPerException.getMessage());
-			} catch (org.sakaiproject.exception.IdUnusedException e) {
-			    M_log.warn(this + ":sizeResources cannot find assignment " + e.getMessage() + "");
+			try
+			{
+				assignment = AssignmentService.getAssignment( aRef );
+				if( assignment.getProperties().getBooleanProperty( NEW_ASSIGNMENT_CHECK_ANONYMOUS_GRADING ) == true )
+				{
+					allOrOneGroup = "all";
+				}
+			}
+			catch( IdUnusedException ex )
+			{
+				M_log.warn( ":sizeResources cannot find assignment " + ex.getMessage() );
+			}
+			catch( PermissionException aPerException )
+			{
+				M_log.warn( ":sizeResources: Not allowed to get assignment " + aRef + " " + aPerException.getMessage() );
+			}
+			catch( EntityPropertyNotDefinedException ex )
+			{
+				M_log.warn( ":sizeResources: property not defined for assignment  " + aRef + " " + ex.getMessage() );
+			}
+			catch( EntityPropertyTypeException ex )
+			{
+				M_log.warn( ":sizeResources: property type exception for assignment  " + aRef + " " + ex.getMessage() );
 			}
 
+			if ( assignment != null && assignment.isGroup()) {
+
+				Collection<Group> submitterGroups = AssignmentService.getSubmitterGroupList("false", allOrOneGroup, "", aRef, contextString);
+
+				// construct the group-submission list
+				if (submitterGroups != null && !submitterGroups.isEmpty())
+				{
+					for (Iterator<Group> iSubmitterGroupsIterator = submitterGroups.iterator(); iSubmitterGroupsIterator.hasNext();)
+					{
+						Group gId = iSubmitterGroupsIterator.next();
+						// Allow sections to be used for group assigments - https://jira.sakaiproject.org/browse/SAK-22425
+						//if (gId.getProperties().get(GROUP_SECTION_PROPERTY) == null) {
+						try
+						{
+							AssignmentSubmission sub = AssignmentService.getSubmission(aRef, gId.getId());
+							returnResources.add(new SubmitterSubmission(gId, sub));  // UserSubmission accepts either User or Group
+						}
+						catch (IdUnusedException subIdException)
+						{
+							M_log.warn(this + ".sizeResources: looking for submission for unused assignment id " + aRef + subIdException.getMessage());
+						}
+						catch (PermissionException subPerException)
+						{
+							M_log.warn(this + ".sizeResources: cannot have permission to access submission of assignment " + aRef + " of group " + gId.getId());
+						}
+						//}
+					}
+				}
+
+			} else {
+
+				//List<String> submitterIds = AssignmentService.getSubmitterIdList(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+				Map<User, AssignmentSubmission> submitters = AssignmentService.getSubmitterMap(searchFilterOnly.toString(), allOrOneGroup, search, aRef, contextString);
+
+				// construct the user-submission list
+				for (User u : submitters.keySet())
+				{
+					String uId = u.getId();
+
+					AssignmentSubmission sub = submitters.get(u);
+					SubmitterSubmission us = new SubmitterSubmission(u, sub);
+					String submittedById = (String)sub.getProperties().get(AssignmentSubmission.SUBMITTER_USER_ID);
+					if ( submittedById != null) {
+						try {
+							us.setSubmittedBy(UserDirectoryService.getUser(submittedById));
+						} catch (UserNotDefinedException ex1) {
+							M_log.warn(this + ":sizeResources cannot find submitter id=" + uId + ex1.getMessage());
+						}
+					}
+					returnResources.add(us);
+				}
+			}
 		}
 
 		// sort them all
