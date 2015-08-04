@@ -58,6 +58,11 @@ public class GradeItemCellPopoverPanel extends Panel {
 		isExternalNotification.setVisible(notifications.contains(GradeItemCellPanel.GradeCellNotification.IS_EXTERNAL));
 		isExternalNotification.add(new Label("message", new ResourceModel(GradeItemCellPanel.GradeCellNotification.IS_EXTERNAL.getMessage())));
 		add(isExternalNotification);
+
+		WebMarkupContainer isInvalidNotification = new WebMarkupContainer("isInvalidNotification");
+		isInvalidNotification.setVisible(notifications.contains(GradeItemCellPanel.GradeCellNotification.INVALID));
+		isInvalidNotification.add(new Label("message", new ResourceModel(GradeItemCellPanel.GradeCellNotification.INVALID.getMessage())));
+		add(isInvalidNotification);
 	}
 
 

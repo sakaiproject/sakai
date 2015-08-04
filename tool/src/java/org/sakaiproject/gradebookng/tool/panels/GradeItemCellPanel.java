@@ -57,7 +57,8 @@ public class GradeItemCellPanel extends Panel {
 		OVER_LIMIT("grade.notifications.overlimit"),
 		HAS_COMMENT("grade.notifications.hascomment"),
 		CONCURRENT_EDIT("grade.notifications.concurrentedit"),
-		ERROR("grade.notifications.haserror");
+		ERROR("grade.notifications.haserror"),
+		INVALID("grade.notifications.invalid");
 
 		private String message;
 
@@ -161,7 +162,7 @@ public class GradeItemCellPanel extends Panel {
 					
 					if(!validator.isValid(newGrade)) {
 						markWarning(this);
-						//TODO add the message
+						this.getLabel().setDefaultModelObject(this.originalGrade);
 					} else {
 						
 						//for concurrency, get the original grade we have in the UI and pass it into the service as a check
@@ -192,13 +193,13 @@ public class GradeItemCellPanel extends Panel {
 							default:
 								throw new UnsupportedOperationException("The response for saving the grade is unknown.");
 						}
+
+
+						//format the grade for subsequent display and update the model
+						String formattedGrade = formatGrade(newGrade);
+						this.getLabel().setDefaultModelObject(formattedGrade);
 					}
-								
-					//format the grade for subsequent display and update the model
-					String formattedGrade = formatGrade(newGrade);
-					
-					this.getLabel().setDefaultModelObject(formattedGrade);
-					
+
 					//refresh the components we need
 					target.addChildren(getPage(), FeedbackPanel.class);
 					target.add(getParentCellFor(this));
@@ -399,6 +400,7 @@ public class GradeItemCellPanel extends Panel {
 	private void markWarning(Component gradeCell) {
 		this.gradeSaveStyle = GradeCellSaveStyle.WARNING;
 		styleGradeCell(gradeCell);
+		notifications.add(GradeCellNotification.INVALID);
 	}
 	
 	private void markOverLimit(Component gradeCell) {
