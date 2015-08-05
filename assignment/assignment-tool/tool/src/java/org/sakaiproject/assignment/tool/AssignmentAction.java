@@ -5167,6 +5167,7 @@ public class AssignmentAction extends PagedResourceActionII
 									}
 									else if (isAssignmentDefined)
 									{
+										Long gbAssignmentId = g.getAssignment(gradebookUid, associateGradebookAssignment).getId();
 										// the associated assignment is internal one, update records one by one
 										for (Map.Entry<String, String> entry : sm.entrySet())
 										{
@@ -5176,6 +5177,11 @@ public class AssignmentAction extends PagedResourceActionII
 											{
 												g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitterId, grade, "");
 											}
+										}
+										// Add comments to gradebook for internal assignment as well
+										for (Map.Entry<String, String> entry : cm.entrySet())
+										{
+											g.setAssignmentScoreComment(gradebookUid, gbAssignmentId, entry.getKey(), entry.getValue());
 										}
 									}
 								}
@@ -5212,9 +5218,13 @@ public class AssignmentAction extends PagedResourceActionII
 										}
 										else if (g.isAssignmentDefined(gradebookUid, associateGradebookAssignment))
 										{
+											Long gbAssignmentId = g.getAssignment(gradebookUid, associateGradebookAssignment).getId();
 											// the associated assignment is internal one, update records
 											g.setAssignmentScoreString(gradebookUid, associateGradebookAssignment, submitters[i].getId(),
 													(gradeStringToUse != null && aSubmission.getGradeReleased()) ? gradeStringToUse : "", "");
+											String commentString = FormattedText.convertFormattedTextToPlaintext(aSubmission.getFeedbackComment());
+											g.setAssignmentScoreComment(gradebookUid, gbAssignmentId, submitters[i].getId(),
+													(commentString != null && aSubmission.getGradeReleased()) ? commentString : "");
 										}
 									}
 									else
