@@ -241,13 +241,6 @@
       </releases>
     </pluginRepository>
     <pluginRepository>
-      <id>codehaus plugin repository</id>
-      <url>https://nexus.codehaus.org/content/repositories/releases/</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
       <id>Sakai Plugin Repo</id>
       <url>http://source.sakaiproject.org/maven2</url>
       <releases>
