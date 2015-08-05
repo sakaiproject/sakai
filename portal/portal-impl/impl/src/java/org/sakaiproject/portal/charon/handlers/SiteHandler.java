@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -61,6 +63,7 @@ import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
@@ -196,6 +199,63 @@ public class SiteHandler extends WorksiteHandler
 			}
 			portalService.setResetState("true");
 			res.sendRedirect(toolUrl);
+			return RESET_DONE;
+		}
+
+		// Page resetting URL - clear state and forward to the real page
+		// URL
+		// /portal/site/site-id/page-reset/pageId
+		// 0 1 2 3 4
+		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("page-reset")))
+		{
+			pageId = parts[4];
+			Site site = null;
+			try
+			{
+				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
+				if (advisors != null) {
+					for (SecurityAdvisor advisor:advisors) {
+						SecurityService.pushAdvisor(advisor);
+						//session.removeAttribute("sitevisit.security.advisor");
+					}
+				}
+				// This should understand aliases as well as IDs
+				site = portal.getSiteHelper().getSiteVisit(siteId);
+			}
+			catch (Exception e)
+			{
+				site = null;
+			}
+
+			SitePage page = null;
+			if (site != null ) page = portal.getSiteHelper().lookupSitePage(pageId, site);
+
+			boolean hasJSR168 = false;
+			if (page != null)
+			{
+				Session s = SessionManager.getCurrentSession();
+				Iterator<ToolConfiguration> toolz = page.getTools().iterator();
+				while(toolz.hasNext()){
+					ToolConfiguration pageTool = toolz.next();
+					ToolSession ts = s.getToolSession(pageTool.getId());
+					ts.clearAttributes();
+					if ( portal.isPortletPlacement(pageTool) ) hasJSR168 = true;
+				}
+			}
+
+			String pageUrl = req.getContextPath() + "/site/" + siteId + "/page"
+					+ Web.makePath(parts, 4, parts.length);
+
+			String queryString = Validator.generateQueryString(req);
+			if (queryString != null)
+			{
+				pageUrl = pageUrl + "?" + queryString;
+				if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
+			} else {
+				if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
+			}
+			portalService.setResetState("true");
+			res.sendRedirect(pageUrl);
 			return RESET_DONE;
 		}
 
