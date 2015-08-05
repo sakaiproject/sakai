@@ -433,6 +433,9 @@ public class AssessmentSettingsBean
 
         String currentSiteId = AgentFacade.getCurrentSiteId();
         this.gradebookExists = gbsHelper.isGradebookExist(currentSiteId);
+        
+        this.extendedTimeTargets = initExtendedTimeTargets();
+        
         /*
         GradebookService g = null;
         if (integrated)

@@ -11,7 +11,7 @@ function extendedTimeInitialize() {
 		copyListValuesForExtTime(itemNum);
 	}
 
-	var itemNum = 1
+	var itemNum = 1;
 	do {
 		activeExtTimeEntries++; 
 		fullExtendedTimeString = allExtendedTimeEntries[itemNum-1].split("|");
@@ -96,7 +96,7 @@ function initializeSelectList(listName, val) {
 // Rather than building lists independently. We'll guarantee consistency by copying them from the page.
 function copyListValuesForExtTime(itemNum) {
 
-	var srcTargetList = document.getElementById("assessmentSettingsAction\:extendedTimeTarget");
+	var srcTargetList = document.getElementById("assessmentSettingsAction\:extendedTimeTargets");
 	var options = srcTargetList.innerHTML;
 	document.getElementById("xt_id"+itemNum).innerHTML = options;
 
