@@ -9,7 +9,7 @@
 		<relativePath>../master/pom.xml</relativePath>
     </parent>
 	
-	<name>Sakai Samigo Project (base POM)</name>
+	<name>Sakai Samigo Project (samigo)</name>
 	<groupId>org.sakaiproject.samigo</groupId>
 	<artifactId>samigo</artifactId>
 	<version>11-SNAPSHOT</version>
@@ -22,13 +22,12 @@
 	<modules>
 		<module>samigo-api</module>
 		<module>samigo-app</module>
-		<module>samigo-deploy</module>
 		<module>samigo-hibernate</module>
 		<module>samigo-pack</module>
 		<module>samigo-qti</module>
 		<module>samigo-services</module>
 		<module>samigo-cp</module>
-		<module>samigo-archive/sam-handlers</module>
+		<module>samigo-import</module>
 		<module>samlite-impl</module>
 	</modules>
 	
@@ -122,17 +121,6 @@
                 <groupId>org.sakaiproject.edu-services.sections</groupId>
                 <artifactId>sections-impl</artifactId>
                 <version>${sakai.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.sakaiproject.jsf</groupId>
-                <artifactId>jsf-spreadsheet</artifactId>
-                <version>${sakai.version}</version>
-            </dependency>
-	    <dependency>
-                <groupId>org.apache.commons</groupId>
-                <artifactId>commons-math</artifactId>
-                <version>2.2</version>
-                <scope>provided</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>

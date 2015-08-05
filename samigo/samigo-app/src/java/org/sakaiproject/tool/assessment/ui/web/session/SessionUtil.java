@@ -74,8 +74,9 @@ public class SessionUtil {
    * @see org.sakaiproject.tool.assessment.ui.bean.delivery.DeliveryBean
    */
   public static void setSessionTimeout(FacesContext context, DeliveryBean delivery, boolean beginAssessment){
-    boolean standalone = !IntegrationContextFactory.getInstance().isIntegrated();
-    if (standalone) return;
+    if (!IntegrationContextFactory.getInstance().isIntegrated()) {
+        return;
+    }
 
     ExternalContext exContext = context.getExternalContext();
     HttpSession session = (HttpSession) exContext.getSession(false);

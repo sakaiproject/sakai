@@ -73,8 +73,6 @@ public interface AgentHelper extends Serializable
 
   public String getDisplayNameByAgentId(String agentId);
 
-  public boolean isStandaloneEnvironment();
-
   public boolean isIntegratedEnvironment();
 
   public Map getUserRolesFromContextRealm(Collection inUsers);

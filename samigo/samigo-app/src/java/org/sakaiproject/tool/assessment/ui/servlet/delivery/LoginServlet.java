@@ -224,15 +224,9 @@ public class LoginServlet
       }
       else{ // notAuthorized
     	  if (!isAuthenticated){
-    		  if (AgentFacade.isStandaloneEnvironment()) {
-    			  delivery.setActionString(null);
-    			  path = "/jsf/delivery/login.faces";
-    		  }
-    		  else{
-    			  relativePath = false;
-    			  delivery.setActionString(null);
-    			  path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
-    		  }
+    	      relativePath = false;
+    	      delivery.setActionString(null);
+    	      path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
     	  }
     	  else { //isAuthenticated but not authorized
     		  path = "/jsf/delivery/accessDenied.faces";

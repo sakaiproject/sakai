@@ -23,7 +23,6 @@
     <module>citations-osid/xserver</module>
     <module>citations-impl/impl</module>
     <module>citations-impl/pack</module>
-    <module>citations-shared-deploy</module>
   </modules>
 
   <dependencyManagement>
