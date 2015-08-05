@@ -913,6 +913,8 @@ public class PortletIFrame extends GenericPortlet {
                     infoUrl = "http://" + infoUrl;
                 }
                 String description = StringUtils.trimToNull(request.getParameter("description"));
+                //Need to save this processed
+                description = FormattedText.processFormattedText(description,new StringBuilder());
     
                 // update the site info
                 try

@@ -7999,6 +7999,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Site.setTitle(siteInfo.title);
 		}
 
+		//Process description so it doesn't give an error on home
+		siteInfo.description = FormattedText.processFormattedText(siteInfo.description, new StringBuilder());
+		
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
 
