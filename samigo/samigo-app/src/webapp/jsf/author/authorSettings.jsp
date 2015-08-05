@@ -189,7 +189,7 @@
 
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate and template.showAssessmentTypes}" >
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_template_information} </h4>" escape="false"/>
+  <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_template_information}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
   <f:verbatim> <div class="tier2"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="samigoCell">
         <h:outputText escape="false" rendered="#{assessmentSettings.templateDescription!=null}" value="#{assessmentSettings.templateDescription}" />
@@ -198,7 +198,7 @@
 </h:panelGroup>
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_assessment_introduction} </h4>" escape="false"/>
+  <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_assessment_introduction}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
   <f:verbatim><div class="tier2" id="assessment-intro"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="samigoCell" id="first" summary="#{templateMessages.enter_template_info_section}">
 
@@ -297,7 +297,7 @@
 	
 	<!-- NUMBER OF SUBMISSIONS -->
     <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
-      <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.submissions} </h4>" />
+      <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_submissions}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
       <f:verbatim> <div class="tier2"></f:verbatim>
       <f:verbatim><table><tr><td></f:verbatim>
         <h:selectOneRadio id="unlimitedSubmissions" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection">
@@ -610,7 +610,7 @@
  
   <!-- *** COLORS AND GRAPHICS	*** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
-  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_background} </h4>" escape="false"/>
+  <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_background}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
     <f:verbatim><div class="tier2"></f:verbatim>
  
         <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">
@@ -642,7 +642,7 @@
       action="#{assessmentSettings.getOutcomePublish}" disabled="true" />
       
 <!-- save -->
-  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_exit}" action="#{assessmentSettings.getOutcomeSave}"  onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);">
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{assessmentSettings.getOutcomeSave}"  onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);">
       <f:param name="assessmentId" value="#{assessmentSettings.assessmentId}"/>
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SaveAssessmentSettingsListener"/>
   </h:commandButton>
