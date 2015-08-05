@@ -29,7 +29,7 @@ import javax.mail.internet.MimeUtility;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.entity.api.ContextObserver;
@@ -88,6 +88,9 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	/** Dependency: NotificationService. */
 	protected NotificationService m_notificationService = null;
 
+	/** Dependency: AliasService */
+	protected AliasService m_aliasService;
+
 	/**
 	 * Dependency: NotificationService.
 	 * 
@@ -97,6 +100,17 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 	public void setNotificationService(NotificationService service)
 	{
 		m_notificationService = service;
+	}
+
+	/**
+	 * Dependency: AliasService.
+	 *
+	 * @param service
+	 *        The AliasService.
+	 */
+	public void setAliasService(AliasService service)
+	{
+		m_aliasService = service;
 	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
@@ -653,7 +667,7 @@ public abstract class BaseMailArchiveService extends BaseMessage implements Mail
 		// remove any alias
 		try
 		{
-			AliasService.removeTargetAliases(channelRef);
+			m_aliasService.removeTargetAliases(channelRef);
 		}
 		catch (PermissionException e)
 		{

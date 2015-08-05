@@ -27,7 +27,8 @@ import java.util.List;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasEdit;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.site.cover.SiteService;
 import org.apache.commons.lang.StringUtils;
@@ -319,6 +320,7 @@ public class NameHelper
 	public static String aliasSpace (final String localSpace)
 	{
 		String localAliasSpace = localSpace;
+		AliasService aliasService = ComponentManager.get(AliasService.class);
 		
 		String parts[] = StringUtils.split (localSpace, Entity.SEPARATOR);
 		String siteId = null;
@@ -329,12 +331,12 @@ public class NameHelper
 		if ((siteId != null) && (siteId.length() > 0))
 		{
 			// get site alias first
-			List target = AliasService.getAliases(
+			List target = aliasService.getAliases(
 					"/site/" + siteId);
 
 			// get mail archive alias, if site alias is not available
 			if (target.isEmpty()) {
-				target = AliasService.getAliases(
+				target = aliasService.getAliases(
 						"/mailarchive/channel/" + siteId + "/main");
 			}
 			

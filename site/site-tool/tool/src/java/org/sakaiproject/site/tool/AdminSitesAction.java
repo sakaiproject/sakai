@@ -35,7 +35,7 @@ import java.util.Vector;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Role;
@@ -52,6 +52,7 @@ import org.sakaiproject.cheftool.menu.MenuDivider;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuField;
 import org.sakaiproject.cheftool.menu.MenuImpl;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.courier.api.ObservingCourier;
 import org.sakaiproject.entity.api.Entity;
@@ -108,6 +109,13 @@ public class AdminSitesAction extends PagedResourceActionII
 	
 	/** Name of state attribute for Site instance id */
 	private static final String STATE_SITE_INSTANCE_ID = "site.instance.id";
+
+	private AliasService aliasService;
+
+	public AdminSitesAction() {
+		super();
+		aliasService = ComponentManager.get(AliasService.class);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -2633,7 +2641,7 @@ public class AdminSitesAction extends PagedResourceActionII
 		if (reference != null)
 		{
 			// get the email alias when an Email Archive tool has been selected
-			List aliases = AliasService.getAliases(reference, 1, 1);
+			List aliases = aliasService.getAliases(reference, 1, 1);
 			if (aliases.size() > 0) {
 				alias = ((Alias) aliases.get(0)).getId();
 			}
@@ -2664,7 +2672,7 @@ public class AdminSitesAction extends PagedResourceActionII
 			if (currentAlias == null || !currentAlias.equals(alias))
 			{
 				try {
-					AliasService.setAlias(alias, siteReference);
+					aliasService.setAlias(alias, siteReference);
 				} catch (IdUsedException ee) {
 					addAlert(state, rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));
 					M_log.warn(this + ".setSiteAlias: " + rb.getFormattedMessage("sitedipag.alias.exists", new Object[]{alias}));

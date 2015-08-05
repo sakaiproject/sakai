@@ -65,7 +65,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ArchiveService;
@@ -217,6 +217,8 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private org.sakaiproject.sitemanage.api.SiteTypeProvider siteTypeProvider = (org.sakaiproject.sitemanage.api.SiteTypeProvider) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.SiteTypeProvider.class);
+
+	private AliasService aliasService = ComponentManager.get(AliasService.class);
 	
 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
@@ -6569,7 +6571,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				{
 					public SecurityAdvice isAllowed(String userId, String function, String reference)
 					{
-						if ( AliasService.SECURE_ADD_ALIAS.equals(function) || 
+						if ( AliasService.SECURE_ADD_ALIAS.equals(function) ||
 								AliasService.SECURE_UPDATE_ALIAS.equals(function) ) {
 							return SecurityAdvice.ALLOWED; 
 						}
@@ -6756,7 +6758,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (reference != null)
 		{
 			// get the email alias when an Email Archive tool has been selected
-			List aliases = AliasService.getAliases(reference, 1, 1);
+			List aliases = aliasService.getAliases(reference, 1, 1);
 			if (aliases.size() > 0) {
 				alias = ((Alias) aliases.get(0)).getId();
 			}
@@ -6795,7 +6797,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			return;
 		}
 		String siteReference = SiteService.siteReference(siteId);
-		List<String> existingAliasIds = toIdList(AliasService.getAliases(siteReference));
+		List<String> existingAliasIds = toIdList(aliasService.getAliases(siteReference));
 		Set<String> proposedAliasIds = siteInfo.siteRefAliases;
 		Set<String> aliasIdsToDelete = new HashSet<String>(existingAliasIds);
 		aliasIdsToDelete.removeAll(proposedAliasIds);
@@ -6803,7 +6805,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		aliasIdsToAdd.removeAll(existingAliasIds);
 		for ( String aliasId : aliasIdsToDelete ) {
 			try {
-				AliasService.removeAlias(aliasId);
+				aliasService.removeAlias(aliasId);
 			} catch ( PermissionException e ) {
 				addAlert(state, rb.getFormattedMessage("java.delalias", new Object[]{aliasId}));
 				M_log.error(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.delalias", new Object[]{aliasId}), e);
@@ -6816,7 +6818,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 		}
 		for ( String aliasId : aliasIdsToAdd ) {
 			try {
-				AliasService.setAlias(aliasId, siteReference);
+				aliasService.setAlias(aliasId, siteReference);
 			} catch ( PermissionException e ) {
 				addAlert(state, rb.getString("java.addalias") + " ");
 				M_log.error(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias"), e);
@@ -8151,8 +8153,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private boolean aliasEditingPermissioned(SessionState state, String siteId) {
 		String siteRef = SiteService.siteReference(siteId);
-		return AliasService.allowSetAlias("", siteRef) &&
-			AliasService.allowRemoveTargetAliases(siteRef);
+		return aliasService.allowSetAlias("", siteRef) &&
+			aliasService.allowRemoveTargetAliases(siteRef);
 	}
 
 	/**
@@ -10561,7 +10563,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			String currentSiteId = StringUtils.trimToNull((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
 			boolean editingSite = currentSiteId != null;
 			try {
-				String targetRef = AliasService.getTarget(aliasId);
+				String targetRef = aliasService.getTarget(aliasId);
 				if ( editingSite ) {
 					String siteRef = SiteService.siteReference(currentSiteId);
 					boolean targetsCurrentSite = siteRef.equals(targetRef);
@@ -10770,11 +10772,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (alias != null) {
 					if (!Validator.checkEmailLocal(alias)) {
 						addAlert(state, rb.getString("java.theemail"));
-					} else if (!AliasService.allowSetAlias(alias, channelReference )) {
+					} else if (!aliasService.allowSetAlias(alias, channelReference )) {
 						addAlert(state, rb.getString("java.addalias"));
 					} else {
 						try {
-							String target = AliasService.getTarget(alias);
+							String target = aliasService.getTarget(alias);
 							boolean targetsThisSite = site.getReference().equals(target) ||
 									channelReference.equals(target);
 							if (!(targetsThisSite)) {
@@ -10782,7 +10784,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 						} catch (IdUnusedException ee) {
 							try {
-								AliasService.setAlias(alias,
+								aliasService.setAlias(alias,
 										channelReference);
 							} catch (IdUsedException exception) {
 								M_log.error(this + ".saveFeatures setAlias IdUsedException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
@@ -12547,13 +12549,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						} else {
 							if (!Validator.checkEmailLocal(emailId)) {
 								addAlert(state, rb.getString("java.theemail"));
-							} else if (!AliasService.allowSetAlias(emailId, channelReference )) {
+							} else if (!aliasService.allowSetAlias(emailId, channelReference )) {
 								addAlert(state, rb.getString("java.addalias"));
 							} else {
 								// check to see whether the alias has been used by
 								// other sites
 								try {
-									String target = AliasService.getTarget(emailId);
+									String target = aliasService.getTarget(emailId);
 									if (target != null) {
 										if (siteId != null) {
 											if (!target.equals(channelReference)) {
@@ -13240,7 +13242,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					String alias = siteTypeProvider.getSiteAlias(type, pList);
 					String channelReference = mailArchiveChannelReference(id);
 					try {
-						AliasService.setAlias(alias, channelReference);
+						aliasService.setAlias(alias, channelReference);
 					} catch (IdUsedException ee) {
 						addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{alias}));
 						M_log.error(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.exists", new Object[]{alias}), ee);
@@ -14911,7 +14913,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	}
 	
 	private Collection<String> prefixSiteAliasIds(String prefix, Site site) {
-		return prefixSiteAliasIds(prefix, AliasService.getAliases(site.getReference()));
+		return prefixSiteAliasIds(prefix, aliasService.getAliases(site.getReference()));
 	}
 	
 	private Collection<String> prefixSiteAliasIds(String prefix, Collection<? extends Object> aliases) {
