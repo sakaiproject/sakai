@@ -1226,6 +1226,33 @@ GradebookSpreadsheet.prototype.setupCell = function(cellId, assignmentId, studen
 };
 
 
+GradebookSpreadsheet.prototype.findVisibleStudentBefore = function(studentUuid) {
+  var $cell = this.$spreadsheet.find(".gb-student-cell[data-studentuuid='"+studentUuid+"']");
+  var $row = $cell.closest("tr");
+
+  var $targetRow = $row.prevAll(":visible:first");
+  if ($targetRow.length > 0) {
+    return $targetRow.find(".gb-student-cell");
+  } else {
+    return false;
+  }
+};
+
+
+GradebookSpreadsheet.prototype.findVisibleStudentAfter = function(studentUuid) {
+  var $cell = this.$spreadsheet.find(".gb-student-cell[data-studentuuid='"+studentUuid+"']");
+  var $row = $cell.closest("tr");
+
+  var $targetRow = $row.nextAll(":visible:first");
+  if ($targetRow.length > 0) {
+    return $targetRow.find(".gb-student-cell");
+  } else {
+    return false;
+  }
+}
+
+
+
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
  */

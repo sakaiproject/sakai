@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.Map;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -51,9 +52,20 @@ public class StudentNameCellPanel extends Panel {
 				
 				GradebookPage gradebookPage = (GradebookPage) this.getPage();
 				final ModalWindow window = gradebookPage.getStudentGradeSummaryWindow();
-				
-				window.setContent(new StudentGradeSummaryPanel(window.getContentId(), model, window));
-				window.show(target);
+
+				Component content = new StudentGradeSummaryPanel(window.getContentId(), model, window);
+
+				if (window.isShown() && window.isVisible()) {
+					window.replace(content);
+					content.setVisible(true);
+					target.add(content);
+				} else {
+					window.setContent(content);
+					window.show(target);
+				}
+
+				content.setOutputMarkupId(true);
+				target.appendJavaScript("new GradebookGradeSummary($(\"#"+content.getMarkupId()+"\"));");
 			}
 			
 		};
@@ -62,14 +74,14 @@ public class StudentNameCellPanel extends Panel {
 		link.add(new Label("name", getFormattedStudentName(firstName, lastName, nameSortOrder)));
 		
 		//eid label, configurable
-		link.add(new Label("eid", eid){
-		
+		link.add(new Label("eid", eid) {
+
 			private static final long serialVersionUID = 1L;
 
 			public boolean isVisible() {
 				return true; //TODO use config, will need to be passed in the model map
 			}
-			
+
 		});
 		
 		add(link);

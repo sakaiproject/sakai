@@ -5,28 +5,30 @@
 	<wicket:panel>
 
 		<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
-				
-		<h3><wicket:message key="label.studentsummary.coursegrade" /> <span wicket:id="courseGrade">B+</span></h3>
 
-		<table class="table table-striped table-bordered table-hover">
-			<thead>
-				<tr>
-				   <th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
-				   <th><wicket:message key="column.header.studentsummary.duedate" /></th>
-				   <th><wicket:message key="column.header.studentsummary.grade" /></th>
-				   <th><wicket:message key="column.header.studentsummary.weight" /></th>
-				   <th><wicket:message key="column.header.studentsummary.comments" /></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr wicket:id="rows">
-				   <td wicket:id="dataRow"></td>
-				</tr>
-			</tbody>
-		</table>
-		
-		<button type="submit" class="btn btn-secondary" wicket:id="done"><wicket:message key="button.done" /></button>
+		<ul id="studentGradeSummaryTabs" class="nav nav-pills" role="tablist">
+			<li role="presentation" class="active"><a href="#instructorView"><wicket:message key="label.studentsummary.instructorviewtab" /></a></li>
+			<li role="presentation"><a href="#studentView"><wicket:message key="label.studentsummary.studentviewtab" /></a></li>
+		</ul>
 
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane fade in active" id="instructorView">
+
+				<div wicket:id="instructorView"></div>
+
+				<div class="gb-summary-navigate-students row">
+					<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
+					<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
+				</div>
+			</div>
+			<div role="tabpanel" class="tab-pane fade" id="studentView">
+				<div wicket:id="studentView"></div>
+			</div>
+		</div>
+
+		<div class="gb-summary-modal-actions row">
+			<button type="submit" class="btn btn-secondary gb-summary-close" wicket:id="done"><wicket:message key="button.done" /></button>
+		</div>
 	</wicket:panel>
 </body>
 </html>
