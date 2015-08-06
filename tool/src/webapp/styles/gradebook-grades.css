@@ -627,16 +627,13 @@ div.wicket-modal div.w_right > div {
   box-shadow: 0 0 5px 2px #444;
 }
 
-/* wrapper for the feedback panel list */
-.feedback {
-	width: 100%;
-}
-
 /* style applied to the UL rendered for a feedback panel */
 ul.feedbackPanel {
-	display: inline-block;
 	list-style-type: none;
 	margin: 0;
+}
+ul.feedbackPanel li span {
+  display: block;
 }
 
 /* feedback styles for the grade saving state */
