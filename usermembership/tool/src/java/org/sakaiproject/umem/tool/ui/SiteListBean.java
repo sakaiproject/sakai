@@ -657,7 +657,7 @@ public class SiteListBean {
 					{
 						String roleID = site.getMember( userId ).getRole().getId();
 						AuthzGroup realm = authzGroupService.getAuthzGroup( realmID );
-						boolean isProvided = StringUtils.isNotBlank( realm.getProviderGroupId() );
+						boolean isProvided = realm.getMember( userId ).isProvided();
 						realm.addMember( userId, roleID, active, isProvided );
 						authzGroupService.save( realm );
 					}
