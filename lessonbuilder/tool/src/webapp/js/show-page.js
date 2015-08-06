@@ -1,5 +1,4 @@
 var dropdownViaClick = false;
-var lessonBuilderAnimationLocked = false;
 var oldloc;
 var requirementType = 0;
 var importccactive = false;
@@ -199,6 +198,20 @@ $(document).ready(function() {
 		$('#question-dialog').dialog({
 			autoOpen: false,
 			width: modalDialogWidth(),
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+
+		$('#addContentDiv').dialog({
+			autoOpen: false,
+			modal: true,
+			resizable: false,
+			draggable: false
+		});
+
+		$('#moreDiv').dialog({
+			autoOpen: false,
 			modal: true,
 			resizable: false,
 			draggable: false
@@ -1824,6 +1837,10 @@ $(document).ready(function() {
 			return delete_confirm(event, msg("simplepage.deletecommentsubmissionexist"));
 		    });
 
+		$('.add-link').attr('title', msg("simplepage.add-above"));
+
+		$('.del-item-link').attr('title', msg("simplepage.delete-item"));
+
 		$('.del-item-link').click(function(event) {
 			// edit row is set by edit-comments. We're current in the dialog. need
 			// to look in the actual page row.
@@ -2038,46 +2055,6 @@ $(document).ready(function() {
 	$("#edit-youtube-error-container").hide();
 	$("#messages").hide();
 	
-	var megaConfig = {	
-			interval: 200,
-			sensitivity: 7,
-			over: buttonAddHighlight,
-			timeout: 700,
-			out: buttonRemoveHighlight
-	};
-	
-	var megaConfigc = {	
-			interval: 200,
-			sensitivity: 7,
-			over: buttonAddHighlightc,
-			timeout: 700,
-			out: buttonRemoveHighlightc
-	};
-
-	var megaConfiga = {	
-			interval: 200,
-			sensitivity: 7,
-			over: buttonAddHighlighta,
-			timeout: 700,
-			out: buttonRemoveHighlightc
-	};
-
-	var dropdownConfig = {	
-			interval: 0,
-			sensitivity: 7,
-			over: menuAddHighlight,
-			timeout: 700,
-			out: menuRemoveHighlight
-	};
-
-	var dropdowncConfig = {	
-			interval: 0,
-			sensitivity: 7,
-			over: menuAddHighlightc,
-			timeout: 700,
-			out: menuRemoveHighlightc
-	};
-
 	// where html5 might work we have an html5 player followed by the ususal object or embed
 	// check the dom to see if it will actually work. If so use html5 with other stuff inside it
 	// otherwise remove html5
@@ -2103,27 +2080,16 @@ $(document).ready(function() {
 	     }
             });
 
-	$("#dropdown").hoverIntent(megaConfig);
-	$("#dropdownc").hoverIntent(megaConfigc);
-	//	$(".plus-edit-icon").hoverIntent(megaConfiga);
 	$("#moreDiv").hide();
 	$("#addContentDiv").hide();
-	$("#moreDiv").hoverIntent(dropdownConfig);
-	$("#addContentDiv").hoverIntent(dropdowncConfig);
-	$("#dropdown").click(buttonToggleDropdown);
-	$("#dropdownc").click(buttonToggleDropdownc);
-	$(".plus-edit-icon").click(buttonToggleDropdowna);
-	dropDownViaClick = false;
+	$("#dropdown").click(buttonOpenDropdown);
+	$("#dropdownc").click(buttonOpenDropdownc);
+	$(".add-link").click(buttonOpenDropdowna);
 
 	$("#moreDiv").on('keyup',function(evt) {
 		if (evt.which == 27) {
 		    closeDropdown($("#moreDiv"), $("#dropdown"));
 		};
-	    });
-
-	$("#endMoreMenu").click(function() {
-		closeDropdown($("#moreDiv"), $("#dropdown"));
-		return false;
 	    });
 
 	$("#addContentDiv").on('keyup',function(evt) {
@@ -2132,10 +2098,12 @@ $(document).ready(function() {
 		};
 	    });
 
-	$("#endContentMenu").click(function() {
-		closeDropdown($("#addContentDiv"), $("#dropdownc"));
-		return false;
-	    });
+	// trap jquery close so we can clean up
+	$("[aria-describedby='addContentDiv'] .ui-dialog-titlebar-close")
+	    .click(closeDropdownc);
+
+	$("[aria-describedby='moreDiv'] .ui-dialog-titlebar-close")
+	    .click(closeDropdown);
 
 	return false;
 });
@@ -2464,141 +2432,30 @@ $(function() {
 var hasBeenInMenu = false;
 var addAboveItem = "";
 
-function buttonAddHighlight() {
-    addAboveItem = '';
-    if (!$("#addContentDiv").is(":visible"))
-	addHighlight($("#moreDiv"), $("#dropdown"));
-    return false;
-}
-
-function buttonAddHighlightc() {
-    addAboveItem = '';
-    if (!$("#moreDiv").is(":visible")) {
-	addHighlight($("#addContentDiv"), $("#dropdownc"));
-    }
-    return false;
-}
-
-function buttonAddHighlighta() {
-    if (!$("#moreDiv").is(":visible")) {
-	addAboveItem = $(this).parents("li").find("span.itemid").text();
-	addHighlight($("#addContentDiv"), $("#dropdownc"));
-    }
-    return false;
-}
-
-function menuAddHighlight() {
+function buttonOpenDropdown() {
+    oldloc = $("#dropdown");
     addAboveItem = "";
-    hasBeenInMenu = true;
-    addHighlight($("#moreDiv"), $("#dropdown"));
-    return false;
+    openDropdown($("#moreDiv"), $("#dropdown"));
 }
 
-function menuAddHighlightc() {
-    if(!dropDiv.is(":visible")) {
-	addAboveItem = "";
-    }
-    hasBeenInMenu = true;
-    addHighlight($("#addContentDiv"), $("#downdownc"));
-    return false;
-}
-
-function menuRemoveHighlight() {
-    removeHighlight($("#moreDiv"), $("#dropdown"));
-    return false;
-}
-
-function menuRemoveHighlightc() {
-    removeHighlight($("#addContentDiv"), $("#dropdownc"));
-    return false;
-}
-
-function buttonRemoveHighlight() {
-    if (!hasBeenInMenu)
-	removeHighlight($("#moreDiv"), $("#dropdown"));
-	return false;
-}
-
-function buttonRemoveHighlightc() {
-    if (!hasBeenInMenu)
-	removeHighlight($("#addContentDiv"), $("#dropdownc"));
-	return false;
-}
-
-function addHighlight(dropDiv, button) {
-	if(!lessonBuilderAnimationLocked) {
-		if(!dropDiv.is(":visible")) {
-			closeDropdowns();
-			lessonBuilderAnimationLocked = true;
-			hideMultimedia();
-			reposition();
-			$(dropDiv).show("slide", {direction: "up"}, 300, unlockAnimation);
-			dropDiv.find('a').first().focus();
-			checksize(dropDiv);
-			button.find('a').attr("aria-expanded", "true");
-			dropDiv.attr("aria-expanded", "true");
-		}
-	}
-	//$(this).addClass("hovering");
-	return false;
-}
-
-function removeHighlight(dropDiv, button) {
-	if(!lessonBuilderAnimationLocked) {
-		if(dropDiv.is(":visible") && !dropdownViaClick) {
-			hasBeenInMenu = false;
-			lessonBuilderAnimationLocked = true;
-			dropDiv.hide("slide", {direction: "up"}, 300, unlockAnimation);
-			unhideMultimedia();
-			button.find("a").focus();
-			button.find('a').attr("aria-expanded", "false");
-			dropDiv.attr("aria-expanded", "false");
-		}
-	}
-	//$(this).removeClass("hovering");
-	return false;
-}
-
-function buttonToggleDropdown() {
+function buttonOpenDropdownc() {
+    oldloc = $("#dropdownc");
     addAboveItem = "";
-    toggleDropdown($("#moreDiv"), $("#dropdown"));
+    openDropdown($("#addContentDiv"), $("#dropdownc"));
 }
 
-function buttonToggleDropdownc() {
-    addAboveItem = "";
-    toggleDropdown($("#addContentDiv"), $("#dropdownc"));
-}
-
-function buttonToggleDropdowna() {
+function buttonOpenDropdowna() {
+    oldloc = $(this).parents("li").find(".plus-edit-icon");
     addAboveItem = $(this).parents("li").find("span.itemid").text();
-    toggleDropdown($("#addContentDiv"), $("#dropdownc"));
+    openDropdown($("#addContentDiv"), $("#dropdownc"));
 }
 
-function toggleDropdown(dropDiv, button) {
-	if(!lessonBuilderAnimationLocked) {
-		if(dropDiv.is(":visible")) {
-			lessonBuilderAnimationLocked = true;
-			hasBeenInMenu = false;
-			dropDiv.hide("slide", {direction: "up"}, 300, unlockAnimation);
-			unhideMultimedia();
-			dropdownViaClick = false;
-			button.find("a").focus();
-			button.find('a').attr("aria-expanded", "false");
-			dropDiv.attr("aria-expanded", "false");
-		}else {
-			closeDropdowns();
-			lessonBuilderAnimationLocked = true;
-			hideMultimedia();
-			reposition();
-			dropDiv.show("slide", {direction: "up"}, 300, unlockAnimation);
-			dropDiv.find("a").first().focus();
-			checksize(dropDiv);
-			dropdownViaClick = true;
-			button.find('a').attr("aria-expanded", "true");
-			dropDiv.attr("aria-expanded", "true");
-		}
-	}
-	return false;
+function openDropdown(dropDiv, button) {
+    closeDropdowns();
+    hideMultimedia();
+    dropDiv.dialog('open');
+    dropDiv.find("a").first().focus();
+    return false;
 }
 
 function closeDropdowns() {
@@ -2606,31 +2463,24 @@ function closeDropdowns() {
     closeDropdown($("#moreDiv"), $("#dropdown"));
 }
 
+function closeDropdownc() {
+    closeDropdown($("#addContentDiv"), $("#dropdownc"));
+}
+
+function closeDropdown() {
+    closeDropdown($("#moreDiv"), $("#dropdown"));
+}
 
 function closeDropdown(dropDiv, button) {
-
-	if(!lessonBuilderAnimationLocked) {
-		if(dropDiv.is(":visible")) {
-			hasBeenInMenu = false;
-			dropDiv.hide();
-			unhideMultimedia();
-			dropdownViaClick = false;
-			button.find("a").focus();
-			button.attr("aria-expanded", "false");
-			dropDiv.attr("aria-expanded", "false");
-		}
-	}
-	return false;
+    dropDiv.dialog('close');
+    unhideMultimedia();
+    oldloc.focus();
+    return false;
 }
 
 function reposition() {
     // seems not needed now
     //    dropdown.css("left", "0x");
-}
-
-g// Keeps JQuery from getting confused mid-animation
-function unlockAnimation() {
-	lessonBuilderAnimationLocked = false;
 }
 
 function hideMultimedia() {
