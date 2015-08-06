@@ -1092,7 +1092,6 @@ a.Mrphs-toolTitleNav__link--reset {
 .mainList li.canEdit > div {
     padding: 0 !important
 }
-
 .mainList li .edit-col a.ui-button:link, .mainList li .edit-col a.ui-button:visited,.mainList li .group-col a.ui-button:link, .mainList li .group-col a.ui-button:visited {
     text-decoration: none !important;
     -webkit-border-radius: 0;
@@ -1381,4 +1380,7 @@ li:hover .group-col {
 .fa-group-icon {
   font-size:200%;
   font-family:FontAwesome;
+}
+.mainList li:hover .right-col {
+    background-color: #eee;
 }
