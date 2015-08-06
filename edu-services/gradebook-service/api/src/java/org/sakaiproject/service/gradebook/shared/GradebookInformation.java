@@ -27,6 +27,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Represents the settings for the gradebook
+ *
+ */
 public class GradebookInformation implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
@@ -37,8 +41,11 @@ public class GradebookInformation implements Serializable {
 	
 	private int gradeType;
 	private int categoryType;
-	private List category;
+	private List category; //Category
+	private List<CategoryDefinition> categories;
 	private String gradeScale;
+	
+	private boolean courseGradeDisplayed;
 	
 	
 	public String getSelectedGradingScaleUid() {
@@ -91,5 +98,19 @@ public class GradebookInformation implements Serializable {
 	public void setGradeScale(String gradeScale) {
 		this.gradeScale = gradeScale;
 	}
+	public boolean isCourseGradeDisplayed() {
+		return courseGradeDisplayed;
+	}
+	public void setCourseGradeDisplayed(boolean courseGradeDisplayed) {
+		this.courseGradeDisplayed = courseGradeDisplayed;
+	}
+	public List<CategoryDefinition> getCategories() {
+		return categories;
+	}
+	public void setCategories(List<CategoryDefinition> categories) {
+		this.categories = categories;
+	}
+	
+	
 
 }

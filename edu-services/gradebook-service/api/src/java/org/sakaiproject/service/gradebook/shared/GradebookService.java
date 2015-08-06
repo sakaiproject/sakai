@@ -750,6 +750,6 @@ public interface GradebookService {
 	 * @param gradebookUid
 	 * @param gbInfo GradebookInformation object
 	 */
-	void updateGradebookInformation(String gradebookUid, GradebookInformation gbInfo);
+	void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo);
 
 }
