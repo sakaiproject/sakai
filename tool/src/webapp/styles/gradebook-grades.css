@@ -551,6 +551,10 @@
   font-family: "gradebook-icons";
   content: "\f06a";
 }
+.gb-popover-notifications .gb-popover-notification-invalid:before {
+  font-family: "gradebook-icons";
+  content: "\f071";
+}
 .gb-popover-notifications .gb-popover-notification-overlimit:before {
   font-family: "gradebook-icons";
   content: "\f0fe";

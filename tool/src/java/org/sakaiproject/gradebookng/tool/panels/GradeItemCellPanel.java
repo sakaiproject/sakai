@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -57,7 +58,8 @@ public class GradeItemCellPanel extends Panel {
 		OVER_LIMIT("grade.notifications.overlimit"),
 		HAS_COMMENT("grade.notifications.hascomment"),
 		CONCURRENT_EDIT("grade.notifications.concurrentedit"),
-		ERROR("grade.notifications.haserror");
+		ERROR("grade.notifications.haserror"),
+		INVALID("grade.notifications.invalid");
 
 		private String message;
 
@@ -155,13 +157,15 @@ public class GradeItemCellPanel extends Panel {
 					super.onSubmit(target);
 					
 					String newGrade = this.getEditor().getValue();
-										
+
+					clearNotifications();
+
 					//perform validation here so we can bypass the backend
 					DoubleValidator validator = new DoubleValidator();
 					
 					if(!validator.isValid(newGrade)) {
 						markWarning(this);
-						//TODO add the message
+						this.getLabel().setDefaultModelObject(this.originalGrade);
 					} else {
 						
 						//for concurrency, get the original grade we have in the UI and pass it into the service as a check
@@ -192,13 +196,13 @@ public class GradeItemCellPanel extends Panel {
 							default:
 								throw new UnsupportedOperationException("The response for saving the grade is unknown.");
 						}
+
+
+						//format the grade for subsequent display and update the model
+						String formattedGrade = formatGrade(newGrade);
+						this.getLabel().setDefaultModelObject(formattedGrade);
 					}
-								
-					//format the grade for subsequent display and update the model
-					String formattedGrade = formatGrade(newGrade);
-					
-					this.getLabel().setDefaultModelObject(formattedGrade);
-					
+
 					//refresh the components we need
 					target.addChildren(getPage(), FeedbackPanel.class);
 					target.add(getParentCellFor(this));
@@ -399,6 +403,7 @@ public class GradeItemCellPanel extends Panel {
 	private void markWarning(Component gradeCell) {
 		this.gradeSaveStyle = GradeCellSaveStyle.WARNING;
 		styleGradeCell(gradeCell);
+		notifications.add(GradeCellNotification.INVALID);
 	}
 	
 	private void markOverLimit(Component gradeCell) {
@@ -410,6 +415,13 @@ public class GradeItemCellPanel extends Panel {
 	private void markHasComment(Component gradeCell) {
 		styleGradeCell(gradeCell); //maintains existing save style
 		notifications.add(GradeCellNotification.HAS_COMMENT);
+	}
+	
+	private void clearNotifications() {
+		notifications.clear();
+		if(StringUtils.isNotBlank(comment)) {
+			markHasComment(gradeCell);
+		}
 	}
 	
 	/**
@@ -465,7 +477,15 @@ public class GradeItemCellPanel extends Panel {
 	
 	
 	private void refreshPopoverNotifications() {
-		if (!notifications.isEmpty()) {
+		if (notifications.isEmpty()) {
+			String[] popoverAttributesToRemove = {"data-toggle", "data-trigger", "data-placement", "data-html", "data-container", "data-content"};
+			List<AttributeModifier> attributes = getParent().getBehaviors(AttributeModifier.class);
+			for (AttributeModifier attribute : attributes) {
+				if (Arrays.asList(popoverAttributesToRemove).contains(attribute.getAttribute())) {
+					getParent().remove(attribute);
+				}
+			}
+		} else {
 			modelData.put("comment", comment);
 
 			GradeItemCellPopoverPanel popover = new GradeItemCellPopoverPanel("popover", Model.ofMap(modelData), notifications);
