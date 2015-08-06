@@ -362,11 +362,18 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			gradebookInfo.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
 			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
-		gradebookInfo.setAssignments(getAssignments(gradebookUid));
+		
 		gradebookInfo.setGradeType(gradebook.getGrade_type());
-		gradebookInfo.setCategoryType(gradebook.getCategory_type());	
-		gradebookInfo.setCategory(getCategories(gradebook.getId()));
+		gradebookInfo.setCategoryType(gradebook.getCategory_type());
 		gradebookInfo.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
+
+		//these can be removed in Sakai 11 as they will no longer be used
+		gradebookInfo.setAssignments(getAssignments(gradebookUid));
+		gradebookInfo.setCategory(getCategories(gradebook.getId()));
+		
+		//add in the category definitions
+		gradebookInfo.setCategories(this.getCategoryDefinitions(gradebookUid));
+		
 		return gradebookInfo;
 	}
 	
@@ -2264,6 +2271,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	        categoryDef.setDropHighest(category.getDropHighest());
 	        categoryDef.setKeepHighest(category.getKeepHighest());
 	        categoryDef.setAssignmentList(getAssignments(category.getGradebook().getUid(), category.getName()));
+	        categoryDef.setExtraCredit(category.getIsCategory());
 	    }
 
 	    return categoryDef;
@@ -2794,8 +2802,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		return this.getAuthz().getViewableSections(gradebookUid);
 	}
 	
-	
-	public void updateGradebookInformation(String gradebookUid, GradebookInformation gbInfo) {
+	@Override
+	public void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo) {
 		if (gradebookUid == null ) {
 			throw new IllegalArgumentException("null gradebookUid " + gradebookUid) ;
 		}
@@ -2826,11 +2834,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
 		
-		gradebookInfo.setCategory(getCategories(gradebook.getId()));
 		*/
-		
-		//TODO set grading scale info
-		
+				
 		//set grade type
 		gradebook.setGrade_type(gbInfo.getGradeType());
 		
@@ -2840,13 +2845,60 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//set display release items to students
 		gradebook.setAssignmentsDisplayed(gbInfo.isDisplayReleasedGradeItemsToStudents());
 		
-		//TODO set categories
-		//gbInfo.getCategory()
+		//set course grade displayed
+		gradebook.setCourseGradeDisplayed(gbInfo.isCourseGradeDisplayed());
+		
+		//update categories
+		List<CategoryDefinition> categoryDefinitions = gbInfo.getCategories();
+		
+		List<Category> categories = this.getCategories(gradebook.getId());
+		Map<String,Category> catMap = new HashMap<>();
+		for(Category cat: categories) {
+			catMap.put(cat.getName(), cat);
+		}
+		
+		//compare lists, add and update as required
+		//also get a list of category names (have to use names as ids are only assigned at save time)
+		//also, category names are unique within a gradebook
+		List<String> categoryDefNames = new ArrayList<>();
+		for(CategoryDefinition def: categoryDefinitions) {
+			String name = def.getName();
+			
+			categoryDefNames.add(name);
+			
+			//new
+			if(!catMap.containsKey(name)) {
+				this.createCategory(gradebook.getId(), def.getName(), def.getWeight(), def.getDrop_lowest(), def.getDropHighest(), def.getKeepHighest(), def.isExtraCredit());
+				continue;
+			}
+			
+			//update
+			if(catMap.containsKey(name)) {
+				Category existing = catMap.get(name);
+				existing.setName(def.getName());
+				existing.setWeight(def.getWeight());
+				existing.setDrop_lowest(def.getDrop_lowest());
+				existing.setDropHighest(def.getDropHighest());
+				existing.setKeepHighest(def.getKeepHighest());
+				existing.setExtraCredit(def.isExtraCredit());
+				this.updateCategory(existing);
+				continue;
+			}
+			
+		}
+		
+		//handle deletes
+		//if category no longer in definition id list, it's to be deleted
+		for(Category cat: categories) {
+			if(categoryDefNames.contains(cat.getName())){
+				this.removeCategory(cat.getId());
+			}
+		}
+		
 		
 		//no need to set assignments, gbInfo doesn't update them
 		
 	
-		
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				session.update(gradebook);
