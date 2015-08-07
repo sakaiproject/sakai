@@ -22,6 +22,7 @@
 package org.sakaiproject.poll.service.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -126,25 +127,16 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         List<Poll> polls = null;
         // get all allowed sites for this user
         List<String> allowedSites = externalLogic.getSitesForUser(userId, permissionConstant);
-		List<String> filteredRequestedSites = new ArrayList<String>();
-        if (! allowedSites.isEmpty()) {
-            if (siteIds != null) {
-                if (siteIds.length > 0) {
-                    // filter down to just the requested ones
-                    for (int j = 0; j < allowedSites.size(); j++) {
-                        String siteId = allowedSites.get(j);
-                        for (int i = 0; i < siteIds.length; i++) {
-                            if (siteId.equals(siteIds[i])) {
-                                filteredRequestedSites.add(siteId);
-                            }
-                        }
-                    }
-                } else {
-                    // no sites to search so EXIT here
-                    return new ArrayList<Poll>();
-                }
-            }
-            String[] siteIdsToSearch = filteredRequestedSites.toArray(new String[filteredRequestedSites.size()]);
+		
+		if(siteIds!=null && siteIds.length>0 && !allowedSites.isEmpty()){
+        	List<String> requestedSites = new ArrayList<String>(Arrays.asList(siteIds));
+        	// filter down to just the requested ones
+        	requestedSites.retainAll(allowedSites);
+        	if(requestedSites.isEmpty()){
+        		// no sites to search so EXIT here
+        		return new ArrayList<Poll>();
+        	}
+            String[] siteIdsToSearch = requestedSites.toArray(new String[requestedSites.size()]);
             Search search = new Search();
             if (siteIdsToSearch.length > 0) {
                 search.addRestriction(new Restriction("siteId", siteIdsToSearch));
