@@ -10268,13 +10268,13 @@ public class AssignmentAction extends PagedResourceActionII
 				
 				// remove related announcement if there is one
 				removeAnnouncement(state, pEdit);
-				
-				// we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
-				// delete assignment and its submissions altogether
-				deleteAssignmentObjects(state, aEdit, true);
 
 				// remove from Gradebook
 				integrateGradebook(state, (String) ids.get (i), associateGradebookAssignment, "remove", null, null, -1, null, null, null, -1);
+
+				// we use to check "assignment.delete.cascade.submission" setting. But the implementation now is always remove submission objects when the assignment is removed.
+				// delete assignment and its submissions altogether
+				deleteAssignmentObjects(state, aEdit, true);
 			}
 		} // for
 
