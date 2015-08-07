@@ -819,7 +819,7 @@ function duplicateLink(lnk) {
 			</table>
 			#if ($!allowRemoveAssignment && $!view.equals('lisofass1'))
 				<p class="act">
-					<input type="submit" id="btnRemove" class="active" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" disabled="disabled" />
+					<input type="submit" id="btnRemove" name="eventSubmit_doDelete_confirm_assignment" value="$tlang.getString("removeSelected")" accesskey="s" disabled="disabled" />
 				</p>
 			#end
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

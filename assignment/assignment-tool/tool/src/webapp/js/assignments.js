@@ -808,6 +808,7 @@ ASN.checkEnableRemove = function()
     }
 
     document.getElementById( "btnRemove" ).disabled = !selected;
+    document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
 };
 
 ASN.doReorderAction = function( action )
