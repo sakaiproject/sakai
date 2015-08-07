@@ -729,6 +729,12 @@ ul.feedbackPanel li span {
 .gb-cell-out-of-date .gb-cell-notification.gb-cell-notification-out-of-date {
   display: block;
 }
+.grade-save-error .gb-cell-notification-error {
+  display: block !important;
+}
+.grade-save-error .gb-cell-notification.gb-cell-notification-out-of-date {
+  display: none;
+}
 /** temporary override for page width **/
 .Mrphs-pageColumns--single {
 	max-width: none !important;
