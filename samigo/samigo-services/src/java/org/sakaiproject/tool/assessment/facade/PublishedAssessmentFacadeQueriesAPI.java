@@ -374,4 +374,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(	final String agentId, final String siteId, boolean allAssessments);
      
+  public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId);
 }

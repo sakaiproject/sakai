@@ -47,4 +47,12 @@
 <f:verbatim></span></li>
 </ul></f:verbatim>
 
+<li role="menuitem" ><span></f:verbatim>
+	<h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.t_section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}"> 
+		<h:outputText value="#{generalMessages.section_activity}" />
+		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
+	</h:commandLink>
+<f:verbatim></span></li>
+</ul></f:verbatim>
+
 </h:panelGroup>
