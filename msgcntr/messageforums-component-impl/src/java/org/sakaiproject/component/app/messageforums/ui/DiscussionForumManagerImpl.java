@@ -63,7 +63,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.ActorPermissionsImpl;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.DBMembershipItemImpl;
@@ -109,6 +109,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   private SecurityService securityService;
   private SessionManager sessionManager;
   private PermissionLevelManager permissionLevelManager;
+  private AuthzGroupService authzGroupService;
   private Map courseMemberMap = null;
   private boolean usingHelper = false; // just a flag until moved to database from helper
   private ContentHostingService contentHostingService;
@@ -132,6 +133,10 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
   public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
 	}
+
+  public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+    this.authzGroupService = authzGroupService;
+  }
 
   public List searchTopicMessages(Long topicId, String searchText)
   {
@@ -1639,7 +1644,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
     AuthzGroup realm = null;
     try
     {
-      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+      realm = authzGroupService.getAuthzGroup(getContextSiteId());
       Set roles = realm.getRoles();
       if (roles != null && roles.size() > 0)
       {
@@ -1670,7 +1675,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
    AuthzGroup realm = null;
    try
     {
-      realm = AuthzGroupService.getAuthzGroup(contextSiteId);      
+      realm = authzGroupService.getAuthzGroup(contextSiteId);
       Role anon = realm.getRole(".anon");
      if (sessionManager.getCurrentSessionUserId()==null && anon != null && anon.getAllowedFunctions().contains("site.visit"))
       {
@@ -1807,7 +1812,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
 
     //SAK-12685 If topic's permission level name is "None", then can't access 
     User user=userDirectoryService.getCurrentUser();
-    String role=AuthzGroupService.getUserRole(user.getId(), getContextSiteId());
+    String role=authzGroupService.getUserRole(user.getId(), getContextSiteId());
     return !forumManager.doesRoleHavePermissionInTopic(t.getId(), role, PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE);
   }
 
@@ -2277,7 +2282,7 @@ public class DiscussionForumManagerImpl extends HibernateDaoSupport implements
         		String cacheId = contextSiteId + "/" + name;
         		Object el = allowedFunctionsCache.get(cacheId);
         		if(el == null){
-        			allowedFunctions = AuthzGroupService.getAllowedFunctions(name, siteIds);
+        			allowedFunctions = authzGroupService.getAllowedFunctions(name, siteIds);
         			allowedFunctionsCache.put(cacheId, allowedFunctions);
         		}else{
         			allowedFunctions = (Set) el;

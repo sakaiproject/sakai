@@ -86,6 +86,9 @@
    		<property name="siteService">
    			<ref bean="org.sakaiproject.site.api.SiteService"/>
    		</property>
+        <property name="authzGroupService">
+            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        </property>
    	</bean>
    	
    <bean id="SectionCmMetadataSynchronizerJob"

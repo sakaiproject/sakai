@@ -33,7 +33,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -541,6 +541,7 @@ public class SimplePageBean {
 	private LTIService ltiService;
 	private SecurityService securityService;
 	private SiteService siteService;
+	private AuthzGroupService authzGroupService;
 	private SimplePageToolDao simplePageToolDao;
 	private LessonsAccess lessonsAccess;
         private LessonBuilderAccessService lessonBuilderAccessService;
@@ -1453,7 +1454,7 @@ public class SimplePageBean {
 	    if (group == null)
 		return owner.equals(getCurrentUserId());
 	    else
-		return AuthzGroupService.getUserRole(getCurrentUserId(), group) != null;
+		return authzGroupService.getUserRole(getCurrentUserId(), group) != null;
 
 	}
 
@@ -1467,7 +1468,7 @@ public class SimplePageBean {
 	    if (group == null)
 		return owner.equals(getCurrentUserId());
 	    else
-		return AuthzGroupService.getUserRole(getCurrentUserId(), group) != null;
+		return authzGroupService.getUserRole(getCurrentUserId(), group) != null;
 
 	}
 
@@ -1538,6 +1539,10 @@ public class SimplePageBean {
 
 	public void setSiteService(SiteService service) {
 		siteService = service;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	public void setSimplePageToolDao(Object dao) {
@@ -4588,7 +4593,7 @@ public class SimplePageBean {
 			    usersite = null;
 		    }
 
-		    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
+		    if (owner != null && usersite != null && authzGroupService.getUserRole(usersite, group) != null) {
 			return true;
 		    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
 			return true;
@@ -5350,7 +5355,7 @@ public class SimplePageBean {
 
 		if (!success && canRecurse) {
 			try {
-			    AuthzGroupService.getAuthzGroup(groupId);
+			    authzGroupService.getAuthzGroup(groupId);
 			    // group exists, it was something else. Who knows what
 			    return;
 			} catch (org.sakaiproject.authz.api.GroupNotDefinedException ee) {
@@ -7116,7 +7121,7 @@ public class SimplePageBean {
 				if (group != null)
 				    group = "/site/" + getCurrentSiteId() + "/group/" + group;
 				try {
-				    AuthzGroup g = AuthzGroupService.getAuthzGroup(group);
+				    AuthzGroup g = authzGroupService.getAuthzGroup(group);
 				    Set<Member> members = g.getMembers();
 				    for (Member m: members) {
 					gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),

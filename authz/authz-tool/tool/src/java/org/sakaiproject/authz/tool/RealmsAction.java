@@ -41,7 +41,7 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
@@ -87,6 +87,14 @@ public class RealmsAction extends PagedResourceActionII
 	
 	private static Log M_log = LogFactory.getLog(RealmsAction.class);
 
+	private AuthzGroupService authzGroupService;
+
+	public RealmsAction() {
+		super();
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -95,7 +103,7 @@ public class RealmsAction extends PagedResourceActionII
 		// search?
 		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
-		return AuthzGroupService.getAuthzGroups(search, new PagingPosition(first, last));
+		return authzGroupService.getAuthzGroups(search, new PagingPosition(first, last));
 	}
 
 	/**
@@ -106,7 +114,7 @@ public class RealmsAction extends PagedResourceActionII
 		// search?
 		String search = StringUtils.trimToNull((String) state.getAttribute(STATE_SEARCH));
 
-		return AuthzGroupService.countAuthzGroups(search);
+		return authzGroupService.countAuthzGroups(search);
 	}
 
 	/**
@@ -126,7 +134,7 @@ public class RealmsAction extends PagedResourceActionII
 		// String elementId = mainPanelUpdateId(portlet.getID());
 		//
 		// // the event resource reference pattern to watch for
-		// String pattern = AuthzGroupService.realmReference("");
+		// String pattern = authzGroupService.realmReference("");
 		//
 		// state.setAttribute(STATE_OBSERVER, new EventObservingCourier(deliveryId, elementId, pattern));
 		// }
@@ -221,7 +229,7 @@ public class RealmsAction extends PagedResourceActionII
 		List realms = prepPage(state);
 
 		// put the service in the context (used for allow update calls on each realm)
-		context.put("service", AuthzGroupService.getInstance());
+		context.put("service", authzGroupService);
 
 		// put all realms into the context
 		context.put("realms", realms);
@@ -230,7 +238,7 @@ public class RealmsAction extends PagedResourceActionII
 
 		// build the menu
 		Menu bar = new MenuImpl();
-		if (AuthzGroupService.allowAdd(""))
+		if (authzGroupService.allowAdd(""))
 		{
 			bar.add(new MenuEntry(rb.getString("realm.new"), "doNew"));
 		}
@@ -299,7 +307,7 @@ public class RealmsAction extends PagedResourceActionII
 		// build the menu
 		// we need the form fields for the remove...
 		Menu bar = new MenuImpl();
-		if (realm != null && AuthzGroupService.allowRemove(realm.getId()))
+		if (realm != null && authzGroupService.allowRemove(realm.getId()))
 		{
 			bar.add(new MenuEntry(rb.getString("realm.remove"), null, true, MenuItem.CHECKED_NA, "doRemove", "realm-form"));
 		}
@@ -563,7 +571,7 @@ public class RealmsAction extends PagedResourceActionII
 		try
 		{
 			// make a new site with this id and as a structural copy of site
-			AuthzGroup newRealm = AuthzGroupService.addAuthzGroup(id, realm, UserDirectoryService.getCurrentUser().getId());
+			AuthzGroup newRealm = authzGroupService.addAuthzGroup(id, realm, UserDirectoryService.getCurrentUser().getId());
 		}
 		catch (GroupAlreadyDefinedException e)
 		{
@@ -647,7 +655,7 @@ public class RealmsAction extends PagedResourceActionII
 		// get the realm
 		try
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(id);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(id);
 			state.setAttribute("realm", realm);
 
 			state.setAttribute("mode", "edit");
@@ -711,7 +719,7 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			try
 			{
-				AuthzGroupService.save(realm);
+				authzGroupService.save(realm);
 				// Grab the list from session state and save it, if appropriate
 				List<String[]> userAuditList = (List<String[]>) state.getAttribute("userAuditList");
 				if (userAuditList!=null && !userAuditList.isEmpty())
@@ -769,7 +777,7 @@ public class RealmsAction extends PagedResourceActionII
 				// remove the realm
 				try
 				{
-					AuthzGroupService.removeAuthzGroup(realm);
+					authzGroupService.removeAuthzGroup(realm);
 				}
 				catch (AuthzPermissionException e)
 				{
@@ -825,7 +833,7 @@ public class RealmsAction extends PagedResourceActionII
 			// remove the realm
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(realm);
+				authzGroupService.removeAuthzGroup(realm);
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -872,7 +880,7 @@ public class RealmsAction extends PagedResourceActionII
 		// get the realm
 		try
 		{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(id);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(id);
 			state.setAttribute("realm", realm);
 
 			state.setAttribute("mode", "view");
@@ -960,7 +968,7 @@ public class RealmsAction extends PagedResourceActionII
 		{
 			try
 			{
-				realm = AuthzGroupService.addAuthzGroup(id);
+				realm = authzGroupService.addAuthzGroup(id);
 
 				// put the realm in the state
 				state.setAttribute("realm", realm);
@@ -1155,7 +1163,7 @@ public class RealmsAction extends PagedResourceActionII
 		//Read the locks if they're null and the role is not null to avoid passing them around
 		if (locks == null && role != null) {
 			Collection realms = new ArrayList<String>(Arrays.asList(realm.getId()));
-			List <String> newlocks = new ArrayList(AuthzGroupService.getAllowedFunctions(role.getId(), realms));
+			List <String> newlocks = new ArrayList(authzGroupService.getAllowedFunctions(role.getId(), realms));
 			locks = newlocks.toArray(new String[0]);
 		}
 

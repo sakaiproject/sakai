@@ -34,7 +34,6 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.*;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.*;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -174,6 +173,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private DeveloperHelperService developerHelperService = null;
 	public void setDeveloperHelperService( DeveloperHelperService developerHelperService ) {
 		this.developerHelperService = developerHelperService;
+	}
+
+	private AuthzGroupService authzGroupService;
+	public void setAuthzGroupService (AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	String newline = "<br />\n";
@@ -1530,7 +1534,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(assignment.getReference());
+				authzGroupService.removeAuthzGroup(assignment.getReference());
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -1638,7 +1642,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// 8. remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(assignment.getReference());
+				authzGroupService.removeAuthzGroup(assignment.getReference());
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -3076,7 +3080,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(submission.getReference()));
+				authzGroupService.removeAuthzGroup(authzGroupService.getAuthzGroup(submission.getReference()));
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -3297,7 +3301,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return submittable;
 		}
 
-		Set<String> siteSubmitterIds = AuthzGroupService.getUsersIsAllowed(
+		Set<String> siteSubmitterIds = authzGroupService.getUsersIsAllowed(
 				SECURE_ADD_ASSIGNMENT_SUBMISSION, Arrays.asList(site.getReference()));
 		Map<String, Set<String>> groupIdUserIds = new HashMap<String, Set<String>>();
 		for (Group group : site.getGroups()) {
@@ -3938,7 +3942,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			// ask the authzGroup service to filter them down based on function
-			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(userId,
+			groupRefs = authzGroupService.getAuthzGroupsIsAllowed(userId,
 					function, groupRefs);
 
 			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
@@ -4100,7 +4104,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (a.getAccess() == Assignment.AssignmentAccess.GROUPED)
 			{
 				// for grouped assignment, need to include those users that with "all.groups" and "grade assignment" permissions on the site level
-				AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(a.getContext()));
+				AuthzGroup group = authzGroupService.getAuthzGroup(SiteService.siteReference(a.getContext()));
 				if (group != null)
 				{
 					// get the roles which are allowed for submission but not for all_site control
@@ -4158,7 +4162,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		try
 		{
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(context);
+			AuthzGroup group = authzGroupService.getAuthzGroup(context);
 			
 			// get the roles which are allowed for submission but not for all_site control
 			Set rolesAllowSubmission = group.getRolesIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
@@ -4937,7 +4941,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					try
 					{
-						AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupRef);
+						AuthzGroup group = authzGroupService.getAuthzGroup(authzGroupRef);
 						Set grants = group.getUsers();
 						for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
 						{

@@ -62,7 +62,7 @@ import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -906,10 +906,11 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	}
 
 	private AliasService aliasService;
+	private AuthzGroupService authzGroupService;
 
 	public ResourcesAction() {
-		super();
 		aliasService = ComponentManager.get(AliasService.class);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
 	}
 
 	/**
@@ -2612,7 +2613,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param isLocal - true if navigation root and home collection id of site are the same, false otherwise
 	 * @param state - The session state
 	 */
-	protected static List getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
+	protected List getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
 	{
 		logger.debug("ResourcesAction.getListView()");
 		// find the ContentHosting service
@@ -2726,7 +2727,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			if(parent == null || ! parent.canUpdate())
 			{
-				canUpdate = AuthzGroupService.allowUpdate(collectionId);
+				canUpdate = authzGroupService.allowUpdate(collectionId);
 			}
 			else
 			{
@@ -9593,7 +9594,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        azGroups.add(SiteService.siteReference(site.getId()));
 	        azGroups.add("!site.helper");
 	        // get the user ids who has dropbox.own permissions
-	        Set userIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+	        Set userIds = authzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
 
 	        // Adding users to selector
 	        for (Iterator<String> it = userIds.iterator(); it.hasNext();) {
@@ -9741,7 +9742,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                        azGroups.add(SiteService.siteReference(site.getId()));
 	                        azGroups.add("!site.helper");
 	                        // get the user ids who has dropbox.own permissions
-	                        Set<String> dbOwnsUserIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+	                        Set<String> dbOwnsUserIds = authzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
 
 	                        for (Iterator<org.sakaiproject.authz.api.Member> it = grp.getMembers().iterator(); it.hasNext();) {
 	                            String userIdInGroup = it.next().getUserId();

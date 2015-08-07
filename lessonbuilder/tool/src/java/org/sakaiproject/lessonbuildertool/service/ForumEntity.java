@@ -67,7 +67,7 @@ import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.cover.SiteService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.id.cover.IdManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;             
 import org.sakaiproject.db.cover.SqlService;
@@ -155,6 +155,11 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
     public void setMemoryService(MemoryService m) {
 	memoryService = m;
     }
+
+	static AuthzGroupService authzGroupService = null;
+	public void setAuthzGroupService(AuthzGroupService service) {
+		authzGroupService = service;
+	}
 
     private static SimplePageToolDao simplePageToolDao;
     public void setSimplePageToolDao(Object dao) {
@@ -571,7 +576,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	try {
 	    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 	    groupName = site.getGroup(groupId).getTitle();
-	    maintainRole = AuthzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
+	    maintainRole = authzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
 	} catch (Exception e) {
 	    System.out.println("Unable to get site info for AddEntityControl " + e);
 	}
@@ -640,7 +645,7 @@ public class ForumEntity extends HibernateDaoSupport implements LessonEntity, Fo
 	try {
 	    Site site = SiteService.getSite(ToolManager.getCurrentPlacement().getContext());
 	    groupName = site.getGroup(groupId).getTitle();
-	    maintainRole = AuthzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
+	    maintainRole = authzGroupService.getAuthzGroup("/site/" + site.getId()).getMaintainRole();
 	} catch (Exception e) {
 	    System.out.println("Unable to get site info for AddEntityControl " + e);
 	}

@@ -74,7 +74,6 @@ public class AliasesAction extends PagedResourceActionII
 	private AliasService aliasService;
 
 	public AliasesAction() {
-		super();
 		aliasService = ComponentManager.get(AliasService.class);
 	}
 

@@ -39,7 +39,7 @@ import net.tanesha.recaptcha.ReCaptchaResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.ControllerState;
@@ -133,6 +133,13 @@ public class UsersAction extends PagedResourceActionII
 	private static final String SAK_PROP_INVALID_EMAIL_DOMAINS_CUSTOM_MESSAGE = "user.email.invalid.domain.message";
 
 	private static final String USER_TEMPLATE_PREFIX = "!user.template.";
+
+	private AuthzGroupService authzGroupService;
+
+	public UsersAction() {
+		super();
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -1127,14 +1134,14 @@ public class UsersAction extends PagedResourceActionII
 		String userEid = user.getEid();
 		if (isUnenrollBeforeDeleteEnabled())
 		{
-			Map<String, String> userRoles = AuthzGroupService.getUserRoles(userId, null);
+			Map<String, String> userRoles = authzGroupService.getUserRoles(userId, null);
 			for (String realm : userRoles.keySet())
 			{
 				try
 				{
-					AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
+					AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
 					realmEdit.removeMember(userId);
-					AuthzGroupService.save(realmEdit);
+					authzGroupService.save(realmEdit);
 					Log.info("chef", "User " + userEid + " removed from realm " + realm);
 				}
 				catch (Exception e)
@@ -2016,7 +2023,7 @@ public class UsersAction extends PagedResourceActionII
      */
     protected List getUserTypes() {
         List userTypes = new ArrayList();
-        List groups = AuthzGroupService.getInstance().getAuthzGroups(USER_TEMPLATE_PREFIX, null);
+        List groups = authzGroupService.getAuthzGroups(USER_TEMPLATE_PREFIX, null);
         for (Iterator i = groups.iterator(); i.hasNext();) {
             AuthzGroup group = (AuthzGroup) i.next();
             String type = group.getId().replaceFirst(USER_TEMPLATE_PREFIX, "");

@@ -49,7 +49,7 @@ import org.sakaiproject.api.app.postem.data.GradebookManager;
 import org.sakaiproject.api.app.postem.data.StudentGrades;
 
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -136,6 +136,8 @@ public class PostemTool {
 	public ResourceLoader msgs = new ResourceLoader(messageBundle);
 
 	private ContentHostingService contentHostingService;
+
+	private AuthzGroupService authzGroupService;
 
 	private static final Log LOG = LogFactory.getLog(PostemTool.class);
 	
@@ -229,6 +231,10 @@ public class PostemTool {
 
 	public void setContentHostingService(ContentHostingService contentHostingService) {
 		this.contentHostingService = contentHostingService;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	public UIData getGradebookTable() {
@@ -1120,7 +1126,7 @@ public class PostemTool {
 	{
 		AuthzGroup realm;
 		try	{
-			realm = AuthzGroupService.getAuthzGroup("/site/" + getCurrentSiteId());
+			realm = authzGroupService.getAuthzGroup("/site/" + getCurrentSiteId());
 			return realm.getUsers().contains(uid);
 		}
 		catch (GroupNotDefinedException e) {
@@ -1171,7 +1177,7 @@ public class PostemTool {
 	private List getSiteMembers() {
 		List siteMembers = new ArrayList();
 		try	{
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup("/site/" + getCurrentSiteId());
+			AuthzGroup realm = authzGroupService.getAuthzGroup("/site/" + getCurrentSiteId());
 			siteMembers = new ArrayList(realm.getUsers());
 		}
 		catch (GroupNotDefinedException e) {

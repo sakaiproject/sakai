@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
@@ -670,7 +670,7 @@ public class ServiceServlet extends HttpServlet {
 					if ( roleMap.containsKey(role.getId()) ) {
 						ims_role = roleMap.get(role.getId());
 					} 
-					else if (AuthzGroupService.isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/"+siteId))
+					else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + siteId))
 					{
 						ims_role = "Instructor";
 					}

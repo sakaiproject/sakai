@@ -52,7 +52,7 @@ import javax.servlet.ServletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -100,6 +100,7 @@ public class AjaxServer extends HttpServlet
 
    private static MessageSource messageSource;
    private static SiteService siteService;
+   private static AuthzGroupService authzGroupService;
    private static SimplePageToolDao simplePageToolDao;
 
    public void setSimplePageToolDao(Object dao) {
@@ -394,8 +395,8 @@ public class AjaxServer extends HttpServlet
 	    site = siteService.getSite(siteId);
 	    HashSet<String> siteGroup = new HashSet<String>();
 	    siteGroup.add("/site/" + siteId);
-	    // not in 2.8   users = AuthzGroupService.getAuthzUsersInGroups(siteGroup);
-	    users = AuthzGroupService.getUsersIsAllowed("site.visit", siteGroup);
+	    // not in 2.8   users = authzGroupService.getAuthzUsersInGroups(siteGroup);
+	    users = authzGroupService.getUsersIsAllowed("site.visit", siteGroup);
 
 	    for (String userId: users) {
 		user2groups.put(userId, null);
@@ -573,6 +574,10 @@ public class AjaxServer extends HttpServlet
 
     public void setSiteService(SiteService s) {
 	siteService = s;
+    }
+
+    public void setAuthzGroupService(AuthzGroupService s) {
+        authzGroupService = s;
     }
 
 }
