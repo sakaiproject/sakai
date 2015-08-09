@@ -109,12 +109,6 @@ public class GradeItemCellPanel extends Panel {
 			add(new Label("grade", Model.of(formattedGrade)));
 			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
 			notifications.add(GradeCellNotification.IS_EXTERNAL);
-			
-			if(StringUtils.isNotBlank(comment)) {
-				getParent().add(new AttributeModifier("class", "gb-external-item-cell has-comment"));
-			}
-			
-			
 		} else {
 			gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				
@@ -208,7 +202,7 @@ public class GradeItemCellPanel extends Panel {
 					target.add(getParentCellFor(this));
 					target.add(this);
 
-					refreshPopoverNotifications();
+					refreshNotifications();
 				}
 				
 				@Override
@@ -281,6 +275,7 @@ public class GradeItemCellPanel extends Panel {
 					parentCell.add(new AttributeModifier("data-studentuuid", studentUuid));
 					parentCell.add(new AttributeModifier("class", "gb-grade-item-cell"));
 					parentCell.setOutputMarkupId(true); //must output so we can manipulate the classes through ajax
+					this.add(new AttributeModifier("class", "gb-ajax-editable-label"));
 				}
 			};
 
@@ -344,7 +339,7 @@ public class GradeItemCellPanel extends Panel {
 							markHasComment(gradeCell);
 							target.add(getParentCellFor(gradeCell));
 							target.appendJavaScript("sakai.gradebookng.spreadsheet.setupCell('" + getParentCellFor(gradeCell).getMarkupId() + "','" + assignmentId + "', '" + studentUuid + "');");
-							refreshPopoverNotifications();
+							refreshNotifications();
 						};
 						
 					}
@@ -372,7 +367,7 @@ public class GradeItemCellPanel extends Panel {
 		
 		add(menu);
 
-		refreshPopoverNotifications();
+		refreshNotifications();
 	}
 	
 	/**
@@ -435,9 +430,6 @@ public class GradeItemCellPanel extends Panel {
 		if(this.gradeSaveStyle != null) {
 			cssClasses.add(gradeSaveStyle.getCss()); //the particular style for this cell that has been computed previously
 		}
-		if(StringUtils.isNotBlank(this.comment)) {
-			cssClasses.add("has-comment"); //if comments
-		}
 		
 		//replace the cell styles with the new set
 		getParentCellFor(gradeCell).add(AttributeModifier.replace("class", StringUtils.join(cssClasses, " ")));
@@ -476,27 +468,54 @@ public class GradeItemCellPanel extends Panel {
 	}
 	
 	
-	private void refreshPopoverNotifications() {
-		if (notifications.isEmpty()) {
-			String[] popoverAttributesToRemove = {"data-toggle", "data-trigger", "data-placement", "data-html", "data-container", "data-content"};
-			List<AttributeModifier> attributes = getParent().getBehaviors(AttributeModifier.class);
-			for (AttributeModifier attribute : attributes) {
-				if (Arrays.asList(popoverAttributesToRemove).contains(attribute.getAttribute())) {
-					getParent().remove(attribute);
-				}
+	private void refreshNotifications() {
+		WebMarkupContainer commentNotification = new WebMarkupContainer("commentNotification");
+		WebMarkupContainer warningNotification = new WebMarkupContainer("warningNotification");
+		WebMarkupContainer errorNotification = new WebMarkupContainer("errorNotification");
+		WebMarkupContainer overLimitNotification = new WebMarkupContainer("overLimitNotification");
+
+		warningNotification.setVisible(false);
+		errorNotification.setVisible(false);
+		overLimitNotification.setVisible(false);
+
+		if (!notifications.isEmpty()) {
+			if (notifications.contains(GradeCellNotification.ERROR)) {
+				errorNotification.setVisible(true);
+				addPopover(errorNotification, notifications);
+			} else if (notifications.contains(GradeCellNotification.INVALID) || notifications.contains(GradeCellNotification.CONCURRENT_EDIT)  || notifications.contains(GradeCellNotification.IS_EXTERNAL)) {
+				warningNotification.setVisible(true);
+				addPopover(warningNotification, notifications);
+			} else if (notifications.contains(GradeCellNotification.OVER_LIMIT)) {
+				overLimitNotification.setVisible(true);
+				addPopover(overLimitNotification, notifications);
 			}
-		} else {
-			modelData.put("comment", comment);
-
-			GradeItemCellPopoverPanel popover = new GradeItemCellPopoverPanel("popover", Model.ofMap(modelData), notifications);
-			String popoverString = ComponentRenderer.renderComponent(popover).toString();
-
-			getParent().add(new AttributeModifier("data-toggle", "popover"));
-			getParent().add(new AttributeModifier("data-trigger", "manual"));
-			getParent().add(new AttributeModifier("data-placement", "bottom"));
-			getParent().add(new AttributeModifier("data-html", "true"));
-			getParent().add(new AttributeModifier("data-container", "#gradebookGrades"));
-			getParent().add(new AttributeModifier("data-content", popoverString));
 		}
+
+		if (StringUtils.isNotBlank(comment)) {
+			modelData.put("comment", comment);
+			commentNotification.setVisible(true);
+			addPopover(commentNotification, Arrays.asList(GradeCellNotification.HAS_COMMENT));
+		} else {
+			commentNotification.setVisible(false);
+		}
+
+		addOrReplace(commentNotification);
+		addOrReplace(warningNotification);
+		addOrReplace(errorNotification);
+		addOrReplace(overLimitNotification);
+	}
+
+
+	private void addPopover(Component component, List<GradeCellNotification> notifications) {
+		GradeItemCellPopoverPanel popover = new GradeItemCellPopoverPanel("popover", Model.ofMap(modelData), notifications);
+		String popoverString = ComponentRenderer.renderComponent(popover).toString();
+
+		component.add(new AttributeModifier("data-toggle", "popover"));
+		component.add(new AttributeModifier("data-trigger", "focus"));
+		component.add(new AttributeModifier("data-placement", "bottom"));
+		component.add(new AttributeModifier("data-html", "true"));
+		component.add(new AttributeModifier("data-container", "#gradebookGrades"));
+		component.add(new AttributeModifier("data-content", popoverString));
+		component.add(new AttributeModifier("tabindex", "0"));
 	}
 }

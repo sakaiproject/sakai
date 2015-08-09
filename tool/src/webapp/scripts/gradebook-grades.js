@@ -995,27 +995,25 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
 
   function showConcurrencyNotification(data) {
     $.each(data, function(i, conflict) {
-      var $message = $("#gradeItemsConcurrentUserWarning").clone();
-      $message.find(".gb-concurrent-edit-user").html(conflict.lastUpdatedBy);
-      $message.find(".gb-concurrent-edit-time").html(new Date(conflict.lastUpdated).toLocaleTimeString());
       var model = self.getCellModelForStudentAndAssignment(conflict.studentUuid, conflict.assignmentId);
-      model.$cell.addClass("gb-cell-out-of-date");
-      if (model.$cell.data("toggle") == "popover") {
-        // append message to current popover
-        var existingPopoverContent = $(model.$cell.data("content").trim());
-        if (existingPopoverContent.find(".gb-popover-notification-concurrentedit").length == 0) {
-          existingPopoverContent.prepend($message.find(".gb-popover-notification-concurrentedit"));
-        } else {
-          existingPopoverContent.find(".gb-popover-notification-concurrentedit").replaceWith($message.find(".gb-popover-notification-concurrentedit"));
-        }
-        model.$cell.attr("data-content", existingPopoverContent[0].outerHTML);
-      } else {
-        // setup a new popover
-        model.$cell.
+      var $notification = model.$cell.find(".gb-cell-notification-out-of-date");
+      if ($notification.length == 0) {
+        $notification = $("<span>").addClass("gb-cell-notification").addClass("gb-cell-notification-out-of-date");
+        model.$cell.find(".btn-group").before($notification);
+      
+        var $message = $("#gradeItemsConcurrentUserWarning").clone();
+        $message.find(".gb-concurrent-edit-user").html(conflict.lastUpdatedBy);
+        $message.find(".gb-concurrent-edit-time").html(new Date(conflict.lastUpdated).toLocaleTimeString());
+
+        model.$cell.addClass("gb-cell-out-of-date");
+
+        $notification.
           attr("data-toggle", "popover").
           data("content", $message.html()).
           data("placement", "bottom").
+          data("trigger", "focus").
           data("html", "true").
+          attr("tabindex", 0).
           data("container", "#gradebookGrades");
 
         self.enablePopovers(model.$cell);
@@ -1024,9 +1022,7 @@ GradebookSpreadsheet.prototype.setupConcurrencyCheck = function() {
   };
 
   function hideConcurrencyNotification() {
-    //cells cannot become magically refreshed, so assume those detected
-    //out of date are still out of date
-    //self.$table.find(".gb-cell-out-of-date").removeClass("gb-cell-out-of-date");
+    self.$table.find(".gb-cell-out-of-date").removeClass("gb-cell-out-of-date");
   };
 
   function handleConcurrencyCheck(data) {
@@ -1169,8 +1165,6 @@ GradebookSpreadsheet.prototype.setupPopovers = function() {
     var $link = $(this);
     var cell = self.getCellModelForStudentAndAssignment($link.data("studentuuid"), $link.data("assignmentid"));
     self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
-    self.suppressPopover = true;
-    self.popoverClicked = false;
     cell.$cell.focus();
   });
 };
@@ -1178,13 +1172,11 @@ GradebookSpreadsheet.prototype.setupPopovers = function() {
 
 GradebookSpreadsheet.prototype.enablePopovers = function($target) {
   var self = this;
-  var $popovers = $target.is('[data-toggle="popover"]') ? $target : $target.find('[data-toggle="popover"]');
+  var $popovers = $target.find('[data-toggle="popover"]');
 
   $popovers.popover("destroy");
 
-  $popovers.popover({
-    trigger: 'manual'
-  }).blur(function(event) {
+  $popovers.popover().blur(function(event) {
     clearTimeout($(event.target).data("popoverShowTimeout"));
     $(event.target).data("popoverHideTimeout", setTimeout(function() {
       if (!self.popoverClicked) {

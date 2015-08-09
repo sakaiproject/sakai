@@ -5,7 +5,12 @@
 <wicket:panel>
 	
 	<div wicket:id="grade">34</div>
-	
+
+	<span wicket:id="commentNotification" class="gb-cell-notification-comment"></span>
+	<span wicket:id="warningNotification" class="gb-cell-notification gb-cell-notification-warning"></span>
+	<span wicket:id="errorNotification" class="gb-cell-notification gb-cell-notification-error"></span>
+	<span wicket:id="overLimitNotification" class="gb-cell-notification gb-cell-notification-over-limit"></span>
+
 	<!-- dropdown menu -->
 	<div class="btn-group" wicket:id="menu">
 	    <a class="btn dropdown-toggle" data-toggle="dropdown" href="#" aria-haspopup="true" aria-label="Show dropdown menu">
@@ -16,9 +21,6 @@
 			<li><a wicket:id="editGradeComment" href="#" role="menuitem" aria-haspopup="true" class="gb-edit-comments"><span wicket:id="editGradeCommentLabel">View / Edit Comments</span></a></li>
 	    </ul>
     </div>
-	
-	
-	
 </wicket:panel>
 </body>
 </html>
