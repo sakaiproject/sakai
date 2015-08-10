@@ -191,9 +191,7 @@ public class GradebookNgBusinessService {
 												
 				//get viewable students.
 				List<String> viewableStudents = this.gradebookPermissionService.getViewableStudentsForUser(gradebook.getUid(), user.getId(), new ArrayList<>(userUuids), courseSections);
-				
-				System.out.println("viewableStudents: " + viewableStudents);
-				
+								
 				if(viewableStudents != null) {
 					userUuids.retainAll(viewableStudents); //retain only those that are visible to this TA
 				} else {
@@ -1494,7 +1492,28 @@ public class GradebookNgBusinessService {
             }
         }
      }
+     
+     /**
+      * Get a list of teaching assistants in the current site
+      * @return
+      */
+     public List<GbUser> getTeachingAssistants() {
 
+    	 String siteId = this.getCurrentSiteId();
+    	 List<GbUser> rval = new ArrayList<>();
+    	 
+    	 try {
+    		 Set<String> userUuids = siteService.getSite(siteId).getUsersIsAllowed(GbRole.TA.getValue());
+    		 for(String userUuid: userUuids) {
+    			 rval.add(this.getUser(userUuid));
+    		 }
+    	 } catch (IdUnusedException e) {
+    		 e.printStackTrace();
+    	 }
+    	 
+    	 return rval;
+     }
+     
 
     /**
      * Comparator class for sorting a list of AssignmentOrders

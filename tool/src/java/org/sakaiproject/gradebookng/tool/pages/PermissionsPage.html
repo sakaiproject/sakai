@@ -3,8 +3,17 @@
 
 <body>
 <wicket:extend>
+	<h2><wicket:message key="permissionspage.main.heading">Grader Perms</wicket:message></h2>
 	
-  <img src="/gradebookng-tool/images/placeholders/permissions.jpg" style="width: 100%;" />
+	<div wicket:id="instructions" class="instruction">Instruction text goes here</div>
+	
+	<!--  todo need form -->
+	
+	<div class="form-group form-group-sm">
+		<select wicket:id="ta" class="form-control">
+			<option>TA 1</option>
+		</select>
+	</div>
 	
 </wicket:extend>
 </body>
