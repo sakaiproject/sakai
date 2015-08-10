@@ -243,9 +243,9 @@
 						#set ($submissionType = $assignmentContent.TypeOfSubmission)
 						#set ($typeOfGrade = $assignmentContent.getTypeOfGrade())
 						#set ($isAnon = $assignmentService.assignmentUsesAnonymousGrading($assignment))
+						#set ($anonymousSubmissionId = $submission.getSubmission().getAnonymousSubmissionId())
 						<tr>
 							<td headers="studentname">
-							#set ($submitterNames = "")
 							#if ($submission.getIsMultiGroup())
 							<span class="error alertMessage">
 							#end
@@ -260,7 +260,11 @@
 										#set($submitterName=$submitterName.concat(" [").concat($submission.getGroup().getTitle()).concat("]"))
 									#end
 								#end
-								$validator.escapeHtml($!submitterName)
+								#if( $isAnon )
+									$anonymousSubmissionId
+								#else
+									$validator.escapeHtml($!submitterName)
+								#end
 							#end
 							#if ($submission.getIsMultiGroup())
 							</span>
