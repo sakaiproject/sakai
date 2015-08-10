@@ -110,8 +110,6 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
     	 
 
          UIOutput.make(groupForm, "prompt", messageLocator.getMessage("group.autocreate.newgroups"));
-         UIOutput.make(groupForm, "instructions_roster", messageLocator.getMessage("group.autocreate.instruction_roster"));
-         UIOutput.make(groupForm, "instructions_role", messageLocator.getMessage("group.autocreate.instruction_role"));
          
          UIOutput.make(groupForm, "group_label", messageLocator.getMessage("group.title"));
          UIInput titleTextIn = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
@@ -124,7 +122,6 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 			 UIBranchContainer rosterOptions = UIBranchContainer.make(groupForm, "roster_options:");
 			 UIMessage.make(arg0, "roster-select-header", "table.roster_select");
 			 UIMessage.make(arg0, "roster-title-header", "table.roster_title");
-			 UIMessage.make(arg0, "instruction-roster", "instruction.roster");
 			 for (String roster: siteRosters) {
 				 UIBranchContainer tablerow = UIBranchContainer.make(rosterOptions, "roster-row:");
 				 UIBoundBoolean checkbox = UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster.replaceAll("\\.", "-_p_-") + "}");
