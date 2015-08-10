@@ -80,25 +80,26 @@ USR_MEMBRSHP.disableControls = function( escape )
 
     // Get all the input elements, separate into lists by type
     var allInputs = USR_MEMBRSHP.nodeListToArray( document.getElementsByTagName( "input" ) );
-    var buttons = [];
-    var textFields = [];
+    var elementsToCloneAndDisable = [];
+    var elementsToDisable = [];
     for( i = 0; i < allInputs.length; i++ )
     {
-        if( (allInputs[i].type === "submit" || allInputs[i].type === "button") && allInputs[i].id !== escape )
+        if( (allInputs[i].type === "submit" || allInputs[i].type === "button" || allInputs[i].type === "checkbox") 
+                && allInputs[i].id !== escape )
         {
-            buttons.push( allInputs[i] );
+            elementsToCloneAndDisable.push( allInputs[i] );
         }
         else if( allInputs[i].type === "text" && allInputs[i].id !== escape )
         {
-            textFields.push( allInputs[i] );
+            elementsToDisable.push( allInputs[i] );
         }
     }
 
-    // Disable all buttons
-    USR_MEMBRSHP.toggleElements( textFields, true );
-    for( i = 0; i < buttons.length; i++ )
+    // Disable all elements
+    USR_MEMBRSHP.toggleElements( elementsToDisable, true );
+    for( i = 0; i < elementsToCloneAndDisable.length; i++ )
     {
-        USR_MEMBRSHP.disableButton( "", buttons[i] );
+        USR_MEMBRSHP.cloneAndHideElement( "", elementsToCloneAndDisable[i] );
     }
 };
 
@@ -113,38 +114,42 @@ USR_MEMBRSHP.nodeListToArray = function( nodeList )
     return array;
 };
 
-USR_MEMBRSHP.disableButton = function( divId, button )
+USR_MEMBRSHP.cloneAndHideElement = function( divId, element )
 {
-    // first set the button to be invisible
-    button.style.display = "none";
+    // First, set the element to be invisible
+    element.style.display = "none";
 
-    // now create a new disabled button with the same attributes as the existing button
-    var newButton = document.createElement( "input" );
+    // Now create a new disabled element with the same attributes as the existing element
+    var newElement = document.createElement( "input" );
 
-    newButton.setAttribute( 'type', 'button' );
-    newButton.setAttribute( 'id', button.getAttribute( 'id' ) + 'Disabled' );
-    newButton.setAttribute( 'name', button.getAttribute( 'name' ) + 'Disabled' );
-    newButton.setAttribute( 'value', button.getAttribute( 'value' ) );
-    newButton.className = button.className + " noPointers";
-    newButton.setAttribute( 'disabled', 'true' );
+    newElement.setAttribute( 'type', element.type );
+    newElement.setAttribute( 'id', element.getAttribute( 'id' ) + 'Disabled' );
+    newElement.setAttribute( 'name', element.getAttribute( 'name' ) + 'Disabled' );
+    newElement.setAttribute( 'value', element.getAttribute( 'value' ) );
+    newElement.className = element.className + " noPointers";
+    newElement.setAttribute( 'disabled', 'true' );
+    if( element.type === "checkbox" )
+    {
+        newElement.checked = element.checked;
+    }
 
     if( "" !== divId )
     {
         var div = document.getElementById( divId );
-        div.insertBefore( newButton, button );
+        div.insertBefore( newElement, element );
     }
     else
     {
-        var parent = button.parentNode;
-        parent.insertBefore( newButton, button );
+        var parent = element.parentNode;
+        parent.insertBefore( newElement, element );
     }
 };
 
-USR_MEMBRSHP.toggleElements = function( buttons, disabled )
+USR_MEMBRSHP.toggleElements = function( elements, disabled )
 {
-    for( i = 0; i < buttons.length; i ++ )
+    for( i = 0; i < elements.length; i ++ )
     {
-        buttons[i].disabled = disabled;
+        elements[i].disabled = disabled;
     }
 };
 
