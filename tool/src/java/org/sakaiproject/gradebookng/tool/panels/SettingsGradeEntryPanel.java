@@ -1,9 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.MessageFormat;
-import java.util.Map;
-
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
@@ -12,21 +8,23 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
-import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 public class SettingsGradeEntryPanel extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	
+	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	protected GradebookNgBusinessService businessService;
+	
 	IModel<GradebookInformation> model;
 
 	public SettingsGradeEntryPanel(String id, IModel<GradebookInformation> model) {
 		super(id, model);
-		
 		this.model = model;
-		
 	}
 	
 	
@@ -44,6 +42,8 @@ public class SettingsGradeEntryPanel extends Panel {
 				GradebookInformation settings = this.getModelObject();
 				System.out.println("settings: " + settings.getGradeType());
 				
+				
+				businessService.updateGradebookSettings(settings);
 				/*
 				Assignment assignment = this.getModelObject();
 				
@@ -65,7 +65,7 @@ public class SettingsGradeEntryPanel extends Panel {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onSubmit() {
-				//setResponsePage(new GradebookPage());
+				setResponsePage(new GradebookPage());
 			}
 		};
 		cancel.setDefaultFormProcessing(false);

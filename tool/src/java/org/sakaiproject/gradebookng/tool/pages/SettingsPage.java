@@ -24,7 +24,7 @@ public class SettingsPage extends BasePage {
 		//form model
 		CompoundPropertyModel<GradebookInformation> formModel = new CompoundPropertyModel<GradebookInformation>(settings);
 		
-		add(new SettingsGradeEntryPanel("panel1", formModel));
+		add(new SettingsGradeEntryPanel("gradeEntryPanel", formModel));
 		
 		
 		

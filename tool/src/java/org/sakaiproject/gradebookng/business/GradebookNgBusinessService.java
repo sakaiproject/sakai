@@ -1465,8 +1465,7 @@ public class GradebookNgBusinessService {
     	 String siteId = this.getCurrentSiteId();
     	 Gradebook gradebook = getGradebook(siteId);
     	 
-    	 //disabled until its in
-    	 //this.gradebookService.updateGradebookInformation(gradebook.getUid(), settings);
+    	 this.gradebookService.updateGradebookInformation(gradebook.getUid(), settings);
      }
     
 
