@@ -490,7 +490,7 @@ public class ZipContentUtil {
 	}
 	
 	private List<String> getZipCharsets() {
-		String[] charsetConfig = ServerConfigurationService.getStrings("content.zip.charset");
+		String[] charsetConfig = ServerConfigurationService.getStrings("content.zip.expand.charsets");
 		if (charsetConfig == null) {
 			charsetConfig = new String[0];
 		}
