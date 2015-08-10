@@ -29,7 +29,7 @@ import java.util.List;
 
 import org.sakaiproject.alias.api.AliasEdit;
 import org.sakaiproject.alias.api.AliasService;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.PagedResourceActionII;
@@ -72,9 +72,11 @@ public class AliasesAction extends PagedResourceActionII
 	private static ResourceLoader rb = new ResourceLoader("admin");
 
 	private AliasService aliasService;
+	private SecurityService securityService;
 
 	public AliasesAction() {
 		aliasService = ComponentManager.get(AliasService.class);
+		securityService = ComponentManager.get(SecurityService.class);
 	}
 
 	protected void initState(SessionState state, VelocityPortlet portlet, JetspeedRunData rundata)
@@ -109,7 +111,7 @@ public class AliasesAction extends PagedResourceActionII
 		String template = null;
 
 		// if not logged in as the super user, we won't do anything
-		if (!SecurityService.isSuperUser())
+		if (!securityService.isSuperUser())
 		{
 			return (String) getContext(rundata).get("template") + "_noaccess";
 		}
