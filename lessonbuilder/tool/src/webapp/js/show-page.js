@@ -268,10 +268,10 @@ $(document).ready(function() {
 		$("#select-resource-group").hide();
 
 		$('.subpage-link').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			if ($(this).hasClass("add-at-end"))
 			    addAboveItem = '';
-			oldloc = $(this);
 			$('#subpage-add-before').val(addAboveItem);
 			$('#subpage-dialog').dialog('open');
 			setupdialog($('#subpage-dialog'));
@@ -279,6 +279,7 @@ $(document).ready(function() {
 		});
 
 		$('#edit-title').click(function(){
+			oldloc = $(".dropdown a");
 			closeDropdowns();
 			$('#edit-title-error-container').hide();
 			if ($("#page-points").val() === '') {
@@ -298,7 +299,6 @@ $(document).ready(function() {
 			if ($("#currentReleaseDate").text() === '')
 			    $("#page-releasedate").prop('checked', false);
 
-			oldloc = $(".dropdown a");
 			$('#edit-title-dialog').dialog('open');
 			setupdialog($('#edit-title-dialog'));
 			return false;
@@ -309,8 +309,8 @@ $(document).ready(function() {
 		    });
 
 		$('#import-cc').click(function(){
-			closeDropdowns();
 			oldloc = $(".dropdown a");
+			closeDropdowns();
 			$("#import-cc-loading").hide();
 			importccactive = true;
 			$('#import-cc-dialog').dialog('open');
@@ -337,8 +337,8 @@ $(document).ready(function() {
 		});
 		
 		$('#export-cc').click(function(){
-			closeDropdowns();
 			oldloc = $(".dropdown a");
+			closeDropdowns();
 			$('#export-cc-dialog').dialog('open');
 			setupdialog($('#export-cc-dialog'));
 			return false;
@@ -506,17 +506,17 @@ $(document).ready(function() {
 	    });
 
 		$('#new-page').click(function(){
-			closeDropdowns();
 			oldloc = $(".dropdown a");
+			closeDropdowns();
 			$('#new-page-dialog').dialog('open');
 			setupdialog($('#new-page-dialog'));
 			return false;
 		});
 
 		$('.remove-page').click(function(){
+			oldloc = $(".dropdown a");
 			closeDropdowns();
 			// rsf puts the URL on the non-existent src attribute
-			oldloc = $(".dropdown a");
 			$('#remove-page-dialog').dialog('open');
 			setupdialog($('#remove-page-dialog'));
 			return false;
@@ -531,6 +531,7 @@ $(document).ready(function() {
 		//	});
 
 		$(".edit-youtube").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 			$("#editgroups-youtube").after($("#grouplist"));
@@ -549,9 +550,6 @@ $(document).ready(function() {
 			    }
 			}
 
-
-			$('#youtube-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
-
 			if(row.find(".prerequisite-info").text() === 'true') {
 			    $('#youtube-prerequisite').prop('checked',true);
 			} else {
@@ -567,7 +565,6 @@ $(document).ready(function() {
 			$("#description4").val(row.find(".description").text());
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
-			oldloc = $(this);
 			$('#youtube-dialog').dialog('open');
 			setupdialog($('#youtube-dialog'));
 			$("#grouplist").hide();
@@ -580,6 +577,7 @@ $(document).ready(function() {
 		    });
 
 		$('.edit-movie').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 	                //var object = this.parentNode.parentNode.childNodes[3].childNodes[1];                                                                
@@ -621,7 +619,6 @@ $(document).ready(function() {
 			$("#movie-height").val(row.find(".mm-height").text());
 			$("#movie-width").val(row.find(".mm-width").text());
 			$("#description3").val(row.find(".description").text());
-			$('#movie-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			if (row.find(".movie-prerequisite").text() === 'true') {
 			    $('#movie-prerequisite').prop('checked', true);
 			} else {
@@ -630,7 +627,6 @@ $(document).ready(function() {
 			$("#mimetype4").val(row.find(".mm-type").text());
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
-			oldloc = $(this);
 			$("#movie-dialog").dialog('open');
 			setupdialog($("#movie-dialog"));
 			$("#grouplist").hide();
@@ -638,6 +634,7 @@ $(document).ready(function() {
 		});
 		
 		$(".edit-comments").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 			$("#editgroups-comments").after($("#grouplist"));
@@ -676,7 +673,6 @@ $(document).ready(function() {
 				$("#comments-required").prop("checked", false);
 			}
 			
-			$('#comments-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			var prerequisite = row.find(".commentsitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#comments-prerequisite").prop("checked", true);
@@ -699,7 +695,6 @@ $(document).ready(function() {
 			
             $('.edit-col').addClass('edit-colHidden');
             $(this).closest('li').addClass('editInProgress');
-			oldloc = $(this);
 			$('#comments-dialog').dialog('open');
 			setupdialog($("#comments-dialog"));
 			$("#grouplist").hide();
@@ -712,8 +707,9 @@ $(document).ready(function() {
 		    });
 
 		$(".edit-student").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
-            $('li').removeClass('editInProgress');
+			$('li').removeClass('editInProgress');
 			$("#editgroups-student").after($("#grouplist"));
 			$("#grouplist").hide();
 			$("#editgroups-student").hide();
@@ -814,7 +810,6 @@ $(document).ready(function() {
 			}else {
 				$("#student-required").prop("checked", false);
 			}
-			$('#student-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			var prerequisite = row.find(".studentitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#student-prerequisite").prop("checked", true);
@@ -905,7 +900,6 @@ $(document).ready(function() {
 			$("#student-group-errors").text("");
 			$('.edit-col').addClass('edit-colHidden');
 			$(this).closest('li').addClass('editInProgress');
-			oldloc = $(this);
 			$('#student-dialog').dialog('open');
 			setupdialog($("#student-dialog"));
 			$("#grouplist").hide();
@@ -1034,6 +1028,7 @@ $(document).ready(function() {
 		});
 		
 		$('.question-link').click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			$('li').removeClass('editInProgress');
 
@@ -1053,7 +1048,6 @@ $(document).ready(function() {
 			$("#question-gradebook-title").val("");
 			$("#question-max").val("");
 			$("#question-required").prop("checked", false);
-			$("#question-break").prop("checked", false);
 			$("#question-prerequisite").prop("checked", false);
 			$("#question-show-poll").prop("checked", false);
 			$("#multipleChoiceSelect").click();
@@ -1068,7 +1062,6 @@ $(document).ready(function() {
 			$("#question-incorrect-text").val("");
 			$("#update-question").attr("value", msg("simplepage.save_message"));
 			
-			oldloc = $(this);
 			$("#question-addBefore").val(addAboveItem);
 			$('#question-dialog').dialog('open');
 			setupdialog($('#subpage-dialog'));
@@ -1079,6 +1072,7 @@ $(document).ready(function() {
 		$("#question-graded").click(checkQuestionGradedForm);
 		
 		$(".edit-question").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			
 			$("#question-editgroups").after($("#grouplist"));
@@ -1200,7 +1194,6 @@ $(document).ready(function() {
 				$("#question-required").prop("checked", false);
 			}
 			
-			$('#question-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			var prerequisite = row.find(".questionitem-prerequisite").text();
 			if(prerequisite === "true") {
 				$("#question-prerequisite").prop("checked", true);
@@ -1216,7 +1209,6 @@ $(document).ready(function() {
 			$('#question-error-container').hide();
 			$("#update-question").attr("value", msg("simplepage.edit"));
 
-			oldloc = $(this);
 			$('#question-dialog').dialog('open');
 			setupdialog($("#question-dialog"));
 			$("#grouplist").hide();
@@ -1275,10 +1267,11 @@ $(document).ready(function() {
 		});
 		
 		$(".edit-link").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
-            $('li').removeClass('editInProgress');
-            $('.edit-col').addClass('edit-colHidden');
-            $(this).closest('li').addClass('editInProgress');
+			$('li').removeClass('editInProgress');
+			$('.edit-col').addClass('edit-colHidden');
+			$(this).closest('li').addClass('editInProgress');
 			$("#require-label2").hide();
 			$("#item-required2").hide();
 			$("#assignment-dropdown-selection").hide();
@@ -1309,8 +1302,6 @@ $(document).ready(function() {
 			$("#name").val(row.find(".link-text").text());
 			$("#description").val(row.find(".rowdescription").text());
 					      
-			$('#item-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
-
 			var prereq = row.find(".prerequisite-info").text();
 
 			if(prereq === "true") {
@@ -1545,7 +1536,6 @@ $(document).ready(function() {
 			setUpRequirements();
 		        $("#item-id").val(row.find(".current-item-id2").text());
 			$("#edit-item-error-container").hide();
-			oldloc = $(this);
 			$("#edit-item-dialog").dialog('open');
 			setupdialog($("#edit-item-dialog"));
 			$("#grouplist").hide();
@@ -1590,6 +1580,7 @@ $(document).ready(function() {
 		});
 
 		$(".add-multimedia").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 
 			mm_test_reset();
@@ -1613,7 +1604,6 @@ $(document).ready(function() {
 			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
-			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
 			setupdialog($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
@@ -1622,6 +1612,7 @@ $(document).ready(function() {
 		});
 
 		$(".add-resource").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			if ($(this).hasClass("add-at-end"))
 			    addAboveItem = '';
@@ -1646,7 +1637,6 @@ $(document).ready(function() {
 			mmactive = true;
 			$("#mm-error-container").hide();
 			insist = false;
-			oldloc = $(this);
 			$("#add-multimedia-dialog").dialog('open');
 			setupdialog($("#add-multimedia-dialog"));
 			//$('.edit-multimedia-input').blur();
@@ -1654,6 +1644,7 @@ $(document).ready(function() {
 		});
 
 		$(".add-website").click(function(){
+			oldloc = $(".dropdown a");
 			closeDropdowns();
 			mm_test_reset();
 			$("#addLink_label").text(msg("simplepage.addLink_label_add"));
@@ -1671,7 +1662,6 @@ $(document).ready(function() {
 			$(".mm-additional-website").show();
 			$(".mm-url-section").hide();
 			$(".mm-prerequisite-section").show();
-			oldloc = $(".dropdown a");
 			$("#checkingwithhost").hide();
 			$("#mm-loading").hide();
 			mmactive = true;
@@ -1685,6 +1675,7 @@ $(document).ready(function() {
 		});
 
 		$(".multimedia-edit").click(function(){
+			oldloc = $(this);
 			closeDropdowns();
 			mm_test_reset();
 			$('li').removeClass('editInProgress');
@@ -1715,7 +1706,6 @@ $(document).ready(function() {
 			    }
 			}
 
-			$('#multi-break').prop('checked',$(this).closest('li').hasClass('right-col-bottom'));
 			if(row.find(".prerequisite-info").text() === 'true') {
 			    $('#multi-prerequisite').prop('checked', true);
 			} else {
@@ -1761,7 +1751,6 @@ $(document).ready(function() {
             $('.edit-col').addClass('edit-colHidden');
             $(this).closest('li').addClass('editInProgress');
 
-			oldloc = $(this);
 			$("#edit-multimedia-dialog").dialog('open');
 			setupdialog($("#edit-multimedia-dialog"));
 			$("#grouplist").hide();
@@ -1952,27 +1941,41 @@ $(document).ready(function() {
         resizeFrame('grow');
 	});
 	
-	$('.group-col a').click(function(e) {
+	$('.add-break-section').click(function(e) {
 		e.preventDefault();
-		if ($(this).closest('.group-col').hasClass('toprow'))
-		    return;
-		var grouped = toggleGrouped($(this).attr('href').substr(1));
-		if (grouped != null) {
-		    if (grouped === "true") {
-			$(this).closest('li').addClass('right-col-top');
-			$(this).closest('li').prev().addClass('right-col-bottom');
-			$(this).find('img').attr("src","/lessonbuilder-tool/images/merge.gif");
-			$(this).attr('title',msg("simplepage.join-items"));
-			$('<li role="listitem" class="item offscreen"><div><h3>' + '' + '</h3></div></li>').insertBefore($(this).closest('li'));
-		    } else {
-		        $(this).closest('li').prev().remove();
-			$(this).closest('li').removeClass('right-col-top');
-			$(this).closest('li').prev().removeClass('right-col-bottom');
-			$(this).find('img').attr("src","/lessonbuilder-tool/images/cut.gif");
-			$(this).attr('title',msg("simplepage.break-items"));
-		    }
-		}
+		var newitem = addBreak(addAboveItem, 'section');
+		// addAboveLI is LI from which add was triggered
+		// following LI's if any
+		var tail = addAboveLI.nextAll();
+		// current section DIV
+		var section = addAboveLI.parent().parent();
+		section.after('<div class="section"><ul border="0" role="list" width="95%" style="z-index: 1;" class="indent mainList"></ul></div>');
+		// now go to new section
+		section = section.next();
+		// and move current item and following into the new section
+		section.find("ul").append(addAboveLI, tail);
+		// add break item before new first item
+		addAboveLI.before('<li role="listitem" class="breaksection"><div class="sectionedit"><h3 class="offscreen"><span>' + msg('simplepage.break-here') + '</span></h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') +'" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></div></li>');
+		// need trigger on the A we just added
+		addAboveLI.prev().find('.section-merge-link').click(sectionMergeLink);
+		closeDropdownc();
 	    });
+
+	$('.section-merge-link').click(sectionMergeLink);
+
+	function sectionMergeLink(e) {
+		e.preventDefault();
+		deleteBreak($(this).attr('href').substring(1));
+		// addAboveLI is LI from which add was triggered
+		// following LI's if any
+		var thisLI = $(this).parents('li');
+		var tail = thisLI.nextAll();
+		// current section DIV
+		var section = thisLI.parent().parent();
+		// append rest of this section to previous one, then delete section
+		section.prev().find('ul').last().append(tail);
+		section.remove();
+	};
 
 	// don't do this twice. if portal is loaded portal will do it
         if(typeof portal === 'undefined')
@@ -2431,6 +2434,7 @@ $(function() {
 
 var hasBeenInMenu = false;
 var addAboveItem = "";
+var addAboveLI = null;
 
 function buttonOpenDropdown() {
     oldloc = $("#dropdown");
@@ -2441,12 +2445,15 @@ function buttonOpenDropdown() {
 function buttonOpenDropdownc() {
     oldloc = $("#dropdownc");
     addAboveItem = "";
+    $(".addbreak").hide();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
 }
 
 function buttonOpenDropdowna() {
-    oldloc = $(this).parents("li").find(".plus-edit-icon");
-    addAboveItem = $(this).parents("li").find("span.itemid").text();
+    addAboveLI = $(this).parents("li");
+    oldloc = addAboveLI.find(".plus-edit-icon");
+    addAboveItem = addAboveLI.find("span.itemid").text();
+    $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
 }
 
@@ -2659,7 +2666,7 @@ function getGroupErrors(groups) {
      return errors;
 }
 
-function toggleGrouped(itemId) {
+function addBreak(itemId, type) {
     var errors = '';
     var url = location.protocol + '//' + location.host + 
 	'/lessonbuilder-tool/ajax';
@@ -2668,16 +2675,27 @@ function toggleGrouped(itemId) {
     $.ajax({type: "POST",
 	    async: false,
 	    url: url,
-	    data: {op: 'togglegrouped', itemid: itemId, csrf: csrf},
+	    data: {op: 'insertbreakbefore', itemid: itemId, type: type, cols:'1', csrf: csrf},
 	    success: function(data){
 		grouped = data;
 	    }});
-    if (grouped == null)
-	return null;
-    else
-	return grouped.trim();
+    return grouped;
 }
 
+function deleteBreak(itemId, type) {
+    var errors = '';
+    var url = location.protocol + '//' + location.host + 
+	'/lessonbuilder-tool/ajax';
+    var grouped;
+    var csrf = $("#edit-item-dialog input[name='csrf8']").attr('value');
+    $.ajax({type: "POST",
+	    async: false,
+	    url: url,
+	    data: {op: 'deleteitem', itemid: itemId, csrf: csrf},
+	    success: function(data){
+		grouped = data;
+	    }});
+}
 
 
 

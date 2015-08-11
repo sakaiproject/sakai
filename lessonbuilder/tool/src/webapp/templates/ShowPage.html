@@ -215,6 +215,10 @@
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="subpage-link" class="subpage-link"><span rsf:id="msg=simplepage.subpage"></span></a>
 		  </li>
+		  <hr class="addbreak" style="border:none" rsf:id="add-break1"/>
+		  <li rsf:id="add-break2" class="addbreak">
+		    <a role="menuitem" href="#" rsf:id="add-break3" class="add-break-section"><span rsf:id="msg=simplepage.break-items"></span></a>
+		  </li>
 		  <hr style="border:none"/>
 		  <li rsf:id="assignment-li">
 		    <a role="menuitem" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
@@ -305,9 +309,11 @@
 			<div style="display:none" rsf:id="current-item-id"></div>
 			
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
-                                    <ul class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
+<!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
+			<div rsf:id="section:" class="section">
+                        <ul class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
                 <li rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span>
-		    <div rsf:id="section-td"><h3 rsf:id="msg=simplepage.break-here"></h3></div>
+	          <div rsf:id="section-td" class="sectionedit"><h3 class="offscreen"><span rsf:id="msg=simplepage.break-here"></span></h3><a rsf:id="section-del-link" href="#" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></div>
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                       <div rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"><span aria-hidden="true" class="fa-pencil-square-o fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="plus-edit-icon fa-edit-icon">+</span></a></div></div>
@@ -317,7 +323,7 @@
                       <div rsf:id="contentCol" class="contentCol">
                         <div rsf:id="link-div:" class="link-div">
                           <span rsf:id="item-icon" aria-hidden="true" class="fa-item-text"></span>
-                          <h3 class="link-div-head"><a class="itemlink" href="#" rsf:id="link" style="width:36px"><span rsf:id="link-note" class="offscreen"></span><span rsf:id="link-text" class="link-text itemtext"></span></a></h3>
+                          <span rsf:id="link-note" class="offscreen"></span><h3 class="link-div-head"><a class="itemlink" href="#" rsf:id="link"><span rsf:id="link-text" class="link-text itemtext"></span></a></h3>
                           <span><span rsf:id="link-fake-note" class="offscreen"></span><span rsf:id="link-fake" class="link-text itemtext fake-disabled"></span></span>
                           <span rsf:id="link-button-span" class="navIntraTool" style="background-color:transparent;border:none">
                             <a href="#" class="usebutton" rsf:id="link-button">
@@ -696,6 +702,7 @@
                     </div>
                 </li>
             </ul>
+	    </div>	
 			<script rsf:id="swfobject" type="text/javascript" src="swfobject.js"></script>
 
 		</div>
@@ -791,6 +798,8 @@
 			  <p rsf:id="msg=simplepage.break-items" id="simplepage.break-items"></p>
 			  <p rsf:id="msg=simplepage.delete-item" id="simplepage.delete-item"></p>
 			  <p rsf:id="msg=simplepage.add-above" id="simplepage.add-above"></p>
+			  <p rsf:id="msg=simplepage.join-items" id="simplepage.join-items"></p>
+			  <p rsf:id="msg=simplepage.break-here" id="simplepage.break-here"></p>
 			  <p rsf:id="siteid" id="siteid"></p>
 			  <p rsf:id="locale" id="locale"></p>
 			</div>
@@ -922,11 +931,6 @@
                     
                     <input type="hidden" rsf:id="item-id" id="item-id" />
                     
-                    <p class="checkbox">
-                      <input type="checkbox" name="item-break" id="item-break" rsf:id="item-break" />
-                      <label for="item-break"><span rsf:id="msg=simplepage.break-above"></span></label>
-                    </p>
-
                     <div rsf:id="permDiv" class="">
                          <div id="prereqstuff">
                              <p class="checkbox">
@@ -1088,10 +1092,6 @@
                         <p id="editgroups-mm" class="edit-group">
                           <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
-			<p class="checkbox">
-			  <input type="checkbox" name="multi-break" id="multi-break" rsf:id="multi-break" />
-			  <label for="multi-break"><span rsf:id="msg=simplepage.break-above"></span></label>
-			</p>
                         <p class="checkbox">
                           <input type="checkbox" name="multi-prerequisite" id="multi-prerequisite" rsf:id="multi-prerequisite" />
                           <label for="multi-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1374,10 +1374,6 @@
                         <p rsf:id="editgroups-youtube" id="editgroups-youtube">
                           <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
                         </p>
-			<p class="checkbox">
-			  <input type="checkbox" name="youtube-break" id="youtube-break" rsf:id="youtube-break" />
-			  <label for="youtube-break"><span rsf:id="msg=simplepage.break-above"></span></label>
-			</p>
                         <p class="checkbox">
                             <input type="checkbox" name="youtube-prerequisite" id="youtube-prerequisite" rsf:id="youtube-prerequisite" />
                             <label for="youtube-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1430,10 +1426,6 @@
 						<p id="editgroups-movie" class="edit-group">
 						  <a href="#"><span rsf:id="msg=simplepage.edit-group"></span></a>
 						</p>
-			<p class="checkbox">
-			  <input type="checkbox" name="movie-break" id="movie-break" rsf:id="movie-break" />
-			  <label for="movie-break"><span rsf:id="msg=simplepage.break-above"></span></label>
-			</p>
 
                         <p class="checkbox">
                             <input type="checkbox" name="movie-prerequisite" id="movie-prerequisite" rsf:id="movie-prerequisite" />
@@ -1481,10 +1473,6 @@
                             <label for="comments-max" class="pageTitle indnt2"><span rsf:id="msg=simplepage.comments-max"></span></label>
                             <input type="text" name="comments-max" id="comments-max" rsf:id="comments-max" size="5" maxlength="5"/>
                         </p>    
-			<p class="checkbox">
-			  <input type="checkbox" name="comments-break" id="comments-break" rsf:id="comments-break" />
-			  <label for="comments-break"><span rsf:id="msg=simplepage.break-above"></span></label>
-			</p>
                         <p class="checkbox">
                               <input type="checkbox" name="comments-prerequisite" id="comments-prerequisite" rsf:id="comments-prerequisite" />
                               <label for="comments-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1634,11 +1622,6 @@
                             </div>
                           </div>
 
-			<p class="checkbox">
-			  <input type="checkbox" name="student-break" id="student-break" rsf:id="student-break" />
-			  <label for="student-break"><span rsf:id="msg=simplepage.break-above"></span></label>
-			</p>
-
                         <p class="checkbox">
                           <input type="checkbox" name="student-prerequisite" id="student-prerequisite" rsf:id="student-prerequisite" />
                           <label for="student-prerequisite"><span rsf:id="msg=simplepage.prerequisites_label"></span></label>
@@ -1767,10 +1750,6 @@
                             <label for="question-incorrect-text"><span rsf:id="msg=simplepage.incorrect-text"></span></label><br />
                             <textarea rsf:id="question-incorrect-text" name="question-incorrect-text" id="question-incorrect-text" rows="3" columns="30"></textarea>
                             </div>
-			    <p class="checkbox">
-			      <input type="checkbox" name="question-break" id="question-break" rsf:id="question-break" />
-			      <label for="question-break"><span rsf:id="msg=simplepage.break-above"></span></label>
-			    </p>
 
                             <p class="checkbox">
                             <input type="checkbox" name="question-prerequisite" id="question-prerequisite" rsf:id="question-prerequisite" />

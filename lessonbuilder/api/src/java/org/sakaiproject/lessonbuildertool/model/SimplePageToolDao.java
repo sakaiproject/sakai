@@ -174,6 +174,9 @@ public interface SimplePageToolDao {
     // so normally this should be done using appropriate functions from SimplePageBean.
 	public boolean deleteItem(Object o);
 
+    // just delete, no permissions checking and no logging
+	public boolean quickDelete(Object o);
+
     // see saveItem for details and caveats, same function except update instead of save
 	public boolean update(Object o, List<String> elist, String nowriteerr, boolean requiresEditPermission);
 

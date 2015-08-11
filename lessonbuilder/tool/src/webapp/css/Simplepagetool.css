@@ -216,7 +216,7 @@ a.ui-button:link, a.ui-button:visited {
 }
 
 /* ff2, buttons don't work */
-a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
+a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merge-link:visited, a.itemLink:link, a.itemLink:visited, a.multimedia-edit:link, a.multimedia-edit:visited, a.edit-youtube:link, a.edit-youtube:visited, a.edit-movie:link, a.edit-movie:visited {
 	text-decoration: none !important;
 	background-color: #eee;
 }
@@ -254,31 +254,22 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 }
 
 .mainList {
-    margin: 0;
-    padding:0;
+    margin: 15px 15px;
+    padding: 15px 7px;
     list-style:none;
+    background-color: #f6f6f6;
+    background-color: white;
+    border-left: solid #c8c8c8 1px;
+    border-right: solid #c8c8c8 1px;
+    -webkit-border-radius: 7px;
+    -moz-border-radius: 7px;
+    border-radius: 7px;
+    border: 1px solid #ccc;
 }
 .mainList li {
     position: relative;
-/*
-    border:1px solid transparent
-    padding:26px;
-    margin: 15px 0;
-    -webkit-border-radius: 3px;
-    -moz-border-radius: 3px;
-    border-radius: 3px;
-    border: 1px solid #ccc;
-*/
 }
-/*.mainList li:hover {
-    border: 1px solid #B3B3B3;
-}
-.mainList li.canEdit > div {
-    position: relative;
-    padding-left: 40px
-}*/
-.mainList li.canEdit > div.edit-col, .mainList li.canEdit > div.group-col {
-/*    float:left; */
+.mainList li.canEdit > div.edit-col {
     vertical-align:top;
     padding-top: 0.35em;
     padding-left: 0;
@@ -300,10 +291,8 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
     margin-bottom: 10px;
 } 
 .mainList li.question .multipleChoiceAnswer {
-/*    margin:10px 25px; */
 }
 .mainList li.question .multipleChoiceForm input.bold {
-/*    margin:5px 0px 0px 20px !important */
 }
 .multipleChoiceAnswer label {
   margin-left: 5px;
@@ -312,7 +301,6 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
   display: block;
 }
 .questionStatusText {
-/*    padding: 15px 20px; */
 }
 .mainList li .textbox {
 
@@ -343,10 +331,20 @@ a.edit-link:link, a.edit-link:visited, a.itemLink:link, a.itemLink:visited, a.mu
 	font-weight: bold;
 	padding: 0px 4px !important;
 }
-.edit-col .ui-button-text, .group-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
+.edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
-	/*vertical-align: middle;*/
 }
+
+.sectionedit {
+   top: -37px;
+   position:absolute;
+   font-size: 60%;
+   padding: 7px;
+}
+.sectionedit a span {
+   color: rgb(102,102,102);
+}
+
 .buttonItem {
 	padding-left: 20px
 }
@@ -564,13 +562,8 @@ h3.author {
     padding:5px;
 }
 .commentGradePanel {
-float:right;
-vertical-align:top;
-/*
-    position: absolute;
-    top: 10px;
-    right: 0;
-*/
+    float:right;
+    vertical-align:top;
 }
 .commentDiv .editLink:hover, .commentDiv .deleteLink:hover,  .commentDiv .replyLink:hover {
     cursor:pointer;
@@ -600,11 +593,7 @@ a.peer-eval-stats {
 	display: none
 }
 .imgCell {
-/*
-	height: 10px;
-	width: 10px;
-
-*/}
+}
 .studentCell {
 	padding-left: 7px
 }
@@ -613,8 +602,6 @@ a.peer-eval-stats {
 	margin-top: 0px;
 }
 .studentContentTitle, .mainList li.question .questionText, h3.author {
-/*	margin:0 2px 5px 3px; 
-    display:inline;*/
     font-size:110%;
 }
 .studentContentTitle {
@@ -678,9 +665,7 @@ ul#toolbar li em {
     padding: 0;
 }
 .dropDownDiv li {
-    xborder-top:1px solid #ccc !important;
     background: #fff !important;
-    xpadding:5px !important;
     padding: 3px !important;
     padding-left: 7px !important;
     display:block;
@@ -691,16 +676,11 @@ ul#toolbar li em {
 .dropDownDiv li a {
     display:block;
     text-decoration: none;
-    xpadding: 5px 0 !important;
 }
 .dropDownDiv li div {
     font-size: .85em !important
 }
 span.nextprev {
-	/*
-margin-left: 20px;
-*/
-
 }
 a.nextprev {
 	margin-left: 5px;
@@ -741,9 +721,6 @@ img {
 	border-top: 3px solid white
 }
 .first-row {
-   /*
-background-color: #e8e8e8
-*/
 }
 .first-row td {
    padding: 0px;
@@ -791,7 +768,6 @@ background-color: #e8e8e8
 	background-color: grey;
 	color: white;
 }
-/* #peer-eval-create-table tbody tr td:first-of-type{ padding-left:30px; } */
 #question-correct-text, #question-incorrect-text {
 	width: 400px;
 	height: 55px;
@@ -818,11 +794,6 @@ background-color: #e8e8e8
  font-size:85%;
 }
 input[type="submit"].question-submit,.addStudentContent {
-/*
-   height:auto !important;
-   box-shadow: none !important;
-   border: solid 1px #d3d3d3 !important;
-*/
    margin-top:15px;
    border-color:#aaa;
    padding:6px 20px !important;
@@ -909,38 +880,12 @@ div[role="dialog"] {
     margin-top:0.5em;
     margin-bottom:1.0em;
 }
-
-/* neeeded by LB for skinning - goes in tool.css so that the
- * portlet title looks like the rest in the system.
- * 
- * if adopter wants to include overrides in their tool.css these are the 
- * minimal adjustments (to be added [edited] to tool.css so that the title bar looks
- * like the rest of the tools) below:
- * 
-    .neoPortletTitleWrap {
-        border-bottom: 2px solid #555 !important;
-    }
-    .portletTitle .action a.help {
-        background: url(images/help.gif) center right no-repeat  !important;
-    } 
-    .portletTitle .action a.help:hover, .portletTitle .action a.help:focus {
-        background: url(images/help_h.gif) center right no-repeat  !important;
-    }
-    .portletTitle .title a.reload {
-        background: url(images/reload.png) center left no-repeat !important;
-    }
-    .portletTitle .title a.reload:hover, .portletTitle .title a.reload:focus {
-        background: url(images/reload_h.png) center left no-repeat !important
-    }
-    
-*/
 .neoPortletTitleWrap {
     border-radius:0
 }
 .portletTitle {
     width: 100%;
     height: 100%;
-/*    overflow: hidden; */
 }
 .portletTitle .action {
     padding: 2px -1px 6px 2px;
@@ -1014,10 +959,7 @@ a.Mrphs-toolTitleNav__link--reset {
     display:block;
 }
 .portletTitle .title {
-/*    padding: 2px 4px 6px 0; */
-/*    height: 1em; */
     float: left;
-/*    color: #000; */
 }
 .portletTitle .title img {
     margin: 0;
@@ -1030,10 +972,6 @@ a.Mrphs-toolTitleNav__link--reset {
     display: inline;
     margin: 0;
     padding: 0;
-/*    color: #444; */
-/*    font-weight: bold; */
-/*    font-family: 'Helvetica Neue', Arial, sans-serif; */
-/*    font-size: 1.2em !important; */
 }
 .portletTitle .title h2 a {
     text-decoration: none;    
@@ -1057,88 +995,13 @@ a.Mrphs-toolTitleNav__link--reset {
 */
 .right-col {
  display: inline-block;
- position:relative;
- left:5px;
- width:85%
 }
 .right-col2 {
- position:relative;
  left:5px;
 }
 .right-col3 {
- position:relative;
  left:10px;
 }
-
-/*
-.edit-col {
-    position: absolute !important;
-    clip: rect(1px 1px 1px 1px);
-    clip: rect(1px, 1px, 1px, 1px);
-    top: -1px;
-    right:-2px;
-    z-index:3;
-    padding:0;
-    float:none;
-}
-
-.mainList li:hover .edit-col{
-    display:block;
-    clip:auto;    
-}
-.mainList li:hover .edit-colHidden {
-    display:none;
-}
-.mainList li.canEdit > div {
-    padding: 0 !important
-}
-.mainList li .edit-col a.ui-button:link, .mainList li .edit-col a.ui-button:visited,.mainList li .group-col a.ui-button:link, .mainList li .group-col a.ui-button:visited {
-    text-decoration: none !important;
-    -webkit-border-radius: 0;
-    -moz-border-radius: 0;
-    border-radius: 0;
-    -webkit-border-bottom-left-radius: 5px;
-    -moz-border-radius-bottomleft: 5px;
-    border-bottom-left-radius: 5px;
-    width:30px;
-    height:30px;
-    background-image: url(/library/image/silk/application_edit.png);
-    background-position:center center;
-    background-repeat: no-repeat;
-}
-
-.mainList li .edit-col a span {
-    display: none;
-}
-.mainList li.canEdit:hover {
-    border:1px solid #ccc;
-}
-.mainList li.assessmentType  .edit-col, 
-    .mainList li.commentsType  .edit-col, 
-    .mainList li.studentContentType  .edit-col, 
-    .mainList li.resourceType  .edit-col, 
-    .mainList li.assignmentType  .edit-col, 
-    .mainList li.forumType   .edit-col, 
-    .mainList li.pageType  .edit-col, 
-    .mainList li.assessmentType  .edit-col,  
-    .mainList li.studentContentType  .edit-col, 
-    .mainList li.resourceType  .edit-col, 
-    .mainList li.assignmentType  .edit-col, 
-    .mainList li.forumType   .edit-col, 
-    .mainList li.pageType  .edit-col {
-}
-.editInProgress {
-    background:#eee !important;
-    border:1px dashed #aaa !important;
-}
-.editInProgress * {
-    opacity:.50;    
-}
-
-*/
- /*
-end alternate treatment for list
-*/
 
 .Mrphs-toolTitleNav__title {
   width: auto !important;
@@ -1157,8 +1020,6 @@ end alternate treatment for list
   display:inline-block
 }
 #content, #outer, nav.Mrphs-toolTitleNav {
-  xbackground-color:#e8e8e8;
-  xbackground-color:#f0f0f0;
 }
 #content{
   padding-top: 1px;
@@ -1166,12 +1027,10 @@ end alternate treatment for list
 }
 div.navIntraTool {
   border-top:none;
-  xborder-top-color:#e8e8e8;
-  xborder-top-color:#f0f0f0;
 }
 
 /* temporary, to avoid changing old stuff for the moment */
-.edit-col, .group-col {
+.edit-col {
   padding-top: 0px !important;
 }
 .mainList > li {
@@ -1182,79 +1041,62 @@ div.navIntraTool {
  display: inline-block;
 }
 
-/* now formatting for grouped content */
-
-.group-col {
-margin-right: 8px;
-margin-left:8px;
-clear:left;
-display:inline-block;
-position: relative;
-bottom: 13px;
-}
-.group-col img {
-padding-top:1px;
-padding-bottom:1px;
-border:1px solid #d0d0d0;
-background-color:white;
-}
-.toprow img {
-border:1px solid transparent;
-background-color:transparent;
-}
 .edit-col {
 margin-top:5px;
 display:inline-block;
 position:absolute;
 background-color:#eee;
 top:-5px;
-right:-1px;
+right:-8px;
 z-index: 100001;
 -webkit-border-radius: 3px;
 -moz-border-radius: 3px;
 border-radius: 3px;
 border: solid #bbb 1px;
 padding:1px;
-xwidth:80px;
 }
 .edit-col span {
 color: #666;
 }
+
+.sectionedit {
+   position:absolute;
+   top: -37px;
+   background-color:#eee;
+   z-index: 100001;
+   -webkit-border-radius: 3px;
+   -moz-border-radius: 3px;
+   border-radius: 3px;
+   border: solid #bbb 1px;
+   padding:3px 5px 0px 5px ;
+   font-size: 60%;
+   line-height: 200%;
+}
+.sectionedit a span {
+   color: #666;
+}
+
 .right-col a {
 color:inherit;
 }
 .right-col {
-postion:static;
 margin-top: 0px !important;
 margin-left: 0px;
 /* for student view, instructor overriden below */
-width:calc(100% - 80px);
 }
-
 
 
 /* default content */
 .right-col {
-  left: 12px;
-  background-color: #f6f6f6;
-  background-color: white;
-  border-left: solid #c8c8c8 1px;
-  border-right: solid #c8c8c8 1px;
   padding-top:3px;
   padding-bottom:3px;
   padding-left: 25px;
   padding-right: 25px;
 }
 
-.edit-col + .right-col {
-left:0px;
-width:calc(100% - 100px);
-}
 li.listType .contentCol {
-width:calc(100% - 20px);
 }
 li.question .contentCol
-width:calc(100% - 50px);  /* because of a 30 px right margin */
 }
 /* links should be spaced as close as possible to each other, so override padding */
 li.resourceType .right-col {
@@ -1262,21 +1104,7 @@ li.resourceType .right-col {
   padding-bottom: 0px;
 }
 
-/* separation between areas */
-li.right-col-top .right-col {
- border-top: solid #c8c8c8 1px;
- margin-top: 10px !important;
- padding-top:17px;
- border-top-left-radius:5px;
- border-top-right-radius:5px;
-}
-li.right-col-bottom .right-col {
- padding-bottom:20px;
- border-bottom: solid #c8c8c8 1px;
- border-bottom-left-radius:5px;
- border-bottom-right-radius:5px;
-}
-.edit-col a:link,.group-col .ui-button {
+.edit-col a:link {
  background:none;
  border:none;
 }
@@ -1292,43 +1120,19 @@ font-size: 90%;
 .questionDivControl a, .commentsDiv a.gradingPaneLink{
  padding: 5px 10px;
 }
-@media only screen and (max-width: 1000px) {
-.group-col {
-margin-right: 1px;
-margin-left:1px;
-}
-.right-col{
-  padding-top:2px;
-  padding-bottom:2px;
-  padding-left: 15px;
-  padding-right: 15px;
-  width:calc(100% - 55px);
-}
-.edit-col + .right-col {
-width:calc(100% - 80px);
-}
-li.right-col-top .right-col {
- padding-top:12px;
-}
-li.right-col-bottom .right-col {
- padding-bottom:15px;
-}
-}
+
+/* 800 is when the left margin collapses */
 @media only screen and (max-width: 800px) {
 .contentButton {
   display:none !important;
 }
-#content {
-  margin-right:10px !important;
-  margin-left: 30px !important;
-  width: calc(100% - 21px) !important;
-}}
-@media only screen and (max-width: 600px) {
-div.group-col {
-  display:none !important;
+.mainList {
+  margin-left: 0px;
+  margin-right: 0px;
 }
-.edit-col + .right-col {
-width:calc(100% - 80px);
+.right-col {
+  padding-left: 7px;
+  padding-right: 7px;
 }
 }
 
@@ -1337,25 +1141,6 @@ width:calc(100% - 80px);
 }
 .contentButton span {
   padding: 0px !important;
-}
-.group-col {
-  display:none;
-  position: absolute;
-  left:-7px;
-  top:-10px;
-}
-.right-col-top .group-col {
-  left:-3px;
-  top:-9px;
-}
-.group-col img{
-  border:none;
-  background:transparent;
-  xheight: 16px;
-  xwidth: 16px;
-}
-li:hover .group-col {
-  display:inline-block;
 }
 .fa-button-text{
   font-size:125%;
@@ -1381,6 +1166,6 @@ li:hover .group-col {
   font-size:200%;
   font-family:FontAwesome;
 }
-.mainList li:hover .right-col {
+.mainList li:hover.canEdit {
     background-color: #eee;
 }

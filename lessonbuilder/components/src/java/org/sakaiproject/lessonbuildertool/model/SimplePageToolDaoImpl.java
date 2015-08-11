@@ -739,6 +739,27 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 		}
 	}
 
+	public boolean quickDelete(Object o) {
+		try {
+			getHibernateTemplate().delete(o);
+			return true;
+		} catch (DataAccessException e) {
+			try {
+				
+				/* If we have multiple objects of the same item, you must merge them
+				 * before deleting.  If the first delete fails, we merge and try again.
+				 */
+				getHibernateTemplate().delete(getHibernateTemplate().merge(o));
+				
+				return true;
+			}catch(DataAccessException ex) {
+				ex.printStackTrace();
+				log.warn("Hibernate could not delete: " + e.toString());
+				return false;
+			}
+		}
+	}
+
 	public boolean update(Object o, List<String>elist, String nowriteerr, boolean requiresEditPermission) {
 		/*
 		 * This checks a lot of conditions:
