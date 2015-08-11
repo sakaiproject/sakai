@@ -68,7 +68,7 @@
             sortAscending="#{SiteListBean.sitesSortAscending}"
             rendered="#{SiteListBean.renderTable}" >
 			<h:column id="statusToggle">
-				<h:selectBooleanCheckbox value="#{row1.selected}" styleClass="chkStatus" onclick="USR_MEMBRSHP.checkEnableButtons();" />
+				<h:selectBooleanCheckbox value="#{row1.selected}" styleClass="chkStatus" onclick="this.value = this.checked; USR_MEMBRSHP.checkEnableButtons();" />
 			</h:column>
 			<h:column id="siteName">
 				<f:facet name="header">
