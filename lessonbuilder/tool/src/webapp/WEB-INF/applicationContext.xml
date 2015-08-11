@@ -173,7 +173,6 @@ simplePageBean.peerEvalAllowSelfGrade
     <property name="quizEntity" ref="org.sakaiproject.lessonbuildertool.service.SamigoEntity"/>
     <property name="assignmentEntity" ref="org.sakaiproject.lessonbuildertool.service.AssignmentEntity"/>
     <property name="bltiEntity" ref="org.sakaiproject.lessonbuildertool.service.BltiEntity"/>
-    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService"/>
   </bean>
 
   <bean id="org.sakaiproject.lessonbuildertool.service.JForumEntity"
