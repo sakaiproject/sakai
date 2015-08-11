@@ -1084,42 +1084,24 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean showRefresh = false;
 			int textboxcount = 1;
 
-			UIBranchContainer tableContainer = UIBranchContainer.make(container, "itemTable:");
+			UIBranchContainer sectionContainer = UIBranchContainer.make(container, "section:");
+			UIBranchContainer tableContainer = UIBranchContainer.make(sectionContainer, "itemTable:");
 
-			// formatting: two columns:
-			// 1: edit buttons, omitted for student
-			// 2: main content
-			// For links, which have status icons, the main content is a flush
-			// left div with the icon
-			// followed by a div with margin-left:30px. That takes it beyond the
-			// icon, and avoids the
-			// wrap-around appearance you'd get without the margin.
-			// Normally the description is shown as a second div with
-			// indentation in the CSS.
-			// That puts it below the link. However with a link that's a button,
-			// we do float left
-			// for the button so the text wraps around it. I think that's
-			// probably what people would expect.
-
-			UIOutput.make(tableContainer, "colgroup");
-			if (canEditPage) {
-				UIOutput.make(tableContainer, "col1");
-			}
-			UIOutput.make(tableContainer, "col2");
-
-			// our accessiblity people say not to use TH for except for a data table
-			// the table header is for accessibility tools only, so it's
-			// positioned off screen
-			//if (canEditPage) {
-			//    	UIOutput.make(tableContainer, "header-edits");
-			// }
-			
-			// UIOutput.make(tableContainer, "header-items");
-
-			UIBranchContainer prevTableRow = null;
-			String prevClasses = "";
 			SimplePageItem prevItem = null;
 			for (SimplePageItem i : itemList) {
+
+				// break is not a normal item. handle it first
+				if (i.getType() == SimplePageItem.BREAK && "section".equals(i.getFormat())) {
+				    sectionContainer = UIBranchContainer.make(container, "section:");
+				    tableContainer = UIBranchContainer.make(sectionContainer, "itemTable:");
+				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
+				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
+				    UIOutput.make(tableRow, "section-td");
+				    UILink link = UILink.make(tableRow, "section-del-link", (String)null, "/" + i.getId());
+				    link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
+				    continue;
+				}
+
 				// listitem is mostly historical. it uses some shared HTML, but
 				// if I were
 				// doing it from scratch I wouldn't make this distinction. At
@@ -1128,14 +1110,17 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 
 				boolean listItem = !(i.getType() == SimplePageItem.TEXT || i.getType() == SimplePageItem.MULTIMEDIA
 						|| i.getType() == SimplePageItem.COMMENTS || i.getType() == SimplePageItem.STUDENT_CONTENT
-						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL);
+						|| i.getType() == SimplePageItem.QUESTION || i.getType() == SimplePageItem.PEEREVAL
+					        || i.getType() == SimplePageItem.BREAK);
 				// (i.getType() == SimplePageItem.PAGE &&
 				// "button".equals(i.getFormat())))
 
 				if (!simplePageBean.isItemVisible(i, currentPage)) {
 					continue;
 				}
-				anyItemVisible = true;
+				// break isn't a real item. probably don't want to count it
+				if (i.getType() != SimplePageItem.BREAK)
+				    anyItemVisible = true;
 
 				UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 
@@ -1159,30 +1144,15 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				case SimplePageItem.PEEREVAL: itemClassName = "peereval"; break;
 				}
 
-
-
 				if (listItem){
 				    itemClassName = itemClassName + " listType";
 				}
 				if (canEditPage) {
-						itemClassName = itemClassName + "  canEdit";
+				    itemClassName = itemClassName + "  canEdit";
 				}
 
-				if (prevTableRow == null) /* top row */
-				    itemClassName = itemClassName + " right-col-top";
-				else if ("true".equals(prevItem.getAttribute("groupedWithBelow"))) {
-				    prevTableRow.decorate(new UIFreeAttributeDecorator("class", prevClasses + " right-col-bottom"));
-				    tableRow.decorate(new UIStyleDecorator("offscreen"));
-				    UIOutput.make(tableRow, "section-td");
-				    tableRow = UIBranchContainer.make(tableContainer, "item:");
-
-				    itemClassName = itemClassName + " right-col-top";
-				}
 
 				tableRow.decorate(new UIFreeAttributeDecorator("class", itemClassName));
-
-				prevClasses = itemClassName;
-				prevTableRow = tableRow;
 
 
 				if (canEditPage)
@@ -1347,8 +1317,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					if (canEditPage) {
 						UIOutput.make(tableRow, "edit-td");
 						UILink.make(tableRow, "edit-link", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.generic").replace("{}", i.getName())));
-
-						makeGroupIcon(tableRow, "group-td", "group-link", "group-icon", i, prevItem);
 
 						// the following information is displayed using <INPUT
 						// type=hidden ...
@@ -1713,7 +1681,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "mimetype2", mimeType);
 							UIOutput.make(tableRow, "current-item-id4", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq3", String.valueOf(i.isPrerequisite()));
-							makeGroupIcon(tableRow, "groupmm-td", "iframe-group", "iframe-icon", i, prevItem);
 							UIOutput.make(tableRow, "editmm-td");
 							UILink.make(tableRow, "iframe-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
@@ -1779,7 +1746,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "current-item-id5", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq4", String.valueOf(i.isPrerequisite()));
 
-							makeGroupIcon(tableRow, "youtubegroup-td", "youtube-group", "youtubegroup-icon", i, prevItem);
 							UIOutput.make(tableRow, "youtube-td");
 							UILink.make(tableRow, "youtube-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 						}
@@ -2000,8 +1966,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "mimetype5", oMimeType);
 							UIOutput.make(tableRow, "prerequisite", (i.isPrerequisite()) ? "true" : "false");
 							UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
-
-							makeGroupIcon(tableRow, "moviegroup-td", "group-movie", "icon-movie", i, prevItem);
 							UIOutput.make(tableRow, "movie-td");
 							UILink.make(tableRow, "edit-movie", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
@@ -2071,7 +2035,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "item-prereq2", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "embedtype", mmDisplayType);
 							UIOutput.make(tableRow, "current-item-id3", Long.toString(i.getId()));
-							makeGroupIcon(tableRow, "groupmm-td", "iframe-group", "iframe-icon", i, prevItem);
 							UIOutput.make(tableRow, "editmm-td");
 							UILink.make(tableRow, "iframe-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
@@ -2145,8 +2108,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								UIInternalLink.make(tableRow, "gradingPaneLink", messageLocator.getMessage("simplepage.show-grading-pane-comments"), gp)
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-comments")));
 							}
-							
-							makeGroupIcon(tableRow, "commentsgroup-td", "group-comments", "icon-comments", i, prevItem);
 
 							UIOutput.make(tableRow, "comments-td");
 						
@@ -2448,7 +2409,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 								    .decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.show-grading-pane-content")));
 							}
 							
-							makeGroupIcon(tableRow, "studentgroup-td", "group-student", "icon-student", i, prevItem);
 							UIOutput.make(tableRow, "student-td");
 							UILink.make(tableRow, "edit-student", (String)null, "")
 									.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.student")));
@@ -2652,7 +2612,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 					
 					
 					if(canEditPage) {
-						makeGroupIcon(tableRow, "questiongroup-td", "group-question", "icon-question", i, prevItem);
 						UIOutput.make(tableRow, "question-td");
 						
 						// always show grading panel. Currently this is the only way to get feedback
@@ -2726,7 +2685,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						eParams.viewID = EditPageProducer.VIEW_ID;
 						UIOutput.make(tableRow, "edittext-td");
 						UIInternalLink.make(tableRow, "edit-link", (String)null, eParams).decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.textbox").replace("{}", Integer.toString(textboxcount))));
-						makeGroupIcon(tableRow, "grouptext-td", "grouptext-link", "grouptext-icon", i, prevItem);
 						textboxcount++;
 					}
 				}
@@ -2808,20 +2766,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createDialogs(tofill, currentPage, pageItem);
 	}
 	
-    public void makeGroupIcon(UIContainer tofill, String rsfid1, String rsfid2, String rsfid3, SimplePageItem item, SimplePageItem prevItem) {
-	    UIOutput div = UIOutput.make(tofill, rsfid1);
-	    UILink link = UILink.make(tofill, rsfid2, (String)null, "/" + (prevItem == null ? "0" : prevItem.getId()));
-	    if (prevItem != null) {
-		UIOutput.make(tofill, rsfid3)
-		    .decorate(new UIStyleDecorator("true".equals(prevItem.getAttribute("groupedWithBelow")) ? "fa-group-icon fa-compress" : "fa-group-icon fa-expand"));
-		link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("true".equals(prevItem.getAttribute("groupedWithBelow")) ? "simplepage.join-items" : "simplepage.break-items")));
-	    } else {
-		div.decorate(new UIStyleDecorator("toprow"));
-		UIOutput.make(tofill, rsfid3).decorate(new UIStyleDecorator("fa-group-icon fa-none"))
-		    .decorate(new UIFreeAttributeDecorator("width", "15"));
-	    }
-	}
-
 	public void makeCsrf(UIContainer tofill, String rsfid) {
 	    Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
 	    if (sessionToken != null)
@@ -3285,6 +3229,10 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIComponent subpagelink = UIInternalLink.makeURL(tofill, "subpage-link", "#");
 		subpagelink.decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.subpage-descrip")));
 
+		UIOutput.make(tofill, "add-break1");
+		UIOutput.make(tofill, "add-break2");
+		UIOutput.make(tofill, "add-break3");
+
 		// content menu not on students
 		if (!studentPage) {
 
@@ -3492,7 +3440,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "item-required2", "#{simplePageBean.subrequirement}", false);
 
 		UIBoundBoolean.make(form, "item-required", "#{simplePageBean.required}", false);
-		UIBoundBoolean.make(form, "item-break", "#{simplePageBean.breakbelow}", false);
 		UIBoundBoolean.make(form, "item-prerequisites", "#{simplePageBean.prerequisite}", false);
 
 		UIBoundBoolean.make(form, "item-newwindow", "#{simplePageBean.newWindow}", false);
@@ -3582,7 +3529,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		
 		UILink link = UIInternalLink.make(form, "mm-choose", messageLocator.getMessage("simplepage.choose_existing_or"), fileparams);
 
-		UIBoundBoolean.make(form, "mm-break", "#{simplePageBean.breakbelow}", false);
 		UIBoundBoolean.make(form, "mm-prerequisite", "#{simplePageBean.prerequisite}", false);
 
 		UICommand.make(form, "mm-add-item", messageLocator.getMessage("simplepage.save_message"), "#{simplePageBean.addMultimedia}");
@@ -3770,7 +3716,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(form, "description2-label", messageLocator.getMessage("simplepage.description_label"));
 		UIInput.make(form, "description2", "#{simplePageBean.description}");
 
-		UIBoundBoolean.make(form, "multi-break", "#{simplePageBean.breakbelow}",false);
 		UIBoundBoolean.make(form, "multi-prerequisite", "#{simplePageBean.prerequisite}",false);
 
 		FilePickerViewParameters fileparams = new FilePickerViewParameters();
@@ -3806,7 +3751,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-youtube-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteYoutubeItem}");
 		UICommand.make(form, "update-youtube", messageLocator.getMessage("simplepage.edit"), "#{simplePageBean.updateYoutube}");
 		UICommand.make(form, "cancel-youtube", messageLocator.getMessage("simplepage.cancel"), null);
-		UIBoundBoolean.make(form, "youtube-break", "#{simplePageBean.breakbelow}",false);
 		UIBoundBoolean.make(form, "youtube-prerequisite", "#{simplePageBean.prerequisite}",false);
 		
 		if(currentPage.getOwner() == null) {
@@ -3836,7 +3780,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		fileparams.setCaption(true);
 		UIInternalLink.make(form, "change-caption-movie", messageLocator.getMessage("simplepage.change_caption"), fileparams);
 
-		UIBoundBoolean.make(form, "movie-break", "#{simplePageBean.breakbelow}",false);
 		UIBoundBoolean.make(form, "movie-prerequisite", "#{simplePageBean.prerequisite}",false);
 
 		UICommand.make(form, "delete-movie-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
@@ -3999,7 +3942,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "comments-max", "#{simplePageBean.maxPoints}");
 		
 		UIBoundBoolean.make(form, "comments-required", "#{simplePageBean.required}");
-		UIBoundBoolean.make(form, "comments-break", "#{simplePageBean.breakbelow}");
 		UIBoundBoolean.make(form, "comments-prerequisite", "#{simplePageBean.prerequisite}");
 
 		UICommand.make(form, "delete-comments-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}");
@@ -4019,7 +3961,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIBoundBoolean.make(form, "student-comments", "#{simplePageBean.comments}");
 		UIBoundBoolean.make(form, "student-comments-anon", "#{simplePageBean.forcedAnon}");
 		UIBoundBoolean.make(form, "student-required", "#{simplePageBean.required}");
-		UIBoundBoolean.make(form, "student-break", "#{simplePageBean.breakbelow}");
 		UIBoundBoolean.make(form, "student-prerequisite", "#{simplePageBean.prerequisite}");
 		
 		UIOutput.make(form, "peer-evaluation-creation");
@@ -4072,7 +4013,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIInput.make(form, "questionEditId", "#{simplePageBean.itemId}");
 		
 		UIBoundBoolean.make(form, "question-required", "#{simplePageBean.required}");
-		UIBoundBoolean.make(form, "question-break", "#{simplePageBean.breakbelow}");
 		UIBoundBoolean.make(form, "question-prerequisite", "#{simplePageBean.prerequisite}");
 		UIInput.make(form, "question-text-input", "#{simplePageBean.questionText}");
 		UIInput.make(form, "question-answer-full-shortanswer", "#{simplePageBean.questionAnswer}");

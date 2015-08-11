@@ -464,10 +464,82 @@ public class AjaxServer extends HttpServlet
     }	    
 
 
-    public static String toggleGrouped(String itemId, String csrfToken) {
+    public static String insertBreakBefore(String itemId, String type, String cols, String csrfToken) {
 
 	if (itemId == null) {
-	    log.error("Ajax togglegrouped passed null itemid");
+	    log.error("Ajax insertBreakBefore passed null itemid");
+	    return null;
+	}
+
+	if (!"section".equals(type) && !"column".equals(type)) {
+	    log.error("Ajax insertBreakBefore passed illegal type " + type);
+	    return null;
+	}
+	
+	itemId = itemId.trim();
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax insertBreakBefore passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax insertBreakBefore passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax insertBreakBefore passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+
+	// we have an item id. insert before it
+	int nseq = 0;  // sequence number of new item
+	boolean after = false; // we found the item to insert before
+	// have an item number specified, look for the item to insert before
+	long before = item.getId();
+	for (SimplePageItem i: items) {
+	    if (i.getId() == before) {
+		// found item to insert before
+		// use its sequence and bump up it and all after
+		nseq = i.getSequence();
+		after = true;
+	    }
+	    if (after) {
+		i.setSequence(i.getSequence() + 1);
+		simplePageToolDao.quickUpdate(i);
+	    }
+	}			    
+
+	// if after not set, we didn't find the item; either no item specified or it
+	if (!after) {
+	    log.error("Ajax insertBreakBefore passed item not on its page " + before);
+	    return null;
+	}
+		    
+	SimplePageItem i = simplePageToolDao.makeItem(item.getPageId(), nseq, SimplePageItem.BREAK, null, null);
+	i.setFormat(type);
+	
+	simplePageToolDao.quickSaveItem(i);
+	return "" + i.getId();
+
+    }
+
+    public static String deleteItem(String itemId, String csrfToken) {
+	if (itemId == null) {
+	    log.error("Ajax deleteBreak passed null itemid");
 	    return null;
 	}
 
@@ -484,32 +556,39 @@ public class AjaxServer extends HttpServlet
 	    siteId = page.getSiteId();
 	} catch (Exception e) {
 	    e.printStackTrace();
-	    log.error("Ajax togglegrouped passed invalid data " + e);
+	    log.error("Ajax deleteBreak passed invalid data " + e);
 	    return null;
 	}
 	if (siteId == null) {
-	    log.error("Ajax togglegrouped passed null site id");
+	    log.error("Ajax deleteBreak passed null site id");
 	    return null;
 	}
 
 	String ref = "/site/" + siteId;
 	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
-	    log.error("Ajax togglegrouped passed itemid " + itemId + " but user doesn't have permission");
+	    log.error("Ajax deleteBreak passed itemid " + itemId + " but user doesn't have permission");
 	    return null;
 	}
 	
-	String grouped = item.getAttribute("groupedWithBelow");
-	if ("true".equals(grouped)) {
-	    item.removeAttribute("groupedWithBelow");
-	    grouped = "false";
-	} else {
-	    item.setAttribute("groupedWithBelow", "true");
-	    grouped = "true";
-	}
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
 
-	simplePageToolDao.quickUpdate(item);
+	// we have an item id. adjust sequence for items after it
+	boolean after = false; // we found the item to delete
+	// have an item number specified, look for it
+	long before = item.getId();
+	for (SimplePageItem i: items) {
+	    if (item.getId() == before) {
+		after = true;
+	    } else if (after) {
+		item.setSequence(item.getSequence() - 1);
+		simplePageToolDao.quickUpdate(item);
+	    }
+	}			    
 
-	return grouped;
+	simplePageToolDao.quickDelete(item);
+
+	return "ok";
+
     }
 
     public static boolean checkCsrf(String csrfToken) {
@@ -560,11 +639,18 @@ public class AjaxServer extends HttpServlet
 	  String locale = req.getParameter("locale");
 	  String groups = req.getParameter("groups");
 	  out.print(groupErrors(siteid, locale, groups));
-      } else if (op.equals("togglegrouped")) {
+      } else if (op.equals("insertbreakbefore")) {
+	  String itemId = req.getParameter("itemid");
+	  String type = req.getParameter("type");
+	  String cols = req.getParameter("cols");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(insertBreakBefore(itemId, type, cols, csrfToken));
+      } else if (op.equals("deleteitem")) {
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");
-	  out.println(toggleGrouped(itemId, csrfToken));
+	  out.println(deleteItem(itemId, csrfToken));
       }
+
    }
    
     public void setMessageSource(MessageSource s) {

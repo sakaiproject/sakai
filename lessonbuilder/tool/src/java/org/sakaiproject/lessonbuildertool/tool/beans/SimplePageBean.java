@@ -229,7 +229,6 @@ public class SimplePageBean {
 	private boolean required;
 	private boolean subrequirement;
 	private boolean prerequisite;
-	private boolean breakbelow;
 	private boolean newWindow;
 	private String dropDown;
 	private String points;
@@ -803,10 +802,6 @@ public class SimplePageBean {
 		this.prerequisite = prerequisite;
 	}
 	
-	public void setBreakbelow(boolean breakbelow) {
-		this.breakbelow = breakbelow;
-	}
-
 	public void setNewWindow(boolean newWindow) {
 		this.newWindow = newWindow;
 	}
@@ -1082,10 +1077,6 @@ public class SimplePageBean {
 
 				item.setHtml(html);
 				item.setPrerequisite(this.prerequisite);
-				if (this.breakbelow)
-				    item.setAttribute("groupedWithBelow", "true");
-				else
-				    item.removeAttribute("groupedWithBelow");
 				setItemGroups(item, selectedGroups);
 				update(item);
 			} else {
@@ -2665,10 +2656,6 @@ public class SimplePageBean {
 			i.setName(name);
 			i.setDescription(description);
 			i.setRequired(required);
-			if (this.breakbelow)
-			    i.setAttribute("groupedWithBelow", "true");
-			else
-			    i.removeAttribute("groupedWithBelow");
 
 			i.setPrerequisite(prerequisite);
 			i.setSubrequirement(subrequirement);
@@ -2933,10 +2920,6 @@ public class SimplePageBean {
 					i.setSakaiId(selectedEntity);
 					i.setName(selectedObject.getTitle());
 				    }
-				    if (this.breakbelow)
-					i.setAttribute("groupedWithBelow", "true");
-				    else
-					i.removeAttribute("groupedWithBelow");
 
 				    // reset assignment-specific stuff
 				    i.setDescription("");
@@ -3013,10 +2996,7 @@ public class SimplePageBean {
 				    //	 i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
 				    //  else
 				    // i.setDescription(null);
-				    if (this.breakbelow)
-					i.setAttribute("groupedWithBelow", "true");
-				    else
-					i.removeAttribute("groupedWithBelow");
+
 				    update(i);
 				}
 			    } else {
@@ -3228,6 +3208,7 @@ public class SimplePageBean {
 		         && i.getType() != SimplePageItem.BLTI
 		         && i.getType() != SimplePageItem.COMMENTS
 		         && i.getType() != SimplePageItem.QUESTION
+			 && i.getType() != SimplePageItem.BREAK
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
@@ -3449,6 +3430,8 @@ public class SimplePageBean {
 	   case SimplePageItem.QUESTION:
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
+	   case SimplePageItem.BREAK:
+	       return null;  // better not actually happen
 	   }
 	   if (lessonEntity != null) {
 	       // need a list to sort it.
@@ -3668,10 +3651,7 @@ public class SimplePageBean {
 				    }
 				    // reset quiz-specific stuff
 				    i.setDescription("");
-				    if (this.breakbelow)
-					i.setAttribute("groupedWithBelow", "true");
-				    else
-					i.removeAttribute("groupedWithBelow");
+
 				    update(i);
 				}
 			    } else  // no, add new item
@@ -3778,10 +3758,6 @@ public class SimplePageBean {
 			i.setDescription(description);
 			i.setHtml(mimetype);
 			i.setPrerequisite(this.prerequisite);
-			if (this.breakbelow)
-			    i.setAttribute("groupedWithBelow", "true");
-			else
-			    i.removeAttribute("groupedWithBelow");
 			update(i);
 			setItemGroups(i, selectedGroups);
 			return "success";
@@ -4551,7 +4527,9 @@ public class SimplePageBean {
 		}
 
 		// item is page, and it is hidden or not released
-		if (item.getType() == SimplePageItem.PAGE) {
+		if (item.getType() == SimplePageItem.BREAK)
+		    return true;  // breaks are always visible to all users
+		else if (item.getType() == SimplePageItem.PAGE) {
 		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
 		    if (itemPage.isHidden())
 			return false;
@@ -5851,10 +5829,6 @@ public class SimplePageBean {
 			// remember who added it, for permission checks
 			item.setAttribute("addedby", getCurrentUserId());
 
-			if (this.breakbelow)
-			    item.setAttribute("groupedWithBelow", "true");
-			else
-			    item.removeAttribute("groupedWithBelow");
 			item.setPrerequisite(this.prerequisite);
 
 			if (mimeType != null) {
@@ -6144,10 +6118,6 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
-		if (this.breakbelow)
-		    item.setAttribute("groupedWithBelow", "true");
-		else
-		    item.removeAttribute("groupedWithBelow");
 		item.setPrerequisite(this.prerequisite);
 
 		update(item);
@@ -6226,10 +6196,6 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
-		if (this.breakbelow)
-		    item.setAttribute("groupedWithBelow", "true");
-		else
-		    item.removeAttribute("groupedWithBelow");
 		item.setPrerequisite(prerequisite);
 		item.setHtml(mimetype);
 		update(item);
@@ -6347,10 +6313,6 @@ public class SimplePageBean {
 			comment.setAnonymous(anonymous);
 			setItemGroups(comment, selectedGroups);
 			comment.setRequired(required);
-			if (this.breakbelow)
-			    comment.setAttribute("groupedWithBelow", "true");
-			else
-			    comment.removeAttribute("groupedWithBelow");
 			comment.setPrerequisite(prerequisite);
 			
 			if(maxPoints == null || maxPoints.equals("")) {
@@ -6786,10 +6748,6 @@ public class SimplePageBean {
 		    item.setGradebookPoints(pointsInt);
 		else
 		    item.setGradebookPoints(null);
-		if (this.breakbelow)
-		    item.setAttribute("groupedWithBelow", "true");
-		else
-		    item.removeAttribute("groupedWithBelow");
 		item.setPrerequisite(prerequisite);
 		
 		update(item);
@@ -6952,10 +6910,6 @@ public class SimplePageBean {
 			page.setShowComments(comments);
 			page.setForcedCommentsAnonymous(forcedAnon);
 			page.setRequired(required);
-			if (this.breakbelow)
-			    page.setAttribute("groupedWithBelow", "true");
-			else
-			    page.removeAttribute("groupedWithBelow");
 			page.setPrerequisite(prerequisite);
 			page.setGroupOwned(groupOwned);
 			
