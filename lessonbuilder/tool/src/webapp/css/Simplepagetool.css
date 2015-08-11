@@ -1166,6 +1166,6 @@ font-size: 90%;
   font-size:200%;
   font-family:FontAwesome;
 }
-.mainList li:hover {
+.mainList li:hover.canEdit {
     background-color: #eee;
 }
