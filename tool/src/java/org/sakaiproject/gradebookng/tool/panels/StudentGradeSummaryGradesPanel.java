@@ -199,7 +199,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						assignmentItem.add(flags);
 
 						assignmentItem.add(new Label("dueDate", StudentGradeSummaryGradesPanel.this.formatDueDate(assignment.getDueDate())));
-						assignmentItem.add(new Label("grade", StudentGradeSummaryGradesPanel.this.formatGrade(rawGrade)));
+						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
 						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
 							@Override
 							public boolean isVisible() {
@@ -259,15 +259,6 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		
 		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
     	return df.format(date);
-	}
-	
-	/**
-	 * Format a grade to remove the .0 if present.
-	 * @param grade
-	 * @return
-	 */
-	private String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");		
 	}
 
 	private boolean isInstructorView() {

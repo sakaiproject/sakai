@@ -22,6 +22,7 @@ import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.user.api.User;
@@ -76,7 +77,7 @@ public class StudentPage extends BasePage {
 	    		
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getName()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), formatDueDate(assignment.getDueDate())));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), formatGrade(rawGrade))); 
+	    		repeatingView.add(new Label(repeatingView.newChildId(), FormatHelper.formatGrade(rawGrade))); 
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getWeight()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), comment)); 
 
@@ -116,15 +117,6 @@ public class StudentPage extends BasePage {
 		
 		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
     	return df.format(date);
-	}
-	
-	/**
-	 * Format a grade to remove the .0 if present.
-	 * @param grade
-	 * @return
-	 */
-	private String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");		
 	}
 	
 	/**

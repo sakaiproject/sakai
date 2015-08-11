@@ -20,6 +20,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -64,7 +65,7 @@ public class GradeLogPanel extends Panel {
 				GbGradeLog gradeLog = item.getModelObject(); 
 				
 				String logDate = formatDate(gradeLog.getDateGraded());
-				String grade = formatGrade(gradeLog.getGrade());
+				String grade = FormatHelper.formatGrade(gradeLog.getGrade());
 				
 				GbUser grader = businessService.getUser(gradeLog.getGraderUuid());
 		        String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
@@ -111,17 +112,5 @@ public class GradeLogPanel extends Panel {
 		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
     	return df.format(date);
 	}
-	
-	/**
-	 * Format a grade to remove the .0 if present.
-	 * @param grade
-	 * @return
-	 */
-	private String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");		
-	}
-	
-	
-	
 	
 }

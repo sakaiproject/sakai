@@ -82,12 +82,4 @@ public class StudentGradeSummaryPanel extends Panel {
     	return df.format(date);
 	}
 
-	/**
-	 * Format a grade to remove the .0 if present.
-	 * @param grade
-	 * @return
-	 */
-	private String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");		
-	}
 }

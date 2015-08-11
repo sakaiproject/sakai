@@ -21,4 +21,14 @@ public class FormatHelper {
 		//TODO does the % need to be internationalised?
 		return df.format(score) + "%";
 	}
+
+
+	/**
+	 * Format a grade to remove the .0 if present.
+	 * @param grade
+	 * @return
+	 */
+	public static String formatGrade(String grade) {
+		return StringUtils.removeEnd(grade, ".0");
+	}
 }
