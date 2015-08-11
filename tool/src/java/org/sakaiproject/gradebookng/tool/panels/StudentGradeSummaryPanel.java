@@ -1,7 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.SimpleDateFormat;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -17,7 +15,6 @@ import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
 
 /**
  * 
@@ -63,23 +60,6 @@ public class StudentGradeSummaryPanel extends Panel {
 		add(new StudentGradeSummaryGradesPanel("studentView", (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.STUDENT));
 
 		add(new Label("heading", new StringResourceModel("heading.studentsummary", null, new Object[]{ displayName, eid })));
-	}
-
-	/**
-	 * Format a due date
-	 * 
-	 * @param date
-	 * @return
-	 */
-	private String formatDueDate(Date date) {
-		//TODO locale formatting via ResourceLoader
-		
-		if(date == null) {
-			return getString("label.studentsummary.noduedate");
-		}
-		
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    	return df.format(date);
 	}
 
 }

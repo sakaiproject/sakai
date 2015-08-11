@@ -1,7 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -64,7 +62,7 @@ public class GradeLogPanel extends Panel {
 				
 				GbGradeLog gradeLog = item.getModelObject(); 
 				
-				String logDate = formatDate(gradeLog.getDateGraded());
+				String logDate = FormatHelper.formatDateTime(gradeLog.getDateGraded());
 				String grade = FormatHelper.formatGrade(gradeLog.getGrade());
 				
 				GbUser grader = businessService.getUser(gradeLog.getGraderUuid());
@@ -98,19 +96,6 @@ public class GradeLogPanel extends Panel {
         GbUser user = this.businessService.getUser(studentUuid);
         add(new Label("heading", new StringResourceModel("heading.gradelog", null, new Object[] {user.getDisplayName(), user.getDisplayId()})));
       		
-	}
-	
-	/**
-	 * Format a date
-	 * 
-	 * @param date
-	 * @return
-	 */
-	private String formatDate(Date date) {
-		//TODO locale formatting via ResourceLoader
-		
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-    	return df.format(date);
 	}
 	
 }

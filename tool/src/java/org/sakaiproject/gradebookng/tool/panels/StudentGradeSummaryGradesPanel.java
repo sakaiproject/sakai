@@ -2,9 +2,6 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.ListItem;
@@ -22,10 +19,8 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Map;
-import java.util.Date;
 import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -198,7 +193,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						});
 						assignmentItem.add(flags);
 
-						assignmentItem.add(new Label("dueDate", StudentGradeSummaryGradesPanel.this.formatDueDate(assignment.getDueDate())));
+						assignmentItem.add(new Label("dueDate", FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
 						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
 						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
 							@Override
@@ -242,23 +237,6 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 				return categoryScoreHidden[0];
 			}
 		});
-	}
-
-	/**
-	 * Format a due date
-	 * 
-	 * @param assignmentDueDate
-	 * @return
-	 */
-	private String formatDueDate(Date date) {
-		//TODO locale formatting via ResourceLoader
-		
-		if(date == null) {
-			return getString("label.studentsummary.noduedate");
-		}
-		
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    	return df.format(date);
 	}
 
 	private boolean isInstructorView() {

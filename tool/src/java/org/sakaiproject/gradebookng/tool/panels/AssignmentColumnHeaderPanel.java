@@ -1,9 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.lang.Exception;
-import java.util.Map;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -19,6 +16,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.pages.EditGradebookItemPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
@@ -95,7 +93,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		
 		
 		add(new Label("totalPoints", Model.of(assignment.getPoints())));
-		add(new Label("dueDate", Model.of(getDueDate(assignment.getDueDate()))));
+		add(new Label("dueDate", Model.of(FormatHelper.formatDate(assignment.getDueDate(), getString("label.noduedate")))));
 
 		WebMarkupContainer externalAppFlag = new WebMarkupContainer("externalAppFlag");
 		if (assignment.getExternalAppName() == null) {
@@ -290,18 +288,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 
 
-	}
-	
-	
-	private String getDueDate(Date assignmentDueDate) {
-		//TODO locale formatting via ResourceLoader
-		
-		if(assignmentDueDate == null) {
-			return getString("label.noduedate");
-		}
-		
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    	return df.format(assignmentDueDate);
 	}
 
 }
