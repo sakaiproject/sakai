@@ -16,6 +16,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -122,13 +123,13 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						Double score = gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
 						String grade = "";
 						if (score != null) {
-							grade = CategoryColumnCellPanel.formatDouble(score);
+							grade = FormatHelper.formatDoubleAsPercentage(score);
 						}
 						categoryItem.add(new Label("categoryGrade", grade));
 
 						String weight = "";
 						if (categoryDefinition.getWeight() == null) {
-							weight = CategoryColumnCellPanel.formatDouble(categoryDefinition.getWeight());
+							weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight());
 						}
 						categoryItem.add(new Label("categoryWeight", weight));
 					} else {
