@@ -2781,8 +2781,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private String htmlContent(AssignmentSubmission s) 
 	{	
 		Assignment a = s.getAssignment();
-		
 		String context = s.getContext();
+		boolean isAnon = assignmentUsesAnonymousGrading( a );
 		
 		String siteTitle = "";
 		String siteUrl = "";
@@ -2816,11 +2816,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				submitterNames = submitterNames.concat("; ");
 				submitterIds = submitterIds.concat("; ");
 			}
-			submitterNames = submitterNames.concat(u.getDisplayName());
+			submitterNames = submitterNames.concat( ( isAnon ? s.getAnonymousSubmissionId() : u.getDisplayName() ) );
 			submitterIds = submitterIds.concat(u.getDisplayId());
 		}
 		buffer.append(rb.getString("noti.student") + " " + submitterNames);
-		if (submitterIds.length() != 0)
+		if (submitterIds.length() != 0 && !isAnon)
 		{
 			buffer.append("( " + submitterIds + " )");
 		}
