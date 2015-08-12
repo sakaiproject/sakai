@@ -182,15 +182,15 @@ function addAllExtendedTimeItems() {
 			"<table><tr><td>"+
 			"Available Date</td><td>"+
 			"<input type=\"text\" size=\"25\"  id=\"xt_open"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_open"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/samigo-app/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_open"+itemNum+"'), cal_gen_date2_md, cal_prs_date2_md);cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/samigo-app/html/');\">"+
+			"<img id=\"_datePickerPop_xt_open"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_open"+itemNum+"'), cal_gen_date2_md, cal_prs_date2_md);cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.cal_popup2('','/library/calendar/html/');\">"+
 			"</td></tr><tr><td>"+
 			"Due Date</td><td>"+
 			"<input type=\"text\" size=\"25\"  id=\"xt_due"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_due"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/samigo-app/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_due"+itemNum+"'), cal_gen_date2_md, cal_prs_date2_md);cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/samigo-app/html/');\">"+
+			"<img id=\"_datePickerPop_xt_due"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_due"+itemNum+"'), cal_gen_date2_md, cal_prs_date2_md);cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.cal_popup2('','/library/calendar/html/');\">"+
 			"</td></tr><tr><td>"+
 			"Retract Date</td><td>"+
 			"<input type=\"text\" size=\"25\"  id=\"xt_retract"+itemNum+"\">&nbsp;"+
-			"<img id=\"_datePickerPop_xt_retract"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/samigo-app/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_retract"+itemNum+"'), cal_gen_date2_md, cal_prs_date2_md);cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.popup('','/samigo-app/html/');\">"+
+			"<img id=\"_datePickerPop_xt_retract"+itemNum+"\" height=\"16\" border=\"0\" width=\"16\" alt=\"Click Here to Pick Date\" src=\"/library/calendar/images/calendar/cal.gif\" style=\"cursor:pointer;\" onclick=\"javascript:var cal06670970441558088 = new calendar2(document.getElementById('xt_retract"+itemNum+"'), cal_gen_date2_md, cal_prs_date2_md);cal06670970441558088.year_scroll = true;cal06670970441558088.time_comp = true;cal06670970441558088.cal_popup2('','/library/calendar/html/');\">"+
 			"</td></tr></table>"+
 			"</div> <!--end dates -->"+
 			"<hr width=\"450\"  align=\"left\">"+
