@@ -36,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -532,12 +533,12 @@ implements ActionListener
 			feedback.setAssessmentBase(assessment.getData());
 		}
 		// Feedback authoring
-		if (assessmentSettings.getFeedbackAuthoring()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackAuthoring()))
 			feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
 		// Feedback delivery
-		if (assessmentSettings.getFeedbackDelivery()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackDelivery()))
 			feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
-		if (assessmentSettings.getFeedbackComponentOption()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
 		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
 
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
