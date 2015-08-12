@@ -15,8 +15,10 @@ function toggleCheckboxes( clickedElement )
 	for( i = 0; i < checkboxes.length; i++ )
 	{
 		checkboxes[i].checked = clickedElement.checked;
-		adjustCount( checkboxes[i], "removeCount", "delete-groups" );
+		adjustCount( checkboxes[i], "removeCount" );
 	}
+
+	checkEnableRemove();
 }
 
 function syncSelectAll()
@@ -33,24 +35,26 @@ function syncSelectAll()
 	}
 
 	document.getElementById( "selectAll" ).checked = allSelected;
+	checkEnableRemove();
 }
 
-function adjustCount(caller, countName, buttonName)
+function checkEnableRemove()
 {
-	var counter = document.getElementById(countName);
-	var button = document.getElementById(buttonName);
-	if(caller && caller.checked && caller.checked === true)
+	var button = document.getElementById( "delete-groups" );
+	if( button )
 	{
-		counter.value = parseInt(counter.value) + 1;
-	}
-	else
-	{
-		counter.value = parseInt(counter.value) - 1;
-	}
+		var anySelected = false;
+		var checkboxes = document.getElementsByName( "delete-group-selection" );
+		for( i = 0; i < checkboxes.length; i++ )
+		{
+			if( checkboxes[i].checked )
+			{
+				anySelected = true;
+				break;
+			}
+		}
 
-	if(button)
-	{
-		if(counter.value > 0)
+		if( anySelected )
 		{
 			button.disabled = false;
 			button.className='enabled active';
@@ -60,5 +64,18 @@ function adjustCount(caller, countName, buttonName)
 			button.disabled = true;
 			button.className='disabled';
 		}
+	}
+}
+
+function adjustCount(caller, countName)
+{
+	var counter = document.getElementById(countName);
+	if(caller && caller.checked && caller.checked === true)
+	{
+		counter.value = parseInt(counter.value) + 1;
+	}
+	else
+	{
+		counter.value = parseInt(counter.value) - 1;
 	}
 }

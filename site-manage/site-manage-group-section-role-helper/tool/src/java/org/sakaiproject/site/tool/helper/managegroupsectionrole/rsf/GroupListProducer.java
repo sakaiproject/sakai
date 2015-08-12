@@ -213,7 +213,7 @@ public class GroupListProducer
  				if (tml.messageAt(i).args != null ) {
  					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
  				} else {
- 					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
+ 					outString = tml.messageAt(i).acquireMessageCode();
  				}
  				UIMessage.make(errorRow,"error",outString);
 			}
