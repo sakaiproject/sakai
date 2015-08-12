@@ -238,4 +238,14 @@ public interface GradebookPermissionService
 	  */
 	 public List getViewableStudentsForUser(String gradebookUid, String userId, List studentIds, List sections);
 	 
+	 /**
+	  * Get the grader specific permissions for the given user
+	  * 
+	  * @param gradebookUid
+	  * @param userId
+	  * @return
+	  */
+	 public List<PermissionDefinition> getPermissionsForUser(final String gradebookUid, final String userId);
+
+	 
 }
