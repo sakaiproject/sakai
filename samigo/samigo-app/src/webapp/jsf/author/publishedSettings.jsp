@@ -38,7 +38,6 @@
       <samigo:script path="/jsf/widget/colorpicker/colorpicker.js"/>
       <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
       <samigo:script path="/js/authoring.js"/>      
-      <script type="text/javascript" src="/library/calendar/sakai-calendar.js"></script> 
       <script type="text/javascript" src="/library/calendar/js/calendar2.js"></script>   
 
       <script type="text/javascript">
