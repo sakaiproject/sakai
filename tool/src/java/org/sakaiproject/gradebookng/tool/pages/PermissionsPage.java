@@ -1,25 +1,22 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
-import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.model.PropertyModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
-import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -36,6 +33,7 @@ public class PermissionsPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 	
 	private GbUser taSelected;
+    List<PermissionDefinition> permissions;
 
 	public PermissionsPage() {
 		disableLink(this.permissionsPageLink);
@@ -53,7 +51,12 @@ public class PermissionsPage extends BasePage {
 		List<GbUser> teachingAssistants = this.businessService.getTeachingAssistants();
 		
 		//get list of categories
-		List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
+		
+        final Map<Long, String> categoryMap = new HashMap<>();
+        for (CategoryDefinition category : categories) {
+            categoryMap.put(category.getId(), category.getName());
+        }
 		
 		//get list of groups
 		List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
@@ -72,7 +75,7 @@ public class PermissionsPage extends BasePage {
 		
 		add(new Label("instructions", instructions).setEscapeModelStrings(false));
 		
-		
+		//TA chooser
 		final DropDownChoice<GbUser> taChooser = new DropDownChoice<GbUser>("ta", new Model<GbUser>(), teachingAssistants, new ChoiceRenderer<GbUser>() {
 			private static final long serialVersionUID = 1L;
 			
@@ -110,6 +113,7 @@ public class PermissionsPage extends BasePage {
 		add(taChooser);
 		
 		
+		/*
         //wrap the loading of the permissions	
   		IModel permissionsListModel =  new LoadableDetachableModel() {
             protected Object load() {
@@ -120,45 +124,80 @@ public class PermissionsPage extends BasePage {
             	}
             }
         };
+        */
+        
+        if(taSelected != null) {
+        	permissions = businessService.getPermissionsForTeachingAssistant(taSelected.getUserUuid());
+        }
+        
+		Form form = new Form("form", Model.ofList(permissions));
         
 		//render view for list of permissions  
-		ListView<PermissionDefinition> permissionsView = new ListView<PermissionDefinition>("permissions", permissionsListModel) {
+		ListView<PermissionDefinition> permissionsView = new ListView<PermissionDefinition>("permissions", permissions) {
 
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void populateItem(ListItem<PermissionDefinition> item) {
 				
-				PermissionDefinition permissions = item.getModelObject();
+				PermissionDefinition permission = item.getModelObject();
 				
 				//action list
 				
-				//categories list if present
+				//categories list (if present)
+				DropDownChoice<Long> categoryChooser = new DropDownChoice<Long>("category", new PropertyModel<Long>(permission, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new ChoiceRenderer<Long>() {
+					private static final long serialVersionUID = 1L;
+
+					public Object getDisplayValue(Long value) {
+		                return categoryMap.get(value);
+		            }
+
+		            public String getIdValue(Long object, int index) {
+		                return object.toString();
+		            }
+		        });
+		        categoryChooser.setNullValid(false);
+		        if(categories.isEmpty()){
+		        	categoryChooser.setVisible(false);
+		        }
+		        item.add(categoryChooser);
 				
 				//groups list if present
 				
 			}
 			
+			@Override
 			public boolean isVisible() {
 				return (taSelected != null);
 			}
 			
 			
         };
-        add(permissionsView);
+        form.add(permissionsView);
         
-        //add a rule button
-        /*
+        //'add a rule' button 
         AjaxButton addRule = new AjaxButton("addRule") {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
+				//add a new entry
+				PermissionDefinition newDef = new PermissionDefinition();
+				newDef.setUserId(taSelected.getUserUuid());
+				permissions.add(newDef);
+				
+				target.add(form);
+			}
+			
+			@Override
+			public boolean isVisible() {
+				return (taSelected != null);
 			}
 		};
-		add(addRule);
-        */
+		form.add(addRule);
         
+        
+        add(form);
         //save changes
 		
 	}
