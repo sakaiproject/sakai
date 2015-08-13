@@ -806,6 +806,7 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
   self.$table.find("thead").prepend($categoriesRow);
   self.$spreadsheet.addClass("gb-grouped-by-category");
   self.refreshFixedTableHeader(true);
+  self.refreshHiddenVisualCue();
   self.$spreadsheet.trigger("scroll"); // force redraw of the fixed columns
 };
 
@@ -824,6 +825,7 @@ GradebookSpreadsheet.prototype.disableGroupByCategory = function() {
 
   self.$spreadsheet.removeClass("gb-grouped-by-category");
   self.refreshFixedTableHeader(true);
+  self.refreshHiddenVisualCue();
   self.$spreadsheet.trigger("scroll"); // force redraw of the fixed columns
 };
 
@@ -917,6 +919,7 @@ GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
     assignmentsMap[assignmentId].show();
   });
   this.refreshSummary();
+  this.refreshHiddenVisualCue();
 };
 
 
@@ -927,7 +930,54 @@ GradebookSpreadsheet.prototype.hideGradeItemColumn = function(assignmentId) {
     assignmentsMap[assignmentId].hide();
   });
   this.refreshSummary();
+  this.refreshHiddenVisualCue();
 };
+
+
+GradebookSpreadsheet.prototype.refreshHiddenVisualCue = function() {
+  var self = this;
+
+  function showColumns() {
+    var $th = $(this).closest("th");
+    var $headersToShow;
+    if ($th.nextAll(":visible:first").length > 0) {
+      // only show hidden columns up to the next visible column
+      $headersToShow = [];
+      var $i = $th;
+      while($i.next(":not(:visible)").length > 0) {
+         $i = $i.next();
+         $headersToShow.push($i);
+      }
+    } else {
+      // show all hidden columns to the right of the current column
+      $headersToShow = $th.nextAll(":not(:visible)");
+    }
+    $.each($headersToShow, function() {
+      var model = $(this).data("model");
+      var key;
+      if (model.$cell.is(".gb-category-item-column-cell")) {
+        self.toolbarModel.$gradeItemsFilterPanel.find(".gradebook-item-category-score-filter :input:not(:checked)[value='"+model.getCategory()+"']").trigger("click");
+      } else {
+        self.toolbarModel.$gradeItemsFilterPanel.find(":input:not(:checked)[value='"+model.columnKey+"']").trigger("click");
+      }
+    });
+    self.refreshHiddenVisualCue();
+    $th.focus();
+  };
+
+  this.$spreadsheet.find(".gb-hidden-column-visual-cue").remove();
+  $.each(self.$table.find("thead tr th"), function(i, th) {
+    var $th = $(th);
+    if ($th.is(":not(:visible)")) {
+      var $cue = $("<a>").attr("href", "javascript:void(0);").addClass("gb-hidden-column-visual-cue");
+      var $prevVisible = $th.prev(":visible");
+      if ($prevVisible.find(".gb-hidden-column-visual-cue").length == 0) {
+        $prevVisible.find("> span:first").append($cue);
+      }
+      $cue.click(showColumns);
+    }
+  });
+}
 
 
 GradebookSpreadsheet.prototype.showCategoryScoreColumn = function(category) {
@@ -937,6 +987,7 @@ GradebookSpreadsheet.prototype.showCategoryScoreColumn = function(category) {
     cellMap[headerModel.columnKey].show();
   });
   this.refreshSummary();
+  this.refreshHiddenVisualCue();
 };
 
 
@@ -947,6 +998,7 @@ GradebookSpreadsheet.prototype.hideCategoryScoreColumn = function(category) {
     cellMap[headerModel.columnKey].hide();
   });
   this.refreshSummary();
+  this.refreshHiddenVisualCue();
 };
 
 
@@ -1582,7 +1634,9 @@ GradebookHeaderCell.prototype.truncateTitle = function() {
 GradebookHeaderCell.prototype.getCategory = function() {
   var category = null;
 
-  if (this.$cell.hasClass("gb-grade-item-column-cell")) {
+  if (this.$cell.hasClass("gb-category-item-column-cell")) {
+    category = this.$cell.find("[data-category]").data("category");
+  } else if (this.$cell.hasClass("gb-grade-item-column-cell")) {
     category = this.getCategoryData() ? this.getCategoryData().label : null;
   }
 

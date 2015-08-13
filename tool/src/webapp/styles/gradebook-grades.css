@@ -229,7 +229,7 @@
 
 }
 #gradebookGrades th {
-  padding: 4px 6px 0;
+  padding: 4px 8px 0;
 }
 #gradebookGrades .gb-ajax-editable-label {
   width: 100%;
@@ -823,4 +823,20 @@ ul.feedbackPanel li span {
   font-family: 'gradebook-icons';
   content: '\f061';
   padding-left: 4px;
+}
+/* Hidden column visual cue */
+.gb-hidden-column-visual-cue {
+  position: absolute;
+  top: 0;
+  right: -16px;
+  cursor: pointer;
+}
+.gb-hidden-column-visual-cue:hover,
+.gb-hidden-column-visual-cue:active,
+.gb-hidden-column-visual-cue:focus {
+  text-decoration: none;
+}
+.gb-hidden-column-visual-cue:before {
+  font-family: 'gradebook-icons';
+  content: '\f04f';
 }

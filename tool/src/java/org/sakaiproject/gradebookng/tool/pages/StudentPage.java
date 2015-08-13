@@ -2,14 +2,9 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.markup.html.basic.Label;
@@ -17,11 +12,10 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.markup.repeater.data.DataView;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
-import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
-import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.user.api.User;
@@ -75,8 +69,8 @@ public class StudentPage extends BasePage {
 	    		}
 	    		
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getName()));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), formatDueDate(assignment.getDueDate())));
-	    		repeatingView.add(new Label(repeatingView.newChildId(), formatGrade(rawGrade))); 
+	    		repeatingView.add(new Label(repeatingView.newChildId(), FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
+	    		repeatingView.add(new Label(repeatingView.newChildId(), FormatHelper.formatGrade(rawGrade))); 
 	    		repeatingView.add(new Label(repeatingView.newChildId(), assignment.getWeight()));
 	    		repeatingView.add(new Label(repeatingView.newChildId(), comment)); 
 
@@ -101,31 +95,6 @@ public class StudentPage extends BasePage {
         }
            		
 	}	
-	/**
-	 * Format a due date
-	 * 
-	 * @param assignmentDueDate
-	 * @return
-	 */
-	private String formatDueDate(Date date) {
-		//TODO locale formatting via ResourceLoader
-		
-		if(date == null) {
-			return getString("label.studentsummary.noduedate");
-		}
-		
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy");
-    	return df.format(date);
-	}
-	
-	/**
-	 * Format a grade to remove the .0 if present.
-	 * @param grade
-	 * @return
-	 */
-	private String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");		
-	}
 	
 	/**
 	 * Format a percentage to two decimal places
