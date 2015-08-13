@@ -74,7 +74,7 @@ public class AddGradeItemPanelContent extends Panel {
         released.setOutputMarkupId(true);
         add(released);
         
-        //if checked, release must also be checked
+        //if checked, release must also be checked and then disabled
         final AjaxCheckBox counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignment, "counted")) {
 			private static final long serialVersionUID = 1L;
 
@@ -82,8 +82,11 @@ public class AddGradeItemPanelContent extends Panel {
 			protected void onUpdate(AjaxRequestTarget target) {
 				if(this.getModelObject()) {
 					released.setModelObject(true);
-					target.add(released);
+					released.setEnabled(false);
+				} else {
+					released.setEnabled(true);
 				}
+				target.add(released);
 			}
         };
         
