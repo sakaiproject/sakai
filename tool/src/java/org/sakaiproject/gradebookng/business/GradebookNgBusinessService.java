@@ -58,6 +58,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
@@ -1514,6 +1515,18 @@ public class GradebookNgBusinessService {
     	 return rval;
      }
      
+     /**
+      * Get a list of grader permissions for the given teaching assistant
+      * @param taUuid
+      * @return
+      */
+     public List<PermissionDefinition> getPermissionsForTeachingAssistant(String taUuid) {
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gradebook.getUid(), taUuid);
+    	 return permissions; 
+     }
 
     /**
      * Comparator class for sorting a list of AssignmentOrders

@@ -7,13 +7,32 @@
 	
 	<div wicket:id="instructions" class="instruction">Instruction text goes here</div>
 	
-	<!--  todo need form -->
+	<h3><wicket:message key="permissionspage.instructions.choose" /></h3>
 	
-	<div class="form-group form-group-sm">
-		<select wicket:id="ta" class="form-control">
-			<option>TA 1</option>
-		</select>
-	</div>
+	<!--  todo need form wired up -->
+	<form>
+	
+		<div class="form-group form-group-sm">
+			<select wicket:id="ta" class="form-control">
+				<option>TA 1</option>
+			</select>
+		</div>
+		
+	    <div wicket:id="permissions">
+	    	<span><wicket:message key="permissionspage.item.can">Can</wicket:message></span>
+	    </div>
+	    
+	    <!--
+	    <button wicket:id="addRule" type="submit" class="btn btn-default gb-add-permission-rule"><wicket:message key="permissionspage.addrule" /></button>
+	    -->
+	    
+	    <div>
+			<input type="submit" class="btn btn-primary" wicket:message="value:button.savechanges" />
+			<!-- <input type="submit" class="btn btn-link" wicket:id="cancel" wicket:message="value:button.cancel" /> -->
+		</div>
+	
+	
+	</form>
 	
 </wicket:extend>
 </body>
