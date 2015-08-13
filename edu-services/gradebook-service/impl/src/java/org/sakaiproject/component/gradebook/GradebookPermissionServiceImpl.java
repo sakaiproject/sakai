@@ -14,8 +14,10 @@ import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.section.api.coursemanagement.EnrollmentRecord;
 import org.sakaiproject.section.api.facade.Role;
+import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
 import org.sakaiproject.tool.gradebook.Gradebook;
@@ -1262,5 +1264,40 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		return sectionIdStudentIdsMap;
 	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	public List<PermissionDefinition> getPermissionsForUser(final String gradebookUid, final String userId) {
+		Long gradebookId = getGradebook(gradebookUid).getId();
+			 
+		List<Permission> permissions = getPermissionsForUser(gradebookId, userId);
+		List<PermissionDefinition> rval = new ArrayList<>();
+			 
+		for(Permission permission: permissions) {
+			rval.add(toPermissionDefinition(permission));
+		}
+			 
+		return rval;
+	}
+	 
+	 /**
+	  * Maps a Permission to a PermissionDefinition
+	  * @param permission
+	  * @return
+	  */
+	 private PermissionDefinition toPermissionDefinition(Permission permission) {
+		 PermissionDefinition rval = new PermissionDefinition();
+		    if (permission != null) {
+		    	rval.setId(permission.getId());
+		    	rval.setUserId(permission.getUserId());
+		    	rval.setCategoryId(permission.getCategoryId());
+		    	rval.setFunction(permission.getFunction());
+		    	rval.setGroupId(permission.getGroupId());
+		    }
+
+		    return rval;
+		}
+
 
 }
