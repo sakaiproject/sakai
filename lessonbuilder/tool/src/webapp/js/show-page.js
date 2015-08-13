@@ -208,7 +208,7 @@ $(document).ready(function() {
 			modal: true,
 			resizable: false,
 			draggable: false
-		});
+                }).parent('.ui-dialog').css('zIndex',150000);
 
 		$('#moreDiv').dialog({
 			autoOpen: false,
@@ -1946,35 +1946,95 @@ $(document).ready(function() {
 		var newitem = addBreak(addAboveItem, 'section');
 		// addAboveLI is LI from which add was triggered
 		// following LI's if any
-		var tail = addAboveLI.nextAll();
+		var tail_lis = addAboveLI.nextAll();
 		// current section DIV
-		var section = addAboveLI.parent().parent();
-		section.after('<div class="section"><ul border="0" role="list" width="95%" style="z-index: 1;" class="indent mainList"></ul></div>');
+		var tail_uls = addAboveLI.parent().nextAll();
+		var tail_cols = addAboveLI.parent().parent().nextAll();
+		var section = addAboveLI.parent().parent().parent();
+		section.after('<div class="section"><div class="column"><ul border="0" role="list" style="z-index: 1;" class="indent mainList"></ul></div></div>');
 		// now go to new section
 		section = section.next();
-		// and move current item and following into the new section
-		section.find("ul").append(addAboveLI, tail);
+		// and move current item and following into the first col of the new section
+		section.find("ul").append(addAboveLI, tail_lis);
+		section.find(".column").append(tail_uls);
+		section.append(tail_cols);
+
 		// add break item before new first item
 		addAboveLI.before('<li role="listitem" class="breaksection"><div class="sectionedit"><h3 class="offscreen"><span>' + msg('simplepage.break-here') + '</span></h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') +'" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></div></li>');
 		// need trigger on the A we just added
 		addAboveLI.prev().find('.section-merge-link').click(sectionMergeLink);
+		fixupColAttrs();
+		fixupHeights();
+		closeDropdownc();
+	    });
+
+	$('.add-break-column').click(function(e) {
+		e.preventDefault();
+		var newitem = addBreak(addAboveItem, 'column');
+
+		// addAboveLI is LI from which add was triggered
+		// following LI's if any
+		var tail_lis = addAboveLI.nextAll();
+		// current section DIV
+		var tail_uls = addAboveLI.parent().nextAll();
+		var column = addAboveLI.parent().parent();
+		column.after('<div class="column"><ul border="0" role="list" style="z-index: 1;" class="indent mainList"></ul></div>');
+		// now go to new section
+		column = column.next();
+		// and move current item and following into the first col of the new section
+		column.find("ul").append(addAboveLI, tail_lis);
+		column.find(".column").append(tail_uls);
+
+		// add break item before new first item
+		addAboveLI.before('<li role="listitem" class="breakcolumn"><div class="sectionedit"><h3 class="offscreen"><span>' + msg('simplepage.break-here') + '</span></h3><a href="/' + newitem + '" title="' + msg('simplepage.join-items') +'" class="column-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></div></li>');
+		// need trigger on the A we just added
+		addAboveLI.prev().find('.column-merge-link').click(columnMergeLink);
+		fixupColAttrs();
+		fixupHeights();
 		closeDropdownc();
 	    });
 
 	$('.section-merge-link').click(sectionMergeLink);
+	$('.column-merge-link').click(columnMergeLink);
 
 	function sectionMergeLink(e) {
 		e.preventDefault();
 		deleteBreak($(this).attr('href').substring(1));
-		// addAboveLI is LI from which add was triggered
-		// following LI's if any
+		// this is a break li, so it won't be needed
 		var thisLI = $(this).parents('li');
-		var tail = thisLI.nextAll();
+		var tail_lis = thisLI.nextAll();
+		var tail_uls = thisLI.parent().nextAll();
+		var tail_cols = thisLI.parent().parent().nextAll();
+
 		// current section DIV
-		var section = thisLI.parent().parent();
-		// append rest of this section to previous one, then delete section
-		section.prev().find('ul').last().append(tail);
+		var section = thisLI.parent().parent().parent();
+		// append rest of ul last one in prevous section
+		section.prev().find('ul').last().append(tail_lis);
+		section.prev().find('.column').last().append(tail_uls);
+		section.prev().append(tail_cols);
+		// nothing should be left in current section. kill it
 		section.remove();
+		fixupColAttrs();
+		fixupHeights();
+	};
+
+	function columnMergeLink(e) {
+		e.preventDefault();
+		deleteBreak($(this).attr('href').substring(1));
+		// this is a break li, so it won't be needed
+		var thisLI = $(this).parents('li');
+		var tail_lis = thisLI.nextAll();
+		var tail_uls = thisLI.parent().nextAll();
+
+		// current section DIV
+		var column = thisLI.parent().parent();
+		// append rest of ul last one in prevous column;
+		column.prev().find('ul').last().append(tail_lis);
+		column.prev().find('.column').last().append(tail_uls);
+		// nothing should be left in current section. kill it
+		column.remove();
+		fixupColAttrs();
+		fixupHeights();
 	};
 
 	// don't do this twice. if portal is loaded portal will do it
@@ -2779,3 +2839,35 @@ function printView(url) {
 	return url;
     return url.substring(0, i) + url.substring(j);
 }
+// make columns in a section the same height. Is there a better place to trigger this?
+// use load because we want to do this after images, etc. are loaded so heights are set
+
+// fix up cols1, cols2, etc, after splitting a section
+function fixupColAttrs() {
+    $(".section").each(function(index) {
+	    var count = $(this).find(".column").size();
+	    $(this).find(".column").removeClass('cols1 cols2 cols3 cols4 cols5 cols6 cols7 cols8 cols9 lastcol');
+	    $(this).find(".column").last().addClass('lastcol');
+	    $(this).find(".column").addClass('cols' + count);
+	});
+};
+
+$(window).load(fixupHeights);
+
+function fixupHeights() {
+    $(".section").each(function(index) {
+	    var max = 0;
+	    // reset to auto to cause recomputation. This is needed because
+	    // this gets called after contents of columns have changed.
+	    $(this).find(".column").css('height','auto');
+	    $(this).find(".column").each(function (i) {
+		    if ($(this).height() > max)
+			max = $(this).height();
+		});
+	    $(this).find(".column").each(function (i) {
+		    if (max > $(this).height())
+			$(this).height(max);
+		});
+	});
+};
+

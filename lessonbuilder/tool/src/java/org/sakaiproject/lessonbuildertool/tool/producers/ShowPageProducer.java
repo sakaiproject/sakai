@@ -1084,21 +1084,37 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			boolean showRefresh = false;
 			int textboxcount = 1;
 
+			int cols = colCount(itemList, 0);
+			int colnum = 1;
+
 			UIBranchContainer sectionContainer = UIBranchContainer.make(container, "section:");
-			UIBranchContainer tableContainer = UIBranchContainer.make(sectionContainer, "itemTable:");
+			UIBranchContainer columnContainer = UIBranchContainer.make(sectionContainer, "column:");
+			UIBranchContainer tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
+			columnContainer.decorate(new UIStyleDecorator("cols" + cols));
 
 			SimplePageItem prevItem = null;
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
-				if (i.getType() == SimplePageItem.BREAK && "section".equals(i.getFormat())) {
-				    sectionContainer = UIBranchContainer.make(container, "section:");
-				    tableContainer = UIBranchContainer.make(sectionContainer, "itemTable:");
+				if (i.getType() == SimplePageItem.BREAK) {
+				    boolean sectionbreak = false;
+				    if ("section".equals(i.getFormat())) {
+					sectionContainer = UIBranchContainer.make(container, "section:");
+					cols = colCount(itemList, i.getId());
+					sectionbreak = true;
+					colnum = 1;
+				    } else
+					colnum++;
+				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
+				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
+				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"")));
 				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
 				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
 				    UIOutput.make(tableRow, "section-td");
+				    UIOutput.make(tableRow, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 				    UILink link = UILink.make(tableRow, "section-del-link", (String)null, "/" + i.getId());
 				    link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
+				    link.decorate(new UIStyleDecorator(sectionbreak?"section-merge-link":"column-merge-link"));
 				    continue;
 				}
 
@@ -3232,6 +3248,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UIOutput.make(tofill, "add-break1");
 		UIOutput.make(tofill, "add-break2");
 		UIOutput.make(tofill, "add-break3");
+		UIOutput.make(tofill, "add-break4");
+		UIOutput.make(tofill, "add-break5");
 
 		// content menu not on students
 		if (!studentPage) {
@@ -4395,6 +4413,25 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 	}
 	
+	private int colCount(List<SimplePageItem> items, long item) {
+	    // if item = we're at beginning. start counting immediately
+	    boolean found = (item == 0);
+	    int cols = 1;
+	    for (SimplePageItem i: items) {
+		if (i.getId() == item) {
+		    found = true;
+		    continue;
+		}
+		if (found && i.getType() == SimplePageItem.BREAK) {
+		    if ("column".equals(i.getFormat()))
+			cols++;
+		    else // section break; in next section. we're done
+			break;
+		}
+	    }
+	    return cols;
+	}
+
 	private void makeSamplePeerEval(UIContainer parent)
 	{
 		UIOutput.make(parent, "peer-eval-sample-title", messageLocator.getMessage("simplepage.peer-eval.sample.title"));
