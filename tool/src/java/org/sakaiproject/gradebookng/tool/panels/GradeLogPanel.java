@@ -1,7 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +18,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeLog;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 /**
@@ -63,8 +62,8 @@ public class GradeLogPanel extends Panel {
 				
 				GbGradeLog gradeLog = item.getModelObject(); 
 				
-				String logDate = formatDate(gradeLog.getDateGraded());
-				String grade = formatGrade(gradeLog.getGrade());
+				String logDate = FormatHelper.formatDateTime(gradeLog.getDateGraded());
+				String grade = FormatHelper.formatGrade(gradeLog.getGrade());
 				
 				GbUser grader = businessService.getUser(gradeLog.getGraderUuid());
 		        String graderDisplayId = (grader != null) ? grader.getDisplayId() : getString("unknown.user.id");
@@ -98,30 +97,5 @@ public class GradeLogPanel extends Panel {
         add(new Label("heading", new StringResourceModel("heading.gradelog", null, new Object[] {user.getDisplayName(), user.getDisplayId()})));
       		
 	}
-	
-	/**
-	 * Format a date
-	 * 
-	 * @param date
-	 * @return
-	 */
-	private String formatDate(Date date) {
-		//TODO locale formatting via ResourceLoader
-		
-		SimpleDateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
-    	return df.format(date);
-	}
-	
-	/**
-	 * Format a grade to remove the .0 if present.
-	 * @param grade
-	 * @return
-	 */
-	private String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");		
-	}
-	
-	
-	
 	
 }

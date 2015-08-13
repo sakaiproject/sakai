@@ -28,6 +28,7 @@ import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -102,7 +103,7 @@ public class GradeItemCellPanel extends Panel {
 		}
 		
 		//get grade
-		final String formattedGrade = this.formatGrade(rawGrade);
+		final String formattedGrade = FormatHelper.formatGrade(rawGrade);
 				
 		//if assignment is external, normal label
 		if(isExternal){
@@ -193,7 +194,7 @@ public class GradeItemCellPanel extends Panel {
 
 
 						//format the grade for subsequent display and update the model
-						String formattedGrade = formatGrade(newGrade);
+						String formattedGrade = FormatHelper.formatGrade(newGrade);
 						this.getLabel().setDefaultModelObject(formattedGrade);
 					}
 
@@ -370,14 +371,6 @@ public class GradeItemCellPanel extends Panel {
 		refreshNotifications();
 	}
 	
-	/**
-	 * Format a grade to remove the .0 if present.
-	 * @param grade
-	 * @return
-	 */
-	private String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");		
-	}
 	
 	/**
 	 * Set the enum value so we can use it when we style.

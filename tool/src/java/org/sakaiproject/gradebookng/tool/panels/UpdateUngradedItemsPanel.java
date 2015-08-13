@@ -2,9 +2,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 
 import java.io.Serializable;
 import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
