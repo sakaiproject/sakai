@@ -219,6 +219,9 @@
 		  <li rsf:id="add-break2" class="addbreak">
 		    <a role="menuitem" href="#" rsf:id="add-break3" class="add-break-section"><span rsf:id="msg=simplepage.break-items"></span></a>
 		  </li>
+		  <li rsf:id="add-break4" class="addbreak">
+		    <a role="menuitem" href="#" rsf:id="add-break5" class="add-break-column"><span rsf:id="msg=simplepage.break-columns"></span></a>
+		  </li>
 		  <hr style="border:none"/>
 		  <li rsf:id="assignment-li">
 		    <a role="menuitem" href="#" rsf:id="add-assignment" class="add-before-param"><span rsf:id="msg.simplepage.assignment"></span></a>
@@ -311,9 +314,10 @@
 			<h2 rsf:id="msg=simplepage.maincontent" class="offscreen" id="maintablelabel"></h2>
 <!-- WARNING: javascript for add-break-section adds section, ul, li, and sectionedit markup, so if you change here, keep it in sync -->
 			<div rsf:id="section:" class="section">
-                        <ul class="indent mainList" rsf:id="itemTable:" border="0" width="95%" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
+			<div rsf:id="column:" class="column">
+                        <ul class="indent mainList" rsf:id="itemTable:" border="0" style="z-index: 1;" role="list" aria-labelledby="itemContainer::maintablelabel">
                 <li rsf:id="item:" id="item" role="listitem" class="item"><span style="display:none" rsf:id="itemid" class="itemid"></span>
-	          <div rsf:id="section-td" class="sectionedit"><h3 class="offscreen"><span rsf:id="msg=simplepage.break-here"></span></h3><a rsf:id="section-del-link" href="#" class="section-merge-link" onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></div>
+	          <div rsf:id="section-td" class="sectionedit"><h3 class="offscreen" rsf:id="break-msg"></h3><a rsf:id="section-del-link" href="#"  onclick="return false"><span aria-hidden="true" class="fa-compress fa-edit-icon sectioneditfont"></span></a></div>
                     <div rsf:id="group-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-link"><span rsf:id="group-icon"></span></a></div></div>
                     <div rsf:id="item-td" class="right-col">
                       <div rsf:id="edit-td" class="edit-col"><div><a href="#" class="usebutton edit-link" onclick="return false" rsf:id="edit-link"><span aria-hidden="true" class="fa-pencil-square-o fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="plus-edit-icon fa-edit-icon">+</span></a></div></div>
@@ -703,6 +707,7 @@
                 </li>
             </ul>
 	    </div>	
+	    </div>			
 			<script rsf:id="swfobject" type="text/javascript" src="swfobject.js"></script>
 
 		</div>

@@ -194,6 +194,13 @@ public class ReorderProducer implements ViewComponentProducer, NavigationCaseRep
 				    if (text.length() > 100)
 					text = text.substring(0,100);
 				    UIOutput.make(row, "text-snippet", text);
+				} else if (i.getType() == SimplePageItem.BREAK) {
+				    String text = null;
+				    if ("section".equals(i.getFormat()))
+					text = messageLocator.getMessage("simplepage.break-here");
+				    else 
+					text = messageLocator.getMessage("simplepage.break-column-here");
+				    UIOutput.make(row, "text-snippet", text);
 				} else {
 				    UIOutput.make(row, "description", i.getDescription());
 				    showPageProducer.makeLink(row, "link", i, simplePageBean, simplePageToolDao, messageLocator, true, currentPage, false, Status.NOT_REQUIRED);
