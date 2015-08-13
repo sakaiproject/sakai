@@ -478,6 +478,15 @@ public class GradeItemCellPanel extends Panel {
 		errorNotification.setVisible(false);
 		overLimitNotification.setVisible(false);
 
+		if (StringUtils.isNotBlank(comment)) {
+			modelData.put("comment", comment);
+			commentNotification.setVisible(true);
+			addPopover(commentNotification, Arrays.asList(GradeCellNotification.HAS_COMMENT));
+		} else {
+			commentNotification.setVisible(false);
+		}
+		notifications.remove(GradeCellNotification.HAS_COMMENT);
+
 		if (!notifications.isEmpty()) {
 			if (notifications.contains(GradeCellNotification.ERROR)) {
 				errorNotification.setVisible(true);
@@ -489,14 +498,6 @@ public class GradeItemCellPanel extends Panel {
 				overLimitNotification.setVisible(true);
 				addPopover(overLimitNotification, notifications);
 			}
-		}
-
-		if (StringUtils.isNotBlank(comment)) {
-			modelData.put("comment", comment);
-			commentNotification.setVisible(true);
-			addPopover(commentNotification, Arrays.asList(GradeCellNotification.HAS_COMMENT));
-		} else {
-			commentNotification.setVisible(false);
 		}
 
 		addOrReplace(commentNotification);

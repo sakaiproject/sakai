@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
 import org.apache.wicket.markup.html.basic.Label;
@@ -31,13 +32,13 @@ public class GradeItemCellPopoverPanel extends Panel {
 		saveErrorNotification.add(new Label("message", new ResourceModel(GradeItemCellPanel.GradeCellNotification.ERROR.getMessage())));
 		add(saveErrorNotification);
 
+		String comment = (String) modelData.get("comment");
 		WebMarkupContainer hasCommentNotification = new WebMarkupContainer("hasCommentNotification");
-		hasCommentNotification.setVisible(notifications.contains(GradeItemCellPanel.GradeCellNotification.HAS_COMMENT));
+		hasCommentNotification.setVisible(notifications.contains(GradeItemCellPanel.GradeCellNotification.HAS_COMMENT) && StringUtils.isNotBlank(comment));
 		hasCommentNotification.add(new Label("message", new ResourceModel(GradeItemCellPanel.GradeCellNotification.HAS_COMMENT.getMessage())));
 		add(hasCommentNotification);
 
 		if (hasCommentNotification.isVisible()) {
-			String comment = (String) modelData.get("comment");
 			hasCommentNotification.add(new Label("snippet", makeSnippet(comment, 100)));
 
 			hasCommentNotification.add(new AttributeModifier("data-assignmentid", (Long) modelData.get("assignmentId")));
