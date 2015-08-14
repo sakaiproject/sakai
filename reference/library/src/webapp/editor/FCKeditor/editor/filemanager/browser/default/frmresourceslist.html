@@ -359,8 +359,12 @@ function toggleGrp( item,folderPath )
 
 function toggleFld( item,folderPath )
 {
-    var currState = toggleGrp(item,folderPath );
-	tFld.src = currState ? 'images/FolderOpened.gif' : 'images/Folder.gif';
+        var tGrp = document.getElementById('grp' + item);
+        var tImg = document.getElementById('img' + item);
+        var tFld = document.getElementById('fld' + item);
+        var currState = toggleGrp(item,folderPath );
+        tImg.src = currState ? 'images/collapse.gif' : 'images/expand.gif';
+        tFld.src = currState ? 'images/FolderOpened.gif' : 'images/Folder.gif';
 }
 
 function showFldOpt( item, visible )
