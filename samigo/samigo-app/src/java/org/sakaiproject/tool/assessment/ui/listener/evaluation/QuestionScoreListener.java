@@ -221,15 +221,15 @@ public class QuestionScoreListener implements ActionListener,
 					.preparePublishedAnswerHash(publishedAssessment);
 			// re-attach session and load all lazy loaded parent/child stuff
 
-			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
-
-			for (Long key : publishedAnswerHashKeySet) {
-				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
-
-				if (!Hibernate.isInitialized(answer.getChildAnswerSet())) {
-					pubItemService.eagerFetchAnswer(answer);
-				}
-			}
+//			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
+//
+//			for (Long key : publishedAnswerHashKeySet) {
+//				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
+//
+//				if (!Hibernate.isInitialized(answer.getChildAnswerSet())) {
+//					pubItemService.eagerFetchAnswer(answer);
+//				}
+//			}
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
 			HashMap agentResultsByItemGradingIdMap = new HashMap();

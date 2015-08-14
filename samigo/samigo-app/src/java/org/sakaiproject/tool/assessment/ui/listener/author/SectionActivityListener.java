@@ -122,7 +122,7 @@ implements ActionListener, ValueChangeListener
             PublishedAssessmentData publishedAssessmentData = assessmentService.getBasicInfoOfPublishedAssessment(publishAssessmentId.toString()); 
             String title = publishedAssessmentData.getTitle();
             Date submitDate = agd.getSubmittedDate();
-            Float finalScore = agd.getFinalScore();
+            Double finalScore = agd.getFinalScore();
             Long assessmentGradingId = agd.getAssessmentGradingId();
 
             GradingService gradingService = new GradingService();
@@ -229,7 +229,11 @@ implements ActionListener, ValueChangeListener
         public Long getAssessmentId() {
             return assessmentId;
         }
-        public void setAssessmentId(Long assessmentId) {
+        public void setCorrect(Double finalScore) {
+			// TODO Auto-generated method stub
+			
+		}
+		public void setAssessmentId(Long assessmentId) {
             this.assessmentId = assessmentId;
         }
         public String getAssessmentName() {
@@ -286,9 +290,7 @@ implements ActionListener, ValueChangeListener
                     return Validator.check(correct.toString(), "0").replace(',', '.');
                 }
             }
-            else {
-                return Validator.check(correct.toString(), "0").replace(',', '.');
-            }
+            return "0";
         }
 
         public String getRoundedPercentage() {
@@ -301,9 +303,7 @@ implements ActionListener, ValueChangeListener
                     return Validator.check(percentage.toString(), "0").replace(',', '.');
                 }
             }
-            else {
-                return Validator.check(percentage.toString(), "0").replace(',', '.');
-            }
+            return "0";
         }
 
         public String getRoundedMaxScore() {
@@ -316,9 +316,7 @@ implements ActionListener, ValueChangeListener
                     return Validator.check(total.toString(), "0").replace(',', '.');
                 }
             }
-            else {
-                return Validator.check(total.toString(), "0").replace(',', '.');
-            }
+            return "0";
         }
     }
 }

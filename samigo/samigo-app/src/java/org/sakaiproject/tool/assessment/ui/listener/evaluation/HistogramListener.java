@@ -30,7 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.hibernate.Hibernate;
+//import org.hibernate.Hibernate;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
@@ -850,15 +850,15 @@ public class HistogramListener
     
  // re-attach session and load all lazy loaded parent/child stuff
        
-        Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
-    	   
-     	    for(Long key : publishedAnswerHashKeySet) {
-              AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
-             
-     	          if (! Hibernate.isInitialized(answer.getChildAnswerSet())) {
-                 pubItemService.eagerFetchAnswer(answer);
-    	          }
-    	    }
+//        Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
+//    	   
+//     	    for(Long key : publishedAnswerHashKeySet) {
+//              AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
+//             
+//     	          if (! Hibernate.isInitialized(answer.getChildAnswerSet())) {
+//                 pubItemService.eagerFetchAnswer(answer);
+//    	          }
+//    	    }
     	
 
     //int numAnswers = 0;
