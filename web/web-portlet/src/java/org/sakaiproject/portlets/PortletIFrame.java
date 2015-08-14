@@ -853,7 +853,8 @@ public class PortletIFrame extends GenericPortlet {
 			{
 				Site site = SiteService.getSite(toolConfig.getSiteId());
 				SitePage page = site.getPage(toolConfig.getPageId());
-				page.setTitleCustom(true);
+				if (page.isHomePage()) page.setHomeToolsTitleCustom(placement.getId());
+				else page.setTitleCustom(true);
 
 				// for web content tool, if it is a site page tool, and the only tool on the page, update the page title / popup.
 				if (toolConfig != null && ! SPECIAL_WORKSITE.equals(special) && ! SPECIAL_WORKSPACE.equals(special) )
