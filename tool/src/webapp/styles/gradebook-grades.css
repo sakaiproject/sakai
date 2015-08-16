@@ -359,6 +359,7 @@
 /* Toolbar */
 #gradebookGrades {
   padding-top: 1.6em;
+  padding-bottom: 80px;
 }
 #gradebookGradesToolbar {
   background: #FAFAFA;

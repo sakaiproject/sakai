@@ -1237,6 +1237,12 @@ GradebookSpreadsheet.prototype.enablePopovers = function($target) {
     }, 100));
   }).on("hidden.bs.popover", function() {
     self.popoverClicked = false;
+  }).on("shown.bs.popover", function(event) {
+    var $popover = $(this).data("bs.popover").$tip;
+    var bottomMostPoint = $popover.position().top + $popover.outerHeight();
+    if (bottomMostPoint > self.$spreadsheet[0].offsetHeight) {
+      self.$spreadsheet[0].scrollTop = bottomMostPoint - self.$spreadsheet[0].offsetHeight + 20;
+    }
   });
 
   // Ensure the popover doesn't get in the way of the dropdown menu
