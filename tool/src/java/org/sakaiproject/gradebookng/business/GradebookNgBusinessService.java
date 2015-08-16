@@ -437,9 +437,19 @@ public class GradebookNgBusinessService {
 			return GradeSaveResponse.ERROR;
 		}
 
+		//over limit check, get max points for assignment and check if the newGrade is over limit
+		//we still save it but we return the warning
+		Assignment assignment = this.getAssignment(assignmentId);
+		Double maxPoints = assignment.getPoints();
+
 		//no change
 		if(StringUtils.equals(storedGrade, newGrade)){
-			return GradeSaveResponse.NO_CHANGE;
+			Double storedGradePoints = NumberUtils.toDouble(storedGrade);
+			if(storedGradePoints.compareTo(maxPoints) > 0) {
+				return GradeSaveResponse.OVER_LIMIT;
+			} else {
+				return GradeSaveResponse.NO_CHANGE;
+			}
 		}
 
 		//concurrency check, if stored grade != old grade that was passed in, someone else has edited.
@@ -450,11 +460,6 @@ public class GradebookNgBusinessService {
 		
 		//about to edit so push a notification
 		pushEditingNotification(gradebook.getUid(), this.getCurrentUser(), studentUuid, assignmentId);
-		
-		//over limit check, get max points for assignment and check if the newGrade is over limit
-		//we still save it but we return the warning
-		Assignment assignment = this.getAssignment(assignmentId);
-		Double maxPoints = assignment.getPoints();
 		
 		Double newGradePoints = NumberUtils.toDouble(newGrade);
 		
