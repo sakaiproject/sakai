@@ -1,9 +1,6 @@
 package org.sakaiproject.webservices;
 
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -4297,28 +4294,6 @@ public class SakaiScript extends AbstractWebService {
 
 
     @WebMethod
-    @Path("/getUserEmailAddress")
-    @Produces("text/plain")
-    @GET
-    public String getUserEmailAddress(
-            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
-            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
-        Session s = establishSession(sessionid);
-
-        try {
-            User u = null;
-            String userid = userDirectoryService.getUserByEid(eid).getId();
-            u = userDirectoryService.getUser(userid);
-            if (u != null)
-                return u.getEmail();
-            else
-                return "";
-        } catch (Exception e) {
-            return "";
-        }
-    }
-
-    @WebMethod
     @Path("/isSuperUser")
     @Produces("text/plain")
     @GET
@@ -4334,14 +4309,14 @@ public class SakaiScript extends AbstractWebService {
         }
     }
 
+
     @WebMethod
     @Path("/resetAllUserWorkspace")
     @Produces("text/plain")
     @GET
     public boolean resetAllUserWorkspace(
-            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId) {
-        Session session = establishSession(sessionId);
-
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session session = establishSession(sessionid);
         //check that ONLY super user's are accessing this
         if (!securityService.isSuperUser(session.getUserId())) {
             LOG.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
@@ -4352,7 +4327,9 @@ public class SakaiScript extends AbstractWebService {
         boolean result = false;
         try {
             conn = sqlService.borrowConnection();
+
             stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+
             stmt.addBatch("delete from SAKAI_SITE_TOOL_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
             stmt.addBatch("delete from SAKAI_SITE_TOOL where SITE_ID like '~%' and SITE_ID != '~admin';");
             stmt.addBatch("delete from SAKAI_SITE_PAGE_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
@@ -4376,9 +4353,11 @@ public class SakaiScript extends AbstractWebService {
                 stmt.addBatch("DELETE SAKAI_REALM_PROPERTY FROM SAKAI_REALM_PROPERTY inner join SAKAI_REALM on SAKAI_REALM_PROPERTY.REALM_KEY = SAKAI_REALM.REALM_KEY and SAKAI_REALM.REALM_ID like '/site/~%'and SAKAI_REALM.REALM_ID != '/site/~admin';");
             }
             stmt.addBatch("delete from SAKAI_REALM where ( REALM_ID like '/site/~%' and REALM_ID != '/site/~admin');");
-            stmt.addBatch("delete from osp_site_tool where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_PRESENCE;");
+            //stmt.addBatch("delete from osp_site_tool where SITE_ID like '~%' and SITE_ID != '~admin';");
+            //stmt.addBatch("delete from SAKAI_PRESENCE;");
             int[] count = stmt.executeBatch();
+
+            conn.commit();
 
             if (count.length > 0) {
                 result = true;
