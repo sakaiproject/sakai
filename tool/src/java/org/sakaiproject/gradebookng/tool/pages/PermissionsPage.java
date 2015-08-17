@@ -173,13 +173,13 @@ public class PermissionsPage extends BasePage {
 		            }
 
 		            public String getIdValue(Long l, int index) {
+		            	if(l == null){
+		            		return ""; // to match what the service stores
+		            	}
 		                return l.toString();
 		            }
 		        });
 		        categoryChooser.setNullValid(false);
-		        if(categories.isEmpty()){
-		        	categoryChooser.setVisible(false);
-		        }
 		        item.add(categoryChooser);
 				
 				//in
