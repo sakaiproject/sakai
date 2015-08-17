@@ -43,6 +43,15 @@ public class CategoryDefinition implements Serializable {
     
     private List<Assignment> assignmentList;
     
+    public CategoryDefinition() {
+    	
+    }
+    
+    public CategoryDefinition(Long id, String name) {
+    	this.id = id;
+    	this.name = name;
+    }
+    
     /**
      * 
      * @return the id of the Category object
