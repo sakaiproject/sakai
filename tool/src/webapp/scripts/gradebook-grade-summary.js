@@ -5,7 +5,7 @@
 /**************************************************************************************
  * A GradebookGradeSummary to encapsulate all the grade summary content behaviours 
  */
-function GradebookGradeSummary($content) {
+function GradebookGradeSummary($content, darkerMask) {
   this.$content = $content;
 
   this.studentId = this.$content.find("[data-studentid]").data("studentid");
@@ -18,6 +18,7 @@ function GradebookGradeSummary($content) {
 
   if (this.$modal.length > 0 && this.$modal.is(":visible")) {
     this.setupFixedFooter();
+    this.setupMask(darkerMask);
   } else {
     setTimeout($.proxy(function() {
       this.$modal = this.$content.closest(".wicket-modal");
@@ -88,5 +89,15 @@ GradebookGradeSummary.prototype.setupFixedFooter = function() {
     var paddingSize = 80; // modal padding and modal content padding/margins (yep... fudged)
     var newHeight = $(window).height() - this.$content.offset().top - this.$content.find("h2").outerHeight() - this.$content.find(".nav").outerHeight() - this.$content.find(".gb-summary-modal-actions").outerHeight() - paddingSize;
     $tabPane.height(Math.max(200, newHeight));
+  }
+};
+
+
+GradebookGradeSummary.prototype.setupMask = function(darkerMask) {
+  var $mask = this.$modal.siblings(".wicket-mask-transparent, .wicket-mask-dark");
+  if (darkerMask) {
+    $mask.removeClass("wicket-mask-transparent").addClass("wicket-mask-dark");
+  } else {
+    $mask.removeClass("wicket-mask-dark").addClass("wicket-mask-transparent");
   }
 };

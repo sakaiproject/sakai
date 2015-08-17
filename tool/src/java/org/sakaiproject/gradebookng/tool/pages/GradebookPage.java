@@ -97,7 +97,7 @@ public class GradebookPage extends BasePage {
 		form.add(addGradeItemWindow);
 		
 		studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
-		studentGradeSummaryWindow.setMaskType(MaskType.SEMI_TRANSPARENT);
+		studentGradeSummaryWindow.setMaskType(MaskType.TRANSPARENT);
 		studentGradeSummaryWindow.setResizable(false);
 		studentGradeSummaryWindow.setUseInitialHeight(false);
 		studentGradeSummaryWindow.setWidthUnit("%");

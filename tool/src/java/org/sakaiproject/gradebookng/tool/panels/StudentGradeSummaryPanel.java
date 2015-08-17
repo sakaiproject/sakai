@@ -86,10 +86,13 @@ public class StudentGradeSummaryPanel extends Panel {
 			protected void onAjaxUpdate(AjaxRequestTarget target) {
 				super.onAjaxUpdate(target);
 
-				studentNavigation.setVisible(getSelectedTab() == 0);
+				boolean showingInstructorView = (getSelectedTab() == 0);
+				boolean showingStudentView = (getSelectedTab() == 1);
+
+				studentNavigation.setVisible(showingInstructorView);
 				target.add(studentNavigation);
 
-				target.appendJavaScript("new GradebookGradeSummary($(\"#"+getParent().getMarkupId()+"\"));");
+				target.appendJavaScript("new GradebookGradeSummary($(\"#"+getParent().getMarkupId()+"\"), " + showingStudentView + ");");
 			}
 		});
 
