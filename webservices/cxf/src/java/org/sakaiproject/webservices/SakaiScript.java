@@ -4269,6 +4269,11 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
         //register the session with presence
         Session s = establishSession(sessionid);
+
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+        }
         try {
             Map servers = usageSessionService.getOpenSessionsByServer();
             List matchingServers = (List) getServersByServerId(servers).get(serverid);
@@ -4299,7 +4304,10 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
         //register the session with presence
         Session s = establishSession(sessionid);
-
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+        }
         int count = 0;
 
         try {
