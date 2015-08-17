@@ -34,7 +34,6 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -76,8 +75,6 @@ public class SakaiScript extends AbstractWebService {
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
     private static final String SESSION_ATTR_VALUE_ORIGIN_WS = "sakai-axis";
-
-    private SqlService sqlService;
 
     /**
      * Check if a session is active
@@ -4387,9 +4384,5 @@ public class SakaiScript extends AbstractWebService {
         return result;
     }
 
-    @WebMethod(exclude = true)
-    public void setSqlService(SqlService sqlService) {
-        this.sqlService = sqlService;
-    }
 
 }
