@@ -3125,10 +3125,13 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		{
 			siteId = ref.getContext();
 		}
-		else
+		
+		// id may be null in format of /group/<site_id>, which leads to null value for the reference context field
+		if (siteId == null && ToolManager.getCurrentPlacement() != null)
 		{
 			siteId = ToolManager.getCurrentPlacement().getContext();
 		}
+		
 		Collection<ContentPermissions> permissions = new ArrayList<ContentPermissions>();
 		if(ContentHostingService.isCollection(id))
 		{
