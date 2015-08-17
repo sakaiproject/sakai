@@ -1,5 +1,9 @@
 package org.sakaiproject.webservices;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -33,6 +37,7 @@ import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEdit;
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
+import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
 import org.sakaiproject.entity.api.ResourceProperties;
@@ -74,6 +79,8 @@ public class SakaiScript extends AbstractWebService {
     private static final String ADMIN_SITE_REALM = "/site/!admin";
     private static final String SESSION_ATTR_NAME_ORIGIN = "origin";
     private static final String SESSION_ATTR_VALUE_ORIGIN_WS = "sakai-axis";
+
+    private SqlService sqlService;
 
     /**
      * Check if a session is active
@@ -4255,6 +4262,155 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
         }
+    }
+
+
+    /**
+     * Check if a user exists (either as an account in Sakai or in any external provider)
+     *
+     * @param sessionid the id of a valid session
+     * @param userid    the internal user id
+     * @return true/false
+     */
+    @WebMethod
+    @Path("/checkForUserById")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForUserById(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+        Session s = establishSession(sessionid);
+
+        try {
+            User u = null;
+            u = userDirectoryService.getUser(userid);
+            if (u != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            LOG.error("WS checkForUserById(): " + e.getClass().getName() + " : " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    @WebMethod
+    @Path("/getUserEmailAddress")
+    @Produces("text/plain")
+    @GET
+    public String getUserEmailAddress(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "eid", partName = "eid") @QueryParam("eid") String eid) {
+        Session s = establishSession(sessionid);
+
+        try {
+            User u = null;
+            String userid = userDirectoryService.getUserByEid(eid).getId();
+            u = userDirectoryService.getUser(userid);
+            if (u != null)
+                return u.getEmail();
+            else
+                return "";
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    @WebMethod
+    @Path("/isSuperUser")
+    @Produces("text/plain")
+    @GET
+    public boolean isSuperUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session s = establishSession(sessionid);
+
+        try {
+            return (securityService.isSuperUser(s.getUserId()));
+        } catch (Exception e) {
+            LOG.error("WS isSuperUser(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @WebMethod
+    @Path("/resetAllUserWorkspace")
+    @Produces("text/plain")
+    @GET
+    public boolean resetAllUserWorkspace(
+            @WebParam(name = "sessionId", partName = "sessionId") @QueryParam("sessionId") String sessionId) {
+        Session session = establishSession(sessionId);
+
+        //check that ONLY super user's are accessing this
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+        }
+        Connection conn = null;
+        Statement stmt = null;
+        boolean result = false;
+        try {
+            conn = sqlService.borrowConnection();
+            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            stmt.addBatch("delete from SAKAI_SITE_TOOL_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE_TOOL where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE_PAGE_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE_PAGE where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE_USER where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE_GROUP_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE_GROUP where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_SITE where SITE_ID like '~%' and SITE_ID != '~admin';");
+            if (sqlService.getVendor().equals("oracle")) {
+                stmt.addBatch("delete from SAKAI_REALM_RL_FN where realm_key in (select realm_key from sakai_realm where realm_id like '/site/~%' and realm_id != '/site/~admin');");
+                stmt.addBatch("delete from SAKAI_REALM_RL_GR where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
+                stmt.addBatch("delete from SAKAI_REALM_PROVIDER where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
+                stmt.addBatch("delete from SAKAI_REALM_ROLE_DESC where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
+                stmt.addBatch("delete from SAKAI_REALM_PROPERTY where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
+            } else {
+                stmt.addBatch("DELETE SAKAI_REALM_RL_FN FROM SAKAI_REALM_RL_FN INNER JOIN SAKAI_REALM ON SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%' and SAKAI_REALM.realm_id != '/site/~admin';");
+                stmt.addBatch("DELETE SAKAI_REALM_RL_GR FROM SAKAI_REALM_RL_GR INNER JOIN SAKAI_REALM ON SAKAI_REALM_RL_GR.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%' and SAKAI_REALM.REALM_ID != '/site/~admin';");
+                stmt.addBatch("DELETE SAKAI_REALM_PROVIDER FROM SAKAI_REALM_PROVIDER INNER JOIN SAKAI_REALM ON SAKAI_REALM_PROVIDER.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%'and SAKAI_REALM.REALM_ID != '/site/~admin';");
+                stmt.addBatch("DELETE SAKAI_REALM_ROLE_DESC FROM SAKAI_REALM_ROLE_DESC INNER JOIN SAKAI_REALM ON SAKAI_REALM_ROLE_DESC.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%'and SAKAI_REALM.REALM_ID != '/site/~admin';");
+                stmt.addBatch("DELETE SAKAI_REALM_PROPERTY FROM SAKAI_REALM_PROPERTY inner join SAKAI_REALM on SAKAI_REALM_PROPERTY.REALM_KEY = SAKAI_REALM.REALM_KEY and SAKAI_REALM.REALM_ID like '/site/~%'and SAKAI_REALM.REALM_ID != '/site/~admin';");
+            }
+            stmt.addBatch("delete from SAKAI_REALM where ( REALM_ID like '/site/~%' and REALM_ID != '/site/~admin');");
+            stmt.addBatch("delete from osp_site_tool where SITE_ID like '~%' and SITE_ID != '~admin';");
+            stmt.addBatch("delete from SAKAI_PRESENCE;");
+            int[] count = stmt.executeBatch();
+
+            if (count.length > 0) {
+                result = true;
+            } else {
+                result = false;
+            }
+
+
+        } catch (Exception e) {
+            LOG.error(e.getMessage(), e);
+            result = false;
+        } finally {
+            if (stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                }
+            }
+            if (conn != null) {
+                try {
+                    conn.close();
+                } catch (SQLException e) {
+                }
+            }
+        }
+
+        return result;
+    }
+
+    @WebMethod(exclude = true)
+    public void setSqlService(SqlService sqlService) {
+        this.sqlService = sqlService;
     }
 
 }
