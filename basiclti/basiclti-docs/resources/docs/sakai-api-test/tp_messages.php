@@ -1,7 +1,9 @@
 <?php 
 $tool_proxy = <<< EOF
 {
-  "@context": "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxy",
+  "@context": [
+    "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxy"
+   ],
   "@type": "ToolProxy",
   "lti_version": "LTI-2p0",
   "tool_consumer_profile": "__TODO_SHOULD_THIS_BE_THE_WHOLE_PROFILE_OR_JUST_A_URL_SEE_5_6__",
@@ -175,6 +177,7 @@ $desired_parameters = array(
     "Person.name.given",
     "Person.name.family",
 "Person.sourcedId",
+"Context.id",
 "CourseOffering.label",
 "CourseOffering.title",
 "CourseOffering.sourcedId",

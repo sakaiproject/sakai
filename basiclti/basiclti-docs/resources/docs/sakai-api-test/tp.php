@@ -24,6 +24,13 @@ function togglePre($title, $content) {
     $div_id = $div_id + 1;
 }
 
+/*
+function die_with_return_url($message) { 
+    $launch_presentation_return_url = $_POST['launch_presentation_return_url'];
+    if ( strpos($launch_presentation_return_url)
+}
+*/
+
 ?>
 <html>
 <head>
@@ -168,6 +175,15 @@ if ( $tp_profile == null ) {
 
 // Tweak the stock profile
 $tp_profile->tool_consumer_profile = $tc_profile_url;
+
+// Copy over the context
+$tp_profile->{'@context'} = $tc_profile->{'@context'};
+for($i=0; $i < count($tp_profile->{'@context'}); $i++ ) {
+    $ctx = $tp_profile->{'@context'}[$i];
+    if ( is_string($ctx) && strpos($ctx,"http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile") !== false ) {
+	$tp_profile->{'@context'}[$i] = "http://www.imsglobal.org/imspurl/lti/v2/ctx/ToolProxy";
+    }
+}
 
 // Re-register
 $tp_profile->tool_profile->message[0]->path = $cur_url;
