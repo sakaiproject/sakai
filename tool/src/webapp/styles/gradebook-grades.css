@@ -834,6 +834,20 @@ ul.feedbackPanel li span {
   content: '\f061';
   padding-left: 4px;
 }
+.gb-grade-summary-content .tabpanel {
+  display: block;
+  margin-top: 10px;
+}
+.gb-grade-summary-content .tab-content {
+  overflow: auto;
+  margin: 10px 0;
+  padding: 10px 0;
+  border-top: 1px solid #DDD;
+  border-bottom: 1px solid #DDD;
+}
+.gb-summary-grade-panel .gb-summary-grade-flags {
+  padding-left: 10px;
+}
 /* Hidden column visual cue */
 .gb-hidden-column-visual-cue {
   position: absolute;

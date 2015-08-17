@@ -1,18 +1,24 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.extensions.ajax.markup.html.tabs.AjaxTabbedPanel;
+import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -36,6 +42,7 @@ public class StudentGradeSummaryPanel extends Panel {
 		super(id, model);
 		
 		this.window = window;
+		this.setOutputMarkupId(true);
 	}
 
 	@Override
@@ -56,8 +63,38 @@ public class StudentGradeSummaryPanel extends Panel {
 			}
 		});
 
-		add(new StudentGradeSummaryGradesPanel("instructorView", (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.INSTRUCTOR));
-		add(new StudentGradeSummaryGradesPanel("studentView", (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.STUDENT));
+		final WebMarkupContainer studentNavigation = new WebMarkupContainer("studentNavigation");
+		studentNavigation.setOutputMarkupPlaceholderTag(true);
+		add (studentNavigation);
+		
+		List tabs=new ArrayList();
+
+		tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.instructorviewtab"))) {
+			public Panel getPanel(String panelId) { return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.INSTRUCTOR); }
+		});
+		tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
+			public Panel getPanel(String panelId) { return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.STUDENT); }
+		});
+
+		add(new AjaxBootstrapTabbedPanel("tabs", tabs) {
+			@Override
+			protected String getTabContainerCssClass() {
+				return "nav nav-pills";
+			}
+
+			@Override
+			protected void onAjaxUpdate(AjaxRequestTarget target) {
+				super.onAjaxUpdate(target);
+
+				boolean showingInstructorView = (getSelectedTab() == 0);
+				boolean showingStudentView = (getSelectedTab() == 1);
+
+				studentNavigation.setVisible(showingInstructorView);
+				target.add(studentNavigation);
+
+				target.appendJavaScript("new GradebookGradeSummary($(\"#"+getParent().getMarkupId()+"\"), " + showingStudentView + ");");
+			}
+		});
 
 		add(new Label("heading", new StringResourceModel("heading.studentsummary", null, new Object[]{ displayName, eid })));
 	}

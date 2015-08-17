@@ -124,9 +124,12 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 						String weight = "";
 						if (categoryDefinition.getWeight() == null) {
-							weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight());
+							categoryItem.add(new Label("categoryWeight", ""));
+						} else {
+							weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight() * 100);
+							categoryItem.add(new Label("categoryWeight", new StringResourceModel("label.studentsummary.categoryweight", null, new Object[] {weight})));
 						}
-						categoryItem.add(new Label("categoryWeight", weight));
+						
 					} else {
 						categoryScoreHidden[0] = true;
 						categoryItem.add(new Label("categoryGrade", getString("label.studentsummary.categoryscoreifhiddenassignment")));
@@ -201,7 +204,6 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 								return rawGrade != "";
 							}
 						});
-						assignmentItem.add(new Label("weight", assignment.getWeight()));
 						assignmentItem.add(new Label("comments", comment));
 					}
 				});
