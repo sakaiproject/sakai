@@ -2,23 +2,27 @@ package org.imsglobal.lti2;
 
 import java.util.Properties;
 import org.imsglobal.basiclti.BasicLTIConstants;
+import org.imsglobal.lti2.LTI2Vars;
 
 public class LTI2SampleData {
 
 	public static Properties getSubstitution() {
 		Properties lti2subst = new Properties();
-		lti2subst.setProperty("CourseOffering.id","context_id_999");
-		lti2subst.setProperty("CourseOffering.label","SI364");
-		lti2subst.setProperty("CourseOffering.title","Building Interactive Applications");
-		lti2subst.setProperty("Membership.role","Instructor");
-		lti2subst.setProperty("ResourceLink.id","res_link_999");
-		lti2subst.setProperty("ResourceLink.title","My weekly blog");
-		lti2subst.setProperty("User.id","user_id_007");
-		lti2subst.setProperty("User.username","bond");
-		lti2subst.setProperty("Person.name.given","James");
-		lti2subst.setProperty("Person.name.family","Bond");;
-		lti2subst.setProperty("Person.name.full","James Bond");
-		lti2subst.setProperty("Person.email.primary","bond@example.com");
+		lti2subst.setProperty(LTI2Vars.COURSESECTION_SOURCEDID, "context_id_999");
+		lti2subst.setProperty(LTI2Vars.COURSESECTION_LABEL,"SI364");
+		lti2subst.setProperty(LTI2Vars.COURSESECTION_TITLE,"Building Interactive Applications");
+		lti2subst.setProperty(LTI2Vars.CONTEXT_ID, "context_id_999");
+		lti2subst.setProperty(LTI2Vars.CONTEXT_LABEL,"SI364");
+		lti2subst.setProperty(LTI2Vars.CONTEXT_TITLE,"Building Interactive Applications");
+		lti2subst.setProperty(LTI2Vars.MEMBERSHIP_ROLE,"Instructor");
+		lti2subst.setProperty(LTI2Vars.RESOURCELINK_ID,"res_link_999");
+		lti2subst.setProperty(LTI2Vars.RESOURCELINK_TITLE,"My weekly blog");
+		lti2subst.setProperty(LTI2Vars.USER_ID,"user_id_007");
+		lti2subst.setProperty(LTI2Vars.USER_USERNAME,"bond");
+		lti2subst.setProperty(LTI2Vars.PERSON_NAME_GIVEN,"James");
+		lti2subst.setProperty(LTI2Vars.PERSON_NAME_FAMILY,"Bond");;
+		lti2subst.setProperty(LTI2Vars.PERSON_NAME_FULL,"James Bond");
+		lti2subst.setProperty(LTI2Vars.PERSON_EMAIL_PRIMARY,"bond@example.com");
 		return lti2subst;
 	}
 
