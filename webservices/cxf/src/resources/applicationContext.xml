@@ -152,6 +152,7 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="samLiteService" ref="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"/>
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
         <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+        <property name="activityService" ref="org.sakaiproject.event.api.ActivityService"/>
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
