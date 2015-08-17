@@ -1167,74 +1167,78 @@ public class SimplePageBean {
 		    return "permission-failed";
 
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		List refs = null;
-		String id = null;
-		String name = null;
-		String mimeType = null;
-		String description = null;
+		List<Reference> refs = null;
+		String returnMesssage = null;
 
 		if (toolSession.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null && toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
 
 			refs = (List) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-			if (refs == null || refs.size() != 1) {
+			//Changed 'refs.size != 1' to refs.isEmpty() as there can be multiple Resources
+			if (refs == null || refs.isEmpty()) {
 				return "no-reference";
 			}
-			Reference ref = (Reference) refs.get(0);
-			id = ref.getId();
-			
-			description = ref.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
-			
-			name = ref.getProperties().getProperty("DAV:displayname");
-
-			// URLs are complex. There are two issues:
-			// 1) The stupid helper treats a URL as a file upload. Have to make it a URL type.
-			// I suspect we're intended to upload a file from the URL, but I don't think
-			// any part of Sakai actually does that. So we reset Sakai's file type to URL
-			// 2) Lesson builder needs to know the mime type, to know how to set up the
-			// OBJECT or IFRAME. We send that out of band in the "html" field of the 
-			// lesson builder item entry. I see no way to do that other than to talk
-			// to the server at the other end and see what MIME type it claims.
-			mimeType = ref.getProperties().getProperty("DAV:getcontenttype");
-			if (mimeType.equals("text/url")) {
-			        mimeType = null; // use default rules if we can't find it
-				String url = null;
-				// part 1, fix up the type fields
-				boolean pushed = false;
-				try {
-					pushed = pushAdvisor();
-					ContentResourceEdit res = contentHostingService.editResource(id);
-					res.setContentType("text/url");
-					res.setResourceType("org.sakaiproject.content.types.urlResource");
-					url = new String(res.getContent());
-					contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
-				} catch (Exception ignore) {
-					return "no-reference";
-				}finally {
-					if(pushed) popAdvisor();
-				}
-				// part 2, find the actual data type.
-				if (url != null)
-				    mimeType = getTypeOfUrl(url);
-			} else if (isCaption) {
-			    // sakai probably sees it as a normal text file.
-			    // some browsers require the mime type to be right
-				boolean pushed = false;
-				try {
-					pushed = pushAdvisor();
-					ContentResourceEdit res = contentHostingService.editResource(id);
-					res.setContentType("text/vtt");
-					contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
-				} catch (Exception ignore) {
-					return "no-reference";
-				}finally {
-					if(pushed) popAdvisor();
-				}
+			for(Reference reference : refs){
+				returnMesssage = processSingleResource(reference, type, isWebSite, isCaption);
 			}
 		} else {
 			return "cancel";
 		}
 
-		boolean pushed = false;
+		return returnMesssage;
+	}
+
+	//This method is written to enable user to select multiple Resources from the tool
+	private String processSingleResource(Reference reference,int type, boolean isWebSite, boolean isCaption){
+
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		String id  = reference.getId();
+		String description = reference.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
+		String name = reference.getProperties().getProperty("DAV:displayname");
+
+		// URLs are complex. There are two issues:
+		// 1) The stupid helper treats a URL as a file upload. Have to make it a URL type.
+		// I suspect we're intended to upload a file from the URL, but I don't think
+		// any part of Sakai actually does that. So we reset Sakai's file type to URL
+		// 2) Lesson builder needs to know the mime type, to know how to set up the
+		// OBJECT or IFRAME. We send that out of band in the "html" field of the
+		// lesson builder item entry. I see no way to do that other than to talk
+		// to the server at the other end and see what MIME type it claims.
+		String mimeType = reference.getProperties().getProperty("DAV:getcontenttype");
+		if (mimeType.equals("text/url")) {
+			mimeType = null; // use default rules if we can't find it
+			String url = null;
+			// part 1, fix up the type fields
+			boolean pushed = false;
+			try {
+				pushed = pushAdvisor();
+				ContentResourceEdit res = contentHostingService.editResource(id);
+				res.setContentType("text/url");
+				res.setResourceType("org.sakaiproject.content.types.urlResource");
+				url = new String(res.getContent());
+				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
+			} catch (Exception ignore) {
+				return "no-reference";
+			}finally {
+				if(pushed) popAdvisor();
+			}
+			// part 2, find the actual data type.
+			if (url != null)
+				mimeType = getTypeOfUrl(url);
+		} else if (isCaption) {
+			// sakai probably sees it as a normal text file.
+			// some browsers require the mime type to be right
+			boolean pushed = false;
+			try {
+				pushed = pushAdvisor();
+				ContentResourceEdit res = contentHostingService.editResource(id);
+				res.setContentType("text/vtt");
+				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
+			} catch (Exception ignore) {
+				return "no-reference";
+			}finally {
+				if(pushed) popAdvisor();
+			}
+		}boolean pushed = false;
 		try {
 		    // I don't think we want the user adding anything he doesn't have access to
 		    // accessservice depends upon that
