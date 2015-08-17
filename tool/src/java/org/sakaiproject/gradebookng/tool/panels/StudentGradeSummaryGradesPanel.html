@@ -21,7 +21,7 @@
 			<table class="table table-bordered table-striped table-hover table-condensed">
 				<thead>
 				<tr>
-					<th colspan="2"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+					<th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
 					<th class="col-md-1"><wicket:message key="column.header.studentsummary.duedate" /></th>
 					<th class="col-md-1"><wicket:message key="column.header.studentsummary.grade" /></th>
 					<th><wicket:message key="column.header.studentsummary.comments" /></th>
@@ -29,7 +29,7 @@
 				</thead>
 				<tbody wicket:id="categoriesList">
 				<tr class="gb-summary-category-row">
-					<td colspan="3">
+					<td colspan="2">
 						<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
 						<span wicket:id="category" class="gb-summary-category-name"></span>
 						<span wicket:id="categoryWeight" class="gb-summary-category-weight"></span>
@@ -38,11 +38,13 @@
 					<td></td>
 				</tr>
 				<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
-					<td class="gb-summary-grade-title" wicket:id="title"></td>
-					<td class="col-md-1 gb-summary-grade-flags" wicket:id="flags">
-						<span wicket:id="isExtraCredit" class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
-						<span wicket:id="isNotCounted" class="gb-flag-not-counted" wicket:message="title:label.gradeitem.notcounted"></span>
-						<span wicket:id="isNotReleased" class="gb-flag-not-released" wicket:message="title:label.gradeitem.notreleased"></span>
+					<td>
+						<span class="gb-summary-grade-title" wicket:id="title"></span>
+						<span class="gb-summary-grade-flags" wicket:id="flags">
+							<span wicket:id="isExtraCredit" class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
+							<span wicket:id="isNotCounted" class="gb-flag-not-counted" wicket:message="title:label.gradeitem.notcounted"></span>
+							<span wicket:id="isNotReleased" class="gb-flag-not-released" wicket:message="title:label.gradeitem.notreleased"></span>
+						</span>
 					</td>
 					<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>
 					<td class="gb-summary-grade-score">

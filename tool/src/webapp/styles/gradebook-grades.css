@@ -835,6 +835,9 @@ ul.feedbackPanel li span {
   border-top: 1px solid #DDD;
   border-bottom: 1px solid #DDD;
 }
+.gb-summary-grade-panel .gb-summary-grade-flags {
+  padding-left: 10px;
+}
 /* Hidden column visual cue */
 .gb-hidden-column-visual-cue {
   position: absolute;
