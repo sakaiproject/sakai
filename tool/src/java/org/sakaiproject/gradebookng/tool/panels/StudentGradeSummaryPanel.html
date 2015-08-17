@@ -6,24 +6,11 @@
 
 		<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
 
-		<ul id="studentGradeSummaryTabs" class="nav nav-pills" role="tablist">
-			<li role="presentation" class="active"><a href="#instructorView"><wicket:message key="label.studentsummary.instructorviewtab" /></a></li>
-			<li role="presentation"><a href="#studentView"><wicket:message key="label.studentsummary.studentviewtab" /></a></li>
-		</ul>
+		<span wicket:id="tabs" class="tabpanel">[tabbed panel will be here]</span>
 
-		<div class="tab-content">
-			<div role="tabpanel" class="tab-pane fade in active" id="instructorView">
-
-				<div wicket:id="instructorView"></div>
-
-				<div class="gb-summary-navigate-students row">
-					<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
-					<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
-				</div>
-			</div>
-			<div role="tabpanel" class="tab-pane fade" id="studentView">
-				<div wicket:id="studentView"></div>
-			</div>
+		<div wicket:id="studentNavigation" class="row">
+			<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
+			<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
 		</div>
 
 		<div class="gb-summary-modal-actions row">
