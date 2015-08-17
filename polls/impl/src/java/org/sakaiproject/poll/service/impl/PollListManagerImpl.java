@@ -129,14 +129,14 @@ public class PollListManagerImpl implements PollListManager,EntityTransferrer {
         List<String> allowedSites = externalLogic.getSitesForUser(userId, permissionConstant);
 		
 		if(siteIds!=null && siteIds.length>0 && !allowedSites.isEmpty()){
-        	List<String> requestedSites = new ArrayList<String>(Arrays.asList(siteIds));
+        	List<String> requestedSiteIds = Arrays.asList(siteIds);
         	// filter down to just the requested ones
-        	requestedSites.retainAll(allowedSites);
-        	if(requestedSites.isEmpty()){
+        	allowedSites.retainAll(requestedSiteIds);
+        	if(allowedSites.isEmpty()){
         		// no sites to search so EXIT here
         		return new ArrayList<Poll>();
         	}
-            String[] siteIdsToSearch = requestedSites.toArray(new String[requestedSites.size()]);
+            String[] siteIdsToSearch = allowedSites.toArray(new String[allowedSites.size()]);
             Search search = new Search();
             if (siteIdsToSearch.length > 0) {
                 search.addRestriction(new Restriction("siteId", siteIdsToSearch));
