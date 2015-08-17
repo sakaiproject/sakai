@@ -101,7 +101,7 @@ public class GradebookPage extends BasePage {
 		studentGradeSummaryWindow.setResizable(false);
 		studentGradeSummaryWindow.setUseInitialHeight(false);
 		studentGradeSummaryWindow.setWidthUnit("%");
-		studentGradeSummaryWindow.setInitialWidth(95);
+		studentGradeSummaryWindow.setInitialWidth(70);
 		form.add(studentGradeSummaryWindow);
 		
 		updateUngradedItemsWindow = new ModalWindow("updateUngradedItemsWindow");
