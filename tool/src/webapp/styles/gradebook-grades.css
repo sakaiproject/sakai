@@ -128,12 +128,8 @@
   right: 1px;
 }
 #gradebookGrades .btn.dropdown-toggle {
-  padding: 4px 8px;
+  padding: 0 8px;
   line-height: 1em;
-}
-#gradebookGrades .btn.dropdown-toggle:hover,
-#gradebookGrades .btn.dropdown-toggle:focus {
-  background-color: #DEF;
 }
 #gradebookGrades #gradebookGradesTable tfoot .gb-cell-inner {
   /* ensure there's enough room at the bottom of the scrollable div
