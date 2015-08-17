@@ -279,14 +279,19 @@ public class SakaiBLTIUtil {
 			String context_type = site.getType();
 			if ( context_type != null && context_type.toLowerCase().contains("course") ){
 				setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
+				setProperty(lti2subst,LTI2Vars.CONTEXT_TYPE,LTI2Vars.CONTEXT_TYPE_DEFAULT);
 			}
 			setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
-			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_SOURCEDID,site.getId());
+			setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,site.getId());
+			setProperty(lti2subst,LTI2Vars.CONTEXT_ID,site.getId());
 
 			setProperty(props,BasicLTIConstants.CONTEXT_LABEL,site.getTitle());
-			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_LABEL,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.COURSESECTION_LABEL,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.CONTEXT_LABEL,site.getTitle());
 
-			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_LONGDESCRIPTION,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.COURSESECTION_LONGDESCRIPTION,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.CONTEXT_TITLE,site.getTitle());
+
 			String courseRoster = getExternalRealmId(site.getId());
 			if ( courseRoster != null ) 
 			{

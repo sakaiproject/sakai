@@ -257,8 +257,9 @@ foreach($tc_capabilities as $capability) {
 
     if ( $oauth_splitsecret === false && "OAuth.splitSecret" == $capability ) continue;
 
-    if ( "OAuth.hmac-256" == $capability ) {
-        $hmac256 = true;
+    if ( "OAuth.hmac-sha256" == $capability ) {
+	// This is not fully supported beyond registration so we never accept this
+        // $hmac256 = 'HMAC-SHA256';
     }
 
     // promote these up to the top level capabilities
@@ -303,7 +304,7 @@ if ( $lti_message_type == "ToolProxyReregistrationRequest" ) {
     $more_headers[] = 'VND-IMS-CONFIRM-URL: '.$cur_base.'tp_commit.php?correlation=49201-48842';
 }
 
-$response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers);
+$response = sendOAuthBody("POST", $register_url, $reg_key, $reg_password, "application/vnd.ims.lti.v2.toolproxy+json", $body, $more_headers, $hmac256);
 
 togglePre("Registration Request Headers",htmlent_utf8(get_body_sent_debug()));
 
