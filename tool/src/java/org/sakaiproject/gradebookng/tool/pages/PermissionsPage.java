@@ -1,6 +1,7 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +17,11 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 
@@ -53,24 +56,38 @@ public class PermissionsPage extends BasePage {
 		//get list of categories
 		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
 		
+		//add the default 'all'
+		categories.add(0, new CategoryDefinition(null, getString("categories.all")));
+		
         final Map<Long, String> categoryMap = new HashMap<>();
         for (CategoryDefinition category : categories) {
             categoryMap.put(category.getId(), category.getName());
         }
 		
 		//get list of groups
-		List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
+		
+		//add the default 'all'
+        groups.add(0, new GbGroup(null, getString("groups.all"), GbGroup.Type.ALL));
+		
+		final Map<String, String> groupMap = new HashMap<>();
+        for (GbGroup group : groups) {
+        	groupMap.put(group.getId(), group.getTitle());
+        }
+		
+		//get list of permissions that can be assigned (skip the course grade permissions as handle it differently)
+        final List<String> assignablePermissions = new ArrayList<>();
+        assignablePermissions.add(GraderPermission.VIEW.toString());
+        assignablePermissions.add(GraderPermission.GRADE.toString());
 		
 		//determine text for instructions panel
 		String instructions = null;
-		boolean displayForm = false;
 		if(teachingAssistants.isEmpty()) {
 			instructions = getString("permissionspage.instructions.noteachingassistants");
 		} else if(categories.isEmpty() && groups.isEmpty()) {
 			instructions = getString("permissionspage.instructions.nocategoriesorsections");
 		} else {
 			instructions = getString("permissionspage.instructions.ok");
-			displayForm = true;
 		}
 		
 		add(new Label("instructions", instructions).setEscapeModelStrings(false));
@@ -79,17 +96,17 @@ public class PermissionsPage extends BasePage {
 		final DropDownChoice<GbUser> taChooser = new DropDownChoice<GbUser>("ta", new Model<GbUser>(), teachingAssistants, new ChoiceRenderer<GbUser>() {
 			private static final long serialVersionUID = 1L;
 			
-				@Override
-				public Object getDisplayValue(GbUser u) {
-					return u.getDisplayName();
-				}
+			@Override
+			public Object getDisplayValue(GbUser u) {
+				return u.getDisplayName();
+			}
+			
+			@Override
+			public String getIdValue(GbUser u, int index) {
+				return u.getUserUuid();
+			}
 				
-				@Override
-				public String getIdValue(GbUser u, int index) {
-					return u.getUserUuid();
-				}
-				
-			});
+		});
 				
 		//add the onchange to the chooser
 		taChooser.add(new AjaxFormComponentUpdatingBehavior("onchange") {
@@ -109,23 +126,8 @@ public class PermissionsPage extends BasePage {
 		taChooser.setNullValid(false);
 		taChooser.setModelObject(taSelected);
 
-        //form.add(taChooser);
 		add(taChooser);
 		
-		
-		/*
-        //wrap the loading of the permissions	
-  		IModel permissionsListModel =  new LoadableDetachableModel() {
-            protected Object load() {
-            	if(taSelected != null) {
-            		return businessService.getPermissionsForTeachingAssistant(taSelected.getUserUuid());
-            	} else {
-            		return new ArrayList<>();
-            	}
-            }
-        };
-        */
-        
         if(taSelected != null) {
         	permissions = businessService.getPermissionsForTeachingAssistant(taSelected.getUserUuid());
         }
@@ -142,18 +144,36 @@ public class PermissionsPage extends BasePage {
 				
 				PermissionDefinition permission = item.getModelObject();
 				
-				//action list
+				//can
+				item.add(new Label("can", new ResourceModel("permissionspage.item.can")));
 				
-				//categories list (if present)
+				//function list
+				final DropDownChoice<String> functionChooser = new DropDownChoice<String>("function", new PropertyModel<String>(permission, "function"), assignablePermissions, new ChoiceRenderer<String>() {
+					private static final long serialVersionUID = 1L;
+					
+					@Override
+					public Object getDisplayValue(String function) {
+						return getString("permissionspage.function." + function);
+					}
+					
+					@Override
+					public String getIdValue(String function, int index) {
+						return function;
+					}
+						
+				});
+				item.add(functionChooser);
+				
+				//categories list
 				DropDownChoice<Long> categoryChooser = new DropDownChoice<Long>("category", new PropertyModel<Long>(permission, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new ChoiceRenderer<Long>() {
 					private static final long serialVersionUID = 1L;
 
-					public Object getDisplayValue(Long value) {
-		                return categoryMap.get(value);
+					public Object getDisplayValue(Long l) {
+		                return categoryMap.get(l);
 		            }
 
-		            public String getIdValue(Long object, int index) {
-		                return object.toString();
+		            public String getIdValue(Long l, int index) {
+		                return l.toString();
 		            }
 		        });
 		        categoryChooser.setNullValid(false);
@@ -162,7 +182,23 @@ public class PermissionsPage extends BasePage {
 		        }
 		        item.add(categoryChooser);
 				
-				//groups list if present
+				//in
+				item.add(new Label("in", new ResourceModel("permissionspage.item.in")));
+				
+				//groups list
+				DropDownChoice<String> groupChooser = new DropDownChoice<String>("group", new PropertyModel<String>(permission, "groupId"), new ArrayList<String>(groupMap.keySet()), new ChoiceRenderer<String>() {
+					private static final long serialVersionUID = 1L;
+
+					public Object getDisplayValue(String gId) {
+		                return groupMap.get(gId);
+		            }
+
+		            public String getIdValue(String gId, int index) {
+		                return gId;
+		            }
+		        });
+				groupChooser.setNullValid(false);
+		        item.add(groupChooser);
 				
 			}
 			

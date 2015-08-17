@@ -18,8 +18,11 @@
 	<form wicket:id="form">
 		
 	    <div wicket:id="permissions">
-	    	<span><wicket:message key="permissionspage.item.can">Can</wicket:message></span>
+	    	<span wicket:id="can">Can</span>
+	    	<select wicket:id="function" />
 	    	<select wicket:id="category" />
+	    	<span wicket:id="in">in</span>
+	    	<select wicket:id="group" />
 	    </div>
 	    
 	    <button wicket:id="addRule" type="submit" class="btn btn-default gb-add-permission-rule"><wicket:message key="permissionspage.addrule" /></button>
