@@ -281,6 +281,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 			@Override
 			public boolean isVisible() {
+				if (assignment.isExternallyMaintained()) {
+					return false;
+				}
 				// TODO add check for permission
 				return true;
 			}

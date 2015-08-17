@@ -474,7 +474,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
       self.$fixedColumns.
           show().
           css("left", self.$spreadsheet[0].scrollLeft + "px").
-          css("top", self.$table.find("tbody").position().top);
+          css("top", self.$table.find("tbody:first").position().top);
     } else {
       self.$fixedColumns.hide();
     }
@@ -492,7 +492,7 @@ GradebookSpreadsheet.prototype.setupFixedColumns = function() {
 
       if ($(document).scrollTop() + self.$fixedColumnsHeader.height() + 80 > self.$table.offset().top + self.$table.height()) {
         // don't change anything as we don't want the fixed header to scroll to below the table
-        topOffset = self.$fixedColumnsHeader.offset().top;
+        topOffset = self.$fixedColumnsHeader.position().top;
         // except check for the horizontal scroll
         if (self.$spreadsheet[0].scrollLeft == 0) {
           showFixedHeader = true;
@@ -1237,6 +1237,12 @@ GradebookSpreadsheet.prototype.enablePopovers = function($target) {
     }, 100));
   }).on("hidden.bs.popover", function() {
     self.popoverClicked = false;
+  }).on("shown.bs.popover", function(event) {
+    var $popover = $(this).data("bs.popover").$tip;
+    var bottomMostPoint = $popover.position().top + $popover.outerHeight();
+    if (bottomMostPoint > self.$spreadsheet[0].offsetHeight) {
+      self.$spreadsheet[0].scrollTop = bottomMostPoint - self.$spreadsheet[0].offsetHeight + 20;
+    }
   });
 
   // Ensure the popover doesn't get in the way of the dropdown menu

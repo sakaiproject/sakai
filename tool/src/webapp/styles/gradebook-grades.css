@@ -128,12 +128,8 @@
   right: 1px;
 }
 #gradebookGrades .btn.dropdown-toggle {
-  padding: 4px 8px;
+  padding: 0 8px;
   line-height: 1em;
-}
-#gradebookGrades .btn.dropdown-toggle:hover,
-#gradebookGrades .btn.dropdown-toggle:focus {
-  background-color: #DEF;
 }
 #gradebookGrades #gradebookGradesTable tfoot .gb-cell-inner {
   /* ensure there's enough room at the bottom of the scrollable div
@@ -359,6 +355,7 @@
 /* Toolbar */
 #gradebookGrades {
   padding-top: 1.6em;
+  padding-bottom: 80px;
 }
 #gradebookGradesToolbar {
   background: #FAFAFA;
@@ -702,6 +699,19 @@ ul.feedbackPanel li span {
   font-family: "gradebook-icons";
   content: "\f071";
   color: rgb(200,144,0);
+}
+.gb-external-item-cell .gb-cell-notification-warning {
+  opacity: 0.2;
+  font-style: normal;
+}
+.gb-external-item-cell .gb-cell-notification-warning:before {
+  color: #CCC;
+  content: '\f023';
+}
+.gb-external-item-cell:focus .gb-cell-notification-warning,
+.gb-external-item-cell .gb-cell-notification-warning:focus {
+  display:block;
+  opacity: 1;
 }
 .grade-save-over-limit {
   background-color: #fcf8e3 !important;
