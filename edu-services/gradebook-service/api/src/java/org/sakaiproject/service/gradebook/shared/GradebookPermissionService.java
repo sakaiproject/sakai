@@ -246,6 +246,16 @@ public interface GradebookPermissionService
 	  * @return
 	  */
 	 public List<PermissionDefinition> getPermissionsForUser(final String gradebookUid, final String userId);
+	 
+	 /**
+	  * Update the set of grader specific permissions for the given user
+	  * 
+	  * @param gradebookUid
+	  * @param userId
+	  * @param permissionDefinitions
+	  * @return
+	  */
+	 public void updatePermissionsForUser(final String gradebookUid, final String userId, List<PermissionDefinition> permissionDefinitions);
 
 	 
 }

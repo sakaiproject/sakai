@@ -13,7 +13,7 @@ public class PermissionDefinition implements Serializable {
 	private String userId;
 	private String function;
 	private Long categoryId;
-	private String groupId;
+	private String groupReference;
 
 	public Long getCategoryId() {
 		return categoryId;
@@ -23,12 +23,12 @@ public class PermissionDefinition implements Serializable {
 		this.categoryId = categoryId;
 	}
 	
-	public String getGroupId() {
-		return groupId;
+	public String getGroupReference() {
+		return groupReference;
 	}
 	
-	public void setGroupId(String groupId) {
-		this.groupId = groupId;
+	public void setGroupReference(String groupReference) {
+		this.groupReference = groupReference;
 	}
 	
 	public Long getId() {

@@ -1265,9 +1265,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		return sectionIdStudentIdsMap;
 	}
 	
-	/**
-	 * {@inheritDoc}
-	 */
+	@Override
 	public List<PermissionDefinition> getPermissionsForUser(final String gradebookUid, final String userId) {
 		Long gradebookId = getGradebook(gradebookUid).getId();
 			 
@@ -1280,24 +1278,56 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			 
 		return rval;
 	}
+	
+	@Override
+	public void updatePermissionsForUser(final String gradebookUid, final String userId, List<PermissionDefinition> permissionDefinitions) {
+		Long gradebookId = getGradebook(gradebookUid).getId();
+		
+		//get the current list of permissions
+		List<Permission> currentPermissions = getPermissionsForUser(gradebookId, userId);
+		
+		//compare
+		
+		//add/remove/update as necessary
+		
+	}
+
+	
 	 
 	 /**
 	  * Maps a Permission to a PermissionDefinition
+	  * Note that the persistent groupId is actually the group reference
 	  * @param permission
-	  * @return
+	  * @return a {@link PermissionDefinition}
 	  */
 	 private PermissionDefinition toPermissionDefinition(Permission permission) {
 		 PermissionDefinition rval = new PermissionDefinition();
-		    if (permission != null) {
-		    	rval.setId(permission.getId());
-		    	rval.setUserId(permission.getUserId());
-		    	rval.setCategoryId(permission.getCategoryId());
-		    	rval.setFunction(permission.getFunction());
-		    	rval.setGroupId(permission.getGroupId());
-		    }
-
-		    return rval;
-		}
+		 if (permission != null) {
+			 rval.setId(permission.getId());
+			 rval.setUserId(permission.getUserId());
+			 rval.setCategoryId(permission.getCategoryId());
+			 rval.setFunction(permission.getFunction());
+			 rval.setGroupReference(permission.getGroupId()); 
+		 }
+		 return rval;
+	 }
+	 
+	 /**
+	  * Maps a PermissionDefinition to a Permission
+	  * @param def
+	  * @return a {@link Permission}
+	  */
+	 private Permission toPermission(Permission permission, PermissionDefinition def) {
+		 Permission rval = new Permission();
+		 if (def != null) {
+			 rval.setId(def.getId());
+			 rval.setUserId(def.getUserId());
+			 rval.setCategoryId(def.getCategoryId());
+			 rval.setFunction(def.getFunction());
+			 rval.setGroupId(def.getGroupReference());
+		 }
+		 return rval;
+	 }
 
 
 }
