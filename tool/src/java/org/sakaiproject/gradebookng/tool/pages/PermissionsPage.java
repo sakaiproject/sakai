@@ -133,7 +133,7 @@ public class PermissionsPage extends BasePage {
 		add(taChooser);
 		
         if(taSelected != null) {
-        	permissions = businessService.getPermissionsForTeachingAssistant(taSelected.getUserUuid());
+        	permissions = businessService.getPermissionsForUser(taSelected.getUserUuid());
         }
         
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -180,7 +180,7 @@ public class PermissionsPage extends BasePage {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			protected void populateItem(ListItem<PermissionDefinition> item) {
+			protected void populateItem(final ListItem<PermissionDefinition> item) {
 				
 				PermissionDefinition permission = item.getModelObject();
 								
@@ -246,6 +246,22 @@ public class PermissionsPage extends BasePage {
 				groupChooser.setModelObject((permission.getGroupReference() != null) ? permission.getGroupReference() : groupRefList.get(0));
 				groupChooser.setNullValid(false);
 		        item.add(groupChooser);
+		        
+		        //remove button
+				AjaxButton remove = new AjaxButton("remove") {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+						
+						//remove current item
+						PermissionDefinition current = item.getModelObject();
+						permissions.remove(current);
+						
+						target.add(form);
+					}
+				};
+				remove.setDefaultFormProcessing(false);
+				item.add(remove);
 				
 			}
 			
