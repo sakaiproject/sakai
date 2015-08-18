@@ -619,12 +619,17 @@ div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
 }
 div.wicket-mask-dark {
-  /* make the modal background darker */
-  opacity: 0.95;
-  filter: alpha(opacity=95);
+  background-color: #FFF;
+  opacity: 0.6;
+  filter: alpha(opacity=6);
+}
+.gb-blur {
+  filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius='4');
+  filter: url(blur.svg#blur);
+  -webkit-filter: blur(4px);
+  filter: blur(4px);
 }
 div.wicket-mask-transparent {
-  /* make the modal background darker, back to the original 10% opacity */
   opacity: 0.1; 
   background-color: black; 
   filter: alpha(opacity=10); 
