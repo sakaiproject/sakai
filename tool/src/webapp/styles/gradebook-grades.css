@@ -11,8 +11,8 @@
     font-style:normal
 }
 
-/* Add Gradebook Item & Add Permission Rule */
-.gb-add-gradebook-item-button:before, .gb-add-permission-rule:before {
+/* Add Gradebook Item */
+.gb-add-gradebook-item-button:before {
   font-family: "gradebook-icons";
   content: "\f067";
   vertical-align: text-bottom;

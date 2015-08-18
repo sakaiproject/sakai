@@ -704,7 +704,7 @@ public class GradebookNgBusinessService {
 			Collection<Group> groups = site.getGroups();
 
 			for(Group group: groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), GbGroup.Type.GROUP));
+				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
 			}
 		} catch (IdUnusedException e) {
 			//essentially ignore and use what we have

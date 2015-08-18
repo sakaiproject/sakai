@@ -353,7 +353,7 @@ public class GradebookPage extends BasePage {
         List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
         
         //add the default ALL group to the list
-        groups.add(0, new GbGroup(null, getString("groups.all"), GbGroup.Type.ALL));
+        groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
             
 		final DropDownChoice<GbGroup> groupFilter = new DropDownChoice<GbGroup>("groupFilter", new Model<GbGroup>(), groups, new ChoiceRenderer<GbGroup>() {
 		private static final long serialVersionUID = 1L;

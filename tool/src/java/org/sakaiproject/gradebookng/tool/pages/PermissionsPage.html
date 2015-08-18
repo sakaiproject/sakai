@@ -9,27 +9,29 @@
 	
 	<h3><wicket:message key="permissionspage.instructions.choose" /></h3>
 	
-	<div class="form-group form-group-sm">
+	<div class="form-inline">
 		<select wicket:id="ta" class="form-control">
 			<option>TA 1</option>
 		</select>
 	</div>
 	
-	<form wicket:id="form">
+	<form wicket:id="form" class="form-inline">
 		
 	    <div wicket:id="permissions">
 	    	<span wicket:id="can">Can</span>
-	    	<select wicket:id="function" />
-	    	<select wicket:id="category" />
+	    	<select wicket:id="function" class="form-control"/>
+	    	<select wicket:id="category" class="form-control"/>
 	    	<span wicket:id="in">in</span>
-	    	<select wicket:id="group" />
+	    	<select wicket:id="group" class="form-control"/>
 	    </div>
 	    
-	    <button wicket:id="addRule" type="submit" class="btn btn-default gb-add-permission-rule"><wicket:message key="permissionspage.addrule" /></button>
+	    <div>
+	    	<button wicket:id="addRule" type="submit" class="btn btn-default gb-add-permission-rule"><wicket:message key="permissionspage.addrule" /></button>
+	    </div>
 	    
 	    <div>
-			<input type="submit" class="btn btn-primary" wicket:message="value:button.savechanges" />
-			<!-- <input type="submit" class="btn btn-link" wicket:id="cancel" wicket:message="value:button.cancel" /> -->
+			<button wicket:id="submit" class="btn btn-primary"><wicket:message key="button.savechanges" /></button>
+			<button wicket:id="clear" class="btn btn-link"><wicket:message key="button.clear" /></button>
 		</div>
 	
 	</form>

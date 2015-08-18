@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -10,6 +11,7 @@ import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
@@ -20,6 +22,7 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
+import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -65,14 +68,15 @@ public class PermissionsPage extends BasePage {
         }
 		
 		//get list of groups
+        //note that for this page we need to use the group references not the ids
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
 		
-		//add the default 'all'
-        groups.add(0, new GbGroup(null, getString("groups.all"), GbGroup.Type.ALL));
+		//add the default 'all' with null ids
+        groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
 		
 		final Map<String, String> groupMap = new HashMap<>();
         for (GbGroup group : groups) {
-        	groupMap.put(group.getId(), group.getTitle());
+        	groupMap.put(group.getReference(), group.getTitle());
         }
 		
 		//get list of permissions that can be assigned (skip the course grade permissions as handle it differently)
@@ -132,7 +136,43 @@ public class PermissionsPage extends BasePage {
         	permissions = businessService.getPermissionsForTeachingAssistant(taSelected.getUserUuid());
         }
         
-		Form form = new Form("form", Model.ofList(permissions));
+		@SuppressWarnings({ "rawtypes", "unchecked" })
+		Form form = new Form("form", Model.ofList(permissions)) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				List<PermissionDefinition> permissions = (List<PermissionDefinition>) this.getModelObject();
+				
+				
+			}
+		};
+		
+		//submit button
+		Button submit = new Button("submit") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onSubmit() {
+				
+				Form form = getForm();
+				
+				List<PermissionDefinition> permissions = (List<PermissionDefinition>) form.getModelObject();
+				
+				System.out.println("num: " + permissions.size());
+			}
+		};
+		form.add(submit);
+		
+		//clear button
+		Button clear = new Button("clear") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onSubmit() {
+				setResponsePage(new PermissionsPage(taSelected));
+			}
+		};
+		clear.setDefaultFormProcessing(false);
+		form.add(clear);
         
 		//render view for list of permissions  
 		ListView<PermissionDefinition> permissionsView = new ListView<PermissionDefinition>("permissions", permissions) {
@@ -143,7 +183,7 @@ public class PermissionsPage extends BasePage {
 			protected void populateItem(ListItem<PermissionDefinition> item) {
 				
 				PermissionDefinition permission = item.getModelObject();
-				
+								
 				//can
 				item.add(new Label("can", new ResourceModel("permissionspage.item.can")));
 				
@@ -162,10 +202,12 @@ public class PermissionsPage extends BasePage {
 					}
 						
 				});
+				functionChooser.setNullValid(false);
 				item.add(functionChooser);
 				
 				//categories list
-				DropDownChoice<Long> categoryChooser = new DropDownChoice<Long>("category", new PropertyModel<Long>(permission, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new ChoiceRenderer<Long>() {
+				List<Long> categoryIdList = new ArrayList<Long>(categoryMap.keySet());
+				DropDownChoice<Long> categoryChooser = new DropDownChoice<Long>("category", new PropertyModel<Long>(permission, "categoryId"), categoryIdList, new ChoiceRenderer<Long>() {
 					private static final long serialVersionUID = 1L;
 
 					public Object getDisplayValue(Long l) {
@@ -179,6 +221,8 @@ public class PermissionsPage extends BasePage {
 		                return l.toString();
 		            }
 		        });
+				//set selected or first item
+				categoryChooser.setModelObject((permission.getCategoryId() != null) ? permission.getCategoryId() : categoryIdList.get(0));
 		        categoryChooser.setNullValid(false);
 		        item.add(categoryChooser);
 				
@@ -186,17 +230,20 @@ public class PermissionsPage extends BasePage {
 				item.add(new Label("in", new ResourceModel("permissionspage.item.in")));
 				
 				//groups list
-				DropDownChoice<String> groupChooser = new DropDownChoice<String>("group", new PropertyModel<String>(permission, "groupId"), new ArrayList<String>(groupMap.keySet()), new ChoiceRenderer<String>() {
+				List<String> groupRefList = new ArrayList<String>(groupMap.keySet());
+				DropDownChoice<String> groupChooser = new DropDownChoice<String>("group", new PropertyModel<String>(permission, "groupReference"), groupRefList, new ChoiceRenderer<String>() {
 					private static final long serialVersionUID = 1L;
 
-					public Object getDisplayValue(String gId) {
-		                return groupMap.get(gId);
+					public Object getDisplayValue(String groupRef) {
+		                return groupMap.get(groupRef);
 		            }
 
-		            public String getIdValue(String gId, int index) {
-		                return gId;
+		            public String getIdValue(String groupRef, int index) {
+		                return groupRef;
 		            }
 		        });
+				//set selected or first item
+				groupChooser.setModelObject((permission.getGroupReference() != null) ? permission.getGroupReference() : groupRefList.get(0));
 				groupChooser.setNullValid(false);
 		        item.add(groupChooser);
 				
