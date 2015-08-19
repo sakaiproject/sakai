@@ -603,6 +603,18 @@ public class BasicLTIUtil {
 			URL urlConn = new URL(oauthURL);
 			HttpURLConnection connection = (HttpURLConnection) urlConn.openConnection();
 			connection.setRequestMethod(method);
+
+			// Since Java won't send Content-length unless we really send 
+			// content - send some data character so we don't 
+			// send a broken PUT
+			if ( ! "GET".equals(method) ) {
+				connection.setDoOutput(true);
+				OutputStreamWriter out = new OutputStreamWriter(
+				connection.getOutputStream());
+				out.write("42");
+				out.close();
+			}
+			connection.connect();
 			int responseCode = connection.getResponseCode();
 			return connection;
 		} catch(Exception e) {
@@ -610,6 +622,20 @@ public class BasicLTIUtil {
 			return null;
 		}
 	}
+
+	/** 
+         * getResponseCode - Read the HTTP Response
+	 * @param connection
+	 */
+	public static int getResponseCode(HttpURLConnection connection)
+	{
+		try {
+			return connection.getResponseCode();
+		} catch(Exception e) {
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
+		}
+	}
+
 
 	/** 
          * readHttpResponse - Read the HTTP Response

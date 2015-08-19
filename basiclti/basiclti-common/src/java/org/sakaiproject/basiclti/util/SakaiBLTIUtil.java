@@ -46,6 +46,7 @@ import org.imsglobal.lti2.LTI2Vars;
 import org.imsglobal.lti2.LTI2Caps;
 import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.LTI2Messages;
+import org.imsglobal.lti2.ToolProxy;
 import org.imsglobal.lti2.ToolProxyBinding;
 import org.imsglobal.lti2.ContentItem;
 import org.imsglobal.lti2.objects.ToolConsumer;
@@ -946,12 +947,12 @@ public class SakaiBLTIUtil {
 	}
 
 	/**
-	 * An LTI 2.0 ReRegistration launch
+	 * An LTI 2.0 Reregistration launch
 	 *
 	 * This must return an HTML message as the [0] in the array
 	 * If things are successful - the launch URL is in [1]
 	 */
-	public static String[] postReRegisterHTML(Long deployKey, Map<String,Object> deploy, ResourceLoader rb, String placementId)
+	public static String[] postReregisterHTML(Long deployKey, Map<String,Object> deploy, ResourceLoader rb, String placementId)
 	{
 		if ( deploy == null ) {
 			return postError("<p>" + getRB(rb, "error.deploy.missing" ,"Deployment is missing or improperly configured.")+"</p>" ); 
@@ -960,7 +961,24 @@ public class SakaiBLTIUtil {
 		int status = getInt(deploy.get("reg_state"));
 		if ( status == 0 ) return postError("<p>" + getRB(rb, "error.deploy.badstate" ,"Deployment is in the wrong state to register")+"</p>" ); 
 
+		// Figure out the launch URL to use unless we have been told otherwise
 		String launch_url = (String) deploy.get("reg_launch");
+
+                // Find the global message for Reregistration
+		String reg_profile = (String) deploy.get("reg_profile");
+		
+		// TODO: Variable substitution
+                ToolProxy toolProxy = null;
+                try {
+                        toolProxy = new ToolProxy(reg_profile);
+                } catch (Throwable t ) {
+			return postError("<p>" + getRB(rb, "error.deploy.badproxy" ,"This deployment has a broken reg_profile.")+"</p>" );
+                }
+
+		JSONObject proxy_message = toolProxy.getMessageOfType("ToolProxyReregistrationRequest");
+		String re_path = toolProxy.getPathFromMessage(proxy_message);
+		if ( re_path != null ) launch_url = re_path;
+
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.deploy.noreg" ,"This deployment is has no registration url.")+"</p>" );
 
 		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
