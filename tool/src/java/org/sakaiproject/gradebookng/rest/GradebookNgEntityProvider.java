@@ -23,8 +23,9 @@ import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
-import org.sakaiproject.gradebookng.business.GbPermission;
+import org.sakaiproject.gradebookng.business.GbPortalPermission;
 import org.sakaiproject.gradebookng.business.model.GbGradeCell;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.site.api.Site;
@@ -196,7 +197,7 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 			throw new SecurityException("You must be logged in to access GBNG data");
 		}
 		
-		if(!isAllowed(currentUserId, GbPermission.GRADE_ALL.getValue(), siteService.siteReference(siteId))) {
+		if(this.businessService.getUserRole(siteId) != GbRole.INSTRUCTOR) {
 			throw new SecurityException("You do not have instructor-type permissions in this site.");
 		}
 	}
@@ -208,21 +209,6 @@ public class GradebookNgEntityProvider extends AbstractEntityProvider implements
 	 */
 	private String getCurrentUserId() {
 		return sessionManager.getCurrentSessionUserId();
-	}
-
-	/**
-	 * Helper to check user is allowed
-	 * 
-	 * @param userId
-	 * @param permission
-	 * @param locationId
-	 * @return
-	 */
-	private boolean isAllowed(String userId, String permission, String locationId) {
-		if (securityService.unlock(userId, permission, locationId)) {
-			return true;
-		}
-		return false;
 	}
 	
 	/**

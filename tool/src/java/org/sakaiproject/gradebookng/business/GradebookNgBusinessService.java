@@ -25,9 +25,6 @@ import org.apache.commons.lang.time.StopWatch;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Membership;
-import org.sakaiproject.coursemanagement.api.Section;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
@@ -46,7 +43,6 @@ import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.business.util.XmlList;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
-import org.sakaiproject.section.api.coursemanagement.CourseSection;
 import org.sakaiproject.service.gradebook.shared.AssessmentNotFoundException;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -59,14 +55,12 @@ import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
-import org.sakaiproject.service.gradebook.shared.SortType;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.gradebook.Gradebook;
 import org.sakaiproject.tool.gradebook.GradingEvent;
-import org.sakaiproject.tool.gradebook.Permission;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.user.api.UserNotDefinedException;
@@ -710,7 +704,7 @@ public class GradebookNgBusinessService {
 			Collection<Group> groups = site.getGroups();
 
 			for(Group group: groups) {
-				rval.add(new GbGroup(group.getId(), group.getTitle(), GbGroup.Type.GROUP));
+				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
 			}
 		} catch (IdUnusedException e) {
 			//essentially ignore and use what we have
@@ -1521,16 +1515,30 @@ public class GradebookNgBusinessService {
      }
      
      /**
-      * Get a list of grader permissions for the given teaching assistant
-      * @param taUuid
+      * Get a list of permissions defined for the given user.
+      * Note: These are currently only defined/used for a teaching assistant.
+      * @param userUuid
       * @return
       */
-     public List<PermissionDefinition> getPermissionsForTeachingAssistant(String taUuid) {
+     public List<PermissionDefinition> getPermissionsForUser(String userUuid) {
     	 String siteId = this.getCurrentSiteId();
     	 Gradebook gradebook = getGradebook(siteId);
     	 
-    	 List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gradebook.getUid(), taUuid);
+    	 List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gradebook.getUid(), userUuid);
     	 return permissions; 
+     }
+     
+     /**
+      * Update the permissions for the user.
+      * Note: These are currently only defined/used for a teaching assistant.
+      * @param userUuid
+      * @param permissions
+      */
+     public void updatePermissionsForUser(String userUuid, List<PermissionDefinition> permissions) {
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 this.gradebookPermissionService.updatePermissionsForUser(gradebook.getUid(), userUuid, permissions);
      }
 
     /**
