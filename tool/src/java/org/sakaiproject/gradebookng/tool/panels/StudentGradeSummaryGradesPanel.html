@@ -4,24 +4,26 @@
 <body>
 	<wicket:panel>
 		<div class="gb-summary-grade-panel">
-			<div class="row gb-summary-course-grade">
-				<div class="gb-summary-course-grade-label col-md-2"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
-				<div class="gb-summary-course-grade-value col-md-10"><span wicket:id="courseGrade">B+</span></div>
-			</div>
-	
-			<div class="row">
-				<div class="col-md-3">
-					<strong><wicket:message key="label.studentsummary.gradeitems" /></strong>
+			<div class="gb-summary-course-grade">
+				<div class="panel panel-default">
+					<div class="panel-body">
+						<div class="gb-summary-course-grade-label col-md-2"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
+						<div class="gb-summary-course-grade-value col-md-10"><span wicket:id="courseGrade">B+</span></div>
+					</div>
 				</div>
-				<div class="col-md-4">
+			</div>
+
+			<div class="col-md-12">
+				<div class="pull-right">
 					<a href="javascript:void(0);" class="gb-summary-expand-all"><wicket:message key="label.studentsummary.expandall"></wicket:message></a>
 					<a href="javascript:void(0);" class="gb-summary-collapse-all"><wicket:message key="label.studentsummary.collapseall"></wicket:message></a>
 				</div>
 			</div>
+
 			<table class="table table-bordered table-striped table-hover table-condensed">
 				<thead>
 				<tr>
-					<th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
+					<th class="col-md-5"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
 					<th class="col-md-1"><wicket:message key="column.header.studentsummary.duedate" /></th>
 					<th class="col-md-1"><wicket:message key="column.header.studentsummary.grade" /></th>
 					<th><wicket:message key="column.header.studentsummary.comments" /></th>
@@ -50,7 +52,9 @@
 				</tr>
 				</tbody>
 			</table>
-			<p><small wicket:id="categoryScoreNotReleased"></small></p>
+			<div class="col-md-12">
+				<p><small wicket:id="categoryScoreNotReleased"></small></p>
+			</div>
 		</div>
 	</wicket:panel>
 </body>

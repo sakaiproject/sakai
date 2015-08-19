@@ -5,32 +5,20 @@
 <wicket:head>
   <wicket:link>
     <link rel="stylesheet" type="text/css" href="/gradebookng-tool/styles/gradebook-grades.css"/>
+    <script src="/gradebookng-tool/scripts/gradebook-grade-summary.js"></script>
   </wicket:link>
 </wicket:head>
 
 <wicket:extend>
   
 	<h2 wicket:id="heading">Grade Report for Tony Stark</h2>
-			
-	<h3><wicket:message key="label.studentsummary.coursegrade" /> <span wicket:id="courseGrade">B+</span></h3>
 
-	<table class="table table-striped table-bordered table-hover table-condensed">
-		<thead>
-			<tr>
-			   <th><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
-			   <th><wicket:message key="column.header.studentsummary.duedate" /></th>
-			   <th><wicket:message key="column.header.studentsummary.grade" /></th>
-			   <th><wicket:message key="column.header.studentsummary.weight" /></th>
-			   <th><wicket:message key="column.header.studentsummary.comments" /></th>
-			</tr>
-		</thead>
-		<tbody>
-			<tr wicket:id="rows">
-			   <td wicket:id="dataRow"></td>
-			</tr>
-		</tbody>
-	</table>
-	
+	<div wicket:id="summary" id="studentGradeSummary"></div>
+
+	<script>
+		new GradebookGradeSummary($("#studentGradeSummary"));
+	</script>
+
 </wicket:extend>
 </body>
 </html>
