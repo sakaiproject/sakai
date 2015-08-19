@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -19,14 +18,9 @@ import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Collections;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
-public class StudentGradeSummaryGradesPanel extends Panel {
+public class InstructorGradeSummaryGradesPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -36,11 +30,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	public StudentGradeSummaryGradesPanel(String id, IModel<Map<String, Object>> model) {
+	public InstructorGradeSummaryGradesPanel(String id, IModel<Map<String, Object>> model) {
 		super(id, model);
 	}
 
-		@Override
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		
@@ -97,13 +91,12 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 				}
 
 				if (categoryDefinition != null) {
-					boolean allAssignmentsAreReleased = true;
-					for (Assignment assignment : categoryAssignments) {
-						if (!assignment.isReleased()) {
-							allAssignmentsAreReleased = false;
-							break;
-						}
+					Double score = gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
+					String grade = "";
+					if (score != null) {
+						grade = FormatHelper.formatDoubleAsPercentage(score);
 					}
+					categoryItem.add(new Label("categoryGrade", grade));
 
 					String weight = "";
 					if (categoryDefinition.getWeight() == null) {
@@ -111,18 +104,6 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 					} else {
 						weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight() * 100);
 						categoryItem.add(new Label("categoryWeight", new StringResourceModel("label.studentsummary.categoryweight", null, new Object[] {weight})));
-					}
-
-					if (allAssignmentsAreReleased) {
-						Double score = gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
-						String grade = "";
-						if (score != null) {
-							grade = FormatHelper.formatDoubleAsPercentage(score);
-						}
-						categoryItem.add(new Label("categoryGrade", grade));
-					} else {
-						categoryScoreHidden[0] = true;
-						categoryItem.add(new Label("categoryGrade", getString("label.studentsummary.categoryscoreifhiddenassignment")));
 					}
 				} else {
 					categoryItem.add(new Label("categoryGrade", ""));
@@ -136,11 +117,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 					protected void populateItem(ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
 
-						if (!assignment.isReleased()) {
-							assignmentItem.setVisible(false);
-						}
-
-						GbGradeInfo gradeInfo = StudentGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());
+						GbGradeInfo gradeInfo = InstructorGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());
 
 						final String rawGrade;
 						String comment;
@@ -154,6 +131,27 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 						Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
+
+						WebMarkupContainer flags = new WebMarkupContainer("flags");
+						flags.add(new WebMarkupContainer("isExtraCredit") {
+							@Override
+							public boolean isVisible() {
+								return assignment.getExtraCredit();
+							}
+						});
+						flags.add(new WebMarkupContainer("isNotCounted") {
+							@Override
+							public boolean isVisible() {
+								return !assignment.isCounted();
+							}
+						});
+						flags.add(new WebMarkupContainer("isNotReleased") {
+							@Override
+							public boolean isVisible() {
+								return !assignment.isReleased();
+							}
+						});
+						assignmentItem.add(flags);
 
 						assignmentItem.add(new Label("dueDate", FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
 						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
@@ -170,11 +168,20 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		});
 
 		final Gradebook gradebook = businessService.getGradebook();
-		if (gradebook.isCourseGradeDisplayed()) {
-			add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
-		} else {
-			add(new Label("courseGrade", getString("label.studentsummary.coursegradenotreleased")));
-		}
+		add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
+		add(new Label("courseGradeNotReleasedFlag", "*") {
+			@Override
+			public boolean isVisible() {
+				return !gradebook.isCourseGradeDisplayed();
+			}
+		});
+
+		add(new Label("courseGradeNotReleasedMessage", getString("label.studentsummary.coursegradenotreleasedmessage")) {
+			@Override
+			public boolean isVisible() {
+				return !gradebook.isCourseGradeDisplayed();
+			}
+		});
 
 		add(new AttributeModifier("data-studentid", userId));
 

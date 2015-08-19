@@ -70,10 +70,10 @@ public class StudentGradeSummaryPanel extends Panel {
 		List tabs=new ArrayList();
 
 		tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.instructorviewtab"))) {
-			public Panel getPanel(String panelId) { return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.INSTRUCTOR); }
+			public Panel getPanel(String panelId) { return new InstructorGradeSummaryGradesPanel(panelId, (IModel<Map<String,Object>>) getDefaultModel()); }
 		});
 		tabs.add(new AbstractTab(new Model<String>(getString("label.studentsummary.studentviewtab"))) {
-			public Panel getPanel(String panelId) { return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String,Object>>) getDefaultModel(), StudentGradeSummaryGradesPanel.VIEW.STUDENT); }
+			public Panel getPanel(String panelId) { return new StudentGradeSummaryGradesPanel(panelId, (IModel<Map<String,Object>>) getDefaultModel()); }
 		});
 
 		add(new AjaxBootstrapTabbedPanel("tabs", tabs) {

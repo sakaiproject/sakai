@@ -6,7 +6,7 @@
 		<div class="gb-summary-grade-panel">
 			<div class="row gb-summary-course-grade">
 				<div class="gb-summary-course-grade-label col-md-2"><strong><wicket:message key="label.studentsummary.coursegrade" /></strong></div>
-				<div class="gb-summary-course-grade-value col-md-10"><span wicket:id="courseGrade">B+</span></div>
+				<div class="gb-summary-course-grade-value col-md-10"><span wicket:id="courseGrade">B+</span> <span wicket:id="courseGradeNotReleasedFlag"></span></div>
 			</div>
 	
 			<div class="row">
@@ -40,6 +40,11 @@
 				<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
 					<td>
 						<span class="gb-summary-grade-title" wicket:id="title"></span>
+						<span class="gb-summary-grade-flags" wicket:id="flags">
+							<span wicket:id="isExtraCredit" class="gb-flag-extra-credit" wicket:message="title:label.gradeitem.extracredit"></span>
+							<span wicket:id="isNotCounted" class="gb-flag-not-counted" wicket:message="title:label.gradeitem.notcounted"></span>
+							<span wicket:id="isNotReleased" class="gb-flag-not-released" wicket:message="title:label.gradeitem.notreleased"></span>
+						</span>
 					</td>
 					<td class="gb-summary-grade-duedate" wicket:id="dueDate"></td>
 					<td class="gb-summary-grade-score">
@@ -51,6 +56,7 @@
 				</tbody>
 			</table>
 			<p><small wicket:id="categoryScoreNotReleased"></small></p>
+			<p><small wicket:id="courseGradeNotReleasedMessage"></small></p>
 		</div>
 	</wicket:panel>
 </body>
