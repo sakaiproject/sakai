@@ -1347,23 +1347,5 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		 }
 		 return rval;
 	 }
-	 
-	 /**
-	  * Maps a PermissionDefinition to a Permission
-	  * @param def
-	  * @return a {@link Permission}
-	  */
-	 private Permission toPermission(Permission permission, PermissionDefinition def) {
-		 Permission rval = new Permission();
-		 if (def != null) {
-			 rval.setId(def.getId());
-			 rval.setUserId(def.getUserId());
-			 rval.setCategoryId(def.getCategoryId());
-			 rval.setFunction(def.getFunction());
-			 rval.setGroupId(def.getGroupReference());
-		 }
-		 return rval;
-	 }
-
 
 }

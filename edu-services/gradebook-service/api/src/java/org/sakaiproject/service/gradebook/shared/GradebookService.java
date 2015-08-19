@@ -54,7 +54,7 @@ public interface GradebookService {
     "c+", "c", "c-", "d+", "d", "d-", "f"};
 	
 	// These Strings have been kept for backwards compatibility as they are used everywhere,
-	//however the GraderPermission enum should be used going forward.
+	// however the {@link GraderPermission} enum should be used going forward.
 	@Deprecated public static final String gradePermission = GraderPermission.GRADE.toString();
 	@Deprecated public static final String viewPermission = GraderPermission.GRADE.toString();
 	
