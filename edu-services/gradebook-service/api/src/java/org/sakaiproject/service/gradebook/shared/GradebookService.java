@@ -53,8 +53,10 @@ public interface GradebookService {
 	public static final String[] validLetterGrade = {"a+", "a", "a-", "b+", "b", "b-",
     "c+", "c", "c-", "d+", "d", "d-", "f"};
 	
-	public static final String gradePermission = "grade";
-	public static final String viewPermission = "view";
+	// These Strings have been kept for backwards compatibility as they are used everywhere,
+	// however the {@link GraderPermission} enum should be used going forward.
+	@Deprecated public static final String gradePermission = GraderPermission.GRADE.toString();
+	@Deprecated public static final String viewPermission = GraderPermission.GRADE.toString();
 	
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 	

@@ -1029,6 +1029,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (Long)getHibernateTemplate().execute(hc);
     }
 
+    @Deprecated
     public List getPermissionsForGB(final Long gradebookId) throws IllegalArgumentException
     {
     	if(gradebookId == null)
@@ -1045,6 +1046,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);
     }
 
+    @Deprecated
     public void updatePermission(Collection perms)
     {
     	for(Iterator iter = perms.iterator(); iter.hasNext(); )
@@ -1055,6 +1057,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	}
     }
 
+    @Deprecated
     public void updatePermission(final Permission perm) throws IllegalArgumentException
     {
     	if(perm == null)
@@ -1075,6 +1078,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	getHibernateTemplate().execute(hc);
     }
     
+    @Deprecated
     public void deletePermission(final Permission perm) throws IllegalArgumentException
     {
     	if(perm == null)
