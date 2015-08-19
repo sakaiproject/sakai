@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
@@ -41,6 +42,12 @@ public class PermissionsPage extends BasePage {
 	
 	private GbUser taSelected;
     List<PermissionDefinition> permissions;
+    
+    // these are magic strings we use as ids for the all groups/all categories options
+    // they are designed not to conflict with any real values that might be passed in
+    // they are parsed out on save
+    private final String ALL_GROUPS = "X";
+    private final Long ALL_CATEGORIES = new Long(-1);
 
 	public PermissionsPage() {
 		disableLink(this.permissionsPageLink);
@@ -61,7 +68,7 @@ public class PermissionsPage extends BasePage {
 		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
 		
 		//add the default 'all' category
-		categories.add(0, new CategoryDefinition(null, getString("categories.all")));
+		categories.add(0, new CategoryDefinition(ALL_CATEGORIES, getString("categories.all")));
 		
         final Map<Long, String> categoryMap = new HashMap<>();
         for (CategoryDefinition category : categories) {
@@ -73,7 +80,7 @@ public class PermissionsPage extends BasePage {
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
 		
 		//add the default 'all' group
-        groups.add(0, new GbGroup(null, getString("groups.all"), "", GbGroup.Type.ALL));
+        groups.add(0, new GbGroup(ALL_GROUPS, getString("groups.all"), ALL_GROUPS, GbGroup.Type.ALL));
 		
 		final Map<String, String> groupMap = new HashMap<>();
         for (GbGroup group : groups) {
@@ -147,7 +154,23 @@ public class PermissionsPage extends BasePage {
 			public void onSubmit() {
 				Form form = getForm();
 				List<PermissionDefinition> permissions = (List<PermissionDefinition>) form.getModelObject();
+				
+				//parse out the magic strings back to nulls for persisting
+				for (PermissionDefinition permission: permissions) {
+					if(StringUtils.equals(permission.getGroupReference(), ALL_GROUPS)){
+						permission.setGroupReference(null);
+					}
+					if(permission.getCategoryId().equals(ALL_CATEGORIES)){
+						permission.setCategoryId(null);
+					}
+				}
+				
 				businessService.updatePermissionsForUser(taSelected.getUserUuid(), permissions);
+			}
+			
+			@Override
+			public boolean isVisible() {
+				return (taSelected != null);
 			}
 		};
 		form.add(submit);
@@ -158,6 +181,11 @@ public class PermissionsPage extends BasePage {
 			@Override
 			public void onSubmit() {
 				setResponsePage(new PermissionsPage(taSelected));
+			}
+			
+			@Override
+			public boolean isVisible() {
+				return (taSelected != null);
 			}
 		};
 		clear.setDefaultFormProcessing(false);
@@ -263,7 +291,6 @@ public class PermissionsPage extends BasePage {
 				return (taSelected != null);
 			}
 			
-			
         };
         form.add(permissionsView);
         
@@ -273,9 +300,12 @@ public class PermissionsPage extends BasePage {
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form<?> form) {
 				
-				//add a new entry
+				//add a new entry with default values so the dropdowns are sane
 				PermissionDefinition newDef = new PermissionDefinition();
 				newDef.setUserId(taSelected.getUserUuid());
+				newDef.setGroupReference(ALL_GROUPS);
+				newDef.setCategoryId(ALL_CATEGORIES);
+				newDef.setFunction(GraderPermission.VIEW.toString());
 				permissions.add(newDef);
 				
 				target.add(form);
