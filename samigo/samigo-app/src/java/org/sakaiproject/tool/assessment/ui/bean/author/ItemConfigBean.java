@@ -302,7 +302,7 @@ private static final String msgResource =
   
   public boolean isImageMapQuestion()
   {
-	  return showImageMapQuestion;
+	  return ServerConfigurationService.getBoolean("samigo.question.show.showImageMapQuestion",showImageMapQuestion); 
   }
   /**
     * Set whether ImageMap should be shown.
