@@ -30,6 +30,7 @@ import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.id.api.IdManager;
+import org.sakaiproject.db.api.SqlService;
 
 import javax.jws.WebMethod;
 import javax.jws.WebService;
@@ -67,7 +68,7 @@ public class AbstractWebService {
     protected SamLiteService samLiteService;
     protected IdManager idManager;
     protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
-
+    protected SqlService sqlService;
     
     @WebMethod(exclude = true)
     public void init() {
@@ -225,5 +226,10 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService service) {
         this.gradebookExternalAssessmentService = service;
+    }
+
+    @WebMethod(exclude = true)
+    public void setSqlService(SqlService sqlService) {
+        this.sqlService = sqlService;
     }
 }
