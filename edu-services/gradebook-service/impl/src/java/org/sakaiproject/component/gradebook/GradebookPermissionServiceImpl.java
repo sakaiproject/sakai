@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.sakaiproject.section.api.SectionAwareness;
@@ -17,6 +18,7 @@ import org.sakaiproject.section.api.facade.Role;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.tool.gradebook.Assignment;
 import org.sakaiproject.tool.gradebook.Category;
@@ -1284,12 +1286,46 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		Long gradebookId = getGradebook(gradebookUid).getId();
 		
 		//get the current list of permissions
-		List<Permission> currentPermissions = getPermissionsForUser(gradebookId, userId);
+		final List<Permission> currentPermissions = getPermissionsForUser(gradebookId, userId);
 		
-		//compare
+		//convert PermissionDefinition to Permission
+		final List<Permission> newPermissions = new ArrayList<>();
+		for(PermissionDefinition def: permissionDefinitions) {
+			
+			if(!StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.GRADE.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())) {
+				throw new IllegalArgumentException("Invalid function for permission definition");
+			}
+			
+			Permission permission = new Permission();
+			permission.setCategoryId(def.getCategoryId());
+			permission.setGradebookId(gradebookId);
+			permission.setGroupId(def.getGroupReference());
+			permission.setFunction(def.getFunction());
+			permission.setUserId(userId);
+			
+			newPermissions.add(permission);
+		}
 		
-		//add/remove/update as necessary
-		
+		//Note: rather than iterate both lists and figure out the differences and add/update/delete as applicable,
+		//it is far simpler to just remove the existing permissions and add new ones in one transaction
+		HibernateCallback hc = new HibernateCallback() {
+    		public Object doInHibernate(Session session) throws HibernateException {
+    			
+    			//remove existing
+    			for(Permission currentPermission: currentPermissions) {
+    				session.delete(currentPermission);
+    			}
+    			
+    			//add new
+    			for(Permission newPermission: newPermissions) {
+    				session.save(newPermission);
+    			}
+
+    			return null;
+    		}
+    	};
+
+    	getHibernateTemplate().execute(hc);
 	}
 
 	
