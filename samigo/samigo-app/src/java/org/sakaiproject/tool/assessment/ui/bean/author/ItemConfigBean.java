@@ -295,9 +295,9 @@ private static final String msgResource =
     * Should we show ImageMapQuestion?
     * @return if true
     */
-  public boolean isImageMapQuestion()
+  public boolean isShowImageMapQuestion()
   {
-	  return showImageMapQuestion;
+	  return ServerConfigurationService.getBoolean("samigo.question.show.showImageMapQuestion",showImageMapQuestion); 
   }
   /**
     * Set whether ImageMap should be shown.
@@ -374,8 +374,8 @@ private static final String msgResource =
     if (isShowCalculatedQuestion())
         list.add(new SelectItem(String.valueOf(TypeIfc.CALCULATED_QUESTION), getResourceDisplayName("calculated_question"))); // CALCULATED_QUESTION
 
-    if (showImageMapQuestion)
-    	list.add(new SelectItem("16", getResourceDisplayName("image_map_question"))); // IMAGEMAP_QUESTION
+    if (isShowImageMapQuestion())
+    	list.add(new SelectItem(String.valueOf(TypeIfc.IMAGEMAP_QUESTION), getResourceDisplayName("image_map_question"))); // IMAGEMAP_QUESTION
     
     if (isSelectFromQuestionBank()) {
     	// Check if the question bank tool is installed and not stealthed or hidden
