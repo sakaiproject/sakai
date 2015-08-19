@@ -28,6 +28,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import java.net.URLEncoder;
+import java.net.HttpURLConnection;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -832,8 +833,35 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		Long reg_state = foorm.getLong(deploy.get(LTIService.LTI_REG_STATE));
 		String old_secret = (String) deploy.get(LTIService.LTI_SECRET);
 		String ack = (String) deploy.get(LTIService.LTI_REG_ACK);
-		if ( ack != null && ack.length() < 1 ) ack = null;
 
+		// We will notify first and then update all the tools later in case the notification fails
+		boolean notified = true;
+		if ( ack != null && ack.length() > 0 ) {
+		    notified = false;
+		    M_log.info("Sending Re-Registration notification to "+ack);
+		    String oauth_consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
+		    String oauth_secret = old_secret;
+		    oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
+		    // System.out.println("key="+oauth_consumer_key+" secret="+oauth_secret);
+
+		    HttpURLConnection connection = BasicLTIUtil.sendOAuthURL("PUT", ack, oauth_consumer_key, oauth_secret);
+		    int responseCode = BasicLTIUtil.getResponseCode(connection);
+		    M_log.info("Re-Registration notification response code "+responseCode);
+		    String return_data = BasicLTIUtil.readHttpResponse(connection);
+		    M_log.info("Re-Registration notification response data "+return_data);
+		    if ( responseCode == HttpURLConnection.HTTP_OK ) {
+			notified = true;
+		    } else {
+			state.setAttribute(STATE_POST,reqProps);
+			String oops = "Error return from acknowledgement code="+responseCode+
+			    "\nData: "+data;
+			addAlert(state, oops);
+			switchPanel(state, "DeploySystem");
+			return;
+		    }
+		}
+
+		// We have sent the ACK if needed, update our data structures.
 		String new_secret = (String) deploy.get(LTIService.LTI_NEW_SECRET);
 		if ( new_secret != null && new_secret.length() < 1 ) new_secret = null;
 		if ( new_secret != null ) {
@@ -847,9 +875,29 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		M_log.info("Starting activation process for id="+key+" title="+info.get("title"));
 
+		String failures = "";
+		// Update reg_state to indicate we are activated...
+		Map<String, Object> deployUpdate = new HashMap<String, Object> ();
+		deployUpdate.put(LTIService.LTI_REG_STATE, "2");
+		deployUpdate.put(LTIService.LTI_REG_ACK, "");
+		if ( new_secret != null ) {
+			deployUpdate.put(LTIService.LTI_SECRET, new_secret);
+			deployUpdate.put(LTIService.LTI_NEW_SECRET, "");
+		}
+
+		// Almost a transaction - at this point update is unlikely to fail
+		Object obj = ltiService.updateDeployDao(key, deployUpdate);
+		boolean updated = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
+
+		if ( ! updated ) {
+			String oops = "Unable to update deployment key="+key;
+			M_log.error(oops);
+			failures += "\n" + oops;
+		}
+
+		// Update the tools...
 		int inserts = 0;
 		int updates = 0;
-		String failures = "";
 		for ( Map<String, Object> theTool : theTools ) {
 			Object retval = null;
 			Long toolId = foorm.getLongNull(theTool.get(LTIService.LTI_ID));
@@ -875,33 +923,6 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 					updates++;
 				}
 			}
-		}
-
-		// Update reg_state to indicate we are activated...
-		Map<String, Object> deployUpdate = new HashMap<String, Object> ();
-		deployUpdate.put(LTIService.LTI_REG_STATE, "2");
-		deployUpdate.put(LTIService.LTI_REG_ACK, "");
-		if ( new_secret != null ) {
-			deployUpdate.put(LTIService.LTI_SECRET, new_secret);
-			deployUpdate.put(LTIService.LTI_NEW_SECRET, "");
-		}
-
-		// Almost a transaction - at this point update is unlikely to fail
-		Object obj = ltiService.updateDeployDao(key, deployUpdate);
-		boolean updated = ( obj instanceof Boolean ) && ( (Boolean) obj == Boolean.TRUE);
-		if ( updated ) {
-			if ( ack != null && ack.length() > 0 ) {
-			    M_log.info("Sending Re-Registration notification to "+ack);
-			    String oauth_consumer_key = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
-			    String oauth_secret = old_secret;
-			    oauth_secret = SakaiBLTIUtil.decryptSecret(oauth_secret);
-			    // System.out.println("key="+oauth_consumer_key+" secret="+oauth_secret);
-			    BasicLTIUtil.sendOAuthURL("PUT", ack, oauth_consumer_key, oauth_secret);
-			}
-		} else {
-			String oops = "Unable to update deployment key="+key;
-			M_log.error(oops);
-			failures += "\n" + oops;
 		}
 
 		// We can have a combination of successes and failures...
@@ -1065,7 +1086,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Check if we are configured
         LTI2Config cnf = new SakaiLTI2Config();
         if ( cnf.getGuid() == null ) {
-			context.put("alertMessage",rb.getString("error.deploy.not.config"));
+			context.put("configMessage",rb.getString("error.deploy.not.config"));
             M_log.error("*********************************************");
             M_log.error("* LTI2 NOT CONFIGURED - Using Sample Data   *");
             M_log.error("* Do not use this in production.  Test only *");

@@ -883,9 +883,6 @@ function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_
     }
 
     $parms = array('oauth_body_hash' => $hash);
-    if ( $more_oauth !== false ) {
-        $parms = array_merge($more_oauth, $parms);
-    }
 
     $test_token = '';
 
