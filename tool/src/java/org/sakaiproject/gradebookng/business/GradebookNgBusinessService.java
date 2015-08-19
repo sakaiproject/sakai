@@ -1515,16 +1515,30 @@ public class GradebookNgBusinessService {
      }
      
      /**
-      * Get a list of grader permissions for the given teaching assistant
-      * @param taUuid
+      * Get a list of permissions defined for the given user.
+      * Note: These are currently only defined/used for a teaching assistant.
+      * @param userUuid
       * @return
       */
-     public List<PermissionDefinition> getPermissionsForTeachingAssistant(String taUuid) {
+     public List<PermissionDefinition> getPermissionsForUser(String userUuid) {
     	 String siteId = this.getCurrentSiteId();
     	 Gradebook gradebook = getGradebook(siteId);
     	 
-    	 List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gradebook.getUid(), taUuid);
+    	 List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gradebook.getUid(), userUuid);
     	 return permissions; 
+     }
+     
+     /**
+      * Update the permissions for the user.
+      * Note: These are currently only defined/used for a teaching assistant.
+      * @param userUuid
+      * @param permissions
+      */
+     public void updatePermissionsForUser(String userUuid, List<PermissionDefinition> permissions) {
+    	 String siteId = this.getCurrentSiteId();
+    	 Gradebook gradebook = getGradebook(siteId);
+    	 
+    	 this.gradebookPermissionService.updatePermissionsForUser(gradebook.getUid(), userUuid, permissions);
      }
 
     /**

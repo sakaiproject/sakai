@@ -15,6 +15,7 @@ import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
+import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
@@ -59,7 +60,7 @@ public class PermissionsPage extends BasePage {
 		//get list of categories
 		final List<CategoryDefinition> categories = this.businessService.getGradebookCategories();
 		
-		//add the default 'all'
+		//add the default 'all' category
 		categories.add(0, new CategoryDefinition(null, getString("categories.all")));
 		
         final Map<Long, String> categoryMap = new HashMap<>();
@@ -68,11 +69,11 @@ public class PermissionsPage extends BasePage {
         }
 		
 		//get list of groups
-        //note that for this page we need to use the group references not the ids
+        //note that for the permissions we need to use the group references not the ids
 		final List<GbGroup> groups = this.businessService.getSiteSectionsAndGroups();
 		
-		//add the default 'all' with null ids
-        groups.add(0, new GbGroup(null, getString("groups.all"), null, GbGroup.Type.ALL));
+		//add the default 'all' group
+        groups.add(0, new GbGroup(null, getString("groups.all"), "", GbGroup.Type.ALL));
 		
 		final Map<String, String> groupMap = new HashMap<>();
         for (GbGroup group : groups) {
@@ -137,28 +138,16 @@ public class PermissionsPage extends BasePage {
         }
         
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Form form = new Form("form", Model.ofList(permissions)) {
-			private static final long serialVersionUID = 1L;
-
-			@Override
-			public void onSubmit() {
-				List<PermissionDefinition> permissions = (List<PermissionDefinition>) this.getModelObject();
-				
-				
-			}
-		};
+		Form form = new Form("form", Model.ofList(permissions));
 		
 		//submit button
 		Button submit = new Button("submit") {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onSubmit() {
-				
 				Form form = getForm();
-				
 				List<PermissionDefinition> permissions = (List<PermissionDefinition>) form.getModelObject();
-				
-				System.out.println("num: " + permissions.size());
+				businessService.updatePermissionsForUser(taSelected.getUserUuid(), permissions);
 			}
 		};
 		form.add(submit);
@@ -210,10 +199,12 @@ public class PermissionsPage extends BasePage {
 				DropDownChoice<Long> categoryChooser = new DropDownChoice<Long>("category", new PropertyModel<Long>(permission, "categoryId"), categoryIdList, new ChoiceRenderer<Long>() {
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					public Object getDisplayValue(Long l) {
 		                return categoryMap.get(l);
 		            }
 
+					@Override
 		            public String getIdValue(Long l, int index) {
 		            	if(l == null){
 		            		return ""; // to match what the service stores
@@ -234,10 +225,12 @@ public class PermissionsPage extends BasePage {
 				DropDownChoice<String> groupChooser = new DropDownChoice<String>("group", new PropertyModel<String>(permission, "groupReference"), groupRefList, new ChoiceRenderer<String>() {
 					private static final long serialVersionUID = 1L;
 
+					@Override
 					public Object getDisplayValue(String groupRef) {
 		                return groupMap.get(groupRef);
 		            }
 
+					@Override
 		            public String getIdValue(String groupRef, int index) {
 		                return groupRef;
 		            }
