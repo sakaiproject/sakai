@@ -1068,21 +1068,29 @@ public class GradebookNgBusinessService {
 
   /**
     * Comparator class for sorting a list of users by last name
+    * Secondary sort is on first name to maintain consistent order for those with the same last name
     */
     class LastNameComparator implements Comparator<User> {
 	    @Override
 	    public int compare(User u1, User u2) {
-	    	return u1.getLastName().compareTo(u2.getLastName());
+	    	return new CompareToBuilder()
+			.append(u1.getLastName(), u2.getLastName())
+			.append(u1.getFirstName(), u2.getFirstName())
+			.toComparison();
 	    }
     }
     
     /**
      * Comparator class for sorting a list of users by first name
+     * Secondary sort is on last name to maintain consistent order for those with the same first name
      */
      class FirstNameComparator implements Comparator<User> {
  	    @Override
  	    public int compare(User u1, User u2) {
- 	    	return u1.getFirstName().compareTo(u2.getFirstName());
+ 	    	return new CompareToBuilder()
+			.append(u1.getFirstName(), u2.getFirstName())
+			.append(u1.getLastName(), u2.getLastName())
+			.toComparison();
  	    }
      }
     
