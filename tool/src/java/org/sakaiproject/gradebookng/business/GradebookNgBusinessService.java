@@ -1518,13 +1518,16 @@ public class GradebookNgBusinessService {
       * Get a list of permissions defined for the given user.
       * Note: These are currently only defined/used for a teaching assistant.
       * @param userUuid
-      * @return
+      * @return list of permissions or empty list if none
       */
      public List<PermissionDefinition> getPermissionsForUser(String userUuid) {
     	 String siteId = this.getCurrentSiteId();
     	 Gradebook gradebook = getGradebook(siteId);
     	 
     	 List<PermissionDefinition> permissions = this.gradebookPermissionService.getPermissionsForUser(gradebook.getUid(), userUuid);
+    	 if(permissions == null) {
+    		 return new ArrayList<>();
+    	 }
     	 return permissions; 
      }
      
