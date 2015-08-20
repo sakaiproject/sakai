@@ -1293,7 +1293,7 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		for(PermissionDefinition def: permissionDefinitions) {
 			
 			if(!StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.GRADE.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW.toString()) && !StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())) {
-				throw new IllegalArgumentException("Invalid function for permission definition");
+				throw new IllegalArgumentException("Invalid function for permission definition: " + def.getFunction());
 			}
 			
 			Permission permission = new Permission();
