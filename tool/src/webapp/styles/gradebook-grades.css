@@ -239,6 +239,13 @@
 }
 #gradebookGrades .gb-course-grade {
   text-align: center;
+  width: 100px;
+  max-width: 100px;
+}
+#gradebookGrades .gb-student-cell {
+  width: 220px;
+  max-width: 220px;
+  min-width: 220px;
 }
 #gradebookGrades .gb-course-grade > div,
 #gradebookGrades .gb-category-item-column-cell > div {
