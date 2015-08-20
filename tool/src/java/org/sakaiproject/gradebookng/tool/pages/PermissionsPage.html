@@ -15,7 +15,18 @@
 		</select>
 	</div>
 	
+	<div class="instruction" wicket:id="noPermissions" />
+	
 	<form wicket:id="form" class="form-inline">
+		
+		<wicket:enclosure child="viewCourseGrade">
+			<div class="checkbox">
+				<label>
+					<input wicket:id="viewCourseGrade" type="checkbox" />
+					<wicket:message key="permissionspage.instructions.coursegrade" />
+				</label>
+			</div>
+		</wicket:enclosure>
 		
 	    <div wicket:id="permissions">
 	    	<span wicket:id="can">Can</span>
@@ -34,6 +45,8 @@
 			<button wicket:id="submit" class="btn btn-primary"><wicket:message key="button.savechanges" /></button>
 			<button wicket:id="clear" class="btn btn-link"><wicket:message key="button.clear" /></button>
 		</div>
+		
+		
 	
 	</form>
 	

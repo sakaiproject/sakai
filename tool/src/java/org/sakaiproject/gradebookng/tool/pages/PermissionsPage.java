@@ -1,11 +1,14 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
-import java.text.MessageFormat;
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import lombok.Getter;
+import lombok.Setter;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.ajax.AjaxRequestTarget;
@@ -13,10 +16,10 @@ import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.Form;
-import org.apache.wicket.markup.html.form.IChoiceRenderer;
 import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
@@ -24,7 +27,6 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
-import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
@@ -41,11 +43,10 @@ public class PermissionsPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 	
 	private GbUser taSelected;
-    List<PermissionDefinition> permissions;
     
     // these are magic strings we use as ids for the all groups/all categories options
-    // they are designed not to conflict with any real values that might be passed in
-    // they are parsed out on save
+    // they should not conflict with any real values that might be passed in
+    // and they are parsed out on save
     private final String ALL_GROUPS = "X";
     private final Long ALL_CATEGORIES = new Long(-1);
 
@@ -140,20 +141,55 @@ public class PermissionsPage extends BasePage {
 
 		add(taChooser);
 		
+		//setup the backing object
+        final PermissionsPageModel pageModel = new PermissionsPageModel();
+		
+		//If we have chosen a user, get the permissions
+		//Need to parse the permission list to process the view_course_grade permission
         if(taSelected != null) {
-        	permissions = businessService.getPermissionsForUser(taSelected.getUserUuid());
+        	List<PermissionDefinition> permissions = businessService.getPermissionsForUser(taSelected.getUserUuid());
+        	
+    		Iterator<PermissionDefinition> iter = permissions.iterator();
+    		while (iter.hasNext()) {
+    			PermissionDefinition p = iter.next();
+    			if(StringUtils.equals(p.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())) {
+    				pageModel.setViewCourseGrade(true);
+    				iter.remove();
+    			}
+    		}
+    		    		    		
+    		//if we have no permissions, set the viewCourseGrade to true for a new permission set
+    		//its only saved if we have permissions defined though
+    		if(permissions.isEmpty()) {
+    			pageModel.setViewCourseGrade(true);
+    		}
+    		
+    		pageModel.setPermissions(permissions);
+        	    		
         }
         
+        //if no permissions defined yet
+        Label noPermissions = new Label("noPermissions", new ResourceModel("permissionspage.instructions.norules")) {
+			@Override
+			public boolean isVisible() {
+				return (taSelected != null && pageModel.getPermissions().isEmpty());
+			}
+		};
+		add(noPermissions);
+        
+        //FORM
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Form form = new Form("form", Model.ofList(permissions));
+		Form form = new Form("form", Model.of(pageModel));
 		
 		//submit button
 		Button submit = new Button("submit") {
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onSubmit() {
-				Form form = getForm();
-				List<PermissionDefinition> permissions = (List<PermissionDefinition>) form.getModelObject();
+				Form<?> form = getForm();
+				
+				PermissionsPageModel model = (PermissionsPageModel) form.getModelObject();
+				List<PermissionDefinition> permissions = model.getPermissions();
 				
 				//parse out the magic strings back to nulls for persisting
 				for (PermissionDefinition permission: permissions) {
@@ -165,7 +201,19 @@ public class PermissionsPage extends BasePage {
 					}
 				}
 				
+				//if we have permissions AND the checkbox is ticked, create a new permission for it
+				if(!permissions.isEmpty() && model.getViewCourseGrade()) {
+					PermissionDefinition viewCourseGradePermission = new PermissionDefinition();
+					viewCourseGradePermission.setUserId(taSelected.getUserUuid());
+					viewCourseGradePermission.setGroupReference(null);
+					viewCourseGradePermission.setCategoryId(null);
+					viewCourseGradePermission.setFunction(GraderPermission.VIEW_COURSE_GRADE.toString());
+					permissions.add(viewCourseGradePermission);
+				}
+				
 				businessService.updatePermissionsForUser(taSelected.getUserUuid(), permissions);
+				
+				setResponsePage(new PermissionsPage(taSelected));
 			}
 			
 			@Override
@@ -190,9 +238,18 @@ public class PermissionsPage extends BasePage {
 		};
 		clear.setDefaultFormProcessing(false);
 		form.add(clear);
+		
+		//coursegrade checkbox
+        form.add(new CheckBox("viewCourseGrade", new PropertyModel<Boolean>(pageModel, "viewCourseGrade")) {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public boolean isVisible() {
+				return (taSelected != null && !pageModel.getPermissions().isEmpty());
+			}
+        });
         
 		//render view for list of permissions  
-		ListView<PermissionDefinition> permissionsView = new ListView<PermissionDefinition>("permissions", permissions) {
+		ListView<PermissionDefinition> permissionsView = new ListView<PermissionDefinition>("permissions", pageModel.getPermissions()) {
 
 			private static final long serialVersionUID = 1L;
 
@@ -276,7 +333,7 @@ public class PermissionsPage extends BasePage {
 						
 						//remove current item
 						PermissionDefinition current = item.getModelObject();
-						permissions.remove(current);
+						pageModel.getPermissions().remove(current);
 						
 						target.add(form);
 					}
@@ -306,7 +363,7 @@ public class PermissionsPage extends BasePage {
 				newDef.setGroupReference(ALL_GROUPS);
 				newDef.setCategoryId(ALL_CATEGORIES);
 				newDef.setFunction(GraderPermission.VIEW.toString());
-				permissions.add(newDef);
+				pageModel.getPermissions().add(newDef);
 				
 				target.add(form);
 			}
@@ -321,6 +378,26 @@ public class PermissionsPage extends BasePage {
         
         add(form);
         //save changes
+		
+	}
+	
+	
+	/**
+	 * Class for wrapping up the data used by this page
+	 */
+	private class PermissionsPageModel implements Serializable {
+
+		private static final long serialVersionUID = 1L;
+
+		@Getter @Setter 
+		private List<PermissionDefinition> permissions;
+		
+		@Getter @Setter
+		private Boolean viewCourseGrade;
+		
+		public PermissionsPageModel() {
+			this.permissions = new ArrayList<>();
+		}
 		
 	}
 	
