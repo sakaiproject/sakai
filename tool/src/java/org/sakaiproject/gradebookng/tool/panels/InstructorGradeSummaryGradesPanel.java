@@ -1,6 +1,5 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -8,7 +7,6 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -18,28 +16,25 @@ import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
-import org.sakaiproject.service.gradebook.shared.CourseGrade;
 import org.sakaiproject.tool.gradebook.Gradebook;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Collections;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
 
-public class StudentGradeSummaryGradesPanel extends Panel {
+public class InstructorGradeSummaryGradesPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-
+	
+	private GbStudentGradeInfo gradeInfo;
+	private List<CategoryDefinition> categories;
+	
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 
-	public StudentGradeSummaryGradesPanel(String id, IModel<Map<String, Object>> model) {
+	public InstructorGradeSummaryGradesPanel(String id, IModel<Map<String, Object>> model) {
 		super(id, model);
 	}
 
-		@Override
+	@Override
 	public void onInitialize() {
 		super.onInitialize();
 		
@@ -47,10 +42,14 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		Map<String,Object> modelData = (Map<String,Object>) this.getDefaultModelObject();
 		String userId = (String) modelData.get("userId");
 		String displayName = (String) modelData.get("displayName");
-
-		//get grades
-		final Map<Assignment, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
-		final List<Assignment> assignments = new ArrayList(grades.keySet());
+		
+		//build the grade matrix for the user
+		final List<Assignment> assignments = this.businessService.getGradebookAssignments();
+        
+		//TODO catch if this is null, the get(0) will throw an exception
+		//TODO also catch the GbException
+		this.gradeInfo = this.businessService.buildGradeMatrix(assignments, Collections.singletonList(userId)).get(0);
+		this.categories = this.businessService.getGradebookCategories();
 
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoriesToAssignments = new HashMap<String, List<Assignment>>();
@@ -83,28 +82,33 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 				categoryItem.add(new Label("category", category));
 
-				boolean allAssignmentsAreReleased = true;
-				for (Assignment assignment : categoryAssignments) {
-					if (!assignment.isReleased()) {
-						allAssignmentsAreReleased = false;
+				CategoryDefinition categoryDefinition = null;
+				for (CategoryDefinition aCategoryDefinition : categories) {
+					if (aCategoryDefinition.getName().equals(category)) {
+						categoryDefinition = aCategoryDefinition;
 						break;
 					}
 				}
 
-				if (allAssignmentsAreReleased) {
-					// TODO can a student access category averages?
-					Double score = null;//gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
+				if (categoryDefinition != null) {
+					Double score = gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
 					String grade = "";
 					if (score != null) {
 						grade = FormatHelper.formatDoubleAsPercentage(score);
 					}
 					categoryItem.add(new Label("categoryGrade", grade));
-				} else {
-					categoryScoreHidden[0] = true;
-					categoryItem.add(new Label("categoryGrade", getString("label.studentsummary.categoryscoreifhiddenassignment")));
-				}
 
-				categoryItem.add(new Label("categoryWeight", "")); // TODO can a student access category definitions?
+					String weight = "";
+					if (categoryDefinition.getWeight() == null) {
+						categoryItem.add(new Label("categoryWeight", ""));
+					} else {
+						weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight() * 100);
+						categoryItem.add(new Label("categoryWeight", new StringResourceModel("label.studentsummary.categoryweight", null, new Object[] {weight})));
+					}
+				} else {
+					categoryItem.add(new Label("categoryGrade", ""));
+					categoryItem.add(new Label("categoryWeight", ""));
+				}
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
 					private static final long serialVersionUID = 1L;
@@ -113,11 +117,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 					protected void populateItem(ListItem<Assignment> assignmentItem) {
 						final Assignment assignment = assignmentItem.getModelObject();
 
-						if (!assignment.isReleased()) {
-							assignmentItem.setVisible(false);
-						}
-
-						GbGradeInfo gradeInfo = grades.get(assignment);
+						GbGradeInfo gradeInfo = InstructorGradeSummaryGradesPanel.this.gradeInfo.getGrades().get(assignment.getId());
 
 						final String rawGrade;
 						String comment;
@@ -131,6 +131,27 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 						Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
+
+						WebMarkupContainer flags = new WebMarkupContainer("flags");
+						flags.add(new WebMarkupContainer("isExtraCredit") {
+							@Override
+							public boolean isVisible() {
+								return assignment.getExtraCredit();
+							}
+						});
+						flags.add(new WebMarkupContainer("isNotCounted") {
+							@Override
+							public boolean isVisible() {
+								return !assignment.isCounted();
+							}
+						});
+						flags.add(new WebMarkupContainer("isNotReleased") {
+							@Override
+							public boolean isVisible() {
+								return !assignment.isReleased();
+							}
+						});
+						assignmentItem.add(flags);
 
 						assignmentItem.add(new Label("dueDate", FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
 						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
@@ -147,18 +168,20 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		});
 
 		final Gradebook gradebook = businessService.getGradebook();
-		if (gradebook.isCourseGradeDisplayed()) {
-			CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
-			if(StringUtils.isBlank(courseGrade.getEnteredGrade()) && StringUtils.isBlank(courseGrade.getMappedGrade())) {
-				add(new Label("courseGrade", new ResourceModel("label.studentsummary.coursegrade.none")));
-			} else if(StringUtils.isNotBlank(courseGrade.getEnteredGrade())){
-				add(new Label("courseGrade", courseGrade.getEnteredGrade()));
-			} else {
-				add(new Label("courseGrade", new StringResourceModel("label.studentsummary.coursegrade.display", null, new Object[] { courseGrade.getMappedGrade(), FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade()) } )));
+		add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
+		add(new Label("courseGradeNotReleasedFlag", "*") {
+			@Override
+			public boolean isVisible() {
+				return !gradebook.isCourseGradeDisplayed();
 			}
-		} else {
-			add(new Label("courseGrade", getString("label.studentsummary.coursegradenotreleased")));
-		}
+		});
+
+		add(new Label("courseGradeNotReleasedMessage", getString("label.studentsummary.coursegradenotreleasedmessage")) {
+			@Override
+			public boolean isVisible() {
+				return !gradebook.isCourseGradeDisplayed();
+			}
+		});
 
 		add(new AttributeModifier("data-studentid", userId));
 

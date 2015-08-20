@@ -8,13 +8,15 @@
 
 			<span wicket:id="tabs" class="tabpanel">[tabbed panel will be here]</span>
 
-			<div class="gb-summary-modal-actions row">
-				<div wicket:id="studentNavigation" class="row">
+			<div class="gb-summary-modal-actions">
+				<div wicket:id="studentNavigation" class="col-md-12">
 					<a class="gb-summary-previous-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.previous" /></a>
 					<a class="gb-summary-next-student" href="javascript:void(0)"><wicket:message key="label.studentsummary.next" /></a>
 				</div>
 
-				<button type="submit" class="btn btn-secondary gb-summary-close" wicket:id="done"><wicket:message key="button.done" /></button>
+				<div class="col-md-12">
+					<button type="submit" class="btn btn-secondary gb-summary-close" wicket:id="done"><wicket:message key="button.done" /></button>
+				</div>
 			</div>
 		</div>
 	</wicket:panel>

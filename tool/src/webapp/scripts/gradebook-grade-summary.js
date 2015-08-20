@@ -10,18 +10,20 @@ function GradebookGradeSummary($content, darkerMask) {
 
   this.studentId = this.$content.find("[data-studentid]").data("studentid");
 
-  this.setupTabs();
   this.setupCategoryToggles();
-  this.setupStudentNavigation();
 
   this.$modal = this.$content.closest(".wicket-modal");
 
   if (this.$modal.length > 0 && this.$modal.is(":visible")) {
+    this.setupTabs();
+    this.setupStudentNavigation();
     this.setupFixedFooter();
     this.setupMask(darkerMask);
   } else {
     setTimeout($.proxy(function() {
       this.$modal = this.$content.closest(".wicket-modal");
+      this.setupTabs();
+      this.setupStudentNavigation();
       this.setupFixedFooter();
     }, this));
   }
@@ -86,7 +88,7 @@ GradebookGradeSummary.prototype.setupFixedFooter = function() {
   // do this by setting the height of the tab content to leave room for the navigation
   if (this.$modal.height() > $(window).height()) {
     var $tabPane = this.$content.find(".tab-content");
-    var paddingSize = 80; // modal padding and modal content padding/margins (yep... fudged)
+    var paddingSize = 150; // modal padding and modal content padding/margins (yep... fudged)
     var newHeight = $(window).height() - this.$content.offset().top - this.$content.find("h2").outerHeight() - this.$content.find(".nav").outerHeight() - this.$content.find(".gb-summary-modal-actions").outerHeight() - paddingSize;
     $tabPane.height(Math.max(200, newHeight));
   }
