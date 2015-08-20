@@ -2,7 +2,6 @@ package org.sakaiproject.webservices;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.util.Xml;
 import org.w3c.dom.Document;
@@ -36,8 +35,6 @@ import java.util.Date;
 @SOAPBinding(style = SOAPBinding.Style.RPC, use = SOAPBinding.Use.LITERAL)
 public class Activity extends AbstractWebService {
     private static final Log LOG = LogFactory.getLog(Activity.class);
-
-    private SqlService sqlService;
     private DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     
@@ -242,10 +239,5 @@ public class Activity extends AbstractWebService {
             return null;
         }
 
-    }
-
-    @WebMethod(exclude = true)
-    public void setSqlService(SqlService sqlService) {
-        this.sqlService = sqlService;
     }
 }
