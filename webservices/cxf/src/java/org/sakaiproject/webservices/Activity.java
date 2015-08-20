@@ -143,14 +143,7 @@ public class Activity extends AbstractWebService {
                 if (args[i] instanceof String) {
                     ps.setString(i + 1, (String) args[i]);
                 } else if (args[i] instanceof Date) {
-                    // select * from sakai_event where event_date between to_date('2001-12-12 12:12','YYYY-MM-DD HH24:MI') and to_date('2017-12-12 12:12','YYYY-MM-DD HH24:MI')
-                    if (sqlService.getVendor().equals("oracle")) {
-                        ps.setString(i + 1, df.format(args[i]));
-                        // select * from sakai_event where event_date between '2001-12-12 12:12' and '2017-12-12 12:12';
-                    } else {
-                        ps.setString(i + 1, df.format(args[i]));
-                    }
-
+                    ps.setString(i + 1, df.format(args[i]));
                     long date = ((Date) args[i]).getTime();
                 }
             }
