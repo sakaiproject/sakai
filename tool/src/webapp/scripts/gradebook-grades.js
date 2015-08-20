@@ -655,6 +655,9 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
 
     // refresh the fixed header
     self.refreshFixedTableHeader(true);
+
+    // refresh any hidden column visual cues
+    self.refreshHiddenVisualCue();
   }
 
 
