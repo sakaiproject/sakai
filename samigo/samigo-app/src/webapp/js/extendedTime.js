@@ -96,7 +96,7 @@ function initializeSelectList(listName, val) {
 // Rather than building lists independently. We'll guarantee consistency by copying them from the page.
 function copyListValuesForExtTime(itemNum) {
 
-	var srcTargetList = document.getElementById("assessmentSettingsAction\:extendedTimeTargets");
+	var srcTargetList = document.getElementById("assessmentSettingsAction\:extendedTimeTarget");
 	var options = srcTargetList.innerHTML;
 	document.getElementById("xt_id"+itemNum).innerHTML = options;
 
