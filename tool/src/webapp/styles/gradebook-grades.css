@@ -634,6 +634,20 @@ div.wicket-mask-transparent {
   background-color: black; 
   filter: alpha(opacity=10); 
 }
+/* IE9-11 does not support a blur filter. As such, we fallback to an opaque mask */
+/* Note: IE8 and below are not supported as Bootstrap does not support IE8 */
+/* IE9 blur fallback */
+body:nth-child(n) div.wicket-mask-dark {
+  filter: alpha(opacity=\95);
+  background-color: \#000;
+}
+/* IE10+ blur fallback */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  div.wicket-mask-dark {
+    opacity: 0.95;
+    background-color: #000;
+  }
+}
 div.wicket-modal div.w_content_container {
   /* give wicket model content some padding */
   padding: 0 20px 20px;
