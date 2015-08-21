@@ -34,6 +34,7 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -618,7 +619,7 @@ public class SakaiBLTIUtil {
 
 		// Send along the CSS URL list
 		String tool_css_all = ServerConfigurationService.getString("basiclti.consumer.ext_sakai_launch_presentation_css_url_all",null);
-		if ( tool_css_all == null ) {
+		if ( site != null && tool_css_all == null ) {
 			tool_css_all = getOurServerUrl() + CSSUtils.getCssToolBase() + ',' + getOurServerUrl() + CSSUtils.getCssToolSkin(site);
 		}
 		setProperty(props,"ext_sakai_" + BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);  
@@ -967,7 +968,6 @@ public class SakaiBLTIUtil {
                 // Find the global message for Reregistration
 		String reg_profile = (String) deploy.get("reg_profile");
 		
-		// TODO: Variable substitution
                 ToolProxy toolProxy = null;
                 try {
                         toolProxy = new ToolProxy(reg_profile);
@@ -1003,6 +1003,27 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=PostRegister&id="+deployKey);
 
 		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
+
+		// Handle any subsisution variables from the message
+		Properties lti2subst = new Properties();
+		addGlobalData(null, ltiProps, lti2subst, rb);
+		if ( deploy != null ) {
+			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
+				LTI2_PATH + SVC_tc_profile + "/" + 
+				(String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
+		}
+
+		Properties custom = new Properties();
+		JSONArray parameter = toolProxy.getParameterFromMessage(proxy_message);
+		if ( parameter != null ) {
+			LTI2Util.mergeLTI2Parameters(custom, parameter.toString());
+			M_log.debug("lti2subst="+lti2subst);
+			M_log.debug("before custom="+custom);
+			LTI2Util.substituteCustom(custom, lti2subst);
+			M_log.debug("after custom="+custom);
+			// Merge the custom values into the launch
+			LTI2Util.addCustomToLaunch(ltiProps, custom);
+		}
 
 		Map<String,String> extra = new HashMap<String,String> ();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 

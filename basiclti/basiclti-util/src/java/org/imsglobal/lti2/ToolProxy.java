@@ -129,7 +129,7 @@ public class ToolProxy {
 	}
 
 	/**
-	 * Retrieve a path for a particular message type from  the ToolProxy
+	 * Retrieve a path for a message from  the ToolProxy
 	 * 
 	 * @param JSONObject message - The message entry
 	 */
@@ -138,6 +138,18 @@ public class ToolProxy {
 		if ( message == null ) return null;
 		String path = getString(message,"path");
 		return path;
+	}
+
+	/**
+	 * Retrieve a parameter bundle for a message from  the ToolProxy
+	 * 
+	 * @param JSONObject message - The message entry
+	 */
+	public JSONArray getParameterFromMessage(JSONObject message)
+	{
+		if ( message == null ) return null;
+		JSONArray parameter = getArray(message,"parameter");
+		return parameter;
 	}
 
 	/**
