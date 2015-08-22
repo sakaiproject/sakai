@@ -101,7 +101,7 @@ GradebookSpreadsheet.prototype.setupKeyboadNavigation = function() {
 
   self.$table.
     on("keydown", function(event) {
-      self.onKeydown(event);
+      return self.onKeydown(event);
     });
 };
 
@@ -136,6 +136,7 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
 
   // return 13
   } else if (isEditableCell && event.keyCode == 13) {
+    event.preventDefault();
     self.getCellModel($eventTarget).enterEditMode(event.keyCode);
 
   // 0-9 48-57
