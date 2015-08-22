@@ -46,10 +46,6 @@
 #gradebookGrades table.table-striped>tbody>tr:nth-of-type(even):hover {
   background-color: #f5f5f5;
 }
-#gradebookGrades th,
-#gradebookGrades td {
-  min-width: 180px;
-}
 #gradebookGrades th input[type='text'],
 #gradebookGrades th select {
   width: 100%;
@@ -59,8 +55,45 @@
   height: 2em;
   line-height: 2em;
 }
+/* Table cell heights, widths and positioning */
+/* Known issue: as table cells don't support position:relative
+ * consistently, we fudge the inner span/div of the cell to
+ * provide a container for any absolutely positioned children.
+ * This div is given a fixed height to ensure a cross browser
+ * solution.
+ */
+#gradebookGrades th,
 #gradebookGrades td {
-  height: 0px;
+  min-width: 180px;
+  min-height: 2.6em;
+}
+#gradebookGrades .gb-course-grade {
+  width: 100px;
+  max-width: 100px;
+  min-width: 100px;
+}
+#gradebookGrades .gb-student-cell {
+  width: 220px;
+  max-width: 220px;
+  min-width: 220px;
+}
+#gradebookGrades thead th > span,
+#gradebookGrades tbody th > span,
+#gradebookGrades thead th > div,
+#gradebookGrades tbody td > div {
+  position: relative;
+  display: block;
+}
+#gradebookGrades thead th,
+#gradebookGrades tbody th,
+#gradebookGrades thead th > span,
+#gradebookGrades tbody th > span {
+  min-height: 100px;
+  height: 100px;
+}
+#gradebookGrades thead th > div,
+#gradebookGrades tbody td > div {
+  min-height: 2.6em;
 }
  
  /* Table Header */
@@ -125,7 +158,7 @@
 #gradebookGrades th .btn-group {
   position: absolute;
   bottom: 1px;
-  right: 1px;
+  right: -3px;
 }
 #gradebookGrades .btn.dropdown-toggle {
   padding: 0 8px;
@@ -183,9 +216,6 @@
   color: #999;
 }
 /* Table Cells */
-#gradebookGrades tbody td.gb-cell {
-  height: 2.6em;
-}
 #gradebookGrades .gb-grade-item-cell,
 #gradebookGrades .gb-external-item-cell,
 #gradebookGrades td.gb-category-item-column-cell {
@@ -211,21 +241,8 @@
   font-size: 0.9em;
   color: #999;
 }
-/* as HTML tables don't normally allow position:absolute, innerWrap all cells
-   with a div that provide the block level element to contain an absolutely
-   positioned child node. */
-#gradebookGrades thead th > span,
-#gradebookGrades tbody th > span,
-#gradebookGrades thead th > div,
-#gradebookGrades tbody td > div {
-  width: 100%;
-  position: relative;
-  display: block;
-  height: 100%;
-
-}
 #gradebookGrades th {
-  padding: 4px 8px 0;
+  padding: 4px 4px 0 8px;
 }
 #gradebookGrades .gb-ajax-editable-label {
   width: 100%;
@@ -239,21 +256,10 @@
 }
 #gradebookGrades .gb-course-grade {
   text-align: center;
-  width: 100px;
-  max-width: 100px;
-}
-#gradebookGrades .gb-student-cell {
-  width: 220px;
-  max-width: 220px;
-  min-width: 220px;
 }
 #gradebookGrades .gb-course-grade > div,
 #gradebookGrades .gb-category-item-column-cell > div {
   line-height: 2.6em;
-}
-#gradebookGrades thead th > span,
-#gradebookGrades tbody th > span {
-  min-height: 90px;
 }
 
 #gradebookGrades .gb-due-date {
@@ -361,7 +367,7 @@
 }
 /* Toolbar */
 #gradebookGrades {
-  padding-top: 1.6em;
+  padding-top: 30px;
   padding-bottom: 80px;
 }
 #gradebookGradesToolbar {
@@ -374,6 +380,7 @@
   left: 0;
   width: 100%;
   white-space: nowrap; /* don't wrap so it stays on one line */
+  height: 30px;
 }
 #gradebookGradesToolbar ul {
   list-style: none;
@@ -864,7 +871,7 @@ ul.feedbackPanel li span {
 .gb-hidden-column-visual-cue {
   position: absolute;
   top: 0;
-  right: -16px;
+  right: -12px;
   cursor: pointer;
 }
 .gb-hidden-column-visual-cue:hover,
