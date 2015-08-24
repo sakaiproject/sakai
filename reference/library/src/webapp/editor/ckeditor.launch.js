@@ -219,7 +219,11 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
           var onShow = dialogDefinition.onShow;
           dialogDefinition.onShow = function() {
               var pos = findPos(e.editor.container.$);
-              this.move(this.getPosition().x, pos[1]);
+              var ypos = 0;
+              if (pos[1] != 0) {
+                  ypos = pos[1] / 2;
+              }
+              this.move(this.getPosition().x, ypos);
               if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
                   var result = onShow.call(this);
                   return result;
@@ -239,7 +243,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
               targetTab.elements[0].children[0].items = itemsNoPopup;
 
           }
-
       });
 }
 
