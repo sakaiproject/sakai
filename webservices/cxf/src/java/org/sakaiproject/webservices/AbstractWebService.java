@@ -68,7 +68,6 @@ public class AbstractWebService {
     protected SamLiteService samLiteService;
     protected IdManager idManager;
     protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
-    protected SqlService sqlService;
 
     
     @WebMethod(exclude = true)
@@ -229,8 +228,4 @@ public class AbstractWebService {
         this.gradebookExternalAssessmentService = service;
     }
 
-    @WebMethod(exclude = true)
-    public void setSqlService(SqlService sqlService) {
-        this.sqlService = sqlService;
-    }
 }

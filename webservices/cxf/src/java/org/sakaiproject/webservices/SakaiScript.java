@@ -4306,7 +4306,6 @@ public class SakaiScript extends AbstractWebService {
         }
     }
 
-
     @WebMethod
     @Path("/resetAllUserWorkspace")
     @Produces("text/plain")
@@ -4319,70 +4318,24 @@ public class SakaiScript extends AbstractWebService {
             LOG.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
             throw new RuntimeException("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
         }
-        Connection conn = null;
-        Statement stmt = null;
-        boolean result = false;
+
         try {
-            conn = sqlService.borrowConnection();
-
-            stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
-
-            stmt.addBatch("delete from SAKAI_SITE_TOOL_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE_TOOL where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE_PAGE_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE_PAGE where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE_USER where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE_GROUP_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE_GROUP where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE_PROPERTY where SITE_ID like '~%' and SITE_ID != '~admin';");
-            stmt.addBatch("delete from SAKAI_SITE where SITE_ID like '~%' and SITE_ID != '~admin';");
-            if (sqlService.getVendor().equals("oracle")) {
-                stmt.addBatch("delete from SAKAI_REALM_RL_FN where realm_key in (select realm_key from sakai_realm where realm_id like '/site/~%' and realm_id != '/site/~admin');");
-                stmt.addBatch("delete from SAKAI_REALM_RL_GR where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
-                stmt.addBatch("delete from SAKAI_REALM_PROVIDER where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
-                stmt.addBatch("delete from SAKAI_REALM_ROLE_DESC where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
-                stmt.addBatch("delete from SAKAI_REALM_PROPERTY where realm_key in (select realm_key from sakai_realm where realm_id  like '/site/~%' and realm_id != '/site/~admin');");
-            } else {
-                stmt.addBatch("DELETE SAKAI_REALM_RL_FN FROM SAKAI_REALM_RL_FN INNER JOIN SAKAI_REALM ON SAKAI_REALM_RL_FN.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%' and SAKAI_REALM.realm_id != '/site/~admin';");
-                stmt.addBatch("DELETE SAKAI_REALM_RL_GR FROM SAKAI_REALM_RL_GR INNER JOIN SAKAI_REALM ON SAKAI_REALM_RL_GR.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%' and SAKAI_REALM.REALM_ID != '/site/~admin';");
-                stmt.addBatch("DELETE SAKAI_REALM_PROVIDER FROM SAKAI_REALM_PROVIDER INNER JOIN SAKAI_REALM ON SAKAI_REALM_PROVIDER.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%'and SAKAI_REALM.REALM_ID != '/site/~admin';");
-                stmt.addBatch("DELETE SAKAI_REALM_ROLE_DESC FROM SAKAI_REALM_ROLE_DESC INNER JOIN SAKAI_REALM ON SAKAI_REALM_ROLE_DESC.REALM_KEY = SAKAI_REALM.REALM_KEY AND SAKAI_REALM.REALM_ID like '/site/~%'and SAKAI_REALM.REALM_ID != '/site/~admin';");
-                stmt.addBatch("DELETE SAKAI_REALM_PROPERTY FROM SAKAI_REALM_PROPERTY inner join SAKAI_REALM on SAKAI_REALM_PROPERTY.REALM_KEY = SAKAI_REALM.REALM_KEY and SAKAI_REALM.REALM_ID like '/site/~%'and SAKAI_REALM.REALM_ID != '/site/~admin';");
-            }
-            stmt.addBatch("delete from SAKAI_REALM where ( REALM_ID like '/site/~%' and REALM_ID != '/site/~admin');");
-            //stmt.addBatch("delete from osp_site_tool where SITE_ID like '~%' and SITE_ID != '~admin';");
-            //stmt.addBatch("delete from SAKAI_PRESENCE;");
-            int[] count = stmt.executeBatch();
-
-            conn.commit();
-
-            if (count.length > 0) {
-                result = true;
-            } else {
-                result = false;
-            }
-
-
-        } catch (Exception e) {
-            LOG.error(e.getMessage(), e);
-            result = false;
-        } finally {
-            if (stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
+            List<String> siteList = siteService.getSiteIds(SelectionType.ANY, null, null,
+                    null, SortType.NONE, null);
+            if (siteList != null && siteList.size() > 0) {
+                for (Iterator i = siteList.iterator(); i.hasNext(); ) {
+                    String siteId =  (String) i.next();
+                    if (siteService.isUserSite(siteId) && !(siteId.equals("~admin"))){
+                        siteService.removeSite(siteService.getSite(siteId));
+                    }
                 }
             }
-            if (conn != null) {
-                try {
-                    conn.close();
-                } catch (SQLException e) {
-                }
-            }
+        } catch (Throwable t) {
+            LOG.warn(this + ".resetAllUserWorkspace: Error encountered" + t.getMessage(), t);
+            return false;
         }
 
-        return result;
+    return true;
+
     }
-
-
 }
