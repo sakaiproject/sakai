@@ -1,5 +1,5 @@
 ﻿/*
-Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'image2', 'sq', {
@@ -10,7 +10,7 @@ CKEDITOR.plugins.setLang( 'image2', 'sq', {
 	infoTab: 'Informacione mbi Fotografinë',
 	lockRatio: 'Mbyll Racionin',
 	menu: 'Karakteristikat e Fotografisë',
-	pathName: 'image', // MISSING
+	pathName: 'foto',
 	pathNameCaption: 'caption', // MISSING
 	resetSize: 'Rikthe Madhësinë',
 	resizer: 'Click and drag to resize', // MISSING
