@@ -218,12 +218,14 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
           var onShow = dialogDefinition.onShow;
           dialogDefinition.onShow = function() {
-              var pos = findPos(e.editor.container.$);
-              this.move(this.getPosition().x, pos[1]);
+              var result;
               if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
-                  var result = onShow.call(this);
-                  return result;
+                  result = onShow.call(this);
               }
+              var pos = findPos(e.editor.container.$);
+              //SAK-29830 - On some pages it was moving too far down the pages, on others it was still moving too far. This fix is intended to cut that significantly.
+              this.move(this.getPosition().x, pos[1]*0.25);
+              return result;
           }
 
           if ( dialogName == 'link' )
