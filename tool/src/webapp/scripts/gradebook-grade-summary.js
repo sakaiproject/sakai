@@ -5,8 +5,10 @@
 /**************************************************************************************
  * A GradebookGradeSummary to encapsulate all the grade summary content behaviours 
  */
-function GradebookGradeSummary($content, darkerMask) {
+function GradebookGradeSummary($content, blockout) {
   this.$content = $content;
+
+  this.blockout = blockout || false;
 
   this.studentId = this.$content.find("[data-studentid]").data("studentid");
 
@@ -15,18 +17,22 @@ function GradebookGradeSummary($content, darkerMask) {
   this.$modal = this.$content.closest(".wicket-modal");
 
   if (this.$modal.length > 0 && this.$modal.is(":visible")) {
-    this.setupTabs();
-    this.setupStudentNavigation();
-    this.setupFixedFooter();
-    this.setupMask(darkerMask);
+    this.setupWicketModal();
   } else {
     setTimeout($.proxy(function() {
       this.$modal = this.$content.closest(".wicket-modal");
-      this.setupTabs();
-      this.setupStudentNavigation();
-      this.setupFixedFooter();
+      this.setupWicketModal();
     }, this));
   }
+};
+
+
+GradebookGradeSummary.prototype.setupWicketModal = function() {
+    this.setupTabs();
+    this.setupStudentNavigation();
+    this.setupFixedFooter();
+    this.setupMask();
+    this.bindModalClose();
 };
 
 
@@ -95,11 +101,58 @@ GradebookGradeSummary.prototype.setupFixedFooter = function() {
 };
 
 
-GradebookGradeSummary.prototype.setupMask = function(darkerMask) {
+GradebookGradeSummary.prototype.setupMask = function() {
   var $mask = this.$modal.siblings(".wicket-mask-transparent, .wicket-mask-dark");
-  if (darkerMask) {
+  if (this.blockout) {
     $mask.removeClass("wicket-mask-transparent").addClass("wicket-mask-dark");
   } else {
     $mask.removeClass("wicket-mask-dark").addClass("wicket-mask-transparent");
   }
+};
+
+
+GradebookGradeSummary.prototype.bindModalClose = function() {
+  var self = this;
+
+  if (self.blockout) {
+    self.$content.find(".gb-summary-fake-close").show();
+    self.$content.find(".gb-summary-close").hide();
+  } else {
+    self.$content.find(".gb-summary-fake-close").hide();
+    self.$content.find(".gb-summary-close").show();
+  }
+
+  function showConfirmation(event) {
+    if (self.blockout) {
+      event.preventDefault();
+      event.stopPropagation();
+
+      var $confirmationModal = $($("#studentGradeSummaryCloseConfirmationTemplate").html());
+      $confirmationModal.on("click", ".btn-student-summary-continue", function() {
+        self.$modal.find(".gb-summary-close").trigger("click");
+      });
+      $(document.body).append($confirmationModal);
+      $confirmationModal.modal().modal('show');
+      $confirmationModal.on("hidden.bs.modal", function() {
+        $confirmationModal.remove();
+      });
+
+      return false;
+    } else {
+      if ($(this).data("clickCallback")) {
+        $(this).data("clickCallback")();
+      }
+
+      return true;
+    }
+  }
+
+  self.$modal.find(".w_close, .gb-summary-fake-close").each(function() {
+    if (this.onclick) {
+      $(this).data("clickCallback", this.onclick);
+      this.onclick = null;
+    }
+  });
+
+  self.$modal.find(".w_close, .gb-summary-fake-close").off("click").on("click", showConfirmation);
 };
