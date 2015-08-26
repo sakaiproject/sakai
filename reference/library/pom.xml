@@ -228,6 +228,12 @@
 								<version>4.3.2.1</version>
 								<type>gem</type>
 							</dependency>
+							<dependency>
+								<groupId>rubygems</groupId>
+								<artifactId>bootstrap-sass</artifactId>
+								<version>3.3.5.1</version>
+								<type>gem</type>
+							</dependency>
 						</dependencies>
 					</plugin>
 					<plugin>
