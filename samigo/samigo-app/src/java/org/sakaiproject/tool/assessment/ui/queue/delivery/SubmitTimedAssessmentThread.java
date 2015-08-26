@@ -21,16 +21,13 @@
 
 package org.sakaiproject.tool.assessment.ui.queue.delivery;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.Iterator;
-import java.util.TimerTask;
-import java.util.List;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.assessment.data.dao.assessment.EventLogData;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedAssessmentData;
@@ -122,7 +119,17 @@ public class SubmitTimedAssessmentThread extends TimerTask
 
             PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
             String siteId = publishedAssessmentService.getPublishedAssessmentOwner(ag.getPublishedAssessmentId());
-            EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
+
+            EventTrackingService.post(EventTrackingService.newEvent("sam.assessment.thread_submit", "siteId=" + AgentFacade.getCurrentSiteId() + ", submissionId=" + ag.getAssessmentGradingId(), siteId, true, NotificationService.NOTI_REQUIRED));
+
+            Map<String, Object> notiValues = new HashMap<String, Object>();
+
+            notiValues.put("assessmentGradingID", ag.getAssessmentGradingId());
+            notiValues.put("userID", ag.getAgentId());
+            notiValues.put("submissionDate", submitDate.toString());
+            notiValues.put("publishedAssessmentID", ag.getPublishedAssessmentId());
+
+            EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_TIMED_SUBMITTED, notiValues.toString(), siteId, true, SamigoConstants.NOTI_EVENT_ASSESSMENT_TIMED_SUBMITTED));
             notifyGradebookByScoringType(ag, timedAG.getPublishedAssessment());
             log.debug("**** 4a. time's up, timeLeft+latency buffer reached, saved to DB");
             log.info("Submitted timed assessment assessmentId=" + eventLogData.getAssessmentId() + " userEid=" + eventLogData.getUserEid() + " siteId=" + siteId + ", submissionId=" + ag.getAssessmentGradingId());

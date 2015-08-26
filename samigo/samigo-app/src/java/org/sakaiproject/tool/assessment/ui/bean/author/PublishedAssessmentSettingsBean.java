@@ -692,6 +692,15 @@ public class PublishedAssessmentSettingsBean
 	  }
   }
 
+  public String getInstructorNotification(){
+    return this.assessment.getInstructorNotification().toString();
+  }
+
+  public void setInstructorNotification(String notiEmail){
+    this.assessment.setInstructorNotification(Integer.valueOf(notiEmail));
+  }
+
+
   public String getSubmissionsAllowed() {
     return submissionsAllowed;
   }

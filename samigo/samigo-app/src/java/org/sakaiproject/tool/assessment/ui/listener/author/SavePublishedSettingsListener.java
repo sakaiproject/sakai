@@ -190,7 +190,9 @@ implements ActionListener
 	    }
 	    assessment.setTitle( newTitle );
 	    assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, titleDecoration );
-	    
+
+	    // Save Instructor Notification value
+	    assessment.setInstructorNotification(Integer.valueOf(assessmentSettings.getInstructorNotification()));
 	    
 	    // l. FINALLY: save the assessment
 	    assessmentService.saveAssessment(assessment);

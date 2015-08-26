@@ -343,6 +343,8 @@ public class SaveAssessmentSettings
     assessment.setTitle( newTitle );
     assessment.updateAssessmentMetaData(SecureDeliveryServiceAPI.TITLE_DECORATION, titleDecoration );
 
+    assessment.setInstructorNotification(Integer.valueOf(assessmentSettings.getInstructorNotification()));
+
     // l. FINALLY: save the assessment
     assessmentService.saveAssessment(assessment);
 

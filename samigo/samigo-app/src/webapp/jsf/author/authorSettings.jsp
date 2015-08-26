@@ -301,6 +301,18 @@
     <h:outputLabel value="#{assessmentSettingsMessages.auto_submit}"/>
   </h:panelGroup>
 
+    <!-- SUBMISSION EMAILS -->
+    <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
+        <h:outputLabel value="#{assessmentSettingsMessages.instructorNotification}" />
+        <f:verbatim><div class="tier1"></f:verbatim>
+        <h:selectOneRadio id="notificationEmailChoices" value="#{assessmentSettings.instructorNotification}" layout="pageDirection">
+            <f:selectItem itemValue="3" itemLabel="#{assessmentSettingsMessages.oneEmail}" />
+            <f:selectItem itemValue="2" itemLabel="#{assessmentSettingsMessages.digestEmail}" />
+            <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.noEmail}" />
+        </h:selectOneRadio>
+        <f:verbatim></div></f:verbatim>
+    </h:panelGroup>
+
 <f:verbatim><div id="jqueryui-accordion-security"></f:verbatim><!-- This is sub-accordion for high security and submission message -->
 
   <!-- *** HIGH SECURITY *** -->

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplates>
+    <emailTemplate>
+        <subject>Notification for assessment submission: ${siteName} - ${assessmentTitle}</subject>
+        <message>The following assessment submission was recorded by Isidore:
+
+    Site Title          : ${siteName}
+    Assessment          : ${assessmentTitle}
+
+    Student             : ${userName} (${userDisplayID})
+    Submission ID       : ${assessmentGradingID}
+    Submitted on        : ${submissionDate}
+
+    Assessment Due Date : ${assessmentDueDate}
+    Site ID             : ${siteID}
+
+---
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+Control what email notifications you receive at My Workspace -> Preferences -> Notifications
+        </message>
+        <messagehtml>&lt;pre&gt;
+The following assessment submission was recorded by Isidore:
+
+    Site Title          : ${siteName}
+    Assessment          : ${assessmentTitle}
+
+    Student             : ${userName} (${userDisplayID})
+    Submission ID       : ${assessmentGradingID}
+    Submitted Date      : ${submissionDate}
+
+    Assessment Due Date : ${assessmentDueDate}
+    Site ID             : ${siteID}
+
+---
+This automatic notification message was sent by ${localSakaiName} (${localSakaiUrl})
+Control what email notifications you receive at My Workspace -&gt; Preferences -&gt; Notifications
+&lt;/pre&gt;
+        </messagehtml>
+        <version>1</version>
+        <owner>admin</owner>
+        <key>sam.assessmentSubmitted</key>
+        <locale>en_US</locale>
+        <localeLangTag>en-US</localeLangTag>
+    </emailTemplate>
+</emailTemplates>

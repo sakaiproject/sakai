@@ -73,6 +73,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.exception.ServerOverloadException;
 import org.sakaiproject.exception.TypeException;
+import org.sakaiproject.samigo.util.SamigoConstants;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.cover.SiteService;
@@ -3430,6 +3431,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 		boolean updateCurrentGrade = false;
 	    while (iter.hasNext()) {
 	    	updateCurrentGrade = false;
+            Map<String, Object> notiValues = new HashMap<String, Object>();
 	    	try{
 	    		adata = (AssessmentGradingData) iter.next();
 	    		adata.setHasAutoSubmissionRun(Boolean.TRUE);
@@ -3496,7 +3498,14 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     						AutoSubmitAssessmentsJob.safeEventLength("publishedAssessmentId=" + adata.getPublishedAssessmentId() + 
     								", assessmentGradingId=" + adata.getAssessmentGradingId()), true));
     				
+    				notiValues.put("publishedAssessmentID", adata.getPublishedAssessmentId());
+    				notiValues.put("assessmentGradingID", adata.getAssessmentGradingId());
+    				notiValues.put("userID", adata.getAgentId());
+    				notiValues.put("submissionDate", adata.getSubmittedDate());
+
+    				EventTrackingService.post(EventTrackingService.newEvent(SamigoConstants.EVENT_ASSESSMENT_AUTO_SUBMITTED, notiValues.toString(), AgentFacade.getCurrentSiteId(), false, SamigoConstants.NOTI_EVENT_ASSESSMENT_SUBMITTED));
     			}
+
 	    		lastPublishedAssessmentId = adata.getPublishedAssessmentId();
     			lastAgentId = adata.getAgentId();
 
@@ -3525,6 +3534,7 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
     					}
     				}
     			}
+
     			adata = null;
 	    	}catch (Exception e) {
 	    		if(adata != null){

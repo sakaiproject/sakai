@@ -23,6 +23,7 @@
 		<module>samigo-api</module>
 		<module>samigo-app</module>
 		<module>samigo-hibernate</module>
+		<module>samigo-impl</module>
 		<module>samigo-pack</module>
 		<module>samigo-qti</module>
 		<module>samigo-services</module>
@@ -80,6 +81,11 @@
             </dependency>
             <dependency>
                 <groupId>org.sakaiproject.samigo</groupId>
+                <artifactId>samigo-impl</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.sakaiproject.samigo</groupId>
                 <artifactId>samigo-import</artifactId>
                 <version>${project.version}</version>
             </dependency>
@@ -124,6 +130,17 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.sakaiproject.kernel</groupId>
+            <artifactId>sakai-kernel-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
     
     <reporting>
         <plugins>
