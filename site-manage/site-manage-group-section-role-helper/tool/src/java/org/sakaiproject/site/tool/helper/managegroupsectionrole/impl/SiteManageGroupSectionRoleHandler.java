@@ -205,6 +205,7 @@ public class SiteManageGroupSectionRoleHandler {
             selectedSiteMembers = new String[]{};
             selectedRosters = new HashMap<>();
             selectedRoles = new HashMap<>();
+            memberList = new String();
 
             optionAssign=OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
             groupSplit = true;
