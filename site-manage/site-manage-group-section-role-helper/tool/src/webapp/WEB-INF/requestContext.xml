@@ -51,7 +51,6 @@
     <property name="messages" ref="targettedMessageList" />
     <property name="httpServletRequest" ref="httpServletRequest" />
     <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
-    <property name="cms" ref="org.sakaiproject.coursemanagement.api.CourseManagementService" />
   </bean>
   
     <bean id="GroupDelProdcuer" 
