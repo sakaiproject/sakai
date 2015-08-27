@@ -1,9 +1,11 @@
 @import "defaults";
 
+@import "base/bootstrap-defaults";
 @import "base/extendables";
 @import "base/defaults";
 @import "base/responsive";
 @import "base/icons";
+
 
 @import "modules/main";
 @import "modules/navigation/base";
