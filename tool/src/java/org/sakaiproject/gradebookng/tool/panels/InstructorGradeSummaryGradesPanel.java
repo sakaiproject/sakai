@@ -17,6 +17,7 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.tool.gradebook.Gradebook;
+import org.sakaiproject.tool.gradebook.Category;
 
 import java.util.*;
 
@@ -57,14 +58,15 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 		Iterator<Assignment> assignmentIterator = assignments.iterator();
 		while (assignmentIterator.hasNext()) {
 			Assignment assignment = assignmentIterator.next();
-			String category = assignment.getCategoryName() == null ? GradebookPage.UNCATEGORIZED : assignment.getCategoryName();
 
-			if (!categoriesToAssignments.containsKey(category)) {
-				categoryNames.add(category);
-				categoriesToAssignments.put(category, new ArrayList<Assignment>());
+			String categoryName = assignment.getCategoryName() == null ? GradebookPage.UNCATEGORIZED : assignment.getCategoryName();
+
+			if (!categoriesToAssignments.containsKey(categoryName)) {
+				categoryNames.add(categoryName);
+				categoriesToAssignments.put(categoryName, new ArrayList<Assignment>());
 			}
 
-			categoriesToAssignments.get(category).add(assignment);
+			categoriesToAssignments.get(categoryName).add(assignment);
 		}
 
 		Collections.sort(categoryNames);
@@ -76,15 +78,15 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 
 			@Override
 			protected void populateItem(ListItem<String> categoryItem) {
-				final String category = categoryItem.getModelObject();
+				final String categoryName = categoryItem.getModelObject();
 
-				List<Assignment> categoryAssignments = categoriesToAssignments.get(category);
+				List<Assignment> categoryAssignments = categoriesToAssignments.get(categoryName);
 
-				categoryItem.add(new Label("category", category));
+				categoryItem.add(new Label("category", categoryName));
 
 				CategoryDefinition categoryDefinition = null;
 				for (CategoryDefinition aCategoryDefinition : categories) {
-					if (aCategoryDefinition.getName().equals(category)) {
+					if (aCategoryDefinition.getName().equals(categoryName)) {
 						categoryDefinition = aCategoryDefinition;
 						break;
 					}
@@ -103,7 +105,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 						categoryItem.add(new Label("categoryWeight", ""));
 					} else {
 						weight = FormatHelper.formatDoubleAsPercentage(categoryDefinition.getWeight() * 100);
-						categoryItem.add(new Label("categoryWeight", new StringResourceModel("label.studentsummary.categoryweight", null, new Object[] {weight})));
+						categoryItem.add(new Label("categoryWeight", weight));
 					}
 				} else {
 					categoryItem.add(new Label("categoryGrade", ""));
