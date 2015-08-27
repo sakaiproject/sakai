@@ -34,7 +34,6 @@ import static org.sakaiproject.pasystem.api.ValidationHelper.*;
  * A data object representing a banner.
  */
 public class Banner implements Comparable<Banner> {
-    @Getter
     private final String uuid;
     @Getter
     private final String message;
@@ -104,7 +103,11 @@ public class Banner implements Comparable<Banner> {
             return false;
         }
 
-        return uuid.equals(((Banner)obj).getUuid());
+        try {
+            return uuid.equals(((Banner)obj).getUuid());
+        } catch (MissingUuidException e) {
+            return false;
+        }
     }
 
     public int hashCode() {
@@ -116,6 +119,14 @@ public class Banner implements Comparable<Banner> {
      */
     public int getSeverityScore() {
         return type.ordinal();
+    }
+
+    public String getUuid() throws MissingUuidException {
+        if (this.uuid == null) {
+            throw new MissingUuidException("No UUID has been set for this banner");
+        }
+
+        return this.uuid;
     }
 
     /**

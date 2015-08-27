@@ -36,6 +36,7 @@ import org.sakaiproject.pasystem.api.Acknowledger;
 import org.sakaiproject.pasystem.api.AcknowledgementType;
 import org.sakaiproject.pasystem.api.Banner;
 import org.sakaiproject.pasystem.api.Banners;
+import org.sakaiproject.pasystem.api.MissingUuidException;
 import org.sakaiproject.pasystem.api.PASystemException;
 import org.sakaiproject.pasystem.impl.acknowledgements.AcknowledgementStorage;
 import org.sakaiproject.pasystem.impl.common.DB;
@@ -193,26 +194,32 @@ public class BannerStorage implements Banners, Acknowledger {
 
     @Override
     public void updateBanner(Banner banner) {
-        DB.transaction("Update banner with uuid " + banner.getUuid(),
-                new DBAction<Void>() {
-                    @Override
-                    public Void call(DBConnection db) throws SQLException {
-                        db.run("UPDATE pasystem_banner_alert SET message = ?, hosts = ?, active = ?, start_time = ?, end_time = ?, banner_type = ? WHERE uuid = ?")
-                                .param(banner.getMessage())
-                                .param(banner.getHosts())
-                                .param(Integer.valueOf(banner.isActive() ? 1 : 0))
-                                .param(banner.getStartTime())
-                                .param(banner.getEndTime())
-                                .param(banner.getType())
-                                .param(banner.getUuid())
-                                .executeUpdate();
+        try {
+            final String uuid = banner.getUuid();
 
-                        db.commit();
+            DB.transaction("Update banner with uuid " + uuid,
+                    new DBAction<Void>() {
+                        @Override
+                        public Void call(DBConnection db) throws SQLException {
+                            db.run("UPDATE pasystem_banner_alert SET message = ?, hosts = ?, active = ?, start_time = ?, end_time = ?, banner_type = ? WHERE uuid = ?")
+                                    .param(banner.getMessage())
+                                    .param(banner.getHosts())
+                                    .param(Integer.valueOf(banner.isActive() ? 1 : 0))
+                                    .param(banner.getStartTime())
+                                    .param(banner.getEndTime())
+                                    .param(banner.getType())
+                                    .param(uuid)
+                                    .executeUpdate();
 
-                        return null;
+                            db.commit();
+
+                            return null;
+                        }
                     }
-                }
-        );
+            );
+        } catch (MissingUuidException e) {
+            throw new RuntimeException("Can't update a banner with no UUID specified", e);
+        }
     }
 
     @Override
