@@ -5398,6 +5398,7 @@ public class SimplePageBean {
 
 
 
+
 // for group-owned student pages, put it in the worksite of the current user
 	public String getCollectionId(boolean urls) {
 		String siteId = getCurrentPage().getSiteId();
@@ -5635,20 +5636,29 @@ public class SimplePageBean {
 			if (!checkCsrf())
 			    return;
 
+			if (multipartMap.size() > 0) {
+				// 	user specified a file, create it
+				for(MultipartFile file : multipartMap.values()){
+					if (file.isEmpty())
+						file = null;
+					addMultimediaFile(file);
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		} finally {
+			if(advisor != null) securityService.popAdvisor();
+		}
+		
+	}
+
+	public void addMultimediaFile(MultipartFile file){
+		try{
 			
 			String name = null;
 			String sakaiId = null;
 			String mimeType = null;
-			MultipartFile file = null;
-			
-			if (multipartMap.size() > 0) {
-				// 	user specified a file, create it
-				file = multipartMap.values().iterator().next();
-				// zero length is valid. We get that if it's not a file upload
-				if (file.isEmpty())
-				    file = null;
 
-			}
 			
 			if (file != null) {
 				if (!uploadSizeOk(file))
@@ -5870,11 +5880,8 @@ public class SimplePageBean {
 			}
 		}catch(Exception ex) {
 			ex.printStackTrace();
-		} finally {
-		    if(advisor != null) securityService.popAdvisor();
 		}
 	}
-
 	public boolean deleteRecursive(File path) throws FileNotFoundException{
 		if (!path.exists()) throw new FileNotFoundException(path.getAbsolutePath());
 		boolean ret = true;
