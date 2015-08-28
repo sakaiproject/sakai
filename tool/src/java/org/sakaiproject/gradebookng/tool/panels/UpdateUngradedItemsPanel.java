@@ -18,6 +18,7 @@ import org.apache.wicket.ajax.markup.html.form.AjaxButton;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.feedback.FeedbackMessage;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -60,6 +61,8 @@ public class UpdateUngradedItemsPanel extends Panel {
 			
 	private static final double DEFAULT_GRADE = 0;
 
+	private boolean isExtraCreditValue = false;
+
 	public UpdateUngradedItemsPanel(String id, IModel<Long> model, ModalWindow window) {
 		super(id);
 		this.model = model;
@@ -76,7 +79,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 		GradeOverride override = new GradeOverride();
 		override.setGrade(DEFAULT_GRADE);
 		CompoundPropertyModel<GradeOverride> formModel = new CompoundPropertyModel<GradeOverride>(override);
-		
+
 		//build form
 		//modal window forms must be submitted via AJAX so we do not specify an onSubmit here
 		Form<GradeOverride> form = new Form<GradeOverride>("form", formModel);
@@ -88,6 +91,15 @@ public class UpdateUngradedItemsPanel extends Panel {
 				
 				GradeOverride override = (GradeOverride) form.getModelObject();
 
+				Assignment assignment = businessService.getAssignment(assignmentId);
+
+				if (override.getGrade() > assignment.getPoints()) {
+
+					target.addChildren(form, FeedbackPanel.class);
+				} else {
+					isExtraCreditValue = false;
+				}
+
 				boolean	success = businessService.updateUngradedItems(assignmentId, override.getGrade());
 
 				if(success) {
@@ -97,6 +109,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 					// InvalidGradeException
 					error(getString("grade.notifications.invalid"));
 					target.addChildren(form, FeedbackPanel.class);
+					target.appendJavaScript("new GradebookUpdateUngraded($(\"#"+getParent().getMarkupId()+"\"));");
 				}
 			}
 		};
@@ -139,6 +152,11 @@ public class UpdateUngradedItemsPanel extends Panel {
 		};
 		feedback.setOutputMarkupId(true);
 		form.add(feedback);
+
+		Assignment assignment = businessService.getAssignment(assignmentId);
+		WebMarkupContainer hiddenGradePoints = new WebMarkupContainer("gradePoints");
+		hiddenGradePoints.add(new AttributeModifier("value", assignment.getPoints()));
+		form.add(hiddenGradePoints);
 	}
 	
 	/**

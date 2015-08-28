@@ -909,7 +909,13 @@ ul.feedbackPanel li span {
   font-family: 'gradebook-icons';
   content: '\f04f';
 }
-/* Bootstrap > Morpheus overrides */
+/* Update Ungraded modal */
+.gb-update-ungraded-extracredit-confirmation {
+  z-index: 50000 !important;
+}
+.gb-update-ungraded-extracredit-confirmation .modal-dialog {
+  z-index: 50001 !important;
+}/* Bootstrap > Morpheus overrides */
 .dropdown-menu>li>a,
 .nav>li>a {
   text-decoration: none;

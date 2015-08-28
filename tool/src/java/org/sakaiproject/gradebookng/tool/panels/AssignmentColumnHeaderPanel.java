@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.lang.Exception;
 
 import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.Component;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
@@ -254,10 +255,15 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				
 				GradebookPage gradebookPage = (GradebookPage) this.getPage();
 				final ModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
-				
-				window.setContent(new UpdateUngradedItemsPanel(window.getContentId(), this.getModel(), window));
+
+				Component content = new UpdateUngradedItemsPanel(window.getContentId(), this.getModel(), window);
+
+				window.setContent(content);
 				window.showUnloadConfirmation(false);
 				window.show(target);
+
+				content.setOutputMarkupId(true);
+				target.appendJavaScript("new GradebookUpdateUngraded($(\"#"+content.getMarkupId()+"\"));");
 			}
 			
 			@Override
