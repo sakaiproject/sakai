@@ -40,6 +40,10 @@
 
    <property name="calendarServiceHelper">
      <ref bean="calendarServiceHelper"/>
+   </property>   
+   
+   <property name="emailServiceHelper">
+     <ref bean="emailServiceHelper"/>
    </property>
 </bean>
 
@@ -75,6 +79,11 @@
 <bean name="calendarServiceHelper" 
  	class="org.sakaiproject.tool.assessment.integration.helper.standalone.CalendarServiceHelperImpl">	
 </bean>
+
+<bean name="emailServiceHelper"
+     class="org.sakaiproject.tool.assessment.integration.helper.integrated.EmaileServiceHelperImpl">
+</bean>
+
 
 </beans>
 

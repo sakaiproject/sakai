@@ -32,6 +32,7 @@ import org.sakaiproject.tool.assessment.integration.helper.ifc.PublishingTargetH
 import org.sakaiproject.tool.assessment.integration.helper.ifc.SectionAwareServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.ServerConfigurationServiceHelper;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.EmailServiceHelper;
 
 /**
  * IntegrationContext is an internal implementation of IntegrationContextFactory.
@@ -51,6 +52,7 @@ public class IntegrationContext extends IntegrationContextFactory
   private SectionAwareServiceHelper sectionAwareServiceHelper;
   private ServerConfigurationServiceHelper serverConfigurationServiceHelper;
   private CalendarServiceHelper calendarServiceHelper;
+  private EmailServiceHelper emailServiceHelper;
   
   // plain old Java bean properties, nothing mysterious here
   // just that we add mutators for Spring to hook, these are not
@@ -120,5 +122,11 @@ public class IntegrationContext extends IntegrationContextFactory
   }
   public void setCalendarServiceHelper(CalendarServiceHelper calendarServiceHelper) {
 	  this.calendarServiceHelper = calendarServiceHelper;
+  }
+  public EmailServiceHelper getEmailServiceHelper() {
+	  return emailServiceHelper;
+  }
+  public void setEmailServiceHelper(EmailServiceHelper emailServiceHelper) {
+	  this.emailServiceHelper = emailServiceHelper;
   }
 }

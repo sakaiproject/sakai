@@ -24,11 +24,15 @@
 package org.sakaiproject.tool.assessment.ui.listener.author;
 
 import java.io.UnsupportedEncodingException;
+import java.text.DateFormat;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Iterator;
 import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -46,6 +50,7 @@ import javax.mail.internet.InternetAddress;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.tool.assessment.integration.helper.ifc.CalendarServiceHelper;
+import org.sakaiproject.tool.assessment.integration.helper.ifc.EmailServiceHelper;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
@@ -98,6 +103,7 @@ public class PublishAssessmentListener
   private static boolean repeatedPublish = false;
 
   private CalendarServiceHelper calendarService = IntegrationContextFactory.getInstance().getCalendarServiceHelper();
+  private EmailServiceHelper emailService = IntegrationContextFactory.getInstance().getEmailServiceHelper();
   private ResourceLoader rl= new ResourceLoader("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages");
   
   public PublishAssessmentListener() {
@@ -199,6 +205,7 @@ public class PublishAssessmentListener
        PublishRepublishNotificationBean publishRepublishNotification = (PublishRepublishNotificationBean) ContextUtil.lookupBean("publishRepublishNotification");
        boolean sendNotification = publishRepublishNotification.getSendNotification();
        String subject = publishRepublishNotification.getNotificationSubject();
+       
        String notificationMessage = getNotificationMessage(publishRepublishNotification, assessmentSettings.getTitle(), assessmentSettings.getReleaseTo(), assessmentSettings.getStartDateString(), assessmentSettings.getPublishedUrl(),
           		assessmentSettings.getReleaseToGroupsAsString(), assessmentSettings.getDueDateString(), assessmentSettings.getTimedHours(), assessmentSettings.getTimedMinutes(), 
           		assessmentSettings.getUnlimitedSubmissions(), assessmentSettings.getSubmissionsAllowed(), assessmentSettings.getScoringType(), assessmentSettings.getFeedbackDelivery(), assessmentSettings.getFeedbackDateString());
@@ -477,4 +484,7 @@ public class PublishAssessmentListener
 	  
 	  return message.toString();
   }
+  
+  
+
 }

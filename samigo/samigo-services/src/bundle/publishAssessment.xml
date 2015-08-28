@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<emailTemplate>
+	<locale></locale>
+	<subject>[${localSakaiName}] Samigo Assessment</subject>
+	<key>samigo.publishAssessment</key>
+	<owner>admin</owner>
+	<version>1</version>
+	<message>Dear ${recipientFirstName},
+	</message>
+	<htmlMessage>Dear ${recipientFirstName},
+	</htmlMessage>
+</emailTemplate>
