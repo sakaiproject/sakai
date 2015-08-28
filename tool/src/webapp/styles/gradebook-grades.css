@@ -887,7 +887,10 @@ ul.feedbackPanel li span {
   margin: 30px 0 0;
 }
 .gb-grade-summary-close-confirmation {
-  z-index: 30001;
+  z-index: 50000 !important;
+}
+.gb-grade-summary-close-confirmation .modal-dialog {
+  z-index: 50001 !important;
 }
 /* Hidden column visual cue */
 .gb-hidden-column-visual-cue {
