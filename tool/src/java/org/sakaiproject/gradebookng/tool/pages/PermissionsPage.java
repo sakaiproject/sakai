@@ -181,7 +181,12 @@ public class PermissionsPage extends BasePage {
         
         //FORM
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Form form = new Form("form", Model.of(pageModel));
+		Form form = new Form("form", Model.of(pageModel)) {
+			@Override
+			public boolean isVisible() {
+				return taSelected != null;
+			}
+		};
 		
 		//submit button
 		Button submit = new Button("submit") {
