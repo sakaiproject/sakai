@@ -252,7 +252,7 @@ public class BasePage extends WebPage implements IHeaderContributor {
 		//response.renderJavascriptReference("js/my_tool_javascript.js");
 
 		//for jQuery
-		response.renderJavascriptReference("/library/js/jquery/jquery-1.9.1.min.js");
+		response.renderJavascriptReference("/library/js/jquery/jquery-1.11.3.min.js");
 		response.renderJavascriptReference("/library/js/jquery/ui/1.11.3/jquery-ui.min.js");
 
 		//for datepicker
