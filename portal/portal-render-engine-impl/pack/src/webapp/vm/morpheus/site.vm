@@ -43,14 +43,14 @@
             ${sakai_html_head_js}
         #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
 
-        ## Make sure we at least have a jQuery 1.9 or higher, log messages
+        ## Make sure we at least have a jQuery 1.11 or higher, log messages
     #set ( $d = "$")
     <script>
         var needJQuery = true;
         var secondJQuery = false;
         if ( window.jQuery ) {
             tver = jQuery.fn.jquery;
-            if ( tver.indexOf('1.9.') == 0 ) {
+            if ( tver.indexOf('1.11.') == 0 ) {
                 window.console && console.log('Using tool jQuery '+tver);
                 needJQuery = false;
             } else {
@@ -58,13 +58,28 @@
             }
         }
         if ( needJQuery ) {
-            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.9.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-1.11.3.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Cscript src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageScriptPath}bootstrap/3.3.5/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            document.write('\x3Cscript src="${pageScriptPath}jquery/ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+            window.console && console.log('Portal scripts loaded JQ+MI+UI+BS');
+	} else {
+            if (typeof jQuery.migrateWarnings == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding jQuery migrate');
+            }
+            if ( typeof jQuery.fn.popover == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}bootstrap/3.3.5/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding Bootstrap');
+            }
+            if (typeof jQuery.ui == 'undefined') {
+                document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
+                window.console && console.log('Portal adding jQuery UI');
+            }
         }
     </script>
     <script>
         ${d}PBJQ = jQuery; // The Portal's jQuery (also in $ for now)
-        window.console && console.log('Portal scripts loading PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
     </script>
 
         #if ($loggedIn)
@@ -90,8 +105,6 @@
 
         #parse("/vm/morpheus/snippets/portalChat-snippet.vm")
 
-        <script type="text/javascript" src="${pageScriptPath}bootstrap/3.3.5/bootstrap.min.js">
-
         #parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
         #if ($pageTop)
@@ -109,7 +122,7 @@
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
                 jQuery = ${d};  // Return jQuery to point at the tool jQuery
             }
-            window.console && console.log('Portal scripts loaded PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
+            window.console && console.log('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
 
             ${d}PBJQ(document).ready(function() {
                 setupSiteNav();

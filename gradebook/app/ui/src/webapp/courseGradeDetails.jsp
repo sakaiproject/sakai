@@ -232,7 +232,7 @@
 				style="margin-left: 5em;"
 			/>
 		</div>
-    <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+    <script type="text/javascript" src="/library/js/jquery/jquery-1.11.3.min.js"></script>
     <script type="text/javascript">
         $(document).ready(function(){
             $('#exportPrefsLink').click(function(e){
