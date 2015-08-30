@@ -3,11 +3,10 @@
 <!-- this is the new list template, which uses the resources type registry -->
 <script type="text/javascript">includeLatestJQuery('content');</script>
 
-<script type="text/javascript" src="/library/js/bootstrap/3.1.1/js/bootstrap.min.js">
 <!-- // -->
 </script>
 <link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
-<link rel="stylesheet" href="/library/js/bootstrap/3.1.1/css/bootstrap.min.css" />
+<link rel="stylesheet" href="/library/js/bootstrap/3.3.5/css/bootstrap.min.css" />
 <script type="text/javascript" src="/sakai-content-tool/js/content.js">
 <!-- // -->
 </script>
