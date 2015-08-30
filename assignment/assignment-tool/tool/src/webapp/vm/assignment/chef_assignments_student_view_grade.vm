@@ -1,7 +1,7 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_student_view_grade.vm  -->
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/assignment/chef_assignments_student_view_grade.vm,v 1.2 2005/05/19 19:39:49 gsilver.umich.edu Exp $ -->
-<script type="text/javascript">includeLatestJQuery('assignments');</script>
+<!-- jQuery already loaded in assignment_chef_header -->
 <link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript">
     $(document).ready(function(){

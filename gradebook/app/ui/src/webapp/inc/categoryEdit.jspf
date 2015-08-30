@@ -1,4 +1,4 @@
-<script type="text/javascript" src="/library/js/jquery/jquery-1.11.3.min.js"></script>
+<script>includeLatestJQuery('categoryEdit.jspf');</script>
 
 <fieldset>
 <legend><h4><h:outputText value="#{msgs.cat_heading}" styleClass="gbSection" /></h4></legend>

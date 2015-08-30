@@ -10,10 +10,7 @@
 <title th:text="#{common.title}">Message Bundle Manager</title>
 </head>
 <div th:fragment="bootstrap">
-  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-  <script src="/library/js/jquery/jquery-1.11.3.min.js"></script>
-  <!-- Include all compiled plugins (below), or include individual files as needed -->
-  <script src="/library/js/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+  <script>includeLatestJQuery('common.html');</script>
   <script th:inline="javascript">
     /*<![CDATA[*/
     /** Adjust frame height (if in an iframe) */

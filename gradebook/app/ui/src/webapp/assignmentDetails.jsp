@@ -317,7 +317,7 @@
 		</div> <!-- END OF INDNT1 -->
 
 
-<script src="/library/js/jquery/jquery-1.11.3.min.js" type="text/javascript"></script>
+<script>includeLatestJQuery('assignmentDetails.jsp');</script>
 <script type="text/javascript">
 $(document).ready(function(){
 	org_vals = new Array($("table#gbForm\\:gradingTable :text").length);
