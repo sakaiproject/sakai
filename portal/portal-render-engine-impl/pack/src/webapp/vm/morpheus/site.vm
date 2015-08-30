@@ -48,6 +48,23 @@
     <script>
         var needJQuery = true;
         var secondJQuery = false;
+        var dollarEmpty = false;
+        var dollarVersion = false;
+        if ( window.$ ) {
+              if ( window.${d}.fn && window.${d}.fn ) {
+                 dollarVersion = window.${d}.fn.jquery;
+              } else {
+                 dollarVersion = 'not jQuery';
+                 window.console && console.log('Dollar is defined but is not jQuery');
+                 window.console && console.log($d);
+              }
+         } else {
+              dollarEmpty = true;
+              dollarVersion = 'not present';
+              if ( window.jQuery ) {
+                  window.console && console.log('tool called jQuery.noConflict()');
+              }
+        }
         if ( window.jQuery ) {
             tver = jQuery.fn.jquery;
             if ( tver.indexOf('1.11.') == 0 ) {
@@ -63,7 +80,7 @@
             document.write('\x3Cscript src="${pageScriptPath}bootstrap/3.3.5/js/bootstrap.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             document.write('\x3Cscript src="${pageScriptPath}jquery/ui/1.11.3/jquery-ui.min.js$!{portalCDNQuery}">'+'\x3C/script>')
             window.console && console.log('Portal scripts loaded JQ+MI+BS+UI');
-	} else {
+        } else {
             if (typeof jQuery.migrateWarnings == 'undefined') {
                 document.write('\x3Cscript type="text/javascript" src="${pageScriptPath}jquery/jquery-migrate-1.2.1.min.js$!{portalCDNQuery}">'+'\x3C/script>')
                 window.console && console.log('Portal adding jQuery migrate');
@@ -110,7 +127,7 @@
         #if ($pageTop)
             <script>
                 var sakaiPortalWindow = "";
-                $(document).ready(function() {
+                ${d}PBJQ(document).ready(function() {
                     setupSkipNav();
                 });
             </script>
@@ -120,15 +137,14 @@
             // If we loaded a second jQuery, revert $ and jQuery to the first jQuery
             if ( secondJQuery ) {
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
-                jQuery = ${d};  // Return jQuery to point at the tool jQuery
+                if ( ! dollarEmpty ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
             }
-            window.console && console.log('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+${d}.fn.jquery);
+            window.console && console.log('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+dollarVersion);
 
             ${d}PBJQ(document).ready(function() {
                 setupSiteNav();
-                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308 	
+                ## Moved IE aria label code to sakai.portal.ie.js // SAK-22308         
             });
-			
         </script>
 
         <script>
