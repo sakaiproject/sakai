@@ -3,8 +3,8 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - list view
 #parse("/vm/assignment/assignment_macros.vm")
+<!-- JQuery already loaded in assignment_chef_header -->
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery.min.js"></script>
 <script type="text/javascript" src="/sakai-assignment-tool/js/assignments.js"></script>
 
 <script type="text/javascript">

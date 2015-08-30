@@ -21,8 +21,7 @@
   		}
 	%>
 
-<script type="text/javascript" src="/library/js/jquery/jquery-1.11.3.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+<script>includeLatestJQuery('main.jsp');</script>
 <script type="text/javascript" src="js/jqueryui-editable.js"></script>
 <script type="text/javascript" src="/library/js/moment/2.4.0/moment.min.js"></script>
 <script type="text/javascript" src="js/syllabus.js"></script>
