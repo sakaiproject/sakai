@@ -1,4 +1,3 @@
-	//var $j = jQuery;
 	
 	var GROUP_TYPE = 'group';
 	var ANNOUNCMENT_TYPE='announcement';
