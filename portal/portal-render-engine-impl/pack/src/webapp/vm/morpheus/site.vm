@@ -90,6 +90,8 @@
 
         #parse("/vm/morpheus/snippets/portalChat-snippet.vm")
 
+        <script type="text/javascript" src="${pageScriptPath}bootstrap/3.3.5/bootstrap.min.js">
+
         #parse("/vm/morpheus/snippets/styleable-snippet.vm")
 
         #if ($pageTop)

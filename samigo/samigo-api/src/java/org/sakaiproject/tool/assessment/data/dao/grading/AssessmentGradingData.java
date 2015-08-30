@@ -24,6 +24,8 @@ package org.sakaiproject.tool.assessment.data.dao.grading;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 /**
  * Represents a students response on a particular quiz
@@ -423,60 +425,31 @@ public class AssessmentGradingData implements java.io.Serializable
 
 	@Override
 	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((agentId == null) ? 0 : agentId.hashCode());
-		result = prime
-				* result
-				+ ((assessmentGradingId == null) ? 0 : assessmentGradingId
-						.hashCode());
-		result = prime * result
-				+ ((attemptDate == null) ? 0 : attemptDate.hashCode());
-		result = prime * result
-				+ ((comments == null) ? 0 : comments.hashCode());
-		result = prime * result
-				+ ((finalScore == null) ? 0 : finalScore.hashCode());
-		result = prime * result
-				+ ((forGrade == null) ? 0 : forGrade.hashCode());
-		result = prime * result
-				+ ((gradedBy == null) ? 0 : gradedBy.hashCode());
-		result = prime * result
-				+ ((gradedDate == null) ? 0 : gradedDate.hashCode());
-		result = prime * result
-				+ ((isAutoSubmitted == null) ? 0 : isAutoSubmitted.hashCode());
-		result = prime * result + ((isLate == null) ? 0 : isLate.hashCode());
-		result = prime * result + (isRecorded ? 1231 : 1237);
-		result = prime * result
-				+ ((itemGradingSet == null) ? 0 : itemGradingSet.hashCode());
-		result = prime * result
-				+ ((lastVisitedPart == null) ? 0 : lastVisitedPart.hashCode());
-		result = prime
-				* result
-				+ ((lastVisitedQuestion == null) ? 0 : lastVisitedQuestion
-						.hashCode());
-		result = prime
-				* result
-				+ ((publishedAssessmentId == null) ? 0 : publishedAssessmentId
-						.hashCode());
-		result = prime
-				* result
-				+ ((publishedAssessmentTitle == null) ? 0
-						: publishedAssessmentTitle.hashCode());
-		result = prime * result
-				+ ((publishedItemId == null) ? 0 : publishedItemId.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
-		result = prime * result
-				+ ((submittedDate == null) ? 0 : submittedDate.hashCode());
-		result = prime * result
-				+ ((timeElapsed == null) ? 0 : timeElapsed.hashCode());
-		result = prime * result
-				+ ((totalAutoScore == null) ? 0 : totalAutoScore.hashCode());
-		result = prime
-				* result
-				+ ((totalOverrideScore == null) ? 0 : totalOverrideScore
-						.hashCode());
-		result = prime * result + totalSubmitted;
-		return result;
+        HashCodeBuilder builder = new HashCodeBuilder(1,31);
+        builder.append(agentId);
+        builder.append(assessmentGradingId);
+        builder.append(attemptDate);
+        builder.append(comments);
+        builder.append(finalScore);
+        builder.append(forGrade);
+        builder.append(gradedBy);
+        builder.append(gradedDate);
+        builder.append(gradedDate);
+        builder.append(isAutoSubmitted);
+        builder.append(isLate);
+        builder.append(isRecorded);
+        builder.append(itemGradingSet);
+        builder.append(lastVisitedPart);
+        builder.append(lastVisitedQuestion);
+        builder.append(publishedAssessmentId);
+        builder.append(publishedAssessmentTitle);
+        builder.append(publishedItemId);
+        builder.append(submittedDate);
+        builder.append(timeElapsed);
+        builder.append(totalAutoScore);
+        builder.append(totalOverrideScore);
+        builder.append(totalSubmitted);
+        return builder.toHashCode();
 	}
 
 	@Override
@@ -488,117 +461,32 @@ public class AssessmentGradingData implements java.io.Serializable
 		if (getClass() != obj.getClass())
 			return false;
 		AssessmentGradingData other = (AssessmentGradingData) obj;
-		if (agentId == null) {
-			if (other.agentId != null)
-				return false;
-		} else if (!agentId.equals(other.agentId))
-			return false;
-		if (assessmentGradingId == null) {
-			if (other.assessmentGradingId != null)
-				return false;
-		} else if (!assessmentGradingId.equals(other.assessmentGradingId))
-			return false;
-		if (attemptDate == null) {
-			if (other.attemptDate != null)
-				return false;
-		} else if (!attemptDate.equals(other.attemptDate))
-			return false;
-		if (comments == null) {
-			if (other.comments != null)
-				return false;
-		} else if (!comments.equals(other.comments))
-			return false;
-		if (finalScore == null) {
-			if (other.finalScore != null)
-				return false;
-		} else if (!finalScore.equals(other.finalScore))
-			return false;
-		if (forGrade == null) {
-			if (other.forGrade != null)
-				return false;
-		} else if (!forGrade.equals(other.forGrade))
-			return false;
-		if (gradedBy == null) {
-			if (other.gradedBy != null)
-				return false;
-		} else if (!gradedBy.equals(other.gradedBy))
-			return false;
-		if (gradedDate == null) {
-			if (other.gradedDate != null)
-				return false;
-		} else if (!gradedDate.equals(other.gradedDate))
-			return false;
-		if (isAutoSubmitted == null) {
-			if (other.isAutoSubmitted != null)
-				return false;
-		} else if (!isAutoSubmitted.equals(other.isAutoSubmitted))
-			return false;
-		if (isLate == null) {
-			if (other.isLate != null)
-				return false;
-		} else if (!isLate.equals(other.isLate))
-			return false;
-		if (isRecorded != other.isRecorded)
-			return false;
-		if (itemGradingSet == null) {
-			if (other.itemGradingSet != null)
-				return false;
-		} else if (!itemGradingSet.equals(other.itemGradingSet))
-			return false;
-		if (lastVisitedPart == null) {
-			if (other.lastVisitedPart != null)
-				return false;
-		} else if (!lastVisitedPart.equals(other.lastVisitedPart))
-			return false;
-		if (lastVisitedQuestion == null) {
-			if (other.lastVisitedQuestion != null)
-				return false;
-		} else if (!lastVisitedQuestion.equals(other.lastVisitedQuestion))
-			return false;
-		if (publishedAssessmentId == null) {
-			if (other.publishedAssessmentId != null)
-				return false;
-		} else if (!publishedAssessmentId.equals(other.publishedAssessmentId))
-			return false;
-		if (publishedAssessmentTitle == null) {
-			if (other.publishedAssessmentTitle != null)
-				return false;
-		} else if (!publishedAssessmentTitle
-				.equals(other.publishedAssessmentTitle))
-			return false;
-		if (publishedItemId == null) {
-			if (other.publishedItemId != null)
-				return false;
-		} else if (!publishedItemId.equals(other.publishedItemId))
-			return false;
-		if (status == null) {
-			if (other.status != null)
-				return false;
-		} else if (!status.equals(other.status))
-			return false;
-		if (submittedDate == null) {
-			if (other.submittedDate != null)
-				return false;
-		} else if (!submittedDate.equals(other.submittedDate))
-			return false;
-		if (timeElapsed == null) {
-			if (other.timeElapsed != null)
-				return false;
-		} else if (!timeElapsed.equals(other.timeElapsed))
-			return false;
-		if (totalAutoScore == null) {
-			if (other.totalAutoScore != null)
-				return false;
-		} else if (!totalAutoScore.equals(other.totalAutoScore))
-			return false;
-		if (totalOverrideScore == null) {
-			if (other.totalOverrideScore != null)
-				return false;
-		} else if (!totalOverrideScore.equals(other.totalOverrideScore))
-			return false;
-		if (totalSubmitted != other.totalSubmitted)
-			return false;
-		return true;
+        EqualsBuilder builder = new EqualsBuilder();
+	    builder.appendSuper(super.equals(obj));
+	    builder.append(agentId,other.agentId);
+	    builder.append(assessmentGradingId,other.assessmentGradingId);
+	    builder.append(attemptDate,other.attemptDate);
+	    builder.append(comments,other.comments);
+	    builder.append(finalScore,other.finalScore);
+	    builder.append(forGrade,other.forGrade);
+	    builder.append(gradedBy,other.gradedBy);
+	    builder.append(gradedDate,other.gradedDate);
+	    builder.append(isAutoSubmitted,other.isAutoSubmitted);
+	    builder.append(isLate,other.isLate);
+	    builder.append(isRecorded,other.isRecorded);
+	    builder.append(itemGradingSet,other.itemGradingSet);
+	    builder.append(lastVisitedPart,other.lastVisitedPart);
+	    builder.append(lastVisitedQuestion,other.lastVisitedQuestion);
+	    builder.append(publishedAssessmentId,other.publishedAssessmentId);
+	    builder.append(publishedAssessmentTitle,other.publishedAssessmentTitle);
+	    builder.append(publishedItemId,other.publishedItemId);
+	    builder.append(status,other.status);
+	    builder.append(submittedDate,other.submittedDate);
+	    builder.append(timeElapsed,other.timeElapsed);
+	    builder.append(totalAutoScore,other.totalAutoScore);
+	    builder.append(totalOverrideScore,other.totalOverrideScore);
+	    builder.append(totalSubmitted,other.totalSubmitted);
+	    return builder.isEquals();
 	}
 
 }

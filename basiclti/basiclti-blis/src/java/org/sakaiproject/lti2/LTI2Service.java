@@ -221,7 +221,7 @@ public class LTI2Service extends HttpServlet {
 
 		String serverUrl = SakaiBLTIUtil.getOurServerUrl();
 
-		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl, cnf);
+		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl+"#", cnf);
 		consumer.allowSplitSecret();
 		consumer.allowHmac256();
 		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_LTILINK));

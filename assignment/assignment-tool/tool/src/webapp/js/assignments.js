@@ -556,7 +556,7 @@ ASN.toggleElements = function( elements, disabled )
 };
 
 // SAK-29314
-ASN.disableControls = function( escape )
+ASN.disableControls = function( escape, linkName )
 {
     // Clone and disable all drop downs (disable the clone, hide the original)
     var dropDowns = ASN.nodeListToArray( document.getElementsByTagName( "select" ) );
@@ -614,6 +614,18 @@ ASN.disableControls = function( escape )
         if( links[i] !== null )
         {
             ASN.disableLink( links[i] );
+        }
+    }
+
+    if( linkName !== null )
+    {
+        var links = ASN.nodeListToArray( document.getElementsByName( linkName ) );
+        for( i = 0; i < links.length; i++ )
+        {
+            if( links[i] !== null )
+            {
+                ASN.disableLink( links[i] );
+            }
         }
     }
 };

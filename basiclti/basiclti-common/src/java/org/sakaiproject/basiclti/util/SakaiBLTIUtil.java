@@ -34,6 +34,7 @@ import java.net.URLEncoder;
 import javax.servlet.http.HttpServletRequest;
 
 import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -46,6 +47,7 @@ import org.imsglobal.lti2.LTI2Vars;
 import org.imsglobal.lti2.LTI2Caps;
 import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.LTI2Messages;
+import org.imsglobal.lti2.ToolProxy;
 import org.imsglobal.lti2.ToolProxyBinding;
 import org.imsglobal.lti2.ContentItem;
 import org.imsglobal.lti2.objects.ToolConsumer;
@@ -279,14 +281,19 @@ public class SakaiBLTIUtil {
 			String context_type = site.getType();
 			if ( context_type != null && context_type.toLowerCase().contains("course") ){
 				setProperty(props,BasicLTIConstants.CONTEXT_TYPE,BasicLTIConstants.CONTEXT_TYPE_COURSE_SECTION);
+				setProperty(lti2subst,LTI2Vars.CONTEXT_TYPE,LTI2Vars.CONTEXT_TYPE_DEFAULT);
 			}
 			setProperty(props,BasicLTIConstants.CONTEXT_ID,site.getId());
-			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_SOURCEDID,site.getId());
+			setProperty(lti2subst,LTI2Vars.COURSESECTION_SOURCEDID,site.getId());
+			setProperty(lti2subst,LTI2Vars.CONTEXT_ID,site.getId());
 
 			setProperty(props,BasicLTIConstants.CONTEXT_LABEL,site.getTitle());
-			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_LABEL,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.COURSESECTION_LABEL,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.CONTEXT_LABEL,site.getTitle());
 
-			setProperty(lti2subst,LTI2Vars.COURSEOFFERING_LONGDESCRIPTION,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.COURSESECTION_LONGDESCRIPTION,site.getTitle());
+			setProperty(lti2subst,LTI2Vars.CONTEXT_TITLE,site.getTitle());
+
 			String courseRoster = getExternalRealmId(site.getId());
 			if ( courseRoster != null ) 
 			{
@@ -612,7 +619,7 @@ public class SakaiBLTIUtil {
 
 		// Send along the CSS URL list
 		String tool_css_all = ServerConfigurationService.getString("basiclti.consumer.ext_sakai_launch_presentation_css_url_all",null);
-		if ( tool_css_all == null ) {
+		if ( site != null && tool_css_all == null ) {
 			tool_css_all = getOurServerUrl() + CSSUtils.getCssToolBase() + ',' + getOurServerUrl() + CSSUtils.getCssToolSkin(site);
 		}
 		setProperty(props,"ext_sakai_" + BasicLTIConstants.LAUNCH_PRESENTATION_CSS_URL + "_list", tool_css_all);  
@@ -941,12 +948,12 @@ public class SakaiBLTIUtil {
 	}
 
 	/**
-	 * An LTI 2.0 ReRegistration launch
+	 * An LTI 2.0 Reregistration launch
 	 *
 	 * This must return an HTML message as the [0] in the array
 	 * If things are successful - the launch URL is in [1]
 	 */
-	public static String[] postReRegisterHTML(Long deployKey, Map<String,Object> deploy, ResourceLoader rb, String placementId)
+	public static String[] postReregisterHTML(Long deployKey, Map<String,Object> deploy, ResourceLoader rb, String placementId)
 	{
 		if ( deploy == null ) {
 			return postError("<p>" + getRB(rb, "error.deploy.missing" ,"Deployment is missing or improperly configured.")+"</p>" ); 
@@ -955,7 +962,23 @@ public class SakaiBLTIUtil {
 		int status = getInt(deploy.get("reg_state"));
 		if ( status == 0 ) return postError("<p>" + getRB(rb, "error.deploy.badstate" ,"Deployment is in the wrong state to register")+"</p>" ); 
 
+		// Figure out the launch URL to use unless we have been told otherwise
 		String launch_url = (String) deploy.get("reg_launch");
+
+                // Find the global message for Reregistration
+		String reg_profile = (String) deploy.get("reg_profile");
+		
+                ToolProxy toolProxy = null;
+                try {
+                        toolProxy = new ToolProxy(reg_profile);
+                } catch (Throwable t ) {
+			return postError("<p>" + getRB(rb, "error.deploy.badproxy" ,"This deployment has a broken reg_profile.")+"</p>" );
+                }
+
+		JSONObject proxy_message = toolProxy.getMessageOfType("ToolProxyReregistrationRequest");
+		String re_path = toolProxy.getPathFromMessage(proxy_message);
+		if ( re_path != null ) launch_url = re_path;
+
 		if ( launch_url == null ) return postError("<p>" + getRB(rb, "error.deploy.noreg" ,"This deployment is has no registration url.")+"</p>" );
 
 		String consumerkey = (String) deploy.get(LTIService.LTI_CONSUMERKEY);
@@ -980,6 +1003,27 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIConstants.LAUNCH_PRESENTATION_RETURN_URL, serverUrl + "/portal/tool/"+placementId+"?panel=PostRegister&id="+deployKey);
 
 		int debug = getInt(deploy.get(LTIService.LTI_DEBUG));
+
+		// Handle any subsisution variables from the message
+		Properties lti2subst = new Properties();
+		addGlobalData(null, ltiProps, lti2subst, rb);
+		if ( deploy != null ) {
+			setProperty(lti2subst,"ToolConsumerProfile.url", getOurServerUrl() + 
+				LTI2_PATH + SVC_tc_profile + "/" + 
+				(String) deploy.get(LTIService.LTI_CONSUMERKEY));;  
+		}
+
+		Properties custom = new Properties();
+		JSONArray parameter = toolProxy.getParameterFromMessage(proxy_message);
+		if ( parameter != null ) {
+			LTI2Util.mergeLTI2Parameters(custom, parameter.toString());
+			M_log.debug("lti2subst="+lti2subst);
+			M_log.debug("before custom="+custom);
+			LTI2Util.substituteCustom(custom, lti2subst);
+			M_log.debug("after custom="+custom);
+			// Merge the custom values into the launch
+			LTI2Util.addCustomToLaunch(ltiProps, custom);
+		}
 
 		Map<String,String> extra = new HashMap<String,String> ();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 

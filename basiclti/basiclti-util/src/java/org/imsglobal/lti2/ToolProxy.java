@@ -119,7 +119,41 @@ public class ToolProxy {
 	}
 
 	/**
-	 * Retrieve a particular message type from an individual tool_profile
+	 * Retrieve a global message type from  the ToolProxy
+	 * 
+	 * @param String messageType - Which message type you are looking for
+	 */
+	public JSONObject getMessageOfType(String messageType)
+	{
+		return getMessageOfType(getToolProfile(), messageType);
+	}
+
+	/**
+	 * Retrieve a path for a message from  the ToolProxy
+	 * 
+	 * @param JSONObject message - The message entry
+	 */
+	public String getPathFromMessage(JSONObject message)
+	{
+		if ( message == null ) return null;
+		String path = getString(message,"path");
+		return path;
+	}
+
+	/**
+	 * Retrieve a parameter bundle for a message from  the ToolProxy
+	 * 
+	 * @param JSONObject message - The message entry
+	 */
+	public JSONArray getParameterFromMessage(JSONObject message)
+	{
+		if ( message == null ) return null;
+		JSONArray parameter = getArray(message,"parameter");
+		return parameter;
+	}
+
+	/**
+	 * Retrieve a particular message type from an individual resource handler
 	 * 
 	 * @param String resourceHandler - JSONObject for the resource_handler
 	 * @param String messageType - Which message type you are looking for
@@ -135,9 +169,13 @@ public class ToolProxy {
 		for ( Object m : messages ) {
 			if ( ! (m instanceof JSONObject) ) return null;
 			JSONObject message = (JSONObject) m;
-			String message_type = getString(message,LTI2Constants.MESSAGE_TYPE);
-			if ( message_type == null ) continue;
-			if ( message_type.equals(messageType) ) return message;
+			JSONArray message_array = getArray(message,LTI2Constants.MESSAGE_TYPE);
+			if ( message_array == null ) continue;
+			// String message_type = getString(message,LTI2Constants.MESSAGE_TYPE);
+			for ( Object message_type : message_array ) {
+				if ( ! (message_type instanceof String) ) continue;
+				if ( ((String) message_type).equals(messageType) ) return message;
+			}
 		}
 		return null;
 	}

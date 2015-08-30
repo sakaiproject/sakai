@@ -50,6 +50,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.AgentResults;
 import org.sakaiproject.tool.assessment.ui.bean.evaluation.HistogramScoresBean;
@@ -195,6 +196,7 @@ public class QuestionScoreListener implements ActionListener,
 		log.debug("questionScores()");
 		try {
 			PublishedAssessmentService pubService = new PublishedAssessmentService();
+			PublishedItemService pubItemService = new PublishedItemService();
 			// get the PublishedAssessment based on publishedId
 			QuestionScoresBean questionBean = (QuestionScoresBean) ContextUtil
 					.lookupBean("questionScores");
@@ -217,6 +219,17 @@ public class QuestionScoreListener implements ActionListener,
 					+ publishedItemTextHash.size());
 			HashMap publishedAnswerHash = pubService
 					.preparePublishedAnswerHash(publishedAssessment);
+			// re-attach session and load all lazy loaded parent/child stuff
+
+//			Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
+//
+//			for (Long key : publishedAnswerHashKeySet) {
+//				AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
+//
+//				if (!Hibernate.isInitialized(answer.getChildAnswerSet())) {
+//					pubItemService.eagerFetchAnswer(answer);
+//				}
+//			}
 			log.debug("questionScores(): publishedAnswerHash.size = "
 					+ publishedAnswerHash.size());
 			HashMap agentResultsByItemGradingIdMap = new HashMap();

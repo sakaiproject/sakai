@@ -739,4 +739,9 @@ public class PublishedAssessmentService extends AssessmentService{
 	   getPublishedAssessmentFacadeQueries().
 	   getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(agentId, siteId, allAssessments);
    }
+
+	public List getAllAssessmentsGradingDataByAgentAndSiteId(String agentId, String siteId) {
+		return PersistenceService.getInstance().getPublishedAssessmentFacadeQueries()
+				.getAllAssessmentsGradingDataByAgentAndSiteId(agentId, siteId);
+	}
 }

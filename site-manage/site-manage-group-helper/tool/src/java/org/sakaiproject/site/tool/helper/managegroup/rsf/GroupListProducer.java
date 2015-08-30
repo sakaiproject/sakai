@@ -15,7 +15,6 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.Validator;
 
@@ -189,7 +188,7 @@ public class GroupListProducer
  				if (tml.messageAt(i).args != null ) {
  					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
  				} else {
- 					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode());
+ 					outString = tml.messageAt(i).acquireMessageCode();
  				}
  				UIMessage.make(errorRow,"error",outString);
 			}

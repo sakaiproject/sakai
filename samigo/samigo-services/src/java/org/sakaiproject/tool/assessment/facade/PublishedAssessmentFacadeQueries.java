@@ -3007,7 +3007,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		  return toGradebookPublishedAssessmentSiteIdMap;
 	  }	  
 	  
-	  
+	public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId) {
+		final String query = "select a " + " from AssessmentGradingData as a, AuthorizationData as az "
+				+ " where a.agentId=:agentId and a.forGrade=:forGrade " 
+				+ " and az.agentIdString=:siteId "
+				+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId";
+
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(query);
+				q.setString("agentId", agentId);
+				q.setBoolean("forGrade", true);
+				q.setString("siteId", siteId);
+				q.setString("functionId", "OWN_PUBLISHED_ASSESSMENT");
+				return q.list();
+			};
+		};
+		return getHibernateTemplate().executeFind(hcb);
+	}
 
 	  /**
 	   * return an array list of the AssessmentGradingData that a user has

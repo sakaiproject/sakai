@@ -15,6 +15,10 @@ a{
 	&:focus, &::-moz-focus-inner{
 		outline-color: invert;
 	}
+	text-decoration:underline;
+}
+input, textarea{
+	color: $text-color ;
 }
 
 h1, h2, h3, h4, h5, h6{

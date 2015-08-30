@@ -137,6 +137,7 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
             $('#' + list + ' input:checkbox').prop('checked', false);
             $('#' + list + ' tbody tr').removeClass(highlightClass);
         }
+        utils.checkEnableUnjoin();
     });
     
     $('#' + list + ' input:checkbox').click(function(){
@@ -548,6 +549,27 @@ utils.endDialog = function(ev, dialogTarget){
 
 };
 
+utils.checkEnableUnjoin = function()
+{
+    var disabled = $( ".joinable:checked" ).length > 0 ? false : true;
+    $( "#reset" ).prop( "disabled", disabled );
+    $( "#unjoin" ).prop( "disabled", disabled );
+    if( disabled )
+    {
+        $( "#unjoin" ).removeClass( "active" );
+    }
+    else
+    {
+        $( "#unjoin" ).addClass( "active" );
+    }
+};
+
+utils.clearSelections = function()
+{
+    $( "#currentSites input:checkbox" ).prop( "checked", false);
+    $( "#currentSites tbody tr").removeClass( "selectedSelected" );
+    utils.checkEnableUnjoin();
+};
 
 // toggle a fade
 jQuery.fn.fadeToggle = function(speed, easing, callback){

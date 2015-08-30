@@ -299,7 +299,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 					} 
 					else
 					{ 
-						retval = SakaiBLTIUtil.postReRegisterHTML(deployKey, deploy, rb, placementId);
+						retval = SakaiBLTIUtil.postReregisterHTML(deployKey, deploy, rb, placementId);
 					} 
 				} 
 				else if ( refId.startsWith("tool:") && refId.length() > 5 ) 
