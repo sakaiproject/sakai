@@ -922,8 +922,6 @@ GradebookSpreadsheet.prototype.showGradeItemColumn = function(assignmentId) {
   $.each(this._GRADE_CELLS, function(studentId, assignmentsMap) {
     assignmentsMap[assignmentId].show();
   });
-  this.refreshSummary();
-  this.refreshHiddenVisualCue();
 };
 
 
@@ -933,8 +931,6 @@ GradebookSpreadsheet.prototype.hideGradeItemColumn = function(assignmentId) {
   $.each(this._GRADE_CELLS, function(studentId, assignmentsMap) {
     assignmentsMap[assignmentId].hide();
   });
-  this.refreshSummary();
-  this.refreshHiddenVisualCue();
 };
 
 
@@ -990,8 +986,6 @@ GradebookSpreadsheet.prototype.showCategoryScoreColumn = function(category) {
   $.each(this._GRADE_CELLS, function(studentId, cellMap) {
     cellMap[headerModel.columnKey].show();
   });
-  this.refreshSummary();
-  this.refreshHiddenVisualCue();
 };
 
 
@@ -1001,8 +995,6 @@ GradebookSpreadsheet.prototype.hideCategoryScoreColumn = function(category) {
   $.each(this._GRADE_CELLS, function(studentId, cellMap) {
     cellMap[headerModel.columnKey].hide();
   });
-  this.refreshSummary();
-  this.refreshHiddenVisualCue();
 };
 
 
@@ -1720,7 +1712,6 @@ GradebookHeaderCell.prototype.show = function() {
     var newColspan = parseInt(this.$categoryCell.attr("colspan")) + 1;
     this.$categoryCell.attr("colspan", newColspan);
     this.$categoryCell.show();
-    this.gradebookSpreadsheet.refreshFixedTableHeader();
   }
 };
 
@@ -1736,7 +1727,6 @@ GradebookHeaderCell.prototype.hide = function() {
     if (newColspan == 0) {
       this.$categoryCell.hide();
     }
-    this.gradebookSpreadsheet.refreshFixedTableHeader();
   }
 };
 
@@ -1834,6 +1824,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     }
 
     updateSignal($label, $input);
+    refreshDependants();
   };
 
 
@@ -1854,6 +1845,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     }
 
     updateCategoryFilterState($input);
+    refreshDependants();
   };
 
 
@@ -1874,6 +1866,7 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
     updateSignal($label, $input);
     updateCategoryFilterState($input);
+    refreshDependants();
   };
 
 
@@ -1948,6 +1941,20 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
     if ($input.is(":not(:checked)")) {
       $label.trigger("click");
     }
+  };
+
+
+  function refreshDependants() {
+    // Use a timeout to ensure summary and the visual cue
+    // is only run once when a column or columns are hidden
+    if (self._refreshTimeout) {
+      clearTimeout(self._refreshTimeout);
+    }
+    self._refreshTimeout = setTimeout(function() {
+      self.gradebookSpreadsheet.refreshSummary();
+      self.gradebookSpreadsheet.refreshHiddenVisualCue();
+      self.gradebookSpreadsheet.refreshFixedTableHeader();
+    });
   };
 
 
