@@ -29,7 +29,7 @@ var setupLinkNav = function(){
 
 $PBJQ(document).ready(function(){
 	setupLinkNav();
-	$( window ).resize(function() {
+	$PBJQ( window ).resize(function() {
 		setupLinkNav();
 	});
 });

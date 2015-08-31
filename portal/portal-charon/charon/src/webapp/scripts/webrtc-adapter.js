@@ -35,7 +35,7 @@
     
         var video = portal.chat.video;
     
-        $.ajax({
+        $PBJQ.ajax({
             url: '/direct/portal-chat/new',
             dataType: 'text',
             cache: false,
@@ -116,7 +116,7 @@
     
         var self = this;
     
-        $.ajax({
+        $PBJQ.ajax({
             url: '/direct/portal-chat/' + portal.user.id + '/servers.json',
             dataType: "json",
             cache: false,
@@ -124,7 +124,7 @@
     
                 var iceServers = [];
                 
-                $.each(data.data.iceServers, function (index, iceServer) {
+                $PBJQ.each(data.data.iceServers, function (index, iceServer) {
     
                     iceServer.url = self.getUrlFromIce(iceServer);
                     if (iceServer.url !== "") {
@@ -143,7 +143,7 @@
         // Update the durations for current calls, every second.
         setInterval( function () {
     
-                $.each(Object.keys(self.currentPeerConnectionsMap), function (index, peerUUID) {
+                $PBJQ.each(Object.keys(self.currentPeerConnectionsMap), function (index, peerUUID) {
     
                     var startTime = self.currentPeerConnectionsMap[peerUUID].startTime;
                     var ms = (new Date()).getTime() - startTime;
@@ -160,7 +160,7 @@
                     if (secs < 10) secs = '0' + secs;
     
                     var formattedDuration = hours + ":" + mins + ":" + secs;  
-                    $(portal.chat.domSelectors.pcChatVideoTimePre + peerUUID).html(formattedDuration);
+                    $PBJQ(portal.chat.domSelectors.pcChatVideoTimePre + peerUUID).html(formattedDuration);
                 });
             }, 1000);
     }; // init
@@ -659,10 +659,10 @@
             
         video.setVideoStatus(peerUUID, video.messages.pc_video_status_user_hung, "finished");
         video.doClose(peerUUID);
-        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
-        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
-        $(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
-        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
+        $PBJQ(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatVideoBarLeft).show();
+        $PBJQ(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_off').show();
+        $PBJQ(portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID + ' .video_on').hide();
+        $PBJQ(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID).hide();
     };
     
     /** 

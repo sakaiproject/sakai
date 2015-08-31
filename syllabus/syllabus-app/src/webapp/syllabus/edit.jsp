@@ -11,8 +11,7 @@
 	<sakai:view_container title="#{msgs.title_edit}">
 		<sakai:view_content>
 
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
+<script>includeLatestJQuery('edit.jsp');</script>
 <link rel="stylesheet" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" />
 <script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
 
