@@ -201,11 +201,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		});
 		
-		if (assignment == null) {
-			throw new AssessmentNotFoundException("No gradebook item exists with name = " + assignmentName);
+		if (assignment != null) {
+			return getAssignmentDefinition(assignment);
+		} else {
+			return null;
 		}
-		
-		return getAssignmentDefinition(assignment);
 	}
 	
 	
