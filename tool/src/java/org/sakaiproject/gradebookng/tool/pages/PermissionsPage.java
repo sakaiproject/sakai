@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbUser;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -111,7 +112,8 @@ public class PermissionsPage extends BasePage {
 			
 			@Override
 			public Object getDisplayValue(GbUser u) {
-				return u.getDisplayName();
+				return new StringResourceModel("permissionspage.label.tausername", null, new String[] {u.getDisplayName(), u.getDisplayId()}).getString();
+
 			}
 			
 			@Override
@@ -179,7 +181,12 @@ public class PermissionsPage extends BasePage {
         
         //FORM
 		@SuppressWarnings({ "rawtypes", "unchecked" })
-		Form form = new Form("form", Model.of(pageModel));
+		Form form = new Form("form", Model.of(pageModel)) {
+			@Override
+			public boolean isVisible() {
+				return taSelected != null;
+			}
+		};
 		
 		//submit button
 		Button submit = new Button("submit") {
