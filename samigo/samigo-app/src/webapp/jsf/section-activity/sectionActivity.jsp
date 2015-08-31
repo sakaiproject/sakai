@@ -17,8 +17,6 @@
     <body onload="<%= request.getAttribute("html.body.onload") %>">
 
 <div class="portletBody">
-<script type="text/javascript" language="JavaScript" src="/library/js/jquery-1.1.2.js"></script>
-
   <h:form id="sectionActivityId">
 <h:messages infoClass="validation" warnClass="validation" errorClass="validation" fatalClass="validation"/>
   <!-- HEADINGS -->
