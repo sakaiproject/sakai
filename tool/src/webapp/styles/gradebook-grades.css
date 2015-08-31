@@ -867,6 +867,9 @@ ul.feedbackPanel li span {
 #studentGradeSummary {
   margin: 30px 0 0;
 }
+.gb-grade-summary-close-confirmation {
+  z-index: 30001;
+}
 /* Hidden column visual cue */
 .gb-hidden-column-visual-cue {
   position: absolute;
