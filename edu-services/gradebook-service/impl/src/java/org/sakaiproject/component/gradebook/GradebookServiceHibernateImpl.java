@@ -2718,23 +2718,26 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: assignments) {
 			
 			Long assignmentId = assignment.getId();
+			
 			String grade = gradeMap.get(assignmentId);
+						
+			//only update the variables for the calculation if:
+			// 1. the assignment has points to be assigned
+			// 2. its not extra credit
+			// 3. there is a grade for the student 
+			if(assignment.getPoints() != null && !assignment.isExtraCredit() && StringUtils.isNotBlank(grade)) {
+				totalPossible = totalPossible.add(new BigDecimal(assignment.getPoints().toString()));
+				numOfAssignments++;
+				numScored++;
+			}
+			
+			//sanitise grade
 			if(StringUtils.isBlank(grade)) {
 				grade = "0";
 			}
 			
 			//update total points earned
 			totalEarned = totalEarned.add(new BigDecimal(grade));
-			
-			//update total points possible and number of assignments
-			if(assignment.getPoints() != null && !assignment.isExtraCredit()) {
-				totalPossible = totalPossible.add(new BigDecimal(assignment.getPoints().toString()));
-				numOfAssignments++;
-			}
-			if(!assignment.isExtraCredit()){
-				numScored++;
-			}
-			
 		}
 		
     	if (numScored == 0 || numOfAssignments == 0 || totalPossible.doubleValue() == 0) {
