@@ -102,6 +102,13 @@ public class GradebookPage extends BasePage {
 		studentGradeSummaryWindow.setUseInitialHeight(false);
 		studentGradeSummaryWindow.setWidthUnit("%");
 		studentGradeSummaryWindow.setInitialWidth(70);
+		studentGradeSummaryWindow.setCloseButtonCallback(new ModalWindow.CloseButtonCallback() {
+			@Override
+			public boolean onCloseButtonClicked(AjaxRequestTarget target) {
+				target.appendJavaScript("GradebookGradeSummaryUtils.clearBlur();");
+				return true;
+			}
+		});
 		form.add(studentGradeSummaryWindow);
 		
 		updateUngradedItemsWindow = new ModalWindow("updateUngradedItemsWindow");

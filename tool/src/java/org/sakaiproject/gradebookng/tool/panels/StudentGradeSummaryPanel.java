@@ -60,6 +60,7 @@ public class StudentGradeSummaryPanel extends Panel {
 			@Override
 			public void onClick(AjaxRequestTarget target){
 				window.close(target);
+				target.appendJavaScript("GradebookGradeSummaryUtils.clearBlur();");
 			}
 		});
 

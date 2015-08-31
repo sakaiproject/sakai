@@ -619,15 +619,34 @@ div.wicket-modal div.w_content_3 {
   border: none; /** don't want border wrapping content inside the modal **/
 }
 div.wicket-mask-dark {
-  /* make the modal background darker */
-  opacity: 0.95;
-  filter: alpha(opacity=95);
+  background-color: #FFF;
+  opacity: 0.6;
+  filter: alpha(opacity=6);
+}
+.gb-blur {
+  filter:progid:DXImageTransform.Microsoft.Blur(PixelRadius='4');
+  filter: url(blur.svg#blur);
+  -webkit-filter: blur(4px);
+  filter: blur(4px);
 }
 div.wicket-mask-transparent {
-  /* make the modal background darker, back to the original 10% opacity */
   opacity: 0.1; 
   background-color: black; 
   filter: alpha(opacity=10); 
+}
+/* IE9-11 does not support a blur filter. As such, we fallback to an opaque mask */
+/* Note: IE8 and below are not supported as Bootstrap does not support IE8 */
+/* IE9 blur fallback */
+body:nth-child(n) div.wicket-mask-dark {
+  filter: alpha(opacity=\95);
+  background-color: \#000;
+}
+/* IE10+ blur fallback */
+@media all and (-ms-high-contrast: none), (-ms-high-contrast: active) {
+  div.wicket-mask-dark {
+    opacity: 0.95;
+    background-color: #000;
+  }
 }
 div.wicket-modal div.w_content_container {
   /* give wicket model content some padding */
@@ -868,7 +887,10 @@ ul.feedbackPanel li span {
   margin: 30px 0 0;
 }
 .gb-grade-summary-close-confirmation {
-  z-index: 30001;
+  z-index: 50000 !important;
+}
+.gb-grade-summary-close-confirmation .modal-dialog {
+  z-index: 50001 !important;
 }
 /* Hidden column visual cue */
 .gb-hidden-column-visual-cue {

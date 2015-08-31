@@ -105,8 +105,10 @@ GradebookGradeSummary.prototype.setupMask = function() {
   var $mask = this.$modal.siblings(".wicket-mask-transparent, .wicket-mask-dark");
   if (this.blockout) {
     $mask.removeClass("wicket-mask-transparent").addClass("wicket-mask-dark");
+    $("#container").parent().addClass("gb-blur");
   } else {
     $mask.removeClass("wicket-mask-dark").addClass("wicket-mask-transparent");
+    GradebookGradeSummaryUtils.clearBlur();
   }
 };
 
@@ -155,4 +157,11 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
   });
 
   self.$modal.find(".w_close, .gb-summary-fake-close").off("click").on("click", showConfirmation);
+};
+
+
+var GradebookGradeSummaryUtils = {
+  clearBlur: function() {
+    $(".gb-blur").removeClass("gb-blur");
+  }
 };
