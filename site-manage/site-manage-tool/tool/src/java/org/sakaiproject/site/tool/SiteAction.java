@@ -738,6 +738,8 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String NEWS_TOOL_CHANNEL_CONFIG = "channel-url";
 	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://sakaiproject.org/feed";
 	
+   	private final static String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
+
 	private final static int UUID_LENGTH = 36;
 	
 	/** the course set definition from CourseManagementService **/
@@ -13541,6 +13543,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// an option if the imported site contains it
 		boolean displayWebContent = false;
 		boolean displayNews = false;
+		boolean displayLessons = false;
 
 		Set importSites = ((Hashtable) state.getAttribute(STATE_IMPORT_SITES))
 				.keySet();
@@ -13563,12 +13566,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 			if (site.getToolForCommonId(NEWS_TOOL_ID) != null)
 				displayNews = true;
+			if (site.getToolForCommonId(LESSONS_TOOL_ID) != null)
+				displayLessons = true;
+
 		}
 		
 		if (displayWebContent && !toolIdList.contains(WEB_CONTENT_TOOL_ID))
 			toolIdList.add(WEB_CONTENT_TOOL_ID);
 		if (displayNews && !toolIdList.contains(NEWS_TOOL_ID))
 			toolIdList.add(NEWS_TOOL_ID);
+		if (displayLessons && !toolIdList.contains(LESSONS_TOOL_ID))
+			toolIdList.add(LESSONS_TOOL_ID);
 		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
 			toolIdList.add(SITE_INFO_TOOL_ID);
 		}
