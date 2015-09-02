@@ -262,10 +262,6 @@ public class LTI2Service extends HttpServlet {
 			services.add(LTI2ToolProxyBindingSettings);
 		}
 
-		String allowLori = ServerConfigurationService.getString(SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-		if ("true".equals(allowLori) && foorm.getLong(deploy.get(LTIService.LTI_ALLOWLORI)) > 0 ) {
-			services.add(SakaiLTI2Services.LORI_XML(serverUrl+LTI1_PATH));
-		}
 		return consumer;
 	}
 

@@ -120,8 +120,6 @@ public class SakaiBLTIUtil {
 	public static final String BASICLTI_SETTINGS_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_ROSTER_ENABLED = "basiclti.roster.enabled";
 	public static final String BASICLTI_ROSTER_ENABLED_DEFAULT = "true";
-	public static final String BASICLTI_LORI_ENABLED = "basiclti.lori.enabled";
-	public static final String BASICLTI_LORI_ENABLED_DEFAULT = "true";
 	public static final String BASICLTI_CONTENTLINK_ENABLED = "basiclti.contentlink.enabled";
 	public static final String BASICLTI_CONTENTLINK_ENABLED_DEFAULT = null; // i.e. false
 	public static final String BASICLTI_CONSUMER_USERIMAGE_ENABLED = "basiclti.consumer.userimage.enabled";
@@ -153,9 +151,6 @@ public class SakaiBLTIUtil {
 
 		String allowRoster = ServerConfigurationService.getString(BASICLTI_ROSTER_ENABLED, BASICLTI_ROSTER_ENABLED_DEFAULT);
 		if ( LTIService.LTI_ALLOWROSTER.equals(propName) && ! "true".equals(allowRoster) ) return "false";
-
-		String allowLori = ServerConfigurationService.getString(BASICLTI_LORI_ENABLED, BASICLTI_LORI_ENABLED_DEFAULT);
-		if ( LTIService.LTI_ALLOWLORI.equals(propName) && ! "true".equals(allowLori) ) return "false";
 
 		String allowContentLink = ServerConfigurationService.getString(BASICLTI_CONTENTLINK_ENABLED, BASICLTI_CONTENTLINK_ENABLED_DEFAULT);
 		if ( "contentlink".equals(propName) && ! "true".equals(allowContentLink) ) return null;
@@ -505,9 +500,6 @@ public class SakaiBLTIUtil {
 			String allowRoster = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWROSTER, placement));
 			if ( ! "on".equals(allowRoster) ) allowRoster = null;
 
-			String allowLori = toNull(getCorrectProperty(config,LTIService.LTI_ALLOWLORI, placement));
-			if ( ! "on".equals(allowLori) ) allowLori = null;
-
 			String result_sourcedid = getSourceDID(user, placement, config);
 
 			if ( result_sourcedid != null ) {
@@ -541,16 +533,6 @@ public class SakaiBLTIUtil {
 					setProperty(props,"ext_ims_lis_memberships_url", roster_url);  
 				}
 
-				if ( "on".equals(allowLori) ) {
-					setProperty(props,"ext_lori_api_token", result_sourcedid);  
-					setProperty(props,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
-					String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
-					if ( lori_url == null ) lori_url = getOurServerUrl() + LTI1_PATH;  
-					String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
-					if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + LTI1_PATH;  
-					setProperty(props,"ext_lori_api_url", lori_url);  
-					setProperty(props,"ext_lori_api_url_xml", lori_url_xml);  
-				}
 			}
 
 			// Send along the deprecated LinkTool encrypted session if requested
@@ -795,7 +777,6 @@ public class SakaiBLTIUtil {
 		int allowoutcomes = getInt(tool.get(LTIService.LTI_ALLOWOUTCOMES));
 		int allowroster = getInt(tool.get(LTIService.LTI_ALLOWROSTER));
 		int allowsettings = getInt(tool.get(LTIService.LTI_ALLOWSETTINGS));
-		int allowlori = getInt(tool.get(LTIService.LTI_ALLOWLORI));
 		String placement_secret = (String) content.get(LTIService.LTI_PLACEMENTSECRET);
 		// int tool_id = getInt(tool.get(LTIService.LTI_ID));
 
@@ -839,16 +820,6 @@ public class SakaiBLTIUtil {
 				setProperty(ltiProps,"ext_ims_lis_memberships_url", roster_url);  
 			}
 
-			if ( allowlori == 1 ) {
-				setProperty(ltiProps,"ext_lori_api_token", result_sourcedid);  
-				setProperty(ltiProps,BasicLTIConstants.LIS_RESULT_SOURCEDID, result_sourcedid);  
-				String lori_url = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url",null);
-				if ( lori_url == null ) lori_url = getOurServerUrl() + LTI1_PATH;  
-				String lori_url_xml = ServerConfigurationService.getString("basiclti.consumer.ext_lori_api_url_xml",null);
-				if ( lori_url_xml == null ) lori_url_xml = getOurServerUrl() + LTI1_PATH;  
-				setProperty(ltiProps,"ext_lori_api_url", lori_url);  
-				setProperty(ltiProps,"ext_lori_api_url_xml", lori_url_xml);  
-			}
 		}
 
 		// Merge all the sources of properties according to the arcane precedence for launch
@@ -1621,7 +1592,7 @@ public class SakaiBLTIUtil {
 		String [] fieldList = { "key", LTIService.LTI_SECRET, LTIService.LTI_PLACEMENTSECRET, 
 				LTIService.LTI_OLDPLACEMENTSECRET, LTIService.LTI_ALLOWSETTINGS, 
 				"assignment", LTIService.LTI_ALLOWROSTER, "releasename", "releaseemail", 
-				"toolsetting", "allowlori"};
+				"toolsetting"};
 
 		Properties retval = new Properties();
 

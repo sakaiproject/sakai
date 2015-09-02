@@ -85,11 +85,6 @@
             <version>1.1</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.sakaiproject.lessonbuilder</groupId>
-            <artifactId>lessonbuilder-api</artifactId>
-        </dependency>
-        
         <!-- for the entityprovider -->
         <dependency>
       		<groupId>org.sakaiproject.entitybroker</groupId>
