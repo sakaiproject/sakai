@@ -740,11 +740,10 @@ public interface LTIService {
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
-		"services:header:fields=allowoutcomes,allowroster,allowsettings,allowlori",
+		"services:header:fields=allowoutcomes,allowroster,allowsettings",
 		"allowoutcomes:checkbox:label=bl_allowoutcomes",
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
-		"allowlori:checkbox:label=bl_allowlori",
 		// Hide these from end users until they are working in the various Sakai tools
 		"pl_header:header:fields=pl_launch,pl_linkselection,pl_fileitem,pl_contenteditor,pl_assessmentselection",
 		"pl_launch:checkbox:label=bl_pl_launch",
@@ -782,11 +781,10 @@ public interface LTIService {
 		"privacy:header:fields=sendname,sendemailaddr",
 		"sendname:checkbox:label=bl_sendname",
 		"sendemailaddr:checkbox:label=bl_sendemailaddr",
-		"services:header:fields=allowoutcomes,allowroster,allowsettings,allowlori",
+		"services:header:fields=allowoutcomes,allowroster,allowsettings",
 		"allowoutcomes:checkbox:label=bl_allowoutcomes",
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
-		"allowlori:checkbox:label=bl_allowlori",
 		"allowcontentitem:checkbox:label=bl_allowcontentitem",
 		"lti2_internal:header:fields=reg_launch,reg_key,reg_secret,reg_password,consumerkey,secret,reg_profile:hide=insert",
 		"reg_launch:url:label=bl_reg_launch:maxlength=1024:role=admin",
@@ -846,7 +844,6 @@ public interface LTIService {
 	static final String LTI_ALLOWOUTCOMES = "allowoutcomes";
 	static final String LTI_ALLOWROSTER = "allowroster";
 	static final String LTI_ALLOWSETTINGS = "allowsettings";
-	static final String LTI_ALLOWLORI = "allowlori";
 	static final String LTI_ALLOWCONTENTITEM = "allowcontentitem";
 	static final String LTI_SETTINGS = "settings";
 	static final String LTI_SETTINGS_EXT = "settings_ext";
