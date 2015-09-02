@@ -1323,7 +1323,7 @@ public class LessonBuilderEntityProducer extends AbstractEntityProvider
 		    siteService.save(toSite);
 		    ToolSession session = sessionManager.getCurrentToolSession();
 
-		    if (session.getAttribute(ATTR_TOP_REFRESH) == null) {
+		    if (session != null && session.getAttribute(ATTR_TOP_REFRESH) == null) {
 			session.setAttribute(ATTR_TOP_REFRESH, Boolean.TRUE);
 		    }
 			
