@@ -20,6 +20,7 @@ package org.sakaiproject.sitestats.test;
 
 
 import static org.easymock.EasyMock.*;
+import static org.junit.runners.MethodSorters.NAME_ASCENDING;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Observable;
 import java.util.Observer;
+import org.junit.FixMethodOrder;
 
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
@@ -56,7 +58,7 @@ import org.sakaiproject.sitestats.test.mocks.FakeEventRegistryService;
 import org.sakaiproject.sitestats.test.mocks.FakeSite;
 import org.springframework.test.annotation.AbstractAnnotationAwareTransactionalTests;
 
-
+@FixMethodOrder(NAME_ASCENDING)
 public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactionalTests { 
 	// AbstractAnnotationAwareTransactionalTests / AbstractTransactionalSpringContextTests
 	private StatsUpdateManager			M_sum;
