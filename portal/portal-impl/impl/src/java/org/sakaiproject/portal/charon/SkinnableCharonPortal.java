@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import java.util.Vector;
 import java.text.SimpleDateFormat;
 
 import javax.servlet.ServletConfig;
@@ -44,6 +45,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
 import org.sakaiproject.authz.api.SecurityService;
@@ -51,6 +53,8 @@ import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
+import org.sakaiproject.event.api.UsageSession;
+import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
@@ -153,6 +157,9 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	 * Our log (commons).
 	 */
 	private static Log M_log = LogFactory.getLog(SkinnableCharonPortal.class);
+
+	// Service instance variables
+	private AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 
 	/**
 	 * messages.
@@ -966,7 +973,34 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	public void doLogout(HttpServletRequest req, HttpServletResponse res,
 			Session session, String returnPath) throws ToolException
 	{
-		
+
+		// if this is an impersonation, then reset the users old session and
+		if(isImpersonating()){
+			UsageSession oldSession = (UsageSession) session.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
+			String userId = oldSession.getUserId();
+			String userEid = oldSession.getUserEid();
+			M_log.warn("returning to user: " + userId + "/" + userEid);
+
+			ArrayList<String> saveAttributes = new ArrayList<>();
+			saveAttributes.add(UsageSessionService.USAGE_SESSION_KEY);
+			saveAttributes.add(UsageSessionService.SAKAI_CSRF_SESSION_ATTRIBUTE);
+			session.clearExcept(saveAttributes);
+
+			// login - set the user id and eid into session, and refresh this user's authz information
+			session.setUserId(userId);
+			session.setUserEid(userEid);
+			authzGroupService.refreshUser(userId);
+
+			try {
+				res.sendRedirect(ServerConfigurationService.getString("portalPath", "/portal"));
+				res.getWriter().close();
+			} catch (IOException e) {
+				M_log.error("failed to redirect after Return To Me", e);
+			}
+
+			return;
+		}
+
 		// SAK-16370 to allow multiple logout urls
 		String loggedOutUrl = null;
 		String userType = UserDirectoryService.getCurrentUser().getType();
@@ -2267,7 +2301,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 	/**
 	 * Do the getSiteSkin, adjusting for the overall skin/templates for the portal.
-	 * 
+	 *
 	 * @return The skin
 	 */
 	protected String getSiteSkin(String siteId)
@@ -2284,6 +2318,26 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	protected String getSkin(String skin)
 	{
 		return CSSUtils.adjustCssSkinFolder(skin);
+	}
+
+	private boolean isImpersonating() {
+
+		Session s = SessionManager.getCurrentSession();
+		String  userId = s.getUserId();
+		UsageSession session = (UsageSession) s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
+		if (session != null) {
+			// If we have a session for this user, simply reuse
+			if (userId != null){
+				if(userId.equals(session.getUserId())){
+					return false;
+				} else {
+					return true;
+				}
+			} else {
+				M_log.error("null userId in check for impersonation");
+			}
+		}
+		return false;
 	}
 
 }
