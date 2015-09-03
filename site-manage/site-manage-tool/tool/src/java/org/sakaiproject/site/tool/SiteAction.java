@@ -3815,9 +3815,10 @@ public class SiteAction extends PagedResourceActionII {
 				String ltiToolId = toolMap.get("id").toString();
 				String siteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
 				toolMap.put("selected", linkedLtiContents.containsKey(ltiToolId));
-				if ( siteId == null || siteId.equals(site.getId()) )
+				if ( siteId == null || (siteId != null && siteId.equals(site.getId())))
 				{
-					// only show the system-range lti tools or tools for current site
+					// only show the system-range lti tools (siteId = null)
+					// or site-range lti tools for current site (siteId != null), and current siteId equals to current site's id
 					ltiTools.put(ltiToolId, toolMap);
 				}
 			}
