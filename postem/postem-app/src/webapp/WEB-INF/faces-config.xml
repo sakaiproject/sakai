@@ -52,7 +52,7 @@
     <managed-property>
       <description>authzGroupService</description>
       <property-name>authzGroupService</property-name>
-      <value>#{Components["org.sakaiproject.authz.api.AuthzGroupService]}</value>
+      <value>#{Components["org.sakaiproject.authz.api.AuthzGroupService"]}</value>
     </managed-property>
 
   </managed-bean>
