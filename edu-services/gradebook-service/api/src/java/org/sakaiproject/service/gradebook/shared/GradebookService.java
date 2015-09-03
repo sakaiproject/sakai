@@ -56,7 +56,7 @@ public interface GradebookService {
 	// These Strings have been kept for backwards compatibility as they are used everywhere,
 	// however the {@link GraderPermission} enum should be used going forward.
 	@Deprecated public static final String gradePermission = GraderPermission.GRADE.toString();
-	@Deprecated public static final String viewPermission = GraderPermission.GRADE.toString();
+	@Deprecated public static final String viewPermission = GraderPermission.VIEW.toString();
 	
 	public static final String enableLetterGradeString = "gradebook_enable_letter_grade";
 	
