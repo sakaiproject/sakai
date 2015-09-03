@@ -25,7 +25,8 @@
 				<tr>
 					<th class="col-md-5"><wicket:message key="column.header.studentsummary.gradebookitem" /></th>
 					<th class="col-md-1"><wicket:message key="column.header.studentsummary.duedate" /></th>
-					<th class="col-md-1"><wicket:message key="column.header.studentsummary.grade" /></th>
+					<th class="col-md-2"><wicket:message key="column.header.studentsummary.grade" /></th>
+					<th class="col-md-1"><wicket:message key="column.header.studentsummary.weight" /></th>
 					<th><wicket:message key="column.header.studentsummary.comments" /></th>
 				</tr>
 				</thead>
@@ -34,9 +35,9 @@
 					<td colspan="2">
 						<a href="javascript:void(0);" class="gb-summary-category-toggle"></a>
 						<span wicket:id="category" class="gb-summary-category-name"></span>
-						<span wicket:id="categoryWeight" class="gb-summary-category-weight"></span>
 					</td>
 					<td class="gb-summary-category-grade" wicket:id="categoryGrade"></td>
+					<td class="gb-summary-category-weight" wicket:id="categoryWeight"></td>
 					<td></td>
 				</tr>
 				<tr wicket:id="assignmentsForCategory" class="gb-summary-grade-row">
