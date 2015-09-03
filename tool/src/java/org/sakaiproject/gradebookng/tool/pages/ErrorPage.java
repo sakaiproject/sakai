@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 import lombok.extern.apachecommons.CommonsLog;
 
 import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.model.StringResourceModel;
 
@@ -25,11 +26,15 @@ public class ErrorPage extends BasePage {
 		String code = RandomStringUtils.randomAlphanumeric(10);
 		
 		log.error("User supplied error code for the above stacktrace: " + code);
-		//String stacktrace = ExceptionUtils.getStackTrace(e);
 		
 		Label error = new Label("error", new StringResourceModel("errorpage.text", null, new Object[]{ code }));
 		error.setEscapeModelStrings(false);
 		add(error);
+		
+		//show the stacktrace. This should be configurable at some point
+		String stacktrace = ExceptionUtils.getStackTrace(e);
+		add(new Label("stacktrace", stacktrace));
+
 
 	}
 }
