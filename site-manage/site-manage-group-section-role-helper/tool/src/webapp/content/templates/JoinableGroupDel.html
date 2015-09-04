@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns:rsf="http://ponder.org.uk" xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<title>Site Manage Group</title>
+		<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+		<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+		<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
+		<script type="text/javascript" rsf:id="resize"/>
+		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+		<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+		<link type="text/css" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" media="screen" />
+		<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	</head>
+
+	<body rsf:id="scr=sakai-body">
+		<div class="portletBody">
+		<!-- alert message -->
+
+			<h3 rsf:id="page-title">Delete Groups</h3>
+			<div rsf:id="error-row:">
+				<div class="alertMessage" rsf:id="error">We Have Errors!</div>
+			</div>
+
+            <form rsf:id="delete-jg-confirm-form">
+                <table cellspacing="0" cellpadding="4px">
+                    <tr>
+                        <td style="vertical-align:top"><p class="shorttext"><label rsf:id="group-title-group">Group name:</label></p></td>
+                        <td><p class="shorttext"><div><span rsf:id="groupTitle-group"><br/></span></div></p></td>
+                    </tr>
+                    <tr>
+                        <td style="vertical-align:top"><p class="shorttext"><label rsf:id="current-groups-title">Current Groups:</label></p></td>
+                        <td><p class="shorttext"><div rsf:id="current-groups-row:"><span rsf:id="current-group"><br/></span></div></p></td>
+                    </tr>
+                </table>
+
+                <p class="act">
+                    <div style="display:inline-block;float:left">
+                        <input type="submit" class="active" rsf:id="delete-groups" id="delete-groups" value="Update"  accesskey="s" />
+                    </div>
+                </p>
+            </form>
+
+            <form rsf:id="delete-jg-form">
+                <div style="display:inline-block;margin-left:20px;">
+                    <input type="submit" rsf:id="cancel" id="cancel" value="Cancel"  accesskey="x" />
+                </div>
+            </form>
+
+
+
+		</div>
+	</body>
+</html>

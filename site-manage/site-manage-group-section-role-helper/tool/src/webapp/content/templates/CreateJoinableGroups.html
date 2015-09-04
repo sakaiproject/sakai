@@ -99,12 +99,16 @@
                             <input accesskey ="s" rsf:id="save" class="active" value="Save" type="submit" id="save" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
                             <input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit" id="cancel" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
                         </div>
-                        <div class="right">
-                            <input accesskey ="d" rsf:id="delete" value="Delete Set" type="submit" id="delete" onclick="disableButtonsActivateSpinner( 'save', 'cancel', 'editJoinableGroupSpinner');" />
-                        </div>
                         <img id="editJoinableGroupSpinner" class="spinner" src="/library/image/indicator.gif" />
                     </div>
                 <input type="hidden" rsf:id="groupTitle-group-orig"/>
+                </div>
+            </form>
+            <form rsf:id="delete-groups-form">
+                <div class="act">
+                    <div class="right">
+                        <input accesskey ="d" rsf:id="delete" value="Delete all groups" class="active" type="submit" id="delete" />
+                    </div>
                 </div>
             </form>
          </div>
