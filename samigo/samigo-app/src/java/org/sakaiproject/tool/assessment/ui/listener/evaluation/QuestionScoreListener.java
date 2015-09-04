@@ -689,6 +689,7 @@ public class QuestionScoreListener implements ActionListener,
 						String crossmarkGif = "<img src='/samigo-app/images/crossmark.gif'>";
 						
 						if (bean.getTypeId().equals("8") || bean.getTypeId().equals("11")) {
+							answerText = FormattedText.escapeHtml(answerText, true);
 							if (gdata.getIsCorrect() == null) {
 								boolean result = false;
 								if (bean.getTypeId().equals("8")) {
@@ -714,6 +715,7 @@ public class QuestionScoreListener implements ActionListener,
 							}
 						}
 						else if (bean.getTypeId().equals("15")) {  // CALCULATED_QUESTION
+							answerText = FormattedText.escapeHtml(answerText, true);
 							//need to do something here for fill in the blanks
 							if(gdataAnswer.getScore() > 0){
 								//if score is 0, there is no way to tell if user got the correct answer
