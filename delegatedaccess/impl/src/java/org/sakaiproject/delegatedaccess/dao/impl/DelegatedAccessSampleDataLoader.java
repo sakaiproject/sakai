@@ -75,7 +75,7 @@ public class DelegatedAccessSampleDataLoader {
 		try{
 			loginToSakai();
 			securityService.pushAdvisor(yesMan);
-			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.template");
+			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.template.course");
 			for(String school : schools){
 				for(String dept : depts){
 					for(String subject : subjs){
@@ -87,7 +87,7 @@ public class DelegatedAccessSampleDataLoader {
 
 							Site siteEdit = null;
 							try {
-								siteEdit = siteService.addSite(siteid, "project");
+								siteEdit = siteService.addSite(siteid, "course");
 								siteEdit.setTitle(title);
 								siteEdit.setDescription(description);
 								siteEdit.setShortDescription(shortdesc);
