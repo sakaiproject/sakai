@@ -175,7 +175,7 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 		 UIBoundBoolean viewMemCheckbox = UIBoundBoolean.make(groupForm, "allowViewMembership", "#{SiteManageGroupSectionRoleHandler.allowViewMembership}");
 		 UILabelTargetDecorator.targetLabel(UIMessage.make(groupForm, "allowViewMembership-label", "group.allow.view.membership"), viewMemCheckbox);
 		 
-		 //Joinable Set:
+		 //Joinable Group:
 		 UIMessage joinableSetLabel = UIMessage.make(groupForm, "group_joinable_set_label", "group.joinable.set");
 		 List<String> joinableSetValuesSet = new ArrayList<>();
 		 for(Group group : handler.site.getGroups()){
