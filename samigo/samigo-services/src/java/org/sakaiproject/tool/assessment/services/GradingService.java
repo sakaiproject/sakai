@@ -1830,7 +1830,7 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		 Long answerId = Long.valueOf(iter.next().toString());
 		 AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(answerId);
 		 
-		 if (answer.getItem().getItemId()==data.getPublishedItemId()) 
+	     if (answer.getItem().getItemId().equals(data.getPublishedItemId()))
 			 answerNumber=answerNumber+1;
 		 	 
 	 }
