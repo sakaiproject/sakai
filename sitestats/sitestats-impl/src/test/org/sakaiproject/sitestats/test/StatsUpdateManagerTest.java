@@ -393,6 +393,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		//System.out.println("--- testSitePresences() :: START ---");
 		long minPresenceTime = 100;
 		
+		//Turn off the collect thread while running this test
+		M_sum.setCollectThreadEnabled(false);
 		
 		// #1 Test : 2 site visit (different users)
 		
@@ -577,6 +579,8 @@ public class StatsUpdateManagerTest extends AbstractAnnotationAwareTransactional
 		//System.out.println("3.   secondDuration: "+secondDuration);
 		assertTrue(totalDuration == firstDuration + secondDuration);
 		//System.out.println("--- testSitePresences() :: END ---");
+		//Turn the thread back on again
+		M_sum.setCollectThreadEnabled(true);
 	}
 	
 	// Test (remaining) CustomEventImpl fields
