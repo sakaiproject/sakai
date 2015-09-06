@@ -123,9 +123,6 @@
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
     <sakai.poi.version>3.12</sakai.poi.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <rsfutil.version>0.8.1-SNAPSHOT</rsfutil.version>
-    <sakairsf.components.version>11-SNAPSHOT</sakairsf.components.version>
-    <sakairsf.version>11-SNAPSHOT</sakairsf.version>
     <generic-dao.version>0.9.18</generic-dao.version>
     <joda.time.version>2.8.1</joda.time.version>
     <reflectutils.version>0.9.20</reflectutils.version>
@@ -1597,7 +1594,7 @@
         <plugin>
           <groupId>org.sakaiproject.maven.plugins</groupId>
           <artifactId>sakai</artifactId>
-          <version>1.4.1</version>
+          <version>1.4.2</version>
         </plugin>
         <!-- OTHER maven plugins -->
         <plugin>
