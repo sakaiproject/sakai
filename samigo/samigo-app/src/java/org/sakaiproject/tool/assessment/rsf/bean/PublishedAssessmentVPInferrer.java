@@ -7,7 +7,7 @@ import org.sakaiproject.tool.assessment.rsf.params.BeginAssessmentViewParameters
 import org.sakaiproject.tool.assessment.rsf.producers.BeginAssessmentProducer;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacadeQueriesAPI;
 
-import uk.ac.cam.caret.sakai.rsf.entitybroker.EntityViewParamsInferrer;
+import org.sakaiproject.rsf.entitybroker.EntityViewParamsInferrer;
 import uk.org.ponder.rsf.viewstate.ViewParameters;
 
 /**
