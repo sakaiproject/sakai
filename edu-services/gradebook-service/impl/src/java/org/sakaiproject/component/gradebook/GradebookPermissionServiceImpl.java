@@ -30,13 +30,11 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 {
 	private SectionAwareness sectionAwareness;
 	
-	public List<Long> getCategoriesForUser(Long gradebookId, String userId, List<Long> categoryIdList, int cateType) throws IllegalArgumentException
+	public List<Long> getCategoriesForUser(Long gradebookId, String userId, List<Long> categoryIdList) throws IllegalArgumentException
 	{
 		if(gradebookId == null || userId == null)
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getCategoriesForUser");
-		if(cateType != GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && cateType != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
-			throw new IllegalArgumentException("CategoryType must be CATEGORY_TYPE_ONLY_CATEGORY or CATEGORY_TYPE_WEIGHTED_CATEGORY in GradebookPermissionServiceImpl.getCategoriesForUser");
-
+		
 		List anyCategoryPermission = getPermissionsForUserAnyCategory(gradebookId, userId);
 		if(anyCategoryPermission != null && anyCategoryPermission.size() > 0 )
 		{
@@ -44,13 +42,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		}
 		else
 		{
-//			List ids = new ArrayList();
-//			for(Iterator iter = categoryList.iterator(); iter.hasNext(); )
-//			{
-//				Category cate = (Category) iter.next();
-//				if(cate != null)
-//					ids.add(cate.getId());
-//			}
 
 			List<Long> returnCatIds = new ArrayList<Long>();
 			List<Permission> permList = getPermissionsForUserForCategory(gradebookId, userId, categoryIdList);
@@ -64,35 +55,13 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 			}
 			
 			return returnCatIds;
-			
-
-//			List filteredCates = new ArrayList();
-//			for(Iterator cateIter = categoryList.iterator(); cateIter.hasNext();)
-//			{
-//				Category cate = (Category) cateIter.next();
-//				if(cate != null)
-//				{
-//					for(Iterator iter = permList.iterator(); iter.hasNext();)
-//					{
-//						Permission perm = (Permission) iter.next();
-//						if(perm != null && perm.getCategoryId().equals(cate.getId()))
-//						{
-//							filteredCates.add(cate);
-//							break;
-//						}
-//					}
-//				}
-//			}
-//			return filteredCates;
 		}
 	}
 	
-	public List<Long> getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List<Long> categoriesIds, int cateType, List<String> sectionIds) throws IllegalArgumentException
+	public List<Long> getCategoriesForUserForStudentView(Long gradebookId, String userId, String studentId, List<Long> categoriesIds, List<String> sectionIds) throws IllegalArgumentException
 	{
 		if(gradebookId == null || userId == null || studentId == null)
 			throw new IllegalArgumentException("Null parameter(s) in GradebookPermissionServiceImpl.getCategoriesForUser");
-		if(cateType != GradebookService.CATEGORY_TYPE_ONLY_CATEGORY && cateType != GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY)
-			throw new IllegalArgumentException("CategoryType must be CATEGORY_TYPE_ONLY_CATEGORY or CATEGORY_TYPE_WEIGHTED_CATEGORY in GradebookPermissionServiceImpl.getCategoriesForUser");
 		
 		List<Long> returnCategoryList = new ArrayList<Long>();
 		//Map categoryMap = new HashMap();  // to keep the elements unique
@@ -104,14 +73,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 		{
 			return returnCategoryList;
 		}
-		
-//		Map categoryIdCategoryMap = new HashMap();
-//		for (Iterator catIter = categories.iterator(); catIter.hasNext();) {
-//			Category cat = (Category) catIter.next();
-//			if (cat != null) {
-//				categoryIdCategoryMap.put(cat.getId(), cat);
-//			}
-//		}
 		
 		List<String> studentSections = new ArrayList<String>();
 		
@@ -134,9 +95,6 @@ public class GradebookPermissionServiceImpl extends BaseHibernateManager impleme
 				}else{
 					returnCategoryList.add(catId);
 				}
-		//		Category cat = (Category)categoryIdCategoryMap.get(catId);
-		//		if (cat != null)
-//					categoryMap.put(cat, null);
 			}
 		}
 		
