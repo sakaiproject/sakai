@@ -22,6 +22,7 @@
 package org.sakaiproject.content.api;
 
 import java.util.Collection;
+import java.util.Set;
 
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.time.api.Time;
@@ -60,6 +61,16 @@ public interface GroupAwareEntity extends Entity
 	 * @return A Collection of Group objects defined locally for this entity; empty if none are defined.
 	 */
 	public Collection getInheritedGroups();
+
+	/**
+	 * Gets a list of roles defined against the underlying entity.
+	 */
+	public Set<String> getRoleAccessIds();
+
+	/**
+	 * Gets a list of roles defined against all parent entities.
+	 */
+	public Set<String> getInheritedRoleAccessIds();
 
 	/**
 	 * Access the groups, as Group objects, inherited by this entity.

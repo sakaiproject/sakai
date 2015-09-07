@@ -74,7 +74,7 @@
 							#if($pubview) 
 								$tlang.getString("more.yes") 
 							#else
-								$item.effectiveGroupsLabel
+								$item.getLongAccessLabel()
 							#end
 						</span>
 					</td>

@@ -79,7 +79,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	public static final String STATE_REALM_ID = "permission.realmId";
 
 	/** State attribute for the realm id - users should set before starting. */
-	public static final String STATE_REALM_ROLES_ID = "permission.realmRolesId";
+	public static final String STATE_REALM_ROLES_IDS = "permission.realmRolesId";
 
 	/** State attribute for the description of what's being edited - users should set before starting. */
 	public static final String STATE_DESCRIPTION = "permission.description";
@@ -204,8 +204,15 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String prefix = (String) toolSession.getAttribute(PermissionsHelper.PREFIX);
 		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
 		String description = (String) toolSession.getAttribute(PermissionsHelper.DESCRIPTION);
-		String rolesRef = (String) toolSession.getAttribute(PermissionsHelper.ROLES_REF);
+		Object rolesRef = toolSession.getAttribute(PermissionsHelper.ROLES_REF);
 		if (rolesRef == null) rolesRef = targetRef;
+
+		Collection<String> rolesRefs;
+		if (rolesRef instanceof Collection) {
+			rolesRefs = (Collection<String>) rolesRef;
+		} else {
+			rolesRefs = Collections.singletonList((String) rolesRef);
+		}
 
 		toolSession.setAttribute(STARTED, Boolean.valueOf(true));
 
@@ -213,7 +220,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		state.setAttribute(STATE_REALM_ID, targetRef);
 		
 		// use the roles from this ref's AuthzGroup
-		state.setAttribute(STATE_REALM_ROLES_ID, rolesRef);
+		state.setAttribute(STATE_REALM_ROLES_IDS, rolesRefs);
 
 		// ... with this description
 		state.setAttribute(STATE_DESCRIPTION, description);
@@ -242,8 +249,8 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		String realmId = (String) state.getAttribute(STATE_REALM_ID);
 
 		// in state is the realm to use for roles - if not, use realmId
-		String realmRolesId = (String) state.getAttribute(STATE_REALM_ROLES_ID);
-		context.put("viewRealmId", realmRolesId);
+		Collection<String> realmRolesIds = (Collection<String>) state.getAttribute(STATE_REALM_ROLES_IDS);
+		context.put("viewRealmIds", realmRolesIds);
 		
 		// get the realm locked for editing
 		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_REALM_EDIT);
@@ -335,6 +342,9 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			viewEdit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
 			if (viewEdit == null)
 			{
+				// I have no idea why this step is performed since we should never edit the template realm, so let's not be too serious about it
+				String realmRolesId = realmRolesIds.iterator().next();
+				
 				if (authzGroupService.allowUpdate(realmRolesId) || authzGroupService.allowUpdate(siteService.siteReference(siteId)))
 				{
 					try
@@ -374,7 +384,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		if (functions != null && !functions.isEmpty())
 		{
 			List<String> nFunctions = new Vector<String>();
-			if (!realmRolesId.equals(realmId))
+			if (!realmRolesIds.contains(realmId))
 			{
 				// editing groups within site, need to filter out those permissions only applicable to site level
 				for (Iterator iFunctions = functions.iterator(); iFunctions.hasNext();)
@@ -420,23 +430,28 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 		// the list of roles
 		List roles = (List) state.getAttribute(STATE_ROLES);
-		if (roles == null)
+		if (roles == null && realmRolesIds != null)
 		{
 			// get the roles from the edit, unless another is specified
 			AuthzGroup roleRealm = viewEdit != null ? viewEdit : edit;
-			if (realmRolesId != null)
+			Collection<Role> rolesUnique = new HashSet<Role>();
+			for (String realmRoleId : realmRolesIds)
 			{
-				try
+				if (realmRoleId != null)
 				{
-					roleRealm = authzGroupService.getAuthzGroup(realmRolesId);
+					try
+					{
+						roleRealm = authzGroupService.getAuthzGroup(realmRoleId);
+					}
+					catch (Exception e)
+					{
+						M_log.warn("PermissionsHelperAction.buildHelperContext: getRolesRealm: " + realmRoleId + " : " + e);
+					}
 				}
-				catch (Exception e)
-				{
-					M_log.warn("PermissionsHelperAction.buildHelperContext: getRolesRealm: " + realmRolesId + " : " + e);
-				}
+
+				rolesUnique.addAll(roleRealm.getRoles());
 			}
-			roles = new Vector();
-			roles.addAll(roleRealm.getRoles());
+			roles = new Vector(rolesUnique);
 			Collections.sort(roles);
 			state.setAttribute(STATE_ROLES, roles);
 		}
@@ -527,7 +542,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	private void cleanupState(SessionState state)
 	{
 		state.removeAttribute(STATE_REALM_ID);
-		state.removeAttribute(STATE_REALM_ROLES_ID);
+		state.removeAttribute(STATE_REALM_ROLES_IDS);
 		state.removeAttribute(STATE_REALM_EDIT);
 		state.removeAttribute(STATE_VIEW_REALM_EDIT);
 		state.removeAttribute(STATE_PREFIX);
@@ -551,9 +566,10 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	public void doView_permission_option(RunData data)
 	{
 		String viewAuthzId = data.getParameters().getString("authzGroupSelection");
+		Collection<String> viewAuthzIds = Collections.singletonList(viewAuthzId);
 		SessionState state = ((JetspeedRunData) data).getPortletSessionState(((JetspeedRunData) data).getJs_peid());
 		// reset attributes
-		state.setAttribute(STATE_REALM_ROLES_ID, viewAuthzId);
+		state.setAttribute(STATE_REALM_ROLES_IDS, viewAuthzId);
 		state.removeAttribute(STATE_VIEW_REALM_EDIT);
 		state.removeAttribute(STATE_ABILITIES);
 		state.removeAttribute(STATE_ROLES);
