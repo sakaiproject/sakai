@@ -326,7 +326,7 @@ public class AssignmentDetailsBean extends EnrollmentTableBean {
         				for (Category category : (List<Category>) categoryList) {
         					catIds.add(category.getId());
         				}
-        				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds, getGradebook().getCategory_type());
+        				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds);
         				List<Category> tmpCatList = new ArrayList<Category>();
         				for (Category category : (List<Category>) categoryList) {
         					if(viewableCats.contains(category.getId())){
