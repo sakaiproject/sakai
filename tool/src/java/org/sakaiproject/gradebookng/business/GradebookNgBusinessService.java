@@ -301,11 +301,10 @@ public class GradebookNgBusinessService {
 			for(CategoryDefinition cd: rval) {
 				allCategoryIds.add(cd.getId());
 			}
-			
+						
 			//get a list of category ids the user can actually view
-			//TODO edit this API method to remove the category type. It is unused.
-			List<Long> viewableCategoryIds = this.gradebookPermissionService.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds, GradebookService.CATEGORY_TYPE_ONLY_CATEGORY);
-			
+			List<Long> viewableCategoryIds = this.gradebookPermissionService.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds);
+						
 			//remove the ones that the user can't view
 			Iterator<CategoryDefinition> iter = rval.iterator();
 			while (iter.hasNext()) {
@@ -314,9 +313,8 @@ public class GradebookNgBusinessService {
 					iter.remove();
 				}
 			}
-			
+						
 		}
-		
 		
 		return rval;
 	}
@@ -536,6 +534,9 @@ public class GradebookNgBusinessService {
 		}
 		Temp.timeWithContext("buildGradeMatrix", "getGradebook", stopwatch.getTime());
 		
+		//get role for current user
+		GbRole role = this.getUserRole();
+		
 		//get uuids as list of Users.
 		//this gives us our base list and will be sorted as per our desired sort method
 		List<User> students = this.getUsers(studentUuids);
@@ -557,6 +558,7 @@ public class GradebookNgBusinessService {
 		
 		//seed the map for all students so we can progresseively add grades to it
 		//also add the course grade here, to save an iteration later
+		//TODO TA permission checking
 		for(User student: students) {
 			
 			//create and add the user info
@@ -570,6 +572,20 @@ public class GradebookNgBusinessService {
 		}
 		Temp.timeWithContext("buildGradeMatrix", "matrix seeded", stopwatch.getTime());
 		
+		//get categories. This call is filtered for TAs as well.
+		List<CategoryDefinition> categories = this.getGradebookCategories();
+	
+		//for TA's, build a lookup map of visible categoryIds so we can filter the assignment list to not fetch grades
+		//for assignments we don't have category level access to.
+		//for everyone else this will just be an empty list that is unused
+		List<Long> categoryIds = new ArrayList<>();
+		
+		if(role == GbRole.TA) {
+			for(CategoryDefinition category: categories) {
+				categoryIds.add(category.getId());
+			}
+		}
+		
 		//this holds a map of categoryId and the list of assignment ids in each
 		//we build this whilst iterating below to save further iterations when building the category list
 		Map<Long,Set<Long>> categoryAssignments = new TreeMap<>();
@@ -581,6 +597,13 @@ public class GradebookNgBusinessService {
 			
 			Long categoryId = assignment.getCategoryId();
 			Long assignmentId = assignment.getId();
+						
+			//TA permission check. If they don't have access to this category, skip it
+			if(role == GbRole.TA) {
+				if(!categoryIds.contains(categoryId)) {
+					continue;
+				}
+			}
 
 			//build the category map (if assignment is categorised)
 			if(categoryId != null) {
@@ -615,10 +638,7 @@ public class GradebookNgBusinessService {
 		}
 		Temp.timeWithContext("buildGradeMatrix", "matrix built", stopwatch.getTime());
 
-		
 		//build category columns
-		List<CategoryDefinition> categories = this.gradebookService.getCategoryDefinitions(gradebook.getUid());
-		
 		for(CategoryDefinition category: categories) {
 				
 			//use the category mappings for faster lookup of the assignmentIds and grades in the category
