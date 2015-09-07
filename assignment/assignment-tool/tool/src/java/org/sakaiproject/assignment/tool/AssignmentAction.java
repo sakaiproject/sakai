@@ -5053,7 +5053,11 @@ public class AssignmentAction extends PagedResourceActionII
 
 			if (addUpdateRemoveAssignment != null)
 			{
-				Assignment a = getAssignment(assignmentRef, "integrateGradebook", state);
+				Assignment a = null;
+				if (!"remove".equals(addUpdateRemoveAssignment)) {
+					a = getAssignment(assignmentRef, "integrateGradebook", state);
+				}
+				
 				// add an entry into Gradebook for newly created assignment or modified assignment, and there wasn't a correspond record in gradebook yet
 				if ((addUpdateRemoveAssignment.equals(AssignmentService.GRADEBOOK_INTEGRATION_ADD) || ("update".equals(addUpdateRemoveAssignment) && !isExternalAssignmentDefined)) && associateGradebookAssignment == null)
 				{
