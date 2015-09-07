@@ -18,7 +18,7 @@
 	<packaging>war</packaging>
 
     <properties>
-        <apache.wicket.version>1.4.7</apache.wicket.version>
+        <apache.wicket.version>1.4.23</apache.wicket.version>
         <slf4j.version>1.5.8</slf4j.version>
     </properties>
 
