@@ -13,6 +13,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
@@ -49,6 +50,9 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		super.onInitialize();
 		
 		final Assignment assignment = this.modelData.getObject();
+		
+		//get user's role
+		final GbRole role = this.businessService.getUserRole();
 		
 		Link<String> title = new Link<String>("title", Model.of(assignment.getName())) {
 			private static final long serialVersionUID = 1L;
@@ -127,7 +131,19 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(new AttributeModifier("data-category-extra-credit", assignment.isCategoryExtraCredit()));
 
 		//menu
-		add(new Link<Long>("editAssignmentDetails", Model.of(assignment.getId())){
+		WebMarkupContainer menu = new WebMarkupContainer("menu") {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public boolean isVisible() {
+				if(role != GbRole.INSTRUCTOR) {
+					return false;
+				}
+				return true;
+			}
+		};
+		
+		menu.add(new Link<Long>("editAssignmentDetails", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick() {
@@ -142,7 +158,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}
 		});
 		
-		add(new Link<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())){
+		menu.add(new Link<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick() {
@@ -150,7 +166,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}
 		});
 		
-		add(new Link<Long>("moveAssignmentLeft", Model.of(assignment.getId())){
+		menu.add(new Link<Long>("moveAssignmentLeft", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick() {
@@ -187,7 +203,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 		
 				
-		add(new Link<Long>("moveAssignmentRight", Model.of(assignment.getId())){
+		menu.add(new Link<Long>("moveAssignmentRight", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick() {
@@ -221,7 +237,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 		
 		
-		add(new AjaxLink<Long>("hideAssignment", Model.of(assignment.getId())){
+		menu.add(new AjaxLink<Long>("hideAssignment", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -231,7 +247,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 		
 		
-		add(new AjaxLink<Long>("setUngraded", Model.of(assignment.getId())){
+		menu.add(new AjaxLink<Long>("setUngraded", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
 			@Override
 			public void onClick(AjaxRequestTarget target) {
@@ -255,7 +271,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 
 		// delete item
-		add(new WebMarkupContainer("deleteGradeItem") {
+		menu.add(new WebMarkupContainer("deleteGradeItem") {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -284,10 +300,11 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				if (assignment.isExternallyMaintained()) {
 					return false;
 				}
-				// TODO add check for permission
 				return true;
 			}
 		});
+		
+		add(menu);
 
 
 
