@@ -142,6 +142,15 @@ public class GradebookPage extends BasePage {
 				window.setContent(new AddGradeItemPanel(window.getContentId(), window));
 				window.show(target);
 			}
+			
+			@Override
+			public boolean isVisible() {
+				if(role != GbRole.INSTRUCTOR){
+					return false;
+				}
+				return true;
+			}
+			
 		};
 		addGradeItem.setDefaultFormProcessing(false);
 		form.add(addGradeItem);
