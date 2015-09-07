@@ -23,12 +23,7 @@ package org.sakaiproject.content.types;
 
 import static org.sakaiproject.content.api.ResourceToolAction.*;
 
-import java.util.ArrayList;
-import java.util.EnumMap;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -149,9 +144,11 @@ public class FolderType extends BaseResourceType implements ExpandableResourceTy
 
 			toolSession.setAttribute(PermissionsHelper.TARGET_REF, reference.getReference());
 
-			// use the folder's context (as a site) for roles
-			String siteRef = SiteService.siteReference(reference.getContext());
-			toolSession.setAttribute(PermissionsHelper.ROLES_REF, siteRef);
+			// use the folder's context (as a site and as a resource) for roles
+			Collection<String> rolesRefs = new ArrayList<String>();
+			rolesRefs.add(SiteService.siteReference(reference.getContext()));
+			rolesRefs.add(reference.getReference());
+			toolSession.setAttribute(PermissionsHelper.ROLES_REF, rolesRefs);
 
 			// ... with this description
 			String title = reference.getProperties().getProperty(ResourceProperties.PROP_DISPLAY_NAME);
