@@ -35,6 +35,8 @@ function GradebookSpreadsheet($spreadsheet) {
   this.setupColoredCategories();
   this.setupPopovers();
 
+  this.setupNewAssignmentFocus();
+
   this.ready();
 };
 
@@ -1297,6 +1299,18 @@ GradebookSpreadsheet.prototype.findVisibleStudentAfter = function(studentUuid) {
   }
 }
 
+
+GradebookSpreadsheet.prototype.setupNewAssignmentFocus = function() {
+  var self = this;
+
+  var $justCreated = self.$table.find(".gb-just-created");
+
+  if ($justCreated.length > 0) {
+    self.onReady(function() {
+      $justCreated.parent().focus();
+    });
+  }
+};
 
 
 /*************************************************************************************

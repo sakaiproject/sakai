@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -10,11 +11,16 @@ import org.apache.wicket.markup.html.form.TextField;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.PropertyModel;
+import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
+import java.text.MessageFormat;
 import java.util.Date;
 import java.util.Map;
 import java.util.HashMap;
@@ -36,30 +42,47 @@ public class AddGradeItemPanelContent extends Panel {
     public AddGradeItemPanelContent(String id, Model<Assignment> assignment) {
         super(id, assignment);
 
+        final Gradebook gradebook = businessService.getGradebook();
+
         add(new TextField<String>("title", new PropertyModel<String>(assignment, "name")));
         add(new TextField<Double>("points", new PropertyModel<Double>(assignment, "points")));
         add(new DateTextField("duedate", new PropertyModel<Date>(assignment, "dueDate"), "MM/dd/yyyy")); //TODO needs to come from i18n
 
-        List<CategoryDefinition> categories = businessService.getGradebookCategories();
+        final List<CategoryDefinition> categories = businessService.getGradebookCategories();
 
-        final Map<Long, String> categoryMap = new HashMap<>();
+        final Map<Long, CategoryDefinition> categoryMap = new HashMap<>();
         for (CategoryDefinition category : categories) {
-            categoryMap.put(category.getId(), category.getName());
+            categoryMap.put(category.getId(), category);
         }
 
         DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category", new PropertyModel<Long>(assignment, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
 			private static final long serialVersionUID = 1L;
 
 			public Object getDisplayValue(Long value) {
-                return categoryMap.get(value);
+                CategoryDefinition category = categoryMap.get(value);
+                if (GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type()) {
+                    String weight = FormatHelper.formatDoubleAsPercentage(category.getWeight() * 100);
+                    return MessageFormat.format(getString("label.addgradeitem.categorywithweight"), category.getName(), weight);
+                } else {
+                    return category.getName();
+                }
             }
 
             public String getIdValue(Long object, int index) {
                 return object.toString();
             }
+
         });
         categoryDropDown.setNullValid(true);
+        categoryDropDown.setVisible(!categories.isEmpty());
         add(categoryDropDown);
+
+        add(new WebMarkupContainer("noCategoriesMessage") {
+            @Override
+            public boolean isVisible() {
+                return categories.isEmpty();
+            }
+        });
 
         add(new CheckBox("extraCredit", new PropertyModel<Boolean>(assignment, "extraCredit")));
        
