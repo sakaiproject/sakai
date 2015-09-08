@@ -270,12 +270,16 @@
 								#end
 							</td>
 							<td headers="title">
+								#if (!$service.allowAccessSite($site.Id))
+                            		<label class="unpublishedLabel">$validator.escapeHtml($site.getTitle())</label>
+								#else
 									<a href="$site.Url" target="_top">
 									$validator.escapeHtml($site.getTitle())
 									</a>
-                                    <a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
-                                        <img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
-                                    </a>
+								#end
+								<a href="#"  id="$site.Id" class="getSiteDesc" title="$tlang.getString('list.moreinfotooltip')">
+                                	<img src="#imageLink("sakai/information_gray.png")" border="0" title ="$tlang.getString('list.moreinfotooltip')" alt ="$tlang.getString('list.moreinfotooltip')" />
+								</a>
 							</td>
 							#if($show_id_column)
 								<td headers="id">

@@ -297,6 +297,9 @@ public interface SiteService extends EntityProducer
 
 		/** Get any deleted sites, normally used by admin or purge job. */
 		public static final SelectionType ANY_DELETED = new SelectionType("anyDeleted", false, false, false, false);
+
+		/** Get unpublished sites the current user has access to */
+		public static final SelectionType INACTIVE_ONLY = new SelectionType("inactive", true, true, false, true);
 	}
 
 	/**

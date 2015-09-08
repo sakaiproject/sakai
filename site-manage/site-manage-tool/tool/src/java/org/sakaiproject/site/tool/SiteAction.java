@@ -1527,6 +1527,11 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
 				state.setAttribute(STATE_VIEW_SELECTED, SiteConstants.SITE_TYPE_ALL);
 			}
+
+			if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false) && !SecurityService.isSuperUser()) {
+				views.put(SiteConstants.SITE_ACTIVE, rb.getString("java.myActive"));
+				views.put(SiteConstants.SITE_INACTIVE, rb.getString("java.myInactive"));
+			}
 			
 			// sort the keys in the views lookup
 			List<String> viewKeys = Collections.list(views.keys());
@@ -4780,6 +4785,14 @@ public class SiteAction extends PagedResourceActionII {
 
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
+
+					org.sakaiproject.site.api.SiteService.SelectionType selectionType;
+					if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.MEMBER;
+					} else {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
+					}
+
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
@@ -4794,8 +4807,8 @@ public class SiteAction extends PagedResourceActionII {
 						}
 						size += SiteService
 								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-										null, search, null);
+										selectionType,
+										null, search, termProp);
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
 						size += SiteService
 								.countSites(
@@ -4809,11 +4822,20 @@ public class SiteAction extends PagedResourceActionII {
 							size++;
 						} catch (IdUnusedException e) {
 						}
+					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
+						view = null;
+						size += SiteService.countSites(
+							org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW,
+								view, search, termProp);
+					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
+						view = null;
+						size += SiteService.countSites(
+										org.sakaiproject.site.api.SiteService.SelectionType.INACTIVE_ONLY,
+										null, search, termProp);
 					} else {
 						// search for specific type of sites
-						size += SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+						size += SiteService.countSites(
+										selectionType,
 										view, search, termProp);
 					}
 				}
@@ -4925,6 +4947,15 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
+
+					org.sakaiproject.site.api.SiteService.SelectionType selectionType;
+
+					if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.MEMBER;
+					} else {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
+					}
+
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
@@ -4940,7 +4971,7 @@ public class SiteAction extends PagedResourceActionII {
 						rv
 								.addAll(SiteService
 										.getSites(
-												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+												selectionType,
 												null, search, termProp, sortType,
 												new PagingPosition(first, last)));
 					}
@@ -4957,12 +4988,20 @@ public class SiteAction extends PagedResourceActionII {
 								null,
 								search, null, sortType,
 								new PagingPosition(first, last));
+					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
+						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW,
+								null, search, termProp, sortType,
+								new PagingPosition(first, last)));
+					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
+						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.INACTIVE_ONLY,
+								null, search, termProp, sortType,
+								new PagingPosition(first, last)));
 					} else {
 						rv.addAll(SiteService
-										.getSites(
-												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-												view, search, termProp, sortType,
-												new PagingPosition(first, last)));
+								.getSites(
+										selectionType,
+										view, search, termProp, sortType,
+										new PagingPosition(first, last)));
 					}
 				}
 

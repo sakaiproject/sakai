@@ -516,7 +516,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			// if we are joining, start our where with the join clauses
 			StringBuilder where = new StringBuilder();
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join on site id and also select the proper user
 				where.append(siteServiceSql.getSitesWhere1Sql());
@@ -572,6 +572,10 @@ public abstract class DbSiteService extends BaseSiteService
 			else
 			{
 				where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
+			}
+
+			if (type == SelectionType.INACTIVE_ONLY) {
+				where.append(siteServiceSql.getUnpublishedSitesOnlySql());
 			}
 
 			// reject non-joinable sites
@@ -718,14 +722,14 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 			}
 			if (criteria != null) fieldCount += 1;
-			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED)) fieldCount++;
+			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			Object fields[] = null;
 			if (fieldCount > 0)
 			{
 				fields = new Object[fieldCount];
 				int pos = 0;
-				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED))
+				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
 				{
 					fields[pos++] = getCurrentUserIdIfNull(userId);
 				}
@@ -803,7 +807,7 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// do we need a join?
 			String join = null;
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join with the SITE_USER table
 				join = siteServiceSql.getSitesJoin1Sql();
@@ -1180,7 +1184,7 @@ public abstract class DbSiteService extends BaseSiteService
 		{
 			// if we are joining, start our where with the join clauses
 			StringBuilder where = new StringBuilder();
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join on site id and also select the proper user
 				where.append(siteServiceSql.getSitesWhere1Sql());
@@ -1239,6 +1243,10 @@ public abstract class DbSiteService extends BaseSiteService
 				where.append(siteServiceSql.getSitesWhereNotSoftlyDeletedSql());
 			}
 
+            if (type == SelectionType.INACTIVE_ONLY) {
+                where.append(siteServiceSql.getUnpublishedSitesOnlySql());
+            }
+
 			// reject non-joinable sites
 			if (type == SelectionType.JOINABLE) where.append(siteServiceSql.getSitesWhere7Sql());
 			// check for pub view status
@@ -1257,7 +1265,7 @@ public abstract class DbSiteService extends BaseSiteService
 
 			// do we need a join?
 			String join = null;
-			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED))
+			if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
 			{
 				// join with the SITE_USER table
 				join = siteServiceSql.getSitesJoin1Sql();
@@ -1295,14 +1303,14 @@ public abstract class DbSiteService extends BaseSiteService
 				}
 			}
 			if (criteria != null) fieldCount += 1;
-			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED)) fieldCount++;
+			if ((type == SelectionType.JOINABLE) || (type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY)) fieldCount++;
 			if (propertyCriteria != null) fieldCount += (2 * propertyCriteria.size());
 			Object fields[] = null;
 			if (fieldCount > 0)
 			{
 				fields = new Object[fieldCount];
 				int pos = 0;
-				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED))
+				if ((type == SelectionType.ACCESS) || (type == SelectionType.UPDATE) || (type == SelectionType.MEMBER) || (type == SelectionType.DELETED) || (type == SelectionType.PUBVIEW) || (type == SelectionType.INACTIVE_ONLY))
 				{
 					fields[pos++] = sessionManager().getCurrentSessionUserId();
 				}
