@@ -569,11 +569,6 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			}
 		}
 
-		/*
-		 * if (AgentFacade.isStandaloneEnvironment())
-		 * control.setReleaseTo("Authenticated Users"); else
-		 * control.setReleaseTo(AgentFacade.getCurrentSiteName());
-		 */
 		EvaluationModel evaluation = (EvaluationModel) assessment
 			.getEvaluationModel();
 		if (evaluation == null) {
@@ -2223,7 +2218,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 					// itemFeedbackSet later
 					item.getTriesAllowed(), item.getPartialCreditFlag());
 			Set newItemTextSet = prepareItemTextSet(newItem, item
-					.getItemTextSet(), protocol);
+					.getItemTextSet(), protocol, toContext);
 			Set newItemMetaDataSet = prepareItemMetaDataSet(newItem, item
 					.getItemMetaDataSet());
 			Set newItemFeedbackSet = prepareItemFeedbackSet(newItem, item
@@ -2246,7 +2241,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 		return prepareItemSet(newSection, itemSet, protocol, null);
 	}
 	
-	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet, String protocol) {
+	public Set prepareItemTextSet(ItemData newItem, Set itemTextSet, String protocol, String toContext) {
 		log.debug("new item text size = " + itemTextSet.size());
 		HashSet h = new HashSet();
 		Iterator k = itemTextSet.iterator();
@@ -2260,7 +2255,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 			newItemText.setAnswerSet(newAnswerSet);
 			
 			Set itemTextAttachmentSet = this.prepareItemTextAttachmentSet(newItemText, 
-					itemText.getItemTextAttachmentSet(), protocol);
+					itemText.getItemTextAttachmentSet(), protocol, toContext);
 			newItemText.setItemTextAttachmentSet(itemTextAttachmentSet);
 			newItemText.setRequiredOptionsCount(itemText.getRequiredOptionsCount());
 
@@ -2329,7 +2324,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 	
 	// EMI ItemText attachments
 	public Set prepareItemTextAttachmentSet(ItemText newItemText,
-			Set itemTextAttachmentSet, String protocol) {
+			Set itemTextAttachmentSet, String protocol, String toContext) {
 		HashSet h = new HashSet();
 		Iterator o = itemTextAttachmentSet.iterator();
 		while (o.hasNext()) {
@@ -2339,7 +2334,7 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
 				AssessmentService service = new AssessmentService();
 				ContentResource cr_copy = service.createCopyOfContentResource(
 						itemTextAttachment.getResourceId(), itemTextAttachment
-								.getFilename());
+								.getFilename(), toContext);
 				// get relative path
 				String url = getRelativePath(cr_copy.getUrl(), protocol);
 

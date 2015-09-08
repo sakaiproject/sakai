@@ -131,7 +131,10 @@ public class JoinHandler extends BasePortalHandler
 				{
 					String siteType = portal.calcSiteType(site.getId());
 					String serviceName = ServerConfigurationService.getString("ui.service", "Sakai");
-					String title = serviceName+ " : "+ site.getTitle();
+					
+					// SAK-29138
+					String title = serviceName + " : "+ portal.getSiteHelper().getUserSpecificSiteTitle( site );
+					
 					String skin = site.getSkin();
 					PortalRenderContext context = portal.startPageContext(siteType, title, skin, req);
 					context.put("currentSite", portal.getSiteHelper().convertSiteToMap(req, site, null, site.getId(), null, false, false, false, false, null, true));

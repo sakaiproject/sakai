@@ -117,20 +117,10 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 			u.getDisplayId()
 		};
 
-		UIMessage.make(tofill, "welcome", "validate.welcome", args);
-		UIMessage.make(tofill, "welcome2", "validate.welcome2", args);
-		UIMessage.make(tofill, "username.new", "username.new");
-		UIOutput.make(tofill, "eid", u.getDisplayId());
-		UIMessage.make(tofill, "wait.1", "validate.wait.newUser.1", args);
-		String linkText = messageLocator.getMessage("validate.wait.newUser.2", args);
-		String transferMembershipsURL = getViewURL("transferMemberships", va);
-		UILink.make(tofill, "wait.2", linkText, transferMembershipsURL);
-		UIMessage.make(tofill, "validate.alreadyhave", "validate.alreadyhave", args);
-
 		//we need to know which sites they're a member of:
 		Set<String> groups = authzGroupService.getAuthzGroupsIsAllowed(EntityReference.getIdFromRef(va.getUserId()), "site.visit", null);
 		Iterator<String> git = groups.iterator();
-		List existingSites = new ArrayList();
+		List<String> existingSites = new ArrayList<>();
 		while (git.hasNext())
 		{
 			String groupRef = git.next();
@@ -151,6 +141,17 @@ public class NewUserProducer extends BaseValidationProducer implements ViewCompo
 				}
 			}
 		}
+
+		String welcomeMessage = existingSites.size() == 1 ? "validate.welcome.single" : "validate.welcome.plural";
+		UIMessage.make(tofill, "welcome", welcomeMessage, args);
+		UIMessage.make(tofill, "welcome2", "validate.welcome2", args);
+		UIMessage.make(tofill, "username.new", "username.new");
+		UIOutput.make(tofill, "eid", u.getDisplayId());
+		UIMessage.make(tofill, "wait.1", "validate.wait.newUser.1", args);
+		String linkText = messageLocator.getMessage("validate.wait.newUser.2", args);
+		String transferMembershipsURL = getViewURL("transferMemberships", va);
+		UILink.make(tofill, "wait.2", linkText, transferMembershipsURL);
+		UIMessage.make(tofill, "validate.alreadyhave", "validate.alreadyhave", args);
 
 		//details form
 		UIForm detailsForm = UIForm.make(tofill, "setDetailsForm");

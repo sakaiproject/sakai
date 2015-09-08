@@ -73,6 +73,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 
 
 /**
@@ -1312,6 +1315,20 @@ public String getAddOrEdit()
 		    err=rb.getString("no_pools_error");
 		    context.addMessage(null, new FacesMessage(err));
 		    return "editAssessment";
+		}
+		
+		// permission check to ensure the user should have access to the questions being copied
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		AssessmentService assessmentService = new AssessmentService();
+		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(new Long(sectionId));
+		String assessmentId = af.getAssessmentBaseId().toString();
+		String createdBy = af.getCreatedBy();
+		if (!authzBean.isUserAllowedToEditAssessment(assessmentId, createdBy, false))
+		{
+			FacesContext context = FacesContext.getCurrentInstance();
+			String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+			context.addMessage(null, new FacesMessage(err));
+			return "editAssessment";
 		}
 
 		if (iter.hasNext()) {

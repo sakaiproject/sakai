@@ -474,7 +474,7 @@ public class DbContentService extends BaseContentService
         }
         catch (Exception t)
         {
-            M_log.warn("init(): ", t);
+            M_log.error("init(): ", t);
         }
 
         //testResourceByTypePaging();
@@ -549,13 +549,13 @@ public class DbContentService extends BaseContentService
                         }
                         catch(Exception e)
                         {
-                            M_log.warn("TEMPORARY LOG MESSAGE WITH STACK TRACE: Failed to create all resources; ch1 = " + ch1, e);
+                            M_log.error("TEMPORARY LOG MESSAGE WITH STACK TRACE: Failed to create all resources; ch1 = " + ch1, e);
                         }
                     }
                 }
                 catch(Exception e)
                 {
-                    M_log.warn("TEMPORARY LOG MESSAGE WITH STACK TRACE: Failed to create all collections; ch = " + ch, e);
+                    M_log.error("TEMPORARY LOG MESSAGE WITH STACK TRACE: Failed to create all collections; ch = " + ch, e);
                 }
             }
 
@@ -1084,7 +1084,7 @@ public class DbContentService extends BaseContentService
                 }
 
             } catch (SQLException e) {
-                M_log.warn("Unable to get database statement: " + e, e);
+                M_log.error("Unable to get database statement: " + e, e);
             } finally {
                 cleanup(connection, statement, rs, selectStatement, updateStatement);
             }
@@ -1172,28 +1172,28 @@ public class DbContentService extends BaseContentService
                     rs.close();
                 }
             } catch (SQLException ex) {
-                M_log.warn("Failed to close resultset: " + ex, ex);
+                M_log.error("Failed to close resultset: " + ex, ex);
             }
             try {
                 if (statement != null) {
                     statement.close();
                 }
             } catch (SQLException ex) {
-                M_log.warn("Failed to close statement: " + ex, ex);
+                M_log.error("Failed to close statement: " + ex, ex);
             }
             try {
                 if (selectStatement != null) {
                     selectStatement.close();
                 }
             } catch (SQLException ex) {
-                M_log.warn("Failed to close selectStatement: " + ex, ex);
+                M_log.error("Failed to close selectStatement: " + ex, ex);
             }
             try {
                 if (updateStatement != null) {
                     updateStatement.close();
                 }
             } catch (SQLException ex) {
-                M_log.warn("Failed to close updateStatement: " + ex, ex);
+                M_log.error("Failed to close updateStatement: " + ex, ex);
             }
             m_sqlService.returnConnection(connection);
         }
@@ -1698,7 +1698,7 @@ public class DbContentService extends BaseContentService
             }
             catch(Exception e)
             {
-                M_log.warn("sql == " + sql, e);
+                M_log.error("sql == " + sql, e);
             }
 
         }
@@ -1852,7 +1852,7 @@ public class DbContentService extends BaseContentService
                         cancelResource(edit);
                         ServerOverloadException e = new ServerOverloadException(message);
                         // may be overkill, but let's make sure stack trace gets to log
-                        M_log.warn(message, e);
+                        M_log.error(message, e);
                         throw e;
                     }
                     if(isInsideIndividualDropbox(edit.getId()))
@@ -2084,7 +2084,7 @@ public class DbContentService extends BaseContentService
 					   cancelResource(edit);
 					   ServerOverloadException e = new ServerOverloadException(message);
 					   // may be overkill, but let's make sure stack trace gets to log
-					   M_log.warn(message, e);
+					   M_log.error(message, e);
 					   throw e;
 				   }
 
@@ -2332,7 +2332,7 @@ public class DbContentService extends BaseContentService
             catch (IOException e)
             {
                 // If we have a non-zero body length and reading failed, it is an error worth of note
-                M_log.warn("Failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength, e);
+                M_log.error("Failed to read resource: " + resource.getId() + " len: " + ((BaseResourceEdit) resource).m_contentLength, e);
                 throw new ServerOverloadException("Failed to read resource body", e);
             }
         }
@@ -2428,7 +2428,7 @@ public class DbContentService extends BaseContentService
             catch (IOException e)
             {
                 // TODO Auto-generated catch block
-                M_log.warn("IOException ", e);
+                M_log.error("IOException ", e);
             }
             finally
             {
@@ -2441,7 +2441,7 @@ public class DbContentService extends BaseContentService
                     catch (IOException e)
                     {
                         // TODO Auto-generated catch block
-                        M_log.warn("IOException ", e);
+                        M_log.error("IOException ", e);
                     }
                 }
             }
@@ -2482,7 +2482,7 @@ public class DbContentService extends BaseContentService
             }
             catch (IOException e)
             {
-                M_log.warn("IOException", e);
+                M_log.error("IOException", e);
                 return false;
             }
         }
@@ -2803,7 +2803,7 @@ public class DbContentService extends BaseContentService
         }
         catch (Exception e)
         {
-            M_log.warn("escapeResourceName: ", e);
+            M_log.error("escapeResourceName: ", e);
             return id;
         }
     }
@@ -3307,7 +3307,7 @@ public class DbContentService extends BaseContentService
             }
             catch(Exception e)
             {
-                M_log.warn("ContextAndFilesizeReader.readSqlResultRecord() failed. result skipped", e);
+                M_log.error("ContextAndFilesizeReader.readSqlResultRecord() failed. result skipped", e);
             }
 
             return null;

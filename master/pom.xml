@@ -67,9 +67,9 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/master/trunk</url>
+    <url>https://github.com/sakaiproject/sakai</url>
+    <connection>scm:git:git://github.com/sakaiproject/sakai.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/sakaiproject/sakai.git</developerConnection>
   </scm>
 
   <properties>
@@ -85,6 +85,7 @@
     <sakai.commons.lang3.version>3.4</sakai.commons.lang3.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.fileupload.version>1.3.1</sakai.commons.fileupload.version>
+    <sakai.commons-math.version>2.2</sakai.commons-math.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.6</sakai.ehcache.version>
@@ -113,17 +114,20 @@
     <sakai.spring.security.version>3.2.7.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
     <sakai.spring.test.version>3.2.13.RELEASE</sakai.spring.test.version>
+    <sakai.tika.version>1.9</sakai.tika.version>
     <sakai.tomcat.version>8.0.20</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
     <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
+    <sakai.poi.version>3.12</sakai.poi.version>
+    <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <rsfutil.version>0.8.1-SNAPSHOT</rsfutil.version>
     <sakairsf.components.version>11-SNAPSHOT</sakairsf.components.version>
     <sakairsf.version>11-SNAPSHOT</sakairsf.version>
     <generic-dao.version>0.9.18</generic-dao.version>
-    <joda.time.version>2.8</joda.time.version>
+    <joda.time.version>2.8.1</joda.time.version>
     <reflectutils.version>0.9.20</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -236,13 +240,6 @@
       </snapshots>
       <releases>
         <updatePolicy>never</updatePolicy>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>codehaus plugin repository</id>
-      <url>https://nexus.codehaus.org/content/repositories/releases/</url>
-      <releases>
-        <enabled>true</enabled>
       </releases>
     </pluginRepository>
     <pluginRepository>
@@ -463,16 +460,19 @@
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-core</artifactId>
 		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
 	  </dependency>
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-annotations</artifactId>
 		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
 	  </dependency>
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-databind</artifactId>
 		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
 	  </dependency>
       <dependency>
         <groupId>javax.activation</groupId>
@@ -519,7 +519,7 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.0.1</version>
+        <version>2.4</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -550,6 +550,12 @@
         <groupId>org.apache.commons</groupId>
         <artifactId>commons-lang3</artifactId>
         <version>${sakai.commons.lang3.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math</artifactId>
+        <version>${sakai.commons-math.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -665,7 +671,7 @@
       <dependency>
         <groupId>javax.transaction</groupId>
         <artifactId>jta</artifactId>
-        <version>1.0.1B</version>
+        <version>1.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -744,7 +750,7 @@
       <dependency>
         <groupId>OKI</groupId>
         <artifactId>OkiOSID</artifactId>
-        <version>2.0</version>
+        <version>${sakai.okiosid.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -1148,6 +1154,12 @@
         <scope>provided</scope>
       </dependency>
       <dependency>
+        <groupId>org.sakaiproject.dash</groupId>
+        <artifactId>dashboard-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
         <groupId>org.sakaiproject.delegatedaccess</groupId>
         <artifactId>delegatedaccess-api</artifactId>
         <version>${sakai.version}</version>
@@ -1420,6 +1432,12 @@
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.pasystem</groupId>
+        <artifactId>pasystem-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- UI dependencies; our glue packages, not the raw libraries, -->
       <!-- and only where we have duplication in dependencyManagement sections. -->
       <dependency>
@@ -1585,32 +1603,32 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>cobertura-maven-plugin</artifactId>
-          <version>2.6</version>
+          <version>2.7</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.5.5</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.1</version>
+          <version>2.8.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.5</version>
+          <version>1.6</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.1</version>
+          <version>2.5.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.6</version>
           <configuration>
             <archive>
               <manifest>
@@ -1642,7 +1660,12 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.4.2</version>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>2.6.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1652,37 +1675,37 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.6</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.2.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.16</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>2.4</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>2.7</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.18.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>2.8</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.1</version>
+          <version>3.5</version>
           <configuration>
             <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
             <sourceEncoding>utf-8</sourceEncoding>
@@ -1744,7 +1767,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.12</version>
+          <version>2.16</version>
           <!-- needs to be located in the project to work
           <configuration>
             <configLocation>src/site/checkstyle.xml</configLocation>
@@ -1759,7 +1782,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>2.17</version>
+          <version>2.18.1</version>
         </plugin>
         <plugin>
           <groupId>net.sourceforge.maven-taglib</groupId>
@@ -1787,7 +1810,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.3.1</version>
+        <version>1.4</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -1811,7 +1834,7 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.3</version>
         <configuration>
           <!-- <compilerArguments> <verbose /> </compilerArguments> -->
           <source>${sakai.jdk.version}</source>

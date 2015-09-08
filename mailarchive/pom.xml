@@ -23,11 +23,6 @@
         <module>mailarchive-tool/tool</module>
     </modules>
     
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailarchive/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/mailarchive/trunk</url>
-    </scm>
       
     <distributionManagement>
         <site>

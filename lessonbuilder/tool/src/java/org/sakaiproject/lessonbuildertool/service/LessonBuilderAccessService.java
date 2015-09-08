@@ -61,7 +61,7 @@ import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -215,6 +215,12 @@ public class LessonBuilderAccessService {
 
 	public void setGradebookIfc(GradebookIfc g) {
 		gradebookIfc = g;
+	}
+
+	private AuthzGroupService authzGroupService;
+
+	public void setAuthzGroupService(AuthzGroupService a) {
+		authzGroupService = a;
 	}
 
 	protected static final long MAX_URL_LENGTH = 8192;
@@ -493,7 +499,7 @@ public class LessonBuilderAccessService {
 					    // The assumption is that only one of those people can put content in the
 					    // page, and then only if the can see it.
 
-					    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
+					    if (owner != null && usersite != null && authzGroupService.getUserRole(usersite, group) != null) {
 						// OK
 					    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
 						// OK
@@ -875,22 +881,8 @@ public class LessonBuilderAccessService {
 						finally
 						{
 							// be a good little program and close the stream - freeing up valuable system resources
-							if (content != null)
-							{
-								content.close();
-							}
-		
-							if (out != null)
-							{
-								try
-								{
-									out.close();
-								}
-								catch (IOException ignore)
-								{
-									// ignore
-								}
-							}
+							IOUtils.closeQuietly(content);
+							IOUtils.closeQuietly(out);
 						}
 		              
 		            } else {
@@ -934,17 +926,7 @@ public class LessonBuilderAccessService {
 						finally
 						{
 							// be a good little program and close the stream - freeing up valuable system resources
-							if (out != null)
-							{
-								try
-								{
-									out.close();
-								}
-								catch (IOException ignore)
-								{
-									// ignore
-								}
-							}
+							IOUtils.closeQuietly(out);
 						}
 		              
 		            } // output multiple ranges
@@ -1235,11 +1217,7 @@ public class LessonBuilderAccessService {
           
             exception = copyRange(istream, out, currentRange.start, currentRange.end);
 
-            try {
-                istream.close();
-            } catch (IOException e) {
-            	// ignore
-            }
+            IOUtils.closeQuietly(istream);
         }
 
         IOUtils.write("\r\n--" + MIME_SEPARATOR + "--\r\n", out);

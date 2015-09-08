@@ -23,7 +23,9 @@ package org.sakaiproject.site.tool;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.sakaiproject.cheftool.Context;
@@ -33,6 +35,9 @@ import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
@@ -40,6 +45,7 @@ import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.javax.PagingPosition;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.util.SiteParticipantHelper;
 import org.sakaiproject.site.util.SiteTextEditUtil;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
@@ -73,6 +79,7 @@ public class MembershipAction extends PagedResourceActionII
 	private static UserAuditRegistration userAuditRegistration = (UserAuditRegistration) ComponentManager.get("org.sakaiproject.userauditservice.api.UserAuditRegistration.membership");
 	private static UserAuditService userAuditService = (UserAuditService) ComponentManager.get(UserAuditService.class);
 	private static UserDirectoryService userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class);
+	private static final CourseManagementService cms = (CourseManagementService) ComponentManager.get( CourseManagementService.class );
 
 	/*
 	 * (non-Javadoc)
@@ -229,6 +236,43 @@ public class MembershipAction extends PagedResourceActionII
 			}
 			*/
 			context.put("unjoinableSites", unjoinableSites);
+
+			// SAK-29138
+			Map<String, String> siteGroupsMap = new HashMap<>();
+			Map<String, String> sectionRoles = cms.findSectionRoles( userDirectoryService.getCurrentUser().getEid() );
+			for( Object obj : unjoinableSites )
+			{
+				Site site = (Site) obj;
+				List<String> providerIDs = SiteParticipantHelper.getProviderCourseList( site.getId() );
+				StringBuilder sectionTitles = new StringBuilder();
+				for( String providerID : providerIDs )
+				{
+					// If the user isn't enrolled in this section, skip it
+					if( !sectionRoles.keySet().contains( providerID ) )
+					{
+						continue;
+					}
+
+					if( sectionTitles.length() != 0 )
+					{
+						sectionTitles.append( ", " );
+					}
+
+					try
+					{
+						Section section = cms.getSection( providerID );
+						sectionTitles.append( section.getTitle() );
+					}
+					catch( IdNotFoundException ex )
+					{
+						Log.warn( "MembershipAction.buildMainPanelContext: cannot find section " + providerID, ex.getMessage() );
+					}
+				}
+				
+				siteGroupsMap.put( site.getId(), sectionTitles.toString() );
+			}
+			context.put( "siteGroupsMap", siteGroupsMap );
+
 			context.put("tlang", rb);
 
 			context.put("SiteService", SiteService.getInstance());
@@ -483,7 +527,10 @@ public class MembershipAction extends PagedResourceActionII
 					String roleId = SiteService.getSite(id[i]).getUserRole(currentUserId).getId();
 					
 					SiteService.unjoin(id[i]);
-					if (i>0) msg=msg+" ,";
+					if (i>0)
+					{
+						msg=msg+", ";
+					}
 					msg = msg+SiteService.getSite(id[i]).getTitle();
 					
 					String[] userAuditString = {id[i],currentUserEid,roleId,userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};

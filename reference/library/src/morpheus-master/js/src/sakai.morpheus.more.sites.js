@@ -237,6 +237,12 @@ $PBJQ(document).ready(function(){
 
   });
 
+  // Open all Sites with mobile view 	
+   $PBJQ(".js-toggle-sites-nav", "#skipNav").on("click", dhtml_view_sites);
+  
+  // Open all Sites with Desktop view
+  $PBJQ("#show-all-sites").on("click", dhtml_view_sites);
+
   // open tool menus in "other sites" panel
   $PBJQ('.toolMenus').click(function(e){
     showToolMenu(e,173);

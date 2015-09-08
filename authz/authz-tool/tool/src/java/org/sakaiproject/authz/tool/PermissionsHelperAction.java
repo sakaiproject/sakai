@@ -37,26 +37,27 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
-import org.sakaiproject.authz.cover.FunctionManager;
-import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.authz.api.FunctionManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
 import org.sakaiproject.cheftool.RunData;
 import org.sakaiproject.cheftool.VelocityPortlet;
 import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.Reference;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
-import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.tool.cover.ToolManager;
+import org.sakaiproject.tool.api.SessionManager;
+import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -115,11 +116,32 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	
 	private static final String STATE_GROUP_AWARE = "state_group_aware";
 
+	private AuthzGroupService authzGroupService;
+	private FunctionManager functionManager;
+	private SecurityService securityService;
+	private EntityManager entityManager;
+	private SiteService siteService;
+	private SessionManager sessionManager;
+	private ToolManager toolManager;
+	private ServerConfigurationService serverConfigurationService;
+
+	public PermissionsHelperAction() {
+		super();
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		functionManager = ComponentManager.get(FunctionManager.class);
+		securityService = ComponentManager.get(SecurityService.class);
+		entityManager = ComponentManager.get(EntityManager.class);
+		siteService = ComponentManager.get(SiteService.class);
+		sessionManager = ComponentManager.get(SessionManager.class);
+		toolManager = ComponentManager.get(ToolManager.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+	}
+
 	protected void toolModeDispatch(String methodBase, String methodExt, HttpServletRequest req, HttpServletResponse res)
 			throws ToolException
 	{
 		SessionState sstate = getState(req);
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
 		String mode = (String) sstate.getAttribute(STATE_MODE);
 		Object started = toolSession.getAttribute(STARTED);
@@ -127,11 +149,11 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		if (mode == null && started != null)
 		{
 			toolSession.removeAttribute(STARTED);
-			Tool tool = ToolManager.getCurrentTool();
+			Tool tool = toolManager.getCurrentTool();
 
-			String url = (String) SessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+			String url = (String) sessionManager.getCurrentToolSession().getAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 
-			SessionManager.getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
+			sessionManager.getCurrentToolSession().removeAttribute(tool.getId() + Tool.HELPER_DONE_URL);
 
 			try
 			{
@@ -177,7 +199,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 
 	protected void initHelper(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
-		ToolSession toolSession = SessionManager.getCurrentToolSession();
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
 
 		String prefix = (String) toolSession.getAttribute(PermissionsHelper.PREFIX);
 		String targetRef = (String) toolSession.getAttribute(PermissionsHelper.TARGET_REF);
@@ -213,7 +235,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	 * 
 	 * @return The name of the template to use. <code>null</code> can be returned.
 	 */
-	static public String buildHelperContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
+	public String buildHelperContext(VelocityPortlet portlet, Context context, RunData rundata, SessionState state)
 	{
 		// in state is the realm id
 		context.put("thelp", rb);
@@ -227,11 +249,11 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		AuthzGroup edit = (AuthzGroup) state.getAttribute(STATE_REALM_EDIT);
 		if (edit == null)
 		{
-			if (AuthzGroupService.allowUpdate(realmId))
+			if (authzGroupService.allowUpdate(realmId))
 			{
 				try
 				{
-					edit = AuthzGroupService.getAuthzGroup(realmId);
+					edit = authzGroupService.getAuthzGroup(realmId);
 					state.setAttribute(STATE_REALM_EDIT, edit);
 				}
 				catch (GroupNotDefinedException e)
@@ -239,7 +261,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 					try
 					{
 						// we can create the realm
-						edit = AuthzGroupService.addAuthzGroup(realmId);
+						edit = authzGroupService.addAuthzGroup(realmId);
 						state.setAttribute(STATE_REALM_EDIT, edit);
 					}
 					catch (GroupIdInvalidException ee)
@@ -285,7 +307,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				// only show groups for group-aware tools
 				try
 				{
-					Site site = SiteService.getSite(siteId);
+					Site site = siteService.getSite(siteId);
 					Collection groups = site.getGroups();
 					if (groups != null && !groups.isEmpty())
 					{
@@ -294,7 +316,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 						{
 							Group group = (Group) iGroups.next();
 							// need to either have realm update permission on the group level or better at the site level
-							if (!AuthzGroupService.allowUpdate(group.getReference()))
+							if (!authzGroupService.allowUpdate(group.getReference()))
 							{
 								iGroups.remove();
 							}
@@ -313,11 +335,11 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			viewEdit = (AuthzGroup) state.getAttribute(STATE_VIEW_REALM_EDIT);
 			if (viewEdit == null)
 			{
-				if (AuthzGroupService.allowUpdate(realmRolesId) || AuthzGroupService.allowUpdate(SiteService.siteReference(siteId)))
+				if (authzGroupService.allowUpdate(realmRolesId) || authzGroupService.allowUpdate(siteService.siteReference(siteId)))
 				{
 					try
 					{
-						viewEdit = AuthzGroupService.getAuthzGroup(realmRolesId);
+						viewEdit = authzGroupService.getAuthzGroup(realmRolesId);
 						state.setAttribute(STATE_VIEW_REALM_EDIT, viewEdit);
 					}
 					catch (GroupNotDefinedException e)
@@ -346,7 +368,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		if (functions == null)
 		{
 			// get all functions prefixed with our prefix
-			functions = FunctionManager.getRegisteredFunctions(prefix);
+			functions = functionManager.getRegisteredFunctions(prefix);
 		}
 		
 		if (functions != null && !functions.isEmpty())
@@ -406,7 +428,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			{
 				try
 				{
-					roleRealm = AuthzGroupService.getAuthzGroup(realmRolesId);
+					roleRealm = authzGroupService.getAuthzGroup(realmRolesId);
 				}
 				catch (Exception e)
 				{
@@ -427,14 +449,14 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 			state.setAttribute(STATE_ROLE_ABILITIES, rolesAbilities);
 
 			// get this resource's role Realms,those that refine the role definitions, but not it's own
-			Reference ref = EntityManager.newReference(viewEdit != null ? viewEdit.getId() : edit.getId());
+			Reference ref = entityManager.newReference(viewEdit != null ? viewEdit.getId() : edit.getId());
 			Collection realms = ref.getAuthzGroups();
 			realms.remove(ref.getReference());
 
 			for (Iterator iRoles = roles.iterator(); iRoles.hasNext();)
 			{
 				Role role = (Role) iRoles.next();
-				Set locks = AuthzGroupService.getAllowedFunctions(role.getId(), realms);
+				Set locks = authzGroupService.getAllowedFunctions(role.getId(), realms);
 				rolesAbilities.put(role.getId(), locks);
 			}
 		}
@@ -464,11 +486,10 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	 *
 	 * @param configPrefix The prefix to get permissions for.
 	 */
-	private static Map<String, Set<String>> getPermissions(String configPrefix)
+	private Map<String, Set<String>> getPermissions(String configPrefix)
 	{
 		Map<String, Set<String>> roleMap = new HashMap<String, Set<String>>();
-		ServerConfigurationService scs = org.sakaiproject.component.cover.ServerConfigurationService.getInstance();
-		String roleList = scs.getString(configPrefix+ "roles", "");
+		String roleList = serverConfigurationService.getString(configPrefix+ "roles", "");
 		Set<String> defaultPermissionSet = createPermissionSet(configPrefix, "default");
 		for (String roleName :roleList.split(","))
 		{
@@ -484,7 +505,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		return roleMap;
 	}
 	
-	private static Set<String> createPermissionSet(String config, String roleName)
+	private Set<String> createPermissionSet(String config, String roleName)
 	{
 		String permissionList = org.sakaiproject.component.cover.ServerConfigurationService.getString(config +roleName,"");
 		Set<String> permissionSet = new HashSet<String>();
@@ -503,7 +524,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	/**
 	 * Remove the state variables used internally, on the way out.
 	 */
-	private static void cleanupState(SessionState state)
+	private void cleanupState(SessionState state)
 	{
 		state.removeAttribute(STATE_REALM_ID);
 		state.removeAttribute(STATE_REALM_ROLES_ID);
@@ -569,9 +590,9 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 				removeEmptyRoles(edit);
 
 				if (hasNothingSet(edit)) {
-					AuthzGroupService.removeAuthzGroup(edit);
+					authzGroupService.removeAuthzGroup(edit);
 				} else {
-					AuthzGroupService.save(edit);
+					authzGroupService.save(edit);
 				}
 			}
 			catch (GroupNotDefinedException e)
@@ -676,7 +697,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		}
 	}
 
-	public static PermissionLimiter getPermissionLimiter() {
+	public PermissionLimiter getPermissionLimiter() {
 		Map allowedPermissions = getPermissions("realm.allowed."); // Whitelisted permissions for some roles
 		Map frozenPermissions = getPermissions("realm.frozen."); // Permissions that can't be changed
 		Map addOnlyPermissions = getPermissions("realm.add.only."); // Permissions that can only be added.	}
@@ -686,7 +707,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 	/**
 	 * The class is put into the velocity context to limit the permission that can be set.
 	 */
-	public static class PermissionLimiter
+	public class PermissionLimiter
 	{
 		private Map<String, Set<String>> allowedPermissions;
 		private Map<String, Set<String>> frozenPermissions;
@@ -711,7 +732,7 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		public boolean isEnabled(String roleId, String permission, boolean enabled)
 		{
 			// Sysadmin doesn't have any restrictions
-			if (SecurityService.isSuperUser()) {
+			if (securityService.isSuperUser()) {
 				return true;
 			}
 			if (frozenPermissions.containsKey(roleId)) {
@@ -732,10 +753,10 @@ public class PermissionsHelperAction extends VelocityPortletPaneledAction
 		}
 	}
 
- 	public static class RoleNameLookup {
+ 	public class RoleNameLookup {
 
  		public String getName(String roleId) {
- 			return AuthzGroupService.getRoleName(roleId);
+ 			return authzGroupService.getRoleName(roleId);
  		}
  	}
 }

@@ -42,17 +42,15 @@ import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
-import org.sakaiproject.event.cover.NotificationService;
+import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.InconsistentException;
 import org.sakaiproject.time.api.TimeBreakdown;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.tool.cover.SessionManager;
 
 /**
  * <p>
@@ -65,7 +63,9 @@ public class WebServlet extends AccessServlet
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(WebServlet.class);
-	private ContentHostingService contentHostingService;
+	protected ContentHostingService contentHostingService;
+	protected UserDirectoryService userDirectoryService;
+	protected TimeService timeService;
 
 	
 	
@@ -77,7 +77,9 @@ public class WebServlet extends AccessServlet
 	{
 		super.init(config);
 		
-		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+		contentHostingService = ComponentManager.get(ContentHostingService.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+		timeService = ComponentManager.get(TimeService.class);
 	}
 	/**
 	 * Set active session according to sessionId parameter
@@ -87,12 +89,12 @@ public class WebServlet extends AccessServlet
 		String sessionId = req.getParameter("session");
 		if ( sessionId != null)
 		{
-			Session session = SessionManager.getSession(sessionId);
+			Session session = sessionManager.getSession(sessionId);
 			
 			if (session != null)
 			{
 				session.setActive();
-				SessionManager.setCurrentSession(session);
+				sessionManager.setCurrentSession(session);
 			}
 		}
 	}
@@ -222,7 +224,7 @@ public class WebServlet extends AccessServlet
 			if (!dir.endsWith(Entity.SEPARATOR)) dir = dir + Entity.SEPARATOR;
 
 			// get a reference to the content collection - this lets us use alias and short refs
-			Reference ref = EntityManager.newReference(dir);
+			Reference ref = entityManager.newReference(dir);
 
 			// the reference id replaces the dir - as a fully qualified path (no alias, no short ref)
 			dir = ref.getId();
@@ -270,9 +272,9 @@ public class WebServlet extends AccessServlet
 
 			try
 			{
-				User user = UserDirectoryService.getCurrentUser();
+				User user = userDirectoryService.getCurrentUser();
 
-				TimeBreakdown timeBreakdown = TimeService.newTime().breakdownLocal();
+				TimeBreakdown timeBreakdown = timeService.newTime().breakdownLocal();
 				String mycopyright = "copyright (c)" + " " + timeBreakdown.getYear() + ", " + user.getDisplayName()
 						+ ". All Rights Reserved. ";
 

@@ -216,5 +216,22 @@ public class FakeSitePage implements SitePage {
 		// TODO Auto-generated method stub
 		
 	}
+	
+	public boolean isHomePage()
+	{
+		// TODO
+		return false;
+	}
+	
+	public void setHomeToolsTitleCustom(String toolId)
+	{
+		// TODO
+	}
+	
+	public boolean getHomeToolsTitleCustom(String toolId)
+	{
+		// TODO
+		return false;
+	}
 
 }

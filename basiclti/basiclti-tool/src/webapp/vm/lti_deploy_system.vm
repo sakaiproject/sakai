@@ -110,12 +110,13 @@ ${includeLatestJQuery}
 </script>
 <div class="portletBody">
 	<ul class="navIntraTool actionToolBar">
-		<li class="firstToolBarItem"><span><a href="" title="$tlang.getString("tool.in.site")" onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;"> $tlang.getString("tool.in.site")</a></span></li>
-		<li><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
+		<li class="firstToolBarItem"><span><a href="" title="$tlang.getString("tool.in.system")" onclick="location = '$sakai_ActionURL.setPanel("ToolSystem")';return false;"> $tlang.getString("tool.in.system")</a></span></li>
+		<li><span><a href="" title="$tlang.getString("tool.in.site")" onclick="location = '$sakai_ActionURL.setPanel("ToolSite")';return false;"> $tlang.getString("tool.in.site")</a></span></li>
 		<li><span class="current">$tlang.getString("deploy.in.system")</span></li>
 	</ul>
 	#if ($messageSuccess)<div class="messageSuccess">$tlang.getString("gen.success") $validator.escapeHtml($messageSuccess)</div><div class="clear"></div>#end
 	#if ($alertMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($alertMessage)</div><div class="clear"></div>#end
+	#if ($configMessage)<div class="alertMessage">$tlang.getString("gen.alert") $validator.escapeHtml($configMessage)</div><div class="clear"></div>#end
 	<div align="right"><a href="" title="$tlang.getString("add.deploy")" onclick="location = '$sakai_ActionURL.setPanel("DeployInsert")';return false;"> $tlang.getString("add.deploy")</a></div>
 	<br/>
 	#if ($!deploys && !$deploys.isEmpty())
@@ -184,4 +185,15 @@ ${includeLatestJQuery}
 		<p>$tlang.getString("deploy.none")</p>
 	#end
 	$tlang.getString("deploy.note")
+#if ( ! $isAdmin )
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
 </div>

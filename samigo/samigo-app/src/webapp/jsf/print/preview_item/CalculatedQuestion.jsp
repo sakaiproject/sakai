@@ -37,7 +37,7 @@ should be included in file importing DeliveryMessages
   	<h:outputText escape="false" value="#{question.itemData.score} #{authorMessages.points_lower_case}" />
   	<h:outputText value="<br />" escape="false" />
     <h:outputLabel value="#{printMessages.answer_key}: "/>
-    <h:outputText escape="false" value="#{question.key}" />
+    <h:outputText escape="false" value="#{question.answerKeyCalcQuestion}" />
     <h:outputText value="<br />" escape="false" />
   </h:panelGroup>
   

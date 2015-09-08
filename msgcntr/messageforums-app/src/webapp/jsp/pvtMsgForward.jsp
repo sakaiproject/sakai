@@ -17,16 +17,16 @@
 
 
 <f:view>
-  <sakai:view title="#{msgs.pvt_forward}">
-  	<link rel="stylesheet" href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" type="text/css" />
-  	<link rel="stylesheet" href="/messageforums-tool/css/select2.css" type="text/css" />
-    <h:form id="pvtMsgForward">
-           		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-           		<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-           		<sakai:script contextBase="/messageforums-tool" path="/js/select2.min.js"/>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
-       		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
-       		<script type="text/javascript">
+	<sakai:view title="#{msgs.pvt_forward}">
+		<link rel="stylesheet" href="/library/js/jquery/select2/4.0.0/select2.css" type="text/css" />
+		<link rel="stylesheet" href="/messageforums-tool/css/messages.css" type="text/css" />
+		<link rel="stylesheet" href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" type="text/css" />
+		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
+		<script type="text/javascript" src="/library/js/jquery/select2/4.0.0/select2.min.js"></script>
+		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
+		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
+	<h:form id="pvtMsgForward">
+		<script type="text/javascript">
 				function clearSelection(selectObject)
 				{
 					for (var i=0; i<selectObject.options.length; i++)
@@ -39,6 +39,7 @@
 				function fadeInBcc(){
 					$('.bccLink').fadeOut(); 
 					$('.bcc').fadeIn();
+					clearSelection(document.getElementById('pvtMsgForward:list2'));
 					resize();
 				}
 				
@@ -105,7 +106,7 @@
 			         <f:selectItems value="#{PrivateMessagesTool.totalComposeToList}"/>
 			       </h:selectManyListbox>
 			       <f:verbatim>
-			      	<span class="bcc" style="display:none">
+			      	<span>
 		       			&nbsp;		       	
 		       			</f:verbatim>
 		       			<h:graphicImage url="/../../library/image/silk/delete.png" title="#{msgs.pvt_bccClear}" alt="#{msgs.pvt_bccClear}"/>

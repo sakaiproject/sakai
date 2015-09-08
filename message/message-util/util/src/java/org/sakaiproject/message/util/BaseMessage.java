@@ -2459,8 +2459,10 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 		 */
 		public List getMessagesPublic(Filter filter, boolean ascending)
 		{
-			return findFilterMessages(new PublicFilter(filter), ascending);
+			String anncRead = eventId(MessageService.SECURE_READ);
+			boolean isChannelPublic = m_securityService.unlock(m_userDirectoryService.getAnonymousUser(), anncRead, this.getReference());
 
+			return findFilterMessages(new PublicFilter(filter, isChannelPublic), ascending);
 		} // getMessagesPublic
 
 
@@ -2696,38 +2698,41 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			// update the properties
 			// addLiveUpdateProperties(edit.getPropertiesEdit());//%%%
 
-			// if this message had a future invocation before, delete it because
-			// this modification changed the date of release so either it will notify it now
-			// or set a new future notification
-			ScheduledInvocationManager scheduledInvocationManager = (ScheduledInvocationManager) 
-							ComponentManager.get(org.sakaiproject.api.app.scheduler.ScheduledInvocationManager.class);
-
-			if (edit.getProperties().getProperty(SCHED_INV_UUID) != null)
-			{
-				scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty(SCHED_INV_UUID));
-				edit.getPropertiesEdit().removeProperty(SCHED_INV_UUID);
-
-//				Event event = m_eventTrackingService.newEvent(SCHINV_DELETE_EVENT, edit.getReference(), true, priority);
-//				m_eventTrackingService.post(event);				
-			}
-
-			// For Scheduled Notification, compare header date with now to deterine
-			// if an immediate notification is needed or a scheduled one
-			// Put here since need to store uuid for notification just in case need to
-			// delete/modify
-			Time now = m_timeService.newTime();
 			boolean transientNotification = true;
-			
-			if (now.before(edit.getHeader().getDate()) && priority != NotificationService.NOTI_NONE)
-			{
-				final String uuid = scheduledInvocationManager.createDelayedInvocation(edit.getHeader().getDate(), 
-									invokee, edit.getReference());
-		
-				final ResourcePropertiesEdit editProps = edit.getPropertiesEdit();
-		
-				editProps.addProperty(SCHED_INV_UUID, uuid);
+			if(priority != NotificationService.NOTI_IGNORE){
+				// if this message had a future invocation before, delete it because
+				// this modification changed the date of release so either it will notify it now
+				// or set a new future notification
+				ScheduledInvocationManager scheduledInvocationManager = (ScheduledInvocationManager) 
+						ComponentManager.get(org.sakaiproject.api.app.scheduler.ScheduledInvocationManager.class);
+
+				if (edit.getProperties().getProperty(SCHED_INV_UUID) != null)
+				{
+					scheduledInvocationManager.deleteDelayedInvocation(edit.getProperties().getProperty(SCHED_INV_UUID));
+					edit.getPropertiesEdit().removeProperty(SCHED_INV_UUID);
+
+					//				Event event = m_eventTrackingService.newEvent(SCHINV_DELETE_EVENT, edit.getReference(), true, priority);
+					//				m_eventTrackingService.post(event);				
+				}
+
+				// For Scheduled Notification, compare header date with now to deterine
+				// if an immediate notification is needed or a scheduled one
+				// Put here since need to store uuid for notification just in case need to
+				// delete/modify
+				Time now = m_timeService.newTime();
 				
-				transientNotification = false;
+
+				if (now.before(edit.getHeader().getDate()) && priority != NotificationService.NOTI_NONE)
+				{
+					final String uuid = scheduledInvocationManager.createDelayedInvocation(edit.getHeader().getDate(), 
+							invokee, edit.getReference());
+
+					final ResourcePropertiesEdit editProps = edit.getPropertiesEdit();
+
+					editProps.addProperty(SCHED_INV_UUID, uuid);
+
+					transientNotification = false;
+				}
 			}
 
 			// complete the edit
@@ -2744,7 +2749,7 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			m_eventTrackingService.post(event);
 
 			// channel notification
-			if (transientNotification) 
+			if (priority != NotificationService.NOTI_IGNORE && transientNotification) 
 			{
 				startNotifyThread(event);
 			}
@@ -4574,16 +4579,21 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 	{
 		/** The other filter to check with. May be null. */
 		protected Filter m_filter = null;
+		
+		/** The site. May be public. */
+		protected boolean m_isChannelPublic;
 
-		/**
-		 * Constructor
-		 * 
-		 * @param filter
-		 *        The other filter we check with.
-		 */
-		public PublicFilter(Filter filter)
+ 		/**
+ 		 * Constructor
+ 		 *  @param filter
+ 		 *        The other filter we check with.
+ 		 * @param isChannelPublic
+ 		 *        Whether the channel is public or not
+ 		 */
+		public PublicFilter(Filter filter, boolean isChannelPublic)
 		{
 			m_filter = filter;
+			m_isChannelPublic = isChannelPublic;
 
 		} // PublicFilter
 
@@ -4598,8 +4608,9 @@ public abstract class BaseMessage implements MessageService, DoubleStorageUser
 			if (o instanceof Message)
 			{
 				Message msg = (Message) o;
-				if (msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
-					 !msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+				if ((msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) == null ||
+						!msg.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
+						&& !m_isChannelPublic)
 					return false;
 				else if (msg.getHeader().getDraft())
 					return false;

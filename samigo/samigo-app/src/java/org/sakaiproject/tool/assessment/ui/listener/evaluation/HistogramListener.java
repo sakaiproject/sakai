@@ -30,6 +30,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+//import org.hibernate.Hibernate;
 import org.sakaiproject.tool.assessment.api.SamigoApiFactory;
 import org.sakaiproject.tool.assessment.data.dao.assessment.PublishedSectionData;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingComparatorByScoreAndUniqueIdentifier;
@@ -46,6 +47,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
+import org.sakaiproject.tool.assessment.services.PublishedItemService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI;
 import org.sakaiproject.tool.assessment.shared.api.assessment.SecureDeliveryServiceAPI.Phase;
@@ -839,10 +841,25 @@ public class HistogramListener
 //    }
 
     PublishedAssessmentService pubService  =  new PublishedAssessmentService();
+    PublishedItemService pubItemService = new PublishedItemService();
+    
     //build a hashMap (publishedItemId, publishedItem)
     HashMap publishedItemHash = pubService.preparePublishedItemHash(pub);
     HashMap publishedItemTextHash = pubService.preparePublishedItemTextHash(pub);
     HashMap publishedAnswerHash = pubService.preparePublishedAnswerHash(pub);
+    
+ // re-attach session and load all lazy loaded parent/child stuff
+       
+//        Set<Long> publishedAnswerHashKeySet = publishedAnswerHash.keySet();
+//    	   
+//     	    for(Long key : publishedAnswerHashKeySet) {
+//              AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(key);
+//             
+//     	          if (! Hibernate.isInitialized(answer.getChildAnswerSet())) {
+//                 pubItemService.eagerFetchAnswer(answer);
+//    	          }
+//    	    }
+    	
 
     //int numAnswers = 0;
     ItemDataIfc item = (ItemDataIfc) publishedItemHash.get(qbean.getItemId());
@@ -1827,7 +1844,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     results.put(INCORRECT, Integer.valueOf(0));
     
     for (ItemGradingData score : scores) {
-        if (score.getAutoScore() > 0) {
+        if (score.getAutoScore() != null && score.getAutoScore() > 0) {
             Integer value = results.get(CORRECT);
             results.put(CORRECT, ++value);
         } else {
@@ -1866,7 +1883,7 @@ private void getCalculatedQuestionScores(List<ItemGradingData> scores, Histogram
     // us a count of assessmnets that had an incorrect answer 
     Set<Long> assessmentQuestionIncorrect = new HashSet<Long>();
     for (ItemGradingData score : scores) {
-        if (score.getAutoScore() == 0) {
+        if (score.getAutoScore() == null || score.getAutoScore() == 0) {
             assessmentQuestionIncorrect.add(score.getAssessmentGradingId());
         }
     }

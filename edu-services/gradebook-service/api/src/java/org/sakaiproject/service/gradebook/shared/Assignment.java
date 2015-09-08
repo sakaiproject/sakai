@@ -47,6 +47,7 @@ public class Assignment implements Serializable {
     //Needed for transfer
     private boolean categoryExtraCredit;
     private Integer sortOrder;
+    private Long categoryId;
     
 
     public Assignment() {
@@ -219,6 +220,14 @@ public class Assignment implements Serializable {
 	 */
 	public void setSortOrder(Integer sortOrder) {
 		this.sortOrder = sortOrder;
+	}
+
+	public Long getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
 	}
 
 }

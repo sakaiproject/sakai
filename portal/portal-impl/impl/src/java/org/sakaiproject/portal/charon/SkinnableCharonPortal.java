@@ -54,10 +54,10 @@ import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.IdUsedException;
 import org.sakaiproject.exception.PermissionException;
+import org.sakaiproject.pasystem.api.PASystem;
 import org.sakaiproject.portal.api.Editor;
 import org.sakaiproject.portal.api.PageFilter;
 import org.sakaiproject.portal.api.Portal;
-import org.sakaiproject.portal.api.PortalService;
 import org.sakaiproject.portal.api.PortalChatPermittedHelper;
 import org.sakaiproject.portal.api.PortalHandler;
 import org.sakaiproject.portal.api.PortalRenderContext;
@@ -89,10 +89,10 @@ import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.TimeoutDialogHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
+import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
-import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 import org.sakaiproject.portal.render.api.RenderResult;
 import org.sakaiproject.portal.render.cover.ToolRenderService;
 import org.sakaiproject.portal.util.ErrorReporter;
@@ -128,8 +128,9 @@ import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.Validator;
 import org.sakaiproject.util.Web;
 
-import au.com.flyingkite.mobiledetect.UAgentInfo;
 import org.apache.commons.lang.ArrayUtils;
+import org.sakaiproject.portal.api.PortalService;
+import org.sakaiproject.portal.charon.site.PortalSiteHelperImpl;
 
 
 /**
@@ -219,8 +220,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 	
 	// 2.3 back port
 	// public String PROP_SHOW_SUBSITES = "sakai:show-subsites";
-	
-	private boolean isMobileDevice = false;
 	
 	private boolean forceContainer = false;
 
@@ -513,7 +512,8 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		String title = ServerConfigurationService.getString("ui.service","Sakai");
 		if (site != null)
 		{
-			title = title + ":" + site.getTitle();
+			// SAK-29138
+			title = title + ":" + siteHelper.getUserSpecificSiteTitle( site );
 			if (placement != null) title = title + " : " + placement.getTitle();
 		}
 
@@ -752,14 +752,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		}
 		else
 		{
-			String suppressTitleLegacy  = placement.getConfig().getProperty(SAKAI_PORTAL_SUPPRESSTITLE);
-			if ( "true".equals(suppressTitleLegacy) ) {
-				toolMap.put("suppressTitle", Boolean.TRUE);
-				ts.setAttribute(SAKAI_PORTAL_ALLOW_NEO,"true");
-				ts.setAttribute(SAKAI_PORTAL_HELP_ACTION,helpActionUrl);
-				ts.setAttribute(SAKAI_PORTAL_RESET_ACTION,resetActionUrl);
-			}
-
 			toolMap.put("toolPlacementIDJS", Web.escapeJavascript("Main"
 					+ placement.getId()));
 		}
@@ -995,106 +987,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		tool.help(req, res, context, "/logout");
 	}
 
-	/**
-	 * Check if we are on a mobile device. Only does this once per session.
-	 * @param req HttpServletRequest
-	 */
-	public void checkMobile(HttpServletRequest req) {
-		
-		//check session param and return if already set. We don't care what the value actually is, just that we have already processed it
-		Session session = SessionManager.getCurrentSession();
-		Boolean mobileDeviceParam = (Boolean)session.getAttribute("is_mobile_device");
-
-		if(M_log.isDebugEnabled()){
-			M_log.debug("session id: " + session.getId());
-			M_log.debug("is_mobile_device session param: " + mobileDeviceParam);
-		}
-		
-		if(mobileDeviceParam != null) {
-			//SAK-22484 before returning, ensure the value is set to the value to the session param
-			isMobileDevice = mobileDeviceParam;
-			return;
-		}
-		
-		//get user agent, return if null as we cannot check
-		String userAgent = req.getHeader("User-Agent");
-		if (StringUtils.isBlank(userAgent)) {
-			//SAK-22484 cannot determine, set false
-			isMobileDevice = false;
-			return;
-		}
-		
-		UAgentInfo agentInfo = new UAgentInfo(userAgent, null);
-		
-		//check mobile
-		isMobileDevice = agentInfo.detectMobileQuick();
-		
-		//set session param so we don't need to do this again
-		session.setAttribute("is_mobile_device", Boolean.valueOf(isMobileDevice));		
-		
-		if(M_log.isDebugEnabled()){
-			M_log.debug("User-Agent: " + userAgent);
-			M_log.debug("Mobile device: " + isMobileDevice);
-		}
-		
-	}
-
-	/**
-	 * Check for mobile via checkMobile(req) and setup some context params
-	 */
-	public void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext)
-	{
-		// SAK-29115: This should no longer be used under morpheus
-		// I will leave the code in but disabled
-
-		M_log.error("setupMobileDevice should no longer be used");
-		return;
-		/* Begin removal for SAK-29115
-		if ( req == null) return;
-		
-		checkMobile(req);
-
-		// Not a mobile device
-		if (!isMobileDevice) { 
-			return;
-		}
-
-		rcontext.put("mobileDevice", Boolean.TRUE);
-		
-		//for now just always assume we have a small display.
-		rcontext.put("mobileSmallDisplay",Boolean.TRUE);
-		end removal for SAK-29115 */
-		
-
-		// Old WURFL code left here for reference in case people want to flesh out the detection
-		// Check to see if we have too few columns of text
-		/*
-		String columns =  device.getCapability("columns");
-		{
-			int icol = -1;
-			try { icol = Integer.parseInt(columns); } catch (Exception t) { icol = -1; }
-			if ( icol > 1 && icol < 50 )
-			{
-				rcontext.put("wurflSmallDisplay",Boolean.TRUE);
-				return;
-			}
-		}
-		// Check if we have too few pixels
-		String width = device.getCapability("resolution_width");
-		if ( width != null && width.length() > 1 )
-		{
-			int iwidth = -1;
-			try { iwidth = Integer.parseInt(width); } catch (Throwable t) { iwidth = -1; }
-			if ( iwidth > 1 && iwidth < 400 )
-			{
-				rcontext.put("wurflSmallDisplay",Boolean.TRUE);
-				return;
-			}
-		}
-		*/
-	}
-
-
 	public PortalRenderContext startPageContext(String siteType, String title,
 			String skin, HttpServletRequest request)
 	{
@@ -1131,6 +1023,12 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 				ServerConfigurationService.getString("portal.google.analytics_domain"));
 			rcontext.put("googleAnalyticsDetail", 
 				ServerConfigurationService.getBoolean("portal.google.analytics_detail", false));
+		}
+
+		//SAK-29668
+		String googleTagManagerContainerId =  ServerConfigurationService.getString("portal.google.tag.manager.container_id", null);
+		if ( googleTagManagerContainerId != null ) {
+			rcontext.put("googleTagManagerContainerId", googleTagManagerContainerId);
 		}
 
 		Session s = SessionManager.getCurrentSession();
@@ -1170,28 +1068,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                 }
 
 		// Copy the minimization preferences to the context
-		String minStr = ServerConfigurationService.getString("portal.allow.minimize.tools","true");
-		rcontext.put("portal_allow_minimize_tools",Boolean.valueOf( "true".equals(minStr) ) ) ;
 		String enableGAM = ServerConfigurationService.getString("portal.use.global.alert.message","false");
 		rcontext.put("portal_use_global_alert_message",Boolean.valueOf( enableGAM ) ) ;
-		minStr = ServerConfigurationService.getString("portal.allow.minimize.navigation","false");
-		rcontext.put("portal_allow_minimize_navigation",Boolean.valueOf( "true".equals(minStr) ) ) ;
-		minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
-		rcontext.put("portal_allow_auto_minimize",Boolean.valueOf( "true".equals(minStr) ) ) ;
-		// copy the add link to /mobile to the content
-		String addMLnk = ServerConfigurationService.getString("portal.add.mobile.link","false");
 		// how many tools to show in portal pull downs
 		rcontext.put("maxToolsInt", Integer.valueOf(ServerConfigurationService.getInt("portal.tool.menu.max", 10)));
 
-		
-		// show the mobile link or not
-		if (s.getAttribute("is_mobile_device") == null && request != null){
-			//determine if we are on a mobile device - sets up the params we need
-			checkMobile(request);
-		}
-		boolean isMobileDevice = s.getAttribute("is_mobile_device") != null ? ((Boolean) s.getAttribute("is_mobile_device")).booleanValue():false;
-		rcontext.put("portal_add_mobile_link",Boolean.valueOf( "true".equals(addMLnk) && isMobileDevice ) ) ;
-		
 		rcontext.put("toolDirectUrlEnabled", ServerConfigurationService.getBoolean("portal.tool.direct.url.enabled", true));
 		rcontext.put("toolShortUrlEnabled", ServerConfigurationService.getBoolean("shortenedurl.portal.tool.enabled", true));
 		
@@ -1480,12 +1361,10 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		Session s = SessionManager.getCurrentSession();
 		String userWarning = (String) s.getAttribute("userWarning");
 		if (StringUtils.isNotEmpty(userWarning)) {
-			headJs.append("<script type=\"text/javascript\">window.parent.jQuery.pnotify({pnotify_title: '");
-			headJs.append(rloader.getString("pnotify_notice"));
-			headJs.append("', pnotify_text: '");
-			headJs.append(userWarning);
-			headJs.append("', type: 'error' });</script>");
-			s.removeAttribute("userWarning");
+			headJs.append("<script type=\"text/javascript\">");
+			headJs.append("if ( window.self !== window.top ) {");
+			headJs.append(" setTimeout(function(){ window.top.portal_check_pnotify() }, 3000);");
+			headJs.append("}</script>");
 		}
 
 		// TODO: Should we include jquery here?  See includeStandardHead.vm
@@ -1554,7 +1433,28 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 		HttpServletResponse res, Placement p, String skin, String toolContextPath,
 		String toolPathInfo) throws ToolException
 	{
+		// SAK-29656 - Make sure the request URL and toolContextPath treat tilde encoding the same way
+		//
+		// Since we cannot easily change what the request object already knows as its URL,
+		// we patch the toolContextPath to match the tilde encoding in the request URL.
+		//
+		// This is what we would see in Chrome and Firefox.  Firefox fails with Wicket
+		// Chrome: forwardtool call http://localhost:8080/portal/site/~csev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf
+		//    toolPathInfo null ctx /portal/site/~csev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf
+		// Firefox: http://localhost:8080/portal/site/%7ecsev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf/
+		//    toolPathInfo null ctx /portal/site/~csev/tool/aaf64e38-00df-419a-b2ac-63cf2d7f99cf
 
+		String reqUrl = req.getRequestURL().toString();
+		if ( reqUrl.indexOf(toolContextPath) < 0 ) {
+			M_log.debug("Mismatch between request url " + reqUrl + " and toolContextPath " + toolContextPath);
+			if ( toolContextPath.indexOf("/~") > 0 && reqUrl.indexOf("/~") < 1 ) {
+				if ( reqUrl.indexOf("/%7e") > 0 ) {
+					toolContextPath = toolContextPath.replace("/~","/%7e");
+				} else {
+					toolContextPath = toolContextPath.replace("/~","/%7E");
+				}
+			}
+		}
 		M_log.debug("forwardtool call " + req.getRequestURL().toString() + " toolPathInfo " + toolPathInfo + " ctx " + toolContextPath);
 
 		// if there is a stored request state, and path, extract that from the
@@ -1646,9 +1546,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			// Fall back to default of using the page Id.
 			page = p.getPageId();
 		}
-		
-		Session session = SessionManager.getCurrentSession();
-		boolean isMobileDevice = (Boolean)session.getAttribute("is_mobile_device");
 		
 		StringBuilder portalPageUrl = new StringBuilder();
 		
@@ -1790,7 +1687,6 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
                         rcontext.put("portalVideoChatTimeout", 
 				ServerConfigurationService.getInt("portal.chat.video.timeout", 25));
 
-
                         if(sakaiTutorialEnabled && thisUser != null) {
                         	if (!("1".equals(prefs.getProperties().getProperty("sakaiTutorialFlag")))) {
                         		rcontext.put("tutorial", true);
@@ -1873,6 +1769,17 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			rcontext.put("bottomNavServiceVersion", serviceVersion);
 			rcontext.put("bottomNavSakaiVersion", sakaiVersion);
 			rcontext.put("bottomNavServer", server);
+
+			// SAK-25931 - Do not remove this from session here - removal is done by /direct
+	                Session s = SessionManager.getCurrentSession();
+			String userWarning = (String) s.getAttribute("userWarning");
+			rcontext.put("userWarning", new Boolean(StringUtils.isNotEmpty(userWarning)));
+
+			if (ServerConfigurationService.getBoolean("pasystem.enabled", false)) {
+			    PASystem paSystem = (PASystem) ComponentManager.get(PASystem.class);
+			    rcontext.put("paSystemEnabled", true);
+			    rcontext.put("paSystem", paSystem);
+			}
 		}
 	}
 
@@ -2100,6 +2007,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		addHandler(new ToolHandler());
 		addHandler(new ToolResetHandler());
+		addHandler(new PageResetHandler());
 		addHandler(new PageHandler());
 		addHandler(worksiteHandler);
 		addHandler(new WorksiteResetHandler());

@@ -34,6 +34,8 @@
             <!-- Menu -->
             <menu wicket:id="menu" class="navIntraTool">[menu]</menu>
 		
+		<div class="portletBody">
+		
             <!-- Page title -->
             <h2>
                 <span wicket:id="pageTitle">[reports]</span>
@@ -107,7 +109,7 @@
                        <wicket:message key="report_noreports">[report_noreports]</wicket:message>
                     </p>
                 </span>
-                
+			</form>            
                 
                 <!-- Report table row Fragment -->
 		        <wicket:fragment wicket:id="reportRowFragment">
@@ -145,7 +147,7 @@
 		          </td>
 		        </wicket:fragment>
                                 
-		    </form>
+		</div>
 		</wicket:extend>
 	</body>
 </html>

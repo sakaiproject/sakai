@@ -1,63 +1,7 @@
 /* Script for pop-up dhtml more tabs implementation 
- * uses jQueryPBJQ library
+ * uses jQuery library
  */
 
-// SAK-20576 - the following wae pulled from includeStandardHead.vm so the declaration of 'portal' is available to OSP Portal
-// SAK-16484 Allow Javascript to easily get at user details.
-// SAK-13987, SAK-16162, SAK-19132 - Portal Logout Timer
-var portal = {
-    "loggedIn": false,
-    "portalPath": "/portal",
-    "loggedOutUrl": "/portal/logout",
-    "user": {
-        "id": "",
-        "eid": ""
-    },
-    "timeoutDialog" : {
-        "enabled": true,
-        "seconds": 60 * 60
-    },
-    "toggle" : {
-        "allowauto": true,
-        "tools": true,
-        "sitenav": true
-    }
-};
-
-/*
-   SAK-20576
-   This method can be called by any portal implementation to set the login status information for
-   the current user
- */
-function setLoginStatus (loggedIn, portalPath, loggedOutUrl, userId, userEid)
-{
-    portal["loggedIn"] = loggedIn;
-    portal["portalPath"] = portalPath;
-    portal["loggedOutUrl"] = loggedOutUrl;
-    portal["user"]["id"] = userId;
-    portal["user"]["eid"] = userEid;
-}
-
-/*
-   SAK-20576
-   This method can be called by any portal implementation to set the timeout configuration
- */
-function setTimeoutInfo (timeoutDialogEnabled, timeoutDialogWarningSeconds)
-{
-    portal["timeoutDialog"]["enabled"] = timeoutDialogEnabled;
-    portal["timeoutDialog"]["seconds"] = timeoutDialogWarningSeconds;
-}
-
-/*
-   SAK-20576
-   This method can be called by any portal implementation to set various UI state properties
- */
-function setUIToggleState (portal_allow_auto_minimize, portal_allow_minimize_tools, portal_allow_minimize_navigation)
-{
-    portal["toggle"]["allowauto"] = portal_allow_auto_minimize;
-    portal["toggle"]["tools"] = portal_allow_minimize_tools;
-    portal["toggle"]["sitenav"] = portal_allow_minimize_navigation;
-}
 
 /* dhtml_more_tabs
  * displays the More Sites div 
@@ -251,37 +195,6 @@ function show_timeout_alert(min) {
 		$PBJQ("body").append(dialog);
 		$PBJQ('#timeout_alert_body').css('top', (f_scrollTop() + 100) + "px");
 	}
-}
-
-// The official way for a tool to request minimized navigation
-function portalMaximizeTool() {
-        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
-        if ( ! portal.toggle.allowauto ) return;
-        sakaiMinimizeNavigation();
-}
-
-function sakaiMinimizeNavigation() {
-        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
-	if (portal.toggle.sitenav) {
-		$PBJQ('#portalContainer').addClass('sakaiMinimizeSiteNavigation')
-	}
-	if (portal.toggle.tools){
-		$PBJQ('#container').addClass('sakaiMinimizePageNavigation');	
-	}
-	$PBJQ('#toggleToolMax').hide();
-	$PBJQ('#toggleNormal').css({'display':'block'});
-}
-
-function sakaiRestoreNavigation() {
-        if ( ! ( portal.toggle.sitenav || portal.toggle.tools ) ) return;
-	if (portal.toggle.sitenav) {
-		$PBJQ('#portalContainer').removeClass('sakaiMinimizeSiteNavigation')
-	}
-	if (portal.toggle.tools){
-		$PBJQ('#container').removeClass('sakaiMinimizePageNavigation');	
-	}
-	$PBJQ('#toggleToolMax').show();
-	$PBJQ('#toggleNormal').css({'display':'none'});
 }
 
 function updatePresence() {

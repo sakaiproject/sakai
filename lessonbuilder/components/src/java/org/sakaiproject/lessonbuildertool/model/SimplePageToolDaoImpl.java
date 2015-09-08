@@ -46,7 +46,7 @@ import org.hibernate.HibernateException;
 import org.hibernate.Transaction;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.db.api.SqlReader;
 import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -92,6 +92,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 	private ToolManager toolManager;
 	private SecurityService securityService;
 	private SqlService sqlService;
+	private AuthzGroupService authzGroupService;
 	private static String SITE_UPD = "site.upd";
 
         // part of HibernateDaoSupport; this is the only context in which it is OK
@@ -140,7 +141,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			if (currentUser != null) {
 			    if (group == null && currentUser.equals(owner))
 				canEdit = true;
-			    else if (group != null && AuthzGroupService.getUserRole(currentUser, group) != null)
+			    else if (group != null && authzGroupService.getUserRole(currentUser, group) != null)
 				canEdit = true;
 			}
 		}
@@ -161,7 +162,7 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			if (currentUser != null) {
 			    if (group == null && currentUser.equals(owner))
 				canEdit = true;
-			    else if (group != null && AuthzGroupService.getUserRole(currentUser, group) != null)
+			    else if (group != null && authzGroupService.getUserRole(currentUser, group) != null)
 				canEdit = true;
 			}
 		}
@@ -178,6 +179,10 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 
 	public void setToolManager(ToolManager service) {
 		toolManager = service;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	public List<SimplePageItem> findItemsOnPage(long pageId) {
@@ -714,6 +719,27 @@ public class SimplePageToolDaoImpl extends HibernateDaoSupport implements Simple
 			EventTrackingService.post(EventTrackingService.newEvent("lessonbuilder.delete", "/lessonbuilder/comment/" + i.getId(), true));
 		}
 
+		try {
+			getHibernateTemplate().delete(o);
+			return true;
+		} catch (DataAccessException e) {
+			try {
+				
+				/* If we have multiple objects of the same item, you must merge them
+				 * before deleting.  If the first delete fails, we merge and try again.
+				 */
+				getHibernateTemplate().delete(getHibernateTemplate().merge(o));
+				
+				return true;
+			}catch(DataAccessException ex) {
+				ex.printStackTrace();
+				log.warn("Hibernate could not delete: " + e.toString());
+				return false;
+			}
+		}
+	}
+
+	public boolean quickDelete(Object o) {
 		try {
 			getHibernateTemplate().delete(o);
 			return true;

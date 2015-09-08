@@ -59,10 +59,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.AliasEdit;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.authz.api.PermissionsHelper;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -163,6 +163,7 @@ public class ResourcesAction
 	 private static ContentPrintService contentPrintService = (ContentPrintService) ComponentManager.get("org.sakaiproject.content.api.ContentPrintService");
 	 
 	 private static SchedulerManager schedulerManager = (SchedulerManager) ComponentManager.get("org.sakaiproject.api.app.scheduler.SchedulerManager");
+
 	 /** state variable name for the content print service call result */
 	 private static String CONTENT_PRINT_CALL_RESPONSE = "content_print_call_response";
 	 
@@ -902,6 +903,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		CREATION_ACTIONS.add(ActionType.CREATE_BY_HELPER);
 		CREATION_ACTIONS.add(ActionType.PASTE_MOVED);
 		CREATION_ACTIONS.add(ActionType.PASTE_COPIED);
+	}
+
+	private AliasService aliasService;
+	private AuthzGroupService authzGroupService;
+
+	public ResourcesAction() {
+		aliasService = ComponentManager.get(AliasService.class);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
 	}
 
 	/**
@@ -2604,7 +2613,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	 * @param isLocal - true if navigation root and home collection id of site are the same, false otherwise
 	 * @param state - The session state
 	 */
-	protected static List getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
+	protected List getListView(String collectionId, Set highlightedItems, ResourcesBrowseItem parent, boolean isLocal, SessionState state)
 	{
 		logger.debug("ResourcesAction.getListView()");
 		// find the ContentHosting service
@@ -2718,7 +2727,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			}
 			if(parent == null || ! parent.canUpdate())
 			{
-				canUpdate = AuthzGroupService.allowUpdate(collectionId);
+				canUpdate = authzGroupService.allowUpdate(collectionId);
 			}
 			else
 			{
@@ -3126,8 +3135,8 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 			siteId = ref.getContext();
 		}
 		
-		// id may be null in format of /group/<site_id>, which leads to null value for the reference context field
-		if (siteId == null && ToolManager.getCurrentPlacement() != null)
+		// id may be in format of /group/<site_id>, which leads to null value for the reference context field
+		if (siteId == null)
 		{
 			siteId = ToolManager.getCurrentPlacement().getContext();
 		}
@@ -4989,6 +4998,14 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		String url = entity.getUrl();
 		String title = params.getString("page");
+
+		// if the url is hosted by sakai then take out the hostname to make it a relative link
+		String serverName = ServerConfigurationService.getServerName();
+
+		// if the supplied url starts with protocol//serverName:port/
+		Pattern serverUrlPattern = Pattern.compile(String.format("^(https?:)?//%s:?\\d*/", serverName));
+		url = serverUrlPattern.matcher(url).replaceFirst("/");
+
 		state.setAttribute(STATE_PAGE_TITLE, title);
 		if (title == null || title.trim().length() == 0) {
 			addAlert(state, trb.getString("alert.page.empty"));
@@ -5705,7 +5722,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		if (!inMyWorkspace && !dropboxMode && m_siteAlias)
 		{
 			// find site alias first
-			List target = AliasService.getAliases("/site/" + siteId);		
+			List target = aliasService.getAliases("/site/" + siteId);
 	
 			if (!target.isEmpty()) {
 				// take the first alias only
@@ -5719,7 +5736,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 				}
 			} else {
 				// use mail archive alias
-				target = AliasService.getAliases("/mailarchive/channel/" + siteId + "/main");
+				target = aliasService.getAliases("/mailarchive/channel/" + siteId + "/main");
 	
 				if (!target.isEmpty()) {
 					// take the first alias only
@@ -9597,7 +9614,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	        azGroups.add(SiteService.siteReference(site.getId()));
 	        azGroups.add("!site.helper");
 	        // get the user ids who has dropbox.own permissions
-	        Set userIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+	        Set userIds = authzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
 
 	        // Adding users to selector
 	        for (Iterator<String> it = userIds.iterator(); it.hasNext();) {
@@ -9745,7 +9762,7 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 	                        azGroups.add(SiteService.siteReference(site.getId()));
 	                        azGroups.add("!site.helper");
 	                        // get the user ids who has dropbox.own permissions
-	                        Set<String> dbOwnsUserIds = AuthzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
+	                        Set<String> dbOwnsUserIds = authzGroupService.getUsersIsAllowed(ContentHostingService.AUTH_DROPBOX_OWN, azGroups);
 
 	                        for (Iterator<org.sakaiproject.authz.api.Member> it = grp.getMembers().iterator(); it.hasNext();) {
 	                            String userIdInGroup = it.next().getUserId();

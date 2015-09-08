@@ -21,24 +21,6 @@
 
 package org.sakaiproject.archive.tool;
 
-import java.io.File;
-import java.io.IOException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Date;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.SuffixFileFilter;
 import org.apache.commons.lang.StringUtils;
@@ -48,12 +30,8 @@ import org.sakaiproject.archive.api.ArchiveService;
 import org.sakaiproject.archive.tool.model.SparseFile;
 import org.sakaiproject.archive.tool.model.SparseSite;
 import org.sakaiproject.authz.api.AuthzGroupService;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.cheftool.Context;
-import org.sakaiproject.cheftool.JetspeedRunData;
-import org.sakaiproject.cheftool.RunData;
-import org.sakaiproject.cheftool.VelocityPortlet;
-import org.sakaiproject.cheftool.VelocityPortletPaneledAction;
+import org.sakaiproject.authz.api.SecurityService;
+import org.sakaiproject.cheftool.*;
 import org.sakaiproject.cheftool.api.Menu;
 import org.sakaiproject.cheftool.menu.MenuEntry;
 import org.sakaiproject.cheftool.menu.MenuImpl;
@@ -63,7 +41,7 @@ import org.sakaiproject.coursemanagement.api.AcademicSession;
 import org.sakaiproject.coursemanagement.api.CourseManagementService;
 import org.sakaiproject.event.api.SessionState;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.id.cover.IdManager;
+import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.site.api.SiteService.SelectionType;
@@ -74,6 +52,14 @@ import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.FileItem;
 import org.sakaiproject.util.ResourceLoader;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
 * <p>ArchiveAction is the Sakai archive tool.</p>
@@ -98,6 +84,8 @@ public class ArchiveAction
 	private AuthzGroupService authzGroupService;
 	private ServerConfigurationService serverConfigurationService;
 	private ArchiveService archiveService;
+	private SecurityService securityService;
+	private IdManager idManager;
 	
 	private static final Log log = LogFactory.getLog(ArchiveAction.class);
 	
@@ -111,34 +99,24 @@ public class ArchiveAction
     private String batchArchiveStatus = null;
     private String batchArchiveMessage = null;
 
+	public ArchiveAction() {
+		super();
+		courseManagementService = ComponentManager.get(CourseManagementService.class);
+		siteService = ComponentManager.get(SiteService.class);
+		sessionManager = ComponentManager.get(SessionManager.class);
+		userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+		authzGroupService = ComponentManager.get(AuthzGroupService.class);
+		serverConfigurationService = ComponentManager.get(ServerConfigurationService.class);
+		archiveService = ComponentManager.get(ArchiveService.class);
+		securityService = ComponentManager.get(SecurityService.class);
+		idManager = ComponentManager.get(IdManager.class);
+	}
 	
 	/**
 	 * override init so we can lookup our dependencies
 	 */
 	protected void initState(SessionState state, HttpServletRequest req, HttpServletResponse res) {
 		super.initState(state, req, res);
-		
-		if(courseManagementService == null) {
-			courseManagementService = (CourseManagementService) ComponentManager.get(CourseManagementService.class.getName());
-		}
-		if(siteService == null) {
-			siteService = (SiteService) ComponentManager.get(SiteService.class.getName());
-		}
-		if(sessionManager == null) {
-			sessionManager = (SessionManager) ComponentManager.get(SessionManager.class.getName());
-		}
-		if(userDirectoryService == null) {
-			userDirectoryService = (UserDirectoryService) ComponentManager.get(UserDirectoryService.class.getName());
-		}
-		if(authzGroupService == null) {
-			authzGroupService = (AuthzGroupService) ComponentManager.get(AuthzGroupService.class.getName());
-		}
-		if(serverConfigurationService == null) {
-			serverConfigurationService = (ServerConfigurationService) ComponentManager.get(ServerConfigurationService.class.getName());
-		}
-		if(archiveService == null) {
-			archiveService = (ArchiveService) ComponentManager.get(ArchiveService.class.getName());
-		}
 
 		// SAK-28087 configurable value for max job time. A large term at a large institution may take 24 hours
 		maxJobTime = Long.valueOf(serverConfigurationService.getInt("archive.max.job.time", MAX_JOB_TIME_DEFAULT));
@@ -158,7 +136,7 @@ public class ArchiveAction
 		String template = null;
 
 		// if not logged in as the super user, we won't do anything
-		if (!SecurityService.isSuperUser())
+		if (!securityService.isSuperUser())
 		{
 			context.put("tlang",rb);
 			return (String) getContext(rundata).get("template") + "_noaccess";
@@ -317,7 +295,7 @@ public class ArchiveAction
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
-		if (!SecurityService.isSuperUser())
+		if (!securityService.isSuperUser())
 		{
 			addAlert(state, rb.getString("archive.limited"));
 			return;
@@ -344,7 +322,7 @@ public class ArchiveAction
 	{
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
-		if (!SecurityService.isSuperUser())
+		if (!securityService.isSuperUser())
 		{
 			addAlert(state, rb.getString("archive.import"));
 			return;
@@ -375,7 +353,7 @@ public class ArchiveAction
 
 		Hashtable fTable = new Hashtable();
 		
-		if (!SecurityService.isSuperUser())
+		if (!securityService.isSuperUser())
 		{
 			addAlert(state, rb.getString("archive.batch.auth"));
 			return;
@@ -418,7 +396,7 @@ public class ArchiveAction
 				String siteCreatorName = StringUtils.trimToNull((String) fTable.get(path));
 				if (path != null && siteCreatorName != null)
 				{
-					String nSiteId = IdManager.createUuid();
+					String nSiteId = idManager.createUuid();
 					
 					try
 					{
@@ -445,7 +423,7 @@ public class ArchiveAction
 		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
-		if (!SecurityService.isSuperUser()) {
+		if (!securityService.isSuperUser()) {
 			addAlert(state, rb.getString("archive.batch.auth"));
 			return;
 		}
@@ -501,7 +479,7 @@ public class ArchiveAction
 		
 		SessionState state = ((JetspeedRunData)data).getPortletSessionState(((JetspeedRunData)data).getJs_peid());
 
-		if (!SecurityService.isSuperUser()) {
+		if (!securityService.isSuperUser()) {
 			addAlert(state, rb.getString("archive.batch.auth"));
 			return;
 		}

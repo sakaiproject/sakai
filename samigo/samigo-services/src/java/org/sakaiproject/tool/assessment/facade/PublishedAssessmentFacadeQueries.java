@@ -148,6 +148,8 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 
 	public static final String SUBMITTED = "submittedDate";
 
+	public static final String SITECONTENTPATH = "/access/content/group/";
+
 	public PublishedAssessmentFacadeQueries() {
 	}
 
@@ -721,6 +723,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 			Iterator itemIter = itemSet.iterator();
 			while (itemIter.hasNext()) {
 				PublishedItemData item = (PublishedItemData) itemIter.next();
+				replaceEmbeddedSiteIdsForItem(item);
 				Set itemMetaDataSet = item.getItemMetaDataSet();
 				Iterator itemMetaDataIter = itemMetaDataSet.iterator();
 				while (itemMetaDataIter.hasNext()) {
@@ -754,7 +757,7 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 							.equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK
 									.toString())) {
 				try {
-					gbsHelper.addToGradebook(publishedAssessment, g);
+					gbsHelper.addToGradebook(publishedAssessment, null, g);
 				} catch (Exception e) {
 					log.error("Removing published assessment: " + e);
 					delete(publishedAssessment);
@@ -1650,6 +1653,30 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 					+ d.getTotalSubmitted());
 		}
 		return h;
+	}
+
+    /**
+     * Get submission number for the assessment by giving the publishedAssessmentId
+     * for assessment deletion safe check
+     * @param publishedAssessmentId
+     * @return number of submissions
+     */
+	public Integer getTotalSubmissionForEachAssessment(final Long publishedAssessmentId) {
+		final String query = "select count(a) from AssessmentGradingData a where a.forGrade=? "
+				+ " and a.publishedAssessmentId=?";
+
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session)
+					throws HibernateException, SQLException {
+				Query q = session.createQuery(query);
+				q.setBoolean(0, true);
+				q.setLong(1, publishedAssessmentId.longValue());
+				return q.list();
+			};
+		};
+		List l = getHibernateTemplate().executeFind(hcb);
+
+		return (Integer) l.get(0);
 	}
 
 	public Integer getTotalSubmission(final String agentId,
@@ -2980,7 +3007,24 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		  return toGradebookPublishedAssessmentSiteIdMap;
 	  }	  
 	  
-	  
+	public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId) {
+		final String query = "select a " + " from AssessmentGradingData as a, AuthorizationData as az "
+				+ " where a.agentId=:agentId and a.forGrade=:forGrade " 
+				+ " and az.agentIdString=:siteId "
+				+ " and az.functionId=:functionId and az.qualifierId=a.publishedAssessmentId";
+
+		final HibernateCallback hcb = new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException, SQLException {
+				Query q = session.createQuery(query);
+				q.setString("agentId", agentId);
+				q.setBoolean("forGrade", true);
+				q.setString("siteId", siteId);
+				q.setString("functionId", "OWN_PUBLISHED_ASSESSMENT");
+				return q.list();
+			};
+		};
+		return getHibernateTemplate().executeFind(hcb);
+	}
 
 	  /**
 	   * return an array list of the AssessmentGradingData that a user has
@@ -3414,4 +3458,159 @@ public class PublishedAssessmentFacadeQueries extends HibernateDaoSupport
 		  return assessmentList;
 	  }
 	  */
+
+	/**
+	 * Replaces embedded site ids for Items.
+	 * Helper method for replaceEmbeddedSiteIds(); handles the question (item) level. This
+	 * includes the item-level feedback and itemText objects containing more item data.
+	 * Called by replaceEmbeddedSiteIds()
+	 * Calls into replaceEmbeddedSiteIdsForItemText() in order to access more detailed item data.
+	 * 
+	 * @param item
+	 */
+	private void replaceEmbeddedSiteIdsForItem(PublishedItemData item) {
+		String toContext = AgentFacade.getCurrentSiteId();		
+		
+		replaceEmbeddedSiteIdsForItemText(item.getItemTextSet(), toContext);
+		
+		// Replace the hint (model answer) site ids
+		String itemHint = item.getHint();
+		if (itemHint != null) {
+			item.setHint(replaceSiteIdsForString(itemHint,toContext));
+		}
+		
+		replaceEmbeddedSiteIdsForFeedback(item.getItemFeedbackSet(), toContext);
+	}
+	
+	/**
+	 * Replaces embedded site ids for ItemText objects.
+	 * Helper method for replaceEmbeddedSiteIds(); handles the ItemText objects which contain
+	 * text and answers for each question (item).  
+	 * Called by replaceEmbeddedSiteIdsForItems()
+	 * Calls into replaceEmbeddedSiteIdsForItemText() to replace more detailed item information.
+	 * 
+	 * @param itemTextSet
+	 * @param toContext Site Id
+	 */
+	private void replaceEmbeddedSiteIdsForItemText(Set itemTextSet, String toContext) {
+		
+		Iterator itemTextSetIter = itemTextSet.iterator();
+		while (itemTextSetIter.hasNext()) {
+			PublishedItemText itemText = (PublishedItemText) itemTextSetIter.next();
+			String itemTextString = itemText.getText();
+			if (itemTextString != null) {
+				itemText.setText(replaceSiteIdsForString(itemTextString,toContext)); // text for the question (item)
+			}
+								
+			// Go through each answer (A,B,C,etc) object and replace the Site Ids
+			replaceEmbeddedSiteIdsForAnswers(itemText.getAnswerSet(), toContext);
+			
+		}
+	}
+	
+	/**
+	 * Replaces embedded site ids for Item Answers.
+	 * Helper method for replaceEmbeddedSiteIds(); handles the Answers from items.
+	 * Called by replaceEmbeddedSiteIdsForItemText()
+	 * Calls into replaceEmbeddedSiteIdsForAnswerFeedback() to access each question-level
+	 * feedback.
+	 * 
+	 * @param answerSet
+	 * @param toContext Site Id
+	 */
+	private void replaceEmbeddedSiteIdsForAnswers(Set answerSet, String toContext) {
+		
+		Iterator answerSetIter = answerSet.iterator();
+		while (answerSetIter.hasNext()) {
+			PublishedAnswer answer = (PublishedAnswer) answerSetIter.next();
+			String answerText = answer.getText();
+			if (answerText != null) {
+				answer.setText(replaceSiteIdsForString(answerText,toContext)); // each answer text (A,B,C,etc)
+			}
+			
+			// Go through the answer-level feedback and replace site ids
+			replaceEmbeddedSiteIdsForAnswerFeedback(answer.getAnswerFeedbackSet(), toContext);
+			
+		}
+	}
+	
+	/**
+	 * Replaces embedded site ids for Answer-level feedback
+	 * Helper method for replaceEmbeddedSiteIds(); handles the answer-level feedback.
+	 * Called by replaceEmbeddedSiteIdsForAnswers()
+	 * 
+	 * @param answerFeedbackSet
+	 * @param toContext Site Id
+	 */
+	private void replaceEmbeddedSiteIdsForAnswerFeedback(Set answerFeedbackSet, String toContext) {
+		
+		Iterator answerFeedbackSetIter = answerFeedbackSet.iterator();
+		while (answerFeedbackSetIter.hasNext()) {
+			PublishedAnswerFeedback answerFeedback = (PublishedAnswerFeedback) answerFeedbackSetIter.next();
+			String answerFeedbackText = answerFeedback.getText();
+			if (answerFeedbackText != null) {
+				answerFeedback.setText(replaceSiteIdsForString(answerFeedbackText,toContext)); // answer-level
+			}
+		}
+	}
+	
+	/**
+	 * Replaces embedded site ids for ItemFeedback objects
+	 * Helper method for replaceEmbeddedSiteIds(); hanldes the itemfeedback objects which contain
+	 * text for question-level feedback.
+	 * Called by replaceEmbeddedSiteIdsForItems()
+	 * 
+	 * @param feedbackSet
+	 * @param toContext Site Id
+	 */
+	private void replaceEmbeddedSiteIdsForFeedback(Set feedbackSet, String toContext) {
+		
+		Iterator feedbackSetIter = feedbackSet.iterator();
+		while (feedbackSetIter.hasNext()) {
+			PublishedItemFeedback feedback = (PublishedItemFeedback) feedbackSetIter.next();
+			String feedbackString = feedback.getText();
+			if (feedbackString != null) {
+				feedback.setText(replaceSiteIdsForString(feedbackString,toContext));
+			}
+		}
+	}
+	
+	/**
+	 * Replaces embedded site ids for individual strings contained in 
+	 * assessment objects
+	 * Helper method for replaceEmbeddedSiteIds();
+	 * 
+	 * @param assessmentStringData text contained in any assessment item object (question text, feedback text, etc)
+	 * @param toContext Site Id
+	 * @return updatedAssessmentStringData
+	 */
+	private String replaceSiteIdsForString(String assessmentStringData, String toContext) {
+		String updatedAssessmentStringData = null;
+		
+		//if contains "..getServerUrl()/access/content/group/" then it's a standard site content file
+		if (assessmentStringData != null) {
+			String sakaiSiteResourcePath = ServerConfigurationService.getServerUrl() + SITECONTENTPATH;
+			int beginIndex = assessmentStringData.indexOf(sakaiSiteResourcePath);
+			
+			if (beginIndex > 0) {
+				// have to loop because there may be more than one site of origin for the content
+				while (beginIndex > 0) {
+					int siteIdIndex = beginIndex + sakaiSiteResourcePath.length();
+					int endSiteIdIndex = assessmentStringData.indexOf('/', siteIdIndex);
+					String fromContext = assessmentStringData.substring(siteIdIndex, endSiteIdIndex);
+					updatedAssessmentStringData = assessmentStringData.replaceAll(fromContext, toContext);
+										
+					beginIndex = assessmentStringData.indexOf(sakaiSiteResourcePath, endSiteIdIndex);
+				} // end while
+			}
+			else {
+				// It's not a standard site url. It's either a 'My Workspace',
+				// external site url, or something else, so leave it alone.
+				updatedAssessmentStringData = assessmentStringData;
+			}
+			
+		} // end:if (assessmentStringData != null)
+		
+		return updatedAssessmentStringData;
+	}
 }

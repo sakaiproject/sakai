@@ -38,11 +38,6 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 
 	private static final long serialVersionUID = 1L;
 
-	/** The navigation bar to be printed, e.g. 1 | 2 | 3 etc. */
-	private PagingNavigation pagingNavigation;
-
-	private final IPagingLabelProvider labelProvider;
-
 	/**
 	 * Constructor.
 	 * 
@@ -71,13 +66,12 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	{
 		super(id, pageable, labelProvider);
 
-		this.labelProvider = labelProvider;
-
 	}
 
+	@Override
 	protected void onBeforeRender()
 	{
-		if (get("first") == null)
+		if (get("rowNumberSelector") == null)
 		{
 			setDefaultModel(new CompoundPropertyModel(this));
 			
@@ -85,10 +79,10 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 			add(newRowNumberSelector(getPageable()));
 
 			// Add additional page links
-			add(newPagingNavigationLink("first", getPageable(), 0));
-			add(newPagingNavigationIncrementLink("prev", getPageable(), -1));
-			add(newPagingNavigationIncrementLink("next", getPageable(), 1));
-			add(newPagingNavigationLink("last", getPageable(), -1));
+			replace(newPagingNavigationLink("first", getPageable(), 0));
+			replace(newPagingNavigationIncrementLink("prev", getPageable(), -1));
+			replace(newPagingNavigationIncrementLink("next", getPageable(), 1));
+			replace(newPagingNavigationLink("last", getPageable(), -1));
 		}
 		super.onBeforeRender();
 	}
@@ -159,7 +153,7 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 				pageable.setCurrentPage(0);
 
 				// We do need to redirect, else refresh refresh will go to next, next
-				setRedirect(true);
+				//setRedirect(true);
 
 				// Return the current page.
 				setResponsePage(getPage());
@@ -171,10 +165,10 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	}
 	
 	public String getRowNumberSelector() {	
-		return String.valueOf(((DataTable) getPageable()).getRowsPerPage());
+		return String.valueOf(((DataTable) getPageable()).getItemsPerPage());
 	}
 	public void setRowNumberSelector(String value) {
-		((DataTable) getPageable()).setRowsPerPage(Integer.valueOf(value));
+		((DataTable) getPageable()).setItemsPerPage(Integer.valueOf(value));
 	}
 
 	/**
@@ -186,9 +180,18 @@ public class SakaiPagingNavigator extends AjaxPagingNavigator {
 	 *            The label provider for the link text.
 	 * @return the navigation object
 	 */
-	protected PagingNavigation newNavigation(final IPageable pageable,
+	@Override
+	protected PagingNavigation newNavigation(final String id, final IPageable pageable,
 		final IPagingLabelProvider labelProvider)
 	{
-		return new PagingNavigation("navigation", pageable, labelProvider);
+		return new PagingNavigation("navigation", pageable, labelProvider)
+		{
+			@Override
+			public boolean isVisible()
+			{
+				// hide the numbered navigation bar e.g. 1 | 2 | 3 etc.
+				return false;
+			}
+		};
 	}
 }

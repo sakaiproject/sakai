@@ -40,12 +40,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.tool.cover.SessionManager;
-import org.sakaiproject.user.cover.PreferencesService;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.entity.api.Entity;
 import org.sakaiproject.entity.api.EntityProducer;
@@ -78,6 +77,7 @@ import org.sakaiproject.util.ArrayUtil;
 import org.sakaiproject.util.MapUtil;
 import org.sakaiproject.util.Web;
 import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.portal.charon.PortalStringUtil;
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -102,6 +102,8 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	protected final static String CURRENT_PLACEMENT = "sakai:ToolComponent:current.placement";
 
 	private Portal portal;
+
+	private AliasService aliasService;
 	
 	private boolean lookForPageAliases;
 
@@ -129,6 +131,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	{
 		this.portal = portal;
 		this.lookForPageAliases = lookForPageAliases;
+		aliasService = ComponentManager.get(AliasService.class);
 	}
 
 	/* (non-Javadoc)
@@ -330,6 +333,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 	}
 
 	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserSpecificSiteTitle( Site site )
+	{
+		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
+		return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
+	}
+
+	/**
 	 * Explode a site into a map suitable for use in the map
 	 * 
 	 * @see org.sakaiproject.portal.api.PortalSiteHelper#convertSiteToMap(javax.servlet.http.HttpServletRequest,
@@ -343,7 +355,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			String toolContextPath, boolean loggedIn)
 	{
 		if (s == null) return null;
-		Map<String, Object> m = new HashMap<String, Object>();
+		Map<String, Object> m = new HashMap<>();
 
 		// In case the effective is different than the actual site
 		String effectiveSite = getSiteEffectiveId(s);
@@ -355,10 +367,12 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 		m.put("isMyWorkspace", Boolean.valueOf(myWorkspaceSiteId != null
 				&& (s.getId().equals(myWorkspaceSiteId) || effectiveSite
 						.equals(myWorkspaceSiteId))));
-		String fullTitle = s.getTitle();
-		String titleStr = FormattedText.makeShortenedText(fullTitle, null, null, null);
-		m.put("siteTitle", Web.escapeHtml(titleStr));
-		m.put("fullTitle", Web.escapeHtml(fullTitle));
+		
+		// SAK-29138
+		String siteTitle = getUserSpecificSiteTitle( s );
+		m.put( "siteTitle", siteTitle );
+		m.put( "fullTitle", siteTitle );
+		
 		m.put("siteDescription", s.getHtmlDescription());
 
 		if ( s.getShortDescription() !=null && s.getShortDescription().trim().length()>0 ){
@@ -389,13 +403,13 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			List<Site> pwd = getPwd(s, ourParent);
 			if (pwd != null)
 			{
-				List<Map> l = new ArrayList<Map>();
+				List<Map> l = new ArrayList<>();
 				for (int i = 0; i < pwd.size(); i++)
 				{
 					Site site = pwd.get(i);
 					// System.out.println("PWD["+i+"]="+site.getId()+"
 					// "+site.getTitle());
-					Map<String, Object> pm = new HashMap<String, Object>();
+					Map<String, Object> pm = new HashMap<>();
 					pm.put("siteTitle", Web.escapeHtml(site.getTitle()));
 					pm.put("siteUrl", siteUrl + Web.escapeUrl(getSiteEffectiveId(site)));
 					l.add(pm);
@@ -620,6 +634,16 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				if ( ! ServerConfigurationService.getBoolean("portal.experimental.addmoretools", false) ) addMoreToolsUrl = null;
 
 				String pagePopupUrl = Web.returnUrl(req, "/page/");
+				
+				//SAK-29660 - Refresh tool in the LHS page menu
+				String pageResetUrl = pagerefUrl;
+				if(pagerefUrl != null){
+					if(pagerefUrl.contains("/tool/")){
+						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/tool/", "/tool-reset/");
+					}else if(pagerefUrl.contains("/page/")){
+						pageResetUrl = PortalStringUtil.replaceFirst(pagerefUrl, "/page/", "/page-reset/");
+					}
+				}
 				m.put("isPage", Boolean.valueOf(true));
 				m.put("current", Boolean.valueOf(current));
 				m.put("ispopup", Boolean.valueOf(p.isPopUp()));
@@ -629,6 +653,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 				m.put("pageId", Web.escapeUrl(p.getId()));
 				m.put("jsPageId", Web.escapeJavascript(p.getId()));
 				m.put("pageRefUrl", pagerefUrl);
+				m.put("pageResetUrl", pageResetUrl);
 				m.put("toolpopup", Boolean.valueOf(source!=null));
 				m.put("toolpopupurl", source);
 				
@@ -648,6 +673,11 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 					if ( tmp != null ) {
 						String mc = tmp.getProperty(PROP_MENU_CLASS);
 						if ( mc != null && mc.length() > 0 ) m.put("menuClassOverride", mc);
+						String fa = tmp.getProperty("imsti.fa_icon");
+						if ( fa != null && fa.length() > 0 ) {
+							m.put("menuClass", "fa");
+							m.put("menuClassOverride", collapseToVariable(fa));
+						}
 					}
 				}
 				else
@@ -778,6 +808,15 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			ServerConfigurationService.getInt("display.users.present.time.delay", 3000)) );
 
 		return theMap;
+	}
+
+	/**
+	 * Collapse a string to only allow characters that can be in variables
+         */
+	public String collapseToVariable(String inp)
+	{
+		if ( inp == null ) return null;
+		return inp.replaceAll("[^-_.a-zA-Z0-9]","");
 	}
 
 	/**
@@ -1137,7 +1176,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			try
 			{
 				// Use page#{siteId}:{pageAlias} So we can scan for fist colon and alias can contain any character 
-				String refString = AliasService.getTarget(buildAlias(alias, site));
+				String refString = aliasService.getTarget(buildAlias(alias, site));
 				String aliasPageId = EntityManager.newReference(refString).getId();
 				page = (SitePage) site.getPage(aliasPageId);
 			}
@@ -1160,7 +1199,7 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 			return null;
 		}
 		String alias = null;
-		List<Alias> aliases = AliasService.getAliases(page.getReference());
+		List<Alias> aliases = aliasService.getAliases(page.getReference());
 		if (aliases.size() > 0)
 		{	
 			if (aliases.size() > 1 && log.isWarnEnabled())
@@ -1240,10 +1279,6 @@ public class PortalSiteHelperImpl implements PortalSiteHelper
 						PreferencesService.getInstance());
 			case ALL_SITES_VIEW:
 				return new AllSitesViewImpl(this,  portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
-						.getInstance(), ServerConfigurationService.getInstance(),
-						PreferencesService.getInstance());
-			case DEFAULT_SITE_VIEW:
-				return new DefaultSiteViewImpl(this, portal.getSiteNeighbourhoodService(), request, session, siteId, SiteService
 						.getInstance(), ServerConfigurationService.getInstance(),
 						PreferencesService.getInstance());
 			case DHTML_MORE_VIEW:

@@ -27,8 +27,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.Collator;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.ParseException;
+import java.text.RuleBasedCollator;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -2349,11 +2352,17 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 						  Long sequence = null;
 						  if (answerid != null) {
 							  AnswerIfc answer  = (AnswerIfc)publishedAnswerHash.get(answerid);
-							  temptext = answer.getText();
-							  if (temptext == null) {
+							  if(answer != null) {
+								temptext = answer.getText();
+							  	if (temptext == null) {
 								  temptext = "No Answer";
+							  	}
+							  	sequence = answer.getItemText().getSequence();
+							  }	else if(answerid == -1) {
+								  temptext = "None of the Above";
+								  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
+								  sequence = itemTextIfc.getSequence();
 							  }
-							  sequence = answer.getItemText().getSequence();
 						  }
 						  else {
 							  ItemTextIfc itemTextIfc = (ItemTextIfc) publishedItemTextHash.get(grade.getPublishedItemTextId());
@@ -2802,49 +2811,58 @@ public class AssessmentGradingFacadeQueries extends HibernateDaoSupport implemen
 	 */
 	private static class ResponsesComparator implements Comparator {
 		boolean anonymous;
+		private Log log = LogFactory.getLog(ResponsesComparator.class);
+		
 		public ResponsesComparator(boolean anony) {
 			anonymous = anony;
 		}
 
 		public int compare(Object a, Object b) {
-			// For anonymous, it should return after the first element comparison
-			if (anonymous) {
-				Long aFirstElement = (Long) ((ArrayList) a).get(0);
-				Long bFirstElement = (Long) ((ArrayList) b).get(0);
-				if (aFirstElement.compareTo(bFirstElement) < 0)
-					return -1;
-				else if (aFirstElement.compareTo(bFirstElement) > 0)
-					return 1;
-				else
-					return 0;
-			}
-			// For non-anonymous, it compares last names first, if it is the same,
-			// compares first name, and then Eid
-			else {
-				String aFirstElement = (String) ((ArrayList) a).get(0);
-				String bFirstElement = (String) ((ArrayList) b).get(0);
-				if (aFirstElement.compareTo(bFirstElement) < 0)
-					return -1;
-				else if (aFirstElement.compareTo(bFirstElement) > 0)
-					return 1;
-				else {
-					String aSecondElement = (String) ((ArrayList) a).get(1);
-					String bSecondElement = (String) ((ArrayList) b).get(1);
-					if (aSecondElement.compareTo(bSecondElement) < 0)
+			RuleBasedCollator collator_ini = (RuleBasedCollator)Collator.getInstance();
+			try{
+				RuleBasedCollator collator = new RuleBasedCollator(collator_ini.getRules().replaceAll("<'\u005f'", "<' '<'\u005f'"));
+				// For anonymous, it should return after the first element comparison
+				if (anonymous) {
+					Long aFirstElement = (Long) ((ArrayList) a).get(0);
+					Long bFirstElement = (Long) ((ArrayList) b).get(0);
+					if (collator.compare(aFirstElement,bFirstElement) < 0)
 						return -1;
-					else if (aSecondElement.compareTo(bSecondElement) > 0)
+					else if (collator.compare(aFirstElement,bFirstElement) > 0)
+						return 1;
+					else
+						return 0;
+				}
+				// For non-anonymous, it compares last names first, if it is the same,
+				// compares first name, and then Eid
+				else {
+					String aFirstElement = (String) ((ArrayList) a).get(0);
+					String bFirstElement = (String) ((ArrayList) b).get(0);
+					if (collator.compare(aFirstElement, bFirstElement) < 0)
+						return -1;
+					else if (collator.compare(aFirstElement, bFirstElement) > 0)
 						return 1;
 					else {
-						String aThirdElement = (String) ((ArrayList) a).get(2);
-						String bThirdElement = (String) ((ArrayList) b).get(2);
-						if (aThirdElement.compareTo(bThirdElement) < 0)
+						String aSecondElement = (String) ((ArrayList) a).get(1);
+						String bSecondElement = (String) ((ArrayList) b).get(1);
+						if (collator.compare(aSecondElement,bSecondElement) < 0)
 							return -1;
-						else if (aThirdElement.compareTo(bThirdElement) > 0)
+						else if (collator.compare(aSecondElement,bSecondElement) > 0)
 							return 1;
+						else {
+							String aThirdElement = (String) ((ArrayList) a).get(2);
+							String bThirdElement = (String) ((ArrayList) b).get(2);
+							if (collator.compare(aThirdElement,bThirdElement) < 0)
+								return -1;
+							else if (collator.compare(aThirdElement,bThirdElement) > 0)
+								return 1;
+						}
 					}
+					return 0;
 				}
-				return 0;
-			}
+			} catch (ParseException e) {
+	  			log.error("ERROR compare: ",e);
+	  		}
+			return Collator.getInstance().compare(a, b);	
 		}
 	}
 

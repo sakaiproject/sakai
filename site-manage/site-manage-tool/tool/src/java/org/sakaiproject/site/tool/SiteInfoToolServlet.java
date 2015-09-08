@@ -46,6 +46,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.apache.avalon.framework.configuration.Configuration;
 import org.apache.avalon.framework.configuration.DefaultConfigurationBuilder;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -56,7 +57,6 @@ import org.apache.fop.fonts.substitute.FontQualifier;
 import org.apache.fop.fonts.substitute.FontSubstitution;
 import org.apache.fop.fonts.substitute.FontSubstitutions;
 import org.apache.fop.apps.MimeConstants;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;
@@ -385,19 +385,25 @@ public class SiteInfoToolServlet extends HttpServlet
 		if (currentLocale!=null){
 			String fullLocale = currentLocale.toString();
 			xslFileName = "participants-all-attrs_" + fullLocale + ".xsl";
-			if (getClass().getClassLoader().getResourceAsStream(xslFileName) == null){
+			InputStream inputStream = getClass().getClassLoader().getResourceAsStream(xslFileName);
+			if (inputStream == null){
 				xslFileName = "participants-all-attrs_" + currentLocale.getCountry() + ".xsl";
-				if (getClass().getClassLoader().getResourceAsStream(xslFileName) == null){
+				inputStream = getClass().getClassLoader().getResourceAsStream(xslFileName);
+				if (inputStream == null){
 					//We use the default file
 					xslFileName = "participants-all-attrs.xsl";
 				}
 			}
+
+			IOUtils.closeQuietly(inputStream);
 		}
 		String configFileName = "userconfig.xml";
 		DefaultConfigurationBuilder cfgBuilder = new DefaultConfigurationBuilder();
+		InputStream configInputStream = null;
 		try 
 		{
-			Configuration cfg = cfgBuilder.build(getClass().getClassLoader().getResourceAsStream(configFileName));
+			configInputStream = getClass().getClassLoader().getResourceAsStream(configFileName);
+			Configuration cfg = cfgBuilder.build(configInputStream);
 			
 			FopFactory fopFactory = FopFactory.newInstance();
 			fopFactory.setUserConfig(cfg);
@@ -425,11 +431,16 @@ public class SiteInfoToolServlet extends HttpServlet
 
 			Source src = new DOMSource(doc);
 			transformer.transform(src, new SAXResult(fop.getDefaultHandler()));
-		} catch (Exception e) 
+		}
+		catch (Exception e)
 		{
 			e.printStackTrace();
 			log.warn(this+".generatePDF(): " + e);
 			return;
+		}
+		finally
+		{
+			IOUtils.closeQuietly(configInputStream);
 		}
 	}
 	

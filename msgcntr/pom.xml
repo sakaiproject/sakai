@@ -22,11 +22,6 @@
     <module>messageforums-hbm</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/msgcntr/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/msgcntr/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

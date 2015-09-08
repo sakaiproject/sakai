@@ -6,7 +6,7 @@
 #set( $referencesBean = ${requestScope.referencesBean} )
 #set( $homeBean = ${requestScope.homeBean} )
 #set( $rlb = ${requestScope.resourceLoaderBean} )
-#set( $title = "${rlb.jsp_info}: ${historyBean.localName}" )
+#set( $title = "${rlb.jsp_info}: ${util.escapeHtml($historyBean.localName)}" )
 #header(${title} false "" )  
 
 

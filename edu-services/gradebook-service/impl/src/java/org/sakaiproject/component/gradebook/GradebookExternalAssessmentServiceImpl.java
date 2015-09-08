@@ -282,6 +282,13 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         hibTempl.deleteAll(toBeDeleted);
         if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " externally defined scores");
 
+        toBeDeleted = hibTempl.find( "from Comment as c where c.gradableObject = ?", asn );
+        hibTempl.deleteAll( toBeDeleted );
+        if( log.isInfoEnabled() )
+        {
+            log.info( "Deleted " + toBeDeleted.size() + " externally defined score comments" );
+        }
+
         // Delete the assessment.
 		hibTempl.flush();
 		hibTempl.clear();
@@ -963,6 +970,18 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 	private NumberFormat getNumberFormat() {
 	    return NumberFormat.getInstance(new ResourceLoader().getLocale());
+	}
+	
+	public Long getExternalAssessmentCategoryId(String gradebookUId, String externalId) {
+		Long categoryId = null;
+		final Assignment assignment = getExternalAssignment(gradebookUId, externalId);
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUId);
+		}
+		if (assignment.getCategory() != null) {
+			categoryId = assignment.getCategory().getId();
+		}
+		return categoryId;
 	}
 
 }

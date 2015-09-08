@@ -2,14 +2,20 @@
 
 <div id="roleSwitch" class="Mrphs-roleSwitch">
 
+
     #if ($roleSwitchState)
 
-        <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor"><span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span></a>
+        <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__anchor">
+			<i class="fa fa-user-secret exit"></i>
+            <span>$rloader.getFormattedMessage("rs_exitRoleSwapWithRole", $roleUrlValue)</span><i class="fa fa-remove exit close"></i>
+        </a>
 
     #else
 
         #if ($roleswapdropdown)
 
+            <i class="fa fa-user-secret clickable"></i>
+            
             <select id="roleSwitchSelect" onchange="if (this.options[this.selectedIndex].value != '') { parent.location = this.options[this.selectedIndex].value; } else { this.selectedIndex = 0; }" class="Mrphs-roleSwitch__dropdown">       
 
             <option value="" selected="selected">${rloader.rs_viewSiteAs}</option>
@@ -24,7 +30,10 @@
 
         #else
  
-            <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link"><span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span></a>
+            <a href="$switchRoleUrl" id="roleSwitchAnchor" class="Mrphs-roleSwitch__link">
+                <i class="fa fa-user-secret"></i>
+                <span>$rloader.getFormattedMessage("rs_enterRoleSwapWithRole", $roleUrlValue)</span>
+            </a>
 
         #end ## END OF IF ($roleswapdropdown)
 

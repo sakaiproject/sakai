@@ -131,6 +131,24 @@
 									</resources>
 								</configuration>
 							</execution>
+							<execution>
+								<id>copy-fonts-css</id>
+								<phase>generate-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${basedir}/src/webapp/skin/${sakai.skin.target}/font-awesome/</outputDirectory>
+									<resources>
+										<resource>
+											<directory>src/${sakai.skin.source}/fonts/</directory>
+											<includes>
+												<include>*.css</include>
+											</includes>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
 						</executions>
 					</plugin>
 					<plugin>
@@ -208,6 +226,12 @@
 								<groupId>rubygems</groupId>
 								<artifactId>font-awesome-sass</artifactId>
 								<version>4.3.2.1</version>
+								<type>gem</type>
+							</dependency>
+							<dependency>
+								<groupId>rubygems</groupId>
+								<artifactId>bootstrap-sass</artifactId>
+								<version>3.3.5.1</version>
 								<type>gem</type>
 							</dependency>
 						</dependencies>

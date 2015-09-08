@@ -40,7 +40,6 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.cover.SiteService;
@@ -224,15 +223,9 @@ public class LoginServlet
       }
       else{ // notAuthorized
     	  if (!isAuthenticated){
-    		  if (AgentFacade.isStandaloneEnvironment()) {
-    			  delivery.setActionString(null);
-    			  path = "/jsf/delivery/login.faces";
-    		  }
-    		  else{
-    			  relativePath = false;
-    			  delivery.setActionString(null);
-    			  path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
-    		  }
+    	      relativePath = false;
+    	      delivery.setActionString(null);
+    	      path = "/authn/login?url=" + URLEncoder.encode(req.getRequestURL().toString()+"?id="+alias, "UTF-8");
     	  }
     	  else { //isAuthenticated but not authorized
     		  path = "/jsf/delivery/accessDenied.faces";

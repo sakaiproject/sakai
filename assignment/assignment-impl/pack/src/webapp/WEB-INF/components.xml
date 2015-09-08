@@ -26,7 +26,8 @@
  		<property name="autoDdl"><value>${auto.ddl}</value></property>
  		<property name="assignmentPeerAssessmentService"><ref bean="org.sakaiproject.assignment.api.AssignmentPeerAssessmentService"/></property>
  		<property name="securityService"><ref bean="org.sakaiproject.authz.api.SecurityService"/></property>
- 		
+ 		<property name="developerHelperService"><ref bean="org.sakaiproject.entitybroker.DeveloperHelperService"/></property>
+		<property name="authzGroupService"><ref bean="org.sakaiproject.authz.api.AuthzGroupService"/></property>
  		
  		<!--<property name="contentReviewService"><ref bean="org.sakaiproject.contentreview.service.ContentReviewService"/></property>-->
  		

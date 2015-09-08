@@ -1,6 +1,11 @@
-#filterForm {
-	margin-bottom: 20px;
+.portletBody    h3 {
+	margin-top: 5px;
+	margin-bottom: 5px;
 }
-#edit-group {
-	margin-bottom: 2px;
+.dataTables_wrapper {
+	margin-top: 20px;
+}
+
+.alert {
+    margin-top: 20px;
 }

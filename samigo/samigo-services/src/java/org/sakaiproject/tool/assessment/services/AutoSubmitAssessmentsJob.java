@@ -9,7 +9,7 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.api.UsageSession;
 import org.sakaiproject.event.cover.EventTrackingService;
@@ -22,7 +22,13 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 	
 	private static final Log LOG = LogFactory.getLog(AutoSubmitAssessmentsJob.class);	
 	protected String serverName = "unknown";
-	
+
+	private AuthzGroupService authzGroupService;
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
 	public void init() {
 		LOG.debug("AutoSubmitAssessmentsJob init()  ");
 	}
@@ -104,7 +110,7 @@ public class AutoSubmitAssessmentsJob implements StatefulJob {
 		sakaiSession.setUserEid(whoAs);
 
 		// update the user's externally provided realm definitions
-		AuthzGroupService.refreshUser(whoAs);
+		authzGroupService.refreshUser(whoAs);
 
 		// post the login events
 		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN, whoAs + " running " + serverName, true));

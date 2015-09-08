@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <name>Sakai Public Address System</name>
+  <groupId>org.sakaiproject.pasystem</groupId>
+  <artifactId>pasystem-base</artifactId>
+  
+  <packaging>pom</packaging>
+  
+  <parent>
+    <artifactId>master</artifactId>
+    <groupId>org.sakaiproject</groupId>
+    <version>11-SNAPSHOT</version>
+    <relativePath>../master/pom.xml</relativePath>
+  </parent>
+
+  <modules>
+    <module>pasystem-api/api</module>
+    <module>pasystem-impl/impl</module>
+    <module>pasystem-impl/pack</module>
+    <module>pasystem-tool/tool</module>
+  </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>javax.servlet</groupId>
+      <artifactId>servlet-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>

@@ -18,13 +18,15 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.pages;
 
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
-import org.apache.wicket.PageParameters;
-import org.apache.wicket.behavior.SimpleAttributeModifier;
-import org.apache.wicket.markup.html.IHeaderResponse;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.AttributeModifier;
+import org.apache.wicket.markup.head.IHeaderResponse;
+import org.apache.wicket.markup.head.JavaScriptHeaderItem;
+import org.apache.wicket.markup.head.OnDomReadyHeaderItem;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.CheckBox;
@@ -55,9 +57,10 @@ public class PreferencesPage extends BasePage {
 
 	// UI
 	private FeedbackPanel			feedback					= null;
-	private List<String>			chartTransparencyChoices	= null;
 	private EventRegistryTree 		eventRegistryTree 			= null;
-
+	
+	private static final String[] transparencyChoices = { "100", "90", "80", "70", "60", "50", "40", "30", "20", "10" };
+	private static final List<String> chartTransparencyChoices = Arrays.asList(transparencyChoices);
 
 	// Model
 	private PrefsData				prefsdata					= null;
@@ -70,7 +73,7 @@ public class PreferencesPage extends BasePage {
 	public PreferencesPage(PageParameters pageParameters) {
 		realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		if(pageParameters != null) {
-			siteId = pageParameters.getString("siteId");
+			siteId = pageParameters.get("siteId").toString();
 		}
 		if(siteId == null){
 			siteId = realSiteId;
@@ -87,8 +90,8 @@ public class PreferencesPage extends BasePage {
 	@Override
 	public void renderHead(IHeaderResponse response) {
 		super.renderHead(response);
-		response.renderJavascriptReference(JQUERYSCRIPT);
-		response.renderOnDomReadyJavascript("toggleCheckboxAll();");
+		response.render(JavaScriptHeaderItem.forUrl(JQUERYSCRIPT));
+		response.render(OnDomReadyHeaderItem.forScript("toggleCheckboxAll();"));
 	}
 	
 	@SuppressWarnings("serial")
@@ -117,10 +120,7 @@ public class PreferencesPage extends BasePage {
 		//chartPrefs.add(chartIn3D);
 		CheckBox itemLabelsVisible = new CheckBox("itemLabelsVisible");
 		chartPrefs.add(itemLabelsVisible);
-		chartTransparencyChoices = new ArrayList<String>();
-		for(int i=100; i>=10; i-=10) {
-			chartTransparencyChoices.add(Integer.toString(i));
-		}
+
 		DropDownChoice chartTransparency = new DropDownChoice("chartTransparency", chartTransparencyChoices, new IChoiceRenderer() {
 			public Object getDisplayValue(Object object) {
 				return (String) object + "%";
@@ -134,7 +134,7 @@ public class PreferencesPage extends BasePage {
 		
 		// Section: Activity Definition
 		CheckBox useAllTools = new CheckBox("useAllTools");
-		useAllTools.add(new SimpleAttributeModifier("onclick", "toggleCheckboxAll();"));
+		useAllTools.add(AttributeModifier.replace("onclick", "toggleCheckboxAll();"));
 		useAllTools.setOutputMarkupId(true);
 		useAllTools.setMarkupId("useAllTools");
 		form.add(useAllTools);

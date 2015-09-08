@@ -24,7 +24,11 @@
 	<!-- SPRING ANNOTATION PROCESSING -->
 	<!-- **************************************************************** -->
 	<!-- mvc:annotation-driven conversion-service="conversionService" / -->
-	<mvc:annotation-driven />
+	<mvc:annotation-driven>
+		<mvc:argument-resolvers>
+			<bean class="com.github.dandelion.datatables.extras.spring3.ajax.DatatablesCriteriasMethodArgumentResolver" />
+		</mvc:argument-resolvers>
+	</mvc:annotation-driven>
 
 	<context:component-scan base-package="org.sakaiproject.mbm.tool" />
 
@@ -74,6 +78,7 @@
 				<bean class="com.github.dandelion.datatables.thymeleaf.dialect.DataTablesDialect" />
 			</set>
 		</property>
+		<property name="templateEngineMessageSource" ref="org.sakaiproject.mbm.tool.MessageSource" />
 	</bean>
 
 	<bean class="org.thymeleaf.spring3.view.ThymeleafViewResolver">

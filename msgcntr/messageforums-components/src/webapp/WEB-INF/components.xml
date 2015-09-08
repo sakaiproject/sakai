@@ -49,6 +49,9 @@
         <property name="contentHostingService">
         		    <ref bean="org.sakaiproject.content.api.ContentHostingService"/>
         </property>
+        <property name="authzGroupService">
+            <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+        </property>
     </bean>
 	    
     <bean id="org.sakaiproject.api.app.messageforums.MessageForumsTypeManager" 
@@ -363,6 +366,9 @@
                 </property> 
                 <property name="securityService">
                     <ref bean="org.sakaiproject.authz.api.SecurityService"/>
+                </property>
+                <property name="authzGroupService">
+                    <ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
                 </property>
                 <property name="sessionManager">
                     <ref bean="org.sakaiproject.tool.api.SessionManager"/>

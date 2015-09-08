@@ -19,7 +19,7 @@
 package org.sakaiproject.sitestats.tool.wicket.components;
 
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
@@ -39,6 +39,7 @@ import org.sakaiproject.sitestats.tool.wicket.pages.ReportsPage;
 public class Menu extends Panel {
 	private static final long	serialVersionUID	= 1L;
 
+	private String siteId;
 	/**
 	 * Default constructor.
 	 * @param id The wicket:id
@@ -46,7 +47,7 @@ public class Menu extends Panel {
 	public Menu(String id) {
 		super(id);
 		setRenderBodyOnly(true);
-		renderBody();
+		siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 	}
 
 	/**
@@ -56,27 +57,21 @@ public class Menu extends Panel {
 	public Menu(String id, String siteId) {
 		super(id);
 		setRenderBodyOnly(true);
-		renderBody(siteId);
+		this.siteId = siteId;
 	}
 	
 	/**
-	 * Render Sakai Menu for current site
+	 * Render Sakai Menu
 	 */
-	@SuppressWarnings("unchecked")
-	private void renderBody() {
-		renderBody(Locator.getFacade().getToolManager().getCurrentPlacement().getContext());
-	}
-	
-	/**
-	 * Render Sakai Menu for specified site id
-	 */
-	@SuppressWarnings("unchecked")
-	private void renderBody(String siteId) {
+	@Override
+	protected void onInitialize()
+	{
+		super.onInitialize();
 		// current page
-		Class currentPageClass = getRequestCycle().getResponsePageClass();
+		Class currentPageClass = getPage().getClass();
 		PageParameters pageParameters = new PageParameters();
 		if(siteId != null) {
-			pageParameters.put("siteId", siteId);
+			pageParameters.set("siteId", siteId);
 		}
 		String realSiteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
 		boolean isSiteStatsAdminPage = Locator.getFacade().getStatsAuthz().isSiteStatsAdminPage();
@@ -115,7 +110,7 @@ public class Menu extends Panel {
 		// Reports
 		MenuItem reports = new MenuItem("reports", new ResourceModel("menu_reports"), ReportsPage.class, pageParameters, false);
 		if(!overviewVisible) {
-			reports.add(new AttributeModifier("class", true, new Model("firstToolBarItem")));
+			reports.add(new AttributeModifier("class", new Model("firstToolBarItem")));
 		}
 		add(reports);
 

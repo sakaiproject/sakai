@@ -11,11 +11,6 @@
   <groupId>org.sakaiproject.kernel</groupId>
   <artifactId>deploy</artifactId>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy</url>
-  </scm>
 
   <packaging>pom</packaging>
   <modules>

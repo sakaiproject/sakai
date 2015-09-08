@@ -60,11 +60,6 @@
   </profiles>
 
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/content/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/content/trunk</url>
-  </scm>
 
   <dependencyManagement>
     <dependencies>

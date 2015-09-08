@@ -1,6 +1,5 @@
 ## version: $Id$
 <link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
-<link rel="stylesheet" href="/library/js/bootstrap/3.1.1/css/bootstrap.min.css" />
 
 <div class="portletBody specialLink">
 	<form name="restoreForm" id="restoreForm" action="#toolForm("ResourcesAction")" method="post">

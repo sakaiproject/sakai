@@ -12,11 +12,6 @@
   <artifactId>textarea-base</artifactId>
   <version>11-SNAPSHOT</version>
   <packaging>pom</packaging>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/textarea/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/textarea/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/textarea/trunk</url>
-  </scm>
   <modules>
     <module>FCKeditor/connector</module>
     <module>calendar</module>

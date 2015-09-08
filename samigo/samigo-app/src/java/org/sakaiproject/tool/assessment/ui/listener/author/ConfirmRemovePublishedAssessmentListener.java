@@ -81,8 +81,15 @@ public class ConfirmRemovePublishedAssessmentListener implements ActionListener
   		  return;
         }
 
-    	author.setOutcome("confirmRemovePublishedAssessment");
-    	
+    	//Alert user to remove submissions associated with the assessment before delete the assessment
+    	int submissions = publishedAssessmentService.getTotalSubmissionForEachAssessment(publishedAssessmentId);
+    	if (submissions > 0) {
+    		author.setOutcome("requireRemoveSubmissions");
+    	} else {
+    		author.setOutcome("confirmRemovePublishedAssessment");
+    	}
+    	//Should be publishedId or publishedAssessmentId; Set value publishedId value for totalscores.jsp
+    	publishedAssessmentBean.setPublishedID(publishedAssessmentId);
     	publishedAssessmentBean.setAssessmentId(publishedAssessmentId);
     	publishedAssessmentBean.setTitle(FormattedText.convertFormattedTextToPlaintext(publishedAssessment.getTitle()));
     }

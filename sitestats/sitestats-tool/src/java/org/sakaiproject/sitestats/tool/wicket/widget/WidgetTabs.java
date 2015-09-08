@@ -23,13 +23,16 @@ import java.util.List;
 
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.ajax.AbstractDefaultAjaxBehavior;
+import org.apache.wicket.ajax.AjaxChannel;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.IAjaxIndicatorAware;
+import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.extensions.ajax.markup.html.IndicatingAjaxFallbackLink;
 import org.apache.wicket.extensions.markup.html.tabs.AbstractTab;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.list.Loop;
+import org.apache.wicket.markup.html.list.LoopItem;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 
@@ -58,12 +61,12 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 			private static final long serialVersionUID = 1L;
 			@Override
 			protected void populateItem(LoopItem item) {
-				int index = item.getIteration();
+				int index = item.getIndex();
 				AbstractTab tab = ((AbstractTab) WidgetTabs.this.tabs.get(index));
 				
 				int selected = getSelectedTab();
 				if(index == selected) {
-					item.add(new AttributeModifier("class", true, new Model("tabsel")));
+					item.add(new AttributeModifier("class", new Model("tabsel")));
 				}
 				
 				final WebMarkupContainer titleLink = newLink("link", index);
@@ -133,8 +136,8 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 			public void onClick(AjaxRequestTarget target) {
 				setSelectedTab(index);
 				if(target != null){
-					target.addComponent(WidgetTabs.this);
-					target.appendJavascript("setMainFrameHeightNoScroll(window.name, 0, 100);");
+					target.add(WidgetTabs.this);
+					target.appendJavaScript("setMainFrameHeightNoScroll(window.name, 0, 100);");
 				}
 				onAjaxUpdate(target);
 			}
@@ -153,23 +156,26 @@ public class WidgetTabs extends Panel implements IAjaxIndicatorAware {
 		@Override
 		protected void respond(AjaxRequestTarget target) {
 			setSelectedTab(getSelectedTab());
-			target.addComponent(WidgetTabs.this);
-			target.appendJavascript("setMainFrameHeightNoScroll(window.name);");
+			target.add(WidgetTabs.this);
+			target.appendJavaScript("setMainFrameHeightNoScroll(window.name);");
 		}
 		
 		public String getScript() {
 			StringBuilder buff = new StringBuilder();
 			buff.append("wicketAjaxGet('");
-			buff.append(getCallbackUrl(false));
+			buff.append(getCallbackUrl());
 			buff.append(",function() {}, function() {}");
-			buff.append(",null, '" + getChannelName() + "'");
+			buff.append(",null, '").append(getAttributes().getChannel().getName()).append("'");
 			buff.append(")");
 			return buff.toString();
 		}
 		
 		@Override
-		protected String getChannelName() {
-			return getId();
+		protected void updateAjaxAttributes(AjaxRequestAttributes attributes)
+		{
+			super.updateAjaxAttributes(attributes);
+			
+			attributes.setChannel(new AjaxChannel(getId()));
 		}
 	}
 }

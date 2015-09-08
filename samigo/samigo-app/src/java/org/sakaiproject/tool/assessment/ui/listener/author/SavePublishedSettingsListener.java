@@ -36,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ServerConfigurationService;
@@ -532,12 +533,12 @@ implements ActionListener
 			feedback.setAssessmentBase(assessment.getData());
 		}
 		// Feedback authoring
-		if (assessmentSettings.getFeedbackAuthoring()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackAuthoring()))
 			feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
 		// Feedback delivery
-		if (assessmentSettings.getFeedbackDelivery()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackDelivery()))
 			feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
-		if (assessmentSettings.getFeedbackComponentOption()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
 		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
 
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
@@ -680,10 +681,12 @@ implements ActionListener
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook()!=null && 
 					evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+				Long categoryId = null;
 				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
 					try {
 						log.debug("before gbsHelper.removeGradebook()");
+						categoryId = gbsHelper.getExternalAssessmentCategoryId(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 						gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 					} catch (Exception e1) {
 						// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
@@ -701,7 +704,7 @@ implements ActionListener
 				else{
 					try{
 						log.debug("before gbsHelper.addToGradebook()");
-						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
+						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), categoryId, g);
 
 						// any score to copy over? get all the assessmentGradingData and copy over
 						GradingService gradingService = new GradingService();

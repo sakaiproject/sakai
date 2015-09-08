@@ -438,7 +438,7 @@ public class BasicEmailService implements EmailService
 		}
 		catch (MessagingException e)
 		{
-			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+			M_log.error("Email.sendMail: exception: " + e.getMessage(), e);
 		}
 	}
 
@@ -934,7 +934,7 @@ public class BasicEmailService implements EmailService
 			addresses = send(msg,true);
 		}
 		catch (MessagingException e) {
-			M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+			M_log.error("Email.sendMail: exception: " + e.getMessage(), e);
 		}
 		return addresses;
 	}
@@ -1046,7 +1046,7 @@ public class BasicEmailService implements EmailService
 		} catch (MessagingException e) {
 			// Just log it, if user doesn't want it thrown
 			if (messagingException == false) {
-				M_log.warn("Email.sendMail: exception: " + e.getMessage(), e);
+				M_log.error("Email.sendMail: exception: " + e.getMessage(), e);
 			} else {
 				throw e;
 			}
@@ -1668,12 +1668,12 @@ public class BasicEmailService implements EmailService
 			 } 
 			 catch (MessagingException e) 
 			 {
-				  M_log.warn("Email.MyMessage: exception: " + e, e);
+				  M_log.error("Email.MyMessage: exception: " + e, e);
 				  addHeaderLine(header);
 			 } 
 			 catch (UnsupportedEncodingException e)
 			 {
-				  M_log.warn("Email.MyMessage: exception: " + e, e);
+				  M_log.error("Email.MyMessage: exception: " + e, e);
 				  addHeaderLine(header);
 			 }
 		} 

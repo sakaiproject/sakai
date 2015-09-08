@@ -377,6 +377,11 @@ public class SakaiIFrame extends GenericPortlet {
 				reqProps.setProperty(name, request.getParameter(name));
 			}
 			Object retval = m_ltiService.updateContent(Long.parseLong(id), reqProps);
+			String fa_icon = (String)request.getParameter(LTIService.LTI_FA_ICON);
+			if ( fa_icon != null && fa_icon.length() > 0 ) {
+				placement.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
+			}
+
 			placement.save();
 
 			response.setPortletMode(PortletMode.VIEW);

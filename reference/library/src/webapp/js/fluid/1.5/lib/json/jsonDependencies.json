@@ -1,0 +1,9 @@
+{
+    "json": {
+        "name": "JSON Parser",
+        "description": "Douglas Crockford's public domain JSON parser.",
+        "files": [
+            "./js/json2.js"
+        ]
+    }
+}

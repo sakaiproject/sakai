@@ -259,3 +259,7 @@ td.specialLink a:link, td.specialLink a:visited {
     padding: 3px;
 }
 /* end SAK-29314 */
+
+select.selectSet {
+    display: none;
+}

@@ -56,8 +56,6 @@ Boolean allowSettings = (Boolean) rReq.getAttribute("allowSettings");
 
 Boolean allowRoster = (Boolean) rReq.getAttribute("allowRoster");
 
-Boolean allowLori = (Boolean) rReq.getAttribute("allowLori");
-
 Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
 
 %>
@@ -67,17 +65,22 @@ Boolean allowContentLink = (Boolean) rReq.getAttribute("allowContentLink");
     if ( allow(sp,"launch") || allow(sp,"xml") ||
 		allow(sp,"secret") || allow(sp,"key") || 
         allow(sp,"pagetitle") || allow(sp,"tooltitle") ||
-        allow(sp,"newpage") || allow(sp,"maximize") ||
+        allow(sp,"newpage") || 
         allow(sp,"frameheight") || allow(sp, "debug") ||
         allow(sp, "releasename") || allow(sp,"releaseemail")  ||
 		allow(sp,"custom") || 
 		allow(sp,"allowsettings") || allow(sp, "allowroster") || 
-        allow(sp, "allowoutcomes") || allow(sp, "allowlori") || 
-		allow(sp, "contentlink") || allow(sp, "splash")
+        allow(sp, "allowoutcomes") || 
+		allow(sp, "contentlink") || allow(sp, "splash") ||
+        allow(sp, "fa_icon")
 ) { 
+
     if ( errorMsg != null ) { %>
 		<div class="alertMessage"><%= errorMsg %></div>
 	<% } %>
+
+<script type="text/javascript" src="/library/js/headscripts.js"></script>
+<script>includeLatestJQuery('portlet edit.jsp');</script>
 
 <ul class="navIntraTool actionToolBar">
 	<li class="firstToolBarItem">
@@ -154,7 +157,7 @@ function switchui()
 if ( document.getElementById("UISwitcher") ) switchui();
 </script>
 
-<% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") ) { %>
+<% if ( allow(sp,"pagetitle") || allow(sp,"tooltitle") || allow(sp,"fa_icon") ) { %>
 
 <h3><%=rb.getString("display.information") %></h3>
 <% if ( allow(sp,"pagetitle") ) { %>
@@ -171,6 +174,19 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <span class="textPanelFooter"><%=rb.getString("tool.title.detail") %></span>
 </p>
 <% } %>
+
+<% if ( allow(sp,"fa_icon") ) { %>
+<p  class="shorttext" style="clear:none;">
+<label for="imsti_fa_icon"><%=rb.getString("tool.fa_icon") %></label>
+<input type="text" name="imsti.fa_icon" id="imsti_fa_icon" size="20" value="<%=ov.getProperty("imsti.fa_icon","")%>"> 
+</p>
+<script type="text/javascript" src="/library/js/fontIconPicker/2.0.1-cs/jquery.fonticonpicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/css/jquery.fonticonpicker.css" />
+<link rel="stylesheet" type="text/css" href="/library/js/fontIconPicker/2.0.1-cs/themes/grey-theme/jquery.fonticonpicker.grey.min.css" />
+<script type="text/javascript">$(document).ready(function () { fontawesome_icon_picker('#imsti_fa_icon'); });</script>
+</p>
+<% } %>
+
 
 <% } %>
 
@@ -202,7 +218,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 
 <% } %>
 
-<% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") || allow(sp, "maximize") ) { %>
+<% if ( allow(sp,"frameheight") || allow(sp, "debug") || allow(sp, "newpage") ) { %>
 <h3><%=rb.getString("launch.information") %></h3>
 <% if ( allow(sp,"newpage") ) { %>
 <p class="checkbox indnt1">
@@ -213,18 +229,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
    />
 <% } %>
 <label for="imsti.newpage"><%=rb.getString("new.page") %></label><%=rb.getString("new.page.detail") %>
-</p>
-<% } %>
-<% if ( allow(sp,"maximize") ) { %>
-<p class="checkbox  indnt1">
-<input type="checkbox" size="10" name="imsti.maximize" id="imsti.maximize" 
-<% if ( ov.getProperty("imsti.maximize",null) != null ) { %>
-  checked="yes" />
-<% } else { %>
-   />
-<% } %>
-<label for="imsti.maximize"><%=rb.getString("maximize.page") %></label>
-<span class="textPanelFooter"><%=rb.getString("maximize.page.detail") %></span>
 </p>
 <% } %>
 <% if ( allow(sp,"frameheight") ) { %>
@@ -250,8 +254,7 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 
 <% if ( allow(sp,"releasename") || allow(sp, "releaseemail") || 
-        ( allow(sp, "allowroster") && allowRoster )  || 
-        ( allow(sp, "allowlori") && allowLori ) 
+        ( allow(sp, "allowroster") && allowRoster ) 
 ) { %>
 <h3><%=rb.getString("launch.privacy") %></h3>
 <% if ( allow(sp,"releasename") ) { %>
@@ -288,19 +291,6 @@ if ( document.getElementById("UISwitcher") ) switchui();
 <% } %>
 <label for="imsti.allowroster"><%=rb.getString("privacy.allowroster") %></label>
 <span class="textPanelFooter"><%=rb.getString("allowroster.detail") %></span>
-</p>
-<% } %>
-<% if ( allow(sp,"allowlori") && allowLori ) { %>
-<p>
-
-<input type="checkbox" size="10" name="imsti.allowlori" id="imsti.allowlori" 
-<% if ( ov.getProperty("imsti.allowlori",null) != null ) { %>
-  checked="yes" />
-<% } else { %>
-   />
-<% } %>
-<label for="imsti.allowlori"><%=rb.getString("privacy.allowlori") %></label>
-<span class="textPanelFooter"><%=rb.getString("allowlori.detail") %></span>
 </p>
 <% } %>
 

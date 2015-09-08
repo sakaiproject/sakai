@@ -35,14 +35,4 @@ public class SakaiLTI2Services {
 		return ret;
     }
 
-    public static Service_offered LORI_XML(String endpoint) {
-		Service_offered ret = new Service_offered();
-		ret.setEndpoint(endpoint);
-		ret.set_id("tcp:SakaiLORIXml");
-		ret.set_type("RestService");
-		ret.setFormat("application/vnd.sakai.lti.v1.lori+xml");
-		ret.setAction("POST");
-		return ret;
-    }
-
 }

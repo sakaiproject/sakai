@@ -2,7 +2,7 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 
 <beans>
-	<bean id="messageSource" class="org.sakaiproject.mbm.tool.ResourceLoaderMessageSource">
+	<bean id="org.sakaiproject.mbm.tool.MessageSource" class="org.sakaiproject.mbm.tool.ResourceLoaderMessageSource">
 		<property name="basename" value="Messages" />
 	</bean>
 </beans>

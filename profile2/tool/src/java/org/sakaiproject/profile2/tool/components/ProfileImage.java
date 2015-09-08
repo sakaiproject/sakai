@@ -1,7 +1,5 @@
 package org.sakaiproject.profile2.tool.components;
 
-import java.util.Date;
-
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.WebComponent;
 import org.apache.wicket.model.IModel;
@@ -21,9 +19,9 @@ import org.sakaiproject.profile2.util.ProfileConstants;
  * add(new ProfileImage("photo", new Model<String>(userUuid)));
  * </code>
  * 
- * For different size iamges, override the setSize
+ * For different size images, override the setSize
  * 
- * Note that browsers will cache the image for a while (this is the point!) so if users are changing images all the time, a browser cache flush is in order for thei display to remain current.
+ * Note that browsers will cache the image for a while (this is the point!) so if users are changing images all the time, a browser cache flush is in order for the display to remain current.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  */

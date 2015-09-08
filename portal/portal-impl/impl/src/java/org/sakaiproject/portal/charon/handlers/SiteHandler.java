@@ -23,12 +23,12 @@ package org.sakaiproject.portal.charon.handlers;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Locale;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Enumeration;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 
@@ -36,19 +36,15 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.Cookie;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.thread_local.cover.ThreadLocalManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
-import org.sakaiproject.entity.cover.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
@@ -61,13 +57,13 @@ import org.sakaiproject.portal.api.SiteView;
 import org.sakaiproject.portal.api.StoredState;
 import org.sakaiproject.portal.charon.site.AllSitesViewImpl;
 import org.sakaiproject.tool.api.Tool;
-import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.site.api.Site;
 import org.sakaiproject.site.api.SitePage;
 import org.sakaiproject.site.api.ToolConfiguration;
 import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.ToolException;
 import org.sakaiproject.user.api.Preferences;
@@ -80,7 +76,6 @@ import org.sakaiproject.util.Web;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.portal.util.URLUtils;
 import org.sakaiproject.portal.util.ToolUtils;
-import org.sakaiproject.portal.util.PortalUtils;
 import org.sakaiproject.portal.util.ByteArrayServletResponse;
 import org.sakaiproject.util.Validator;
 
@@ -104,8 +99,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private int configuredTabsToDisplay = 5;
 
-	private boolean useDHTMLMore = false;
-	
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -140,8 +133,6 @@ public class SiteHandler extends WorksiteHandler
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
 		configuredTabsToDisplay = ServerConfigurationService.getInt(
 				Portal.CONFIG_DEFAULT_TABS, 5);
-		useDHTMLMore = Boolean.valueOf(ServerConfigurationService.getBoolean(
-				"portal.use.dhtml.more", true));
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
@@ -208,6 +199,63 @@ public class SiteHandler extends WorksiteHandler
 			}
 			portalService.setResetState("true");
 			res.sendRedirect(toolUrl);
+			return RESET_DONE;
+		}
+
+		// Page resetting URL - clear state and forward to the real page
+		// URL
+		// /portal/site/site-id/page-reset/pageId
+		// 0 1 2 3 4
+		if ((siteId != null) && (parts.length == 5) && (parts[3].equals("page-reset")))
+		{
+			pageId = parts[4];
+			Site site = null;
+			try
+			{
+				Set<SecurityAdvisor> advisors = (Set<SecurityAdvisor>)session.getAttribute("sitevisit.security.advisor");
+				if (advisors != null) {
+					for (SecurityAdvisor advisor:advisors) {
+						SecurityService.pushAdvisor(advisor);
+						//session.removeAttribute("sitevisit.security.advisor");
+					}
+				}
+				// This should understand aliases as well as IDs
+				site = portal.getSiteHelper().getSiteVisit(siteId);
+			}
+			catch (Exception e)
+			{
+				site = null;
+			}
+
+			SitePage page = null;
+			if (site != null ) page = portal.getSiteHelper().lookupSitePage(pageId, site);
+
+			boolean hasJSR168 = false;
+			if (page != null)
+			{
+				Session s = SessionManager.getCurrentSession();
+				Iterator<ToolConfiguration> toolz = page.getTools().iterator();
+				while(toolz.hasNext()){
+					ToolConfiguration pageTool = toolz.next();
+					ToolSession ts = s.getToolSession(pageTool.getId());
+					ts.clearAttributes();
+					if ( portal.isPortletPlacement(pageTool) ) hasJSR168 = true;
+				}
+			}
+
+			String pageUrl = req.getContextPath() + "/site/" + siteId + "/page"
+					+ Web.makePath(parts, 4, parts.length);
+
+			String queryString = Validator.generateQueryString(req);
+			if (queryString != null)
+			{
+				pageUrl = pageUrl + "?" + queryString;
+				if ( hasJSR168 ) pageUrl = pageUrl + "&sakai.state.reset=true";
+			} else {
+				if ( hasJSR168 ) pageUrl = pageUrl + "?sakai.state.reset=true";
+			}
+			portalService.setResetState("true");
+			res.sendRedirect(pageUrl);
 			return RESET_DONE;
 		}
 
@@ -374,9 +422,9 @@ public class SiteHandler extends WorksiteHandler
 		// clear the last page visited
 		session.removeAttribute(Portal.ATTR_SITE_PAGE + siteId);
 
-		// form a context sensitive title
+		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ site.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site );
 
 		// Lookup the page in the site - enforcing access control
 		// business rules
@@ -476,7 +524,6 @@ public class SiteHandler extends WorksiteHandler
 			}
 		}
 
-
 		// Include the buffered content if we have it
 		if ( BC instanceof Map ) {
 			if ( req.getMethod().equals("POST") ) {
@@ -490,19 +537,6 @@ public class SiteHandler extends WorksiteHandler
 			Map<String,String> bufferMap = (Map<String,String>) BC;
 			rcontext.put("responseHead", (String) bufferMap.get("responseHead"));
 			rcontext.put("responseBody", (String) bufferMap.get("responseBody"));
-		}
-
-
-		// Have we been requested to display minimized and are we logged in?
-		if (session.getUserId() != null ) {
-			Cookie c = portal.findCookie(req, portal.SAKAI_NAV_MINIMIZED);
-                        String reqParm = req.getParameter(portal.SAKAI_NAV_MINIMIZED);
-                	String minStr = ServerConfigurationService.getString("portal.allow.auto.minimize","true");
-                	if ( c != null && "true".equals(c.getValue()) ) {
-				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
-			} else if ( reqParm != null &&  "true".equals(reqParm) && ! "false".equals(minStr) ) {
-				rcontext.put(portal.SAKAI_NAV_MINIMIZED, Boolean.TRUE);
-			}
 		}
 
 		rcontext.put("siteId", siteId);
@@ -850,23 +884,11 @@ public class SiteHandler extends WorksiteHandler
 			}
 
 			rcontext.put("tabDisplayLabel", tabDisplayLabel);
-			rcontext.put("useDHTMLMore", useDHTMLMore);
-			if (useDHTMLMore)
-			{
-				SiteView siteView = portal.getSiteHelper().getSitesView(
-						SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
-				siteView.setPrefix(prefix);
-				siteView.setToolContextPath(null);
-				rcontext.put("tabsSites", siteView.getRenderContextObject());
-			}
-			else
-			{
-				SiteView siteView = portal.getSiteHelper().getSitesView(
-						SiteView.View.DEFAULT_SITE_VIEW, req, session, siteId);
-				siteView.setPrefix(prefix);
-				siteView.setToolContextPath(null);
-				rcontext.put("tabsSites", siteView.getRenderContextObject());
-			}
+			SiteView siteView = portal.getSiteHelper().getSitesView(
+					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
+			siteView.setPrefix(prefix);
+			siteView.setToolContextPath(null);
+			rcontext.put("tabsSites", siteView.getRenderContextObject());
 
 			String cssClass = (siteType != null) ? "siteNavWrap " + siteType
 					: "siteNavWrap";
@@ -1017,15 +1039,6 @@ public class SiteHandler extends WorksiteHandler
 			boolean retval = doToolBuffer(req, bufferedResponse, session, placementId,
 					toolContextPath, toolPathInfo);
 			log.debug("bufferContent retval="+retval);
-
-			// Cleanup transient session bits - SAK-25857
-			ToolSession ts = session.getToolSession(siteTool.getId());
-			if ( ts != null ) {
-				ts.removeAttribute(Portal.SAKAI_PORTAL_ALLOW_NEO);
-				ts.removeAttribute(Portal.SAKAI_PORTAL_HELP_ACTION);
-				ts.removeAttribute(Portal.SAKAI_PORTAL_RESET_ACTION);
-			}
-
 
 			if ( ! retval ) return Boolean.FALSE;
 

@@ -16,11 +16,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/common</url>
-  </scm>
 
   <packaging>pom</packaging>
   <properties>
@@ -56,5 +51,26 @@
         <artifactId>slf4j-api</artifactId>
         <scope>compile</scope>
     </dependency>
+    <dependency>
+      <groupId>org.mariadb.jdbc</groupId>
+      <artifactId>mariadb-java-client</artifactId>
+      <version>1.1.9</version>
+    </dependency>
   </dependencies>
+
+  <profiles>
+    <profile>
+      <!-- This profile isn't active by default, as we can't bundle the JAR due to license restrictions
+           but if you build with the mysql profile active then the JAR will get downloaded and deployed into
+           tomcat without you having to copy it seperately. -->
+      <id>mysql</id>
+      <dependencies>
+        <dependency>
+          <groupId>mysql</groupId>
+          <artifactId>mysql-connector-java</artifactId>
+          <version>5.1.35</version>
+        </dependency>
+      </dependencies>
+    </profile>
+  </profiles>
 </project>

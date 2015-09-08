@@ -547,16 +547,16 @@ ASN.toggleSubNavButtons = function( checkBoxClicked )
 };
 
 // SAK-29314
-ASN.toggleElements = function( buttons, disabled )
+ASN.toggleElements = function( elements, disabled )
 {
-    for( i = 0; i < buttons.length; i ++ )
+    for( i = 0; i < elements.length; i ++ )
     {
-        buttons[i].disabled = disabled;
+        elements[i].disabled = disabled;
     }
 };
 
 // SAK-29314
-ASN.disableControls = function( escape )
+ASN.disableControls = function( escape, linkName )
 {
     // Clone and disable all drop downs (disable the clone, hide the original)
     var dropDowns = ASN.nodeListToArray( document.getElementsByTagName( "select" ) );
@@ -570,8 +570,8 @@ ASN.disableControls = function( escape )
         var newSelect = document.createElement( "select" );
         newSelect.setAttribute( "id", select.getAttribute( "id" ) + "Disabled" );
         newSelect.setAttribute( "name", select.getAttribute( "name" ) + "Disabled" );
-        newSelect.setAttribute( "className", select.getAttribute( "className" ) );
         newSelect.setAttribute( "disabled", "true" );
+        newSelect.className = select.className;
         newSelect.innerHTML = select.innerHTML;
 
         // Add the clone to the DOM where the original was
@@ -581,25 +581,26 @@ ASN.disableControls = function( escape )
 
     // Get all the input elements, separate into lists by type
     var allInputs = ASN.nodeListToArray( document.getElementsByTagName( "input" ) );
-    var buttons = [];
-    var textFields = [];
+    var elementsToCloneAndDisable = [];
+    var elementsToDisable = [];
     for( i = 0; i < allInputs.length; i++ )
     {
-        if( (allInputs[i].type === "submit" || allInputs[i].type === "button") && allInputs[i].id !== escape )
+         if( (allInputs[i].type === "submit" || allInputs[i].type === "button" || allInputs[i].type === "checkbox") 
+                && allInputs[i].id !== escape )
         {
-            buttons.push( allInputs[i] );
+            elementsToCloneAndDisable.push( allInputs[i] );
         }
         else if( allInputs[i].type === "text" && allInputs[i].id !== escape )
         {
-            textFields.push( allInputs[i] );
+            elementsToDisable.push( allInputs[i] );
         }
     }
 
-    // Disable all buttons
-    ASN.toggleElements( textFields, true );
-    for( i = 0; i < buttons.length; i++ )
+    // Disable all element
+    ASN.toggleElements( elementsToDisable, true );
+    for( i = 0; i < elementsToCloneAndDisable.length; i++ )
     {
-        ASN.disableButton( "", buttons[i] );
+        ASN.cloneAndHideElement( "", elementsToCloneAndDisable[i] );
     }
 
     // Get the download/upload links
@@ -613,6 +614,18 @@ ASN.disableControls = function( escape )
         if( links[i] !== null )
         {
             ASN.disableLink( links[i] );
+        }
+    }
+
+    if( linkName !== null )
+    {
+        var links = ASN.nodeListToArray( document.getElementsByName( linkName ) );
+        for( i = 0; i < links.length; i++ )
+        {
+            if( links[i] !== null )
+            {
+                ASN.disableLink( links[i] );
+            }
         }
     }
 };
@@ -722,30 +735,34 @@ ASN.showSpinner = function( spinnerID )
 };
 
 // SAK-29314
-ASN.disableButton = function( divId, button )
+ASN.cloneAndHideElement = function( divId, element )
 {
-    // first set the button to be invisible
-    button.style.display = "none";
+    // First, set the element to be invisible
+    element.style.display = "none";
 
-    // now create a new disabled button with the same attributes as the existing button
-    var newButton = document.createElement( "input" );
+    // Now create a new disabled element with the same attributes as the existing element
+    var newElement = document.createElement( "input" );
 
-    newButton.setAttribute( "type", "button" );
-    newButton.setAttribute( "id", button.getAttribute( "id" ) + "Disabled" );
-    newButton.setAttribute( "name", button.getAttribute( "name" ) + "Disabled" );
-    newButton.setAttribute( "value", button.getAttribute( "value" ) );
-    newButton.className = button.className + " noPointers";
-    newButton.setAttribute( "disabled", "true" );
+    newElement.setAttribute( "type", element.type );
+    newElement.setAttribute( "id", element.getAttribute( "id" ) + "Disabled" );
+    newElement.setAttribute( "name", element.getAttribute( "name" ) + "Disabled" );
+    newElement.setAttribute( "value", element.getAttribute( "value" ) );
+    newElement.className = element.className + " noPointers";
+    newElement.setAttribute( "disabled", "true" );
+    if( element.type === "checkbox" )
+    {
+        newElement.checked = element.checked;
+    }
 
     if( "" !== divId )
     {
         var div = document.getElementById( divId );
-        div.insertBefore( newButton, button );
+        div.insertBefore( newElement, element );
     }
     else
     {
-        var parent = button.parentNode;
-        parent.insertBefore( newButton, button );
+        var parent = element.parentNode;
+        parent.insertBefore( newElement, element );
     }
 };
 
@@ -779,7 +796,7 @@ ASN.doGradingPreviewAction = function()
     {
         if( buttons[i].type === "submit" || buttons[i].type === "button" )
         {
-            ASN.disableButton( "", buttons[i] );
+            ASN.cloneAndHideElement( "", buttons[i] );
         }
     }
 
@@ -791,4 +808,51 @@ ASN.disableLink = function( link )
 {
     link.className = "noPointers";
     link.disabled = true;
+};
+
+// SAK-29708
+ASN.checkEnableRemove = function()
+{
+    var selected = false;
+    var checkboxes = document.getElementsByName( "selectedAssignments" );
+    for( var i = 0; i < checkboxes.length; i++ )
+    {
+        if( checkboxes[i].checked )
+        {
+            selected = true;
+            break;
+        }
+    }
+
+    document.getElementById( "btnRemove" ).disabled = !selected;
+    document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
+};
+
+ASN.doReorderAction = function( action )
+{
+    document.reorderForm.onsubmit();
+    document.getElementById( "option" ).value = action;
+
+    // Disable links
+    var undoLast = document.getElementById( "undo-last" );
+    var undoAll = document.getElementById( "undo-all" );
+    var sortByTitle = document.getElementById( "sortByTitle" );
+    var sortByOpenDate = document.getElementById( "sortByOpenDate" );
+    var sortByDueDate = document.getElementById( "sortByDueDate" );
+    var links = [undoLast, undoAll, sortByTitle, sortByOpenDate, sortByDueDate];
+    for( var i = 0; i < links.length; i++ )
+    {
+        if( links[i] !== null )
+        {
+            ASN.disableLink( links[i] );
+        }
+    }
+
+    // Disable controls and activate spinner
+    ASN.disableControls();
+    ASN.showSpinner( "reorderSpinner" );
+
+    // Submit the form
+    document.reorderForm.submit();
+    return false;
 };

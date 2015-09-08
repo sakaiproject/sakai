@@ -1,0 +1,55 @@
+<?xml version="1.0"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+    
+	<parent>
+		<groupId>org.sakaiproject.samigo</groupId>
+		<artifactId>samigo</artifactId>
+		<version>11-SNAPSHOT</version>
+	</parent>
+    
+	<name>Sakai Samigo Import Handlers (samigo-import)</name>
+	<groupId>org.sakaiproject.samigo</groupId>
+	<artifactId>samigo-import</artifactId>
+	<organization>
+		<name>Sakai Foundation</name>
+		<url>http://sakaiproject.org/</url>
+	</organization>
+	<inceptionYear>2005</inceptionYear>
+	<packaging>jar</packaging>
+    
+	<dependencies>
+		<dependency>
+			<groupId>org.sakaiproject.kernel</groupId>
+			<artifactId>sakai-kernel-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.common</groupId>
+			<artifactId>archive-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sakaiproject.common</groupId>
+			<artifactId>import-impl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-services</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-api</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-qti</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>samigo-hibernate</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>OKI</groupId>
+			<artifactId>OkiOSID</artifactId>
+		</dependency>
+	</dependencies>
+</project>

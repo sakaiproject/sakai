@@ -4,9 +4,11 @@
     <title>Import from file - Confirm groups</title>
 	<link href="/library/skin/tool_base.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
 	<link href="/library/skin/default/tool.css" rsf:id="scr=portal-matter" type="text/css" rel="stylesheet" media="all"/>
+	<link href="../css/GroupList.css" rel="stylesheet" type="text/css" />
 	<script type="text/javascript" rsf:id="resize"/>
 	<script type="text/javascript" src="/library/js/jquery.js"></script>
 	<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+	<script type="text/javascript" src="../js/util.js"></script>
 </head>
 <body>
 <div class="portletBody">
@@ -26,8 +28,9 @@
         <form method="post" rsf:id="form">
            
 			<p class="act">
-                <input type="submit" rsf:id="continue" value="Create Groups"/>
-				<input type="submit" accesskey ="x" rsf:id="cancel" value="Cancel" />
+                <input type="submit" rsf:id="continue" id="continue" value="Create Groups" onclick="disableButtonsActivateSpinner( 'content::continue', 'content::cancel', 'importSpinner');" />
+				<input type="submit" accesskey ="x" rsf:id="cancel" id="cancel" value="Cancel" onclick="disableButtonsActivateSpinner( 'content::continue', 'content::cancel', 'importSpinner');" />
+				<img id="importSpinner" class="spinner" src="/library/image/indicator.gif" />
 			</p>
         </form>
         

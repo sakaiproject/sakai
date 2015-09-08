@@ -27,7 +27,7 @@ import org.apache.commons.logging.LogFactory;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.tool.api.Session;
@@ -45,6 +45,8 @@ public class ClassPathCMSyncJob extends CmSynchronizer implements Job {
 
 	protected String classPathToXml;
 
+	protected AuthzGroupService authzGroupService;
+
 	public void init() {
 		if(log.isInfoEnabled()) log.info("init()");
 	}
@@ -52,6 +54,11 @@ public class ClassPathCMSyncJob extends CmSynchronizer implements Job {
 	public void destroy() {
 		if(log.isInfoEnabled()) log.info("destroy()");
 	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -78,7 +85,7 @@ public class ClassPathCMSyncJob extends CmSynchronizer implements Job {
 		UsageSessionService.startSession("admin", "127.0.0.1", "CMSync");
 		
 		// update the user's externally provided realm definitions
-		AuthzGroupService.refreshUser("admin");
+		authzGroupService.refreshUser("admin");
 
 		// post the login event
 		EventTrackingService.post(EventTrackingService.newEvent(UsageSessionService.EVENT_LOGIN, null, true));

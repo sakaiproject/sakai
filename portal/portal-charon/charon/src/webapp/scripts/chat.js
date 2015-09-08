@@ -120,7 +120,7 @@
         var render = trimpathTemplate.process(contextObject);
 
         if (outputSelector) {
-            $(outputSelector).html(render);
+            $PBJQ(outputSelector).html(render);
         }
 
         return render;
@@ -128,7 +128,7 @@
 
     portal.chat.sendMessageToUser = function (peerUUID, siteId, isMessageToConnection, content) {
 
-        $.ajax({
+        $PBJQ.ajax({
             url : "/direct/portal-chat/new",
             dataType : "text",
             cache: false,
@@ -140,7 +140,7 @@
                 'message': content
             },
             success : function (text, status) {
-                var messagePanel = $(portal.chat.domSelectors.pcChatMessagesPre + peerUUID);
+                var messagePanel = $PBJQ(portal.chat.domSelectors.pcChatMessagesPre + peerUUID);
 
                 if ('OFFLINE' === text) {
                     var toDisplayName = portal.chat.currentConnectionsMap[peerUUID].displayName;
@@ -153,7 +153,7 @@
 
                     portal.chat.appendMessageToChattersPanel({'content': content, 'panelUuid': peerUUID, 'from': portal.user.id, 'dateString': dateString, 'fromDisplayName': 'You'});
 
-                    $(portal.chat.domSelectors.pcChatEditorForPre + peerUUID).val('');
+                    $PBJQ(portal.chat.domSelectors.pcChatEditorForPre + peerUUID).val('');
                 }
 
                 portal.chat.scrollMessageWindowToBottom(peerUUID);
@@ -194,19 +194,19 @@
         var windowId = portal.chat.domSelectors.pcChatWithPre + peerUUID;
 
         // If we already have a chat window, return.
-        if ($(windowId).length) {
+        if ($PBJQ(windowId).length) {
                 return false;
             }
 
         // Append a new chat div to the container
-        $(portal.chat.domSelectors.pcChatWinScroller).prepend("<div id=\"" + portal.chat.domNames.pcChatWithPre+ peerUUID + "\" class=\""+ portal.chat.domNames.pcChatWin + "\" data-height=\"300\"></div>");
+        $PBJQ(portal.chat.domSelectors.pcChatWinScroller).prepend("<div id=\"" + portal.chat.domNames.pcChatWithPre+ peerUUID + "\" class=\""+ portal.chat.domNames.pcChatWin + "\" data-height=\"300\"></div>");
         this.openWindows += 1;
         var openSize = ((262 * this.openWindows) + 50);
-        $(portal.chat.domSelectors.pcChatWinScroller).css("width", openSize + "px");
+        $PBJQ(portal.chat.domSelectors.pcChatWinScroller).css("width", openSize + "px");
         
-        $(portal.chat.domSelectors.pcChatWinContainer).css("right", "245px");
-        if ($(portal.chat.domSelectors.footerApp).position().left < openSize) {
-            $(portal.chat.domSelectors.pcChatScrollBar).show();
+        $PBJQ(portal.chat.domSelectors.pcChatWinContainer).css("right", "245px");
+        if ($PBJQ(portal.chat.domSelectors.footerApp).position().left < openSize) {
+            $PBJQ(portal.chat.domSelectors.pcChatScrollBar).show();
         }
 
         this.renderTemplate('pc_connection_chat_template', connection, windowId);
@@ -214,12 +214,12 @@
         this.currentChats.push(peerUUID);
 
         if (minimised) {
-            $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID).hide();
-            var chatDiv = $(windowId);
+            $PBJQ(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID).hide();
+            var chatDiv = $PBJQ(windowId);
             chatDiv.css('height', 'auto');
             chatDiv.addClass(portal.chat.domNames.pcMinimised);
         } else {
-            $(windowId).addClass(portal.chat.domNames.pcMaximised);
+            $PBJQ(windowId).addClass(portal.chat.domNames.pcMaximised);
         }
 
         var chatSessionString = sessionStorage['pcsession_' + peerUUID];
@@ -235,12 +235,14 @@
 
         sessionStorage.setItem('pcsession_' + peerUUID, JSON.stringify(chatSession));
 
-        $(portal.chat.domSelectors.pcChatEditorForPre + peerUUID).focus();
+        $PBJQ(portal.chat.domSelectors.pcChatEditorForPre + peerUUID).focus();
         // Test if video is enabled
 
         if (portal.chat.video.enabled) {
             if (portal.chat.debug) console.debug('Setting up the video chat bar ...');
             this.setupVideoChatBar(peerUUID, !portal.chat.video.webrtc.isVideoEnabled() || !portal.chat.video.hasRemoteVideoAgent(peerUUID), minimised);
+        } else {
+            this.setupVideoChatBar(peerUUID, true, minimised);
         }
 
         return false;
@@ -255,22 +257,22 @@
             return;
         }
 
-        $(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID).hide();
-        $(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID ).hide();
+        $PBJQ(portal.chat.domSelectors.pcChatVideoContentPre + peerUUID).hide();
+        $PBJQ(portal.chat.domSelectors.pcChatVideoVideoInPre + peerUUID ).hide();
 
     var videChatBar = portal.chat.domSelectors.pcChatVideoVideoChatBarPre + peerUUID;
-        $(videChatBar + ' .video_on').hide();
-        var chatDiv = $(portal.chat.domSelectors.pcChatWithPre + peerUUID);
+        $PBJQ(videChatBar + ' .video_on').hide();
+        var chatDiv = $PBJQ(portal.chat.domSelectors.pcChatWithPre + peerUUID);
         var isMinimised = (typeof minimised === "undefined") ? chatDiv.hasClass(portal.chat.domNames.pcMinimised) : minimised;
         if (notEnabled) {
-            $(videChatBar).hide();
+            $PBJQ(videChatBar).hide();
             chatDiv.attr('data-height', '300');
             if (!isMinimised) {
                 chatDiv.css('height', '300px');
                 chatDiv.css('margin-top', '0px');
             }
         } else {
-            $(videChatBar).show();
+            $PBJQ(videChatBar).show();
             if (!isMinimised) {
                 chatDiv.css('height', '318px');
                 chatDiv.css('margin-top', '-18px');
@@ -278,7 +280,7 @@
                 if (chatDiv.hasClass('video_active')) {
                     chatDiv.css('margin-top', '49px');
                 } else {
-                    chatDiv.css('margin-top', '241px');
+                    chatDiv.css('margin-top', '237px');
                 }
             }
             chatDiv.attr('data-height', '318');
@@ -307,17 +309,17 @@
             portal.chat.video.closeVideoCall(peerUUID);         
         }
 
-        $(portal.chat.domSelectors.pcChatWithPre + peerUUID).remove();
+        $PBJQ(portal.chat.domSelectors.pcChatWithPre + peerUUID).remove();
         this.openWindows -= 1;
         var openSize = ((262 * this.openWindows) + 50);
-        $(portal.chat.domSelectors.pcChatWinScroller).css("width", openSize + "px");
-        var right = $(portal.chat.domSelectors.pcChatWinContainer).css("right");
+        $PBJQ(portal.chat.domSelectors.pcChatWinScroller).css("width", openSize + "px");
+        var right = $PBJQ(portal.chat.domSelectors.pcChatWinContainer).css("right");
         right = right.substring(0,right.indexOf("px"))-0;
         if (right!=245) {
-            $(portal.chat.domSelectors.pcChatWinContainer).css("right", (right + 262) + "px");
+            $PBJQ(portal.chat.domSelectors.pcChatWinContainer).css("right", (right + 262) + "px");
         }
-        if ($(portal.chat.domSelectors.footerApp).position().left > openSize) {
-            $(portal.chat.domSelectors.pcChatScrollBar).hide();
+        if ($PBJQ(portal.chat.domSelectors.footerApp).position().left > openSize) {
+            $PBJQ(portal.chat.domSelectors.pcChatScrollBar).hide();
         }
 
         this.currentChats.splice(removed, 1);
@@ -332,8 +334,8 @@
      * expanded flag in the settings cookie.
      */
     portal.chat.toggleChat = function () {
-        var pc = $(portal.chat.domSelectors.pc);
-                var pc_user = $(portal.chat.domSelectors.pcUsers);
+        var pc = $PBJQ(portal.chat.domSelectors.pc);
+                var pc_user = $PBJQ(portal.chat.domSelectors.pcUsers);
 
         if (!this.expanded) {
             
@@ -364,7 +366,7 @@
 
     portal.chat.toggleChatWindow = function (peerUUID) {
 
-        var chatDiv = $(portal.chat.domSelectors.pcChatWithPre + peerUUID);
+        var chatDiv = $PBJQ(portal.chat.domSelectors.pcChatWithPre + peerUUID);
 
         if (chatDiv.length < 1) return;
 
@@ -372,14 +374,14 @@
         var chatSession;
 
         if (chatDiv.hasClass(portal.chat.domNames.pcMaximised)) {
-            $(portal.chat.domSelectors.pcChatContentPre + peerUUID ).hide();
+            $PBJQ(portal.chat.domSelectors.pcChatContentPre + peerUUID ).hide();
             chatDiv.addClass(portal.chat.domNames.pcMinimised);
             chatDiv.removeClass(portal.chat.domNames.pcMaximised);
             chatDiv.css('height','auto');
             if (chatDiv.hasClass('video_active')) {
                 chatDiv.css('margin-top', '49px');
             } else {
-                chatDiv.css('margin-top', ((chatDiv.attr('data-height') > 300) ? '241' : '260') + 'px');
+                chatDiv.css('margin-top', ((chatDiv.attr('data-height') > 300) ? '237' : '260') + 'px');
             }
             if (chatSessionString) {
                 chatSession = JSON.parse(chatSessionString);
@@ -388,7 +390,7 @@
                 chatSession = {'peerUUID': peerUUID, 'minimised': true, 'messages': []};
             }
         } else {
-            $(portal.chat.domSelectors.pcChatContentPre + peerUUID).show();
+            $PBJQ(portal.chat.domSelectors.pcChatContentPre + peerUUID).show();
             chatDiv.removeClass(portal.chat.domNames.pcMinimised);
             chatDiv.addClass(portal.chat.domNames.pcMaximised);
             chatDiv.css('height', chatDiv.attr('data-height') + 'px');
@@ -397,7 +399,7 @@
             } else {
                 chatDiv.css('margin-top', ((chatDiv.attr('data-height') > 300) ? '-18':'0') + 'px');
             }
-            $(portal.chat.domSelectors.pcChatWithPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatConnectionTitle).removeClass(portal.chat.domNames.pcNewMessage);
+            $PBJQ(portal.chat.domSelectors.pcChatWithPre + peerUUID + ' > ' + portal.chat.domSelectors.pcChatConnectionTitle).removeClass(portal.chat.domNames.pcNewMessage);
             this.scrollMessageWindowToBottom(peerUUID);
             if (chatSessionString) {
                 chatSession = JSON.parse(chatSessionString);
@@ -406,7 +408,7 @@
                 chatSession = {'peerUUID': peerUUID, 'minimised': false, 'messages': []};
             }
 
-            $(portal.chat.domSelectors.pcChatEditorForPre + peerUUID).focus();
+            $PBJQ(portal.chat.domSelectors.pcChatEditorForPre + peerUUID).focus();
         }
 
         sessionStorage.setItem('pcsession_' + peerUUID, JSON.stringify(chatSession));
@@ -414,7 +416,7 @@
 
     portal.chat.scrollMessageWindowToBottom = function (uuid) {
 
-        $(document).ready(function () {
+        $PBJQ(document).ready(function () {
 
             var objDiv = document.getElementById(portal.chat.domSelectors.pcChatMessagesPre + uuid);
 
@@ -452,26 +454,26 @@
         var timestamp = message.timestamp;
 
         // If a chat window is already open for this sender, append to it.
-        var messagePanel = $(portal.chat.domSelectors.pcChatWithPre + from);
+        var messagePanel = $PBJQ(portal.chat.domSelectors.pcChatWithPre + from);
 
         var flashIt = false;
 
         if (!messagePanel.length) {
             // No current chat window for this sender. Create one.
             this.setupChatWindow(from, true);
-        } else if ($(portal.chat.domSelectors.pcChatContentPre + from).css('display') === 'none') {
+        } else if ($PBJQ(portal.chat.domSelectors.pcChatContentPre + from).css('display') === 'none') {
             // The sender's chat window is currently minimised so we want to flash it to
             // draw attention to it.
             flashIt = true;
         }
 
         if (flashIt) {
-            $(portal.chat.domSelectors.pcChatWithPre + from + + ' > ' + portal.chat.domSelectors.pcChatConnectionTitle).addClass(portal.chat.domNames.pcNewMessage);
+            $PBJQ(portal.chat.domSelectors.pcChatWithPre + from + + ' > ' + portal.chat.domSelectors.pcChatConnectionTitle).addClass(portal.chat.domNames.pcNewMessage);
         }
 
         var fromDisplayName = this.currentConnectionsMap[from].displayName;
         var userId =this.currentConnectionsMap[from].uuid;
-        messagePanel = $(portal.chat.domSelectors.pcChatMessagesPre + from);
+        messagePanel = $PBJQ(portal.chat.domSelectors.pcChatMessagesPre + from);
 
         var dateString = this.formatDate(new Date(timestamp));
         portal.chat.appendMessageToChattersPanel({'content': content, 'panelUuid': from, 'from': from, 'dateString': dateString, 'fromDisplayName': fromDisplayName});
@@ -516,7 +518,7 @@
                         present = true;
                         if (portal.chat.currentConnections[k].online != connections[i].online || portal.chat.currentConnections[k].video != connections[i].video) {
                             if (connections[i].video!='none') {
-                                portal.chat.setupVideoChatBar(portal.chat.currentConnections[k].uuid, false,$(portal.chat.domSelectors.pcChatWithPre+ portal.chat.currentConnections[k].uuid).css('height') == 'auto');
+                                portal.chat.setupVideoChatBar(portal.chat.currentConnections[k].uuid, false,$PBJQ(portal.chat.domSelectors.pcChatWithPre+ portal.chat.currentConnections[k].uuid).css('height') == 'auto');
                             } else {
                                 if (portal.chat.video.enabled && !portal.chat.video.hasVideoChatActive(portal.chat.currentConnections[k].uuid)) {
                                     portal.chat.setupVideoChatBar(portal.chat.currentConnections[k].uuid, true);
@@ -583,7 +585,7 @@
                             inCurrentData = false;
                             if (siteUsers[i].video!='none') {
                                 portal.chat.setupVideoChatBar(portal.chat.currentSiteUsers[k].uuid,
-                                        false,$(portal.chat.domSelectors.pcChatWithPre+ portal.chat.currentSiteUsers[k].uuid).css('height') == 'auto');
+                                        false,$PBJQ(portal.chat.domSelectors.pcChatWithPre+ portal.chat.currentSiteUsers[k].uuid).css('height') == 'auto');
                             } else {
                                 if (!portal.chat.video.hasVideoChatActive(portal.chat.currentSiteUsers[k].id)) {
                                     portal.chat.setupVideoChatBar(portal.chat.currentSiteUsers[k].uuid,true);
@@ -609,7 +611,7 @@
             if (portal.chat.currentSiteUsers.length > 0) {
                 portal.chat.renderTemplate('pc_site_users_template',{'siteUsers':portal.chat.currentSiteUsers},portal.chat.domSelectors.pcChatSiteUsers);
             } else {
-                $(portal.chat.domSelectors.pcChatSiteUsers).html('');
+                $PBJQ(portal.chat.domSelectors.pcChatSiteUsers).html('');
             }
 
             for (var i2=0,j2=portal.chat.currentSiteUsers.length;i2<j2;i2++) {
@@ -625,9 +627,9 @@
 
     portal.chat.sortConnections = function () {
 
-        $(document).ready(function (){
+        $PBJQ(document).ready(function (){
 
-            $(portal.chat.domSelectors.pcChatConnections).html($(portal.chat.domSelectors.pcChatConnection).sort(function (a, b) {
+            $PBJQ(portal.chat.domSelectors.pcChatConnections).html($PBJQ(portal.chat.domSelectors.pcChatConnection).sort(function (a, b) {
                 var val1 = a.children[0].children[1].innerHTML;
                 var val2 = b.children[0].children[1].innerHTML;
                 return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
@@ -637,9 +639,9 @@
 
     portal.chat.sortSiteUsers = function () {
 
-        $(document).ready(function (){
+        $PBJQ(document).ready(function (){
 
-            $(portal.chat.domSelectors.pcChatSiteUsers).html($(portal.chat.domSelectors.pcChatSiteUser).sort(function (a, b) {
+            $PBJQ(portal.chat.domSelectors.pcChatSiteUsers).html($PBJQ(portal.chat.domSelectors.pcChatSiteUser).sort(function (a, b) {
                 var val1 = a.children[0].children[1].innerHTML;
                 var val2 = b.children[0].children[1].innerHTML;
                 return val1 == val2 ? 0 : val1 < val2 ? -1 : 1;
@@ -679,7 +681,7 @@
         var onlineString = portal.chat.offline ? 'false' : 'true';
         var videoAgent = (this.video.enabled && !this.videoOff) ? this.video.getLocalVideoAgent() : 'none';
 
-        $.ajax({
+        $PBJQ.ajax({
             url : '/direct/portal-chat/' + portal.user.id + '/latestData.json?auto=true&siteId=' + portal.siteId + '&online=' + onlineString + '&videoAgent=' + videoAgent,
             dataType : "json",
             cache: false,
@@ -694,19 +696,19 @@
                 // SAK-20565. Profile2 may not be installed, so no connections :(
                 if (portal.chat.connectionsAvailable === true) {
                     if (data.data.connectionsAvailable) {
-                        $(portal.chat.domSelectors.pcChatConnectionsWrapper).show();
+                        $PBJQ(portal.chat.domSelectors.pcChatConnectionsWrapper).show();
                         portal.chat.updateConnections(data.data.connections, data.data.online);
                     } else {
-                        $(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
+                        $PBJQ(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
                         // No point checking again as profile2 can't be installed without a full restart
                     }
                 }
 
                 if (data.data.showSiteUsers) {
-                    $(portal.chat.domSelectors.pcChatUsersWrapper).show();
+                    $PBJQ(portal.chat.domSelectors.pcChatUsersWrapper).show();
                     portal.chat.updateSiteUsers(data.data.presentUsers);
                 } else {
-                    $(portal.chat.domSelectors.pcChatUsersWrapper).hide();
+                    $PBJQ(portal.chat.domSelectors.pcChatUsersWrapper).hide();
                 }
 
                 var totalChattable = data.data.online ? data.data.online.length : 0;
@@ -729,14 +731,14 @@
                 }
 
                 if (totalChattable > 0) {
-                    $(portal.chat.domSelectors.pcChatChatableCount).html(totalChattable + '');
-                    $(portal.chat.domSelectors.pcChatChatableCount).removeClass('empty').addClass('present');
+                    $PBJQ(portal.chat.domSelectors.pcChatChatableCount).html(totalChattable + '');
+                    $PBJQ(portal.chat.domSelectors.pcChatChatableCount).removeClass('empty').addClass('present');
                 } else {
-                    $(portal.chat.domSelectors.pcChatChatableCount).html(' ');
-                    $(portal.chat.domSelectors.pcChatChatableCount).removeClass('present').addClass('empty');
+                    $PBJQ(portal.chat.domSelectors.pcChatChatableCount).html(' ');
+                    $PBJQ(portal.chat.domSelectors.pcChatChatableCount).removeClass('present').addClass('empty');
                 }
 
-                $(portal.chat.domSelectors.pcChatVideoLink).toggle(videoAgent !== 'none');
+                $PBJQ(portal.chat.domSelectors.pcChatVideoLink).toggle(videoAgent !== 'none');
             },
             error : function (xhr,textStatus,error) {
 
@@ -776,13 +778,13 @@
 
     portal.chat.pingConnection = function (connectionUserId) {
 
-        $.ajax({
+        $PBJQ.ajax({
             url : '/direct/portal-chat/' + connectionUserId + '/ping',
             dataType : "text",
             cache: false,
             success : function (text,status) {
-                $(portal.chat.domSelectors.pcChatPingedPopupPre + connectionUserId).show();
-                setTimeout(function () { $(portal.chat.domSelectors.pcChatPingedPopupPre + connectionUserId).fadeOut(800); },500);
+                $PBJQ(portal.chat.domSelectors.pcChatPingedPopupPre + connectionUserId).show();
+                setTimeout(function () { $PBJQ(portal.chat.domSelectors.pcChatPingedPopupPre + connectionUserId).fadeOut(800); },500);
             },
             error : function (xmlHttpRequest,textStatus,error) {
 
@@ -849,7 +851,7 @@
         var alt = params.fromDisplayName;
 
         var avatarPermitted;
-        if ($(portal.chat.domSelectors.pcChatAvatarPerm).length === 1) {
+        if ($PBJQ(portal.chat.domSelectors.pcChatAvatarPerm).length === 1) {
             avatarPermitted =true;
         } else {
             avatarPermitted =false;
@@ -873,7 +875,7 @@
         // Decode any unicode escapes
         content = JSON.parse('"' + content + '"');
 
-    var messagePanel = $(portal.chat.domSelectors.pcChatMessagesPre + panelUuid);
+    var messagePanel = $PBJQ(portal.chat.domSelectors.pcChatMessagesPre + panelUuid);
 
     var chatMessage =
         "<li>" +
@@ -888,10 +890,10 @@
     messagePanel.append (chatMessage);
     };
 
-    $(document).ready(function () {
+    $PBJQ(document).ready(function () {
         
         if (portal.loggedIn) {
-            $(portal.chat.domSelectors.footerAppChatToggle).click(function () {
+            $PBJQ(portal.chat.domSelectors.footerAppChatToggle).click(function () {
                 portal.chat.toggleChat();
             });
 
@@ -912,7 +914,7 @@
             }
 
             if (portal.chat.getSetting('offline', true)) {
-                $(portal.chat.domSelectors.pcChatOfflineCheck).prop('checked', true);
+                $PBJQ(portal.chat.domSelectors.pcChatOfflineCheck).prop('checked', true);
                 portal.chat.offline = true;
             } else {
                 portal.chat.offline = false;
@@ -924,13 +926,13 @@
 
             if (portal.chat.video.enabled && portal.chat.video.webrtc.isVideoEnabled()) { 
                 if (portal.chat.getSetting('videoOff',true)) {
-                    $(portal.chat.domSelectors.pcVideoOffCheckOff).prop('checked', true);
+                    $PBJQ(portal.chat.domSelectors.pcVideoOffCheckOff).prop('checked', true);
                     portal.chat.videoOff = true;
                 } else {
                     portal.chat.videoOff = false;
                 }
             } else {
-                $(portal.chat.domSelectors.pcVideoOffCtrl).hide();
+                $PBJQ(portal.chat.domSelectors.pcVideoOffCtrl).hide();
             }
 
             portal.chat.setGetLatestDataInterval();
@@ -943,28 +945,28 @@
             sessionStorage.removeItem('pcCurrentSiteUsersMap');
         }
 
-        $(portal.chat.domSelectors.pcChatShowOfflineConsCheck).click(function () {
+        $PBJQ(portal.chat.domSelectors.pcChatShowOfflineConsCheck).click(function () {
 
-            if ($(this).prop('checked')) {
+            if ($PBJQ(this).prop('checked')) {
                 portal.chat.showOfflineConnections = true;
                 portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},portal.chat.domSelectors.pcChatConnections);
-        var pc_users = $(portal.chat.domSelectors.pcUsers);              
+        var pc_users = $PBJQ(portal.chat.domSelectors.pcUsers);              
 
                 if (pc_users.height() > portal.chat.MAX_CONTENT_HEIGHT) pc_users.height(portal.chat.MAX_CONTENT_HEIGHT);
                 portal.chat.setSetting('showOfflineConnections',true);
             } else {
                 portal.chat.showOfflineConnections = false;
                 portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},portal.chat.domSelectors.pcChatConnections);
-                $(portal.chat.domSelectors.pcChatConnections).css('height','auto');
+                $PBJQ(portal.chat.domSelectors.pcChatConnections).css('height','auto');
                 portal.chat.setSetting('showOfflineConnections',false);
             }
 
             portal.chat.sortConnections();
         });
 
-        $(portal.chat.domSelectors.pcChatOfflineCheck).click(function () {
+        $PBJQ(portal.chat.domSelectors.pcChatOfflineCheck).click(function () {
 
-            if ($(this).prop('checked')) {
+            if ($PBJQ(this).prop('checked')) {
                 portal.chat.setSetting('offline', true, true);
                 portal.chat.offline = true;
             } else {
@@ -995,10 +997,10 @@
         };
 
         // SAK-25505 - Switch from live() to on()
-        if ($(document).on) {
-            $(document).on('keypress', portal.chat.domSelectors.pcChatEditor, keyPressFunction);
+        if ($PBJQ(document).on) {
+            $PBJQ(document).on('keypress', portal.chat.domSelectors.pcChatEditor, keyPressFunction);
         } else {
-            $(portal.chat.domSelectors.pcChatEditor).live('keypress', keyPressFunction);
+            $PBJQ(portal.chat.domSelectors.pcChatEditor).live('keypress', keyPressFunction);
         }
 
         if (portal.chat.getSetting('expanded') && portal.loggedIn) {
@@ -1008,41 +1010,41 @@
         var connectionsAvailableSetting = portal.chat.getSetting('connectionsAvailable');
         if (connectionsAvailableSetting !== undefined && connectionsAvailableSetting === false) {
             // SAK-20565. Profile2 may not be installed,so no connections :(
-           $(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
+           $PBJQ(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
         }
 
         // Will be set by getLatestData with the right value.
-        $(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
+        $PBJQ(portal.chat.domSelectors.pcChatConnectionsWrapper).hide();
 
         // Clear all of the intervals when the window is closed
-        $(window).bind('unload', function () {
+        $PBJQ(window).bind('unload', function () {
             portal.chat.clearGetLatestDataInterval();
         });
 
-        $(document).bind('focus', function () {
+        $PBJQ(document).bind('focus', function () {
             document.title = portal.chat.originalTitle;
         });
 
         // Explicitly close presence panel. This also handles clicks bubbled up from the close icon.
-        $(portal.chat.domSelectors.pcChatTitle).click(function (e) {
+        $PBJQ(portal.chat.domSelectors.pcChatTitle).click(function (e) {
 
-            if ($(e.target).is('img')) {
+            if ($PBJQ(e.target).is('img')) {
                 return;
             }
             e.preventDefault();
             if (portal.chat.video) {
 
-                if ($(portal.chat.domSelectors.pcChatContent).is(':visible')) {
-                    $(portal.chat.domSelectors.pcChatContent).hide();
+                if ($PBJQ(portal.chat.domSelectors.pcChatContent).is(':visible')) {
+                    $PBJQ(portal.chat.domSelectors.pcChatContent).hide();
                 } else {
-                    $(portal.chat.domSelectors.pcChatContent).show();
+                    $PBJQ(portal.chat.domSelectors.pcChatContent).show();
                 }
             } else {
                 portal.chat.toggleChat();
             }
         });
 
-        $(portal.chat.domSelectors.pcChatTitleClose).click(function (e){
+        $PBJQ(portal.chat.domSelectors.pcChatTitleClose).click(function (e){
 
             e.preventDefault();
             portal.chat.toggleChat();
@@ -1051,13 +1053,13 @@
         if (portal.chat.currentConnections.length > 0) {
             if (portal.chat.showOfflineConnections) {
                 portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.currentConnections},portal.chat.domSelectors.pcChatConnections);
-                $(portal.chat.domSelectors.pcChatShowOfflineConsCheck).prop('checked', true);
+                $PBJQ(portal.chat.domSelectors.pcChatShowOfflineConsCheck).prop('checked', true);
             } else {
                 portal.chat.renderTemplate('pc_connections_template',{'connections':portal.chat.onlineConnections},portal.chat.domSelectors.pcChatConnections);
-                $(portal.chat.domSelectors.pcChatShowOfflineConsCheck).prop('checked', false);
+                $PBJQ(portal.chat.domSelectors.pcChatShowOfflineConsCheck).prop('checked', false);
             }
          
-            var pc_users = $(portal.chat.domSelectors.pcUsers);
+            var pc_users = $PBJQ(portal.chat.domSelectors.pcUsers);
 
             if (pc_users.height() > portal.chat.MAX_CONTENT_HEIGHT) pc_users.height(portal.chat.MAX_CONTENT_HEIGHT);
             portal.chat.sortConnections();
@@ -1083,7 +1085,7 @@
 
                 // Now we've setup the chat window we can add the messages.
 
-                var messagePanel = $(portal.chat.domSelectors.pcChatMessagesPre + sms.peerUUID);
+                var messagePanel = $PBJQ(portal.chat.domSelectors.pcChatMessagesPre + sms.peerUUID);
 
                 var messages = sms.messages;
 
@@ -1103,39 +1105,39 @@
             }
         }
         
-        $("#goright").click(function () {
+        $PBJQ("#goright").click(function () {
 
-            var freeSpace = $(portal.chat.domSelectors.footerApp).position().left;
-            var openSize = $(portal.chat.domSelectors.pcChatWinScroller).css("width");
+            var freeSpace = $PBJQ(portal.chat.domSelectors.footerApp).position().left;
+            var openSize = $PBJQ(portal.chat.domSelectors.pcChatWinScroller).css("width");
             openSize = openSize.substring(0,openSize.indexOf("px")) - 0;
-            var right = $(portal.chat.domSelectors.pcChatWinContainer).css("right");
+            var right = $PBJQ(portal.chat.domSelectors.pcChatWinContainer).css("right");
             right = right.substring(0, right.indexOf("px")) - 0;
             if (openSize > freeSpace) {
                 if (right == 245) {
                     return;
                 }
-                $(portal.chat.domSelectors.pcChatWinContainer).css("right",(right + 262) + "px");
+                $PBJQ(portal.chat.domSelectors.pcChatWinContainer).css("right",(right + 262) + "px");
             }
         });
         
-        $("#goleft").click(function () {
+        $PBJQ("#goleft").click(function () {
 
-            var freeSpace = $(portal.chat.domSelectors.footerApp).position().left;
-            var openSize = $(portal.chat.domSelectors.pcChatWinScroller).css("width");
+            var freeSpace = $PBJQ(portal.chat.domSelectors.footerApp).position().left;
+            var openSize = $PBJQ(portal.chat.domSelectors.pcChatWinScroller).css("width");
             openSize = openSize.substring(0, openSize.indexOf("px")) - 0;
-            var right = $(portal.chat.domSelectors.pcChatWinContainer).css("right");
+            var right = $PBJQ(portal.chat.domSelectors.pcChatWinContainer).css("right");
             right = right.substring(0, right.indexOf("px")) - 0;
             if (openSize > freeSpace) {
                 if (openSize + right - 245 < freeSpace) return;
-                $(portal.chat.domSelectors.pcChatWinContainer).css("right",(right - 262) + "px");
+                $PBJQ(portal.chat.domSelectors.pcChatWinContainer).css("right",(right - 262) + "px");
             }
         });
     }); // document.ready
 
     // 15 minutes
-    $.idleTimer(900000);
+    $PBJQ.idleTimer(900000);
 
-    $(document).bind("idle.idleTimer", function () {
+    $PBJQ(document).bind("idle.idleTimer", function () {
         portal.chat.clearGetLatestDataInterval();
     }).bind("active.idleTimer", function () {
         portal.chat.setGetLatestDataInterval();
@@ -1144,5 +1146,5 @@
 }) ($PBJQ);
 
 $PBJQ(document).ready(function () {
-    $(portal.chat.domSelectors.footerAppChat).removeClass('is-hidden');
+    $PBJQ(portal.chat.domSelectors.footerAppChat).removeClass('is-hidden');
 });

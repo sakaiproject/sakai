@@ -10,19 +10,21 @@
 		display: block;
 		position: fixed;
 		top: 0;
-		left: 0;
-		width: calc( 60% - 2em );
-		height: calc( 100% - 2em );
+		left: 40%;
+		width: 60% ;
+		height: 100% ;
 		padding: 1em;
-		overflow: auto;
+		overflow-y: auto;
+		overflow-x: hidden;
 		z-index: 1005;
 		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
 		@media #{$phone}{
-			width: calc( 85% - 2em );
+			width: 85% ;
+			left: 15%  ;
 		}
 	}
 	&.outscreen{
-		left: -1200px;
+		left: calc(100% + 2em) ;
 		max-width:1200px;
 		#otherSiteCloseW{
 			.toggler{

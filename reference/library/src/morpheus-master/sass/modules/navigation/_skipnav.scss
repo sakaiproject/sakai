@@ -4,34 +4,34 @@
 		display: block;
 		.js-toggle-tools-nav{
 			position: absolute;
-			top: 36px;
-			left: 10px;
+			top: 2em;
+			left: 0em;
+			height:1.5em;
+			width:2em;
 			display: block;
-			color: $background-color;
-			font-size: 2.7em;
+			color: $background-color-secondary;
+			background: lighten( $background-color, 5% );
+			font-size: 1.5em;
+			padding-left:15px;
+			padding-bottom:4px;
+			padding-right:5px;		
 			z-index: 10;
 			text-decoration: none;
 			@include transition( left 0.5s linear );
 			span{
 				display: none;
 			}
-			&:after{
-				top: 5px;
-			}
-			&:before{
-				top: -10px;
-			}
 		}
 		.js-toggle-sites-nav{
 			display: block;
-			height: 32px;
-			left:5px;
-			position: fixed;
+			height: 42px;
+			right: 0px;
+			position: absolute;
 			text-decoration: none;
-			top: 5px;
-			width: 32px;
+			top: 46px;
+			width: 50px;
 			overflow: hidden;
-			z-index: 30;
+			z-index: 0;
 			@include transition(left 0.5s linear);
 			span{
 				display: none;
@@ -39,7 +39,7 @@
 					width: 32px;
 					height: 32px;
 					font-size: 2.7em;
-					@include display-flex(inline-flex);
+					/*@include display-flex(inline-flex);*/
 			  		@include flex-direction(column);
 			  		@include align-items(flex-end);
 			  		@include justify-content(space-between);
@@ -47,7 +47,7 @@
 			  		> span{
 			  			display: block;
 			  			height: 8px;
-			  			color: $primary-color;
+			  			color: $background-color-secondary;
 				  		@include transition( all 0.5s linear );
 			  			&.top{
 			  				position: relative;
@@ -66,5 +66,21 @@
 				}
 			}
 		}
+	}
+}
+body.is-logged-out{
+	#skipNav{
+		@media #{$phone}{
+			.js-toggle-tools-nav{
+				top:3em;
+			 }
+		}
+	}
+	&.toolsNav--displayed{
+			#skipNav{
+				.js-toggle-tools-nav{
+					top:3em;
+				}
+			}
 	}
 }

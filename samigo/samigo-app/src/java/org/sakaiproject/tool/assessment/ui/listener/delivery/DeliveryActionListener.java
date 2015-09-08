@@ -71,6 +71,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.EvaluationModelIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.SectionDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.shared.TypeIfc;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
@@ -331,6 +332,8 @@ public class DeliveryActionListener
                       }    	  
                   }
               }
+
+              populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
               
               // If this is a linear access and user clicks on Show Feedback, we do not
               // get data from db. Use delivery bean instead
@@ -1430,8 +1433,8 @@ public class DeliveryActionListener
       // Never randomize Fill-in-the-blank or Numeric Response, always randomize matching
       if (randomize && !(item.getTypeId().equals(TypeIfc.FILL_IN_BLANK)||
     		  item.getTypeId().equals(TypeIfc.FILL_IN_NUMERIC) || 
-    		  item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY)) ||
-    		  item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION) || // CALCULATED_QUESTION
+    		  item.getTypeId().equals(TypeIfc.MATRIX_CHOICES_SURVEY) ||
+    		  item.getTypeId().equals(TypeIfc.CALCULATED_QUESTION)) || // CALCULATED_QUESTION
     		  item.getTypeId().equals(TypeIfc.MATCHING))
       {
             ArrayList shuffled = new ArrayList();
@@ -2302,6 +2305,22 @@ public class DeliveryActionListener
   }
 */
 
+  public void populateSubmissionsRemaining(PublishedAssessmentService service, PublishedAssessmentIfc pubAssessment, DeliveryBean delivery) {
+      AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
+
+      int totalSubmissions = service.getTotalSubmission(AgentFacade.getAgentString(), pubAssessment.getPublishedAssessmentId().toString()).intValue();
+      delivery.setTotalSubmissions(totalSubmissions);
+
+      if (!(Boolean.TRUE).equals(control.getUnlimitedSubmissions())){
+        // when re-takes are allowed always display 1 as number of remaining submission
+        int submissionsRemaining = control.getSubmissionsAllowed().intValue() - totalSubmissions;
+        if (submissionsRemaining < 1) {
+            submissionsRemaining = 1;
+        }
+        delivery.setSubmissionsRemaining(submissionsRemaining);
+      }
+  }
+
   /**
    * CALCULATED_QUESTION
    * This method essentially will convert a CalculatedQuestion item which is initially structured
@@ -2344,20 +2363,17 @@ public class DeliveryActionListener
       Iterator<AnswerIfc> iter = calcQuestionEntities.iterator();
       while (iter.hasNext())
       {
-          if (i == numOfAnswers) break; // AnswerArray holds the vars so there may be more than we need
-
           AnswerIfc answer = iter.next();
-
-          answer.setIsCorrect(true);
+          
+          // Checks if the 'answer' object is a variable or a real answer
+          if(service.extractVariables(answer.getText()).isEmpty()){
+              continue;
+          }
 
           FinBean fbean = new FinBean();
           fbean.setItemContentsBean(bean);
           fbean.setAnswer(answer);
-          if (texts.toArray().length>i) {
-              fbean.setText( (String) texts.toArray()[i++]);
-          } else {
-              fbean.setText("");
-          }
+          fbean.setText((String) texts.toArray()[i++]);
           fbean.setHasInput(true); // input box
 
           List<ItemGradingData> datas = bean.getItemGradingDataArray();
@@ -2371,24 +2387,11 @@ public class DeliveryActionListener
                   {
                       fbean.setItemGradingData(data);
                       fbean.setResponse(FormattedText.convertFormattedTextToPlaintext(data.getAnswerText()));
-                      fbean.setIsCorrect(false);
                       if (answer.getText() == null)
                       {
                           answer.setText("");
                       }
-                      StringTokenizer st2 = new StringTokenizer(answer.getText(), "|");
-                      while (st2.hasMoreTokens())
-                      {
-                          String nextT = st2.nextToken();
-                          log.debug("nextT = " + nextT);
-                          //  mark answer as correct if autoscore > 0
-
-                          if (data.getAutoScore() != null &&
-                                  data.getAutoScore().doubleValue() > 0.0)
-                          {
-                              fbean.setIsCorrect(true);
-                          }
-                      }
+                      fbean.setIsCorrect(service.getCalcQResult(data, item, answersMap, i));
                   }
               }
           }

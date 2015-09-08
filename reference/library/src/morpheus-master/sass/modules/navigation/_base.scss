@@ -1,20 +1,29 @@
-.#{$namespace}mainHeader{
-	background: $background-color-secondary;
-	left: 0;
-	position: absolute;
-	top: 0;
-	width: 100%;
-	@include box-shadow( 0 0 2px rgba( $text-color ,0.5) );
-
-	> * {
-		display: inline-block;
-		vertical-align: middle;
+body.is-logged-out{
+	.#{$namespace}loginUser{
+		li{
+			a{
+				.login-Icon{
+					display: none;
+				}
+			}
+		}
 	}
+	.Mrphs-mainHeader .Mrphs-headerLogo .Mrphs-headerLogo--institution{
+		margin: 0.6em 1.5em 0 1em;
+	}
+	.#{$namespace}topHeader{
+		@media #{$phone}{
+			min-height:4.2em;
+		}
+	}
+}
+
+.#{$namespace}mainHeader{
 	
 	.#{$namespace}headerLogo{
 		background: $primary-color;
-		height: 	$header-size;
 		overflow: 	hidden;
+		text-align: left;
 		width: 		$tool-menu-width;
 
 		@include transition(width 0.5s linear);
@@ -22,11 +31,14 @@
 			width: 0px;
 		}
 		.#{$namespace}headerLogo--institution{
-			background: url($logo) no-repeat top left;
+			background: url($logo) no-repeat center center;
 			width: 		50px;
 			height: 	30px;
-			display:	block;
-			margin:		0.6em 1.5em 0 1.5em;
+			display:	inline-block;
+			margin:		0.6em 1.5em 0 4em;
+			@media #{$phone}{
+				display: none;
+			}
 		}
 	}
 	
@@ -35,19 +47,28 @@
 		li{
 			display: inline-block;
 			margin: 0 0.8em 0 0;
+			@media #{$phone}{
+				margin: 0 0.2em 0 0;
+			}
 			a{
-				@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $button-text-color );
+				.login-Icon{
+					@extend .fa-power-off;
+					@extend .fa;
+					@extend .fa-lg;
+					margin: 0 0.6em 0 0;
+					@media #{$phone}{
+						font-size: 1.7em;
+						position: relative;
+						left: 0.4em;
+					}
+				}
 			}
 		}
 	}
 
 	&.is-maximized{
 		.siteNavWrap{
-			height: calc( #{$header-size} - 1em);
-			padding: 0.6em 0 0.4em 0.6em;
-			width: calc( 100% - 100px - #{$tool-menu-width} );
 			overflow: hidden;
-
 			background-color: $background-color-secondary; // Old browsers
 			@include filter-gradient($background-color-secondary, darken($background-color-secondary, 5%), horizontal); // IE6-8
 			// IE9 SVG, needs conditional override of 'filter' to 'none'
@@ -57,73 +78,18 @@
 				background: $background-color-secondary;
 			}
 		}
-	}
-
-	&.is-minimized{
-		.#{$namespace}loginNav{
-			width: calc(100% - #{$tool-menu-width * 1.1 } );
-			text-align: right;
-			form{
-				font-size: 0.9em;
-				input[type="submit"]{
-					@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $button-text-color );
-				}
-				input[type="text"],input[type="password"]{
-					margin: 0 0 0 0.5em;
-					padding: 0.25em;
-					@media #{$phone}{
-						width: 20%;
-					}
-				}
-				@media #{$phone}{
-					position: absolute;
-					top: 0px;
-					right: 5px;
-				}
-			}
-			@media #{$phone}{
-				width: 100%;
-				float: right;
-				margin: 0.5em 0 0 0;
-				label[for="pw"]{
-					&:before {
-					    content:"\a";
-					    white-space: pre;
-					}
-				}
-			}
-		}
-	}
-	@media #{$phone}{
-		position: fixed;
-		z-index: 20;
-	}
-}
-
-#roleSwitch{
-	position: absolute;
-	margin: 1em 1em;
-	top: calc( #{$header-size} - 0.5em);
-	z-index: 99;
-	a{
-		color: $background-color;
-		font-family: $header-font-family;
-		position: relative;
-		top: 4px;
 		@media #{$phone}{
-			color: $primary-color;
-			font-size: 1.1em;
+			.#{$namespace}login-Message{
+				display: none;
+			}
 		}
-	}
-	select{
-		border: 1px solid darken( $primary-color, 10% );
 	}
 	@media #{$phone}{
-		right: 0;
-		z-index: 0;
-		select{
-			max-width: 120px;
-		}
+		background: $primary-color;
+		position: fixed;
+		top: 0;
+		width: 100%;
+		z-index: 20;
 	}
 }
 
@@ -137,11 +103,9 @@
 }
 
 .userNav__subnav{
-	background: $background-color-secondary;
 	position: absolute;
 	width: $tool-menu-width;
 	z-index: 99;
-	@include border-radius( 2px );
 	@include box-shadow( 0 0 4px rgba( $text-color ,0.35) );
 	li{
 		display: block;
@@ -151,12 +115,11 @@
 		padding: 0 0 0 0;
 		min-height: 15px;
 		a{
-			@extend .userNav_link;
 			display: block;
 			padding: 0.85em 0.65em;
+			text-decoration: none;
 			&:hover{
-				background:  darken( $background-color-secondary, 15% );
-				font-weight: bold;
+				text-decoration: underline;
 			}
 			.toolMenuIcon{
 				vertical-align: sub;
@@ -173,166 +136,230 @@
 	}
 }
 
+.#{$namespace}topHeader{
+	background: $primary-color;
+	color: $background-color-secondary;
+	font-size: 0.9em;
+	text-align: right;
+	a{
+		color: $background-color-secondary;
+	}
+	> * {
+		display: inline-block;
+		vertical-align: middle;
+		@media #{$phone}{
+			display: inline;
+		}
+	}
+
+}
+
 #mastLogin{
 
-	font-size: 0.8em;
+	width: calc( 100% - #{$tool-menu-width} - 4px ); //Fix for inline-block margin.
+	@media #{$phone}{
+		width: auto;
+	}
+
+	ul{
+		display: inline-block;
+		text-align: left;
+		border-left: 1px solid darken( $primary-color, 5% );
+		padding: 0 0.5em;
+		margin-bottom:0px;
+	}
+
 
 	.is-hidden{
 		display: none;
 	}
+
+
+	#loginForm{
+		margin: 0 0.8em 0 0;
+		@media #{$phone}{
+			margin: 0 0.3em 0 0;
+		}
+		input[type="text"],input[type="password"],input[type="email"]{
+			padding: 0.35em 0.3em;
+		}
+		.#{$namespace}loginForm__button{
+			@if $button-gradiant {
+				@include sakai-button(  $background-color-secondary, 
+									darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 25% ), 
+									$button-text-color-secondary );
+			}
+			@else{
+				@include sakai-button(  darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 15% ), 
+									darken( $primary-color, 15% ) );
+			}
+		}
+		div{
+			display:inline-block;
+			@media #{$phone}{
+				max-width:260px;
+			}
+		}
+	}
+
+	#loginUser{
+		display: block;
+		padding: 0.9em 1.5em 0.9em 0.9em;
+		&.has-avatar{
+			padding: 0em 1.5em 0.8em 0px;
+			position: relative;
+			margin-top: -0.8em;
+			.#{$namespace}userNav__submenuitem--username{
+				color: $button-text-color;
+				text-decoration: underline;
+				@media #{$phone}{
+					display: none;
+				}
+			}
+			.#{$namespace}userNav__submenuitem--userid{
+				@media #{$phone}{
+					display: none;
+				}
+			}
+			.#{$namespace}userNav__submenuitem--profilepicture{
+				width:32px;
+				height:32px;
+				display:inline-block;
+				background-size: auto 100%;
+				background-position: 50%;
+				border-radius:50%;
+				margin:5px auto 0px;
+				position: relative;
+				top: 0.8em;
+			}
+		}
+	}
+
 	.#{$namespace}loginUser{
-		position: absolute;
-		top: 10px;
-		right: 10px;
-		.#{$namespace}loginUser__info{
-			display: none;
-		}
-		a{
-			@include sakai-button( $primary-color, darken( $primary-color, 2% ), $primary-color, $button-text-color );
-		}
+		padding: 0.9em 0.5em;
 	}
-	.#{$namespace}loginUser__menuitem{
-		display: inline-block;
-	}
+
 	.#{$namespace}userNav__drop{
 		@extend .fa-angle-down;
 		@extend .fa;
 		@extend .fa-lg;
 		@extend .sitesNav__drop;
+		float: right;
+		position: relative;
+		margin-top: -1.5em;
+		&.is-clicked{
+			@include transform( rotate(180deg) );
+			position: relative;
+			top: 3px;
+		}
 	}
+
 	#loginLinks{
-		background: $primary-color;
-		color: $background-color;
 		font-family: $header-font-family;
 		font-weight: $header-font-weight;
-		left: $tool-menu-width;
-		padding: 0.2em;
-		position: absolute;
-		top: $header-size;
-		width: calc(100% - #{$tool-menu-width} - 0.4em);
-
-		@include box-shadow( 0 0 2px rgba( $text-color ,0.5) );
-
-		li{
-			text-align: right;
-			min-height: 41px;
-		}
-
-		.#{$namespace}userNav__drop{
-			color: $button-text-color;
-			&.is-clicked{
-				@include transform( rotate(180deg) );
-				position: relative;
-				top: 3px;
-			}
-		}
-
-		a#loginUser{
-			color: $button-text-color;
-			display: inline-block;
-			vertical-align:middle;
-			text-decoration: none;
-			&.has-avatar{
-				.#{$namespace}userNav__submenuitem--username{
-					position:relative;
-					top:-15px;
-				}
-				.#{$namespace}userNav__submenuitem--userid{
-					position:relative;
-					top:-15px;
-				}
-				.#{$namespace}userNav__submenuitem--profilepicture{
-					width:32px;
-					height:32px;
-					display:inline-block;
-					background-size: auto 100%;
-					background-position: 50%;
-					border-radius:50%;
-					margin:5px auto 0px;
-				
-				}
-			}
-			&.no-avatar{
-				padding: 1em 0;
-			}
-		}
-
 		ul{
+			background-color: $primary-color;
 			text-align: left;
-			right: 11px;
+			padding: 0.5em;
+			margin: -0.5em 0 0 0;
 			@extend .userNav__subnav;
 		}
-		.#{$namespace}userNav__submenuitem--userid{
-			font-style: oblique;
-			&:before{
-				content: '(';
-				font-style: normal;
-			}
-			&:after{
-				content: ')';
-				font-style: normal;
-			}
+	}
+	
+	.#{$namespace}userNav__submenuitem--userid{
+		font-style: oblique;
+		&:before{
+			content: '(';
+			font-style: normal;
 		}
-		
+		&:after{
+			content: ')';
+			font-style: normal;
+		}
+	}
+}
+.#{$namespace}sitesNav__menu{
+	margin-bottom:0px;
+}
+.#{$namespace}sitesNav__menuitem--myworkspace{
+	@media #{$phone}{
+		background: $primary-color;
+	}
+	border-right:  1px solid darken( $background-color-secondary, 10% );
+	font-size: 0.95em;
+	left: 0;
+	height:3.3em;
+	@media #{$phone}{
+	 	height:3.1em;
+		border-right: 1px solid darken( $primary-color, 5% );
+	}
+	position: absolute;
+	background: darken( $background-color-secondary, 5% );
+	@media #{$phone}{
+		top: 0;
+	}
+	span{
+		display: none;
+	}
+	.#{namespace}sitesNav__drop{
+		display: none;
+	}
+	&.is-selected{
+		background: $background-color;
 		@media #{$phone}{
-			font-size: 1em;
-			background: transparent;
-			color: $text-color;
-			right: 90px;
-			top: 7px;
-			left: auto;
-			max-width: 50%;
-			width: auto;
-
-			@include box-shadow( 0 0 rgba( $text-color ,0) );
-
-			a#loginUser{
-				color: $primary-color;
-				display: inline-block;
-				vertical-align:middle;
-				text-decoration :none;
-				&.has-avatar{
-					.#{$namespace}userNav__submenuitem--username{
-						display:none;
-					}
-					.#{$namespace}userNav__submenuitem--userid{
-						display:none;
-					}
-					.#{$namespace}userNav__submenuitem--profilepicture{
-						margin:auto 0px;
-					}
-				}
-				&.no-avatar{
-					top: 7px;
-				}
-			}
+			background: $primary-color;
+		}
+		a{
+			color: $background-color-secondary;
+			@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
+		}
+	}
+	a{
+		display: inline-block;
+		border-right: 0px none;
+		color: $primary-color;
+		@media #{$phone}{
+			color: $background-color-secondary;
+		}
+		padding: 0.6em 0.8em;
+		i{
+			font-size: 1.7em;
+		}
+		&:hover{
+			/*color: $background-color-secondary;*/
+			@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
 		}
 	}
 }
 
 #linkNav{
+	background: darken( $background-color-secondary, 5% );
+	max-height: $header-size;
+	min-height: $header-size;
+	overflow: hidden;
+	left: 3.1em;
+	width: calc(100% - 3em);
+	padding-left:3em;
+	// @include transition(height 0.5s linear);
 	ul{
-		margin: 0 50px 0 0;
-		li{
+		font-family: $header-font-family;
+		font-weight: $header-font-weight;
+		margin: 0 0 0 0;
+		li.#{$namespace}sitesNav__menuitem{
 			display: inline-block;
-			border: 1px solid darken( $background-color-secondary, 10% );
-			background: darken( $background-color-secondary, 5% );
-			@include border-radius( 2px );
-			margin: 0 0.7em 1.2em 0;
-			padding: 0.1em 0.5em 0.1em 0.5em;
+			margin: 1px 0 0 -4px; //Fix for inline-block space items;
 			a{
-				@extend .userNav_link;
-				font-weight: 700;
-			}
-			&.is-selected{
-				background: lighten($background-color, 10%);
-				a,span{
-					color: $button-text-color;
-				}
-				.#{$namespace}sitesNav__submenuitem{
-					a,span{
-						color: $text-color;
-					}
+				border-right: 1px solid darken( $background-color-secondary, 10% );
+				color: $text-color;
+				display: block;
+				padding: 0.8em 0.7em 0.8em 1.1em;
+				text-decoration: none;
+				&:hover{
+					color: $primary-color;
+					@include box-shadow( inset 0 0 15px rgba(100,100,100,0.5) );
 				}
 			}
 			.#{$namespace}sitesNav__drop{
@@ -347,53 +374,85 @@
 				}
 			}
 			ul{
+				background: darken( $background-color-secondary, 5% );
 				display: none;
 				@extend .userNav__subnav;
 			}
-			@media #{$phone}{
-				display: block;
-				border: 0px none;
-				font-size: 1.2em;
-				margin: 0.8em 1em;
-				@include border-radius( 0 );
+			&.is-selected{
+				background: $background-color;
+				color: $background-color-secondary;
+				a{
+					border-right: 0px none;
+					color: $background-color-secondary;
+					padding: 0.8em 0.9em 0.8em 0.9em;
+					.#{$namespace}sitesNav__drop{
+						display: none;
+					}
+					&:hover{
+						@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
+					}
+				}
 				ul{
-					width: 80%;
-					li{
-						font-size: 0.85em;
+					background: $background-color;
+				}
+			}
+			&.#{$namespace}sitesNav__menuitem--myworkspace{
+				background: $primary-color;
+				border-right: 1px solid darken( $primary-color, 5% );
+				font-size: 0.95em;
+				left: 0;
+				position: absolute;
+				top: 0;
+				span{
+					display: none;
+				}
+				.#{namespace}sitesNav__drop{
+					display: none;
+				}
+				&.is-selected{
+					background: $primary-color;
+					a{
+						@include box-shadow( inset 0 9px 10px rgba(0,0,0,0.25) );
+					}
+				}
+				a{
+					border-right: 0px none;
+					color: $background-color-secondary;
+					padding: 0.6em 0.8em;
+					i{
+						font-size: 1.7em;
+					}
+					&:hover{
+						color: $background-color-secondary;
 					}
 				}
 			}
 		}
-		@media #{$phone}{
-			margin: 4em 0 0 0;
-		}
-	}
-	@media #{$phone}{
-		background: $background-color-secondary;
-		padding: 0 1.5em 0 0;
-		left: -110%;
-		top: 0;
-		position: fixed;
-		min-height: 100%;
-		width: 80%;
-		overflow-x: hidden;
-		overflow-y: auto;
-		@include transition(left 0.5s linear);
 	}
 	&.scrolled-sites{
 		@media #{$desktop}{
+			ul{
+				width: calc(100% - 4.1em);
+			}
 			#show-all-sites{
+				background: darken( $background-color-secondary, 5% );
 				display: inline-block;
 				cursor: pointer;
 				position: absolute;
 				text-align: center;
-				font-size: 2em;
+				font-size: 1.1em;
 				color: $primary-color;
-				top: 1px;
-				right: 100px;
-				border-left: 1px solid darken( $background-color-secondary, 5% );
-				padding: 0 0 0 0.4em;
+				/*top: 1.5em;*/
+				right: 0em;
+				width:6.5em;
+				height: 2.8em;
+				border-left: 1px solid darken( $background-color-secondary, 10% );
+				padding: 0.7em 0.5em 0 0.4em;
 				outline: 0;
+				i {
+					font-size: 1.3em;
+					padding-right : 5px;
+				}
 				> div{
 					display: inline-block;
 				}
@@ -415,20 +474,91 @@
 	}
 	&.opened{
 		@media #{$desktop}{
-			position: absolute;
-			width: calc( 100% - 100px - #{$tool-menu-width} );
-			background: $background-color-secondary;
-			padding: 9px 0 0 13px;
-			margin: -9px 0px 0px -13px;
-			z-index: 999;
-			@include box-shadow( 0px 4px 5px 5px rgba( 0, 0, 0, 0.15 ) );
+			max-height: 100%;
+			overflow: visible;
 			#how-many-hidden{
 				display: none;
 			}
 		}
+	}
+	@media #{$phone}{
+		display: none;
 	}
 }
 
 #show-all-sites{
 	display: none;
 }
+
+#show-all-sites-mobile{
+	color: $background-color-secondary;
+	background: lighten( $background-color, 5% );
+	display: none;
+	cursor: pointer;
+	position: absolute;
+	text-align: center;
+	font-size: 1.5em;
+	top: 0em;
+	right: 0em;
+	width:2.5em;
+	border-left: 1px solid darken( $background-color-secondary, 10% );
+	padding: 0 9px;
+	outline: 0;
+	> div{
+		display: inline-block;
+	}
+	#how-many-hidden-mobile{
+		font-size: 0.8em;
+		vertical-align: middle;
+		margin: 0 4px 2px 2px;
+		display: inline-block;
+	}
+	&.opened{
+		right: 10px;
+		border-left: 0px none;
+		> div {
+			color: $secondary-color;
+			@include transform( rotateZ(45deg) );
+		}
+	}
+}
+.#{$namespace}sitesNav__doubledrop{
+	@extend .fa-angle-double-down;
+	@extend .fa;
+	@extend .fa-lg;
+	padding-left:5px;
+}
+
+.#{$namespace}breadCrumbs{
+	margin:auto;
+	max-width: calc( 50% - 3em);
+}
+
+.#{$namespace}siteStatus{
+	&.is-unpublished{
+		margin-left:1em;
+		width: calc( 100% - 2em);
+		padding: 3px;
+		color :$background-color-secondary;
+		display:block;
+		text-align:center;
+		h4{
+			padding: 3px;
+		}
+		button{
+			@if $button-gradiant {
+				@include sakai-button(  $background-color-secondary, 
+									darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 25% ), 
+									$button-text-color-secondary );
+			}
+			@else{
+				@include sakai-button(  darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 15% ), 
+									darken( $background-color-secondary, 15% ), 
+									darken( $primary-color, 15% ) );
+			}
+		}
+	}
+}
+
