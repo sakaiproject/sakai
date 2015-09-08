@@ -81,6 +81,12 @@ http://cxf.apache.org/schemas/jaxws.xsd">
             <ref bean="org.sakaiproject.webservices.SakaiConfiguration"/>
         </jaxrs:serviceBeans>
     </jaxrs:server>
+    
+    <jaxrs:server id="ActivityRS" address="/rest/activity">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.Activity"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
 
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
@@ -125,6 +131,10 @@ http://cxf.apache.org/schemas/jaxws.xsd">
     <jaxws:endpoint id="SakaiConfiguration"
                         implementor="#org.sakaiproject.webservices.SakaiConfiguration"
                         address="/soap/configuration"/>
+                        
+    <jaxws:endpoint id="Activity"
+                    implementor="#org.sakaiproject.webservices.Activity"
+                    address="/soap/activity"/>
 
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
@@ -152,6 +162,7 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="samLiteService" ref="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"/>
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
         <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+        <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
@@ -167,4 +178,5 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="sqlService" ref="org.sakaiproject.db.api.SqlService"/>
     </bean>
     <bean id="org.sakaiproject.webservices.SakaiConfiguration" class="org.sakaiproject.webservices.SakaiConfiguration" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
+     <bean id="org.sakaiproject.webservices.Activity" class="org.sakaiproject.webservices.Activity" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
 </beans>
