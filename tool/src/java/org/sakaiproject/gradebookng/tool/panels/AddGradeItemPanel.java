@@ -11,8 +11,10 @@ import org.apache.wicket.markup.html.panel.FeedbackPanel;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
@@ -48,9 +50,11 @@ public class AddGradeItemPanel extends Panel {
 			public void onSubmit(AjaxRequestTarget target, Form form) {
 				Assignment assignment =  (Assignment) form.getModelObject();
 
+				Long assignmentId = null;
+
 				boolean success = true;
 				try {
-					businessService.addAssignment(assignment);
+					assignmentId = businessService.addAssignment(assignment);
 				} catch (AssignmentHasIllegalPointsException e) {
 					error(new ResourceModel("error.addgradeitem.points").getObject());
 					success = false;
@@ -66,7 +70,7 @@ public class AddGradeItemPanel extends Panel {
 				}
 				if (success) {
 					getSession().info(MessageFormat.format(getString("notification.addgradeitem.success"), assignment.getName()));
-					setResponsePage(getPage().getPageClass());
+					setResponsePage(getPage().getPageClass(), new PageParameters().add(GradebookPage.CREATED_ASSIGNMENT_ID_PARAM, assignmentId));
 				} else {
 					target.addChildren(form, FeedbackPanel.class);
 				}

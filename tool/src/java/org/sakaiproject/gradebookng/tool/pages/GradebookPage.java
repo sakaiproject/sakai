@@ -32,6 +32,8 @@ import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
@@ -60,6 +62,7 @@ public class GradebookPage extends BasePage {
 	private static final long serialVersionUID = 1L;
 
 	public static final String UNCATEGORIZED = "Uncategorized";
+	public static final String CREATED_ASSIGNMENT_ID_PARAM = "createdAssignmentId";
 
 	ModalWindow addGradeItemWindow;
 	ModalWindow studentGradeSummaryWindow;
@@ -257,6 +260,13 @@ public class GradebookPage extends BasePage {
             		
             		panel.add(new AttributeModifier("data-category", category));
             		panel.add(new AttributeModifier("data-categorized-order", order));
+
+            		StringValue createdAssignmentId = getPageParameters().get(CREATED_ASSIGNMENT_ID_PARAM);
+            		if (!createdAssignmentId.isNull() && assignment.getId().equals(createdAssignmentId.toLong())) {
+            			panel.add(new AttributeModifier("class", "gb-just-created"));
+            			getPageParameters().remove(CREATED_ASSIGNMENT_ID_PARAM);
+            		}
+
     				return panel;
             	}
 
