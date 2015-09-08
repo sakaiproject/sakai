@@ -3,13 +3,13 @@
     #if (${loginHasImage1})
 
         <li role="menuitem" class="Mrphs-loginUser__menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__image"><img src="${loginImage1}" alt="${loginMessage}"></a>
+            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__image" data-warning="${logoutWarningMessage}"><img src="${loginImage1}" alt="${loginMessage}"></a>
         </li>
 
     #else
 
         <li role="menuitem" class="Mrphs-loginUser__menuitem">
-            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message">
+            <a href="${loginLogInOutUrl}" title="${loginMessage}" id="loginLink1" class="Mrphs-loginUser__message" data-warning="${logoutWarningMessage}">
                 <i class="login-Icon"></i>
                 <span class="Mrphs-login-Message">${loginMessage}</span>
             </a>

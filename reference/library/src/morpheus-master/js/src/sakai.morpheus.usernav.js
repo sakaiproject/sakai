@@ -10,7 +10,7 @@ function toggleUserNav(event){
 
  // Logout Confirm
   $PBJQ('#loginLink1').click(function(e){
-    if(!confirm("Are you sure you want to log out ?")){
+    if ($PBJQ(this).attr("data-warning") !== "" && !confirm($PBJQ(this).attr("data-warning"))){
 	e.preventDefault();
     }
   });
