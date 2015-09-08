@@ -834,6 +834,7 @@ ul.feedbackPanel li span {
 .gb-summary-grade-panel .gb-summary-expand-all {
   padding-right: 8px;
 }
+.gb-summary-grade-panel .gb-summary-category-toggle,
 .gb-summary-grade-panel .gb-summary-category-toggle:hover,
 .gb-summary-grade-panel .gb-summary-category-toggle:active {
   text-decoration: none;
@@ -907,4 +908,9 @@ ul.feedbackPanel li span {
 .gb-hidden-column-visual-cue:before {
   font-family: 'gradebook-icons';
   content: '\f04f';
+}
+/* Bootstrap > Morpheus overrides */
+.dropdown-menu>li>a,
+.nav>li>a {
+  text-decoration: none;
 }
