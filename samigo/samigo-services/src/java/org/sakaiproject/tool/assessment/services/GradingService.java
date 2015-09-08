@@ -297,8 +297,22 @@ public class GradingService
       else{ // if new is different from old, include it for update
         AssessmentGradingData b = (AssessmentGradingData) o;
         if ((a.getFinalScore()!=null && b.getFinalScore()!=null) 
-            && !a.getFinalScore().equals(b.getFinalScore()))
-          l.add(a);
+            && !a.getFinalScore().equals(b.getFinalScore())) {
+            l.add(a);
+        }
+        // if scores are not modified but comments are added, include it for update
+        else if (a.getComments()!=null)
+        	{
+            	if (b.getComments()!=null)
+            	{
+                    if (!a.getComments().equals(b.getComments())) {
+                            l.add(a);
+                    }
+            	}
+            	else {
+                    l.add(a);
+            	}
+        	}
       }
     }
     return l;
@@ -1395,6 +1409,16 @@ public class GradingService
     if(!(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
     	data.setFinalScore(originalFinalScore);
     }
+    
+    try {
+        	Long publishedAssessmentId = data.getPublishedAssessmentId();
+        	String agent = data.getAgentId();
+        	String comment = data.getComments();
+        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, g);
+    }
+    catch (Exception ex) {
+          log.warn("Error sending comments to gradebook: " + ex.getMessage());
+          }
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
