@@ -3,6 +3,7 @@ package org.sakaiproject.gradebookng.tool.panels;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.CheckBox;
 import org.apache.wicket.markup.html.form.DropDownChoice;
 import org.apache.wicket.markup.html.form.IChoiceRenderer;
@@ -40,7 +41,7 @@ public class AddGradeItemPanelContent extends Panel {
         add(new TextField<Double>("points", new PropertyModel<Double>(assignment, "points")));
         add(new DateTextField("duedate", new PropertyModel<Date>(assignment, "dueDate"), "MM/dd/yyyy")); //TODO needs to come from i18n
 
-        List<CategoryDefinition> categories = businessService.getGradebookCategories();
+        final List<CategoryDefinition> categories = businessService.getGradebookCategories();
 
         final Map<Long, String> categoryMap = new HashMap<>();
         for (CategoryDefinition category : categories) {
@@ -57,9 +58,18 @@ public class AddGradeItemPanelContent extends Panel {
             public String getIdValue(Long object, int index) {
                 return object.toString();
             }
+
         });
         categoryDropDown.setNullValid(true);
+        categoryDropDown.setVisible(!categories.isEmpty());
         add(categoryDropDown);
+
+        add(new WebMarkupContainer("noCategoriesMessage") {
+            @Override
+            public boolean isVisible() {
+                return categories.isEmpty();
+            }
+        });
 
         add(new CheckBox("extraCredit", new PropertyModel<Boolean>(assignment, "extraCredit")));
        
