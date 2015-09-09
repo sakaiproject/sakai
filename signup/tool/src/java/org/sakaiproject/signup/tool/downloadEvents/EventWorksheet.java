@@ -1281,7 +1281,7 @@ public class EventWorksheet implements MeetingTypes, SignupBeanConstants {
 	 */
 	public boolean isAttendanceOn(List<SignupMeetingWrapper> wrappers) {
 			
-		if ("true".equalsIgnoreCase(sakaiFacade.getServerConfigurationService().getString("signup.enableAttendance","false"))){
+		if (sakaiFacade.getServerConfigurationService().getBoolean("signup.enableAttendance", false)) {
 			for (SignupMeetingWrapper wrp : wrappers) {
 				if (wrp.getMeeting().isAllowAttendance()){
 					return true;
