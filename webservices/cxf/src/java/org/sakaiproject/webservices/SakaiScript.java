@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Date;
+import java.util.Collections;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -4255,6 +4257,121 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
         }
+    }
+
+    @WebMethod
+    @Path("/getSessionCountForServer")
+    @Produces("text/plain")
+    @GET
+    public Integer getSessionCountForServer(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "serverid", partName = "serverid") @QueryParam("serverid") String serverid,
+            @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
+        //register the session with presence
+        Session s = establishSession(sessionid);
+
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+        }
+        try {
+            Map servers = usageSessionService.getOpenSessionsByServer();
+            List matchingServers = (List) getServersByServerId(servers).get(serverid);
+
+            if (matchingServers.size() == 0) {
+                LOG.warn("can't find any sessions for server with id=" + serverid);
+                return new Integer(0);
+            }
+
+            Collections.sort(matchingServers);
+            // find the latest started server with matching id
+            String serverKey = (String) matchingServers.get(matchingServers.size() - 1);
+
+            return getSessionCountForServer(servers, serverKey, millisBeforeExpire);
+        } catch (Exception e) {
+            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+        }
+        return new Integer(0);
+    }
+
+
+    @WebMethod
+    @Path("/getSessionTotalCount")
+    @Produces("text/plain")
+    @GET
+    public int getSessionTotalCount(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
+        //register the session with presence
+        Session s = establishSession(sessionid);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+        }
+        int count = 0;
+
+        try {
+            Map servers = usageSessionService.getOpenSessionsByServer();
+            Map serversByServerId = getServersByServerId(servers);
+
+
+            for (Iterator i = serversByServerId.keySet().iterator(); i.hasNext(); ) {
+                String serverKey = (String) i.next();
+                List matchingServers = (List) serversByServerId.get(serverKey);
+                Collections.sort(matchingServers);
+                // find the latest started server, and add to count
+                count += getSessionCountForServer(servers, (String) matchingServers.get(matchingServers.size() - 1), millisBeforeExpire);
+            }
+        } catch (Exception e) {
+            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+        }
+        return new Integer(count);
+    }
+
+    private Integer getSessionCountForServer(Map servers, String serverKey, int millisBeforeExpire) {
+        int count = 0;
+        List selectedServer = (List) servers.get(serverKey);
+
+        if (selectedServer != null) {
+            for (Iterator i = selectedServer.iterator(); i.hasNext(); ) {
+                UsageSession session = (UsageSession) i.next();
+                Long lastActivityTime = activityService.getLastEventTimeForUser(session.getUserId());
+                if (lastActivityTime != null &&
+                        ((new Date().getTime() - lastActivityTime) < millisBeforeExpire)) {
+                    LOG.warn("adding count for " + serverKey);
+                    count++;
+                } else {
+                    LOG.warn("not including user:" + session.getUserEid() +
+                            " in active session count last activity was more than " +
+                            millisBeforeExpire + " ago or no activity detected.");
+                }
+            }
+        } else {
+            LOG.warn("can't find any sessions for server with id=" + serverKey);
+        }
+        return new Integer(count);
+
+    }
+
+    protected Map getServersByServerId(Map servers) {
+        Map serverByServerId = new HashMap();
+
+        // create Map of servers key'd by serverId only
+        for (Iterator i = servers.keySet().iterator(); i.hasNext(); ) {
+            String key = (String) i.next();
+            List matchingServers;
+            String serverKey = key.split("-")[0];
+            if (!serverByServerId.containsKey(serverKey)) {
+                matchingServers = new ArrayList();
+                serverByServerId.put(serverKey, matchingServers);
+            } else {
+                matchingServers = (List) serverByServerId.get(serverKey);
+            }
+
+            LOG.warn("adding " + key + " to " + serverKey + " list");
+            matchingServers.add(key);
+        }
+        return serverByServerId;
     }
 
 }
