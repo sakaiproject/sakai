@@ -410,13 +410,14 @@
                       <div style="display:none" rsf:id="current-item-id3" class="mm-itemid"></div>
                       <div style="display:none" rsf:id="item-prereq2" class="prerequisite-info"></div>
                       <div style="display:none" rsf:id="item-groups2" class="item-groups"></div>
-                      <span style="display:none" rsf:id="item-path" class="item-path"></span>
+                      <span style="display:none" rsf:id="item-path2" class="item-path"></span>
                       </div>
                   </div>
 
                     <div rsf:id="notAvailableText"></div>
     
                     <div rsf:id="imageSpan" class="right-col image-col"><div>
+			<div rsf:id="editimage-td" class="edit-col"><div><a href="#" class="usebutton multimedia-edit" onclick="return false" rsf:id="image-edit"><span aria-hidden="true" class="fa-pencil-square-o fa-edit-icon"></span></a><a aria-hidden="true" href="#" class="usebutton del-item-link" onclick="return false"><span class="fa-trash-o fa-edit-icon"></span></a><a href="#" class="usebutton add-link" onclick="return false"><span class="fa-edit-icon plus-edit-icon">+</span></a></div></div>
                         <div rsf:id="item-group-titles3" class="item-group-titles"></div>
                         <img rsf:id="image" class="multimedia" />
                         <div style="display:none" rsf:id="imageHeight" class="mm-height"></div>
@@ -426,7 +427,7 @@
                         <div style="display:none" rsf:id="current-item-id4" class="mm-itemid"></div>
                         <div style="display:none" rsf:id="item-prereq3" class="prerequisite-info"></div>
                         <div style="display:none" rsf:id="item-groups3" class="item-groups"></div>
-                        <span style="display:none" rsf:id="item-path" class="item-path"></span>
+                        <span style="display:none" rsf:id="item-path3" class="item-path"></span>
                       </div>
                     </div>
 
@@ -445,7 +446,7 @@
                       <div style="display:none" rsf:id="current-item-id5" class="mm-itemid"></div>
                       <div style="display:none" rsf:id="item-prereq4" class="prerequisite-info"></div>
                       <div style="display:none" rsf:id="item-groups4" class="item-groups"></div>
-                     <span style="display:none" rsf:id="item-path" class="item-path"></span>
+                     <span style="display:none" rsf:id="item-path4" class="item-path"></span>
                     </div>
 
                     <div rsf:id="moviegroup-td" aria-hidden="true" class="group-col"><div><a href="#" class="usebutton" onclick="return false" rsf:id="group-movie"><span rsf:id="icon-movie"></span></a></div></div>
@@ -480,7 +481,7 @@
                       <div style="display:none" rsf:id="mimetype5" class="mm-type"></div>
                       <div style="display:none" rsf:id="current-item-id6" class="mm-itemid"></div>
                       <div style="display:none" rsf:id="item-groups5" class="item-groups"></div>
-                      <span style="display:none" rsf:id="item-path" class="item-path"></span>
+                      <span style="display:none" rsf:id="item-path5" class="item-path"></span>
                     </div>
 
 
@@ -859,9 +860,9 @@
                             <input type="text" name="name" rsf:id="name" id="name" size="30" maxlength="99" class="edit-form-input" /><br />
                         </p>
                         
-                        <p class="instruction">
-                            <span rsf:id="msg=simplepage.path" for="path">Path</span>
-                            <span id="path"></span>
+                        <p id="pathdiv">
+                            <label rsf:id="msg=simplepage.path" for="path">Path</label>
+                            <span id="path" class="instruction"></span>
                         </p>
                     
                         <p class="shorttext required">

@@ -538,7 +538,7 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			$("#editgroups-youtube").hide();
 
-			var row = $(this).parent().parent().parent();
+			var row = $(this).closest('li');
 
 			var groups = row.find(".item-groups").text();
 			var grouplist = $("#grouplist");
@@ -587,7 +587,7 @@ $(document).ready(function() {
 			$("#grouplist").hide();
 			$("#editgroups-movie").hide();
 
-			var row = $(this).parent().parent().parent();
+			var row = $(this).closest('li');
 			
 			var findObject = row.find('object').find('object');
 			row.find(".path-url").attr("href", findObject.attr("data"));
@@ -1294,6 +1294,7 @@ $(document).ready(function() {
 			$("#newwindowstuff").hide();
 			$("#formatstuff").hide();
 			$("#edit-height").hide();
+			$("#pathdiv").hide();
 			$("#editgroups").after($("#grouplist"));
 			
 			var row = $(this).parent().parent().parent();
@@ -1518,8 +1519,11 @@ $(document).ready(function() {
 				}
 			    }
 			    row.find(".path-url").attr("href", row.find(".itemlink").attr('href'));
-			    $("#path").html(row.find(".item-path").html());
-
+			    var path = row.find(".item-path").html();
+			    if (path !==  null && path !== '') {
+				$("#path").html(path);
+				$("#pathdiv").show();
+			    }
 			}
 
 			if(row.find(".status-image").attr("src") === undefined) {
@@ -2301,7 +2305,8 @@ function checkYoutubeForm(w, h) {
 		return false;
 	}
 
-	if($('#youtubeURL').val().contains('youtube.com')) {
+	if($('#youtubeURL').val().contains('youtube.com') ||
+	   $('#youtubeURL').val().contains('youtu.be')) {
 		return true;
 	}else {
 		$('#edit-youtube-error').val(msg("simplepage.must_be_youtube"));
@@ -2510,7 +2515,7 @@ function buttonOpenDropdownc() {
 }
 
 function buttonOpenDropdowna() {
-    addAboveLI = $(this).parents("li");
+    addAboveLI = $(this).closest("li");
     oldloc = addAboveLI.find(".plus-edit-icon");
     addAboveItem = addAboveLI.find("span.itemid").text();
     $(".addbreak").show();
