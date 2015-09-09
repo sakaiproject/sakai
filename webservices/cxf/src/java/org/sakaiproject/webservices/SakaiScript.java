@@ -35,6 +35,7 @@ import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.calendar.api.CalendarEventEdit;
 import org.sakaiproject.entity.api.EntityProducer;
 import org.sakaiproject.entity.api.EntityTransferrer;
+import org.sakaiproject.entity.api.EntityTransferrerRefMigrator;
 import org.sakaiproject.entity.api.ResourceProperties;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.event.api.UsageSession;
@@ -4256,5 +4257,127 @@ public class SakaiScript extends AbstractWebService {
             }
         }
     }
+    /**
+     * Copy the lessons pages from a site to another one. Optionally, the existing lessons pages can be deleted in destination.
+     * Links to resources are preserved and updated to the new site, but their copy is not included. copySiteContent can be used for that.
+     * Lessons pages copy does not work in copySiteContent method, neither in copySiteContentForTool.
+     * This logic could be added to copySiteContent to cover all cases, but unfortunately we were in a hurry.
+     *
+     * @param 	sessionid 			the id of a valid session
+     * @param 	sourcesiteid		the id of the source site
+     * @param 	destinationsiteid 	the id of the destiny site
+     * @param 	cleanUp				delete the existing Lessons pages (true) or preserve them (false)
+     * @return						success or exception message
+     */
+    public String copySiteLessonsPages(
+    		@WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+    		@WebParam(name = "sourcesiteid", partName = "sourcesiteid") @QueryParam("sourcesiteid") String sourcesiteid,
+    		@WebParam(name = "destinationsiteid", partName = "destinationsiteid") @QueryParam("destinationsiteid") String destinationsiteid,
+    		@WebParam(name = "cleanUp", partName = "cleanUp") @QueryParam("cleanUp") boolean cleanUp)
+    {
 
+    	String toolid="sakai.lessonbuildertool";
+    	Session session = establishSession(sessionid);
+    	Set<String> toolsCopied = new HashSet<String>();
+    	Map transversalMap = new HashMap();
+
+    	try
+    	{
+    		//check if both sites exist
+    		Site site = siteService.getSite(sourcesiteid);
+    		site = siteService.getSite(destinationsiteid);
+
+    		// If not admin, check maintainer membership in the source site
+    		if (!securityService.isSuperUser(session.getUserId()) && !securityService.unlock(SiteService.SECURE_UPDATE_SITE, site.getReference()))
+    		{
+    			LOG.warn("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+    			throw new RuntimeException("WS copyResources(): Permission denied. Must be super user to copy a site in which you are not a maintainer.");
+    		}
+
+    		Map<String,String> entityMap = transferCopyEntitiesForLessonsPages(toolid, sourcesiteid, destinationsiteid, cleanUp);
+    		if(entityMap != null)
+    		{
+    			transversalMap.putAll(entityMap);
+    		}
+
+    		updateEntityReferences(toolid, sourcesiteid, transversalMap, site);
+    	}
+    	catch (Exception e)
+    	{
+    		LOG.error("WS copySiteContent(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+    		return e.getClass().getName() + " : " + e.getMessage();
+    	}
+    	return "success";
+    }
+
+    protected Map transferCopyEntitiesForLessonsPages(String toolId, String fromContext, String toContext, boolean cleanup)
+    {
+    	// TODO: used to offer to resources first - why? still needed? -ggolden
+
+    	Map transversalMap = new HashMap();
+
+    	// offer to all EntityProducers
+    	for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
+    	{
+    		EntityProducer ep = (EntityProducer) i.next();
+    		if (ep instanceof EntityTransferrer)
+    		{
+    			try
+    			{
+    				EntityTransferrer et = (EntityTransferrer) ep;
+
+    				// if this producer claims this tool id
+    				if (ArrayUtil.contains(et.myToolIds(), toolId))
+    				{
+    					if(ep instanceof EntityTransferrerRefMigrator)
+    					{
+    						EntityTransferrerRefMigrator etMp = (EntityTransferrerRefMigrator) ep;
+    						Map<String,String> entityMap = etMp.transferCopyEntitiesRefMigrator(fromContext, toContext, new ArrayList(), cleanup);
+    						if(entityMap != null)
+    						{
+    							transversalMap.putAll(entityMap);
+    						}
+    					}
+    					else
+    					{
+    						et.transferCopyEntities(fromContext, toContext,	new ArrayList(), cleanup);
+    					}
+    				}
+    			}
+    			catch (Throwable t)
+    			{
+    				LOG.warn(this + ".transferCopyEntities: Error encountered while asking EntityTransfer to transferCopyEntities from: " + fromContext + " to: " + toContext, t);
+    			}
+    		}
+    	}
+
+    	return transversalMap;
+    }
+
+
+    protected void updateEntityReferences(String toolId, String toContext, Map transversalMap, Site newSite)
+    {
+    	for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
+    	{
+    		EntityProducer ep = (EntityProducer) i.next();
+    		if (ep instanceof EntityTransferrerRefMigrator && ep instanceof EntityTransferrer)
+    		{
+    			try
+    			{
+    				EntityTransferrer et = (EntityTransferrer) ep;
+    				EntityTransferrerRefMigrator etRM = (EntityTransferrerRefMigrator) ep;
+
+    				// if this producer claims this tool id
+    				if (ArrayUtil.contains(et.myToolIds(), toolId))
+    				{
+    					etRM.updateEntityReferences(toContext, transversalMap);
+    				}
+    			}
+    			catch (Throwable t)
+    			{
+    				LOG.warn("Error encountered while asking EntityTransfer to updateEntityReferences at site: " + toContext, t);
+    			}
+    		}
+    	}
+    }
 }
