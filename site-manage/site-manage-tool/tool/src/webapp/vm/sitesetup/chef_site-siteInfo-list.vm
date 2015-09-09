@@ -761,19 +761,20 @@ function printPreview(target){
 					</tr>
 				#end
 			</table>
-			#if ($participantList.size() > 10)
-				#set($pagesizeFormName="pagesizeFormBottom")
-					#pagingPanel($pagesizeFormName)
-			#end
-			<div class="act">
+			<hr />
+			<div class="act" style="padding: 0 0">
 				<input type="submit" accesskey="s" class="active" name="eventSubmit_doUpdate_participant" value="$tlang.getString("sitegen.siteinfolist.update")" />
 				#if ($fromWSetup)
 					<input type="submit" accesskey="x" name="eventSubmit_doBack_to_site_list" value="$tlang.getString("sitegen.siteinfolist.cancel")" />
 				#end
-                                <div class="instruction" style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span>
-			</div>
-			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+				<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
+            </div>
 		</form>
+		#if ($participantList.size() > 10)
+			#set($pagesizeFormName="pagesizeFormBottom")
+			#pagingPanel($pagesizeFormName)
+		#end
+		<div class="instruction" style="padding-left: 0.3em;"><em>$tlang.getString("sitegen.siteinfolist.lastupdated") $realmModifiedTime</em></span></div>
 		<h4>$tlang.getString("sitegen.siteinfolist.roledes")</h4>
 			<dl>
 				#foreach( $role in $allowedRoles )
