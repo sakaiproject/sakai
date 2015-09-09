@@ -1697,8 +1697,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "mimetype2", mimeType);
 							UIOutput.make(tableRow, "current-item-id4", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq3", String.valueOf(i.isPrerequisite()));
-							UIOutput.make(tableRow, "editmm-td");
-							UILink.make(tableRow, "iframe-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
+							UIVerbatim.make(tableRow, "item-path3", getItemPath(i));
+							UIOutput.make(tableRow, "editimage-td");
+							UILink.make(tableRow, "image-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
 						
 						UIOutput.make(tableRow, "description2", i.getDescription());
@@ -1761,7 +1762,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "currentYoutubeWidth", getOrig(width));
 							UIOutput.make(tableRow, "current-item-id5", Long.toString(i.getId()));
 							UIOutput.make(tableRow, "item-prereq4", String.valueOf(i.isPrerequisite()));
-
+							UIVerbatim.make(tableRow, "item-path4", getItemPath(i));
 							UIOutput.make(tableRow, "youtube-td");
 							UILink.make(tableRow, "youtube-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.youtube")));
 						}
@@ -1982,6 +1983,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "mimetype5", oMimeType);
 							UIOutput.make(tableRow, "prerequisite", (i.isPrerequisite()) ? "true" : "false");
 							UIOutput.make(tableRow, "current-item-id6", Long.toString(i.getId()));
+							UIVerbatim.make(tableRow, "item-path5", getItemPath(i));
 							UIOutput.make(tableRow, "movie-td");
 							UILink.make(tableRow, "edit-movie", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
@@ -2005,7 +2007,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "item-group-titles2", itemGroupTitles);
 							UIOutput.make(tableRow, "item-groups2", itemGroupString);
 						}
-
 						String itemUrl = i.getItemURL(simplePageBean.getCurrentSiteId(),currentPage.getOwner());
 						if ("1".equals(mmDisplayType)) {
 						    // embed
@@ -2051,6 +2052,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 							UIOutput.make(tableRow, "item-prereq2", String.valueOf(i.isPrerequisite()));
 							UIOutput.make(tableRow, "embedtype", mmDisplayType);
 							UIOutput.make(tableRow, "current-item-id3", Long.toString(i.getId()));
+							UIVerbatim.make(tableRow, "item-path2", getItemPath(i));
 							UIOutput.make(tableRow, "editmm-td");
 							UILink.make(tableRow, "iframe-edit", (String)null, "").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.edit-title.url").replace("{}", abbrevUrl(i.getURL()))));
 						}
@@ -4348,8 +4350,26 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		}
 	}
 	
-	private static String getItemPath(SimplePageItem i)
+	private String getItemPath(SimplePageItem i)
 	{
+
+	    // users seem to want paths for the embedded items, so they can see what's going on
+	        if (i.getType() == SimplePageItem.MULTIMEDIA) {
+		    String mmDisplayType = i.getAttribute("multimediaDisplayType");
+		    if ("".equals(mmDisplayType) || "2".equals(mmDisplayType))
+			mmDisplayType = null;
+		    if ("1".equals(mmDisplayType)) {
+			// embed code
+			return FormattedText.escapeHtml(i.getAttribute("multimediaEmbedCode"),false);
+		    } else if ("3".equals(mmDisplayType)) {
+			// oembed
+			return FormattedText.escapeHtml(i.getAttribute("multimediaUrl"),false);
+		    } else if ("4".equals(mmDisplayType)) {
+			// iframe
+			return FormattedText.escapeHtml(i.getItemURL(simplePageBean.getCurrentSiteId(),simplePageBean.getCurrentPage().getOwner()),false);
+		    }
+		}		
+
 		String itemPath = "";
 		boolean isURL = false;
 		String pathId = i.getType() == SimplePageItem.MULTIMEDIA ? "path-url":"path-url";
