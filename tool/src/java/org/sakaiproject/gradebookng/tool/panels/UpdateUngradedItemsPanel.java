@@ -77,7 +77,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 		
 		//form model
 		GradeOverride override = new GradeOverride();
-		override.setGrade(DEFAULT_GRADE);
+		override.setGrade(String.valueOf(DEFAULT_GRADE));
 		CompoundPropertyModel<GradeOverride> formModel = new CompoundPropertyModel<GradeOverride>(override);
 
 		//build form
@@ -93,19 +93,28 @@ public class UpdateUngradedItemsPanel extends Panel {
 
 				Assignment assignment = businessService.getAssignment(assignmentId);
 
-				if (override.getGrade() > assignment.getPoints()) {
+				try {
+					Double overrideValue = Double.valueOf(override.getGrade());
 
-					target.addChildren(form, FeedbackPanel.class);
-				} else {
-					isExtraCreditValue = false;
-				}
+					if (overrideValue > assignment.getPoints()) {
 
-				boolean	success = businessService.updateUngradedItems(assignmentId, override.getGrade());
+						target.addChildren(form, FeedbackPanel.class);
+					} else {
+						isExtraCreditValue = false;
+					}
 
-				if(success) {
-					window.close(target);
-					setResponsePage(new GradebookPage());
-				} else {
+					boolean	success = businessService.updateUngradedItems(assignmentId, overrideValue);
+
+					if(success) {
+						window.close(target);
+						setResponsePage(new GradebookPage());
+					} else {
+						// InvalidGradeException
+						error(getString("grade.notifications.invalid"));
+						target.addChildren(form, FeedbackPanel.class);
+						target.appendJavaScript("new GradebookUpdateUngraded($(\"#"+getParent().getMarkupId()+"\"));");
+					}
+				} catch (NumberFormatException e) {
 					// InvalidGradeException
 					error(getString("grade.notifications.invalid"));
 					target.addChildren(form, FeedbackPanel.class);
@@ -168,7 +177,7 @@ public class UpdateUngradedItemsPanel extends Panel {
 		
 		@Getter
 		@Setter
-		private double grade;
+		private String grade;
 		
 	}
 	

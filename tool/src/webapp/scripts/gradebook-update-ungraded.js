@@ -24,27 +24,39 @@ GradebookUpdateUngraded.prototype.setupExtraCreditCheck = function(){
   function showConfirmation() {
       var $confirmationModal = $($("#extraCreditModalTemplate").html());
       $confirmationModal.on("click", ".gb-update-ungraded-extracredit-continue", function() {
-        self.$content.find(".gb-update-ungraded-real-submit").trigger("click");
+        performRealSubmit();
       });
       $(document.body).append($confirmationModal);
-      $confirmationModal.modal().modal('show');
+
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
       });
+      $confirmationModal.on("show.bs.modal", function() {
+        var $formModal = self.$content.closest(".wicket-modal");
+        $confirmationModal.css("marginTop", $formModal.offset().top + 40);
+      });
+
+      $confirmationModal.modal().modal('show');
   };
 
-  function handleSubmit(event) {
+
+  function performRealSubmit() {
+    self.$content.find(".gb-update-ungraded-real-submit").trigger("click");
+  };
+
+
+  function handleFakeSubmit(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     if (isExtraCreditValue()) {
-      event.preventDefault();
-      event.stopPropagation();
-
       showConfirmation();
-
-      return false;
     } else {
-      return true;
+      performRealSubmit();
     }
+
+    return false;
   };
 
-  this.$content.find(".gb-update-ungraded-fake-submit").click(handleSubmit);
+  this.$content.find(".gb-update-ungraded-fake-submit").off("click").on("click", handleFakeSubmit);
 };
