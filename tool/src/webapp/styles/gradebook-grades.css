@@ -910,6 +910,13 @@ ul.feedbackPanel li span {
   content: '\f04f';
 }
 /* Update Ungraded modal */
+.gb-update-ungraded-extracredit-confirmation.in  
+  position: absolute;
+  right:0;
+  bottom: auto;
+  left: 0;
+  overflow: auto;
+}
 .gb-update-ungraded-extracredit-confirmation {
   z-index: 50000 !important;
 }
