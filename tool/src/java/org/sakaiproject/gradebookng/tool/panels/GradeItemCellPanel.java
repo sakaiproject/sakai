@@ -158,7 +158,7 @@ public class GradeItemCellPanel extends Panel {
 					//perform validation here so we can bypass the backend
 					DoubleValidator validator = new DoubleValidator();
 					
-					if(!validator.isValid(newGrade)) {
+					if(StringUtils.isNotBlank(newGrade) && !validator.isValid(newGrade)) {
 						markWarning(this);
 						this.getLabel().setDefaultModelObject(this.originalGrade);
 					} else {
