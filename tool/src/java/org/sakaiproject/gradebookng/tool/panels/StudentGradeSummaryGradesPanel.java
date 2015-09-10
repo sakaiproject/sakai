@@ -144,7 +144,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
 							@Override
 							public boolean isVisible() {
-								return rawGrade != "";
+								return StringUtils.isNotBlank(rawGrade);
 							}
 						});
 						assignmentItem.add(new Label("comments", comment));
