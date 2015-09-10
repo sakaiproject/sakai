@@ -104,7 +104,14 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 					categoryItem.add(new Label("categoryGrade", getString("label.studentsummary.categoryscoreifhiddenassignment")));
 				}
 
-				categoryItem.add(new Label("categoryWeight", "")); // TODO can a student access category definitions?
+				String categoryWeight = "";
+				if (!categoryAssignments.isEmpty()) {
+					Double weight = categoryAssignments.get(0).getWeight();
+					if (weight != null) {
+						categoryWeight = FormatHelper.formatDoubleAsPercentage(weight * 100);
+					}
+				}
+				categoryItem.add(new Label("categoryWeight", categoryWeight));
 
 				categoryItem.add(new ListView<Assignment>("assignmentsForCategory", categoryAssignments) {
 					private static final long serialVersionUID = 1L;

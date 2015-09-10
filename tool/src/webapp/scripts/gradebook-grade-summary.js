@@ -37,10 +37,28 @@ GradebookGradeSummary.prototype.setupWicketModal = function() {
 
 
 GradebookGradeSummary.prototype.setupTabs = function() {
-  this.$content.find('#studentGradeSummaryTabs a').click(function (e) {
-    e.preventDefault()
-    $(this).tab('show')
-  });
+  // if blockout, then confirmation required when changing tabs
+  if (this.blockout) {
+    var $otherTab = this.$content.find(".nav.nav-pills li:not(.active) a");
+    var $cloneOfTab = $otherTab.clone();
+
+    $otherTab.hide();
+    $cloneOfTab.attr("href", "javascript:void(0)").removeAttr("id");
+    $cloneOfTab.insertAfter($otherTab);
+    $cloneOfTab.click(function(event) {
+      event.stopPropagation();
+
+      var $confirmationModal = $($("#studentGradeSummaryCloseConfirmationTemplate").html());
+      $confirmationModal.on("click", ".btn-student-summary-continue", function() {
+        $otherTab.trigger("click");
+      });
+      $(document.body).append($confirmationModal);
+      $confirmationModal.modal().modal('show');
+      $confirmationModal.on("hidden.bs.modal", function() {
+        $confirmationModal.remove();
+      });
+    });
+  }
 };
 
 
