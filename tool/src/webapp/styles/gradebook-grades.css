@@ -815,6 +815,9 @@ ul.feedbackPanel li span {
   margin-top: 20px;
   padding-top: 20px;
 }
+.gb-summary-grade-score-outof {
+  color: #999;
+}
 .gb-summary-grade-panel .gb-summary-category-row td:first-child {
   font-weight: bold;
 }
