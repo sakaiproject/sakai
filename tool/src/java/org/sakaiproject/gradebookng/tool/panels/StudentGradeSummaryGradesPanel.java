@@ -139,6 +139,22 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
 
+						WebMarkupContainer flags = new WebMarkupContainer("flags");
+						flags.add(new WebMarkupContainer("isExtraCredit") {
+							@Override
+							public boolean isVisible() {
+								return assignment.getExtraCredit();
+							}
+						});
+						flags.add(new WebMarkupContainer("isNotCounted") {
+							@Override
+							public boolean isVisible() {
+								return !assignment.isCounted();
+							}
+						});
+						assignmentItem.add(flags);
+
+
 						assignmentItem.add(new Label("dueDate", FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
 						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));
 						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
