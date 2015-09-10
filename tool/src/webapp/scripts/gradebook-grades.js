@@ -896,7 +896,12 @@ GradebookSpreadsheet.prototype._refreshColumnOrder = function() {
       var order_a = a.getCategorizedOrder();
       var order_b = b.getCategorizedOrder();
 
-      if (order_a == -1) {
+      var id_a = a.columnKey;
+      var id_b = b.columnKey;
+
+      if (order_a == order_b) {
+        return id_a > id_b;
+      } else if (order_a == -1) {
         return 1;
       } else if (order_b == -1) {
         return -1;
