@@ -190,6 +190,10 @@ public class QuestionPoolBean implements Serializable
     resetFields();
   }
 
+  public int getRowIndex() {
+      return qpDataModel.getRowIndex();
+  }
+
   public QuestionPoolDataModel getQpools()
   {
 	  if (qpDataModel == null) {
