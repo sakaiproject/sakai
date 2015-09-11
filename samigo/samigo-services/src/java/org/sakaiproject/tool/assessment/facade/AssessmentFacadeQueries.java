@@ -1933,6 +1933,13 @@ public class AssessmentFacadeQueries extends HibernateDaoSupport implements
     	StringBuffer sb = new StringBuffer(assessmentData.getTitle());
     	sb.append(" ");
     	sb.append(apepndCopyTitle);
+    	if(sb.length() >= assessmentData.TITLE_LENGTH){ //title max size
+    		String appendCopyText = "... "+apepndCopyTitle;
+    		String titleCut = sb.substring(0, assessmentData.TITLE_LENGTH-appendCopyText.length()-1); //cut until size needed to add ellipsis and copyTitle without exceed DB field size
+    		log.debug("titleCut = "+titleCut);
+    		sb = new StringBuffer(titleCut);
+    		sb.append(appendCopyText);
+    	}
     	String newTitle = getNewAssessmentTitleForCopy(sb.toString());
     	assessmentData.setTitle(newTitle);
 	  }
