@@ -25,6 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -5241,6 +5242,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        // Create the ZIP file
 	        String submittersName = "";
 	        String caughtException = null;
+	        String caughtStackTrace = null;
 	        while (submissions.hasNext())
 	        {
 
@@ -5382,6 +5384,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	                catch (Exception e)
 	                {
 	                    caughtException = e.toString();
+	                    if (M_log.isDebugEnabled()) {
+	                      caughtStackTrace = ExceptionUtils.getStackTrace(e);
+	                    }
 	                    break;
 	                }
 	            } // if the user is still in site
@@ -5403,6 +5408,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        {
 	            // log the error
 	            exceptionMessage.append(" Exception " + caughtException + " for creating submission zip file for assignment " + "\"" + assignmentTitle + "\"\n");
+	            if (M_log.isDebugEnabled()) {
+	               exceptionMessage.append(caughtStackTrace);
+	            }
 	        }
 	    }
 	    catch (IOException e)
@@ -5455,6 +5463,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// Create the ZIP file
 			String submittersName = "";
 			String caughtException = null;
+			String caughtStackTrace = null;
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
@@ -5648,6 +5657,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					catch (Exception e)
 					{
 						caughtException = e.toString();
+						if (M_log.isDebugEnabled()) {
+							caughtStackTrace = ExceptionUtils.getStackTrace(e);
+						}
 						break;
 					}
 				} // if the user is still in site
@@ -5669,6 +5681,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// log the error
 				exceptionMessage.append(" Exception " + caughtException + " for creating submission zip file for assignment " + "\"" + assignmentTitle + "\"\n");
+				if (M_log.isDebugEnabled()) {
+					exceptionMessage.append(caughtStackTrace);
+				}
 			}
 		}
 		catch (IOException e)
