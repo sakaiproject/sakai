@@ -184,8 +184,7 @@ public class GradeItemCellPanel extends Panel {
 							break;
 							case CONCURRENT_EDIT:
 								markError(this);
-								//TODO fix this message
-								error("concurrent edit, eep");
+								error(getString("error.concurrentedit"));
 								notifications.add(GradeCellNotification.CONCURRENT_EDIT);
 							break;
 							default:

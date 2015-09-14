@@ -208,7 +208,7 @@
 #gradebookGrades .gb-category-weight:after {
   content: "]";
 }
-#gradebookGrades .gb-category-label.gb-category-extra-credit:before {
+#gradebookGrades .gb-category-label .gb-category-extra-credit:before {
   font-family: 'gradebook-icons';
   content: '\f0fe';
   vertical-align: bottom;
