@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,7 +49,7 @@ public class PermissionsPage extends BasePage {
     // these are magic strings we use as ids for the all groups/all categories options
     // they should not conflict with any real values that might be passed in
     // and they are parsed out on save
-    private final String ALL_GROUPS = "X";
+    private final String ALL_GROUPS = "-1";
     private final Long ALL_CATEGORIES = new Long(-1);
 
 	public PermissionsPage() {
@@ -72,7 +73,7 @@ public class PermissionsPage extends BasePage {
 		//add the default 'all' category
 		categories.add(0, new CategoryDefinition(ALL_CATEGORIES, getString("categories.all")));
 		
-        final Map<Long, String> categoryMap = new HashMap<>();
+        final Map<Long, String> categoryMap = new LinkedHashMap<>();
         for (CategoryDefinition category : categories) {
             categoryMap.put(category.getId(), category.getName());
         }
@@ -83,8 +84,8 @@ public class PermissionsPage extends BasePage {
 		
 		//add the default 'all' group
         groups.add(0, new GbGroup(ALL_GROUPS, getString("groups.all"), ALL_GROUPS, GbGroup.Type.ALL));
-		
-		final Map<String, String> groupMap = new HashMap<>();
+        
+		final Map<String, String> groupMap = new LinkedHashMap<>();
         for (GbGroup group : groups) {
         	groupMap.put(group.getReference(), group.getTitle());
         }
