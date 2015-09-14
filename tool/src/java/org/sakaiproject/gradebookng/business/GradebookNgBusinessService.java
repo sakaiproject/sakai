@@ -1471,6 +1471,40 @@ public class GradebookNgBusinessService {
     	 return rval;
      }
      
+     public Double getCategoryScoresForStudent(Long categoryId, String studentUuid) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	     	 
+    	 //get grades
+    	 //TODO allow pass in of this, as we have it already in the UI, need another method signature to pass it in
+    	 Map<Assignment,GbGradeInfo> grades = getGradesForStudent(studentUuid);
+    	 
+    	 //get assignments (filtered to just the category ones later)
+    	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
+    	 
+    	 //build map of just the grades and assignments we want for the assignments in the given category
+    	 Map<Long,String> gradeMap = new HashMap<>();
+    	 
+    	 Iterator<Assignment> iter = assignments.iterator();
+    	 while (iter.hasNext()) {
+    		 Assignment assignment = iter.next();
+    		 if(categoryId == assignment.getCategoryId()) {
+    			 GbGradeInfo gradeInfo = grades.get(assignment.getId());
+    			 if(gradeInfo != null) {
+    				 gradeMap.put(assignment.getId(),gradeInfo.getGrade());
+    			 }
+    		 } else {
+ 				iter.remove();
+    		 }
+    	 }
+    	 
+    	 Double score = this.gradebookService.calculateCategoryScore(categoryId, assignments, gradeMap);
+    	 
+    	 System.out.println("score:" + score);
+    	 
+    	 return null;
+     }
+     
      /**
       * Get the settings for this gradebook
       * 
