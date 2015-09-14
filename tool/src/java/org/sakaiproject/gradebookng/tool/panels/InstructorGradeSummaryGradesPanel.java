@@ -1,5 +1,6 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
@@ -160,7 +161,7 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 						assignmentItem.add(new Label("outOf",  new StringResourceModel("label.studentsummary.outof", null, new Object[] { assignment.getPoints() })) {
 							@Override
 							public boolean isVisible() {
-								return rawGrade != "";
+								return StringUtils.isNotBlank(rawGrade);
 							}
 						});
 						assignmentItem.add(new Label("comments", comment));

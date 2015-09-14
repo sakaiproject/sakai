@@ -760,14 +760,19 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
     var color = categoryData.color;
 
     function categoryCellLabel() {
-      var $label = $("<span>").addClass("gb-category-label").text(categoryData.label);
+      var $label = $($("#categoryTableHeader").html())
+      $label.find(".gb-category-name").text(categoryData.label);
+
       if (categoryData.weight) {
-        var $weight = $("<span>").addClass("gb-category-weight").text(categoryData.weight);
-        $label.append(" ").append($weight);
+        $label.find(".gb-category-weight").text(categoryData.weight);
+      } else {
+        $label.find(".gb-category-weight").remove();
       }
-      if (categoryData.isExtraCredit) {
-        $label.addClass("gb-category-extra-credit");
+
+      if (!categoryData.isExtraCredit) {
+        $label.find(".gb-category-extra-credit").remove();
       }
+
       return $label;
     };
 

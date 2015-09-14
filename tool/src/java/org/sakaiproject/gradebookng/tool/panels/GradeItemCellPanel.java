@@ -158,7 +158,7 @@ public class GradeItemCellPanel extends Panel {
 					//perform validation here so we can bypass the backend
 					DoubleValidator validator = new DoubleValidator();
 					
-					if(!validator.isValid(newGrade)) {
+					if(StringUtils.isNotBlank(newGrade) && !validator.isValid(newGrade)) {
 						markWarning(this);
 						this.getLabel().setDefaultModelObject(this.originalGrade);
 					} else {
@@ -184,8 +184,7 @@ public class GradeItemCellPanel extends Panel {
 							break;
 							case CONCURRENT_EDIT:
 								markError(this);
-								//TODO fix this message
-								error("concurrent edit, eep");
+								error(getString("error.concurrentedit"));
 								notifications.add(GradeCellNotification.CONCURRENT_EDIT);
 							break;
 							default:

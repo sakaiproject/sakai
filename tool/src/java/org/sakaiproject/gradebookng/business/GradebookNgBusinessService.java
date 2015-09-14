@@ -452,16 +452,18 @@ public class GradebookNgBusinessService {
 		
 		//about to edit so push a notification
 		pushEditingNotification(gradebook.getUid(), this.getCurrentUser(), studentUuid, assignmentId);
-		
-		Double newGradePoints = NumberUtils.toDouble(newGrade);
-		
+
 		GradeSaveResponse rval = null;
-		
-		if(newGradePoints.compareTo(maxPoints) > 0) {
-			log.debug("over limit. Max: " + maxPoints);
-			rval = GradeSaveResponse.OVER_LIMIT;
+
+		if (StringUtils.isNotBlank(newGrade)) {
+			Double newGradePoints = NumberUtils.toDouble(newGrade);
+
+			if(newGradePoints.compareTo(maxPoints) > 0) {
+				log.debug("over limit. Max: " + maxPoints);
+				rval = GradeSaveResponse.OVER_LIMIT;
+			}
 		}
-		
+
 		//save
 		try {
 			//note, you must pass in the comment or it wil lbe nulled out by the GB service
