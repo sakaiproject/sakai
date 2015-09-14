@@ -2708,15 +2708,24 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	
 	@Override
 	public Double calculateCategoryScore(CategoryDefinition category, Map<Long,String> gradeMap) {
+		List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = category.getAssignmentList();
+		return calculateCategoryScore(category.getId(), assignments, gradeMap);
+	}
+	
+	@Override
+	public Double calculateCategoryScore(Long categoryId, List<org.sakaiproject.service.gradebook.shared.Assignment> assignments, Map<Long,String> gradeMap) {
 		
 		int numScored = 0;
 		int numOfAssignments = 0;
 		BigDecimal totalEarned = new BigDecimal("0");
 		BigDecimal totalPossible = new BigDecimal("0");
 		
-		List<org.sakaiproject.service.gradebook.shared.Assignment> assignments = category.getAssignmentList();
-		
 		for(org.sakaiproject.service.gradebook.shared.Assignment assignment: assignments) {
+			
+			if(categoryId != assignment.getCategoryId()){
+				log.error("Category id: " + categoryId + " did not match assignment categoryId: " + assignment.getCategoryId());
+				return null;
+			}
 			
 			Long assignmentId = assignment.getId();
 			
@@ -2748,6 +2757,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
     	BigDecimal mean = totalEarned.divide(new BigDecimal(numScored), GradebookService.MATH_CONTEXT).divide((totalPossible.divide(new BigDecimal(numOfAssignments), GradebookService.MATH_CONTEXT)), GradebookService.MATH_CONTEXT).multiply(new BigDecimal("100"));    	
     	return Double.valueOf(mean.doubleValue());
 	}
+	
 
 	@Override
 	public org.sakaiproject.service.gradebook.shared.CourseGrade getCourseGradeForStudent(String gradebookUid, String userUuid) {
