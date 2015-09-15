@@ -94,7 +94,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = sessionManager.getSession(sessionid);
 
         if (s == null) {
-            return "null";
+            return "";
         } else {
             return sessionid;
         }
@@ -3904,8 +3904,7 @@ public class SakaiScript extends AbstractWebService {
         } catch (Throwable t) {
             LOG.warn(this + "getPlacementId(): Error encountered: " + t.getMessage(), t);
         }
-        return null;
-
+        return "";
     }
 
     /**
@@ -4107,7 +4106,11 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         Session s = establishSession(sessionid);
-        return siteService.getParentSite(siteid);
+        String parent = siteService.getParentSite(siteid);
+        if (parent == null) {
+            parent = "";
+        }
+        return parent;
     }
     
     /**

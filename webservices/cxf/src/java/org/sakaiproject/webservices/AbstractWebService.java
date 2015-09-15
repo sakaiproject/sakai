@@ -230,9 +230,12 @@ public class AbstractWebService {
     }
 
     @WebMethod(exclude = true)
-        public void setActivityService(ActivityService activityService) {
+    public void setActivityService(ActivityService activityService) {
         this.activityService = activityService;
     }
 
-
+    @WebMethod(exclude = true)
+    public void setTimeService(TimeService timeService) {
+        this.timeService = timeService;
+    }
 }

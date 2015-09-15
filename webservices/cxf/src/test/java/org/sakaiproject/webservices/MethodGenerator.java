@@ -3,10 +3,8 @@ package org.sakaiproject.webservices;
 import com.thoughtworks.paranamer.BytecodeReadingParanamer;
 import com.thoughtworks.paranamer.Paranamer;
 import org.junit.Test;
+import org.sakaiproject.webservices.SakaiPortalLogin;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
 import java.lang.reflect.Method;
 
 /**
@@ -22,7 +20,7 @@ public class MethodGenerator {
 
     @Test
     public void generate() {
-        Class clazz = SakaiPortalLogin.class;
+        Class<SakaiPortalLogin> clazz = SakaiPortalLogin.class;
         for (Method method : clazz.getMethods()) {
             if (!method.getDeclaringClass().getName().equals(clazz.getName())) {
                 continue;
@@ -38,7 +36,7 @@ public class MethodGenerator {
                 String[] parameterNames = paranamer.lookupParameterNames(method);
 
 
-                Class[] types = method.getParameterTypes();
+                Class<?>[] types = method.getParameterTypes();
                 int i = 0;
                 for (String name : parameterNames) {
                     System.out.print("@WebParam(name = \"" + name + "\", partName = \"" + name + "\") @QueryParam(\"" + name + "\") " + types[i].getSimpleName() + " " + name);
