@@ -208,6 +208,7 @@ body.is-logged-out{
 	#loginUser{
 		display: block;
 		padding: 0.9em 1.5em 0.9em 0.9em;
+		margin: 0 0.8em 0 0;
 		&.has-avatar{
 			padding: 0em 1.5em 0.8em 0px;
 			position: relative;
@@ -249,11 +250,14 @@ body.is-logged-out{
 		@extend .sitesNav__drop;
 		float: right;
 		position: relative;
-		margin-top: -1.5em;
+		margin-top: -2.5em;
+		padding: 18px 22px 27px 14px;
+		display: block;
+		left: 12px;
 		&.is-clicked{
 			@include transform( rotate(180deg) );
 			position: relative;
-			top: 3px;
+			top: 0px;
 		}
 	}
 
@@ -264,8 +268,11 @@ body.is-logged-out{
 			background-color: $primary-color;
 			text-align: left;
 			padding: 0.5em;
-			margin: -0.5em 0 0 0;
+			margin: -0.5em 0 0 2.6em;
 			@extend .userNav__subnav;
+			@media #{$phone}{
+				margin: -0.5em 0 0 -9em;
+			}
 		}
 	}
 	
