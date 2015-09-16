@@ -85,6 +85,7 @@
           lockdownMarkForReview(navVal);
           showHideReleaseGroups();
           checkUncheckTimeBox();
+          $("#ui-datepicker-div").hide();
         });
       </script>
 
@@ -234,15 +235,18 @@
   <!-- *** DELIVERY DATES *** -->
   <h:panelGrid columns="1" columnClasses="samigoCell" border="0">
     <h:panelGroup>
-      <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
-      <h:inputText value="#{publishedSettings.startDateString}" size="25" id="startDate" />
-	  <h:outputText value="" />
-	  <h:outputText value="" />
+    
+      <span>
+	      <h:outputLabel for="startDate" value="#{assessmentSettingsMessages.assessment_available}"/>
+	      <h:inputText value="#{assessmentSettings.startDateString}" size="25" id="startDate" />
+		  <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+	  </span>
 	  
-      <h:outputLabel for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
-      <h:inputText value="#{publishedSettings.dueDateString}" size="25" id="endDate"/>
-	  <h:outputText value="" />
-	  <h:outputText value="" />
+	  <span>
+	      <h:outputLabel for="endDate" value="#{assessmentSettingsMessages.assessment_due}" />
+	      <h:inputText value="#{assessmentSettings.dueDateString}" size="25" id="endDate"/>
+		  <f:verbatim>&nbsp;&nbsp;</f:verbatim>
+	  </span>
   
   <!-- *** TIMED *** -->
       <h:panelGroup rendered="#{publishedSettings.valueMap.timedAssessment_isInstructorEditable==true}" >
