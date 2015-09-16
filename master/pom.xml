@@ -242,23 +242,6 @@
         <updatePolicy>never</updatePolicy>
       </releases>
     </pluginRepository>
-    <pluginRepository>
-      <id>Sakai Plugin Repo</id>
-      <url>http://source.sakaiproject.org/maven2</url>
-      <releases>
-        <enabled>true</enabled>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>Sakai Plugin Repo Snapshots</id>
-      <url>http://source.sakaiproject.org/maven2-snapshots</url>
-      <releases>
-        <enabled>false</enabled>
-      </releases>
-      <snapshots>
-        <enabled>true</enabled>
-      </snapshots>
-    </pluginRepository>
   </pluginRepositories>
   <repositories>
    <repository>
