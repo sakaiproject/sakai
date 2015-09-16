@@ -32,6 +32,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.Vector;
 import java.util.TimeZone;
@@ -53,12 +54,14 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import javax.xml.bind.DatatypeConverter;
 
+import org.sakaiproject.content.api.ContentFilterService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -106,6 +109,9 @@ import uk.org.ponder.messageutil.MessageLocator;
  */
 public class LessonBuilderAccessService {
 
+	public static final int CACHE_MAX_ENTRIES = 5000;
+	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
+	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
 	private static Log M_log = LogFactory.getLog(LessonBuilderAccessService.class);
 
 	public static final String ATTR_SESSION = "sakai.session";
@@ -114,6 +120,7 @@ public class LessonBuilderAccessService {
 
 	// This is the date format for Last-Modified header
 	public static final String RFC1123_DATE = "EEE, dd MMM yyyy HH:mm:ss zzz";
+	public static final Locale LOCALE_US = Locale.US;
 
 	LessonBuilderAccessAPI lessonBuilderAccessAPI = null;
 
@@ -183,6 +190,12 @@ public class LessonBuilderAccessService {
 
 	LessonEntity assignmentEntity = null;
 
+	ContentFilterService contentFilterService;
+
+	public void setContentFilterService(ContentFilterService s) {
+		contentFilterService = s;
+	}
+
 	public void setAssignmentEntity(Object e) {
 		assignmentEntity = (LessonEntity) e;
 	}
@@ -204,6 +217,12 @@ public class LessonBuilderAccessService {
 		gradebookIfc = g;
 	}
 
+	private AuthzGroupService authzGroupService;
+
+	public void setAuthzGroupService(AuthzGroupService a) {
+		authzGroupService = a;
+	}
+
 	protected static final long MAX_URL_LENGTH = 8192;
 	protected static final int STREAM_BUFFER_SIZE = 102400;
 	public static final String INLINEHTML = "lessonbuilder.inlinehtml";
@@ -222,7 +241,6 @@ public class LessonBuilderAccessService {
 	// from no to yes in less than 10 min. going back is very unusual
 	// item : userid => string true
 	private static Cache accessCache = null;
-	protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
         SecurityAdvisor allowReadAdvisor = new SecurityAdvisor() {
 		public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -237,7 +255,10 @@ public class LessonBuilderAccessService {
 	public void init() {
 		lessonBuilderAccessAPI.setHttpAccess(getHttpAccess());
 
-		accessCache = memoryService.newCache("org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache");
+		accessCache = memoryService.createCache(
+				"org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService.cache",
+				new SimpleConfiguration<Object, Object>(CACHE_MAX_ENTRIES, CACHE_TIME_TO_LIVE_SECONDS, CACHE_TIME_TO_IDLE_SECONDS)
+		);
 
 		SimplePageItem metaItem = null;
 		// Get crypto session key from metadata item
@@ -478,7 +499,7 @@ public class LessonBuilderAccessService {
 					    // The assumption is that only one of those people can put content in the
 					    // page, and then only if the can see it.
 
-					    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
+					    if (owner != null && usersite != null && authzGroupService.getUserRole(usersite, group) != null) {
 						// OK
 					    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
 						// OK
@@ -537,7 +558,7 @@ public class LessonBuilderAccessService {
 							throw new EntityPermissionException(null, null, null);
 						}
 						}
-						accessCache.put(accessKey, "true", DEFAULT_EXPIRATION);
+						accessCache.put(accessKey, "true");
 						
 					    }
 					} else {
@@ -592,6 +613,9 @@ public class LessonBuilderAccessService {
 					    throw new EntityCopyrightException(resource.getReference());
 					}  
 					try {
+						// Wrap it in any filtering needed.
+						resource = contentFilterService.wrap(resource);
+
 					    // following cast is redundant is current kernels, but is needed for Sakai 2.6.1
 						long len = (long)resource.getContentLength();
 						String contentType = resource.getContentType();
@@ -698,7 +722,7 @@ public class LessonBuilderAccessService {
 							
 							// KNL-1316 tell the browser when our file was last modified for caching reasons
 							if (lastModTime > 0) {
-							    SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE);
+							    SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE, LOCALE_US);
 							    rfc1123Date.setTimeZone(TimeZone.getTimeZone("GMT"));
 							    res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
 							}
@@ -857,22 +881,8 @@ public class LessonBuilderAccessService {
 						finally
 						{
 							// be a good little program and close the stream - freeing up valuable system resources
-							if (content != null)
-							{
-								content.close();
-							}
-		
-							if (out != null)
-							{
-								try
-								{
-									out.close();
-								}
-								catch (IOException ignore)
-								{
-									// ignore
-								}
-							}
+							IOUtils.closeQuietly(content);
+							IOUtils.closeQuietly(out);
 						}
 		              
 		            } else {
@@ -916,17 +926,7 @@ public class LessonBuilderAccessService {
 						finally
 						{
 							// be a good little program and close the stream - freeing up valuable system resources
-							if (out != null)
-							{
-								try
-								{
-									out.close();
-								}
-								catch (IOException ignore)
-								{
-									// ignore
-								}
-							}
+							IOUtils.closeQuietly(out);
 						}
 		              
 		            } // output multiple ranges
@@ -1217,11 +1217,7 @@ public class LessonBuilderAccessService {
           
             exception = copyRange(istream, out, currentRange.start, currentRange.end);
 
-            try {
-                istream.close();
-            } catch (IOException e) {
-            	// ignore
-            }
+            IOUtils.closeQuietly(istream);
         }
 
         IOUtils.write("\r\n--" + MIME_SEPARATOR + "--\r\n", out);

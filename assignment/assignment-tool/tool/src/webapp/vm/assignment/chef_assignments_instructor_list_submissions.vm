@@ -1,8 +1,8 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_instructor_list_submissions.vm  -->
 #set( $H = '-' )
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+<script type="text/javascript">includeLatestJQuery('assignments');</script>
+<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <script type="text/javascript" src="/library/js/lang-datepicker/lang-datepicker.js"></script>
 
 <script type="text/javascript">
@@ -20,7 +20,7 @@
 			}
 		});
 
-		enableLinks();
+		ASN.enableLinks();
 	});
 
 	function showAllowResubmission()
@@ -163,14 +163,14 @@
 			<input type="hidden" name="eventSubmit_doView_submission_list_option" value="x" />
 			## show the view by group choice when there is at least one group defined
 			#if (!$assignment.isGroup())
-				#if ($!groups.hasNext())
+				#if (!$value_CheckAnonymousGrading.equals("true") && $!groups.hasNext())
 					<div class="navPanel">
 						<div class="viewNav">
 							<label for="view">
 								$tlang.getString("gen.view2")
 							</label>
 							<span class="skip">$tlang.getString("newassig.selectmessage")</span>
-							<select id="view" name="view" size="1" tabindex="3" onchange="document.getElementById('option').value='changeView';document.viewForm.submit();return false;">
+							<select id="view" name="view" size="1" tabindex="3" onchange="ASN.changeView();">
 								#if (!$showSubmissionByFilterSearchOnly)
 									<option value="all" #if($!view.equals("all"))selected="selected"#end >$tlang.getString('gen.viewallgroupssections')</option>
 								#else
@@ -180,6 +180,7 @@
 									<option value="$!aGroup.Reference" #if($!view.equals($!aGroup.Reference))selected="selected"#end >$validator.escapeHtml($aGroup.Title)</option>
 								#end
 							</select>
+							<img id="viewSpinner" class="spinner" src="/library/image/indicator.gif" />
 						</div>
 					</div>
 				#end
@@ -188,13 +189,13 @@
 			#if (!$value_CheckAnonymousGrading.equals("true"))
 				<p>
 					<label for="$form_search" class="skip">$tlang.getString("search_students")</label>
-					<input value="$validator.escapeHtml($searchString)" name="search" id="$form_search" type="text" class="searchField"  size="20" />
-					<input type="button" value="$tlang.getString('search')" 
-						onclick="document.getElementById('option').value='search';document.viewForm.submit();return false;" />
+					<input value="$validator.escapeHtml($searchString)" placeholder="$tlang.getString( "search_student_instruction" )" 
+						name="search" id="search" type="text" class="searchField" size="20" />
+					<input type="button" value="$tlang.getString('search')" onclick="ASN.applySearchFilter('search');" />
 						#if (($!searchString) && (!$searchString.equals("")))
-							<input type="button" class="button" value="$tlang.getString("search_clear")" 
-								onclick="document.getElementById('option').value='clearSearch';document.viewForm.submit();return false;" />
+							<input type="button" class="button" value="$tlang.getString("search_clear")" onclick="ASN.applySearchFilter('clearSearch');" />
 						#end
+					<img id="userFilterSpinner" class="spinner" src="/library/image/indicator.gif" />
 				</p>
 			#end
 			#end
@@ -212,11 +213,11 @@
 			#else
 				<div class="listNav">
 						## download all
-							<a href="" class="noPointers" id="downloadAll" onclick="javascript:document.getElementById('option').value='download';document.viewForm.submit();return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
+							<a href="" class="noPointers" id="downloadAll" onclick="ASN.doLinkAction( 'download' );document.getElementById( 'viewForm' ).submit();return false;" title="$!tlang.getString('downall')">$!tlang.getString('downall')</a>
 						#if(!$disableGrade)
 							## upload all
-								|  <a href="" class="noPointers" id="uploadAll" onclick="javascript:document.getElementById('option').value='upload';document.viewForm.submit();return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
-							|  <a href="" class="noPointers" id="releaseGrades" onclick="javascript:document.getElementById('option').value='releaseGrades';document.viewForm.submit();return false;" 
+								|  <a href="" class="noPointers" id="uploadAll" onclick="ASN.doLinkAction( 'upload' );document.getElementById( 'viewForm' ).submit();return false;" title="$!tlang.getString('uploadall.title')">$!tlang.getString('uploadall.title')</a>
+							|  <a href="" class="noPointers" id="releaseGrades" onclick="ASN.doLinkAction( 'releaseGrades' );document.getElementById( 'viewForm' ).submit();return false;"
 							#if ($withGrade)
 								title="$!tlang.getString('relgrad')">$!tlang.getString('relgrad')</a>
 							#else
@@ -228,7 +229,7 @@
 								#set ($helperInfo = false)
 								#set ($helperInfo = $provider.provider.getItemsHelperInfo($activity.Reference))
 								#if ($helperInfo)
-									|  <a id="helpItems" class="noPointers" href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
+									|  <a id="helpItems" class="noPointers" onclick="ASN.disableControls();" href="#toolLinkParam("$action" "doHelp_items" "activityRef=$validator.escapeUrl($activity.Reference)&providerId=$validator.escapeUrl($provider.provider.id)")" title="$!helperInfo.description">$!helperInfo.name</a>
 								#end
 							#end
 						#end
@@ -271,7 +272,8 @@
 						## instructor needs to type in default points in point-based-grading
 						<input type="text" id="defaultGrade_2" name="defaultGrade" value="$!defaultGrade" size="5" />
 					#end
-					<input type="button" accesskey="a" class="active"  name="apply" value="$tlang.getString('gen.applygrade')" onclick="document.defaultGradeForm.submit();" title="$tlang.getString("gen.applygrade")" />
+					<input type="button" accesskey="a" class="active"  name="apply" value="$tlang.getString('gen.applygrade')" onclick="ASN.applyDefaultGrade();" title="$tlang.getString("gen.applygrade")" />
+					<img id="applyGradeSpinner" class="spinner" src="/library/image/indicator.gif" />
 					<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 				</form>
 			#end
@@ -279,27 +281,28 @@
 			<div class="listNav">
 				<div class="instruction">
 					$tlang.getString("gen.viewing") $topMsgPos - $btmMsgPos $tlang.getString("gen.of") $allMsgNumber $tlang.getString("gen.items")
+					<img id="navSpinner" class="spinner" src="/library/image/indicator.gif" />
 				</div>
 				#if ($pagesize != 0)
 					#if ($goFPButton == "true")
 						<form name="firstpageForm" class="inlineForm"  method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
+							<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_first" value="|&lt;" title="$tlang.getString("gen.first")" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
 						<form name="firstpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
+							<fieldset><legend>$tlang.getString("gen.first")</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_first" value="|&lt;" disabled="disabled" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#end
 					#if ($goPPButton == "true")
 						<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_prev" value="&lt;" title="$tlang.getString('gen.previous') $pagesize" accesskey="p" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
 						<form name="prevpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.previous') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_prev" value="&lt;" disabled="disabled" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#end
@@ -307,7 +310,7 @@
 				<form name="pagesizeForm" class="inlineForm" method="post" action="#toolForm("$action")">
 					<input type="hidden" name="eventSubmit_doChange_pagesize" value="changepagesize" />
 					<label for="selectPageSize" class="skip">$tlang.getString("newassig.selectmessage")</label>
-					<select id="selectPageSize" name="selectPageSize" onchange="document.pagesizeForm.submit();">
+					<select id="selectPageSize" name="selectPageSize" onchange="ASN.changePageSize();">
 						#foreach ($i in $!pagesizes)
 							<option value="$i" #if($pagesize == $i) selected="selected" #end>$tlang.getString("list.show") $i $tlang.getString("list.itemsper")</option>
 						#end
@@ -317,23 +320,23 @@
 				#if ($pagesize != 0)
 					#if ($goNPButton == "true")
 						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="n" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_next" value="&gt;" title="$tlang.getString('gen.next') $pagesize" accesskey="n" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
 						<form name="nextpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.next') $pagesize</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_next" value="&gt;" disabled="disabled" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#end
 					#if ($goLPButton == "true")
 						<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_last" value="&gt;|" title="$tlang.getString('gen.last')" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#else
 						<form name="lastpageForm" class="inlineForm" method="post" action="#toolForm("$action")">
-							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
+							<fieldset><legend>$tlang.getString('gen.last')</legend><input type="submit" onclick="ASN.disableControls(); ASN.showSpinner( 'navSpinner' );" name="eventSubmit_doList_last" value="&gt;|" disabled="disabled" /></fieldset>
 							<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 						</form>
 					#end
@@ -554,7 +557,8 @@
 
 								## for save the resubmission choice
 								<div class="act">
-									<input type="submit" class="active" name="eventSubmit_doSave_resubmission_option" value="$tlang.getString("update")" accesskey="s" />
+									<input type="submit" class="active" onclick="ASN.disableControls(); ASN.showSpinner( 'applyResubmissionSpinner' );" name="eventSubmit_doSave_resubmission_option" value="$tlang.getString("update")" accesskey="s" />
+									<img id="applyResubmissionSpinner" class="spinner" src="/library/image/indicator.gif" />
 								</div>
 							</p>
 						</div>	
@@ -673,7 +677,8 @@
 						#set($gusers = $submission.getSubmitters())
 					#else
 						#set($siteUser = $userSubmission.User)
-						#set($submitterName=$!siteUser.sortName)
+						#set($submitterSortName=$!siteUser.sortName) 
+						#set($submitterName=$!submitterSortName) 
 						#set($submitterDisplayId=$!siteUser.getDisplayId())
 					#end
 					#set($submitterId = $!siteUser.getId())
@@ -797,7 +802,7 @@
 										$tlang.getString("listsub.nosub")
 									#end
 									#if ($!submittedBy) 
-									<br />by $!submittedBy.sortName
+									<br /> $tlang.getString("listsub.submitted.by") $!submittedBy.sortName ($tlang.getString("listsub.submitted.on.behalf") $validator.escapeHtml($submitterSortName))
 									#end
 							</td>
 							<td headers="status">

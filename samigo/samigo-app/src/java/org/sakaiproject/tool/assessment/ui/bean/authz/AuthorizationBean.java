@@ -28,12 +28,14 @@ import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.ui.listener.author.AuthorActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.select.SelectActionListener;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.tool.assessment.data.dao.authz.AuthorizationData;
 import org.sakaiproject.tool.cover.ToolManager;
-//import org.sakaiproject.spring.SpringBeanLocator;
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import javax.servlet.http.HttpServletRequest;
-//import javax.servlet.http.HttpServletResponse;
+
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -45,7 +47,7 @@ public class AuthorizationBean implements Serializable {
 
 private static Log log = LogFactory.getLog(AuthorizationBean.class);
 
-  private HashMap map = new HashMap();
+  private HashMap<String, Boolean> map = new HashMap<String, Boolean>();
   private boolean adminPrivilege = false;
   private boolean adminNewAssessmentPrivilege = false;
   private boolean adminCoreAssessmentPrivilege = false;
@@ -57,7 +59,7 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
   public AuthorizationBean(){
   }
 
-  public HashMap getAuthzMap(){
+  public HashMap<String, Boolean> getAuthzMap(){
     return map;
   }
   public boolean getAdminPrivilege(){
@@ -65,31 +67,31 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
 		  initializePermission();
 		  this.initializedPerm=true;
 	  }
-    return getPrivilege("admin_privilege");
+    return getPrivilege("admin.privilege");
   }
 
   public boolean getAdminNewAssessment(){
-    return getPrivilege("admin_new_assessment");
+    return getPrivilege("admin.new.assessment");
   }
 
   public boolean getAdminCoreAssessment(){
-    return getPrivilege("admin_core_assessment");
+    return getPrivilege("admin.core.assessment");
   }
 
   public boolean getAdminPublishedAssessment(){
-    return getPrivilege("admin_published_assessment");
+    return getPrivilege("admin.published.assessment");
   }
 
   public boolean getAdminAssessment(){
-    return getPrivilege("admin_assessment");
+    return getPrivilege("admin.assessment");
   }
 
   public boolean getAdminTemplate(){
-    return getPrivilege("admin_template");
+    return getPrivilege("admin.template");
   }
 
   public boolean getAdminQuestionPool(){
-    return getPrivilege("admin_questionpool");
+    return getPrivilege("admin.questionpool");
   }
 
 
@@ -122,123 +124,121 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
 
     // set adminPrivilege
     adminNewAssessmentPrivilege = p1;
-    addAdminPrivilege(adminNewAssessmentPrivilege, "admin_new_assessment", siteId);
+    addAdminPrivilege(adminNewAssessmentPrivilege, "admin.new.assessment", siteId);
 
     adminCoreAssessmentPrivilege = p2 || p3 || p4 || p5 || p6 || p7;
-    addAdminPrivilege(adminCoreAssessmentPrivilege, "admin_core_assessment", siteId);
+    addAdminPrivilege(adminCoreAssessmentPrivilege, "admin.core.assessment", siteId);
 
     adminPublishedAssessmentPrivilege = p8 || p9;
-    addAdminPrivilege(adminPublishedAssessmentPrivilege, "admin_published_assessment", siteId);
+    addAdminPrivilege(adminPublishedAssessmentPrivilege, "admin.published.assessment", siteId);
 
     adminAssessmentPrivilege = p1 || p2 || p3 || p4 || p5 || p6 || p7 || p8 || p9;
-    addAdminPrivilege(adminAssessmentPrivilege, "admin_assessment", siteId);
+    addAdminPrivilege(adminAssessmentPrivilege, "admin.assessment", siteId);
 
     adminQuestionPoolPrivilege = p10 || p11 || p12 || p13;
-    addAdminPrivilege(adminQuestionPoolPrivilege, "admin_questionpool", siteId);
+    addAdminPrivilege(adminQuestionPoolPrivilege, "admin.questionpool", siteId);
 
     adminTemplatePrivilege = p14 ||p15 || p16;
-    addAdminPrivilege(adminTemplatePrivilege, "admin_template", siteId);
+    addAdminPrivilege(adminTemplatePrivilege, "admin.template", siteId);
 
     adminPrivilege = adminAssessmentPrivilege || adminQuestionPoolPrivilege || adminTemplatePrivilege;
-    addAdminPrivilege(adminPrivilege, "admin_privilege", siteId);
+    addAdminPrivilege(adminPrivilege, "admin.privilege", siteId);
   }
 
   public boolean canTakeAssessment(String siteId)
   {
-    return addPrivilege("take_assessment", siteId);
+    return addPrivilege("assessment.takeAssessment", siteId);
   }
 
   public boolean canSubmitAssessmentForGrade(String siteId)
   {
-    return addPrivilege("submit_assessment_for_grade", siteId);
+    return addPrivilege("assessment.submitAssessmentForGrade", siteId);
   }
 
   public boolean canCreateAssessment(String siteId)
   {
-    return addPrivilege("create_assessment", siteId);
+    return addPrivilege("assessment.createAssessment", siteId);
   }
 
   public boolean canEditAnyAssessment(String siteId)
   {
-    return addPrivilege("edit_any_assessment", siteId);
+    return addPrivilege("assessment.editAssessment.any", siteId);
   }
 
   public boolean canEditOwnAssessment(String siteId)
   {
-    return addPrivilege("edit_own_assessment", siteId);
+    return addPrivilege("assessment.editAssessment.own", siteId);
   }
 
   public boolean canDeleteAnyAssessment(String siteId)
   {
-    return addPrivilege("delete_any_assessment", siteId);
+    return addPrivilege("assessment.deleteAssessment.any", siteId);
   }
 
   public boolean canDeleteOwnAssessment(String siteId)
   {
-    return addPrivilege("delete_own_assessment", siteId);
+    return addPrivilege("assessment.deleteAssessment.own", siteId);
   }
 
   public boolean canPublishAnyAssessment(String siteId)
   {
-    return addPrivilege("publish_any_assessment", siteId);
+    return addPrivilege("assessment.publishAssessment.any", siteId);
   }
 
   public boolean canPublishOwnAssessment(String siteId)
   {
-    return addPrivilege("publish_own_assessment", siteId);
+    return addPrivilege("assessment.publishAssessment.own", siteId);
   }
 
   public boolean canGradeAnyAssessment(String siteId)
   {
-    return addPrivilege("grade_any_assessment", siteId);
+    return addPrivilege("assessment.gradeAssessment.any", siteId);
   }
 
   public boolean canGradeOwnAssessment(String siteId)
   {
-    return addPrivilege("grade_own_assessment", siteId);
+    return addPrivilege("assessment.gradeAssessment.own", siteId);
   }
 
   public boolean canCreateQuestionPool(String siteId)
   {
-    return addPrivilege("create_questionpool", siteId);
+    return addPrivilege("assessment.questionpool.create", siteId);
   }
 
   public boolean canEditOwnQuestionPool(String siteId)
   {
-    return addPrivilege("edit_own_questionpool", siteId);
+    return addPrivilege("assessment.questionpool.edit.own", siteId);
   }
 
   public boolean canDeleteOwnQuestionPool(String siteId)
   {
-    return addPrivilege("delete_own_questionpool", siteId);
+    return addPrivilege("assessment.questionpool.delete.own", siteId);
   }
 
   public boolean canCopyOwnQuestionPool(String siteId)
   {
-    return addPrivilege("copy_own_questionpool", siteId);
+    return addPrivilege("assessment.questionpool.copy.own", siteId);
   }
 
   public boolean canCreateTemplate(String siteId)
   {
-    return addPrivilege("create_template", siteId);
+    return addPrivilege("assessment.template.create", siteId);
   }
 
   public boolean canEditOwnTemplate(String siteId)
   {
-    return addPrivilege("edit_own_template", siteId);
+    return addPrivilege("assessment.template.edit.own", siteId);
   }
 
   public boolean canDeleteOwnTemplate(String siteId)
   {
-    return addPrivilege("delete_own_template", siteId);
+    return addPrivilege("assessment.template.delete.own", siteId);
   }
 
 
-  public boolean addPrivilege(String functionKey, String siteId){
-     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
+  public boolean addPrivilege(String functionName, String siteId){
      boolean privilege = PersistenceService.getInstance().getAuthzQueriesFacade().hasPrivilege(functionName);
      map.put(functionName+"_"+siteId, Boolean.valueOf(privilege));
-     //log.debug(functionName+"_"+siteId+"="+privilege);
      return privilege;
   }
   
@@ -261,118 +261,201 @@ private static Log log = LogFactory.getLog(AuthorizationBean.class);
 	  }
   }
 
-  public void addAdminPrivilege(boolean privilege, String functionKey, String siteId){
-     String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
+  public void addAdminPrivilege(boolean privilege, String functionName, String siteId){
      map.put(functionName+"_"+siteId, Boolean.valueOf(privilege));
-     //log.debug(functionName+"_"+siteId+"="+privilege);
   }
 
   public boolean getTakeAssessment(){
-    return getPrivilege("take_assessment");
+    return getPrivilege("assessment.takeAssessment");
   } 
 
   public boolean getSubmitAssessmentForGrade(){
-    return getPrivilege("submit_assessment_for_grade");
+    return getPrivilege("assessment.submitAssessmentForGrade");
   } 
   public boolean getCreateAssessment(){
-    return getPrivilege("create_assessment");
+    return getPrivilege("assessment.createAssessment");
   } 
 
   public boolean getEditAnyAssessment() {
-    return getPrivilege("edit_any_assessment");
+    return getPrivilege("assessment.editAssessment.any");
   } 
 
   public boolean getEditOwnAssessment() {
-    return getPrivilege("edit_own_assessment");
+    return getPrivilege("assessment.editAssessment.own");
   } 
 
   public boolean getDeleteAnyAssessment() {
-    return getPrivilege("delete_any_assessment");
+    return getPrivilege("assessment.deleteAssessment.any");
   } 
 
   public boolean getDeleteOwnAssessment() {
-    return getPrivilege("delete_own_assessment");
+    return getPrivilege("assessment.deleteAssessment.own");
   } 
 
   public boolean getPublishAnyAssessment() {
-    return getPrivilege("publish_any_assessment");
+    return getPrivilege("assessment.publishAssessment.any");
   } 
 
   public boolean getPublishOwnAssessment() {
-    return getPrivilege("publish_own_assessment");
+    return getPrivilege("assessment.publishAssessment.own");
   } 
 
   public boolean getGradeAnyAssessment() {
-	boolean priv = getPrivilege("grade_any_assessment");   
+    boolean priv = getPrivilege("assessment.gradeAssessment.any");
     return priv;
   } 
 
   public boolean getGradeOwnAssessment() {
-	boolean priv = getPrivilege("grade_own_assessment");
+    boolean priv = getPrivilege("assessment.gradeAssessment.own");
     return priv;
   } 
 
   public boolean getCreateQuestionPool() {
-    return getPrivilege("create_questionpool");
+    return getPrivilege("assessment.questionpool.create");
   } 
 
   public boolean getEditOwnQuestionPool() {
-    return getPrivilege("edit_own_questionpool");
+    return getPrivilege("assessment.questionpool.edit.own");
   } 
 
   public boolean getDeleteOwnQuestionPool() {
-    return getPrivilege("delete_own_questionpool");
+    return getPrivilege("assessment.questionpool.delete.own");
   } 
 
   public boolean getCopyOwnQuestionPool() {
-    return getPrivilege("copy_own_questionpool");
+    return getPrivilege("assessment.questionpool.copy.own");
   } 
 
   public boolean getCreateTemplate() {
-    return getPrivilege("create_template");
+    return getPrivilege("assessment.template.create");
   } 
 
   public boolean getEditOwnTemplate() {
-    return getPrivilege("edit_own_template");
+    return getPrivilege("assessment.template.edit.own");
   } 
 
   public boolean getDeleteOwnTemplate() {
-    return getPrivilege("delete_own_template");
+    return getPrivilege("assessment.template.delete.own");
   } 
 
-  public boolean getPrivilege(String functionKey){
+  public boolean getPrivilege(String functionName){
     String siteId  = AgentFacade.getCurrentSiteId();
-    String functionName=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
     boolean privilege = false;
     Object o = map.get(functionName+"_"+siteId);
     if (o!=null)
       privilege = ((Boolean)o).booleanValue();
-    //log.debug("**** authzBean:"+functionName+"_"+siteId+"="+privilege);
+    return privilege;
+  }
+ 
+  public boolean getPrivilege(HttpServletRequest req, String functionName, String siteId){
+    boolean privilege = false;
+    Object o = map.get(functionName+"_"+siteId);
+    if (o != null) privilege = ((Boolean)o).booleanValue();
     return privilege;
   }
 
-
   // added the follwoing for ShowMediaServlet
-  public boolean getGradeAnyAssessment(HttpServletRequest req, 
-                                       String siteId) {
-    return getPrivilege(req, "grade_any_assessment", siteId);
+  public boolean getGradeAnyAssessment(HttpServletRequest req, String siteId) {
+    return getPrivilege(req, "assessment.gradeAssessment.any", siteId);
   } 
 
-  public boolean getGradeOwnAssessment(HttpServletRequest req, 
-                                       String siteId) {
-    return getPrivilege(req, "grade_own_assessment", siteId);
-  } 
+  public boolean getGradeOwnAssessment(HttpServletRequest req, String siteId) {
+    return getPrivilege(req, "assessment.gradeAssessment.own", siteId);
+  }
 
-  public boolean getPrivilege(HttpServletRequest req,
-                              String functionKey, String siteId){
-    String functionName=(String)ContextUtil.getLocalizedString(req,
-                             "org.sakaiproject.tool.assessment.bundle.AuthzPermissions", 
-                              functionKey);
-    boolean privilege = false;
-    Object o = map.get(functionName+"_"+siteId);
-    if (o!=null)
-      privilege = ((Boolean)o).booleanValue();
-    return privilege;
+  public boolean isUserAllowedToPublishAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    if (getPublishAnyAssessment()) {
+      return true;
+    }
+    else if (getPublishOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
+  }
+
+  public boolean isUserAllowedToGradeAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    // Second check on the realm permissions
+    if (getGradeAnyAssessment()) {
+      return true;
+    }
+    else if (getGradeOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
+  }
+
+  public boolean isUserAllowedToEditAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    // Second check on the realm permissions
+    if (getEditAnyAssessment()) {
+      return true;
+    }
+    else if (getEditOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
+  }
+
+  public boolean isUserAllowedToDeleteAssessment(final String assessmentId, final String assessmentOwnerId, final boolean published) {
+    if (!isAssessmentInSite(assessmentId, published)) {
+      return false;
+    }
+
+    // Second check on the realm permissions
+    if (getDeleteAnyAssessment()) {
+      return true;
+    }
+    else if (getDeleteOwnAssessment()) {
+      final String loggedInUser = AgentFacade.getAgentString();
+      return StringUtils.equals(loggedInUser, assessmentOwnerId);
+    }
+    return false;
+  }
+
+  public boolean isUserAllowedToTakeAssessment(final String assessmentId) {
+    if (!isAssessmentInSite(assessmentId, true)) { 
+      return false;
+    }
+
+    // Second check on the realm permissions
+    return getTakeAssessment();
+  }
+
+  public boolean isUserAllowedToCreateAssessment() {
+    return getCreateAssessment();
+  }
+
+  // Check whether the assessment belongs to the given site
+  public static boolean isAssessmentInSite(final String assessmentId, final String siteId, final boolean published) {
+    // get list of site that this published assessment has been released to
+    List<AuthorizationData> l = PersistenceService.getInstance().getAuthzQueriesFacade().getAuthorizationByFunctionAndQualifier(published ? "OWN_PUBLISHED_ASSESSMENT" : "EDIT_ASSESSMENT", assessmentId);
+
+    for (int i=0; i < l.size(); i++) {
+      String assessmentSiteId = (l.get(i)).getAgentIdString();
+      if (siteId.equals(assessmentSiteId)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public static boolean isAssessmentInSite(final String assessmentId, final boolean published) {
+    return isAssessmentInSite(assessmentId, AgentFacade.getCurrentSiteId(), published);
   }
 
 }

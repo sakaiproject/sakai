@@ -21,7 +21,6 @@
 
 package org.sakaiproject.portal.charon.handlers;
 
-import java.util.Locale;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -157,9 +156,9 @@ public class PageHandler extends BasePortalHandler
 			return;
 		}
 
-		// form a context sensitive title
+		// SAK-29138 - form a context sensitive title
 		String title = ServerConfigurationService.getString("ui.service","Sakai") + " : "
-				+ site.getTitle() + " : " + page.getTitle();
+				+ portal.getSiteHelper().getUserSpecificSiteTitle( site ) + " : " + page.getTitle();
 
 		String siteType = portal.calcSiteType(site.getId());
 		// start the response
@@ -257,6 +256,9 @@ public class PageHandler extends BasePortalHandler
 				for (Iterator i = tools.iterator(); i.hasNext();)
 				{
 					ToolConfiguration placement = (ToolConfiguration) i.next();
+					boolean thisTool = portal.getSiteHelper().allowTool(site,
+								placement);
+					if (!thisTool) continue; // Skip this tool if not allowed
 					Map m = portal.includeTool(res, req, placement);
 					if (m != null)
 					{

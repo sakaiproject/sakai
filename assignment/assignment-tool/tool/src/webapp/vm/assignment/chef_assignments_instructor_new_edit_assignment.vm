@@ -3,10 +3,8 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
 #set( $H = '-' )
-
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+<!-- jQuery already loaded in assignment_chef_header -->
+<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" />
 
 <script type="text/javascript">
@@ -171,7 +169,7 @@ $(document).ready(function() {
 		}
 	}
 
-	## handles the Student Submissions dropdown	--bbailla2
+	## handles the Student Submissions dropdown
 	function switchAssignmentSubmissionType()
 	{
 		var useReview = document.getElementById('$name_UseReviewService');
@@ -186,7 +184,7 @@ $(document).ready(function() {
 				reviewSwitchNe2.style.display='none';
 				useReview.disabled=false;
 			#end
-			## SAK-26640	--bbailla2
+			## SAK-26640
 			document.getElementById('tempAllowRes').style.display = 'block';
 			if (document.getElementById('allowResToggle').checked)
 			{
@@ -209,11 +207,20 @@ $(document).ready(function() {
 				lblUseReview.className='instruction';
 				reviewSwitchNe1.style.removeProperty('display');
 			#end
-			## SAK-26640	--bbailla2
+			## SAK-26640
 			document.getElementById('tempAllowRes').style.display = 'none';
 			document.getElementById('allowResubmitNumber').style.display = 'none';
 			document.getElementById('allowResubmitTime').style.display = 'none'; 
 			document.getElementById('resubmitNotification').style.display = 'none';
+		}
+	}
+
+	function toggleIsGroupSubmission(checked){
+		if (checked) {
+			$("#site").prop("disabled", true);
+			$("#groups").prop("checked", true).trigger("click");
+		} else {
+			$("#site").prop("disabled", false);
 		}
 	}
 </script>
@@ -678,7 +685,10 @@ $(document).ready(function() {
 					</div>
 					<!-- Start TII custom options -->
 					#if($reviewServiceName.equals("Turnitin"))
-					$tlang.getString("content_review.note")
+
+					#if ($content_review_note)
+						$content_review_note
+					#end
 					$tlang.getString("review.submit.papers.repository")
 					<br/>
 					<div class="indnt1">
@@ -1103,7 +1113,7 @@ $(document).ready(function() {
 
                                  #if ($group_submissions_enabled)
                                     <p class="checkbox  indnt2">
-                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1"
+                            <input id="$name_CheckIsGroupSubmission" name="$name_CheckIsGroupSubmission" type="checkbox" value="1" onclick="toggleIsGroupSubmission(this.checked);"
                             #if ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
                                 checked="checked"
                                         #end
@@ -1130,16 +1140,18 @@ $(document).ready(function() {
 
 				<p class="checkbox  indnt2">
                     #if( !$!allowGroupAssignmentsInGradebook )
-                        <input type="radio" name="range" id="site" value="site" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); showOrHideAccessMessages( false ); resizeFrame()};$('#groupTable').fadeOut('slow'); showOrHideAccessMessages( false ); resizeFrame();" 
+                        <input type="radio" name="range" id="site" value="site" onclick="if (document.getElementById('addToGradebook') !=null){$('#addToGradebook').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); resizeFrame()};$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); resizeFrame();" 
                         #if( $!range == "site" || $selectedGroupsNotFound )
                             checked="checked"
                         #end
                         />
 					#else
-                        <input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); showOrHideAccessMessages( false ); resizeFrame();" 
+                        <input type="radio" name="range" id="site" value="site" onclick="$('#groupTable').fadeOut('slow'); ASN.showOrHideAccessMessages( false ); resizeFrame();" 
                         #if( $!range == "site" || $selectedGroupsNotFound )
                             checked="checked"
-					#end
+                        #elseif ($!value_CheckIsGroupSubmission.equals("1") && $!groupsList)
+                            disabled="disabled"
+                        #end
                         />
                     #end
 					<label for="site">$tlang.getString("displayto.site")</label>
@@ -1155,7 +1167,7 @@ $(document).ready(function() {
 			## added group awareness
 			<p class="checkbox indnt2">
                 #if( !$!allowGroupAssignmentsInGradebook )
-                    <input type="radio" name="range" id="groups" value="groups" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); showOrHideAccessMessages( true ); resizeFrame();" 
+                    <input type="radio" name="range" id="groups" value="groups" onclick="if (document.getElementById('addToGradebook') != null){document.getElementById('addToGradebook').style.display = 'none';document.getElementById('$!name_Addtogradebook').checked=false};$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); resizeFrame();" 
                     #if( $!range == "groups" && !$selectedGroupsNotFound )
                         checked="checked"
                     #elseif( !$!groupsList )
@@ -1163,7 +1175,7 @@ $(document).ready(function() {
                     #end
                     />
 				#else
-                    <input type="radio" name="range" id="groups" value="groups" onclick="$('#groupTable').fadeIn('slow'); showOrHideAccessMessages( true ); resizeFrame();" 
+                    <input type="radio" name="range" id="groups" value="groups" onclick="$('#groupTable').fadeIn('slow'); ASN.showOrHideAccessMessages( true ); resizeFrame();" 
                     #if( $!range == "groups" && !$selectedGroupsNotFound )
                         checked="checked"
                     #elseif( !$!groupsList )
@@ -1187,7 +1199,7 @@ $(document).ready(function() {
 			<table id="groupTable" style="width:80%;display:$listDisplay" class="listHier lines indnt3" border="0" cellpadding="0" cellspacing="0" summary="$tlang.getString('group.list.summary')">
 					<tr>
 						<th id ="selectAllGroups" style="width:2em;padding-left:.4em">
-                            <input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="javascript:toggleSelectAll(this, 'selectedGroups'); showOrHideSelectGroupsMessage();"  />
+                            <input type="checkbox" name="selectall" id="selectall" title="$tlang.getString('gen.toggle')" onclick="toggleSelectAll(this, 'selectedGroups'); ASN.showOrHideSelectGroupsMessage();"  />
 						</th>
 						<th id ="groupname">
 								$tlang.getString('gen.title')
@@ -1206,7 +1218,7 @@ $(document).ready(function() {
 										#set($selected = true)
 									#end
 								#end
-                                <input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end onclick="showOrHideSelectGroupsMessage();" />
+                                <input type="checkbox" name="selectedGroups" id="id-$group.Id" title="$group.Id" value="$group.Id" #if($selected) checked="checked"#end onclick="ASN.showOrHideSelectGroupsMessage();" />
 							</td>
 							<td headers="name" class="checkbox" style="white-space:nowrap">
                                                                 <label for="id-$group.Id">

@@ -45,6 +45,7 @@ import org.jdom.Namespace;
 import org.sakaiproject.lessonbuildertool.service.LessonSubmission;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean.UrlItem;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.util.FormattedText;
 
 import org.sakaiproject.assignment.api.Assignment;
@@ -102,10 +103,12 @@ import uk.org.ponder.messageutil.MessageLocator;
 
 public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
-    private static Log log = LogFactory.getLog(AssignmentEntity.class);
+	public static final int CACHE_MAX_ENTRIES = 5000;
+	public static final int CACHE_TIME_TO_LIVE_SECONDS = 600;
+	public static final int CACHE_TIME_TO_IDLE_SECONDS = 360;
+	private static Log log = LogFactory.getLog(AssignmentEntity.class);
 
     private static Cache assignmentCache = null;
-    protected static final int DEFAULT_EXPIRATION = 10 * 60;
 
     private SimplePageBean simplePageBean;
 
@@ -138,7 +141,9 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 
     public void init () {
 	assignmentCache = memoryService
-	    .newCache("org.sakaiproject.lessonbuildertool.service.AssignmentEntity.cache");
+	    .createCache("org.sakaiproject.lessonbuildertool.service.AssignmentEntity.cache",
+	    new SimpleConfiguration(CACHE_MAX_ENTRIES, CACHE_TIME_TO_LIVE_SECONDS, CACHE_TIME_TO_IDLE_SECONDS));
+
 
 	log.info("init()");
 
@@ -193,7 +198,7 @@ public class AssignmentEntity implements LessonEntity, AssignmentInterface {
 	}
 	
 	if (ret != null)
-	    assignmentCache.put(ref, ret, DEFAULT_EXPIRATION);
+	    assignmentCache.put(ref, ret);
 	return ret;
     }
 

@@ -22,6 +22,7 @@
 
 package org.sakaiproject.service.gradebook.shared;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -29,15 +30,28 @@ import java.util.List;
  *  Provides information describing a gradebook category that may be useful
  *  to consumers of the shared gradebook services.  Not persisted.
  */
-public class CategoryDefinition {
+public class CategoryDefinition implements Serializable {
+  
+    private static final long serialVersionUID = 1L;
+	
     private Long id;
     private String name;
     private Double weight;
     private Integer drop_lowest;
     private Integer dropHighest;
     private Integer keepHighest;
+    private Boolean extraCredit;
     
     private List<Assignment> assignmentList;
+    
+    public CategoryDefinition() {
+    	
+    }
+    
+    public CategoryDefinition(Long id, String name) {
+    	this.id = id;
+    	this.name = name;
+    }
     
     /**
      * 
@@ -133,5 +147,13 @@ public class CategoryDefinition {
 
 	public void setKeepHighest(Integer keepHighest) {
 		this.keepHighest = keepHighest;
+	}
+
+	public Boolean isExtraCredit() {
+		return extraCredit;
+	}
+
+	public void setExtraCredit(Boolean extraCredit) {
+		this.extraCredit = extraCredit;
 	}
 }

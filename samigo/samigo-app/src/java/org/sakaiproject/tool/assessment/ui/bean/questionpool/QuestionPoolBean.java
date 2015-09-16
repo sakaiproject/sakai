@@ -44,6 +44,7 @@ import javax.faces.event.ActionEvent;
 import javax.faces.model.ListDataModel;
 import javax.faces.model.SelectItem;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.struts.upload.FormFile;
@@ -64,6 +65,7 @@ import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.SectionService;
 import org.sakaiproject.tool.assessment.ui.bean.author.ItemAuthorBean;
+import org.sakaiproject.tool.assessment.ui.bean.author.AssessmentBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
 import org.sakaiproject.user.api.User;
@@ -71,6 +73,9 @@ import org.sakaiproject.user.api.UserNotDefinedException;
 import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
+import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
+import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 
 
 /**
@@ -84,7 +89,9 @@ public class QuestionPoolBean implements Serializable
 	  /** Use serialVersionUID for interoperability. */
 	  private final static long serialVersionUID = 418920360211039758L;
   public final static String ORIGIN_TOP = "poolList";
-
+  public final static String EDIT_POOL = "editPool";
+  public final static String EDIT_ASSESSMENT = "editAssessment";
+  
   private String name;
   private Collection pools;
   private QuestionPoolDataBean currentPool;
@@ -183,6 +190,10 @@ public class QuestionPoolBean implements Serializable
     resetFields();
   }
 
+  public int getRowIndex() {
+      return qpDataModel.getRowIndex();
+  }
+
   public QuestionPoolDataModel getQpools()
   {
 	  if (qpDataModel == null) {
@@ -196,7 +207,7 @@ public class QuestionPoolBean implements Serializable
   public QuestionPoolDataModel getCopyQpools()
   {
 //	  if (qpDataModelCopy == null) {
-		  buildTreeCopy();
+		  buildTree();
 		  setQpDataModelByLevelCopy(getSortCopyPoolProperty(), getSortCopyPoolAscending());
 //	  }
 	  log.debug("getCopyQpools()");
@@ -1293,6 +1304,37 @@ public String getAddOrEdit()
 				.getAgentString());
 		Iterator iter = pools.iterator();
 
+		// verify that the sectionId is in the current assessment
+		String sectionId = ContextUtil.lookupParam("sectionId");
+		AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+		List<SelectItem> sectionList = assessmentBean.getSectionList();
+		boolean foundPart = false;
+		for (int i = 0; i < sectionList.size(); i++) {
+		    SelectItem s = sectionList.get(i);
+		    if (sectionId.equals((String)s.getValue())) foundPart = true;
+		}
+		if (!foundPart) {
+		    FacesContext context=FacesContext.getCurrentInstance();
+		    String err;
+		    err=rb.getString("no_pools_error");
+		    context.addMessage(null, new FacesMessage(err));
+		    return "editAssessment";
+		}
+		
+		// permission check to ensure the user should have access to the questions being copied
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		AssessmentService assessmentService = new AssessmentService();
+		AssessmentFacade af = assessmentService.getBasicInfoOfAnAssessmentFromSectionId(new Long(sectionId));
+		String assessmentId = af.getAssessmentBaseId().toString();
+		String createdBy = af.getCreatedBy();
+		if (!authzBean.isUserAllowedToEditAssessment(assessmentId, createdBy, false))
+		{
+			FacesContext context = FacesContext.getCurrentInstance();
+			String err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+			context.addMessage(null, new FacesMessage(err));
+			return "editAssessment";
+		}
+
 		if (iter.hasNext()) {
 			// first pool, if there is one
 			QuestionPoolFacade pool = (QuestionPoolFacade) iter.next();
@@ -1300,7 +1342,7 @@ public String getAddOrEdit()
 			buildTree();
 			startEditPoolAgain(poolId);
 			setActionType("item");
-			this.sourcePart = ContextUtil.lookupParam("sectionId");
+			this.sourcePart = sectionId;
 			return "copyPool";
 		}
 		
@@ -1309,7 +1351,7 @@ public String getAddOrEdit()
         err=rb.getString("no_pools_error");
         context.addMessage(null, new FacesMessage(err));
 
-		return "editAssessment";
+		return EDIT_ASSESSMENT;
 	}
      
   public boolean hasItemInDestPool(String sourceItemId, String destId){
@@ -1413,8 +1455,8 @@ public String getAddOrEdit()
 				}
 			}
 		}
-		
-		return "editAssessment";
+		setSourcePart(null);
+		return EDIT_ASSESSMENT;
 	}
 
  public String removeQuestionsFromPool(){
@@ -1555,6 +1597,13 @@ public String getAddOrEdit()
 
           // Get all data from the database
           QuestionPoolService delegate = new QuestionPoolService();
+
+          // Does the user have permission to copy or move this pool?
+          List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(AgentFacade.getAgentString());
+          if (!poolsWithAccess.contains(pool.getId())) {
+              throw new IllegalArgumentException("User " + AgentFacade.getAgentString() + " does not have access to question pool id " + pool.getId() + " for move or copy");
+          }
+
           QuestionPoolFacade thepool =
             delegate.getPool(
               new Long(qpid), AgentFacade.getAgentString());
@@ -1845,11 +1894,15 @@ String poolId = ContextUtil.lookupParam("qpid");
   }
 
   public String cancelPool() {
-	  if(ORIGIN_TOP.equals(getOutcome())){
-		  setCurrentPool(null);
-		  setOutcomePool(0);
-	  buildTree();
-	  setQpDataModelByLevel();
+	  if (getSourcePart() != null) {	
+		  setSourcePart(null);
+		  setOutcome(EDIT_ASSESSMENT);
+	  }
+	  else if (ORIGIN_TOP.equals(getOutcome()) || getOutcomePool() == 0){		  
+		setCurrentPool(null);
+		setOutcome(ORIGIN_TOP);
+		buildTree();
+		setQpDataModelByLevel();
 	  }else{
 		  startEditPoolAgain(Long.toString(getOutcomePool()));
 	      buildTree();
@@ -1892,6 +1945,7 @@ String poolId = ContextUtil.lookupParam("qpid");
   {
 	String qpid = (String) FacesContext.getCurrentInstance().getExternalContext().getRequestParameterMap().get("qpid");
   	startEditPoolAgain(qpid);
+  	setOutComeParams();
   }
 
 
@@ -2055,7 +2109,7 @@ String poolId = ContextUtil.lookupParam("qpid");
     ItemAuthorBean itemauthorbean= (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
     this.setImportToAuthoring(false);
     itemauthorbean.setItemTypeString("");
-    return "editAssessment";
+    return EDIT_ASSESSMENT;
 
   }
 
@@ -2427,12 +2481,21 @@ String poolId = ContextUtil.lookupParam("qpid");
                     return "transferPool";
                }
 
+		QuestionPoolService delegate = new QuestionPoolService();
+		List<Long> poolsWithAccess = delegate.getPoolIdsByAgent(AgentFacade.getAgentString());
+
 		String[] poolIds = transferPoolIds.split(",");
 		List<Long> transferPoolIdLong = new ArrayList<Long>();
 		for (int i = 0; i < poolIds.length; i++) {
-                        if (poolIds[i] != null && !poolIds[i].isEmpty()) {
-                                transferPoolIdLong.add(new Long(poolIds[i]));
-                        }
+			if (StringUtils.isNotBlank(poolIds[i])) {
+				Long poolId = new Long(poolIds[i]);
+				if (poolsWithAccess.contains(poolId)) {
+					transferPoolIdLong.add(poolId);
+				}
+				else {
+					throw new IllegalArgumentException("Cannot transfer pool: userId " + AgentFacade.getAgentString() + " does not have access to pool id " + poolId);
+				}
+			}
 		}
 		this.transferPools = transferPoolIdLong;	
 		

@@ -92,13 +92,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
     private static final String QUERY_BY_FORUM_OWNER = "findPrivateForumByOwner";
     
     private static final String QUERY_BY_FORUM_OWNER_AREA = "findPrivateForumByOwnerArea";
-    
-    private static final String QUERY_BY_FORUM_OWNER_AREA_WITH_TOPICS = "findPrivateForumByOwnerAreaWithTopics";
 
     private static final String QUERY_BY_FORUM_OWNER_AREA_NULL = "findPrivateForumByOwnerAreaNull";
 
-    private static final String QUERY_BY_FORUM_OWNER_AREA_NULL_WITH_ALL_TOPICS = "findPrivateForumByOwnerAreaNullWithAllTopics";
-    
     private static final String QUERY_BY_FORUM_ID = "findForumById";
     
     private static final String QUERY_BY_FORUM_ID_WITH_ATTACHMENTS = "findForumByIdWithAttachments";    
@@ -1445,47 +1441,6 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 			return resultList;      
 		}
-
-
-		public PrivateForum getPrivateForumByOwnerAreaWithAllTopics(final String owner, final Area area)
-		{
-
-      if (owner == null || area == null) {
-          throw new IllegalArgumentException("Null Argument");
-      }
-
-      LOG.debug("getPrivateForumByOwnerAreaWithAllTopics executing with owner: " + owner + " and area:" + area);
-
-      HibernateCallback hcb = new HibernateCallback() {
-          public Object doInHibernate(Session session) throws HibernateException, SQLException {
-              Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_WITH_TOPICS);
-              q.setParameter("owner", owner, Hibernate.STRING);
-              q.setParameter("area", area);
-              return q.uniqueResult();
-          }
-      };
-
-      return (PrivateForum) getHibernateTemplate().execute(hcb);
-		}
-
-		public PrivateForum getPrivateForumByOwnerAreaNullWithAllTopics(final String owner)
-		{
-			if (owner == null) {
-				throw new IllegalArgumentException("Null Argument");
-			}
-
-			LOG.debug("getPrivateForumByOwnerAreaNullWithAllTopics executing with owner: " + owner);
-
-			HibernateCallback hcb = new HibernateCallback() {
-				public Object doInHibernate(Session session) throws HibernateException, SQLException {
-					Query q = session.getNamedQuery(QUERY_BY_FORUM_OWNER_AREA_NULL_WITH_ALL_TOPICS);
-					q.setParameter("owner", owner, Hibernate.STRING);
-					return q.uniqueResult();
-				}
-			};
-
-			return (PrivateForum) getHibernateTemplate().execute(hcb);
-		}
 	
 		public int getNumModTopicCurrentUserHasModPermForWithPermissionLevel(final List membershipList)
 		{
@@ -1495,6 +1450,9 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 	        }
 
 	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevel executing with membershipItems: " + membershipList);
+
+	        // hibernate will not like an empty list so return 0
+	        if (membershipList.isEmpty()) return 0;
 
 	        HibernateCallback hcb = new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1517,9 +1475,29 @@ public class MessageForumsForumManagerImpl extends HibernateDaoSupport implement
 
 	        LOG.debug("getNumModTopicCurrentUserHasModPermForWithPermissionLevelName executing with membershipItems: " + membershipList);
 
+	        // hibernate will not like an empty list so return 0
+	        if (membershipList.isEmpty()) return 0;
+
 	        HibernateCallback hcb = new HibernateCallback() {
 	            public Object doInHibernate(Session session) throws HibernateException, SQLException {
-	                Query q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
+	            	Query q = null;
+	            	if ("mysql".equals(serverConfigurationService.getString("vendor@org.sakaiproject.db.api.SqlService"))) {
+	                    q = session.createSQLQuery("select straight_join count(*) as NBR " +
+		                		"from MFR_AREA_T area " +
+		                		"inner join MFR_OPEN_FORUM_T openforum on openforum.surrogateKey=area.ID inner " +
+		                		"join MFR_TOPIC_T topic on topic.of_surrogateKey=openforum.ID " +
+		                		"inner join MFR_MEMBERSHIP_ITEM_T membership on topic.ID=membership.t_surrogateKey, " +
+		                		"MFR_PERMISSION_LEVEL_T permission " +
+		                		"where area.CONTEXT_ID = :contextId " +
+		                		"and topic.MODERATED = true " +
+		                		"and (membership.NAME in ( :membershipList ) " +
+		                		"and permission.MODERATE_POSTINGS = true " +
+		                		"and permission.TYPE_UUID <> :customTypeUuid " +
+		                		"and permission.NAME=membership.PERMISSION_LEVEL_NAME)")
+		                		.addScalar("NBR", Hibernate.INTEGER);
+	            	} else {
+	            		q = session.getNamedQuery(QUERY_GET_NUM_MOD_TOPICS_WITH_MOD_PERM_BY_PERM_LEVEL_NAME);
+	            	}
 	                q.setParameterList("membershipList", membershipList);
 	                q.setParameter("contextId", getContextId(), Hibernate.STRING);
 	                q.setParameter("customTypeUuid", typeManager.getCustomLevelType(), Hibernate.STRING);

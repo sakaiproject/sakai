@@ -43,10 +43,6 @@ dl.defList dd{
     float: right;
 }
 
-.ui-widget-content{
-    min-width: 30em;
-}
-
 #templateSettings, #siteTypeList, #archiveSettings{
     padding:.5em;
     background:#eee;
@@ -212,23 +208,49 @@ dl.defList dd{
     clear: both;
     height: 100%;
     overflow: hidden;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    -webkit-box-direction: normal;
+    -moz-box-direction: normal;
+    -webkit-box-orient: horizontal;
+    -moz-box-orient: horizontal;
+    -webkit-flex-direction: row;
+    -ms-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: nowrap;
+    -ms-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    -webkit-align-content: flex-start;
+    -ms-flex-line-pack: start;
+    align-content: flex-start;
+    -webkit-box-align: start;
+    -moz-box-align: start;
+    -webkit-align-items: flex-start;
+    -ms-flex-align: start;
+    align-items: flex-start;
 }
 
 #toolHolderW {
     background: none repeat scroll 0 0 #EEEEEE;
     border-radius: 5px 5px 5px 5px;
     padding: 0.5em;
-    width: 50em;
-    float: left;
     margin-bottom: 12px;
     margin-right: 20px;
+    order: 1;
 }
 
 #toolSelectionList {
-    float: left;
+    order: 2;
     margin: 0;
     line-height: 200%;
-    max-width:280px;
     border: 1px solid #DDDDDD;
     border-radius: 5px;
 }

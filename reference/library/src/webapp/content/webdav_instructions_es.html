@@ -7,13 +7,8 @@
 	<script type="text/javascript" language="JavaScript"
 		src="/library/js/headscripts.js">
 		</script>
-	<script type="text/javascript" language="JavaScript"
-		src="/library/js/jquery/jquery-1.9.1.min.js">
-		</script>
-	<script type="text/javascript" language="JavaScript"
-		src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js">
-	    </script>
-	<link href="/library/js/jquery/ui/1.10.3/css/smoothness/jquery-ui.css"
+        <script>includeLatestJQuery('webdav_instructions_es.html');</script>
+	<link href="/library/js/jquery/ui/1.11.3/css/smoothness/jquery-ui.css"
 		type="text/css" rel="stylesheet" media="all" />
 	<style type="text/css">
 	#tabs img {
@@ -100,9 +95,14 @@
 		function getBaseUrlEncoded() {
 			return '<b>'+swdl[0]+'//'+swdl[2]+'/'+swdl[3]+'/'+escape(swdl[4]).replace('@','%40')+'</b>';
 		}
-		function getFolderUrlEncoded() {
-			return '<b>'+swdl[3]+'/'+swdl[4]+'</b>';
+	function getFolderUrlEncoded() {
+		var folder = '<b>'+swdl[3];
+		for (var i = 4; i < swdl.length; i++) {
+			folder+='/'+swdl[i];
 		}
+		folder+='</b>';
+		return folder;
+	}
 		function getHostPort() {
 			// Return HTTP specific port
 			if (swdl[2].indexOf(":")>0) return swdl[2].substring(swdl[2].indexOf(':')+1);

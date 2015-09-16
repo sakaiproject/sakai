@@ -52,7 +52,7 @@ import javax.servlet.ServletException;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.cover.SecurityService;
@@ -73,7 +73,9 @@ import org.sakaiproject.util.Web;
 import org.springframework.context.MessageSource;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.lessonbuildertool.tool.beans.SimplePageBean;
+import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.SimplePage;
+import org.sakaiproject.lessonbuildertool.SimplePageItem;
 
 /**
  * <p>
@@ -98,6 +100,13 @@ public class AjaxServer extends HttpServlet
 
    private static MessageSource messageSource;
    private static SiteService siteService;
+   private static AuthzGroupService authzGroupService;
+   private static SimplePageToolDao simplePageToolDao;
+
+   public void setSimplePageToolDao(Object dao) {
+       System.out.println("setdao " + dao);
+       simplePageToolDao = (SimplePageToolDao) dao;
+   }
 
    /** Our log (commons). */
    private static Log log = LogFactory.getLog(AjaxServer.class);
@@ -386,8 +395,8 @@ public class AjaxServer extends HttpServlet
 	    site = siteService.getSite(siteId);
 	    HashSet<String> siteGroup = new HashSet<String>();
 	    siteGroup.add("/site/" + siteId);
-	    // not in 2.8   users = AuthzGroupService.getAuthzUsersInGroups(siteGroup);
-	    users = AuthzGroupService.getUsersIsAllowed("site.visit", siteGroup);
+	    // not in 2.8   users = authzGroupService.getAuthzUsersInGroups(siteGroup);
+	    users = authzGroupService.getUsersIsAllowed("site.visit", siteGroup);
 
 	    for (String userId: users) {
 		user2groups.put(userId, null);
@@ -456,6 +465,148 @@ public class AjaxServer extends HttpServlet
     }	    
 
 
+    public static String insertBreakBefore(String itemId, String type, String cols, String csrfToken) {
+
+	if (itemId == null) {
+	    log.error("Ajax insertBreakBefore passed null itemid");
+	    return null;
+	}
+
+	if (!"section".equals(type) && !"column".equals(type)) {
+	    log.error("Ajax insertBreakBefore passed illegal type " + type);
+	    return null;
+	}
+	
+	itemId = itemId.trim();
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax insertBreakBefore passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax insertBreakBefore passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax insertBreakBefore passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+
+	// we have an item id. insert before it
+	int nseq = 0;  // sequence number of new item
+	boolean after = false; // we found the item to insert before
+	// have an item number specified, look for the item to insert before
+	long before = item.getId();
+	for (SimplePageItem i: items) {
+	    if (i.getId() == before) {
+		// found item to insert before
+		// use its sequence and bump up it and all after
+		nseq = i.getSequence();
+		after = true;
+	    }
+	    if (after) {
+		i.setSequence(i.getSequence() + 1);
+		simplePageToolDao.quickUpdate(i);
+	    }
+	}			    
+
+	// if after not set, we didn't find the item; either no item specified or it
+	if (!after) {
+	    log.error("Ajax insertBreakBefore passed item not on its page " + before);
+	    return null;
+	}
+		    
+	SimplePageItem i = simplePageToolDao.makeItem(item.getPageId(), nseq, SimplePageItem.BREAK, null, null);
+	i.setFormat(type);
+	
+	simplePageToolDao.quickSaveItem(i);
+	return "" + i.getId();
+
+    }
+
+    public static String deleteItem(String itemId, String csrfToken) {
+	if (itemId == null) {
+	    log.error("Ajax deleteBreak passed null itemid");
+	    return null;
+	}
+
+	itemId = itemId.trim();
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    item = simplePageToolDao.findItem(Long.parseLong(itemId));
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax deleteBreak passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax deleteBreak passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax deleteBreak passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+
+	// we have an item id. adjust sequence for items after it
+	boolean after = false; // we found the item to delete
+	// have an item number specified, look for it
+	long before = item.getId();
+	for (SimplePageItem i: items) {
+	    if (item.getId() == before) {
+		after = true;
+	    } else if (after) {
+		item.setSequence(item.getSequence() - 1);
+		simplePageToolDao.quickUpdate(item);
+	    }
+	}			    
+
+	simplePageToolDao.quickDelete(item);
+
+	return "ok";
+
+    }
+
+    public static boolean checkCsrf(String csrfToken) {
+	Object sessionToken = SessionManager.getCurrentSession().getAttribute("sakai.csrf.token");
+	if (sessionToken != null && sessionToken.toString().equals(csrfToken)) {
+	    return true;
+	}
+	else
+	    return false;
+    }
+
+   @SuppressWarnings("unchecked")
+   protected void doPost(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
+   {
+       doGet(req, res);
+   }
+
    @SuppressWarnings("unchecked")
    protected void doGet(HttpServletRequest req, HttpServletResponse res) throws ServletException, IOException
    {
@@ -489,8 +640,18 @@ public class AjaxServer extends HttpServlet
 	  String locale = req.getParameter("locale");
 	  String groups = req.getParameter("groups");
 	  out.print(groupErrors(siteid, locale, groups));
+      } else if (op.equals("insertbreakbefore")) {
+	  String itemId = req.getParameter("itemid");
+	  String type = req.getParameter("type");
+	  String cols = req.getParameter("cols");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(insertBreakBefore(itemId, type, cols, csrfToken));
+      } else if (op.equals("deleteitem")) {
+	  String itemId = req.getParameter("itemid");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(deleteItem(itemId, csrfToken));
       }
-      
+
    }
    
     public void setMessageSource(MessageSource s) {
@@ -499,6 +660,10 @@ public class AjaxServer extends HttpServlet
 
     public void setSiteService(SiteService s) {
 	siteService = s;
+    }
+
+    public void setAuthzGroupService(AuthzGroupService s) {
+        authzGroupService = s;
     }
 
 }

@@ -67,27 +67,29 @@
     </license>
   </licenses>
   <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/master/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/master/trunk</url>
+    <url>https://github.com/sakaiproject/sakai</url>
+    <connection>scm:git:git://github.com/sakaiproject/sakai.git</connection>
+    <developerConnection>scm:git:ssh://git@github.com/sakaiproject/sakai.git</developerConnection>
   </scm>
 
   <properties>
     <sakai.version>11-SNAPSHOT</sakai.version>
-    <!-- kernel only versions -->
-    <sakai.kernel.version>11-SNAPSHOT</sakai.kernel.version>
-    <kernel.spring.version>3.2.3.RELEASE</kernel.spring.version>
+    <!-- Retain this for backward compatibility -->
+    <sakai.kernel.version>${sakai.version}</sakai.kernel.version>
+    <kernel.spring.version>3.2.13.RELEASE</kernel.spring.version>
     <kernel.hibernate.version>3.6.10.Final</kernel.hibernate.version>
     <kernel.hibernate.annotations.version>3.2.0.Final</kernel.hibernate.annotations.version>
     <kernel.hibernate.jpa.version>1.0.1.Final</kernel.hibernate.jpa.version>
     <!-- Standard dependency versions -->
-    <sakai.commons.lang.version>2.5</sakai.commons.lang.version>
+    <sakai.commons.lang.version>2.6</sakai.commons.lang.version>
+    <sakai.commons.lang3.version>3.4</sakai.commons.lang3.version>
     <sakai.commons-logging.version>1.2</sakai.commons-logging.version>
     <sakai.commons.fileupload.version>1.3.1</sakai.commons.fileupload.version>
+    <sakai.commons-math.version>2.2</sakai.commons-math.version>
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.6</sakai.ehcache.version>
-    <sakai.elasticsearch.version>1.1.2</sakai.elasticsearch.version>
+    <sakai.elasticsearch.version>1.6.0</sakai.elasticsearch.version>
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>3.6.10.Final</sakai.hibernate.version>
@@ -96,32 +98,43 @@
     <sakai.jts.version>1.13</sakai.jts.version>
     <sakai.lombok.version>1.12.4</sakai.lombok.version>
     <sakai.jackson.version>2.3.4</sakai.jackson.version>
-    <sakai.lucene.version>4.7.2</sakai.lucene.version>
+    <sakai.lucene.version>4.10.4</sakai.lucene.version>
     <sakai.pluto.version>1.1.7</sakai.pluto.version>
     <sakai.quartz.version>1.8.6</sakai.quartz.version>
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.sigar.version>1.6.4</sakai.sigar.version>
+    <sakai.spatial4j.version>0.4.1</sakai.spatial4j.version>
+    <sakai.groovy.version>2.4.0</sakai.groovy.version>
+    <sakai.jna.version>4.1.0</sakai.jna.version>
+    <sakai.antlr-runtime.version>3.5</sakai.antlr-runtime.version>
+    <sakai.asm.version>4.1</sakai.asm.version>
     <sakai.spring.groupId>org.springframework</sakai.spring.groupId>
     <sakai.spring.artifactId>spring-core</sakai.spring.artifactId>
-    <sakai.spring.version>3.2.3.RELEASE</sakai.spring.version>
+    <sakai.spring.version>3.2.13.RELEASE</sakai.spring.version>
+    <sakai.spring.security.version>3.2.7.RELEASE</sakai.spring.security.version>
     <sakai.spring.test.artifactId>spring-test</sakai.spring.test.artifactId>
-    <sakai.spring.test.version>3.2.3.RELEASE</sakai.spring.test.version>
-    <sakai.tomcat.version>7.0.59</sakai.tomcat.version>
+    <sakai.spring.test.version>3.2.13.RELEASE</sakai.spring.test.version>
+    <sakai.tika.version>1.9</sakai.tika.version>
+    <sakai.tomcat.version>8.0.20</sakai.tomcat.version>
     <sakai.velocity.version>1.6.4</sakai.velocity.version>
     <sakai.xerces.impl.version>2.6.2</sakai.xerces.impl.version>
     <sakai.xerces.api.version>2.6.2</sakai.xerces.api.version>
+    <sakai.log4j.version>1.2.17</sakai.log4j.version>
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
+    <sakai.poi.version>3.12</sakai.poi.version>
+    <sakai.okiosid.version>2.0</sakai.okiosid.version>
     <rsfutil.version>0.8.1-SNAPSHOT</rsfutil.version>
     <sakairsf.components.version>11-SNAPSHOT</sakairsf.components.version>
     <sakairsf.version>11-SNAPSHOT</sakairsf.version>
     <generic-dao.version>0.9.18</generic-dao.version>
-    <reflectutils.version>0.9.19</reflectutils.version>
+    <joda.time.version>2.8.1</joda.time.version>
+    <reflectutils.version>0.9.20</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
     <sakai.msgcntr.version>11-SNAPSHOT</sakai.msgcntr.version> 
     <!-- Set the source encoding to avoid maven warnings -->
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <sakai.jdk.version>1.7</sakai.jdk.version>
+    <sakai.jdk.version>1.8</sakai.jdk.version>
     <sakai.build.directory>target</sakai.build.directory>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
   </properties>
@@ -187,13 +200,17 @@
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-javadoc-plugin</artifactId>
-            <version>2.7</version>
+            <version>2.10.3</version>
             <executions>
               <execution>
                 <id>attach-javadocs</id>
                 <goals>
                   <goal>jar</goal>
                 </goals>
+                <configuration>
+                  <additionalparam>-Xdoclint:none</additionalparam>
+                  <failOnError>false</failOnError>
+                </configuration>
               </execution>
             </executions>
           </plugin>
@@ -223,13 +240,6 @@
       </snapshots>
       <releases>
         <updatePolicy>never</updatePolicy>
-      </releases>
-    </pluginRepository>
-    <pluginRepository>
-      <id>codehaus plugin repository</id>
-      <url>https://nexus.codehaus.org/content/repositories/releases/</url>
-      <releases>
-        <enabled>true</enabled>
       </releases>
     </pluginRepository>
     <pluginRepository>
@@ -352,7 +362,7 @@
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>log4j</artifactId>
-        <version>1.2.16</version>
+        <version>${sakai.log4j.version}</version>
         <scope>provided</scope>
         <exclusions>
           <exclusion>
@@ -450,16 +460,19 @@
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-core</artifactId>
 		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
 	  </dependency>
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-annotations</artifactId>
 		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
 	  </dependency>
 	  <dependency>
 		<groupId>com.fasterxml.jackson.core</groupId>
 		<artifactId>jackson-databind</artifactId>
 		<version>${sakai.jackson.version}</version>
+		<scope>provided</scope>
 	  </dependency>
       <dependency>
         <groupId>javax.activation</groupId>
@@ -476,7 +489,7 @@
       <dependency>
         <groupId>cglib</groupId>
         <artifactId>cglib-nodep</artifactId>
-        <version>2.2</version>
+        <version>3.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -506,13 +519,13 @@
       <dependency>
         <groupId>commons-io</groupId>
         <artifactId>commons-io</artifactId>
-        <version>2.0.1</version>
+        <version>2.4</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>commons-lang</groupId>
         <artifactId>commons-lang</artifactId>
-        <version>2.6</version>
+        <version>${sakai.commons.lang.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -531,6 +544,18 @@
         <groupId>commons-codec</groupId>
         <artifactId>commons-codec</artifactId>
         <version>1.8</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-lang3</artifactId>
+        <version>${sakai.commons.lang3.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.commons</groupId>
+        <artifactId>commons-math</artifactId>
+        <version>${sakai.commons-math.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -597,7 +622,7 @@
       <dependency>
         <groupId>org.javassist</groupId>
         <artifactId>javassist</artifactId>
-        <version>3.16.1-GA</version>
+        <version>3.18.0-GA</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -646,7 +671,7 @@
       <dependency>
         <groupId>javax.transaction</groupId>
         <artifactId>jta</artifactId>
-        <version>1.0.1B</version>
+        <version>1.1</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -725,7 +750,7 @@
       <dependency>
         <groupId>OKI</groupId>
         <artifactId>OkiOSID</artifactId>
-        <version>2.0</version>
+        <version>${sakai.okiosid.version}</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
@@ -872,6 +897,41 @@
       	<groupId>com.vividsolutions</groupId>
       	<artifactId>jts</artifactId>
       	<version>${sakai.jts.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>com.spatial4j</groupId>
+        <artifactId>spatial4j</artifactId>
+        <version>${sakai.spatial4j.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm</artifactId>
+        <version>${sakai.asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.ow2.asm</groupId>
+        <artifactId>asm-commons</artifactId>
+        <version>${sakai.asm.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>net.java.dev.jna</groupId>
+        <artifactId>jna</artifactId>
+        <version>${sakai.jna.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.antlr</groupId>
+        <artifactId>antlr-runtime</artifactId>
+        <version>${sakai.antlr-runtime.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>org.codehaus.groovy</groupId>
+        <artifactId>groovy-all</artifactId>
+        <version>${sakai.groovy.version}</version>
+      </dependency>
+      <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>apache-log4j-extras</artifactId>
+        <version>${sakai.log4j.version}</version>
       </dependency>
       <!-- Sakai apis -->
       <dependency>
@@ -1090,6 +1150,12 @@
       <dependency>
         <groupId>org.sakaiproject.contentreview</groupId>
         <artifactId>contentreview-service-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.dash</groupId>
+        <artifactId>dashboard-api</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
@@ -1366,6 +1432,12 @@
         <version>${sakai.version}</version>
         <scope>provided</scope>
       </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.pasystem</groupId>
+        <artifactId>pasystem-api</artifactId>
+        <version>${sakai.version}</version>
+        <scope>provided</scope>
+      </dependency>
       <!-- UI dependencies; our glue packages, not the raw libraries, -->
       <!-- and only where we have duplication in dependencyManagement sections. -->
       <dependency>
@@ -1531,32 +1603,32 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>cobertura-maven-plugin</artifactId>
-          <version>2.6</version>
+          <version>2.7</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-assembly-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.5.5</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-deploy-plugin</artifactId>
-          <version>2.8.1</version>
+          <version>2.8.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-gpg-plugin</artifactId>
-          <version>1.5</version>
+          <version>1.6</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-install-plugin</artifactId>
-          <version>2.5.1</version>
+          <version>2.5.2</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-jar-plugin</artifactId>
-          <version>2.4</version>
+          <version>2.6</version>
           <configuration>
             <archive>
               <manifest>
@@ -1569,7 +1641,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-javadoc-plugin</artifactId>
-          <version>2.9.1</version>
+          <version>2.10.3</version>
           <configuration>
             <debug>false</debug>
             <links>
@@ -1581,12 +1653,19 @@
             <verbose>false</verbose>
             <minmemory>256m</minmemory>
             <maxmemory>2048m</maxmemory>
+            <additionalparam>-Xdoclint:none</additionalparam>
+            <failOnError>false</failOnError>
           </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-release-plugin</artifactId>
-          <version>2.4.2</version>
+          <version>2.5.2</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-clean-plugin</artifactId>
+          <version>2.6.1</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -1596,37 +1675,37 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-resources-plugin</artifactId>
-          <version>2.6</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-site-plugin</artifactId>
-          <version>3.3</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-source-plugin</artifactId>
-          <version>2.2.1</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-surefire-plugin</artifactId>
-          <version>2.16</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-war-plugin</artifactId>
-          <version>2.4</version>
-        </plugin>
-        <plugin>
-          <groupId>org.apache.maven.plugins</groupId>
-          <artifactId>maven-project-info-reports-plugin</artifactId>
           <version>2.7</version>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-site-plugin</artifactId>
+          <version>3.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-source-plugin</artifactId>
+          <version>2.4</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-surefire-plugin</artifactId>
+          <version>2.18.1</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-war-plugin</artifactId>
+          <version>2.6</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+          <artifactId>maven-project-info-reports-plugin</artifactId>
+          <version>2.8</version>
+        </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-pmd-plugin</artifactId>
-          <version>3.1</version>
+          <version>3.5</version>
           <configuration>
             <xrefLocation>${project.reporting.outputDirectory}/../xref</xrefLocation>
             <sourceEncoding>utf-8</sourceEncoding>
@@ -1670,7 +1749,7 @@
         <plugin>
           <groupId>org.codehaus.mojo</groupId>
           <artifactId>findbugs-maven-plugin</artifactId>
-          <version>2.5.3</version>
+          <version>3.0.2</version>
           <configuration>
             <findbugsXmlOutput>true</findbugsXmlOutput>
             <xmlOutput>true</xmlOutput>
@@ -1688,7 +1767,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-checkstyle-plugin</artifactId>
-          <version>2.12</version>
+          <version>2.16</version>
           <!-- needs to be located in the project to work
           <configuration>
             <configLocation>src/site/checkstyle.xml</configLocation>
@@ -1703,7 +1782,7 @@
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-report-plugin</artifactId>
-          <version>2.17</version>
+          <version>2.18.1</version>
         </plugin>
         <plugin>
           <groupId>net.sourceforge.maven-taglib</groupId>
@@ -1731,7 +1810,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-enforcer-plugin</artifactId>
-        <version>1.3.1</version>
+        <version>1.4</version>
         <executions>
           <execution>
             <id>enforce-versions</id>
@@ -1755,7 +1834,7 @@
         <inherited>true</inherited>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>3.3</version>
         <configuration>
           <!-- <compilerArguments> <verbose /> </compilerArguments> -->
           <source>${sakai.jdk.version}</source>
@@ -1791,6 +1870,8 @@
             <!--suppress MavenModelInspection -->
             <test.sakai.home>${test.sakai.home}</test.sakai.home>
           </systemPropertyVariables>
+          <!-- This is to stop it stealing focus on developer machines (OSX) -->
+          <argLine>-Djava.awt.headless=true</argLine>
         </configuration>
       </plugin>
       <plugin>

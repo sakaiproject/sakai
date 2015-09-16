@@ -30,6 +30,8 @@
 	});
     
 	roster.i18n = $.i18n.map;
+
+    roster.i18n.months = roster.i18n.months.split(',');
 	
     roster.ADMIN = 'admin';
 
@@ -63,6 +65,25 @@
     roster.nextPage = 0;
     roster.currentState = null;
 
+	/**
+	*	Check if there is no scroll rendered and there are more pages
+	*/
+    roster.checkScroll = function () {
+        // Check if body height is lower than window height (scrollbar missed, maybe you need to get more pages automatically)
+        if ($("body").height() <= $(window).height()) {
+            setTimeout(function () {
+            	var renderedMembers = $(".roster-member").size();
+            	// Without filter conditions get more pages if there are more members than rendered and rendered > 0
+            	// If you have an active filter maybe you could display less members than total
+            	// So get more pages only if rendered match a page size (10 is pagesize)
+            	if (roster.site.membersTotal > renderedMembers && renderedMembers > 0 && renderedMembers % 10 === 0) {
+                	$("body").data("scroll-roster", true);
+                	$(window).trigger('scroll.roster');
+            	}
+            }, 100);
+        }
+    };
+    
     /**
      * Renders a handlebars template.
      */
@@ -70,6 +91,7 @@
 
         var t = Handlebars.templates[template];
         document.getElementById(outputId).innerHTML = t(data);
+
     };
 
     roster.switchState = function (state, arg, searchQuery) {
@@ -261,9 +283,6 @@
 
             $('#navbar_permissions_link > span').addClass('current');
             
-            roster.render('permissions_header',
-                    { 'siteTitle': roster.site.title }, 'roster_header');
-            
             $('#roster_section_filter').html('');
             $('#roster_search').html('');
 
@@ -275,7 +294,7 @@
                         return {name: role};
                     });
             
-                roster.render('permissions', { roles: roles }, 'roster_content');
+                roster.render('permissions', { siteTitle: roster.site.title, roles: roles }, 'roster_content');
                 
                 $(document).ready(function () {
 
@@ -389,6 +408,12 @@
                     }
 
                     m.enrollmentStatusText = roster.site.enrollmentStatusCodes[m.enrollmentStatusId];
+
+                    if (m.totalSiteVisits > 0) {
+                        m.formattedLastVisitTime = roster.formatDate(m.lastVisitTime);
+                    } else {
+                        m.formattedLastVisitTime = roster.i18n.no_visits_yet;
+                    }
                 });
 
                 roster.renderMembers(members, $('#roster-members'), enrollmentsMode);
@@ -411,6 +436,19 @@
                         roster.renderGroupMembership(this.value, options.forceOfficialPicture);
 
                         $('#roster-group-option-' + value).prop('selected', true);
+                    });
+
+                    $('a.profile').cluetip({
+                        width: '640px',
+                        cluetipClass: 'roster',
+                        sticky: true,
+                        dropShadow: false,
+                        arrows: true,
+                        mouseOutClose: true,
+                        closeText: '<img src="/library/image/silk/cross.png" alt="close" />',
+                        closePosition: 'top',
+                        showTitle: false,
+                        hoverIntent: true
                     });
                 });
 
@@ -494,13 +532,15 @@
                 'viewPicture': true,
                 'currentUserId': roster.userId,
                 'viewOfficialPhoto': roster.currentUserPermissions.viewOfficialPhoto,
+                'viewSiteVisits': roster.currentUserPermissions.viewSiteVisits,
                 'viewConnections': (undefined != window.friendStatus)
             };
 
         var templateName = (enrollmentsMode) ? 'enrollments' : 'members';
-
+        $(window).off('scroll.roster.rendered').on('scroll.roster.rendered', roster.checkScroll);
         var t = Handlebars.templates[templateName];
         target.append(t(templateData));
+        $(window).trigger('scroll.roster.rendered');
     };
 
     roster.getScrollFunction = function (showOfficialPictures, enrollmentStatus) {
@@ -509,7 +549,8 @@
 
             var wintop = $(window).scrollTop(), docheight = $(document).height(), winheight = $(window).height();
      
-            if  ((wintop/(docheight-winheight)) > 0.95) {
+            if  ((wintop/(docheight-winheight)) > 0.95 || $("body").data("scroll-roster") === true) {
+                $("body").data("scroll-roster", false);
                 $(window).off('scroll.roster');
                 if (showOfficialPictures) {
                     roster.renderMembership({ forceOfficialPicture: true, replace: false, enrollmentStatus: enrollmentStatus });
@@ -529,6 +570,16 @@
             var frag = roster.i18n.role_breakdown_fragment.replace(/\{0\}/, roleCounts[key]);
             return frag.replace(/\{1\}/, key);
         }).join();
+    };
+
+    roster.formatDate = function (time) {
+
+        var d = new Date(time);
+        var hours = d.getHours();
+        if (hours < 10)  hours = '0' + hours;
+        var minutes = d.getMinutes();
+        if (minutes < 10) minutes = '0' + minutes;
+        return d.getDate() + " " + roster.i18n.months[d.getMonth()] + " " + d.getFullYear() + " @ " + hours + ":" + minutes;
     };
 
     // Functions and attributes added. All the code from hereon is executed
@@ -707,4 +758,5 @@
         error: function () {
         }
     });
+    
 }) (jQuery);

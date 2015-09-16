@@ -24,8 +24,6 @@ package org.sakaiproject.site.cover;
 import java.util.List;
 
 import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.db.api.SqlReader;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.site.api.Site;
 
 /**
@@ -452,6 +450,14 @@ public class SiteService
 		return service.getUserSites(requireDescription);
 	}
 
+	public static List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if( service == null ) return null;
+
+		return service.getUserSites( requireDescription, includeUnpublishedSites );
+	}
+
 	public static java.util.List getSites(org.sakaiproject.site.api.SiteService.SelectionType param0, java.lang.Object param1,
 			java.lang.String param2, java.util.Map param3, org.sakaiproject.site.api.SiteService.SortType param4,
 			org.sakaiproject.javax.PagingPosition param5)
@@ -544,5 +550,25 @@ public class SiteService
 		if (service == null) return null;
 
 		return service.getSiteTypeStrings(param0);
+	}
+
+	/**
+	 * Given a site and a user ID, return the appropriate site or section title for the user.
+	 * 
+	 * SAK-29138 - Takes into account 'portal.use.sectionTitle' sakai.property; 
+	 * if set to true, this method will return the title of the section the current 
+	 * user is enrolled in for the site (if it can be found). Otherwise, it will 
+	 * return the site title (default behaviour).
+	 * 
+	 * @param site the site in question
+	 * @param userID the ID of the current user
+	 * @return the site or section title
+	 */
+	public static String getUserSpecificSiteTitle( Site site, String userID )
+	{
+		org.sakaiproject.site.api.SiteService service = getInstance();
+		if (service == null) return null;
+
+		return service.getUserSpecificSiteTitle( site, userID );
 	}
 }

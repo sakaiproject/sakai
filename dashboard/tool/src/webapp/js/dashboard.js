@@ -42,7 +42,7 @@ var setupLinks = function(){
     /*
      * go to site link handler (used only to report event)
      */
-    $(".siteLink").live("click", function(e){
+    $(".siteLink").on("click", function(e){
         // DO NOT CALL:  e.preventDefault();
         if (!isMobile) {
             var itemType = $(this).closest('li').find('.itemType').text();
@@ -53,7 +53,7 @@ var setupLinks = function(){
     /*
      * expand an item's contents
      */
-    $(".itemLink").live("click", function(e){
+    $(".itemLink").on("click", function(e){
 
         var parentRow = $(this).closest('li');
         var colCount = $(parentRow).find('div').length;
@@ -203,7 +203,7 @@ var setupLinks = function(){
             }
         }
     });
-    $('.getMore a').live("click", function(){
+    $('.getMore a').on("click", function(){
         var parentRow = '';
         var isMobile = "";
         if ($('.mobilePage').length === 0) {
@@ -377,19 +377,19 @@ var renderCollection = function(callBackUrl, params, parentRow, colCount, initCh
             }
             
             // add click handlers to star and hide links
-            $('div.newList .starThis').live('click', function(e){
+            $('div.newList .starThis').on('click', function(e){
                 var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'star', targetItemId);
             });
-            $('div.newList .unstarThis').live('click', function(e){
+            $('div.newList .unstarThis').on('click', function(e){
                 var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'unstar', targetItemId);
             });
-            $('div.newList .hideThis').live('click', function(e){
+            $('div.newList .hideThis').on('click', function(e){
                 var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'hide', targetItemId);
             });
-            $('div.newList .showThis').live('click', function(e){
+            $('div.newList .showThis').on('click', function(e){
                 var targetItemId = $(e.target).closest('li').find('.actionTargetId').text();
                 updateItemStatus(e.target, 'show', targetItemId);
             });

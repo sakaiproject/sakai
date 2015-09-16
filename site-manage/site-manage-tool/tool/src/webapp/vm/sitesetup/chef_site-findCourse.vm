@@ -190,7 +190,8 @@
 			  #end
 		 	</span>
 		 </div>
-		<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
+		#if ($requireAuthorizer)
+			<div id="sectionInfo" #if ($selectedCourse && !($!authGroupSet && !$!authGroupSet.isEmpty())) style="display:block;clear:both" #else style="display:none" #end>
 
 					<div class="shorttext required">
 						<span class="reqStar">*</span>						
@@ -211,8 +212,12 @@
 					<p  class="instruction labelindnt">
 						<span class="textPanelFooter">$tlang.getString("man.please")</span>
 					</p>
-					<a href="#" #if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty())) disabled="true"#end onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
 			</div>
+		#else
+			<input type="hidden" name="uniqname"  value="admin" />
+			<input type="hidden" name="additional" value="" />
+		#end
+		<a href="#" #if (!$selectedCourse || ($!authGroupSet && !$!authGroupSet.isEmpty())) disabled="true"#end onclick="javascript:blur();document.findCourseForm.option.value='add';document.findCourseForm.submit();">$tlang.getString('nscourse.findCourse.addAnotherSection')</a>				
 			<br />
 			<!-- end loop through fields-->
 		 

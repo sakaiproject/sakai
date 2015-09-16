@@ -24,7 +24,6 @@ import javax.servlet.http.Cookie;
 import org.apache.log4j.Logger;
 import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.RestartResponseException;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
@@ -40,6 +39,8 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
+import org.apache.wicket.util.cookies.CookieUtils;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.tool.components.OnlinePresenceIndicator;
@@ -136,7 +137,7 @@ public class ViewProfile extends BasePage {
 		add(profileName);
 		
 		/* ONLINE PRESENCE INDICATOR */
-		if(prefs.isShowOnlineStatus() && isOnlineStatusVisible){
+		if(sakaiProxy.isOnlineStatusEnabledGlobally() && prefs.isShowOnlineStatus() && isOnlineStatusVisible){
 			add(new OnlinePresenceIndicator("online", userUuid));
 		} else {
 			add(new EmptyPanel("online"));
@@ -173,7 +174,9 @@ public class ViewProfile extends BasePage {
 			}
 		};
 		
-		Cookie tabCookie = getWebRequestCycle().getWebRequest().getCookie(ProfileConstants.TAB_COOKIE);
+		
+		CookieUtils utils = new CookieUtils();
+		Cookie tabCookie = utils.getCookie(ProfileConstants.TAB_COOKIE);
 		
 		if (sakaiProxy.isProfileFieldsEnabled()) {
 			tabs.add(new AbstractTab(new ResourceModel("link.tab.profile")) {
@@ -190,7 +193,7 @@ public class ViewProfile extends BasePage {
 			});
 		}
 		
-		if (true == sakaiProxy.isWallEnabledGlobally()) {
+		if (sakaiProxy.isWallEnabledGlobally()) {
 			
 			tabs.add(new AbstractTab(new ResourceModel("link.tab.wall")) {
 
@@ -204,7 +207,7 @@ public class ViewProfile extends BasePage {
 				}
 			});
 			
-			if (true == sakaiProxy.isWallDefaultProfilePage() && null == tabCookie) {
+			if (sakaiProxy.isWallDefaultProfilePage() && null == tabCookie) {
 				
 				tabbedPanel.setSelectedTab(ProfileConstants.TAB_INDEX_WALL);
 			}
@@ -279,15 +282,15 @@ public class ViewProfile extends BasePage {
             		addFriendLabel.setDefaultModel(new ResourceModel("text.friend.requested"));
             		addFriendLink.add(new AttributeModifier("class", true, new Model<String>("instruction icon connection-request")));
             		addFriendLink.setEnabled(false);
-            		target.addComponent(addFriendLink);
+            		target.add(addFriendLink);
             	}
             }
         });
-		
+		addFriendWindow.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
 		add(addFriendWindow);
 		
 		//hide connection link if not allowed
-		if(!isConnectionAllowed) {
+		if(!isConnectionAllowed && !sakaiProxy.isConnectionsEnabledGlobally()) {
 			addFriendContainer.setVisible(false);
 		} else {
 			visibleSideLinksCount++;
@@ -302,7 +305,7 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* KUDOS PANEL */
-		if(isKudosVisible) {
+		if(sakaiProxy.isMyKudosEnabledGlobally() && isKudosVisible) {
 			add(new AjaxLazyLoadPanel("myKudos"){
 				private static final long serialVersionUID = 1L;
 	
@@ -324,7 +327,7 @@ public class ViewProfile extends BasePage {
 		
 		
 		/* FRIENDS FEED PANEL */
-		if(isFriendsListVisible) {
+		if(sakaiProxy.isConnectionsEnabledGlobally() && isFriendsListVisible) {
 			add(new AjaxLazyLoadPanel("friendsFeed") {
 				private static final long serialVersionUID = 1L;
 
@@ -359,7 +362,7 @@ public class ViewProfile extends BasePage {
 	 * @param parameters
 	 */
 	public ViewProfile(PageParameters parameters) {
-		this(parameters.getString(ProfileConstants.WICKET_PARAM_USERID), parameters.getString(ProfileConstants.WICKET_PARAM_TAB));
+		this(parameters.get(ProfileConstants.WICKET_PARAM_USERID).toString(), parameters.get(ProfileConstants.WICKET_PARAM_TAB).toString());
 	}
 	
 	public ViewProfile(final String userUuid) {

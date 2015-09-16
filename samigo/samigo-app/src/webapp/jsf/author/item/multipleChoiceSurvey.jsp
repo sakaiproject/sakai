@@ -88,7 +88,7 @@
   <br/>
    
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes" mode="author">
      <f:validateLength minimum="1" maximum="60000"/>
    </samigo:wysiwyg>
 
@@ -148,7 +148,7 @@
 <f:verbatim><div class="tier2"></f:verbatim>
   <!-- WYSIWYG -->
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.generalFeedback}" hasToggle="yes" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
   </h:panelGrid>

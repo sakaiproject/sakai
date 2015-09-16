@@ -32,6 +32,7 @@ import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.javax.Filter;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
+import org.sakaiproject.memory.api.SimpleConfiguration;
 import org.sakaiproject.news.api.NewsChannel;
 import org.sakaiproject.news.api.NewsConnectionException;
 import org.sakaiproject.news.api.NewsFormatException;
@@ -72,9 +73,6 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 	
 	public static final String ATTR_TOP_REFRESH = "sakai.vppa.top.refresh";
 
-	// default expiration is 10 minutes (expressed in seconds)
-	protected static final int DEFAULT_EXPIRATION = 10 * 60;
-
 	// The cache in which channels and news-items are held
 	protected Cache m_storage = null;
 
@@ -109,8 +107,9 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		{
 			M_log.info("init()");
 
-			m_storage = m_memoryService
-					.newCache("org.sakaiproject.news.api.NewsService.cache");
+			m_storage = m_memoryService.createCache(
+					"org.sakaiproject.news.api.NewsService.cache",
+					new SimpleConfiguration<>(5000, 600, 360));
 		}
 		catch (Throwable t)
 		{
@@ -127,7 +126,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 	 */
 	public void destroy()
 	{
-		m_storage.destroy();
+		m_storage.close();
 		m_storage = null;
 
 		M_log.info("destroy()");
@@ -153,7 +152,7 @@ public class BasicNewsService implements NewsService, EntityTransferrer
 		if (!m_storage.containsKey(source))
 		{
 			BasicNewsChannel channel = new BasicNewsChannel(source, getUserAgent());
-			m_storage.put(source, channel, DEFAULT_EXPIRATION);
+			m_storage.put(source, channel);
 		}
 
 	}

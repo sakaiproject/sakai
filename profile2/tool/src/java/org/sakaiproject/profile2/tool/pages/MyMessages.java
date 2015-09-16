@@ -18,14 +18,13 @@ package org.sakaiproject.profile2.tool.pages;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
-import org.apache.wicket.Component;
-import org.apache.wicket.PageParameters;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.markup.html.form.AjaxFallbackButton;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.RepeatingView;
 import org.apache.wicket.model.ResourceModel;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.sakaiproject.profile2.tool.pages.panels.ComposeNewMessage;
 import org.sakaiproject.profile2.tool.pages.panels.MessageThreadsView;
 import org.sakaiproject.profile2.tool.pages.panels.MessageView;
@@ -51,7 +50,7 @@ public class MyMessages extends BasePage {
 	 * @param parameters
 	 */
 	public MyMessages(PageParameters parameters) {
-		this(parameters.getString("thread"));
+		this(parameters.get("thread").toString());
 	}
 	
 	
@@ -106,9 +105,9 @@ public class MyMessages extends BasePage {
 		replacement.setOutputMarkupId(true);
 		tabPanel.replaceWith(replacement);
 		if(target != null) {
-			target.addComponent(replacement);
+			target.add(replacement);
 			//resize iframe
-			target.appendJavascript("setMainFrameHeight(window.name);");
+			target.appendJavaScript("setMainFrameHeight(window.name);");
 		}
 		
 		//must keep reference up to date

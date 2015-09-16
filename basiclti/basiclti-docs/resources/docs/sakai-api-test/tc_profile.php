@@ -20,7 +20,7 @@ echo <<< EOF
   "@context": [
     "http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile",
     {
-      "tcp": "$cur_url/$consumer_key"
+      "tcp": "$cur_url/$consumer_key#"
     }
   ],
   "@type": "ToolConsumerProfile",
@@ -112,7 +112,9 @@ echo <<< EOF
         "User.image" ,
         "Result.sourcedId" ,
         "Result.autocreate",
-        "Result.custom.url"
+        "Result.custom.url",
+        "OAuth.splitSecret",
+        "OAuth.hmac-sha256"
   ],
   "service_offered": [
     {

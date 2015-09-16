@@ -267,6 +267,20 @@ public abstract class BaseLTIService implements LTIService {
 	 * 
 	 * {@inheritDoc}
 	 * 
+	 * @see org.sakaiproject.lti.api.LTIService#getToolLaunch(java.util.Map)
+	 */
+	public String getToolLaunch(Map<String, Object> tool, String siteId) {
+		if ( tool == null ) return null;
+		int key = getInt(tool.get(LTIService.LTI_ID));
+		if (key < 0 || siteId == null)
+			return null;
+		return LAUNCH_PREFIX + siteId + "/tool:" + key;
+	}
+
+	/**
+	 * 
+	 * {@inheritDoc}
+	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#formOutput(java.lang.Object,
 	 *      java.lang.String)
 	 */
@@ -377,16 +391,6 @@ public abstract class BaseLTIService implements LTIService {
 
 	/**
 	 * 
-	 * @param key
-	 * @param newProps
-	 * @param siteId
-	 * @param isMaintainRole
-	 * @return
-	 */
-	public abstract Object updateToolDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
-	/**
-	 * 
 	 * {@inheritDoc}
 	 * 
 	 * @see org.sakaiproject.lti.api.LTIService#updateContent(java.lang.Long, java.util.Map)
@@ -441,13 +445,9 @@ public abstract class BaseLTIService implements LTIService {
 		return updateContentDao(key, (Object) newProps, siteId, true, true);
 	}
 
-	protected abstract Object updateContentDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public boolean deleteContent(Long key) {
 		return deleteContentDao(key, getContext(), isAdmin(), isMaintain());
 	}
-
-	protected abstract boolean deleteContentDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * 
@@ -558,8 +558,6 @@ public abstract class BaseLTIService implements LTIService {
 		return insertToolDao(newProps, siteId, true, true);
 	}
 
-	protected abstract Object insertToolDao(Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public boolean deleteTool(Long key) {
 		return deleteToolDao(key, getContext(), isAdmin(), isMaintain());
 	}
@@ -567,8 +565,6 @@ public abstract class BaseLTIService implements LTIService {
 	public boolean deleteToolDao(Long key, String siteId) {
 		return deleteToolDao(key, siteId, true, true);
 	}
-
-	abstract boolean deleteToolDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	/**
 	 * 
@@ -599,17 +595,38 @@ public abstract class BaseLTIService implements LTIService {
 		return getToolDao(key, siteId, true);
 	}
 
-	protected abstract Map<String, Object> getToolDao(Long key, String siteId, boolean isAdminRole);
-
 	public List<Map<String, Object>> getTools(String search, String order, int first, int last) {
 		return getToolsDao(search, order, first, last, getContext(), isAdmin());
+	}
+
+        public List<Map<String, Object>> getToolsLaunch() {
+		return getTools( "lti_tools."+LTIService.LTI_PL_LAUNCH+" = 1 OR ( " +
+			"( lti_tools."+LTIService.LTI_PL_LINKSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 0 ) and " + 
+			"( lti_tools."+LTIService.LTI_PL_FILEITEM+" IS NULL OR lti_tools."+LTIService.LTI_PL_FILEITEM+" = 0 ) and " + 
+			"( lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" IS NULL OR lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 0 ) and " + 
+			"( lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" IS NULL OR lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 0 ) " +
+			" ) ", null, 0, 0);
+	}
+
+        public List<Map<String, Object>> getToolsLtiLink() {
+		return getTools("lti_tools."+LTIService.LTI_PL_LINKSELECTION+" = 1",null,0,0);
+	}
+
+        public List<Map<String, Object>> getToolsFileItem() {
+		return getTools("lti_tools."+LTIService.LTI_PL_FILEITEM+" = 1",null,0,0);
+	}
+
+        public List<Map<String, Object>> getToolsContentEditor() {
+		return getTools("lti_tools."+LTIService.LTI_PL_CONTENTEDITOR+" = 1",null,0,0);
+	}
+
+        public List<Map<String, Object>> getToolsAssessmentSelection() {
+		return getTools("lti_tools."+LTIService.LTI_PL_ASSESSMENTSELECTION+" = 1",null,0,0);
 	}
 
 	public List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId) {
 		return getToolsDao(search, order, first, last, siteId, true);
 	}
-
-	protected abstract List<Map<String, Object>> getToolsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public Object insertContent(Properties newProps) {
 		return insertContentDao(newProps, getContext(), isAdmin(), isMaintain());
@@ -619,8 +636,6 @@ public abstract class BaseLTIService implements LTIService {
 	{
 		return insertContentDao(newProps, siteId, true, true);
 	}
-
-	protected abstract Object insertContentDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public Map<String, Object> getContent(Long key) {
 		return getContentDao(key, getContext(), isAdmin());
@@ -639,8 +654,6 @@ public abstract class BaseLTIService implements LTIService {
 		return getContentDao(key, siteId, true);
 	}
 
-	protected abstract Map<String, Object> getContentDao(Long key, String siteId, boolean isAdminRole);
-
 	public List<Map<String, Object>> getContents(String search, String order, int first, int last) 
 	{
 		return getContentsDao(search, order, first, last, getContext(), isAdmin());
@@ -649,8 +662,6 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId) {
 		return getContentsDao(search, order, first, last, siteId, true);
 	}
-
-	protected abstract List<Map<String, Object>> getContentsDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public Object insertToolContent(String id, String toolId, Properties reqProps)
 	{
@@ -764,6 +775,10 @@ public abstract class BaseLTIService implements LTIService {
 				SitePage sitePage = site.addPage();
 		
 				ToolConfiguration tool = sitePage.addTool(WEB_PORTLET);
+				String fa_icon = (String)content.get(LTI_FA_ICON);
+				if ( fa_icon != null && fa_icon.length() > 0 ) {
+					tool.getPlacementConfig().setProperty("imsti.fa_icon",fa_icon);
+				}
 				tool.getPlacementConfig().setProperty("source",(String)content.get("launch_url"));
 				tool.setTitle((String) content.get(LTI_TITLE));
 				
@@ -873,25 +888,18 @@ public abstract class BaseLTIService implements LTIService {
 		return DEPLOY_MODEL;
 	}
 
-	protected abstract Object insertDeployDao(Properties newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public Object insertDeployDao(Properties newProps) {
 		return insertDeployDao(newProps, null, true, true);
 	}
-
-	protected abstract Object updateDeployDao(Long key, Object newProps, String siteId, boolean isAdminRole, boolean isMaintainRole);
 
 	public Object updateDeployDao(Long key, Object newProps) {
 		return updateDeployDao(key, newProps, null, true, true);
 	}
 
-	abstract boolean deleteDeployDao(Long key, String siteId, boolean isAdminRole, boolean isMaintainRole);
-
 	public boolean deleteDeployDao(Long key) {
 		return deleteDeployDao(key, null, true, true);
 	}
 
-	protected abstract Map<String, Object> getDeployDao(Long key, String siteId, boolean isAdminRole);
 	public Map<String, Object> getDeployDao(Long key) {
 		return getDeployDao(key, null, true);
 	}
@@ -899,8 +907,6 @@ public abstract class BaseLTIService implements LTIService {
 	public List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last) {
 		return getDeploysDao(search, order, first, last, null, true);
 	}
-
-	protected abstract List<Map<String, Object>> getDeploysDao(String search, String order, int first, int last, String siteId, boolean isAdminRole);
 
 	public abstract Object insertProxyBindingDao(Properties newProps);
 	public abstract Object updateProxyBindingDao(Long key, Object newProps);

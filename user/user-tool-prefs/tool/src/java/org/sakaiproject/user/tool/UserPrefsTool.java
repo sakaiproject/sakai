@@ -41,8 +41,6 @@ import javax.faces.context.FacesContext;
 import javax.faces.event.ValueChangeEvent;
 import javax.faces.model.SelectItem;
 
-import org.apache.commons.lang.ArrayUtils;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.component.cover.ComponentManager;
@@ -57,14 +55,15 @@ import org.sakaiproject.site.api.SiteService.SortType;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.time.cover.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.tool.api.ToolSession;
 import org.sakaiproject.user.api.Preferences;
 import org.sakaiproject.user.api.PreferencesEdit;
 import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistration;
 import org.sakaiproject.user.api.UserNotificationPreferencesRegistrationService;
+import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.FormattedText;
+import org.sakaiproject.util.Web;
 
 /**
  * UserPrefsTool is the Sakai end-user tool to view and edit one's preferences.
@@ -231,12 +230,6 @@ public class UserPrefsTool
 
 	private List<SelectItem> prefLocales = new ArrayList<SelectItem>();
 
-	private int DEFAULT_TAB_COUNT = 4;
-	private int MAX_TAB_COUNT = 20;
-	private int MIN_TAB_COUNT = 2;
-
-	private String prefTabCount = null;
-
 	// SAK-23895
        	private String prefTabLabel = null;
        	private int DEFAULT_TAB_LABEL = 1;
@@ -246,7 +239,6 @@ public class UserPrefsTool
 	private String[] selectedOrderItems;
 
 	private String prefTabString = null;
-	private String prefDrawerString = null;
 	private String prefHiddenString = null;
 
 	private String[] tablist;
@@ -279,12 +271,6 @@ public class UserPrefsTool
 	/** The user id retrieved from UsageSessionService */
 	private String userId = "";
 
-	/**
-	 * SAK-11460:  With DTHML More Sites, there are potentially two
-	 * "Customize Tab" pages, namely "tab.jsp" (for the Drag and Drop)
-	 * and "tab-dhtml-moresites.jsp".  Which one is used depends on the
-	 * sakai.properties "prefs.tabs.dragdrop".
-	 */
 	private String m_TabOutcome = "tab";
 	
 	private Map<String, Integer> m_sortedTypes = new HashMap<String, Integer>();
@@ -349,39 +335,6 @@ public class UserPrefsTool
 	}
 
 	/**
-	 * @return Returns the prefTabItems.
-	 */
-	public List getPrefTabItems()
-	{
-		int tc = getTabCountInt();
-
-                List<SelectItem> l = new ArrayList<SelectItem>();
-                for (int i = 0; i < prefOrderItems.size() && i < tc-1; i++)
-                {
-                        SelectItem item = (SelectItem) prefOrderItems.get(i);
-			l.add(item);
-                }
-		return l;
-	}
-
-	/**
-	 * @return Returns the prefDrawerItems.
-	 */
-	public List getPrefDrawerItems()
-	{
-		int tc = getTabCountInt();
-		if ( tc < 1 ) tc = 1;
-
-                List<SelectItem> l = new ArrayList<SelectItem>();
-                for (int i = tc-1; i < prefOrderItems.size(); i++)
-                {
-                        SelectItem item = (SelectItem) prefOrderItems.get(i);
-			l.add(item);
-                }
-		return l;
-	}
-
-	/**
 	 * @return Returns the prefHiddenItems.
 	 */
 	public List getPrefHiddenItems()
@@ -402,19 +355,6 @@ public class UserPrefsTool
 		return;
 	}
 
-	public String getPrefDrawerString()
-	{
-		return "";
-	}
-
-	public void setPrefDrawerString(String inp)
-	{
-		inp = inp.trim();
-		prefDrawerString = inp;
-		if ( inp.length() < 1 ) prefDrawerString = null;
-		return;
-	}
-
 	public String getPrefHiddenString()
 	{
 		return "";
@@ -426,85 +366,6 @@ public class UserPrefsTool
 		prefHiddenString = inp;
 		if ( inp.length() < 1 ) prefHiddenString = null;
 		return;
-	}
-
-	/**
-	 ** @return number of worksite tabs to display in standard site navigation bar
-	 **/
-	public String getTabCount()
-	{
-		if ( prefTabCount != null )
-			return prefTabCount;
-
-		Preferences prefs = (PreferencesEdit) m_preferencesService.getPreferences(getUserId());
-		ResourceProperties props = prefs.getProperties(CHARON_PREFS);
-		prefTabCount = props.getProperty("tabs");
-
-		if ( prefTabCount == null )
-			prefTabCount = String.valueOf(DEFAULT_TAB_COUNT);
-
-		return prefTabCount;
-	}
-
-	/**
-	 ** @return number of worksite tabs to display in standard site navigation bar
-	 **/
-	public int getTabCountInt()
-	{
-                String tcs = getTabCount();
-                int tc = DEFAULT_TAB_COUNT;
-                try
-                {
-                        tc = Integer.parseInt(tcs.trim());
-                }
-                catch(Exception e){
-                        tc = DEFAULT_TAB_COUNT;
-                }
-		return tc;
-	}
-
-	/**
-	 * @return the listing of valid tab choices
-	 */
-	public List<SelectItem> getTabsChoices() {
-	    if (MAX_TAB_COUNT <= DEFAULT_TAB_COUNT) {
-	        // force max to be larger than default
-	        MAX_TAB_COUNT = DEFAULT_TAB_COUNT + 10;
-	    }
-	    List<SelectItem> l = new ArrayList<SelectItem>(MAX_TAB_COUNT);
-	    for (int i = 0; i < MAX_TAB_COUNT; i++) {
-	        int tabNum = i + 1;
-	        if (tabNum >= DEFAULT_TAB_COUNT) {
-	            String value = String.valueOf(tabNum);
-	            l.add( new SelectItem( value, value ) );
-	        }
-        }
-	    return l;
-	}
-
-	/**
-	 ** @param count 
-	 **			number of worksite tabs to display in standard site navigation bar
-	 **/
-	public void setTabCount( String count )
-	{
-		if ( count == null || "".equals(count.trim()) ) {
-			count = String.valueOf(DEFAULT_TAB_COUNT);
-		} else {
-			count = count.trim();
-		}
-		// make sure this is a valid number
-		int countInt;
-        try {
-            countInt = Integer.parseInt(count);
-        } catch (NumberFormatException e) {
-            countInt = DEFAULT_TAB_COUNT;
-        }
-		if ( countInt > 0 && countInt >= DEFAULT_TAB_COUNT && countInt <= MAX_TAB_COUNT ) {
-            this.prefTabCount = count;
-		} else {
-		    this.prefTabCount = String.valueOf(DEFAULT_TAB_COUNT);
-		}
 	}
 
 	/**
@@ -796,12 +657,6 @@ public class UserPrefsTool
 	 */
 	public UserPrefsTool()
 	{
-		// Is DTHML more site enabled?
-		if (ServerConfigurationService.getBoolean ("prefs.tabs.dragdrop", true))
-			m_TabOutcome = "tab";
-		else
-			m_TabOutcome = "tabDHTMLMoreSites";
-
 		// do we show the option to display by site title or short description?
 		boolean show_tab_label_option = ServerConfigurationService.getBoolean("preference.show.tab.label.option", true);
 		setPrefShowTabLabelOption(show_tab_label_option);
@@ -837,28 +692,6 @@ public class UserPrefsTool
 
 		//defaultPage=tablist[0];
 
-		// Set the default tab count to the system property, initially.
-		String tabCountConfig = ServerConfigurationService.getString ("portal.default.tabs", String.valueOf(DEFAULT_TAB_COUNT));
-		try {
-            int value = Integer.valueOf(tabCountConfig.trim());
-            if (value <= 0 || value > 100) {
-                throw new NumberFormatException(tabCountConfig + " is out of valid range (0 .. 100)");
-            }
-            DEFAULT_TAB_COUNT = value;
-        } catch (NumberFormatException e) {
-            LOG.warn("Invalid portal.default.tabs value specified ("+tabCountConfig+") must specify a number between 0 and 100, default to "+DEFAULT_TAB_COUNT+": "+e);
-        }
-        String tabCountMaxConfig = ServerConfigurationService.getString ("portal.max.tabs", String.valueOf(MAX_TAB_COUNT));
-        try {
-            int value = Integer.valueOf(tabCountMaxConfig.trim());
-            if (value <= 0 || value > 100 || value <= DEFAULT_TAB_COUNT) {
-                throw new NumberFormatException(tabCountMaxConfig + " is out of valid range (0 .. 100) OR <= default tab count ("+DEFAULT_TAB_COUNT+")");
-            }
-            MAX_TAB_COUNT = value;
-        } catch (NumberFormatException e) {
-            LOG.warn("Invalid portal.default.tabs value specified ("+tabCountConfig+") must specify a number between 0 and 100, default to "+MAX_TAB_COUNT+": "+e);
-        }
-		
 		initNotificationStructures();
 		LOG.debug("new UserPrefsTool()");
 	}
@@ -1126,7 +959,6 @@ public class UserPrefsTool
 
 		setUserEditingOn();
 
-		prefTabCount = null;
 		prefExcludeItems = new ArrayList();
 		prefOrderItems = new ArrayList();
 		List prefExclude = new Vector();
@@ -1180,23 +1012,25 @@ public class UserPrefsTool
 		ordered.addAll(mySites);
 
 		// Now convert to SelectItem for display in JSF
-                String sitetablabel = getPrefTabLabel();
+		String sitetablabel = getPrefTabLabel();
 		for (Iterator iter = excluded.iterator(); iter.hasNext();)
 		{
 			Site element = (Site) iter.next();
-			// some short descriptins are empty or null
-			String shortdesc = element.getShortDescription();
-			if ((shortdesc == null) || ("".equals(shortdesc))){
-			    shortdesc = element.getTitle();
-			}
 
+			// SAK-29138
+			String title = getUserSpecificSiteTitle( element );
 			SelectItem excludeItem = null;
 
 			if ("1".equals(sitetablabel)) {
-			    excludeItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(element.getTitle(),null,null,null),element.getTitle());
+				excludeItem = new SelectItem(element.getId(), title, title);
 			}
 			else {
-			    excludeItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(shortdesc,null,null,null), shortdesc);
+				// some short descriptins are empty or null
+				String shortdesc = element.getShortDescription();
+				if ((shortdesc == null) || ("".equals(shortdesc))){
+					shortdesc = title;
+				}
+				excludeItem = new SelectItem(element.getId(), shortdesc, shortdesc);
 			}
 			prefExcludeItems.add(excludeItem);
 		}
@@ -1205,18 +1039,20 @@ public class UserPrefsTool
 		{
 			Site element = (Site) iter.next();
 
-			// some short descriptins are empty or null
-			String shortdesc = element.getShortDescription();
-			if ((shortdesc == null) || ("".equals(shortdesc))){
-			    shortdesc = element.getTitle();
-			}
-
+			// SAK-29138
+			String title = getUserSpecificSiteTitle( element );
 			SelectItem orderItem = null;
+
 			if ("1".equals(sitetablabel)) {
-			    orderItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(element.getTitle(),null,null,null), element.getTitle());
+				orderItem = new SelectItem(element.getId(), title, title);
 			}
 			else {
-			    orderItem = new SelectItem(element.getId(), FormattedText.makeShortenedText(shortdesc,null,null,null), shortdesc);
+				// some short descriptins are empty or null
+				String shortdesc = element.getShortDescription();
+				if ((shortdesc == null) || ("".equals(shortdesc))){
+					shortdesc = title;
+				}
+				orderItem = new SelectItem(element.getId(), shortdesc, shortdesc);
 			}
 
 			prefOrderItems.add(orderItem);
@@ -1225,6 +1061,22 @@ public class UserPrefsTool
 		// release lock
 		m_preferencesService.cancel(m_edit);
 		return m_TabOutcome;
+	}
+
+	/**
+	 * SAK-29138 - Get the site or section title for the current user for the current site.
+	 * Takes into account 'portal.use.sectionTitle' sakai.property; if set to true,
+	 * this method will return the title of the section the current user is enrolled
+	 * in for the site (if it can be found). Otherwise, it will return the site
+	 * title (default behaviour)
+	 * 
+	 * @param site the site in question
+	 * @return the site or section title
+	 */
+	public static String getUserSpecificSiteTitle( Site site )
+	{
+		String retVal = SiteService.getUserSpecificSiteTitle( site, UserDirectoryService.getCurrentUser().getId() );
+		return Web.escapeHtml( FormattedText.makeShortenedText( retVal, null, null, null ) );
 	}
 
 	/**
@@ -1262,7 +1114,6 @@ public class UserPrefsTool
 		// add property name and value for saving
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", eparts, true));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", oparts, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs", prefTabCount, false));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
 
 		// save
@@ -1288,7 +1139,7 @@ public class UserPrefsTool
 		LOG.debug("processActionSaveOrder()");
 
 		// No tabs, nothing to do 
-		if ( prefTabString == null && prefDrawerString == null && prefHiddenString == null ) {
+		if ( prefTabString == null && prefHiddenString == null ) {
 
 			// SAK-23895 , we need to save the tab label preference even though there is no drag-drop actions. 
 			// Lydia: I hate to duplicate updatePrefs() code here. Can we call something like updatePrefs(null, null, null)? 
@@ -1313,26 +1164,15 @@ public class UserPrefsTool
 			return m_TabOutcome;
 		}
 		String [] ids = prefTabString.split(",");
-		int tabcount = ids.length + 1;
-		if ( tabcount <  MIN_TAB_COUNT && prefDrawerString == null && prefHiddenString == null ) tabcount = DEFAULT_TAB_COUNT;
-		if ( tabcount <  MIN_TAB_COUNT ) {
-			error = msgs.getString("min_tabs");
-			error = error.format(error,MIN_TAB_COUNT);
-			FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,error, null));
-			return m_TabOutcome;
-		}
 
 		String order = prefTabString;
-		if ( prefDrawerString != null ) {
-			order += ", " + prefDrawerString;
-		}
 
-		updatePrefs(order, prefHiddenString, tabcount);
+		updatePrefs(order, prefHiddenString);
 
 		return m_TabOutcome;
 	}
 
-	private void updatePrefs(String order, String excludes, int tabcount) 
+	private void updatePrefs(String order, String excludes) 
 	{
 		setUserEditingOn();
 		// Remove existing property
@@ -1348,7 +1188,6 @@ public class UserPrefsTool
 			m_stuff.add(new KeyNameValue(CHARON_PREFS, "order", order, true));
 		if ( excludes != null && excludes.length() > 0 ) 
 			m_stuff.add(new KeyNameValue(CHARON_PREFS, "exclude", excludes, true));
-		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tabs",  String.valueOf(tabcount), false));
 		m_stuff.add(new KeyNameValue(CHARON_PREFS, "tab:label", prefTabLabel, false));
 
 		// save
@@ -1371,7 +1210,6 @@ public class UserPrefsTool
 	{
 		LOG.debug("processActionCancel()");
 
-		prefTabCount = null; // reset to retrieve original prefs
 		prefTabLabel = null; // reset to retrieve original prefs
 
 		// remove session variables
@@ -2074,27 +1912,6 @@ public class UserPrefsTool
 
 		this.selectedRefreshItem = selectedRefreshItem;
 	}
-
-	// /**
-	// * process saving of refresh
-	// *
-	// * @return navigation outcome to refresh page
-	// */
-	// public String processActionRefreshSave()
-	// {
-	// LOG.debug("processActionRefreshSave()");
-	//
-	// // get an edit
-	// setUserEditingOn();
-	// if (m_edit != null)
-	// {
-	// setStringPref(PortalService.SERVICE_NAME, "refresh", m_edit, getSelectedRefreshItem());
-	// // update the edit and release it
-	// m_preferencesService.commit(m_edit);
-	// }
-	// refreshUpdated = true;
-	// return "refresh";
-	// }
 
 	/**
 	 * Process cancel and navigate to list page.

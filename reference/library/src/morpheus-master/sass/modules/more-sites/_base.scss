@@ -1,0 +1,107 @@
+#portalMask{
+	background: rgba(0,0,0,0.45);
+	position: fixed;
+}
+#selectSite{
+	position: fixed;
+	@include transition( left 0.4s linear );
+	&.dhtml_more_tabs{
+		background: $toolMenuColor;
+		display: block;
+		position: fixed;
+		top: 0;
+		left: 40%;
+		width: 60% ;
+		height: 100% ;
+		padding: 1em;
+		overflow-y: auto;
+		overflow-x: hidden;
+		z-index: 1005;
+		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
+		@media #{$phone}{
+			width: 85% ;
+			left: 15%  ;
+		}
+	}
+	&.outscreen{
+		left: calc(100% + 2em) ;
+		max-width:1200px;
+	}
+	h4{
+		font-size: 1.8em;
+  		margin: 1.5em 0 0.4em 0;
+	}
+}
+
+ul#otherSitesMenu{
+	float: right;
+	li{
+		display: inline-block;
+		a{
+			font-size: 0.8em;
+			@if $button-gradiant {
+				@include sakai-button(  $button-color, 
+							darken( $button-color, 15% ), 
+							darken( $button-color, 25% ), 
+							$button-text-color );
+			}
+			@else {
+				@include sakai-button(  $button-color, 
+							$button-color, 
+							$button-color, 
+							$button-text-color );
+			}
+		}
+	}
+}
+
+ul.otherSitesCategorList{
+	li{
+		display: inline-block;
+		border: 1px solid darken( $background-color-secondary, 10% );
+		background: darken( $background-color-secondary, 5% );
+		@include border-radius( 4px );
+		margin: 0.3em;
+		padding: 0.1em 0.5em 0.1em 0.5em;
+		a{
+			@extend .userNav_link;
+			font-weight: 700;
+			&.toolMenus{
+				display: inline-block;
+			}
+		}
+		&.is-selected{
+			background: lighten($background-color, 10%);
+		}
+	}
+}
+
+#otherSiteSearch{
+	border-bottom: 1px solid darken( $background-color, 15% );
+	margin: 0 0 1em 0;
+	padding: 0.8em 0 1em 0;
+	#imgSearch{
+		img{
+			vertical-align: middle;
+		}
+	}
+}
+
+#otherSiteCloseW{
+	background: none;
+	padding: 0 0 0 0;
+	margin: 0 0 0 0;
+	border: 0px none;
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 95%;
+	font-size: 2em;
+	@media #{$phone}{
+		left: 90%;
+	}
+	.toggler{
+		text-decoration: none;
+		color: darken($errorcolor, 50%);
+	}
+}

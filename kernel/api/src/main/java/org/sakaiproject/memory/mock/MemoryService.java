@@ -75,7 +75,7 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
     }
 
     @Override
-    public <C extends Configuration> Cache createCache(String cacheName, C configuration) {
+    public <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration) {
         return newCache(cacheName, null, null);
     }
 
@@ -108,12 +108,6 @@ public class MemoryService implements org.sakaiproject.memory.api.MemoryService 
     @Override
     public Cache newCache(String cacheName) {
         return newCache(cacheName, null, null);
-    }
-
-    @SuppressWarnings("deprecation") // TODO remove GenericMultiRefCache
-    @Override
-    public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
-        return null;
     }
 
     @Override

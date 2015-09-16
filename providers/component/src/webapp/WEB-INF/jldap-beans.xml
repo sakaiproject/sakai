@@ -154,6 +154,13 @@
 		<!-- property name="maxResultSize">
 		  <value>1000</value>
 		</property -->
+
+		<!-- Optional. Require a different ID for login. This allows you to have one ID for logins
+		     and another EID which is used when looking up course/group information.
+		     Defaults to false -->
+		<!-- property name="enableAid">
+		  <value>true</value>
+		</property -->
 		
 		<!-- Optional. Defaults to an instance of 
 		edu.amc.sakai.user.SimpleLdapAttributeMapper -->
@@ -211,6 +218,7 @@
 		AttributeMappingConstants.DEFAULT_ATTR_MAPPINGS. -->
 		<!-- property name="attributeMappings">
 			<map>
+				<entry key="aid"><value>krb5PrincipalName</value></entry>
 				<entry key="login"><value>cn</value></entry>         
 				<entry key="firstName"><value>givenName</value></entry> 
 				<entry key="preferredFirstName"><value>preferredName</value></entry>

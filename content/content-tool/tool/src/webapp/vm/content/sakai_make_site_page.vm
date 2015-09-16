@@ -31,7 +31,7 @@
 		
 	</form>
 </div>
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 	<!--
 	focus_path = ["page"];
 	function submitform(id)

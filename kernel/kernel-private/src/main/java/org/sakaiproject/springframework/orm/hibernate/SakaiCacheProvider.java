@@ -21,6 +21,7 @@
 
 package org.sakaiproject.springframework.orm.hibernate;
 
+import net.sf.ehcache.Ehcache;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.cache.CacheException;
@@ -87,7 +88,7 @@ public class SakaiCacheProvider implements CacheProvider, ApplicationContextAwar
     @Override
     public org.hibernate.cache.Cache buildCache(String s, Properties properties) throws CacheException {
         try {
-            net.sf.ehcache.Ehcache ehcache = defaultCache.unwrap(net.sf.ehcache.Ehcache.class); // Ehcache required for now
+            net.sf.ehcache.Ehcache ehcache = (Ehcache) defaultCache.unwrap(Ehcache.class); // Ehcache required for now
             org.hibernate.cache.Cache rv = new EhCache(ehcache);
             return rv;
         } catch (Exception e) {

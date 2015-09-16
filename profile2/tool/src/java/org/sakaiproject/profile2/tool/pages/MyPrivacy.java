@@ -144,7 +144,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		profileImageChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -163,7 +163,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		basicInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -180,7 +180,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		contactInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -197,7 +197,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		staffInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -214,7 +214,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		studentInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -231,7 +231,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		businessInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -250,7 +250,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		socialNetworkingInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -268,7 +268,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		personalInfoChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -285,7 +285,7 @@ public class MyPrivacy extends BasePage {
 		//updater
 		birthYearCheckbox.add(new AjaxFormComponentUpdatingBehavior("onclick") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 				
@@ -302,10 +302,12 @@ public class MyPrivacy extends BasePage {
 		//updater
 		myFriendsChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
+		myFriendsContainer.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
+
 		//myStatus privacy
 		WebMarkupContainer myStatusContainer = new WebMarkupContainer("myStatusContainer");
 		myStatusContainer.add(new Label("myStatusLabel", new ResourceModel("privacy.mystatus")));
@@ -319,10 +321,12 @@ public class MyPrivacy extends BasePage {
 		//updater
 		myStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
+		myStatusContainer.setVisible(sakaiProxy.isProfileStatusEnabled());
+
 		// gallery privacy
 		WebMarkupContainer myPicturesContainer = new WebMarkupContainer("myPicturesContainer");
 		myPicturesContainer.add(new Label("myPicturesLabel", new ResourceModel("privacy.mypictures")));
@@ -335,7 +339,7 @@ public class MyPrivacy extends BasePage {
 
 		myPicturesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -353,7 +357,7 @@ public class MyPrivacy extends BasePage {
 
 		messagesChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -371,10 +375,12 @@ public class MyPrivacy extends BasePage {
 
 		kudosChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
+		myKudosContainer.setVisible(sakaiProxy.isMyKudosEnabledGlobally());
+
 		// wall privacy
 		WebMarkupContainer myWallContainer = new WebMarkupContainer("myWallContainer");
 		myWallContainer.add(new Label("myWallLabel", new ResourceModel("privacy.mywall")));
@@ -387,7 +393,7 @@ public class MyPrivacy extends BasePage {
 
 		myWallChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		myWallContainer.setVisible(sakaiProxy.isWallEnabledGlobally());
@@ -405,10 +411,11 @@ public class MyPrivacy extends BasePage {
 
 		onlineStatusChoice.add(new AjaxFormComponentUpdatingBehavior("onchange") {
             protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
+		onlineStatusContainer.setVisible(sakaiProxy.isOnlineStatusEnabledGlobally());
 		
 		//submit button
 		IndicatingAjaxButton submitButton = new IndicatingAjaxButton("submit", form) {
@@ -427,12 +434,12 @@ public class MyPrivacy extends BasePage {
 				}
 				
 				//resize iframe
-				target.appendJavascript("setMainFrameHeight(window.name);");
+				target.appendJavaScript("setMainFrameHeight(window.name);");
 				
 				//PRFL-775 - set focus to feedback message so it is announced to screenreaders
-				target.appendJavascript("$('#" + formFeedbackId + "').focus();");
+				target.appendJavaScript("$('#" + formFeedbackId + "').focus();");
 				
-				target.addComponent(formFeedback);
+				target.add(formFeedback);
             }
 		};
 		submitButton.setModel(new ResourceModel("button.save.settings"));

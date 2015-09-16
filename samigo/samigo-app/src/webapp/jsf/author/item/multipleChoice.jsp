@@ -191,13 +191,17 @@
 
 
   <!-- 2 TEXT -->
-
+	<div class="multiple_editor">
+		<a id="multiple_show_editor" onclick="javascript:show_multiple_text(this);" href="#">
+ 	  <h:outputText id="text" value="#{authorMessages.show_editors}"/> 
+	</a>
+	</div>
    <div class="longtext"><h:outputLabel value="#{authorMessages.q_text}" />
 </div>
   <!-- WYSIWYG -->
    
   <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="yes">
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.itemText}" hasToggle="plain" mode="author">
      <f:validateLength minimum="1" maximum="60000"/>
    </samigo:wysiwyg>
 
@@ -245,7 +249,7 @@
         <!-- WYSIWYG -->
  <h:panelGrid>
 
-   <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="yes" >
+   <samigo:wysiwyg rows="140" value="#{answer.text}" hasToggle="plain" mode="author">
      <f:validateLength maximum="60000"/>
    </samigo:wysiwyg>
  </h:panelGrid>
@@ -254,7 +258,7 @@
 
         <!-- WYSIWYG -->
   <h:panelGrid rendered="#{itemauthor.target == 'questionpool' || (itemauthor.target != 'questionpool' && (author.isEditPendingAssessmentFlow && assessmentSettings.feedbackAuthoring ne '1') || (!author.isEditPendingAssessmentFlow && publishedSettings.feedbackAuthoring ne '1'))}">
-         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="yes" >
+         <samigo:wysiwyg rows="140" value="#{answer.feedback}" hasToggle="plain" mode="author">
            <f:validateLength maximum="4000"/>
          </samigo:wysiwyg>
   </h:panelGrid>
@@ -363,7 +367,7 @@
 <br/>
   <!-- WYSIWYG --> 
 <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="yes" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.corrFeedback}" hasToggle="plain" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>
@@ -372,7 +376,7 @@
 
   <!-- WYSIWYG -->
    <h:panelGrid>
-   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="yes" >
+   <samigo:wysiwyg rows="140" value="#{itemauthor.currentItem.incorrFeedback}"  hasToggle="plain" mode="author">
      <f:validateLength maximum="4000"/>
    </samigo:wysiwyg>
 </h:panelGrid>

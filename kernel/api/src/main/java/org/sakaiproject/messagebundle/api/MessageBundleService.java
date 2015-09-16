@@ -172,17 +172,6 @@ public interface MessageBundleService {
     public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale loc);
 
     /**
-     * creates or updates the ResourceBundle data for the given baseName, moduleName and locale.
-     * @param baseName
-     * @param moduleName
-     * @param newBundle
-     * @param loc
-     * @param newThread - set to true to do work in scheduled thread, false with execute immediately
-     */
-    public void saveOrUpdate(String baseName, String moduleName, ResourceBundle newBundle, Locale loc, boolean newThread);
-
-
-    /**
      *
      * @param baseName - retrieve values for this baseName
      * @param moduleName - retrieve values for this moduleName

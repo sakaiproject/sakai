@@ -32,6 +32,7 @@ ul.makeMenu li {
 </style>
 <![endif]><![endif]-->
 
+<script type="text/javascript">includeLatestJQuery('content_filepicker');</script>
 <script type="text/JavaScript">
 		function openCopyrightWindow(theURL,winName,winSettings) 
 		{ 
@@ -51,7 +52,6 @@ ul.makeMenu li {
 			}
 		}
 </script>
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"> </script>
 <script  type="text/javascript">
 $(document).ready(function() {
 	jQuery('.portletBody').click(function(e) { 
@@ -118,7 +118,7 @@ $(document).ready(function() {
 	<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 
-	<script language="JavaScript" type="text/JavaScript">
+	<script type="text/javascript">
 	function doattachsubmit(itemId) {
 	   document.getElementById('doattachitemid').setAttribute('value',itemId);
 	   var f = document.getElementById('doattachitem');

@@ -29,6 +29,7 @@ import org.sakaiproject.accountvalidator.model.ValidationAccount;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
+import org.sakaiproject.emailtemplateservice.service.EmailTemplateService;
 import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.entitybroker.DeveloperHelperService;
 import org.sakaiproject.entitybroker.EntityReference;
@@ -42,9 +43,11 @@ import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 public class AcountValidationLocator implements BeanLocator  {
@@ -54,6 +57,8 @@ public class AcountValidationLocator implements BeanLocator  {
 	public static final String UNKOWN_PREFIX = "unkown";
 	
 	private Map<String, Object> delivered = new HashMap<String, Object>();
+
+	private static final String TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET = "acknowledge.passwordReset";
 
 	private ValidationLogic validationLogic;
 	public void setValidationLogic(ValidationLogic vl) {
@@ -106,6 +111,12 @@ public class AcountValidationLocator implements BeanLocator  {
 	public void setServerConfigurationService(
 			ServerConfigurationService serverConfigurationService) {
 		this.serverConfigurationService = serverConfigurationService;
+	}
+
+	private EmailTemplateService emailTemplateService;
+	public void setEmailTemplateService(EmailTemplateService emailTemplateService)
+	{
+		this.emailTemplateService = emailTemplateService;
 	}
 
 	public Object locateBean(String name) {
@@ -174,6 +185,8 @@ public class AcountValidationLocator implements BeanLocator  {
 	public String validateAccount() {
 		log.debug("Validate Account");
 		
+		List<String> userReferences = new ArrayList<String>();
+
 		 for (Iterator<String> it = delivered.keySet().iterator(); it.hasNext();) {
 			 
 	          String key = (String) it.next();
@@ -197,7 +210,7 @@ public class AcountValidationLocator implements BeanLocator  {
 
                    int accountStatus = item.getAccountStatus();
                    //names are required in all cases except password resets
-                   if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus)
+                   if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus)
                    {
                      if (firstName == null || firstName.isEmpty())
                      {
@@ -253,7 +266,7 @@ public class AcountValidationLocator implements BeanLocator  {
 				
 				
 				//if this is a new account set the password
-				if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus) {
+				if (ValidationAccount.ACCOUNT_STATUS_NEW == accountStatus || ValidationAccount.ACCOUNT_STATUS_LEGACY_NOPASS == accountStatus || ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == accountStatus) {
 					if (item.getPassword() == null || !item.getPassword().equals(item.getPassword2())) {
 						//Abandon the edit
 						userDirectoryService.cancelEdit(u);
@@ -303,6 +316,8 @@ public class AcountValidationLocator implements BeanLocator  {
 				developerHelperService.fireEvent("accountvalidation.validated", u.getReference());
 				
 				validationLogic.save(item);
+
+				userReferences.add(userDirectoryService.userReference(item.getUserId()));
 				
 				
 				//log the user in
@@ -337,8 +352,18 @@ public class AcountValidationLocator implements BeanLocator  {
 	           
 	          	//validationLogic.
 
-	        }
+			// Send password reset acknowledgement email for password reset scenarios
+			if (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == accountStatus)
+			{
+				String supportEmail = serverConfigurationService.getString("support.email");
+				Map<String, String> replacementValues = new HashMap<String, String>();
+				replacementValues.put("emailSupport", supportEmail);
+				emailTemplateService.sendRenderedMessages(TEMPLATE_KEY_ACKNOWLEDGE_PASSWORD_RESET, userReferences, replacementValues, supportEmail, supportEmail);
+			}
+		}
 		
+
+
 		return "success";
 	}
 

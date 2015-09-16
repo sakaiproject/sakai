@@ -51,20 +51,20 @@
 								#if($item.IsChecked)
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
 									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-										<span class="chefToolBarToggle $prevItemWasField"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+										<span class="chefToolBarToggle $prevItemWasField"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
 									</li>
 								## unchecked item support
 								#else
 									#set( $toolbaritemCount=$toolbaritemCount + 1)
 									<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-										<span class="$prevItemWasField"><a href="#" title="$item.Title" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
+										<span class="$prevItemWasField"><a href="#" title="$item.AccessibilityLabel" onclick="location = '$base'#if($item.Form)+buildQueryString('$item.Form')#end;return false;">$item.Title</a></span>
 									</li>
 								#end
 							## url support (i.e. to another place, another window)
 							#else
 								#set( $toolbaritemCount=$toolbaritemCount + 1)
 								<li #if ($toolbaritemCount ==1) class="firstToolBarItem" #end>
-									<span class="externalLink $prevItemWasField"><a href="$item.Url" title="$item.Title" target="_blank">$item.Title</a></span>
+									<span class="externalLink $prevItemWasField"><a href="$item.Url" title="$item.AccessibilityLabel" target="_blank">$item.Title</a></span>
 								</li>	
 							#end
 							#set ($formItem=0)
@@ -149,7 +149,7 @@
     
 #if ($frameRefresh)
 	#foreach ($id in $frameRefresh)
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	try
 	{
 		if (parent.${id}.location.toString().length > 1)
@@ -174,12 +174,12 @@
 	#end
 #end
 #if ($topRefresh)
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 		parent.location.replace(parent.location);
 	</script>
 #end
 #if ($focusChange)
-	<script type="text/javascript" language="JavaScript">
+	<script type="text/javascript">
 	try
 	{
 		parent.setFocus(${focusChange});
@@ -569,7 +569,7 @@ ${extra}")
 
 #macro (sakai_courier)
 #if ($courier)
-<script type="text/javascript" language="JavaScript">
+<script type="text/javascript">
 updateTime = ${courierTimeout}000;
 updateUrl = "$courier";
 scheduleUpdate();

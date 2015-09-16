@@ -19,6 +19,16 @@
 <h1 class="skip" tabindex="-1" id="tocontent">${rloader.sit_contentshead}</h1>
 
     <main id="$pageWrapperClass" class="Mrphs-mainContent" role="main">
+    ## Added Site name to the Nav for Mobile menus
+    #foreach ( $site in $tabsSites.tabsSites )
+
+        #if (${site.isCurrentSite})
+
+            <h2 title="${site.fullTitle}" class="Mrphs-toolsNav__title--current-site">${site.siteTitle}</h2>
+
+        #end ## END of IF (${site.isCurrentSite})
+
+    #end ## END of FOREACH ( $site in $tabsSites.tabsSites )
 
         #parse("/vm/morpheus/snippets/siteStatus-snippet.vm")
 
@@ -29,6 +39,13 @@
                 #set( $i = $i + 1 )
 
                 #if ($tool)
+                    
+                    <!-- start Tool Container -->
+                    
+                    #set($toolTitleClass = ${tool.toolId.trim().replace(".", '-').toLowerCase()})
+
+                    <div class="Mrphs-container Mrphs-${toolTitleClass}">
+                    
                     <!-- start Tool Header -->
 
                     #if (${tool.suppressTitle}) 
@@ -37,23 +54,36 @@
 
                         #if (${tool.hasRenderResult})
 
-                            <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
+
+                            <nav class="Mrphs-toolTitleNav Mrphs-container--toolTitleNav">
 
                                 #if (${tool.toolShowResetButton})
 
                                     #if ($!{tool.toolInline})
 
-                                        <h2 class="Mrphs-toolTitleNav__title"><a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">${tool.toolRenderResult.getTitle()}</a></h2>
+                                        <h2 class="Mrphs-toolTitleNav__title">
+                                            <a href="${tool.toolResetActionUrl}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                                <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
+                                            </a>
+					    <span class="Mrphs-toolTitleNav__addLeft"></span>
+                                        </h2>
 
                                     #else
 
-                                        <h2 class="Mrphs-toolTitleNav__title"><a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset  Mrphs-toolTitleNav__link--inline" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">${tool.toolRenderResult.getTitle()}</a></h2>
+                                        <h2 class="Mrphs-toolTitleNav__title">
+                                            <a class="Mrphs-toolTitleNav__link--inline" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                                <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                                <span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span>
+                                            </a>
+					    <span class="Mrphs-toolTitleNav__addLeft"></span>
+                                        </h2>
 
                                     #end ## END of IF ($!{tool.toolInline})
 
                                 #else 
 
-                                    <h2 class="Mrphs-toolTitleNav__title">${tool.toolRenderResult.getTitle()}</h2>
+                                    <h2 class="Mrphs-toolTitleNav__title"><span class="Mrphs-toolTitleNav__text">${tool.toolRenderResult.getTitle()}</span><span class="Mrphs-toolTitleNav__addLeft"></span></h2>
 
                                 #end ## END of IF (${tool.toolShowResetButton})
 
@@ -63,6 +93,7 @@
 
                                 #end ## END of IF (${tool.toolJSR168Edit} )
 
+				<span class="Mrphs-toolTitleNav__addRight"></span>
                                 #if ( $toolDirectUrlEnabled && ${tool.showDirectToolUrl} )
 
                                     <a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--directurl" href="#${tool.toolPlacementIDJS}_directurl" rel="#${tool.toolPlacementIDJS}_directurl" title="${rloader.tool_direct_link}"></a>
@@ -101,7 +132,12 @@
 
                                 #if (${tool.toolShowResetButton})
 
-                                    <h2 class="Mrphs-toolTitleNav__title"><a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">${tool.toolTitle}</a></h2>
+                                    <h2 class="Mrphs-toolTitleNav__title">
+                                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">
+                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                            ${tool.toolTitle}
+                                        </a>
+                                    </h2>
 
                                 #else  
 
@@ -138,6 +174,10 @@
                     #end ## END of IF ( ${bufferedResponse} && ${responseBody} )
 
                     <!-- end Tool Body -->
+                    
+                    </div>
+
+                    <!-- end Tool Container -->
 
                 #end ## END of IF ($tool)
 
@@ -155,6 +195,12 @@
 
                     #if ($tool) 
 
+                        <!-- start Tool Container -->
+
+                        #set($toolTitleClass = ${tool.toolId.trim().replace(".", '-').toLowerCase()})
+
+                        <div class="Mrphs-container Mrphs-${toolTitleClass}">
+
                         <!-- start include tool -->
                         <!-- start Tool Col2 -->
 
@@ -162,7 +208,12 @@
                             <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
                                     
                                 #if (${tool.toolShowResetButton})
-                                    <h2 class="Mrphs-toolTitleNav__title"><a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">${tool.toolRenderResult.getTitle()}</a></h2>
+                                    <h2 class="Mrphs-toolTitleNav__title">
+                                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${rloader.sit_reset}: ${tool.toolRenderResult.getTitle()}">
+                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                            ${tool.toolRenderResult.getTitle()}
+                                        </a>
+                                    </h2>
                                     
                                 #else 
                                     <h2 class="Mrphs-toolTitleNav__title">${tool.toolRenderResult.getTitle()}</h2>
@@ -202,7 +253,12 @@
                             <nav class="Mrphs-toolTitleNav Mrphs-container Mrphs-container--toolTitleNav">
 
                                 #if (${tool.toolShowResetButton})
-                                    <h2 class="Mrphs-toolTitleNav__title"><a class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset" href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">${tool.toolTitle}</a></h2>
+                                    <h2 class="Mrphs-toolTitleNav__title">
+                                        <a href="${tool.toolResetActionUrl}" target="${tool.toolPlacementIDJS}" title="${sitReset}: ${tool.toolTitle}">
+                                            <span class="Mrphs-toolTitleNav__link Mrphs-toolTitleNav__link--reset"></span>
+                                            ${tool.toolTitle}
+                                        </a>
+                                    </h2>
                                 #else 
                                     <h2 class="Mrphs-toolTitleNav__title">${tool.toolTitle}</h2>
                                 #end ## END of IF (${tool.toolShowResetButton})
@@ -223,6 +279,10 @@
                         <!-- end Tool Body -->
 
                         <!-- end include tool -->
+
+                        </div>
+                        
+                        <!-- end Tool Container -->
 
                     #end ## END of IF ($tool)
 

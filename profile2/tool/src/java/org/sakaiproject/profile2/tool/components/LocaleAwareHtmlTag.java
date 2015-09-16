@@ -1,6 +1,6 @@
 package org.sakaiproject.profile2.tool.components;
 
-import org.apache.wicket.behavior.SimpleAttributeModifier;
+import org.apache.wicket.AttributeModifier;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.sakaiproject.profile2.util.ProfileUtils;
 
@@ -18,14 +18,10 @@ public class LocaleAwareHtmlTag extends WebMarkupContainer {
         super(id); 
         String language = getSession().getLocale().getLanguage();
         String orientation = ProfileUtils.getUserPreferredOrientation();
-        add(new SimpleAttributeModifier("lang", language)); 
-        add(new SimpleAttributeModifier("xml:lang", language)); 
-        add(new SimpleAttributeModifier("dir", orientation));
+        add(AttributeModifier.replace("lang", language)); 
+        add(AttributeModifier.replace("xml:lang", language)); 
+        add(AttributeModifier.replace("dir", orientation));
     } 
-
-    @Override 
-    public boolean isTransparentResolver() { 
-        return true; 
-    } 
+ 
     
 }

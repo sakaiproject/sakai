@@ -136,7 +136,8 @@ public class AttachmentAction
 
 		if (state.getAttribute(FILE_UPLOAD_MAX_SIZE) == null)
 		{
-			state.setAttribute(FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString("content.upload.max", "1"));
+			state.setAttribute(FILE_UPLOAD_MAX_SIZE, ServerConfigurationService.getString(ResourcesConstants.SAK_PROP_MAX_UPLOAD_FILE_SIZE, 
+																						  ResourcesConstants.DEFAULT_MAX_FILE_SIZE_STRING));
 		}
 
 		// make sure we have attachments

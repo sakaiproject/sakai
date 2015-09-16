@@ -24,6 +24,7 @@ package org.sakaiproject.component.gradebook;
 import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
@@ -32,8 +33,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.commons.lang.StringUtils;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.hibernate.HibernateException;
@@ -50,6 +51,7 @@ import org.sakaiproject.service.gradebook.shared.ConflictingCategoryNameExceptio
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.StaleObjectModificationException;
 import org.sakaiproject.tool.gradebook.AbstractGradeRecord;
 import org.sakaiproject.tool.gradebook.Assignment;
@@ -68,7 +70,6 @@ import org.sakaiproject.tool.gradebook.facades.Authn;
 import org.sakaiproject.tool.gradebook.facades.EventTrackingService;
 import org.springframework.orm.hibernate3.HibernateCallback;
 import org.springframework.orm.hibernate3.support.HibernateDaoSupport;
-
 import org.sakaiproject.component.api.ServerConfigurationService;
 
 /**
@@ -214,6 +215,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
 		return filteredRecords;
 	}
 
+	@Deprecated
 	protected Assignment getAssignmentWithoutStats(String gradebookUid, String assignmentName, Session session) throws HibernateException {
 		return (Assignment)session.createQuery(
 			"from Assignment as asn where asn.name=? and asn.gradebook.uid=? and asn.removed=false").
@@ -1028,6 +1030,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (Long)getHibernateTemplate().execute(hc);
     }
 
+    @Deprecated
     public List getPermissionsForGB(final Long gradebookId) throws IllegalArgumentException
     {
     	if(gradebookId == null)
@@ -1044,6 +1047,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);
     }
 
+    @Deprecated
     public void updatePermission(Collection perms)
     {
     	for(Iterator iter = perms.iterator(); iter.hasNext(); )
@@ -1054,6 +1058,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	}
     }
 
+    @Deprecated
     public void updatePermission(final Permission perm) throws IllegalArgumentException
     {
     	if(perm == null)
@@ -1074,6 +1079,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	getHibernateTemplate().execute(hc);
     }
     
+    @Deprecated
     public void deletePermission(final Permission perm) throws IllegalArgumentException
     {
     	if(perm == null)
@@ -1111,7 +1117,7 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);    	
     }
 
-    public List getPermissionsForUserForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUserForCategory(final Long gradebookId, final String userId, final List cateIds) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserForCategory");
@@ -1136,16 +1142,17 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	}
     }
 
-    public List getPermissionsForUserAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUserAnyCategory(final Long gradebookId, final String userId) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyCategory");
 
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
-    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null");
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.categoryId is null and perm.function in (:functions)");
     			q.setLong("gradebookId", gradebookId);
     			q.setString("userId", userId);
+    			q.setParameterList("functions", GraderPermission.getStandardPermissions());
 
     			return q.list();
     		}
@@ -1153,16 +1160,17 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
     	return (List)getHibernateTemplate().execute(hc);
     }
 
-    public List getPermissionsForUserAnyGroup(final Long gradebookId, final String userId) throws IllegalArgumentException
+    public List<Permission> getPermissionsForUserAnyGroup(final Long gradebookId, final String userId) throws IllegalArgumentException
     {
     	if(gradebookId == null || userId == null)
     		throw new IllegalArgumentException("Null parameter(s) in BaseHibernateManager.getPermissionsForUserAnyGroup");
 
     	HibernateCallback hc = new HibernateCallback() {
     		public Object doInHibernate(Session session) throws HibernateException {
-    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.groupId is null");
+    			Query q = session.createQuery("from Permission as perm where perm.gradebookId=:gradebookId and perm.userId=:userId and perm.groupId is null and perm.function in (:functions)");
     			q.setLong("gradebookId", gradebookId);
     			q.setString("userId", userId);
+    			q.setParameterList("functions", GraderPermission.getStandardPermissions());
 
     			return q.list();
     		}
@@ -1523,57 +1531,54 @@ public abstract class BaseHibernateManager extends HibernateDaoSupport {
         return !q.list().isEmpty();
     }
     
-	private Comment getInternalComment(String gradebookUid, String assignmentName, String studentUid, Session session) {
+	private Comment getInternalComment(String gradebookUid, Long assignmentId, String studentUid, Session session) {
 		Query q = session.createQuery(
-		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.name=:assignmentName and gradableObject.removed=false");
+		"from Comment as c where c.studentId=:studentId and c.gradableObject.gradebook.uid=:gradebookUid and c.gradableObject.id=:assignmentId and gradableObject.removed=false");
 		q.setParameter("studentId", studentUid);
 		q.setParameter("gradebookUid", gradebookUid);
-		q.setParameter("assignmentName", assignmentName);
+		q.setParameter("assignmentId", assignmentId);
 		return (Comment)q.uniqueResult();		
 	}
-
-	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+	
+	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
+		if (gradebookUid == null || assignmentId == null || studentUid == null) {
+			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
+		}
+		
+		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				return getAssignmentWithoutStats(gradebookUid, assignmentId, session);
+			}
+		});
+		
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assignment with id " + assignmentId);
+		}
+		
 		CommentDefinition commentDefinition = null;
         Comment comment = (Comment)getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-            	return getInternalComment(gradebookUid, assignmentName, studentUid, session);
+            	return getInternalComment(gradebookUid, assignmentId, studentUid, session);
             }
         });
         if (comment != null) {
         	commentDefinition = new CommentDefinition();
-        	commentDefinition.setAssignmentName(assignmentName);
+        	commentDefinition.setAssignmentName(assignment.getName());
         	commentDefinition.setCommentText(comment.getCommentText());
         	commentDefinition.setDateRecorded(comment.getDateRecorded());
         	commentDefinition.setGraderUid(comment.getGraderId());
         	commentDefinition.setStudentUid(comment.getStudentId());
         }
 		return commentDefinition;
-	}
-	
-	public CommentDefinition getAssignmentScoreComment(final String gradebookUid, final Long gbItemId, final String studentUid) throws GradebookNotFoundException, AssessmentNotFoundException {
-		if (gradebookUid == null || gbItemId == null || studentUid == null) {
-			throw new IllegalArgumentException("null parameter passed to getAssignmentScoreComment");
-		}
-		
-		Assignment assignment = (Assignment)getHibernateTemplate().execute(new HibernateCallback() {
-			public Object doInHibernate(Session session) throws HibernateException {
-				return getAssignmentWithoutStats(gradebookUid, gbItemId, session);
-			}
-		});
-		
-		if (assignment == null) {
-			throw new AssessmentNotFoundException("There is no assignment with the gbItemId " + gbItemId);
-		}
-		
-		return getAssignmentScoreComment(gradebookUid, assignment.getName(), studentUid);
+
 	}
 
-	public void setAssignmentScoreComment(final String gradebookUid, final String assignmentName, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
+	public void setAssignmentScoreComment(final String gradebookUid, final Long assignmentId, final String studentUid, final String commentText) throws GradebookNotFoundException, AssessmentNotFoundException {
 		getHibernateTemplate().execute(new HibernateCallback() {
             public Object doInHibernate(Session session) throws HibernateException {
-        		Comment comment = getInternalComment(gradebookUid, assignmentName, studentUid, session);
+        		Comment comment = getInternalComment(gradebookUid, assignmentId, studentUid, session);
         		if (comment == null) {
-        			comment = new Comment(studentUid, commentText, getAssignmentWithoutStats(gradebookUid, assignmentName, session));
+        			comment = new Comment(studentUid, commentText, getAssignmentWithoutStats(gradebookUid, assignmentId, session));
         		} else {
         			comment.setCommentText(commentText);
         		}

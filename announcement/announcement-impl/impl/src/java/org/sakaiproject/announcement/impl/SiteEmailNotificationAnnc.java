@@ -33,35 +33,30 @@ import org.sakaiproject.announcement.api.AnnouncementMessageEdit;
 import org.sakaiproject.announcement.api.AnnouncementMessageHeader;
 import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.api.app.scheduler.ScheduledInvocationCommand;
-import org.sakaiproject.api.app.scheduler.ScheduledInvocationManager;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.SecurityService;
-import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.api.ResourceProperties;
-import org.sakaiproject.entity.cover.EntityManager;
+import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.Notification;
 import org.sakaiproject.event.api.NotificationEdit;
 import org.sakaiproject.event.api.NotificationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.event.cover.EventTrackingService;
+import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.exception.IdUnusedException;
-import org.sakaiproject.exception.PermissionException;
 import org.sakaiproject.message.api.MessageHeader;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.Site;
-import org.sakaiproject.site.api.ToolConfiguration;
-import org.sakaiproject.site.cover.SiteService;
+import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.time.api.Time;
-import org.sakaiproject.time.cover.TimeService;
+import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserNotDefinedException;
-import org.sakaiproject.user.cover.UserDirectoryService;
+import org.sakaiproject.user.api.UserDirectoryService;
 import org.sakaiproject.util.EmailNotification;
 import org.sakaiproject.util.FormattedText;
-import org.sakaiproject.util.MergedList;
 import org.sakaiproject.util.ResourceLoader;
 import org.sakaiproject.util.SiteEmailNotification;
 
@@ -80,8 +75,42 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	/** Our logger. */
 	private static Log M_log = LogFactory.getLog(SiteEmailNotificationAnnc.class);
 
-	private ScheduledInvocationManager scheduledInvocationManager;
-			
+	private EntityManager entityManager;
+	private SecurityService securityService;
+	private NotificationService notificationService;
+	private EventTrackingService eventTrackingService;
+	private SiteService siteService;
+	private TimeService timeService;
+	private UserDirectoryService userDirectoryService;
+
+	public void setEntityManager(EntityManager entityManager) {
+		this.entityManager = entityManager;
+	}
+
+	public void setSecurityService(SecurityService securityService) {
+		this.securityService = securityService;
+	}
+
+	public void setNotificationService(NotificationService notificationService) {
+		this.notificationService = notificationService;
+	}
+
+	public void setEventTrackingService(EventTrackingService eventTrackingService) {
+		this.eventTrackingService = eventTrackingService;
+	}
+
+	public void setTimeService(TimeService timeService) {
+		this.timeService = timeService;
+	}
+
+	public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
+		this.userDirectoryService = userDirectoryService;
+	}
+
+	public void setSiteService(SiteService siteService) {
+		this.siteService = siteService;
+	}
+
 	/**
 	 * Construct.
 	 */
@@ -98,15 +127,6 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	}
 
 	/**
-	 * Inject ScheudledInvocationManager
-	 */
-	public void setScheduledInvocationManager(
-			ScheduledInvocationManager service) 
-	{
-		scheduledInvocationManager = service;
-	}
-
-	/**
 	 * @inheritDoc
 	 */
 	protected String getResourceAbility()
@@ -120,7 +140,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	public void notify(Notification notification, Event event)
 	{
 		// get the message
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		AnnouncementMessageEdit msg = (AnnouncementMessageEdit) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 
@@ -129,7 +149,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 
 		// Put here since if release date after now, do not notify
 		// since scheduled notification has been set.
-		Time now = TimeService.newTime();
+		Time now = timeService.newTime();
 		
 		if (now.after(hdr.getDate()))
 		{
@@ -146,7 +166,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		String newline = "<br />\n";
 
 		// get the message
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 
@@ -158,7 +178,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		String url = ServerConfigurationService.getPortalUrl()+ "/site/"+ siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 			url = site.getUrl(); // Might have a better URL.
 		}
@@ -203,7 +223,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	/**
 	 * get announcement group information
 	 */
-	private static String getAnnouncementGroup(AnnouncementMessage a)
+	private String getAnnouncementGroup(AnnouncementMessage a)
 	{
 		if (a.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW) != null
 				&& a.getProperties().getProperty(ResourceProperties.PROP_PUBVIEW).equals(Boolean.TRUE.toString()))
@@ -220,7 +240,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			String allGroupString = "";
 			try
 			{
-				Site site = SiteService.getSite(EntityManager.newReference(a.getReference()).getContext());
+				Site site = siteService.getSite(entityManager.newReference(a.getReference()).getContext());
 				for (Iterator i = a.getAnnouncementHeader().getGroups().iterator(); i.hasNext();)
 				{
 					Group aGroup = site.getGroup((String) i.next());
@@ -290,7 +310,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	protected String getSubject(Event event)
 	{
 		// get the message
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 
@@ -301,7 +321,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		String title = siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
 		catch (Exception ignore)
@@ -321,20 +341,20 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 */
 	protected String getFromAddress(Event event)
 	{
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		
 		//SAK-14831, yorkadam, make site title reflected in 'From:' name instead of default ServerConfigurationService.getString("ui.service", "Sakai");
 		String siteId = (getSite() != null) ? getSite() : ref.getContext();
 		String title = "";
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
 		catch(Exception ignore)
 		{}
 		
-		String userEmail = "no-reply@" + ServerConfigurationService.getServerName();
+		String userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 		String userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 		//String no_reply = "From: \"" + userDisplay + "\" <" + userEmail + ">";
 		//String no_reply_withTitle = "From: \"" + title + "\" <" + userEmail + ">";	
@@ -361,7 +381,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		{
 				try
 				{
-					User u = UserDirectoryService.getUser(userId);
+					User u = userDirectoryService.getUser(userId);
 					userDisplay = u.getDisplayName();
 					userEmail = u.getEmail();
 					if ((userEmail != null) && (userEmail.trim().length()) == 0) userEmail = null;
@@ -371,7 +391,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 				}
 				
 				// some fallback positions
-				if (userEmail == null) userEmail = "no-reply@" + ServerConfigurationService.getServerName();
+				if (userEmail == null) userEmail = ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName());
 				if (userDisplay == null) userDisplay = ServerConfigurationService.getString("ui.service", "Sakai");
 				from="From: \"" + userDisplay + "\" <" + userEmail + ">";
 		}
@@ -402,7 +422,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	public void execute(String opaqueContext) 
 	{
 		// get the message
-		final Reference ref = EntityManager.newReference(opaqueContext);
+		final Reference ref = entityManager.newReference(opaqueContext);
 		
 		// needed to access the message
 		enableSecurityAdvisorToGetAnnouncement();
@@ -423,10 +443,9 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 			noti = NotificationService.NOTI_NONE;
 		}
 			
-		final Event delayedNotificationEvent = EventTrackingService.newEvent("annc.schInv.notify", msg.getReference(), true, noti);
-//		EventTrackingService.post(event);
+		final Event delayedNotificationEvent = eventTrackingService.newEvent("annc.schInv.notify", msg.getReference(), true, noti);
+//		eventTrackingService.post(event);
 
-		final NotificationService notificationService = (NotificationService) ComponentManager.get(org.sakaiproject.event.api.NotificationService.class);
 		NotificationEdit notify = notificationService.addTransientNotification();
 		
 		super.notify(notify, delayedNotificationEvent);
@@ -445,7 +464,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	protected void enableSecurityAdvisorToGetAnnouncement() {
 		// put in a security advisor so we can do our podcast work without need
 		// of further permissions
-		SecurityService.pushAdvisor(new SecurityAdvisor() {
+		securityService.pushAdvisor(new SecurityAdvisor() {
 			public SecurityAdvice isAllowed(String userId, String function,
 					String reference) {
 				if (function.equals(AnnouncementService.SECURE_ANNC_READ) || function.equals(ContentHostingService.AUTH_RESOURCE_READ)) // SAK-23300
@@ -460,7 +479,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 	 * remove recent add SecurityAdvisor from stack
 	 */
 	protected void disableSecurityAdvisor() {
-		SecurityService.popAdvisor();
+		securityService.popAdvisor();
 	}
 
 
@@ -475,7 +494,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		String newline = "\n\r";
 
 		// get the message
-		Reference ref = EntityManager.newReference(event.getResource());
+		Reference ref = entityManager.newReference(event.getResource());
 		AnnouncementMessage msg = (AnnouncementMessage) ref.getEntity();
 		AnnouncementMessageHeader hdr = (AnnouncementMessageHeader) msg.getAnnouncementHeader();
 				
@@ -488,7 +507,7 @@ public class SiteEmailNotificationAnnc extends SiteEmailNotification
 		String title = siteId;
 		try
 		{
-			Site site = SiteService.getSite(siteId);
+			Site site = siteService.getSite(siteId);
 			title = site.getTitle();
 		}
 		catch (Exception ignore)

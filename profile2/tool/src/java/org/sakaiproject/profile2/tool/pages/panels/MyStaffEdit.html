@@ -87,6 +87,11 @@
 						<td class="content">
 							<label for="staffprofileinput" class="accessibility-label"><wicket:message key="accessibility.profile.staffprofile.input"></wicket:message></label>
 							<textarea wicket:id="staffProfile" class="formInputArea" rows="4" cols="40"></textarea>
+							<script>
+                				CKEDITOR.replace('staffprofileinput', {
+                					toolbar: [{ name: 'document', items: ['Bold', 'Italic', 'Underline', 'NumberedList', 'BulletedList', 'Link', 'Source', '-', 'RemoveFormat'] }]   
+                				});
+            				</script>
 						</td>
 					</tr>
 
@@ -116,6 +121,11 @@
 						<td class="content">
 							<label for="publicationsinput" class="accessibility-label"><wicket:message key="accessibility.profile.publications.input"></wicket:message></label>
 							<textarea wicket:id="publications" class="formInputArea" rows="4" cols="40"></textarea>
+							<script>
+                				CKEDITOR.replace('publicationsinput', {
+                					toolbar: [{ name: 'document', items: ['Bold', 'Italic', 'Underline', 'NumberedList', 'BulletedList', 'Link', 'Source', '-', 'RemoveFormat'] }]   
+                				});
+            				</script>
 						</td>
 					</tr>
 				</table>

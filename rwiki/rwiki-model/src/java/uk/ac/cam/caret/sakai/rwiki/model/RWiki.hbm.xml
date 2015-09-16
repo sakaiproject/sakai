@@ -91,7 +91,7 @@
 		<property name="content" not-null="false" type="materialized_clob" />
 		-->
 		<!-- enough for about 400 pages, dont want to use a clob here -->
-		<property name="referenced" not-null="false" length="4000" index="irwikihistory_ref" />
+		<property name="referenced" not-null="false" length="4000" />
 		<!-- the user that edited this page. -->
 		<!-- when versioning is on, the last entry is the last updated -->
 		<!-- the first entry is the creator -->
@@ -140,7 +140,7 @@
 	-->
 
     <!-- enough for about 400 pages, dont want to use a clob here -->
-	<property name="referenced" not-null="false" length="4000" index="irwikiobject_ref" />
+	<property name="referenced" not-null="false" length="4000" />
 
 	<!-- the user that edited this page. -->
 	<!-- when versioning is on, the last entry is the last updated -->

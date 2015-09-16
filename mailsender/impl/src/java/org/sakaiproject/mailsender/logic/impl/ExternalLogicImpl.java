@@ -365,7 +365,7 @@ public class ExternalLogicImpl implements ExternalLogic
 		if (ConfigEntry.ReplyTo.no_reply_to.name().equals(config.getReplyTo()))
 		{
 			replyToName = getCurrentSiteTitle();
-			replyToEmail = "no-reply@" + configService.getServerName();
+			replyToEmail = configService.getString("setup.request","no-reply@" + configService.getServerName());
 		}
 		else
 		{

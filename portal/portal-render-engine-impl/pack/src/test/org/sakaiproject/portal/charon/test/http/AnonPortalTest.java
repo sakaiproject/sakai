@@ -54,7 +54,7 @@ public class AnonPortalTest extends TestCase
 
 	private static final String BASE_URL = "http://localhost:8080/";
 
-	private static final String[] seedURLs = { "/portal", "/portal/pda", "/portal/worksite", "/portal/gallery" };
+	private static final String[] seedURLs = { "/portal", "/portal/worksite", "/portal/gallery" };
 
 	private static final String ADMIN_USER = "admin";
 

@@ -9,7 +9,9 @@ require_once 'OAuth.php';
 // with minimum values to meet the protocol
 function is_lti_request() {
    $good_message_type = $_REQUEST["lti_message_type"] == "basic-lti-launch-request" ||
-        $_REQUEST["lti_message_type"] == "ToolProxyReregistrationRequest";
+        $_REQUEST["lti_message_type"] == "ToolProxyReregistrationRequest" || 
+        $_REQUEST["lti_message_type"] == "ContentItemSelection" ||
+        $_REQUEST["lti_message_type"] == "ContentItemSelectionRequest";
    $good_lti_version = $_REQUEST["lti_version"] == "LTI-1p0" || $_REQUEST["lti_version"] == "LTI-2p0";
    if ($good_message_type and $good_lti_version ) return(true);
    return false;
@@ -60,9 +62,12 @@ function validateOAuth($oauth_consumer_key, $secret)
 
     $server = new OAuthServer($store);
 
+    $request = OAuthRequest::from_request();
+
     $method = new OAuthSignatureMethod_HMAC_SHA1();
     $server->add_signature_method($method);
-    $request = OAuthRequest::from_request();
+    $method = new OAuthSignatureMethod_HMAC_SHA256();
+    $server->add_signature_method($method);
 
     try {
         $server->verify_request($request);
@@ -94,6 +99,7 @@ class BLTI {
         // If this request is not an LTI Launch, either
         // give up or try to retrieve the context from session
         if ( ! is_lti_request() ) {
+            $this->message = 'Request is missing LTI information';
             if ( $usesession === false ) return;
             if ( strlen(session_id()) > 0 ) {
                 $row = $_SESSION['_lti_row'];
@@ -160,9 +166,12 @@ class BLTI {
 
         $server = new OAuthServer($store);
 
+        $request = OAuthRequest::from_request();
+
         $method = new OAuthSignatureMethod_HMAC_SHA1();
         $server->add_signature_method($method);
-        $request = OAuthRequest::from_request();
+        $method = new OAuthSignatureMethod_HMAC_SHA256();
+        $server->add_signature_method($method);
 
         $this->basestring = $request->get_signature_base_string();
 
@@ -484,8 +493,12 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
     if ( $submit_text ) $parms["ext_submit"] = $submit_text;
 
     $test_token = '';
+    $oauth_signature_method = isset($parms['oauth_signature_method']) ? $parms['oauth_signature_method'] : false;
 
     $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
+    if ( $oauth_signature_method == "HMAC-SHA256" ) {
+        $hmac_method = new OAuthSignatureMethod_HMAC_SHA256();
+    }
     $test_consumer = new OAuthConsumer($oauth_consumer_key, $oauth_consumer_secret, NULL);
 
     $acc_req = OAuthRequest::from_consumer_and_token($test_consumer, $test_token, $method, $endpoint, $parms);
@@ -551,6 +564,7 @@ function signParameters($oldparms, $endpoint, $method, $oauth_consumer_key, $oau
         $r .=  "<b>".get_string("basiclti_endpoint","basiclti")."</b><br/>\n";
         $r .= $endpoint . "<br/>\n&nbsp;<br/>\n";
         $r .=  "<b>".get_string("basiclti_parameters","basiclti")."</b><br/>\n";
+        ksort($newparms);
         foreach($newparms as $key => $value ) {
             $key = htmlspec_utf8($key);
             $value = htmlspec_utf8($value);
@@ -691,12 +705,14 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
         throw new Exception("OAuth request body signing must not use application/x-www-form-urlencoded");
     }
 
+    $oauth_signature_method = false;
     if (@substr($request_headers['Authorization'], 0, 6) == "OAuth ") {
         $header_parameters = OAuthUtil::split_header($request_headers['Authorization']);
 
         // echo("HEADER PARMS=\n");
         // print_r($header_parameters);
         $oauth_body_hash = $header_parameters['oauth_body_hash'];
+        if ( isset($header_parameters['oauth_signature_method']) ) $oauth_signature_method = $header_parameters['oauth_signature_method'];
         // echo("OBH=".$oauth_body_hash."\n");
     }
 
@@ -711,6 +727,8 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     $server = new OAuthServer($store);
 
     $method = new OAuthSignatureMethod_HMAC_SHA1();
+    $server->add_signature_method($method);
+    $method = new OAuthSignatureMethod_HMAC_SHA256();
     $server->add_signature_method($method);
     $request = OAuthRequest::from_request();
 
@@ -728,10 +746,14 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     $postdata = file_get_contents('php://input');
     // echo($postdata);
 
-    $hash = base64_encode(sha1($postdata, TRUE));
+    if ( $oauth_signature_method == 'HMAC-SHA256' ) {
+        $hash = base64_encode(hash('sha256', $postdata, TRUE));
+    } else {
+        $hash = base64_encode(sha1($postdata, TRUE));
+    }
 
     global $LastOAuthBodyHashInfo;
-    $LastOAuthBodyHashInfo = "hdr_hash=$oauth_body_hash body_len=".strlen($postdata)." body_hash=$hash";
+    $LastOAuthBodyHashInfo = "hdr_hash=$oauth_body_hash body_len=".strlen($postdata)." body_hash=$hash oauth_signature_method=$oauth_signature_method";
 
     if ( $hash != $oauth_body_hash ) {
         throw new Exception("OAuth oauth_body_hash mismatch");
@@ -740,10 +762,13 @@ function handleOAuthBodyPOST($oauth_consumer_key, $oauth_consumer_secret)
     return $postdata;
 }
 
-function sendOAuthGET($endpoint, $oauth_consumer_key, $oauth_consumer_secret, $accept_type, $more_headers=false)
+function sendOAuthGET($endpoint, $oauth_consumer_key, $oauth_consumer_secret, $accept_type, $more_headers=false, $signature=false)
 {
     $test_token = '';
     $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
+    if ( $signature == "HMAC-SHA256" ) {
+        $hmac_method = new OAuthSignatureMethod_HMAC_SHA256();
+    }
     $test_consumer = new OAuthConsumer($oauth_consumer_key, $oauth_consumer_secret, NULL);
     $parms = array();
 
@@ -822,6 +847,8 @@ function get_curl($url, $header) {
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  // CURL now ships with no certificates so they all fail
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
   // Make sure that the header is an array and pitch white space
   $LastHeadersSent = trim($header);
@@ -847,16 +874,23 @@ function get_curl($url, $header) {
   return $body;
 }
 
-function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body, $more_headers=false, $more_oauth=false)
+function sendOAuthBody($method, $endpoint, $oauth_consumer_key, $oauth_consumer_secret, $content_type, $body, $more_headers=false, $signature=false)
 {
-    $hash = base64_encode(sha1($body, TRUE));
-    $parms = array('oauth_body_hash' => $hash);
-    if ( $more_oauth !== false ) {
-        $parms = array_merge($more_oauth, $parms);
+    if ( $signature == "HMAC-256") {
+        $hash = base64_encode(hash('sha256', $body, TRUE));
+    } else {
+        $hash = base64_encode(sha1($body, TRUE));
     }
 
+    $parms = array('oauth_body_hash' => $hash);
+
     $test_token = '';
+
     $hmac_method = new OAuthSignatureMethod_HMAC_SHA1();
+    if ( $signature == "HMAC-SHA256" ) {
+        $hmac_method = new OAuthSignatureMethod_HMAC_SHA256();
+    }
+
     $test_consumer = new OAuthConsumer($oauth_consumer_key, $oauth_consumer_secret, NULL);
 
     $acc_req = OAuthRequest::from_consumer_and_token($test_consumer, $test_token, $method, $endpoint, $parms);
@@ -1048,6 +1082,8 @@ function body_curl($url, $method, $body, $header) {
 
   $ch = curl_init();
   curl_setopt($ch, CURLOPT_URL, $url);
+  // CURL now ships with no certificates so they all fail
+  curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
 
   // Make sure that the header is an array and pitch white space
   $LastHeadersSent = trim($header);

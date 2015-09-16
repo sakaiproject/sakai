@@ -8,7 +8,7 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *             http://www.opensource.org/licenses/ECL-2.0
+ *			 http://www.opensource.org/licenses/ECL-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Properties;
+import java.util.Enumeration;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -104,7 +105,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 	 * Check security for this entity.
 	 *
 	 * @param ref
-	 *        The Reference to the entity.
+	 *		The Reference to the entity.
 	 * @return true if allowed, false if not.
 	 */
 	protected boolean checkSecurity(Reference ref)
@@ -249,7 +250,7 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		// req.getRequestURL()=http://localhost:8080/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		// req.getRequestURI()=/access/basiclti/site/85fd092b-1755-4aa9-8abc-e6549527dce0/content:0
 		String acceptPath = req.getRequestURI().toString() + "?splash=bypass";
-                String body = "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\">";
+				String body = "<div align=\"center\" style=\"text-align:left;width:80%;margin-top:5px;margin-left:auto;margin-right:auto;border-width:1px 1px 1px 1px;border-style:solid;border-color: gray;padding:.5em;font-family:Verdana,Arial,Helvetica,sans-serif;font-size:.8em\">";
 		body += splash+"</div><p>";
 		String txt = rb.getString("launch.button", "Press to continue to external tool.");
 		body += "<form><input type=\"submit\" onclick=\"window.location='"+acceptPath+"';return false;\" value=\"";
@@ -266,161 +267,183 @@ public class BasicLTISecurityServiceImpl implements EntityProducer {
 		return new HttpAccess()
 		{
 			@SuppressWarnings("unchecked")
-				public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
-						Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
-					   EntityAccessOverloadException, EntityCopyrightException
-					   {
-						   // decide on security
-						   if (!checkSecurity(ref))
-						   {
-							   throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
-						   }
+			public void handleAccess(HttpServletRequest req, HttpServletResponse res, Reference ref,
+					Collection copyrightAcceptedRefs) throws EntityPermissionException, EntityNotDefinedException,
+					EntityAccessOverloadException, EntityCopyrightException
+			{
+				// decide on security
+				if (!checkSecurity(ref))
+				{
+					throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
+				}
 
-						   String refId = ref.getId();
-						   String [] retval = null;
-						   if ( refId.startsWith("deploy:") && refId.length() > 7 )  
-						   {
-						       if ("!admin".equals(ref.getContext()) ) 
-						       {
-							       throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
-						       }
-							   Map<String,Object> deploy = null;
-							   String deployStr = refId.substring(7);
-							   Long deployKey = foorm.getLongKey(deployStr);
-							   if ( deployKey >= 0 ) deploy = ltiService.getDeployDao(deployKey);
-                               String placementId = req.getParameter("placement");
-                               // System.out.println("deployStr="+deployStr+" deployKey="+deployKey+" placementId="+placementId);
-                               // System.out.println(deploy);
-                               Long reg_state = foorm.getLongKey(deploy.get(LTIService.LTI_REG_STATE));
-                               if ( reg_state == 0 ) 
-                               { 
-                                   retval = SakaiBLTIUtil.postRegisterHTML(deployKey, deploy, rb, placementId);
-                               } 
-                               else
-                               { 
-                                   retval = SakaiBLTIUtil.postReRegisterHTML(deployKey, deploy, rb, placementId);
-                               } 
-						   } 
-						   else if ( refId.startsWith("content:") && refId.length() > 8 ) 
-						   {
-							   Map<String,Object> content = null;
-							   Map<String,Object> tool = null;
+				String refId = ref.getId();
+				String [] retval = null;
+				if ( refId.startsWith("deploy:") && refId.length() > 7 )  
+				{
+					if ("!admin".equals(ref.getContext()) ) 
+					{
+						throw new EntityPermissionException(SessionManager.getCurrentSessionUserId(), "basiclti", ref.getReference());
+					}
+					Map<String,Object> deploy = null;
+					String deployStr = refId.substring(7);
+					Long deployKey = foorm.getLongKey(deployStr);
+					if ( deployKey >= 0 ) deploy = ltiService.getDeployDao(deployKey);
+					String placementId = req.getParameter("placement");
+					// System.out.println("deployStr="+deployStr+" deployKey="+deployKey+" placementId="+placementId);
+					// System.out.println(deploy);
+					Long reg_state = foorm.getLongKey(deploy.get(LTIService.LTI_REG_STATE));
+					if ( reg_state == 0 ) 
+					{ 
+						retval = SakaiBLTIUtil.postRegisterHTML(deployKey, deploy, rb, placementId);
+					} 
+					else
+					{ 
+						retval = SakaiBLTIUtil.postReregisterHTML(deployKey, deploy, rb, placementId);
+					} 
+				} 
+				else if ( refId.startsWith("tool:") && refId.length() > 5 ) 
+				{
+					Map<String,Object> tool = null;
 
-							   String contentStr = refId.substring(8);
-							   Long contentKey = foorm.getLongKey(contentStr);
-							   if ( contentKey >= 0 )
-							   {
-								   content = ltiService.getContentDao(contentKey,ref.getContext());
-								   if ( content != null ) 
-								   {
-									   String siteId = (String) content.get(LTIService.LTI_SITE_ID);
-									   if ( siteId == null || ! siteId.equals(ref.getContext()) )  
-									   {
-										   content = null;
-									   }
-								   }
-								   if ( content != null ) 
-								   {
-									   Long toolKey = foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
-									   if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
-									   if ( tool != null ) 
-									   {
-										   // SITE_ID can be null for the tool
-										   String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
-										   if ( siteId != null && ! siteId.equals(ref.getContext()) ) 
-										   {
-											   tool = null;
-										   }
-									   }
-								   }
+					String toolStr = refId.substring(5);
+					String contentReturn = req.getParameter("contentReturn");
+					Enumeration attrs =  req.getParameterNames();
+					Properties propData = new Properties();
+					while(attrs.hasMoreElements()) {
+						String key = (String) attrs.nextElement();
+						if ( "contentReturn".equals(key) ) continue;
+						if ( key == null ) continue;
+						String value = req.getParameter(key);
+						if ( value == null ) continue;
+						propData.setProperty(key,value);
+					}
+					Long toolKey = foorm.getLongKey(toolStr);
+					if ( toolKey >= 0 )
+					{
+						tool = ltiService.getToolDao(toolKey, ref.getContext());
+						if ( tool != null ) {
+							tool.put(LTIService.LTI_SITE_ID, ref.getContext());
+						}
+						retval = SakaiBLTIUtil.postContentItemSelectionRequest(toolKey, tool, rb, contentReturn, propData);
+					}
+				}
+				else if ( refId.startsWith("content:") && refId.length() > 8 ) 
+				{
+					Map<String,Object> content = null;
+					Map<String,Object> tool = null;
 
-								   // Adjust the content items based on the tool items
-								   if ( tool != null || content != null ) 
-								   {
-									   ltiService.filterContent(content, tool);
-								   }
-							   }
-							   String splash = null;
-							   if ( tool != null ) splash = (String) tool.get("splash");
-							   String splashParm = req.getParameter("splash");
-							   String siteId = null;
-							   if ( tool != null ) siteId = (String) tool.get(LTIService.LTI_SITE_ID);
-							   if ( splashParm == null && splash != null && splash.trim().length() > 1 )
-							   {
-									// XSS Note: Administrator-created tools can put HTML in the splash.
-									if ( siteId != null ) splash = FormattedText.escapeHtml(splash,false);
-									doSplash(req, res, splash, rb);
-									return;
-							   }
-							   retval = SakaiBLTIUtil.postLaunchHTML(content, tool, ltiService, rb);
-						   }
-						   else
-						   {
-								String splashParm = req.getParameter("splash");
-								if ( splashParm == null ) 
+					String contentStr = refId.substring(8);
+					Long contentKey = foorm.getLongKey(contentStr);
+					if ( contentKey >= 0 )
+					{
+						content = ltiService.getContentDao(contentKey,ref.getContext());
+						if ( content != null ) 
+						{
+							String siteId = (String) content.get(LTIService.LTI_SITE_ID);
+							if ( siteId == null || ! siteId.equals(ref.getContext()) )  
+							{
+								content = null;
+							}
+						}
+						if ( content != null ) 
+						{
+							Long toolKey = foorm.getLongKey(content.get(LTIService.LTI_TOOL_ID));
+							if ( toolKey >= 0 ) tool = ltiService.getToolDao(toolKey, ref.getContext());
+							if ( tool != null ) 
+							{
+								// SITE_ID can be null for the tool
+								String siteId = (String) tool.get(LTIService.LTI_SITE_ID);
+								if ( siteId != null && ! siteId.equals(ref.getContext()) ) 
 								{
-									ToolConfiguration placement = SiteService.findTool(refId);
-									Properties config = placement == null ? null : placement.getConfig();
-
-									if ( placement != null ) 
-									{
-										// XSS Note: Only the Administrator can set overridesplash - so we allow HTML
-										String splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"overridesplash", placement));
-										String send_session = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
-										if ( splash == null && send_session != null && send_session.equals("true") && ! SecurityService.isSuperUser() )
-										{
-											splash = rb.getString("session.warning", "<p><span style=\"color:red\">Warning:</span> This tool makes use of your logged in session.  This means that the tool can access your data in this system.  Only continue to this tool if you are willing to share your data with this tool.</p>");
-										}
-										if ( splash == null ) 
-										{
-											// This may be user-set so no HTML
-											splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"splash", placement));
-											if ( splash != null ) splash = FormattedText.escapeHtml(splash,false);
-										} 
-
-										// XSS Note: Only the Administrator can set defaultsplash - so we allow HTML
-										if ( splash == null ) 
-										{
-											splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"defaultsplash", placement));
-										}
-
-										if ( splash != null && splash.trim().length() > 1 )
-										{
-											doSplash(req, res, splash, rb);
-											return;
-										}
-									}
+									tool = null;
 								}
+							}
+						}
 
-							   // Get the post data for the placement
-							   retval = SakaiBLTIUtil.postLaunchHTML(refId, rb);
-						   }
+						// Adjust the content items based on the tool items
+						if ( tool != null || content != null ) 
+						{
+							ltiService.filterContent(content, tool);
+						}
+					}
+					String splash = null;
+					if ( tool != null ) splash = (String) tool.get("splash");
+					String splashParm = req.getParameter("splash");
+					String siteId = null;
+					if ( tool != null ) siteId = (String) tool.get(LTIService.LTI_SITE_ID);
+					if ( splashParm == null && splash != null && splash.trim().length() > 1 )
+					{
+							// XSS Note: Administrator-created tools can put HTML in the splash.
+							if ( siteId != null ) splash = FormattedText.escapeHtml(splash,false);
+							doSplash(req, res, splash, rb);
+							return;
+					}
+					retval = SakaiBLTIUtil.postLaunchHTML(content, tool, ltiService, rb);
+				}
+				else
+				{
+					String splashParm = req.getParameter("splash");
+					if ( splashParm == null ) 
+					{
+						ToolConfiguration placement = SiteService.findTool(refId);
+						Properties config = placement == null ? null : placement.getConfig();
 
-						   try
-						   {
-							   sendHTMLPage(res, retval[0]);
-							   String refstring = ref.getReference();
-							   if ( retval.length > 1 ) refstring = retval[1];
-							   // Cool 2.6 Event call
-							   Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
-							   // 2.5 Event call
-							   // Event event = EventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, false);
+						if ( placement != null ) 
+						{
+							// XSS Note: Only the Administrator can set overridesplash - so we allow HTML
+							String splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"overridesplash", placement));
+							String send_session = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"ext_sakai_encrypted_session", placement));
+							if ( splash == null && send_session != null && send_session.equals("true") && ! SecurityService.isSuperUser() )
+							{
+								splash = rb.getString("session.warning", "<p><span style=\"color:red\">Warning:</span> This tool makes use of your logged in session.  This means that the tool can access your data in this system.  Only continue to this tool if you are willing to share your data with this tool.</p>");
+							}
+							if ( splash == null ) 
+							{
+								// This may be user-set so no HTML
+								splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"splash", placement));
+								if ( splash != null ) splash = FormattedText.escapeHtml(splash,false);
+							} 
 
-								// SAK-24069 - Extend Sakai session lifetime on LTI tool launch
-								Session session = SessionManager.getCurrentSession(); 
-								if (session !=null) { 
-									int seconds = ServerConfigurationService.getInt(SakaiBLTIUtil.BASICLTI_LAUNCH_SESSION_TIMEOUT, 10800);
-									if ( seconds != 0 ) session.setMaxInactiveInterval(seconds); 
-								} 
+							// XSS Note: Only the Administrator can set defaultsplash - so we allow HTML
+							if ( splash == null ) 
+							{
+								splash = SakaiBLTIUtil.toNull(SakaiBLTIUtil.getCorrectProperty(config,"defaultsplash", placement));
+							}
 
-							   LocalEventTrackingService.post(event);
-						   } 
-						   catch (Exception e)
-						   {
-							   e.printStackTrace();
-						   }
+							if ( splash != null && splash.trim().length() > 1 )
+							{
+								doSplash(req, res, splash, rb);
+								return;
+							}
+						}
+					}
 
-					   }
+					// Get the post data for the placement
+					retval = SakaiBLTIUtil.postLaunchHTML(refId, rb);
+				}
+
+				try
+				{
+					sendHTMLPage(res, retval[0]);
+					String refstring = ref.getReference();
+					if ( retval.length > 1 ) refstring = retval[1];
+					Event event = LocalEventTrackingService.newEvent(EVENT_BASICLTI_LAUNCH, refstring, ref.getContext(),  false, NotificationService.NOTI_OPTIONAL);
+					// SAK-24069 - Extend Sakai session lifetime on LTI tool launch
+					Session session = SessionManager.getCurrentSession(); 
+					if (session !=null) { 
+						int seconds = ServerConfigurationService.getInt(SakaiBLTIUtil.BASICLTI_LAUNCH_SESSION_TIMEOUT, 10800);
+						if ( seconds != 0 ) session.setMaxInactiveInterval(seconds); 
+					} 
+
+					LocalEventTrackingService.post(event);
+				} 
+				catch (Exception e)
+				{
+					e.printStackTrace();
+				}
+
+			}
 		};
 	}
 

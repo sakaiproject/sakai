@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
-<hibernate-mapping>
+<hibernate-mapping auto-import="false">
 	<class name="org.sakaiproject.dash.dao.JobRunImpl"
 		table="DASH_JOB_RUN"
 		lazy="true">

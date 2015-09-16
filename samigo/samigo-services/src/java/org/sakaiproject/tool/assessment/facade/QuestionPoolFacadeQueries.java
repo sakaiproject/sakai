@@ -463,7 +463,7 @@ public class QuestionPoolFacadeQueries
         Iterator j = itemList.iterator();
         while (j.hasNext()) {
           ItemData itemData = (ItemData) j.next();
-          h.put(itemData.getItemIdString(), itemData);
+          h.put(itemData.getItemId(), itemData);
         }
         ArrayList itemArrayList = new ArrayList();
         Iterator i = questionPoolItems.iterator();
@@ -1039,8 +1039,8 @@ public class QuestionPoolFacadeQueries
    * @param poolId DOCUMENTATION PENDING
    */
 
-  public List getPoolIdsByAgent(final String agentId) {
-    ArrayList idList = new ArrayList();
+  public List<Long> getPoolIdsByAgent(final String agentId) {
+    ArrayList<Long> idList = new ArrayList<Long>();
 
     final HibernateCallback hcb = new HibernateCallback(){
     	public Object doInHibernate(Session session) throws HibernateException, SQLException {
@@ -1051,10 +1051,6 @@ public class QuestionPoolFacadeQueries
     };
     List qpaList = getHibernateTemplate().executeFind(hcb);
 
-//    List qpaList = getHibernateTemplate().find(
-//        "select qpa from QuestionPoolAccessData as qpa where qpa.agentId= ?",
-//        new Object[] {agentId}
-//        , new org.hibernate.type.Type[] {Hibernate.STRING});
     try {
       Iterator iter = qpaList.iterator();
       while (iter.hasNext()) {
@@ -1428,8 +1424,10 @@ public class QuestionPoolFacadeQueries
 	  final HibernateCallback hcb = new HibernateCallback(){
 		  public Object doInHibernate(Session session) throws HibernateException, SQLException {
 			  Query q = session.createQuery("select qpi.questionPoolId, count(ab) from ItemData ab, QuestionPoolItemData qpi, QuestionPoolData qpd, QuestionPoolAccessData qpad " + 
-					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.questionPoolId=qpad.questionPoolId AND qpad.agentId=? group by qpi.questionPoolId");
+					  "where ab.itemId=qpi.itemId and qpi.questionPoolId=qpd.questionPoolId AND qpd.questionPoolId=qpad.questionPoolId AND qpad.agentId=? AND qpad.accessTypeId!=? " + 
+					  "group by qpi.questionPoolId");
 			  q.setString(0, agentId);
+			  q.setLong(1, QuestionPoolData.ACCESS_DENIED);
 			  q.setCacheable(true);
 			  return q.list();
 		  };

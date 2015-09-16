@@ -19,7 +19,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.coursemanagement.api.CourseOffering;
 import org.sakaiproject.coursemanagement.api.CourseSet;
@@ -43,8 +43,7 @@ public class SiteParticipantHelper {
 	private static org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
 	.get(org.sakaiproject.authz.api.GroupProvider.class);
 	
-	private static org.sakaiproject.authz.api.AuthzGroupService authzGroupService = (org.sakaiproject.authz.api.AuthzGroupService) ComponentManager
-	.get(org.sakaiproject.authz.api.AuthzGroupService.class);
+	private static AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 	
 	private static org.sakaiproject.coursemanagement.api.CourseManagementService cms = (org.sakaiproject.coursemanagement.api.CourseManagementService) ComponentManager
 	.get(org.sakaiproject.coursemanagement.api.CourseManagementService.class);
@@ -108,10 +107,10 @@ public class SiteParticipantHelper {
 								// do it only once
 								refreshed = true;
 								// refresh the realm
-								AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm.getId());
-								AuthzGroupService.save(realmEdit);
+								AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm.getId());
+								authzGroupService.save(realmEdit);
 								// refetch updated realm
-								realm = AuthzGroupService.getAuthzGroup(realm.getId());
+								realm = authzGroupService.getAuthzGroup(realm.getId());
 								member = realm.getMember(userId);
 						    } catch (Exception exc) {
 						    	M_log.warn("SiteParticipantHelper.addParticipantsFromEnrollment " + exc.getMessage());
@@ -239,10 +238,10 @@ public class SiteParticipantHelper {
 							// do it only once
 							refreshed = true;
 							// refresh the realm
-							AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm.getId());
-							AuthzGroupService.save(realmEdit);
+							AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm.getId());
+							authzGroupService.save(realmEdit);
 							// refetch updated realm
-							realm = AuthzGroupService.getAuthzGroup(realm.getId());
+							realm = authzGroupService.getAuthzGroup(realm.getId());
 							member = realm.getMember(userId);
 					    } catch (Exception exc) {
 					    	M_log.warn("SiteParticipantHelper:addParticipantsFromMembership " + exc.getMessage());
@@ -314,8 +313,8 @@ public class SiteParticipantHelper {
 						refreshed = true;
 						try {
 						    // refresh the realm
-						    AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
-						    AuthzGroupService.save(realmEdit);
+						    AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
+						    authzGroupService.save(realmEdit);
 						} catch (Exception exc) {
 						    M_log.warn("SiteParticipantHelper:addParticipantsFromMembers " + exc.getMessage());
 						}
@@ -369,7 +368,7 @@ public class SiteParticipantHelper {
 		String realmId = SiteService.siteReference(siteId);
 		String rv = null;
 		try {
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			rv = realm.getProviderGroupId();
 		} catch (GroupNotDefinedException e) {
 			M_log.warn("SiteParticipantHelper.getExternalRealmId: site realm not found " + realmId);
@@ -596,6 +595,9 @@ public class SiteParticipantHelper {
 		// Loop through all the roles for this site type
 		for( Role role : allRolesForSiteType )
 		{
+			if (!authzGroupService.isRoleAssignable(role.getId())) {
+				continue;
+			}
 			// If the user is an admin, or if the properties weren't found (empty set), just add the role to the list
 			if( securityService.isSuperUser() || restrictedRoles.isEmpty() )
 			{

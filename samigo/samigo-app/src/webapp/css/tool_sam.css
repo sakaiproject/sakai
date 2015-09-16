@@ -467,7 +467,6 @@ a.hideDivision {
 	width: 80%;
 	font-size: 1em;
 	clear: both;
-	color: grey;
 	margin: 5px 0;
 	padding: 5px 5px 5px 25px;
 }
@@ -498,9 +497,13 @@ a.hideDivision {
 }
 
 .mcAnswerText {
-	/*display:inline-table;*/
+	display:inline-table;
 	width: 80%;
 	float:unset;
+}
+/* Someone put a paragraph in a multiple choice answer */
+.mcAnswerText p {
+    margin: 0 0 1em 0;
 }
 
 .mcColumn1 {
@@ -522,21 +525,48 @@ table.listHierEventLog {
 .divContainer {
     width: 100%;
     background-color: #EEEEEE;
-    padding-top: 0.5em;
-    padding-bottom: 0.5em;
+    padding-top: 1em;
+    padding-bottom: 1em;
     height: 1.5em;
+    margin-bottom: 0.5em;
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    -webkit-box-align: center; 
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-box-pack: justify;
+    -moz-box-pack: justify;
+    -webkit-justify-content: space-between;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
 }
 
 .divLeft {
     float: left;
-    vertical-align: middle;
     padding-left: 0.5em;
 }
 
 .divRight {
+    display: -webkit-box;      /* OLD - iOS 6-, Safari 3.1-6 */
+    display: -moz-box;         /* OLD - Firefox 19- (buggy but mostly works) */
+    display: -ms-flexbox;      /* TWEENER - IE 10 */
+    display: -webkit-flex;     /* NEW - Chrome */
+    display: flex;             /* NEW, Spec - Opera 12.1, Firefox 20+ */
+    -webkit-box-align: center; 
+    -moz-box-align: center;
+    -ms-flex-align: center;
+    -webkit-align-items: center;
+    align-items: center;
     float: right;
-    vertical-align: middle;
-    padding-right: 0.5em;
+}
+
+divRight input {
+    margin-right: 0.5em;
 }
 
 .html {
@@ -1001,6 +1031,10 @@ div.collapse {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
 }
 
+div.multiple_editor {
+	float:right;
+  	clear:left;
+}
 td.releaseTo div.alertMessage {
     width: auto;
 }
@@ -1020,4 +1054,9 @@ td.releaseTo div.alertMessage {
 ul.no-list {
     list-style-type: none;
     padding-left: 4px;
+}
+
+td.feedbackColumn2 {
+  vertical-align: bottom;
+  padding-bottom: 15px;
 }

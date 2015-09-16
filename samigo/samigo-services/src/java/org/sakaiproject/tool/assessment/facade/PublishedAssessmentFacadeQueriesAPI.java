@@ -277,6 +277,14 @@ public interface PublishedAssessmentFacadeQueriesAPI
 
   public Integer getTotalSubmission(String agentId, Long publishedAssessmentId);
 
+  /**
+   * Get submission number for the assessment by giving the publishedAssessmentId
+   * for assessment deletion safe check
+   * @param publishedAssessmentId
+   * @return number of submissions
+   */
+  public Integer getTotalSubmissionForEachAssessment(Long publishedAssessmentId);
+
   public PublishedAssessmentFacade getPublishedAssessmentIdByAlias(String alias);
 
   public PublishedAssessmentFacade getPublishedAssessmentIdByMetaLabel(
@@ -294,6 +302,10 @@ public interface PublishedAssessmentFacadeQueriesAPI
    */
   public HashMap getAllAssessmentsReleasedToAuthenticatedUsers();
 
+  /* 
+   * This function returns a site id that "owns" the assessment not a user id.
+   * @return String the site that owns the assessment
+   */
   public String getPublishedAssessmentOwner(String publishedAssessmentId);
 
   public boolean publishedAssessmentTitleIsUnique(Long assessmentBaseId, String title);
@@ -362,4 +374,5 @@ public interface PublishedAssessmentFacadeQueriesAPI
   
   public ArrayList getBasicInfoOfLastOrHighestOrAverageSubmittedAssessmentsByScoringOption(	final String agentId, final String siteId, boolean allAssessments);
      
+  public List getAllAssessmentsGradingDataByAgentAndSiteId(final String agentId, final String siteId);
 }

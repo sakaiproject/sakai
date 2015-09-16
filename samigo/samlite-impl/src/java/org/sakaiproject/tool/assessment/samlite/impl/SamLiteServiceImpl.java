@@ -58,6 +58,7 @@ import org.sakaiproject.tool.assessment.samlite.api.QuestionGroup;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.data.dao.assessment.AssessmentMetaData;
+import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.w3c.dom.Document;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.util.ResourceLoader;
@@ -65,6 +66,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class SamLiteServiceImpl implements SamLiteService {
 	private static Log log = LogFactory.getLog(SamLiteServiceImpl.class);
 	public static final String DEFAULT_CHARSET = "UTF-8";
+	private static ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
 	
 	private Pattern justQuestionPattern, startOfQuestionPattern, correctAnswerPattern;
 	private Pattern correctFillInPattern, answerPattern, endQuestionPattern, correctMultipleChoicePattern;
@@ -76,6 +78,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 	private Pattern pointsPattern;
 	private Pattern discountPattern;
 	String realPatternString = "((\\+||\\-)?(\\d+((\\.|\\,)\\d+)?)((E|e)(\\-|\\+)?\\d+)?)";
+	private Pattern randomizePattern;
 	
 	private Pattern extendedMatchingCorrectAnswersPattern;
 	
@@ -173,7 +176,6 @@ public class SamLiteServiceImpl implements SamLiteService {
 	
 	
 	public QuestionGroup parse(String name, String description, String data) {
-		ResourceLoader rb = new ResourceLoader("org.sakaiproject.tool.assessment.bundle.SamLitePatternMessages");
 		String stQuestion = rb.getString("question");
 		startOfQuestionPattern = Pattern.compile("^(" + stQuestion + "\\s*\\d*\\s*)", Pattern.CASE_INSENSITIVE);
 		String stPoints = rb.getString("points");
@@ -188,6 +190,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 		correctFalsePattern = Pattern.compile("^\\*\\s*" + stFalse + "$");
 		unnecessaryTruePattern = Pattern.compile("^" + stTrue + "$");
 		unnecessaryFalsePattern = Pattern.compile("^" + stFalse + "$");
+		String txtRandomize = rb.getString("randomize", "#randomize");
+		randomizePattern = Pattern.compile("^" + txtRandomize + "$", Pattern.CASE_INSENSITIVE);
 		
 		QuestionGroup questionGroup = new QuestionGroup(name, description);
 		
@@ -269,6 +273,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		boolean hasfeedbackOK = feedbackOKMatcher.find();
 		Matcher feedbackNOKMatcher = feedbackNOKPattern.matcher(line);
 		boolean hasfeedbackNOK = feedbackNOKMatcher.find();
+		boolean randomize = randomizePattern.matcher(line).find();
 		
 		boolean isEMICorrectAnswer = extendedMatchingCorrectAnswersPattern.matcher(line).find();
 		
@@ -327,6 +332,11 @@ public class SamLiteServiceImpl implements SamLiteService {
 			question.setFeedbackOK(feedbackOKMatcher.group(1));
 		} else if (hasfeedbackNOK) {
 			question.setFeedbackNOK(feedbackNOKMatcher.group(1));
+		} else if (randomize) {
+			if (question.getQuestionType() == Question.MULTIPLE_CHOICE_QUESTION || 
+				question.getQuestionType() == Question.MULTIPLE_CHOICE_MULTIPLE_ANSWER_QUESTION) {
+				question.setRandomize(randomize);
+			}
 		} else {
 			// If we didn't match anything, then assume it's just part of the question text
 			question.append(line);
@@ -471,8 +481,8 @@ public class SamLiteServiceImpl implements SamLiteService {
 			
 		}
 		
-		String autoSubmitEnabled = ServerConfigurationService.getString("samigo.autoSubmit.enabled");
-	    if (autoSubmitEnabled == null || autoSubmitEnabled.equals("") || !autoSubmitEnabled.equals("true")) {
+		boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+	    if (!autoSubmitEnabled) {
 	    	buildMetaDataField(metadata, "automaticSubmission_isInstructorEditable", "false");
 	    }
 	    else {
@@ -745,6 +755,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildMetaDataField(qtiMetaData, "qmd_itemtype", "Multiple Choice");
 		buildMetaDataField(qtiMetaData, "TEXT_FORMAT", "HTML");
 		buildMetaDataField(qtiMetaData, "hasRationale", "False");
+		buildMetaDataField(qtiMetaData, ItemMetaDataIfc.RANDOMIZE, Boolean.valueOf(question.isRandomize()).toString());
 		
 		ItemrubricType itemRubric = item.addNewItemrubric();
 		MattextType mattext = itemRubric.addNewMaterial().addNewMattext();
@@ -776,6 +787,7 @@ public class SamLiteServiceImpl implements SamLiteService {
 		buildMetaDataField(qtiMetaData, "qmd_itemtype", "Multiple Correct Answer");
 		buildMetaDataField(qtiMetaData, "TEXT_FORMAT", "HTML");
 		buildMetaDataField(qtiMetaData, "hasRationale", "False");
+		buildMetaDataField(qtiMetaData, ItemMetaDataIfc.RANDOMIZE, Boolean.valueOf(question.isRandomize()).toString());
 		
 		ItemrubricType itemRubric = item.addNewItemrubric();
 		MattextType mattext = itemRubric.addNewMaterial().addNewMattext();

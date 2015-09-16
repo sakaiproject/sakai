@@ -48,7 +48,7 @@ import org.springframework.context.ConfigurableApplicationContext;
  * ApplicationContext.
  * </p>
  * <p>
- * See the {@link org.sakaiproject.api.kernel.component.ComponentManager}interface
+ * See the {@link org.sakaiproject.component.api.ComponentManager}interface
  * for details.
  * </p>
  */
@@ -165,7 +165,7 @@ public class SpringCompMgr implements ComponentManager {
 					M_log.fatal("Shutting down JVM");
 					System.exit(1);
 				} else {
-					M_log.warn(e.getMessage(), e);
+					M_log.error(e.getMessage(), e);
 				}
 			}
 		}
@@ -214,8 +214,8 @@ public class SpringCompMgr implements ComponentManager {
 	/**
 	 * {@inheritDoc}
 	 */
-	public Object get(Class iface) {
-		Object component = null;
+	public <T> T get(Class<T> iface) {
+		T component = null;
 
 		try {
 			component = m_ac.getBean(iface.getName(), iface);
@@ -225,7 +225,7 @@ public class SpringCompMgr implements ComponentManager {
 				M_log.debug("get(" + iface.getName() + "): " + e, e);
 			}
 		} catch (Exception e) {
-			M_log.warn("get(" + iface.getName() + "): ", e);
+			M_log.error("get(" + iface.getName() + "): ", e);
 		}
 
 		return component;
@@ -245,7 +245,7 @@ public class SpringCompMgr implements ComponentManager {
 				M_log.debug("get(" + ifaceName + "): " + e, e);
 			}
 		} catch (Exception e) {
-			M_log.warn("get(" + ifaceName + "): ", e);
+			M_log.error("get(" + ifaceName + "): ", e);
 		}
 
 		return component;

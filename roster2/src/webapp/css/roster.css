@@ -13,22 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
-/*
-table.rosterPageHeader {
-	width:95%;
-}
-
-.rosterPageHeaderLeft  {
-	vertical-align:top;
-    text-align:left;
-}
-
-.rosterPageHeaderRight  {
-	vertical-align:top;
-    text-align:right;
-}
-*/
 
 .filterLabel {
 	vertical-align:top;
@@ -72,37 +56,6 @@ table.rosterPageHeader {
 	padding-right:10px;
 }
 
-/*
-table.rosterPicturesFilter {
-	width:20em;
-}
-
-table.rosterPictures {
-	width:20em;
-}
-
-table.rosterPictures td {
-	width:160px;
-	height:15em;
-	vertical-align:top;
-	word-break:break-all;
-	word-wrap:break-word;
-	padding-bottom:1em;
-}
-
-table.rosterPicturesSingleColumn {
-	width:320px;
-}
-
-table.rosterPicturesSingleColumn td {
-	width:160px;
-	vertical-align:top;
-	padding-bottom:1em;
-	word-break:break-all;
-	word-wrap:break-word;
-}
-*/
-
 .rosterPicture {
 	border:1px solid #bbb;
 	width:expression(160 + "px"); /* used for IE */
@@ -122,18 +75,6 @@ table.rosterPicturesSingleColumn td {
 	background-image: url(/library/image/silk/email.png);
 }
 
-/* mouse-over actions on tables */
-
-/*
-.rosterTableRow {
-	background-color:#FFFFFF;
-}
-
-.rosterTableRowHighlight {
-	background-color:#FFFFC0;
-}
-*/
-
 @media print  { .noprint  { display: none; } }
 
 #roster_type_selector {
@@ -141,7 +82,6 @@ table.rosterPicturesSingleColumn td {
 }
 
 .cluetip-roster {
-    padding: 10px;
     border: black solid 1px;
     background-color: white;
 }
@@ -226,4 +166,119 @@ table.rosterPicturesSingleColumn td {
 .roster-table-cell {
     display: table-cell;
     padding-right: 10px;
+}
+
+.roster-last-visit-time-cell {
+    font-size: 0.8em;
+}
+
+/* Table display for large screen sizes */
+@media only screen and (min-width: 800px) and (max-width: 1100px) {
+	.roster-member {
+		font-size: 0.75em;
+	}
+	.roster-groups-selector {
+		max-width: 100px !important;
+	}
+}
+@media only screen and (min-width: 800px) {
+	.rosterPicture {
+		border:0px none;
+		max-width:95%;
+		max-height:auto;
+		position: relative;
+  		top: 3px;
+  		right: 3px;
+  	}
+	
+	.rosterActions {
+		display: inline;
+		float: right;
+		margin-top:0;
+	}
+	
+	.rosterActions .connection-add a, .rosterActions .connection-self {
+		width: 24px;
+	  	height: 24px;
+	  	overflow: hidden;
+	  	display: inline-block;
+	  	text-indent: 11000px;
+	  	/*background: rgba(255,0,0,0.1); */
+	  	position: absolute;
+	  	margin: 0 0 0 -21px;
+	}
+	
+	#roster-members {
+	    display: block;
+	}
+	
+	.roster-member {
+	    border-width: 0px;
+	    border-bottom: 1px solid #F0F0F0;
+	    -moz-border-radius: 0px;
+	    -webkit-border-radius: 0px;
+	    border-radius: 0px;
+	    padding: 3px;
+	    margin-bottom: 3px;
+	}
+	
+	.roster-picture {
+	    width: 30px;
+	    height: 30px;
+	    text-align: center;
+	}
+	
+	.roster-info {
+	    float: none;
+	}
+	
+	.roster-table {
+	    display: inline;
+	    width: calc(100% - 24px);
+	}
+	
+	.roster-table-row {
+	    display: inline-block;
+	    width: 9%;
+	}
+	
+	.roster-member:first-child .roster-table-row .roster-table-cell:first-child {
+		display: block;
+		font-weight: bold;
+  		margin-bottom: 5px;
+  		padding-bottom: 5px;
+  		border-bottom: 1px solid;
+  	}
+	
+	.roster-member:first-child .roster-picture, .roster-member:first-child .rosterActions {
+		padding-top: 30px;
+		position: relative;
+		top: 4px;
+	}
+	
+	.roster-table-cell {
+	    display: inline-block;
+	    vertical-align: middle;
+        font-size: 0.8em;
+	}
+	
+	.roster-table-cell:first-child {
+	    display: none;
+	}
+	
+	.roster-table-row:first-child {
+	    display: inline-block;
+	    width: 40%;
+	}
+	
+	.roster-groups-selector {
+		padding: 0px;
+		max-width: 200px;
+	}
+    .roster-last-visit-time {
+        width: 12%;
+    }
+    .roster-last-visit-time-cell {
+        font-size: 0.7em;
+    }
 }

@@ -86,6 +86,12 @@
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.EventLogListener" />
     </h:commandLink>
 <f:verbatim></span></li>
+<li role="menuitem" ><span></f:verbatim>
+	<h:commandLink id="sectionActivity" accesskey="#{generalMessages.a_section_activity}" title="#{generalMessages.section_activity}" action="sectionActivity" immediate="true" rendered="#{authorization.adminQuestionPool}">
+		<h:outputText value="#{generalMessages.section_activity}" />
+		<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SectionActivityListener" />
+	</h:commandLink>
+<f:verbatim></span></li> 
 </ul></f:verbatim>
 
 
@@ -132,7 +138,7 @@
 
 <p class="act">
  
-<h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.update}" action="#{questionpool.startRemovePool}" styleClass="active" >
+<h:commandButton rendered="#{questionpool.importToAuthoring == 'false' && authorization.deleteOwnQuestionPool}" type="submit" immediate="true" id="Submit" value="#{questionPoolMessages.delete}" action="#{questionpool.startRemovePool}" styleClass="active" >
   </h:commandButton>
 
   <h:commandButton rendered="#{questionpool.importToAuthoring == 'true'}"  type="submit" immediate="true" id="cancel" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelImport}"  >

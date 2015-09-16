@@ -8,7 +8,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.ToolConfiguration;
@@ -64,6 +64,7 @@ implements ViewComponentProducer, ActionResultInterceptor{
     public MessageLocator messageLocator;
     public SiteManageGroupSectionRoleHandler handler;
     public FrameAdjustingProducer frameAdjustingProducer;
+    public AuthzGroupService authzGroupService;
     
     public String getViewID() {    
         return VIEW_ID;
@@ -109,7 +110,7 @@ implements ViewComponentProducer, ActionResultInterceptor{
     			int size = 0;
     			try
     			{
-    				size=AuthzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
+    				size=authzGroupService.getAuthzGroup(group.getReference()).getMembers().size();
     			}
     			catch (GroupNotDefinedException e)
     			{

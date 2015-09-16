@@ -102,6 +102,8 @@ public class RichTextEditArea extends Renderer
     	
     String tmpCol = (String) component.getAttributes().get("columns");
     String tmpRow = (String) component.getAttributes().get("rows");
+    String mode = (String) component.getAttributes().get("mode");
+
     int col;
     int row;
     if (tmpCol != null)
@@ -169,19 +171,30 @@ public class RichTextEditArea extends Renderer
 
       if (tmpCol == null) {
     	  encodeCK(writer, (String) value, identity, outCol, 
-              outRow, justArea, clientId, valueHasRichText, hasToggle, true);
+              outRow, justArea, clientId, valueHasRichText, hasToggle, true, mode);
       }
       else {
     	  encodeCK(writer, (String) value, identity, outCol, 
-                  outRow, justArea, clientId, valueHasRichText, hasToggle, false);
+                  outRow, justArea, clientId, valueHasRichText, hasToggle, false, mode);
       }
   }
 
 
   private void encodeCK(ResponseWriter writer, String value, String identity, String outCol, 
-         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle, boolean columnsNotDefined) throws IOException
+         String outRow, String justArea, String clientId, boolean valueHasRichText, String hasToggle, boolean columnsNotDefined, String mode) throws IOException
   {
-
+    //If no specific mode is set, it's delivery by default
+	boolean disableWysiwyg = false;
+    if (mode == null) {
+      //Disable wysiwyg in delivery based on this property
+      disableWysiwyg = ServerConfigurationService.getBoolean("samigo.wysiwyg.delivery.disable",false);
+    }
+    //Maybe do something special for the other modes
+    else {
+        if ("author".equals(mode)) {
+          log.debug("author mode wysiwyg");
+        }
+    }
 	  String samigoFrameId = "Main";
 	  if (org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement() != null) {
 		samigoFrameId = "Main" + org.sakaiproject.tool.cover.ToolManager.getCurrentPlacement().getId().replace("-","x");
@@ -207,7 +220,7 @@ public class RichTextEditArea extends Renderer
     //figure out if the toggle should be on
     boolean shouldToggle = ( (hasToggle != null) && (hasToggle.equals("yes")) && !valueHasRichText);
     
-    if(shouldToggle)
+    if(shouldToggle && !disableWysiwyg)
     {    	
     	String show_editor = rb.getString("show_editor");
     	writer.write("<div class=\"toggle_link_container\"><a class=\"toggle_link\" id=\"" +clientId+ "_toggle\" href=\"javascript:show_editor('" +  clientId + "', '" + samigoFrameId + "');\">" + show_editor + "</a></div>\n");
@@ -219,18 +232,20 @@ public class RichTextEditArea extends Renderer
     writer.write("<textarea name=\"" + clientId + "_textinput\" id=\"" + clientId + "_textinput\" " + getIdentityAttribute(identity) + " rows=\""+ textBoxRows + "\" cols=\""+ textBoxCols + "\" class=\"simple_text_area\">");
     writer.write((String) value);
     writer.write("</textarea>");
-    if (shouldToggle) {
-    	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"firsttime\">");
+    if (!disableWysiwyg) 
+    	if (shouldToggle) {
+    		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"firsttime\">");
+    	}
+    	else if(hasToggle.equals("plain") && !valueHasRichText){
+        	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\" data-first=\"" + clientId + "\" data-second=\"" + samigoFrameId + "\">");
+        }
+    	else {
+    		writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\">");
+    	}
+	//if toggling is off or the content is already rich, make the editor show up immediately if hasToggle is not plain
+	if(!shouldToggle && (!hasToggle.equals("plain") || valueHasRichText)){
+		writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "', false, '" + samigoFrameId +"');</script>");
     }
-    else {
-    	writer.write("<input type=\"hidden\" name=\"" + clientId + "_textinput_current_status\" id=\"" + clientId + "_textinput_current_status\" value=\"fckonly\">");
-    }
-    
-    //if toggling is off or the content is already rich, make the editor show up immediately
-    if(!shouldToggle){
-    writer.write("<script type=\"text/javascript\" defer=\"1\">chef_setupformattedtextarea('" + clientId + "', false, '" + samigoFrameId +"');</script>");
-    }    	
-
   }
 
   public void decode(FacesContext context, UIComponent component)

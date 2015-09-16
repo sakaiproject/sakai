@@ -138,11 +138,6 @@
         </developer>
     </developers>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/basiclti/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/basiclti/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/basiclti/trunk</url>
-    </scm>
 
     <dependencyManagement>
         <dependencies>

@@ -52,6 +52,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 {
 	private static final Log log = LogFactory.getLog(GradebookCalculationImpl.class);
 
+	@Override
 	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids) 
 	{
 		HibernateCallback hc = new HibernateCallback() 
@@ -80,7 +81,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		return (List)getHibernateTemplate().execute(hc);
 	}
 
-	
+	@Override
 	public List getPointsEarnedCourseGradeRecords(final CourseGrade courseGrade, final Collection studentUids, final Collection assignments, final Map gradeRecordMap) 
 	{
 		HibernateCallback hc = new HibernateCallback() 
@@ -192,7 +193,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 	    return courseGradeRecs;
 	}
 	
-
+	@Override
 	List getTotalPointsEarnedInternal(final String studentId, final Gradebook gradebook, final List categories,
 	        final List<AssignmentGradeRecord> gradeRecs, List<Assignment> countedAssigns) 
 	{
@@ -226,7 +227,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 			if(gradeRec.getPointsEarned() != null && !gradeRec.getPointsEarned().equals("") && !gradeRec.getDroppedFromGrade())
 			{
 				Assignment go = gradeRec.getAssignment();
-				if (go.isIncludedInCalculations())
+				if (go.isIncludedInCalculations() && countedAssigns.contains(go))
 				{
 					Double pointsEarned = new Double(gradeRec.getPointsEarned());
 					//if(gbGradeType == GradebookService.GRADE_TYPE_POINTS)
@@ -323,6 +324,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		return returnList;
 	}
 
+	@Override
 	public double getTotalPointsInternal(final Gradebook gradebook, final List categories, final String studentId, List<AssignmentGradeRecord> studentGradeRecs, List<Assignment> countedAssigns, boolean literalTotal)
 	{
 		int gbGradeType = gradebook.getGrade_type();
@@ -435,6 +437,7 @@ public class GradebookCalculationImpl extends GradebookManagerHibernateImpl impl
 		return totalPointsPossible;
 	}
 	
+	@Override
     public void applyDropScores(Collection<AssignmentGradeRecord> gradeRecords) {
         super.applyDropScores(gradeRecords);
     }

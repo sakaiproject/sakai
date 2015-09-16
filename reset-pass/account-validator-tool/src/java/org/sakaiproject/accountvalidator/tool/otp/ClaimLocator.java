@@ -138,7 +138,7 @@ public class ClaimLocator implements BeanLocator {
 		}
 
 		//With sendLegacyLinks disabled, the option to transfer memberships is not available for password resets
-		if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false) && ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == va.getStatus())
+		if (!serverConfigurationService.getBoolean("accountValidator.sendLegacyLinks", false) && (ValidationAccount.ACCOUNT_STATUS_PASSWORD_RESET == va.getStatus() || ValidationAccount.ACCOUNT_STATUS_REQUEST_ACCOUNT == va.getStatus()))
 		{
 			log.warn("Was attempting to transfer memberships for a ValidationAccount of status " + va.getStatus());
 			return "error";

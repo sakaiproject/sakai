@@ -134,14 +134,17 @@
 				  	<td align="left" valign="top">
 					    <a href="javascript:toggleLayer('example_mc_question');"><h:outputText value="#{samLiteMessages.example_mc_label}"/></a>
 					    <div id="example_mc_question" class="inopPanel" style="display:none">
-					    	<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_mc_instructions}"/><p/>
+					    	<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong>
+					    	<h:outputText value="#{samLiteMessages.example_mc_instructions}"/><br/>
+					    	<h:outputText value="#{samLiteMessages.example_mc_instructions_1}"/><p/>
 				   			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
 				   			<h:outputText value="#{samLiteMessages.example_mc_question_format4}"/><br/>
 				   			<h:outputText value="#{samLiteMessages.example_mc_question_text}"/><p/>
 				   			<h:outputText value="#{samLiteMessages.example_mc_answer_a}"/><br/>
 				   			<h:outputText value="#{samLiteMessages.example_mc_answer_b}"/><br/>
 				   			<h:outputText value="#{samLiteMessages.example_mc_answer_c}"/><br/>
-				   			<h:outputText value="#{samLiteMessages.example_mc_answer_d}"/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_answer_d}"/><br/>
+				   			<h:outputText value="#{samLiteMessages.example_mc_question_random}"/>
 				   		</div>
 				    </td>
 				</tr>
@@ -149,13 +152,16 @@
 					  	<td align="left" valign="top">
 						    <a href="javascript:toggleLayer('example_mcmc_question');"><h:outputText value="#{samLiteMessages.example_mcmc_label}"/></a>
 						    <div id="example_mcmc_question" class="inopPanel" style="display:none">
-				    			<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong><h:outputText value="#{samLiteMessages.example_mcmc_instructions}"/><p/>
+				    			<strong><h:outputText value="#{samLiteMessages.example_instruction_label}"/></strong>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_instructions}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_instructions_1}"/><p/>
 				    			<strong><h:outputText value="#{samLiteMessages.example_example_label}"/></strong><br/>
 				    			<h:outputText value="#{samLiteMessages.example_mcmc_question_format4}"/><br/>
 				    			<h:outputText value="#{samLiteMessages.example_mcmc_question_text}"/><p/>
 				    			<h:outputText value="#{samLiteMessages.example_mcmc_answer_a}"/><br/>
 				    			<h:outputText value="#{samLiteMessages.example_mcmc_answer_b}"/><br/>
 				    			<h:outputText value="#{samLiteMessages.example_mcmc_answer_c}"/><br/>
+				    			<h:outputText value="#{samLiteMessages.example_mcmc_question_random}"/><br/>
 				    		</div>
 					    </td>
 					  </tr>

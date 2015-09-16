@@ -181,6 +181,7 @@ Resolvable, Outputable, Inputable, Describeable, ActionsExecutable, Redirectable
             GradebookItem gbItemIn = new GradebookItem(courseId, gbItemName);
             gbItemIn.pointsPossible = cvu.convert(input.get("pointsPossible"), Double.class);
             gbItemIn.dueDate = cvu.convert(input.get("dueDate"), Date.class);
+            gbItemIn.eid = cvu.convert(input.get("externalID"), String.class);
             @SuppressWarnings("unchecked")
             List<Object> scores = cvu.convert(input.get("scores"), List.class);
             if (scores != null) {

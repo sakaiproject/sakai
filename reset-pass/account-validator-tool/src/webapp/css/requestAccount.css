@@ -1,0 +1,242 @@
+body {
+    background:#cccccc;
+    font-family:'Helvetica Neue',Arial,'Nimbus Sans L','Liberation Sans',sans-serif;
+}
+p, h1, form, button {
+    border: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.spacer {
+    clear: both;
+    height: 1px;
+}
+
+/* ----------- My Form ----------- */
+table.myform {
+    width:100%;
+}
+.myform {
+    margin:0 auto;
+}
+
+/* ----------- wrapper ------------*/
+.wrapper {
+    border: 2px solid #336699;
+    padding: 10px 20px 20px 20px;
+    background: #fff;
+    margin: 2em auto;
+    width: 50em;
+}
+
+.header {
+    padding: 5px 0 15px;
+    border-bottom: 1px solid #E4E4E4;
+    margin-bottom: 10px;
+}
+
+/* ----------- stylized ----------- */
+.stylized {
+    word-wrap: break-word;
+}
+
+.stylized h1 {
+    font-weight: bold;
+    margin-bottom: 8px;
+}
+
+.stylized h3 {
+    text-align: center;
+}
+
+.instruction{
+    text-align: center;
+}
+
+.stylized .instruction {
+    text-align: left;
+}
+
+.stylized div.instruction {
+    display:block;
+    margin:0 auto;
+    text-align: center;
+}
+
+.stylized ul.instruction {
+    display:block;
+    width:50%;
+}
+
+.stylized p {
+    color: #666666;
+    border-bottom: solid 1px #E4E4E4;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+
+.stylized label {
+    display:block;
+    float:left;
+    font-weight: bold;
+    margin-top: 0.3em;
+    text-align: right;
+    width: 39%;
+}
+
+.stylized span.reqStar {
+    /* needed to override tool.css */
+    float:none;
+    margin-left: 2px;
+    border: 0 none;
+    font-weight: bold;
+}
+
+.stylized .info {
+    background:transparent url(/library/image/sakai/information.png) no-repeat scroll 0 0;
+    color:#666666;
+    padding-left:20px;
+    padding-bottom: 20px;
+}
+
+.stylized > form {
+    position: relative;
+    text-align: center;
+}
+
+.stylized .small {
+    color: #666666;
+    display: block;
+    font-size: 11px;
+    font-weight: normal;
+    text-align: right;
+    width: 110px;
+}
+
+.stylized .inputBox {
+    display: block;
+    float: left;
+    padding: 4px 2px;
+    border: 1px solid #aacfe4;
+    width: 150px;
+    margin: 0 0 6px 1em;
+}
+
+.stylized .terms {
+    /*float: left;*/
+    padding: 5px;
+    border: 1px solid transparent; /* Stop layout jumping when isn't checked. */
+}
+
+.stylized .terms label {
+    width: auto;
+    float: none;
+    display: inline;
+}
+
+.terms input, .terms label {
+    vertical-align: middle;
+}
+
+.stylized input[type=submit] {
+    display: block;
+    position: relative;
+    margin: 1em auto 0 auto;
+    clear: both;
+    text-align: center;
+}
+
+.username {
+    color: #336699;
+    font-weight: bold;
+}
+
+.usernameParent {
+    display: block;
+    margin-bottom: 15px;
+    text-align: center;
+    word-break:break-all;
+}
+
+.inputDiv {
+    height: 2.5em;
+}
+
+.inputDiv label {
+    position: relative;
+    top: 5px;
+}
+
+.centeredFeedback span {
+    margin: auto;
+}
+
+.stylized > div.instruction {
+    text-align: center;
+}
+
+#strengthInfo {
+    display: block;
+    color: #000;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 1px 2px 3px rgba(0, 0, 0, 0.2);
+    left: 31em;
+    padding: 1em;
+    position: absolute;
+    margin-top: -5em;
+    width: 50%;
+}
+
+#strengthInfo:before {
+    border-bottom: 15px solid rgba(0, 0, 0, 0);
+    border-right: 15px solid #ccc;
+    border-top: 15px solid rgba(0, 0, 0, 0);
+    position: absolute;
+    content: "";
+    left: -15px;
+    top: 3px;
+    width: 0;
+    height: 0;
+}
+
+#matchMsg, #strongMsg, #noMatchMsg,
+#weakMsg, #failMsg, #moderateMsg {
+    display: block;
+    padding-left: 1.5em;
+    vertical-align: top;
+    line-height: 1.4em;
+    margin: 0 0 0 25.5em;
+    width: 150px;
+    font-size: 0.8em;
+    text-align: left;
+    line-height: 16px;
+}
+
+#noMatchMsg, #failMsg {
+    background: transparent url("/library/image/silk/cancel.png") no-repeat left center;
+    color: #000;
+}
+
+#matchMsg, #strongMsg,
+#moderateMsg, #weakMsg {
+    background: transparent url("/library/image/silk/accept.png") no-repeat left center;
+    color: #000;
+}
+
+#strengthBar {
+    background-color: #ccc;
+    width: 156px;
+    height: 5px;
+    margin: 5px 0px 10px 20.5em;
+    text-align: left;
+}
+
+#strengthBarMeter {
+    display: inline-block;
+    width: 0%;
+    height: 100%;
+    background-color: #900;
+}

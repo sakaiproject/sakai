@@ -27,7 +27,7 @@
         <input type="text" id="courseSiteTypes" style="display:none" value="$courseSiteTypeStrings">
         
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
-    <p class="step">
+    <p class="instruction">
         ## if there is NO template site types
         $tlang.getString("sitetype.chothetyp.withouttemplate")
     ##  #if ($templateSites.size() > 0)
@@ -51,10 +51,11 @@
         <div id="siteTypeList" 
              #* if templates enabled *# class="indnt3" #*end templates enabled *#>
             #foreach ($type in $siteTypes)
-				#set($courseTypeWithPerm    = ((($courseSiteTypeStrings.contains($type)     && $type == "course")     || $type == "course")    && $canAddCourse ))
-				#set($portfolioTypeWithPerm = ((($portfolioSiteTypeStrings.contains($type) && $type == "portfolio")  || $type == "portfolio") && $canAddPortfolio )) 
-				#set($projectTypeWithPerm   = ((($projectSiteTypeStrings.contains($type)   && $type == "project")    || $type == "project")   && $canAddProject )) 
-				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm)) 
+				#set($courseTypeWithPerm    = (($courseSiteTypeStrings.contains($type) || $type == "course")    && $canAddCourse ))
+				#set($portfolioTypeWithPerm = (($portfolioSiteTypeStrings.contains($type) || $type == "portfolio") && $canAddPortfolio )) 
+				#set($projectTypeWithPerm   = (($projectSiteTypeStrings.contains($type)   || $type == "project")   && $canAddProject )) 
+				#set($otherCustomType = ( (!$courseSiteTypeStrings.contains($type)) && (!$projectSiteTypeStrings.contains($type)) && (!$portfolioSiteTypeStrings.contains($type))))
+				#if (($courseTypeWithPerm) || ($portfolioTypeWithPerm) || ($projectTypeWithPerm) || ($otherCustomType))
                     <p class="checkbox indnt1">
                         <input type="radio" name="itemType" id="$type" value="$type" #if ($type == $typeSelected) checked="checked" #end/>
                         <label for = "$type">
@@ -193,6 +194,11 @@
                             #set($siteType = false)
                             #set($siteType = $!templateSite.type)
 
+                            #if (
+                                ($siteType == $projectSiteType && $canAddProject) || 
+                                ($courseSiteTypeStrings.contains($siteType) && $canAddCourse) ||
+                                ($siteType == $portfolioSiteType && $canAddPortfolio)
+                             )
                             #if($siteTypePrev != $siteType)
 
                               #if ($siteType == "course")
@@ -219,7 +225,7 @@
                                     </div>
                                 </li>
                            #end
-                            <li id="rowTemplate$templateNum" class="row$siteType" style="display:none">
+                            <li id="rowTemplate$templateNum" class="row$siteType" #if (!$isExpandTemplates) style="display: none"#end>
                                 <div class="templateName" style="white-space: nowrap;">
                                     <input type="radio" name ="templateSiteId"  class="$templateSite.type" value="$templateSite.id" id="Template$templateNum"/>
                                     <label for="Template$templateNum" title="$templateSite.title">$templateSite.title</label>
@@ -228,6 +234,7 @@
                                 <div class="templateSettingsPlaceholder"></div>
                             </li>
                             #set($siteTypePrev = $!templateSite.type)
+                            #end
                         #end
                 </ul>
             </div>   ## end of child of  div#templateSettings
@@ -292,6 +299,11 @@
 
 
         ## end create site from archive
+
+        <p class="instruction">
+             $tlang.getString("sitetype.chothetyp.toolinfo")
+        </p>
+
         <input type="hidden" name="back" value="$!backIndex" />
         <input type="hidden" name="templateIndex" value="$!templateIndex" />
         <input type="hidden" name="eventSubmit_doSite_type_option" value="x" />

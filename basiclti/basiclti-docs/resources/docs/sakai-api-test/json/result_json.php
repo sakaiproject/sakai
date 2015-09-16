@@ -17,8 +17,8 @@ ini_set("display_errors", 1);
 <?php 
 
 $result_url = isset($_REQUEST['url']) ? $_REQUEST['url'] : false;
-$oauth_consumer_key = isset($_REQUEST['key']) ? $_REQUEST['key'] : $_SESSION['reg_key'];
-$oauth_consumer_secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : $_SESSION['reg_password'];
+$oauth_consumer_key = isset($_REQUEST['key']) ? $_REQUEST['key'] : $_SESSION['oauth_consumer_key'];
+$oauth_consumer_secret = isset($_REQUEST['secret']) ? $_REQUEST['secret'] : 'secret';
 
 $grade = isset($_REQUEST['grade']) ? $_REQUEST['grade'] : '';
 $comment = isset($_REQUEST['comment']) ? $_REQUEST['comment'] : '';
@@ -26,7 +26,7 @@ $comment = isset($_REQUEST['comment']) ? $_REQUEST['comment'] : '';
 if (strlen($oauth_consumer_secret) < 1 || strlen($oauth_consumer_key) < 1 
     || strlen($result_url) < 1 ) {
     var_dump($_SESSION);
-    die("Must have url, reg_password and reg_key in sesison");
+    die("Must have url, oauth_consumer_key in sesison");
 }
 
 ?>

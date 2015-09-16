@@ -34,7 +34,7 @@ import java.util.Properties;
  * Send questions to Aaron Zeckoski
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public interface Configuration extends Serializable { // Configuration<K, V> extends Serializable
+public interface Configuration<K, V> extends Serializable { // Configuration<K, V> extends Serializable
 
     //Class<K> getKeyType();
     //Class<V> getValueType();

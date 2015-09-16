@@ -36,9 +36,10 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
+import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
@@ -268,31 +269,40 @@ implements ActionListener
 	    	error=true;
 	    	assessmentSettings.setStartDate(new Date());
 	    }
-	    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
-	    	(retractDate != null && startDate == null && retractDate.before(new Date()))) {
-	    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
-	    	error=true;
-	    	isRetractEarlierThanAvaliable = true;
-	    	assessmentSettings.setStartDate(new Date());
-	    }
-	    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
-	    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
-	    	error=true;
+	    if(assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+		    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
+		    	(retractDate != null && startDate == null && retractDate.before(new Date()))) {
+		    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
+		    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
+		    	error=true;
+		    	isRetractEarlierThanAvaliable = true;
+		    	assessmentSettings.setStartDate(new Date());
+		    }
+		    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
+		    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
+		    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
+		    	error=true;
+		    }
 	    }
 
 	    // SAM-1088
 	    // if late submissions not allowed and late submission date is null, set late submission date to due date
 	    if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.equals(assessmentSettings.getLateHandling()) &&
 	    		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-	    	assessmentSettings.setRetractDate(dueDate);
+	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+	    	if (autoSubmitEnabled) {
+	    		assessmentSettings.setRetractDate(dueDate);
+	    	}
 	    }
+
 	    // if auto-submit is enabled, make sure late submission date is set
 	    if (assessmentSettings.getAutoSubmit() && retractDate == null) {
-	    	String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
-	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
-	    	error=true;
+	    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+	    	if (autoSubmitEnabled) {
+	    		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
+	    		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+	    		error=true;
+	    	}
 	    }
 	    	    
 		// if timed assessment, does it has value for time
@@ -523,12 +533,12 @@ implements ActionListener
 			feedback.setAssessmentBase(assessment.getData());
 		}
 		// Feedback authoring
-		if (assessmentSettings.getFeedbackAuthoring()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackAuthoring()))
 			feedback.setFeedbackAuthoring(new Integer(assessmentSettings.getFeedbackAuthoring()));
 		// Feedback delivery
-		if (assessmentSettings.getFeedbackDelivery()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackDelivery()))
 			feedback.setFeedbackDelivery(new Integer(assessmentSettings.getFeedbackDelivery()));
-		if (assessmentSettings.getFeedbackComponentOption()!=null)
+		if (StringUtils.isNotBlank(assessmentSettings.getFeedbackComponentOption()))
 		    feedback.setFeedbackComponentOption(new Integer(assessmentSettings.getFeedbackComponentOption()));
 
 		control.setFeedbackDate(assessmentSettings.getFeedbackDate());
@@ -671,10 +681,12 @@ implements ActionListener
 			Integer scoringType = evaluation.getScoringType();
 			if (evaluation.getToGradeBook()!=null && 
 					evaluation.getToGradeBook().equals(EvaluationModelIfc.TO_DEFAULT_GRADEBOOK.toString())){
+				Long categoryId = null;
 				if (isTitleChanged || isScoringTypeChanged) {
 					// Because GB use title instead of id, we remove and re-add to GB if title changes.
 					try {
 						log.debug("before gbsHelper.removeGradebook()");
+						categoryId = gbsHelper.getExternalAssessmentCategoryId(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 						gbsHelper.removeExternalAssessment(GradebookFacade.getGradebookUId(), assessment.getPublishedAssessmentId().toString(), g);
 					} catch (Exception e1) {
 						// Should be the external assessment doesn't exist in GB. So we quiet swallow the exception. Please check the log for the actual error.
@@ -692,7 +704,7 @@ implements ActionListener
 				else{
 					try{
 						log.debug("before gbsHelper.addToGradebook()");
-						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), g);
+						gbsHelper.addToGradebook((PublishedAssessmentData)assessment.getData(), categoryId, g);
 
 						// any score to copy over? get all the assessmentGradingData and copy over
 						GradingService gradingService = new GradingService();

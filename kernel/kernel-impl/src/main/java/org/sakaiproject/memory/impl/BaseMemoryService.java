@@ -36,18 +36,12 @@ import java.util.Properties;
 /**
  * Allows us to configure which MemoryService implementation is used using config settings
  *
- * Force the use of the legacy memory service instead of the newer one with JSR-107 support.
- * When true, use BasicMemoryService, MemCache, GenericMultiRefCacheImpl
- * Default: false
- * memory.use.legacy=true
- *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
 public class BaseMemoryService implements MemoryService {
 
     public static final String TYPE_EHCACHE = "ehcache";
     public static final String TYPE_HAZELCAST = "hazelcast";
-    public static final String TYPE_LEGACY = "legacy";
 
     final Log log = LogFactory.getLog(BaseMemoryService.class);
 
@@ -63,73 +57,15 @@ public class BaseMemoryService implements MemoryService {
         log.info("INIT");
         if (memoryService == null) {
             // defaults - ehcache (new)
-            boolean useLegacy = false;
             String cacheManagerType = TYPE_EHCACHE;
             if (serverConfigurationService != null) {
-                useLegacy = serverConfigurationService.getBoolean("memory.use.legacy", useLegacy);
                 cacheManagerType = serverConfigurationService.getString("memory.cachemanager", cacheManagerType);
                 cacheManagerType = StringUtils.lowerCase(cacheManagerType);
-                if (TYPE_LEGACY.equalsIgnoreCase(cacheManagerType)) {
-                    useLegacy = true;
-                }
                 if (cacheManagerType == null) {
                     cacheManagerType = TYPE_EHCACHE;
                 }
             }
-            if (useLegacy) {
-                /* NOTE about the lazy loading:
-                MemoryService uses SecurityService, EventTrackingService, ServerConfigurationService
-                SecurityService uses MemoryService, EventTrackingService, ServerConfigurationService (and others)
-                EventTrackingService uses SecurityService (and others)
 
-                This could be tolerable as long as none of these services are used in the init.
-                BasicMemoryService uses EventTrackingService in INIT to create the Observer (and the ehcache CacheManager of course).
-                EhcacheMemoryService only uses the ehcache CacheManager during INIT.
-                Unfortunately, SecurityService sets up caches so it requires MemoryService during init.
-                Nothing uses SecurityService in the init EXCEPT the new MemoryService because
-                it needs to insert it into the selected implementation (as previously done below).
-
-                In essence, these circular dependencies between the various services make it impossible
-                for Spring to establish a viable startup order and this results in the NPE (in newCache).
-
-                The real fix for this is quite complex because the service dependency
-                graph is cyclical and basically needs to be untangled and have the
-                cycles removed (of which there are... many). The quick-ish fix for
-                this is to change the MemoryService to lazy load the SecurityService
-                and EventTrackingService (which is what we have done below).
-                 */
-                BasicMemoryService bms = new BasicMemoryService() {
-                    EventTrackingService ets;
-                    SecurityService ss;
-                    @Override
-                    protected EventTrackingService eventTrackingService() {
-                        // has to be lazy
-                        if (ets == null) {
-                            ets = (EventTrackingService) ComponentManager.get(EventTrackingService.class);
-                        }
-                        return ets;
-                    }
-                    @Override
-                    protected SecurityService securityService() {
-                        // has to be lazy
-                        if (ss == null) {
-                            ss = (SecurityService) ComponentManager.get(SecurityService.class);
-                        }
-                        return ss;
-                    }
-                    @Override
-                    protected ServerConfigurationService serverConfigurationService() {
-                        return serverConfigurationService;
-                    }
-                };
-                if (cacheManager == null) {
-                    throw new IllegalStateException("Unable to find the org.sakaiproject.memory.api.MemoryService.cacheManager");
-                }
-                bms.setCacheManager(cacheManager);
-                bms.init();
-                memoryService = bms;
-                log.info("INIT complete: legacy: BasicMemoryService");
-            } else {
                 // use the newer service implementations
                 if (TYPE_EHCACHE.equals(cacheManagerType)) {
                     // EhCache based implementation
@@ -158,7 +94,6 @@ public class BaseMemoryService implements MemoryService {
                     // die if we configure an unsupported caching system type
                     throw new IllegalStateException("Bad caching type ("+cacheManagerType+"): memory.cachemanager must be set to a valid type like ehcache or legacy");
                 }
-            }
         } else {
             // using the passed in MemoryService
             log.info("INIT complete: injection ("+memoryService.getClass().getName()+")");
@@ -175,9 +110,6 @@ public class BaseMemoryService implements MemoryService {
         if (memoryService != null) {
             if (memoryService instanceof EhcacheMemoryService) {
                 ((EhcacheMemoryService)memoryService).destroy();
-
-            } else if (memoryService instanceof BasicMemoryService) {
-                ((BasicMemoryService)memoryService).destroy();
 
             } else if (memoryService instanceof HazelcastMemoryService) {
                 ((HazelcastMemoryService)memoryService).destroy();
@@ -211,7 +143,7 @@ public class BaseMemoryService implements MemoryService {
     }
 
     @Override
-    public <C extends Configuration> Cache createCache(String cacheName, C configuration) {
+    public <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration){
         return memoryService.createCache(cacheName, configuration);
     }
 
@@ -279,13 +211,6 @@ public class BaseMemoryService implements MemoryService {
         log.warn("Creating pattern Cache("+cacheName+"), pattern is deprecated and will no longer work in the next release");
         //noinspection deprecation
         return memoryService.newCache(cacheName, pattern);
-    }
-
-    @SuppressWarnings("deprecation")
-    @Override
-    public GenericMultiRefCache newGenericMultiRefCache(String cacheName) {
-        log.warn("Creating MultiRefCache("+cacheName+"), GenericMultiRefCache is deprecated and will no longer work in the next release");
-        return memoryService.newGenericMultiRefCache(cacheName);
     }
 
     // SETTERS

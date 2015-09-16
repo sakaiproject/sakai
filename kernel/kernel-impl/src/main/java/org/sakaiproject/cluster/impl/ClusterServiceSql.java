@@ -70,7 +70,14 @@ public interface ClusterServiceSql
 	String getUpdateServerSql();
 
 	/**
+	 * returns the sql statement for listing the servers and their status from the sakai_cluster table.
+	 */
+	String getListServerStatusSql();
+
+	/**
 	 * returns the current timestamp.
 	 */
 	String sqlTimestamp();
+
+
 }

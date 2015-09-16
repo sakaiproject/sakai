@@ -187,110 +187,6 @@ public class BasicLTIUtil {
 	}
 
 	/**
-	 * Any properties which are not well known (i.e. in
-	 * {@link BasicLTIConstants#validPropertyNames}) will be mapped to custom
-	 * properties per the specified semantics. NOTE: no blacklisting of keys is
-	 * performed.
-	 * 
-	 * @param rawProperties
-	 *		  A set of properties that will be cleaned.
-	 * @return A cleansed version of rawProperties.
-	 */
-	public static Map<String, String> cleanupProperties(
-			final Map<String, String> rawProperties) {
-		return cleanupProperties(rawProperties, null);
-	}
-
-	/**
-	 * Any properties which are not well known (i.e. in
-	 * {@link BasicLTIConstants#validPropertyNames}) will be mapped to custom
-	 * properties per the specified semantics.
-	 * 
-	 * @param rawProperties
-	 *		  A set of properties that will be cleaned.
-	 * @param blackList
-	 *		  An array of {@link String}s which are considered unsafe to be
-	 *		  included in launch data. Any matches will be removed from the
-	 *		  return.
-	 * @return A cleansed version of rawProperties.
-	 */
-	public static Map<String, String> cleanupProperties(
-			final Map<String, String> rawProperties, final String[] blackList) {
-		final Map<String, String> newProp = new HashMap<String, String>(
-				rawProperties.size()); // roughly the same size
-		for (String okey : rawProperties.keySet()) {
-			final String key = okey.trim();
-			if (blackList != null) {
-				boolean blackListed = false;
-				for (String blackKey : blackList) {
-					if (blackKey.equals(key)) {
-						blackListed = true;
-						break;
-					}
-				}
-				if (blackListed) {
-					continue;
-				}
-			}
-			final String value = rawProperties.get(key);
-			if (value == null || "".equals(value)) {
-				// remove null or empty values
-				continue;
-			}
-			if (isSpecifiedPropertyName(key)) {
-				// a well known property name
-				newProp.put(key, value);
-			} else {
-				// convert to a custom property name
-				newProp.put(adaptToCustomPropertyName(key), value);
-			}
-		}
-		return newProp;
-	}
-
-	/**
-	 * Any properties which are not well known (i.e. in
-	 * {@link BasicLTIConstants#validPropertyNames}) will be mapped to custom
-	 * properties per the specified semantics.
-	 * 
-	 * @deprecated See {@link #cleanupProperties(Map)}
-	 * @param rawProperties
-	 *		  A set of {@link Properties} that will be cleaned. Keys must be of
-	 *		  type {@link String}.
-	 * @return A cleansed version of {@link Properties}.
-	 */
-	public static Properties cleanupProperties(final Properties rawProperties) {
-		final Map<String, String> map = cleanupProperties(
-				convertToMap(rawProperties), null);
-		return convertToProperties(map);
-	}
-
-	/**
-	 * Checks to see if the passed propertyName is equal to one of the Strings
-	 * contained in {@link BasicLTIConstants#validPropertyNames}. String matching
-	 * is case sensitive.
-	 * 
-	 * @param propertyName
-	 * @return true if propertyName is equal to one of the Strings contained in
-	 *		 {@link BasicLTIConstants#validPropertyNames} 
-	 *		 or is a custom parameter oe extension parameter ;
-	 *		 else return false.
-	 */
-	public static boolean isSpecifiedPropertyName(final String propertyName) {
-		boolean found = false;
-		if ( propertyName.startsWith(CUSTOM_PREFIX) ) return true;
-		if ( propertyName.startsWith(EXTENSION_PREFIX) ) return true;
-		if ( propertyName.startsWith(OAUTH_PREFIX) ) return true;
-		for (String key : BasicLTIConstants.validPropertyNames) {
-			if (key.equals(propertyName)) {
-				found = true;
-				break;
-			}
-		}
-		return found;
-	}
-
-	/**
 	 * A simple utility method which implements the specified semantics of custom
 	 * properties.
 	 * <p>
@@ -374,8 +270,6 @@ public class BasicLTIUtil {
 			String tool_consumer_instance_url, String tool_consumer_instance_name,
 			String tool_consumer_instance_contact_email,
 			Map<String, String> extra) {
-
-		postProp = BasicLTIUtil.cleanupProperties(postProp);
 
 		if ( postProp.get(LTI_VERSION) == null ) postProp.put(LTI_VERSION, "LTI-1p0");
 		if ( postProp.get(LTI_MESSAGE_TYPE) == null ) postProp.put(LTI_MESSAGE_TYPE, "basic-lti-launch-request");
@@ -509,12 +403,9 @@ public class BasicLTIUtil {
 
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
-	 * Make sure to call {@link #cleanupProperties(Properties)} before signing.
 	 * 
 	 * @deprecated Moved to {@link #postLaunchHTML(Map, String, boolean)}
 	 * @param cleanProperties
-	 *		  Assumes you have called {@link #cleanupProperties(Properties)}
-	 *		  beforehand.
 	 * @param endpoint
 	 *		  The LTI launch url.
 	 * @param debug
@@ -530,11 +421,8 @@ public class BasicLTIUtil {
 
 	/**
 	 * Create the HTML to render a POST form and then automatically submit it.
-	 * Make sure to call {@link #cleanupProperties(Properties)} before signing.
 	 * 
 	 * @param cleanProperties
-	 *		  Assumes you have called {@link #cleanupProperties(Properties)}
-	 *		  beforehand.
 	 * @param endpoint
 	 *		  The LTI launch url.
 	 * @param debug
@@ -655,22 +543,39 @@ public class BasicLTIUtil {
 
 	/** 
          * getOAuthURL - Form a GET request signed by OAuth
+	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
 	 */
-	public static String getOAuthURL(String url, String oauth_consumer_key, String oauth_secret)
+	public static String getOAuthURL(String method, String url, 
+		String oauth_consumer_key, String oauth_secret)
 	{
-		OAuthMessage om = new OAuthMessage("GET", url, null);
+		return getOAuthURL(method, url, oauth_consumer_key, oauth_secret, null);
+	}
+
+	/** 
+         * getOAuthURL - Form a GET request signed by OAuth
+	 * @param method
+	 * @param url
+	 * @param oauth_consumer_key
+	 * @param oauth_consumer_secret
+	 * @param signature
+	 */
+	public static String getOAuthURL(String method, String url, 
+		String oauth_consumer_key, String oauth_secret, String signature)
+	{
+		OAuthMessage om = new OAuthMessage(method, url, null);
 		om.addParameter(OAuth.OAUTH_CONSUMER_KEY, oauth_consumer_key);
-		om.addParameter(OAuth.OAUTH_SIGNATURE_METHOD, OAuth.HMAC_SHA1);
+		if ( signature == null ) signature = OAuth.HMAC_SHA1;
+		om.addParameter(OAuth.OAUTH_SIGNATURE_METHOD, signature);
 		om.addParameter(OAuth.OAUTH_VERSION, "1.0");
 		om.addParameter(OAuth.OAUTH_TIMESTAMP, new Long((new Date().getTime()) / 1000).toString());
 		om.addParameter(OAuth.OAUTH_NONCE, UUID.randomUUID().toString());
 
 		OAuthConsumer oc = new OAuthConsumer(null, oauth_consumer_key, oauth_secret, null);
 		try {
-		    OAuthSignatureMethod osm = OAuthSignatureMethod.newMethod(OAuth.HMAC_SHA1, new OAuthAccessor(oc));
+		    OAuthSignatureMethod osm = OAuthSignatureMethod.newMethod(signature, new OAuthAccessor(oc));
 		    osm.sign(om);
 		    url = OAuth.addParameters(url, om.getParameters());
 		    return url;
@@ -682,6 +587,7 @@ public class BasicLTIUtil {
 
 	/** 
          * getOAuthURL - Form a GET request signed by OAuth
+	 * @param method
 	 * @param url
 	 * @param oauth_consumer_key
 	 * @param oauth_consumer_secret
@@ -691,12 +597,24 @@ public class BasicLTIUtil {
 	 */
 	public static HttpURLConnection sendOAuthURL(String method, String url, String oauth_consumer_key, String oauth_secret)
 	{
-		String oauthURL = getOAuthURL(url, oauth_consumer_key, oauth_secret);
+		String oauthURL = getOAuthURL(method, url, oauth_consumer_key, oauth_secret);
 
 		try {
 			URL urlConn = new URL(oauthURL);
 			HttpURLConnection connection = (HttpURLConnection) urlConn.openConnection();
 			connection.setRequestMethod(method);
+
+			// Since Java won't send Content-length unless we really send 
+			// content - send some data character so we don't 
+			// send a broken PUT
+			if ( ! "GET".equals(method) ) {
+				connection.setDoOutput(true);
+				OutputStreamWriter out = new OutputStreamWriter(
+				connection.getOutputStream());
+				out.write("42");
+				out.close();
+			}
+			connection.connect();
 			int responseCode = connection.getResponseCode();
 			return connection;
 		} catch(Exception e) {
@@ -704,6 +622,20 @@ public class BasicLTIUtil {
 			return null;
 		}
 	}
+
+	/** 
+         * getResponseCode - Read the HTTP Response
+	 * @param connection
+	 */
+	public static int getResponseCode(HttpURLConnection connection)
+	{
+		try {
+			return connection.getResponseCode();
+		} catch(Exception e) {
+			return HttpURLConnection.HTTP_INTERNAL_ERROR;
+		}
+	}
+
 
 	/** 
          * readHttpResponse - Read the HTTP Response

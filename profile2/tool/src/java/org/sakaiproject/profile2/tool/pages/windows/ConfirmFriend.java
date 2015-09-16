@@ -32,7 +32,6 @@ import org.sakaiproject.profile2.logic.ProfilePrivacyLogic;
 import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
-import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.FriendAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -105,8 +104,8 @@ public class ConfirmFriend extends Panel {
 					text.setDefaultModel(new StringResourceModel("error.friend.not.pending.confirm", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
-					target.addComponent(text);
-					target.addComponent(this);
+					target.add(text);
+					target.add(this);
 					return;
 				}
 				
@@ -122,14 +121,14 @@ public class ConfirmFriend extends Panel {
 					text.setDefaultModel(new StringResourceModel("error.friend.confirm.failed", null, new Object[]{ friendName } ));
 					this.setEnabled(false);
 					this.add(new AttributeModifier("class", true, new Model("disabled")));
-					target.addComponent(text);
-					target.addComponent(this);
+					target.add(text);
+					target.add(this);
 					return;
 				}
 				
             }
 		};
-		submitButton.add(new FocusOnLoadBehaviour());
+		//submitButton.add(new FocusOnLoadBehaviour());
 		submitButton.add(new AttributeModifier("title", true, new StringResourceModel("accessibility.connection.confirm", null, new Object[]{ friendName } )));
 		form.add(submitButton);
 		

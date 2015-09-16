@@ -22,11 +22,14 @@
 
 package org.sakaiproject.service.gradebook.shared;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-public class GradebookInformation {
+public class GradebookInformation implements Serializable {
+	private static final long serialVersionUID = 1L;
+	
 	private String selectedGradingScaleUid;
 	private Map<String, Double> selectedGradingScaleBottomPercents;
 	private Collection<Assignment> assignments;

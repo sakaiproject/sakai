@@ -50,8 +50,6 @@ import org.sakaiproject.delegatedaccess.model.SelectOption;
 import org.sakaiproject.delegatedaccess.util.DelegatedAccessConstants;
 import org.sakaiproject.site.api.Site;
 
-import sun.net.www.content.text.plain;
-
 public class ShoppingEditBulkPage extends BasePage{
 	
 	private static final Logger log = Logger.getLogger(ShoppingEditBulkPage.class);

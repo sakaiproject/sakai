@@ -15,11 +15,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/api</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/api</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/api</url>
-  </scm>
   <packaging>jar</packaging>
   <properties>
     <deploy.target>shared</deploy.target>
@@ -54,6 +49,17 @@
         <groupId>org.apache.tomcat</groupId>
         <artifactId>tomcat-jdbc</artifactId>
     </dependency>
+    <!-- Java 8 Maven Artifact -->
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP-java6</artifactId>
+    </dependency>
+    -->
     <dependency>
       <groupId>javax.mail</groupId>
       <artifactId>mail</artifactId>

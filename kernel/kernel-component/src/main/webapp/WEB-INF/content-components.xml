@@ -18,6 +18,7 @@
 			class="org.sakaiproject.content.impl.DbContentService"
             init-method="init" destroy-method="destroy" singleton="true">
 
+        <property name="fileSystemHandler">          <ref bean="org.sakaiproject.content.api.FileSystemHandler"/>            </property>
         <property name="memoryService">              <ref bean="org.sakaiproject.memory.api.MemoryService"/>                 </property>
         <property name="functionManager">			<ref bean="org.sakaiproject.authz.api.FunctionManager"/>				</property>
         <property name="aliasService">               <ref bean="org.sakaiproject.alias.api.AliasService"/>                   </property>
@@ -59,7 +60,7 @@
         <property name="bodyPath">                  <null/>                                     </property>
         <property name="bodyVolumes">               <null/>                                     </property>
         <property name="autoDdl">                   <value>${auto.ddl}</value>                  </property>
-        <property name="siteQuota">                 <value>1048576</value>                      </property>
+        <property name="siteQuota">                 <value>0</value>                            </property>
         <property name="availabilityChecksEnabled"> <value>true</value>                         </property>
         <property name="prioritySortEnabled">       <value>true</value>                         </property>
         <property name="useResourceTypeRegistry">   <value>true</value>                         </property>
@@ -71,12 +72,16 @@
               <entry key="oracle" ><ref bean="org.sakaiproject.content.impl.ContentServiceSqlOracle" /></entry>
            </map>
         </property>
-        <property name="outputFilters">
-          <list>
-            <ref bean="org.sakaiproject.content.impl.HtmlPageFilter"/>
-          </list>
-        </property>
+        <property name="contentFilterService" ref="org.sakaiproject.content.api.ContentFilterService"/>
     </bean>
+
+    <bean id="org.sakaiproject.content.api.FileSystemHandler.file" class="org.sakaiproject.content.impl.DefaultFileSystemHandler">
+        <property name="useIdForFilePath" value="true" />
+    </bean>
+
+    <!-- Alias the default filesystem-backed handler to be used by ContentHosting; override the alias to plug in an alternative -->
+    <alias name="org.sakaiproject.content.api.FileSystemHandler.file" alias="org.sakaiproject.content.api.FileSystemHandler" />
+
 
     <bean id="org.sakaiproject.content.impl.CollectionAccessFormatter"
           class="org.sakaiproject.content.impl.CollectionAccessFormatter">
@@ -114,6 +119,15 @@
         <property name="extensionFile"><value>content_type_extensions.properties</value></property>
         -->
 	</bean>
+
+    <bean id="org.sakaiproject.content.api.ContentFilterService"
+          class="org.sakaiproject.content.impl.ContentFilterServiceImpl">
+        <property name="outputFilters">
+            <list>
+                <ref bean="org.sakaiproject.content.impl.HtmlPageFilter"/>
+            </list>
+        </property>
+    </bean>
 
 	<bean id="org.sakaiproject.content.api.ContentResourceFilter.base"
 			class="org.sakaiproject.content.impl.BaseExtensionResourceFilter">

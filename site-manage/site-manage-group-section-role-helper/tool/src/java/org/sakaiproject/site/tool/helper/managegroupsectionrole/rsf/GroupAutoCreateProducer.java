@@ -110,20 +110,18 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
     	 
 
          UIOutput.make(groupForm, "prompt", messageLocator.getMessage("group.autocreate.newgroups"));
-         UIOutput.make(groupForm, "instructions_roster", messageLocator.getMessage("group.autocreate.instruction_roster"));
-         UIOutput.make(groupForm, "instructions_role", messageLocator.getMessage("group.autocreate.instruction_role"));
          
          UIOutput.make(groupForm, "group_label", messageLocator.getMessage("group.title"));
          UIInput titleTextIn = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
 		 
 		 // for the site rosters list
 		 List<String> siteRosters= handler.getSiteRosters(null);
+		 String[] optionValues = new String[] { "1", "2" };
 		 if (siteRosters != null && siteRosters.size() > 0)
 		 {
 			 UIBranchContainer rosterOptions = UIBranchContainer.make(groupForm, "roster_options:");
 			 UIMessage.make(arg0, "roster-select-header", "table.roster_select");
 			 UIMessage.make(arg0, "roster-title-header", "table.roster_title");
-			 UIMessage.make(arg0, "instruction-roster", "instruction.roster");
 			 for (String roster: siteRosters) {
 				 UIBranchContainer tablerow = UIBranchContainer.make(rosterOptions, "roster-row:");
 				 UIBoundBoolean checkbox = UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster.replaceAll("\\.", "-_p_-") + "}");
@@ -135,6 +133,53 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 					 UIMessage.make(tablerow, "exist-group-roster", "exist.group.roster");
 				 }
 			 }
+
+			// SAK-28373 - auto group options for rosters
+			String[] rosterOptionLabels = new String[]
+			{
+				messageLocator.getMessage( "rosterOptionLabel" ),
+				messageLocator.getMessage( "rosterRandomOptionLabel" )
+			};
+
+			UISelect rosterOptionSelect = UISelect.make( groupForm, "roster-option-radios", 
+				optionValues, rosterOptionLabels, "SiteManageGroupSectionRoleHandler.rosterOptionAssign" );
+			rosterOptionSelect.optionnames = UIOutputMany.make( rosterOptionLabels );
+			String rosterOptionSelectID = rosterOptionSelect.getFullID();
+
+			UISelectLabel rosterLabel = UISelectLabel.make( arg0, "rosterOptionLabel", rosterOptionSelectID, 0 );
+			UISelectChoice rosterChoice = UISelectChoice.make( arg0, "rosterOption", rosterOptionSelectID, 0 );
+			UILabelTargetDecorator.targetLabel( rosterLabel, rosterChoice );
+
+			UISelectLabel rosterLabel2 = UISelectLabel.make( arg0, "rosterRandomOptionLabel", rosterOptionSelectID, 1 );
+			UISelectChoice rosterChoice2 = UISelectChoice.make( arg0, "rosterRandomOption", rosterOptionSelectID, 1 );
+			UILabelTargetDecorator.targetLabel( rosterLabel2, rosterChoice2 );
+
+			UILabelTargetDecorator.targetLabel( UIMessage.make( groupForm, "roster-group-title-group", "group.title" ), 
+				UIInput.make( groupForm, "roster-groupTitle-group", "SiteManageGroupSectionRoleHandler.rosterGroupTitleGroup") );
+			UILabelTargetDecorator.targetLabel( UIMessage.make( groupForm, "roster-group-unit", "group.unit" ),
+				UIInput.make( groupForm, "roster-numToSplit-group", "SiteManageGroupSectionRoleHandler.rosterNumToSplitGroup" ) );
+			UILabelTargetDecorator.targetLabel( UIMessage.make( groupForm, "roster-group-title-user", "group.title" ),
+				UIInput.make( groupForm, "roster-groupTitle-user", "SiteManageGroupSectionRoleHandler.rosterGroupTitleUser" ) );
+			UILabelTargetDecorator.targetLabel( UIMessage.make( groupForm, "roster-user-unit", "user.unit" ),
+				UIInput.make( groupForm, "roster-numToSplit-user", "SiteManageGroupSectionRoleHandler.rosterNumToSplitUser" ) );
+
+			String[] rosterGradingValues = new String[] { Boolean.TRUE.toString(), Boolean.FALSE.toString() };
+			String[] rosterGradingLabels = new String[]
+			{
+				messageLocator.getMessage( "splitByGroupsLabel" ),
+				messageLocator.getMessage( "splitByUsersLabel" )
+			};
+
+			UISelect rosterGradingSelect = UISelect.make( groupForm, "roster-graded-radios", rosterGradingValues, rosterGradingLabels, "SiteManageGroupSectionRoleHandler.rosterGroupSplit" );
+			String rosterGradingSelectID = rosterGradingSelect.getFullID();
+
+			UISelectLabel rosterSplitLabel = UISelectLabel.make( arg0, "rosterSplitByGroupsLabel", rosterGradingSelectID, 0 );
+				UISelectChoice rosterSplitChoice = UISelectChoice.make( arg0, "rosterGroupSplit", rosterGradingSelectID, 0 );
+			UILabelTargetDecorator.targetLabel(  rosterSplitLabel, rosterSplitChoice );
+
+			UISelectLabel rosterSplitLabel2 = UISelectLabel.make( arg0, "rosterSplitByUsersLabel", rosterGradingSelectID, 1 );
+			UISelectChoice rosterSplitChoice2 = UISelectChoice.make( arg0, "rosterUserSplit", rosterGradingSelectID, 1 );
+			UILabelTargetDecorator.targetLabel( rosterSplitLabel2, rosterSplitChoice2 );
 		 }
 		 
 		 // for the site roles list
@@ -159,9 +204,6 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 			 //random or by roles options:
 			 
 			//Radio Buttons for assigning options
-	         String [] optionValues = new String[] {
-	                 Integer.toString(1), Integer.toString(2)
-	         };
 	         String [] optionLabels = new String[] {
 	        		 messageLocator.getMessage("roleOptionLabel"),
 	        		 messageLocator.getMessage("randomOptionLabel")

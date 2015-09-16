@@ -24,25 +24,12 @@ var setupMultipleSelect = function(){
                 $('#movePanelTopDummy').hide();
                 $('#movePanelBottomDummy').hide();
               }
-            else if(thisCol ==="reorderCol2") {
-                // show all controls
-                $('#movePanel').attr('class','col2Engaged');
-                $('#movePanelLeftRight a').show();
-                $('#movePanelRight').show().attr('title',panelMessage.replace('{0}',panelMessageArc)).find('.skip').text(panelMessage.replace('{0}',panelMessageArc));
-                $('#movePanelLeft').show().attr('title',panelMessage.replace('{0}',panelMessageFav)).find('.skip').text(panelMessage.replace('{0}',panelMessageFav));
-                $('#movePanelLeftRight span').hide();
-                $('#movePanel span.skip').show();
-                $('#movePanelTop').show();
-                $('#movePanelBottom').show();
-                $('#movePanelTopDummy').hide();
-                $('#movePanelBottomDummy').hide();
-            }
             else {
                 // only show move left, moving up/down is nonsensical
                 // (will change the column header to reflect this)
                 // moving right impossible
                 pos.left = pos.left - 400;
-                $('#movePanel').attr('class','col3Engaged');
+                $('#movePanel').attr('class','col2Engaged');
                 $('#movePanelLeftRight a').show();
                 $('#movePanelLeft').show().attr('title',panelMessage.replace('{0}',panelMessageAct)).find('.skip').text(panelMessage.replace('{0}',panelMessageAct));
                 $('#movePanelLeftRight span').hide();
@@ -56,7 +43,7 @@ var setupMultipleSelect = function(){
             }
             // move the move panel down here 
             $('#movePanel').css({'top' : pos.top, 'left' : pos.left + 40,'display': 'block'});
-            // uncheck the cbxs in the other 2 cols
+            // uncheck the cbxs in the other col
             $('#layoutReorderer .selectSiteCheck').not('#' + thisCol + ' .selectSiteCheck').prop('checked',false);
             $('#layoutReorderer .last-login').not('#' + thisCol + ' .last-login').removeClass('siteSelected');
             $(thisEl).addClass('siteSelected');
@@ -76,19 +63,13 @@ var setupMultipleSelect = function(){
              if($('#movePanel').attr('class') ==='col1Engaged'){
                 $(selectedItems).prependTo('#reorderCol2 > span');
              }
-             if($('#movePanel').attr('class') ==='col2Engaged'){
-                 $(selectedItems).prependTo('#reorderCol3 > span');
-             };
              postMoveCleanUp(selectedItems);
         })
         $('#movePanelLeft').click(function(e){
             e.preventDefault();
              var selectedItems = $('#layoutReorderer :checked').closest('div.flc-reorderer-module');
              if($('#movePanel').attr('class') ==='col2Engaged'){
-                $(selectedItems).prependTo('#reorderCol1 > span');
-             }
-             if($('#movePanel').attr('class') ==='col3Engaged'){
-                 $(selectedItems).prependTo($('#reorderCol2 > span'));
+                 $(selectedItems).prependTo($('#reorderCol1 > span'));
              };
              postMoveCleanUp(selectedItems);
         })
@@ -109,8 +90,7 @@ var setupMultipleSelect = function(){
 var postMoveCleanUp = function(selectedItems) {
     var ids ='';
     var newTitle1=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessFav').text())
-    var newTitle2=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessAct').text())
-    var newTitle3=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessArc').text())
+    var newTitle2=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessArc').text())
 
     $('.col1 .last-login').each(function(idx, item) {  
         var $thisCheckbox =$(this).find(':checkbox');
@@ -125,23 +105,10 @@ var postMoveCleanUp = function(selectedItems) {
     });
     $('input[name$=prefTabString]').val(ids);
     var ids ='';
-    $('.col2 .last-login').each(function(idx, item) {
-        var $thisCheckbox =$(this).find(':checkbox');
-        var thisTitle = $(this).find('.siteLabel').text();
-        $thisCheckbox.attr('title',newTitle2.replace('{0}', thisTitle));
-        if (idx > 0) {
-            ids =ids + ', ' + $(this).attr('id');
-        }
-        else {
-            ids =$(this).attr('id');
-        }
-    });
-    $('input[name$=prefDrawerString]').val(ids);
-    var ids ='';
-    $('.col3 .last-login').each(function(idx, item) {  
+    $('.col2 .last-login').each(function(idx, item) {  
         var $thisCheckbox =$(this).find(':checkbox');
         var thisTitle = $(this).find('.siteLabel').text()
-        $thisCheckbox.attr('title',newTitle3.replace('{0}', thisTitle));
+        $thisCheckbox.attr('title',newTitle2.replace('{0}', thisTitle));
         if (idx > 0) {
             ids =ids + ', ' + $(this).attr('id');
         }
@@ -350,8 +317,7 @@ resizeFrame = function (updown) {
 
     		    var ids = '';
                 var newTitle1=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessFav').text())
-                var newTitle2=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessAct').text())
-                var newTitle3=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessArc').text())
+                var newTitle2=$('.checkboxSelectMessage').text().replace('{1}',$('.checkboxFromMessArc').text())
   
 		    jQuery('.col1 .last-login').each(function(idx, item) {
                 var $thisCheckbox =$(this).find(':checkbox');
@@ -367,15 +333,6 @@ resizeFrame = function (updown) {
                 var $thisCheckbox =$(this).find(':checkbox');
                 var thisTitle = $(this).find('.siteLabel').text();
                 $thisCheckbox.attr('title',newTitle2.replace('{0}', thisTitle));
-                        if ( ids.length > 1 ) ids += ', ' ;
-        	        ids += item.id ; 
-    		    });
-            	    jQuery('input[name$=prefDrawerString]').val(ids);
-    		    var ids = '';  
-		    jQuery('.col3 .last-login').each(function(idx, item) {
-                var $thisCheckbox =$(this).find(':checkbox');
-                var thisTitle = $(this).find('.siteLabel').text();
-                $thisCheckbox.attr('title',newTitle3.replace('{0}', thisTitle));
                if ( ids.length > 1 ) ids += ', ' ;
         	        ids += item.id ; 
     		    });

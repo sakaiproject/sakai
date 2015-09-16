@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Collection;
 
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.lessonbuildertool.SimplePageComment;
 import org.sakaiproject.lessonbuildertool.SimplePage;
 import org.sakaiproject.lessonbuildertool.SimplePageItem;
@@ -13,7 +14,7 @@ import org.sakaiproject.lessonbuildertool.SimplePageQuestionResponse;
 import org.sakaiproject.lessonbuildertool.SimpleStudentPage;
 import org.sakaiproject.lessonbuildertool.model.SimplePageToolDao;
 import org.sakaiproject.lessonbuildertool.service.GradebookIfc;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.tool.cover.SessionManager;
@@ -96,10 +97,13 @@ public class GradingBean {
 
 		String gradebookId = null;
 
+		Integer maxpoints = null;
 		if (studentPage != null) {
 		    gradebookId = topItem.getAltGradebook();
+		    maxpoints = topItem.getAltPoints();
 		} else {
 		    gradebookId = commentItem.getGradebookId();
+		    maxpoints = commentItem.getGradebookPoints();
 		}
 
 		Double newpoints = Double.valueOf(points);
@@ -107,8 +111,8 @@ public class GradingBean {
 		if (newpoints.equals(comment.getPoints())) {
 			return true;
 		}
-		
-		if (newpoints < 0.0 || newpoints > commentItem.getGradebookPoints()) {
+
+		if (newpoints < 0.0 || newpoints > maxpoints) {
 			return false;
 		}
 
@@ -165,7 +169,7 @@ public class GradingBean {
 			r = gradebookIfc.updateExternalAssessmentScore(simplePageBean.getCurrentSiteId(), pageItem.getGradebookId(), page.getOwner(), Double.toString(newpoints));
 		    else {
 			group = "/site/" + simplePageBean.getCurrentSiteId() + "/group/" + group;
-			AuthzGroup g = AuthzGroupService.getAuthzGroup(group);
+			AuthzGroup g = ComponentManager.get(AuthzGroupService.class).getAuthzGroup(group);
 			Set<Member> members = g.getMembers();
 			// if we have more than one user, in theory some might fail and some succeed. For the
 			// moment just update the grade 

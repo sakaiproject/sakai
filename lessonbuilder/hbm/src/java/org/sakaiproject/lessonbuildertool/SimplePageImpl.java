@@ -47,6 +47,8 @@ public class SimplePageImpl implements SimplePage {
 	
 	private String cssSheet = null; // ID of a resource, if a separate CSS sheet is to be used
 
+	private String folder = null; // ID of a resource
+
 	public SimplePageImpl() {}
 
 	public SimplePageImpl(String toolId, String siteId, String title, Long parent, Long topParent) {
@@ -167,6 +169,14 @@ public class SimplePageImpl implements SimplePage {
 	
 	public void setCssSheet(String cssSheet) {
 		this.cssSheet = cssSheet;
+	}
+
+	public String getFolder() {
+		return folder;
+	}
+	
+	public void setFolder(String f) {
+		this.folder = f;
 	}
 
 }

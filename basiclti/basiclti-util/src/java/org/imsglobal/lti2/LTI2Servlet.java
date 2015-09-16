@@ -235,18 +235,18 @@ public class LTI2Servlet extends HttpServlet {
 		if ( profile == null ) {
 			output = "Missing profile";
 		} else {
-	        JSONObject providerProfile = (JSONObject) JSONValue.parse(profile);
+			ToolProxy toolProxy = new ToolProxy(profile);
 
 			List<Properties> profileTools = new ArrayList<Properties> ();
-	        Properties info = new Properties();
-			String retval = LTI2Util.parseToolProfile(profileTools, info, providerProfile);
+			Properties info = new Properties();
+			String retval = toolProxy.parseToolProfile(profileTools, info);
 			String launch = null;
 			String parameter = null;
 			for ( Properties profileTool : profileTools ) {
 				launch = (String) profileTool.get("launch");
 				parameter = (String) profileTool.get("parameter");
 			}
-			JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
+			JSONObject security_contract = toolProxy.getSecurityContract();
 
 			String shared_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
 			System.out.println("launch="+launch);
@@ -323,14 +323,16 @@ public class LTI2Servlet extends HttpServlet {
 		// Load the configuration data
 		LTI2Config cnf = new org.imsglobal.lti2.LTI2ConfigSample();
 
-		ToolConsumer consumer = new ToolConsumer(profile_id+"", getServiceURL(request), cnf);
+		ToolConsumer consumer = new ToolConsumer(profile_id+"", getServiceURL(request)+"#", cnf);
 
 		// Normally we would check permissions before we offer capabilities
-		List<String> capabilities = consumer.getCapability_offered();
-		LTI2Util.allowEmail(capabilities);
-		LTI2Util.allowName(capabilities);
-		LTI2Util.allowSettings(capabilities);
-		LTI2Util.allowResult(capabilities);
+		consumer.allowEmail();
+		consumer.allowName();
+		consumer.allowSettings();
+		consumer.allowResult();
+		// Keep our life simple
+                // consumer.allowSplitSecret();
+                // consumer.allowHmac256();
 
 		// Normally we would check permissions before we offer services
 		List<Service_offered> services = consumer.getService_offered();
@@ -384,17 +386,20 @@ public class LTI2Servlet extends HttpServlet {
 			return;
 		}
 
-		JSONObject providerProfile = (JSONObject) JSONValue.parse(jsonRequest.getPostBody());
-		// System.out.println("OBJ:"+providerProfile);
-		if ( providerProfile == null  ) {
+		ToolProxy toolProxy = null;
+		try {
+			toolProxy = new ToolProxy(jsonRequest.getPostBody());
+			// System.out.println("OBJ:"+toolProxy);
+		} catch (Throwable t ) {
+			t.printStackTrace();
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "JSON parse failed", null);
 			return;
 		}
 
-		JSONObject default_custom = (JSONObject) providerProfile.get(LTI2Constants.CUSTOM);
+		JSONObject default_custom = toolProxy.getCustom();
 
-		JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
+		JSONObject security_contract = toolProxy.getSecurityContract();
 		if ( security_contract == null  ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, "JSON missing security_contract", null);
@@ -413,7 +418,7 @@ public class LTI2Servlet extends HttpServlet {
 		ToolConsumer consumer = buildToolConsumerProfile(request, null, profile_id);
 
 		JSONArray tool_services = (JSONArray) security_contract.get(LTI2Constants.TOOL_SERVICE);
-		String retval = LTI2Util.validateServices(consumer, providerProfile);
+		String retval = toolProxy.validateServices(consumer);
 		if ( retval != null ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, retval, null);
@@ -421,7 +426,7 @@ public class LTI2Servlet extends HttpServlet {
 		}
 
 		// Parse the tool profile bit and extract the tools with error checking
-		retval = LTI2Util.validateCapabilities(consumer, providerProfile);
+		retval = toolProxy.validateCapabilities(consumer);
 		if ( retval != null ) {
 			response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
 			doErrorJSON(request, response, jsonRequest, retval, null);
@@ -429,7 +434,7 @@ public class LTI2Servlet extends HttpServlet {
 		}
 
 		// Pass the profile to the launch process
-		PERSIST.put("profile", providerProfile.toString());
+		PERSIST.put("profile", toolProxy.toString());
 
 		// Share our happiness with the Tool Provider
 		Map jsonResponse = new TreeMap();
@@ -544,8 +549,8 @@ System.out.println("accept="+acceptHdr+" ac="+acceptComplex);
 
 		String consumer_key = TEST_KEY;
 		String profile = PERSIST.get("profile");
-		JSONObject providerProfile = (JSONObject) JSONValue.parse(profile);
-		JSONObject security_contract = (JSONObject) providerProfile.get(LTI2Constants.SECURITY_CONTRACT);
+		ToolProxy toolProxy = new ToolProxy(profile);
+		JSONObject security_contract = toolProxy.getSecurityContract();
 		String oauth_secret = (String) security_contract.get(LTI2Constants.SHARED_SECRET);
 
 		// Validate the incoming message

@@ -38,6 +38,9 @@ public class LTI2Constants {
 	 */
 	public static final String REG_PASSWORD = "reg_password";
 
+        public static final String TC_HALF_SHARED_SECRET = "tc_half_shared_secret";
+        public static final String TP_HALF_SHARED_SECRET = "tp_half_shared_secret";
+
 	/**
 	 * TC_PROFILE_URL
 	 * <p>
@@ -55,6 +58,7 @@ public class LTI2Constants {
 	public static final String TOOL_PROXY_GUID = "tool_proxy_guid";
 	public static final String SHARED_SECRET = "shared_secret";
 	public static final String CUSTOM = "custom";
+	public static final String ENABLED_CAPABILITY = "enabled_capability";
 	public static final String SECURITY_CONTRACT = "security_contract";
 	public static final String SERVICE = "service";
 	public static final String TOOL_SERVICE = "tool_service";
@@ -62,12 +66,32 @@ public class LTI2Constants {
 	public static final String GRADE_TYPE_DECIMAL = "decimal";
 	public static final String COMMENT = "comment";
 	public static final String RESULTSCORE = "resultScore";
+	public static final String TOOL_PROXY = "tool_proxy";
+	public static final String TOOL_PROXY_BINDING = "tool_proxy_binding";
+	public static final String RESOURCE_HANDLER = "resource_handler";
+	public static final String ICON_INFO = "icon_info";
+	public static final String PARAMETER = "parameter";
+	public static final String DESCRIPTION = "description";
 
-	/**
-	 * Utility array useful for validating property names when building launch
-	 * data.
-	 */
-	public static final String[] validPropertyNames = { 
-        REG_KEY, REG_PASSWORD, TC_PROFILE_URL };
+	public static final String TOOL_PROFILE = "tool_profile";
+	public static final String MESSAGE = "message";
+	public static final String MESSAGE_TYPE = "message_type";
+	public static final String ICON_STYLE = "icon_style";
+	public static final String DEFAULT_LOCATION = "default_location";
+	public static final String PATH = "path";
+	public static final String GUID = "guid";
+	public static final String PRODUCT_INSTANCE = "product_instance";
+	public static final String PRODUCT_INFO = "product_info";
+	public static final String PRODUCT_NAME = "product_name";
+	public static final String DEFAULT_VALUE = "default_value";
+	public static final String PRODUCT_FAMILY = "product_family";
+	public static final String CODE = "code";
+	public static final String VENDOR = "vendor";
+	public static final String BASE_URL_CHOICE = "base_url_choice";
+	public static final String SECURE_BASE_URL = "secure_base_url";
+	public static final String RESOURCE_TYPE = "resource_type";
+	public static final String SHORT_NAME = "short_name";
+	public static final String DEFAULT_BASE_URL = "default_base_url";
+	public static final String RESOURCE_NAME = "resource_name";
 
 }

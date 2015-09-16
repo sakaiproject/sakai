@@ -59,6 +59,7 @@
     <property name="messageLocator" ref="messageLocator"/>
     <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
     <property name="targettedMessageList" ref="targettedMessageList" />
+    <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
   </bean>
   
   <bean id="GroupImportStep1Producer"

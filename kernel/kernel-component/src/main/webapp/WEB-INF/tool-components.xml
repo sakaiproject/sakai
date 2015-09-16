@@ -14,6 +14,7 @@
 		<lookup-method name="threadLocalManager" bean="org.sakaiproject.thread_local.api.ThreadLocalManager" />
 		<lookup-method name="toolManager" bean="org.sakaiproject.tool.api.ActiveToolManager"/>
 		<lookup-method name="rebuildBreakdownService" bean="org.sakaiproject.tool.api.RebuildBreakdownService" />
+		<lookup-method name="clusterManager" bean="org.sakaiproject.cluster.api.ClusterService"/>
 
 		<property name="clusterableTools">
 			<!-- The tool id's should be used for any clusterable tool.  A clusterable tool, is any tool that can 

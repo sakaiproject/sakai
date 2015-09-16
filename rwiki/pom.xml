@@ -28,16 +28,10 @@ limitations under the License.
   <artifactId>rwiki-base</artifactId>
   <version>11-SNAPSHOT</version>
   <name>Sakai RWiki Project</name>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/rwiki/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/rwiki/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/rwiki/trunk</url>
-  </scm>
   <packaging>pom</packaging>
   <modules>
     <module>rwiki-api/api</module>
     <module>rwiki-impl/impl</module>
-    <module>rwiki-integration-test</module>
     <module>rwiki-model</module>
     <module>rwiki-util/jrcs</module>
     <module>rwiki-util/radeox</module>

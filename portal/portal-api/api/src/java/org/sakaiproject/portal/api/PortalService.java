@@ -73,6 +73,11 @@ public interface PortalService
 	public static final String SAKAI_CONTROLLING_PORTAL = "sakai-controlling-portal";
 
 	/**
+	 * The Site ID that the user was originally trying to access when they hit the error.
+	 */
+	String SAKAI_PORTAL_ORIGINAL_SITEID = "SAKAI_PORTAL_ORIGINAL_SITEID";
+
+	/**
 	 * ste the state of the portal reset flag.
 	 * 
 	 * @param state

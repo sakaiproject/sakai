@@ -23,10 +23,7 @@ package org.sakaiproject.calendar.tool;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.Iterator;
-import java.util.Vector;
+import java.util.*;
 
 import org.sakaiproject.calendar.api.CalendarEvent;
 import org.sakaiproject.time.api.Time;
@@ -79,6 +76,9 @@ class CalendarFilter
 	public static final int LIST_VIEW_STARTING_YEAR =
 		TimeService.newTime().breakdownLocal().getYear()
 			- LIST_VIEW_YEAR_RANGE / 2;
+
+	/** Mode to show all future events */
+	public final static String SHOW_FUTURE_RANGE = "SHOW_FUTURE";
 
 	/** Mode to show the default range of dates */
 	public final static String SHOW_ALL_RANGE = "SHOW_ALL";
@@ -267,7 +267,19 @@ class CalendarFilter
 			startDay = LIST_VIEW_STARTING_DAY;
 			endDay = LIST_VIEW_ENDING_DAY;
 		}
-		else
+		else if (SHOW_FUTURE_RANGE.equals(mode))
+		{
+			// Start on current day, month, year but end on default
+			startYear = Calendar.getInstance().get(Calendar.YEAR);
+			endYear = LIST_VIEW_ENDING_YEAR;
+
+			startMonth = Calendar.getInstance().get(Calendar.MONTH) + 1;
+			endMonth = LIST_VIEW_ENDING_MONTH;
+
+			startDay = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+			endDay = LIST_VIEW_ENDING_DAY;
+		}
+        else
 		if (SHOW_DAY.equals(mode))
 		{
 			// To show the day, we only use one date for start/end.

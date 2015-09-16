@@ -18,6 +18,8 @@ import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
+import org.sakaiproject.event.api.ActivityService;
+import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.site.api.SiteService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -65,6 +67,8 @@ public class AbstractWebService {
     protected ShortenedUrlService shortenedUrlService;
     protected SamLiteService samLiteService;
     protected IdManager idManager;
+    protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
+    protected ActivityService activityService;
 
     
     @WebMethod(exclude = true)
@@ -219,4 +223,16 @@ public class AbstractWebService {
     public void setIdManager(IdManager idManager) {
         this.idManager = idManager;
     }
+    
+    @WebMethod(exclude = true)
+    public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService service) {
+        this.gradebookExternalAssessmentService = service;
+    }
+
+    @WebMethod(exclude = true)
+        public void setActivityService(ActivityService activityService) {
+        this.activityService = activityService;
+    }
+
+
 }

@@ -29,11 +29,6 @@
         <module>myfaces-widgets-depend</module>
     </modules>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/jsf/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/jsf/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/jsf/trunk</url>
-    </scm>
     
     <distributionManagement>
         <site>

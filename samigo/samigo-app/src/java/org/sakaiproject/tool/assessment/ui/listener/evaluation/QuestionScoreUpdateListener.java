@@ -84,7 +84,14 @@ public class QuestionScoreUpdateListener
     QuestionScoresBean bean = (QuestionScoresBean) ContextUtil.lookupBean("questionScores");
     TotalScoresBean tbean = (TotalScoresBean) ContextUtil.lookupBean("totalScores");
     log.debug("Calling saveQuestionScores.");
-    tbean.setAssessmentGradingHash(tbean.getPublishedAssessment().getPublishedAssessmentId());
+    
+    Long publishedId = Long.valueOf(ContextUtil.lookupParam("publishedId"));
+    Long publishedIdFromBean = tbean.getPublishedAssessment().getPublishedAssessmentId();
+    if (publishedId != null && publishedIdFromBean != null && !publishedId.equals(publishedIdFromBean)) {
+    	throw new IllegalArgumentException("Published id has changed from " + publishedIdFromBean + " to " + publishedId);
+    }
+    
+    tbean.setAssessmentGradingHash(publishedIdFromBean);
     try{
       if (!saveQuestionScores(bean, tbean))
       {

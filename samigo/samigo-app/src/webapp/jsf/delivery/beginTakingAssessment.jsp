@@ -35,36 +35,14 @@
       <h:outputText value="#{delivery.assessmentTitle}"/>
 
       </title>
-<script type="text/JavaScript">
-
-var okToSubmit = true;
-$( document ).ready(function() {
-	if($('#takeAssessmentForm\\:honor_pledge').length > 0) {
-		okToSubmit = false;
-
-		$('#takeAssessmentForm\\:honor_pledge').change(
-			function() { okToSubmit = true; }
-		);
-	}
-
-});
-
-function checkSubmit(){
-	if(!okToSubmit){
-		alert("<h:outputText value='#{deliveryMessages.honor_pledge_select}'/>");
-		$('#takeAssessmentForm\\:honorPledgeRequired').show();
-		return false;
-	}
-	return true;
-}
-</script>
 
       <%@ include file="/jsf/delivery/deliveryjQuery.jsp" %>
       </head>
       <body onload="<%= request.getAttribute("html.body.onload") %>;">
  
 <!--div class="portletBody"-->
- <h:outputText value="<div class='portletBody' style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
+<div class="portletBody">
+ <h:outputText value="<div style='#{delivery.settings.divBgcolor};#{delivery.settings.divBackground}'>" escape="false"/>
 
  <!-- content... -->
 <h:form id="takeAssessmentForm">
@@ -227,7 +205,7 @@ function checkSubmit(){
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
 			 && delivery.navigation != 1 && delivery.firstTimeTaking}"
-	onclick="return checkSubmit()">
+	onclick="return checkIfHonorPledgeIsChecked()">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
   
@@ -236,7 +214,7 @@ function checkSubmit(){
     rendered="#{(delivery.actionString=='takeAssessment'
              || delivery.actionString=='takeAssessmentViaUrl')
 			 && delivery.navigation == 1 && delivery.firstTimeTaking}"
-	onclick="return checkSubmit()">
+	onclick="return checkIfHonorPledgeIsChecked()">
 	<f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.LinearAccessDeliveryActionListener" />
   </h:commandButton>
   
@@ -260,7 +238,7 @@ function checkSubmit(){
   </h:commandButton>
   
 
- <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" onclick="return checkSubmit()">
+ <h:commandButton id="beginAssessment3" value="#{deliveryMessages.begin_assessment_}" action="#{delivery.pvalidate}" type="submit" styleClass="active" rendered="#{delivery.actionString=='previewAssessment'}" onclick="return checkIfHonorPledgeIsChecked()">
     <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.delivery.DeliveryActionListener" />
   </h:commandButton>
 
@@ -285,6 +263,7 @@ function checkSubmit(){
 
 </h:form>
   <!-- end content -->
+  </div>
 </div>
       </body>
     </html>

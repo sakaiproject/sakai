@@ -34,7 +34,7 @@ public class SakaiClusterServiceSqlOracle extends SakaiClusterServiceSqlDefault
 	 */
 	public String getListExpiredServers(long timeout)
 	{
-		return "select SERVER_ID from SAKAI_CLUSTER where SERVER_ID != ? and UPDATE_TIME < (CURRENT_TIMESTAMP - "
+		return "select SERVER_ID_INSTANCE from SAKAI_CLUSTER where SERVER_ID_INSTANCE != ? and UPDATE_TIME < (CURRENT_TIMESTAMP - "
 				+ ((float) timeout / (float) (60 * 60 * 24)) + " )";
 	}
 }

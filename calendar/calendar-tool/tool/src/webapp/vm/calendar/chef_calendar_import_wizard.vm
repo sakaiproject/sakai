@@ -24,6 +24,7 @@
 			<h4>$tlang.getString("imp.select")</h4>
 		#elseif ($importWizardState == "OTHER_SELECT_FILE")
       			<p class="instruction">$tlang.getString("imp.mm.outlook")<br />
+      			$tlang.getString("import.outlook.note")<br />
 
 		#elseif ($importWizardState == "ICAL_SELECT_FILE")
       			<p class="instruction">$tlang.getString("imp.ical.todo")<br />

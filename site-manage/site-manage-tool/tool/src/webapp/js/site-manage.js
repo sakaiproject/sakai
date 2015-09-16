@@ -18,7 +18,7 @@ $.ajaxSetup({
 sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
     utils.startDialog(dialogTarget);
     $("." + trigger).click(function(e){
-        var siteURL = '/direct/site/' + $(this).attr('id') + '.json';
+        var siteURL = '/direct/site/' + $(this).attr('id') + '/info.json';
         jQuery.getJSON(siteURL, function(data){
             var desc = '', shortdesc = '', title = '', owner = '', email = '';
             if (data.description) {
@@ -33,6 +33,14 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
             else {
                 shortdesc = nosd;
             }
+
+            if (data.contactName) {
+                owner = data.contactName;
+            }
+
+            if (data.contactEmail) {
+                email = " (<a href=\"mailto:" + data.contactEmail.escapeHTML() + "\" id=\"email\">" + data.contactEmail.escapeHTML() + "</a>)";
+            }
             
             if (data.props) {
                 if (data.props['contact-name']) {
@@ -43,6 +51,7 @@ sakai.getSiteInfo = function(trigger, dialogTarget, nosd, nold){
                     email = " (<a href=\"mailto:" + data.props['contact-email'].escapeHTML() + "\" id=\"email\">" + data.props['contact-email'].escapeHTML() + "</a>)";
                 }
             }
+
             sitetitle = data.title.escapeHTML();
             content = ("<h4><span id=\'owner\'></span>" + email + "</h4>" + "<br /><p class=\'textPanelFooter\' id=\'shortdesc\'>" + shortdesc.escapeHTML() + "</p><br />" + "<div class=\"textPanel\">" + desc + "</div>");
             $("#" + dialogTarget).html(content);
@@ -128,6 +137,7 @@ sakai.setupSelectList = function(list, allcontrol, highlightClass){
             $('#' + list + ' input:checkbox').prop('checked', false);
             $('#' + list + ' tbody tr').removeClass(highlightClass);
         }
+        utils.checkEnableUnjoin();
     });
     
     $('#' + list + ' input:checkbox').click(function(){
@@ -539,6 +549,27 @@ utils.endDialog = function(ev, dialogTarget){
 
 };
 
+utils.checkEnableUnjoin = function()
+{
+    var disabled = $( ".joinable:checked" ).length > 0 ? false : true;
+    $( "#reset" ).prop( "disabled", disabled );
+    $( "#unjoin" ).prop( "disabled", disabled );
+    if( disabled )
+    {
+        $( "#unjoin" ).removeClass( "active" );
+    }
+    else
+    {
+        $( "#unjoin" ).addClass( "active" );
+    }
+};
+
+utils.clearSelections = function()
+{
+    $( "#currentSites input:checkbox" ).prop( "checked", false);
+    $( "#currentSites tbody tr").removeClass( "selectedSelected" );
+    utils.checkEnableUnjoin();
+};
 
 // toggle a fade
 jQuery.fn.fadeToggle = function(speed, easing, callback){

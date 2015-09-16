@@ -1,11 +1,12 @@
 <%@ page contentType="text/html;charset=utf-8" pageEncoding="utf-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
+<%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t"%>
 <%@ taglib uri="http://www.sakaiproject.org/samigo" prefix="samigo" %>
 <!DOCTYPE html
      PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
      "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-  
+
 <!-- $Id$
 <%--
 ***********************************************************************************
@@ -27,46 +28,34 @@
 **********************************************************************************/
 --%>
 -->
-  <f:view>
+<f:view>
     <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
-      <head><%= request.getAttribute("html.head") %>
-      <title><h:outputText value="#{questionPoolMessages.rm_p}"/></title>
-      </head>
-      <body onload="<%= request.getAttribute("html.body.onload") %>">
-<!-- content... -->
- <div class="portletBody">
- <h:form id="removePoolForm">
-      <h3 style="insColor insBak"> <h:outputText  value="#{questionPoolMessages.rm_p_confirm}" /> </h3>
-   <h:panelGrid cellpadding="5" cellspacing="3">
-     <h:panelGroup>
-      <f:verbatim><div class="validation"></f:verbatim>
-         <h:outputText value="#{questionPoolMessages.remove_sure_p}" />
-       <f:verbatim></div></f:verbatim>
-     </h:panelGroup>
-     <div class="tier1">
-       <h3><h:outputText value="#{questionPoolMessages.p_names}"/></h3>
-       <h:dataTable id="table" value="#{questionpool.poolsToDelete}"
-    var="pool" >
- 	 <h:column>
-		<h:outputText styleClass="bold" escape="false" value="#{pool.displayName}"/>
-	 </h:column>
-       </h:dataTable>
-    </div>
- </h:panelGrid>
-   <p class="act">
-      <h:commandButton type="submit" immediate="true" id="Submit" value="#{commonMessages.remove_action}"
-    action="#{questionpool.removePool}" styleClass="active">
-      </h:commandButton>
-     <h:commandButton id="cancel" style="act" value="#{commonMessages.cancel_action}" action="#{questionpool.cancelPool}">
-      </h:commandButton>
-
-
- </p>
-
- </h:form>
- <!-- end content -->
-</div>
-
-</body>
-</html>
+        <head><%= request.getAttribute("html.head") %>
+            <title><h:outputText value="#{questionPoolMessages.rm_p}" /></title>
+        </head>
+        <body onload="<%= request.getAttribute("html.body.onload") %>">
+            <!-- content... -->
+            <div class="portletBody">
+                <h:form id="removePoolForm">
+                    <h3 style="insColor insBak"><h:outputText value="#{questionPoolMessages.rm_p_confirm}" /></h3>
+                    <div class="validation">
+                        <h:outputText value="#{questionPoolMessages.remove_sure_p}" />
+                    </div>
+                    <div class="tier1">
+                        <h4><h:outputText value="#{questionPoolMessages.p_names}" /></h4>
+                        <t:dataList layout="unorderedList" value="#{questionpool.poolsToDelete}" var="pool">
+                            <h:outputText value="#{pool.displayName}" />
+                        </t:dataList>
+                    </div>
+                    <p class="act">
+                        <h:commandButton type="submit" immediate="true" id="Submit" value="#{commonMessages.remove_action}" action="#{questionpool.removePool}" styleClass="active" />
+                        <h:commandButton id="cancel" style="act" value="#{commonMessages.cancel_action}" action="poolList">
+                            <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.questionpool.QuestionPoolListener" />
+                        </h:commandButton>
+                    </p>
+                </h:form>
+            </div>
+            <!-- end content -->
+        </body>
+    </html>
 </f:view>

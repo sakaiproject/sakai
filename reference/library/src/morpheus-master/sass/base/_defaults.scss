@@ -1,0 +1,113 @@
+body{
+	background:  $tool-background-color;
+	color: 		 $text-color;
+	font-family: $font-family;
+	font-size: 	 $default-font-size !important; // Bootstrap Tool error
+	font-weight: $default-font-weight;
+	line-height: 1.55;					// http://practicaltypography.com/line-spacing.html
+	&.#{$namespace}portalBody{
+		background:  $background-color;
+	}
+}
+
+a{
+	color: $primary-color;
+	&:focus, &::-moz-focus-inner{
+		outline-color: invert;
+	}
+	text-decoration:underline;
+}
+input, textarea{
+	color: $text-color ;
+}
+
+h1, h2, h3, h4, h5, h6{
+	font-family: $header-font-family;
+	font-weight: $header-font-weight;
+	line-height: 1.1;
+}
+
+// Using 3:4 - perfect fourth
+h1{
+	font-size: 2.375em;
+}
+
+h2{
+	font-size: 1.75em;
+}
+
+h3{
+	font-size: 1.3125em;
+}
+
+h4{
+	font-size: 1em;
+}
+
+.skip{
+	display: none;
+}
+
+input[type="submit"],input[type="button"]{
+
+	@if $button-gradiant {
+		@include sakai-button(  $button-color-secondary, 
+							darken( $button-color-secondary, 15% ), 
+							darken( $button-color-secondary, 25% ), 
+							$button-text-color-secondary );
+	}
+	@else{
+		
+		@include sakai-button(  $button-color-secondary, 
+							$button-color-secondary, 
+							$button-color-secondary, 
+							$button-text-color-secondary );
+	}
+	&:focus, &::-moz-focus-inner{
+		outline-color: invert;
+	}
+}
+
+input[type="reset"],input[type="button"]{
+	@if $button-gradiant {
+		@include sakai-button(  darken($button-color-secondary,5%), 
+							darken( $button-color-secondary, 20% ), 
+							darken( $button-color-secondary, 30% ), 
+							$button-text-color-secondary );
+	}
+	@else{
+		
+		@include sakai-button(  darken($button-color-secondary,5%), 
+							darken($button-color-secondary,5%), 
+							darken($button-color-secondary,5%), 
+							$button-text-color-secondary );
+	}
+	&:focus, &::-moz-focus-inner{
+		outline-color: invert;
+	}
+}
+
+select{
+	padding: 0.25em;
+	border: 1px solid $warncolor;
+}
+
+.is-hidden{
+	display: none;
+}
+
+strong, b{
+	font-weight: 700;
+}
+
+i, em{
+	font-style: italic;
+}
+
+u, ins {
+	text-decoration: underline;
+}
+
+s, strike, del {
+	text-decoration: line-through;
+}

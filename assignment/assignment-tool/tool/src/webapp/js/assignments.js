@@ -1,3 +1,6 @@
+// 'Namespace'
+var ASN = {};
+
 function getSelect(selectBox) {
     if (selectBox && selectBox instanceof HTMLSelectElement) { 
         return selectBox.options[selectBox.selectedIndex].value;
@@ -282,10 +285,11 @@ function setupAssignNew(){
 
 function resizeFrame(updown) 
 {
-    if (top.location !== self.location) 	 {
+    if (top.location !== self.location)
+    {
         var frame = parent.document.getElementById(window.name);
-    }	
-        if( frame ) 
+    }
+    if( frame ) 
     {
         if(updown==='shrink')
         {
@@ -330,18 +334,23 @@ function setupToggleAreas(toggler, togglee, openInit, speed){
     });
 }
 
-function setupItemNavigator(){
-    $('.itemNav input').click(function(){
-        var what = $(this).attr('class');
-        
-        $('.' + what).prop('disabled','disabled').addClass('disabled');
-        $('.messageProgress').css('visibility','visible');
+// SAK-29314 - onclick on any of the nav panel buttons...
+ASN.setupItemNavigator = function()
+{
+    $( ".navigator input:button" ).click( function()
+    {
+        // Disable all buttons
+        $( ".navigator input:button" ).attr( "disabled", "disabled" ).addClass( "disabled" );
+
+        // Show the progress indicator and hide the return to list button
+        $( ".messageProgress" ).css( "display", "inline" );
+        $( ".cancelgradesubmission" ).css( "display", "none" );
         
     });
-}
+};
 
 // SAK-26349
-function showOrHideAccessMessages(groupRadioSelected) {
+ASN.showOrHideAccessMessages = function(groupRadioSelected) {
     
     // Get the elements
     var container = document.getElementById("messages");
@@ -349,7 +358,7 @@ function showOrHideAccessMessages(groupRadioSelected) {
     var children = container.getElementsByTagName("div");
     
     // Show/hide the messages
-    showOrHideSelectGroupsMessage();
+    ASN.showOrHideSelectGroupsMessage();
     if (groupRadioSelected) {
         for (i = 0; i < children.length; i++) {
             if (children[i].id !== groupMsg.id) {
@@ -364,9 +373,9 @@ function showOrHideAccessMessages(groupRadioSelected) {
             }
         }
     }
-}
+};
 
-function showOrHideSelectGroupsMessage() {
+ASN.showOrHideSelectGroupsMessage = function() {
     
     // Get the elements
     var groupMsg = document.getElementById("msgSelectGroups");
@@ -407,9 +416,9 @@ function showOrHideSelectGroupsMessage() {
             buttons[i].disabled = false;
         }
     }
-}
+};
 
-function toggleGroups(clickedElement) {
+ASN.toggleGroups = function(clickedElement) {
 
     // Get the elements
     var parent = clickedElement.parentNode;
@@ -434,14 +443,14 @@ function toggleGroups(clickedElement) {
             }
         }
     }
-}
+};
 
 function highlightSelectedAttachment()
 {
     endsWith = function(str, suffix)
     {
         return str.indexOf(suffix, str.length - suffix.length) !== -1;
-    }
+    };
 
     var classSuffix = " assignmentAttachmentHighlight";
     var radioButtons = document.getElementsByName("attachmentSelection");
@@ -468,7 +477,7 @@ function highlightSelectedAttachment()
     }
 }
 
-function enableLinks()
+ASN.enableLinks = function()
 {
     var downloadAll = document.getElementById( "downloadAll" );
     var uploadAll = document.getElementById( "uploadAll" );
@@ -482,4 +491,368 @@ function enableLinks()
             links[i].className = "";
         }
     }
-}
+};
+
+// SAK-29314
+ASN.navPanelAction = function( submissionID, action )
+{
+    document.gradeForm.action += "&submissionId=" + submissionID;
+    document.gradeForm.onsubmit();
+    document.getElementById( "option" ).value = action;
+    document.gradeForm.submit();
+    return false;
+};
+
+// SAK-29314
+ASN.toggleSubNavButtons = function( checkBoxClicked )
+{
+    // Get the hidden elements
+    var prevSubmissionID = document.getElementById( "prevSubmissionId" );
+    var nextSubmissionID = document.getElementById( "nextSubmissionId" );
+    var prevUngradedSubmissionID = document.getElementById( "prevUngradedSubmissionID" );
+    var nextUngradedSubmissionID = document.getElementById( "nextUngradedSubmissionID" );
+    var nextWithSubmissionID = document.getElementById( "nextWithSubmissionID" );
+    var prevWithSubmissionID = document.getElementById( "prevWithSubmissionID" );
+    var nextUngradedWithSubmissionID = document.getElementById( "nextUngradedWithSubmissionID" );
+    var prevUngradedWithSubmissionID = document.getElementById( "prevUngradedWithSubmissionID" );
+
+    // Get the buttons
+    var nextButtons = document.getElementsByClassName( "nextsubmission" );
+    var prevButtons = document.getElementsByClassName( "prevsubmission" );
+    var nextUngradedButtons = document.getElementsByClassName( "nextUngraded" );
+    var prevUngradedButtons = document.getElementsByClassName( "prevUngraded" );
+
+    // Enable/disabled the buttons conditionally
+    var isSubsOnlyChecked = checkBoxClicked.checked;
+    if( isSubsOnlyChecked )
+    {
+        ASN.toggleElements( nextButtons, (nextWithSubmissionID === null) );
+        ASN.toggleElements( prevButtons, (prevWithSubmissionID === null) );
+        ASN.toggleElements( nextUngradedButtons, (nextUngradedWithSubmissionID === null) );
+        ASN.toggleElements( prevUngradedButtons, (prevUngradedWithSubmissionID === null) );
+    }
+    else
+    {
+        ASN.toggleElements( nextButtons, (nextSubmissionID === null) );
+        ASN.toggleElements( prevButtons, (prevSubmissionID === null) );
+        ASN.toggleElements( nextUngradedButtons, (nextUngradedSubmissionID === null) );
+        ASN.toggleElements( prevUngradedButtons, (prevUngradedSubmissionID === null) );
+    }
+
+    // Synchronize the two checkboxes
+    var check1 = document.getElementById( "chkSubsOnly1" );
+    var check2 = document.getElementById( "chkSubsOnly2" );
+    check1.checked = isSubsOnlyChecked;
+    check2.checked = isSubsOnlyChecked;
+};
+
+// SAK-29314
+ASN.toggleElements = function( elements, disabled )
+{
+    for( i = 0; i < elements.length; i ++ )
+    {
+        elements[i].disabled = disabled;
+    }
+};
+
+// SAK-29314
+ASN.disableControls = function( escape, linkName )
+{
+    // Clone and disable all drop downs (disable the clone, hide the original)
+    var dropDowns = ASN.nodeListToArray( document.getElementsByTagName( "select" ) );
+    for( i = 0; i < dropDowns.length; i++ )
+    {
+        // Hide the original drop down
+        var select = dropDowns[i];
+        select.style.display = "none";
+
+        // Create the cloned element and disable it
+        var newSelect = document.createElement( "select" );
+        newSelect.setAttribute( "id", select.getAttribute( "id" ) + "Disabled" );
+        newSelect.setAttribute( "name", select.getAttribute( "name" ) + "Disabled" );
+        newSelect.setAttribute( "disabled", "true" );
+        newSelect.className = select.className;
+        newSelect.innerHTML = select.innerHTML;
+
+        // Add the clone to the DOM where the original was
+        var parent = select.parentNode;
+        parent.insertBefore( newSelect, select );
+    }
+
+    // Get all the input elements, separate into lists by type
+    var allInputs = ASN.nodeListToArray( document.getElementsByTagName( "input" ) );
+    var elementsToCloneAndDisable = [];
+    var elementsToDisable = [];
+    for( i = 0; i < allInputs.length; i++ )
+    {
+         if( (allInputs[i].type === "submit" || allInputs[i].type === "button" || allInputs[i].type === "checkbox") 
+                && allInputs[i].id !== escape )
+        {
+            elementsToCloneAndDisable.push( allInputs[i] );
+        }
+        else if( allInputs[i].type === "text" && allInputs[i].id !== escape )
+        {
+            elementsToDisable.push( allInputs[i] );
+        }
+    }
+
+    // Disable all element
+    ASN.toggleElements( elementsToDisable, true );
+    for( i = 0; i < elementsToCloneAndDisable.length; i++ )
+    {
+        ASN.cloneAndHideElement( "", elementsToCloneAndDisable[i] );
+    }
+
+    // Get the download/upload links
+    var downAll = document.getElementById( "downloadAll" );
+    var upAll = document.getElementById( "uploadAll" );
+    var release = document.getElementById( "releaseGrades" );
+    var helpItems = document.getElementById( "helpItems" );
+    var links = [downAll, upAll, release, helpItems];
+    for( i = 0; i < links.length; i++ )
+    {
+        if( links[i] !== null )
+        {
+            ASN.disableLink( links[i] );
+        }
+    }
+
+    if( linkName !== null )
+    {
+        var links = ASN.nodeListToArray( document.getElementsByName( linkName ) );
+        for( i = 0; i < links.length; i++ )
+        {
+            if( links[i] !== null )
+            {
+                ASN.disableLink( links[i] );
+            }
+        }
+    }
+};
+
+// SAK-29314
+ASN.nodeListToArray = function( nodeList )
+{
+    var array = [];
+    for( var i = nodeList.length >>> 0; i--; )
+    {
+        array[i] = nodeList[i];
+    }
+
+    return array;
+};
+
+// SAK-29314
+ASN.changePageSize = function()
+{
+    ASN.disableControls();
+    ASN.showSpinner( "navSpinner" );
+    document.pagesizeForm.submit();
+};
+
+// SAK-29314
+ASN.changeView = function()
+{
+    document.getElementById( "option" ).value = "changeView";
+    ASN.disableControls();
+    ASN.showSpinner( "viewSpinner" );
+    document.viewForm.submit();
+    return false;
+};
+
+// SAK-29314
+ASN.applySearchFilter = function( searchOption )
+{
+    document.getElementById( "option" ).value = searchOption;
+
+    // Disable everything but the search field
+    ASN.disableControls( "search" );
+
+    // Clone and disable the search field (disable the clone, hide the original)
+    var original = document.getElementById( "search" );
+    var clone = document.createElement( "input" );
+    var parent = original.parentNode;
+    clone.setAttribute( "type", "text" );
+    clone.setAttribute( "id", "searchDisabled" );
+    clone.setAttribute( "name", "searchDisabled" );
+    clone.setAttribute( "className", original.getAttribute( "className" ) );
+    clone.value = original.value;
+    clone.setAttribute( "disabled", "true" );
+    original.style.display = "none";
+    parent.insertBefore( clone, original );
+
+    ASN.showSpinner( "userFilterSpinner" );
+    document.viewForm.submit();
+    return false;
+};
+
+// SAK-29314
+ASN.doLinkAction = function( action )
+{
+    document.getElementById( "option" ).value = action;
+    ASN.disableControls();
+    ASN.showSpinner( "navSpinner" );
+};
+
+// SAK-29314
+ASN.applyDefaultGrade = function()
+{
+    // If the default grade field is a text field, we need to do the clone & hide approach
+    var defaultGradeTextField = document.getElementById( "defaultGrade_2" );
+    if( defaultGradeTextField !== null )
+    {
+        // Disable everything but the text field
+        ASN.disableControls( "defaultGrade_2" );
+
+        // Clone and disable the text field (disable the clone, hide the original)
+        var clone = document.createElement( "input" );
+        var parent = defaultGradeTextField.parentNode;
+        clone.setAttribute( "type", "text" );
+        clone.setAttribute( "id", "defaultGrade_2Disabled" );
+        clone.setAttribute( "name", "defaultGrade_2Disabled" );
+        clone.setAttribute( "size", defaultGradeTextField.getAttribute( "size" ) );
+        clone.setAttribute( "className", defaultGradeTextField.getAttribute( "className" ) );
+        clone.value = defaultGradeTextField.value;
+        clone.setAttribute( "disabled", "true" );
+        defaultGradeTextField.style.display = "none";
+        parent.insertBefore( clone, defaultGradeTextField );
+    }
+
+    // Otherwise, it's a drop down, so we can just take the normal approach
+    else
+    {
+        ASN.disableControls();
+    }
+
+    ASN.showSpinner( "applyGradeSpinner" );
+    document.defaultGradeForm.submit();
+};
+
+// SAK-29314
+ASN.showSpinner = function( spinnerID )
+{
+    document.getElementById( spinnerID ).style.visibility = "visible";
+};
+
+// SAK-29314
+ASN.cloneAndHideElement = function( divId, element )
+{
+    // First, set the element to be invisible
+    element.style.display = "none";
+
+    // Now create a new disabled element with the same attributes as the existing element
+    var newElement = document.createElement( "input" );
+
+    newElement.setAttribute( "type", element.type );
+    newElement.setAttribute( "id", element.getAttribute( "id" ) + "Disabled" );
+    newElement.setAttribute( "name", element.getAttribute( "name" ) + "Disabled" );
+    newElement.setAttribute( "value", element.getAttribute( "value" ) );
+    newElement.className = element.className + " noPointers";
+    newElement.setAttribute( "disabled", "true" );
+    if( element.type === "checkbox" )
+    {
+        newElement.checked = element.checked;
+    }
+
+    if( "" !== divId )
+    {
+        var div = document.getElementById( divId );
+        div.insertBefore( newElement, element );
+    }
+    else
+    {
+        var parent = element.parentNode;
+        parent.insertBefore( newElement, element );
+    }
+};
+
+// SAK-29314
+ASN.doGradingFormAction = function( reference, option )
+{
+    // Apply the reference to the form's action handler if necessary
+    if( reference !== null )
+    {
+        document.gradeForm.action = document.gradeForm.action + "&submissionId=" + reference;
+    }
+
+    // Call the form's onSubmit function; change the hidden option value
+    document.gradeForm.onsubmit();
+    document.getElementById( "option" ).value = option;
+
+    // 'Disable' all form controls to prevent click happy users, except the grade text field; show the spinner
+    ASN.disableControls( "grade" );
+    ASN.showSpinner( "gradeFormSpinner" );
+
+    // Submit the form
+    document.gradeForm.submit();
+    return false;
+};
+
+// SAK-29314
+ASN.doGradingPreviewAction = function()
+{
+    var buttons = ASN.nodeListToArray( document.getElementsByTagName( "input" ) );
+    for( i = 0; i < buttons.length; i++ )
+    {
+        if( buttons[i].type === "submit" || buttons[i].type === "button" )
+        {
+            ASN.cloneAndHideElement( "", buttons[i] );
+        }
+    }
+
+    ASN.showSpinner( "gradeFormPreviewSpinner" );
+};
+
+// SAK-29314
+ASN.disableLink = function( link )
+{
+    link.className = "noPointers";
+    link.disabled = true;
+};
+
+// SAK-29708
+ASN.checkEnableRemove = function()
+{
+    var selected = false;
+    var checkboxes = document.getElementsByName( "selectedAssignments" );
+    for( var i = 0; i < checkboxes.length; i++ )
+    {
+        if( checkboxes[i].checked )
+        {
+            selected = true;
+            break;
+        }
+    }
+
+    document.getElementById( "btnRemove" ).disabled = !selected;
+    document.getElementById( "btnRemove" ).className = (selected ? "active" : "" );
+};
+
+ASN.doReorderAction = function( action )
+{
+    document.reorderForm.onsubmit();
+    document.getElementById( "option" ).value = action;
+
+    // Disable links
+    var undoLast = document.getElementById( "undo-last" );
+    var undoAll = document.getElementById( "undo-all" );
+    var sortByTitle = document.getElementById( "sortByTitle" );
+    var sortByOpenDate = document.getElementById( "sortByOpenDate" );
+    var sortByDueDate = document.getElementById( "sortByDueDate" );
+    var links = [undoLast, undoAll, sortByTitle, sortByOpenDate, sortByDueDate];
+    for( var i = 0; i < links.length; i++ )
+    {
+        if( links[i] !== null )
+        {
+            ASN.disableLink( links[i] );
+        }
+    }
+
+    // Disable controls and activate spinner
+    ASN.disableControls();
+    ASN.showSpinner( "reorderSpinner" );
+
+    // Submit the form
+    document.reorderForm.submit();
+    return false;
+};

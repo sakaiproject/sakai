@@ -108,45 +108,28 @@ public class EditAssessmentListener
 
   public void setPropertiesForAssessment(AuthorBean author) {
 	    FacesContext context = FacesContext.getCurrentInstance();
-	    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-        "assessmentBean");
-	    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean(
-        "itemauthor");
+	    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
+	    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 		AssessmentService assessmentService = new AssessmentService();
-		AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil
-				.lookupBean("assessmentSettings");
+		AssessmentSettingsBean assessmentSettings = (AssessmentSettingsBean) ContextUtil.lookupBean("assessmentSettings");
 	    String assessmentId = ContextUtil.lookupParam("assessmentId");
 		if (assessmentId == null || assessmentId.equals("")) {
 			assessmentId = assessmentSettings.getAssessmentId().toString();
 		}
-		AssessmentFacade assessment = assessmentService
-				.getAssessment(assessmentId);
+		AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
 
-		// testing
-		/*
-		Set sectionSet = assessment.getSectionSet();
-		Iterator iter_s = sectionSet.iterator();
-		while (iter_s.hasNext()) {
-			SectionDataIfc s = (SectionDataIfc) iter_s.next();
-			Iterator iter = s.getItemSet().iterator();
-			while (iter.hasNext()) {
-				ItemDataIfc item = (ItemDataIfc) iter.next();
-				List attachSet = item.getItemAttachmentList();
-				Iterator iter_a = attachSet.iterator();
-				while (iter_a.hasNext()) {
-					ItemAttachmentIfc a = (ItemAttachmentIfc) iter_a.next();
-				}
-			}
-		}
-		*/
 		// #1b - permission checking before proceeding - daisyf
 		author.setOutcome("editAssessment");
-		if (!passAuthz(context, assessment.getCreatedBy())) {
-			author.setOutcome("author");
+		
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		if (!authzBean.isUserAllowedToEditAssessment(assessmentId, assessment.getCreatedBy(), false)) {
+		    String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+		    context.addMessage(null,new FacesMessage(err));
+		    author.setOutcome("author");
 			return;
 		}
 
-		// pass authz, move on
+		// passed permission checks, move on
 		author.setIsEditPendingAssessmentFlow(true);
 		assessmentSettings.setAssessment(assessment);
 		assessmentBean.setAssessment(assessment);
@@ -162,18 +145,20 @@ public class EditAssessmentListener
     
   public void setPropertiesForPublishedAssessment(AuthorBean author) {
 	    FacesContext context = FacesContext.getCurrentInstance();
-	    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean(
-        "assessmentBean");
+	    AssessmentBean assessmentBean = (AssessmentBean) ContextUtil.lookupBean("assessmentBean");
 	    ItemAuthorBean itemauthorBean = (ItemAuthorBean) ContextUtil.lookupBean("itemauthor");
 	    PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
-		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil
-				.lookupBean("publishedSettings");
+		PublishedAssessmentSettingsBean publishedAssessmentSettings = (PublishedAssessmentSettingsBean) ContextUtil.lookupBean("publishedSettings");
 	    String publishedAssessmentId = assessmentBean.getAssessmentId();
 		PublishedAssessmentFacade publishedAssessment = publishedAssessmentService.getPublishedAssessment(publishedAssessmentId);
 		
 		// #1b - permission checking before proceeding - daisyf
 		author.setOutcome("editAssessment");
-		if (!passAuthz(context, publishedAssessment.getCreatedBy())) {
+		
+		AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+		if (!authzBean.isUserAllowedToEditAssessment(publishedAssessmentId, publishedAssessment.getCreatedBy(), true)) {
+			String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+			context.addMessage(null,new FacesMessage(err));
 			author.setOutcome("author");
 			return;
 		}
@@ -204,28 +189,6 @@ public class EditAssessmentListener
 		itemauthorBean.setItemTypeString("");
 		
 		showPrintLink(assessmentBean);
-  }
-  
-  public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    boolean hasPrivilege_any = authzBean.getEditAnyAssessment();
-    boolean hasPrivilege_own0 = authzBean.getEditOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-    if (!hasPrivilege){
-       String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-						 "denied_edit_assessment_error");
-       context.addMessage(null,new FacesMessage(err));
-    }
-    return hasPrivilege;
-  }
-
-  public boolean isOwner(String ownerId){
-    boolean isOwner = false;
-    String agentId = AgentFacade.getAgentString();
-    isOwner = agentId.equals(ownerId);
-    log.debug("***isOwner="+isOwner);
-    return isOwner;
   }
   
   public static void showPrintLink(AssessmentBean assessmentBean) {

@@ -5,6 +5,7 @@ import org.hamcrest.Matcher;
 import org.hamcrest.TypeSafeMatcher;
 import org.jmock.Expectations;
 import org.jmock.integration.junit3.MockObjectTestCase;
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ComponentManager;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -30,17 +31,24 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 	// not used - test passes null value to MySession() constructor
 	protected SessionAttributeListener sessionListener;
 	private int uuidDiscriminator;
+	protected ClusterService clusterService;
 	
 	protected void setUp() throws Exception {
 		this.idManager = mock(IdManager.class);
 		this.threadLocalManager = mock(ThreadLocalManager.class);
 		this.toolManager = mock(ToolManager.class);
+		this.clusterService = mock(ClusterService.class);
 		setUpComponentManager();
 		this.sessionComponent = new SessionComponent() {
 
 			@Override
 			protected IdManager idManager() {
 				return idManager;
+			}
+
+			@Override
+			protected ClusterService clusterManager() {
+				return clusterService;
 			}
 
 			@Override
@@ -52,10 +60,15 @@ public abstract class BaseSessionComponentTest extends MockObjectTestCase {
 			protected ToolManager toolManager() {
 				return toolManager;
 			}			
-			
+
 			@Override
 			protected RebuildBreakdownService rebuildBreakdownService() {
 				return null;
+			}
+
+			@Override
+			protected boolean isClosing() {
+				return false;
 			}
 		};
 		//commenting out this next line, because it doesn't seem to be needed

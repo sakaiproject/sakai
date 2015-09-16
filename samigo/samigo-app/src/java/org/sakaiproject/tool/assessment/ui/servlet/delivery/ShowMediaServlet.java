@@ -295,8 +295,8 @@ public class ShowMediaServlet extends HttpServlet
 
   public boolean canGrade(HttpServletRequest req,  HttpServletResponse res,
                           String agentId, String currentSiteId){
-    boolean hasPrivilege_any = hasPrivilege(req, "grade_any_assessment", currentSiteId);
-    boolean hasPrivilege_own = hasPrivilege(req, "grade_own_assessment", currentSiteId);
+    boolean hasPrivilege_any = hasPrivilege(req, "assessment.gradeAssessment.any", currentSiteId);
+    boolean hasPrivilege_own = hasPrivilege(req, "assessment.gradeAssessment.own", currentSiteId);
     log.debug("hasPrivilege_any="+hasPrivilege_any);
     log.debug("hasPrivilege_own="+hasPrivilege_own);
     boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
@@ -311,8 +311,7 @@ public class ShowMediaServlet extends HttpServlet
     return isOwner;
   }
   
-  public boolean hasPrivilege(HttpServletRequest req, String functionKey, String context){
-	  String functionName=(String)ContextUtil.getLocalizedString(req,"org.sakaiproject.tool.assessment.bundle.AuthzPermissions", functionKey);
+  public boolean hasPrivilege(HttpServletRequest req, String functionName, String context){
 	  boolean privilege = SecurityService.unlock(functionName, "/site/"+context);
 	  return privilege;
   }

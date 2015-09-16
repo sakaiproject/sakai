@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2009 The Sakai Foundation
+
+    Licensed under the Educational Community License, Version 1.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.opensource.org/licenses/ecl1.php
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+    <bean id="org.sakaiproject.feedback.util.SakaiProxy" class="org.sakaiproject.feedback.util.SakaiProxy">
+        <property name="emailService"><ref bean="org.sakaiproject.email.api.EmailService" /></property>
+        <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService" /></property>
+        <property name="sessionManager"><ref bean="org.sakaiproject.tool.api.SessionManager" /></property>
+        <property name="toolManager"><ref bean="org.sakaiproject.tool.api.ToolManager" /></property>
+        <property name="privacyManager"><ref bean="org.sakaiproject.api.privacy.PrivacyManager"/></property>
+        <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService" /></property>
+        <property name="userDirectoryService"><ref bean="org.sakaiproject.user.api.UserDirectoryService" /></property>
+    </bean>
+
+    <!--This bean's init() method requires SiteService.init() to have run first -->
+    <bean id="org.sakaiproject.feedback.db.Database" class="org.sakaiproject.feedback.db.Database" init-method="init" depends-on="org.sakaiproject.site.api.SiteService">
+        <property name="sqlService"><ref bean="org.sakaiproject.db.api.SqlService" /></property>
+    </bean>
+
+	<bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider" 
+        class="org.sakaiproject.feedback.tool.entityproviders.FeedbackEntityProvider"
+        init-method="init">
+        <property name="db"><ref bean="org.sakaiproject.feedback.db.Database" /></property>
+        <property name="sakaiProxy"><ref bean="org.sakaiproject.feedback.util.SakaiProxy" /></property>
+	</bean>
+
+</beans>

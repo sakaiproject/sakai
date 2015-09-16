@@ -1,0 +1,96 @@
+## Commenting the check since we need to show moresites view always even if we have 1 site in mobil more
+##if ($tabsSites.tabsMoreSitesShow)
+
+        <div id="selectSite" class="outscreen" tabindex="-1">
+            <div id="otherSiteSearch"> 
+                <label for="txtSearch">${rloader.sit_search}</label> <input type="text" id="txtSearch" name="txtSearch" maxlength="50">
+                <a id="imgSearch" href="#" class="is-hidden"><img src="${pageSkinRepo}/${pageSkin}/images/cancel.png" alt="${rloader.sit_search_cancel}" title="${rloader.sit_search_cancel}"></a>
+                <span id="noSearchResults" class="is-hidden">${rloader.sit_search_none}</span>
+            </div>
+            <ul id="otherSitesMenu">
+
+                #if (${tabsSites.worksiteToolUrl})
+
+                    <li><a id="allSites" href="${tabsSites.mrphs_worksiteToolUrl}"><span>${rloader.sit_allsites}</span></a></li>
+
+                    #if ($allowAddSite)
+
+                        <li><a id="newSite" href="${tabsSites.mrphs_worksiteToolUrl}?panel=Shortcut&amp;sakai_action=doNew_site&amp"><span>${rloader.sit_newsite}</span></a></li>
+
+                    #end ## END of IF ($allowAddSite)
+
+                #end ## END of IF (${tabsSites.worksiteToolUrl})
+
+                #if (${tabsSites.prefsToolUrl})
+
+                    <li><a href="${tabsSites.prefsToolUrl}"><span>${rloader.sit_preferences}</span></a></li>
+
+                #end ## END of IF (${tabsSites.prefsToolUrl})
+
+            </ul>
+            <div id="otherSiteCloseW">
+                <a href="#" onclick="closeDrawer()" class="toggler" title="${rloader.sit_othersitesclose}">
+                    <span class="hamburger">
+                        <i class="fa fa-close"></i>
+                    </span>
+                    <span class="skip">
+                        ${rloader.sit_othersitesclose}
+                    </span>
+                </a>
+            </div>
+
+                <div id="otherSitesCategorWrap">
+                    ### TODO: format well
+
+                    #foreach( $termKey in $tabsSites.tabsMoreSortedTermList )
+
+                        #if ( !$termKey || $termKey == "" )
+
+                            <h4>${rloader.sit_notermkey}</h4>
+
+                        #else
+
+                            <h4>$termKey</h4>
+
+                        #end
+
+                        <ul class="otherSitesCategorList">
+
+                            #foreach( $site in $tabsSites.tabsMoreTerms.get($termKey))
+
+                                #if (${site.isMyWorkspace})
+
+                                    <li>
+                                        <a href="${site.siteUrl}" title="${rloader.sit_mywor}">
+                                            <span class="fullTitle">${rloader.sit_mywor}</span>
+                                        </a>
+                                        <a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
+                                    </li>
+
+                                #else
+
+                                    <li>
+
+                                        #if (( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ))
+                                            <a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.shortDescription}</span></a><a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
+
+                                        #else
+
+                                            <a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.siteTitle}</span></a><a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
+
+                                        #end
+
+                                    </li>
+
+                                #end
+
+                            #end
+
+                        </ul>
+
+                    #end
+
+                </div><!--  end of #otherSitesCategorWrap -->
+        </div>
+
+    ##end ## END of IF ($tabsSites.tabsMoreSitesShow)

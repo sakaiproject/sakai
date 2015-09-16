@@ -48,7 +48,7 @@
 					media="all"/>
 				<link href="{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin.repo']/value}/{/entity-service/request-properties/request-attributes/request-attribute[@name='sakai.skin']/value}/tool.css" type="text/css" rel="stylesheet"
 					media="all"/>
-				<script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
+				<script type="text/javascript" src="/library/js/headscripts.js">
 					<xsl:text>// non-empty script node ensures non-minimized tag is produced (SAK-14388)</xsl:text>
 				</script>
 				<xsl:text disable-output-escaping="yes" >

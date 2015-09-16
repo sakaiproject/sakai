@@ -7,7 +7,7 @@ This is the source code for the Sakai CLE.
 [![Build Status](https://travis-ci.org/sakaiproject/sakai.svg?branch=master)](https://travis-ci.org/sakaiproject/sakai)
 
 
-To build Sakai you need Java 1.7 and Maven 3.2. Once you have clone a copy of this repository you can
+To build Sakai you need Java 1.8 and Maven 3.2. Once you have clone a copy of this repository you can
 build it by running:
 ```
 mvn install
@@ -15,11 +15,11 @@ mvn install
 
 ## Running
 
-Sakai runs on Apache Tomcat 7. Download the latest version from http://tomcat.apache.org and extract the archive.
+Sakai runs on Apache Tomcat 8. Download the latest version from http://tomcat.apache.org and extract the archive.
 *Note: Sakai does not work with Tomcat installed via a package from apt-get, yum or other package managers.*
 
 You **must** configure Tomcat according to the instructions on this page:
-https://confluence.sakaiproject.org/display/BOOT/Install+Tomcat+7
+https://confluence.sakaiproject.org/pages/viewpage.action?pageId=75667828
 
 When you are done, deploy Sakai to Tomcat:
 ```
@@ -42,8 +42,7 @@ Sakai is an [Apereo Foundation](http://www.apereo.org) project and follows the F
 
 ## Contributing
 
-To contribute to the Sakai project please follow the workflow on:
-https://confluence.sakaiproject.org/display/SAKDEV/Git+Setup
+See [our dedicated page](CONTRIBUTING.md) for more information on contributing to Sakai.
 
 ## Bugs
 
@@ -53,5 +52,17 @@ For filing bugs against Sakai please use our Jira instance: https://jira.sakaipr
 For testing out the latest builds go to the [nightly server page](http://nightly2.sakaiproject.org)
 
 ## Get in touch
+If you have any questions, please join the Sakai developer mailing list: To subscribe send an email to sakai-dev+subscribe@apereo.org
 
-If you have any questions, please join the Sakai developer mailing list: http://collab.sakaiproject.org/mailman/listinfo/sakai-dev
+To see a full list of Sakai email lists and the status of the migration to Apereo Google Groups check out this Sakai wiki page:
+https://confluence.sakaiproject.org/display/PMC/Sakai+email+lists
+
+## Community supported versions
+[Sakai 10](https://confluence.sakaiproject.org/display/DOC/Sakai+10+Release+Notes) is the recommended version for production use.
+
+[Sakai 2.9](https://confluence.sakaiproject.org/display/DOC/Sakai+2.9+release+notes) is still supported, almost solely for security patches at this point in time.
+
+## Under Development
+[Sakai 11] (https://docs.google.com/presentation/d/1OaF04Kli51nYtsLw_0plmU829NarYUDtQkBnFJtB250/edit#slide=id.p4) is under development. Expected release is Q4 2015. Some of the key features include Responsive Design (code name Morpheus); spreadsheet entry Gradebook; improved Assessment (test and quizzes) delivery options to accommodate special needs; PA system for managing system-wide announcements; a Dashboard summary of activities and assignments for more efficient student access to content; user interface enhancements to Lessons, a community favorite tool that allows instructors to organize their course activities the way they would like, by leveraging other Sakai tools and adding workflow and adaptive release options.
+
+

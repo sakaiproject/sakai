@@ -184,6 +184,11 @@
             <scope>compile</scope>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
             <groupId>javax.mail</groupId>
             <artifactId>mail</artifactId>
             <scope>compile</scope>
@@ -250,6 +255,19 @@
             <artifactId>ehcache-terracotta</artifactId>
             <scope>compile</scope>
         </dependency>
+        <!-- Java 8 Maven Artifact -->
+        <dependency>
+          <groupId>com.zaxxer</groupId>
+          <artifactId>HikariCP</artifactId>
+          <scope>compile</scope>
+        </dependency>
+        <!--
+        <dependency>
+          <groupId>com.zaxxer</groupId>
+          <artifactId>HikariCP-java6</artifactId>
+          <scope>compile</scope>
+        </dependency> 
+        -->
         <dependency>
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
@@ -262,10 +280,5 @@
         </dependency>
     </dependencies>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</developerConnection>
-        <url>https://source.sakaiproject.org/svn/kernel/trunk/deploy/shared</url>
-    </scm>
 
 </project>

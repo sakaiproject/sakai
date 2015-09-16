@@ -4,6 +4,7 @@ ini_set("display_errors", 1);
 
 // Load up the LTI Support code
 require_once 'util/lti_util.php';
+require_once 'util/mimeparse.php';
 
 session_start();
 header('Content-Type: text/html; charset=utf-8'); 
@@ -11,6 +12,8 @@ header('Content-Type: text/html; charset=utf-8');
 // Initialize, all secrets are 'secret', do not set session, and do not redirect
 $key = isset($_POST['oauth_consumer_key']) ? $_POST['oauth_consumer_key'] : false;
 $secret = "secret";
+$_SESSION['oauth_consumer_key'] = $_POST['oauth_consumer_key'];
+$_SESSION['secret'] = "secret";
 $context = new BLTI($secret, false, false);
 ?>
 <html>
@@ -42,7 +45,7 @@ if ( $context->valid ) {
         print "<p>\n";
         print '<a href="common/tool_provider_outcome.php?sourcedid='.urlencode($sourcedid);
         print '&key='.urlencode($_POST['oauth_consumer_key']);
-        print '&seret=secret';
+        print '&secret=secret';
         print '&url='.urlencode($_POST['lis_outcome_service_url']);
         print '&accepted='.urlencode($_POST['ext_outcome_data_values_accepted']).'">';
         print 'Test LTI 1.1 Outcome Service</a>.</p>'."\n";
@@ -53,8 +56,6 @@ if ( $context->valid ) {
         print "<p>\n";
         print '<a href="json/result_json.php?url='.urlencode($_POST['custom_result_url']).'">';
         print 'Test LTI 2.0 Outcome Service</a>.</p>'."\n";
-		$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
-		$_SESSION['reg_password'] = "secret";
 		$found = true;
     }
 
@@ -73,8 +74,6 @@ if ( $context->valid ) {
 		}
 		print 'x=24">';
         print 'Test LTI 2.0 Settings Service</a>.</p>'."\n";
-		$_SESSION['reg_key'] = $_POST['oauth_consumer_key'];
-		$_SESSION['reg_password'] = "secret";
 		$found = true;
     }
 
@@ -106,17 +105,6 @@ if ( $context->valid ) {
 	$found = true;
     }
 
-    if ( $_POST['context_id'] && $_POST['ext_lori_api_url_xml'] && $_POST['lis_result_sourcedid'] ) {
-        print "<p>\n";
-        print '<a href="ext/lori_xml.php?context_id='.htmlent_utf8($_POST['context_id']);
-        print '&lis_result_sourcedid='.urlencode($_POST['lis_result_sourcedid']);
-        print '&user_id='.urlencode($_POST['user_id']);
-        print '&key='.urlencode($_POST['oauth_consumer_key']);
-        print '&url='.urlencode($_POST['ext_lori_api_url_xml']).'">';
-        print 'Test Sakai LORI XML API</a>.</p>'."\n";
-        $found = true;
-    }
-
     if ( $_POST['ext_ims_lis_memberships_id'] && $_POST['ext_ims_lis_memberships_url'] ) {
         print "<p>\n";
         print '<a href="ext/memberships.php?id='.htmlent_utf8($_POST['ext_ims_lis_memberships_id']);
@@ -142,6 +130,42 @@ if ( $context->valid ) {
         print '&url='.urlencode($_POST['ext_ims_lti_tool_setting_url']).'">';
         print 'Test Sakai Settings API</a>.</p>'."\n";
 		$found = true;
+    }
+
+    $ltilink_allowed = false;
+    if ( isset($_POST['accept_media_types']) ) {
+        $ltilink_mimetype = 'application/vnd.ims.lti.v1.ltilink';
+        $m = new Mimeparse;
+        $ltilink_allowed = $m->best_match(array($ltilink_mimetype), $_POST['accept_media_types']);
+    }
+
+    if ( $ltilink_allowed && $_POST['content_item_return_url'] ) {
+        print '<p><form action="json/content_json.php" method="post">'."\n";
+        foreach ( $_POST as $k => $v ) {
+            print '<input type="hidden" name="'.$k.'" ';
+            print 'value="'.htmlentities($v).'"/>';
+        }
+        print '<input type="submit" value="Test LtiLink Content Item"/>';
+        print "</form></p>\n";
+        $found = true;
+    }
+
+    $fileitem_allowed = false;
+    if ( isset($_POST['accept_media_types']) ) {
+        $fileitem_mimetype = 'application/vnd.ims.imsccv1p3';
+        $m = new Mimeparse;
+        $fileitem_allowed = $m->best_match(array($fileitem_mimetype), $_POST['accept_media_types']);
+    }
+
+    if ( $fileitem_allowed && $_POST['content_item_return_url'] ) {
+        print '<p><form action="json/fileitem_json.php" method="post">'."\n";
+        foreach ( $_POST as $k => $v ) {
+            print '<input type="hidden" name="'.$k.'" ';
+            print 'value="'.htmlentities($v).'"/>';
+        }
+        print '<input type="submit" value="Test FileItem Content Item"/>';
+        print "</form></p>\n";
+        $found = true;
     }
 
     if ( ! $found ) {

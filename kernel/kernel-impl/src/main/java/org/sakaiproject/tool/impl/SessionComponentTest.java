@@ -21,6 +21,7 @@
 
 package org.sakaiproject.tool.impl;
 
+import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
 import org.sakaiproject.tool.api.RebuildBreakdownService;
@@ -48,6 +49,11 @@ public class SessionComponentTest extends SessionComponent
 	@Override
 	protected IdManager idManager()
 	{
+		return null;
+	}
+
+	@Override
+	protected ClusterService clusterManager() {
 		return null;
 	}
 

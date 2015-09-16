@@ -63,6 +63,12 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 	private final static String WEBRTC_SERVER_REGEX = "^(turn|stun):(([^:]*):([^@]*)@){0,1}([^:@]*(:[0-9]{1,5}){0,1})$";
 	
 	public final static String ENTITY_PREFIX = "portal-chat";
+
+    /* messageMap keys */
+    private static final String VIDEO = "video";
+    private static final String PLAIN = "plain";
+    private static final String CONNECTION = "connection";
+    private static final String SITE = "site";
 	
     private boolean showSiteUsers = true;
     
@@ -113,7 +119,8 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 	}
 	
 	/* A mapping of a list of messages onto the user id they are intended for */
-	private final Map<String, List<UserMessage>> messageMap = new HashMap<String,List<UserMessage>>();
+	private final Map<String, Map<String, Map<String, List<UserMessage>>>> messageMap
+        = new HashMap<String, Map<String, Map<String, List<UserMessage>>>>();
 	
     /*
      *  A mapping of timestamps onto the user id that sent the heartbeat. The initial capacity should be set
@@ -208,7 +215,13 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
      */
     private List<Person> getConnectionsForUser(String uuid) {
 
-        List<Person> connections = profileConnectionsLogic.getConnectionsForUser(uuid);
+        List<Person> connections = new ArrayList<Person>();
+        try {
+            connections = profileConnectionsLogic.getConnectionsForUser(uuid);
+        } catch (NullPointerException npe) {
+            // TODO: this needs tracing back into the Profile2 code
+            logger.error("NPE thrown by profile service. No connections will be returned for '" + uuid + "'");
+        }
 
         List<Person> filteredConnections = new ArrayList<Person>();
 
@@ -253,24 +266,42 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
      */
 	public String createEntity(EntityReference ref, Object entity, Map<String, Object> params) {
 
+        logger.debug("createEntity");
+
 		final User currentUser = userDirectoryService.getCurrentUser();
 		final User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
 		}
 		
 		final String to = (String) params.get("to");
-		if (to == null) throw new IllegalArgumentException("You must supply a recipient");
+        if (to == null) {
+            logger.debug("No recipient");
+            throw new IllegalArgumentException("You must supply a recipient");
+        }
 		
 		if (to.equals(currentUser.getId())) {
+            logger.debug("recipient is sender");
 			throw new IllegalArgumentException("You can't chat with yourself");
 		}
 		
 		String message = (String) params.get("message");
 
 		if (message == null) {
+            logger.debug("no message supplied");
             throw new IllegalArgumentException("You must supply a message");
+        }
+
+		String siteId = (String) params.get("siteId");
+        if (logger.isDebugEnabled()) {
+            logger.debug("siteId: " + siteId);
+        }
+
+		boolean isMessageToConnection = "true".equals(params.get("isMessageToConnection"));
+        if (logger.isDebugEnabled()) {
+            logger.debug("isMessageToConnection: " + isMessageToConnection);
         }
 
         // Sakai plays the role of signalling server in the WebRTC architecture.
@@ -284,10 +315,11 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
             if (!isVideoSignal) {
                 profileMessagingLogic.sendNewMessage(to,currentUser.getId(), UUID.randomUUID().toString(), rb.getString("profile_message_subject"), message);
             }
+            logger.debug("returning OFFLINE ...");
 			return "OFFLINE";
         }
 
-        if(logger.isDebugEnabled()) {
+        if (logger.isDebugEnabled()) {
             logger.debug("message: " + message);
             logger.debug("isVideoSignal: " + isVideoSignal);
         }
@@ -298,7 +330,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 						StringEscapeUtils.escapeEcmaScript(message)).replaceAll("\\\\'", "'");
 		}
 
-		final UserMessage userMessage = new UserMessage(currentUser.getId(), to, message, isVideoSignal);
+		final UserMessage userMessage = new UserMessage(currentUser.getId(), to, siteId, message, isVideoSignal, false, isMessageToConnection);
 
 		addMessageToMap(userMessage);
 		
@@ -321,59 +353,66 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 	    return new String[] { Formats.HTML };
 	}
 	
+    /**
+     * This is the transfer message used in jGroups sync, if clustered.
+     */
 	public class UserMessage implements Serializable {
 		
 		private static final long serialVersionUID = 1L;
 		
 		public String from;
 	    public String to;
+	    public String siteId;
 		public String content;
 		public long timestamp;
 		public boolean video;
 		public boolean clear;
+		public boolean fromConnection;
 		
 		private UserMessage() {}
 
 		private UserMessage(String from, boolean clear) {
-			this(from,null,null,false,clear);
-		}
-
-		private UserMessage(String from, String to, String content, boolean video) {
-			this(from,to,content,video,false);
+			this(from, null, null, null, false, clear, false);
 		}
 
 		private UserMessage(String from, String content) {
-			this(from,null,content,false,false);
+			this(from, null, null, content, false, false, false);
 		}
 
-        private UserMessage(String from, String to, String content, boolean video, boolean clear) {
+        private UserMessage(String from, String to, String siteId, String content, boolean video, boolean clear, boolean fromConnection) {
 
             this.to = to;
 			this.from = from;
+            this.siteId = siteId;
 			this.content = content;
 			this.timestamp = (new Date()).getTime();
 			this.video = video;
 			this.clear = clear;
+			this.fromConnection = fromConnection;
 		}
         
         private void writeObject(java.io.ObjectOutputStream out) throws IOException {
 
         	out.writeObject(from);
         	out.writeObject(to);
+        	out.writeObject(siteId);
         	out.writeObject(content);
         	out.writeObject(timestamp);
         	out.writeObject(video);
         	out.writeObject(clear);
+        	out.writeObject(fromConnection);
         }
         
         private void readObject(java.io.ObjectInputStream in) throws IOException, ClassNotFoundException {
 
         	this.from = (String) in.readObject();
         	this.to = (String) in.readObject();
+        	this.siteId = (String) in.readObject();
         	this.content = (String) in.readObject();
         	this.timestamp = (Long) in.readObject();
         	this.video = (Boolean) in.readObject();
         	this.clear = (Boolean) in.readObject();
+        	this.fromConnection = (Boolean) in.readObject();
         }
 	}
 
@@ -427,18 +466,27 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
-			//return new HashMap<String,Object>(0);
 		}
 		
 		String online = (String) params.get("online");
 		String videoAgent = (String) params.get("videoAgent");
+
+		String siteId = (String) params.get("siteId");
+		if (logger.isDebugEnabled()) {
+            logger.debug("siteId: " +  siteId);
+        }
 		
-		if (logger.isDebugEnabled()) logger.debug("online: " + online);
+        if (logger.isDebugEnabled()) {
+            logger.debug("online: " + online);
+        }
 		
 		if (online != null && "true".equals(online)) {
 			
-			if (logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
+            if (logger.isDebugEnabled()) {
+                logger.debug(currentUser.getEid() + " is online. Stamping their heartbeat ...");
+            }
 			
 			UserMessage userMessage = new UserMessage(currentUser.getId(), videoAgent);
 			heartbeatMap.put(currentUser.getId(), userMessage);
@@ -455,26 +503,25 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
                     logger.error("Error sending JGroups heartbeat message", e);
                 }
             }
-		}
-		else {
+        } else {
+            if (logger.isDebugEnabled()) {
+                logger.debug(currentUser.getEid() + " is offline. Removing them from the message map ...");
+            }
+
+            synchronized (messageMap) {
+                messageMap.remove(currentUser.getId());
+            }
+
+	        sendClearMessage(currentUser.getId());
+
+            if (logger.isDebugEnabled()) {
+                logger.debug(currentUser.getEid() + " is offline. Returning an empty data map ...");
+            }
 			
-			if (logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is offline. Removing them from the message map ...");
-			synchronized(messageMap) {
-				messageMap.remove(currentUser.getId());
-			}
+            return new HashMap<String,Object>(0);
+        }
 
-	      sendClearMessage(currentUser.getId());
-
-			if (logger.isDebugEnabled()) logger.debug(currentUser.getEid() + " is offline. Returning an empty data map ...");
-			
-			return new HashMap<String,Object>(0);
-		}
-
-		List<PortalChatUser> presentUsers = new ArrayList<PortalChatUser>();
-
-		String siteId = (String) params.get("siteId");
-		
-		if (logger.isDebugEnabled()) logger.debug("Site ID: " +  siteId);
+        List<PortalChatUser> presentUsers = new ArrayList<PortalChatUser>();
 		
         if (siteId != null && siteId.length() > 0 && showSiteUsers) {
 			// A site id has been specified, so we refresh our presence at the 
@@ -506,7 +553,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 			if (lastHeartbeat == null) continue;
 			
 			if ((now.getTime() - lastHeartbeat.timestamp) < pollInterval) {
-				onlineConnections.add(new PortalChatUser(uuid,uuid,false,lastHeartbeat.content));
+				onlineConnections.add(new PortalChatUser(uuid, uuid, false, lastHeartbeat.content));
 			}
 		}
 		
@@ -515,12 +562,27 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 
 		String currentUserId = currentUser.getId();
 		
-		synchronized(messageMap) {
+		synchronized (messageMap) {
 			if (messageMap.containsKey(currentUserId)) {
-				// Grab the user's messages
-				messages = splitMessages(messageMap.get(currentUserId),videoMessages);
-				// Now we can reset the replicated map.
-				messageMap.remove(currentUserId);
+				// Grab the type map for this user
+                Map<String, Map<String, List<UserMessage>>> typeMap = messageMap.get(currentUserId);
+
+                // Now pull the plain, video and connection messages for this site
+                messages = typeMap.get(PLAIN).get(siteId);
+                if (messages != null) {
+                    messages.addAll(typeMap.get(PLAIN).get(CONNECTION));
+                } else {
+                    messages = typeMap.get(PLAIN).get(CONNECTION);
+                }
+
+                videoMessages = typeMap.get(VIDEO).get(siteId);
+                if (videoMessages != null) {
+                    videoMessages.addAll(typeMap.get(VIDEO).get(CONNECTION));
+                } else {
+                    videoMessages = typeMap.get(VIDEO).get(CONNECTION);
+                }
+
+                messageMap.remove(currentUserId);
 			}
 
             sendClearMessage(currentUserId);
@@ -538,31 +600,15 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		
 		return data;
 	}
-
-	// Return plain messages and add video messages to video list
-	public List<UserMessage> splitMessages(List<UserMessage> source, List<UserMessage> video) {
-
-		List<UserMessage> plain = source;
-		if (isVideoEnabled) {
-			plain = new ArrayList<UserMessage>();
-		    for (UserMessage element: source) {
-		        if (element.video) {
-		            video.add(element);
-		        } else {
-		        	plain.add(element);
-		        }
-		    }
-		}
-	    return plain;
-	}
 	
     private void sendClearMessage(String userId) {
 
         if (clustered) {
             try {
-            	
-            	if (logger.isDebugEnabled()) logger.debug("Sending messagMap clear message for " + userId + " ...");
-            	UserMessage userMessage = new UserMessage(userId,true);
+            	if (logger.isDebugEnabled()) {
+                    logger.debug("Sending messagMap clear message for " + userId + " ...");
+                }
+            	UserMessage userMessage = new UserMessage(userId, true);
                 Message msg = new Message(null, null, userMessage);
                 clusterChannel.send(msg);
             } catch (Exception e) {
@@ -578,6 +624,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
 		}
 		
@@ -601,6 +648,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 		final User anon = userDirectoryService.getAnonymousUser();
 		
 		if (anon.equals(currentUser)) {
+            logger.debug("No current user");
 			throw new SecurityException("You must be logged in to use this service");
 		}
 
@@ -615,17 +663,51 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
     private void addMessageToMap(UserMessage m) {
 
         synchronized (messageMap) {
-            final List<UserMessage> current = messageMap.get(m.to);
 
-            if (current != null) {
-                final List<UserMessage> copy = new ArrayList<UserMessage>(current.size());
-                copy.addAll(current);
-                copy.add(m);
-                messageMap.put(m.to, copy);
-            } else {
-                messageMap.put(m.to, Arrays.asList(m));
+            if (!messageMap.containsKey(m.to)) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("No message map entry for '" + m.to + "'. Creating new entries ...");
+                }
+                Map<String, Map<String, List<UserMessage>>> typeMap = new HashMap<String, Map<String, List<UserMessage>>>();
+                typeMap.put(PLAIN, new HashMap<String, List<UserMessage>>());
+                typeMap.get(PLAIN).put(m.siteId, new ArrayList<UserMessage>());
+                typeMap.get(PLAIN).put(CONNECTION, new ArrayList<UserMessage>());
+                typeMap.put(VIDEO, new HashMap<String, List<UserMessage>>());
+                typeMap.get(VIDEO).put(m.siteId, new ArrayList<UserMessage>());
+                typeMap.get(VIDEO).put(CONNECTION, new ArrayList<UserMessage>());
+                messageMap.put(m.to, typeMap);
             }
-        }   
+
+            if (m.video) {
+                logger.debug("Message is a video message");
+                Map<String, List<UserMessage>> videoMap = messageMap.get(m.to).get(VIDEO);
+
+                if (m.fromConnection) {
+                    videoMap.get(CONNECTION).add(m);
+                } else if (videoMap.containsKey(m.siteId)) {
+                    videoMap.get(m.siteId).add(m);
+                } else {
+                    videoMap.put(m.siteId, Arrays.asList(m));
+                }
+            } else {
+                logger.debug("Message is a plain message");
+                Map<String, List<UserMessage>> plainMap = messageMap.get(m.to).get(PLAIN);
+
+                if (m.fromConnection) {
+                    plainMap.get(CONNECTION).add(m);
+                } else if (plainMap.containsKey(m.siteId)) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("plainMap already contains '" + m.siteId + "'");
+                    }
+                    plainMap.get(m.siteId).add(m);
+                } else {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("plainMap does not contain '" + m.siteId + "'. A new list will be mapped");
+                    }
+                    plainMap.put(m.siteId, Arrays.asList(m));
+                }
+            }
+        }
     }
 
 	private class EmailSender implements Runnable {
@@ -651,7 +733,7 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
 				final List<String> additionalHeaders = new ArrayList<String>();
 				additionalHeaders.add("Content-Type: text/plain; charset=ISO-8859-1");
 
-				final String emailFromAddress = "\"" + service + "\" <no-reply@" + serverName + ">";
+				final String emailFromAddress = "\"" + service + "\" <" + serverConfigurationService.getString("setup.request","no-reply@" + serverName) + ">";
 				emailService.send(emailFromAddress, email, subject, message, email, null, additionalHeaders);
 			} catch (Exception e) {
                 logger.error("sendEmail() failed for email: " + email,e);
@@ -678,7 +760,9 @@ public final class PCServiceEntityProvider extends AbstractEntityProvider implem
             		heartbeatMap.put(message.from, message);
             	}
             } else  {
-            	if (logger.isDebugEnabled()) logger.debug("Received " + (message.video ? "video" : "") + "message from cluster ...");
+            	if (logger.isDebugEnabled()) {
+                    logger.debug("Received " + (message.video ? "video" : "") + "message from cluster ...");
+                }
                 addMessageToMap(message);
             } 
         }

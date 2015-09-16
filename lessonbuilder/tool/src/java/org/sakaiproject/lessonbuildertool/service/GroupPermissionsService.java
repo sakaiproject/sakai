@@ -35,8 +35,9 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
 import org.sakaiproject.authz.api.SecurityAdvisor;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.exception.IdUnusedException;
 import org.sakaiproject.exception.InUseException;
 import org.sakaiproject.exception.PermissionException;
@@ -79,7 +80,8 @@ public class GroupPermissionsService {
         public void setBltiEntity(Object e) {
 	    bltiEntity = (LessonEntity)e;
         }
-	
+
+
 	public void init () {
 	    convertGroupsTable();
 	}
@@ -91,7 +93,6 @@ public class GroupPermissionsService {
 		try {
 			site = SiteService.getSite(siteId);
 			String realmId = SiteService.siteReference(siteId);
-			realm = AuthzGroupService.getAuthzGroup(realmId);
 		} catch (Exception e) {
 			log.warn("Unable to find site " + siteId + ": " + e);
 			return null;
@@ -132,7 +133,7 @@ public class GroupPermissionsService {
 		// non-default roles, then the rule that we copy the user's
 		// site role into the group will result in trying to access
 		// a non-existent role.
-		Set<Role> roles = realm.getRoles();
+		Set<Role> roles = site.getRoles();
 		Group group = site.addGroup();
 		for (Role role : roles) {
 			try {
@@ -170,15 +171,16 @@ public class GroupPermissionsService {
 
 	public static boolean addCurrentUser(String siteId, String userid, String groupId) throws IOException {
 		try {
+			AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 			// we want to use the same role in the group that the user
 			// has in the main site.
 			String realmId = SiteService.siteReference(siteId);
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			String rolename = realm.getMember(userid).getRole().getId();
 
 			groupId = "/site/" + siteId + "/group/" + groupId;
 
-			if (AuthzGroupService.getUserRole(userid, groupId) != null) {
+			if (authzGroupService.getUserRole(userid, groupId) != null) {
 				// Already in group
 				return true;
 			}
@@ -189,7 +191,7 @@ public class GroupPermissionsService {
 				}
 			});
 
-			AuthzGroupService.joinGroup(groupId, rolename, Integer.MAX_VALUE);
+			authzGroupService.joinGroup(groupId, rolename, Integer.MAX_VALUE);
 
 		} catch (Exception e) {
 			// Typically means group couldn't be found.
@@ -202,6 +204,7 @@ public class GroupPermissionsService {
 	}
 
 	public static boolean removeUser(String siteId, String userId, String groupId) throws IOException {
+		AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 		groupId = "/site/" + siteId + "/group/" + groupId;
 
 		try {
@@ -211,14 +214,14 @@ public class GroupPermissionsService {
 				}
 			});
 
-			AuthzGroupService.unjoinGroup(groupId);
+			authzGroupService.unjoinGroup(groupId);
 
 		} catch (Exception e) {
 		    // we've got a problem. unjoingroup can fail for maintain users
 		    // we don't want to return false, or the caller will recreate the group. 
 
 		    try {
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(groupId);
+			AuthzGroup group = authzGroupService.getAuthzGroup(groupId);
 			if (group == null)
 			    return false;
 			if (group.getMember(userId) == null) {
@@ -228,7 +231,7 @@ public class GroupPermissionsService {
 
 			group.removeMember(userId);
 			
-			AuthzGroupService.save(group);
+			authzGroupService.save(group);
 			return true;
 		    } catch (Exception ee) {
 			return false;

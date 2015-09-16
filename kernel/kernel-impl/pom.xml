@@ -15,11 +15,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</url>
-  </scm>
   <packaging>jar</packaging>
   <properties>
     <deploy.target />
@@ -95,12 +90,12 @@
 	<dependency>
 		<groupId>org.apache.tika</groupId>
 		<artifactId>tika-core</artifactId>
-		<version>1.5</version>
+		<version>${sakai.tika.version}</version>
 	</dependency>
 	<dependency>
 		<groupId>org.apache.tika</groupId>
 		<artifactId>tika-parsers</artifactId>
-		<version>1.5</version>
+		<version>${sakai.tika.version}</version>
 		<exclusions>
 			<exclusion>
 				<groupId>de.l3s.boilerpipe</groupId>
@@ -112,12 +107,12 @@
          <dependency>
           <groupId>org.apache.poi</groupId>
           <artifactId>poi</artifactId>
-          <version>3.10.1</version>
+          <version>${sakai.poi.version}</version>
         </dependency>
         <dependency>
          <groupId>org.apache.poi</groupId>
          <artifactId>poi-ooxml</artifactId>
-         <version>3.10.1</version>
+         <version>${sakai.poi.version}</version>
         </dependency>
     <!--  needed to make the tests work as we need to bring up the Component Manager -->
     <dependency>
@@ -149,7 +144,7 @@
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
-      <version>1.4.0</version>
+      <version>1.4.1</version>
     </dependency>
     <dependency>
         <!-- for parsing CSV data from config service files -->
@@ -372,6 +367,87 @@
       <artifactId>tomcat-jdbc</artifactId>
       <scope>test</scope>
    </dependency>
+       <!-- Java 8 Maven Artifact -->
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <!--
+    <dependency>
+      <groupId>com.zaxxer</groupId>
+      <artifactId>HikariCP-java6</artifactId>
+      <scope>test</scope>
+    </dependency>
+    -->
   </dependencies>
+
+  <profiles>
+    <profile>
+      <!-- This profile will enable you to run the StorageConverter -->
+      <id>storage-convert</id>
+      <dependencies>
+        <!-- need to setup this dependency to your database driver.
+        <dependency>
+          <groupId>mysql</groupId>
+           <artifactId>connector</artifactId>
+           <version>5.1.30</version>
+           <scope>system</scope>
+           <systemPath>path/to/mysql-connector-java-5.1.30-bin.jar</systemPath>
+        </dependency>
+        -->
+      </dependencies>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.codehaus.mojo</groupId>
+            <artifactId>exec-maven-plugin</artifactId>
+            <version>1.3.1</version>
+            <!-- This execution runs the storage conversion from one FileSystemHandler to another. -->
+            <configuration>
+              <classpathScope>test</classpathScope>
+              <skip>false</skip>
+              <executable>java</executable>
+              <arguments>
+                <argument>-classpath</argument>
+                <classpath />
+                <argument>org.sakaiproject.content.impl.util.StorageConverter</argument>
+                <!-- Use either a properties file or the properties...or both
+                <argument>-p</argument>
+                <argument>src/main/resource/my.properties</argument>
+                -->
+                <!-- just set the properties
+                <argument>-connectionDriver</argument>
+                <argument>The database connection driver class.</argument>
+                <argument>-connectionURL</argument>
+                <argument>The database connection URL.</argument>
+                <argument>-connectionUsername</argument>
+                <argument>The database connection username.</argument>
+                <argument>-connectionPassword</argument>
+                <argument>The database connection password.</argument>
+                <argument>-sourceFileSystemHandler</argument>
+                <argument>This is the full class name of the source FileSystemHandler.</argument>
+                <argument>-sourceFileSystemHandler.{some property}</argument>
+                <argument>You can set any property on the source FileSystemHandler by referensing their property names.</argument>
+                <argument>-sourceBodyPath</argument>
+                <argument>The path set in sakai.properties for the source.</argument>
+                <argument>-destinationFileSystemHandler</argument>
+                <argument>This is the full class name of the destination FileSystemHandler.</argument>
+                <argument>-destinationFileSystemHandler.{some property}</argument>
+                <argument>You can set any property on the destination FileSystemHandler by referensing their property names.</argument>
+                <argument>-destinationBodyPath</argument>
+                <argument>The path set in sakai.properties for the destination.</argument>
+                <argument>-deleteFromSource</argument>
+                <argument>Whether to delete the source files. Default false.</argument>
+                <argument>-contentSql</argument>
+                <argument>The sql statement to retrieve the resource id's and paths. Default is new ContentServiceSqlDefault().getResourceIdAndFilePath()</argument>
+                -->
+              </arguments>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
 
 </project>

@@ -13,12 +13,16 @@ public class DecoratedTopicInfo {
 	private String description;
 
 	private Boolean isLocked;
+	private Boolean isDraft;
+
+
 	private Boolean isPostFirst;
 	private Boolean isAvailabilityRestricted;
 	private Long openDate; // An epoch date in seconds. NOT milliseconds.
 	private Long closeDate; // An epoch date in seconds. NOT milliseconds.
 	private String gradebookItemName;
 	private Long gradebookItemId;
+	
 
 	public DecoratedTopicInfo(Long topicId, String topicTitle,
 			int unreadMessagesCount, int messagesCount, String typeUuid,
@@ -38,13 +42,14 @@ public class DecoratedTopicInfo {
 	public DecoratedTopicInfo(Long topicId, String topicTitle,
 			int unreadMessagesCount, int messagesCount, String typeUuid,
 			List<DecoratedAttachment> attachments, String shortDescription,
-			String description, Boolean isLocked, Boolean isPostFirst,
+			String description, Boolean isLocked, Boolean isDraft, Boolean isPostFirst,
 			Boolean isAvailabilityRestricted, Long openDate, Long closeDate,
 			String gradebookItemName, Long gradebookItemId) {
 
 		this(topicId, topicTitle, unreadMessagesCount, messagesCount, typeUuid,
 				attachments, shortDescription, description);
 		this.isLocked = isLocked;
+		this.isDraft=isDraft;
 		this.isPostFirst = isPostFirst;
 		this.isAvailabilityRestricted = isAvailabilityRestricted;
 		this.openDate = openDate;
@@ -100,6 +105,15 @@ public class DecoratedTopicInfo {
 	public void setIsLocked(Boolean isLocked) {
 		this.isLocked = isLocked;
 	}
+	public Boolean getIsDraft() {
+		return isDraft;
+	}
+	
+	public void setIsDraft(Boolean isDraft) {
+		this.isDraft = isDraft;
+	}
+	
+	
 
 	public Boolean getIsPostFirst() {
 		return isPostFirst;

@@ -64,11 +64,6 @@
         </profile>
     </profiles>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/site-manage/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/site-manage/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/site-manage/trunk</url>
-    </scm>
 
     <distributionManagement>
         <site>

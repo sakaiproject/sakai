@@ -125,10 +125,13 @@ public class MyPreferences extends BasePage{
 		emailRequests.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
+		//visibility for request emails
+		emailRequests.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
+
 		//confirm emails
 		final RadioGroup<Boolean> emailConfirms = new RadioGroup<Boolean>("confirmEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "confirmEmailEnabled"));
 		Radio confirmsOn = new Radio<Boolean>("confirmsOn", new Model<Boolean>(Boolean.valueOf(true)));
@@ -146,10 +149,13 @@ public class MyPreferences extends BasePage{
 		emailConfirms.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
+		//visibility for confirm emails
+		emailConfirms.setVisible(sakaiProxy.isConnectionsEnabledGlobally());
+
 		//new message emails
 		final RadioGroup<Boolean> emailNewMessage = new RadioGroup<Boolean>("messageNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "messageNewEmailEnabled"));
 		Radio messageNewOn = new Radio<Boolean>("messageNewOn", new Model<Boolean>(Boolean.valueOf(true)));
@@ -167,7 +173,7 @@ public class MyPreferences extends BasePage{
 		emailNewMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -190,7 +196,7 @@ public class MyPreferences extends BasePage{
 		emailReplyMessage.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
@@ -213,10 +219,13 @@ public class MyPreferences extends BasePage{
 		wallItemNew.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		
+		//visibility for wall items
+		wallItemNew.setVisible(sakaiProxy.isWallEnabledGlobally());
+
 		// added to new worksite emails
 		final RadioGroup<Boolean> worksiteNew = new RadioGroup<Boolean>("worksiteNewEmailEnabled", new PropertyModel<Boolean>(preferencesModel, "worksiteNewEmailEnabled"));
 		Radio worksiteNewOn = new Radio<Boolean>("worksiteNewOn", new Model<Boolean>(Boolean.valueOf(true)));
@@ -234,7 +243,7 @@ public class MyPreferences extends BasePage{
 		worksiteNew.add(new AjaxFormChoiceComponentUpdatingBehavior() {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
         
@@ -292,9 +301,9 @@ public class MyPreferences extends BasePage{
 				//set gravatar to false since we can't have both active
 				gravatarImage.setModelObject(false);
 				if(gravatarEnabled) {
-					target.addComponent(gravatarImage);
+					target.add(gravatarImage);
 				}				
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		is.add(officialImageContainer);
@@ -322,9 +331,9 @@ public class MyPreferences extends BasePage{
 				//set gravatar to false since we can't have both active
 				officialImage.setModelObject(false);
 				if(officialImageEnabled) {
-					target.addComponent(officialImage);
+					target.add(officialImage);
 				}
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		is.add(gravatarContainer);
@@ -346,6 +355,7 @@ public class MyPreferences extends BasePage{
 		// WIDGET SECTION
 		WebMarkupContainer ws = new WebMarkupContainer("widgetSettingsContainer");
 		ws.setOutputMarkupId(true);
+		int visibleWidgetCount = 0;
 		
 		//widget settings
 		ws.add(new Label("widgetSettingsHeading", new ResourceModel("heading.section.widget")));
@@ -366,10 +376,16 @@ public class MyPreferences extends BasePage{
 		kudosSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		ws.add(kudosContainer);
+		if(sakaiProxy.isMyKudosEnabledGlobally()) {
+			visibleWidgetCount++;
+		} else {
+			kudosContainer.setVisible(false);
+		}
+
 		
 		//gallery feed
 		WebMarkupContainer galleryFeedContainer = new WebMarkupContainer("galleryFeedContainer");
@@ -385,11 +401,15 @@ public class MyPreferences extends BasePage{
 		galleryFeedSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		ws.add(galleryFeedContainer);
-		galleryFeedContainer.setVisible(sakaiProxy.isProfileGalleryEnabledGlobally());
+		if(sakaiProxy.isProfileGalleryEnabledGlobally()) {
+            visibleWidgetCount++;
+        } else {
+            galleryFeedContainer.setVisible(false);
+        }
 		
 		
 		//online status
@@ -406,11 +426,22 @@ public class MyPreferences extends BasePage{
 		onlineStatusSetting.add(new AjaxFormComponentUpdatingBehavior("onchange") {
 			private static final long serialVersionUID = 1L;
 			protected void onUpdate(AjaxRequestTarget target) {
-            	target.appendJavascript("$('#" + formFeedbackId + "').fadeOut();");
+            	target.appendJavaScript("$('#" + formFeedbackId + "').fadeOut();");
             }
         });
 		ws.add(onlineStatusContainer);		
 		
+		if(sakaiProxy.isOnlineStatusEnabledGlobally()){
+        visibleWidgetCount++;
+        } else {
+            onlineStatusContainer.setVisible(false);
+        }
+        
+        // Hide widget container if nothing to show
+        if(visibleWidgetCount == 0) {
+            ws.setVisible(false);
+        }
+
 		form.add(ws);
 		
 		//submit button
@@ -438,12 +469,12 @@ public class MyPreferences extends BasePage{
 				}
 				
 				//resize iframe
-				target.appendJavascript("setMainFrameHeight(window.name);");
+				target.appendJavaScript("setMainFrameHeight(window.name);");
 				
 				//PRFL-775 - set focus to feedback message so it is announced to screenreaders
-				target.appendJavascript("$('#" + formFeedbackId + "').focus();");
+				target.appendJavaScript("$('#" + formFeedbackId + "').focus();");
 				
-				target.addComponent(formFeedback);
+				target.add(formFeedback);
             }
 			
 			

@@ -142,8 +142,8 @@
     width:250px;
 }
 
-.col1, .col2, .col3{
-    width:30%;
+.col1, .col2 {
+    width:45%;
     float:left;
     margin:0;
     padding:5px;

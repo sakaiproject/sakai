@@ -201,7 +201,7 @@ public class ChangeProfilePictureUrl extends Panel{
         	// update feedback panel if validation failed
         	protected void onError(AjaxRequestTarget target, Form form) { 
         		log.debug("ChangeProfilePictureUrl.onSubmit validation failed.");
-        	    target.addComponent(feedback); 
+        	    target.add(feedback); 
         	} 
     		
         };

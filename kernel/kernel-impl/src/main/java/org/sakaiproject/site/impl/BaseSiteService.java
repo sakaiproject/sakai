@@ -56,6 +56,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArraySet;
+import org.sakaiproject.component.cover.ComponentManager;
 
 /**
  * <p>
@@ -88,11 +89,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 	private static final String DEFAULT_RESOURCEBUNDLE = "org.sakaiproject.localization.bundle.siteimpl.site-impl";
 	private static final String RESOURCECLASS = "resource.class.siteimpl";
 	private static final String RESOURCEBUNDLE = "resource.bundle.siteimpl";
-	private static final String PORTAL_SKIN_NEOPREFIX_PROPERTY = "portal.neoprefix";
-	private static final String PORTAL_SKIN_NEOPREFIX_DEFAULT = "neo-";
 	private static final String ORIGINAL_SITE_ID_PROPERTY = "original-site-id";
-
-	private static String portalSkinPrefix;
 
 	private ResourceLoader rb = null;
 	// protected ResourceLoader rb = new ResourceLoader("site-impl");
@@ -120,6 +117,9 @@ public abstract class BaseSiteService implements SiteService, Observer
         
     /** sfoster9@uwo.ca - A delegate class to contain the join methods **/
     protected JoinSiteDelegate joinSiteDelegate;
+
+	/** SAK-29138 - a site title advisor **/
+	protected SiteTitleAdvisor m_siteTitleAdvisor;
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Abstractions, etc.
@@ -454,12 +454,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 			// <= 0 minutes indicates no caching desired
 			if (m_cacheSeconds > 0)
 			{
-                boolean useLegacy = serverConfigurationService().getBoolean("memory.use.legacy", false); // TODO remove this after 10 merge
-                if (useLegacy) {
-                    m_siteCache = new SiteCacheImpl(memoryService(), m_cacheCleanerSeconds, siteReference(""));
-                } else {
-                    m_siteCache = new SiteCacheSafe(memoryService(), eventTrackingService()); // ONLY keep this part -AZ
-                }
+				m_siteCache = new SiteCacheSafe(memoryService(), eventTrackingService());
 			}
 
 			// Register our user-site cache property
@@ -494,16 +489,17 @@ public abstract class BaseSiteService implements SiteService, Observer
 			functionManager().registerFunction(SECURE_ADD_PROJECT_SITE);
 			functionManager().registerFunction(SECURE_IMPORT_ARCHIVE);
 			
-			portalSkinPrefix = serverConfigurationService().getString(PORTAL_SKIN_NEOPREFIX_PROPERTY, PORTAL_SKIN_NEOPREFIX_DEFAULT);
-
                         
             // sfoster9@uwo.ca
             // assign a new JoinSiteDelegate to handle the join methods; provide it services from this class
             joinSiteDelegate = new JoinSiteDelegate( this, securityService(), userDirectoryService() );
+			
+			// SAK-29138
+			m_siteTitleAdvisor = (SiteTitleAdvisor) ComponentManager.get( SiteTitleAdvisor.class );
 		}
 		catch (Exception t)
 		{
-			M_log.warn(".init(): ", t);
+			M_log.error(".init(): ", t);
 		}
 	}
 
@@ -1313,7 +1309,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception e)
 		{
-			M_log.warn(".addSite(): error copying realm", e);
+			M_log.error(".addSite(): error copying realm", e);
 		}
 
 		// clear the site's notification id in properties
@@ -1963,6 +1959,28 @@ public abstract class BaseSiteService implements SiteService, Observer
 	}
 
 	/**
+	 * Convenience method to run the getSites() call common to all getUserSites* methods.
+	 * @param requireDescription when true, full descriptions will be included; when false, full descriptions may be omitted.
+	 * @param userID the returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @param includeUnpublishedSites when true, unpublished sites will be included; when false, unpublished sites will be omitted.
+	 * @return 
+	 */
+	private List<Site> getUserSitesByPublishedStatus( boolean requireDescription, String userID, boolean includeUnpublishedSites )
+	{
+		SortType sortType = SortType.TITLE_ASC;
+		SelectionType selectionType = includeUnpublishedSites ? SelectionType.MEMBER : SelectionType.ACCESS;
+
+		if( StringUtils.isBlank( userID ) )
+		{
+			return (List<Site>) getSites( selectionType, null, null, null, sortType, null, requireDescription );
+		}
+		else
+		{
+			return (List<Site>) getSites( selectionType, null, null, null, sortType, null, requireDescription, userID );
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public List<Site> getUserSites() {
@@ -1973,18 +1991,25 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @inheritDoc
 	 */
 	public List<Site> getUserSites(boolean requireDescription) {
-		String userId = sessionManager().getCurrentSessionUserId();
-		List<Site> userSites = getCachedUserSites(userId);
+		return getUserSites( requireDescription, false );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
+	{
+		String userID = sessionManager().getCurrentSessionUserId();
+		List<Site> userSites = getCachedUserSites( userID );
+		
 
 		// Retrieve sites on cache miss or anonymous user
-		if (userSites == null)
+		if( userSites == null )
 		{
-			userSites = getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
-					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, requireDescription);
+			userSites = getUserSitesByPublishedStatus( requireDescription, null, includeUnpublishedSites );
 
 			// Cache the results
-			setCachedUserSites(userId, userSites);
+			setCachedUserSites( userID, userSites );
 		}
 
 		return userSites;
@@ -1995,14 +2020,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public List<Site> getUserSites(boolean requireDescription, String userId)
 	{
-		List<Site> userSites = getCachedUserSites(userId);
-		
-		if (userSites == null)
+		return getUserSites( requireDescription, userId, false );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getUserSites( boolean requireDescription, String userID, boolean includeUnpublishedSites )
+	{
+		List<Site> userSites = getCachedUserSites( userID );
+
+		if( userSites == null )
 		{
-			userSites = getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, requireDescription, userId);
+			userSites = getUserSitesByPublishedStatus( requireDescription, userID, includeUnpublishedSites );
 
 			// Cache the results
-			setCachedUserSites(userId, userSites);
+			setCachedUserSites( userID, userSites );
 		}
 
 		return userSites;
@@ -2510,7 +2543,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}
@@ -2546,7 +2579,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}
@@ -3171,14 +3204,6 @@ public abstract class BaseSiteService implements SiteService, Observer
 			skin = serverConfigurationService().getString("skin.default");
 		}
 
-		String templates = serverConfigurationService().getString("portal.templates", "morpheus");
-		if("neoskin".equals(templates))
-		{
-			if (StringUtils.isNotEmpty(portalSkinPrefix)) {
-				skin = portalSkinPrefix + skin;
-			}
-		}
-
 		if (!skin.endsWith(".css")) return skin;
 
 		return skin.substring(0, skin.lastIndexOf(".css"));
@@ -3508,4 +3533,18 @@ public abstract class BaseSiteService implements SiteService, Observer
 		return parentId;
 	}
 
+	/**
+	 * {@inheritDoc}
+	 */
+	public String getUserSpecificSiteTitle( Site site, String userID )
+	{
+		if( m_siteTitleAdvisor != null )
+		{
+			return m_siteTitleAdvisor.getUserSpecificSiteTitle( site, userID );
+		}
+		else
+		{
+			return site.getTitle();
+		}
+	}
 }

@@ -17,7 +17,7 @@
        				"cdfm_profile_information":<h:outputText value="\"#{msgs.cdfm_profile_information}\"" />
        			};
        		</script>
-           		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+           		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
            	<script type="text/javascript" src="/library/js/jquery/qtip/jquery.qtip-latest.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>

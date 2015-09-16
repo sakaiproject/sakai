@@ -2,14 +2,16 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="http://www.thymeleaf.org" xmlns:dt="http://github.com/dandelion/datatables">
 <head th:replace="fragments/common :: head" />
 <body>
-  <div th:replace="fragments/common :: bootstrap" />  
-  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})"/>
-  <div th:include="fragments/common :: admin (${isAdmin})"/>
+  <div th:replace="fragments/common :: bootstrap" />
+  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})" />
+  <div th:include="fragments/common :: admin (${isAdmin})" />
   <div th:if="${isLoadBundlesFromDb} and ${isAdmin}">
-    <div id="menu" th:include="fragments/menus :: main (index)"/>
-    <h3 th:text="#{index.status}"> Status </h3>
+    <div class="portletBody">
+      <div id="menu" th:include="fragments/menus :: main (index)" />
+      <h3 th:text="#{index.status}">Status</h3>
       <!-- TODO more to come on this page in the future -->
       <p th:text="#{index.found(${countModifiedMessageProperties}, ${countMessageProperties})}">Found 1 modified of 100 message properties.</p>
+    </div>
   </div>
 </body>
 </html>

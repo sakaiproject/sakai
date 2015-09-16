@@ -282,16 +282,6 @@ log.debug("agentfacade.getEid(agentS) agentString = " + agentString);
     return helper.createAnonymous(facade);
   }
 
-
-  /**
-   * Is this a standlaone environment?
-   * @return false, in this implementation
-   */
-  public static boolean isStandaloneEnvironment()
-  {
-    return!integrated;
-  }
-
   /**
    * Is this an integrated environment?
    * @return true, in this implementation

@@ -116,21 +116,4 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf where pf.owner = :owner and pf.area is null]]>
   </query>
 
-  <query name="findPrivateForumByOwnerAreaWithTopics">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf
-    	left join fetch pf.topicsSet as topic
-    	left join fetch topic.childrenFoldersSet
-      where 
-      pf.owner = :owner and pf.area = :area
-    ]]>
-  </query>
-
-  <query name="findPrivateForumByOwnerAreaNullWithAllTopics">
-    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.PrivateForumImpl as pf 
-    	left join fetch pf.topicsSet as topic
-    	left join fetch topic.childrenFoldersSet
-    	where 
-    	pf.owner = :owner and pf.area is null
-    ]]>
-  </query>
 </hibernate-mapping>

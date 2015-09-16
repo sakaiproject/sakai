@@ -76,11 +76,6 @@ public interface Portal
 	public static final String ATTR_SITE_PAGE = "sakai.portal.site.";
 
 	/**
-	 * Session variable passing a maximized URL between a portlet and the portal
-	 */
-	public static final String ATTR_MAXIMIZED_URL = "sakai:maximized-url";
-
-	/**
 	 * The default portal name is none is specified.
 	 */
 	public static final String DEFAULT_PORTAL_CONTEXT = "charon";
@@ -112,43 +107,6 @@ public interface Portal
 	 * as they are being placed in the context.
 	 */
 	public static final String JSR_168_PRE_RENDER = "sakai:portlet-pre-render";
-
-	/**
-	 * Tool property used to indicate if a tool prefers a maximized view
-	 * with minimal portal navigation.
-	 */
-	public static final String PREFER_MAXIMIZE = "sakai:prefer-maximize";
-	
-	/** 
-	 * Parameter to signal that we should force the request back to the normal portal view
-	 * rather than the PDA portal view.
-	 */
-	public static final String FORCE_CLASSIC_REQ_PARAM = "force.classic";
-	
-	/**
-	 * Name of cookie that is set to signal what view we want
-	 * It is an abstract name to we can later set other preferred modes into same cookie if desired
-	 */
-	public static final String PORTAL_MODE_COOKIE_NAME = "sakai_portal_mode";
-	
-	/**
-	 * Value that this cookie will have if we are forcing classic mode
-	 */
-	public static final String FORCE_CLASSIC_COOKIE_VALUE = "classic";
-	
-	/**
-	 * Name of cookie that is set to signal that the user wants us to start minimized
-	 */
-	public static final String SAKAI_NAV_MINIMIZED = "sakai_nav_minimized";
-
-	/**
-         * Constants for SAK-19455 - The NEO Portlet Feature that allows a portlet
-	 * to suppress its title and add to the system breadcrumbs.
-	 */
-        public static final String SAKAI_PORTAL_ALLOW_NEO = "sakai-portal:allow-neo";
-        public static final String SAKAI_PORTAL_HELP_ACTION = "sakai-portal:help-action";
-        public static final String SAKAI_PORTAL_RESET_ACTION = "sakai-portal:reset-action";
-        public static final String SAKAI_PORTAL_SUPPRESSTITLE = "sakai-portal:suppresstitle";
 
 	/**
 	 * Tool property to allow the enabling/disabling of the direct url linking UI
@@ -398,13 +356,6 @@ public interface Portal
 	 * @return
 	 */
 	ServletContext getServletContext();
-
-	/**
-         * Look at the user agent and add Mobile Browser related material to 
-	 * the context.
-	 */
- 	void setupMobileDevice(HttpServletRequest req, PortalRenderContext rcontext);
-
 
 	/**
 	 * Return the sub sites below a particular site

@@ -8,7 +8,6 @@
 <%@ taglib uri="http://myfaces.apache.org/tomahawk" prefix="t" %>
 
 
-
 <f:view>
 	<sakai:view_container title="#{msgs.prefs_title}">
     <sakai:stylesheet path="/css/prefs.css"/>
@@ -16,7 +15,7 @@
 
 <f:verbatim>
 <h:outputText value="#{Portal.latestJQuery}" escape="false"/>
-    <script type="text/javascript" src="/library/js/fluid-latest/InfusionAll.js">//</script>
+    <script type="text/javascript" src="/library/js/fluid/1.5/MyInfusion.js">//</script>
 	<script type="text/javascript">
 	<!--
 		function removeOverride(cur) {
@@ -34,8 +33,6 @@
 	
 		<h:form id="options_form">
 
-				
-		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
 		<script type="text/javascript" src="/sakai-user-tool-prefs/js/prefs.js">// </script>
 		<script type="text/javascript">
 			$(document).ready(function(){

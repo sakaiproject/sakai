@@ -1,6 +1,6 @@
 ## $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/admin/chef_users_confirm_remove.vm,v 1.2 2005/05/24 20:22:20 gsilver.umich.edu Exp $
 <link type="text/css" href="/sakai-user-tool/css/sakai-user-tool.css" rel="stylesheet" media="screen" />
-<script type="text/javascript" language="JavaScript" src="/sakai-user-tool/js/userRemove.js"></script>
+<script type="text/javascript" src="/sakai-user-tool/js/userRemove.js"></script>
 <div class="portletBody">
 #if($menu)
 	#toolbar($menu)
@@ -34,4 +34,4 @@
 			</div>
 			<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 		</form>
-	</div>
+</div>

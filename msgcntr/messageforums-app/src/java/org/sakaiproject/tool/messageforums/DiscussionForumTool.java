@@ -96,7 +96,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
@@ -371,6 +371,7 @@ public class DiscussionForumTool
   private SynopticMsgcntrManager synopticMsgcntrManager;
   private UserPreferencesManager userPreferencesManager;
   private ContentHostingService contentHostingService;
+  private AuthzGroupService authzGroupService;
   
   private Boolean instructor = null;
   private Boolean sectionTA = null;
@@ -417,6 +418,9 @@ public class DiscussionForumTool
 		this.contentHostingService = contentHostingService;
 	}
 
+  public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+    this.authzGroupService = authzGroupService;
+  }
   private String editorRows;
   
   private boolean threadMoved;
@@ -3953,13 +3957,13 @@ public class DiscussionForumTool
     	LOG.debug("selectedTopic is null in isDisplayTopicDeleteOption()");
     	return false;
     }
-	  Topic topic = selectedTopic.getTopic();
+	  DiscussionTopic topic = selectedTopic.getTopic();
 	  if (topic == null || topic.getId() == null)
 		  return false;
 	  
 	  Topic topicInDb = forumManager.getTopicById(topic.getId());
 	  
-	  return topicInDb != null && uiPermissionsManager.isChangeSettings(selectedTopic.getTopic(),selectedForum.getForum());
+	  return topicInDb != null && selectedForum != null && uiPermissionsManager != null && uiPermissionsManager.isChangeSettings(topic,selectedForum.getForum());
   }
   
   private void setupForum() {
@@ -4338,8 +4342,11 @@ public class DiscussionForumTool
   private void setUpGradeInformation(String gradebookUid, String selAssignmentName, String studentId) {
 	  GradebookService gradebookService = getGradebookService();
 	  if (gradebookService == null) return;
+	  
+	  Assignment assignment = gradebookService.getAssignment(gradebookUid, gradebookUid);
+	  
 	  // first, check to see if user is authorized to view or grade this item in the gradebook
-	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, selAssignmentName, studentId);
+	  String function = gradebookService.getGradeViewFunctionForUserForStudentForItem(gradebookUid, assignment.getId(), studentId);
 	  if (function == null) {
 		  allowedToGradeItem = false;
 		  selGBItemRestricted = true;
@@ -4698,7 +4705,7 @@ public class DiscussionForumTool
   public String processDfMsgRevisedPost()
   {
 	//checks whether the user can post to the forum & topic based on the passed in message id
-	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, true)){
+	if(!checkPermissionsForUser("processDfMsgRevisedPost", false, false, true, false)){
 		return gotoMain();
 	}
 	try{
@@ -6918,7 +6925,7 @@ public class DiscussionForumTool
     int i=0;
     try
     {      
-      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+      realm = authzGroupService.getAuthzGroup(getContextSiteId());
       
       Set roles1 = realm.getRoles();
 
@@ -8761,7 +8768,7 @@ public class DiscussionForumTool
 		
 		AuthzGroup realm;
 		try {
-			realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+			realm = authzGroupService.getAuthzGroup(getContextSiteId());
 
 			Set roles1 = realm.getRoles();
 
@@ -9965,5 +9972,9 @@ public class DiscussionForumTool
     	}
     	return false;
     }
+	
+	public boolean isShowAvailabilityDates(){
+		return ServerConfigurationService.getBoolean("msgcntr.display.availability.dates", true);
+	}
 }
 

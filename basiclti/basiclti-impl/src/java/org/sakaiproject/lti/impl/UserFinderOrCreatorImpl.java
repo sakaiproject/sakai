@@ -16,6 +16,7 @@
 
 package org.sakaiproject.lti.impl;
 
+import java.util.Collection;
 import java.util.Map;
 
 import org.apache.commons.logging.Log;
@@ -43,13 +44,17 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
         this.userDirectoryService = userDirectoryService;
     }
 
-    public User findOrCreateUser(Map payload, boolean trustedConsumer) throws LTIException {
+    public User findOrCreateUser(Map payload, boolean trustedConsumer, boolean emailtrusted) throws LTIException {
 
         User user;
+        String eid=null;
         String user_id = (String) payload.get(BasicLTIConstants.USER_ID);
 
         // Get the eid, either from the value provided or if trusted get it from the user_id,otherwise construct it.
-        String eid = getEid(payload, trustedConsumer, user_id);
+        if(!emailtrusted){
+         eid = getEid(payload, trustedConsumer, user_id);
+        }
+        
 
         // If we did not get first and last name, split lis_person_name_full
         final String fullname = (String) payload.get(BasicLTIConstants.LIS_PERSON_NAME_FULL);
@@ -67,42 +72,64 @@ public class UserFinderOrCreatorImpl implements UserFinderOrCreator {
             }
         }
         
-        // If trusted consumer, login, otherwise check for existing user and create one if required
+        // If trusted consumer, login, if email trusted consumer then we look up the user info based on the email address otherwise check for existing user and create one if required
         // Note that if trusted, then the user must have already logged into Sakai in order to have an account stub created for them
         // otherwise this will fail since they don't exist. Perhaps this should be addressed?
         if (trustedConsumer) {
-            try {
-                user = userDirectoryService.getUser(user_id);
-            } catch (UserNotDefinedException e) {
-                throw new LTIException("launch.user.invalid", "user_id=" + user_id, e);
-            }
-
-        } else {
-
-            try {
-                user = userDirectoryService.getUserByEid(eid);
-            } catch (Exception e) {
-                if (M_log.isDebugEnabled()) {
-                    M_log.debug(e.getLocalizedMessage(), e);
-                }
-                user = null;
-            }
-
-            if (user == null) {
-                try {
-                    String hiddenPW = IdManager.createUuid();
-                    userDirectoryService.addUser(null, eid, fname, lname, email, hiddenPW, "registered", null);
-                    M_log.info("Created user=" + eid);
-                    user = userDirectoryService.getUserByEid(eid);
-                } catch (Exception e) {
-                    throw new LTIException("launch.create.user", "user_id=" + user_id, e);
-                }
-            }
-
-            // post the login event
-            // eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGIN,
-            // null, true));
+        	try {
+        		if (BasicLTIUtil.isNotBlank((String) payload.get(BasicLTIConstants.EXT_SAKAI_PROVIDER_EID))) {
+        			user = userDirectoryService.getUserByEid(eid);
+        		} else {
+        			user = userDirectoryService.getUser(user_id);
+        		}
+        	} catch (UserNotDefinedException e) {
+        		throw new LTIException("launch.user.invalid", "user_id=" + user_id, e);
+        	}
+        	return user;
         }
+		/*
+		 * looking up user based on email address may return multiple results,
+		 * this is not a valid case hence this is an error condition with this
+		 * work flow
+		 */
+        if (emailtrusted) {
+        	Collection<User> findUsersByEmail = userDirectoryService.findUsersByEmail((String) email);
+        	if (!findUsersByEmail.isEmpty()) {
+        		if (findUsersByEmail.size() > 1) {
+        			M_log.warn("multiple user id's exist for emailaddress= " + email);
+        			throw new LTIException("launch.user.multiple.emailaddress", "email=" + email,null);
+        		}
+        		user = (User) findUsersByEmail.toArray()[0];
+        	} else {
+        		M_log.warn("Invalid user for emailaddress= " + email);
+        		throw new LTIException("launch.user.invalid", "email=" + email,null);
+        	}
+        	return user;
+        }
+
+        try {
+        	user = userDirectoryService.getUserByEid(eid);
+        } catch (Exception e) {
+        	if (M_log.isDebugEnabled()) {
+        		M_log.debug(e.getLocalizedMessage(), e);
+        	}
+        	user = null;
+        }
+
+        if (user == null) {
+        	try {
+        		String hiddenPW = IdManager.createUuid();
+        		userDirectoryService.addUser(null, eid, fname, lname, email, hiddenPW, "registered", null);
+        		M_log.info("Created user=" + eid);
+        		user = userDirectoryService.getUserByEid(eid);
+        	} catch (Exception e) {
+        		throw new LTIException("launch.create.user", "user_id=" + user_id, e);
+        	}
+        }
+
+        // post the login event
+        // eventTrackingService().post(eventTrackingService().newEvent(EVENT_LOGIN,
+        // null, true));
 
         return user;
     }

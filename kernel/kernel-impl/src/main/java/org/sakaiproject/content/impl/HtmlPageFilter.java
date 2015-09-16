@@ -104,10 +104,15 @@ public class HtmlPageFilter implements ContentFilter {
 		
 		final boolean detectHtml = addHtml == null || addHtml.equals("auto");
 		String title = getTitle(content);
-		final String header = MessageFormat.format(headerTemplate, skinRepo, siteSkin, title);
-		final String footer = footerTemplate;
-		
-		return new WrappedContentResource(content, header, footer, detectHtml);
+
+		StringBuilder header = new StringBuilder();
+		if (detectHtml) {
+			String docType = serverConfigurationService.getString("content.html.doctype", "<!DOCTYPE html>");
+			header.append(docType + "\n");
+		}
+		header.append(MessageFormat.format(headerTemplate, skinRepo, siteSkin, title));
+        
+		return new WrappedContentResource(content, header.toString(), footerTemplate, detectHtml);
 	}
 
 	private String getTitle(final ContentResource content) {
@@ -130,13 +135,6 @@ public class HtmlPageFilter implements ContentFilter {
 			if (site.getSkin() != null && site.getSkin().length() > 0) {
 				siteSkin = site.getSkin();
 			}
-		}
-
-		String neoPrefix = serverConfigurationService.getString("portal.neoprefix", "neo-");
-		String portalTemplate = serverConfigurationService.getString("portal.templates", "morpheus");
-
-		if ("neoskin".equals(portalTemplate) && !siteSkin.startsWith(neoPrefix)) {
-			siteSkin = neoPrefix + siteSkin;
 		}
 
 		return siteSkin;

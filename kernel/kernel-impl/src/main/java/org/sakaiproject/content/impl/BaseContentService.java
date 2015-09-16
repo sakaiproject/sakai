@@ -23,7 +23,6 @@ package org.sakaiproject.content.impl;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -43,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Random;
@@ -63,10 +63,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.antivirus.api.VirusFoundException;
 import org.sakaiproject.antivirus.api.VirusScanIncompleteException;
@@ -82,19 +84,7 @@ import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.conditions.api.ConditionService;
-import org.sakaiproject.content.api.ContentCollection;
-import org.sakaiproject.content.api.ContentCollectionEdit;
-import org.sakaiproject.content.api.ContentEntity;
-import org.sakaiproject.content.api.ContentFilter;
-import org.sakaiproject.content.api.ContentHostingHandler;
-import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.content.api.ContentResource;
-import org.sakaiproject.content.api.ContentResourceEdit;
-import org.sakaiproject.content.api.ContentTypeImageService;
-import org.sakaiproject.content.api.GroupAwareEdit;
-import org.sakaiproject.content.api.GroupAwareEntity;
-import org.sakaiproject.content.api.ResourceType;
-import org.sakaiproject.content.api.ResourceTypeRegistry;
+import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
 import org.sakaiproject.content.api.providers.SiteContentAdvisor;
 import org.sakaiproject.content.api.providers.SiteContentAdvisorProvider;
@@ -255,10 +245,14 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	private boolean m_useMimeMagic = true;
 
+	List <String> m_ignoreExtensions = null;
+	List <String> m_ignoreMimeTypes = null;
+
 	private static final Detector DETECTOR = new DefaultDetector(MimeTypes.getDefaultMimeTypes());
 	
 	// This is the date format for Last-Modified header
 	public static final String RFC1123_DATE = "EEE, dd MMM yyyy HH:mm:ss zzz";
+	public static final Locale LOCALE_US = Locale.US;
 
 	static
 	{
@@ -277,8 +271,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 
 	/** Optional set of folders just within the m_bodyPath to distribute files among. */
 	protected String[] m_bodyVolumes = null;
-	
-	protected List<ContentFilter> m_outputFilters = Collections.emptyList();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Constructors, Dependencies and their setter methods
@@ -483,6 +475,21 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 	{
 		m_collectionAccessFormatter = service;
 	}
+
+	/** Dependency: ContentFilterService */
+	protected ContentFilterService m_contentFilterService;
+
+	/**
+	 * Dependency: ContentFilterService.
+	 *
+	 * @param service
+	 *        The ContentFilterService.
+	 */
+	public void setContentFilterService(ContentFilterService service)
+	{
+		m_contentFilterService = service;
+	}
+
 
 	/**
 	 * Set the site quota.
@@ -839,12 +846,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		this.convertToContextQueryForCollectionSize = convertToContextQueryForCollectionSize;
 	}
 
-	public void setOutputFilters(List<ContentFilter> outputFilters)
-	{
-		this.m_outputFilters = outputFilters;
-	}
 
-	
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
 	 *********************************************************************************************************************************************************************************************************************************************************/
@@ -909,21 +911,6 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					userDirectoryService, m_serverConfigurationService);
 			dbNoti.setAction(dropboxNotification);
 
-			if (m_bodyPathDeleted != null) {
-				File deletedFolder = new File(m_bodyPathDeleted);
-				if (!deletedFolder.exists()) {
-					if (!deletedFolder.mkdirs()) {
-						M_log.error("failed to create bodyPathDeleted " + m_bodyPathDeleted + ". Resource backup to file system has been disabled! Please set with the property: bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService");
-						m_bodyPathDeleted = null;
-					}
-				}
-			} else {
-				if (m_bodyPath != null) {
-					M_log.info("m_bodyPathDeleted is not set as a property. Please set with the property: bodyPathDeleted@org.sakaiproject.content.api.ContentHostingService if you want to allow for deletion of resources");
-				}
-			}
-
-
 			StringBuilder buf = new StringBuilder();
 			if (m_bodyVolumes != null)
 			{
@@ -950,6 +937,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			functionManager.registerFunction(AUTH_RESOURCE_HIDDEN, true);
 
 			functionManager.registerFunction(AUTH_DROPBOX_OWN, false);
+			functionManager.registerFunction(AUTH_DROPBOX_GROUPS, false);
 			functionManager.registerFunction(AUTH_DROPBOX_MAINTAIN, false);
 
 			// quotas
@@ -967,7 +955,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			M_log.error("init(): ", t);
 		}
 
 		this.m_useSmartSort = m_serverConfigurationService.getBoolean("content.smartSort", true);
@@ -1489,13 +1477,27 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		
 		// if this resource is a dropbox, you need dropbox maintain permission
+		// Changed in SAK-11647 to enable group-aware dropboxes
 		if (id.startsWith(COLLECTION_DROPBOX))
 		{
 			// only for /group-user/SITEID/USERID/ refs.
 			String[] parts = StringUtil.split(id, "/");
 			if (parts.length >= 3)
 			{
-				return AUTH_DROPBOX_MAINTAIN;
+				String ref = null;
+				if (id != null)
+				{
+					ref = getReference(id);
+				}
+
+				//Before SAK-11647 any dropbox id asked for dropbox.maintain permission.
+				//Now we must support groups permission, so we ask for this permission too.
+				//Groups permission gives full access to dropboxes of users in current user's groups. 
+				//A different logic can be achieved here depending of lock parameter received.
+				if (m_securityService.unlock(AUTH_DROPBOX_MAINTAIN, ref))
+					return AUTH_DROPBOX_MAINTAIN;
+				else if (m_securityService.unlock(AUTH_DROPBOX_GROUPS, ref))
+					return AUTH_DROPBOX_GROUPS;
 			}
 		}
 
@@ -1701,6 +1703,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		boolean isAllowed = m_securityService.isSuperUser();
 		if(! isAllowed)
 		{
+			//SAK-11647 - Changes in this function.
 			lock = convertLockIfDropbox(lock, id);
 
 			// make a reference from the resource id, if specified
@@ -1764,6 +1767,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			return;
 		}
 
+		//SAK-11647 - Changes in this function.
 		lock = convertLockIfDropbox(lock, id);
 
 		// make a reference from the resource id, if specified
@@ -2658,7 +2662,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("removeCollection(): closed ContentCollectionEdit", e);
+			M_log.error("removeCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -2760,7 +2764,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch (InconsistentException e)
 		{
-			M_log.warn("removeCollection():", e);
+			M_log.error("removeCollection():", e);
 		}
 		finally
 		{
@@ -2786,7 +2790,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("commitCollection(): closed ContentCollectionEdit", e);
+			M_log.error("commitCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -2963,17 +2967,17 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				{
 					// If change of groups is consistent in superfolder, this should not occur here
 					m_storage.cancelResource(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				} 
 				catch (PermissionException e) 
 				{
 					// If user has permission to change groups in superfolder, this should not occur here
 					m_storage.cancelResource(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				} 
 				catch (ServerOverloadException e) 
 				{
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				}
 			}
 			else
@@ -2996,13 +3000,13 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				{
 					// If change of groups is consistent in superfolder, this should not occur here
 					m_storage.cancelCollection(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				} 
 				catch (PermissionException e) 
 				{
 					// If user has permission to change groups in superfolder, this should not occur here
 					m_storage.cancelCollection(edit);
-					M_log.warn("verifyGroups(): ", e);
+					M_log.error("verifyGroups(): ", e);
 				}
 			}
 		}
@@ -3021,7 +3025,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("cancelCollection(): closed ContentCollectionEdit", e);
+			M_log.error("cancelCollection(): closed ContentCollectionEdit", e);
 			return;
 		}
 
@@ -3068,23 +3072,23 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			}
 			catch (IdUnusedException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (TypeException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (PermissionException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (InUseException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 			catch (ServerOverloadException e)
 			{
-				M_log.warn("failed to removed canceled collection child", e);
+				M_log.error("failed to removed canceled collection child", e);
 			}
 		}
 	}
@@ -4475,7 +4479,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("removeResource(): closed ContentResourceEdit", e);
+			M_log.error("removeResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -4559,7 +4563,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("removeDeletedResource(): closed ContentResourceEdit", e);
+			M_log.error("removeDeletedResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -4726,7 +4730,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IOException e)
 				{
-					M_log.warn("Failed to close when saving deleted content stream.", e);
+					M_log.error("Failed to close when saving deleted content stream.", e);
 				}
 			}
 		}
@@ -5912,7 +5916,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("commitResource(): closed ContentResourceEdit", e);
+			M_log.error("commitResource(): closed ContentResourceEdit", e);
 			return;
 		}
 		
@@ -5922,6 +5926,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
         //Don't process for special TYPE_URL type
         String currentContentType = edit.getContentType();
         m_useMimeMagic = m_serverConfigurationService.getBoolean("content.useMimeMagic", m_useMimeMagic);
+        m_ignoreExtensions = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.extensions")));
+        m_ignoreMimeTypes = Arrays.asList(ArrayUtils.nullToEmpty(m_serverConfigurationService.getStrings("content.mimeMagic.ignorecontent.mimetypes")));
+
         if (m_useMimeMagic && DETECTOR != null && !ResourceProperties.TYPE_URL.equals(currentContentType) && !hasContentTypeAlready) {
             try{
                 //we have to make the stream resetable so tika can read some of it and reset for saving.
@@ -5933,13 +5940,25 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
                 //This might not want to be set as it would advise the detector
                 metadata.set(Metadata.RESOURCE_NAME_KEY, edit.getId());
                 metadata.set(Metadata.CONTENT_TYPE, currentContentType);
-                String newmatch = DETECTOR.detect(TikaInputStream.get(buff), metadata).toString();
+                String newmatch = "";
+                //If we are ignoring the content for this extension, don't give it any data
+                if (m_ignoreExtensions != null && m_ignoreExtensions.contains(FilenameUtils.getExtension(edit.getId()))) {
+                    newmatch = DETECTOR.detect(null, metadata).toString();
+                }
+                else {
+                  newmatch = DETECTOR.detect(TikaInputStream.get(buff), metadata).toString();
+                  //Redetect without the content as we're ignoring this mime type
+                  if (m_ignoreMimeTypes != null && m_ignoreMimeTypes.contains(newmatch)) {
+                    newmatch = DETECTOR.detect(null, metadata).toString();
+                  }
+                }
+                
                 if (M_log.isDebugEnabled()) {
                     M_log.debug("Magic: Setting content type from " + currentContentType + " to " + newmatch);
                 }
                 edit.setContentType(newmatch);
-            } catch (IOException e) {
-				M_log.warn("IOException when trying to get the resource's data: " + e);
+            } catch (Exception e) {
+				M_log.warn("Exception when trying to get the resource's data: " + e);
 			} 
         }
         
@@ -6148,7 +6167,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("commitResourceEdit(): closed ContentResourceEdit", e);
+			M_log.error("commitResourceEdit(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -6279,7 +6298,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		if (!edit.isActiveEdit())
 		{
 			Exception e = new Exception();
-			M_log.warn("cancelResource(): closed ContentResourceEdit", e);
+			M_log.error("cancelResource(): closed ContentResourceEdit", e);
 			return;
 		}
 
@@ -6857,11 +6876,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		
 		// Wrap up the resource if we need to.
-		for (ContentFilter filter: m_outputFilters)
-		{
-			resource = filter.wrap(resource);
-		}
-		
+		resource = m_contentFilterService.wrap(resource);
+
 		// Set some headers to tell browsers to revalidate and check for updated files
 		res.addHeader("Cache-Control", "must-revalidate, private");
 		res.addHeader("Expires", "-1");
@@ -6882,7 +6898,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			
 			// KNL-1316 tell the browser when our file was last modified for caching reasons
 			if (lastModTime > 0) {
-				SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE);
+				SimpleDateFormat rfc1123Date = new SimpleDateFormat(RFC1123_DATE, LOCALE_US);
 				rfc1123Date.setTimeZone(TimeZone.getTimeZone("GMT"));
 				res.addHeader("Last-Modified", rfc1123Date.format(lastModTime));
 			}
@@ -7638,7 +7654,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		StringBuilder results = new StringBuilder();
 
 		// start with an element with our very own name
-		Element element = doc.createElement(APPLICATION_ID);
+		Element element = doc.createElement(ContentHostingService.class.getName());
 		((Element) stack.peek()).appendChild(element);
 		stack.push(element);
 
@@ -7935,7 +7951,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		catch (Exception any)
 		{
 			results.append("import interrputed: " + any.toString() + "\n");
-			M_log.warn("mergeContent(): exception: ", any);
+			M_log.error("mergeContent(): exception: ", any);
 		}
 
 		return results.toString();
@@ -7990,25 +8006,25 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 						}
 					} catch (InUseException e6) {
 						// TODO Auto-generated catch block
-						M_log.warn(this + thisKey, e6);
+						M_log.error(this + thisKey, e6);
 					}catch (PermissionException e1) {
-						M_log.warn(this + thisKey, e1);
+						M_log.error(this + thisKey, e1);
 					} catch (IdUnusedException e2) {
-						M_log.warn(this + thisKey, e2);
+						M_log.error(this + thisKey, e2);
 					} catch (TypeException e3) {
-						M_log.warn(this + thisKey, e3);
+						M_log.error(this + thisKey, e3);
 					} 
 	
 				}
 			}
 		} catch (PermissionException e1) {
-			M_log.warn(this + thisKey, e1);
+			M_log.error(this + thisKey, e1);
 		} catch (IdUnusedException e2) {
-			M_log.warn(this + thisKey, e2);
+			M_log.error(this + thisKey, e2);
 		} catch (TypeException e3) {
-			M_log.warn(this + thisKey, e3);
+			M_log.error(this + thisKey, e3);
 		} catch (ServerOverloadException e4) {
-			M_log.warn(this + thisKey, e4);
+			M_log.error(this + thisKey, e4);
 		}
 		
 	}
@@ -8071,28 +8087,28 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IdUnusedException eee)
 				{
-					M_log.warn(this + toContext, eee);
+					M_log.error(this + toContext, eee);
 				}
 				catch (TypeException eee)
 				{
-					M_log.warn(this + toContext, eee);
+					M_log.error(this + toContext, eee);
 				}
 			}
 			catch(IdUsedException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			catch(IdInvalidException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			catch (PermissionException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			catch (InconsistentException ee)
 			{
-				M_log.warn(this + toContext, ee);
+				M_log.error(this + toContext, ee);
 			}
 			finally
 			{
@@ -8104,11 +8120,11 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		}
 		catch (TypeException e)
 		{
-			M_log.warn(this + toContext, e);
+			M_log.error(this + toContext, e);
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(this + toContext, e);
+			M_log.error(this + toContext, e);
 		}
 
 		if (toCollection != null)
@@ -8522,15 +8538,15 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				+ StringUtil.limit(r.getProperties().getPropertyFormatted(ResourceProperties.PROP_DESCRIPTION), 30);
 			}
 		} catch (PermissionException e) {
-			M_log.warn("PermissionEception:", e);
+			M_log.error("PermissionEception:", e);
 		} catch (IdUnusedException e) {
-			M_log.warn("IdUnusedException:", e);
+			M_log.error("IdUnusedException:", e);
 		} catch (EntityPropertyNotDefinedException e) {
-			M_log.warn("EntityPropertyNotDefinedException:", e);
+			M_log.error("EntityPropertyNotDefinedException:", e);
 		} catch (EntityPropertyTypeException e) {
-			M_log.warn("EntityPropertyTypeException:", e);
+			M_log.error("EntityPropertyTypeException:", e);
 		} catch (TypeException e) {
-			M_log.warn("TypeException:", e);
+			M_log.error("TypeException:", e);
 		}
 		return rv;
 	}
@@ -8826,7 +8842,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IOException e)
 				{
-					M_log.warn("IOException ", e);
+					M_log.error("IOException ", e);
 				}
 			}
 
@@ -8838,7 +8854,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				}
 				catch (IOException e)
 				{
-					M_log.warn("IOException ", e);
+					M_log.error("IOException ", e);
 				}
 			}
 		}
@@ -9348,7 +9364,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 			try {
 				siteType = m_siteService.getSite(siteId).getType();
 			} catch (IdUnusedException e) {
-				M_log.warn("Quota calculation could not find the site '"+ siteId + "' to determine the type.", M_log.isDebugEnabled()?e:null);
+				M_log.error("Quota calculation could not find the site '"+ siteId + "' to determine the type.", e);
 			}
 
 			// use this quota unless we have one more specific
@@ -9425,7 +9441,7 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// if we cannot, give up
 		catch (Exception any)
 		{
-			M_log.warn("generateCollections: " + any.getMessage(), any);
+			M_log.error("generateCollections: " + any.getMessage(), any);
 		}
 
 	} // generateCollections
@@ -9821,8 +9837,8 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// form the site's dropbox collection
 		rv = COLLECTION_DROPBOX + siteId + "/";
 
-		// for maintainers, use the site level
-		if (isDropboxMaintainer(siteId))
+		// for maintainers or users with groups access, use the site level
+		if ((isDropboxMaintainer(siteId))||(isDropboxGroups(siteId)))
 		{
 			// return the site's dropbox collection
 			return rv;
@@ -10150,6 +10166,26 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 		// if the user has dropbox maintain in the site, they are the dropbox maintainer
 		// (dropbox maintain in their myWorkspace just gives them access to their own dropbox)
 		return m_securityService.unlock(AUTH_DROPBOX_MAINTAIN, m_siteService.siteReference(siteId));
+	}
+
+	/**
+	 * Determine whether the user has the dropbox.groups permission 
+	 * 
+	 * @return True if user has dropbox.groups permission, false otherwise.
+	 */
+	public boolean isDropboxGroups(String siteId)
+	{
+		String dropboxId = null;
+
+		// make sure we are in a worksite, not a workspace
+		if (m_siteService.isUserSite(siteId) || m_siteService.isSpecialSite(siteId))
+		{
+			return false;
+		}
+
+		// if the user has dropbox maintain in the site, they are the dropbox maintainer
+		// (dropbox maintain in their myWorkspace just gives them access to their own dropbox)
+		return m_securityService.unlock(AUTH_DROPBOX_GROUPS, m_siteService.siteReference(siteId));
 	}
 
 	/******************************************************************************************************************************************************************************************************************************************************
@@ -11783,27 +11819,27 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 					catch(TypeException e)
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("TypeException",e);
+						M_log.error("TypeException",e);
 					} 
 					catch (IdUnusedException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("IdUnusedException",e);
+						M_log.error("IdUnusedException",e);
 					} 
 					catch (PermissionException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("PermissionException",e);
+						M_log.error("PermissionException",e);
 					} 
 					catch (InUseException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("InUseException",e);
+						M_log.error("InUseException",e);
 					} 
 					catch (ServerOverloadException e) 
 					{
 						// TODO Auto-generated catch block
-						M_log.warn("ServerOverloadException",e);
+						M_log.error("ServerOverloadException",e);
 					}
 				}
 

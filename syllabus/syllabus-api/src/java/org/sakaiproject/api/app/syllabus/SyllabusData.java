@@ -109,9 +109,9 @@ public interface SyllabusData
    */
   public void setSyllabusItem(SyllabusItem syllabusItem);
   
-  public Set getAttachments();
+  public Set<SyllabusAttachment> getAttachments();
   
-  public void setAttachments(Set attachments);
+  public void setAttachments(Set<SyllabusAttachment> attachments);
   
   /**
    * @return Returns the syllabus' start time

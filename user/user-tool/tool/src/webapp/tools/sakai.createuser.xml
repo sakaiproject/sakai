@@ -7,7 +7,10 @@
 			title="New Account"
 			description="Create a new user account.">
 
+		<configuration name="create-blurb" value="" />
 		<configuration name="create-type" value="registered" />
+		<configuration name="force-eid-equals-email" value="false" />
+		<configuration name="validate-through-email" value="false" />
 
 		<configuration name="create-login" value="true" type="final" />
 		<configuration name="create-user" value="true" type="final" />

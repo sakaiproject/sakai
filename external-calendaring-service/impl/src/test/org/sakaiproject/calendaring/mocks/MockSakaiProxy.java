@@ -48,7 +48,7 @@ public class MockSakaiProxy implements SakaiProxy {
 
 	@Override
 	public String getCalendarFilePath() {
-		return "/tmp";
+		return System.getProperty("java.io.tmpdir");
 	}
 
 	@Override

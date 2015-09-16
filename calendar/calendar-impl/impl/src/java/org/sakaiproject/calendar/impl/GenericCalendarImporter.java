@@ -83,13 +83,13 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 	public static final String END_TIME_PROPERTY_NAME = "EndTime";
 
-	public static final String END_TIME_DEFAULT_COLUMN_HEADER = "Ends";
+	public static final String END_TIME_DEFAULT_COLUMN_HEADER = "EndTime";
 
 	public static final String DURATION_PROPERTY_NAME = "Duration";
 
 	public static final String DURATION_DEFAULT_COLUMN_HEADER = "Duration";
 
-	public static final String START_TIME_PROPERTY_NAME = "StartTime";
+	public static final String START_TIME_PROPERTY_NAME = "Start";
 
 	public static final String START_TIME_DEFAULT_COLUMN_HEADER = "Start";
 
@@ -123,6 +123,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 
 	// Map of readers for various formats. Keyed by import type.
 	private final Map readerMap = new HashMap();
+	
+	protected Map<String, String> columnMap = null;
 
 	private DateFormat timeFormatter()
 	{
@@ -150,7 +152,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 		return rv;
 	}
 
-   private ResourceLoader rb = new ResourceLoader("calendar");
+	private static ResourceLoader rb = new ResourceLoader("calendar");
 
 	// These are injected at runtime by Spring.
 	private CalendarService calendarService = null;
@@ -730,10 +732,21 @@ public class GenericCalendarImporter implements CalendarImporterService
 		{
 			scheduleImport.setColumnHeaderToAtributeMapping(columnMapping);
 		}
-
+		
+		columnMap = scheduleImport.getDefaultColumnMap();
+		
 		// Read in the file.
 		scheduleImport.importStreamFromDelimitedFile(importStream, new Reader.ReaderImportRowHandler()
 		{
+			String frequencyColumn = columnMap.get(FREQUENCY_DEFAULT_COLUMN_HEADER);
+			String startTimeColumn = columnMap.get(START_TIME_DEFAULT_COLUMN_HEADER);
+			String endTimeColumn = columnMap.get(END_TIME_DEFAULT_COLUMN_HEADER);
+			String durationTimeColumn = columnMap.get(DURATION_DEFAULT_COLUMN_HEADER);
+			String dateColumn = columnMap.get(DATE_DEFAULT_COLUMN_HEADER);
+			String endsColumn = columnMap.get(ENDS_DEFAULT_COLUMN_HEADER);
+			String intervalColumn = columnMap.get(INTERVAL_DEFAULT_COLUMN_HEADER);
+			String repeatColumn = columnMap.get(REPEAT_DEFAULT_COLUMN_HEADER);
+			
 			// This is the callback that is called for each row.
 			public void handleRow(Iterator columnIterator) throws ImportException
 			{
@@ -754,12 +767,12 @@ public class GenericCalendarImporter implements CalendarImporterService
 					}
 					else
 					{
-						if (FREQUENCY_PROPERTY_NAME.equals(column.getPropertyName()))
+						if (frequencyColumn != null && frequencyColumn.equals(column.getColumnHeader()))
 						{
 							mapCellValue = column.getCellValue();
 						}
-						else if (END_TIME_PROPERTY_NAME.equals(column.getPropertyName())
-								|| START_TIME_PROPERTY_NAME.equals(column.getPropertyName()))
+						else if (endTimeColumn != null && endTimeColumn.equals(column.getColumnHeader())
+								|| (startTimeColumn != null && startTimeColumn.equals(column.getColumnHeader())))
 						{
 							boolean success = false;
 
@@ -821,7 +834,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 								}
 							}
 						}
-						else if (DURATION_PROPERTY_NAME.equals(column.getPropertyName()))
+						else if (durationTimeColumn != null && durationTimeColumn.equals(column.getColumnHeader()))
 						{
                      String timeFormatErrorString = (String)rb.getFormattedMessage(
                                                    "err_time", 
@@ -860,8 +873,8 @@ public class GenericCalendarImporter implements CalendarImporterService
 								throw new ImportException(timeFormatErrorString);
 							}
 						}
-						else if (DATE_PROPERTY_NAME.equals(column.getPropertyName())
-								|| ENDS_PROPERTY_NAME.equals(column.getPropertyName()))
+						else if (dateColumn != null && dateColumn.equals(column.getColumnHeader())
+								|| (endsColumn != null && endsColumn.equals(column.getColumnHeader())))
 						{
                      DateFormat df = DateFormat.getDateInstance( DateFormat.SHORT, rb.getLocale() );
                      df.setLenient(false);
@@ -877,8 +890,8 @@ public class GenericCalendarImporter implements CalendarImporterService
                         throw new ImportException( msg );
 							}
 						}
-						else if (INTERVAL_PROPERTY_NAME.equals(column.getPropertyName())
-								|| REPEAT_PROPERTY_NAME.equals(column.getPropertyName()))
+						else if (intervalColumn != null && intervalColumn.equals(column.getColumnHeader())
+								|| repeatColumn != null && repeatColumn.equals(column.getColumnHeader()))
 						{
 							try
 							{
@@ -892,7 +905,7 @@ public class GenericCalendarImporter implements CalendarImporterService
                         throw new ImportException( msg );
 							}
 						}
-						else if (ITEM_TYPE_PROPERTY_NAME.equals(column.getPropertyName())){
+						else if (ITEM_TYPE_PROPERTY_NAME.equals(column.getColumnHeader())){
 							String cellValue = column.getCellValue();
 							if (cellValue!=null){
 								if (cellValue.equals("event.activity")){
@@ -940,7 +953,7 @@ public class GenericCalendarImporter implements CalendarImporterService
 					}
 
 					// Store in the map for later reference.
-					eventProperties.put(column.getPropertyName(), mapCellValue);
+					eventProperties.put(column.getColumnHeader(), mapCellValue);
 				}
 
 				// Add the map of properties for this row to the list of rows.
@@ -968,10 +981,10 @@ public class GenericCalendarImporter implements CalendarImporterService
 			RecurrenceRule recurrenceRule = null;
 			PrototypeEvent prototypeEvent = new PrototypeEvent();
 
-			prototypeEvent.setDescription((String) eventProperties.get(GenericCalendarImporter.DESCRIPTION_PROPERTY_NAME));
-			prototypeEvent.setDisplayName((String) eventProperties.get(GenericCalendarImporter.TITLE_PROPERTY_NAME));
-			prototypeEvent.setLocation((String) eventProperties.get(GenericCalendarImporter.LOCATION_PROPERTY_NAME));
-			prototypeEvent.setType((String) eventProperties.get(GenericCalendarImporter.ITEM_TYPE_PROPERTY_NAME));
+			prototypeEvent.setDescription((String) eventProperties.get(columnMap.get(DESCRIPTION_DEFAULT_COLUMN_HEADER)));
+			prototypeEvent.setDisplayName((String) eventProperties.get(columnMap.get(TITLE_DEFAULT_COLUMN_HEADER)));
+			prototypeEvent.setLocation((String) eventProperties.get(columnMap.get(LOCATION_DEFAULT_COLUMN_HEADER)));
+			prototypeEvent.setType((String) eventProperties.get(ITEM_TYPE_PROPERTY_NAME));
 
 			if (prototypeEvent.getType() == null || prototypeEvent.getType().length() == 0)
 			{
@@ -1004,13 +1017,13 @@ public class GenericCalendarImporter implements CalendarImporterService
 			}
 
 			// See if this is a recurring event
-			String frequencyString = (String) eventProperties.get(GenericCalendarImporter.FREQUENCY_PROPERTY_NAME);
+			String frequencyString = (String) eventProperties.get(columnMap.get(FREQUENCY_DEFAULT_COLUMN_HEADER));
 
 			if (frequencyString != null)
 			{
-				Integer interval = (Integer) eventProperties.get(GenericCalendarImporter.INTERVAL_PROPERTY_NAME);
-				Integer count = (Integer) eventProperties.get(GenericCalendarImporter.REPEAT_PROPERTY_NAME);
-				Date until = (Date) eventProperties.get(GenericCalendarImporter.ENDS_PROPERTY_NAME);
+				Integer interval = (Integer) eventProperties.get(columnMap.get(INTERVAL_DEFAULT_COLUMN_HEADER));
+				Integer count = (Integer) eventProperties.get(columnMap.get(REPEAT_DEFAULT_COLUMN_HEADER));
+				Date until = (Date) eventProperties.get(columnMap.get(ENDS_DEFAULT_COLUMN_HEADER));
 
 				if (count != null && until != null)
 				{

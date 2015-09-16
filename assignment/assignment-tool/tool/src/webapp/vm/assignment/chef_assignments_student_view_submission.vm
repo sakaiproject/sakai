@@ -88,7 +88,8 @@ function enableSubmitUnlessNoFile(checkForFile)
 	}
 }
 </script>
-
+## Include other javascript specific to this page
+<script type="text/javascript" src="/sakai-assignment-tool/js/studentViewSubmission.js"></script>
 
 <div class="portletBody">
 ## submission times
@@ -704,7 +705,12 @@ function enableSubmitUnlessNoFile(checkForFile)
 							#if ($plagiarismNote)
 								<p>
 									<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
-									<em>$plagiarismNote</em>
+									<em>
+										$plagiarismNote
+										#if ($plagiarismFileTypes)
+											$plagiarismFileTypes
+										#end
+									</em>
 								</p>
 							#end
 							</p>
@@ -773,7 +779,12 @@ function enableSubmitUnlessNoFile(checkForFile)
 					#if ($plagiarismNote)
 						<p>
 							<img alt="$reviewIndicator" title="$reviewIndicator" src="/library/image/silk/rosette.png" class="assignmentRosette"/>
-							<em>$plagiarismNote</em>
+							<em>
+								$plagiarismNote
+								#if ($plagiarismFileTypes)
+									$plagiarismFileTypes
+								#end
+							</em>
 						</p>
 					#end
 					#if ($unsubmittableInline && ""!="$!value_submission_text")
@@ -854,7 +865,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 											</td>
 											<td>
 												<div id="clonableUploadW"> 
-													<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
+													<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
 													<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 												</div>
 											</td>
@@ -894,12 +905,12 @@ function enableSubmitUnlessNoFile(checkForFile)
 											<label for="upload">$tlang.getString("att.upl")</label>
 										</td>
 										<td>
-											<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
+											<input type="file" name="upload" class="upload" id="clonableUpload" #if($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addSubmissionForm');"/> 
 											<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 											<input type="hidden" name="submissionFileCount" id="submissionFileCount" value="1"/>
 										</td>
 										<td>
-											## add browse resources button here	--bbailla2
+											## add browse resources button here
 											#set($howManySubAttsLinks=$tlang.getString("stuviewsubm.attfromserverlabel.singular"))
 											<input
 												class="disableme enabled"
@@ -954,6 +965,11 @@ function enableSubmitUnlessNoFile(checkForFile)
 						<input type="radio" name="attachmentSelection" value="newAttachment" onclick="highlightSelectedAttachment(); enableSubmitUnlessNoFile(true);" checked />
 						<span>
 							#set($attachment = $newSingleUploadedFile)
+							#if (!$attachment)
+								#if ($newSingleAttachmentList && !$newSingleAttachmentList.isEmpty())
+									#set($attachment = $newSingleAttachmentList.get(0))
+								#end
+							#end
 							#set($props = false)
 							#set($props = $attachment.Properties)
 							#if ($props)
@@ -964,8 +980,19 @@ function enableSubmitUnlessNoFile(checkForFile)
 								<br>
 							#else
 								$tlang.getString("stuviewsubm.uploadnew")
-								<input type="file" name="upload" class="upload" id="clonableUpload" onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/>
+								<input type="file" name="upload" class="upload" id="clonableUpload" #if ($content_review_acceptedMimeTypes) accept="$content_review_acceptedMimeTypes" #end onchange="javascript:showNotif('submitnotifxxx','post','addSubmissionForm');document.getElementById('addSubmissionForm').action='#toolLinkParam("AssignmentAction" "doAttachUploadSingle" "")';submitform('addSubmissionForm');"/>
 								<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
+								<span class="navIntraToolLink">
+									<input
+										class="disableme enabled"
+										type="button"
+										value="$tlang.getString("stuviewsubm.attfromserverlabel")"
+										name="attach"
+										id="attach"
+										accesskey="a" #if(!$allowSubmit) disabled="disabled"#end
+										onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='attach'; document.addSubmissionForm.submit(); return false;"
+									/>
+								</span>
 							#end
 						</span>
 					</div>
@@ -1142,7 +1169,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 						$tlang.getString("gen.youmus")
 					</p>
 				#end
-				<div
+				<div id="submitPanel"
 					#if ($!deleted.equalsIgnoreCase("true") || !$!canSubmit)
 					 class="act">
 						<input 
@@ -1151,7 +1178,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 							accesskey="x"
 							id="cancel" 
 							value="$tlang.getString("gen.don")"
-							onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+							onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false;"
 						/>
 					#else
 					 class="act messageInformation">
@@ -1168,7 +1195,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 								id="post" 
 								value="$!name"
 								onclick="document.addSubmissionForm.onsubmit();showNotif('submitnotif','post','addSubmissionForm'); document.addSubmissionForm.option.value='post'; document.addSubmissionForm.submit(); return false;"
-								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile)
+								#if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments && !$!newSingleUploadedFile && (!$!newSingleAttachmentList || $!newSingleAttachmentList.isEmpty()))
 									disabled
 								#end
 							/>
@@ -1206,17 +1233,24 @@ function enableSubmitUnlessNoFile(checkForFile)
 								accesskey="x"
 								id="cancel" 
 								value="$tlang.getString("gen.can")"
-								onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+								onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false"
 							/>
 							#end
 
                             #if ($submitted && ($submissionType == 2 || $submissionType == 5) && !$!new_attachments)
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.modifytoresubmit")</span>
+                            #elseif ($submissionType == 5)
+                                <span class="messageInformation">$tlang.getString("stuviewsubm.reminder")</span>
                             #else
                                 <span class="messageInformation">$tlang.getString("stuviewsubm.submitreminder")</span>
                             #end
 					#end
 				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+			</div>
+			<div id="confirmationDialogue" class="act messageInformation" style="display:none;">
+				$tlang.getString("gen.can.discard")
+				<input class="disableme" type="button" name="yes" accesskey="y" id="yes" value="$tlang.getString("gen.yes")" onclick="ASN_SVS.cancelProceed()" />
+				<input class="active" type="button" name="no" accesskey="n" id="no" value="$tlang.getString("gen.no")" onclick="ASN_SVS.undoCancel()" />
 			</div>
 		#else
 				#if ($submission.getGradeReleased() && $!submission.FeedbackText && ($submission.FeedbackText.length()>0))
@@ -1356,7 +1390,7 @@ function enableSubmitUnlessNoFile(checkForFile)
 					accesskey="x"
 					id="cancel" 
 					value="$tlang.getString("gen.don")"
-					onclick="document.addSubmissionForm.onsubmit();document.addSubmissionForm.option.value='cancel'; document.addSubmissionForm.submit(); return false;"
+					onclick="ASN_SVS.confirmDiscardOrSubmit($!new_attachments); return false;"
 				/>
 			</p>
 		#end

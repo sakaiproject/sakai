@@ -117,12 +117,12 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.apache.catalina.util.DOMWriter;
+import org.apache.tomcat.util.buf.UDecoder;
 import org.sakaiproject.dav.MD5Encoder;
-import org.apache.catalina.util.RequestUtil;
 import org.apache.catalina.util.XMLWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
@@ -378,7 +378,7 @@ public class DavServlet extends HttpServlet
  					{
  						try
  						{
- 							String target = AliasService.getTarget(context);
+ 							String target = aliasService.getTarget(context);
 							Reference targetRef = EntityManager.newReference(target);
  							boolean changed = false;
 
@@ -547,6 +547,8 @@ public class DavServlet extends HttpServlet
 
 	private ContentHostingService contentHostingService;
 
+	private AliasService aliasService;
+
 	// --------------------------------------------------------- Public Methods
 
 	/**
@@ -555,6 +557,7 @@ public class DavServlet extends HttpServlet
 	public void init() throws ServletException
 	{
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+		aliasService = ComponentManager.get(AliasService.class);
 
 		// Set our properties from the initialization parameters
 		String value = null;
@@ -1551,7 +1554,8 @@ public class DavServlet extends HttpServlet
 				modificationDate = props.getTimeProperty(ResourceProperties.PROP_MODIFIED_DATE).getTime();
 				eTag = modificationDate + "+" + eTag;
 				// SAK-26593 if you don't clean the eTag you may send invalid XML to client
-				eTag = MD5Encoder.encode(md5Helper.digest(eTag.getBytes()));
+				// SAK-29338 Cyberduck started to see our md5 etag as an AWS s3-like checksum so let's add a prefix
+				eTag = "sakai-" + MD5Encoder.encode(md5Helper.digest(eTag.getBytes()));
 				if (M_log.isDebugEnabled()) M_log.debug("Path=" + path + " eTag=" + eTag);
 				creationDate = props.getTimeProperty(ResourceProperties.PROP_CREATION_DATE).getTime();
 				resourceLink = mbr.getUrl();
@@ -3749,7 +3753,7 @@ public class DavServlet extends HttpServlet
 			}
 		}
 
-		destinationPath = RequestUtil.URLDecode(normalize(destinationPath), "UTF8");
+		destinationPath = UDecoder.URLDecode(normalize(destinationPath), "UTF8");
 
 		return destinationPath;
 

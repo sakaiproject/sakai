@@ -17,7 +17,7 @@ package org.sakaiproject.profile2.tool.dataproviders;
 
 import java.util.Iterator;
 
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.markup.repeater.data.IDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
@@ -39,22 +39,26 @@ public class GalleryImageDataProvider implements IDataProvider<GalleryImage> {
 	protected ProfileImageLogic imageLogic;
 
 	public GalleryImageDataProvider(String userUuid) {
-		
-		//inject
-		InjectorHolder.getInjector().inject(this);
-		
 		this.userUuid = userUuid;
+		
+		Injector.get().inject(this);
 	}
 
-	public Iterator<GalleryImage> iterator(int first, int count) {	
-		return imageLogic.getGalleryImages(userUuid).subList(first, first + count).iterator();
+	public Iterator<GalleryImage> iterator(long first, long count) {
+		
+		//deference for backwards compatibility
+		//should really check bounds here 
+		int f = (int) first;
+		int c = (int) count;	
+		
+		return imageLogic.getGalleryImages(userUuid).subList(f, f + c).iterator();
 	}
 
 	public IModel<GalleryImage> model(GalleryImage object) {
 		return new DetachableGalleryImageModel(object);
 	}
 
-	public int size() {
+	public long size() {
 		return imageLogic.getGalleryImagesCount(userUuid);
 	}
 

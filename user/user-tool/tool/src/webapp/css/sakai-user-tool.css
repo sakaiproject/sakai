@@ -140,7 +140,18 @@
 
 #user-create_edit fieldset
 {
-    width: 33em;
+    display:inline-block;
+}
+
+.createBlurb
+{
+    display:table;
+    width:33em;
+}
+
+.createBlurb p
+{
+    margin: 10px 0;
 }
 
 #useredit fieldset

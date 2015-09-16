@@ -434,20 +434,6 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		m_cacheCleanerSeconds = Integer.parseInt(time) * 60;
 	}
 
-	/** Configuration: case sensitive user eid. */
-	protected boolean m_caseSensitiveEid = false;
-
-	/**
-	 * Configuration: case sensitive user eid
-	 *
-	 * @param value
-	 *        The case sensitive user eid.
-	 */
-	public void setCaseSensitiveId(String value)
-	{
-		m_caseSensitiveEid = Boolean.valueOf(value).booleanValue();
-	}
-
 	/** Configuration: use a different id and eid for each record (otherwise make them the same value). */
 	protected boolean m_separateIdEid = false;
 
@@ -614,7 +600,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		}
 		catch (Exception t)
 		{
-			M_log.warn("init(): ", t);
+			M_log.error("init(): ", t);
 		}
 	}
 
@@ -1226,7 +1212,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.warn("commitEdit(): closed UserEdit", new Exception());
+			M_log.error("commitEdit(): closed UserEdit", new Exception());
 			return;
 		}
 
@@ -1268,7 +1254,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 			}
 			catch (Exception e)
 			{
-				M_log.warn("cancelEdit(): closed UserEdit", e);
+				M_log.error("cancelEdit(): closed UserEdit", e);
 			}
 			return;
 		}
@@ -1578,7 +1564,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		// check for closed edit
 		if (!user.isActiveEdit())
 		{
-			M_log.warn("removeUser(): closed UserEdit", new Exception());
+			M_log.error("removeUser(): closed UserEdit", new Exception());
 			return;
 		}
 
@@ -1618,7 +1604,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	public User authenticate(String loginId, String password)
 	{
-		loginId = StringUtils.trimToNull(loginId);
+		loginId = cleanEid(loginId);
 		if (loginId == null) return null;
 
 		UserEdit user = null;
@@ -1766,9 +1752,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 */
 	protected String cleanEid(String eid)
 	{
-        if (!m_caseSensitiveEid) {
-            eid = StringUtils.lowerCase(eid);
-        }
+        eid = StringUtils.lowerCase(eid);
         eid = StringUtils.trimToNull(eid);
 
         if (eid != null) {

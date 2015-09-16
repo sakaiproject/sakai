@@ -28,7 +28,8 @@ import java.util.Iterator;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.extensions.markup.html.repeater.data.sort.SortOrder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.sakaiproject.sitestats.api.EventStat;
@@ -74,7 +75,7 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	}
 	
 	public ReportsDataProvider(PrefsData prefsData, ReportDef reportDef, boolean log) {
-		InjectorHolder.getInjector().inject(this);
+		Injector.get().inject(this);
 		
 		this.prefsData = prefsData;
 		this.setReportDef(reportDef);
@@ -82,9 +83,10 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 		
         // set default sort
 		if(!reportDef.getReportParams().isHowSort() || reportDef.getReportParams().getHowSortBy() == null) {
-			setSort(COL_USERNAME, true);
+			setSort(COL_USERNAME, SortOrder.ASCENDING);
 		}else{
-			setSort(reportDef.getReportParams().getHowSortBy(), reportDef.getReportParams().getHowSortAscending());
+			setSort(reportDef.getReportParams().getHowSortBy(),
+					reportDef.getReportParams().getHowSortAscending() ? SortOrder.ASCENDING : SortOrder.DESCENDING);
 		}
 	}
 
@@ -98,11 +100,11 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 		return reportDef;
 	}
 
-	public Iterator iterator(int first, int count) {
-		int end = first + count;
-		end = end < size()? size() : end;
+	public Iterator iterator(long first, long count) {
+		int end = (int) first + (int) count;
+		end = end < size()? (int) size() : end;
 		end = end < 0? getReport().getReportData().size() : end;
-		return getReport().getReportData().subList(first, end).iterator();
+		return getReport().getReportData().subList( (int) first, end).iterator();
 		
 	}
 	
@@ -119,11 +121,13 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 		return report;
 	}
 
+	@Override
 	public IModel model(Object object) {
 		return new Model((Serializable) object);
 	}
 
-	public int size() {
+	@Override
+	public long size() {
 		if(reportRowCount == -1) {
 			reportRowCount = getReport().getReportData().size();
 		}
@@ -131,7 +135,9 @@ public class ReportsDataProvider extends SortableSearchableDataProvider {
 	}	
 
 	public void sortReport() {
-		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty(), getSort().isAscending(), Locator.getFacade().getStatsManager(), Locator.getFacade().getEventRegistryService(), Locator.getFacade().getUserDirectoryService()));
+		Collections.sort(report.getReportData(), getReportDataComparator(getSort().getProperty().toString(),
+				getSort().isAscending(), Locator.getFacade().getStatsManager(),
+				Locator.getFacade().getEventRegistryService(), Locator.getFacade().getUserDirectoryService()));
 	}
 	
 	public final Comparator<Stat> getReportDataComparator(final String fieldName, final boolean sortAscending, 

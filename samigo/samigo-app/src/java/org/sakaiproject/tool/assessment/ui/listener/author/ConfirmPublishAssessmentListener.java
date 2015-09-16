@@ -89,12 +89,16 @@ public class ConfirmPublishAssessmentListener
     String assessmentId=String.valueOf(assessmentSettings.getAssessmentId());
     SaveAssessmentSettings s = new SaveAssessmentSettings();
     AssessmentService assessmentService = new AssessmentService();
-    AssessmentFacade assessment = assessmentService.getAssessment(
-        assessmentId);
-    if (!passAuthz(context, assessment.getCreatedBy())){
-      assessmentSettings.setOutcomePublish("editAssessmentSettings");
-      author.setIsErrorInSettings(true);
-      return;
+    AssessmentFacade assessment = assessmentService.getAssessment(assessmentId);
+    
+    // Check permissions
+    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
+    if (!authzBean.isUserAllowedToPublishAssessment(assessmentId, assessment.getCreatedBy(), false)) {
+        String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_publish_assessment_error");
+        context.addMessage(null,new FacesMessage(err));
+        assessmentSettings.setOutcomePublish("editAssessmentSettings");
+        author.setIsErrorInSettings(true);
+        return;
     }
 
     assessmentBean.setAssessment(assessment);
@@ -149,35 +153,40 @@ public class ConfirmPublishAssessmentListener
     	error=true;
     	assessmentSettings.setStartDate(new Date());
     }
-    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
-        (retractDate != null && startDate == null && retractDate.before(new Date()))) {
-    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
-    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
-    	error=true;
-    	isRetractEarlierThanAvaliable = true;
-    	assessmentSettings.setStartDate(new Date());
-    }
-    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
-    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
-    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
-    	error=true;
+    if(assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling())){
+	    if ((retractDate != null && startDate != null && retractDate.before(startDate)) ||
+	        (retractDate != null && startDate == null && retractDate.before(new Date()))) {
+	    	String dateError2 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_avaliable");
+	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError2, null));
+	    	error=true;
+	    	isRetractEarlierThanAvaliable = true;
+	    	assessmentSettings.setStartDate(new Date());
+	    }
+	    if (!isRetractEarlierThanAvaliable && (retractDate != null && dueDate != null && retractDate.before(dueDate))) {
+	    	String dateError3 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_earlier_than_due");
+	    	context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError3, null));
+	    	error=true;
+	    }
     }
     
     // SAM-1088
     // if late submissions not allowed and late submission date is null, set late submission date to due date
     if (assessmentSettings.getLateHandling() != null && AssessmentAccessControlIfc.NOT_ACCEPT_LATE_SUBMISSION.toString().equals(assessmentSettings.getLateHandling()) &&
     		retractDate == null && dueDate != null && assessmentSettings.getAutoSubmit()) {
-    	retractDate = dueDate;
-    	assessmentSettings.setRetractDate(dueDate);
+    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+    	if (autoSubmitEnabled) {
+    		retractDate = dueDate;
+    		assessmentSettings.setRetractDate(dueDate);
+    	}
     }
     // if auto-submit is enabled, make sure late submission date is set
     if (assessmentSettings.getAutoSubmit() && retractDate == null) {
-    	String autoSubmitEnabled = ServerConfigurationService.getString("samigo.autoSubmit.enabled");
-  	  	if ("true".equalsIgnoreCase(autoSubmitEnabled)) {
-  	  		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
-  	  		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
-  	  		error=true;
-  	  	}
+    	boolean autoSubmitEnabled = ServerConfigurationService.getBoolean("samigo.autoSubmit.enabled", false);
+    	if (autoSubmitEnabled) {
+    		String dateError4 = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AssessmentSettingsMessages","retract_required_with_auto_submit");
+    		context.addMessage(null,new FacesMessage(FacesMessage.SEVERITY_WARN, dateError4, null));
+    		error=true;
+    	}
     }
 
     if (!isFromActionSelect) {
@@ -389,27 +398,6 @@ public class ConfirmPublishAssessmentListener
 	SetFromPageAsAuthorSettingsListener setFromPageAsAuthorSettingsListener = new SetFromPageAsAuthorSettingsListener();
 	setFromPageAsAuthorSettingsListener.processAction(null);
   }
-
-  public boolean passAuthz(FacesContext context, String ownerId){
-    AuthorizationBean authzBean = (AuthorizationBean) ContextUtil.lookupBean("authorization");
-    boolean hasPrivilege_any = authzBean.getPublishAnyAssessment();
-    boolean hasPrivilege_own0 = authzBean.getPublishOwnAssessment();
-    boolean hasPrivilege_own = (hasPrivilege_own0 && isOwner(ownerId));
-    boolean hasPrivilege = (hasPrivilege_any || hasPrivilege_own);
-    if (!hasPrivilege){
-      String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages",
-		     "denied_publish_assessment_error");
-      context.addMessage(null,new FacesMessage(err));
-    }
-    return hasPrivilege;
-  }
-
-  public boolean isOwner(String ownerId){
-    boolean isOwner = false;
-    String agentId = AgentFacade.getAgentString();
-    isOwner = agentId.equals(ownerId);
-    return isOwner;
-  }  
 
   public void setIsFromActionSelect(boolean isFromActionSelect){
 	  this.isFromActionSelect = isFromActionSelect;

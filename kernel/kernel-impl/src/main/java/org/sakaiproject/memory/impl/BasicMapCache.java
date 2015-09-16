@@ -35,14 +35,14 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class BasicMapCache extends BasicCache {
+public class BasicMapCache<K, V> extends BasicCache<K, V> {
     final Log log = LogFactory.getLog(BasicMapCache.class);
 
     /**
      * Underlying cache implementation
      * Simple and naive basic implementation of caching... not meant to be used
      */
-    Map<String, Object> cache;
+    Map<K, V> cache;
 
     /**
      * Construct the Cache
@@ -52,27 +52,27 @@ public class BasicMapCache extends BasicCache {
      */
     public BasicMapCache(String name) {
         super(name);
-        this.cache = new ConcurrentHashMap<String, Object>();
+        this.cache = new ConcurrentHashMap<>();
     }
 
-    public BasicMapCache(String name, Map<?, ?> map) {
+    public BasicMapCache(String name, Map<? extends K, ? extends V> map) {
         super(name);
         //noinspection unchecked
-        this.cache = (Map<String, Object>) map;
+        this.cache.putAll(map);
     }
 
     @Override
-    public void put(String key, Object payload) {
+    public void put(K key, V payload) {
         cache.put(key, payload);
     }
 
     @Override
-    public boolean containsKey(String key) {
+    public boolean containsKey(K key) {
         return cache.containsKey(key);
     } // containsKey
 
     @Override
-    public Object get(String key) {
+    public V get(K key) {
         return cache.get(key);
     } // get
 
@@ -89,7 +89,7 @@ public class BasicMapCache extends BasicCache {
     @Override
     public void close() {
         clear();
-        this.cache = new ConcurrentHashMap<String, Object>();
+        this.cache = new ConcurrentHashMap<>();
     }
 
     @Override
@@ -99,7 +99,7 @@ public class BasicMapCache extends BasicCache {
     }
 
     @Override
-    public boolean remove(String key) {
+    public boolean remove(K key) {
         Object o = cache.remove(key);
         return (o != null);
     } // remove

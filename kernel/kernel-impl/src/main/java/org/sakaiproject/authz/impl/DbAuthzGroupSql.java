@@ -22,7 +22,6 @@
 package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
-import java.util.List;
 
 /**
  * database methods.
@@ -126,8 +125,6 @@ public interface DbAuthzGroupSql
 	String getSelectRealmRoleGroup2Sql();
 
 	String getSelectRealmRoleGroup3Sql();
-
-	String getSelectRealmRoleGroup4Sql();
 
 	String getSelectRealmUserGroupSql( String inClause );
 

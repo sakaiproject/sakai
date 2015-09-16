@@ -75,8 +75,11 @@ public interface SessionManager
 
 	/**
 	 * Access the session associated with the current request or processing thread.
-	 * 
-	 * @return The session associatd with the current request or processing thread.
+	 * If there isn't a session associated with the thread a new one will be create
+	 * but it won't live beyond this request.
+	 *
+	 * @see #startSession
+	 * @return The session associated with the current request or processing thread.
 	 */
 	Session getCurrentSession();
 

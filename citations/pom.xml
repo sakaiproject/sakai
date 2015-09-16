@@ -23,7 +23,6 @@
     <module>citations-osid/xserver</module>
     <module>citations-impl/impl</module>
     <module>citations-impl/pack</module>
-    <module>citations-shared-deploy</module>
   </modules>
 
   <dependencyManagement>
@@ -51,9 +50,4 @@
     </dependencies>
   </dependencyManagement>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/citations/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/citations/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/citations/trunk</url>
-  </scm>
 </project>

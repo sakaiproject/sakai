@@ -20,11 +20,6 @@
         <module>tool-api</module>
     </modules>
     
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/velocity/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/velocity/trunk</url>
-    </scm>
     
     <distributionManagement>
         <site>

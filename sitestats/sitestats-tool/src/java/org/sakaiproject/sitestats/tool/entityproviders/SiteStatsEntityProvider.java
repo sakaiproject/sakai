@@ -36,44 +36,47 @@ import org.sakaiproject.entitybroker.entityprovider.capabilities.Describeable;
 import org.sakaiproject.entitybroker.entityprovider.capabilities.Outputable;
 import org.sakaiproject.entitybroker.entityprovider.extension.Formats;
 import org.sakaiproject.entitybroker.util.AbstractEntityProvider;
+import org.sakaiproject.sitestats.api.SitePresenceTotal;
 import org.sakaiproject.sitestats.api.Stat;
+import org.sakaiproject.sitestats.api.StatsManager;
 import org.sakaiproject.sitestats.api.report.Report;
 import org.sakaiproject.sitestats.api.report.ReportDef;
 import org.sakaiproject.sitestats.api.report.ReportManager;
 
+import lombok.Setter;
+
 /**
- * Provides some JSON targets as custom actions. Currently precanned reports.
+ * Provides some JSON targets as custom actions.
  *
  * @author Adrian Fish <adrian.r.fish@gmail.com>
  */
+@Setter
 public class SiteStatsEntityProvider extends AbstractEntityProvider implements AutoRegisterEntityProvider, ActionsExecutable, Outputable, Describeable {
 
-    private Log logger = LogFactory.getLog(SiteStatsEntityProvider.class);
+    private final Log logger = LogFactory.getLog(SiteStatsEntityProvider.class);
 
-	public static String PREFIX	= "sitestats";
-		
-	private ReportManager reportManager;
-	public void setReportManager(ReportManager reportManager) {
-		this.reportManager = reportManager;
-	}
-	
-	public String getEntityPrefix() {
-		return PREFIX;
-	}
+    public static final String PREFIX = "sitestats";
 
-	public Object getSampleEntity() {
-		return PREFIX;
-	}
+    private ReportManager reportManager;
+    private StatsManager statsManager;
 
-	public String[] getHandledOutputFormats() {
-		return new String[] { Formats.JSON };
-	}
+    public String getEntityPrefix() {
+        return PREFIX;
+    }
+
+    public Object getSampleEntity() {
+        return PREFIX;
+    }
+
+    public String[] getHandledOutputFormats() {
+        return new String[] { Formats.JSON };
+    }
 
     /**
      *  Lists the available reports
      */
-	@EntityCustomAction(action = "listreports", viewKey = EntityView.VIEW_LIST)
-	public List<StrippedReportDef> handleListReports(EntityView view, Map<String, Object> params) {
+    @EntityCustomAction(action = "listreports", viewKey = EntityView.VIEW_LIST)
+    public List<StrippedReportDef> handleListReports(EntityView view, Map<String, Object> params) {
 
         String userId = developerHelperService.getCurrentUserId();
 
@@ -97,18 +100,18 @@ public class SiteStatsEntityProvider extends AbstractEntityProvider implements A
 
         List<StrippedReportDef> stripped = new ArrayList<StrippedReportDef>();
 
-        for (ReportDef rd : reportManager.getReportDefinitions(siteId, false, false)) {
+        for (ReportDef rd : reportManager.getReportDefinitions(siteId, true, false)) {
             stripped.add(new StrippedReportDef(rd));
         }
 
         return stripped;
-	}
+    }
 
     /**
      * Runs a particular report
      */
-	@EntityCustomAction(action = "runreport", viewKey = EntityView.VIEW_LIST)
-	public List<StrippedStat> handleRunReport(EntityView view, Map<String, Object> params) {
+    @EntityCustomAction(action = "runreport", viewKey = EntityView.VIEW_LIST)
+    public List<StrippedStat> handleRunReport(EntityView view, Map<String, Object> params) {
 
         String userId = developerHelperService.getCurrentUserId();
 
@@ -159,5 +162,31 @@ public class SiteStatsEntityProvider extends AbstractEntityProvider implements A
         }
 
         return stripped;
-	}
+    }
+
+    @EntityCustomAction(action = "presencetotals", viewKey = EntityView.VIEW_LIST)
+    public Map<String, SitePresenceTotal> handlePresenceTotals(EntityView view, Map<String, Object> params) {
+
+        String userId = developerHelperService.getCurrentUserId();
+
+        if (userId == null || userId.length() <= 0) {
+            throw new EntityException("You must be logged in to list the reports", "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        String siteId = view.getPathSegment(2);
+
+        if (siteId == null || siteId.length() <= 0) {
+            throw new EntityException("The totals request must include the site id", "", HttpServletResponse.SC_BAD_REQUEST);
+        }
+
+        if (logger.isDebugEnabled()) {
+            logger.debug("SITE ID:" + siteId);
+        }
+
+        if (!developerHelperService.isUserAllowedInEntityReference("/user/" + userId, "sitestats.view", "/site/" + siteId)) {
+            throw new EntityException("You don't have access to sitestats in this site", "", HttpServletResponse.SC_FORBIDDEN);
+        }
+
+        return statsManager.getPresenceTotalsForSite(siteId);
+    }
 }

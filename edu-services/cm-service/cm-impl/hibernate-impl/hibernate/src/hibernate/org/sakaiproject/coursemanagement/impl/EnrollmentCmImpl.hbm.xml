@@ -25,6 +25,7 @@
 		<property name="credits" column="CREDITS" type="string" not-null="true" />
 		<property name="gradingScheme" column="GRADING_SCHEME" type="string" not-null="true" />
 		<property name="dropped" column="DROPPED" type="boolean" />
+		<property name="dropDate" type="date" column="DROP_DATE" />
 
 		<many-to-one name="enrollmentSet" column="ENROLLMENT_SET" unique-key="CM_ENR" index="CM_ENR_ENR_SET_IDX" class="org.sakaiproject.coursemanagement.impl.EnrollmentSetCmImpl" />
 

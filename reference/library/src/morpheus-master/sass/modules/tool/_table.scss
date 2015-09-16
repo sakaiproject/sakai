@@ -1,0 +1,23 @@
+table{
+	&.listHier{
+		font-size: 0.8em;
+		border: 1px solid darken($tool-background-color, 10%);
+		background-color: $tool-background-color;
+		tr{
+			td {
+				border-right: 1px solid darken($tool-background-color, 10%);
+				padding: 0.25em;
+				> * {
+					font-family: $font-family;
+					font-weight: 400;
+				}
+			}
+			&:nth-child(odd){
+				background: darken($tool-background-color, 10%);
+				td{
+					border-right: 1px solid darken($tool-background-color, 10%);
+				}
+			}
+		}
+	}
+}

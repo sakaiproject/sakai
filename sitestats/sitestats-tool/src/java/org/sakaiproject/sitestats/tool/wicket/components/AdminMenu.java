@@ -18,7 +18,7 @@
  */
 package org.sakaiproject.sitestats.tool.wicket.components;
 
-import org.apache.wicket.PageParameters;
+import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.markup.ComponentTag;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.ResourceModel;
@@ -51,7 +51,7 @@ public class AdminMenu extends Panel {
 	private void renderBody() {
 		// site id
 		String siteId = Locator.getFacade().getToolManager().getCurrentPlacement().getContext();
-		PageParameters pageParameters = new PageParameters("siteId="+siteId);
+		PageParameters pageParameters = new PageParameters().set("siteId", siteId);
 				
 		// --------- ADMIN SECTION ---------
 		

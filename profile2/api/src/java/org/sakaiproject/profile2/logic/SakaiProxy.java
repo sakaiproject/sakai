@@ -508,15 +508,6 @@ public interface SakaiProxy {
 	public boolean isProfileGalleryEnabledGlobally();
 	
 	/**
-	 * Is the profile2.messaging.enabled flag set in sakai.properties?
-	 * If not set, default to <code>true</code>.
-	 * 
-	 * @return the status of the profile2.messaging.enabled flag in sakai.properties.
-	 * Returns <code>true</code> by default.
-	 */
-	public boolean isMessagingEnabledGlobally();
-	
-	/**
 	 * Is the profile2.picture.change.enabled flag set in sakai.properties?
 	 * If not set, defaults to true
 	 * 
@@ -912,4 +903,103 @@ public interface SakaiProxy {
 	 * @return true or false
 	 */
 	public boolean isProfileImageImportEnabled();
+
+	/**
+	* Is the profile2.menu.enabled flag set in sakai.properties? If not set,
+	* defaults to true.
+	*
+	* <p>If enabled, the profile sub-sections will be displayed.
+	* This setting controls the display of the profile sub-sections:
+	*	* Messaging		* Privacy
+	*	* Gallery		* Preferences
+	*	* Search		* Messaging
+	*	* Connections
+	* </p>
+	*
+	* @return <code>true</code> if the profile2.menu.enabled flag is set,
+	*         otherwise returns <code>false</code>.
+	*/
+	public boolean isMenuEnabledGlobally();
+
+	/**
+	* Is the profile2.connections.enabled flag set in sakai.properties? If not set,
+	* defaults to true.
+	*
+	* <p>If enabled, the connection feature will be available.</p>
+	*
+	* @return <code>true</code> if the profile2.connections.enabled flag is set,
+	*         otherwise returns <code>false</code>.
+	*/
+	public boolean isConnectionsEnabledGlobally();
+
+	/**
+	* Is the profile2.messaging.enabled flag set in sakai.properties?
+	* If not set, default to true, as long as profile2.connections.enabled is true.
+	*
+	* <p>If enabled, the messaging feature will be enabled. Though, Messaging
+	* depends on Connections, thus if ConnectionsEnabled == false, Messaging will
+	* also be false. </p>
+	*
+	* @return the status of the profile2.messaging.enabled flag in sakai.properties.
+	* Returns true by default.
+	*/
+	public boolean isMessagingEnabledGlobally();
+
+	/**
+	* Is the profile2.search.enabled flag set in sakai.properties? If not set,
+	* defaults to true.
+	*
+	* <p>If enabled, the ability to search for people in profile
+	* will be available. </p>
+	*
+	* @return <code>true</code> if the profile2.search.enabled flag is set,
+	*         otherwise returns <code>false</code>.
+	*/
+	public boolean isSearchEnabledGlobally();
+
+	/**
+	* Is the profile2.privacy.enabled flag set in sakai.properties? If not set,
+	* defaults to true.
+	*
+	* <p>If enabled, the ability to modify one's privacy settings in profile
+	* will be available. Set profile2.privacy.default.x appropriately if disabled </p>
+	*
+	* @return <code>true</code> if the profile2.privacy.enabled flag is set,
+	*         otherwise returns <code>false</code>.
+	*/
+	public boolean isPrivacyEnabledGlobally();
+
+	/**
+	* Is the profile2.preference.enabled flag set in sakai.properties? If not set,
+	* defaults to true.
+	*
+	* <p>If enabled, the ability to modify one's preferences within profile
+	* will be available. </p>
+	*
+	* @return <code>true</code> if the profile2.preference.enabled flag is set,
+	*         otherwise returns <code>false</code>.
+	*/
+	public boolean isPreferenceEnabledGlobally();
+
+	/**
+	* Is the profile2.myKudos.enabled flag set in sakai.properties? If not set,
+	* defaults to true.
+	*
+	* <p>If enabled, the Kudos feature will be displayed.</p>
+	*
+	* @return <code>true</code> if the profile2.myKudos.enabled flag is set,
+	*         otherwise returns <code>false</code>.
+	*/
+	public boolean isMyKudosEnabledGlobally();
+
+	/**
+	* Is the profile2.onlineStatus.enabled flag set in sakai.properties? If not set,
+	* defaults to true.
+	*
+	* <p>If enabled, an online indicator will be present when viewing a profile. </p>
+	*
+	* @return <code>true</code> if the profile2.onlineStatus.enabled flag is set,
+	*         otherwise returns <code>false</code>.
+	*/
+	public boolean isOnlineStatusEnabledGlobally();
 }

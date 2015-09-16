@@ -85,7 +85,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 
 	protected SignupSorter signupSorter = new SignupSorter();
 
-	protected boolean showAllRecurMeetings = false;// default
+	protected Boolean showAllRecurMeetings = null;
 
 	protected boolean enableExpandOption = false;
 
@@ -843,6 +843,14 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 * @return a boolean value
 	 */
 	public boolean isShowAllRecurMeetings() {
+		if (showAllRecurMeetings == null) {
+			if (getSakaiFacade().getServerConfigurationService().getBoolean("signup.showAllRecurMeetings.default", false)) {
+				showAllRecurMeetings = true;
+			}
+			else {
+				showAllRecurMeetings = false;
+			}
+		}
 		return showAllRecurMeetings;
 	}
 
@@ -1028,7 +1036,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public boolean isAttendanceOn() {
 			
-		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","true"))){
+		if (getSakaiFacade().getServerConfigurationService().getBoolean("signup.enableAttendance", true)) {
 			return true;
 		}
 		else{

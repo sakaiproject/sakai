@@ -271,11 +271,23 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         // any deletions at present. See the comments to deleteGradebook
         // for the details.
         HibernateTemplate hibTempl = getHibernateTemplate();
+        
+        List toBeDeletedEvents = hibTempl.find("from GradingEvent as ge where ge.gradableObject=?", asn);
+        int numberDeletedEvents = toBeDeletedEvents.size();
+        hibTempl.deleteAll(toBeDeletedEvents);
+        if (logData.isDebugEnabled()) logData.debug("Deleted " + numberDeletedEvents + "records from gb_grading_event_t");
 
         List toBeDeleted = hibTempl.find("from AssignmentGradeRecord as agr where agr.gradableObject=?", asn);
         int numberDeleted = toBeDeleted.size();
         hibTempl.deleteAll(toBeDeleted);
         if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " externally defined scores");
+
+        toBeDeleted = hibTempl.find( "from Comment as c where c.gradableObject = ?", asn );
+        hibTempl.deleteAll( toBeDeleted );
+        if( log.isInfoEnabled() )
+        {
+            log.info( "Deleted " + toBeDeleted.size() + " externally defined score comments" );
+        }
 
         // Delete the assessment.
 		hibTempl.flush();
@@ -338,13 +350,13 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
     				// has changed or property has been set forcing a db update every time.
     				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
 
-    				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getName(), studentUid);
+    				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
     				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
     				String newComment = (String) studentUidsToComments.get(studentUid);
 
     				if ( alwaysUpdate || (newComment != null && !newComment.equals(oldComment)) || (newComment == null && oldComment != null) ) {
     					changedStudents.add(studentUid);
-    					setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, newComment);
+    					setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, newComment);
     				}
     			}
 
@@ -848,15 +860,15 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 				// score has actually changed or property has been set forcing a db update every time.
 				boolean alwaysUpdate = ServerConfigurationService.getBoolean(UPDATE_SAME_SCORE_PROP, false);
 
-				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getName(), studentUid);
+				CommentDefinition gradeComment = getAssignmentScoreComment(gradebookUid, asn.getId(), studentUid);
 				String oldComment = gradeComment != null ? gradeComment.getCommentText() : null;
 
 				if ( alwaysUpdate || (comment != null && !comment.equals(oldComment)) ||
 						(comment == null && oldComment != null) ) {
 					if(comment != null)
-						setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, comment);
+						setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, comment);
 					else
-						setAssignmentScoreComment(gradebookUid, asn.getName(), studentUid, null);
+						setAssignmentScoreComment(gradebookUid, asn.getId(), studentUid, null);
 				}
 				return null;
 			}
@@ -958,6 +970,18 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
 
 	private NumberFormat getNumberFormat() {
 	    return NumberFormat.getInstance(new ResourceLoader().getLocale());
+	}
+	
+	public Long getExternalAssessmentCategoryId(String gradebookUId, String externalId) {
+		Long categoryId = null;
+		final Assignment assignment = getExternalAssignment(gradebookUId, externalId);
+		if (assignment == null) {
+			throw new AssessmentNotFoundException("There is no assessment id=" + externalId + " in gradebook uid=" + gradebookUId);
+		}
+		if (assignment.getCategory() != null) {
+			categoryId = assignment.getCategory().getId();
+		}
+		return categoryId;
 	}
 
 }

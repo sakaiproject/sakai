@@ -21,16 +21,20 @@
 
 package org.sakaiproject.cluster.impl;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.*;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.db.api.SqlReader;
+import org.sakaiproject.db.api.SqlReaderFinishedException;
 import org.sakaiproject.db.api.SqlService;
+import org.sakaiproject.event.api.Event;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
@@ -38,6 +42,7 @@ import org.sakaiproject.thread_local.api.ThreadLocalManager;
 /**
  * <p>
  * SakaiClusterService is a Sakai cluster service implementation.
+ * This class is it just manages it's own row in the DB and events are used to pass notifications to a node.
  * </p>
  */
 public class SakaiClusterService implements ClusterService
@@ -47,6 +52,9 @@ public class SakaiClusterService implements ClusterService
 
 	/** The maintenance. */
 	protected Maintenance m_maintenance = null;
+
+	/** Our status */
+	protected Status status = Status.UNKNOWN;
 
 	/*************************************************************************************************************************************************
 	 * Dependencies and their setter methods
@@ -107,7 +115,6 @@ public class SakaiClusterService implements ClusterService
 	{
 		m_usageSessionService = service;
 	}
-
 
 	/** Configuration: how often to register that we are alive with the cluster table (seconds). */
 	protected long m_refresh = 60;
@@ -230,6 +237,8 @@ public class SakaiClusterService implements ClusterService
 	 */
 	public void init()
 	{
+		changeStatus(Status.STARTING);
+		m_eventTrackingService.addObserver(new ClusterEventObserver());
 		setClusterServiceSql(m_sqlService.getVendor());
 		try
 		{
@@ -256,23 +265,100 @@ public class SakaiClusterService implements ClusterService
 	 */
 	public void destroy()
 	{
+		changeStatus(Status.STOPPING);
 		m_maintenance.stop();
 		m_maintenance = null;
 
 		M_log.info("destroy()");
 	}
 
+
 	/*************************************************************************************************************************************************
 	 * ClusterService implementation
 	 ************************************************************************************************************************************************/
 
+	@Override
+	public Status getStatus()
+	{
+		return status;
+	}
+
 	@SuppressWarnings("unchecked")
+	@Override
 	public List<String> getServers()
 	{
 		String statement = clusterServiceSql.getListServersSql();
 		List<String> servers = m_sqlService.dbRead(statement);
 
 		return servers;
+	}
+
+	@Override
+	public Map<String, ClusterNode> getServerStatus()
+	{
+		String statement = clusterServiceSql.getListServerStatusSql();
+		final Map<String, ClusterNode> servers = new HashMap<>();
+		m_sqlService.dbRead(statement, null, new SqlReader()
+		{
+			@Override
+			public Object readSqlResultRecord(ResultSet result) throws SqlReaderFinishedException
+			{
+				try
+				{
+					String serverInstanceId = result.getString("SERVER_ID_INSTANCE");
+					String serverId = result.getString("SERVER_ID");
+					Date updateTime = result.getTimestamp("UPDATE_TIME");
+					Status status = parseStatus(result.getString("STATUS"));
+					ClusterNode node = new ClusterNodeImpl(serverId, status, updateTime);
+					servers.put(serverInstanceId, node);
+				}
+				catch (SQLException e)
+				{
+					M_log.warn("Failed to read result.", e);
+				}
+				return null;
+			}
+		});
+		// Always override DB status with memory version.
+		ClusterNode dbStatus = servers.put(m_serverConfigurationService.getServerIdInstance(),
+				new ClusterNodeImpl(m_serverConfigurationService.getServerId(), status, new Date()));
+		if (dbStatus == null)
+		{
+			M_log.warn("Failed to find ourselves in the cluster: "+ m_serverConfigurationService.getServerIdInstance());
+		}
+		else if (!status.equals(dbStatus.getStatus()))
+		{
+			M_log.warn("In memory status ("+ status+ ") different to DB ("+ dbStatus.getStatus()+ ")");
+		}
+		return servers;
+	}
+
+	@Override
+	public void markClosing(String serverId, boolean close)
+	{
+		if(!(getServers().contains(serverId)))
+		{
+			throw new IllegalArgumentException("Unknown server ID: "+ serverId);
+		}
+		String event = (close)? EVENT_CLOSE :EVENT_RUN;
+		m_eventTrackingService.post(m_eventTrackingService.newEvent(event, serverId, true));
+	}
+
+	/**
+	 * This changes the status of the current server.
+	 * @param status The new status.
+	 */
+	protected void changeStatus(Status status)
+	{
+		if (status != null && !(this.status.equals(status)))
+		{
+			M_log.info("Switching status from "+ this.status+ " to "+ status);
+			this.status = status;
+			if (m_maintenance != null)
+			{
+				m_maintenance.update();
+			}
+		}
 	}
 
 	/*************************************************************************************************************************************************
@@ -286,6 +372,9 @@ public class SakaiClusterService implements ClusterService
 
 		/** Signal to the timeout checker to stop. */
 		protected boolean m_maintenanceCheckerStop = false;
+
+		/** Out of sync update of status. */
+		protected boolean m_updateStatus = false;
 
 		/**
 		 * Construct.
@@ -303,8 +392,11 @@ public class SakaiClusterService implements ClusterService
 
 			// register in the cluster table
 			String statement = clusterServiceSql.getInsertServerSql();
-			Object fields[] = new Object[1];
+			Object fields[] = new Object[3];
 			fields[0] = m_serverConfigurationService.getServerIdInstance();
+			fields[1] = Status.STARTING.toString();
+			fields[2] = m_serverConfigurationService.getServerId();
+
 			boolean ok = m_sqlService.dbWrite(statement, fields);
 			if (!ok)
 			{
@@ -349,6 +441,19 @@ public class SakaiClusterService implements ClusterService
 		}
 
 		/**
+		 * Update the status in the DB.
+		 */
+		public void update()
+		{
+			if (m_maintenanceChecker == null)
+			{
+				return;
+			}
+			m_updateStatus = true;
+			m_maintenanceChecker.interrupt();
+		}
+
+		/**
 		 * Run the maintenance thread. Every REFRESH seconds, re-register this app server as alive in the cluster. Then check for any cluster entries
 		 * that are more than EXPIRED seconds old, indicating a failed app server, and remove that record, that server's sessions,
 		 * generating appropriate session events so the other app servers know what's going on. The "then" checks need not be done each
@@ -359,97 +464,20 @@ public class SakaiClusterService implements ClusterService
 		{
 			// wait till things are rolling
 			ComponentManager.waitTillConfigured();
-
+			// Component manager is up so now we update our status.
+			status = Status.RUNNING;
 			if (M_log.isDebugEnabled()) M_log.debug("run()");
 
 			while (!m_maintenanceCheckerStop)
 			{
+				final String serverIdInstance = m_serverConfigurationService.getServerIdInstance();
 				try
 				{
-					final String serverIdInstance = m_serverConfigurationService.getServerIdInstance();
 
-					if (M_log.isDebugEnabled()) M_log.debug("checking...");
+					updateOurStatus(serverIdInstance);
+					ghostCleanup(serverIdInstance);
 
-					// if we have been closed, reopen!
-					String statement = clusterServiceSql.getReadServerSql();
-					Object[] fields = new Object[1];
-					fields[0] = serverIdInstance;
-					List results = m_sqlService.dbRead(statement, fields, null);
-					if (results.isEmpty())
-					{
-						M_log.warn("run(): server has been closed in cluster table, reopened: " + serverIdInstance);
 
-						statement = clusterServiceSql.getInsertServerSql();
-						fields[0] = serverIdInstance;
-						boolean ok = m_sqlService.dbWrite(statement, fields);
-						if (!ok)
-						{
-							M_log.warn("start(): dbWrite failed");
-						}
-					}
-
-					// update our alive and well status
-					else
-					{
-						// register that this app server is alive and well
-						statement = clusterServiceSql.getUpdateServerSql();
-						fields[0] = serverIdInstance;
-						boolean ok = m_sqlService.dbWrite(statement, fields);
-						if (!ok)
-						{
-							M_log.warn("run(): dbWrite failed: " + statement);
-						}
-					}
-
-					// pick a random number, 0..99, to see if we want to do the full ghosting / cleanup activities now
-					int rand = (int) (Math.random() * 100.0);
-					if (rand < m_ghostingPercent)
-					{
-						// get all expired open app servers not me
-						statement = clusterServiceSql.getListExpiredServers(m_expired);
-						// setup the fields to skip reading me!
-						fields[0] = serverIdInstance;
-
-						List instances = m_sqlService.dbRead(statement, fields, null);
-
-						// close any severs found to be expired
-						for (Iterator iInstances = instances.iterator(); iInstances.hasNext();)
-						{
-							String serverId = (String) iInstances.next();
-
-							// close the server - delete the record
-							statement = clusterServiceSql.getDeleteServerSql();
-							fields[0] = serverId;
-							boolean ok = m_sqlService.dbWrite(statement, fields);
-							if (!ok)
-							{
-								M_log.warn("run(): dbWrite failed: " + statement);
-							}
-
-							M_log.warn("run(): ghost-busting server: " + serverId + " from : " + serverIdInstance);
-						}
-						
-						// Close all sessions left over from deleted servers.
-						int nbrClosed = m_usageSessionService.closeSessionsOnInvalidServers(getServers());
-						if ((nbrClosed > 0) && M_log.isInfoEnabled()) M_log.info("Closed " + nbrClosed + " orphaned usage session records");
-						
-						// Delete any orphaned locks from closed or missing sessions.
-						statement = clusterServiceSql.getOrphanedLockSessionsSql();
-						List sessions =  m_sqlService.dbRead(statement);
-						if (sessions.size() > 0) {
-							if (M_log.isInfoEnabled()) M_log.info("Found " + sessions.size() + " closed or deleted sessions in lock table");
-							statement = clusterServiceSql.getDeleteLocksSql();
-							for (Iterator iSessions = sessions.iterator(); iSessions.hasNext();)
-							{
-								fields[0] = (String) iSessions.next();
-								boolean ok = m_sqlService.dbWrite(statement, fields);
-								if (!ok)
-								{
-									M_log.warn("run(): dbWrite failed: " + statement);
-								}							
-							}
-						}
-					}
 				}
 				catch (Exception e)
 				{
@@ -466,7 +494,28 @@ public class SakaiClusterService implements ClusterService
 				{
 					try
 					{
-						Thread.sleep(m_refresh * 1000L);
+						long sleepTill = System.currentTimeMillis() + m_refresh * 1000L;
+						long sleepFor = sleepTill - System.currentTimeMillis();
+						while (sleepFor > 0)
+						{
+							try
+							{
+								Thread.sleep(sleepFor);
+								sleepFor = sleepTill - System.currentTimeMillis();
+							}
+							catch (InterruptedException e)
+							{
+								if (m_updateStatus)
+								{
+									updateOurStatus(serverIdInstance);
+									m_updateStatus = false;
+								}
+								if(!m_updateStatus || m_maintenanceCheckerStop)
+								{
+									throw e;
+								}
+							}
+						}
 					}
 					catch (Exception ignore)
 					{
@@ -475,6 +524,174 @@ public class SakaiClusterService implements ClusterService
 			}
 
 			if (M_log.isDebugEnabled()) M_log.debug("done");
+		}
+
+		private void ghostCleanup(String serverIdInstance)
+		{
+			// pick a random number, 0..99, to see if we want to do the full ghosting / cleanup activities now
+			int rand = (int) (Math.random() * 100.0);
+			if (rand < m_ghostingPercent)
+			{
+				String statement;
+
+				// get all expired open app servers not me
+				statement = clusterServiceSql.getListExpiredServers(m_expired);
+				// setup the fields to skip reading me!
+				Object[] fields = new Object[1];
+				fields[0] = serverIdInstance;
+
+				List instances = m_sqlService.dbRead(statement, fields, null);
+
+				// close any severs found to be expired
+				for (Iterator iInstances = instances.iterator(); iInstances.hasNext();)
+				{
+					String serverId = (String) iInstances.next();
+
+					// close the server - delete the record
+					statement = clusterServiceSql.getDeleteServerSql();
+					fields[0] = serverId;
+					boolean ok = m_sqlService.dbWrite(statement, fields);
+					if (!ok)
+					{
+						M_log.warn("run(): dbWrite failed: " + statement);
+					}
+
+					M_log.warn("run(): ghost-busting server: " + serverId + " from : " + serverIdInstance);
+				}
+
+				// Close all sessions left over from deleted servers.
+				int nbrClosed = m_usageSessionService.closeSessionsOnInvalidServers(getServers());
+				if ((nbrClosed > 0) && M_log.isInfoEnabled()) M_log.info("Closed " + nbrClosed + " orphaned usage session records");
+
+				// Delete any orphaned locks from closed or missing sessions.
+				statement = clusterServiceSql.getOrphanedLockSessionsSql();
+				List sessions =  m_sqlService.dbRead(statement);
+				if (sessions.size() > 0) {
+					if (M_log.isInfoEnabled()) M_log.info("Found " + sessions.size() + " closed or deleted sessions in lock table");
+					statement = clusterServiceSql.getDeleteLocksSql();
+					for (Iterator iSessions = sessions.iterator(); iSessions.hasNext();)
+					{
+						fields[0] = (String) iSessions.next();
+						boolean ok = m_sqlService.dbWrite(statement, fields);
+						if (!ok)
+						{
+							M_log.warn("run(): dbWrite failed: " + statement);
+						}
+					}
+				}
+			}
+		}
+
+		private void updateOurStatus(String serverIdInstance)
+		{
+			if (M_log.isDebugEnabled()) M_log.debug("checking...");
+
+			// if we have been closed, reopen!
+			String statement = clusterServiceSql.getReadServerSql();
+			Object[] fields = new Object[1];
+			fields[0] = serverIdInstance;
+			List results = m_sqlService.dbRead(statement, fields, new StatusSqlReader());
+			if (results.isEmpty())
+			{
+				M_log.warn("run(): server has been closed in cluster table, reopened: " + serverIdInstance);
+
+				statement = clusterServiceSql.getInsertServerSql();
+				fields = new Object[3];
+				fields[0] = serverIdInstance;
+				fields[1] = status;
+				fields[2] = m_serverConfigurationService.getServerId();
+				boolean ok = m_sqlService.dbWrite(statement, fields);
+				if (!ok)
+				{
+					M_log.warn("start(): dbWrite failed");
+				}
+			}
+
+			// update our alive and well status
+			else
+			{
+				// register that this app server is alive and well
+				statement = clusterServiceSql.getUpdateServerSql();
+				fields = new Object[3];
+				fields[0] = status;
+				fields[1] = m_serverConfigurationService.getServerId();
+				fields[2] = serverIdInstance;
+				boolean ok = m_sqlService.dbWrite(statement, fields);
+				if (!ok)
+				{
+					M_log.warn("run(): dbWrite failed: " + statement);
+				}
+			}
+		}
+
+		/**
+		 * Reads a status row from the DB.
+		 */
+		private class StatusSqlReader implements SqlReader
+		{
+			@Override
+			public Object readSqlResultRecord(ResultSet result) throws SqlReaderFinishedException
+			{
+				Status status = null;
+				try
+				{
+					status = parseStatus(result.getString("STATUS"));
+				}
+				catch (SQLException sqlException)
+				{
+					M_log.warn("Failed to read STATUS.", sqlException);
+				}
+				return status;
+			}
+		}
+	}
+
+	private Status parseStatus(String statusString)
+	{
+		Status status = Status.UNKNOWN;
+		if (statusString != null)
+		{
+			try
+			{
+				status = Status.valueOf(statusString);
+			}
+			catch (IllegalArgumentException iae)
+			{
+				M_log.debug("Failed to convert to a status: "+ statusString);
+			}
+		}
+		return status;
+	}
+
+	/**
+	 * This watches for events asking us to change status.
+	 */
+	private class ClusterEventObserver implements Observer
+	{
+
+		@Override
+		public void update(Observable o, Object arg)
+		{
+			if (arg instanceof Event)
+			{
+				Event event = ((Event) arg);
+				// We don't actually
+				if (m_serverConfigurationService.getServerIdInstance().equals(event.getResource()))
+				{
+					if (EVENT_CLOSE.equals(event.getEvent()))
+					{
+						changeStatus(Status.CLOSING);
+					}
+					else if (EVENT_RUN.equals(event.getEvent()))
+					{
+						changeStatus(Status.RUNNING);
+					}
+				}
+				else
+				{
+					M_log.debug("Ignoring message for other node.");
+				}
+			}
 		}
 	}
 }

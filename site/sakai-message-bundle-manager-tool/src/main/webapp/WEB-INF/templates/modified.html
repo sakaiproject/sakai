@@ -3,37 +3,37 @@
 <head th:replace="fragments/common :: head" />
 <body>
   <div th:replace="fragments/common :: bootstrap" />
-  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})"/>
-  <div th:include="fragments/common :: admin (${isAdmin})"/>
+  <div th:include="fragments/common :: loadBundlesFromDb (${isLoadBundlesFromDb})" />
+  <div th:include="fragments/common :: admin (${isAdmin})" />
   <div th:if="${isLoadBundlesFromDb} and ${isAdmin}">
-    <div id="menu" th:include="fragments/menus :: main (modified)" />
-    <h3 th:text="#{modified.modified}">Modified Messages</h3>
-    <table id="modified" dt:table="true">
-      <thead>
-        <tr>
-          <th dt:filterable="false" dt:sortable="false" dt:searchable="false"></th>
-          <th th:text="#{mbp.id}" dt:searchable="false">Id</th>
-          <th th:text="#{mbp.moduleName}" dt:searchable="false">Module Name</th>
-          <th th:text="#{mbp.propertyName}">Property Name</th>
-          <th th:text="#{mbp.value}">Value</th>
-          <th th:text="#{mbp.defaultValue}">Default Value</th>
-          <th th:text="#{mbp.locale}" dt:searchable="false">Locale</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr th:each="property : ${listModifiedMessageProperties}">
-          <td>
-            <a href="edit" class="btn btn-default btn-xs btn-block" role="button" th:href="@{/edit(id=${property?.id})}" th:text="#{modified.edit}">Edit</a>
-          </td>
-          <td th:text="${property?.id}">0</td>
-          <td th:text="${property?.moduleName}">moduleName</td>
-          <td th:text="${property?.propertyName}">propertyName</td>
-          <td th:text="${property?.value}">value</td>
-          <td th:text="${property?.defaultValue}">defaultValue</td>
-          <td th:text="${property?.locale}">locale</td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="portletBody">
+      <div id="menu" th:include="fragments/menus :: main (modified)" />
+      <h3 th:text="#{modified.modified}">Modified Messages</h3>
+      <table id="modified" dt:table="true" dt:export="csv">
+        <thead>
+          <tr>
+            <th dt:filterable="false" dt:sortable="false" dt:searchable="false"></th>
+            <th th:text="#{mbp.id}" dt:searchable="false">Id</th>
+            <th th:text="#{mbp.moduleName}" dt:searchable="false">Module Name</th>
+            <th th:text="#{mbp.propertyName}">Property Name</th>
+            <th th:text="#{mbp.value}">Value</th>
+            <th th:text="#{mbp.defaultValue}">Default Value</th>
+            <th th:text="#{mbp.locale}" dt:searchable="false">Locale</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="property : ${listModifiedMessageProperties}">
+            <td><a href="edit" class="btn btn-default btn-xs btn-block" role="button" th:href="@{/edit(id=${property?.id})}" th:text="#{modified.edit}">Edit</a></td>
+            <td th:text="${property?.id}">0</td>
+            <td th:text="${property?.moduleName}">moduleName</td>
+            <td th:text="${property?.propertyName}">propertyName</td>
+            <td th:text="${property?.value}">value</td>
+            <td th:text="${property?.defaultValue}">defaultValue</td>
+            <td th:text="${property?.locale}">locale</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </body>
 </html>

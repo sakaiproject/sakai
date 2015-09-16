@@ -1,0 +1,79 @@
+.#{$namespace}toolTitleNav{
+	background: $primary-color;
+	margin: 1em 0 0 0;
+	padding: 0.5em;
+	.#{$namespace}toolTitleNav__title{
+		color: lighten( $text-color, 70% );
+		display: inline-block;
+		font-size: 1.5em;
+		width: calc(100% - 90px);
+		margin: 0px;
+		& ~ .#{$namespace}directUrl__dropDown{
+			display: none;
+			&.active{
+				padding: 0.8em;
+				position:   absolute;
+				display:    block;
+				background: #FFF;
+				width: 250px;
+  				margin: 10px 0 0 -250px;
+  				z-index: 2;
+				@include box-shadow(0 0 5px 0 rgba(0,0,0,0.5));
+				textarea{
+					display: block;
+					width: 98%;
+					height: 50px;
+				}
+			}
+		}
+		a{
+			color: lighten( $text-color, 70% );
+			margin-right: 0.25em;
+
+		}
+	}
+
+	.#{$namespace}toolTitleNav__link{
+		vertical-align: 0%;
+		color: lighten( $text-color, 70% );
+		text-decoration :none;
+		margin-right: 0.25em;
+		@include icon();
+		&--directurl{
+			@extend .fa;
+			@extend .fa-link;
+			@extend .fa-lg;
+		}
+		&--help-popup{
+			@extend .fa;
+			@extend .fa-question;
+			@extend .fa-lg;
+		}
+		&--edit{
+			@extend .fa;
+			@extend .fa-pencil;
+			@extend .fa-lg;	
+		}
+		&--reset{
+			@extend .fa;
+			@extend .fa-share;
+			@extend .fa-lg;	
+			font-size: 0.9em;
+		}
+	}
+
+}
+
+.#{$namespace}toolBody{
+	background: $tool-background-color;
+	iframe{
+		margin: 1em 0 0 0;
+		width: 99%;
+	}
+}
+
+.portletBody{
+	background: $tool-background-color;
+	padding: #{$default-font-size / 2};
+	padding-bottom: 40px;
+}

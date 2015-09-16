@@ -49,12 +49,12 @@ public class FinQuestionValidator implements Validator {
 			throws ValidatorException {
 	
 		String text = (String) value;
-		text = text.trim().replace(',','.');  // in Spain, comma is used as a decimal point 	 
+		text = text.replaceAll("\\s+", "").replace(',','.');  // in Spain, comma is used as a decimal point 	 
 		
 		int i = text.indexOf("{", 0);
 		int j = text.indexOf("}", 0);
 		
-		while (i != -1) {
+		while (i != -1 && j > i) {
 			String number = text.substring(i+1, j);
 			
 			StringTokenizer st = new StringTokenizer(number, "|");

@@ -20,6 +20,7 @@
 package org.sakaiproject.signup.tool.jsf;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -865,6 +866,7 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 
 		FacesContext fc = FacesContext.getCurrentInstance();
 		ServletOutputStream out = null;
+		FileInputStream in = null;
 		
 		String filename = StringUtils.substringAfterLast(filePath, File.separator);
 		
@@ -877,14 +879,16 @@ abstract public class SignupUIBaseBean implements SignupBeanConstants, SignupMes
 			response.setContentType(mimeType);
 			response.setHeader("Content-disposition", "attachment; filename=" + filename);
 			
+			in = FileUtils.openInputStream(new File(filePath));
 			out = response.getOutputStream();
 
-			IOUtils.copy(FileUtils.openInputStream(new File(filePath)), out);
+			IOUtils.copy(in, out);
 
 			out.flush();
 		} catch (IOException ex) {
 			logger.warn("Error generating file for download:" + ex.getMessage());
 		} finally {
+			IOUtils.closeQuietly(in);
 			IOUtils.closeQuietly(out);
 		}
 		fc.responseComplete();

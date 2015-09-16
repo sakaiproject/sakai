@@ -1,11 +1,13 @@
 package org.sakaiproject.messagebundle.impl;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.memory.api.Cache;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.messagebundle.api.MessageBundleProperty;
 
+import java.util.Collections;
 import java.util.Locale;
 import java.util.Map;
 
@@ -26,14 +28,14 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	private static String CACHE_NAME = "org.sakaiproject.messagebundle.cache.bundles"; 
 
 	private MemoryService memoryService;
-	private Cache cache;
+	private Cache<String, Map<String, String>> cache;
 	
 	public CachingMessageBundleServiceImpl() {
 		super();
 	}
 
 	public void init() {
-		cache = memoryService.newCache(CACHE_NAME);
+		cache = memoryService.getCache(CACHE_NAME);
 		super.init();
 	}
 	
@@ -44,21 +46,22 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 	
 	@Override
 	public Map<String, String> getBundle(String baseName, String moduleName, Locale loc) {
-		
+        if (StringUtils.isBlank(baseName) || StringUtils.isBlank(moduleName) || loc == null) {
+            return Collections.emptyMap();
+        }
+
 		Map<String, String> bundle = null;
 		String key = super.getIndexKeyName(baseName, moduleName, loc.toString());
+        if (LOG.isDebugEnabled()) { LOG.debug("Retrieve bundle from cache with key=" + key); }
 		
-		if (cache.containsKey(key)) {
-			bundle = (Map<String, String>) cache.get(key);
-			if (LOG.isDebugEnabled()) { LOG.debug("Retrieve bundle from cache with key=" + key); }
-		} else {
-			 bundle = super.getBundle(baseName, moduleName, loc);
-			 if (bundle != null) {
-				 cache.put(key, bundle);
-				 if (LOG.isDebugEnabled()) { LOG.debug("Add bundle to cache with key=" + key); }
-			 }
+		bundle = cache.get(key);
+		if (bundle == null) {
+		    // bundle not in cache or expired
+		    bundle = super.getBundle(baseName, moduleName, loc);
+            cache.put(key, bundle);
+            if (LOG.isDebugEnabled()) { LOG.debug("Add bundle to cache with key=" + key); }
 		}
-		
+
 		return bundle;
 	}
 
@@ -68,7 +71,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 		
 		super.updateMessageBundleProperty(mbp);
 
-		invalidateCache(key);
+		cache.remove(key);
 	}
 	
 	@Override
@@ -77,7 +80,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 
 		super.deleteMessageBundleProperty(mbp);
 
-		invalidateCache(key);
+		cache.remove(key);
 	}
 
 	@Override
@@ -86,14 +89,7 @@ public class CachingMessageBundleServiceImpl extends MessageBundleServiceImpl {
 
 		super.revert(mbp);
 		
-		invalidateCache(key);
-	}
-	
-	private void invalidateCache(String key) {
-		if (cache.containsKey(key)) {
-			cache.remove(key);
-			if (LOG.isDebugEnabled()) { LOG.debug("Remove bundle from cache with key=" + key); }
-		}
+		cache.remove(key);
 	}
 	
 	public void setMemoryService(MemoryService memoryService) {

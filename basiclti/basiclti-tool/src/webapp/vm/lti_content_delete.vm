@@ -31,4 +31,16 @@
 		</p>
 	</form>
 	<p>$tlang.getString("content.delete.detail")</p>
+#if ( ! $isAdmin )
+<script>includeLatestJQuery('lti_content_delete.vm');</script>
+<script>
+$(document).ready( function() {
+        ## Does nothing if we are not in a frame of the right name
+        setMainFrameHeight('sakai-basiclti-admin-iframe');
+        $(window).resize( function() {
+                setMainFrameHeight('sakai-basiclti-admin-iframe');
+        });
+});
+</script>
+#end
 </div>

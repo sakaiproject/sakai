@@ -372,7 +372,7 @@ public class FormattedTextImpl implements FormattedText
                 } catch (ScanException e) {
                     // this will match the legacy behavior
                     val = "";
-                    M_log.warn("processFormattedText: Failure during scan of input html: " + e, e);
+                    M_log.error("processFormattedText: Failure during scan of input html: " + e, e);
                 } catch (PolicyException e) {
                     // this is an unrecoverable failure
                     throw new RuntimeException("Unable to access the antiSamy policy file: "+e, e);
@@ -388,7 +388,7 @@ public class FormattedTextImpl implements FormattedText
             // We catch all exceptions here because doing so will usually give the user the
             // opportunity to work around the issue, rather than causing a tool stack trace
 
-            M_log.warn("Unexpected error processing text", e);
+            M_log.error("Unexpected error processing text", e);
             formattedTextErrors.append(getResourceLoader().getString("unknown_error_markup") + "\n");
             val = null;
         }
@@ -404,7 +404,8 @@ public class FormattedTextImpl implements FormattedText
                 } else {
                     session.setAttribute("userWarning", getResourceLoader().getString("content_has_been_cleaned"));
                 }
-            } else if (logErrors && M_log.isInfoEnabled()) {
+            }
+            if (logErrors && M_log.isInfoEnabled()) {
                 // KNL-1075 - Log errors if desired so they can be easily found
                 String user = "UNKNOWN";
                 try {
@@ -581,7 +582,7 @@ public class FormattedTextImpl implements FormattedText
         }
         catch (Exception e)
         {
-            M_log.warn("Validator.escapeHtml: ", e);
+            M_log.error("Validator.escapeHtml: ", e);
             return "";
         }
     }
@@ -625,7 +626,7 @@ public class FormattedTextImpl implements FormattedText
                 hrefTitle = matcher.group();
             }
         } catch (Exception e) {
-            M_log.warn("FormattedText.processAnchor ", e);
+            M_log.error("FormattedText.processAnchor ", e);
         }
 
         if (hrefTarget != null) {
@@ -683,13 +684,13 @@ public class FormattedTextImpl implements FormattedText
             // TODO call encodeUnicode in other process routine
             html = encodeUnicode(source);
         } catch (Exception e) {
-            M_log.warn("FormattedText.processEscapedHtml encodeUnicode(source):"+e, e);
+            M_log.error("FormattedText.processEscapedHtml encodeUnicode(source):"+e, e);
         }
         try {
             // to use the FormattedText functions
             html = unEscapeHtml(html);
         } catch (Exception e) {
-            M_log.warn("FormattedText.processEscapedHtml unEscapeHtml(Html):"+e, e);
+            M_log.error("FormattedText.processEscapedHtml unEscapeHtml(Html):"+e, e);
         }
 
         return processFormattedText(html, new StringBuilder());
@@ -996,7 +997,7 @@ public class FormattedTextImpl implements FormattedText
         }
         catch (Exception e)
         {
-            M_log.warn("escapeJavascript: ", e);
+            M_log.error("escapeJavascript: ", e);
             return value;
         }
     }
@@ -1056,7 +1057,7 @@ public class FormattedTextImpl implements FormattedText
         }
         catch (UnsupportedEncodingException e)
         {
-            M_log.warn("Validator.escapeUrl: ", e);
+            M_log.error("Validator.escapeUrl: ", e);
             return "";
         }
     }
@@ -1217,7 +1218,7 @@ public class FormattedTextImpl implements FormattedText
 		try {
 			nbFormat = NumberFormat.getNumberInstance(new ResourceLoader().getLocale());
 		} catch (Exception e) {
-			M_log.warn("Error while retrieving local number format, using default ", e);
+			M_log.error("Error while retrieving local number format, using default ", e);
 		}
 		if (maxFractionDigits!=null) nbFormat.setMaximumFractionDigits(maxFractionDigits);
 		if (minFractionDigits!=null) nbFormat.setMinimumFractionDigits(minFractionDigits);

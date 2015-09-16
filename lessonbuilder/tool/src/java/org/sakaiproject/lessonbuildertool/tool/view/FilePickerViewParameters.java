@@ -41,6 +41,7 @@ public class FilePickerViewParameters extends HelperViewParameters {
 	private boolean resourceType = false;
         private boolean website = false;
         private boolean caption = false;
+	public String addBefore = ""; // itemid to add a new item before that item
 
 	public FilePickerViewParameters() {
 		super();
@@ -89,6 +90,18 @@ public class FilePickerViewParameters extends HelperViewParameters {
 
 	public boolean getCaption() {
 		return website;
+	}
+
+	public void setAddBefore(String s) {
+		this.addBefore = s;
+	}
+
+	public String getAddBefore() {
+	    // should be impnossible, but I'd rather be defensive here than
+	    // have all clients do it
+		if (addBefore == null)
+		    return "";
+		return addBefore;
 	}
 
 }

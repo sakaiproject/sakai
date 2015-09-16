@@ -1,3 +1,4 @@
+<%@ page import="org.sakaiproject.umem.tool.ui.SiteListBean"%>
 <%@ taglib uri="http://java.sun.com/jsf/html" prefix="h" %>
 <%@ taglib uri="http://java.sun.com/jsf/core" prefix="f" %>
 <%@ taglib uri="http://sakaiproject.org/jsf/sakai" prefix="sakai" %>
@@ -17,6 +18,14 @@
 
 <f:view>
 <sakai:view title="#{msgs.tool_title}">
+	<script>includeLatestJQuery('sitelist.jsp');</script>
+	<script type="text/javascript" src="/sakai-usermembership-tool/usermembership/js/usermembership.js"></script>
+	<link href="/sakai-usermembership-tool/usermembership/css/usermembership.css" rel="stylesheet" type="text/css" media="all"></link>
+
+	<script>
+		USR_MEMBRSHP.frameID = "<%= SiteListBean.getFrameID() %>";
+	</script>
+
 	<%/*<sakai:flowState bean="#{SiteListBean}"/>*/%>
 	<h:outputText value="#{SiteListBean.initValues}"/>
 	
@@ -28,6 +37,29 @@
 		<h3><h:outputText value="#{msgs.title_sitelist} (#{SiteListBean.userDisplayId})"/></h3>
 		<sakai:instruction_message value="#{msgs.instructions_sitelist}" />
 
+		<t:div id="headerContainer1" rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}">
+			<t:div styleClass="headerWrapper" onclick="USR_MEMBRSHP.toggleActions( this );">
+				<h:outputText id="actionHeader1" styleClass="collapsed" value="#{msgs.actions_header}" />
+			</t:div>
+		</t:div>
+		<t:div id="actionContainer1" rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}">
+			<t:div styleClass="column1">
+				<h:commandButton type="button" title="#{msgs.select_all}" value="#{msgs.select_all}" onclick="USR_MEMBRSHP.applyStateToCheckboxes( true );" />
+				<h:commandButton type="button" title="#{msgs.deselect_all}" value="#{msgs.deselect_all}" onclick="USR_MEMBRSHP.applyStateToCheckboxes( false );" />
+				<h:commandButton type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="USR_MEMBRSHP.invertSelection();" />
+			</t:div>
+			<t:div styleClass="column2">
+				<h:commandButton id="setToInactive1" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+				<h:commandButton id="setToActive1" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" 
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+			</t:div>
+			<t:div styleClass="column3">
+				<h:commandButton id="exportCsv1" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" disabled="true" />
+				<h:commandButton id="exportXls1" actionListener="#{SiteListBean.exportAsXls}" value="#{msgs.export_selected_to_excel}" disabled="true" />
+			</t:div>
+		</t:div>
+
 		<t:dataTable
 			value="#{SiteListBean.userSitesRows}"
 			var="row1"
@@ -35,6 +67,9 @@
 			sortColumn="#{SiteListBean.sitesSortColumn}"
             sortAscending="#{SiteListBean.sitesSortAscending}"
             rendered="#{SiteListBean.renderTable}" >
+			<h:column id="statusToggle">
+				<h:selectBooleanCheckbox value="#{row1.selected}" styleClass="chkStatus" onclick="this.value = this.checked; USR_MEMBRSHP.checkEnableButtons();" />
+			</h:column>
 			<h:column id="siteName">
 				<f:facet name="header">
 		            <t:commandSortHeader columnName="siteName" immediate="true" arrow="true">
@@ -93,19 +128,40 @@
 			</h:column>
 		</t:dataTable>
 
-		<p class="instruction" style="margin-top: 40px;">
-			<h:outputText value="#{msgs.no_sitelist}" rendered="#{SiteListBean.emptySiteList}" />
-		</p>
-		
-		<br>
-		<t:div styleClass="act" rendered="#{SiteListBean.allowed}">
-			<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active"/>
-			<h:commandButton id="exportCsv" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_csv_button}" rendered="#{!SiteListBean.emptySiteList}" />
-			<h:commandButton id="exportXls" actionListener="#{SiteListBean.exportAsXls}" value="#{msgs.export_excel_button}" rendered="#{!SiteListBean.emptySiteList}" />
+		<h:panelGroup rendered="#{SiteListBean.emptySiteList}">
+			<p class="instruction" style="margin-top: 40px;">
+				<h:outputText value="#{msgs.no_sitelist}" />
+			</p>
+		</h:panelGroup>
+
+		<t:div id="headerContainer2" rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}" onclick="USR_MEMBRSHP.toggleActions( this );">
+			<t:div styleClass="headerWrapper">
+				<h:outputText id="actionHeader2" styleClass="collapsed" value="#{msgs.actions_header}" />
+			</t:div>
 		</t:div>
-	  	
+		<t:div id="actionContainer2" rendered="#{SiteListBean.renderTable && !SiteListBean.emptySiteList}">
+			<t:div styleClass="column1">
+				<h:commandButton type="button" title="#{msgs.select_all}" value="#{msgs.select_all}" onclick="USR_MEMBRSHP.applyStateToCheckboxes( true );" />
+				<h:commandButton type="button" title="#{msgs.deselect_all}" value="#{msgs.deselect_all}" onclick="USR_MEMBRSHP.applyStateToCheckboxes( false );" />
+				<h:commandButton type="button" title="#{msgs.invert_selection}" value="#{msgs.invert_selection}" onclick="USR_MEMBRSHP.invertSelection();" />
+			</t:div>
+			<t:div styleClass="column2">
+				<h:commandButton id="setToInactive2" actionListener="#{SiteListBean.setToInactive}" value="#{msgs.set_to_inactive_button}" disabled="true"
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+				<h:commandButton id="setToActive2" actionListener="#{SiteListBean.setToActive}" value="#{msgs.set_to_active_button}" disabled="true" 
+								 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( this );" />
+			</t:div>
+			<t:div styleClass="column3">
+				<h:commandButton id="exportCsv2" actionListener="#{SiteListBean.exportAsCsv}" value="#{msgs.export_selected_to_csv}" disabled="true" />
+				<h:commandButton id="exportXls2" actionListener="#{SiteListBean.exportAsXls}" value="#{msgs.export_selected_to_excel}" disabled="true" />
+			</t:div>
+		</t:div>
 
+		<t:div styleClass="act">
+			<h:commandButton id="userlist" action="#{SiteListBean.processActionBack}" value="#{msgs.back_button}" styleClass="active"
+											 onclick="USR_MEMBRSHP.disableControls();USR_MEMBRSHP.showSpinner( 'sitelistform\\:backSpinner' );" />
+			<h:graphicImage id="backSpinner" url="/../library/image/indicator.gif" styleClass="spinner" alt="Processing" />
+		</t:div>
 	</h:form>
-
 </sakai:view>
 </f:view>

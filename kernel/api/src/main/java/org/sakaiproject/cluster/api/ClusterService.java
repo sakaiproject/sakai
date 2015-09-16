@@ -22,6 +22,7 @@
 package org.sakaiproject.cluster.api;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -31,9 +32,71 @@ import java.util.List;
 public interface ClusterService
 {
 	/**
+	 * Get the status of the current node.
+	 * @return A Status.
+	 */
+	Status getStatus();
+
+	/**
+	 * Status of this node in the cluster.
+	 */
+	enum Status
+	{
+		/**
+		 * The node is starting up, but isn't yet ready to handle requests.
+		 */
+		STARTING,
+		/**
+		 * The node is running and can handle requests.
+		 */
+		RUNNING,
+		/**
+		 * The node is shutting down and shouldn't be sent new sessions.
+		 */
+		CLOSING,
+		/**
+		 * The node has been stopped and should have no requests sent to it.
+		 * It will disappear from the list of nodes shortly afterwards.
+		 */
+		STOPPING,
+		/**
+		 * We don't know what we're doing or something is horribly wrong.
+		 */
+		UNKNOWN
+	}
+
+	/**
+	 * Event for halting a node in the cluster.
+	 */
+	String EVENT_CLOSE = "cluster.close";
+
+	/**
+	 * Event for requesting a node run again.
+	 */
+	String EVENT_RUN = "cluster.run";
+
+	/**
 	 * Access a List of server ids active in the cluster.
 	 * 
 	 * @return The List (String) of server ids active in the cluster.
+	 * @see org.sakaiproject.component.api.ServerConfigurationService#getServerIdInstance()
 	 */
 	List<String> getServers();
+
+	/**
+	 * Get the statuses of the servers in the cluster.
+	 * @return A Map of the servers with the value being the server status.
+	 */
+	Map<String, ClusterNode> getServerStatus();
+
+	/**
+	 * Marks a server as being closed. This prevents new sessions from being started.
+	 *
+	 * @param serverId The server ID.
+	 * @param close If <code>true</code> mark the server as being in closed.
+	 * @throws java.lang.IllegalArgumentException If the serverId doesn't exist.
+	 */
+	void markClosing(String serverId, boolean close);
+
+
 }

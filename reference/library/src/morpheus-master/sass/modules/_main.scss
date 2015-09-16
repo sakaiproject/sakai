@@ -1,0 +1,52 @@
+//.#{$namespace}
+.is-logged-out{
+	#content, .#{$namespace}container--footer{
+		margin: 0 0 0 #{$tool-menu-width};
+		@media #{$phone}{
+			margin: 6em 0 0 0;
+		}
+	}
+}
+
+.#{$namespace}portalWrapper {
+	position: relative;
+}
+
+#content, .#{$namespace}container--footer{
+	margin: 0 0 0 #{$tool-menu-width};
+
+	@media #{$phone}{
+		margin: calc(#{$header-size} - 1em) 0 0 0;
+	}
+	
+	#col1of2, #col2of2{
+		display: inline-block;
+		margin: 0 0 0 1%;
+		vertical-align: top;
+		width: 48%;
+		@media #{$phone}{
+			display: block;
+			width: 100%;
+		}
+	}
+}
+
+.#{$namespace}pageColumns--single, .#{$namespace}footer{
+	/* Optimal Typography for 16px Fonts 		//
+	// http://www.pearsonified.com/typography/	//
+	// Approx CPL 97 							*/
+	/*max-width: #{$default-font-size * 2 + $measure };*/
+	margin: 0 1em 1em 1em;
+	clear: both;
+}
+
+.#{$namespace}footer{
+	color: $background-color-secondary;
+	padding: 0.8em;
+	font-size: 0.8em;
+	#footer-links{
+		li{
+			display: inline-block;
+		}
+	}
+}

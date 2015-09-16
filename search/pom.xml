@@ -19,18 +19,12 @@
     <module>search-test</module>
     <module>search-impl/impl</module>
     <module>search-impl/pack</module>
-    <module>search-integration-test</module>
     <module>search-model</module>
     <module>search-util</module>
     <module>search-tool/tool</module>
     <module>elasticsearch</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/search/trunk</url>
-  </scm>
 
   <dependencyManagement>
     <dependencies>

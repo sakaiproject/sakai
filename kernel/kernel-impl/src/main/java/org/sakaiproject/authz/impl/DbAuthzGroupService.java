@@ -57,8 +57,8 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class DbAuthzGroupService extends BaseAuthzGroupService implements Observer
 {
-	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with ORs. */
-	protected final static int MAX_IN_CLAUSE = 99;
+	/** To avoide the dreaded ORA-01795 and the like, we need to limit to <1000 the items in each in(?, ?, ...) clause, connecting them with ORs. */
+	protected final static int MAX_IN_CLAUSE = 999;
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(DbAuthzGroupService.class);
 	/** All the event functions we know exist on the db. */
@@ -227,7 +227,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (m_autoDdl)
 			{
 				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm");
-				sqlService().ddl(this.getClass().getClassLoader(), "sakai_realm_2_4_0_001");
 			}
 
 			super.init();
@@ -288,12 +287,12 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	{
 		refreshScheduler.shutdown();
 
-		authzUserGroupIdsCache.destroy();
+		authzUserGroupIdsCache.close();
 
 		// done with event watching
 		eventTrackingService().deleteObserver(this);
 
-        maintainRolesCache.destroy();
+        maintainRolesCache.close();
 
 		M_log.info(this +".destroy()");
 	}
@@ -507,7 +506,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 	 */
 	protected String orInClause(int size, String field)
 	{
-		// Note: to avoide the dreaded ORA-01795 and the like, we need to limit to <100 the items in each in(?, ?, ...) clause, connecting them with
+		// Note: to avoide the dreaded ORA-01795 and the like, we need to limit to <1000 the items in each in(?, ?, ...) clause, connecting them with
 		// ORs -ggolden
 		int ors = size / MAX_IN_CLAUSE;
 		int leftover = size - (ors * MAX_IN_CLAUSE);
@@ -678,28 +677,32 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				Iterator<AuthzGroup> it = queueList.iterator();
 				while (it.hasNext()) {
 					AuthzGroup azGroup = it.next();
-					if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: " + azGroup.getId());
+					String azGroupId = azGroup.getId();
+					if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() start refresh of azgroup: " + azGroupId);
 
 					numberRefreshed++;
 					long time = 0;
 					long start = System.currentTimeMillis();
 					try {
-						((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup);
+						// only remove from the cache if the realm was updated during the refresh
+						if (((DbStorage) m_storage).refreshAuthzGroupInternal((BaseAuthzGroup) azGroup)) {
+							m_realmRoleGRCache.remove(azGroupId);
+						}
 					} catch (Throwable e) {
-						M_log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroup.getId(), e);
+						M_log.error("RefreshAuthzGroupTask.run() Problem refreshing azgroup: " + azGroupId, e);
 					} finally {
 						time = (System.currentTimeMillis() - start);
-						refreshQueue.remove(azGroup.getId());
-						if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: " + azGroup.getId() + " took " + time/1e3 + " seconds");
+						refreshQueue.remove(azGroupId);
+						if (M_log.isDebugEnabled()) M_log.debug("RefreshAuthzGroupTask.run() refresh of azgroup: " + azGroupId + " took " + time/1e3 + " seconds");
 					}
 					timeRefreshed += time;
 					if (time > longestRefreshed) {
 						longestRefreshed = time;
-						longestName = azGroup.getId();
+						longestName = azGroupId;
 					}
 					
 					if (it.hasNext() && (time > (refreshMaxTime * 1000L))) {
-						M_log.warn("RefreshAuthzGroupTask.run() " + azGroup.getId() + " took " + time/1e3 + 
+						M_log.warn("RefreshAuthzGroupTask.run() " + azGroupId + " took " + time/1e3 + 
 								" seconds which is longer than the maximum allowed of " + refreshMaxTime + 
 								" seconds, delay processing the rest of the queue");
 						break;
@@ -1106,15 +1109,15 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		/**
 		 * {@inheritDoc}
 		 */
-		public Set getProviderIds(String authzGroupId)
+		public Set<String> getProviderIds(String authzGroupId)
 		{
 			String statement = dbAuthzGroupSql.getSelectRealmProviderId1Sql();
 			List results = sqlService().dbRead(statement, new Object[] {authzGroupId}, null);
 			if (results == null)
 			{
-				return new HashSet();
+				return new HashSet<>();
 			}
-			return new HashSet(results);
+			return new HashSet<>(results);
 		}
 
 		/**
@@ -2390,7 +2393,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 		/**
 		 * {@inheritDoc}
 		 */
-		public void refreshUser(String userId, Map providerGrants)
+		public void refreshUser(String userId, Map<String, String> providerGrants)
 		{
 			if (userId == null) return;
 
@@ -2475,9 +2478,8 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				sql = dbAuthzGroupSql.getSelectRealmProviderSql(orInClause(providerGrants.size(), "SRP.PROVIDER_ID"));
 				Object[] fieldsx = new Object[providerGrants.size()];
 				int pos = 0;
-				for (Iterator f = providerGrants.keySet().iterator(); f.hasNext();)
+				for (String providerId : providerGrants.keySet())
 				{
-					String providerId = (String) f.next();
 					fieldsx[pos++] = providerId;
 				}
 				List<RealmAndProvider> realms = m_sql.dbRead(sql, fieldsx, new SqlReader()
@@ -2501,7 +2503,7 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 				{
 					for (RealmAndProvider rp : realms)
 					{
-						String role = (String) providerGrants.get(rp.providerId);
+						String role = providerGrants.get(rp.providerId);
 						if (role != null)
 						{
 							if (target.containsKey(rp.realmId))
@@ -2593,11 +2595,18 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			refreshQueue.put(azGroup.getId(), azGroup);
 		}
 
-		protected void refreshAuthzGroupInternal(BaseAuthzGroup realm)
+		/**
+		 * Update the realm with info from the provider
+		 * 
+		 * @param realm the realm to be refreshed
+		 * @return true if there were changes to the realm as a result of the refresh otherwise false
+		 */
+		protected boolean refreshAuthzGroupInternal(BaseAuthzGroup realm)
 		{
-			if ((realm == null) || (m_provider == null)) return;
+			if ((realm == null) || (m_provider == null)) return false;
 			if (M_log.isDebugEnabled()) M_log.debug("refreshAuthzGroupInternal() refreshing " + realm.getId());
 
+			boolean realmUpdated = false;
 			boolean synchWithContainingRealm = serverConfigurationService().getBoolean("authz.synchWithContainingRealm", true);
 
 			// check to see whether this is of group realm or not
@@ -2631,10 +2640,6 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			Map<String,String> target = m_provider.getUserRolesForGroup(realm.getProviderGroupId());
 
 			// read the realm's grants
-			sql = dbAuthzGroupSql.getSelectRealmRoleGroup4Sql();
-			Object[] fields = new Object[1];
-			fields[0] = caseId(realm.getId());
-
 			List<UserAndRole> grants = getGrants(realm);
 
 			// make a map, user id -> role granted, each for provider and non-provider (or inactive)
@@ -2832,12 +2837,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			// if any, do it
 			if ((toDelete.size() > 0) || (toInsert.size() > 0))
 			{
+				realmUpdated = true;
 				// do these each in their own transaction, to avoid possible deadlock
 				// caused by transactions modifying more than one row at a time.
 
 				// delete
 				sql = dbAuthzGroupSql.getDeleteRealmRoleGroup4Sql();
-				fields = new Object[2];
+				Object[] fields = new Object[2];
 				fields[0] = caseId(realm.getId());
 				for (String userId : toDelete)
 				{
@@ -2863,11 +2869,13 @@ public abstract class DbAuthzGroupService extends BaseAuthzGroupService implemen
 			if (M_log.isDebugEnabled()) {
 				M_log.debug("refreshAuthzGroupInternal() deleted: "+ toDelete.size()+ " inserted: "+ toInsert.size()+ " provided: "+ existing.size()+ " nonProvider: "+ nonProvider.size());
 			}
+
+			return realmUpdated;
 		}
 
 		private List<UserAndRole> getGrants(AuthzGroup realm) {
 			// read the realm's grants
-			String sql = dbAuthzGroupSql.getSelectRealmRoleGroup4Sql();
+			String sql = dbAuthzGroupSql.getSelectRealmRoleGroup2Sql();
 			Object[] fields = new Object[1];
 			fields[0] = caseId(realm.getId());
 

@@ -36,7 +36,6 @@ import org.sakaiproject.profile2.logic.SakaiProxy;
 import org.sakaiproject.profile2.model.ProfilePreferences;
 import org.sakaiproject.profile2.model.ProfilePrivacy;
 import org.sakaiproject.profile2.model.WallItem;
-import org.sakaiproject.profile2.tool.components.FocusOnLoadBehaviour;
 import org.sakaiproject.profile2.tool.components.ProfileImage;
 import org.sakaiproject.profile2.tool.models.WallAction;
 import org.sakaiproject.profile2.util.ProfileConstants;
@@ -104,7 +103,7 @@ public class RemoveWallItem extends Panel {
             	window.close(target);
 			}
 		};
-		submitButton.add(new FocusOnLoadBehaviour());
+		//submitButton.add(new FocusOnLoadBehaviour());
 		
 		final AttributeModifier accessibilityLabel;
 		if (false == wallItem.getCreatorUuid().equals(userUuid)) {

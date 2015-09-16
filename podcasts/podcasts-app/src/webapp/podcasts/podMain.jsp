@@ -9,7 +9,7 @@
 
 <f:view> 
 	<sakai:view title="#{msgs.podcast_home_title}" toolCssHref="css/podcaster.css"> 
-	<script type="text/javascript" language="JavaScript" src="scripts/popupscripts.js"></script>
+	<script type="text/javascript" src="scripts/popupscripts.js"></script>
 
 	<h:form>
 

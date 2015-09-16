@@ -2,7 +2,7 @@
 ## Site list Sites list on worksite setup home page
 #if ($shoppingPeriodInstructorEditable || $viewDelegatedAccessUsers)
 	<script type="text/javascript" src="/sakai-site-manage-tool/js/site-manage-delegatedaccess.js"></script>
-	<script type="text/javascript" src="/library/js/jquery-ui-latest/js/jquery-ui.min.js"></script>
+	<script type="text/javascript">includeLatestJQuery('site-manage');</script>
 	<script type="text/javascript" src="/sakai-site-manage-tool/js/jquery.asmselect.js"></script>
 	<link type="text/css" href="/sakai-site-manage-tool/css/jquery.asmselect.css" rel="stylesheet" media="screen" />
 #end
@@ -196,6 +196,30 @@
 			</label>
 		</p>
 		</fieldset>
+		#if ($!authAllowed || $!anonAllowed)
+        <fieldset>
+			<legend>
+				<h4>$tlang.getString("ediacc.addit")</h4>
+			</legend>
+ 			<p class="instruction">$tlang.getString("ediacc.additin")</p>
+ 			<p class="checkbox indnt1">
+ 				<input name="access" value="members" type="radio" id="access_members" #if($access == "members")checked="true"#end>
+ 				<label for="access_members">$tlang.getString("ediacc.noextra")</label>
+ 			</p>
+			#if ($!authAllowed)
+ 			<p class="checkbox indnt1">
+ 				<input name="access" value="authenticated" type="radio" id="access_authenticated"  #if($access == "authenticated")checked="true"#end>
+ 				<label for="access_authenticated">$tlang.getString("ediacc.auth")</label>
+ 			</p>
+			#end
+			#if ($!anonAllowed)
+ 			<p class="checkbox indnt1">
+ 				<input name="access" value="anonymous" type="radio" id="access_anonymous" #if($access == "anonymous")checked="true"#end>
+ 				<label for="access_anonymous">$tlang.getString("ediacc.anon")</label>
+ 			</p>
+			#end
+		</fieldset>
+		#end
 		## site visibility
 		<fieldset>
 		<legend>
@@ -232,16 +256,13 @@
 				</label>
 			</p>
 			<p class="checkbox indnt1">
-				<input type="radio" name="include" id="access_private" value="false" #if(!$!include)checked="checked"#end aria-describedby="site_vis_inst" />
-				<label for="access_private">
-					$tlang.getString("ediacc.pri")
-				</label>
 			</p>
 		</div>
 		<div id="publicChangeableNoDiv" $publicChangeableNoDivDisplay>
 			<p class="instruction">
 				## the site should be public
 				$tlang.getString("ediacc.dismysit")
+
 			</p>
 			<p />
 		</div>
@@ -546,6 +567,8 @@
 
 		</div>
 		#end
+			<p/>
+		</div>		
 		<input type="hidden" name="continue" value="$!continue" />
 		<input type="hidden" name="back" value="$!backIndex" />
 		<input type="hidden" name="templateIndex" value="$!templateIndex" />

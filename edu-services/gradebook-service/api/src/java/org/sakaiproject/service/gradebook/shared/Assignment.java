@@ -46,6 +46,8 @@ public class Assignment implements Serializable {
     private boolean extraCredit;
     //Needed for transfer
     private boolean categoryExtraCredit;
+    private Integer sortOrder;
+    private Long categoryId;
     
 
     public Assignment() {
@@ -203,4 +205,29 @@ public class Assignment implements Serializable {
 	public boolean isCategoryExtraCredit() {
 		return categoryExtraCredit;
 	}
+
+	public Integer getSortOrder() {
+		return sortOrder;
+	}
+	
+	/**
+	 * Note that any calls setSortOrder will not be persisted.
+	 * If you want to change the sort order of an assignment you must call 
+	 * GradebookService.updateAssignmentOrder as that method properly handles
+	 * the reordering of all other assignments for the gradebook.
+	 * 
+	 * @return
+	 */
+	public void setSortOrder(Integer sortOrder) {
+		this.sortOrder = sortOrder;
+	}
+
+	public Long getCategoryId() {
+		return categoryId;
+	}
+
+	public void setCategoryId(Long categoryId) {
+		this.categoryId = categoryId;
+	}
+
 }

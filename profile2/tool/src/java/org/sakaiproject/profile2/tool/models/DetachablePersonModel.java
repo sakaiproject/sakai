@@ -15,7 +15,7 @@
  */
 package org.sakaiproject.profile2.tool.models;
 
-import org.apache.wicket.injection.web.InjectorHolder;
+import org.apache.wicket.injection.Injector;
 import org.apache.wicket.model.LoadableDetachableModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.profile2.logic.ProfileLogic;
@@ -38,15 +38,16 @@ public class DetachablePersonModel extends LoadableDetachableModel<Person> {
 	public DetachablePersonModel(Person p) {
 		super(p);
 		this.userUuid = p.getUuid();
+		Injector.get().inject(this);
 	}
 	
 	public DetachablePersonModel(String userUuid) {
 		this.userUuid = userUuid;
+		Injector.get().inject(this);
 	}
 
 	@Override
 	protected Person load() {
-		InjectorHolder.getInjector().inject(this);
 		return profileLogic.getPerson(userUuid);
 	}
 

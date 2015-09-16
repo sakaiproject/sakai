@@ -24,7 +24,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.section.api.SectionAwareness;
 import org.sakaiproject.section.api.facade.manager.Authz;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.site.cover.SiteService;
 import org.sakaiproject.tool.section.jsf.JsfUtil;
@@ -43,6 +43,12 @@ public class AuthzSakaiImpl implements Authz {
 	private static final String SITE_UPDATE_GROUP_MEMBERSHIP = "site.upd.grp.mbrshp";
 
 	private static final Log log = LogFactory.getLog(AuthzSakaiImpl.class);
+
+	private AuthzGroupService authzGroupService;
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
+	}
 
 	/**
 	 * The user must have site.upd to update sections in the Section Info tool.
@@ -113,7 +119,7 @@ public class AuthzSakaiImpl implements Authz {
 
 	public String getRoleDescription(String userUid, String siteContext) {
 		String siteRef = SiteService.siteReference(siteContext);
-		String role = AuthzGroupService.getUserRole(userUid, siteRef);
+		String role = authzGroupService.getUserRole(userUid, siteRef);
 		if(log.isDebugEnabled()) log.debug("User " + userUid + " has role " + role + " in site " + siteContext);
 		if(role == null) {
 			// Is this a superuser?

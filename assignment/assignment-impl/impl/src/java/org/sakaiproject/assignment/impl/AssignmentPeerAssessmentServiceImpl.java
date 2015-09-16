@@ -133,7 +133,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 				}
 				//this could be an update to an existing assessment... just make sure to grab any existing
 				//review items first
-				List<PeerAssessmentItem> existingItems = getPeerAssessmentItems(submissionIdMap.keySet());
+				List<PeerAssessmentItem> existingItems = getPeerAssessmentItems(submissionIdMap.keySet(), assignment.getContent().getFactor());
 				List<PeerAssessmentItem> removeItems = new ArrayList<PeerAssessmentItem>();
 				//remove all empty items to start from scratch:
 				for (Iterator iterator = existingItems.iterator(); iterator
@@ -262,10 +262,11 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 		return lowestAssignedAssessor;
 	}
 
-	public List<PeerAssessmentItem> getPeerAssessmentItems(final Collection<String> submissionsIds){
+	public List<PeerAssessmentItem> getPeerAssessmentItems(final Collection<String> submissionsIds, Integer scaledFactor){
+		List<PeerAssessmentItem> listPeerAssessmentItem = new ArrayList<>();
 		if(submissionsIds == null || submissionsIds.size() == 0){
 			//return an empty list
-			return new ArrayList<PeerAssessmentItem>();
+			return listPeerAssessmentItem;
 		}
 		HibernateCallback hcb = new HibernateCallback()
 	    {
@@ -277,14 +278,21 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	        return q.list();
 	      }
 	    };
+	    
+	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
 	        
-	    return (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
+	    	item.setScaledFactor(scaledFactor);
+	    }
+	    
+	    return listPeerAssessmentItem;
 	}
 	
-	public List<PeerAssessmentItem> getPeerAssessmentItems(final String assignmentId, final String assessorUserId){
+	public List<PeerAssessmentItem> getPeerAssessmentItems(final String assignmentId, final String assessorUserId, Integer scaledFactor){
+		List<PeerAssessmentItem> listPeerAssessmentItem = new ArrayList<>();
 		if(assignmentId == null || assessorUserId == null){
 			//return an empty list
-			return new ArrayList<PeerAssessmentItem>();
+			return listPeerAssessmentItem;
 		}
 		HibernateCallback hcb = new HibernateCallback()
 	    {
@@ -297,14 +305,21 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	        return q.list();
 	      }
 	    };
-	        
-	    return (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    
+	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    
+	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
+	    	item.setScaledFactor(scaledFactor);
+	    }
+	    
+	    return listPeerAssessmentItem;
 	}
 	
-	public List<PeerAssessmentItem> getPeerAssessmentItems(final String submissionId){
+	public List<PeerAssessmentItem> getPeerAssessmentItems(final String submissionId, Integer scaledFactor){
+		List<PeerAssessmentItem> listPeerAssessmentItem = new ArrayList<>();
 		if(submissionId == null || "".equals(submissionId)){
 			//return an empty list
-			return new ArrayList<PeerAssessmentItem>();
+			return listPeerAssessmentItem;
 		}
 		HibernateCallback hcb = new HibernateCallback()
 	    {
@@ -316,14 +331,21 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	        return q.list();
 	      }
 	    };
-	        
-	    return (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    
+	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    
+	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
+	    	item.setScaledFactor(scaledFactor);
+	    }
+	    
+	    return listPeerAssessmentItem;
 	}
 	
-	public List<PeerAssessmentItem> getPeerAssessmentItemsByAssignmentId(final String assignmentId){
+	public List<PeerAssessmentItem> getPeerAssessmentItemsByAssignmentId(final String assignmentId, Integer scaledFactor){
+		List<PeerAssessmentItem> listPeerAssessmentItem = new ArrayList<>();
 		if(assignmentId == null || "".equals(assignmentId)){
 			//return an empty list
-			return new ArrayList<PeerAssessmentItem>();
+			return listPeerAssessmentItem;
 		}
 		HibernateCallback hcb = new HibernateCallback()
 	    {
@@ -335,8 +357,14 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	        return q.list();
 	      }
 	    };
+	    
+	    listPeerAssessmentItem = (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb); 
 	        
-	    return (List<PeerAssessmentItem>) getHibernateTemplate().execute(hcb);
+	    for (PeerAssessmentItem item : listPeerAssessmentItem) {
+	    	item.setScaledFactor(scaledFactor);
+	    }
+	    
+	    return listPeerAssessmentItem;
 	}
 	
 	public PeerAssessmentItem getPeerAssessmentItem(final String submissionId, final String assessorUserId){
@@ -367,6 +395,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 	public void savePeerAssessmentItem(PeerAssessmentItem item){
 		if(item != null && item.getAssessorUserId() != null && item.getSubmissionId() != null){
 			getHibernateTemplate().saveOrUpdate(item);
+			getHibernateTemplate().flush();
 		}
 	}
 	
@@ -394,7 +423,7 @@ public class AssignmentPeerAssessmentServiceImpl extends HibernateDaoSupport imp
 			if(submission != null && 
 					(submission.getGraded() == false || submission.getGradedBy() == null || "".equals(submission.getGradedBy().trim()) 
 					|| AssignmentPeerAssessmentService.class.getName().equals(submission.getGradedBy().trim()))){
-				List<PeerAssessmentItem> items = getPeerAssessmentItems(submissionId);
+				List<PeerAssessmentItem> items = getPeerAssessmentItems(submissionId, submission.getAssignment().getContent().getFactor());
 				if(items != null){
 					//scores are stored w/o decimal points, so a score of 3.4 is stored as 34 in the DB
 					//add all the scores together and divide it by the number of scores added.  Then round.

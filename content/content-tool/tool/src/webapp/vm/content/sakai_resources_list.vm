@@ -1,20 +1,11 @@
 ## version: $Id:  $
 <!-- sakai_resources_list.vm, use with org.sakaiproject.content.tool.ResourcesAction.java -->
 <!-- this is the new list template, which uses the resources type registry -->
-<script type="text/javascript">
-if ( window.jQuery ) {
-    window.console && console.log("jQuery already loaded "+jQuery.fn.jquery);
-} else {
-    document.write('\x3Cscript type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js?version=">'+'\x3C/script>')
-    window.console && console.log("Loaded jQuery");
-}
-</script>
+<script type="text/javascript">includeLatestJQuery('content');</script>
 
-<script type="text/javascript" src="/library/js/bootstrap/3.1.1/js/bootstrap.min.js">
 <!-- // -->
 </script>
 <link rel="stylesheet" href="/sakai-content-tool/css/content.css" />
-<link rel="stylesheet" href="/library/js/bootstrap/3.1.1/css/bootstrap.min.css" />
 <script type="text/javascript" src="/sakai-content-tool/js/content.js">
 <!-- // -->
 </script>
@@ -34,7 +25,11 @@ if ( window.jQuery ) {
 <div class="portletBody specialLink">
 	#set($itemsOnLine = 0)
 		<ul class="navIntraTool actionToolBar">
-			<li class="firstToolBarItem"><span class="current">$tlang.getString("list.site")</span></li>
+            #if("$!dropboxMode" == "true")
+			<li class="firstToolBarItem"><span class="current">$clang.getString("list.site.dropbox")</span></li>
+            #else
+			<li class="firstToolBarItem"><span class="current">$clang.getString("list.site")</span></li>
+            #end
 			#if($canDeleteResource)
 				## view restore deleted resources area if the user has revise permission
 				<li><span><a href="#toolLinkParam("ResourcesAction" "doViewTrash" "siteId=$validator.escapeUrl(${site.id})")" title="$clang.getString('trash')">$clang.getString("trash")</a></span></li>
@@ -214,7 +209,7 @@ if ( window.jQuery ) {
 			######################  Column labels, sort controls, expand/collapse all  ##############
 			<caption class="skip"  style="display:none">$clang.getString("sh.listcap")</caption>
 			<tr>
-				<th id="expansion" class="attach">
+				<th id="expansion" class="attach" scope="col">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
 						<a href="javascript:document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$clang.getString('collapseall')">
@@ -231,12 +226,12 @@ if ( window.jQuery ) {
 						</a>								 
 					#end
 				</th>
-				<th id="checkboxes" class="attach">
+				<th id="checkboxes" class="attach" scope="col">
 						<input type="checkbox" name="selectall" id="selectall" disabled="disabled" title="$clang.getString("list.select")"
 						onclick="javascript:toggleSelectAll(this, 'selectedMembers'); adjustShowHideCount(this)" value="" /><label for="selectall" class="skip">$clang.getString("list.select")</label>
 
 				</th>
-				<th id="title">
+				<th id="title" scope="col">
 					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sorttit')">
 						$clang.getString("gen.title1")
@@ -249,16 +244,16 @@ if ( window.jQuery ) {
 						#end 
 					</a>
 				</th>
-				<th id="actions1" class="attach">
+				<th id="actions1" class="attach" scope="col">
 					##$tlang.getString("gen.actions")
 				</th>
-				<th id="actions2" class="actions2">
+				<th id="actions2" class="actions2" scope="col">
 					##$tlang.getString("gen.actions")
 				</th>
-				<th id="access" class="access">
+				<th id="access" class="access" scope="col">
 					$clang.getString("gen.access")
 				</th>
-				<th id="creator" class="creator">
+				<th id="creator" class="creator" scope="col">
 					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortaut')">
 						$clang.getString("gen.created")
@@ -271,7 +266,7 @@ if ( window.jQuery ) {
 						#end 
 					</a>
 				</th>
-				<th id="modified" class="modified">
+				<th id="modified" class="modified" scope="col">
 					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortdate')">
 						$clang.getString("gen.last1")
@@ -284,7 +279,7 @@ if ( window.jQuery ) {
 						#end 
 					</a>
 				</th>
-				<th id="size" class="size">
+				<th id="size" class="size" scope="col">
 					<a href="javascript:document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortsize')">
 						$clang.getString("gen.size")
@@ -305,6 +300,7 @@ if ( window.jQuery ) {
 			#foreach($item in $site)
 				#set($qid=$item.id.replaceAll("'","\\'").replaceAll("\"", "&quot;"))
 				#set($dqid=$item.id.replaceAll("\"", "&quot;"))
+				#if ((!$dropboxGroupPermission_enabled) || ($item.isDropbox() && $item.DropboxOwner && $dropboxGroupPermission_allGroupsUsers.contains($item.DropboxOwner)))
 				#if(!$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) )
 				#set($itemcount = $itemcount + 1)
 				#set ($addCount=($addCount - 1))
@@ -316,11 +312,6 @@ if ( window.jQuery ) {
 				#else
 					#set ($margin="margin-left:2em")
 					#set ($marginAction="margin-left:4.7em")
-				#end
-				#if ($item.depth > 3)
-					#set($headerDepth = 6)
-				#else
-					#set($headerDepth = $item.depth + 3)
 				#end
 				############################### Show top level folder #################
 				<tr
@@ -343,9 +334,8 @@ if ( window.jQuery ) {
 							<input type="hidden" name="itemCanRevise" id="itemCanRevise" value="$item.canRevise" />
 						#end
 					</td>
-					<td headers="title" style="text-indent:$width" class="specialLink title">
+					<th headers="title" style="text-indent:$width" class="specialLink title" scope="row">
 					#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
-						<h$headerDepth> 
 							#if ($item.canRead())
 								#if($item.isCollection())
 									<span class="skip">$newNote</span><span class="$iconDecor">
@@ -415,8 +405,7 @@ if ( window.jQuery ) {
 								#end
 							#end
 							#if ($item.description !="" && $item.description) <a class="toggleDescription" href="#" title="$tlang.getString("list.description.link")"> <img src="#imageLink("/silk/information.png")" alt="$tlang.getString("list.description.link")"/></a><div role="alertdialog" aria-hidden="true" class="descPanel" style="display:none;border:2px solid #ccc;height:auto;background:#fff;padding:3px;position:absolute;top:-1000px;left:-1000px;z-index:100000;width:25%"><div class="descriptionClose" style="text-align:right;padding:2px;">x</div>$validator.escapeHtml($item.description)</div>#end
-						</h$headerDepth>	
-					</td>
+					</th>
 					<td headers="actions1"  style="white-space:nowrap;vertical-align:middle"  class="attach">
 						#if($item.pasteActions && !$item.pasteActions.isEmpty())
 							#set ($itemsOnLine = 0)
@@ -494,6 +483,7 @@ if ( window.jQuery ) {
 					#end
 				</tr>
 				#end ## if !$dropboxGroupFiltered || ($item.isDropbox() && $dropboxGroupFilter_groupUsers.contains($item.DropboxOwner)) 
+				#end ##if ((!$dropboxGroupPermission_enabled) || ($item.isDropbox() && $item.DropboxOwner && $dropboxGroupPermission_allGroupsUsers.contains($item.DropboxOwner)))
 			#end ## foreach $item in $this_site
 		
 			############################################# Begin "Other sites" section
@@ -583,11 +573,6 @@ if ( window.jQuery ) {
 							#set ($margin="margin-left:2em")
 							#set ($marginAction="margin-left:4.7em")
 						#end
-						#if ($item.depth > 3)
-							#set($headerDepth = 6)
-						#else
-							#set($headerDepth = $item.depth + 3)
-						#end
 						############################### Show top level folder #################
 					<tr
 					#if ($itemcount % 2==0)
@@ -608,9 +593,8 @@ if ( window.jQuery ) {
 									#foreach($key in $item.multipleItemActions.keySet())$counter.increment("$key") $counter.increment("selectall")#if($selectedItems.contains($item.id))$counter.increment("${key}selected")#end#end
 								#end
 							</td>
-							<td headers="title" style="text-indent:$width" class="specialLink">
+							<th headers="title" style="text-indent:$width" class="specialLink" scope="row">
 						#if($item.isHot("$!dropboxHighlight")) #set($iconDecor="recentItem") #set($newNote="new") #else  #set($iconDecor="nil")  #set($newNote="")#end 
-								<h$headerDepth> 
 									#if ($item.canRead())
 										#if($item.isCollection())
 										<span class="skip">$newNote</span><span class="$iconDecor">	
@@ -680,8 +664,7 @@ if ( window.jQuery ) {
 										#end
 									#end
 									#if ($item.description !="" && $item.description) <a class="toggleDescription" href="#" title="$tlang.getString("list.description.link")"> <img src="#imageLink("/silk/information.png")" alt="$tlang.getString("list.description.link")"/></a><div role="alertdialog" aria-hidden="true" class="descPanel" style="display:none;border:2px solid #ccc;height:auto;background:#fff;padding:3px;position:absolute;top:-1000px;left:-1000px;z-index:100000;width:25%"><div class="descriptionClose" style="text-align:right;padding:2px;">x</div>$validator.escapeHtml($item.description)</div>#end
-								</h$headerDepth>	
-							</td>
+							</th>
 							
 							#set ($actionCount=($actionCount - 1))
 							#set ($actionCount2=($actionCount2 - 1))

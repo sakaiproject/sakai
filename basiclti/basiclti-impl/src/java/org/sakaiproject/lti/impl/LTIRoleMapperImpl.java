@@ -12,6 +12,7 @@ import org.imsglobal.basiclti.BasicLTIUtil;
 
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
+import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.lti.api.LTIException;
 import org.sakaiproject.lti.api.LTIRoleMapper;
 import org.sakaiproject.user.api.User;
@@ -33,6 +34,11 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
     public void setSiteService(SiteService siteService) {
         this.siteService = siteService;
     }
+    
+    private ServerConfigurationService serverConfigurationService;
+    public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
+        this.serverConfigurationService = serverConfigurationService;
+    }
 
     public Map.Entry<String, String> mapLTIRole(Map payload, User user, Site site, boolean trustedConsumer) throws LTIException {
 
@@ -42,6 +48,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
             Member member = site.getMember(user.getId());
             if (member != null && BasicLTIUtil.equals(member.getUserEid(), user.getEid())) {
                 userExistsInSite = true;
+                return new AbstractMap.SimpleImmutableEntry(userRole(payload), member.getRole().getId());
             }
         } catch (Exception e) {
             M_log.warn(e.getLocalizedMessage(), e);
@@ -66,12 +73,7 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
             Member member = site.getMember(user.getId());
             return new AbstractMap.SimpleImmutableEntry(ltiRole, member.getRole().getId());
         } else {
-            ltiRole = (String) payload.get(BasicLTIConstants.ROLES);
-            if (ltiRole == null) {
-                ltiRole = "";
-            } else {
-                ltiRole = ltiRole.toLowerCase();
-            }
+            ltiRole = userRole(payload);
         }
 
         if (M_log.isDebugEnabled()) {
@@ -106,25 +108,19 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
                     M_log.debug("No match, falling back to determine role");
                 }
 
-                String maintainRole = site.getMaintainRole();
-                String joinerRole = site.getJoinerRole();
+		String maintainRole = site.getMaintainRole();
 
-                for (Role r : roles) {
-                    String roleId = r.getId();
-                    if (maintainRole == null && (roleId.equalsIgnoreCase("maintain") || roleId.equalsIgnoreCase("instructor"))) {
-                        maintainRole = roleId;
-                    }
+		if (maintainRole == null) {
+		    maintainRole = serverConfigurationService.getString("lti.role.mapping.Instructor", null);
+		}
 
-                    if (joinerRole == null && (roleId.equalsIgnoreCase("access") || roleId.equalsIgnoreCase("student"))) {
-                        joinerRole = roleId;
-                    }
-                }
-
-                boolean isInstructor = ltiRole.indexOf("instructor") >= 0;
-                newRole = joinerRole;
-                if (isInstructor && maintainRole != null) {
-                    newRole = maintainRole;
-                }
+		boolean isInstructor = ltiRole.indexOf("instructor") >= 0;
+		if (isInstructor && maintainRole != null) {
+		   newRole = maintainRole;
+		}else{
+		   newRole=serverConfigurationService.getString("lti.role.mapping.Student", null);
+		}
+              
 
                 if (M_log.isDebugEnabled()) {
                     M_log.debug("Determined newRole as: " + newRole);
@@ -143,4 +139,15 @@ public class LTIRoleMapperImpl implements LTIRoleMapper {
             throw new LTIException( "map.role", "siteId="+site.getId(), e);
         }
     }
+
+	private String userRole(Map payload) {
+		String ltiRole;
+		ltiRole = (String) payload.get(BasicLTIConstants.ROLES);
+		if (ltiRole == null) {
+		    ltiRole = "";
+		} else {
+		    ltiRole = ltiRole.toLowerCase();
+		}
+		return ltiRole;
+	}
 }

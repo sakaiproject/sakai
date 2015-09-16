@@ -99,7 +99,7 @@ import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.util.ResourceLoader;
 
 import uk.org.ponder.rsf.state.support.TMLFixer;
-
+import org.apache.commons.lang.StringUtils;
 /**
  *
  * @author casong
@@ -113,6 +113,13 @@ public class DeliveryBean
 {
   private static Log log = LogFactory.getLog(DeliveryBean.class);
 
+  //SAM-2517
+  private ServerConfigurationService serverConfigurationService;
+  
+  private static final String MATHJAX_ENABLED = "mathJaxEnabled";
+  private static final String MATHJAX_SRC_PATH_SAKAI_PROP = "portal.mathjax.src.path";
+  private static final String MATHJAX_SRC_PATH = ServerConfigurationService.getString(MATHJAX_SRC_PATH_SAKAI_PROP, "");
+  
   private String assessmentId;
   private String assessmentTitle;
   private Boolean honorPledge = Boolean.FALSE;
@@ -3194,6 +3201,9 @@ public class DeliveryBean
       return "error";
     }
 
+    boolean acceptLateSubmission = AssessmentAccessControlIfc.
+            ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
+
     if (this.actionMode == PREVIEW_ASSESSMENT) {
 		  return "safeToProceed";
     }
@@ -3217,7 +3227,7 @@ public class DeliveryBean
     
     log.debug("check 2");
     // check 2: is it still available?
-    if (!isFromTimer && isRetracted(isSubmitForGrade)){
+    if (!isFromTimer && isRetracted(isSubmitForGrade) && acceptLateSubmission){
      return "isRetracted";
     }
     
@@ -3261,43 +3271,59 @@ public class DeliveryBean
     }
 
     log.debug("check 8");
-    // check 8: accept late submission?
-    boolean acceptLateSubmission = AssessmentAccessControlIfc.
-        ACCEPT_LATE_SUBMISSION.equals(publishedAssessment.getAssessmentAccessControl().getLateHandling());
-
-    // check 7: has dueDate arrived? if so, does it allow late submission?
+    // check 8: has dueDate arrived? if so, does it allow late submission?
     // If it is a timed assessment and "No Late Submission" and not during a Retake, always go through. Because in this case the
    	// assessment will be auto-submitted anyway - when time is up or when current date reaches due date (if the time limited is
    	// longer than due date,) for either case, we want to redirect to the normal "submision successful page" after submitting.
     if (pastDueDate()){
     	// If Accept Late and there is no submission yet, go through
-    	if (acceptLateSubmission && totalSubmissions == 0) {
-    		log.debug("Accept Late Submission && totalSubmissions == 0");
-    	}
-    	else {
-    		log.debug("take from bean: actualNumberRetake =" + actualNumberRetake);
-    		// Not during a Retake
-    		if (actualNumberRetake == numberRetake) {
-    			// When taking the assessment via URL (from LoginServlet), if pass due date, throw an error 
-    			if (isViaUrlLogin) {
+    	if (acceptLateSubmission){
+    		if(totalSubmissions == 0) {
+    			log.debug("Accept Late Submission && totalSubmissions == 0");
+    		}
+    		else {
+    			log.debug("take from bean: actualNumberRetake =" + actualNumberRetake);
+    			// Not during a Retake
+    			if (actualNumberRetake == numberRetake) {
     				return "noLateSubmission";
     			}
-    	    	// If No Late, this is a timed assessment, and not during a Retake, go through (see above reason)
-    			else if (!acceptLateSubmission && this.isTimedAssessment()) {
-    				log.debug("No Late Submission && timedAssessment"); 
+    			// During a Retake
+    			else if (actualNumberRetake == numberRetake - 1) {
+    				log.debug("actualNumberRetake == numberRetake - 1: through Retake");
     			}
+    			// Should not come to here
     			else {
-    				log.debug("noLateSubmission");
-        			return "noLateSubmission";
+    				log.error("Should NOT come to here - wrong actualNumberRetake or numberRetake");
     			}
     		}
-    		// During a Retake
-    		else if (actualNumberRetake == numberRetake - 1) {
-    			log.debug("actualNumberRetake == numberRetake - 1: through Retake");
-    		}
-    		// Should not come to here
-    		else {
-    			log.error("Should NOT come to here - wrong actualNumberRetake or numberRetake");
+    	} else {
+    		if(!isRetracted(isSubmitForGrade)){
+    			log.debug("take from bean: actualNumberRetake =" + actualNumberRetake);
+    			// Not during a Retake
+    			if (actualNumberRetake == numberRetake) {
+    				// When taking the assessment via URL (from LoginServlet), if pass due date, throw an error 
+    				if (isViaUrlLogin) {
+    					return "noLateSubmission";
+    				}
+    				// If No Late, this is a timed assessment, and not during a Retake, go through (see above reason)
+    				else if (this.isTimedAssessment()) {
+    					log.debug("No Late Submission && timedAssessment"); 
+    				}
+    				else {
+    					log.debug("noLateSubmission");
+    					return "noLateSubmission";
+    				}
+    			}
+    			// During a Retake
+    			else if (actualNumberRetake == numberRetake - 1) {
+    				log.debug("actualNumberRetake == numberRetake - 1: through Retake");
+    			}
+    			// Should not come to here
+    			else {
+    				log.error("Should NOT come to here - wrong actualNumberRetake or numberRetake");
+    			}    			
+    		} else {
+    		     return "isRetracted";
     		}
     	}
     }
@@ -3994,6 +4020,19 @@ public class DeliveryBean
 	  
 	  public boolean getFirstTimeTaking() {
 		  return firstTimeTaking;
+	  }
+	  //SAM-2517
+	  public boolean getIsMathJaxEnabled(){ 
+		  PublishedAssessmentService publishedAssessmentService = new PublishedAssessmentService();
+		  String siteId = publishedAssessmentService.getPublishedAssessmentOwner(Long.parseLong(getAssessmentId()));
+		  String strMathJaxEnabled = getCurrentSite(siteId).getProperties().getProperty(MATHJAX_ENABLED); 
+		  return StringUtils.contains(strMathJaxEnabled, "sakai.samigo");
+	  }
+	  public String getMathJaxHeader(){
+		  StringBuilder headMJ = new StringBuilder();
+		  headMJ.append("<script type=\"text/x-mathjax-config\">\nMathJax.Hub.Config({\ntex2jax: { inlineMath: [['$$','$$'],['\\\\(','\\\\)']] }, TeX: { equationNumbers: { autoNumber: 'AMS' } }\n});\n</script>\n");
+		  headMJ.append("<script src=\"").append(MATHJAX_SRC_PATH).append("\"  language=\"JavaScript\" type=\"text/javascript\"></script>\n");
+		  return headMJ.toString();
 	  }
 	  
 }

@@ -81,8 +81,16 @@ public class JoinHandler extends BasePortalHandler
 				SiteService.getInstance().join(site.getId());
 				sendToSite(res, site);
 			} else {
-				// The user didn't opt to join so show the error.
-				portal.doError(req, res, session, Portal.ERROR_SITE);
+				// The user didn't opt to join
+				Site myWorkspace = portal.getSiteHelper().getMyWorkspace(session);
+				if (myWorkspace != null)
+				{
+					sendToSite(res, myWorkspace);
+				}
+				else
+				{
+					portal.doError(req, res, session, Portal.ERROR_SITE);
+				}
 			}
 		}
 		catch (IdUnusedException e) {
@@ -123,11 +131,18 @@ public class JoinHandler extends BasePortalHandler
 				{
 					String siteType = portal.calcSiteType(site.getId());
 					String serviceName = ServerConfigurationService.getString("ui.service", "Sakai");
-					String title = serviceName+ " : "+ site.getTitle();
+					
+					// SAK-29138
+					String title = serviceName + " : "+ portal.getSiteHelper().getUserSpecificSiteTitle( site );
+					
 					String skin = site.getSkin();
 					PortalRenderContext context = portal.startPageContext(siteType, title, skin, req);
 					context.put("currentSite", portal.getSiteHelper().convertSiteToMap(req, site, null, site.getId(), null, false, false, false, false, null, true));
 					context.put("uiService", serviceName);
+					
+					boolean restrictedByAccountType = !SiteService.getInstance().isAllowedToJoin(siteId);
+					context.put("restrictedByAccountType", restrictedByAccountType);
+					
 					portal.sendResponse(context, res, "join", "text/html");
 					return;
 				}

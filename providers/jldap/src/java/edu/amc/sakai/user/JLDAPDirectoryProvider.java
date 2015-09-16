@@ -31,13 +31,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.user.api.ExternalUserSearchUDP;
-import org.sakaiproject.user.api.DisplayAdvisorUDP;
-import org.sakaiproject.user.api.User;
-import org.sakaiproject.user.api.UserDirectoryProvider;
-import org.sakaiproject.user.api.UserEdit;
-import org.sakaiproject.user.api.UserFactory;
-import org.sakaiproject.user.api.UsersShareEmailUDP;
+import org.sakaiproject.user.api.*;
 import org.apache.commons.lang.StringUtils;
 
 import com.novell.ldap.LDAPConnection;
@@ -58,7 +52,7 @@ import com.novell.ldap.LDAPSocketFactory;
  * @author David Ross, Albany Medical College
  * @author Rishi Pande, Virginia Tech
  */
-public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnectionManagerConfig, ExternalUserSearchUDP, UsersShareEmailUDP, DisplayAdvisorUDP
+public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnectionManagerConfig, ExternalUserSearchUDP, UsersShareEmailUDP, DisplayAdvisorUDP, AuthenticationIdUDP
 {
 	/** Default LDAP connection port */
 	public static final int DEFAULT_LDAP_PORT = 389;
@@ -164,6 +158,9 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	private int operationTimeout = DEFAULT_OPERATION_TIMEOUT_MILLIS;
 	
 	private int searchScope = DEFAULT_SEARCH_SCOPE;
+
+	/** Should the provider support searching by Authentication ID */
+	private boolean enableAid = false;
 
 	/** 
 	 * User entry attribute mappings. Keys are logical attr names,
@@ -490,7 +487,7 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					}
 					resolvedEntry = getUserByEid(eid, null);
 				} catch ( InvalidEmailAddressException e ) {
-					M_log.warn("findUserByEmail(): Attempted to look up user at an invalid email address [" + email + "]", e);
+					M_log.error("findUserByEmail(): Attempted to look up user at an invalid email address [" + email + "]", e);
 					useStdFilter = true; // fall back to std processing, we cant derive an EID from this addr
 				}
 			}
@@ -586,6 +583,34 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 			return false;
 		}
 
+	}
+
+	public boolean getUserbyAid(String aid, UserEdit user)
+	{
+		// Only do search if we're enabled.
+		if (!(enableAid)) {
+			return false;
+		}
+		LdapUserData foundUserData = getUserByAid(aid, null);
+		if ( foundUserData == null ) {
+			return false;
+		}
+		if ( user != null ) {
+			mapUserDataOntoUserEdit(foundUserData, user);
+		}
+		return true;
+	}
+
+	public LdapUserData getUserByAid(String aid, LDAPConnection conn) {
+		String filter = ldapAttributeMapper.getFindUserByAidFilter(aid);
+		LdapUserData mappedEntry = null;
+		try {
+			mappedEntry = (LdapUserData) searchDirectoryForSingleEntry(filter,
+					conn, null, null, null);
+		} catch (LDAPException e) {
+			M_log.error("Failed to find user for AID: " + aid, e);
+		}
+		return mappedEntry;
 	}
 
 	/**
@@ -828,7 +853,13 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 					"][reusing conn = " + (conn != null) + "]");
 		}
 
-		LdapUserData foundUserData = getUserByEid(eid, conn);
+		LdapUserData foundUserData;
+		if (enableAid) {
+			foundUserData = getUserByAid(eid, conn);
+		} else {
+			foundUserData = getUserByEid(eid, conn);
+		}
+
 		if ( foundUserData == null ) {
 			if ( M_log.isDebugEnabled() ) {
 				M_log.debug("lookupUserEntryDN(): no directory entried found [eid = " + 
@@ -1355,6 +1386,13 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	/**
 	 * {@inheritDoc}
 	 */
+	public void setEnableAid(boolean enableAid) {
+		this.enableAid = enableAid;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
 	public int getMaxResultSize() {
 		return maxResultSize;
 	}
@@ -1411,15 +1449,6 @@ public class JLDAPDirectoryProvider implements UserDirectoryProvider, LdapConnec
 	 */
 	public void setLdapAttributeMapper(LdapAttributeMapper ldapAttributeMapper) {
 		this.ldapAttributeMapper = ldapAttributeMapper;
-	}
-
-	/**
-	 * Used to set the cache key case-sensitivity behavior. 
-	 * @param caseSensitive
-	 * @deprecated
-	 */
-	public void setCaseSensitiveCacheKeys(boolean caseSensitive) {
-		M_log.warn("DEPRECATION WARNING: caseSensitiveCacheKeys is deprecated. Please remove it from your jldap-beans.xml configuration.");
 	}
 
 	/**

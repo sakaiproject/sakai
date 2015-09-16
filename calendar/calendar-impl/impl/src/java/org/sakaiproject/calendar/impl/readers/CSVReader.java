@@ -44,6 +44,7 @@ import org.sakaiproject.util.ResourceLoader;
 public class CSVReader extends Reader
 {
    private ResourceLoader rb = new ResourceLoader("calendar");
+   private Map<String, String> defaultHeaderMap = getDefaultColumnMap();
    
 	private static final String COMMENT_LINE_PREFIX = "//";
 	/** 
@@ -239,7 +240,7 @@ public class CSVReader extends Reader
 		{
 			Map eventProperties = (Map)it.next();
 
-			Date startTime = (Date) eventProperties.get(GenericCalendarImporter.START_TIME_PROPERTY_NAME);
+			Date startTime = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.START_TIME_DEFAULT_COLUMN_HEADER));
 			TimeBreakdown startTimeBreakdown = null;
 			
 			if ( startTime != null )
@@ -256,7 +257,7 @@ public class CSVReader extends Reader
                         0 );
 			}
 			
-			Integer durationInMinutes = (Integer)eventProperties.get(GenericCalendarImporter.DURATION_PROPERTY_NAME);
+			Integer durationInMinutes = (Integer)eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DURATION_DEFAULT_COLUMN_HEADER));
 
 			if ( durationInMinutes == null )
 			{
@@ -287,7 +288,7 @@ public class CSVReader extends Reader
                        0 );
 			}
 
-			Date startDate = (Date) eventProperties.get(GenericCalendarImporter.DATE_PROPERTY_NAME);
+			Date startDate = (Date) eventProperties.get(defaultHeaderMap.get(GenericCalendarImporter.DATE_DEFAULT_COLUMN_HEADER));
 			TimeBreakdown startDateBreakdown = null;
 			
 			if ( startDate != null )

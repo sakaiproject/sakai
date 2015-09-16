@@ -29,9 +29,10 @@ import java.util.Set;
 import java.util.Vector;
 
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.authz.api.Member;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.entity.api.Reference;
 import org.sakaiproject.entity.cover.EntityManager;
@@ -59,11 +60,19 @@ import org.sakaiproject.user.api.User;
  */
 public class SiteEmailNotification extends EmailNotification
 {
+	private AliasService aliasService;
+
 	/**
 	 * Construct.
 	 */
 	public SiteEmailNotification()
 	{
+		this(ComponentManager.get(AliasService.class));
+	}
+
+	public SiteEmailNotification(AliasService aliasService)
+	{
+		this.aliasService = aliasService;
 	}
 
 	/**
@@ -204,7 +213,7 @@ public class SiteEmailNotification extends EmailNotification
 		{
 		}
 
-		return "\"" + title + "\"<no-reply@" + ServerConfigurationService.getServerName() + ">";
+		return "\"" + title + "\" <"+ ServerConfigurationService.getString("setup.request","no-reply@" + ServerConfigurationService.getServerName()) + ">";
 	}
 
 	/**
@@ -234,7 +243,7 @@ public class SiteEmailNotification extends EmailNotification
 			EntityManager.newReference(channel);
 	
 			// find the alias for this site's mail channel
-			List<Alias> all = AliasService.getAliases(channel);
+			List<Alias> all = aliasService.getAliases(channel);
 			if (!all.isEmpty()) email = ((Alias) all.get(0)).getId();
 		}
 		catch (Exception ignore)

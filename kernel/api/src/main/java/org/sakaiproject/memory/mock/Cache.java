@@ -30,7 +30,7 @@ import java.util.*;
  * Partly functional (no listener/loader/stats support)
  */
 @SuppressWarnings("deprecation") // TODO remove GenericMultiRefCache
-public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.Cache {
+public class Cache implements org.sakaiproject.memory.api.Cache<String,Object> {
 
     String name;
     private Map<String, Object> map = new HashMap<String, Object>();
@@ -92,7 +92,7 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
-    public Map<String, Object> getAll(Set<String> keys) {
+    public Map<String, Object> getAll(Set<? extends String> keys) {
         Map<String, Object> m = new HashMap<String, Object>(this.map);
         for (String key : keys) {
             m.remove(key);
@@ -111,7 +111,7 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
-    public void putAll(Map<String, Object> map) {
+    public void putAll(Map<? extends String, ? extends Object> map) {
         this.map.putAll(map);
     }
 
@@ -122,7 +122,7 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     }
 
     @Override
-    public void removeAll(Set<String> keys) {
+    public void removeAll(Set<? extends String> keys) {
         for (String key : keys) {
             this.map.remove(key);
         }
@@ -133,21 +133,7 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
         clear();
     }
 
-    // multi ref cache
-
-    @Override
-    public void put(String key, Object payload, String ref, Collection<String> dependRefs) {
-        map.put(key, payload);
-    }
-
     // Sakai items below
-
-    /**
-     * @deprecated REMOVE THIS
-     */
-    public void destroy() {
-        close();
-    }
 
     @Override
     public void attachLoader(CacheLoader cacheLoader) {
@@ -161,11 +147,6 @@ public class Cache implements GenericMultiRefCache, org.sakaiproject.memory.api.
     @Override
     public String getDescription() {
         return name;
-    }
-
-    @Override
-    public void put(Object key, Object payload, int duration) {
-        put((String)key, payload);
     }
 
 }
