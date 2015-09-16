@@ -78,11 +78,6 @@ body.is-logged-out{
 				background: $background-color-secondary;
 			}
 		}
-		@media #{$phone}{
-			.#{$namespace}login-Message{
-				display: none;
-			}
-		}
 	}
 	@media #{$phone}{
 		background: $primary-color;
