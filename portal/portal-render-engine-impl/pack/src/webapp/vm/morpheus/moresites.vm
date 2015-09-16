@@ -31,9 +31,7 @@
             <div id="otherSiteCloseW">
                 <a href="#" onclick="closeDrawer()" class="toggler" title="${rloader.sit_othersitesclose}">
                     <span class="hamburger">
-                        <span class="top">&mdash;</span>
-                        <span class="middle">&mdash;</span>
-                        <span class="bottom">&mdash;</span>
+                        <i class="fa fa-close"></i>
                     </span>
                     <span class="skip">
                         ${rloader.sit_othersitesclose}
