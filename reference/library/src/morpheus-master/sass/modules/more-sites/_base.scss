@@ -4,7 +4,7 @@
 }
 #selectSite{
 	position: fixed;
-	@include transition( left 1s linear );
+	@include transition( left 0.4s linear );
 	&.dhtml_more_tabs{
 		background: $toolMenuColor;
 		display: block;
