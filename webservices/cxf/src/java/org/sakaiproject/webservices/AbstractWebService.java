@@ -28,6 +28,7 @@ import org.sakaiproject.tool.api.Session;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.PreferencesService;
 import org.sakaiproject.shortenedurl.api.ShortenedUrlService;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.id.api.IdManager;
@@ -54,6 +55,7 @@ public class AbstractWebService {
     protected TimeService timeService;
     protected ToolManager toolManager;
     protected UsageSessionService usageSessionService;
+    protected PreferencesService preferencesService;
     protected UserDirectoryService userDirectoryService;
     protected ContentHostingService contentHostingService;
     protected EntityManager entityManager;
@@ -142,6 +144,11 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setUserDirectoryService(UserDirectoryService userDirectoryService) {
         this.userDirectoryService = userDirectoryService;
+    }
+
+    @WebMethod(exclude = true)
+    public void setPreferencesService(PreferencesService preferencesService) {
+        this.preferencesService = preferencesService;
     }
 
     @WebMethod(exclude = true)
