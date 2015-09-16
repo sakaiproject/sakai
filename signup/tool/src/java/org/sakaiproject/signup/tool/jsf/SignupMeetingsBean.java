@@ -1036,7 +1036,7 @@ public class SignupMeetingsBean implements SignupBeanConstants {
 	 */
 	public boolean isAttendanceOn() {
 			
-		if ("true".equalsIgnoreCase(getSakaiFacade().getServerConfigurationService().getString("signup.enableAttendance","true"))){
+		if (getSakaiFacade().getServerConfigurationService().getBoolean("signup.enableAttendance", true)) {
 			return true;
 		}
 		else{
