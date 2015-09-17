@@ -3,8 +3,10 @@
  */
 package org.sakaiproject.dash.logic;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.ehcache.Cache;
 
@@ -14,6 +16,7 @@ import org.sakaiproject.dash.app.DashboardUserLogic;
 import org.sakaiproject.dash.app.SakaiProxy;
 import org.sakaiproject.dash.dao.DashboardDao;
 import org.sakaiproject.dash.entity.DashboardEntityInfo;
+import org.sakaiproject.dash.model.CalendarItem;
 import org.sakaiproject.dash.model.CalendarLink;
 import org.sakaiproject.dash.model.NewsItem;
 import org.sakaiproject.dash.model.NewsLink;
@@ -91,7 +94,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	@Override
 	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId) {
 		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, siteId);
-		
+
 		if(links != null) {
 			for(NewsLink link : links) {
 				NewsItem item = link.getNewsItem();
@@ -108,11 +111,75 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
 						}
 					}
+				}else{
+					//When getItemCount() > 1 the infoLinkUrl is null and hence we don't need to run this call.
+					getInfoLinkUrlForNewsItem(item);
 				}
 			}
 		}
-		
+
 		return links;
+	}
+
+	private void getInfoLinkUrlForNewsItem(NewsItem item) {
+		if(item!=null){
+			SourceType sourceType = item.getSourceType();
+			if(sourceType != null) {
+				DashboardEntityInfo typeObj = dashboardLogic.getDashboardEntityInfo(sourceType.getIdentifier());
+				if(typeObj != null) {
+					//getValues() take one of the parameter as Locale code and this used for logging warn messages
+					//so sending null should be fine here.
+					Map<String, Object> values = typeObj.getValues(item.getEntityReference(), null);
+					List<Map<String,String>> moreInfo=(ArrayList<Map<String, String>>) values.get(DashboardEntityInfo.VALUE_MORE_INFO);
+					if(moreInfo!=null){
+						for (Map<String, String> map : moreInfo) {
+							item.setInfoLinkURL(map.get(DashboardEntityInfo.VALUE_INFO_LINK_URL));
+
+						}
+					}else{
+						logger.debug("more.Info is null");
+					}
+				}else{
+					logger.debug("DashboardEntityInfo is null");
+				}
+			}else{
+				logger.debug("SourceType like is null");
+			}
+
+		}else{
+			logger.debug("NewsItem is null");
+		}
+		
+	}
+	private void getInfoLinkUrlForCalendarItem(CalendarItem item) {
+		if(item!=null){
+			SourceType sourceType = item.getSourceType();
+			if(sourceType != null) {
+				DashboardEntityInfo typeObj = dashboardLogic.getDashboardEntityInfo(sourceType.getIdentifier());
+				if(typeObj != null) {
+					//getValues() take one of the parameter as Locale code and this used for logging warn messages
+					//so sending null should be fine here.
+					Map<String, Object> values = typeObj.getValues(item.getEntityReference(), null);
+					List<Map<String,String>> moreInfo=(ArrayList<Map<String, String>>) values.get(DashboardEntityInfo.VALUE_MORE_INFO);
+					if(moreInfo!=null){
+						for (Map<String, String> map : moreInfo) {
+							item.setInfoLinkURL(map.get(DashboardEntityInfo.VALUE_INFO_LINK_URL));
+
+						}
+					}else{
+						logger.debug("more.Info is null");
+					}
+				}else{
+					logger.debug("DashboardEntityInfo is null");
+				}
+			}else{
+				logger.debug("SourceType like is null");
+			}
+
+		}else{
+			logger.debug("NewsItem is null");
+		}
+		
 	}
 
 	/* (non-Javadoc)
@@ -120,7 +187,12 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
-		return dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
+		List<CalendarLink> futureCalendarLinks = dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
+		for (CalendarLink calendarLink : futureCalendarLinks) {
+            		CalendarItem calendarItem = calendarLink.getCalendarItem();		
+            		getInfoLinkUrlForCalendarItem(calendarItem);
+		}
+		return futureCalendarLinks;
 	}
 
 	/* (non-Javadoc)
@@ -128,7 +200,12 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId) {
-		return dao.getHiddenNewsLinks(sakaiId, siteId);
+		List<NewsLink> hiddenNewsLinks = dao.getHiddenNewsLinks(sakaiId, siteId);
+		for (NewsLink newsLink : hiddenNewsLinks) {
+			NewsItem item = newsLink.getNewsItem();
+			getInfoLinkUrlForNewsItem(item);
+		}
+		return hiddenNewsLinks;
 	}
 
 	/* (non-Javadoc)
@@ -145,7 +222,12 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
-		return dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
+		List<CalendarLink> pastCalendarLinks = dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
+		for (CalendarLink calendarLink : pastCalendarLinks) {
+            		CalendarItem calendarItem = calendarLink.getCalendarItem();		
+            		getInfoLinkUrlForCalendarItem(calendarItem);
+		}
+		return pastCalendarLinks;
 	}
 
 	/* (non-Javadoc)
@@ -153,7 +235,12 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
-		return dao.getStarredCalendarLinks(sakaiUserId, contextId);
+		List<CalendarLink> starredCalendarLinks = dao.getStarredCalendarLinks(sakaiUserId, contextId);
+		for (CalendarLink calendarLink : starredCalendarLinks) {
+            		CalendarItem calendarItem = calendarLink.getCalendarItem();		
+            		getInfoLinkUrlForCalendarItem(calendarItem);
+		}
+		return starredCalendarLinks;
 	}
 
 	/* (non-Javadoc)
@@ -161,7 +248,12 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId) {
-		return dao.getStarredNewsLinks(sakaiId, siteId);
+		List<NewsLink> starredNewsLinks = dao.getStarredNewsLinks(sakaiId, siteId);
+		for (NewsLink newsLink : starredNewsLinks) {
+			NewsItem item = newsLink.getNewsItem();
+			getInfoLinkUrlForNewsItem(item);
+		}
+		return starredNewsLinks;
 	}
 	
 	/* (non-Javadoc)
