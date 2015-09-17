@@ -37,7 +37,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.sakaiproject.util.conversion.SchemaConversionHandler;
-import org.sakaiproject.entity.cover.EntityManager;
 
 import org.apache.commons.codec.binary.Base64;
 

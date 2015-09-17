@@ -22,7 +22,6 @@
 package org.sakaiproject.assignment.taggable.impl;
 
 import org.sakaiproject.assignment.api.Assignment;
-import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.taggable.api.TaggableActivity;
 import org.sakaiproject.taggable.api.TaggableActivityProducer;
 
@@ -30,10 +29,10 @@ public class AssignmentActivityImpl implements TaggableActivity {
 
 	protected Assignment assignment;
 
-	protected TaggableActivityProducer producer;
+	protected AssignmentActivityProducerImpl producer;
 
 	public AssignmentActivityImpl(Assignment assignment,
-			TaggableActivityProducer producer) {
+			AssignmentActivityProducerImpl producer) {
 		this.assignment = assignment;
 		this.producer = producer;
 	}
@@ -73,7 +72,7 @@ public class AssignmentActivityImpl implements TaggableActivity {
 	public String getActivityDetailUrl()
 	{
 		//String url = assignment.getUrl();
-		String url = ServerConfigurationService.getServerUrl() + 
+		String url = producer.serverConfigurationService.getServerUrl() +
 			"/direct/assignment/" + assignment.getId() + "/doView_assignment";
 		return url;
 	}
