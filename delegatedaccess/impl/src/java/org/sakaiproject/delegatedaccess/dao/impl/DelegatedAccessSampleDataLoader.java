@@ -144,7 +144,7 @@ public class DelegatedAccessSampleDataLoader {
 									//Roster
 									page = siteEdit.addPage();
 									page.setTitle("Roster");
-									page.addTool("sakai.site.roster");
+									page.addTool("sakai.site.roster2");
 									
 									//Lessons
 									page = siteEdit.addPage();
