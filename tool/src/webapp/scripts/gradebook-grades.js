@@ -149,7 +149,8 @@ GradebookSpreadsheet.prototype.onKeydown = function(event) {
   // DEL 8
   } else if (isEditableCell && event.keyCode == 8) {
     event.preventDefault();
-    self.getCellModel($eventTarget).clear();
+    // TODO: no clear mechanism yet
+    //self.getCellModel($eventTarget).clear();
 
   // ESC 27
   } else if (event.keyCode == 27) {
@@ -1480,7 +1481,7 @@ GradebookEditableCell.prototype.enterEditMode = function(keyCode) {
 
   self.loadingEditMode = true;
 
-  self.$cell.data("initialValue", initialValue);
+  self.$cell.data("initialValue", initialValue + "");
 
   // Trigger click on the Wicket node so we enter the edit mode
   this.getWicketAjaxLabel().trigger("click");
