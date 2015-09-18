@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.HashSet;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -1308,7 +1310,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
   throws GradebookNotFoundException {
 
 	  List<Assignment> viewableAssignments = new ArrayList<>();
-	  List<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new ArrayList<>();
+	  SortedSet<org.sakaiproject.service.gradebook.shared.Assignment> assignmentsToReturn = new TreeSet<>();
 
 	  Gradebook gradebook = getGradebook(gradebookUid);
 
@@ -1325,12 +1327,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			  // if this gradebook has categories enabled, we need to check for category-specific restrictions
 
 			  if (gradebook.getCategory_type() == GradebookService.CATEGORY_TYPE_NO_CATEGORY) {
-				  assignmentsToReturn = getAssignments(gradebookUid);
+				  assignmentsToReturn.addAll(getAssignments(gradebookUid));
 			  } else {
 
 				  String userUid = getUserUid();
 				  if (getGradebookPermissionService().getPermissionForUserForAllAssignment(gradebook.getId(), userUid)) {
-					  assignmentsToReturn = getAssignments(gradebookUid);
+					  assignmentsToReturn.addAll(getAssignments(gradebookUid));
 				  }
 
 				  // categories are enabled, so we need to check the category restrictions
@@ -1381,7 +1383,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		  }
 	  }
 
-	  return assignmentsToReturn;
+	  return new ArrayList<>(assignmentsToReturn);
 
   }
   
