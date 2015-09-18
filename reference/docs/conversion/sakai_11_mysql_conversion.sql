@@ -417,3 +417,7 @@ INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '',
 INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 'sakai.feedback', 1, 'Contact Us', NULL );
 -- END SAK-29271
+
+-- SAK-29733 Change Schedule to Calendar for existing sites
+UPDATE SAKAI_SITE_TOOL SET TITLE="Calendar" WHERE REGISTRATION = "sakai.schedule" AND TITLE = "Schedule";
+UPDATE SAKAI_SITE_PAGE SET TITLE="Calendar" WHERE TITLE = "Schedule";
