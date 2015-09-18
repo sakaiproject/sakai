@@ -104,6 +104,7 @@ public class AddGradeItemPanelContent extends Panel {
 			}
         };
         released.setOutputMarkupId(true);
+        released.setEnabled(!assignment.getObject().isCounted());
         add(released);
         
         //if checked, release must also be checked and then disabled
