@@ -122,7 +122,7 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //SAK-23418
         pasteFromWordRemoveFontStyles : false,
         pasteFromWordRemoveStyles : false,
-        autosave_saveDetectionSelectors : "input[id*='save'],input[name*='save'],input[name*='cancel'],input[id*='cancel']",
+        autosave_saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
         //SAK-29598 - Add more templates to CK Editor
         templates_files: [basePath+"templates/default.js"],
         templates: 'customtemplates'
