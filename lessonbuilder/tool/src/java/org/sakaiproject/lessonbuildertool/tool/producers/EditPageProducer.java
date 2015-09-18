@@ -166,7 +166,7 @@ public class EditPageProducer implements ViewComponentProducer, NavigationCaseRe
 
 			if (itemId != null && itemId != -1) {
 				form.parameters.add(new UIELBinding("#{simplePageBean.itemId}", gparams.getItemId()));
-				UICommand.make(form, "delete", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.delete")));
+				UICommand.make(form, "delete-text-item", messageLocator.getMessage("simplepage.delete"), "#{simplePageBean.deleteItem}").decorate(new UITooltipDecorator(messageLocator.getMessage("simplepage.delete")));
 				UIOutput.make(form, "delete-div");
 			}
 		} else {
