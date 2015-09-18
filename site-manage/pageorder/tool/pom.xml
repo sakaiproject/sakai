@@ -45,15 +45,15 @@
             <artifactId>spring-webmvc</artifactId>
         </dependency>
         <dependency>
-            <groupId>uk.org.ponder.sakairsf</groupId>
-            <artifactId>SakaiRSFComponents-evolvers</artifactId>
-            <version>${sakairsf.components.version}</version>
+            <groupId>org.sakaiproject.rsf</groupId>
+            <artifactId>sakai-rsf-web-evolvers</artifactId>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
         <dependency>
-            <groupId>uk.org.ponder.sakairsf</groupId>
-            <artifactId>sakairsf</artifactId>
-            <version>${sakairsf.version}</version>
+            <groupId>org.sakaiproject.rsf</groupId>
+            <artifactId>sakai-rsf-core</artifactId>
+            <version>${project.version}</version>
             <type>jar</type>
         </dependency>
     </dependencies>

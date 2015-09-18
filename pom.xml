@@ -95,6 +95,7 @@
                 <module>reset-pass</module>
                 <module>rights</module>
                 <module>roster2</module>
+                <module>rsf</module>
                 <module>rwiki</module>
                 <module>samigo</module>
                 <module>search</module>

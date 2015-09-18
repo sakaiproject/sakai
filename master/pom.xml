@@ -123,9 +123,6 @@
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
     <sakai.poi.version>3.12</sakai.poi.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <rsfutil.version>0.8.1-SNAPSHOT</rsfutil.version>
-    <sakairsf.components.version>11-SNAPSHOT</sakairsf.components.version>
-    <sakairsf.version>11-SNAPSHOT</sakairsf.version>
     <generic-dao.version>0.9.18</generic-dao.version>
     <joda.time.version>2.8.1</joda.time.version>
     <reflectutils.version>0.9.20</reflectutils.version>
@@ -1775,6 +1772,26 @@
             <taglib.src.dir>src</taglib.src.dir>
             <!-- <taglib.src.dir>src/webapp/WEB-INF</taglib.src.dir> -->
           </configuration>
+        </plugin>
+        <plugin>
+            <groupId>com.mycila</groupId>
+            <artifactId>license-maven-plugin</artifactId>
+            <version>2.11</version>
+            <configuration>
+                <header>../ECLv2-header-template.txt</header>
+                <includes>
+                    <include>**/org/sakaiproject/**/*.java</include>
+                </includes>
+                <excludes>
+                    <exclude>target/**</exclude>
+                    <exclude>**/org/sakaiproject/rsf/**</exclude>
+                </excludes>
+                <properties>
+                    <year>${project.inceptionYear}</year>
+                    <holder>The Apereo Foundation</holder>
+                </properties>
+                <encoding>UTF-8</encoding>
+            </configuration>
         </plugin>
       </plugins>
     </pluginManagement>

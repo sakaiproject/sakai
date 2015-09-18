@@ -14,8 +14,8 @@ import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageG
 import org.sakaiproject.tool.cover.ToolManager;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import uk.ac.cam.caret.sakai.rsf.copies.Web;
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.copies.Web;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import uk.org.ponder.rsf.components.UIBoundBoolean;

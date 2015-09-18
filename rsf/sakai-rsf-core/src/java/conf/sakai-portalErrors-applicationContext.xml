@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- Special definitions required for users requiring http://www.caret.cam.ac.uk/jira/browse/RSF-68 behaviour of escalating errors 
+	to the portal handler -->
+<beans>
+	<bean id="redirectOnLevel1Error" class="uk.org.ponder.springutil.BooleanFactory">
+		<property name="value" value="false" />
+	</bean>
+
+	<bean id="fatalErrorHandler" class="uk.org.ponder.rsf.processor.support.DefaultFatalErrorHandler">
+		<property name="propagatedExceptions" value="java.lang.Throwable" />
+	</bean>
+
+	<bean parent="alterationWrapperParent">
+		<property name="value">
+			<bean parent="RSACBridgeProxy">
+				<property name="targetBeanName" value="sakai-ExplodingWrapper" />
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="sakai-ErrorFilter" class="org.sakaiproject.rsf.errors.ErrorFilter">
+		<property name="ignoredKeys" value="rsf.invalid.date" />
+	</bean>
+
+</beans>

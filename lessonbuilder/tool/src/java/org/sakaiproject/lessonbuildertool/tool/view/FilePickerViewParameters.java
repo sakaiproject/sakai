@@ -24,7 +24,7 @@
 
 package org.sakaiproject.lessonbuildertool.tool.view;
 
-import uk.ac.cam.caret.sakai.rsf.helper.HelperViewParameters;
+import org.sakaiproject.rsf.helper.HelperViewParameters;
 
 public class FilePickerViewParameters extends HelperViewParameters {
 
