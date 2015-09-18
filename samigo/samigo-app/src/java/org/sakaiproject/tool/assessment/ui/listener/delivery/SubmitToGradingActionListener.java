@@ -515,25 +515,27 @@ public class SubmitToGradingActionListener implements ActionListener {
 			ItemGradingData newItem = iter1.next();
 			ItemGradingData oldItem = map.get(newItem
 					.getItemGradingId());
-			if (oldItem != null && !oldItem.equals(newItem) ||
-			        //Check all the maps
-			        fibMap.get(oldItem.getPublishedItemId()) != null
-                    || emiMap.get(oldItem.getPublishedItemId()) != null 
-                    || finMap.get(oldItem.getPublishedItemId())!=null
-                    || calcQuestionMap.get(oldItem.getPublishedItemId())!=null
-                    || mcmrMap.get(oldItem.getPublishedItemId()) != null) {
-			    String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
-			    oldItem.setReview(newItem.getReview());
-			    oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
-			    String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
-			    oldItem.setRationale(newRationale);
-			    oldItem.setAnswerText(newAnswerText);
-			    oldItem.setSubmittedDate(new Date());
-			    oldItem.setAutoScore(newItem.getAutoScore());
-			    oldItem.setOverrideScore(newItem.getOverrideScore());
-			    updateItemGradingSet.add(oldItem);
-			    // log.debug("**** SubmitToGrading: need update
-			    // "+oldItem.getItemGradingId());
+			if (oldItem != null) {
+			    if (!oldItem.equals(newItem) || 
+			    //Now Check all the maps
+			            fibMap.get(oldItem.getPublishedItemId()) != null
+			            || emiMap.get(oldItem.getPublishedItemId()) != null 
+			            || finMap.get(oldItem.getPublishedItemId())!=null
+			            || calcQuestionMap.get(oldItem.getPublishedItemId())!=null
+			            || mcmrMap.get(oldItem.getPublishedItemId()) != null) {
+			        String newAnswerText = ContextUtil.stringWYSIWYG(newItem.getAnswerText());
+			        oldItem.setReview(newItem.getReview());
+			        oldItem.setPublishedAnswerId(newItem.getPublishedAnswerId());
+			        String newRationale = TextFormat.convertPlaintextToFormattedTextNoHighUnicode(log, newItem.getRationale());
+			        oldItem.setRationale(newRationale);
+			        oldItem.setAnswerText(newAnswerText);
+			        oldItem.setSubmittedDate(new Date());
+			        oldItem.setAutoScore(newItem.getAutoScore());
+			        oldItem.setOverrideScore(newItem.getOverrideScore());
+			        updateItemGradingSet.add(oldItem);
+			        // log.debug("**** SubmitToGrading: need update
+			        // "+oldItem.getItemGradingId());
+			    }
 			} else { // itemGrading from new set doesn't exist, add to set in
 				// this case
 				// log.debug("**** SubmitToGrading: need add new item");
