@@ -891,3 +891,8 @@ dl.defList dd{
 {
     margin-bottom: 1em;
 }
+
+/* SAK-29873 */
+.unpublishedLabel {
+    opacity:0.2;
+}
