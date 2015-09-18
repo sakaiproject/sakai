@@ -1778,7 +1778,7 @@
             <artifactId>license-maven-plugin</artifactId>
             <version>2.11</version>
             <configuration>
-                <header>../ECLv2-header-template.txt</header>
+                <header>https://raw.githubusercontent.com/sakaiproject/sakai/master/ECLv2-header-template.txt</header>
                 <includes>
                     <include>**/org/sakaiproject/**/*.java</include>
                 </includes>
