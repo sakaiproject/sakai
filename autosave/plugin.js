@@ -111,11 +111,12 @@
                     RenderDiff(this, editorInstance, autoSaveKey);
                 },
                 onOk: function() {
-                    var jsonSavedContent = LoadData(autoSaveKey);
+                    if (localStorage.getItem(autoSaveKey)) {
+                        var jsonSavedContent = LoadData(autoSaveKey);
+                        editorInstance.loadSnapshot(jsonSavedContent.data);
 
-                    editorInstance.loadSnapshot(jsonSavedContent.data);
-
-                    RemoveStorage(autoSaveKey);
+                        RemoveStorage(autoSaveKey);
+                    }
                 },
                 onCancel: function() {
                     RemoveStorage(autoSaveKey);
