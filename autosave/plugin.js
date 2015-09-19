@@ -65,10 +65,11 @@
 
     var startTimer = function(event) {
         if (timeOutId) {
-            clearTimeout(timeOutId);
+        } else {
+            var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 10;
+            timeOutId = setTimeout(onTimer, delay * 1000, event);
         }
-        var delay = CKEDITOR.config.autosave_delay != null ? CKEDITOR.config.autosave_delay : 10;
-        timeOutId = setTimeout(onTimer, delay * 1000, event);
+
     };
     var onTimer = function(event) {
         if (savingActive) {
@@ -80,6 +81,7 @@
 
             SaveData(autoSaveKey, editor);
 
+            timeOutId = 0;
             savingActive = false;
         }
     };
