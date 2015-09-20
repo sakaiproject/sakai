@@ -10,6 +10,7 @@ function toggleShortUrlOutput(defaultUrl, checkbox, textbox) {
     
     $PBJQ.ajax({
       url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+      dataType:'text',
       success: function(shortUrl) {
         $PBJQ('.'+textbox).val(shortUrl);
       }

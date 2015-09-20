@@ -1527,7 +1527,7 @@
 	
 	//handles showing either the short url or the full url, depending on the state of the checkbox 
 	//(if configured, otherwise returns url as-is as according to the url shortening entity provder)
-	function toggleShortUrlOutput(defaultUrl) {		
+	function contentToggleShortUrlOutput(defaultUrl) {		
 				
 		if(jQuery('#doShortUrl').is(':checked')) {
 			doShortUrl(defaultUrl);
@@ -1562,6 +1562,7 @@
 	function doShortUrl(defaultUrl) {
 		jQuery.ajax({
 			url:'/direct/url/shorten?path='+encodeURI(defaultUrl),
+			dataType:'text',
 			success: function(shortUrl) {
 				//update field
 				//alert("URL shortened to: " + shortUrl);
