@@ -77,7 +77,7 @@ elFinder.prototype.commands.upload = function() {
 				file = [ data ];
 				type = 'text';
 			}
-			target = e._target || null;
+			var target = e._target || null;
 			return file? fm.upload({files : file, type : type, target : target}) : false;
 		};
 		
