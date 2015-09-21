@@ -56,6 +56,10 @@ GradebookGradeSummary.prototype.setupTabs = function() {
       $confirmationModal.modal().modal('show');
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
+        $cloneOfTab.focus();
+      });
+      $confirmationModal.on("shown.bs.modal", function() {
+        $confirmationModal.find(".btn-student-summary-cancel").focus();
       });
     });
   }
@@ -155,6 +159,10 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
       $confirmationModal.modal().modal('show');
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
+        self.$content.find(".gb-summary-fake-close").focus();
+      });
+      $confirmationModal.on("shown.bs.modal", function() {
+        $confirmationModal.find(".btn-student-summary-cancel").focus();
       });
 
       return false;

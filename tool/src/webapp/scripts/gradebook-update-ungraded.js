@@ -30,10 +30,15 @@ GradebookUpdateUngraded.prototype.setupExtraCreditCheck = function(){
 
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
+        self.$content.find(".gb-update-ungraded-value").focus();
       });
       $confirmationModal.on("show.bs.modal", function() {
         var $formModal = self.$content.closest(".wicket-modal");
         $confirmationModal.css("marginTop", $formModal.offset().top + 40);
+      });
+
+      $confirmationModal.on("shown.bs.modal", function() {
+        $confirmationModal.find(".gb-update-ungraded-extracredit-cancel").focus();
       });
 
       $confirmationModal.modal().modal('show');

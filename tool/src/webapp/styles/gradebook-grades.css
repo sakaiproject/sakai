@@ -913,7 +913,7 @@ ul.feedbackPanel li span {
   content: '\f04f';
 }
 /* Update Ungraded modal */
-.gb-update-ungraded-extracredit-confirmation.in  
+.gb-update-ungraded-extracredit-confirmation.in {
   position: absolute;
   right:0;
   bottom: auto;
@@ -925,7 +925,9 @@ ul.feedbackPanel li span {
 }
 .gb-update-ungraded-extracredit-confirmation .modal-dialog {
   z-index: 50001 !important;
-}/* Bootstrap > Morpheus overrides */
+}
+
+/* Bootstrap > Morpheus overrides */
 .dropdown-menu>li>a,
 .nav>li>a {
   text-decoration: none;
