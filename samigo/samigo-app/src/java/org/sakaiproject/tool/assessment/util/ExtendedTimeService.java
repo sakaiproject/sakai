@@ -6,10 +6,10 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.sakaiproject.authz.api.AuthzGroup;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.tool.assessment.facade.AgentFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedAssessmentFacade;
-import org.sakaiproject.tool.assessment.services.PersistenceService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 
 /**
@@ -23,6 +23,7 @@ public class ExtendedTimeService {
 
 	private static String EXTENDED_TIME_KEY = "extendedTime";
 	private String siteId;
+	private AuthzGroupService authzGroupService;
 
 	private boolean hasExtendedTime;
 	private Integer timeLimit;
@@ -39,6 +40,7 @@ public class ExtendedTimeService {
 		if (!assessmentInitialized(publishedAssessment)) {
 			publishedAssessment = metaPublishedAssessment;
 		}
+	    authzGroupService = ComponentManager.get(AuthzGroupService.class);
 
 		// Grab the site id from the publishedAssessment because the user may
 		// not be in a site
@@ -82,7 +84,6 @@ public class ExtendedTimeService {
 		short itemNum = 1;
 		String meta = null;
 		String extendedTimeData = publishedAssessment.getAssessmentMetaDataByLabel(EXTENDED_TIME_KEY + itemNum);
-		int extendedTime = 0;
 		while ((extendedTimeData != null) && (!extendedTimeData.equals(""))) {
 
 			String[] extendedTimeItems = extendedTimeData.split("[|]");
@@ -157,7 +158,7 @@ public class ExtendedTimeService {
 		String realmId = "/site/" + siteId + "/group/" + groupId;
 		boolean isMember = false;
 		try {
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(realmId);
+			AuthzGroup group = authzGroupService.getAuthzGroup(realmId);
 			if (group.getUserRole(AgentFacade.getAgentString()) != null)
 				isMember = true;
 		} catch (Exception e) {
