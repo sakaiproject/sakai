@@ -3142,22 +3142,19 @@ protected static final String PARAM_PAGESIZE = "collections_per_page";
 		}
 		
 		if (siteId == null)
-		{
-			// if the siteId is still null
-			//// find the site root collection id			
+		{			
 			org.sakaiproject.content.api.ContentHostingService contentService = ContentHostingService.getInstance();
-			String collectionId = id;
-			String containingCollectionId = ContentHostingService.getContainingCollectionId(id);
-			// containingCollectionId becomes "/group/" when checking against the root level collection
-			while (!contentService.COLLECTION_SITE.equals(containingCollectionId))
+			if (id.startsWith(contentService.COLLECTION_SITE))
 			{
-				collectionId = containingCollectionId;
-				containingCollectionId = contentService.getContainingCollectionId(collectionId);
+				// id starts with "/group/", indicates this is for site resource collection items
+				// if the siteId is still null
+				// find the site root collection id from String operations:
+				String collectionId = id;
+				// collectionId = "/group/<site_id>/<remaining_collection_path>"
+				collectionId= collectionId.replace(contentService.COLLECTION_SITE, "");
+				// collectionId = "<site_id>/<remaining_collection_path>"
+				siteId = collectionId.substring(0, collectionId.indexOf(Entity.SEPARATOR));
 			}
-			// now the collectionId should be the id of root collection, and is of format /group/site_id
-			siteId = collectionId.replace(contentService.COLLECTION_SITE, "");
-			// remove the trailing "/"
-			siteId = siteId.replace(Entity.SEPARATOR, "");
 		}
 		
 		Collection<ContentPermissions> permissions = new ArrayList<ContentPermissions>();

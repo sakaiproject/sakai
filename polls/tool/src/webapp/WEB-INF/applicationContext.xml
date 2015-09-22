@@ -123,7 +123,7 @@
 			</bean>
 		</property>
 	</bean>
-	<bean id="sakai-ErrorFilter" class="uk.ac.cam.caret.sakai.rsf.errors.ErrorFilter">
+	<bean id="sakai-ErrorFilter" class="org.sakaiproject.rsf.errors.ErrorFilter">
 		<property name="ignoredKeys" value="rsf.invalid.date" />
 	</bean> -->
 </beans>

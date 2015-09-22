@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" 
+  "http://www.springframework.org/dtd/spring-beans.dtd">
+<!-- Special definitions required for users requiring http://www.caret.cam.ac.uk/jira/browse/RSF-68 behaviour of escalating errors 
+	to the portal handler -->
+<beans>
+	<bean id="sakai-ExplodingWrapper" class="org.sakaiproject.rsf.errors.ExplodingWrapper">
+		<property name="errorStateManager" ref="errorStateManager" />
+		<property name="errorFilter" ref="sakai-ErrorFilter" />
+	</bean>
+
+</beans>

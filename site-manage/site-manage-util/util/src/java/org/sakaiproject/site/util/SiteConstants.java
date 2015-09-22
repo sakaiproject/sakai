@@ -51,4 +51,8 @@ public class SiteConstants {
 	public final static String SITE_TYPE_DELETED = "site_type_deleted";
 	
 	public final static String SITE_TYPE_ALL = "site_type_all";
+
+	public final static String SITE_ACTIVE = "pubView";
+
+	public final static String SITE_INACTIVE = "inactive";
 }

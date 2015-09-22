@@ -4,7 +4,7 @@
 
 	<tool
 			id="sakai.schedule"
-			title="Schedule"
+			title="Calendar"
 			description="For posting and viewing deadlines, events, etc.">
 
 		<configuration name="calendar" value="" />

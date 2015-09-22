@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <parent>
+    <groupId>org.sakaiproject.rsf</groupId>
+    <artifactId>sakai-rsf</artifactId>
+    <version>11-SNAPSHOT</version>
+  </parent>
+  <artifactId>sakai-rsf-web</artifactId>
+  <packaging>pom</packaging>
+  <modules>
+    <module>evolvers</module>
+    <module>templates</module>
+    <module>test</module>
+  </modules>
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+  <dependencyManagement>
+    <dependencies>
+      <dependency>
+        <groupId>uk.org.ponder.rsf</groupId>
+        <artifactId>rsf-web-templates</artifactId>
+        <version>${rsf.version}</version>
+        <type>war</type>
+      </dependency>
+      <dependency>
+        <groupId>uk.org.ponder.rsf</groupId>
+        <artifactId>rsf-web-evolvers</artifactId>
+        <version>${rsf.version}</version>
+      </dependency>
+    </dependencies>
+  </dependencyManagement>
+</project>

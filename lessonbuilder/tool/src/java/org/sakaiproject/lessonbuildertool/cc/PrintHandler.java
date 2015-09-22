@@ -241,13 +241,21 @@ public class PrintHandler extends DefaultHandler implements AssessmentHandler, D
 	  } else
 	      sequences.add(1);
       } else {
+	  // we're adding a level. We're at sequence 1 in the new top level,
+	  // but we continue the current sequence count at the old top level, which
+	  // is where the new folder is added
 	  page = simplePageToolDao.makePage("0", siteId, title, 0L, 0L);
 	  simplePageBean.saveItem(page);
-	  SimplePage parent = pages.get(pages.size()-1);
-	  int seq = simplePageBean.getItemsOnPage(parent.getPageId()).size() + 1;
+	  // index of old top level
+	  int top = pages.size()-1;
+	  SimplePage parent = pages.get(top);
+	  int seq = sequences.get(top);
 
 	  SimplePageItem item = simplePageToolDao.makeItem(parent.getPageId(), seq, SimplePageItem.PAGE, Long.toString(page.getPageId()), title);
 	  simplePageBean.saveItem(item);
+	  // increment sequence to after this folder
+	  sequences.set(top, seq+1);
+	  // inside the new folder we start at sequence 1
 	  sequences.add(1);
       }
       pages.add(page);

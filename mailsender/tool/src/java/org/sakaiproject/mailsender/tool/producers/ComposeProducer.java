@@ -25,7 +25,7 @@ import org.sakaiproject.mailsender.tool.params.UserGroupViewParameters;
 import org.sakaiproject.mailsender.tool.producers.fragments.UserGroupingProducer;
 import org.sakaiproject.user.api.User;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.rsf.components.UIBoundBoolean;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;

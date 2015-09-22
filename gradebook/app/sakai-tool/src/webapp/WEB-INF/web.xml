@@ -74,7 +74,7 @@
     	<servlet-name>sakai-gradebook-helper</servlet-name>
      
 	    <servlet-class>
-	      uk.ac.cam.caret.sakai.rsf.servlet.ReasonableSakaiServlet
+	      org.sakaiproject.rsf.servlet.ReasonableSakaiServlet
 	    </servlet-class>
   </servlet>
 
