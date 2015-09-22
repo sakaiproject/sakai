@@ -113,7 +113,9 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 					}
 				}else{
 					//When getItemCount() > 1 the infoLinkUrl is null and hence we don't need to run this call.
-					getInfoLinkUrlForNewsItem(item);
+					if(item!=null){
+					setItemInfoLinkUrl(item);
+					}
 				}
 			}
 		}
@@ -121,7 +123,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 		return links;
 	}
 
-	private void getInfoLinkUrlForNewsItem(NewsItem item) {
+	private void setItemInfoLinkUrl(NewsItem item) {
 		if(item!=null){
 			SourceType sourceType = item.getSourceType();
 			if(sourceType != null) {
@@ -151,7 +153,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 		}
 		
 	}
-	private void getInfoLinkUrlForCalendarItem(CalendarItem item) {
+	private void setItemInfoLinkUrl(CalendarItem item) {
 		if(item!=null){
 			SourceType sourceType = item.getSourceType();
 			if(sourceType != null) {
@@ -190,7 +192,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 		List<CalendarLink> futureCalendarLinks = dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
 		for (CalendarLink calendarLink : futureCalendarLinks) {
             		CalendarItem calendarItem = calendarLink.getCalendarItem();		
-            		getInfoLinkUrlForCalendarItem(calendarItem);
+            		setItemInfoLinkUrl(calendarItem);
 		}
 		return futureCalendarLinks;
 	}
@@ -203,7 +205,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 		List<NewsLink> hiddenNewsLinks = dao.getHiddenNewsLinks(sakaiId, siteId);
 		for (NewsLink newsLink : hiddenNewsLinks) {
 			NewsItem item = newsLink.getNewsItem();
-			getInfoLinkUrlForNewsItem(item);
+			setItemInfoLinkUrl(item);
 		}
 		return hiddenNewsLinks;
 	}
@@ -225,7 +227,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 		List<CalendarLink> pastCalendarLinks = dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
 		for (CalendarLink calendarLink : pastCalendarLinks) {
             		CalendarItem calendarItem = calendarLink.getCalendarItem();		
-            		getInfoLinkUrlForCalendarItem(calendarItem);
+            		setItemInfoLinkUrl(calendarItem);
 		}
 		return pastCalendarLinks;
 	}
@@ -238,7 +240,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 		List<CalendarLink> starredCalendarLinks = dao.getStarredCalendarLinks(sakaiUserId, contextId);
 		for (CalendarLink calendarLink : starredCalendarLinks) {
             		CalendarItem calendarItem = calendarLink.getCalendarItem();		
-            		getInfoLinkUrlForCalendarItem(calendarItem);
+            		setItemInfoLinkUrl(calendarItem);
 		}
 		return starredCalendarLinks;
 	}
@@ -251,7 +253,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 		List<NewsLink> starredNewsLinks = dao.getStarredNewsLinks(sakaiId, siteId);
 		for (NewsLink newsLink : starredNewsLinks) {
 			NewsItem item = newsLink.getNewsItem();
-			getInfoLinkUrlForNewsItem(item);
+			setItemInfoLinkUrl(item);
 		}
 		return starredNewsLinks;
 	}
