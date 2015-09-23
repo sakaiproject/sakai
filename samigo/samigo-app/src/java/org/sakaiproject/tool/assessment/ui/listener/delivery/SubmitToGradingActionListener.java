@@ -540,6 +540,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 			} else { // itemGrading from new set doesn't exist, add to set in
 				// this case
 				// log.debug("**** SubmitToGrading: need add new item");
+				//a new item should always have the grading ID set to null
+				newItem.setItemGradingId(null);
 				newItem.setAgentId(adata.getAgentId());
 				updateItemGradingSet.add(newItem);
 			}
@@ -593,8 +595,7 @@ public class SubmitToGradingActionListener implements ActionListener {
 		for (int m = 0; m < grading.size(); m++) {
 			ItemGradingData itemgrading = grading.get(m);
 			if (itemgrading.getItemGradingId() == null && (itemgrading.getReview() != null && itemgrading.getReview().booleanValue())  == true) {
-				adds.addAll(grading);
-				break;
+				adds.add(itemgrading);
 			} 
 		}
 		
