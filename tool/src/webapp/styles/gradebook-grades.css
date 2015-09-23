@@ -163,6 +163,10 @@
 #gradebookGrades .btn.dropdown-toggle {
   padding: 0 8px;
   line-height: 1em;
+  border-radius: 4px;
+}
+#gradebookGrades .btn.dropdown-toggle:focus {
+  border: 1px solid #DDD;
 }
 #gradebookGrades #gradebookGradesTable tfoot .gb-cell-inner {
   /* ensure there's enough room at the bottom of the scrollable div
