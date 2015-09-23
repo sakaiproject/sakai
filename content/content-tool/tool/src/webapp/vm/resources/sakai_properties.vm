@@ -613,7 +613,7 @@
 						#if($shortUrlEnabled)
 						|
 						<span class="textPanelFooter">
-							<input type="checkbox" id="doShortUrl" onclick="javascript:toggleShortUrlOutput('$model.accessUrl');" />
+							<input type="checkbox" id="doShortUrl" onclick="toggleResourcesShortUrlOutput('$model.accessUrl');" />
 							<span>$tlang.getString("props.shorturl")</span>
 						</span>
 						#end
