@@ -209,7 +209,7 @@
 						<option value="$model.copyrightStatus" selected="selected">${model.copyrightStatus}</option>
 					#end
 				</select>
-				(<a href="#" onclick="javascript:openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
+				(<a href="#" onclick="openMoreInfoCopyrightWindow('copyright${DOT}$i');" title="[$tlang.getString('cright.newwin')]"><span class="skip"> [$tlang.getString('cright.newwin')]</span>$tlang.getString('cright.fairuse')</a>)
 			</p>
 			<div id="copyright_status${DOT}$i"#if($model.copyrightStatus == $USE_THIS_COPYRIGHT) style="display:block;"#else style="display:none;"#end>
 				<p class="shorttext">
@@ -230,7 +230,7 @@
 					<td style="vertical-align:top;padding:.25em 0;">
 						<input type="checkbox" name="copyrightAlert${DOT}$i" id ="copyrightAlert${DOT}$i" value="true" #if($model.hasCopyrightAlert())checked="checked"#end style="border:none" />
 						$tlang.getString("cright.display") 
-						(<a href="#" onclick="javascript:openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
+						(<a href="#" onclick="openSampleCopyrightWindow();" title="[$tlang.getString('cright.newwin')]"><span class="skip">[$tlang.getString('cright.newwin')]</span>$tlang.getString("cright.show")</a>)
 					</td>
 				</tr>
 			</table>
@@ -606,7 +606,7 @@
 				</th>
 				<td>
 					<div>
-						<a class="textPanelFooter" href="javascript:document.getElementById('fileURLHolder').style.overflow='auto';
+						<a class="textPanelFooter" href="#" onclick="document.getElementById('fileURLHolder').style.overflow='auto';
 						document.getElementById('fileURLHolder').focus();document.getElementById('fileURLHolder').select();alert('$tlang.getString("props.select.help")');">$tlang.getString("props.select")</a>
 						|
 						<a class="textPanelFooter" href="$model.accessUrl" target ="_blank">$tlang.getString("props.open")</a>
