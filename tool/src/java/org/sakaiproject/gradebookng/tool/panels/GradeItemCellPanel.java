@@ -150,18 +150,20 @@ public class GradeItemCellPanel extends Panel {
 				@Override
 				protected void onSubmit(final AjaxRequestTarget target) {
 					super.onSubmit(target);
-					
-					String newGrade = FormatHelper.formatGrade(this.getEditor().getValue());
+
+					String rawGrade = this.getEditor().getValue();
 
 					clearNotifications();
 
 					//perform validation here so we can bypass the backend
 					DoubleValidator validator = new DoubleValidator();
 					
-					if(StringUtils.isNotBlank(newGrade) && !validator.isValid(newGrade)) {
+					if(StringUtils.isNotBlank(rawGrade) && !validator.isValid(rawGrade)) {
 						markWarning(this);
 						this.getLabel().setDefaultModelObject(this.originalGrade);
 					} else {
+						String newGrade = FormatHelper.formatGrade(rawGrade);
+
 						//for concurrency, get the original grade we have in the UI and pass it into the service as a check
 						GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, this.originalGrade, newGrade, comment);
 						
