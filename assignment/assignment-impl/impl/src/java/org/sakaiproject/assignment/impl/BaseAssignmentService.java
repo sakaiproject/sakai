@@ -11601,16 +11601,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 		    Assignment a = getAssignment();
 		    if (a.isGroup()) {
-		    	try {
-		    		Site site = SiteService.getSite(a.getContext());
+		        try {
+		            Site site = SiteService.getSite(a.getContext());
 		            Group _g = site.getGroup(m_submitterId);
-		            return getSubmitterIdList("false", _g.getId(), null, a.getReference(), a.getContext());
+		            if (_g !=null) {
+		                return getSubmitterIdList("false", _g.getId(), null, a.getReference(), a.getContext());
+		            }
 		    	} catch (IdUnusedException _iue) {
 		            return null;
 		        }
 		    } else { 
 		        return m_submitters;
 		    }
+		    return new ArrayList();
 		}
 
 		/**
