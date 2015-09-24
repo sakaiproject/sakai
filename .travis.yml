@@ -1,3 +1,6 @@
+# travis-ci currently has Maven 3.2 which doesn't read our .mvn folder
+# and https://github.com/travis-ci/travis-ci/issues/4613 means we can't set MAVEN_OPTS directly
+before_install: echo "MAVEN_OPTS='-Xms168m -Xmx1536m -XX:NewSize=64m -Djava.awt.headless=true'" > ~/.mavenrc
 language: java
 jdk:
   - oraclejdk8

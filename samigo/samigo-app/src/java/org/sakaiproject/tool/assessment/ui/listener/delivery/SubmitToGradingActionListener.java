@@ -36,6 +36,7 @@ import javax.faces.event.AbortProcessingException;
 import javax.faces.event.ActionEvent;
 import javax.faces.event.ActionListener;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -790,8 +791,8 @@ public class SubmitToGradingActionListener implements ActionListener {
 			answerModified = false;
 			for (int m = 0; m < grading.size(); m++) {
 				ItemGradingData itemgrading = grading.get(m);
-				if ((itemgrading !=null && itemgrading.getItemGradingId() == null) || itemgrading.getItemGradingId().intValue() <= 0) {
-					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && !itemgrading.getRationale().trim().equals(""))) { 
+				if (itemgrading !=null && (itemgrading.getItemGradingId() == null || itemgrading.getItemGradingId().intValue() <= 0)) {
+					if (itemgrading.getPublishedAnswerId() != null || (itemgrading.getRationale() != null && StringUtils.isNotBlank(itemgrading.getRationale()))) { 
 						answerModified = true;
 						break;
 					}
@@ -810,10 +811,10 @@ public class SubmitToGradingActionListener implements ActionListener {
 						removes.add(itemgrading);
 					} else {
 						// add new answer
-						if (itemgrading.getPublishedAnswerId() != null
+						if (itemgrading !=null && (itemgrading.getPublishedAnswerId() != null
 							|| itemgrading.getAnswerText() != null
 							|| (itemgrading.getRationale() != null 
-							&& !itemgrading.getRationale().trim().equals(""))) { 
+							&& StringUtils.isNotBlank(itemgrading.getRationale())))) { 
 							itemgrading.setAgentId(AgentFacade.getAgentString());
 							itemgrading.setSubmittedDate(new Date());
 							if (itemgrading.getRationale() != null && itemgrading.getRationale().length() > 0) {
