@@ -50,6 +50,7 @@ public class NewsItem implements Serializable {
 	protected SourceType sourceType;
 	protected String subtype;
 	protected String groupingIdentifier;
+	protected String infoLinkURL;
 	
 	protected int itemCount = 0;
 	
@@ -254,6 +255,13 @@ public class NewsItem implements Serializable {
 		this.sourceType = sourceType;
 		generateGroupingIdentifier();
 	}
+	public String getInfoLinkURL() {
+		return infoLinkURL;
+	}
+	
+	public void setInfoLinkURL(String infoLinkURL) {
+		this.infoLinkURL = infoLinkURL;
+	}
 
 	/* (non-Javadoc)
 	 * @see java.lang.Object#toString()
@@ -311,5 +319,6 @@ public class NewsItem implements Serializable {
 		}
 		this.groupingIdentifier = buf.toString();
 	}
+
 
 }
