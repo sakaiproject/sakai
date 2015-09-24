@@ -42,6 +42,7 @@ public class CalendarItem implements Serializable {
 	protected String subtype;
 	protected RepeatingCalendarItem repeatingCalendarItem = null;
 	protected Integer sequenceNumber = null;
+	protected String infoLinkURL;
 	
 	
 	/**
@@ -243,6 +244,14 @@ public class CalendarItem implements Serializable {
 	 */
 	public void setSubtype(String subtype) {
 		this.subtype = subtype;
+	}
+
+	public String getInfoLinkURL() {
+		return infoLinkURL;
+	}
+
+	public void setInfoLinkURL(String infoLinkURL) {
+		this.infoLinkURL = infoLinkURL;
 	}
 
 	/* (non-Javadoc)
