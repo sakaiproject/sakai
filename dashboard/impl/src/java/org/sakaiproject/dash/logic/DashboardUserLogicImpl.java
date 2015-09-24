@@ -114,7 +114,7 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 				}else{
 					//When getItemCount() > 1 the infoLinkUrl is null and hence we don't need to run this call.
 					if(item!=null){
-					setItemInfoLinkUrl(item);
+						setItemInfoLinkUrl(item);
 					}
 				}
 			}
