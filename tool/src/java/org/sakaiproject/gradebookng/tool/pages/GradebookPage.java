@@ -13,6 +13,7 @@ import org.apache.wicket.Session;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxButton;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow.MaskType;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.AbstractColumn;
@@ -40,6 +41,7 @@ import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
+import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
@@ -51,6 +53,9 @@ import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
 import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
+import org.sakaiproject.service.gradebook.shared.CourseGrade;
+import lombok.Getter;
+
 
 /**
  * Grades page
@@ -251,7 +256,7 @@ public class GradebookPage extends BasePage {
 
             @Override
             public void populateItem(Item cellItem, String componentId, IModel rowModel) {
-                GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+                final GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 
                 String courseGrade;
                 
@@ -261,8 +266,22 @@ public class GradebookPage extends BasePage {
                 	courseGrade = getString("label.coursegrade.nopermission");
                 }
 
-                cellItem.add(new Label(componentId, courseGrade));
-                cellItem.setOutputMarkupId(true);
+                Label courseGradeLabel = new Label(componentId, Model.of(courseGrade)) {
+                    @Override
+                    public void onEvent(IEvent<?> event) {
+                        super.onEvent(event);
+                        if (event.getPayload() instanceof ScoreChangedEvent) {
+                            ScoreChangedEvent scoreChangedEvent = (ScoreChangedEvent) event.getPayload();
+                            if (studentGradeInfo.getStudentUuid().equals(scoreChangedEvent.getStudentUuid())) {
+                                CourseGrade courseGrade = businessService.getCourseGrade(scoreChangedEvent.getStudentUuid());
+                                ((Model<String>)getDefaultModel()).setObject(courseGrade.getMappedGrade());
+                                scoreChangedEvent.getTarget().add(this);
+                            }
+                        }
+                    }
+                };
+                courseGradeLabel.setOutputMarkupId(true);
+                cellItem.add(courseGradeLabel);
             }
         };
         cols.add(courseGradeColumn);
@@ -310,6 +329,7 @@ public class GradebookPage extends BasePage {
     				modelData.put("assignmentId", assignment.getId());
     				modelData.put("assignmentPoints", assignment.getPoints()); //TODO might be able to set some of this higher up and use a getter in the subclasses, so its not passed around so much. It's common to the assignment....
     				modelData.put("studentUuid", studentGrades.getStudentUuid());
+    				modelData.put("categoryId", assignment.getCategoryId());
     				modelData.put("isExternal", assignment.isExternallyMaintained());
     				modelData.put("gradeInfo", gradeInfo);
     				
@@ -497,7 +517,6 @@ public class GradebookPage extends BasePage {
 	public void setUiSettings(GradebookUiSettings settings) {
 		Session.get().setAttribute("GBNG_UI_SETTINGS", settings);
 	}
-	
 	
 	
 }

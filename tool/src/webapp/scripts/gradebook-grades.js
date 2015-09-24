@@ -1324,6 +1324,20 @@ GradebookSpreadsheet.prototype.setupNewAssignmentFocus = function() {
 };
 
 
+GradebookSpreadsheet.prototype.refreshCourseGradeForStudent = function(studentUuid) {
+  // cell has been updated, so need to refresh the course grade in the fixed column
+  // on the off chance the grade has changed
+  var $studentNameCell = this.$table.find(".gb-student-cell[data-studentuuid='"+studentUuid+"']");
+  var $courseGradeCell = $studentNameCell.closest("tr").find(".gb-course-grade.gb-cell");
+
+  var $fixedColumnStudentNameCell = this.$fixedColumns.find(".gb-student-cell[data-studentuuid='"+studentUuid+"']");
+  var $fixedColumnCourseGradeCell = $fixedColumnStudentNameCell.closest("tr").find(".gb-course-grade.gb-cell");
+
+  var courseGrade = this._cloneCell($courseGradeCell).html();
+  $fixedColumnCourseGradeCell.html(courseGrade);
+};
+
+
 /*************************************************************************************
  * AbstractCell - behaviour inherited by all cells
  */
@@ -1516,6 +1530,9 @@ GradebookEditableCell.prototype.handleSaveComplete = function(cellId) {
   if (this.$cell.is('[data-toggle="popover"]')) {
     this.gradebookSpreadsheet.enablePopovers(this.$cell);
   }
+
+  //refresh the course grade
+  this.gradebookSpreadsheet.refreshCourseGradeForStudent(this.$cell.data("studentuuid"));
 
   if (this._focusAfterSaveComplete) {
     this.$cell.focus();
