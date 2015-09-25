@@ -20,6 +20,7 @@
 package org.sakaiproject.roster.api;
 
 import java.util.Comparator;
+import java.text.Collator;
 
 import lombok.RequiredArgsConstructor;
 
@@ -37,19 +38,20 @@ public class RosterMemberComparator implements Comparator<RosterMember> {
 	private static final Log log = LogFactory.getLog(RosterMemberComparator.class);
 	
 	private final boolean firstNameLastName;
+	private final Collator collator = Collator.getInstance();
 	
 	/**
 	 * Compares two <code>RosterMember</code> objects according to the sorting
 	 * order configured in this instance of <code>RosterMemberComparator</code>.
 	 * 
-	 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+	 * @see java.text.Collator#compare(java.lang.String, java.lang.String)
 	 */
 	public int compare(RosterMember member1, RosterMember member2) {
 
         if (firstNameLastName) {
-            return member1.getDisplayName().compareToIgnoreCase(member2.getDisplayName());
+            return collator.compare (member1.getDisplayName(),member2.getDisplayName());
         } else {
-            return member1.getSortName().compareToIgnoreCase(member2.getSortName());
+            return collator.compare (member1.getSortName(),member2.getSortName());
         }
 	}
 }
