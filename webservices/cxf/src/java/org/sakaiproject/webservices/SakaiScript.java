@@ -4392,4 +4392,84 @@ public class SakaiScript extends AbstractWebService {
         return serverByServerId;
     }
 
+    /**
+     * Check if a user exists (either as an account in Sakai or in any external provider)
+     *
+     * @param sessionid the id of a valid session
+     * @param userid    the internal user id
+     * @return true/false
+     */
+    @WebMethod
+    @Path("/checkForUserById")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForUserById(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+        Session s = establishSession(sessionid);
+
+        try {
+            User u = null;
+            u = userDirectoryService.getUser(userid);
+            if (u != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            LOG.error("WS checkForUserById(): " + e.getClass().getName() + " : " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    @WebMethod
+    @Path("/isSuperUser")
+    @Produces("text/plain")
+    @GET
+    public boolean isSuperUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session s = establishSession(sessionid);
+
+        try {
+            return (securityService.isSuperUser(s.getUserId()));
+        } catch (Exception e) {
+            LOG.error("WS isSuperUser(): " + e.getClass().getName() + " : " + e.getMessage(), e);
+            return false;
+        }
+    }
+
+    @WebMethod
+    @Path("/resetAllUserWorkspace")
+    @Produces("text/plain")
+    @GET
+    public boolean resetAllUserWorkspace(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session session = establishSession(sessionid);
+        //check that ONLY super user's are accessing this
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+        }
+
+        try {
+            List<String> siteList = siteService.getSiteIds(SelectionType.ANY, null, null,
+                    null, SortType.NONE, null);
+            if (siteList != null && siteList.size() > 0) {
+                for (Iterator i = siteList.iterator(); i.hasNext(); ) {
+                    String siteId =  (String) i.next();
+                    if (siteService.isUserSite(siteId) && !(siteId.equals("~admin"))){
+                        siteService.removeSite(siteService.getSite(siteId));
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            LOG.warn(this + ".resetAllUserWorkspace: Error encountered" + t.getMessage(), t);
+            return false;
+        }
+
+        return true;
+
+    }
+
 }
