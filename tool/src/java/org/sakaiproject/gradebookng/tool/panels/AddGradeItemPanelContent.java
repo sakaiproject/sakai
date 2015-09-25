@@ -10,6 +10,8 @@ import java.util.Map;
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
+import org.apache.wicket.event.Broadcast;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -38,14 +40,20 @@ public class AddGradeItemPanelContent extends Panel {
     @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
   
-    public AddGradeItemPanelContent(String id, Model<Assignment> assignment) {
-        super(id, assignment);
+    public AddGradeItemPanelContent(String id, Model<Assignment> assignmentModel) {
+        super(id, assignmentModel);
 
         final Gradebook gradebook = businessService.getGradebook();
 
-        add(new TextField<String>("title", new PropertyModel<String>(assignment, "name")));
-        add(new TextField<Double>("points", new PropertyModel<Double>(assignment, "points")));
-        add(new DateTextField("duedate", new PropertyModel<Date>(assignment, "dueDate"), "MM/dd/yyyy")); //TODO needs to come from i18n
+        final AddGradeItemPanelContent thisPanel = this;
+        final boolean areCategoriesEnabled = GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type() ||
+                                                GradebookService.CATEGORY_TYPE_ONLY_CATEGORY == gradebook.getCategory_type();
+
+        Assignment assignment = assignmentModel.getObject();
+
+        add(new TextField<String>("title", new PropertyModel<String>(assignmentModel, "name")));
+        add(new TextField<Double>("points", new PropertyModel<Double>(assignmentModel, "points")));
+        add(new DateTextField("duedate", new PropertyModel<Date>(assignmentModel, "dueDate"), "MM/dd/yyyy")); //TODO needs to come from i18n
 
         final List<CategoryDefinition> categories = businessService.getGradebookCategories();
 
@@ -54,7 +62,7 @@ public class AddGradeItemPanelContent extends Panel {
             categoryMap.put(category.getId(), category);
         }
 
-        final DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category", new PropertyModel<Long>(assignment, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
+        final DropDownChoice<Long> categoryDropDown = new DropDownChoice<Long>("category", new PropertyModel<Long>(assignmentModel, "categoryId"), new ArrayList<Long>(categoryMap.keySet()), new IChoiceRenderer<Long>() {
 			private static final long serialVersionUID = 1L;
 
 			public Object getDisplayValue(Long value) {
@@ -84,7 +92,7 @@ public class AddGradeItemPanelContent extends Panel {
         });
 
         //if an extra credit category is selected, this will be unchecked and disabled
-        final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit", new PropertyModel<Boolean>(assignment, "extraCredit")) {
+        final AjaxCheckBox extraCredit = new AjaxCheckBox("extraCredit", new PropertyModel<Boolean>(assignmentModel, "extraCredit")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -95,7 +103,7 @@ public class AddGradeItemPanelContent extends Panel {
         extraCredit.setOutputMarkupId(true);
         add(extraCredit);
         
-        final AjaxCheckBox released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignment, "released")) {
+        final AjaxCheckBox released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -104,15 +112,39 @@ public class AddGradeItemPanelContent extends Panel {
 			}
         };
         released.setOutputMarkupId(true);
-        released.setEnabled(!assignment.getObject().isCounted());
+        released.setEnabled(!assignmentModel.getObject().isCounted());
         add(released);
         
         //if checked, release must also be checked and then disabled
-        final AjaxCheckBox counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignment, "counted")) {
+        final AjaxCheckBox counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
+				refreshState(target);
+			}
+
+			@Override
+			public void onEvent(IEvent<?> event) {
+				super.onEvent(event);
+
+				if (event.getPayload() instanceof CategoryChangedEvent) {
+					CategoryChangedEvent update = (CategoryChangedEvent)event.getPayload();
+
+					if (areCategoriesEnabled) {
+						if (update.getCategory() == null) {
+							this.setEnabled(false);
+							this.setModelObject(false);
+						} else {
+							this.setEnabled(true);
+							this.setModelObject(true);
+						}
+						refreshState(update.getTarget());
+					}
+				}
+			}
+
+			private void refreshState(AjaxRequestTarget target) {
 				if(this.getModelObject()) {
 					released.setModelObject(true);
 					released.setEnabled(false);
@@ -120,8 +152,14 @@ public class AddGradeItemPanelContent extends Panel {
 					released.setEnabled(true);
 				}
 				target.add(released);
+				target.add(this);
 			}
         };
+
+        if (areCategoriesEnabled) {
+            counted.setEnabled(assignment.getCategoryId() != null);
+        }
+
         add(counted);
         
         //behaviour for when a category is chosen. If the category is extra credit, deselect and disable extra credit checkbox
@@ -135,17 +173,37 @@ public class AddGradeItemPanelContent extends Panel {
 				//if extra credit, deselect and disable the 'extraCredit' checkbox
 				CategoryDefinition category = categoryMap.get(selected);
 				
-				if(category.isExtraCredit()) {
+				if(category != null && category.isExtraCredit()) {
 					extraCredit.setModelObject(false);
 					extraCredit.setEnabled(false);
 				} else {
 					extraCredit.setEnabled(true);
 				}
 				target.add(extraCredit);
+
+				send(thisPanel, Broadcast.BREADTH, new CategoryChangedEvent(category, target));
 			}
-			
 		});
         
         
+    }
+
+    // Class to represent the change of a category event
+    public class CategoryChangedEvent {
+        private final AjaxRequestTarget target;
+        private final CategoryDefinition category;
+
+        public CategoryChangedEvent(CategoryDefinition category, AjaxRequestTarget target) {
+            this.target = target;
+            this.category = category;
+        }
+
+        public AjaxRequestTarget getTarget() {
+            return target;
+        }
+
+        public CategoryDefinition getCategory() {
+            return category;
+        }
     }
 }
