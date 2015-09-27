@@ -1,22 +1,20 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.wicket.AttributeModifier;
-import org.apache.wicket.ajax.AjaxRequestTarget;
-import org.apache.wicket.ajax.markup.html.AjaxLink;
-import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
+import org.apache.wicket.event.IEvent;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.sakaiproject.gradebookng.business.model.GbStudentNameSortOrder;
+import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
+import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
+import org.apache.wicket.spring.injection.annot.SpringBean;
 
 /**
  * 
@@ -28,7 +26,11 @@ import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 public class CategoryColumnCellPanel extends Panel {
 
 	private static final long serialVersionUID = 1L;
-		
+
+	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
+	protected GradebookNgBusinessService businessService;
+
+
 	IModel<Map<String,Object>> model;
 
 	public CategoryColumnCellPanel(String id, IModel<Map<String,Object>> model) {
@@ -44,9 +46,30 @@ public class CategoryColumnCellPanel extends Panel {
 		Map<String,Object> modelData = (Map<String,Object>) this.model.getObject();
 		
 		Double score = (Double) modelData.get("score");		
+		final String studentUuid = (String) modelData.get("studentUuid");
+		final Long categoryId = (Long) modelData.get("categoryId");
 						
 		//score label
-		add(new Label("score", getCategoryScore(score)));
+		Label scoreLabel = new Label("score", Model.of(getCategoryScore(score))) {
+			@Override
+			public void onEvent(IEvent<?> event) {
+				super.onEvent(event);
+				if (event.getPayload() instanceof ScoreChangedEvent) {
+					ScoreChangedEvent scoreChangedEvent = (ScoreChangedEvent) event.getPayload();
+					if (studentUuid.equals(scoreChangedEvent.getStudentUuid()) && 
+							categoryId.equals(scoreChangedEvent.getCategoryId())) {
+
+						GbStudentGradeInfo studentGradeInfo = businessService.buildGradeMatrix(businessService.getGradebookAssignments(), Arrays.asList(new String[]{studentUuid}), null, null).get(0);
+						Double categoryAverage = studentGradeInfo.getCategoryAverages().get(categoryId);
+						String newCategoryAverage = (categoryAverage == null) ? getString("label.nocategoryscore") : FormatHelper.formatDoubleAsPercentage(categoryAverage);
+						((Model<String>) getDefaultModel()).setObject(newCategoryAverage);
+						scoreChangedEvent.getTarget().add(this);
+					}
+				}
+			}
+		};
+		scoreLabel.setOutputMarkupId(true);
+		add(scoreLabel);
 		
 		//accessibility
 		getParent().add(new AttributeModifier("scope", "row"));

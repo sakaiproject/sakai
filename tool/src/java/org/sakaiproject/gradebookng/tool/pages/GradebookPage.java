@@ -367,6 +367,8 @@ public class GradebookPage extends BasePage {
             		
             		Map<String,Object> modelData = new HashMap<>();
     				modelData.put("score", score);
+    				modelData.put("studentUuid", studentGrades.getStudentUuid());
+    				modelData.put("categoryId", category.getId());
     				
     				cellItem.add(new CategoryColumnCellPanel(componentId, Model.ofMap(modelData)));
     				cellItem.setOutputMarkupId(true);
