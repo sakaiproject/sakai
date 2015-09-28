@@ -683,6 +683,12 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 
 		try
 		{
+			//There is a new permission for course grade visibility for TA's as part of GradebookNG.
+			//However the permission cannot be added here as it is not backwards compatible with Gradebook classique
+			//  and would mean that all existing permissions need to be updated to add it.
+			//See GradebookNgBusinessService.isCourseGradeVisible.
+			//At some point it should be migrated and a DB conversion performed.
+			
 			Gradebook thisGradebook = getGradebook(gradebookUid);
 			
 			List assignList = getAssignmentsCounted(thisGradebook.getId());
