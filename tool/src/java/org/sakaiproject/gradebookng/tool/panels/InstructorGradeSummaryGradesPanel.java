@@ -8,6 +8,7 @@ import org.apache.wicket.markup.html.list.ListItem;
 import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
+import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
@@ -170,8 +171,15 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 			}
 		});
 
+		//course grade
 		final Gradebook gradebook = businessService.getGradebook();
-		add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
+		
+		String currentUserUuid = this.businessService.getCurrentUser().getId();
+		if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
+			add(new Label("courseGrade", new ResourceModel("label.coursegrade.nopermission")));
+		} else {
+			add(new Label("courseGrade", this.gradeInfo.getCourseGrade()));
+		}
 		add(new Label("courseGradeNotReleasedFlag", "*") {
 			@Override
 			public boolean isVisible() {

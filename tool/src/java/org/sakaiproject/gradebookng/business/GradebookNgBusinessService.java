@@ -53,6 +53,7 @@ import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 import org.sakaiproject.service.gradebook.shared.GradebookNotFoundException;
 import org.sakaiproject.service.gradebook.shared.GradebookPermissionService;
 import org.sakaiproject.service.gradebook.shared.GradebookService;
+import org.sakaiproject.service.gradebook.shared.GraderPermission;
 import org.sakaiproject.service.gradebook.shared.InvalidGradeException;
 import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 import org.sakaiproject.site.api.Group;
@@ -553,6 +554,7 @@ public class GradebookNgBusinessService {
 		
 		//because this map is based on eid not uuid, we do the filtering later so we can save an iteration
 		Map<String,String> courseGrades = this.getSiteCourseGrades();
+		
 		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 		
 		//setup a map as we progressively build this up by adding grades to a student's entry
@@ -1610,6 +1612,48 @@ public class GradebookNgBusinessService {
     	 Gradebook gradebook = getGradebook(siteId);
     	 
     	 this.gradebookPermissionService.updatePermissionsForUser(gradebook.getUid(), userUuid, permissions);
+     }
+     
+     /**
+      * Check if the course grade is visible to the user
+      * 
+      * For TA's, the students are already filtered by permission so the TA won't see those they don't have access to anyway
+      * However if there are permissions and the course grade checkbox is NOT checked, then they explicitly do not have access to the course grade.
+      * So this method checks if the TA has any permissions assigned for the site, and if one of them is the course grade permission, then they have access.
+      * 
+      * @param userUuid user to check
+      * @return boolean
+      */
+     public boolean isCourseGradeVisible(String userUuid) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 
+    	 GbRole role = this.getUserRole(siteId);
+    	 
+    	 //if instructor, allowed
+    	 if(role == GbRole.INSTRUCTOR) {
+    		 return true;
+    	 }
+    	 
+    	 if(role == GbRole.TA) {
+    	 
+	    	 //if no defs, implicitly allowed
+	    	 List<PermissionDefinition> defs = getPermissionsForUser(userUuid);
+	    	 if(defs.isEmpty()) {
+	    		 return true;
+	    	 }
+    	 
+	    	 //if defs and one is the view course grade, explicitly allowed
+	    	 for(PermissionDefinition def: defs) {
+	    		 if(StringUtils.equalsIgnoreCase(def.getFunction(), GraderPermission.VIEW_COURSE_GRADE.toString())){
+	    			 return true;
+	    		 }
+	    	 }
+	    	 return false;
+    	 }
+    	 
+    	 //students not currently supported. Could leverage the settings later.
+    	 return false;
      }
 
     /**

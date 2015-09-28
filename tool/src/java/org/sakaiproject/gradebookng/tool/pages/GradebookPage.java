@@ -176,10 +176,13 @@ public class GradebookPage extends BasePage {
 		if(grades == null) {
 			throw new RestartResponseException(NoDataPage.class);
 		}
-		
 
+		//get assignment order
         final Map<String, List<Long>> categorizedAssignmentOrder = businessService.getCategorizedAssignmentsOrder();
 
+        //get course grade visibility
+        final boolean courseGradeVisible = businessService.isCourseGradeVisible(currentUserUuid);
+        
         //this could potentially be a sortable data provider
         final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
@@ -231,14 +234,13 @@ public class GradebookPage extends BasePage {
 			}
 
         };
-        
         cols.add(studentNameColumn);
         
-        cols.add(new AbstractColumn(new Model("")) {
+        // course grade column
+        AbstractColumn courseGradeColumn = new AbstractColumn(new Model("")) {
             @Override
             public Component getHeader(String componentId) {
                 CourseGradeColumnHeaderPanel panel = new CourseGradeColumnHeaderPanel(componentId);
-
                 return panel;
             }
 
@@ -251,13 +253,19 @@ public class GradebookPage extends BasePage {
             public void populateItem(Item cellItem, String componentId, IModel rowModel) {
                 GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
 
-                String courseGrade = studentGradeInfo.getCourseGrade();
+                String courseGrade;
+                
+                if(courseGradeVisible) {
+                	courseGrade = studentGradeInfo.getCourseGrade();
+                } else {
+                	courseGrade = getString("label.coursegrade.nopermission");
+                }
 
                 cellItem.add(new Label(componentId, courseGrade));
                 cellItem.setOutputMarkupId(true);
             }
-        });
-        
+        };
+        cols.add(courseGradeColumn);
         
         //build the rest of the columns based on the assignment list       
         for(final Assignment assignment: assignments) {
