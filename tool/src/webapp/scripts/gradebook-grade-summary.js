@@ -56,6 +56,10 @@ GradebookGradeSummary.prototype.setupTabs = function() {
       $confirmationModal.modal().modal('show');
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
+        $cloneOfTab.focus();
+      });
+      $confirmationModal.on("shown.bs.modal", function() {
+        $confirmationModal.find(".btn-student-summary-cancel").focus();
       });
     });
   }
@@ -112,9 +116,13 @@ GradebookGradeSummary.prototype.setupFixedFooter = function() {
   // do this by setting the height of the tab content to leave room for the navigation
   if (this.$modal.height() > $(window).height()) {
     var $tabPane = this.$content.find(".tab-content");
-    var paddingSize = 150; // modal padding and modal content padding/margins (yep... fudged)
-    var newHeight = $(window).height() - this.$content.offset().top - this.$content.find("h2").outerHeight() - this.$content.find(".nav").outerHeight() - this.$content.find(".gb-summary-modal-actions").outerHeight() - paddingSize;
-    $tabPane.height(Math.max(200, newHeight));
+    var $contentPane =  this.$content.find(".gb-grade-summary-content");
+
+    var paddingSize = 160; // modal padding and modal content padding/margins (yep... fudged)
+
+    var height = $tabPane.height() - (this.$modal.height() - $(window).height()) - ($contentPane.height() - this.$modal.height()) - paddingSize;
+
+    $tabPane.height(Math.max(200, height));
   }
 };
 
@@ -155,6 +163,10 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
       $confirmationModal.modal().modal('show');
       $confirmationModal.on("hidden.bs.modal", function() {
         $confirmationModal.remove();
+        self.$content.find(".gb-summary-fake-close").focus();
+      });
+      $confirmationModal.on("shown.bs.modal", function() {
+        $confirmationModal.find(".btn-student-summary-cancel").focus();
       });
 
       return false;

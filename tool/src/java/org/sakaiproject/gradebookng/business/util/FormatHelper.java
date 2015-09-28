@@ -40,12 +40,19 @@ public class FormatHelper {
 
 
 	/**
-	 * Format a grade to remove the .0 if present.
+	 * Format a grade, e.g.
+	 * 00 => 0
+	 * 0001 => 1
+	 * 1.0 => 1
+	 * 1.25 => 1.25
 	 * @param grade
 	 * @return
 	 */
 	public static String formatGrade(String grade) {
-		return StringUtils.removeEnd(grade, ".0");
+		if (StringUtils.isBlank(grade)) {
+			return "";
+		}
+		return StringUtils.removeEnd(String.valueOf(Double.parseDouble(grade)), ".0");
 	}
 
 

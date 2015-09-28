@@ -144,25 +144,26 @@ public class GradeItemCellPanel extends Panel {
 				@Override
 				protected void onModelChanging() {
 					//capture the original grade before it changes
-					this.originalGrade = this.getEditor().getValue();
+					this.originalGrade = FormatHelper.formatGrade(this.getEditor().getValue());
 				}
 				
 				@Override
 				protected void onSubmit(final AjaxRequestTarget target) {
 					super.onSubmit(target);
-					
-					String newGrade = this.getEditor().getValue();
+
+					String rawGrade = this.getEditor().getValue();
 
 					clearNotifications();
 
 					//perform validation here so we can bypass the backend
 					DoubleValidator validator = new DoubleValidator();
 					
-					if(StringUtils.isNotBlank(newGrade) && !validator.isValid(newGrade)) {
+					if(StringUtils.isNotBlank(rawGrade) && (!validator.isValid(rawGrade) || Double.parseDouble(rawGrade) < 0)) {
 						markWarning(this);
 						this.getLabel().setDefaultModelObject(this.originalGrade);
 					} else {
-						
+						String newGrade = FormatHelper.formatGrade(rawGrade);
+
 						//for concurrency, get the original grade we have in the UI and pass it into the service as a check
 						GradeSaveResponse result = businessService.saveGrade(assignmentId, studentUuid, this.originalGrade, newGrade, comment);
 						
@@ -191,10 +192,7 @@ public class GradeItemCellPanel extends Panel {
 								throw new UnsupportedOperationException("The response for saving the grade is unknown.");
 						}
 
-
-						//format the grade for subsequent display and update the model
-						String formattedGrade = FormatHelper.formatGrade(newGrade);
-						this.getLabel().setDefaultModelObject(formattedGrade);
+						this.getLabel().setDefaultModelObject(newGrade);
 					}
 
 					//refresh the components we need
