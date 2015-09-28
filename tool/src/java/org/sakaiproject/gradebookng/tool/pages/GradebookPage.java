@@ -48,6 +48,7 @@ import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
+import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
@@ -233,11 +234,27 @@ public class GradebookPage extends BasePage {
         
         cols.add(studentNameColumn);
         
-        // course grade column, pull from the studentgrades model
-        cols.add(new PropertyColumn(new ResourceModel("column.header.coursegrade"), "courseGrade") {
+        cols.add(new AbstractColumn(new Model("")) {
+            @Override
+            public Component getHeader(String componentId) {
+                CourseGradeColumnHeaderPanel panel = new CourseGradeColumnHeaderPanel(componentId);
+
+                return panel;
+            }
+
             @Override
             public String getCssClass() {
                 return "gb-course-grade";
+            }
+
+            @Override
+            public void populateItem(Item cellItem, String componentId, IModel rowModel) {
+                GbStudentGradeInfo studentGradeInfo = (GbStudentGradeInfo) rowModel.getObject();
+
+                String courseGrade = studentGradeInfo.getCourseGrade();
+
+                cellItem.add(new Label(componentId, courseGrade));
+                cellItem.setOutputMarkupId(true);
             }
         });
         
