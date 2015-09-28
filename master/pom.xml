@@ -89,7 +89,7 @@
     <sakai.ehcache.groupId>net.sf.ehcache</sakai.ehcache.groupId>
     <sakai.ehcache.artifactId>ehcache-core</sakai.ehcache.artifactId>
     <sakai.ehcache.version>2.6.6</sakai.ehcache.version>
-    <sakai.elasticsearch.version>1.6.0</sakai.elasticsearch.version>
+    <sakai.elasticsearch.version>1.7.2</sakai.elasticsearch.version>
     <sakai.hibernate.groupId>org.hibernate</sakai.hibernate.groupId>
     <sakai.hibernate.artifactId>hibernate-core</sakai.hibernate.artifactId>
     <sakai.hibernate.version>3.6.10.Final</sakai.hibernate.version>
@@ -104,7 +104,7 @@
     <sakai.servletapi.version>2.4</sakai.servletapi.version>
     <sakai.sigar.version>1.6.4</sakai.sigar.version>
     <sakai.spatial4j.version>0.4.1</sakai.spatial4j.version>
-    <sakai.groovy.version>2.4.0</sakai.groovy.version>
+    <sakai.groovy.version>2.4.4</sakai.groovy.version>
     <sakai.jna.version>4.1.0</sakai.jna.version>
     <sakai.antlr-runtime.version>3.5</sakai.antlr-runtime.version>
     <sakai.asm.version>4.1</sakai.asm.version>
