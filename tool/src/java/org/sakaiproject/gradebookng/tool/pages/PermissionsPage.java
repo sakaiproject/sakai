@@ -114,7 +114,6 @@ public class PermissionsPage extends BasePage {
 			@Override
 			public Object getDisplayValue(GbUser u) {
 				return new StringResourceModel("permissionspage.label.tausername", null, new String[] {u.getDisplayName(), u.getDisplayId()}).getString();
-
 			}
 			
 			@Override
@@ -221,7 +220,7 @@ public class PermissionsPage extends BasePage {
 				
 				businessService.updatePermissionsForUser(taSelected.getUserUuid(), permissions);
 				
-				setResponsePage(new PermissionsPage(taSelected));
+				info(getString("permissionspage.update.success"));
 			}
 			
 			@Override
