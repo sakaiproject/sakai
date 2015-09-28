@@ -320,11 +320,11 @@ public class GradebookNgBusinessService {
 	}
 		
 	/**
-	 * Get a map of course grades for all users in the site, using a grade override preferentially over a calculated one
+	 * Get a map of course grades for all users in the site.
 	 * key = student eid
 	 * value = course grade
 	 * 
-	 * Note that his map is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
+	 * Note that this map is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
 	 * 
 	 * @param userUuids
 	 * @return the map of course grades for students, or an empty map
@@ -1471,14 +1471,17 @@ public class GradebookNgBusinessService {
     	 return rval;
      }
      
-     public Double getCategoryScoresForStudent(Long categoryId, String studentUuid) {
+     /**
+      * Get the category score for the given student. Safe to call when logged in as a student.
+      * @param categoryId id of category	
+      * @param studentUuid uuid of student
+      * @param grades Map of grades obtained from getGradesForStudent.
+      * @return
+      */
+     public Double getCategoryScoreForStudent(Long categoryId, String studentUuid, Map<Assignment,GbGradeInfo> grades) {
     	 
     	 String siteId = this.getCurrentSiteId();
     	     	 
-    	 //get grades
-    	 //TODO allow pass in of this, as we have it already in the UI, need another method signature to pass it in
-    	 Map<Assignment,GbGradeInfo> grades = getGradesForStudent(studentUuid);
-    	 
     	 //get assignments (filtered to just the category ones later)
     	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
     	 
@@ -1498,11 +1501,12 @@ public class GradebookNgBusinessService {
     		 }
     	 }
     	 
+    	 //get the score
     	 Double score = this.gradebookService.calculateCategoryScore(categoryId, assignments, gradeMap);
     	 
-    	 System.out.println("score:" + score);
+    	 log.info("Category score for category: " + categoryId + ", student: " + studentUuid + ":" + score);
     	 
-    	 return null;
+    	 return score;
      }
      
      /**
