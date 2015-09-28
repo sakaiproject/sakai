@@ -320,11 +320,11 @@ public class GradebookNgBusinessService {
 	}
 		
 	/**
-	 * Get a map of course grades for all users in the site, using a grade override preferentially over a calculated one
+	 * Get a map of course grades for all users in the site.
 	 * key = student eid
 	 * value = course grade
 	 * 
-	 * Note that his map is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
+	 * Note that this map is keyed on EID. Since the business service does not have a list of eids, to save an iteration, the calling service needs to do the filtering
 	 * 
 	 * @param userUuids
 	 * @return the map of course grades for students, or an empty map
@@ -1469,6 +1469,44 @@ public class GradebookNgBusinessService {
     	 }
     	 
     	 return rval;
+     }
+     
+     /**
+      * Get the category score for the given student. Safe to call when logged in as a student.
+      * @param categoryId id of category	
+      * @param studentUuid uuid of student
+      * @param grades Map of grades obtained from getGradesForStudent.
+      * @return
+      */
+     public Double getCategoryScoreForStudent(Long categoryId, String studentUuid, Map<Assignment,GbGradeInfo> grades) {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	     	 
+    	 //get assignments (filtered to just the category ones later)
+    	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
+    	 
+    	 //build map of just the grades and assignments we want for the assignments in the given category
+    	 Map<Long,String> gradeMap = new HashMap<>();
+    	 
+    	 Iterator<Assignment> iter = assignments.iterator();
+    	 while (iter.hasNext()) {
+    		 Assignment assignment = iter.next();
+    		 if(categoryId == assignment.getCategoryId()) {
+    			 GbGradeInfo gradeInfo = grades.get(assignment.getId());
+    			 if(gradeInfo != null) {
+    				 gradeMap.put(assignment.getId(),gradeInfo.getGrade());
+    			 }
+    		 } else {
+ 				iter.remove();
+    		 }
+    	 }
+    	 
+    	 //get the score
+    	 Double score = this.gradebookService.calculateCategoryScore(categoryId, assignments, gradeMap);
+    	 
+    	 log.info("Category score for category: " + categoryId + ", student: " + studentUuid + ":" + score);
+    	 
+    	 return score;
      }
      
      /**

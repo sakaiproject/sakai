@@ -51,7 +51,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		//get grades
 		final Map<Assignment, GbGradeInfo> grades = this.businessService.getGradesForStudent(userId);
 		final List<Assignment> assignments = new ArrayList(grades.keySet());
-
+		
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoriesToAssignments = new HashMap<String, List<Assignment>>();
 
@@ -66,6 +66,12 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			}
 
 			categoriesToAssignments.get(category).add(assignment);
+			
+			
+			final Double d = this.businessService.getCategoryScoresForStudent(assignment.getCategoryId(), userId);
+			System.out.println("d:" + d);
+			
+			
 		}
 
 		Collections.sort(categoryNames);
