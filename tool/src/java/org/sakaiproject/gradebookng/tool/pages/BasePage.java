@@ -50,12 +50,20 @@ public class BasePage extends WebPage implements IHeaderContributor {
 	final FeedbackPanel feedbackPanel;
 	
 	/**
+	 * The current user
+	 */
+	protected String currentUserUuid;
+	
+	/**
 	 * The user's role in the site
 	 */
 	protected GbRole role;
 	
 	public BasePage() {	
 		log.debug("BasePage()");
+		
+		//get current user
+		currentUserUuid = this.businessService.getCurrentUser().getId();
 		
 		//role check
 		role = this.businessService.getUserRole();

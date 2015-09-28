@@ -66,12 +66,6 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			}
 
 			categoriesToAssignments.get(category).add(assignment);
-			
-			
-			final Double d = this.businessService.getCategoryScoresForStudent(assignment.getCategoryId(), userId);
-			System.out.println("d:" + d);
-			
-			
 		}
 
 		Collections.sort(categoryNames);
@@ -177,13 +171,21 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 
 		final Gradebook gradebook = businessService.getGradebook();
 		if (gradebook.isCourseGradeDisplayed()) {
-			CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
-			if(StringUtils.isBlank(courseGrade.getEnteredGrade()) && StringUtils.isBlank(courseGrade.getMappedGrade())) {
-				add(new Label("courseGrade", new ResourceModel("label.studentsummary.coursegrade.none")));
-			} else if(StringUtils.isNotBlank(courseGrade.getEnteredGrade())){
-				add(new Label("courseGrade", courseGrade.getEnteredGrade()));
+			
+			//check permission for current user to view course grade
+			//otherwise fetch and render it
+			String currentUserUuid = this.businessService.getCurrentUser().getId();
+			if (!this.businessService.isCourseGradeVisible(currentUserUuid)) {
+				add(new Label("courseGrade", new ResourceModel("label.coursegrade.nopermission")));
 			} else {
-				add(new Label("courseGrade", new StringResourceModel("label.studentsummary.coursegrade.display", null, new Object[] { courseGrade.getMappedGrade(), FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade()) } )));
+				CourseGrade courseGrade = this.businessService.getCourseGrade(userId);
+				if(StringUtils.isBlank(courseGrade.getEnteredGrade()) && StringUtils.isBlank(courseGrade.getMappedGrade())) {
+					add(new Label("courseGrade", new ResourceModel("label.studentsummary.coursegrade.none")));
+				} else if(StringUtils.isNotBlank(courseGrade.getEnteredGrade())){
+					add(new Label("courseGrade", courseGrade.getEnteredGrade()));
+				} else {
+					add(new Label("courseGrade", new StringResourceModel("label.studentsummary.coursegrade.display", null, new Object[] { courseGrade.getMappedGrade(), FormatHelper.formatStringAsPercentage(courseGrade.getCalculatedGrade()) } )));
+				}
 			}
 		} else {
 			add(new Label("courseGrade", getString("label.studentsummary.coursegradenotreleased")));
