@@ -5189,9 +5189,11 @@ public class SimplePageBean {
 	public String getYoutubeKey(SimplePageItem i) {
 		String sakaiId = i.getSakaiId();
 
+		// this is called only from contexts where we know it's OK to get the data.
+		// indeed if I were doing it over I'd put it in the item, not resources
 		SecurityAdvisor advisor = null;
 		try {
-			if(getCurrentPage().getOwner() != null) {
+			// if(getCurrentPage().getOwner() != null) {
 				// Need to allow access into owner's home directory
 				advisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -5203,7 +5205,7 @@ public class SimplePageBean {
 					}
 				};
 				securityService.pushAdvisor(advisor);
-			}
+			// }
 			// find the resource
 			ContentResource resource = null;
 			try {
