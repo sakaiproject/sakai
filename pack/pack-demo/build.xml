@@ -75,7 +75,7 @@
 	    <!-- osfamily tested on Windows 7 , (Fill in others) -->
             <exec dir="../../" executable="cmd" failonerror="true" osfamily="windows">
                 <arg value="/c" />
-                <arg value="mvn.bat" />
+                <arg value="mvn" />
                 <arg value="-Dmaven.tomcat.home=${basedir}\target\pack" />
                 <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
                 <!-- next 3 lines *may* be optional so leaving them out, add back in if needed for windows build
