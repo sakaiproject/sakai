@@ -294,8 +294,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	     }
 
 		 // SAK-29645
-		 Set<String> groupMemberLabels = new HashSet<>();
-		 Set<String> groupMemberValues = new HashSet<>();
+		 List<String> groupMemberLabels = new ArrayList<>();
+		 List<String> groupMemberValues = new ArrayList<>();
 
 		 // add the rosters first
 		 if (groupRosters != null)
