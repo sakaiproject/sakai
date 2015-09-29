@@ -4,6 +4,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.ArrayList;
+import java.util.Collections;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -13,6 +15,8 @@ import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.tool.helper.managegroupsectionrole.impl.SiteManageGroupSectionRoleHandler;
+import org.sakaiproject.site.util.SiteComparator;
+import org.sakaiproject.site.util.SiteConstants;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.Tool;
 import org.sakaiproject.user.api.User;
@@ -146,7 +150,12 @@ public class GroupListProducer
 				try
 				{
 					AuthzGroup g = authzGroupService.getAuthzGroup(group.getReference());
-					Set<Member> gMembers = g != null ? g.getMembers():new HashSet<Member>();
+					List<Member> gMembers = Collections.emptyList();
+					if (g != null)
+					{
+						gMembers = new ArrayList<>(g.getMembers());
+						Collections.sort(gMembers, new SiteComparator(SiteConstants.SORTED_BY_MEMBER_NAME, Boolean.TRUE.toString()));
+					}
 					size = gMembers.size();
 					if (size > 0)
 					{
