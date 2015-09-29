@@ -183,6 +183,9 @@ public class GradebookPage extends BasePage {
         //get course grade visibility
         final boolean courseGradeVisible = businessService.isCourseGradeVisible(currentUserUuid);
         
+        //get memberships
+        Map<String,List<String>> blah = businessService.getGroupMemberships();
+        
         //this could potentially be a sortable data provider
         final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();
@@ -308,10 +311,11 @@ public class GradebookPage extends BasePage {
             		
             		Map<String,Object> modelData = new HashMap<>();
     				modelData.put("assignmentId", assignment.getId());
-    				modelData.put("assignmentPoints", assignment.getPoints()); //TODO might be able to set some of this higher up and use a getter in the subclasses, so its not passed around so much. It's common to the assignment....
+    				modelData.put("assignmentPoints", assignment.getPoints());
     				modelData.put("studentUuid", studentGrades.getStudentUuid());
     				modelData.put("isExternal", assignment.isExternallyMaintained());
     				modelData.put("gradeInfo", gradeInfo);
+    				modelData.put("categoryId", assignment.getCategoryId());
     				
     				cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
     				

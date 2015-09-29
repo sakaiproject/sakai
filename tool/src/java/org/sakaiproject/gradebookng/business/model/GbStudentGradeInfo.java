@@ -42,9 +42,6 @@ public class GbStudentGradeInfo implements Serializable
 	
 	@Getter
 	private Map<Long,Double> categoryAverages;
-	
-	@Getter @Setter
-	private String sectionId;
 		
 	public GbStudentGradeInfo(){
 	}

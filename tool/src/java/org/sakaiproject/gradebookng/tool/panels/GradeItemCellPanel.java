@@ -90,6 +90,7 @@ public class GradeItemCellPanel extends Panel {
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final boolean isExternal = (boolean) modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
+		final Long categoryId = (Long) modelData.get("categoryId");
 		
 		//note, gradeInfo may be null
 		String rawGrade;

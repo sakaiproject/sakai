@@ -633,15 +633,13 @@ public class GradebookNgBusinessService {
 				if(sg == null) {
 					log.warn("No matrix entry seeded for: " + def.getStudentUid() + ". This user may be been removed from the site");
 				} else {
-				
 					sg.addGrade(assignment.getId(), new GbGradeInfo(def));
 				}
 			}
 			Temp.timeWithContext("buildGradeMatrix", "updatedStudentGradeInfo: " + assignment.getId(), stopwatch.getTime());
-			
 		}
 		Temp.timeWithContext("buildGradeMatrix", "matrix built", stopwatch.getTime());
-
+		
 		//build category columns
 		for(CategoryDefinition category: categories) {
 				
@@ -671,14 +669,40 @@ public class GradebookNgBusinessService {
 					
 					//add to GbStudentGradeInfo
 					sg.addCategoryAverage(category.getId(), categoryScore);
+					
+					//TODO the TA permission check could reuse this iteration... check performance.
+					
 				}
 			}
 			
 		}
 		Temp.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
+		
+		/*
+		//apply permissions for TA
+		if(role == GbRole.TA) {
+			
+			//get permissions
+			List<PermissionDefinition> permissions = this.getPermissionsForUser(this.getCurrentUser().getId());
+			
+			//only need to process this if some are defined
+			if(!permissions.isEmpty()) {
+				
+				Map<String,List<String>> memberships = this.getGroupMemberships();
+				
+				//for each permission, if the group
+				
+				
+				
+			}
+			
+			
+		}
+		Temp.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
+		*/
 
 		//get the matrix as a list of GbStudentGradeInfo
-		ArrayList<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
+		List<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
 
 		//sort the matrix based on the supplied assignment sort order (if any)
 		if(assignmentSortOrder != null) {
@@ -736,7 +760,6 @@ public class GradebookNgBusinessService {
 		}
 		
 		//if user is a TA, get the groups they can see and filter the GbGroup list to keep just those
-		
 		if(this.getUserRole(siteId) == GbRole.TA) {
 			Gradebook gradebook = this.getGradebook(siteId);
 			User user = this.getCurrentUser();
@@ -1654,6 +1677,47 @@ public class GradebookNgBusinessService {
     	 
     	 //students not currently supported. Could leverage the settings later.
     	 return false;
+     }
+     
+     /**
+      * Build a list of group references to site membership (as uuids) for the groups that are viewable for the current user.
+      * @return
+      */
+     public Map<String,List<String>> getGroupMemberships() {
+    	 
+    	 String siteId = this.getCurrentSiteId();
+    	 
+    	 Site site;
+    	 try {
+    		 site = this.siteService.getSite(siteId);
+    	 } catch (IdUnusedException e) {
+    		 log.error("Error looking up site: " + siteId, e);
+    		 return null;
+    	 }
+    	 
+    	 //filtered for the user
+    	 List<GbGroup> viewableGroups = this.getSiteSectionsAndGroups();
+    	 
+    	 Map<String,List<String>> rval = new HashMap<>();
+    	 
+    	 for(GbGroup gbGroup: viewableGroups) {
+    		 String groupId = gbGroup.getId();
+    		 List<String> memberUuids = new ArrayList<>();
+								
+    		 Group group = site.getGroup(groupId);
+    		 if(group != null) {
+    			 Set<Member> members = group.getMembers();
+    			 
+    			 for(Member m: members) {
+    				 memberUuids.add(m.getUserId());
+    			 }
+    		 }
+    		 
+    		 rval.put(gbGroup.getReference(), memberUuids);
+   
+    	 }
+    	 
+    	 return rval;
      }
 
     /**
