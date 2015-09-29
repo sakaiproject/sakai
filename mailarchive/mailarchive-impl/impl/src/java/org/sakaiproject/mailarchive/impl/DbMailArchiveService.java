@@ -164,7 +164,6 @@ public class DbMailArchiveService extends BaseMailArchiveService
 			if (m_autoDdl)
 			{
 				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_mailarchive");
-				m_sqlService.ddl(this.getClass().getClassLoader(), "sakai_mailarchive_2_6_0");
 			}
 
 			super.init();

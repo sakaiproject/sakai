@@ -2,23 +2,19 @@
 -- MAILARCHIVE_CHANNEL
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE MAILARCHIVE_CHANNEL
+CREATE TABLE IF NOT EXISTS MAILARCHIVE_CHANNEL
 (
     CHANNEL_ID VARCHAR (99) NOT NULL,
-	NEXT_ID INT,
-    XML LONGTEXT
-);
-
-CREATE UNIQUE INDEX MAILARCHIVE_CHANNEL_INDEX ON MAILARCHIVE_CHANNEL
-(
-	CHANNEL_ID
+    NEXT_ID INT,
+    XML LONGTEXT,
+    UNIQUE KEY `MAILARCHIVE_CHANNEL_INDEX` (CHANNEL_ID)
 );
 
 -- ---------------------------------------------------------------------------
 -- MAILARCHIVE_MESSAGE
 -- ---------------------------------------------------------------------------
 
-CREATE TABLE MAILARCHIVE_MESSAGE (
+CREATE TABLE IF NOT EXISTS MAILARCHIVE_MESSAGE (
        CHANNEL_ID           VARCHAR (99) NOT NULL,
        MESSAGE_ID           VARCHAR (36) NOT NULL,
        DRAFT                CHAR(1) NULL
@@ -27,37 +23,17 @@ CREATE TABLE MAILARCHIVE_MESSAGE (
                                    CHECK (PUBVIEW IN (1, 0)),
        OWNER                VARCHAR (99) NULL,
        MESSAGE_DATE         DATETIME NOT NULL,
-       XML                  LONGTEXT NULL
+       XML                  LONGTEXT NULL,
+       SUBJECT           VARCHAR (255) NULL,
+       BODY              LONGTEXT NULL,
+       PRIMARY KEY (CHANNEL_ID, MESSAGE_ID),
+       KEY `IE_MAILARC_MSG_ATTRIB` (`DRAFT`,`PUBVIEW`,`OWNER`),
+       KEY `IE_MAILARC_MSG_DATE` (`MESSAGE_DATE`),
+       KEY `MAILARC_MSG_CDD` (`CHANNEL_ID`,`MESSAGE_DATE`,`DRAFT`),
+       KEY `IE_MAILARC_SUBJECT` (`SUBJECT`)
 );
 
-ALTER TABLE MAILARCHIVE_MESSAGE
-       ADD  ( PRIMARY KEY (CHANNEL_ID, MESSAGE_ID) ) ;
-
-CREATE INDEX IE_MAILARC_MSG_CHAN ON MAILARCHIVE_MESSAGE
-(
-       CHANNEL_ID                     ASC
-);
-
-CREATE INDEX IE_MAILARC_MSG_ATTRIB ON MAILARCHIVE_MESSAGE
-(
-       DRAFT                          ASC,
-       PUBVIEW                        ASC,
-       OWNER                          ASC
-);
-
-CREATE INDEX IE_MAILARC_MSG_DATE ON MAILARCHIVE_MESSAGE
-(
-       MESSAGE_DATE                   ASC
-);
-
-CREATE INDEX MAILARC_MSG_CDD ON MAILARCHIVE_MESSAGE
-(
-	CHANNEL_ID,
-	MESSAGE_DATE,
-	DRAFT
-);
-
-INSERT INTO MAILARCHIVE_CHANNEL VALUES ('/mailarchive/channel/!site/postmaster', 1, '<?xml version="1.0" encoding="UTF-8"?>
+INSERT IGNORE INTO MAILARCHIVE_CHANNEL VALUES ('/mailarchive/channel/!site/postmaster', 1, '<?xml version="1.0" encoding="UTF-8"?>
 <channel context="!site" id="postmaster" next-message-id="1">
 	<properties/>
 </channel>
