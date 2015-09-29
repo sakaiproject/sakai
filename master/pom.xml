@@ -375,7 +375,7 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-test</artifactId>
         <version>${kernel.spring.version}</version>
-	<scope>provided</scope>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.springframework</groupId>
@@ -700,6 +700,30 @@
         <artifactId>test-harness</artifactId>
         <version>${sakai.version}</version>
       </dependency>
+
+      <!-- Tika includes asm-debug-all which it really shouldn't
+           since it is used in multiple places it is declared here so its done right -->
+      <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-parsers</artifactId>
+        <version>${sakai.tika.version}</version>
+        <exclusions>
+          <exclusion>
+            <groupId>de.l3s.boilerpipe</groupId>
+            <artifactId>boilerpipe</artifactId>
+          </exclusion>
+          <exclusion>
+            <groupId>org.ow2.asm</groupId>
+            <artifactId>asm-debug-all</artifactId>
+          </exclusion>
+        </exclusions>
+      </dependency>
+      <dependency>
+        <groupId>org.apache.tika</groupId>
+        <artifactId>tika-core</artifactId>
+        <version>${sakai.tika.version}</version>
+      </dependency>
+
       <!-- provided by the JDK, here to ensure its not packaged in child poms child poms may still override if necessary -->
       <!-- common/lib -->
       <dependency>
@@ -776,12 +800,13 @@
       	<groupId>org.fusesource</groupId>
       	<artifactId>sigar</artifactId>
       	<version>${sakai.sigar.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
       	<groupId>org.apache.lucene</groupId>
       	<artifactId>lucene-core</artifactId>
       	<version>${sakai.lucene.version}</version>
-      	<scope>provided</scope>
+        <scope>provided</scope>
       </dependency>
       <dependency>
       	<groupId>org.apache.lucene</groupId>
@@ -877,41 +902,49 @@
       	<groupId>com.vividsolutions</groupId>
       	<artifactId>jts</artifactId>
       	<version>${sakai.jts.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.spatial4j</groupId>
         <artifactId>spatial4j</artifactId>
         <version>${sakai.spatial4j.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm</artifactId>
         <version>${sakai.asm.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.ow2.asm</groupId>
         <artifactId>asm-commons</artifactId>
         <version>${sakai.asm.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>net.java.dev.jna</groupId>
         <artifactId>jna</artifactId>
         <version>${sakai.jna.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.antlr</groupId>
         <artifactId>antlr-runtime</artifactId>
         <version>${sakai.antlr-runtime.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>org.codehaus.groovy</groupId>
         <artifactId>groovy-all</artifactId>
         <version>${sakai.groovy.version}</version>
+        <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>log4j</groupId>
         <artifactId>apache-log4j-extras</artifactId>
         <version>${sakai.log4j.version}</version>
+        <scope>provided</scope>
       </dependency>
       <!-- Sakai apis -->
       <dependency>
@@ -1490,14 +1523,6 @@
         <version>${sakai.version}</version>
         <type>pom</type>
       </dependency>
-      <!--  TODO REMOVE THIS
-      <dependency>
-        <groupId>org.sakaiproject.osp</groupId>
-        <artifactId>osp-depend-jsf-widgets-sun</artifactId>
-        <version>${sakai.version}</version>
-        <type>pom</type>
-      </dependency>
-       -->
       <dependency>
         <groupId>javax.servlet</groupId>
         <artifactId>jstl</artifactId>

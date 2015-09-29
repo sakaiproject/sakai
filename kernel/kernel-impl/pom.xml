@@ -90,18 +90,10 @@
 	<dependency>
 		<groupId>org.apache.tika</groupId>
 		<artifactId>tika-core</artifactId>
-		<version>${sakai.tika.version}</version>
 	</dependency>
 	<dependency>
 		<groupId>org.apache.tika</groupId>
 		<artifactId>tika-parsers</artifactId>
-		<version>${sakai.tika.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>de.l3s.boilerpipe</groupId>
-				<artifactId>boilerpipe</artifactId>
-			</exclusion>
-		</exclusions>
 	</dependency>
      <!-- https://jira.sakaiproject.org/browse/KNL-1320 -DH -->
          <dependency>
