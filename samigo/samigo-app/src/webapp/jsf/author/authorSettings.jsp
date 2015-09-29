@@ -98,72 +98,6 @@
           checkLastHandling();
         });
       </script>
-      
-      <style type="text/css">
-      #publishTable td{
-        padding-left: 2em;
-        padding-right:  2em;
-        vertical-align: middle;
-      }
-      #publishTab {
-        background-color: #FDF5CE;
-        border:2px 0px 2px 2px;
-        border-color: #0080C0;
-      }
-      .ui-tabs .ui-tabs-nav li {
-        margin:0 0 -1px -1px;
-        padding-left: 5px;
-      }
-      .ui-corner-top {
-        border-radius: 0;
-      }
-    .breadcrumb li a:after { 
-      content: " "; 
-      display: block; 
-      width: 0; 
-      height: 0;
-      border-top: 15px solid transparent;          
-      border-bottom: 15px solid transparent;
-      border-left: 15px solid #EEE;
-      position: absolute;
-      top: 50%;
-      margin-top: -15px; 
-      left: 100%;
-      z-index: 2; 
-    } 
-    .breadcrumb li a:before { 
-      content: " "; 
-      display: block; 
-      width: 0; 
-      height: 0;
-      border-top: 15px solid transparent;           
-      border-bottom: 15px solid transparent;
-      border-left: 15px solid;
-      position: absolute;
-      top: 50%;
-      margin-top: -15px; 
-      margin-left: 1px;
-      left: 100%;
-      z-index: 1; 
-    } 
-    .breadcrumb .ui-state-active a:after{ 
-      content: " "; 
-      display: block; 
-      width: 0; 
-      height: 0;
-      border-top: 15px solid transparent;           
-      border-bottom: 15px solid transparent;
-      border-left: 15px solid #FFF;
-      position: absolute;
-      top: 50%;
-      margin-top: -15px; 
-      left: 100%;
-      z-index: 2; 
-    }     
-    .breadcrumb li:last-child a:after { border: none;}
-    .breadcrumb li:last-child a:before { border:none;}
-
-	</style>
 
       </head>
     <body onload="checkTimeSelect(); <%= request.getAttribute("html.body.onload") %>">
@@ -192,7 +126,7 @@
 
   <!-- *** GENERAL TEMPLATE INFORMATION *** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.templateInfo_isInstructorEditable==true and !assessmentSettings.noTemplate and template.showAssessmentTypes}" >
-  <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_template_information}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
+  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_template_information} </h4>" escape="false"/>
   <f:verbatim> <div class="tier2"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="samigoCell">
         <h:outputText escape="false" rendered="#{assessmentSettings.templateDescription!=null}" value="#{assessmentSettings.templateDescription}" />
@@ -201,7 +135,7 @@
 </h:panelGroup>
 
   <!-- *** ASSESSMENT INTRODUCTION *** -->
-  <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_assessment_introduction}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
+  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_assessment_introduction} </h4>" escape="false"/>
   <f:verbatim><div class="tier2" id="assessment-intro"></f:verbatim>
     <h:panelGrid columns="2" columnClasses="samigoCell" id="first" summary="#{templateMessages.enter_template_info_section}">
 
@@ -298,24 +232,24 @@
 	<!-- Extended Time -->
 	<%@ include file="inc/extendedTime.jspf"%>
 	
-	<!-- NUMBER OF SUBMISSIONS -->
-    <h:panelGroup rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
-      <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_submissions}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
-      <f:verbatim> <div class="tier2"></f:verbatim>
-      <f:verbatim><table><tr><td></f:verbatim>
-        <h:selectOneRadio id="unlimitedSubmissions" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection">
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
-          <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
-        </h:selectOneRadio>
+    
+    <!-- NUMBER OF SUBMISSIONS -->
+  <h:panelGrid columns="2" columnClasses="alignTop" border="0" rendered="#{assessmentSettings.valueMap.submissionModel_isInstructorEditable==true}">
+    <h:outputText style="position: relative; top: 7px;" value="#{assessmentSettingsMessages.submissions_allowed}" />
+    <h:panelGrid columns="3" border="0" columnClasses="alignBottom">
+      <h:selectOneRadio id="unlimitedSubmissions" value="#{assessmentSettings.unlimitedSubmissions}" layout="pageDirection">
+        <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
+        <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
+      </h:selectOneRadio>
 
-      <f:verbatim></td><td valign="bottom"></f:verbatim>
-        <h:panelGroup>
-          <h:inputText size="5"  id="submissions_Allowed" value="#{assessmentSettings.submissionsAllowed}" />
-          <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
-        </h:panelGroup>
-      <f:verbatim></td></tr></table></div></f:verbatim>
-    </h:panelGroup>
- 
+	  <h:panelGroup>
+        <h:inputText size="5"  id="submissions_Allowed" value="#{assessmentSettings.submissionsAllowed}" />
+        <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
+      </h:panelGroup>
+    </h:panelGrid> 
+  </h:panelGrid>
+      
+
   <!-- *** DELIVERY DATES *** -->
   <h:panelGrid columns="1" columnClasses="samigoCell" border="0">
     <h:panelGroup>
@@ -613,7 +547,7 @@
  
   <!-- *** COLORS AND GRAPHICS	*** -->
 <h:panelGroup rendered="#{assessmentSettings.valueMap.bgColor_isInstructorEditable==true}" >
-  <f:verbatim> <h4 class="samigo-category-subhead"></f:verbatim> <h:outputLabel value="#{assessmentSettingsMessages.heading_background}" /><f:verbatim></h4><div class="tier3"></f:verbatim>
+  <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.heading_background} </h4>" escape="false"/>
     <f:verbatim><div class="tier2"></f:verbatim>
  
         <h:selectOneRadio onclick="uncheckOther(this)" id="background_color" value="#{assessmentSettings.bgColorSelect}">

@@ -1622,7 +1622,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 			while (iter.hasNext()) {
 				String alphaName = (String) iter.next();
 				String sakaiId = (String) groupTargets.get(alphaName);
-				extTimeSelectItems[selectCount] = new SelectItem(sakaiId, alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
 			}
 
 			// Add in students to select item list
@@ -1631,7 +1631,7 @@ public void setFeedbackComponentOption(String feedbackComponentOption) {
 			while (iter.hasNext()) {
 				String alphaName = (String) iter.next();
 				String sakaiId = (String) studentTargets.get(alphaName);
-				extTimeSelectItems[selectCount] = new SelectItem(sakaiId, alphaName);
+				extTimeSelectItems[selectCount++] = new SelectItem(sakaiId, alphaName);
 			}
 
 		} catch (IdUnusedException ex) {

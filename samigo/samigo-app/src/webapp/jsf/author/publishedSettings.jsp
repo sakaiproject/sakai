@@ -224,25 +224,7 @@
   <%@ include file="inc/publishedExtendedTime.jspf"%>
 
     <!-- NUMBER OF SUBMISSIONS -->
-    <h:panelGroup rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
-      <h:outputLabel value="<h4 class=\"samigo-category-subhead\"> #{assessmentSettingsMessages.submissions} </h4>" />
-      <f:verbatim> <div class="tier3"></f:verbatim>
-   <f:verbatim><table><tr><td></f:verbatim>
-        <h:selectOneRadio id="unlimitedSubmissions" value="#{publishedSettings.unlimitedSubmissions}" layout="pageDirection">
-          <f:selectItem itemValue="1" itemLabel="#{assessmentSettingsMessages.unlimited_submission}"/>
-          <f:selectItem itemValue="0" itemLabel="#{assessmentSettingsMessages.only}" />
-        </h:selectOneRadio>
-        
-        <f:verbatim></td><td valign="bottom"></f:verbatim>
-        <h:panelGroup>
-          <h:inputText size="5" id="submissions_Allowed" value="#{publishedSettings.submissionsAllowed}"/>
-          <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
-        </h:panelGroup>
-      <f:verbatim></td></tr></table></div></f:verbatim>
-   </h:panelGroup>
-
-    <!-- NUMBER OF SUBMISSIONS -->
-  <!-- h:panelGrid columns="2" columnClasses="alignTop" border="0" rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
+  <h:panelGrid columns="2" columnClasses="alignTop" border="0" rendered="#{publishedSettings.valueMap.submissionModel_isInstructorEditable==true}">
     <h:outputText style="position: relative; top: 7px;" value="#{assessmentSettingsMessages.submissions_allowed}" />
     <h:panelGrid columns="3" border="0" columnClasses="alignBottom">
       <h:selectOneRadio id="unlimitedSubmissions" value="#{publishedSettings.unlimitedSubmissions}" layout="pageDirection">
@@ -255,7 +237,7 @@
         <h:outputLabel for="submissions_Allowed" value="#{assessmentSettingsMessages.limited_submission}" />
       </h:panelGroup>
     </h:panelGrid> 
-  </h:panelGrid -->
+  </h:panelGrid>
     
   <!-- *** DELIVERY DATES *** -->
   <h:panelGrid columns="1" columnClasses="samigoCell" border="0">
@@ -579,7 +561,7 @@
 <p class="act">
 
   <!-- Save button -->
-  <h:commandButton type="submit" value="#{assessmentSettingsMessages.button_save_exit}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);" >
+  <h:commandButton type="submit" value="#{commonMessages.action_save}" action="#{publishedSettings.getOutcome}"  styleClass="active" onclick="extendedTimeCombine();setBlockDivs();updateItemNavigation(false);" >
       <f:actionListener type="org.sakaiproject.tool.assessment.ui.listener.author.SavePublishedSettingsListener" />
   </h:commandButton>
   
