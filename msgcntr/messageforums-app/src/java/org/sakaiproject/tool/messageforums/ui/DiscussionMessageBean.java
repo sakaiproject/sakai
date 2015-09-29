@@ -77,8 +77,12 @@ public class DiscussionMessageBean
   }
 
   public void setAuthorPostCount(String userEid) {
-    int authorCount = messageManager.findAuthoredMessageCountForStudent(userEid);
-    authorPostCount = authorCount;
+    // This is invoked a lot, but it's only relevant when a student has a rank.
+    if (authorRank != null)
+    {
+      int authorCount = messageManager.findAuthoredMessageCountForStudent(userEid);
+      authorPostCount = authorCount;
+    }
   }
 
   public int getAuthorPostCount() {

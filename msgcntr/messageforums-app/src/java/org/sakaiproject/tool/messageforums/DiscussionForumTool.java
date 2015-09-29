@@ -9327,6 +9327,11 @@ public class DiscussionForumTool
 		this.rankBeanList.addAll(alist);
 	}
 
+	public boolean isRanksEnabled()
+	{
+		return ServerConfigurationService.getBoolean("msgcntr.forums.ranks.enable", true);
+	}
+
 	private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_RANKS = "cdfm_insufficient_privileges_ranks";
 	private static final String VIEW_RANK = "dfViewAllRanks";
 	private static final String ADD_RANK = "dfAddRank";
