@@ -54,7 +54,7 @@
 			<tr>
 				<th id="checkboxes">
 						<input type="checkbox" name="selectall" id="selectall" title="$clang.getString("list.select")"
-							onclick="javascript:toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$tlang.getString('list.select')"</label>
+							onclick="toggleSelectAll(this, 'selectedMembers')" value="" /><label for="selectall" class="skip">$tlang.getString('list.select')"</label>
 				</th>
 				<th id="title">
 					$tlang.getString("gen.title")
