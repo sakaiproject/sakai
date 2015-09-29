@@ -57,6 +57,11 @@
     </bean>
 
     <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
+          class="org.sakaiproject.entitybroker.providers.CacheEntityProvider">
+        <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager"/>
+    </bean>
+
+    <bean parent="org.sakaiproject.entitybroker.entityprovider.AbstractEntityProvider"
             class="org.sakaiproject.entitybroker.providers.NotificationEntityProvider"
             init-method="init">
         <property name="userDirectoryService" ref="org.sakaiproject.user.api.UserDirectoryService" />
