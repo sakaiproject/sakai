@@ -1485,7 +1485,7 @@ public class GradebookNgBusinessService {
     	 String siteId = this.getCurrentSiteId();
     	     	 
     	 //get assignments (filtered to just the category ones later)
-    	 List<Assignment> assignments = this.getGradebookAssignments(siteId);
+    	 List<Assignment> assignments = new ArrayList<Assignment>(grades.keySet());
     	 
     	 //build map of just the grades and assignments we want for the assignments in the given category
     	 Map<Long,String> gradeMap = new HashMap<>();
@@ -1494,7 +1494,7 @@ public class GradebookNgBusinessService {
     	 while (iter.hasNext()) {
     		 Assignment assignment = iter.next();
     		 if(categoryId == assignment.getCategoryId()) {
-    			 GbGradeInfo gradeInfo = grades.get(assignment.getId());
+    			 GbGradeInfo gradeInfo = grades.get(assignment);
     			 if(gradeInfo != null) {
     				 gradeMap.put(assignment.getId(),gradeInfo.getGrade());
     			 }

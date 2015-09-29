@@ -54,6 +54,7 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 		
 		final List<String> categoryNames = new ArrayList<String>();
 		final Map<String, List<Assignment>> categoriesToAssignments = new HashMap<String, List<Assignment>>();
+		final Map<String, String> categoryAverages = new HashMap<>();
 
 		Iterator<Assignment> assignmentIterator = assignments.iterator();
 		while (assignmentIterator.hasNext()) {
@@ -63,6 +64,13 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 			if (!categoriesToAssignments.containsKey(category)) {
 				categoryNames.add(category);
 				categoriesToAssignments.put(category, new ArrayList<Assignment>());
+
+				Double categoryAverage = businessService.getCategoryScoreForStudent(assignment.getCategoryId(), userId, grades);
+				if (categoryAverage == null || category.equals(GradebookPage.UNCATEGORIZED)) {
+					categoryAverages.put(category, getString("label.nocategoryscore"));
+				} else {
+					categoryAverages.put(category, FormatHelper.formatDoubleAsPercentage(categoryAverage));
+				}
 			}
 
 			categoriesToAssignments.get(category).add(assignment);
@@ -92,13 +100,8 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 				}
 
 				if (allAssignmentsAreReleased) {
-					// TODO can a student access category averages?
-					Double score = null;//gradeInfo.getCategoryAverages().get(categoryDefinition.getId());
-					String grade = "";
-					if (score != null) {
-						grade = FormatHelper.formatDoubleAsPercentage(score);
-					}
-					categoryItem.add(new Label("categoryGrade", grade));
+					String categoryAverage = categoryAverages.get(category);
+					categoryItem.add(new Label("categoryGrade", categoryAverage));
 				} else {
 					categoryScoreHidden[0] = true;
 					categoryItem.add(new Label("categoryGrade", getString("label.studentsummary.categoryscoreifhiddenassignment")));
