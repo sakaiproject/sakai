@@ -116,11 +116,17 @@ class UserEditStub implements UserEdit {
 	public User getCreatedBy() {
 		return null;
 	}
+	
+    public void setCreatedUserId(String id) {
+    }
 
 	public Time getCreatedTime() {
 		return null;
 	}
     
+    public void setCreatedTime(Time time) {
+    }
+	
     public String getUrlEmbeddableId() {
         return getDisplayId();
     }
@@ -148,6 +154,12 @@ class UserEditStub implements UserEdit {
 	public Time getModifiedTime() {
 		return null;
 	}
+	
+	public void setLastModifiedTime(Time time) {
+	}
+	
+    public void setLastModifiedUserId(String id) {
+    }
 
 	public String getSortName() {
 		return null;

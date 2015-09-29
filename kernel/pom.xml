@@ -106,13 +106,19 @@
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast</artifactId>
-        <version>3.2.3</version>
+        <version>2.6.9</version>
         <scope>provided</scope>
       </dependency>
       <dependency>
         <groupId>com.hazelcast</groupId>
         <artifactId>hazelcast-client</artifactId>
-        <version>3.2.3</version>
+        <version>2.6.9</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>com.hazelcast</groupId>
+        <artifactId>hazelcast-hibernate</artifactId>
+        <version>2.6.9</version>
         <scope>provided</scope>
       </dependency>
       <!-- centralize the versions for distributed ehcache - MUST match ehcache-core 2.6.6 -->

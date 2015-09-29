@@ -1,12 +1,14 @@
 package org.sakaiproject.user.impl;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
-import org.sakaiproject.user.impl.BaseUserDirectoryService.BaseUserEdit;
+import org.sakaiproject.user.api.UserDirectoryService;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
@@ -26,14 +28,20 @@ public class BaseUserEqualsTest {
 		final SessionManager sessionManager = mock(SessionManager.class);
 		when(sessionManager.getCurrentSessionUserId()).thenReturn("userId");
 		service = new ConcreteUserDirectoryService(){
-			protected TimeService timeService() {
+			public TimeService timeService() {
 				return timeService;
 			}
 			protected SessionManager sessionManager() {
 				return sessionManager;
 			}
 		};
+        ComponentManager.loadComponent(UserDirectoryService.class, service);
 	}
+
+    @After
+    public void tearDown() {
+        ComponentManager.shutdown();
+    }
 
 	protected void assertSymetric(Object o1, Object o2, boolean same) {
 		assertEquals("Checking :"+ o1.toString()+ " equals "+ o2.toString(), same, o1.equals(o2));
@@ -41,7 +49,7 @@ public class BaseUserEqualsTest {
 	}
 
 	private BaseUserEdit newUser(String id, String eid) {
-		return service.new BaseUserEdit(id, eid);
+     return new BaseUserEdit(id, eid);
 	}
 
 	@Test

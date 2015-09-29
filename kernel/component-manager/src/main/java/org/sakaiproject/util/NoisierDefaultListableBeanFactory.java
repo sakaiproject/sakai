@@ -22,6 +22,7 @@
 
 package org.sakaiproject.util;
 
+import org.sakaiproject.util.serializable.SakaiCglibSubclassingInstantiationStrategy;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
@@ -41,6 +42,11 @@ public class NoisierDefaultListableBeanFactory extends
 		DefaultListableBeanFactory {
 
 	public static boolean noisyClose = true;
+
+  public NoisierDefaultListableBeanFactory() {
+    // We set this particular strategy because otherwise Spring uses a non-serializable object when processing the bytecode 
+    setInstantiationStrategy(new SakaiCglibSubclassingInstantiationStrategy());
+  }
 
 	public void preInstantiateSingletons() throws BeansException {
 		if (logger.isDebugEnabled()) {

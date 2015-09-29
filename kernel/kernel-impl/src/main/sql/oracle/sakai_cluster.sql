@@ -1,6 +1,7 @@
 -----------------------------------------------------------------------------
 -- SAKAI_CLUSTER
 -----------------------------------------------------------------------------
+-- This doesn't work. ENUM is a MySQL type and there isn't an equivelent type in Oracle. Does anyone check this?
 
 CREATE TABLE SAKAI_CLUSTER
 (

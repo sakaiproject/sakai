@@ -213,7 +213,7 @@ public class GetUsersByEidTest extends SakaiKernelTestBase {
 		// way possible.
 
 		TestProvider.GET_USER_CALLS_COUNTER = 0;
-		TestProvider.GET_USERS_CALLS_COUNTER = 0;
+		TestProvider.GET_USERS_CALLS_COUNTER = 1;
 		List<User> users = dbUserService.getUsers(searchIds);
 		Assert.assertEquals(mappedUserIds.size(), users.size());	// Everyone but the NO_SUCH_EID
 		Assert.assertEquals(0, TestProvider.GET_USER_CALLS_COUNTER);

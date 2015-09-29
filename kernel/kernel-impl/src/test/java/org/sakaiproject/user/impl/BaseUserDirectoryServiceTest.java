@@ -5,7 +5,6 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
 import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.api.FunctionManager;
 import org.sakaiproject.authz.api.SecurityService;
@@ -16,10 +15,12 @@ import org.sakaiproject.id.api.IdManager;
 import org.sakaiproject.memory.api.MemoryService;
 import org.sakaiproject.test.SakaiKernelTestBase;
 import org.sakaiproject.thread_local.api.ThreadLocalManager;
+import org.sakaiproject.time.api.Time;
 import org.sakaiproject.time.api.TimeService;
 import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.UserEdit;
 import org.sakaiproject.util.BaseResourceProperties;
 import org.sakaiproject.util.api.FormattedText;
 
@@ -92,7 +93,7 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
     public void setUp() throws Exception {
         log.debug("Setting up UserDirectoryServiceIntegrationTest");
         userDirectoryService = new BaseUserDirectoryService() {
-            protected TimeService timeService() {
+            public TimeService timeService() {
                 return (TimeService)getService(TimeService.class.getName());
             }
             protected ThreadLocalManager threadLocalManager() {
@@ -119,7 +120,7 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
             protected FunctionManager functionManager() {
                 return (FunctionManager)getService(FunctionManager.class.getName());
             }
-            protected FormattedText formattedText() {
+            public FormattedText formattedText() {
                 return (FormattedText)getService(FormattedText.class.getName());
             }
             protected EventTrackingService eventTrackingService() {
@@ -130,6 +131,23 @@ public class BaseUserDirectoryServiceTest extends SakaiKernelTestBase  {
             }
             protected AuthzGroupService authzGroupService() {
                 return (AuthzGroupService)getService(AuthzGroupService.class.getName());
+            }
+            protected void addLiveUpdateProperties(UserEdit edit)
+            {
+              String current = sessionManager().getCurrentSessionUserId();
+              edit.setLastModifiedUserId(current);
+              edit.setLastModifiedTime(timeService().newTime());
+            }
+            public void addLiveProperties(BaseUserEdit edit)
+            {
+              String current = sessionManager().getCurrentSessionUserId();
+
+              edit.m_createdUserId = current;
+              edit.setLastModifiedUserId(current);
+
+              Time now = timeService().newTime();
+              edit.m_createdTime = now;
+              edit.setLastModifiedTime((Time) now.clone());
             }
         };
     }

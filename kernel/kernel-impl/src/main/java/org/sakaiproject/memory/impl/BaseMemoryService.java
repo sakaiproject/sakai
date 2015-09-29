@@ -21,17 +21,20 @@
 
 package org.sakaiproject.memory.impl;
 
+import java.io.IOException;
+import java.util.Properties;
+
 import net.sf.ehcache.CacheManager;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.component.api.ServerConfigurationService;
-import org.sakaiproject.component.cover.ComponentManager;
-import org.sakaiproject.event.api.EventTrackingService;
-import org.sakaiproject.memory.api.*;
-
-import java.util.Properties;
+import org.sakaiproject.memory.api.Cache;
+import org.sakaiproject.memory.api.CacheRefresher;
+import org.sakaiproject.memory.api.Configuration;
+import org.sakaiproject.memory.api.MemoryService;
+import org.springframework.core.io.ClassPathResource;
 
 /**
  * Allows us to configure which MemoryService implementation is used using config settings
@@ -46,7 +49,6 @@ public class BaseMemoryService implements MemoryService {
     final Log log = LogFactory.getLog(BaseMemoryService.class);
 
     ServerConfigurationService serverConfigurationService;
-    CacheManager cacheManager;
 
     MemoryService memoryService;
 
@@ -56,8 +58,8 @@ public class BaseMemoryService implements MemoryService {
     public void init() {
         log.info("INIT");
         if (memoryService == null) {
-            // defaults - ehcache (new)
-            String cacheManagerType = TYPE_EHCACHE;
+            // defaults - hazelcast for limited use and ehcache for the rest
+            String cacheManagerType = TYPE_HAZELCAST;
             if (serverConfigurationService != null) {
                 cacheManagerType = serverConfigurationService.getString("memory.cachemanager", cacheManagerType);
                 cacheManagerType = StringUtils.lowerCase(cacheManagerType);
@@ -69,16 +71,48 @@ public class BaseMemoryService implements MemoryService {
                 // use the newer service implementations
                 if (TYPE_EHCACHE.equals(cacheManagerType)) {
                     // EhCache based implementation
+                    SakaiCacheManagerFactoryBean cacheManagerFactory = new SakaiCacheManagerFactoryBean();
+                    cacheManagerFactory.setServerConfigurationService(serverConfigurationService);
+                    cacheManagerFactory.setConfigLocation(new ClassPathResource(serverConfigurationService
+                            .getString("memory.eh.classpath.config","org/sakaiproject/memory/api/ehcache.xml")));
+                    try {
+                        cacheManagerFactory.afterPropertiesSet();
+                    } catch (IOException e) {
+                        log.error(
+                                "Unable to INIT MemoryService, error creating ehcache manager. No service could be started, system cannot operate with caching",
+                                e);
+                    }
+                    CacheManager cacheManager = cacheManagerFactory.getObject();
                     EhcacheMemoryService ems = new EhcacheMemoryService(cacheManager, serverConfigurationService);
                     ems.init();
                     memoryService = ems;
                     log.info("INIT complete: new: EhcacheMemoryService");
 
                 } else if (TYPE_HAZELCAST.equals(cacheManagerType)) {
-                    // HazelCast based implementation
+                    // Hazelcast based implementation
                     HazelcastMemoryService hcms = new HazelcastMemoryService(serverConfigurationService);
                     hcms.init();
                     memoryService = hcms;
+
+                    // We still need to use an EhCache based implementation for hibernate's caching until Sakai is at the point
+                    // that there are no longer serializable issue for hibernate. Spin up an ehcache instance and give it to the 
+                    // cache object.
+                    SakaiCacheManagerFactoryBean cacheManagerFactory = new SakaiCacheManagerFactoryBean();
+                    cacheManagerFactory.setServerConfigurationService(serverConfigurationService);
+                    cacheManagerFactory.setConfigLocation(new ClassPathResource(serverConfigurationService.getString(
+                            "memory.eh.classpath.config", "org/sakaiproject/memory/api/ehcache.xml")));
+                    try {
+                        cacheManagerFactory.afterPropertiesSet();
+                    } catch (IOException e) {
+                        log.error(
+                                "Unable to INIT MemoryService, error creating ehcache manager. No service could be started, system cannot operate with caching",
+                                e);
+                    }
+                    CacheManager cacheManager = cacheManagerFactory.getObject();
+                    EhcacheMemoryService ems = new EhcacheMemoryService(cacheManager, serverConfigurationService);
+                    ems.init();
+                    log.info("INIT complete: new: EhcacheMemoryService for use by HazelcastMemoryService when a request for the L2 cache comes in");
+                    hcms.setEhcacheMemoryService(ems);
                     log.info("INIT complete: new: HazelcastMemoryService");
 
                 /* Add new implementation service init here -AZ
@@ -92,7 +126,7 @@ public class BaseMemoryService implements MemoryService {
 
                 } else {
                     // die if we configure an unsupported caching system type
-                    throw new IllegalStateException("Bad caching type ("+cacheManagerType+"): memory.cachemanager must be set to a valid type like ehcache or legacy");
+                    throw new IllegalStateException("Bad caching type ("+cacheManagerType+"): please verify memory.cachemanager property has been set to a valid type like ehcache or legacy");
                 }
         } else {
             // using the passed in MemoryService
@@ -217,10 +251,6 @@ public class BaseMemoryService implements MemoryService {
 
     public void setServerConfigurationService(ServerConfigurationService serverConfigurationService) {
         this.serverConfigurationService = serverConfigurationService;
-    }
-
-    public void setCacheManager(CacheManager cacheManager) {
-        this.cacheManager = cacheManager;
     }
 
     // OPTIONAL
