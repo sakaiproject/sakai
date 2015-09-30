@@ -71,6 +71,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>${sakai.ehcache.groupId}</groupId>
+            <artifactId>${sakai.ehcache.artifactId}</artifactId>
+            <version>${sakai.ehcache.version}</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- Sakai K1 dependencies -->
 <!-- -->
         <dependency>
