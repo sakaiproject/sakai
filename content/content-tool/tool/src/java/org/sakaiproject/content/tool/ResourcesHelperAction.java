@@ -2233,6 +2233,7 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 				sendnd.notify(ne,eventTrackingService.newEvent(eventResource, ContentHostingService.REFERENCE_ROOT+item.getId(), true, notificationPriority));			
 			}
 			state.setAttribute(DRAGNDROP_FILENAME_REFERENCE_LIST, null);
+			sendnd.setFileList(null);
 		} catch (IdUnusedException e) {
 			logger.warn("Somehow we couldn't find the site.", e);
 		}
