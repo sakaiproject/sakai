@@ -211,14 +211,14 @@
 			<tr>
 				<th id="expansion" class="attach" scope="col">
 					#if ($expandallflag && "$expandallflag" == "$TRUE")
-						<a href="document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
+						<a href="#" onclick="document.getElementById('sakai_action').value='doUnexpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$clang.getString('collapseall')">
 							<span class="sr-only">$clang.getString('collapseall')</span>
                             <span class="glyphicon glyphicon-chevron-up"></span>
                             ##<img src = "#imageLink("sakai/collapse-expand.gif")" border="0" title="$clang.getString('collapseall')" alt="$clang.getString('collapseall')" hspace="0" />
 						</a>								 
 					#else
-						<a href="document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
+						<a href="#" onclick="document.getElementById('sakai_action').value='doExpandall';document.getElementById('collectionId').value='$collectionId';document.getElementById('showForm').submit();"
 							title= "$slang.getString('label.expand.all')">
                             <span class="sr-only">$slang.getString('label.expand.all')</span>
                             <span class="glyphicon glyphicon-chevron-down"></span>
@@ -232,7 +232,7 @@
 
 				</th>
 				<th id="title" scope="col">
-					<a href="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='title';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sorttit')">
 						$clang.getString("gen.title1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropDisplayName)) 
@@ -254,7 +254,7 @@
 					$clang.getString("gen.access")
 				</th>
 				<th id="creator" class="creator" scope="col">
-					<a href="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='created by';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortaut')">
 						$clang.getString("gen.created")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropCreator)) 
@@ -267,7 +267,7 @@
 					</a>
 				</th>
 				<th id="modified" class="modified" scope="col">
-					<a href="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='last modified';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortdate')">
 						$clang.getString("gen.last1")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropModifiedDate)) 
@@ -280,7 +280,7 @@
 					</a>
 				</th>
 				<th id="size" class="size" scope="col">
-					<a href="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
+					<a href="#" onclick="document.getElementById('sakai_action').value='doSort';document.getElementById('collectionId').value='$collectionId';document.getElementById('criteria').value='size';document.getElementById('showForm').submit();"
 						title= "$clang.getString('sh.sortsize')">
 						$clang.getString("gen.size")
 						#if ($currentSortedBy.equals($resourceProperties.NamePropContentLength)) 
@@ -411,7 +411,7 @@
 							#set ($itemsOnLine = 0)
 							#foreach($action in $item.pasteActions)
 								#if($itemsOnLine > 0)|#end
-								<a class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" href="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
+								<a href="#" class=" highlightlink" title="$labeler.getLabel($action) $tlang.getString("paste.here")" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');"><img src = "#imageLink("silk/page_paste.gif")" border="0"  alt="$labeler.getLabel($action)"/></a> 
 								#set ($itemsOnLine = $itemsOnLine + 1)
 							#end
 						#end
@@ -429,7 +429,7 @@
                                     <li role="presentation" class="dropdown-header">$clang.getString('gen.add')</li>
                                     <li class="divider"></li>
                                     #foreach($action in $item.addActions)
-                                        <li><a role="menuitem" tabindex="-1" style="width:auto" href="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
+                                        <li><a href="#" role="menuitem" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">$labeler.getLabel($action)</a></li>
                                     #end
                                 #end
                                 #if($item.addActions && !$item.addActions.isEmpty() && $item.otherActions && !$item.otherActions.isEmpty())
@@ -440,7 +440,7 @@
                                     <li class="divider"></li>
                                     #foreach($action in $item.otherActions)
                                     <li>
-                                        <a role="menuitem" tabindex="-1" style="width:auto" href="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
+                                        <a href="#" role="menuitem" tabindex="-1" style="width:auto" onclick="document.getElementById('selectedItemId').value='$qid';document.getElementById('rt_action').value='${action.typeId}${ACTION_DELIMITER}$action.id';document.getElementById('sakai_action').value='doDispatchAction';submitform('showForm');">
                                             $labeler.getLabel($action)
                                         </a>
                                     </li>
@@ -493,7 +493,7 @@
 					<tr>
 						<td colspan="12">
 						<h3>
-							<a href="document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
+							<a href="#" onclick="document.getElementById('sakai_action').value='doHideOtherSites';document.getElementById('showForm').submit();"
 								title= "$clang.getString('list.copycontent')">
 								<img src="#imageLink("sakai/collapse.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
 								$validator.escapeHtml("$clang.getString('list.copycontent')")
@@ -697,7 +697,7 @@
 					<tr>
 						<th colspan="10">
 						<h3>
-							<a href="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
+							<a href="#" onclick="document.getElementById('sakai_action').value='doShowOtherSites';document.getElementById('showForm').submit();"
 								title= "$clang.getString('list.copycontent')">
 								<img src="#imageLink("sakai/expand.gif")" alt="$clang.getString('list.copycontent')" border="0" align="top" />
 								$validator.escapeHtml("$clang.getString('list.copycontent')")
