@@ -121,30 +121,6 @@ public class AddGradeItemPanelContent extends Panel {
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				refreshState(target);
-			}
-
-			@Override
-			public void onEvent(IEvent<?> event) {
-				super.onEvent(event);
-
-				if (event.getPayload() instanceof CategoryChangedEvent) {
-					CategoryChangedEvent update = (CategoryChangedEvent)event.getPayload();
-
-					if (areCategoriesEnabled) {
-						if (update.getCategory() == null) {
-							this.setEnabled(false);
-							this.setModelObject(false);
-						} else {
-							this.setEnabled(true);
-							this.setModelObject(true);
-						}
-						refreshState(update.getTarget());
-					}
-				}
-			}
-
-			private void refreshState(AjaxRequestTarget target) {
 				if(this.getModelObject()) {
 					released.setModelObject(true);
 					released.setEnabled(false);
@@ -181,29 +157,25 @@ public class AddGradeItemPanelContent extends Panel {
 				}
 				target.add(extraCredit);
 
-				send(thisPanel, Broadcast.BREADTH, new CategoryChangedEvent(category, target));
+
+				if (areCategoriesEnabled) {
+					if (category == null) {
+						counted.setEnabled(false);
+						counted.setModelObject(false);
+						released.setEnabled(true);
+					} else {
+						counted.setEnabled(true);
+						counted.setModelObject(true);
+						released.setEnabled(false);
+						released.setModelObject(true);
+					}
+
+					target.add(counted);
+					target.add(released);
+				}
 			}
 		});
         
         
-    }
-
-    // Class to represent the change of a category event
-    public class CategoryChangedEvent {
-        private final AjaxRequestTarget target;
-        private final CategoryDefinition category;
-
-        public CategoryChangedEvent(CategoryDefinition category, AjaxRequestTarget target) {
-            this.target = target;
-            this.category = category;
-        }
-
-        public AjaxRequestTarget getTarget() {
-            return target;
-        }
-
-        public CategoryDefinition getCategory() {
-            return category;
-        }
     }
 }
