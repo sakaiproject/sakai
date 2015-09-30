@@ -115,6 +115,8 @@ public interface PublishedAssessmentFacadeQueriesAPI
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId);
   
   public PublishedAssessmentFacade getPublishedAssessment(Long assessmentId, boolean withGroupsInfo);
+  
+  public PublishedAssessmentFacade getPublishedAssessmentQuick(Long assessmentId);
 
   public Long getPublishedAssessmentId(Long assessmentId);
 
