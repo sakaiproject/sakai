@@ -601,11 +601,19 @@ public class PublishedAssessmentFacade
   public Date getStartDate() {
     return this.startDate;
   }
+  
+  public void setStartDate(Date date) {
+	  	  this.startDate = date;
+	}
 
   public Date getDueDate() {
     return this.dueDate;
   }
-
+  
+  public void setDueDate(Date date) {
+	  	  this.dueDate = date;
+	    }
+  
   public int getSubmissionSize() {
     return this.submissionSize;
   }
@@ -651,7 +659,11 @@ public class PublishedAssessmentFacade
   public Date getRetractDate() {
     return this.retractDate;
   }
-
+  
+  public void setRetractDate(Date date) {
+	  	  this.retractDate = date;
+	    }
+  
   public Integer getFeedbackDelivery()
   {
     return feedbackDelivery;
