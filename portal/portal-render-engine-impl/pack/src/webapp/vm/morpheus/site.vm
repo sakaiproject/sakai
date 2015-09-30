@@ -48,6 +48,7 @@
     <script>
         var needJQuery = true;
         var secondJQuery = false;
+        var notJQuery = false;
         var dollarEmpty = false;
         var dollarVersion = false;
         if ( window.$ ) {
@@ -57,6 +58,8 @@
                  dollarVersion = 'not jQuery';
                  window.console && console.log('Dollar is defined but is not jQuery');
                  window.console && console.log($d);
+                 //Just have it reload this other $ afterward
+                 notJQuery = true;
               }
          } else {
               dollarEmpty = true;
@@ -138,6 +141,12 @@
             if ( secondJQuery ) {
                 ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
                 if ( ! dollarEmpty ) jQuery = ${d};  // Return jQuery to point at the tool jQuery
+            }
+            if (notJQuery) {
+                ${d}PBJQ = jQuery.noConflict(true); // Safely return $ to the tool jQuery
+                //Just set jQuery to be the same thing since it didn't exist before
+                jQuery = ${d}PBJQ;
+
             }
             window.console && console.log('Portal script load complete PBJQ='+${d}PBJQ.fn.jquery+' jQuery='+jQuery.fn.jquery+' ${d}='+dollarVersion);
 
