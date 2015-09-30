@@ -46,8 +46,6 @@ public class AddGradeItemPanelContent extends Panel {
         final Gradebook gradebook = businessService.getGradebook();
 
         final AddGradeItemPanelContent thisPanel = this;
-        final boolean areCategoriesEnabled = GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type() ||
-                                                GradebookService.CATEGORY_TYPE_ONLY_CATEGORY == gradebook.getCategory_type();
 
         Assignment assignment = assignmentModel.getObject();
 
@@ -132,7 +130,7 @@ public class AddGradeItemPanelContent extends Panel {
 			}
         };
 
-        if (areCategoriesEnabled) {
+        if (businessService.categoriesAreEnabled()) {
             counted.setEnabled(assignment.getCategoryId() != null);
         }
 
@@ -158,7 +156,7 @@ public class AddGradeItemPanelContent extends Panel {
 				target.add(extraCredit);
 
 
-				if (areCategoriesEnabled) {
+				if (businessService.categoriesAreEnabled()) {
 					if (category == null) {
 						counted.setEnabled(false);
 						counted.setModelObject(false);
