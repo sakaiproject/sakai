@@ -1060,3 +1060,90 @@ td.feedbackColumn2 {
   vertical-align: bottom;
   padding-bottom: 15px;
 }
+
+#questionProgressPanel {
+	min-height: 200px;
+	max-height:auto;
+	width: 295px;
+	background: #ddd;
+	right:0px;
+	display: none;
+	position: fixed;
+	border: 2px solid #004B8D;
+	padding-bottom: 1em;
+}
+#questionProgressClick {
+	height: 200px;
+	width: 40px;
+	background: #004B8D;
+	right:299px;
+	margin-top: 200px;
+	position: fixed;
+	display: none;
+	font-weight: bold;
+	-moz-border-radius-topleft: 15px;
+	border-top-left-radius: 15px;
+	-moz-border-radius-bottomleft: 15px;
+	border-bottom-left-radius: 15px;
+	cursor: pointer;
+}
+.currentQuestion {
+	border: 1px solid #004B8D;
+	padding: 2px;
+	background-color:#d6ebff;
+	border-radius: 2px;
+}
+.questionProgressTable {
+
+}
+.questionProgressTable td {
+	border: 1px solid #ddd;
+	text-align: right;
+	background-color: #ddd;
+}
+.questionProgressTable td:hover {
+	background-color: #d6ebff;
+	border-color: #d6ebff;
+	cursor: pointer;
+}
+.questionProgressTable a {
+	text-decoration: none;
+	font-size:100%;
+	padding: 4px;
+}
+.questionProgressTable a img {
+	vertical-align: middle;
+}
+img.bublecenter {
+	vertical-align: middle;
+}
+p.progressItem {
+	padding:0 0 0 0;
+	margin:0 0 0 0;
+	line-height:1.5em;
+}
+p.progressItem img {
+	vertical-align: middle;
+}
+
+.rotateQP {
+	color:white;
+	white-space:nowrap;
+	margin-top:154px;
+
+	/* Safari */
+	-webkit-transform: rotate(-90deg);
+
+	/* Firefox */
+	-moz-transform: rotate(-90deg);
+
+	/* IE */
+	-ms-transform: rotate(-90deg);
+
+	/* Opera */
+	-o-transform: rotate(-90deg);
+
+	/* Internet Explorer */
+	filter: progid:DXImageTransform.Microsoft.BasicImage(rotation=3);
+
+}
