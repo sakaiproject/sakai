@@ -93,6 +93,7 @@ import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
 import org.sakaiproject.tool.assessment.ui.model.delivery.TimedAssessmentGradingModel;
 import org.sakaiproject.tool.assessment.ui.queue.delivery.TimedAssessmentQueue;
 import org.sakaiproject.tool.assessment.ui.web.session.SessionUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.util.MimeTypesLocator;
 import org.sakaiproject.tool.cover.SessionManager;
 import org.sakaiproject.tool.cover.ToolManager;
@@ -279,6 +280,8 @@ public class DeliveryBean
   private String secureDeliveryHTMLFragment; 
   
   private boolean isFromPrint;
+  
+  private ExtendedTimeService extendedTimeService = null;
 
   private boolean showTimeWarning;
   private boolean hasShowTimeWarning;
@@ -295,6 +298,8 @@ public class DeliveryBean
 
   private static ResourceBundle eventLogMessages = ResourceBundle.getBundle("org.sakaiproject.tool.assessment.bundle.EventLogMessages");
 
+  private static String EXTENDED_TIME_KEY = "extendedTime";
+  
   /**
    * Creates a new DeliveryBean object.
    */
@@ -3253,6 +3258,8 @@ public class DeliveryBean
       assessmentGrading = service.load(adata.getAssessmentGradingId().toString(), false);
     }
     
+    extendedTimeService = new ExtendedTimeService(publishedAssessment);
+    
     // log.debug("check 0");
     if (isRemoved()){
         return "isRemoved";
@@ -3413,7 +3420,12 @@ public class DeliveryBean
   private boolean isAvailable(){
 	  boolean isAvailable = true;
 	  Date currentDate = new Date();
-	  Date startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
+		Date startDate = new Date();
+		if (extendedTimeService.hasExtendedTime()) {
+			startDate = extendedTimeService.getStartDate();
+		} else {
+			startDate = publishedAssessment.getAssessmentAccessControl().getStartDate();
+		}
 	  if (startDate != null && startDate.after(currentDate)){
 		  isAvailable = false;
 	  }
@@ -3423,7 +3435,12 @@ public class DeliveryBean
   private boolean pastDueDate(){
     boolean pastDue = true;
     Date currentDate = new Date();
-    Date dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+		Date dueDate = new Date();
+		if (extendedTimeService.hasExtendedTime()) {
+			dueDate = extendedTimeService.getDueDate();
+		} else {
+			dueDate = publishedAssessment.getAssessmentAccessControl().getDueDate();
+		}
     if (dueDate == null || dueDate.after(currentDate)){
         pastDue = false;
     }
@@ -3434,10 +3451,8 @@ public class DeliveryBean
     boolean isRetracted = true;
     Date currentDate = new Date();
     Date retractDate = null;
-    if (isSubmitForGrade) {
-    	PublishedAssessmentService pubService = new PublishedAssessmentService();
-    	PublishedAssessmentData publishedAssessmentData = pubService.getBasicInfoOfPublishedAssessment(getPublishedAssessment().getPublishedAssessmentId().toString());
-    	retractDate = publishedAssessmentData.getRetractDate();
+    if (extendedTimeService.hasExtendedTime()) {
+    	retractDate = extendedTimeService.getRetractDate();
     }
     else {
     	retractDate = publishedAssessment.getAssessmentAccessControl().getRetractDate();
@@ -3614,7 +3629,7 @@ public class DeliveryBean
 	    this.assessmentGradingId = assessmentGradingId;
 	  }
 
-	  public String updateTimeLimit(String timeLimit, String timeBeforeDueRetract) {  
+	  public String updateTimeLimit(String timeLimit) {  
   	    if (numberRetake == -1 || actualNumberRetake == -1) {
 		    	GradingService gradingService = new GradingService();
 		    	numberRetake = gradingService.getNumberRetake(publishedAssessment.getPublishedAssessmentId(), AgentFacade.getAgentString());
@@ -3624,7 +3639,7 @@ public class DeliveryBean
 		 }
 		
 		if (!("previewAssessment").equals(actionString) && actualNumberRetake >= numberRetake && beginTime != null) { 
-			timeLimit = timeBeforeDueRetract;
+			timeLimit = getTimeBeforeDueRetract(timeLimit);
 		}
 		
 		return timeLimit;
@@ -3741,6 +3756,7 @@ public class DeliveryBean
 	  }
 	  
 	  private String getTimeBeforeRetract(String timeLimit) {
+		  retractDate = publishedAssessment.getRetractDate();
 		  if (timeLimit != null && Integer.parseInt(timeLimit) > 0) {
 			  int timeBeforeRetract  = Math.round((retractDate.getTime() - beginTime.getTime())/1000.0f);
 			  if (timeBeforeRetract < Integer.parseInt(timeLimit)) {
@@ -3981,7 +3997,38 @@ public class DeliveryBean
 	    return recURL;
 	  }
 
-	  
+	/**
+	 * Return the time limit as a String
+	 * 
+	 * @param delivery
+	 * @param publishedAssessment
+	 * @param fromBeginAssessment
+	 * @return
+	 */
+	public int evaluateTimeLimit(PublishedAssessmentFacade pubAssessment, Boolean fromBeginAssessment, int extTimeVal) {
+		publishedAssessment = pubAssessment; // synchronize the passed in values
+		Integer timeLimit = 0;
+		Integer originalTimeLimit = publishedAssessment.getAssessmentAccessControl().getTimeLimit();
+		int extTimeAdjust = 0;
+
+		// Calcuate the adjustment due to extended time if necessary
+		if (extTimeVal > 0) {
+			extTimeAdjust = extTimeVal - originalTimeLimit; // adjustment to add
+															// to time remaining
+		}
+
+		if (fromBeginAssessment) {
+			timeLimit = Integer.parseInt(this.updateTimeLimit(originalTimeLimit.toString())) + extTimeAdjust;
+		} else {
+			if (this.getTimeLimit() != null) {
+				timeLimit = Integer.parseInt(this.getTimeLimit());
+			}
+		}
+		this.setTimeLimit(timeLimit.toString());
+
+		return timeLimit;
+	}
+
 	  public void setNumberRetake(int numberRetake) {
 		  this.numberRetake = numberRetake;
 	  }

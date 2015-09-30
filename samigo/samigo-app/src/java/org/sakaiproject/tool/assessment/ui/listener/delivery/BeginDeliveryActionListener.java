@@ -71,6 +71,7 @@ import org.sakaiproject.tool.assessment.ui.bean.delivery.SettingsDeliveryBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.ui.listener.util.TimeUtil;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.tool.assessment.ui.listener.author.RemovePublishedAssessmentThread;
 import org.sakaiproject.util.ResourceLoader;
 /**
@@ -333,9 +334,18 @@ public class BeginDeliveryActionListener implements ActionListener
     delivery.setQuestionIndex(0);
     delivery.setBeginTime(null);
     delivery.setFeedbackOnDate(false);
-    delivery.setDueDate(control.getDueDate());
-    delivery.setRetractDate(control.getRetractDate());
-    
+		ExtendedTimeService extTimeService = new ExtendedTimeService(delivery.getPublishedAssessment());
+		PublishedAssessmentFacade paFacade = delivery.getPublishedAssessment();
+
+		if (extTimeService.hasExtendedTime()) {
+			delivery.setDueDate(extTimeService.getDueDate());
+			delivery.setRetractDate(extTimeService.getRetractDate());
+			if (extTimeService.getTimeLimit() > 0)
+				paFacade.setTimeLimit(extTimeService.getTimeLimit());
+		} else {
+			delivery.setDueDate(control.getDueDate());
+			delivery.setRetractDate(control.getRetractDate());
+		}
     if (control.getMarkForReview() != null && (Integer.valueOf(1)).equals(control.getMarkForReview())) {
     	delivery.setDisplayMardForReview(true);
     }
@@ -358,23 +368,24 @@ public class BeginDeliveryActionListener implements ActionListener
     if (unSubmittedAssessmentGradingList.size() != 0){
     	delivery.setFirstTimeTaking(false);
     	AssessmentGradingData unSubmittedAssessmentGrading = (AssessmentGradingData) unSubmittedAssessmentGradingList.get(0);
-    	setTimedAssessment(delivery, pubAssessment, unSubmittedAssessmentGrading);
+    	setTimedAssessment(delivery, pubAssessment, extTimeService, unSubmittedAssessmentGrading);
     }  
     else {
     	delivery.setFirstTimeTaking(true);
-    	setTimedAssessment(delivery, pubAssessment, null);
+    	setTimedAssessment(delivery, pubAssessment, extTimeService, null);
     }
 
     // #3 - if this is a timed assessment, set the time limit in hr, min & sec.
-    delivery.setDeadline();
-    
+//    setTimedAssessment(delivery, pubAssessment, extTimeService);
+//    delivery.setDeadline();
   }
 
-  private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment, AssessmentGradingData unSubmittedAssessmentGrading){
+  private void setTimedAssessment(DeliveryBean delivery, PublishedAssessmentIfc pubAssessment, ExtendedTimeService extTimeService, AssessmentGradingData unSubmittedAssessmentGrading){
 
     AssessmentAccessControlIfc control = pubAssessment.getAssessmentAccessControl();
     // check if we need to time the assessment, i.e.hasTimeassessment="true"
     String hasTimeLimit = pubAssessment.getAssessmentMetaDataByLabel("hasTimeAssessment");
+    hasTimeLimit="true"; //TODO: figure out why this isn't giving me the right value
     if (hasTimeLimit!=null && hasTimeLimit.equals("true") && control.getTimeLimit() != null){
 
     	delivery.setHasTimeLimit(true);
@@ -382,9 +393,13 @@ public class BeginDeliveryActionListener implements ActionListener
 
     	if (unSubmittedAssessmentGrading == null || unSubmittedAssessmentGrading.getAttemptDate() == null) {
     		try {
+    			if (extTimeService.hasExtendedTime() && extTimeService.getTimeLimit() > 0)
+    				control.setTimeLimit(extTimeService.getTimeLimit());
     			if (control.getTimeLimit() != null) {
-    				delivery.setTimeLimit(control.getTimeLimit().toString());
-    				int seconds = control.getTimeLimit().intValue();
+    				Integer timeLimit = control.getTimeLimit();
+    				if(timeLimit < 1) delivery.setHasTimeLimit(false); //TODO: figure out why I have to do this
+    					delivery.setTimeLimit(delivery.updateTimeLimit(timeLimit.toString()));
+    				int seconds = timeLimit;
     				int hour = 0;
     				int minute = 0;
     				if (seconds>=3600) {
