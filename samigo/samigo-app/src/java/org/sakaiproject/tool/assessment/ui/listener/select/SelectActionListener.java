@@ -59,6 +59,7 @@ import org.sakaiproject.tool.assessment.ui.bean.select.SelectAssessmentBean;
 import org.sakaiproject.tool.assessment.ui.bean.shared.PersonBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
 import org.sakaiproject.tool.assessment.util.BeanSort;
+import org.sakaiproject.tool.assessment.util.ExtendedTimeService;
 import org.sakaiproject.util.ResourceLoader;
 
 /**
@@ -75,6 +76,8 @@ public class SelectActionListener
   //private static ContextUtil cu;
   private static BeanSort bs;
   private static BeanSort bs2;
+  private static ExtendedTimeService extendedTimeService = null;
+  private static String EXTENDED_TIME_KEY = "extendedTime";
   public SelectActionListener() {
   }
 
@@ -578,6 +581,16 @@ public class SelectActionListener
     HashMap actualNumberRetake = gradingService.getActualNumberRetakeHash(AgentFacade.getAgentString());
     for (int i = 0; i < assessmentList.size(); i++) {
       PublishedAssessmentFacade f = (PublishedAssessmentFacade)assessmentList.get(i);
+			// Handle extended time info
+			extendedTimeService = new ExtendedTimeService(f);
+			if (extendedTimeService.hasExtendedTime()) {
+				f.setStartDate(extendedTimeService.getStartDate());
+				f.setDueDate(extendedTimeService.getDueDate());
+				f.setRetractDate(extendedTimeService.getRetractDate());
+				if (extendedTimeService.getTimeLimit() != 0) {
+					f.setTimeLimit(extendedTimeService.getTimeLimit());
+				}
+			}
       if (f.getReleaseTo()!=null && !("").equals(f.getReleaseTo())
           && f.getReleaseTo().indexOf("Anonymous Users") == -1 ) {
         if (isAvailable(f, h, numberRetakeHash, actualNumberRetake, updatedAssessmentNeedResubmitList, updatedAssessmentList)) {
@@ -594,8 +607,8 @@ public class SelectActionListener
     Integer status = f.getStatus();
     Date currentDate = new Date();
     Date startDate = f.getStartDate();
-    Date retractDate = f.getRetractDate();
     Date dueDate = f.getDueDate();
+    Date retractDate = f.getRetractDate();
     boolean acceptLateSubmission = AssessmentAccessControlIfc.ACCEPT_LATE_SUBMISSION.equals(f.getLateHandling());
     
     if (!Integer.valueOf(1).equals(status)) {
