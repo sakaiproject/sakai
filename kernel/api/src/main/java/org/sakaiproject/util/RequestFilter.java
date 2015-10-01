@@ -28,6 +28,7 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang.ArrayUtils;
 import org.sakaiproject.cluster.api.ClusterNode;
 import org.sakaiproject.cluster.api.ClusterService;
 import org.sakaiproject.cluster.api.ClusterService.Status;
@@ -248,6 +249,10 @@ public class RequestFilter implements Filter
 	private String [] contentPaths;
 	private String [] loginPaths;
 	private String [] contentExceptions;
+    
+	private static String [] forwarders = null;
+        private static String forwardHeader = null;
+	private static Boolean checkForwarded = null;
 
 	/**
 	 * Compute the URL that would return to this server based on the current request.
@@ -659,6 +664,11 @@ public class RequestFilter implements Filter
 		chsUrl = configService.getString("content.chs.serverUrl", null);
 		useContentHostingDomain = configService.getBoolean("content.separateDomains", false);
 		contentPaths = configService.getStrings("content.chs.urlprefixes");
+		if (checkForwarded == null) {
+			forwarders = configService.getString("checkforward.addresses", "").split(",");
+			forwardHeader = configService.getString("checkforward.header", null);
+			checkForwarded = (forwardHeader != null && !forwardHeader.equals("") && forwarders.length > 0);
+		}
 		if (contentPaths == null) {
 			contentPaths = new String[] { "/access/", "/web/"};
 		}
@@ -1420,6 +1430,8 @@ public class RequestFilter implements Filter
 	{
 		private Map map;
 
+		protected String m_remoteAddr = null;
+
 		/**
 		 * Constructs a wrapped response that exposes the given map of parameters.
 		 *
@@ -1432,6 +1444,12 @@ public class RequestFilter implements Filter
 		{
 			super(req);
 			map = paramMap;
+			m_remoteAddr = req.getRemoteAddr();
+			if (checkForwarded) {
+			    String forwarded = req.getHeader(forwardHeader);
+			    if (forwarded != null && !forwarded.equals(""))
+				m_remoteAddr = forwarded;
+			}
 		}
 
 		public Map getParameterMap()
@@ -1458,6 +1476,12 @@ public class RequestFilter implements Filter
 			Map map = getParameterMap();
 			return Collections.enumeration(map.keySet());
 		}
+
+		public String getRemoteAddr()
+		{
+			return m_remoteAddr;
+		}
+
 	}
 	
 	/**
@@ -1471,11 +1495,19 @@ public class RequestFilter implements Filter
 		/** Our contex (i.e. servlet context) id. */
 		protected String m_contextId = null;
 
+		protected String m_remoteAddr = null;
+
 		public WrappedRequest(Session s, String contextId, HttpServletRequest req)
 		{
 			super(req);
 			m_session = s;
 			m_contextId = contextId;
+			m_remoteAddr = req.getRemoteAddr();
+			if (checkForwarded) {
+			    String forwarded = req.getHeader(forwardHeader);
+			    if (forwarded != null && !forwarded.equals(""))
+				m_remoteAddr = forwarded;
+			}
 
 			if (m_toolPlacement)
 			{
@@ -1496,6 +1528,11 @@ public class RequestFilter implements Filter
 			return super.getRemoteUser();
 		}
 
+		public String getRemoteAddr()
+		{
+			return m_remoteAddr;
+		}
+	    
 		public HttpSession getSession()
 		{
 			return getSession(true);
