@@ -28,6 +28,8 @@
 	<target name="deploy" depends="prep" description="Build and deploy to target directory.">
 	    <echo message="[INFO] build and deploy Sakai artifacts to /target/pack (faux Tomcat deployment)." />
     	    <echo>Your OS name is: ${os.name}. If sakai doesn't start to install you might need to add it to the list of OSes.</echo>
+	    <mkdir dir="${basedir}\target\pack"/>
+	    <mkdir dir="${basedir}\target\pack\lib"/>
 	    <exec dir="../../" executable="mvn" failonerror="true" os="Mac OS X,Linux,FreeBSD,Solaris">
 	        <arg value="-Dmaven.tomcat.home=${basedir}/target/pack" />
 	        <arg value="-Dmaven.test.skip=${sakai.skip.tests}" />
@@ -40,8 +42,6 @@
 	        <arg value="install" />
 	        <arg value="sakai:deploy" />
 	    </exec>
-		<mkdir dir="${basedir}\target\pack"/>
-		<mkdir dir="${basedir}\target\pack\lib"/>
 	    <!-- osfamily Tested on Windows 7 , (Fill in others) -->
             <exec dir="../../" executable="cmd" failonerror="true" osfamily="windows">
                 <arg value="/c" />
