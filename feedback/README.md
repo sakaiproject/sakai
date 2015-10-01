@@ -29,6 +29,23 @@ local.properties.
 If you have configured Recaptcha in your Sakai, Feedback will use it to
 validate unauthenticated technical feedback reports.
 
+Forcing the Tool into Sites
+---------------------------
+
+You can force all your sites to have a copy of this tool wit the following lines
+in your sakai.properties
+
+    # Make sure the feedback tool can't be removed from sites.
+    poh.uneditables=sakai.feedback
+    poh.unhideables=sakai.feedback
+
+then place a toolOrder.xml in your sakai home folder that marks the feedback tool
+as required. An example toolOrder.xml is in the root of the feedback project.
+
+To backfill existing sites to have the Feedback Tool. you need to run a quartz 
+job to add the tool to all the sites. There is a Job called "Backfill tool into sites"
+which when run can add a specific tool to all sites that match a partiular type.
+
 Developers
 ----------
 
