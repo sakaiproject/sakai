@@ -571,13 +571,15 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             Group group = site.getGroup(groupid);
-            if (group == null)
+            if (group == null) {
+                LOG.error("addMemberToGroup called with group that does not exist: " + groupid);
                 return false;
+            }
 
             Role r = site.getUserRole(userid);
             Member m = site.getMember(userid);
             group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
-            siteService.save(site);
+            siteService.saveGroupMembership(site);
             return true;
         } catch (Exception e) {
             LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -1137,7 +1139,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.addMember(userid, roleid, true, false);
-            siteService.save(site);
+            siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2514,7 +2516,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.removeMember(userid);
-            siteService.save(site);
+            siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
