@@ -38,7 +38,14 @@
       <groupId>org.apache.jclouds.driver</groupId>
       <artifactId>jclouds-slf4j</artifactId>
       <version>${jclouds.version}</version>
+          <exclusions>
+              <exclusion>
+                  <groupId>aopalliance</groupId>
+                  <artifactId>aopalliance</artifactId>
+              </exclusion>
+          </exclusions>
     </dependency>
+    <!-- jclouds-sl4j needs jclouds-core which needs guice which needs aopalliance which is already provided in lib -->
     <dependency>
       <groupId>org.apache.jclouds.api</groupId>
       <artifactId>openstack-swift</artifactId>
