@@ -1,0 +1,72 @@
+/* selection buttons */
+.non_selected_button{
+	background: url('/samigo-app/images/button_gray.png');
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-size: 32px;
+	vertical-align:bottom;
+	cursor:pointer;
+}
+
+.non_selected_button:hover{
+	background-position: 0px 64px;
+}
+
+.non_selected_button:active{
+	background-position: 0px 32px;
+}
+
+.selected_button{
+	background: url('/samigo-app/images/button_green.png');
+	width:32px;
+	height:32px;
+	display:inline-block;
+	background-size: 32px;
+	vertical-align:bottom;
+}
+
+/* selector div */
+.selectiondiv{
+	border:2px solid white;
+	background:#1B94E0;
+	opacity:0.5;
+	filter:alpha(opacity=50);
+	margin:0px;
+	padding:0px;
+	display:none;
+}
+
+.selectiondiv_selected{
+	border:2px solid green;
+	background:#1B94E0;
+	opacity:0.7;
+	filter:alpha(opacity=70);
+	margin:0px;
+	padding:0px;
+	display:none;
+}
+
+.textContainer{
+	float:right;
+	font-weight:bold;
+	font-size:16px;
+	margin-right:3px;
+	color: red;
+	text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, -1px 1px 0 #fff, 1px -1px 0 #fff;
+}
+
+.authorImageContainer{
+	position:relative;
+	
+	zoom: 1;
+	filter: alpha(opacity=99);
+	opacity: 0.99;
+}
+div[id^=dlContainer] {
+	padding-bottom: 5px;
+}
+
+div[id^=dlContainer] span input {
+  vertical-align: bottom;
+}

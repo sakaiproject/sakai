@@ -280,6 +280,14 @@ public class ItemTypeExtractionStrategy
     {
         itemType = AuthoringConstantStrings.CALCQ;
     }
+    // IMAGEMAP_QUESTION
+    else if (toGuess.indexOf("imagmq") != -1 ||
+        toGuess.indexOf("im.q.") != -1 ||
+        toGuess.indexOf("imq") != -1
+    )
+    {
+        itemType = AuthoringConstantStrings.IMAGMQ;
+    }
     else if (toGuess.indexOf("essay") != -1 ||
              toGuess.indexOf("short") != -1)
     {
