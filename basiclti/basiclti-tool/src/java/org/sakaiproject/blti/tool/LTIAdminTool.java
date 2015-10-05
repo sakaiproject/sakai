@@ -1030,7 +1030,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			// Turn on all the UI allow bits so as to allow overriding
 			newTool.put(LTIService.LTI_ALLOWTITLE, new Integer(1));
 			newTool.put(LTIService.LTI_ALLOWPAGETITLE, new Integer(1));
-			// Might only want to do this if we know they do LtiLink Content Item
+			// Might only want to do this if we know they do LtiLinkItem Content Item
 			newTool.put(LTIService.LTI_ALLOWLAUNCH, new Integer(1));
 
 			String tool_proxy_binding = (String) profileTool.get(LTI2Constants.TOOL_PROXY_BINDING);
@@ -1043,7 +1043,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 			}
 
 			if ( toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
-				ContentItem.getCapability(ContentItem.TYPE_LTILINK) ) ) {
+				ContentItem.getCapability(ContentItem.TYPE_LTILINKITEM) ) ) {
 				newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
 			}
 
@@ -1479,7 +1479,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Check for a returned error message from LTI
 		String lti_errormsg = data.getParameters().getString("lti_errormsg");
-		if ( lti_errormsg != null ) {
+		if ( lti_errormsg != null && lti_errormsg.trim().length() > 0 ) {
 			addAlert(state,lti_errormsg);
 			switchPanel(state, "Error");
 			return;
@@ -1528,7 +1528,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// dataProps={remember=always bring a towel}
 
 		// Extract the content item data
-		JSONObject item = contentItem.getItemOfType(ContentItem.TYPE_LTILINK);
+		JSONObject item = contentItem.getItemOfType(ContentItem.TYPE_LTILINKITEM);
 		if ( item == null ) {
 			addAlert(state,rb.getString("error.contentitem.no.ltilink"));
 			switchPanel(state, "Error");
@@ -1537,11 +1537,12 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Parse the returned information to insert a Content Item
 		/* {
-			"@type": "LtiLink",
+			"@type": "LtiLinkItem",
 			"@id": ":item2",
 			"text": "The mascot for the Sakai Project",
 			"title": "The fearsome mascot of the Sakai Project",
 			"url": "http:\/\/localhost:8888\/sakai-api-test\/tool.php?sakai=98765",
+			"mediaType" : "application/vnd.ims.lti.v1.ltilink", 
 			"icon": {
 				"@id": "fa-bullseye",
 				"width": 50,
@@ -1557,7 +1558,9 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		String icon = getString(iconObject, "fa_icon");
 		if ( icon == null ) {
 			icon = getString(iconObject, LTI2Constants.JSONLD_ID);
-			if ( ! icon.startsWith("fa-") ) icon = null;
+			if ( icon != null ) {
+				if ( ! icon.startsWith("fa-") ) icon = null;
+			}
 		}
 
 		// Prepare data for the next phase
@@ -1667,6 +1670,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// Since the external tool will be setting all the POST data we need to 
 		// include GET data for things that we might normally have sent as "hidden" data
 		Placement placement = toolManager.getCurrentPlacement();
+                // String contentReturn = SakaiBLTIUtil.getOurServerUrl() + "/portal/tool/" + placement.getId() + 
                 String contentReturn = serverConfigurationService.getToolUrl() + "/" + placement.getId() + 
 			"/sakai.basiclti.admin.helper.helper" +
 			"?eventSubmit_doContentItemPut=Save" +
@@ -1684,7 +1688,7 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 		// which will come back later.  Be mindful of GET length limitations enroute
 		// to the access servlet.
 		Properties contentData = new Properties();
-		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINK);
+		contentData.setProperty(ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
 		contentData.setProperty("remember", "always bring a towel");  // An example
 
 		contentLaunch = ContentItem.buildLaunch(contentLaunch , contentReturn, contentData);
