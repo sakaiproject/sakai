@@ -55,6 +55,7 @@ import org.apache.commons.math.util.MathUtils;
 import org.sakaiproject.event.cover.EventTrackingService;
 import org.sakaiproject.service.gradebook.shared.GradebookExternalAssessmentService;
 import org.sakaiproject.spring.SpringBeanLocator;
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -3247,10 +3248,29 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 		}
 		return attachment;
 	}
+  
+  public AssessmentGradingAttachment createAssessmentGradingAttachment(
+		  AssessmentGradingData assessmentGrading, String resourceId, String filename,
+			String protocol) {
+	  AssessmentGradingAttachment attachment = null;
+		try {
+			attachment = PersistenceService.getInstance().
+	        getAssessmentGradingFacadeQueries().createAssessmentGradingtAttachment(assessmentGrading,
+					resourceId, filename, protocol);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return attachment;
+	}
 
   public void removeItemGradingAttachment(String attachmentId) {
 	  PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
 	  .removeItemGradingAttachment(Long.valueOf(attachmentId));
+  }
+  
+  public void removeAssessmentGradingAttachment(String attachmentId) {
+	  PersistenceService.getInstance().getAssessmentGradingFacadeQueries()
+	  .removeAssessmentGradingAttachment(Long.valueOf(attachmentId));
   }
 
   public void saveOrUpdateAttachments(List list) {
