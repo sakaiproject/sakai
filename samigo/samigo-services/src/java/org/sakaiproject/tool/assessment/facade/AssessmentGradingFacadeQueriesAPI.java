@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.AssessmentGradingData;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingAttachment;
 import org.sakaiproject.tool.assessment.data.dao.grading.ItemGradingData;
@@ -259,9 +260,13 @@ public interface AssessmentGradingFacadeQueriesAPI
   
   public ItemGradingAttachment createItemGradingtAttachment(ItemGradingData itemGrading, String resourceId, String filename, String protocol);
   
-  public void removeItemGradingAttachment(Long attachmentId);
+  public AssessmentGradingAttachment createAssessmentGradingtAttachment(AssessmentGradingData assessmentGrading, String resourceId, String filename, String protocol);
   
+  public void removeItemGradingAttachment(Long attachmentId);
+
   public void saveOrUpdateAttachments(List<AssessmentAttachmentIfc> list);
+
+  public void removeAssessmentGradingAttachment(Long attachmentId);
   
   public HashMap getInProgressCounts(String siteId);
 

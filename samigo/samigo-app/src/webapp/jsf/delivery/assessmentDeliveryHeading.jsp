@@ -93,12 +93,31 @@ Headings for delivery pages, needs to have msg=DeliveryMessages.properties, etc.
 
 <!-- GRADER COMMENT FOR REVIEW ASSESSMENT -->
 <f:verbatim><br /></f:verbatim> 
-<h:panelGroup rendered="#{delivery.feedbackComponent.showGraderComment 
-                       && delivery.actionString=='reviewAssessment'
-                       && delivery.graderComment ne ''}" styleClass="graderCommentsBox">                       
-<h:outputLabel for="commentSC" value="#{deliveryMessages.comment}#{deliveryMessages.column} "  styleClass="answerkeyFeedbackCommentLabel"/>
-<h:outputText id="commentSC" value="#{delivery.graderComment}" escape="false" />
-</h:panelGroup>
+<h:panelGrid rendered="#{delivery.feedbackComponent.showGraderComment && delivery.actionString=='reviewAssessment' 
+					&& (delivery.graderComment ne '' || delivery.hasAssessmentGradingAttachment)}" columns="1" border="0">
+    <h:panelGroup>  
+      <h:outputLabel for="commentSC" styleClass="answerkeyFeedbackCommentLabel" value="#{deliveryMessages.comment}#{deliveryMessages.column} " />
+	  <h:outputText id="commentSC" value="#{delivery.graderComment}" escape="false" rendered="#{delivery.graderComment ne ''}"/>
+    </h:panelGroup>
+    
+	<h:panelGroup rendered="#{delivery.hasAssessmentGradingAttachment}">
+      <h:dataTable value="#{delivery.assessmentGradingAttachmentList}" var="attach">
+        <h:column>
+          <%@ include file="/jsf/shared/mimeicon.jsp" %>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputLink value="#{attach.location}" target="new_window">
+            <h:outputText value="#{attach.filename}" />
+          </h:outputLink>
+        </h:column>
+        <h:column>
+          <f:verbatim>&nbsp;&nbsp;&nbsp;&nbsp;</f:verbatim>
+          <h:outputText escape="false" value="(#{attach.fileSize} #{generalMessages.kb})" rendered="#{!attach.isLink}"/>
+        </h:column>
+      </h:dataTable>
+    </h:panelGroup>
+  </h:panelGrid>
 
 <%@ include file="/jsf/delivery/assessmentDeliveryTimer.jsp" %>
 
