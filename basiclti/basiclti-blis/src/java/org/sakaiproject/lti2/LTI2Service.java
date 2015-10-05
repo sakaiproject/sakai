@@ -224,7 +224,7 @@ public class LTI2Service extends HttpServlet {
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl+"#", cnf);
 		consumer.allowSplitSecret();
 		consumer.allowHmac256();
-		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_LTILINK));
+		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_LTILINKITEM));
 		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_FILEITEM));
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {

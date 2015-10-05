@@ -1097,9 +1097,9 @@ public class SakaiBLTIUtil {
 		setProperty(ltiProps, BasicLTIUtil.BASICLTI_SUBMIT, getRB(rb, "launch.button", "Press to Launch External Tool"));
 		setProperty(ltiProps, BasicLTIConstants.LTI_MESSAGE_TYPE, LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
 
-		setProperty(ltiProps, ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINK);
+		setProperty(ltiProps, ContentItem.ACCEPT_MEDIA_TYPES, ContentItem.MEDIA_LTILINKITEM);
 		setProperty(ltiProps, BasicLTIConstants.ACCEPT_PRESENTATION_DOCUMENT_TARGETS, "iframe,window"); // Nice to add overlay
-		setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, "false");
+		setProperty(ltiProps, BasicLTIConstants.ACCEPT_UNSIGNED, "true");
 		setProperty(ltiProps, BasicLTIConstants.ACCEPT_MULTIPLE, "false");
 		setProperty(ltiProps, BasicLTIConstants.ACCEPT_COPY_ADVICE, "false"); // ???
 		setProperty(ltiProps, BasicLTIConstants.AUTO_CREATE, "true");

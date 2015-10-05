@@ -41,6 +41,7 @@ import org.json.simple.JSONValue;
 import static org.imsglobal.lti2.LTI2Util.getArray;
 import static org.imsglobal.lti2.LTI2Util.getObject;
 import static org.imsglobal.lti2.LTI2Util.getString;
+import static org.imsglobal.lti2.LTI2Util.compareServiceIds;
 
 public class ToolProxy {
 
@@ -242,7 +243,8 @@ public class ToolProxy {
 				boolean found = false;
 				for (Service_offered service : services_offered ) {
 					String service_id = service.get_id();
-					if ( service_id.equals(json_service) ) {
+					// if ( service_id.equals(json_service) ) {
+					if ( compareServiceIds(service_id,json_service) ) {
 						found = true;
 						break;
 					}
@@ -346,19 +348,19 @@ public class ToolProxy {
 		String vendorDescription = getString(description,LTI2Constants.DEFAULT_VALUE);
 		String vendorCode = getString(product_vendor,LTI2Constants.CODE);
 
-		if ( productTitle == null || productDescription == null ) {
-			return "JSON missing product_name or description ";
+		if ( productTitle == null ) {
+			return "JSON missing product_name";
 		}
-		if ( productCode == null || vendorCode == null || vendorDescription == null ) {
-			return "JSON missing product code, vendor code or description";
+		if ( productCode == null || vendorCode == null ) {
+			return "JSON missing product code or vendor code";
 		}
 
 		info.put("product_name", productTitle);
-		info.put("description", productDescription);  // Backwards compatibility
-		info.put("product_description", productDescription);
+		if ( productDescription != null ) info.put("description", productDescription);  // Backwards compatibility
+		if ( productDescription != null ) info.put("product_description", productDescription);
 		info.put("product_code", productCode);
 		info.put("vendor_code", vendorCode);
-		info.put("vendor_description", vendorDescription);
+		if ( vendorDescription != null ) info.put("vendor_description", vendorDescription);
 
 		JSONArray base_url_choices = getArray(tool_profile,LTI2Constants.BASE_URL_CHOICE);
 		if ( base_url_choices == null  ) {

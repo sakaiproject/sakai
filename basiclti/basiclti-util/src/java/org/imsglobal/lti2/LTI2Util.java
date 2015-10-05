@@ -213,178 +213,6 @@ public class LTI2Util {
 		return null;
 	}
 
-	// Parse a provider profile with lots of error checking...
-	@SuppressWarnings("unused")
-	private static String parseToolProfileInternal(List<Properties> theTools, Properties info, JSONObject tool_proxy)
-	{
-		Object o = null;
-
-		JSONObject tool_profile = (JSONObject) tool_proxy.get("tool_profile");
-		if ( tool_profile == null ) {
-			return "JSON missing tool_profile";
-		}
-	
-		JSONObject product_instance = (JSONObject) tool_profile.get("product_instance");
-		if ( product_instance == null  ) {
-			return "JSON missing product_instance";
-		}
-
-		String instance_guid = (String) product_instance.get("guid");
-		if ( instance_guid == null  ) {
-			return "JSON missing product_info / guid";
-		}
-		info.put("instance_guid",instance_guid);
-
-		JSONObject product_info = (JSONObject) product_instance.get("product_info");
-		if ( product_info == null  ) {
-			return "JSON missing product_info";
-		}
-
-		// Look for required fields
-		JSONObject product_name = product_info == null ? null : (JSONObject) product_info.get("product_name");
-		String productTitle = product_name == null ? null : (String) product_name.get("default_value");
-		JSONObject description = product_info == null ? null : (JSONObject) product_info.get("description");
-		String productDescription = description == null ? null : (String) description.get("default_value");
-
-		JSONObject product_family = product_info == null ? null : (JSONObject) product_info.get("product_family");
-		String productCode = product_family == null ? null : (String) product_family.get("code");
-		JSONObject product_vendor = product_family == null ? null : (JSONObject) product_family.get("vendor");
-		description = product_vendor == null ? null : (JSONObject) product_vendor.get("description");
-		String vendorDescription = description == null ? null : (String) description.get("default_value");
-		String vendorCode = product_vendor == null ? null : (String) product_vendor.get("code");
-
-		if ( productTitle == null || productDescription == null ) {
-			return "JSON missing product_name or description ";
-		}
-		if ( productCode == null || vendorCode == null || vendorDescription == null ) {
-			return "JSON missing product code, vendor code or description";
-		}
-
-		info.put("product_name", productTitle);
-		info.put("description", productDescription);  // Backwards compatibility
-		info.put("product_description", productDescription);
-		info.put("product_code", productCode);
-		info.put("vendor_code", vendorCode);
-		info.put("vendor_description", vendorDescription);
-
-		JSONArray base_url_choices = getArray(tool_profile,"base_url_choice");
-		if ( base_url_choices == null  ) {
-			return "JSON missing base_url_choices";
-		}
-
-		String secure_base_url = null;
-		String default_base_url = null;
-		for ( Object i : base_url_choices ) {
-			JSONObject url_choice = (JSONObject) i;
-			secure_base_url = (String) url_choice.get("secure_base_url");
-			default_base_url = (String) url_choice.get("default_base_url");
-		}
-		
-		String launch_url = secure_base_url;
-		if ( launch_url == null ) launch_url = default_base_url;
-		if ( launch_url == null ) {
-			return "Unable to determine launch URL";
-		}
-
-		o = (JSONArray) tool_profile.get("resource_handler");
-		if ( ! (o instanceof JSONArray)|| o == null  ) {
-			return "JSON missing resource_handlers";
-		}
-		JSONArray resource_handlers = (JSONArray) o;
-
-		// Loop through resource handlers, read, and check for errors
-		for(Object i : resource_handlers ) {
-			JSONObject resource_handler = (JSONObject) i;
-			JSONObject resource_type_json = (JSONObject) resource_handler.get("resource_type");
-			String resource_type_code = (String) resource_type_json.get("code");
-			if ( resource_type_code == null ) {
-				return "JSON missing resource_type code";
-			}
-
-			JSONArray messages = getArray(resource_handler, "message");
-			if ( messages == null ) {
-				return "JSON missing resource_handler / message";
-			}
-
-			JSONObject titleObject = (JSONObject) resource_handler.get("resource_name");
-			String title = titleObject == null ? null : (String) titleObject.get("default_value");
-			if ( title == null || titleObject == null ) {
-				return "JSON missing resource_handler / resource_name / default_value";
-			}
-
-			JSONObject buttonObject = (JSONObject) resource_handler.get("short_name");
-			String button = buttonObject == null ? null : (String) buttonObject.get("default_value");
-		
-			JSONObject descObject = (JSONObject) resource_handler.get("description");
-			String resourceDescription = getString(descObject, "default_value");
-
-			// Simplify the icon data structure
-			JSONArray iconInfo = getArray(resource_handler,"icon_info");
-
-			String path = null;
-			JSONArray parameter = null;
-			JSONArray enabled_capability = null; 
-			for ( Object m : messages ) {
-				JSONObject message = (JSONObject) m;
-				String message_type = (String) message.get("message_type");
-				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
-				if ( path != null ) {
-					return "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type_code;
-				}
-				path = (String) message.get("path");
-				if ( path == null ) {
-					return "A basic-lti-launch-request message must have a path RT="+resource_type_code;
-				} 
-				parameter = getArray(message,"parameter");
-				enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
-			}
-
-			// Ignore everything except launch handlers
-			if ( path == null ) continue;
-
-			// Check the URI
-			String thisLaunch = launch_url;
-			thisLaunch = thisLaunch + path;
-			try {
-				URL url = new URL(thisLaunch);
-			} catch ( Exception e ) {
-				return "Bad launch URL="+thisLaunch;
-			}
-
-			// Passed all the tests...  Lets keep it...
-			Properties theTool = new Properties();
-
-			theTool.put("resource_type", resource_type_code); // Backwards compatibility
-			theTool.put("resource_type_code", resource_type_code);
-			if ( title == null ) title = productTitle;
-			if ( title != null ) theTool.put("title", title);
-			if ( button != null ) theTool.put("button", button);
-			if ( resourceDescription == null ) resourceDescription = productDescription;
-			if ( resourceDescription != null ) theTool.put("description", resourceDescription);
-			if ( parameter != null ) theTool.put(LTI2Constants.PARAMETER, parameter.toString());
-			if ( iconInfo != null ) theTool.put(LTI2Constants.ICON_INFO,iconInfo.toString());
-			theTool.put(LTI2Constants.ENABLED_CAPABILITY, enabled_capability.toString());
-			theTool.put("launch", thisLaunch);
-			if ( secure_base_url != null ) theTool.put("secure_base_url", secure_base_url);
-			if ( default_base_url != null ) theTool.put("default_base_url", default_base_url);
-
-			// Turn the tool_proxy into a tool_proxy_binding by having a single 
-			// resource_handler that is the one that corresponds to this tool.
-			ToolProxy local_tool_proxy = new ToolProxy(tool_proxy.toString());
-			JSONObject local_tool_profile = local_tool_proxy.getToolProfile();
-			local_tool_profile.remove(LTI2Constants.RESOURCE_HANDLER);
-			JSONArray handlers = new JSONArray ();
-			handlers.add(resource_handler);
-			local_tool_profile.put(LTI2Constants.RESOURCE_HANDLER, handlers);
-
-			// With a single resource handler it is now a TPB
-			ToolProxyBinding tool_proxy_binding = new ToolProxyBinding(local_tool_proxy.toString());
-			theTool.put(LTI2Constants.TOOL_PROXY_BINDING, tool_proxy_binding.toString());
-			theTools.add(theTool);
-		}
-		return null;  // All good
-	}
-
 	/**
 	 * Parse a string and reliably return a JSONObject or null
 	 * 
@@ -564,5 +392,30 @@ public class LTI2Util {
 	public static String mapKeyName(String keyname) {
 		return BasicLTIUtil.mapKeyName(keyname);
 	}
+
+        /**
+         * Compare two service ids by suffix
+         *
+         * tcp:Result.item
+         * #Result.item
+         * http://sakai.ngrok.com/imsblis/lti2/#Result.item
+         *
+         * @return boolean True if they match.
+         */
+        public static boolean compareServiceIds(String id1, String id2)
+        {
+                if ( id1 == null && id2 == null ) return true;
+                if ( id1 == null ) return false;
+                if ( id2 == null ) return false;
+		// Split on color or #
+                String[] pieces1 = id1.split("[:#]");
+                String[] pieces2 = id2.split("[:#]");
+                if ( pieces1.length == 0 && pieces2.length == 0 ) return true;
+                if ( pieces1.length == 0 ) return false;
+                if ( pieces2.length == 0 ) return false;
+                String last1 = pieces1[pieces1.length-1];
+                String last2 = pieces2[pieces2.length-1];
+                return last1.equals(last2);
+        }
 
 }

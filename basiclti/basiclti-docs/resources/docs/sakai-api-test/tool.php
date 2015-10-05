@@ -145,7 +145,7 @@ if ( $context->valid ) {
             print '<input type="hidden" name="'.$k.'" ';
             print 'value="'.htmlentities($v).'"/>';
         }
-        print '<input type="submit" value="Test LtiLink Content Item"/>';
+        print '<input type="submit" value="Test LtiLinkItem Content Item"/>';
         print "</form></p>\n";
         $found = true;
     }
