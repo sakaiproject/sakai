@@ -11,6 +11,7 @@ import javax.annotation.Generated;
 
 import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Vars;
+import org.imsglobal.lti2.LTI2Messages;
 import org.imsglobal.lti2.LTI2Caps;
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter;
@@ -53,6 +54,7 @@ public class ToolConsumer {
 
     public static String[] STANDARD_CAPABILITIES = {
         LTI2Caps.LTI_LAUNCH, 
+        LTI2Messages.TOOLPROXY_RE_REGISTRATION_REQUEST, 
         LTI2Vars.USER_ID, 
         LTI2Vars.PERSON_SOURCEDID, 
         LTI2Vars.RESOURCELINK_ID, 
