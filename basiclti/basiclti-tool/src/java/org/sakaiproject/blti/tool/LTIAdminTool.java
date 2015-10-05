@@ -1554,8 +1554,11 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Much prefer this be an icon style like LTI 2.0
 		JSONObject iconObject = getObject(item, "icon");
-		String icon = getString(iconObject, LTI2Constants.JSONLD_ID);
-		if ( ! icon.startsWith("fa-") ) icon = null;
+		String icon = getString(iconObject, "fa_icon");
+		if ( icon == null ) {
+			icon = getString(iconObject, LTI2Constants.JSONLD_ID);
+			if ( ! icon.startsWith("fa-") ) icon = null;
+		}
 
 		// Prepare data for the next phase
 		state.removeAttribute(STATE_POST);
@@ -1709,12 +1712,15 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 
 		// Check if we are supposed to let the tool configure itself
 		Long allowLinkSelection = foorm.getLong(tool.get(LTIService.LTI_PL_LINKSELECTION));
+		Long allowLaunch = foorm.getLong(tool.get(LTIService.LTI_PL_LAUNCH));
 
 		context.put("isAdmin",new Boolean(ltiService.isAdmin()) );
 		context.put("doAction", BUTTON + "doContentPut");
 		if ( ! returnUrl.startsWith("about:blank") ) context.put("cancelUrl", returnUrl);
 		context.put("returnUrl", returnUrl);
 		if ( allowLinkSelection > 0 ) context.put("contentLaunch", contentLaunch);
+		// If this tool only allows configuration, go straight to Content Item
+		if ( allowLinkSelection > 0 && allowLaunch < 1 ) context.put("autoLaunch", contentLaunch);
 		context.put(LTIService.LTI_TOOL_ID,toolKey);
 		context.put("tool_description", tool.get(LTIService.LTI_DESCRIPTION));
 		context.put("tool_title", tool.get(LTIService.LTI_TITLE));
