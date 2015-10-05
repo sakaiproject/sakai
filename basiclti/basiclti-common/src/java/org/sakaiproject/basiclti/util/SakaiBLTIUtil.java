@@ -853,13 +853,15 @@ public class SakaiBLTIUtil {
 
 		// Check which kind of signing we are supposed to do
 		String tool_proxy_binding = (String) tool.get("tool_proxy_binding");
-		ToolProxyBinding toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
+		if ( tool_proxy_binding != null && tool_proxy_binding.trim().length() > 0 ) {
+			ToolProxyBinding toolProxyBinding = new ToolProxyBinding(tool_proxy_binding);
 		
-		if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST, 
-			LTI2Caps.OAUTH_HMAC256) ) {
+			if ( toolProxyBinding.enabledCapability( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST, 
+				LTI2Caps.OAUTH_HMAC256) ) {
 
-			ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
-			M_log.debug("Launching with SHA256 Signing");
+				ltiProps.put(OAuth.OAUTH_SIGNATURE_METHOD,"HMAC-SHA256");
+				M_log.debug("Launching with SHA256 Signing");
+			}
 		}
 
 		return postLaunchHTML(toolProps, ltiProps, rb);
