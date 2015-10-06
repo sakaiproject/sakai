@@ -56,6 +56,7 @@
  <script type="text/javascript" src="$context/js/hoverIntent.js"></script>
  <script type="text/javascript" src="$context/js/show-page.js"></script>
  <script type="text/javascript" src="$context/js/gradingAjax.js"></script>
+ <script type="text/javascript" src="$context/js/delete-confirm.js"></script>
 
  <a href="#" rsf:id="redirect-link" id="redirect-link"></a>
  <script type="text/javascript" language="JavaScript" rsf:id="redirect">
@@ -796,6 +797,7 @@
 			  <p rsf:id="msg=simplepage.addLink_label_add_or" id="simplepage.addLink_label_add_or"></p>
 			  <p rsf:id="msg=simplepage.deletecommentsubmissionexist" id="simplepage.deletecommentsubmissionexist"></p>
 			  <p rsf:id="msg=simplepage.deletestudentsubmissionexist" id="simplepage.deletestudentsubmissionexist"></p>
+                         <p rsf:id="msg=simplepage.delete_page_confirm" id="simplepage.delete_page_confirm"></p>
 			  <p rsf:id="msg=simplepage.delete" id="simplepage.delete"></p>
 			  <p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
 			  <p rsf:id="msg=simplepage.add_caption" id="simplepage.add_caption"></p>
@@ -980,7 +982,7 @@
                     <p class="act">
                     <input class="bold" type="submit" onclick="event.returnValue = checkEditItemForm(); return checkEditItemForm();" id="edit-item" rsf:id="edit-item" />
                     <input type="submit" rsf:id="edit-item-cancel" onclick="closeEditItemDialog(); return false" />
-                    <input type="submit" class="deleteButton" rsf:id="delete-item" />
+                    <input type="submit" class="deleteButton" rsf:id="delete-item" id="delete-item" />
                     </p>
                 </form>
 			</div>
@@ -1109,7 +1111,7 @@
                     <div class="act">
                         <input class="active" type="submit" id="edit-multimedia-item" rsf:id="edit-multimedia-item" />
                         <input type="submit" rsf:id="edit-multimedia-cancel" onclick="closeMultimediaEditDialog(); return false" />
-                        <input type="submit" class="deleteButton" rsf:id="delete-multimedia-item" />
+                        <input type="submit" class="deleteButton" rsf:id="delete-multimedia-item" id="delete-multimedia-item" />
                     </div>
                         
 <!--
@@ -1388,7 +1390,7 @@
                     <p class="act">     
                         <input class="bold" type="submit" onclick="event.returnValue = checkYoutubeForm($('#youtubeWidth').val().trim(), $('#youtubeHeight').val().trim()); return checkYoutubeForm($('#youtubeWidth').val().trim(), $('#youtubeHeight').val().trim());" id="update-youtube" rsf:id="update-youtube" />
                         <input type="submit" rsf:id="cancel-youtube" onclick="closeYoutubeDialog(); return false" />
-                        <input type="submit" class="deleteButton" rsf:id="delete-youtube-item" />
+                        <input type="submit" class="deleteButton" rsf:id="delete-youtube-item" id="delete-youtube-item" />
                     </p>
                 </form>
 			</div>
@@ -1440,7 +1442,7 @@
                        <p class="act">  
                             <input class="bold" type="submit" onclick="event.returnValue = checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim()); return checkMovieForm($('#movie-width').val().trim(), $('#movie-height').val().trim());" id="update-movie" rsf:id="update-movie" />
                             <input type="submit" rsf:id="movie-cancel" onclick="closeMovieDialog(); return false" />
-                            <input type="submit" class="deleteButton" rsf:id="delete-movie-item" />
+                            <input type="submit" class="deleteButton" rsf:id="delete-movie-item" id="delete-movie-item"/>
                        </p>
 					<div class="expert" id="expert-movie-toggle-div">
 					  <p style="margin-top:0px; margin-bottom:0px">
@@ -1774,7 +1776,7 @@
 		    	<input type="hidden" rsf:id="question-addBefore" id="question-addBefore" />
                         <input class="bold" type="submit" onclick="return prepareQuestionDialog();" id="update-question" rsf:id="update-question" />
                         <input type="submit" rsf:id="cancel-question" onclick="closeQuestionDialog(); return false" />
-                        <input type="submit" class="deleteButton" rsf:id="delete-question-item" />
+                        <input type="submit" class="deleteButton" rsf:id="delete-question-item" id="delete-question-item"/>
                     </p>
                 </form>
 			</div>

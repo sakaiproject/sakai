@@ -4,7 +4,8 @@
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <META HTTP-EQUIV="CACHE-CONTROL" CONTENT="NO-CACHE"/>
-<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script> 
+<script rsf:id="scr=portal-matter" type="text/javascript" language="JavaScript" src="/library/js/headscripts.js"></script>
+<link type="text/css" href="$context/css/simplepage-theme/jquery-ui-1.10.3.custom.css" rel="stylesheet" />
 <link rsf:id="scr=portal-matter" href="/library/skin/tool_base.css" type="text/css" rel="stylesheet" media="all" />
 <link rsf:id="scr=portal-matter" href="/library/skin/default/tool.css" type="text/css" rel="stylesheet" media="all" />
 <link rel="stylesheet" rsf:id="scr=rewrite-url" href="../css/Simplepagetool.css" type="text/css"/>
@@ -13,7 +14,9 @@
 </head>
 <body rsf:id="scr=sakai-body">
 <script type="text/javascript" src="$context/js/jquery-1.9.1.min.js"></script>
-
+<script type="text/javascript" src="$context/js/jquery-ui-1.11.1.custom.min.js"></script>
+<script type="text/javascript" src="$context/js/edit-page.js"></script>
+<script type="text/javascript" src="$context/js/delete-confirm.js"></script>
 	<div class="portletBody">
 	
 	<p rsf:id="debugstuff"> junk </p>
@@ -33,27 +36,7 @@
 	 </div>
 			
 <span style="display:none;" id="confirmDeleteLangSupp" rsf:id="msg=simplepage.delete_page_confirm"></span>
-<script type="text/javascript">
 
-$(function() {
-    $("#grouplist").hide();
-    if ($('#grouplist input').size() == 0) {
-	$('#editgroups').hide();
-    }
-    $("#editgroups").click(function() {
-         $("#grouplist").show();
-         $("#editgroups").hide();
-       });
-});
-
-jQuery(document).ready(function($) {
-	var confirmMsg = document.getElementById('confirmDeleteLangSupp').innerHTML;
-    $('.ConfirmDelete').click(function() {
-        return confirm(confirmMsg);
-    });
-});
-
-</script>
 
 
 			<p id="editgroups" class="edit-group">
@@ -72,9 +55,18 @@ jQuery(document).ready(function($) {
 				<input type="hidden" rsf:id="addBefore" />
 				<input accesskey ="s" rsf:id="save" value="Save" type="submit" class="active" />
 				<input accesskey ="x" rsf:id="cancel" value="Cancel" type="submit"/>
-                <input type="submit" rsf:id="delete" class="deleteButton" />
+		 <input type="submit" class="deleteButton" rsf:id="delete-text-item" id="delete-text-item" />
 			</p>						
 		</form>
+		<div style="display:none;">
+			<p rsf:id="msg=simplepage.delete_page_confirm" id="simplepage.delete_page_confirm"></p>
+			<p rsf:id="msg=simplepage.delete" id="simplepage.delete"></p>
+			<p rsf:id="msg=simplepage.cancel_message" id="simplepage.cancel_message"></p>
+		</div>
+		<div id="delete-confirm" class="controlsPanel">
+			<p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 0 0;"></span>
+			<p id="delete-confirm-message"></p></p>
+		</div>
 	</div>
 </body>
 </html>
