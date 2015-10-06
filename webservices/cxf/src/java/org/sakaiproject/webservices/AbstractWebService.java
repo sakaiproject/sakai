@@ -15,7 +15,6 @@ import org.sakaiproject.authz.api.SecurityService;
 import org.sakaiproject.calendar.api.CalendarService;
 import org.sakaiproject.component.api.ServerConfigurationService;
 import org.sakaiproject.content.api.ContentHostingService;
-import org.sakaiproject.db.api.SqlService;
 import org.sakaiproject.entity.api.EntityManager;
 import org.sakaiproject.event.api.EventTrackingService;
 import org.sakaiproject.event.api.UsageSessionService;
@@ -68,7 +67,7 @@ public class AbstractWebService {
     protected SamLiteService samLiteService;
     protected IdManager idManager;
     protected GradebookExternalAssessmentService gradebookExternalAssessmentService;
-    protected SqlService sqlService;
+
     
     @WebMethod(exclude = true)
     public void init() {
@@ -226,10 +225,5 @@ public class AbstractWebService {
     @WebMethod(exclude = true)
     public void setGradebookExternalAssessmentService(GradebookExternalAssessmentService service) {
         this.gradebookExternalAssessmentService = service;
-    }
-
-    @WebMethod(exclude = true)
-    public void setSqlService(SqlService sqlService) {
-        this.sqlService = sqlService;
     }
 }
