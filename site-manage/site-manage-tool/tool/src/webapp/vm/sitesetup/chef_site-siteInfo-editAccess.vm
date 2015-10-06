@@ -316,7 +316,7 @@
 				</label>
 			</p>
 			<div id="joinerrole" #if ($joinable) style="display: block;" #else  style="display: none;" #end>
-				<div class="messageValidation indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
+				<div class="messageWarning indnt3" style="width:60%">$tlang.getString("ediacc.yousitcan.warn")</div>
 				<p class="checkbox indnt3">
 					<label for="joinerRole">
 							<span class="reqStar" id="joinreqStar">*</span>
