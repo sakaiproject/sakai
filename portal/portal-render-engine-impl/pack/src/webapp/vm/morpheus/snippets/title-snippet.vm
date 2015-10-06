@@ -1,55 +1,6 @@
 #if ( ${bufferedResponse} && ${responseHead} ) 
-
     <!-- Head material from Tool in PDA mode (will include title and headscripts) -->
     ${responseHead}
     <!-- End of Head material from Tool -->
-
-    <title>
-
-        #if ( $pageColumn0Tools )
-
-            #foreach ( $tool in $pageColumn0Tools )
-
-                #if ($tool)
-
-                    #if ( $tool.toolRenderResult )
-
-                        ${tool.toolRenderResult.getTitle()}
-
-                    #end ## END of IF ( $tool.toolRenderResult )
-
-                #end ## END of IF ($tool)
-
-            #end ## END of foreach ( $tool in $pageColumn0Tools )
-
-        #end ## END of IF ( $pageColumn0Tools )
-
-        #if ($pageTwoColumn)
-
-            #if ( $pageColumn1Tools )
-
-                #foreach ( $tool in $pageColumn1Tools )
-
-                    #if ($tool)
-                    
-                        #if ( $tool.toolRenderResult )
-
-                            ${tool.toolRenderResult.getTitle()}
-
-                        #end ## END of IF ( $tool.toolRenderResult )
-
-                    #end ## END of IF ($tool)
-
-                #end ## END of foreach ( $tool in $pageColumn1Tools )
-
-            #end ## END of IF ( $pageColumn1Tools )
-
-        #end ## END of IF ($pageTwoColumn)
-
-    </title>
-
-#else 
-
-    <title>${pageTitle}</title>
-
 #end ## END of IF ( ${bufferedResponse} && ${responseHead} )
+<title>${pageTitle}</title>
