@@ -135,6 +135,17 @@ public class SakaiBLTIUtil {
 	public static final String LTI1_PATH = "/imsblis/service/";
 	public static final String LTI2_PATH = "/imsblis/lti2/";
 
+	public static final String SAKAI_CONTENTITEM_SELECTANY = "Sakai.contentitem.selectAny";
+	public static final String SAKAI_CONTENTITEM_SELECTFILE = "Sakai.contentitem.selectFile";
+	public static final String SAKAI_CONTENTITEM_SELECTIMPORT = "Sakai.contentitem.selectImport";
+	public static final String SAKAI_CONTENTITEM_SELECTLINK = "Sakai.contentitem.selectLink";
+
+	public static final String CANVAS_PLACEMENTS_COURSENAVIGATION = "Canvas.placements.courseNavigation";
+	public static final String CANVAS_PLACEMENTS_ACCOUNTNAVIGATION = "Canvas.placements.accountNavigation";
+	public static final String CANVAS_PLACEMENTS_ASSIGNMENTSELECTION = "Canvas.placements.assignmentSelection";
+	public static final String CANVAS_PLACEMENTS_LINKSELECTION = "Canvas.placements.linkSelection";
+	public static final String CANVAS_PLACEMENTS_CONTENTIMPORT = "Canvas.placements.contentImport";
+
 	public static void dPrint(String str)
 	{
 		if ( verbosePrint ) System.out.println(str);
@@ -1165,6 +1176,9 @@ public class SakaiBLTIUtil {
 
 		int debug = getInt(tool.get(LTIService.LTI_DEBUG));
 		debug = 1;
+
+		String customstr = toNull((String) tool.get(LTIService.LTI_CUSTOM) );
+		parseCustom(ltiProps, customstr);
 
 		Map<String,String> extra = new HashMap<String,String> ();
 		ltiProps = BasicLTIUtil.signProperties(ltiProps, launch_url, "POST", 

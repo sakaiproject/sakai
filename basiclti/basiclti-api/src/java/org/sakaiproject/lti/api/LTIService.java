@@ -745,9 +745,10 @@ public interface LTIService {
 		"allowroster:checkbox:label=bl_allowroster",
 		"allowsettings:checkbox:label=bl_allowsettings",
 		// Hide these from end users until they are working in the various Sakai tools
-		"pl_header:header:fields=pl_launch,pl_linkselection,pl_fileitem,pl_contenteditor,pl_assessmentselection",
+		"pl_header:header:fields=pl_launch,pl_linkselection,pl_importitem,pl_fileitem,pl_contenteditor,pl_assessmentselection",
 		"pl_launch:checkbox:label=bl_pl_launch",
 		"pl_linkselection:checkbox:label=bl_pl_linkselection",
+		"pl_importitem:checkbox:label=bl_pl_importitem:role=admin",
 		"pl_fileitem:checkbox:label=bl_pl_fileitem:role=admin",
 		"pl_contenteditor:checkbox:label=bl_pl_contenteditor:role=admin",
 		"pl_assessmentselection:checkbox:label=bl_pl_assessmentselection:role=admin",
@@ -880,6 +881,7 @@ public interface LTIService {
 	static final String LTI_PL_LAUNCH = "pl_launch";
 	static final String LTI_PL_LINKSELECTION = "pl_linkselection";
 	static final String LTI_PL_FILEITEM = "pl_fileitem";
+	static final String LTI_PL_IMPORTITEM = "pl_importitem";
 	static final String LTI_PL_CONTENTEDITOR = "pl_contenteditor";
 	static final String LTI_PL_ASSESSMENTSELECTION = "pl_assessmentselection";
 

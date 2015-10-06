@@ -40,6 +40,7 @@ import org.imsglobal.basiclti.BasicLTIConstants;
 import org.imsglobal.json.IMSJSONRequest;
 import org.imsglobal.lti2.LTI2Config;
 import org.imsglobal.lti2.LTI2Constants;
+import org.imsglobal.lti2.LTI2Messages;
 import org.imsglobal.lti2.LTI2Util;
 import org.imsglobal.lti2.ToolProxy;
 import org.imsglobal.lti2.ContentItem;
@@ -224,8 +225,21 @@ public class LTI2Service extends HttpServlet {
 		ToolConsumer consumer = new ToolConsumer(profile_id+"", resourceUrl+"#", cnf);
 		consumer.allowSplitSecret();
 		consumer.allowHmac256();
-		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_LTILINKITEM));
-		consumer.addCapability(ContentItem.getCapability(ContentItem.TYPE_FILEITEM));
+		consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_COURSENAVIGATION);
+		consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_ASSIGNMENTSELECTION);
+		// Not yet supported in Sakai
+		// consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_ACCOUNTNAVIGATION);
+
+		if ( foorm.getLong(deploy.get(LTIService.LTI_ALLOWCONTENTITEM)) > 0 ) {
+			consumer.addCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
+			// Not yet supported in Sakai
+			// consumer.addCapability(SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTANY);
+			consumer.addCapability(SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTFILE);
+			consumer.addCapability(SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTLINK);
+			consumer.addCapability(SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTIMPORT);
+			consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_LINKSELECTION);
+			consumer.addCapability(SakaiBLTIUtil.CANVAS_PLACEMENTS_CONTENTIMPORT);
+		}
 
 		if (foorm.getLong(deploy.get(LTIService.LTI_SENDEMAILADDR)) > 0 ) {
 			consumer.allowEmail();

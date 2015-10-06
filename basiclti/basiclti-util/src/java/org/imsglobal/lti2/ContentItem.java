@@ -253,14 +253,6 @@ public class ContentItem {
 	}
 
 	/**
-	 * Get an LTI 2.x Capability String
-	 */
-	public static String getCapability(String type)
-	{
-		return "ContentItem." + type;
-	}
-
-	/**
 	 * Build up a ContentItem launch URL from a base url, return url and extra data
 	 */
 	public static String buildLaunch(String contentLaunch, String contentReturn, Properties contentData)
