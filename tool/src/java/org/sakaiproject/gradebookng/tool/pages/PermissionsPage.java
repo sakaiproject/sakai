@@ -220,7 +220,9 @@ public class PermissionsPage extends BasePage {
 				
 				businessService.updatePermissionsForUser(taSelected.getUserUuid(), permissions);
 				
-				info(getString("permissionspage.update.success"));
+				getSession().info(getString("permissionspage.update.success"));
+				
+				setResponsePage(new PermissionsPage(taSelected));
 			}
 			
 			@Override
