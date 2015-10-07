@@ -15,10 +15,12 @@ import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.service.gradebook.shared.GradebookService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.AssignmentHasIllegalPointsException;
 import org.sakaiproject.service.gradebook.shared.ConflictingAssignmentNameException;
 import org.sakaiproject.service.gradebook.shared.ConflictingExternalIdException;
+import org.sakaiproject.tool.gradebook.Gradebook;
 
 import java.text.MessageFormat;
 import java.util.List;
@@ -40,6 +42,13 @@ public class AddGradeItemPanel extends Panel {
 		super(id);
 
 		Assignment assignment = new Assignment();
+
+		// Default released to true
+		assignment.setReleased(true);
+		// If no categories, then default counted to true
+		Gradebook gradebook = businessService.getGradebook();
+		assignment.setCounted(GradebookService.CATEGORY_TYPE_NO_CATEGORY == gradebook.getCategory_type());
+
 		Model<Assignment> model = new Model<Assignment>(assignment);
 
 		Form form = new Form("addGradeItemForm", model);

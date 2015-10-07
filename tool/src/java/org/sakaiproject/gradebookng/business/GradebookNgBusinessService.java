@@ -1656,6 +1656,19 @@ public class GradebookNgBusinessService {
     	 return false;
      }
 
+
+    /**
+     * Have categories been enabled for the gradebook?
+     * @return if the gradebook is setup for either "Categories Only" or "Categories & Weighting"
+     */
+    public boolean categoriesAreEnabled() {
+        String siteId = this.getCurrentSiteId();
+        Gradebook gradebook = getGradebook(siteId);
+
+        return GradebookService.CATEGORY_TYPE_WEIGHTED_CATEGORY == gradebook.getCategory_type() ||
+                GradebookService.CATEGORY_TYPE_ONLY_CATEGORY == gradebook.getCategory_type();
+    }
+
     /**
      * Comparator class for sorting a list of AssignmentOrders
      */
