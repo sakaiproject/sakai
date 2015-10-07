@@ -21,6 +21,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolb
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -501,7 +502,6 @@ public class GradebookPage extends BasePage {
 	public void setUiSettings(GradebookUiSettings settings) {
 		Session.get().setAttribute("GBNG_UI_SETTINGS", settings);
 	}
-	
 	
 	
 }

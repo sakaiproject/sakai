@@ -700,7 +700,7 @@ GradebookSpreadsheet.prototype.setupColumnDragAndDrop = function() {
     scrollSensitivity: 100,
     opacity: 0.9,
     zIndex: 1000,
-    cancel: '.btn-group, .btn-group *', // don't start drag if the dropdown menu is clicked
+    cancel: '.btn-group, .btn-group *, .gb-grade-item-flags *, .gb-external-app-flag', // don't start drag if the dropdown menu or a flag is clicked
     start: function(event, ui) {
       $(ui.helper.context).addClass("gb-grade-item-drag-source");
       // enable all droppable
@@ -1916,12 +1916,12 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
 
   function handleShowAll() {
-    self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:not(:checked), .gradebook-item-category-score-filter :input:not(:checked)").trigger("click");
+    self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input:not(:checked)").trigger("click");
   };
 
 
   function handleHideAll() {
-    self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:checked, .gradebook-item-category-score-filter :input:checked").trigger("click");
+    self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input:checked").trigger("click");
   };
 
 

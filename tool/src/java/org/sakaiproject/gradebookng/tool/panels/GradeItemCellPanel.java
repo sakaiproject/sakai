@@ -336,11 +336,11 @@ public class GradeItemCellPanel extends Panel {
 						
 						if(StringUtils.isNotBlank(comment)) {
 							markHasComment(gradeCell);
-							target.add(getParentCellFor(gradeCell));
-							target.appendJavaScript("sakai.gradebookng.spreadsheet.setupCell('" + getParentCellFor(gradeCell).getMarkupId() + "','" + assignmentId + "', '" + studentUuid + "');");
-							refreshNotifications();
 						};
 						
+						target.add(getParentCellFor(gradeCell));
+						target.appendJavaScript("sakai.gradebookng.spreadsheet.setupCell('" + getParentCellFor(gradeCell).getMarkupId() + "','" + assignmentId + "', '" + studentUuid + "');");
+						refreshNotifications();
 					}
 				});
 				window.show(target);
