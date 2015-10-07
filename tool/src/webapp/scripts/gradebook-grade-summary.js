@@ -13,6 +13,7 @@ function GradebookGradeSummary($content, blockout) {
   this.studentId = this.$content.find("[data-studentid]").data("studentid");
 
   this.setupCategoryToggles();
+  this.setupPopovers();
 
   this.$modal = this.$content.closest(".wicket-modal");
 
@@ -187,6 +188,11 @@ GradebookGradeSummary.prototype.bindModalClose = function() {
   });
 
   self.$modal.find(".w_close, .gb-summary-fake-close").off("click").on("click", showConfirmation);
+};
+
+
+GradebookGradeSummary.prototype.setupPopovers = function() {
+  this.$content.find('[data-toggle="popover"]').popover();
 };
 
 

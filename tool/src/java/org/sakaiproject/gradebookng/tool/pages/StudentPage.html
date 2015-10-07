@@ -16,7 +16,9 @@
 	<div wicket:id="summary" id="studentGradeSummary"></div>
 
 	<script>
-		new GradebookGradeSummary($("#studentGradeSummary"));
+		$(document).ready(function() {
+			new GradebookGradeSummary($("#studentGradeSummary"));
+		});
 	</script>
 
 </wicket:extend>
