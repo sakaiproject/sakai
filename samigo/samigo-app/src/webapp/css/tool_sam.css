@@ -1018,17 +1018,24 @@ label.inactive
     padding: 0;
 }
 
-div.expand, div.collapse {
+div.expanded, div.collapsed {
     cursor: pointer !important;
     padding-left: 1em !important;
 }
 
-div.expand {
+div.expanded {
     background: url('/library/image/sakai/collapse.gif') no-repeat left !important;
 }
 
-div.collapse {
+div.collapsed {
     background: url('/library/image/sakai/expand.gif') no-repeat left !important;
+}
+
+ul.groupList {
+    display: block;
+    list-style-type: disc;
+    margin: 1em 0 1em 0;
+    padding-left: 40px;
 }
 
 div.multiple_editor {
