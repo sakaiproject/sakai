@@ -4355,7 +4355,7 @@ public class SakaiScript extends AbstractWebService {
     }
 
 
-    protected void updateEntityReferences(String toolId, String toContext, Map transversalMap, Site newSite)
+    private void updateEntityReferences(String toolId, String toContext, Map transversalMap, Site newSite)
     {
     	for (Iterator i = entityManager.getEntityProducers().iterator(); i.hasNext();)
     	{
