@@ -118,11 +118,11 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		}
 		add(externalAppFlag);
 
-		add(new WebMarkupContainer("extraCreditFlag").setVisible(assignment.isExtraCredit()));
-		add(new WebMarkupContainer("isCountedFlag").setVisible(assignment.isCounted()));
-		add(new WebMarkupContainer("notCountedFlag").setVisible(!assignment.isCounted()));
-		add(new WebMarkupContainer("isReleasedFlag").setVisible(assignment.isReleased()));
-		add(new WebMarkupContainer("notReleasedFlag").setVisible(!assignment.isReleased()));
+		add(buildFlagWithPopover("extraCreditFlag", "label.gradeitem.extracredit").setVisible(assignment.isExtraCredit()));
+		add(buildFlagWithPopover("isCountedFlag", "label.gradeitem.counted").setVisible(assignment.isCounted()));
+		add(buildFlagWithPopover("notCountedFlag", "label.gradeitem.notcounted").setVisible(!assignment.isCounted()));
+		add(buildFlagWithPopover("isReleasedFlag", "label.gradeitem.released").setVisible(assignment.isReleased()));
+		add(buildFlagWithPopover("notReleasedFlag", "label.gradeitem.notreleased").setVisible(!assignment.isReleased()));
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 		add(new AttributeModifier("data-category", assignment.getCategoryName()));
@@ -316,4 +316,18 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 	}
 
+
+	private WebMarkupContainer buildFlagWithPopover(String componentId, String labelKey) {
+		WebMarkupContainer buildFlagWithPopover = new WebMarkupContainer(componentId);
+
+		buildFlagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
+		buildFlagWithPopover.add(new AttributeModifier("data-trigger", "focus"));
+		buildFlagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
+		buildFlagWithPopover.add(new AttributeModifier("data-html", "true"));
+		buildFlagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
+		buildFlagWithPopover.add(new AttributeModifier("data-content", getString(labelKey)));
+		buildFlagWithPopover.add(new AttributeModifier("tabindex", "0"));
+
+		return buildFlagWithPopover;
+	}
 }
