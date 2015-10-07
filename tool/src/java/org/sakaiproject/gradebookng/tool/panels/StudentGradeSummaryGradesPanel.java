@@ -15,6 +15,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.pages.BasePage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
@@ -142,21 +143,11 @@ public class StudentGradeSummaryGradesPanel extends Panel {
 						Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
 
+						BasePage page = (BasePage) getPage();
 						WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(new WebMarkupContainer("isExtraCredit") {
-							@Override
-							public boolean isVisible() {
-								return assignment.getExtraCredit();
-							}
-						});
-						flags.add(new WebMarkupContainer("isNotCounted") {
-							@Override
-							public boolean isVisible() {
-								return !assignment.isCounted();
-							}
-						});
+						flags.add(page.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit")).setVisible(assignment.getExtraCredit()));
+						flags.add(page.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted")).setVisible(!assignment.isCounted()));
 						assignmentItem.add(flags);
-
 
 						assignmentItem.add(new Label("dueDate", FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
 						assignmentItem.add(new Label("grade", FormatHelper.formatGrade(rawGrade)));

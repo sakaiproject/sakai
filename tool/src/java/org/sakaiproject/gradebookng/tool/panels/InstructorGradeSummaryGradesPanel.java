@@ -136,25 +136,11 @@ public class InstructorGradeSummaryGradesPanel extends Panel {
 						Label title = new Label("title", assignment.getName());
 						assignmentItem.add(title);
 
+						GradebookPage gradebookPage = (GradebookPage) getPage();
 						WebMarkupContainer flags = new WebMarkupContainer("flags");
-						flags.add(new WebMarkupContainer("isExtraCredit") {
-							@Override
-							public boolean isVisible() {
-								return assignment.getExtraCredit();
-							}
-						});
-						flags.add(new WebMarkupContainer("isNotCounted") {
-							@Override
-							public boolean isVisible() {
-								return !assignment.isCounted();
-							}
-						});
-						flags.add(new WebMarkupContainer("isNotReleased") {
-							@Override
-							public boolean isVisible() {
-								return !assignment.isReleased();
-							}
-						});
+						flags.add(gradebookPage.buildFlagWithPopover("isExtraCredit", getString("label.gradeitem.extracredit")).setVisible(assignment.getExtraCredit()));
+						flags.add(gradebookPage.buildFlagWithPopover("isNotCounted", getString("label.gradeitem.notcounted")).setVisible(!assignment.isCounted()));
+						flags.add(gradebookPage.buildFlagWithPopover("isNotReleased", getString("label.gradeitem.notreleased")).setVisible(!assignment.isReleased()));
 						assignmentItem.add(flags);
 
 						assignmentItem.add(new Label("dueDate", FormatHelper.formatDate(assignment.getDueDate(), getString("label.studentsummary.noduedate"))));
