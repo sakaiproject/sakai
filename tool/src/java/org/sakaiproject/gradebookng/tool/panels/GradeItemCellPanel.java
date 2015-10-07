@@ -29,6 +29,7 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.GradebookRenderMode;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -91,6 +92,7 @@ public class GradeItemCellPanel extends Panel {
 		final boolean isExternal = (boolean) modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
 		final Long categoryId = (Long) modelData.get("categoryId");
+		final GradebookRenderMode renderMode = (GradebookRenderMode) modelData.get("renderMode");
 		
 		//note, gradeInfo may be null
 		String rawGrade;
@@ -111,6 +113,8 @@ public class GradeItemCellPanel extends Panel {
 			add(new Label("grade", Model.of(formattedGrade)));
 			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
 			notifications.add(GradeCellNotification.IS_EXTERNAL);
+		} else if (renderMode == GradebookRenderMode.VIEW_ONLY) {
+			add(new Label("grade", Model.of(formattedGrade)));
 		} else {
 			gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				

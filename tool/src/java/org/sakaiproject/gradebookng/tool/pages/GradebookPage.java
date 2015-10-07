@@ -20,8 +20,6 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.DataTable;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
-import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
-import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -31,30 +29,29 @@ import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
-import org.apache.wicket.model.ResourceModel;
 import org.apache.wicket.model.StringResourceModel;
-import org.apache.wicket.request.mapper.parameter.PageParameters;
 import org.apache.wicket.util.string.StringValue;
 import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
+import org.sakaiproject.gradebookng.tool.model.GradebookRenderMode;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
+import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.GradeItemCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.StudentNameColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.ToggleGradeItemsToolbarPanel;
-import org.sakaiproject.gradebookng.tool.panels.CourseGradeColumnHeaderPanel;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 
 /**
- * Grades page
+ * Grades page. Instructors and TAs see this one. Students see the {@link StudentPage}.
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
@@ -74,6 +71,8 @@ public class GradebookPage extends BasePage {
 	ModalWindow deleteItemWindow;
 
 	Form<Void> form;
+	
+	GradebookRenderMode renderMode = GradebookRenderMode.getDefault();
 
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
@@ -184,9 +183,14 @@ public class GradebookPage extends BasePage {
         //get course grade visibility
         final boolean courseGradeVisible = businessService.isCourseGradeVisible(currentUserUuid);
         
-        //get memberships
-        Map<String,List<String>> blah = businessService.getGroupMemberships();
-        
+        //if TA and there are any permissions defined, reset the render mode
+        //permissions must now be explicitly defined for gradeability
+        if(this.role == GbRole.TA) {
+        	if(!this.businessService.getPermissionsForUser(currentUserUuid).isEmpty()) {
+        		this.renderMode = GradebookRenderMode.VIEW_ONLY;
+        	}
+        }
+                
         //this could potentially be a sortable data provider
         final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
         List<IColumn> cols = new ArrayList<IColumn>();

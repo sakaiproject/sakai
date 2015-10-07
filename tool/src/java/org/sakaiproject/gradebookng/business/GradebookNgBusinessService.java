@@ -557,7 +557,7 @@ public class GradebookNgBusinessService {
 		
 		Temp.timeWithContext("buildGradeMatrix", "getSiteCourseGrades", stopwatch.getTime());
 		
-		//setup a map as we progressively build this up by adding grades to a student's entry
+		//setup a map because we progressively build this up by adding grades to a student's entry
 		Map<String, GbStudentGradeInfo> matrix = new LinkedHashMap<>();
 		
 		//seed the map for all students so we can progresseively add grades to it
