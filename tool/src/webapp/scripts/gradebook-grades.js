@@ -1916,12 +1916,12 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
 
 
   function handleShowAll() {
-    self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:not(:checked), .gradebook-item-category-score-filter :input:not(:checked)").trigger("click");
+    self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input:not(:checked)").trigger("click");
   };
 
 
   function handleHideAll() {
-    self.$gradeItemsFilterPanel.find(".gradebook-item-filter :input:checked, .gradebook-item-category-score-filter :input:checked").trigger("click");
+    self.$gradeItemsFilterPanel.find(".gradebook-item-category-filter :input:checked").trigger("click");
   };
 
 
