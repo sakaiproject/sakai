@@ -21,6 +21,7 @@ import org.apache.wicket.extensions.markup.html.repeater.data.table.HeadersToolb
 import org.apache.wicket.extensions.markup.html.repeater.data.table.IColumn;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.NavigationToolbar;
 import org.apache.wicket.extensions.markup.html.repeater.data.table.PropertyColumn;
+import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.ChoiceRenderer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -499,5 +500,20 @@ public class GradebookPage extends BasePage {
 	}
 	
 	
-	
+	/**
+	 * Helper to build a notification flag with a Bootstrap popover 
+	 */
+	public WebMarkupContainer buildFlagWithPopover(String componentId, String popoverContent) {
+		WebMarkupContainer flagWithPopover = new WebMarkupContainer(componentId);
+
+		flagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
+		flagWithPopover.add(new AttributeModifier("data-trigger", "focus"));
+		flagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
+		flagWithPopover.add(new AttributeModifier("data-html", "true"));
+		//flagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
+		flagWithPopover.add(new AttributeModifier("data-content", popoverContent));
+		flagWithPopover.add(new AttributeModifier("tabindex", "0"));
+
+		return flagWithPopover;
+	}
 }

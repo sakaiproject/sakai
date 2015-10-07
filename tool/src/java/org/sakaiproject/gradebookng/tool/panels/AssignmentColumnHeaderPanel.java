@@ -100,12 +100,12 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		add(new Label("totalPoints", Model.of(assignment.getPoints())));
 		add(new Label("dueDate", Model.of(FormatHelper.formatDate(assignment.getDueDate(), getString("label.noduedate")))));
 
-		WebMarkupContainer externalAppFlag = new WebMarkupContainer("externalAppFlag");
+		WebMarkupContainer externalAppFlag = gradebookPage.buildFlagWithPopover("externalAppFlag", "");
 		if (assignment.getExternalAppName() == null) {
 			externalAppFlag.setVisible(false);
 		} else {
 			externalAppFlag.setVisible(true);
-			externalAppFlag.add(new AttributeModifier("title", getString("label.gradeitem.externalAppPrefix") + " " + assignment.getExternalAppName()));
+			externalAppFlag.add(new AttributeModifier("data-content", getString("label.gradeitem.externalAppPrefix") + " " + assignment.getExternalAppName()));
 			String iconClass = "icon-sakai";
 			if ("Assignments".equals(assignment.getExternalAppName())) {
 				iconClass = "icon-sakai-assignment-grades";
@@ -117,12 +117,12 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			externalAppFlag.add(new AttributeModifier("class", "gb-external-app-flag Mrphs-toolsNav__menuitem--icon icon-active " + iconClass));
 		}
 		add(externalAppFlag);
-
-		add(buildFlagWithPopover("extraCreditFlag", "label.gradeitem.extracredit").setVisible(assignment.isExtraCredit()));
-		add(buildFlagWithPopover("isCountedFlag", "label.gradeitem.counted").setVisible(assignment.isCounted()));
-		add(buildFlagWithPopover("notCountedFlag", "label.gradeitem.notcounted").setVisible(!assignment.isCounted()));
-		add(buildFlagWithPopover("isReleasedFlag", "label.gradeitem.released").setVisible(assignment.isReleased()));
-		add(buildFlagWithPopover("notReleasedFlag", "label.gradeitem.notreleased").setVisible(!assignment.isReleased()));
+		
+		add(gradebookPage.buildFlagWithPopover("extraCreditFlag", getString("label.gradeitem.extracredit")).setVisible(assignment.isExtraCredit()));
+		add(gradebookPage.buildFlagWithPopover("isCountedFlag", getString("label.gradeitem.counted")).setVisible(assignment.isCounted()));
+		add(gradebookPage.buildFlagWithPopover("notCountedFlag", getString("label.gradeitem.notcounted")).setVisible(!assignment.isCounted()));
+		add(gradebookPage.buildFlagWithPopover("isReleasedFlag", getString("label.gradeitem.released")).setVisible(assignment.isReleased()));
+		add(gradebookPage.buildFlagWithPopover("notReleasedFlag", getString("label.gradeitem.notreleased")).setVisible(!assignment.isReleased()));
 
 		add(new AttributeModifier("data-assignmentId", assignment.getId()));
 		add(new AttributeModifier("data-category", assignment.getCategoryName()));
@@ -314,20 +314,5 @@ public class AssignmentColumnHeaderPanel extends Panel {
 
 
 
-	}
-
-
-	private WebMarkupContainer buildFlagWithPopover(String componentId, String labelKey) {
-		WebMarkupContainer buildFlagWithPopover = new WebMarkupContainer(componentId);
-
-		buildFlagWithPopover.add(new AttributeModifier("data-toggle", "popover"));
-		buildFlagWithPopover.add(new AttributeModifier("data-trigger", "focus"));
-		buildFlagWithPopover.add(new AttributeModifier("data-placement", "bottom"));
-		buildFlagWithPopover.add(new AttributeModifier("data-html", "true"));
-		buildFlagWithPopover.add(new AttributeModifier("data-container", "#gradebookGrades"));
-		buildFlagWithPopover.add(new AttributeModifier("data-content", getString(labelKey)));
-		buildFlagWithPopover.add(new AttributeModifier("tabindex", "0"));
-
-		return buildFlagWithPopover;
 	}
 }
