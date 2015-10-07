@@ -1042,14 +1042,58 @@ public class LTIAdminTool extends VelocityPortletPaneledAction
 				return "lti_error";
 			}
 
-			if ( toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
-				ContentItem.getCapability(ContentItem.TYPE_LTILINKITEM) ) ) {
+			JSONObject launchMessage = toolProxyBinding.getMessageOfType(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST);
+			JSONObject selectMessage = toolProxyBinding.getMessageOfType(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST);
+
+                        if ( launchMessage != null ) {
+                                newTool.put(LTIService.LTI_PL_LAUNCH, new Integer(1));
+                        }
+
+			// Look for capabilities for Sakai
+			boolean sakaiplacements = false;
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTANY ) ) {
+                                newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+				newTool.put(LTIService.LTI_PL_FILEITEM, new Integer(1));
+				newTool.put(LTIService.LTI_PL_IMPORTITEM, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTFILE ) ) {
+				newTool.put(LTIService.LTI_PL_FILEITEM, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTLINK ) ) {
+                                newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+                        if ( toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+                                SakaiBLTIUtil.SAKAI_CONTENTITEM_SELECTIMPORT ) ) {
+                                newTool.put(LTIService.LTI_PL_IMPORTITEM, new Integer(1));
+                                sakaiplacements = true;
+                        }
+
+			// If we did not see any Sakai commentary about placements, look to the Canvas variants
+			boolean selection = sakaiplacements;
+			if ( ! sakaiplacements && toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+				SakaiBLTIUtil.CANVAS_PLACEMENTS_LINKSELECTION ) ) {
 				newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
+				selection = true;
 			}
 
-			if ( toolProxyBinding.enabledCapability(LTI2Messages.BASIC_LTI_LAUNCH_REQUEST,
-				ContentItem.getCapability(ContentItem.TYPE_FILEITEM) ) ) {
+			if ( ! sakaiplacements && toolProxyBinding.enabledCapability(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST,
+				SakaiBLTIUtil.CANVAS_PLACEMENTS_CONTENTIMPORT ) ) {
 				newTool.put(LTIService.LTI_PL_FILEITEM, new Integer(1));
+				selection = true;
+			}
+
+			// When in doubt, assume LINKSELECTION
+			if ( !selection && toolProxyBinding.getMessageOfType(LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST) != null ) {
+				newTool.put(LTIService.LTI_PL_LINKSELECTION, new Integer(1));
 			}
 			
 			newTool.put(LTIService.LTI_TOOL_PROXY_BINDING, tool_proxy_binding);

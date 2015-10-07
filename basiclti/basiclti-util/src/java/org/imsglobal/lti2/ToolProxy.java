@@ -421,16 +421,20 @@ public class ToolProxy {
 			for ( Object m : messages ) {
 				JSONObject message = (JSONObject) m;
 				String message_type = (String) message.get(LTI2Constants.MESSAGE_TYPE);
-				if ( ! "basic-lti-launch-request".equals(message_type) ) continue;
-				if ( path != null ) {
-					return "A resource_handler cannot have more than one basic-lti-launch-request message RT="+resource_type_code;
+				if ( LTI2Messages.BASIC_LTI_LAUNCH_REQUEST.equals(message_type) || 
+				     LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST.equals(message_type) ) {
+					if ( path != null ) {
+						return "A resource_handler cannot have more than one message_type RT="+resource_type_code;
+					}
+					path = (String) message.get(LTI2Constants.PATH);
+					if ( path == null ) {
+						return "A launch message must have a path RT="+resource_type_code;
+					} 
+					parameter = getArray(message,LTI2Constants.PARAMETER);
+					enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
+				} else {
+					return "Only "+LTI2Messages.BASIC_LTI_LAUNCH_REQUEST+" and "+LTI2Messages.CONTENT_ITEM_SELECTION_REQUEST+ " are allowed message_types RT="+resource_type_code;
 				}
-				path = (String) message.get(LTI2Constants.PATH);
-				if ( path == null ) {
-					return "A basic-lti-launch-request message must have a path RT="+resource_type_code;
-				} 
-				parameter = getArray(message,LTI2Constants.PARAMETER);
-				enabled_capability = getArray(message, LTI2Constants.ENABLED_CAPABILITY);
 			}
 
 			// Ignore everything except launch handlers
