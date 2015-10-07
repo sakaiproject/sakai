@@ -28,22 +28,16 @@ import org.apache.commons.logging.LogFactory;
 import org.hibernate.MappingException;
 import org.hibernate.cfg.Configuration;
 import org.sakaiproject.springframework.orm.hibernate.AdditionalHibernateMappings;
-import org.sakaiproject.springframework.orm.hibernate.VendorHbmTransformer;
-import org.springframework.beans.BeansException;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 
-public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappings, Comparable, ApplicationContextAware
+public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappings, Comparable<AdditionalHibernateMappings>
 {
 	protected final transient Log logger = LogFactory.getLog(getClass());
 
 	private Resource[] mappingLocations;
 
 	private Integer sortOrder = Integer.valueOf(Integer.MAX_VALUE);
-
-	private static VendorHbmTransformer vendorHbmTrasformer;
 
     public void setMappingResources(String[] mappingResources)
 	{
@@ -69,21 +63,11 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 					logger.warn("config is null!");
 					return;
 				}
-				if (vendorHbmTrasformer == null) {
-					logger.warn("vendor is null!");
-					return;
-				}
-
-				config.addInputStream(vendorHbmTrasformer.getTransformedMapping(this.mappingLocations[i].getInputStream()));
+				config.addInputStream(this.mappingLocations[i].getInputStream());
 			} catch (MappingException me) {
 				throw new MappingException("Failed to load "+ this.mappingLocations[i], me);
 			}
 		}
-	}
-
-	public int compareTo(Object o)
-	{
-		return getSortOrder().compareTo(((AdditionalHibernateMappingsImpl) o).getSortOrder());
 	}
 
 	public Integer getSortOrder()
@@ -96,12 +80,8 @@ public class AdditionalHibernateMappingsImpl implements AdditionalHibernateMappi
 		this.sortOrder = sortOrder;
 	}
 
-	public void setApplicationContext(ApplicationContext applicationContext)
-			throws BeansException {
-		// We do this so that we don't have to start the Sakai component manager.
-		vendorHbmTrasformer = (VendorHbmTransformer) applicationContext
-				.getBean(org.sakaiproject.springframework.orm.hibernate.VendorHbmTransformer.class
-						.getName());
+	@Override
+	public int compareTo(AdditionalHibernateMappings o) {
+		return getSortOrder().compareTo(o.getSortOrder());
 	}
-
 }

@@ -466,20 +466,6 @@
     <property name="defaultCacheName" value="org.sakaiproject.springframework.orm.hibernate.L2Cache" />
   </bean>
 
-    <bean id="org.sakaiproject.springframework.orm.hibernate.VendorHbmTransformer" class="org.sakaiproject.springframework.orm.hibernate.impl.VendorHbmTransformerImpl">
-        <property name="vendor">
-            <bean factory-bean="org.sakaiproject.db.api.SqlService" factory-method="getVendor"/>
-        </property>
-        <property name="vendorTransforms">
-            <map>
-                <entry>
-                    <key><value>db2</value></key>
-                    <value>org/sakaiproject/springframework/orm/hibernate/dialect/db2/db2.xsl</value>
-                </entry>
-            </map>
-        </property>
-    </bean>
-
     <!--  The "Global" Hibernate Session Factory -->
 	<bean
 			id="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"
