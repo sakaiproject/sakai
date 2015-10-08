@@ -1304,6 +1304,10 @@ public class RequestFilter implements Filter
 			res.setHeader("X-Frame-Options", "SAMEORIGIN");
 		}
 
+		UsageSession us = (UsageSession)s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
+		if (us != null)
+			res.setHeader("X-Sakai-Session",us.getId());
+
 		return res;
 	}
 
