@@ -50,7 +50,7 @@
 
 <script type="text/JavaScript">
 
-	var dynamicList = new DynamicList('itemForm\\:serialized', 'template', {selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'container');
+	var dynamicList = new DynamicList('itemForm\\:serialized', 'template', {selectionClass: 'selectiondiv', textClass: 'textContainer'}, 'imageContainer');
 			
 	jQuery(window).load(function(){
 		if($('#itemForm\\:serialized').val() != '')
@@ -184,7 +184,7 @@
 	</div> <br />
 </f:verbatim>  
 <f:verbatim> 
-	<div onmousedown="return false" id="container" class='authorImageContainer'>
+	<div onmousedown="return false" id="imageContainer" class='authorImageContainer'>
 		<img id='img' src='</f:verbatim><h:outputText value="#{itemauthor.currentItem.imageMapSrc}" /><f:verbatim>' style='display:none'/>
 	</div>
 </f:verbatim>    
