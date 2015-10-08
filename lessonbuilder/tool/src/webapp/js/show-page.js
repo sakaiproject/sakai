@@ -229,8 +229,7 @@ $(document).ready(function() {
 				      }},{text:msg("simplepage.cancel_message"),
 				          click: function() {
 				          $( this ).dialog( "close" );}}
-				]});
-
+				]}).parent('.ui-dialog').css('zIndex',150000);
 		
 		$(window).resize(function() {
 			var modalDialogList = ['#subpage-dialog', '#edit-item-dialog', '#edit-multimedia-dialog',
