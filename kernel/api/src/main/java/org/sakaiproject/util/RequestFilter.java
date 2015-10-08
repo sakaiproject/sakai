@@ -1305,8 +1305,9 @@ public class RequestFilter implements Filter
 		}
 
 		UsageSession us = (UsageSession)s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
-		if (us != null)
+		if (us != null) {
 			res.setHeader("X-Sakai-Session",us.getId());
+		}
 
 		return res;
 	}
