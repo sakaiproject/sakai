@@ -81,7 +81,7 @@ should be included in file importing DeliveryMessages
       <h:outputLabel value="#{authorMessages.answerKey}: "/>
      <f:verbatim>  
 	<div id="imageMapContainer_</f:verbatim><h:outputText value="#{partBean.number}_#{question.number}"/><f:verbatim>" class='authorImageContainer'>
-		<img id='img' src='</f:verbatim><h:outputText value="#{question.itemData.imageMapSrc}" /><f:verbatim>'/>
+		<img id='img' src='</f:verbatim><h:outputText value="#{question.itemData.imageMapSrc}" /><f:verbatim>'  style='width: 80%'/>
 	</div>
 </f:verbatim>
 <f:verbatim><br/></f:verbatim>

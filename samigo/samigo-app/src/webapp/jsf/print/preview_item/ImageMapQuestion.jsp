@@ -48,7 +48,7 @@ should be included in file importing DeliveryMessages
     <h:panelGroup>
      	<f:verbatim>  
 			<div class='studentImageContainer'>
-				<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' />
+				<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' style='width: 80%'/>
 			</div>
 		</f:verbatim>
     </h:panelGroup>
@@ -68,7 +68,7 @@ should be included in file importing DeliveryMessages
 
 		<f:verbatim> 
 			<div id="answerImageMapContainer_</f:verbatim><h:outputText value="#{part.number}_#{question.sequence}"/><f:verbatim>" class='authorImageContainer'>
-				<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' />
+				<img id='img' src='</f:verbatim><h:outputText value="#{question.imageSrc}" /><f:verbatim>' style='width: 80%'/>
 			</div>
 		</f:verbatim>
     	
