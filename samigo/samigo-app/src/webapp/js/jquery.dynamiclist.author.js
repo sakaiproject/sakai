@@ -164,6 +164,8 @@ function DynamicList(baseId_, templateId_, className_, anchor_)
 				anchorJObj.css('width', anchorJObj.find('img').width()+'px');
 				anchorJObj.css('height', anchorJObj.find('img').height()+'px');
 				anchorJObj.css('background-image', 'url("' + anchorJObj.find('img').attr('src') + '")');
+				anchorJObj.css('background-repeat', 'no-repeat');
+				anchorJObj.css('background-size', '80% auto');
 			}
 		}
 		
