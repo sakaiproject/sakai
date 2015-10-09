@@ -904,17 +904,33 @@ ul.feedbackPanel li span {
 .gb-hidden-column-visual-cue {
   position: absolute;
   top: 0;
-  right: -12px;
+  right: -14px;
   cursor: pointer;
+  width: 19px;
+  border: 1px solid transparent;
+  height: 15px;
+  line-height: 14px;
+  padding: 0 1px;
+  border-radius: 2px;
 }
 .gb-hidden-column-visual-cue:hover,
 .gb-hidden-column-visual-cue:active,
 .gb-hidden-column-visual-cue:focus {
   text-decoration: none;
+  background-color: #FFF;
+  background-color: rgba(255,255,255,0.5);
+  border-color: #43a7c8;
+  border-color: rgba(67, 167, 200, 0.5);
 }
 .gb-hidden-column-visual-cue:before {
   font-family: 'gradebook-icons';
-  content: '\f04f';
+  content: '\f0d9';
+  float: left;
+}
+.gb-hidden-column-visual-cue:after {
+  font-family: 'gradebook-icons';
+  content: '\f0da';
+  float: right;
 }
 /* Update Ungraded modal */
 .gb-update-ungraded-extracredit-confirmation.in {
