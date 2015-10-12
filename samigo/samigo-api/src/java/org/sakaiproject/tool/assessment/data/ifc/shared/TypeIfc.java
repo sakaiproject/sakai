@@ -40,6 +40,7 @@ public interface TypeIfc extends java.io.Serializable {
   public static final Long MATRIX_CHOICES_SURVEY = Long.valueOf(13);
   public static final Long EXTENDED_MATCHING_ITEMS = Long.valueOf(14);
   public static final Long CALCULATED_QUESTION = Long.valueOf(15); // CALCULATED_QUESTION
+  public static Long IMAGEMAP_QUESTION = Long.valueOf(16); // IMAGEMAP_QUESTION
   // these are section type available in this site,
   public static Long DEFAULT_SECTION = Long.valueOf(21);
   // these are assessment template type available in this site,

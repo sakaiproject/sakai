@@ -29,6 +29,7 @@ public class TypeD implements TypeIfc{
 	 */
 	private static final long serialVersionUID = 3957338190425982508L;
   public static final Long CALCULATED_QUESTION = Long.valueOf(15); // CALCULATED_QUESTION
+  public static final Long IMAGEMAP_QUESTION = Long.valueOf(16); // IMAGEMAP_QUESTION
   
   private Long typeId;
   private String authority;
