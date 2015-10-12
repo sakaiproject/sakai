@@ -146,7 +146,8 @@ public class ExtendedTimeService {
 
 	private Date parseDate(String dateString, Date xtDate) {
 		try {
-			xtDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa", Locale.ENGLISH).parse(dateString);
+			//xtDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss aa", Locale.ENGLISH).parse(dateString);
+			xtDate = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss", Locale.ENGLISH).parse(dateString);
 			this.hasExtendedTime = true;
 		} catch (ParseException e) {
 			e.printStackTrace();
