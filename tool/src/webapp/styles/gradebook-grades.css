@@ -571,6 +571,9 @@
   text-decoration: none;
 }
 /* Popover Notifications */
+.gb-grade-item-flags .popover {
+  min-width: 180px;
+}
 .gb-popover-notifications {
   min-width: 200px;
   max-width: 300px;
