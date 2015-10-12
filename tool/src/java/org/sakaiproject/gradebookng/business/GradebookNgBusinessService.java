@@ -678,6 +678,19 @@ public class GradebookNgBusinessService {
 		}
 		Temp.timeWithContext("buildGradeMatrix", "categories built", stopwatch.getTime());
 		
+		// course grade override. if no grades, course grade should be - instead of 'F'
+		//TODO this iteration may not be necessary as we could instead
+		// add a boolean to the GbStudentGradeInfo object for each student and when calling addGrade set it to true
+		// then check the boolean on the front end, but then it needs to be checked everywhere so this may be better.
+		for(User student: students) {
+			GbStudentGradeInfo sg = matrix.get(student.getId());
+			
+			if(sg.getGrades().isEmpty()) {
+				sg.setCourseGrade("-");
+			}
+		}
+		Temp.timeWithContext("buildGradeMatrix", "course grade override done", stopwatch.getTime());
+
 		/*
 		//apply permissions for TA
 		if(role == GbRole.TA) {
