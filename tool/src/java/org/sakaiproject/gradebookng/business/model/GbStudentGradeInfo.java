@@ -42,6 +42,9 @@ public class GbStudentGradeInfo implements Serializable
 	
 	@Getter
 	private Map<Long,Double> categoryAverages;
+	
+	@Getter @Setter
+	private boolean gradeable;
 		
 	public GbStudentGradeInfo(){
 	}
@@ -54,13 +57,14 @@ public class GbStudentGradeInfo implements Serializable
 		this.studentDisplayName = u.getDisplayName();
 		this.grades = new HashMap<Long,GbGradeInfo>();
 		this.categoryAverages = new HashMap<Long,Double>();
+		this.gradeable = false; //default.
 	}
 	
 	/**
 	 * Helper to add an assignment grade to the map
 	 * 
 	 * @param assignmentId
-	 * @param gd
+	 * @param gradeInfo
 	 */
 	public void addGrade(Long assignmentId, GbGradeInfo gradeInfo) {
 		this.grades.put(assignmentId, gradeInfo);
@@ -70,7 +74,7 @@ public class GbStudentGradeInfo implements Serializable
 	 * Helper to add a category average to the map
 	 * 
 	 * @param categoryId
-	 * @param average
+	 * @param score
 	 */
 	public void addCategoryAverage(Long categoryId, Double score) {
 		this.categoryAverages.put(categoryId, score);

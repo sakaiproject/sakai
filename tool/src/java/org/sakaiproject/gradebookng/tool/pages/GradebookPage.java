@@ -320,7 +320,7 @@ public class GradebookPage extends BasePage {
     				modelData.put("studentUuid", studentGrades.getStudentUuid());
     				modelData.put("isExternal", assignment.isExternallyMaintained());
     				modelData.put("gradeInfo", gradeInfo);
-    				modelData.put("categoryId", assignment.getCategoryId());
+    				modelData.put("renderMode", renderMode);
     				
     				cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));
     				

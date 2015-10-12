@@ -621,7 +621,7 @@ public class GradebookNgBusinessService {
 				}
 				categoryAssignments.put(categoryId, values);
 			}
-			
+						
 			//get grades
 			List<GradeDefinition> defs = this.gradebookService.getGradesForStudentsForItem(gradebook.getUid(), assignment.getId(), studentUuids);
 			Temp.timeWithContext("buildGradeMatrix", "getGradesForStudentsForItem: " + assignment.getId(), stopwatch.getTime());
@@ -690,29 +690,82 @@ public class GradebookNgBusinessService {
 			}
 		}
 		Temp.timeWithContext("buildGradeMatrix", "course grade override done", stopwatch.getTime());
-
-		/*
-		//apply permissions for TA
+		
+		//for a TA, apply the permissions to each grade item to see if we can render it
+		//the list of students, assignments and grades is already filtered to those that can be viewed
+		//so we are only concerned with the gradeable permission
 		if(role == GbRole.TA) {
 			
 			//get permissions
 			List<PermissionDefinition> permissions = this.getPermissionsForUser(this.getCurrentUser().getId());
-			
+				
 			//only need to process this if some are defined
+			//again only concerned with grade permission, so take a peek at the permissions
+			boolean gradePermissionsExist = false;
 			if(!permissions.isEmpty()) {
+				for(PermissionDefinition permission: permissions) {
+					if(StringUtils.equalsIgnoreCase(GraderPermission.GRADE.toString(), permission.getFunction())) {
+						gradePermissionsExist = true;
+					}
+				}
+			}
+			
+			//if we have grade permissions we need to enrich the students grades
+			if(gradePermissionsExist) {
 				
-				Map<String,List<String>> memberships = this.getGroupMemberships();
+				//first need a lookup map of assignment id to category so we can link up permissions by category
+				Map<Long, Long> assignmentCategoryMap = new HashMap<>();
+				for(Assignment assignment: assignments) {
+					assignmentCategoryMap.put(assignment.getId(), assignment.getCategoryId());
+				}
 				
-				//for each permission, if the group
+				//get the group membership for the students
+				Map<String, List<String>> groupMembershipsMap = this.getGroupMemberships();
+
+				//for every student
+				for(User student: students) {
+					
+					GbStudentGradeInfo sg = matrix.get(student.getId());
+					
+					//get their assignment/grade list
+					Map<Long, GbGradeInfo> gradeMap = sg.getGrades();
+					
+					//for every assignment that has a grade
+					for (Map.Entry<Long, GbGradeInfo> entry : gradeMap.entrySet()) {
+						
+						//assignmentId
+						Long assignmentId = entry.getKey();
+						
+						//categoryId
+						Long categoryId = assignmentCategoryMap.get(assignmentId);
+						
+						//iterate the permissions
+						// if category, compare the category,
+						//check the group and find the user in the group
+						//if all ok, mark it as GRADEABLE
+						
+						
+					    System.out.println(entry.getKey() + "/" + entry.getValue());
+					}
+
+
+					
+					
+					
+				}
+				
+				
 				
 				
 				
 			}
 			
 			
-		}
+		//}
+		
+		
+		
 		Temp.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
-		*/
 
 		//get the matrix as a list of GbStudentGradeInfo
 		List<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
