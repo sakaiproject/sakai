@@ -700,18 +700,20 @@ public class GradebookNgBusinessService {
 			List<PermissionDefinition> permissions = this.getPermissionsForUser(this.getCurrentUser().getId());
 				
 			//only need to process this if some are defined
-			//again only concerned with grade permission, so take a peek at the permissions
-			boolean gradePermissionsExist = false;
+			//again only concerned with grade permission, so parse the list to remove those that aren't GRADE
 			if(!permissions.isEmpty()) {
-				for(PermissionDefinition permission: permissions) {
-					if(StringUtils.equalsIgnoreCase(GraderPermission.GRADE.toString(), permission.getFunction())) {
-						gradePermissionsExist = true;
+				
+				Iterator<PermissionDefinition> iter = permissions.iterator();
+				while (iter.hasNext()) {
+					PermissionDefinition permission = iter.next();
+					if(!StringUtils.equalsIgnoreCase(GraderPermission.GRADE.toString(), permission.getFunction())) {
+						iter.remove();
 					}
 				}
 			}
 			
-			//if we have grade permissions we need to enrich the students grades
-			if(gradePermissionsExist) {
+			//if we still have permissions, they will be of type grade, so we need to enrich the students grades
+			if(!permissions.isEmpty()) {
 				
 				//first need a lookup map of assignment id to category so we can link up permissions by category
 				Map<Long, Long> assignmentCategoryMap = new HashMap<>();
@@ -722,6 +724,8 @@ public class GradebookNgBusinessService {
 				//get the group membership for the students
 				Map<String, List<String>> groupMembershipsMap = this.getGroupMemberships();
 
+				System.out.println("groupMembershipsMap: " + groupMembershipsMap);
+				
 				//for every student
 				for(User student: students) {
 					
@@ -729,41 +733,54 @@ public class GradebookNgBusinessService {
 					
 					//get their assignment/grade list
 					Map<Long, GbGradeInfo> gradeMap = sg.getGrades();
-					
+									
+					boolean gradeable = false;
 					//for every assignment that has a grade
 					for (Map.Entry<Long, GbGradeInfo> entry : gradeMap.entrySet()) {
 						
-						//assignmentId
-						Long assignmentId = entry.getKey();
-						
 						//categoryId
-						Long categoryId = assignmentCategoryMap.get(assignmentId);
+						Long gradeCategoryId = assignmentCategoryMap.get(entry.getKey());
 						
 						//iterate the permissions
 						// if category, compare the category,
-						//check the group and find the user in the group
+						// then check the group and find the user in the group
 						//if all ok, mark it as GRADEABLE
+						for(PermissionDefinition permission: permissions) {
+							//we know they are all GRADE so no need to check here
+							
+							Long permissionCategoryId = permission.getCategoryId();
+							String permissionGroupReference = permission.getGroupReference();
+							
+							System.out.println("permissionCategoryId: " + permissionCategoryId);
+							System.out.println("permissionGroupReference: " + permissionGroupReference);
+
+							
+							//if permissions category is null (can grade all categories) or they match (can grade this category), check the group
+							if(permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId)) {
+								
+								//if group reference is null, then we can grade all groups, so gradeable = true for this item
+								if(StringUtils.isBlank(permissionGroupReference)) {
+									gradeable = true;
+									continue;
+								} else {
+									//if group membership contains student, can grade this group, so gradeable = true for this item
+									List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
+									System.out.println("groupMembers: " + groupMembers);
+									if(groupMembers != null && groupMembers.contains(student.getId())) {
+										gradeable = true;
+										continue;
+									}
+								}
+							}
+						}
 						
-						
-					    System.out.println(entry.getKey() + "/" + entry.getValue());
+						//set the gradeable flag on this grade instance
+						GbGradeInfo gradeInfo = entry.getValue();
+						gradeInfo.setGradeable(gradeable);						
 					}
-
-
-					
-					
-					
 				}
-				
-				
-				
-				
-				
 			}
-			
-			
-		//}
-		
-		
+		}
 		
 		Temp.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
 
@@ -820,6 +837,9 @@ public class GradebookNgBusinessService {
 			for(Group group: groups) {
 				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
 			}
+			
+			System.out.println("before filtering: " + rval);
+			
 		} catch (IdUnusedException e) {
 			//essentially ignore and use what we have
 			log.error("Error retrieving groups", e);
@@ -838,6 +858,12 @@ public class GradebookNgBusinessService {
 						
 			//get the ones the TA can actually view
 			//note that if a group is empty, it will not be included.
+			
+			
+			//THIS IS ALWAYS NULL FOR A TA? perhaps this needsto accept a param 'filter=true/false' if we want it filtered?
+			//first check why the service is filtering these out... 
+			
+			
 			List<String> viewableGroupIds = this.gradebookPermissionService.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
 		
 			//remove the ones that the user can't view
@@ -1782,6 +1808,9 @@ public class GradebookNgBusinessService {
     		 rval.put(gbGroup.getReference(), memberUuids);
    
     	 }
+    	 
+    	 System.out.println("rval: " + rval);
+
     	 
     	 return rval;
      }

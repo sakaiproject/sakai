@@ -51,6 +51,7 @@ public class GradeItemCellPanel extends Panel {
 	AjaxEditableLabel<String> gradeCell;
 	
 	String comment;
+	boolean gradeable;
 	GradeCellSaveStyle gradeSaveStyle;
 	
 	final List<GradeCellNotification> notifications = new ArrayList<GradeCellNotification>();
@@ -99,13 +100,18 @@ public class GradeItemCellPanel extends Panel {
 		if(gradeInfo != null) {
 			rawGrade = gradeInfo.getGrade();
 			this.comment = gradeInfo.getGradeComment();
+			this.gradeable = gradeInfo.isGradeable();
 		} else {
 			rawGrade = "";
 			this.comment = "";
+			this.gradeable = false;
 		}
-		
+				
 		//get grade
 		final String formattedGrade = FormatHelper.formatGrade(rawGrade);
+		
+		System.out.println("assignmentId: " + assignmentId + ", formattedGrade: " + formattedGrade + ", gradeable: " + gradeable);
+
 				
 		//if assignment is external, normal label
 		if(isExternal){

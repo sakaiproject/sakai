@@ -42,9 +42,6 @@ public class GbStudentGradeInfo implements Serializable
 	
 	@Getter
 	private Map<Long,Double> categoryAverages;
-	
-	@Getter @Setter
-	private boolean gradeable;
 		
 	public GbStudentGradeInfo(){
 	}
@@ -57,7 +54,6 @@ public class GbStudentGradeInfo implements Serializable
 		this.studentDisplayName = u.getDisplayName();
 		this.grades = new HashMap<Long,GbGradeInfo>();
 		this.categoryAverages = new HashMap<Long,Double>();
-		this.gradeable = false; //default.
 	}
 	
 	/**
