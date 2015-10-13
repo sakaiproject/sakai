@@ -1494,10 +1494,9 @@ SiteContentAdvisorProvider, SiteContentAdvisorTypeRegistry, EntityTransferrerRef
 				//Now we must support groups permission, so we ask for this permission too.
 				//Groups permission gives full access to dropboxes of users in current user's groups. 
 				//A different logic can be achieved here depending of lock parameter received.
-				if (m_securityService.unlock(AUTH_DROPBOX_MAINTAIN, ref))
-					return AUTH_DROPBOX_MAINTAIN;
-				else if (m_securityService.unlock(AUTH_DROPBOX_GROUPS, ref))
+				if (m_securityService.unlock(AUTH_DROPBOX_GROUPS, ref))
 					return AUTH_DROPBOX_GROUPS;
+				else return AUTH_DROPBOX_MAINTAIN;
 			}
 		}
 
