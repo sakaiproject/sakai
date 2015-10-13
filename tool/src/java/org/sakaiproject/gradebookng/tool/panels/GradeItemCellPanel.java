@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -49,7 +50,12 @@ public class GradeItemCellPanel extends Panel {
 	
 	AjaxEditableLabel<String> gradeCell;
 	
+	String rawGrade;
+	String formattedGrade;
 	String comment;
+	boolean gradeable;
+	boolean showMenu;
+	
 	GradeCellSaveStyle gradeSaveStyle;
 	
 	final List<GradeCellNotification> notifications = new ArrayList<GradeCellNotification>();
@@ -90,27 +96,34 @@ public class GradeItemCellPanel extends Panel {
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final boolean isExternal = (boolean) modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
-		final Long categoryId = (Long) modelData.get("categoryId");
+		final GbRole role = (GbRole) modelData.get("role");
 		
-		//note, gradeInfo may be null
-		String rawGrade;
+		//Note: gradeInfo may be null
+		rawGrade = (gradeInfo != null) ? gradeInfo.getGrade() : "";
+		comment = (gradeInfo != null) ? gradeInfo.getGradeComment() : "";
+		gradeable = (gradeInfo != null) ? gradeInfo.isGradeable() : false; //ensure this is ALWAYS false if gradeInfo is null.
 		
-		if(gradeInfo != null) {
-			rawGrade = gradeInfo.getGrade();
-			this.comment = gradeInfo.getGradeComment();
-		} else {
-			rawGrade = "";
-			this.comment = "";
+		if(role == GbRole.INSTRUCTOR) {
+			gradeable = true;
 		}
-		
-		//get grade
-		final String formattedGrade = FormatHelper.formatGrade(rawGrade);
 				
-		//if assignment is external, normal label
-		if(isExternal){
+		//get grade
+		formattedGrade = FormatHelper.formatGrade(rawGrade);
+					
+		//RENDER
+		if(isExternal || !gradeable){
+						
 			add(new Label("grade", Model.of(formattedGrade)));
-			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
-			notifications.add(GradeCellNotification.IS_EXTERNAL);
+			
+			showMenu = false;
+			
+			if(isExternal) {
+				getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
+				notifications.add(GradeCellNotification.IS_EXTERNAL);
+			} else {
+				getParent().add(new AttributeModifier("class", "gb-grade-item-cell"));
+			}
+		
 		} else {
 			gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				
@@ -140,6 +153,8 @@ public class GradeItemCellPanel extends Panel {
 					if(StringUtils.isNotBlank(comment)) {
 						markHasComment(this);
 					}
+					
+					showMenu = true;
 				}
 				
 				@Override
@@ -285,18 +300,19 @@ public class GradeItemCellPanel extends Panel {
 			add(gradeCell);
 		}
 
+		//always add these
 		getParent().add(new AttributeModifier("role", "gridcell"));
-		getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal)));
+		getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal || !gradeable)));
 
 		//menu
 		WebMarkupContainer menu = new WebMarkupContainer("menu") {
 		
 			@Override
 			public boolean isVisible() {
-				if(isExternal) {
-					return false;
+				if(showMenu) {
+					return true;
 				}
-				return true;
+				return false;
 			}
 		};
 		
