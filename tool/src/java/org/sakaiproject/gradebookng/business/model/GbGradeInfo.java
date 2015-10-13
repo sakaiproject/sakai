@@ -10,7 +10,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sakaiproject.service.gradebook.shared.GradeDefinition;
 
 /**
- * Similar to GradeDefinition but serialisable and Permission aware
+ * Similar to GradeDefinition but serialisable and grader permission aware
  * 
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *

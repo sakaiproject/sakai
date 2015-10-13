@@ -715,6 +715,8 @@ public class GradebookNgBusinessService {
 			//if we still have permissions, they will be of type grade, so we need to enrich the students grades
 			if(!permissions.isEmpty()) {
 				
+				log.debug("Grade permissions exist, processing: " + permissions.size());
+
 				//first need a lookup map of assignment id to category so we can link up permissions by category
 				Map<Long, Long> assignmentCategoryMap = new HashMap<>();
 				for(Assignment assignment: assignments) {
@@ -723,54 +725,67 @@ public class GradebookNgBusinessService {
 				
 				//get the group membership for the students
 				Map<String, List<String>> groupMembershipsMap = this.getGroupMemberships();
-
-				System.out.println("groupMembershipsMap: " + groupMembershipsMap);
 				
 				//for every student
 				for(User student: students) {
+					
+					log.debug("Processing student: " + student.getEid());
 					
 					GbStudentGradeInfo sg = matrix.get(student.getId());
 					
 					//get their assignment/grade list
 					Map<Long, GbGradeInfo> gradeMap = sg.getGrades();
 									
-					boolean gradeable = false;
 					//for every assignment that has a grade
 					for (Map.Entry<Long, GbGradeInfo> entry : gradeMap.entrySet()) {
 						
 						//categoryId
 						Long gradeCategoryId = assignmentCategoryMap.get(entry.getKey());
 						
+						log.debug("Grade: " + entry.getValue());
+
+						
 						//iterate the permissions
 						// if category, compare the category,
 						// then check the group and find the user in the group
 						//if all ok, mark it as GRADEABLE
+						
+						boolean categoryOk = false;
+						boolean groupOk = false;
+						boolean gradeable = false;
+						
 						for(PermissionDefinition permission: permissions) {
 							//we know they are all GRADE so no need to check here
 							
 							Long permissionCategoryId = permission.getCategoryId();
 							String permissionGroupReference = permission.getGroupReference();
 							
-							System.out.println("permissionCategoryId: " + permissionCategoryId);
-							System.out.println("permissionGroupReference: " + permissionGroupReference);
-
-							
-							//if permissions category is null (can grade all categories) or they match (can grade this category), check the group
-							if(permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId)) {
+							log.debug("permissionCategoryId: " + permissionCategoryId);
+							log.debug("permissionGroupReference: " + permissionGroupReference);
 								
-								//if group reference is null, then we can grade all groups, so gradeable = true for this item
-								if(StringUtils.isBlank(permissionGroupReference)) {
-									gradeable = true;
-									continue;
-								} else {
-									//if group membership contains student, can grade this group, so gradeable = true for this item
-									List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
-									System.out.println("groupMembers: " + groupMembers);
-									if(groupMembers != null && groupMembers.contains(student.getId())) {
-										gradeable = true;
-										continue;
-									}
+							//if permissions category is null (can grade all categories) or they match (can grade this category)
+							if(permissionCategoryId == null || permissionCategoryId.equals(gradeCategoryId)) {
+								categoryOk = true;
+								log.debug("Category check passed");
+							}
+								
+							//if group reference is null (can grade all groups) or group membership contains student (can grade this group)
+							if(StringUtils.isBlank(permissionGroupReference)) {
+								groupOk = true;
+								log.debug("Group check passed #1");
+							} else {
+								List<String> groupMembers = groupMembershipsMap.get(permissionGroupReference);
+								log.debug("groupMembers: " + groupMembers);
+
+								if(groupMembers != null && groupMembers.contains(student.getId())) {
+									groupOk = true;
+									log.debug("Group check passed #2");
 								}
+							}
+							
+							if(categoryOk && groupOk) {
+								gradeable = true;
+								continue;
 							}
 						}
 						
@@ -837,9 +852,7 @@ public class GradebookNgBusinessService {
 			for(Group group: groups) {
 				rval.add(new GbGroup(group.getId(), group.getTitle(), group.getReference(), GbGroup.Type.GROUP));
 			}
-			
-			System.out.println("before filtering: " + rval);
-			
+						
 		} catch (IdUnusedException e) {
 			//essentially ignore and use what we have
 			log.error("Error retrieving groups", e);
@@ -850,27 +863,21 @@ public class GradebookNgBusinessService {
 			Gradebook gradebook = this.getGradebook(siteId);
 			User user = this.getCurrentUser();
 			
-			//need list of all groups as uuids
+			//need list of all groups as REFERENCES (not ids)
 			List<String> allGroupIds = new ArrayList<>();
 			for(GbGroup group: rval) {
-				allGroupIds.add(group.getId());
+				allGroupIds.add(group.getReference());
 			}
-						
+									
 			//get the ones the TA can actually view
 			//note that if a group is empty, it will not be included.
-			
-			
-			//THIS IS ALWAYS NULL FOR A TA? perhaps this needsto accept a param 'filter=true/false' if we want it filtered?
-			//first check why the service is filtering these out... 
-			
-			
 			List<String> viewableGroupIds = this.gradebookPermissionService.getViewableGroupsForUser(gradebook.getId(), user.getId(), allGroupIds);
-		
+						
 			//remove the ones that the user can't view
 			Iterator<GbGroup> iter = rval.iterator();
 			while (iter.hasNext()) {
 				GbGroup group = iter.next();
-				if(!viewableGroupIds.contains(group.getId())) {
+				if(!viewableGroupIds.contains(group.getReference())) {
 					iter.remove();
 				}
 			}
@@ -1793,10 +1800,11 @@ public class GradebookNgBusinessService {
     	 Map<String,List<String>> rval = new HashMap<>();
     	 
     	 for(GbGroup gbGroup: viewableGroups) {
-    		 String groupId = gbGroup.getId();
+    		 String groupReference = gbGroup.getReference();
     		 List<String> memberUuids = new ArrayList<>();
-								
-    		 Group group = site.getGroup(groupId);
+					
+    		 
+    		 Group group = site.getGroup(groupReference);
     		 if(group != null) {
     			 Set<Member> members = group.getMembers();
     			 
@@ -1805,12 +1813,9 @@ public class GradebookNgBusinessService {
     			 }
     		 }
     		 
-    		 rval.put(gbGroup.getReference(), memberUuids);
+    		 rval.put(groupReference, memberUuids);
    
     	 }
-    	 
-    	 System.out.println("rval: " + rval);
-
     	 
     	 return rval;
      }
