@@ -581,13 +581,21 @@ GradebookSpreadsheet.prototype.proxyEventToElementsInOriginalCell = function(eve
     }
   // or a dropdown?
   } else if ($(event.target).is("a.btn.dropdown-toggle")) {
-    $originalCell.find("a.btn.dropdown-toggle").focus().trigger("click");
+    setTimeout(function() {
+      $originalCell.find("a.btn.dropdown-toggle").focus().trigger("click");
+    });
     return true;
   // or the row selector?
   } else if ($(event.target).is(".gb-row-selector")) {
     $originalCell.next().focus();
+    return true;
+  // or a flag?
+  } else if ($(event.target).closest(".gb-grade-item-flags").length == 1) {
+    setTimeout(function() {
+      $originalCell.find($(event.target).attr("class").split(' ').map(function(cssClass) {return "." + cssClass}).join(" ")).focus();
+    });
+    return true;
   }
-
   return false;
 };
 
