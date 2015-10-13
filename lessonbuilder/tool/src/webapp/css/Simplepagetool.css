@@ -20,6 +20,11 @@
    background-image: url("simplepage-theme/images/ui-icons_222222_256x240.png") !important;
 }
 
+.ui-dialog label {
+   padding-left: 0.5em;
+   font-weight: normal;
+}
+
 /* end override */
 
 .title-tools h2{
@@ -265,39 +270,88 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 
 /* only up to 4 cols has been tuned */
 .cols9 {
-    width: calc(11.1% - 36px) !important;
+    width: calc(100$ / 9  - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols9"][class~="double"] {
+    width: calc(200% / 9 - 17px) !important;
 }
 .cols8 {
-    width: calc(12.5% - 36px) !important;
+    width: calc(100% / 8 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols8"][class~="double"] {
+    width: calc(200% / 8 - 17px) !important;
 }
 .cols7 {
-    width: calc(14.2% - 36px) !important;
+    width: calc(100% / 7 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols7"][class~="double"] {
+    width: calc(200% / 7 - 17px) !important;
 }
 .cols6 {
-    width: calc(16.6% - 36px) !important;
+    width: calc(100% / 6 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols6"][class~="double"] {
+    width: calc(200% / 6 - 17px) !important;
 }
 .cols5 {
-    width: calc(20% - 36px) !important;
+    width: calc(100% / 5 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols5"][class~="double"] {
+    width: calc(200% / 5 - 17px) !important;
 }
 .cols4 {
-    width: calc(25% - 36px) !important;
+    width: calc(100% / 4 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols4"][class~="double"] {
+    width: calc(200% / 4 - 17px) !important;
 }
 .cols3 {
-    width: calc(33% - 34px) !important;
+    width: calc(100% / 3 - 17px) !important;
     margin-right: 2px !important;
+}
+[class~="cols3"][class~="double"] {
+    width: calc(200% / 3 - 17px) !important;
 }
 .cols2 {
-    width: calc(50% - 39px) !important;
+    width: calc(100% / 2 - 17px) !important;
     margin-right: 2px !important;
 }
+[class~="cols2"][class~="double"] {
+    width: calc(200% / 2 - 17px) !important;
+}
 .cols1 {
-    width: calc(100% - 46px) !important;
+    width: calc(100% - 17px) !important;
+}
+/* this is to prevent the last column from going to a new
+   line if the calculation is a bit off. */
+.lastcol {
+    margin-right:-10px !important;
+}
+
+/* with multiple columns don't want as wide spacing */
+.cols2 .right-col {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+.cols3 .right-col,.cols4 .right-col,.cols5 .right-col,.cols6 .right-col,.cols7 .right-col,.cols8 .right-col,.cols9 .right-col {
+  padding-left: 7px;
+  padding-right: 7px;
+}
+
+.split ul {
+    -webkit-column-count: 2;
+    -moz-column-count: 2;
+    column-count: 2;
+}
+
+.columnopen {
+  text-decoration: none;
 }
 
 .mainList li {
@@ -367,16 +421,6 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 }
 .edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
-}
-
-.sectionedit {
-   top: -37px;
-   position:absolute;
-   font-size: 60%;
-   padding: 7px;
-}
-.sectionedit a span {
-   color: rgb(102,102,102);
 }
 
 .buttonItem {
@@ -1093,9 +1137,16 @@ padding:1px;
 color: #666;
 }
 
-.sectionedit {
+/* position relative with no args does nothing, but editsection's position absolute needs it as a refernce */
+.column {
+   position:relative;
+}
+.editsection {
    position:absolute;
-   top: -37px;
+   top:-12px;
+}
+.sectionedit {
+   display:inline-block;
    background-color:#eee;
    z-index: 900;
    -webkit-border-radius: 3px;
@@ -1108,6 +1159,9 @@ color: #666;
 }
 .sectionedit a span {
    color: #666;
+}
+.sectionedit2 {
+   xleft: 32px;
 }
 
 .right-col a {
@@ -1164,19 +1218,35 @@ font-size: 90%;
   margin-left: 2px;
   margin-right: 2px;
 }
-div.section ul.cols2 {
-    width: calc(50% - 20px) !important;
-}
 .right-col {
   padding-left: 7px;
   padding-right: 7px;
 }
+.split ul {
+    -webkit-column-count: 1;
+    -moz-column-count: 1;
+    column-count: 1;
+}
 /* with narrow screen, don't use multiple columns */
-.cols1, .cols2, .cols3, .cols4, .cols5, .cols6, .cols7, .cols8, .cols9 {
+.cols1, .cols2, .cols3, .cols4, .cols5, .cols6, .cols7, .cols8, .cols9, 
+[class~="cols9"][class~="double"],
+[class~="cols8"][class~="double"],
+[class~="cols7"][class~="double"],
+[class~="cols6"][class~="double"],
+[class~="cols5"][class~="double"],
+[class~="cols4"][class~="double"],
+[class~="cols3"][class~="double"],
+[class~="cols2"][class~="double"],
+[class~="cols1"][class~="double"]
+ {
     width: calc(100% - 20px) !important;
 }
+/* override special spacing for multiple columsn in default page width */
+.cols2 .right-col,.cols3 .right-col,.cols4 .right-col,.cols5 .right-col,.cols6 .right-col,.cols7 .right-col,.cols8 .right-col,.cols9 .right-col {
+  padding-left: 7px;
+  padding-right: 7px;
 }
-
+}
 .lessonsToolButton {
   border-radius:15px !important;
 }
