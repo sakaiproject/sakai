@@ -123,7 +123,7 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, "Please Choose a File");
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, messageLocator.getMessage("simplepage.filepicker_instructions"));
-		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
+		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, new ArrayList());
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER, null);
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, ServerConfigurationService.getString("lessonbuilder.attachlinks", "true"));
