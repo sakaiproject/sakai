@@ -112,9 +112,7 @@ public class GradeItemCellPanel extends Panel {
 					
 		//RENDER
 		if(isExternal || !gradeable){
-			
-			System.out.println("label only");
-			
+						
 			add(new Label("grade", Model.of(formattedGrade)));
 			
 			showMenu = false;
