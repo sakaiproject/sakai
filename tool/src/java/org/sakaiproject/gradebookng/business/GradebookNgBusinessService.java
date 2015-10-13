@@ -794,9 +794,9 @@ public class GradebookNgBusinessService {
 					}
 				}
 			}
+			Temp.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
 		}
 		
-		Temp.timeWithContext("buildGradeMatrix", "TA permissions applied", stopwatch.getTime());
 
 		//get the matrix as a list of GbStudentGradeInfo
 		List<GbStudentGradeInfo> items = new ArrayList<>(matrix.values());
