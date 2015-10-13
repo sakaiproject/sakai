@@ -25,6 +25,7 @@ import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
 import org.apache.wicket.model.Model;
 import org.apache.wicket.spring.injection.annot.SpringBean;
+import org.sakaiproject.gradebookng.business.GbRole;
 import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
@@ -50,8 +51,11 @@ public class GradeItemCellPanel extends Panel {
 	
 	AjaxEditableLabel<String> gradeCell;
 	
+	String rawGrade;
+	String formattedGrade;
 	String comment;
-	boolean gradeable;
+	Boolean gradeable;
+	
 	GradeCellSaveStyle gradeSaveStyle;
 	
 	final List<GradeCellNotification> notifications = new ArrayList<GradeCellNotification>();
@@ -93,33 +97,32 @@ public class GradeItemCellPanel extends Panel {
 		final boolean isExternal = (boolean) modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
 		final GradebookRenderMode renderMode = (GradebookRenderMode) modelData.get("renderMode");
+		final GbRole role = (GbRole) modelData.get("role");
 		
-		//note, gradeInfo may be null
-		String rawGrade;
+		//Note: gradeInfo may be null
+		rawGrade = (gradeInfo != null) ? gradeInfo.getGrade() : "";
+		comment = (gradeInfo != null) ? gradeInfo.getGradeComment() : "";
+		gradeable = (gradeInfo != null) ? gradeInfo.isGradeable() : false;
 		
-		if(gradeInfo != null) {
-			rawGrade = gradeInfo.getGrade();
-			this.comment = gradeInfo.getGradeComment();
-			this.gradeable = gradeInfo.isGradeable();
-		} else {
-			rawGrade = "";
-			this.comment = "";
-			this.gradeable = false;
+		if(role == GbRole.INSTRUCTOR) {
+			gradeable = true;
 		}
 				
 		//get grade
-		final String formattedGrade = FormatHelper.formatGrade(rawGrade);
+		formattedGrade = FormatHelper.formatGrade(rawGrade);
 		
-		System.out.println("assignmentId: " + assignmentId + ", formattedGrade: " + formattedGrade + ", gradeable: " + gradeable);
+		System.out.println("assignmentId: " + assignmentId + ", formattedGrade: " + formattedGrade + ", gradeable: " + gradeable + ", renderMode: " + renderMode);
 
 				
-		//if assignment is external, normal label
-		if(isExternal){
+		//RENDER
+		if(isExternal || renderMode == GradebookRenderMode.VIEW_ONLY){
 			add(new Label("grade", Model.of(formattedGrade)));
-			getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
-			notifications.add(GradeCellNotification.IS_EXTERNAL);
-		} else if (renderMode == GradebookRenderMode.VIEW_ONLY) {
-			add(new Label("grade", Model.of(formattedGrade)));
+			
+			if(isExternal) {
+				getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
+				notifications.add(GradeCellNotification.IS_EXTERNAL);
+			}
+		
 		} else {
 			gradeCell = new AjaxEditableLabel<String>("grade", Model.of(formattedGrade)) {
 				

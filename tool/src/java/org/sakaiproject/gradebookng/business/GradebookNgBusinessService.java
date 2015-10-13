@@ -743,7 +743,6 @@ public class GradebookNgBusinessService {
 						Long gradeCategoryId = assignmentCategoryMap.get(entry.getKey());
 						
 						log.debug("Grade: " + entry.getValue());
-
 						
 						//iterate the permissions
 						// if category, compare the category,
