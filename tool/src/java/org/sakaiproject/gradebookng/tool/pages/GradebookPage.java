@@ -36,7 +36,6 @@ import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.model.GbGroup;
 import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
-import org.sakaiproject.gradebookng.tool.model.GradebookRenderMode;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
@@ -72,8 +71,6 @@ public class GradebookPage extends BasePage {
 
 	Form<Void> form;
 	
-	GradebookRenderMode renderMode = GradebookRenderMode.getDefault();
-
 	@SuppressWarnings({ "rawtypes", "unchecked", "serial" })
 	public GradebookPage() {
 		disableLink(this.gradebookPageLink);
@@ -182,14 +179,6 @@ public class GradebookPage extends BasePage {
 
         //get course grade visibility
         final boolean courseGradeVisible = businessService.isCourseGradeVisible(currentUserUuid);
-        
-        //if TA and there are any permissions defined, reset the render mode
-        //permissions must now be explicitly defined for gradeability
-        if(this.role == GbRole.TA) {
-        	if(!this.businessService.getPermissionsForUser(currentUserUuid).isEmpty()) {
-        		this.renderMode = GradebookRenderMode.VIEW_ONLY;
-        	}
-        }
                 
         //this could potentially be a sortable data provider
         final ListDataProvider<GbStudentGradeInfo> studentGradeMatrix = new ListDataProvider<GbStudentGradeInfo>(grades);
@@ -320,7 +309,6 @@ public class GradebookPage extends BasePage {
     				modelData.put("studentUuid", studentGrades.getStudentUuid());
     				modelData.put("isExternal", assignment.isExternallyMaintained());
     				modelData.put("gradeInfo", gradeInfo);
-    				modelData.put("renderMode", renderMode);
     				modelData.put("role", role);
     				
     				cellItem.add(new GradeItemCellPanel(componentId, Model.ofMap(modelData)));

@@ -30,7 +30,6 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
-import org.sakaiproject.gradebookng.tool.model.GradebookRenderMode;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -54,7 +53,8 @@ public class GradeItemCellPanel extends Panel {
 	String rawGrade;
 	String formattedGrade;
 	String comment;
-	Boolean gradeable;
+	boolean gradeable;
+	boolean showMenu;
 	
 	GradeCellSaveStyle gradeSaveStyle;
 	
@@ -96,13 +96,12 @@ public class GradeItemCellPanel extends Panel {
 		final String studentUuid = (String) modelData.get("studentUuid");
 		final boolean isExternal = (boolean) modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
-		final GradebookRenderMode renderMode = (GradebookRenderMode) modelData.get("renderMode");
 		final GbRole role = (GbRole) modelData.get("role");
 		
 		//Note: gradeInfo may be null
 		rawGrade = (gradeInfo != null) ? gradeInfo.getGrade() : "";
 		comment = (gradeInfo != null) ? gradeInfo.getGradeComment() : "";
-		gradeable = (gradeInfo != null) ? gradeInfo.isGradeable() : false;
+		gradeable = (gradeInfo != null) ? gradeInfo.isGradeable() : false; //ensure this is ALWAYS false if gradeInfo is null.
 		
 		if(role == GbRole.INSTRUCTOR) {
 			gradeable = true;
@@ -110,17 +109,21 @@ public class GradeItemCellPanel extends Panel {
 				
 		//get grade
 		formattedGrade = FormatHelper.formatGrade(rawGrade);
-		
-		System.out.println("assignmentId: " + assignmentId + ", formattedGrade: " + formattedGrade + ", gradeable: " + gradeable + ", renderMode: " + renderMode);
-
-				
+					
 		//RENDER
-		if(isExternal || renderMode == GradebookRenderMode.VIEW_ONLY){
+		if(isExternal || !gradeable){
+			
+			System.out.println("label only");
+			
 			add(new Label("grade", Model.of(formattedGrade)));
+			
+			showMenu = false;
 			
 			if(isExternal) {
 				getParent().add(new AttributeModifier("class", "gb-external-item-cell"));
 				notifications.add(GradeCellNotification.IS_EXTERNAL);
+			} else {
+				getParent().add(new AttributeModifier("class", "gb-grade-item-cell"));
 			}
 		
 		} else {
@@ -152,6 +155,8 @@ public class GradeItemCellPanel extends Panel {
 					if(StringUtils.isNotBlank(comment)) {
 						markHasComment(this);
 					}
+					
+					showMenu = true;
 				}
 				
 				@Override
@@ -297,18 +302,19 @@ public class GradeItemCellPanel extends Panel {
 			add(gradeCell);
 		}
 
+		//always add these
 		getParent().add(new AttributeModifier("role", "gridcell"));
-		getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal)));
+		getParent().add(new AttributeModifier("aria-readonly", Boolean.toString(isExternal || !gradeable)));
 
 		//menu
 		WebMarkupContainer menu = new WebMarkupContainer("menu") {
 		
 			@Override
 			public boolean isVisible() {
-				if(isExternal) {
-					return false;
+				if(showMenu) {
+					return true;
 				}
-				return true;
+				return false;
 			}
 		};
 		
