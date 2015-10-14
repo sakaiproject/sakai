@@ -554,8 +554,6 @@ public class PrivacyManagerImpl extends HibernateDaoSupport implements PrivacyMa
 			SQLException
 			{
 				Query q = session.getNamedQuery(QUERY_BY_USERID_CONTEXTID_TYPEID);
-				q.setCacheable(true);
-				//SAK-26110 q.setCacheRegion("org.sakaiproject.api.privacy.PrivacyManager.PrivacyQueryCache.queryGetPrivacy");
 				q.setParameter(CONTEXT_ID, contextId, Hibernate.STRING);
 				q.setParameter(USER_ID, userId, Hibernate.STRING);
 				q.setParameter(RECORD_TYPE, recordType, Hibernate.STRING);
