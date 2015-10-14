@@ -350,7 +350,7 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     column-count: 2;
 }
 
-.columnopen {
+.columnopen, .addbottom {
   text-decoration: none;
 }
 
@@ -1160,8 +1160,14 @@ color: #666;
 .sectionedit a span {
    color: #666;
 }
-.sectionedit2 {
-   xleft: 32px;
+.addbottom {
+   position:absolute;
+   top: auto;
+   bottom:0px;
+   right:0px;
+}
+.addbottom a {
+   text-decoration: none;
 }
 
 .right-col a {

@@ -2190,6 +2190,7 @@ $(document).ready(function() {
 	$("#dropdown").click(buttonOpenDropdown);
 	$("#dropdownc").click(buttonOpenDropdownc);
 	$(".add-link").click(buttonOpenDropdowna);
+	$(".add-bottom").click(buttonOpenDropdownb);
 
 	$("#moreDiv").on('keyup',function(evt) {
 		if (evt.which == 27) {
@@ -2558,6 +2559,14 @@ function buttonOpenDropdowna() {
     addAboveItem = addAboveLI.find("span.itemid").text();
     $(".addbreak").show();
     openDropdown($("#addContentDiv"), $("#dropdownc"));
+}
+
+function buttonOpenDropdownb() {
+    oldloc = $(this);
+    addAboveItem = '-' + $(this).closest('.column').find('ul').children().last().find("span.itemid").text();
+    $(".addbreak").show();
+    openDropdown($("#addContentDiv"), $("#dropdownc"));
+    return false;
 }
 
 function openDropdown(dropDiv, button) {
