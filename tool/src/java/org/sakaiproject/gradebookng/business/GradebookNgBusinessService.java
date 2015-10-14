@@ -177,21 +177,28 @@ public class GradebookNgBusinessService {
 				userUuids.retainAll(groupMembers);
 			}
 			
-			//if TA, pass it through the gradebook permissions			
+			//if TA, pass it through the gradebook permissions (only if there are permissions)		
 			if(this.getUserRole(siteId) == GbRole.TA) {
-				Gradebook gradebook = this.getGradebook(siteId);
 				User user = this.getCurrentUser();
-			
-				//get list of sections and groups this TA has access to
-				List courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
-												
-				//get viewable students.
-				List<String> viewableStudents = this.gradebookPermissionService.getViewableStudentsForUser(gradebook.getUid(), user.getId(), new ArrayList<>(userUuids), courseSections);
-								
-				if(viewableStudents != null) {
-					userUuids.retainAll(viewableStudents); //retain only those that are visible to this TA
-				} else {
-					userUuids.clear(); //TA can't view anyone
+				
+				//if there are permissions, pass it through them
+				//don't need to test TA access if no permissions
+				List<PermissionDefinition> perms = this.getPermissionsForUser(user.getId());
+				if(!perms.isEmpty()) {
+				
+					Gradebook gradebook = this.getGradebook(siteId);
+				
+					//get list of sections and groups this TA has access to
+					List courseSections = this.gradebookService.getViewableSections(gradebook.getUid());
+													
+					//get viewable students.
+					List<String> viewableStudents = this.gradebookPermissionService.getViewableStudentsForUser(gradebook.getUid(), user.getId(), new ArrayList<>(userUuids), courseSections);
+									
+					if(viewableStudents != null) {
+						userUuids.retainAll(viewableStudents); //retain only those that are visible to this TA
+					} else {
+						userUuids.clear(); //TA can't view anyone
+					}
 				}
 			}
 			
@@ -302,10 +309,14 @@ public class GradebookNgBusinessService {
 			for(CategoryDefinition cd: rval) {
 				allCategoryIds.add(cd.getId());
 			}
+			
+			if(allCategoryIds.isEmpty()) {
+				return Collections.emptyList();
+			}
 						
 			//get a list of category ids the user can actually view
 			List<Long> viewableCategoryIds = this.gradebookPermissionService.getCategoriesForUser(gradebook.getId(), user.getId(), allCategoryIds);
-						
+			
 			//remove the ones that the user can't view
 			Iterator<CategoryDefinition> iter = rval.iterator();
 			while (iter.hasNext()) {
@@ -562,7 +573,7 @@ public class GradebookNgBusinessService {
 		
 		//seed the map for all students so we can progresseively add grades to it
 		//also add the course grade here, to save an iteration later
-		//TODO TA permission checking
+		//TA permissions already included in course grade visibility
 		for(User student: students) {
 			
 			//create and add the user info
@@ -602,9 +613,9 @@ public class GradebookNgBusinessService {
 			Long categoryId = assignment.getCategoryId();
 			Long assignmentId = assignment.getId();
 						
-			//TA permission check. If they don't have access to this category, skip it
+			//TA permission check. If there are categories and they don't have access to this one, skip it
 			if(role == GbRole.TA) {
-				if(!categoryIds.contains(categoryId)) {
+				if(!categoryIds.isEmpty() && !categoryIds.contains(categoryId)) {
 					continue;
 				}
 			}
