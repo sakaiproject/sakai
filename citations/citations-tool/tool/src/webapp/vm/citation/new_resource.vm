@@ -1,4 +1,4 @@
-<!-- citations/new_resource.vm 
+<!-- citations/new_resource.vm
 #*
  $URL:https://source.sakaiproject.org/svn/citations/trunk/citations-tool/tool/src/webapp/vm/citation/new_resource.vm $
  $Id$
@@ -24,6 +24,8 @@
 <script type="text/javascript" src="#libraryLink('js/jquery/1.7.1/jquery-1.7.1.min.js')">	
 </script>
 <script type="text/javascript" src="#libraryLink('js/jquery-ui-latest/js/jquery-ui.min.js')">	
+</script>
+<script type="text/javascript" src="/sakai-citations-tool/js/jquery.sortable.min.js">
 </script>
 <link media="all" rel="stylesheet" type="text/css" href="#libraryLink('js/jquery-ui-latest/css/ui-lightness/jquery-ui.css')">
 <link media="all" rel="stylesheet" type="text/css" href="/sakai-citations-tool/css/citations.css">
@@ -67,281 +69,20 @@ span.searchTargetLink { margin-right:50px; }
 			<p class="shorttext">
 				<span class="reqStar">*</span>
 				<label for="displayName">
-					$tlang.getString("resource.title") 
+					<strong>$tlang.getString("resource.title")</strong>
 				</label>
-				<input type="text" size="40" id="displayName" name="displayName" value="$xilator.escapeHtml("$!resourceTitle")" />
+				<input type="text" size="40" class="citationFields" id="displayName" name="displayName" value="$xilator.escapeHtml("$!resourceTitle")" />
 			</p>
-			<br />
-		</div>
-		<h4 id="toggleModel" class="toggleAnchor specialLink">
-			<span class="expand">
-				<img alt="expand" src="/library/image/sakai/expand.gif" />
-				$tlang.getString('resource.aaa.show')
-			</span>
-			<span class="collapse" style="display:none;">
-				<img alt="collapse" src="/library/image/sakai/collapse.gif" />
-				$tlang.getString('resource.aaa.hide')
-			</span>
-		</h4>
-		<div id="toggledContent" class="toggledContent" style="display:none;">
-			############ begin description ##########
-			<fieldset>
-			<legend>$tlang.getString("resource.description")</legend>
-			<p>
-				<textarea name="description" cols="80" rows="5" wrap="virtual">$!{resourceDescription}</textarea>
-			</p>
-			</fieldset>
-			######### begin access section ##########
-			<fieldset>
-			<legend>$tlang.getString("resource.access.title")</legend>
-			#if(! $contentProperties.isDropbox && ! $contentProperties.isSiteCollection)
-				<p class="instruction">$tlang.getString("resource.instr.access")</p>
-				##<p class="instruction">$contentProperties.longAccessLabel</p>
-				<div  class="labelindnt">
-					#set ($listDisplay="none")
-					#if($contentProperties.isSiteOnly)
-						##Site has *NO* groups and public-view is *NOT* enabled on the server (no choices to be made, but we should report the access)
-						<input type="hidden" name="access_mode" id="access_mode_hidden" value="$INHERITED_ACCESS" />
-					#elseif($contentProperties.isSingleGroupInherited)
-						##Grouped access is inherited; parent folder limited to a single group (report that grouped access limited to a single group is inherited from above)
-						<input type="hidden" name="access_mode" id="access_mode_hidden" value="$INHERITED_ACCESS" />
-					#elseif($contentProperties.isGroupInherited && "$contentProperties.accessMode" == "grouped")	
-						##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
-						#set ($listDisplay="block")
-						<p>
-							<input type="radio" name="access_mode" id="access_mode_inherited" value="inherit" style="border:none" />
-							<label for="access_mode_inherited">$tlang.getString("resource.access.inherit")</label>
-						</p>
-						<p>
-							<input type="radio" name="access_mode" id="access_mode_groups" value="$GROUP_ACCESS" checked="checked"    style="border:none" />
-							<label for="access_mode_groups">$tlang.getString("resource.access.groups.choice")</label>
-						</p>
-					#elseif($contentProperties.isGroupInherited)	
-						##Grouped access is inherited; parent folder limited to two or more groups (present choice among groups; table shows only groups inherited from parent)
-						<p>
-							<input type="radio" name="access_mode" id="access_mode_inherited" value="inherited" checked="checked"   style="border:none" />
-							<label for="access_mode_inherited">$tlang.getString("resource.access.inherit")</label>
-						</p>
-						<p>
-							<input type="radio" name="access_mode" id="access_mode_groups" value="$GROUP_ACCESS"   style="border:none" />
-							<label for="access_mode_groups">$tlang.getString("resource.access.groups.choice")</label>
-						</p>
-					#elseif($contentProperties.isPubviewInherited)
-						## Public access inherited from parent (report that to user)
-						<input type="hidden" name="access_mode" id="access_mode_hidden" value="$INHERITED_ACCESS" />
-					#else
-						## Site is possible and either group or public is possible
-						<p>
-							<input type="radio" name="access_mode" id="access_mode_inherited" value="inherited" #if(!$contentProperties.isPubview && "$!contentProperties.accessMode" != "$GROUP_ACCESS") checked="checked"#end style="border:none" />
-							<label for="access_mode_inherited">#if($contentProperties.isCollection)$tlang.getString("resource.access.site.fldr")#else$tlang.getString("resource.access.site.choice")#end</label>
-						</p>
-						#if($contentProperties.isPubviewPossible)
-							## Public is possible
-							<p>
-								<input type="radio" name="access_mode" id="access_mode_public" value="public" #if($!contentProperties.isPubview) checked="checked"#end style="border:none" />
-								<label for="access_mode_public">#if($contentProperties.isCollection)$tlang.getString("resource.access.public.fldr")#else$tlang.getString("resource.access.public.choice")#end</label>
-							</p>
-						#end
-						#if($contentProperties.isGroupPossible)
-							## Group is possible
-							#if("$!contentProperties.accessMode" == "$GROUP_ACCESS")
-								#set ($listDisplay="block")
-							#else
-								#set ($listDisplay="none")
-							#end
-							<p>
-								<input type="radio" name="access_mode" id="access_mode_groups" value="$GROUP_ACCESS" #if("$!contentProperties.accessMode" == "$GROUP_ACCESS") checked="checked"#end style="border:none" />
-								<label for="access_mode_groups">#if($contentProperties.isCollection)$tlang.getString("resource.access.groups.fldr")#else$tlang.getString("resource.access.groups.choice")#end</label>
-							</p>
-						#end
-					#end
-				</div>
-		
-				#if($contentProperties.isGroupPossible)
-					<table id="groupTable" class="listHier lines labelindnt" border="0" style="width:80%;display:$listDisplay" cellspacing="0" summary="$tlang.getString("resource.edit.group3")">
-						<caption class="skip" style="display:none">$tlang.getString("resource.edit.access4")</caption>
-						<tr>
-							<th id="selected" style="width:2em;padding-left:.4em">
-		 						<input type="checkbox" id="selectall" name="selectall" title="$tlang.getString("resource.group.select.title")" />
-							</th>
-							<th id="groupname">
-								$tlang.getString("resource.edit.group1")
-							</th>
-							<th id ="groupdescription">
-								$tlang.getString("resource.edit.group2")
-							</th>
-						</tr>
-						#set($theGroups = $contentProperties.possibleGroups)
-						#foreach ($group in $!{theGroups})
-							
-							<tr>
-								<td headers="selected" style="padding-bottom:0;" style="width:2em">
-									#if($group.isLocal && $group.allowedRemove)
-										<input type="checkbox" name="access_groups" id="access_groups_${group.groupId}" title="$group.title" value="$group.groupId" checked="checked" />
-									#elseif($group.isLocal)
-										<img src="#imageLink("sakai/checkon.gif")" border="0" width="17" height="13" align="top" />
-									#else
-										<input type="checkbox" name="access_groups" id="access_groups_${group.groupId}" title="$group.title" value="$group.groupId" />
-									#end
-								</td>
-								<td headers="groupname" style="padding-bottom:0;" class="checkbox">
-									<label for="access_groups_${group.groupId}">
-										$validator.escapeHtml($group.title)
-									</label>	
-								</td>
-								<td headers="groupdescription" width="100%"> ##mozilla does not resize table children dynamically , so set here
-									#set($description = "")
-									#if($group.description)
-										#set($description = $group.Description)
-									#end
-									$validator.escapeHtml($!description)
-								</td>
-							</tr>
-							
-						#end
-					</table>
-				#end
-			#end
-			</fieldset>
-			######### end access section ##########
-		
-			######### begin availability section ##########
-			<fieldset>
-			<legend>$tlang.getString("resource.avail.title")</legend>
-			#if($availability_is_enabled && !$contentProperties.isUserSite && !$contentProperties.isDropbox && ! $contentProperties.isSiteCollection)
-				<p class="instruction">
-					$tlang.getString("resource.instr.avail")
-				</p>
-				<div  class="labelindnt">
-					<table>
-						<tr>
-							<td>
-								<input type="radio" name="hidden" id="hidden_false" value="false" #if(!$contentProperties.isHidden)checked="checked" #end/>
-							</td>
-							<td colspan="4">
-								<label for="hidden_false">
-									#if($contentProperties.isCollection)
-										$tlang.getString("resource.avail.show2")
-									#else
-										$tlang.getString("resource.avail.show1")
-									#end
-								</label>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-								<input type="checkbox" name="use_start_date" id="use_start_date" value="true" #if($!contentProperties.useReleaseDate)checked="checked" #end/>
-							</td>
-							<td colspan="3">
-								<label for="use_start_date">
-									$tlang.getString("resource.avail.start1")
-								</label>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-								<label for="release_year">$tlang.getString("resource.label.date")</label>
-							</td>
-							<td>
-								<label for="release_hour">$tlang.getString("resource.label.time")</label>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-								<input type="text" name="releaseDateStr" id="releaseDateStr" value="$!contentProperties.releaseDateStr" />
-								<input type="hidden" name="releaseDate" id="releaseDate" value="$!contentProperties.releaseDate" />
-							</td>
-							<td>
-								$contentProperties.releaseDate
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-								<input type="checkbox" name="use_end_date" id="use_end_date" value="true" #if($contentProperties.useRetractDate)checked="checked" #end/>
-							</td>
-							<td colspan="4">
-								<label for="use_end_date">
-									$tlang.getString("resource.avail.end1")
-								</label>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-								<label for="retract_year">$tlang.getString("resource.label.date")</label>
-							</td>
-							<td>
-								<label for="retract_time">$tlang.getString("resource.label.time")</label>
-							</td>
-						</tr>
-						<tr>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-							</td>
-							<td>
-								<input type="text" name="retractDateStr" id="retractDateStr" value="$!contentProperties.retractDateStr" />
-								<input type="hidden" name="retractDate" id="retractDate" value="$!contentProperties.retractDate" />
-							</td>
-							<td>
-								$contentProperties.retractDate
-							</td>
-						</tr>
-					</table>
-					<table>
-						<tr>
-							<td>
-								<input type="radio" name="hidden" id="hidden_true" value="true" #if($contentProperties.isHidden)checked="checked" #end/>
-							</td>
-							<td colspan="4">
-								<label for="hidden_true">
-									#if($contentProperties.isCollection)
-										$tlang.getString("resource.avail.hide20")
-									#else
-										$tlang.getString("resource.avail.hide10")
-									#end
-								</label>
-							</td>
-						</tr>
-					</table>
-				</div>
-			#end
-			</fieldset>
-			######### end availability section ##########	
-			<br />
-			<p class="shorttext">
-				<label for="notify">
-					$tlang.getString("resource.gen.email1")
-				</label>	
-				<select name="notify" id="notify">
-					<option value="r">$tlang.getString("resource.gen.email2")</option>
-					<option value="o">$tlang.getString("resource.gen.email3")</option>
-					<option value="n" selected="selected">$tlang.getString("resource.gen.email4")</option>
-				</select>
-			</p>
+            <p class="shorttext">
+                <label for="notify">
+                    $tlang.getString("resource.gen.email1")
+                </label>
+                <select name="notify" id="notify" class="citationFields">
+                    <option value="r">$tlang.getString("resource.gen.email2")</option>
+                    <option value="o">$tlang.getString("resource.gen.email3")</option>
+                    <option value="n" selected="selected">$tlang.getString("resource.gen.email4")</option>
+                </select>
+            </p>
 			<br />
 		</div>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
@@ -425,17 +166,15 @@ span.searchTargetLink { margin-right:50px; }
 	  </li>
 	</ul>
 	<div class="act">
-		<div class="citationsDisplay"#if(! $collectionSize || $collectionSize < 1) style="display:none;"#end>
+		<div class="citationsDisplay"#if(! ($collectionSize || $collectionSize < 1) && ! ($nestedSectionsSize || $nestedSectionsSize < 1)) style="display:none;"#end>
 			<div class="act">
 				<input type="button" name="Cancel" class="Cancel active" value="$tlang.getString("resource.done")" />
 			</div>
 			<div class="currentListCitations">
-				#if($collectionSize && $collectionSize > 0)
-					#parse( "vm/citation/_listCitations.vm" )
-				#end
+				#parse( "vm/citation/_listCitations.vm" )
 			</div>
 		</div>
-		<p class="noCitationsDisplay"#if($collectionSize && $collectionSize > 0) style="display:none;"#end>
+		<p class="noCitationsDisplay"#if($collectionSize && $collectionSize > 0 && $unnestedCitationCollectionSize && $unnestedCitationCollectionSize > 0) style="display:none;"#end>
 			$tlang.getString("resource.nocitations")
 		</p>	
 	</div>
@@ -470,7 +209,16 @@ span.searchTargetLink { margin-right:50px; }
 </script>
 <script type="text/javascript" src="/sakai-citations-tool/js/new_resource.js">	
 </script>
-
+<script type="text/javascript" src="/sakai-citations-tool/js/edit_nested_citations.js">
+</script>
+<script type="text/javascript">
+    addSectionHeightsToPageHeight($num);
+</script>
+<script type="text/javascript">
+    #if ($!resourceManagingLibrary)
+        selectManagingLibrary('$resourceManagingLibrary');
+    #end
+</script>
 <script type="text/javascript">
 	focus_path = [ "displayName" ];
 	function focusOnNameElement()
@@ -483,5 +231,4 @@ span.searchTargetLink { margin-right:50px; }
 </script>
 
 <iframe id="download-frame" style="display:none"></iframe>
-
 
