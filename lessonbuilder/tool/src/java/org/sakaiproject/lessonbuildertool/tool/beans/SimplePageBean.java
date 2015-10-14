@@ -1383,6 +1383,11 @@ public class SimplePageBean {
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 		// ideally the following should be the same, but there can be odd cases. So be safe
 		long before = 0;
+		boolean addAfter = false;
+		if (addBefore.startsWith("-")) {
+		    addAfter = true;
+		    addBefore = addBefore.substring(1);
+		}
 		if (addBefore != null && !addBefore.equals("")) {
 		    try {
 			before = Long.parseLong(addBefore);
@@ -1402,6 +1407,10 @@ public class SimplePageBean {
 			    // use its sequence and bump up it and all after
 			    nseq = item.getSequence();
 			    after = true;
+			    if (addAfter) {
+				nseq++;
+				continue;
+			    }
 			}
 			if (after) {
 			    item.setSequence(item.getSequence() + 1);

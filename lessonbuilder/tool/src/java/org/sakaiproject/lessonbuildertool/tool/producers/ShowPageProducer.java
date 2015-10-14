@@ -1123,6 +1123,8 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
 				    UIOutput.make(columnContainer, "section2");
 				    UIOutput.make(columnContainer, "section3").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.columnopen")));
+				    UIOutput.make(columnContainer, "addbottom");
+				    UIOutput.make(columnContainer, "addbottom2").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.add-item-column")));
 				    UILink link = UILink.make(columnContainer, "section-del-link", (String)null, "/" + i.getId());
 				    link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
 				    link.decorate(new UIStyleDecorator(sectionbreak?"section-merge-link":"column-merge-link"));
