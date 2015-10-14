@@ -72,6 +72,12 @@ ul.otherSitesCategorList{
 		}
 		&.is-selected{
 			background: lighten($background-color, 10%);
+			a{
+				color: $background-color-secondary;
+				.fullTitle{
+					color: $background-color-secondary;
+				}
+			}
 		}
 	}
 }

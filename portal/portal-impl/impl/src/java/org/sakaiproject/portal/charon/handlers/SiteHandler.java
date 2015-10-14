@@ -97,8 +97,6 @@ public class SiteHandler extends WorksiteHandler
 
 	private static final String URL_FRAGMENT = "site";
 
-	private int configuredTabsToDisplay = 5;
-
 	private static ResourceLoader rb = new ResourceLoader("sitenav");
 	
 	// When these strings appear in the URL they will be replaced by a calculated value based on the context.
@@ -131,8 +129,6 @@ public class SiteHandler extends WorksiteHandler
 	public SiteHandler()
 	{
 		setUrlFragment(SiteHandler.URL_FRAGMENT);
-		configuredTabsToDisplay = ServerConfigurationService.getInt(
-				Portal.CONFIG_DEFAULT_TABS, 5);
 		mutableSitename =  ServerConfigurationService.getString("portal.mutable.sitename", "-");
 		mutablePagename =  ServerConfigurationService.getString("portal.mutable.pagename", "-");
 	}
@@ -854,36 +850,6 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
-			int tabsToDisplay = configuredTabsToDisplay;
-			int tabDisplayLabel = 1;
-
-			if (!loggedIn)
-			{
-				tabsToDisplay = ServerConfigurationService.getInt(
-						"gatewaySiteListDisplayCount", tabsToDisplay);
-			}
-			else
-			{
-				Preferences prefs = PreferencesService
-						.getPreferences(session.getUserId());
-				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
-				try
-				{
-					tabsToDisplay = (int) props.getLongProperty("tabs");					 
-				}
-				catch (Exception any)
-				{
-				}
-				try
-				{
-					tabDisplayLabel = (int) props.getLongProperty("tab:label");
-				}
-				catch (Exception any)
-				{
-				}
-			}
-
-			rcontext.put("tabDisplayLabel", tabDisplayLabel);
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
 			siteView.setPrefix(prefix);
