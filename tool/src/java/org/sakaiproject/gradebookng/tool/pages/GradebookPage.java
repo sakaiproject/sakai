@@ -395,6 +395,10 @@ public class GradebookPage extends BasePage {
                 target.add(this);
                 target.appendJavaScript("sakai.gradebookng.spreadsheet.toggleCategories();");
             }
+            @Override
+            public boolean isVisible() {
+                return businessService.categoriesAreEnabled();
+            }
         };
         form.add(toggleCategoriesToolbarItem);
 
