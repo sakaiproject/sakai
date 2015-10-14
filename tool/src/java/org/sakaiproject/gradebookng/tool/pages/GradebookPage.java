@@ -491,6 +491,7 @@ public class GradebookPage extends BasePage {
 		
 		if(settings == null) {
 			settings = new GradebookUiSettings();
+			settings.setCategoriesEnabled(businessService.categoriesAreEnabled());
 		}
 		
 		return settings;
