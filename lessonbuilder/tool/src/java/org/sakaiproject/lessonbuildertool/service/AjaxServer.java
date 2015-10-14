@@ -538,6 +538,92 @@ public class AjaxServer extends HttpServlet
 
     }
 
+    public static String setColumnProperties(String itemId, String width, String split, String csrfToken) {
+
+	if (itemId == null || width == null || split == null) {
+	    log.error("Ajax setColumnProperties passed null argument");
+	    return null;
+	}
+
+	itemId = itemId.trim();
+	// we don't actually use the integers. Just for syntax checking
+	int widthi = 0;
+	int spliti = 0;
+	try {
+	    widthi = Integer.parseInt(width);
+	    spliti = Integer.parseInt(split);
+	} catch (Exception e) {
+	    log.error("Ajax setColumnProperties passwd non-numeric width or split");
+	    return null;
+	}
+
+	// currently this is only needed by the instructor
+	
+	SimplePageItem item = null;
+	SimplePage page = null;
+	String siteId = null;
+	try {
+	    Long itemNum = Long.parseLong(itemId);
+	    item = simplePageToolDao.findItem(itemNum);
+	    if (item.getType() != SimplePageItem.BREAK) {
+		// hopefully this is the first item, in an old page that doesnbt' begin with a page break
+		List<SimplePageItem>items = simplePageToolDao.findItemsOnPage(item.getPageId());
+		if (items.get(0).getId() == itemNum) {
+		    // this is first item on page, add a section break before it
+		    item = simplePageToolDao.makeItem(item.getPageId(), 1, SimplePageItem.BREAK, null, null);
+		    item.setFormat("section");
+		    simplePageToolDao.quickSaveItem(item);
+		    int seq = 2;
+		    // and bump sequence numbers
+		    for (SimplePageItem i: items) {
+			i.setSequence(seq);
+			simplePageToolDao.quickUpdate(i);
+			seq++;
+		    }
+		} else if (items.get(0).getType() == SimplePageItem.BREAK &&
+			   items.get(1).getId() == itemNum) {
+		    // maybe we just inserted a break before our item. 
+		    // If so, use the break;
+		    item = items.get(0);
+		} else {
+		    log.error("Ajax setcolumnproperties passed item not a break: " + itemId);
+		}
+		    
+	    }
+	    page = simplePageToolDao.getPage(item.getPageId());
+	    siteId = page.getSiteId();
+	} catch (Exception e) {
+	    e.printStackTrace();
+	    log.error("Ajax setcolumnproperties passed invalid data " + e);
+	    return null;
+	}
+	if (siteId == null) {
+	    log.error("Ajax setcolumnproperties passed null site id");
+	    return null;
+	}
+
+	String ref = "/site/" + siteId;
+	if (!SecurityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_UPDATE, ref) || !checkCsrf(csrfToken)) {
+	    log.error("Ajax setcolumnproperties passed itemid " + itemId + " but user doesn't have permission");
+	    return null;
+	}
+	
+	if (width.trim().equals("1"))
+	    item.removeAttribute("colwidth");
+	else
+	    item.setAttribute("colwidth", width);
+
+	if (split.trim().equals("1"))
+	    item.removeAttribute("colsplit");
+	else
+	    item.setAttribute("colsplit", split);
+	
+	simplePageToolDao.quickUpdate(item);
+	return "ok";
+
+    }
+
+
     public static String deleteItem(String itemId, String csrfToken) {
 	if (itemId == null) {
 	    log.error("Ajax deleteBreak passed null itemid");
@@ -646,6 +732,12 @@ public class AjaxServer extends HttpServlet
 	  String cols = req.getParameter("cols");
 	  String csrfToken = req.getParameter("csrf");
 	  out.println(insertBreakBefore(itemId, type, cols, csrfToken));
+      } else if (op.equals("setcolumnproperties")) {
+	  String itemId = req.getParameter("itemid");
+	  String width = req.getParameter("width");
+	  String split = req.getParameter("split");
+	  String csrfToken = req.getParameter("csrf");
+	  out.println(setColumnProperties(itemId, width, split, csrfToken));
       } else if (op.equals("deleteitem")) {
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");

@@ -1082,40 +1082,58 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 			UIBranchContainer container = UIBranchContainer.make(tofill, "itemContainer:");
 
 			boolean showRefresh = false;
+			boolean fisrt = false;
 			int textboxcount = 1;
 
-			int cols = colCount(itemList, 0);
-			int colnum = 1;
+			int cols = 0;
+			int colnum = 0;
 
-			UIBranchContainer sectionContainer = UIBranchContainer.make(container, "section:");
-			UIBranchContainer columnContainer = UIBranchContainer.make(sectionContainer, "column:");
-			UIBranchContainer tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
-			columnContainer.decorate(new UIStyleDecorator("cols" + cols));
+			UIBranchContainer sectionContainer = null;
+			UIBranchContainer columnContainer = null;
+			UIBranchContainer tableContainer = null;
 
-			SimplePageItem prevItem = null;
+			boolean first = true;
+
 			for (SimplePageItem i : itemList) {
 
 				// break is not a normal item. handle it first
-				if (i.getType() == SimplePageItem.BREAK) {
+			        // this will work whether first item is break or not. Might be a section
+			        // break or a normal item
+				if (first || i.getType() == SimplePageItem.BREAK) {
 				    boolean sectionbreak = false;
-				    if ("section".equals(i.getFormat())) {
+				    if (first || "section".equals(i.getFormat())) {
 					sectionContainer = UIBranchContainer.make(container, "section:");
 					cols = colCount(itemList, i.getId());
 					sectionbreak = true;
-					colnum = 1;
-				    } else
+					colnum = 0;
+				    } else if ("colunn".equals(i.getFormat()))
 					colnum++;
 				    columnContainer = UIBranchContainer.make(sectionContainer, "column:");				    
+
 				    tableContainer = UIBranchContainer.make(columnContainer, "itemTable:");
-				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"")));
-				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
-				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
-				    UIOutput.make(tableRow, "section-td");
-				    UIOutput.make(tableRow, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
-				    UILink link = UILink.make(tableRow, "section-del-link", (String)null, "/" + i.getId());
+				    Integer width = new Integer(i.getAttribute("colwidth") == null ? "1" : i.getAttribute("colwidth"));
+				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
+				    colnum += width; // number after this column
+
+				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"")));
+				    UIComponent delIcon = UIOutput.make(columnContainer, "section-td");
+				    if (first)
+					delIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));
+
+				    UIOutput.make(columnContainer, "break-msg", messageLocator.getMessage(sectionbreak?"simplepage.break-here":"simplepage.break-column-here"));
+				    UIOutput.make(columnContainer, "section2");
+				    UIOutput.make(columnContainer, "section3").decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.columnopen")));
+				    UILink link = UILink.make(columnContainer, "section-del-link", (String)null, "/" + i.getId());
 				    link.decorate(new UIFreeAttributeDecorator("title", messageLocator.getMessage("simplepage.join-items")));
 				    link.decorate(new UIStyleDecorator(sectionbreak?"section-merge-link":"column-merge-link"));
+
+				    UIBranchContainer tableRow = UIBranchContainer.make(tableContainer, "item:");
+				    tableRow.decorate(new UIFreeAttributeDecorator("class", "break" + i.getFormat()));
+
+				    first = false;
+				    if (i.getType() == SimplePageItem.BREAK)
 				    continue;
+				    // for first item, if wasn't break, process it
 				}
 
 				// listitem is mostly historical. it uses some shared HTML, but
@@ -2706,7 +2724,6 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 						textboxcount++;
 					}
 				}
-				prevItem = i;
 			}
 
 			// end of items. This is the end for normal users. Following is
@@ -2805,6 +2822,7 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		createStudentContentDialog(tofill, currentPage);
 		createQuestionDialog(tofill, currentPage);
 		createDeleteItemDialog(tofill, currentPage);
+		createColumnDialog(tofill, currentPage);
 	}
 
     // get encrypted version of session id. This is our equivalent of session.id, except that we
@@ -4063,6 +4081,12 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 		UICommand.make(form, "delete-item-button", "#{simplePageBean.deleteItem}");
 	}
 
+	private void createColumnDialog(UIContainer tofill, SimplePage currentPage) {
+		UICommand.make(tofill, "column-submit", messageLocator.getMessage("simplepage.save"), null);
+		UICommand.make(tofill, "column-cancel", messageLocator.getMessage("simplepage.cancel"), null);
+	}
+
+
 	/*
 	 * return true if the item is required and not completed, i.e. if we need to
 	 * update the status after the user views the item
@@ -4439,13 +4463,19 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 	    int cols = 1;
 	    for (SimplePageItem i: items) {
 		if (i.getId() == item) {
+		    String width = i.getAttribute("colwidth");
+		    if (width != null)
+			cols += (new Integer(width)) - 1;
 		    found = true;
 		    continue;
 		}
 		if (found && i.getType() == SimplePageItem.BREAK) {
-		    if ("column".equals(i.getFormat()))
+		    if ("column".equals(i.getFormat())) {
 			cols++;
-		    else // section break; in next section. we're done
+			String width = i.getAttribute("colwidth");
+			if (width != null)
+			    cols += (new Integer(width)) - 1;
+		    } else // section break; in next section. we're done
 			break;
 		}
 	    }
