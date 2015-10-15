@@ -3,15 +3,13 @@ package org.sakaiproject.gradebookng.tool.panels;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.apache.wicket.ajax.AjaxRequestTarget;
 import org.apache.wicket.ajax.form.AjaxFormComponentUpdatingBehavior;
 import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
-import org.apache.wicket.event.Broadcast;
-import org.apache.wicket.event.IEvent;
 import org.apache.wicket.extensions.markup.html.form.DateTextField;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.form.DropDownChoice;
@@ -55,7 +53,7 @@ public class AddGradeItemPanelContent extends Panel {
 
         final List<CategoryDefinition> categories = businessService.getGradebookCategories();
 
-        final Map<Long, CategoryDefinition> categoryMap = new HashMap<>();
+        final Map<Long, CategoryDefinition> categoryMap = new LinkedHashMap<>();
         for (CategoryDefinition category : categories) {
             categoryMap.put(category.getId(), category);
         }
