@@ -528,6 +528,20 @@ public interface GradebookService {
 	 * or grade a student in the passed list
 	 */
 	public List<GradeDefinition> getGradesForStudentsForItem(String gradebookUid, Long assignmentId, List<String> studentIds);
+
+	/**
+	 * This method gets grades for multiple gradebook items with emphasis on performance. This is particularly useful for reporting tools
+	 * @param gradebookUid
+	 * @param gradableObjectIds
+	 * @param studentIds
+	 * @return a Map of GradableObjectIds to a List of GradeDefinitions containing the grade information for the given
+	 * students for the given gradableObjectIds. Comments are excluded which can be useful for performance.
+	 * If a student does not have a grade on a gradableObject, the GradeDefinition will be omitted
+	 * @throws SecurityException if the current user is not authorized with gradeAll in this gradebook
+	 * @throws IllegalArgumentException if gradableObjectIds is null/empty,
+	 * or if gradableObjectIds contains items that are not members of the gradebook with uid = gradebookUid
+	 */
+	public Map<Long, List<GradeDefinition>> getGradesWithoutCommentsForStudentsForItems(String gradebookUid, List<Long> gradableOjbectIds, List<String> studentIds);
 	
 	/**
 	 * 

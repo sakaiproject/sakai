@@ -1228,6 +1228,57 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  	return (List)getHibernateTemplate().execute(hc);
 	  }
 
+	/**
+	 * Gets all AssignmentGradeRecords on the gradableObjectIds limited to students specified by studentUids
+	 */
+	private List<AssignmentGradeRecord> getAllAssignmentGradeRecordsForGbItems(final List<Long> gradableObjectIds, final List studentUids)
+	{
+		HibernateCallback hc = new HibernateCallback()
+		{
+			public Object doInHibernate(Session session) throws HibernateException
+			{
+				List<AssignmentGradeRecord> gradeRecords = new ArrayList<AssignmentGradeRecord>();
+				if (studentUids.size() == 0)
+				{
+					// If there are no enrollments, no need to execute the query.
+					if (log.isDebugEnabled()) log.debug("No enrollments were specified. Returning an empty List of grade records");
+					return gradeRecords;
+				}
+				/*
+				 * Watch out for Oracle's "in" limit. Ignoring oracle, the query would be:
+				 * "from AssignmentGradeRecord as agr where agr.gradableObject.removed = false and agr.gradableObject.id in (:gradableObjectIds) and agr.studentId in (:studentUids)"
+				 * Note: the order is not important. The calling methods will iterate over all entries and add them to a map.
+				 * We could have made this method return a map, but we'd have to iterate over the items in order to add them to the map anyway.
+				 * That would be a waste of a loop that the calling method could use to perform additional tasks.
+				 */
+				// For Oracle, iterate over gbItems 1000 at a time (sympathies to whoever needs to query grades for a thousand gbItems)
+				int minGbo = 0;
+				int maxGbo = Math.min(gradableObjectIds.size(), 1000);
+				while (minGbo < gradableObjectIds.size())
+				{
+					// For Oracle, iterate over students 1000 at a time
+					int minStudent = 0;
+					int maxStudent = Math.min(studentUids.size(), 1000);
+					while (minStudent < studentUids.size())
+					{
+						Query q = session.createQuery("from AssignmentGradeRecord as agr where agr.gradableObject.removed = false and " +
+							"agr.gradableObject.id in (:gradableObjectIds) and agr.studentId in (:studentUids)");
+						q.setParameterList("gradableObjectIds", gradableObjectIds.subList(minGbo, maxGbo));
+						q.setParameterList("studentUids", studentUids.subList(minStudent, maxStudent));
+						// Add the query results to our overall results (in case there's over a thousand things)
+						gradeRecords.addAll(q.list());
+						minStudent += 1000;
+						maxStudent = Math.min(studentUids.size(), minStudent + 1000);
+					}
+					minGbo += 1000;
+					maxGbo = Math.min(gradableObjectIds.size(), minGbo + 1000);
+				}
+				return gradeRecords;
+			}
+		};
+		return (List<AssignmentGradeRecord>) getHibernateTemplate().execute(hc);
+	}
+
   /**
    * Get a list of assignments, sorted
    * @param gradebookId
@@ -1583,27 +1634,8 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				  for (Iterator gradeIter = gradeRecs.iterator(); gradeIter.hasNext();) {
 					  AssignmentGradeRecord agr = (AssignmentGradeRecord) gradeIter.next();
 					  if (agr != null) {
-						  GradeDefinition gradeDef = new GradeDefinition();
-						  gradeDef.setStudentUid(agr.getStudentId());
-						  gradeDef.setGradeEntryType(gradebook.getGrade_type());
-						  gradeDef.setGradeReleased(gradeReleased);
-						  gradeDef.setGraderUid(agr.getGraderId());
-						  gradeDef.setDateRecorded(agr.getDateRecorded());
-						  
 						  String commentText = studentIdCommentTextMap.get(agr.getStudentId());
-						  if (commentText != null) {
-							  gradeDef.setGradeComment(commentText);
-						  }
-						  
-						  if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_LETTER) {
-							  gradeDef.setGrade(agr.getLetterEarned());
-						  } else if (gradebook.getGrade_type() == GradebookService.GRADE_TYPE_PERCENTAGE) {
-						      String grade = agr.getPercentEarned() != null ? agr.getPercentEarned().toString() : null;
-							  gradeDef.setGrade(grade);
-						  } else {
-						      String grade = agr.getPointsEarned() != null ? agr.getPointsEarned().toString() : null;
-							  gradeDef.setGrade(grade);
-						  }
+						  GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(agr, gbItem, gradebook, commentText);
 					  	  	
 						  studentGrades.add(gradeDef);
 					  }
@@ -1614,6 +1646,99 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	  
 	  return studentGrades;
   }
+
+	@Override
+	public Map<Long, List<GradeDefinition>> getGradesWithoutCommentsForStudentsForItems(final String gradebookUid, final List<Long> gradableObjectIds, List<String> studentIds)
+	{
+		if (!authz.isUserAbleToGrade(gradebookUid))
+		{
+			throw new SecurityException("You do not have permission to perform this operation");
+		}
+
+		if (gradableObjectIds == null || gradableObjectIds.isEmpty())
+		{
+			throw new IllegalArgumentException("null or empty gradableObjectIds passed to getGradesWithoutCommentsForStudentsForItems");
+		}
+
+		Map<Long, List<GradeDefinition>> gradesMap = new HashMap<Long, List<GradeDefinition>>();
+		if (studentIds == null || studentIds.isEmpty())
+		{
+			// We could populate the map with (gboId : new ArrayList()), but it's cheaper to allow get(gboId) to return null.
+			return gradesMap;
+		}
+
+		// Get all the grades for the gradableObjectIds
+		List<AssignmentGradeRecord> gradeRecords = getAllAssignmentGradeRecordsForGbItems(gradableObjectIds, studentIds);
+		// AssignmentGradeRecord is not in the API. So we need to convert grade records into GradeDefinition objects.
+		// GradeDefinitions are not tied to their gbos, so we need to return a map associating them back to their gbos
+		List<GradeDefinition> gradeDefinitions = new ArrayList<GradeDefinition>();
+		for (AssignmentGradeRecord gradeRecord : gradeRecords)
+		{
+			Assignment gbo = (Assignment)gradeRecord.getGradableObject();
+			Long gboId = gbo.getId();
+			Gradebook gradebook = gbo.getGradebook();
+			if (!gradebookUid.equals(gradebook.getUid()))
+			{
+				// The user is authorized against gradebookUid, but we have grades for another gradebook.
+				// This is an authorization issue caused by gradableObjectIds violating the method contract.
+				throw new IllegalArgumentException("gradableObjectIds must belong to grades within this gradebook");
+			}
+
+			GradeDefinition gradeDef = convertGradeRecordToGradeDefinition(gradeRecord, gbo, gradebook, null);
+
+			List<GradeDefinition> gradeList = gradesMap.get(gboId);
+			if (gradeList == null)
+			{
+				gradeList = new ArrayList<GradeDefinition>();
+				gradesMap.put(gboId, gradeList);
+			}
+			gradeList.add(gradeDef);
+		}
+
+		return gradesMap;
+	}
+
+	/**
+	 * Converts an AssignmentGradeRecord into a GradeDefinition object.
+	 * @param gradeRecord
+	 * @param gbo
+	 * @param gradebook
+	 * @param commentText - goes into the GradeComment attribute. Will be omitted if null
+	 * @return a GradeDefinition object whose attributes match the passed in gradeRecord
+	 */
+	private GradeDefinition convertGradeRecordToGradeDefinition(AssignmentGradeRecord gradeRecord, Assignment gbo, Gradebook gradebook, String commentText)
+	{
+		GradeDefinition gradeDef = new GradeDefinition();
+		gradeDef.setStudentUid(gradeRecord.getStudentId());
+		gradeDef.setGraderUid(gradeRecord.getGraderId());
+		gradeDef.setDateRecorded(gradeRecord.getDateRecorded());
+		int gradeEntryType = gradebook.getGrade_type();
+		gradeDef.setGradeEntryType(gradeEntryType);
+		String grade = null;
+		if (gradeEntryType == GradebookService.GRADE_TYPE_LETTER)
+		{
+			grade = gradeRecord.getLetterEarned();
+		}
+		else if (gradeEntryType == GradebookService.GRADE_TYPE_PERCENTAGE)
+		{
+			Double percentEarned = gradeRecord.getPercentEarned();
+			grade = percentEarned != null ? percentEarned.toString() : null;
+		}
+		else
+		{
+			Double pointsEarned = gradeRecord.getPointsEarned();
+			grade = pointsEarned != null ? pointsEarned.toString() : null;
+		}
+		gradeDef.setGrade(grade);
+		gradeDef.setGradeReleased(gradebook.isAssignmentsDisplayed() && gbo.isReleased());
+
+		if (commentText != null)
+		{
+			gradeDef.setGradeComment(commentText);
+		}
+
+		return gradeDef;
+	}
   
   @Override
   public boolean isGradeValid(String gradebookUuid, String grade) {
