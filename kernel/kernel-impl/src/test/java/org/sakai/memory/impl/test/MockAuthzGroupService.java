@@ -149,6 +149,14 @@ public class MockAuthzGroupService implements AuthzGroupService {
 		// TODO Auto-generated method stub
 		return false;
 	}
+	
+	public String encodeDummyUserForRole(String roleId) throws IllegalArgumentException {
+		return roleId;
+	}
+
+	public String decodeRoleFromDummyUser(String dummyUserId) throws IllegalArgumentException {
+		return dummyUserId;
+	}
 
 	public void joinGroup(String authzGroupId, String role)
 			throws GroupNotDefinedException, AuthzPermissionException {
@@ -288,6 +296,11 @@ public class MockAuthzGroupService implements AuthzGroupService {
 	}
 
 	public String getRoleName(String roleId) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public String getRoleGroupName(String roleGroupId) {
 		// TODO Auto-generated method stub
 		return null;
 	}

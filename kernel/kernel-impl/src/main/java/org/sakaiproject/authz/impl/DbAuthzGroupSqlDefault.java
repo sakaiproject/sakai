@@ -22,6 +22,8 @@
 package org.sakaiproject.authz.impl;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Set;
 
 /**
  * methods for accessing authz data in a database.
@@ -33,34 +35,59 @@ public class DbAuthzGroupSqlDefault implements DbAuthzGroupSql
 		return "select count(1) from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?";
 	}
 
-	public String getCountRealmRoleFunctionEndSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized, String inClause)
+	public String getCountRealmRoleFunctionEndSql(Set<Integer> roleIds, String inClause)
 	{
-		String roleKeys = authorized? authorizationRoleKey + "," + anonymousRoleKey : anonymousRoleKey;
-		return " and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) "
-				+ " and (ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? "
-				+
-				// granted in any of the grant or role realms
-				" and REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")) "
-				+ " or ROLE_KEY in (" + roleKeys + ") "
-			    + ")";
+		StringBuilder sql = new StringBuilder();
+		sql.append(" and FUNCTION_KEY in (select FUNCTION_KEY from SAKAI_REALM_FUNCTION where FUNCTION_NAME = ?) ");
+		sql.append(" and (ROLE_KEY in (select ROLE_KEY from SAKAI_REALM_RL_GR where ACTIVE = '1' and USER_ID = ? ");		
+		sql.append(" and REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")) ");
+		Iterator<Integer> rolesIt = roleIds.iterator();
+		if (rolesIt.hasNext())
+		{
+			sql.append(" or ROLE_KEY in (");
+			sql.append("?");
+			rolesIt.next();
+			while(rolesIt.hasNext())
+			{
+				sql.append(", ?");
+				rolesIt.next();
+			}
+			sql.append(")");
+		}
+		sql.append(" )");
+		return sql.toString();
 	}
 
-	public String getCountRealmRoleFunctionSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized)
+	public String getCountRealmRoleFunctionSql(Set<Integer> roleIds)
 	{
-		String roleKeys = authorized? authorizationRoleKey + "," + anonymousRoleKey : anonymousRoleKey;
-		return "select count(1) " + "from   SAKAI_REALM_RL_FN MAINTABLE "
-				+ "       LEFT JOIN SAKAI_REALM_RL_GR GRANTED_ROLES ON (MAINTABLE.REALM_KEY = GRANTED_ROLES.REALM_KEY AND "
-				+ "       MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY), SAKAI_REALM REALMS, SAKAI_REALM_FUNCTION FUNCTIONS "
-				+ "where "
-				+ " (MAINTABLE.ROLE_KEY in(" + roleKeys + ") or (GRANTED_ROLES.USER_ID = ? AND GRANTED_ROLES.ACTIVE = 1)) AND FUNCTIONS.FUNCTION_NAME = ? AND REALMS.REALM_ID in (?) " +
-				// for the join
-				"  AND MAINTABLE.REALM_KEY = REALMS.REALM_KEY AND MAINTABLE.FUNCTION_KEY = FUNCTIONS.FUNCTION_KEY";
+		StringBuilder sql = new StringBuilder();
+		sql.append("select count(1) " + "from   SAKAI_REALM_RL_FN MAINTABLE ");
+		sql.append("       LEFT JOIN SAKAI_REALM_RL_GR GRANTED_ROLES ON (MAINTABLE.REALM_KEY = GRANTED_ROLES.REALM_KEY AND ");
+		sql.append("       MAINTABLE.ROLE_KEY = GRANTED_ROLES.ROLE_KEY), SAKAI_REALM REALMS, SAKAI_REALM_FUNCTION FUNCTIONS ");
+		sql.append("where (");
+				// our criteria
+		Iterator<Integer> rolesIt = roleIds.iterator();
+		if (rolesIt.hasNext())
+		{
+			sql.append("  MAINTABLE.ROLE_KEY in(");
+			sql.append("?");
+			rolesIt.next();
+			while(rolesIt.hasNext())
+			{
+				sql.append(", ?");
+				rolesIt.next();
+			}
+			sql.append(") or ");
+		}
+		sql.append("  (GRANTED_ROLES.USER_ID = ? AND GRANTED_ROLES.ACTIVE = 1)) AND FUNCTIONS.FUNCTION_NAME = ? AND REALMS.REALM_ID in (?) ");
+		sql.append("  AND MAINTABLE.REALM_KEY = REALMS.REALM_KEY AND MAINTABLE.FUNCTION_KEY = FUNCTIONS.FUNCTION_KEY ");
+		return sql.toString();
 	}
 
-	public String getCountRealmRoleFunctionSql(String anonymousRoleKey, String authorizationRoleKey, boolean authorized, String inClause)
+	public String getCountRealmRoleFunctionSql(Set<Integer> roleIds, String inClause)
 	{
 		return "select count(1) from SAKAI_REALM_RL_FN " + "where  REALM_KEY in (select REALM_KEY from SAKAI_REALM where " + inClause + ")"
-				+ getCountRealmRoleFunctionEndSql(anonymousRoleKey, authorizationRoleKey, authorized, inClause);
+				+ getCountRealmRoleFunctionEndSql(roleIds, inClause);
 	}
 
 	public String getCountRealmRoleSql()
