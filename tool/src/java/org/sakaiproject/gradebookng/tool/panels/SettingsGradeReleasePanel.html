@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:panel>
+
+		<h3><wicket:message key="settingspage.graderelease.heading">Grade Release Rules</wicket:message></h3>
+		
+		<form wicket:id="form">
+			<div class="checkbox">
+				<label>
+					<input wicket:id="displayReleased" type="checkbox" />
+					<wicket:message key="settingspage.graderelease.label" />
+				</label>
+			</div>
+			<p class="instruction"><wicket:message key="settingspage.graderelease.instructions" /></p>
+			
+			<div class="checkbox">
+				<label>
+					<input wicket:id="displayCourseGrade" type="checkbox" />
+					<wicket:message key="settingspage.displaycoursegrade.label" />
+				</label>
+			</div>
+			
+			<div>
+				<input type="submit" class="active" wicket:message="value:button.savechanges" />
+				<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
+			</div>
+			
+		</form>
+
+	</wicket:panel>
+</body>
+</html>

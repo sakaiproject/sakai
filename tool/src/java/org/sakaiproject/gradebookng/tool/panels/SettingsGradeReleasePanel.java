@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.tool.panels;
 
+import org.apache.wicket.ajax.AjaxRequestTarget;
+import org.apache.wicket.ajax.markup.html.form.AjaxCheckBox;
 import org.apache.wicket.markup.html.form.Button;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
@@ -11,10 +13,11 @@ import org.apache.wicket.model.PropertyModel;
 import org.apache.wicket.spring.injection.annot.SpringBean;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
+import org.sakaiproject.gradebookng.tool.pages.PermissionsPage;
 import org.sakaiproject.gradebookng.tool.pages.SettingsPage;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
-public class SettingsGradeEntryPanel extends Panel {
+public class SettingsGradeReleasePanel extends Panel {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -23,7 +26,7 @@ public class SettingsGradeEntryPanel extends Panel {
 	
 	IModel<GradebookInformation> model;
 
-	public SettingsGradeEntryPanel(String id, IModel<GradebookInformation> model) {
+	public SettingsGradeReleasePanel(String id, IModel<GradebookInformation> model) {
 		super(id, model);
 		this.model = model;
 	}
@@ -42,7 +45,6 @@ public class SettingsGradeEntryPanel extends Panel {
 				
 				GradebookInformation settings = this.getModelObject();
 				System.out.println("settings: " + settings.getGradeType());
-				
 				
 				businessService.updateGradebookSettings(settings);
 				/*
@@ -75,11 +77,29 @@ public class SettingsGradeEntryPanel extends Panel {
 		cancel.setDefaultFormProcessing(false);
         form.add(cancel);
 				
-		//points/percentage entry
-		RadioGroup<Integer> gradeEntry = new RadioGroup<>("gradeEntry", new PropertyModel<Integer>(model, "gradeType"));
-		gradeEntry.add(new Radio<>("points", new Model<>(1)));
-		gradeEntry.add(new Radio<>("percentages", new Model<>(2)));
-		form.add(gradeEntry);
+		//display released items to students
+        final AjaxCheckBox displayReleased = new AjaxCheckBox("displayReleased", new PropertyModel<Boolean>(model, "displayReleasedGradeItemsToStudents")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				//nothing required
+			}
+        };
+        displayReleased.setOutputMarkupId(true);
+        form.add(displayReleased);
+        
+        //display course grade
+        final AjaxCheckBox displayCourseGrade = new AjaxCheckBox("displayCourseGrade", new PropertyModel<Boolean>(model, "courseGradeDisplayed")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				//nothing required
+			}
+        };
+        displayCourseGrade.setOutputMarkupId(true);
+        form.add(displayCourseGrade);
 		
 		add(form);
 	}

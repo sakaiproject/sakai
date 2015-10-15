@@ -2,6 +2,7 @@ package org.sakaiproject.gradebookng.tool.pages;
 
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
+import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
 
 
@@ -24,9 +25,9 @@ public class SettingsPage extends BasePage {
 		//form model
 		CompoundPropertyModel<GradebookInformation> formModel = new CompoundPropertyModel<GradebookInformation>(settings);
 		
+		//panels
 		add(new SettingsGradeEntryPanel("gradeEntryPanel", formModel));
-		
-		
+		add(new SettingsGradeReleasePanel("gradeReleasePanel", formModel));
 		
 	}
 	
