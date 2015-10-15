@@ -1,5 +1,5 @@
 <!-- resources/sakai_dropbox_multiple_folders_upload.vm, use with org.sakaiproject.tool.content.ResourcesAction.java -->
-<script type="text/javascript" src="#libraryLink('js/jquery/jquery-1.9.1.min.js')"></script>
+<script type="text/javascript">includeLatestJQuery('content_dropbox_multiple');</script>
 
 <div class="portletBody specialLink">
 	<h3>
@@ -58,8 +58,8 @@
 		</p>
 		
 		<p class="act">
-			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="javascript:showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
-			<input type="button" name="cancel" onclick="javascript:document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
+			<input type="button" class="active" name="savechanges" id="saveChanges" onclick="showNotif('submitnotifxxx','saveChanges','addContentForm');document.getElementById('addContentForm').action='#toolLinkParam("ResourcesAction" "doMultipleFoldersUpload" "sakai_csrf_token=$validator.escapeUrl($sakai_csrf_token)")';submitform('addContentForm');" value="$tlang.getString("label.continue")" accesskey="s" />
+			<input type="button" name="cancel" onclick="document.getElementById('addContentForm').action='#toolLink("ResourcesAction" "doCancel")';submitform('addContentForm');" value="$tlang.getString("label.cancel")" accesskey="x" />
 			<span id="submitnotifxxx" class="messageProgress" style="visibility:hidden">$tlang.getString("processmessage.file")</span>
 		</p>
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />

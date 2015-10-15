@@ -72,11 +72,6 @@
         </developer>
     </developers>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/roster2/trunk/</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/roster2/trunk/</developerConnection>
-        <url>https://source.sakaiproject.org/svn/roster2/trunk/</url>
-    </scm>
 
 	<dependencies>
 		<dependency>

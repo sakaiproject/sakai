@@ -27,7 +27,7 @@
         <input type="text" id="courseSiteTypes" style="display:none" value="$courseSiteTypeStrings">
         
     #if ($alertMessage)<div class="alertMessage">$tlang.getString("sitetype.alert") $alertMessage</div>  #end
-    <p class="step">
+    <p class="instruction">
         ## if there is NO template site types
         $tlang.getString("sitetype.chothetyp.withouttemplate")
     ##  #if ($templateSites.size() > 0)
@@ -299,6 +299,11 @@
 
 
         ## end create site from archive
+
+        <p class="instruction">
+             $tlang.getString("sitetype.chothetyp.toolinfo")
+        </p>
+
         <input type="hidden" name="back" value="$!backIndex" />
         <input type="hidden" name="templateIndex" value="$!templateIndex" />
         <input type="hidden" name="eventSubmit_doSite_type_option" value="x" />

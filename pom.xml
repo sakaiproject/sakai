@@ -35,11 +35,6 @@
         <url>http://issues.sakaiproject.org/jira/browse/SAK</url>
     </issueManagement>
 
-    <scm>
-        <connection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</connection>
-        <developerConnection>scm:svn:https://source.sakaiproject.org/svn/sakai/trunk</developerConnection>
-        <url>https://source.sakaiproject.org/svn/sakai/trunk</url>
-    </scm>
 
     <profiles>
         <profile>
@@ -61,6 +56,7 @@
                 <module>citations</module>
                 <module>common</module>
                 <module>config</module>
+                <module>cloud-content</module>
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>
@@ -99,6 +95,7 @@
                 <module>reset-pass</module>
                 <module>rights</module>
                 <module>roster2</module>
+                <module>rsf</module>
                 <module>rwiki</module>
                 <module>samigo</module>
                 <module>search</module>
@@ -139,6 +136,7 @@
                 <module>clogdashboardintegration</module>
                 <module>common</module>
                 <module>config</module>
+                <module>cloud-content</module>
                 <module>content</module>
                 <module>content-review</module>
                 <module>courier</module>

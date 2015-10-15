@@ -146,11 +146,6 @@
     </dependencies>
   </dependencyManagement>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk</url>
-  </scm>
 
   <issueManagement>
     <system>jira</system>

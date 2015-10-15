@@ -56,7 +56,7 @@ To work on and contribute to Sakai:
 
 #### Never work in your ***local*** `master` branch.
 
-This branch should always be the same as what is in Sakai's ***upstream*** `master` and if you make commits into your ***local*** `master`, it complicates things.
+This branch should always be the same as what is in Sakai's ***upstream*** `master` and if you make commits into your ***local*** `master`, and those commits are not accepted into the Sakai master repository, you will forever be maintaining them yourself, which can get very complicated. To make life easier for yourself, **use a branch for everything**.
 
 ### General workflow
 

@@ -177,7 +177,8 @@ function setupEditable(msgs, iframId){
 		title: msgs.startdatetitle,
 		emptytext: msgs.clickToAddStartDate,
 		combodate: {
-			
+			minYear: new Date().getFullYear() - 5,
+			maxYear: new Date().getFullYear() + 5
 		},
 		format: 'YYYY-MM-DD HH:mm',
 		viewformat: 'YYYY/MM/DD h:mm a',
@@ -203,7 +204,8 @@ function setupEditable(msgs, iframId){
 		title: msgs.enddatetitle,
 		emptytext: msgs.clickToAddEndDate,
 		combodate: {
-			
+			minYear: new Date().getFullYear() - 5,
+			maxYear: new Date().getFullYear() + 5
 		},
 		format: 'YYYY-MM-DD HH:mm',
 		viewformat: 'YYYY/MM/DD h:mm a',

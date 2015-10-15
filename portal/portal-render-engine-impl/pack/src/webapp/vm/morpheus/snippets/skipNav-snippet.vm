@@ -23,9 +23,7 @@
 			<span>${rloader.sit_more}</span>
 		</div>
                 <span class="hamburger hamburger-sites"> 
-                    <span class="top">&mdash;</span>
-                    <span class="middle">&mdash;</span>
-                    <span class="bottom">&mdash;</span>
+                     <i class="fa fa-close"></i>
                 </span>
                 <span>${rloader.sit_jumpworksite}</span>
             </a>

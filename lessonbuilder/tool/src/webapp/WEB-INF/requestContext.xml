@@ -107,6 +107,19 @@
 		<property name="localeGetter" ref="requestLocaleProxy" />
  	</bean>
 
+ 	<bean name="ltiFileItemProducer" 
+		class="org.sakaiproject.lessonbuildertool.tool.producers.LtiFileItemProducer" init-method="init">
+ 		<property name="messageLocator" ref="messageLocator"/>
+ 		<property name="simplePageBean" ref="simplePageBean" />
+ 		<property name="simplePageToolDao">
+ 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
+ 		</property>
+		<property name="localeGetter" ref="requestLocaleProxy" />
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+		<property name="toolManager" ref="org.sakaiproject.tool.api.ToolManager" />
+ 	</bean>
+
+
 	<bean name="org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer" 
 	      class="org.sakaiproject.lessonbuildertool.tool.producers.PagePickerProducer" >
 		<property name="messageLocator" ref="messageLocator"/>
@@ -233,6 +246,7 @@
 		<property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager" />
 		<property name="siteService" ref="org.sakaiproject.site.api.SiteService" />
 		<property name="contentHostingService" ref="org.sakaiproject.content.api.ContentHostingService" />
+		<property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
 		</property>
@@ -247,6 +261,10 @@
 		<property name="lessonBuilderEntityProducer" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderEntityProducer"/>
 		<property name="lessonsAccess" ref="org.sakaiproject.lessonbuildertool.service.LessonsAccess"/>
 		<property name="lessonBuilderAccessService" ref="org.sakaiproject.lessonbuildertool.service.LessonBuilderAccessService" />
+		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
+	</bean>
+	<!-- Over-riding the CommonsMultipartResolver to have multiple files incoming under the same form input name  -->
+	<bean id="multipartResolver" class="org.sakaiproject.lessonbuildertool.resolver.MultiCommonsMultipartResolver">
 	</bean>
 	
 	<bean name="gradingBean" class="org.sakaiproject.lessonbuildertool.tool.beans.GradingBean">

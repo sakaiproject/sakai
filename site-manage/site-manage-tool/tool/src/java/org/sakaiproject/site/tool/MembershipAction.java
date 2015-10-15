@@ -527,7 +527,10 @@ public class MembershipAction extends PagedResourceActionII
 					String roleId = SiteService.getSite(id[i]).getUserRole(currentUserId).getId();
 					
 					SiteService.unjoin(id[i]);
-					if (i>0) msg=msg+" ,";
+					if (i>0)
+					{
+						msg=msg+", ";
+					}
 					msg = msg+SiteService.getSite(id[i]).getTitle();
 					
 					String[] userAuditString = {id[i],currentUserEid,roleId,userAuditService.USER_AUDIT_ACTION_REMOVE,userAuditRegistration.getDatabaseSourceKey(),currentUserEid};

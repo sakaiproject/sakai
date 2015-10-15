@@ -2,7 +2,7 @@
 ## This is here so that we can add extra bits to the <head> of the page.
 
 #header_prepend('<link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" media="all" />')
-#header_append('<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>')
-#header_append('<script type="text/javascript"  src="/sakai-assignment-tool/js/assignments.js"></script>')
+#header_append('<script type="text/javascript">includeLatestJQuery("assignment_chef_header");</script>')
+#header_append('<script type="text/javascript" src="/sakai-assignment-tool/js/assignments.js"></script>')
 
 #chef_start()

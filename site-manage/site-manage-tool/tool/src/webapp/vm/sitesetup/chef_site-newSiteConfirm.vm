@@ -182,13 +182,17 @@
 				</th>
 				<td>
 					#if ($!published)
-					#if ("anonymous" == $!access)
-						$tlang.getString("newsc.anon")
-					#else #if ("authenticated" == $!access)
-						$tlang.getString("newsc.auth")
-					#else 
-						$tlang.getString("newsc.sitepart")
-					#end #end
+					 	#if ($additionalAccess.size() > 0)
+							<ul class="attachList" style="margin:0">
+								<li>$tlang.getString("newsc.sitepart")</li>
+							#foreach($role in $additionalAccess)
+								<li>$role</li>
+							#end
+							</ul>
+						#else
+							$tlang.getString("newsc.sitepart")
+						#end
+					
 					#else
 						## unpublished site
 						$tlang.getString("newsc.siteown")

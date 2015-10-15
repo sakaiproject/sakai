@@ -4,12 +4,10 @@
        xmlns:jaxrs="http://cxf.apache.org/jaxrs"
        xmlns:jaxws="http://cxf.apache.org/jaxws"
        xsi:schemaLocation="
-http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd
-http://cxf.apache.org/jaxrs
-http://cxf.apache.org/schemas/jaxrs.xsd
-http://cxf.apache.org/jaxws
-http://cxf.apache.org/schemas/jaxws.xsd">
+	       http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	       http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd
+	       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
 
   <import resource="classpath:META-INF/cxf/cxf.xml" />
   <!--import resource="classpath:META-INF/cxf/cxf-extension-jaxrs-binding.xml" /-->
@@ -152,6 +150,7 @@ http://cxf.apache.org/schemas/jaxws.xsd">
         <property name="samLiteService" ref="org_sakaiproject_tool_assessment_services_samlite_SamLiteService"/>
         <property name="idManager" ref="org.sakaiproject.id.api.IdManager"/>
         <property name="gradebookExternalAssessmentService" ref="org.sakaiproject.service.gradebook.GradebookExternalAssessmentService"/>
+        <property name="activityService" ref="org.sakaiproject.event.api.ActivityService"/>
     </bean>
 
     <bean id="org.sakaiproject.webservices.Assignments" class="org.sakaiproject.webservices.Assignments" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />

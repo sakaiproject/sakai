@@ -96,7 +96,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.GroupNotDefinedException;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.app.messageforums.MembershipItem;
 import org.sakaiproject.component.app.messageforums.dao.hibernate.util.comparator.ForumBySortIndexAscAndCreatedDateDesc;
@@ -371,6 +371,7 @@ public class DiscussionForumTool
   private SynopticMsgcntrManager synopticMsgcntrManager;
   private UserPreferencesManager userPreferencesManager;
   private ContentHostingService contentHostingService;
+  private AuthzGroupService authzGroupService;
   
   private Boolean instructor = null;
   private Boolean sectionTA = null;
@@ -417,6 +418,9 @@ public class DiscussionForumTool
 		this.contentHostingService = contentHostingService;
 	}
 
+  public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+    this.authzGroupService = authzGroupService;
+  }
   private String editorRows;
   
   private boolean threadMoved;
@@ -6921,7 +6925,7 @@ public class DiscussionForumTool
     int i=0;
     try
     {      
-      realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+      realm = authzGroupService.getAuthzGroup(getContextSiteId());
       
       Set roles1 = realm.getRoles();
 
@@ -8764,7 +8768,7 @@ public class DiscussionForumTool
 		
 		AuthzGroup realm;
 		try {
-			realm = AuthzGroupService.getAuthzGroup(getContextSiteId());
+			realm = authzGroupService.getAuthzGroup(getContextSiteId());
 
 			Set roles1 = realm.getRoles();
 
@@ -9321,6 +9325,11 @@ public class DiscussionForumTool
 		}
 		this.rankBeanList.clear();
 		this.rankBeanList.addAll(alist);
+	}
+
+	public boolean isRanksEnabled()
+	{
+		return ServerConfigurationService.getBoolean("msgcntr.forums.ranks.enable", true);
 	}
 
 	private static final String INSUFFICIENT_PRIVILEGES_TO_EDIT_RANKS = "cdfm_insufficient_privileges_ranks";

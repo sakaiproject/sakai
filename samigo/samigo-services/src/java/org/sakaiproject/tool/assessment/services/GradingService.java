@@ -297,8 +297,22 @@ public class GradingService
       else{ // if new is different from old, include it for update
         AssessmentGradingData b = (AssessmentGradingData) o;
         if ((a.getFinalScore()!=null && b.getFinalScore()!=null) 
-            && !a.getFinalScore().equals(b.getFinalScore()))
-          l.add(a);
+            && !a.getFinalScore().equals(b.getFinalScore())) {
+            l.add(a);
+        }
+        // if scores are not modified but comments are added, include it for update
+        else if (a.getComments()!=null)
+        	{
+            	if (b.getComments()!=null)
+            	{
+                    if (!a.getComments().equals(b.getComments())) {
+                            l.add(a);
+                    }
+            	}
+            	else {
+                    l.add(a);
+            	}
+        	}
       }
     }
     return l;
@@ -1395,6 +1409,16 @@ public class GradingService
     if(!(MathUtils.equalsIncludingNaN(data.getFinalScore(), originalFinalScore, 0.0001))) {
     	data.setFinalScore(originalFinalScore);
     }
+    
+    try {
+        	Long publishedAssessmentId = data.getPublishedAssessmentId();
+        	String agent = data.getAgentId();
+        	String comment = data.getComments();
+        	gbsHelper.updateExternalAssessmentComment(publishedAssessmentId, agent, comment, g);
+    }
+    catch (Exception ex) {
+          log.warn("Error sending comments to gradebook: " + ex.getMessage());
+          }
     } else {
        if(log.isDebugEnabled()) log.debug("Not updating the gradebook.  toGradebook = " + toGradebook);
     }
@@ -1931,7 +1955,51 @@ Here are the definition and 12 cases I came up with (lydia, 01/2006):
 	  return totalScore;
 	  
   }
-  
+
+  public boolean getCalcQResult(ItemGradingData data,  ItemDataIfc itemdata, Map<Integer, String> calculatedAnswersMap, int calcQuestionAnswerSequence)
+  {
+	  boolean result = false;
+
+	  if (data.getAnswerText() == null) return result;
+
+	  if (!calculatedAnswersMap.containsKey(calcQuestionAnswerSequence)) {
+		  return result;
+	  }
+	  // this variable should look something like this "42.1|2,2"
+	  String allAnswerText = calculatedAnswersMap.get(calcQuestionAnswerSequence).toString();
+
+	  // NOTE: this correctAnswer will already have been trimmed to the appropriate number of decimals
+	  BigDecimal correctAnswer = new BigDecimal(getAnswerExpression(allAnswerText));
+
+	  // Determine if the acceptable variance is a constant or a % of the answer
+	  String varianceString = allAnswerText.substring(allAnswerText.indexOf("|")+1, allAnswerText.indexOf(","));
+	  BigDecimal acceptableVariance = BigDecimal.ZERO;
+	  if (varianceString.contains("%")){
+		  double percentage = Double.valueOf(varianceString.substring(0, varianceString.indexOf("%")));
+		  acceptableVariance = correctAnswer.multiply( new BigDecimal(percentage / 100) );
+	  }
+	  else {
+		  acceptableVariance = new BigDecimal(varianceString);
+	  }
+
+	  String userAnswerString = data.getAnswerText().replaceAll(",", "").trim();
+	  BigDecimal userAnswer;
+	  try {
+		  userAnswer = new BigDecimal(userAnswerString);
+	  } catch(NumberFormatException nfe) {
+		  return result;
+	  }
+
+	  // this compares the correctAnswer against the userAnsewr
+	  BigDecimal answerDiff = (correctAnswer.subtract(userAnswer));
+	  boolean closeEnough = (answerDiff.abs().compareTo(acceptableVariance.abs()) <= 0);
+	  if (closeEnough){
+		  result = true;
+	  }
+	  return result;
+
+  }
+
   public double getTotalCorrectScore(ItemGradingData data, Map publishedAnswerHash)
   {
     AnswerIfc answer = (AnswerIfc) publishedAnswerHash.get(data.getPublishedAnswerId());

@@ -37,6 +37,11 @@ sakai.editor.editors = sakai.editor.editors || {};
 sakai.editor.enableResourceSearch = false;
 
 sakai.editor.editors.ckeditor = {};
+
+//get path of directory ckeditor 
+var basePath = CKEDITOR.basePath; 
+basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
+
 // Please note that no more parameters should be added to this signature.
 // The config object allows for name-based config options to be passed.
 // The w and h parameters should be removed as soon as their uses can be migrated.
@@ -117,7 +122,10 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
         //SAK-23418
         pasteFromWordRemoveFontStyles : false,
         pasteFromWordRemoveStyles : false,
-        autosave_saveDetectionSelectors : "input[id*='save'],input[name*='save'],input[name*='cancel'],input[id*='cancel']"
+        autosave_saveDetectionSelectors : "form input[type='button'],form input[type='submit']",
+        //SAK-29598 - Add more templates to CK Editor
+        templates_files: [basePath+"templates/default.js"],
+        templates: 'customtemplates'
     };
 
     //NOTE: The height and width properties are handled discretely here.
@@ -167,10 +175,6 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 		}
 	}
 
-		//get path of directory ckeditor 
-		//
-		var basePath = CKEDITOR.basePath; 
-		basePath = basePath.substr(0, basePath.indexOf("ckeditor/"))+"ckextraplugins/"; 
 		//To add extra plugins outside the plugins directory, add them here! (And in the variable)
 		(function() { 
 		   CKEDITOR.plugins.addExternal('movieplayer',basePath+'movieplayer/', 'plugin.js'); 
@@ -214,12 +218,14 @@ sakai.editor.editors.ckeditor.launch = function(targetId, config, w, h) {
 
           var onShow = dialogDefinition.onShow;
           dialogDefinition.onShow = function() {
-              var pos = findPos(e.editor.container.$);
-              this.move(this.getPosition().x, pos[1]);
+              var result;
               if (typeof onShow !== 'undefined' && typeof onShow.call === 'function') {
-                  var result = onShow.call(this);
-                  return result;
+                  result = onShow.call(this);
               }
+              var pos = findPos(e.editor.container.$);
+              //SAK-29830 - On some pages it was moving too far down the pages, on others it was still moving too far. This fix is intended to cut that significantly.
+              this.move(this.getPosition().x, pos[1]*0.25);
+              return result;
           }
 
           if ( dialogName == 'link' )

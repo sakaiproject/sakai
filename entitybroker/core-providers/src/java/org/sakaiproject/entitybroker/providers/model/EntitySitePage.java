@@ -147,6 +147,34 @@ public class EntitySitePage implements SitePage {
     public boolean getTitleCustom() {
         return this.titleCustom;
     }
+    
+    @Override
+    public boolean isHomePage()
+    {
+        if (sitePage != null) {
+            return sitePage.isHomePage();
+        }
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public void setHomeToolsTitleCustom(String toolId)
+    {
+        if (sitePage != null) {
+            sitePage.setHomeToolsTitleCustom(toolId);
+        }
+        throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public boolean getHomeToolsTitleCustom(String toolId)
+    {
+        if (sitePage != null) {
+            return sitePage.getHomeToolsTitleCustom(toolId);
+        }
+        throw new UnsupportedOperationException();
+    }
+    
     @Override
     public String getReference() {
         if (sitePage != null) {

@@ -8,7 +8,7 @@
 %>
 <%--
        		<script type="text/javascript" src="/library/js/jquery-latest.min.js"></script>
-			<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
+			<script type="text/javascript" src="/library/js/jquery/ui/1.11.3/jquery-ui.min.js"></script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
 <sakai:script contextBase="/messageforums-tool" path="/js/permissions_header.js"/>
 <sakai:script contextBase="/messageforums-tool" path="/js/forum.js"/>

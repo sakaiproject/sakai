@@ -8,13 +8,12 @@
         <script type="text/javascript" rsf:id="resize"/>
         <script type="text/javascript" language="JavaScript" src="/library/js/headscripts.js">
         </script>
+        <script type="text/javascript">includeLatestJQuery('site-manage');</script>
         <script type="text/javascript" src="../js/selectbox.js" rsf:id="scr=rewrite-url">
         </script>
         <script type="text/javascript" src="../js/optionTransfer.js" rsf:id="scr=rewrite-url">
         </script>
         <script type="text/javascript" src="../js/util.js" rsf:id="scr=rewrite-url">
-        </script>
-        <script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js">
         </script>
     </head>
     <body>
@@ -26,8 +25,9 @@
             </div>
             <form rsf:id="groups-form">
                 <h3 rsf:id="prompt"></h3>
+                <p rsf:id="msg=group.autocreate.instructions" class="instruction">Select a course roster to create a separate group for that roster.</p>
                 <div rsf:id="roster_options:">
-                    <p rsf:id="instruction-roster" class="instruction">Select a course roster to create a separate group for that roster.</p>
+                    <h4 rsf:id="msg=instruction.header.roster">From Rosters</h4>
                     <table id="rosterList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines" summary="placeholder summary">
                         <thead>
                             <tr>
@@ -110,8 +110,8 @@
                     </fieldset>
 
                 </div>
-                <div rsf:id="role_options:">
-                	<p rsf:id="msg=group.autocreate.instruction_role" class="instruction">Select roles</p>
+                <div rsf:id="role_options:" class="autoGroupsRoleContainer">
+                	<h4 rsf:id="msg=instruction.header.role">From Roles</h4>
 	                    <table id ="roleList" width="80%" border="0" cellspacing="0" cellpadding="0" class="listHier lines nolines centerLines labelizeMe" summary="placeholder summary">
 	                        <thead>
 	                            <tr>

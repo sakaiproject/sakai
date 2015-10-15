@@ -499,7 +499,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception t)
 		{
-			M_log.warn(".init(): ", t);
+			M_log.error(".init(): ", t);
 		}
 	}
 
@@ -1309,7 +1309,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 		}
 		catch (Exception e)
 		{
-			M_log.warn(".addSite(): error copying realm", e);
+			M_log.error(".addSite(): error copying realm", e);
 		}
 
 		// clear the site's notification id in properties
@@ -1959,6 +1959,28 @@ public abstract class BaseSiteService implements SiteService, Observer
 	}
 
 	/**
+	 * Convenience method to run the getSites() call common to all getUserSites* methods.
+	 * @param requireDescription when true, full descriptions will be included; when false, full descriptions may be omitted.
+	 * @param userID the returned sites will be those which can be accessed by the user with this internal ID. Uses the current user if null.
+	 * @param includeUnpublishedSites when true, unpublished sites will be included; when false, unpublished sites will be omitted.
+	 * @return 
+	 */
+	private List<Site> getUserSitesByPublishedStatus( boolean requireDescription, String userID, boolean includeUnpublishedSites )
+	{
+		SortType sortType = SortType.TITLE_ASC;
+		SelectionType selectionType = includeUnpublishedSites ? SelectionType.MEMBER : SelectionType.ACCESS;
+
+		if( StringUtils.isBlank( userID ) )
+		{
+			return (List<Site>) getSites( selectionType, null, null, null, sortType, null, requireDescription );
+		}
+		else
+		{
+			return (List<Site>) getSites( selectionType, null, null, null, sortType, null, requireDescription, userID );
+		}
+	}
+
+	/**
 	 * @inheritDoc
 	 */
 	public List<Site> getUserSites() {
@@ -1969,18 +1991,25 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 * @inheritDoc
 	 */
 	public List<Site> getUserSites(boolean requireDescription) {
-		String userId = sessionManager().getCurrentSessionUserId();
-		List<Site> userSites = getCachedUserSites(userId);
+		return getUserSites( requireDescription, false );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getUserSites( boolean requireDescription, boolean includeUnpublishedSites )
+	{
+		String userID = sessionManager().getCurrentSessionUserId();
+		List<Site> userSites = getCachedUserSites( userID );
+		
 
 		// Retrieve sites on cache miss or anonymous user
-		if (userSites == null)
+		if( userSites == null )
 		{
-			userSites = getSites(
-					org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null,
-					null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, requireDescription);
+			userSites = getUserSitesByPublishedStatus( requireDescription, null, includeUnpublishedSites );
 
 			// Cache the results
-			setCachedUserSites(userId, userSites);
+			setCachedUserSites( userID, userSites );
 		}
 
 		return userSites;
@@ -1991,14 +2020,22 @@ public abstract class BaseSiteService implements SiteService, Observer
 	 */
 	public List<Site> getUserSites(boolean requireDescription, String userId)
 	{
-		List<Site> userSites = getCachedUserSites(userId);
-		
-		if (userSites == null)
+		return getUserSites( requireDescription, userId, false );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public List<Site> getUserSites( boolean requireDescription, String userID, boolean includeUnpublishedSites )
+	{
+		List<Site> userSites = getCachedUserSites( userID );
+
+		if( userSites == null )
 		{
-			userSites = getSites(org.sakaiproject.site.api.SiteService.SelectionType.ACCESS, null, null, null, org.sakaiproject.site.api.SiteService.SortType.TITLE_ASC, null, requireDescription, userId);
+			userSites = getUserSitesByPublishedStatus( requireDescription, userID, includeUnpublishedSites );
 
 			// Cache the results
-			setCachedUserSites(userId, userSites);
+			setCachedUserSites( userID, userSites );
 		}
 
 		return userSites;
@@ -2506,7 +2543,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}
@@ -2542,7 +2579,7 @@ public abstract class BaseSiteService implements SiteService, Observer
 				}
 				catch (Exception t)
 				{
-					M_log.warn("Error encountered while notifying ContextObserver of Site Change", t);
+					M_log.error("Error encountered while notifying ContextObserver of Site Change", t);
 				}
 			}
 		}

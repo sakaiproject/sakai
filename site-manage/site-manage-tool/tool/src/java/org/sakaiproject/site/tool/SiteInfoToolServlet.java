@@ -57,7 +57,6 @@ import org.apache.fop.fonts.substitute.FontQualifier;
 import org.apache.fop.fonts.substitute.FontSubstitution;
 import org.apache.fop.fonts.substitute.FontSubstitutions;
 import org.apache.fop.apps.MimeConstants;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.site.api.Site;

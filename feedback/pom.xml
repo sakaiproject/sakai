@@ -43,11 +43,6 @@
         <url>https://jira.oucs.ox.ac.uk/jira/browse/WL-3179</url>
     </issueManagement>
 
-	<scm>
-        <connection>scm:git:git://github.com/ox-it/wl-feedback.git</connection>
-        <developerConnection>scm:git:git://github.com/ox-it/wl-feedback.git</developerConnection>
-        <url>https://github.com/adrianfish/yaft</url>
-    </scm>
 
   	<dependencies>
 		<dependency>

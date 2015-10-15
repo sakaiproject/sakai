@@ -1,5 +1,5 @@
 ##<textarea id="debugger" rows="50" cols="100"></textarea>
-<script type="text/javascript" src="#libraryLink('js/jquery/jquery-1.9.1.min.js')"></script>
+<script type="text/javascript">includeLatestJQuery('content_sakai_properties');</script>
 <script type="text/javascript" src="#libraryLink('js/jquery/cookie/jquery.cookie.js')"></script>
 <script type="text/javascript">
 	<!--
@@ -1527,7 +1527,7 @@
 	
 	//handles showing either the short url or the full url, depending on the state of the checkbox 
 	//(if configured, otherwise returns url as-is as according to the url shortening entity provder)
-	function toggleShortUrlOutput(defaultUrl) {		
+	function toggleResourcesShortUrlOutput(defaultUrl) {		
 				
 		if(jQuery('#doShortUrl').is(':checked')) {
 			doShortUrl(defaultUrl);

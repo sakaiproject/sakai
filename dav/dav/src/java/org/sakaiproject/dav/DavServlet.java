@@ -122,7 +122,7 @@ import org.sakaiproject.dav.MD5Encoder;
 import org.apache.catalina.util.XMLWriter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
@@ -378,7 +378,7 @@ public class DavServlet extends HttpServlet
  					{
  						try
  						{
- 							String target = AliasService.getTarget(context);
+ 							String target = aliasService.getTarget(context);
 							Reference targetRef = EntityManager.newReference(target);
  							boolean changed = false;
 
@@ -547,6 +547,8 @@ public class DavServlet extends HttpServlet
 
 	private ContentHostingService contentHostingService;
 
+	private AliasService aliasService;
+
 	// --------------------------------------------------------- Public Methods
 
 	/**
@@ -555,6 +557,7 @@ public class DavServlet extends HttpServlet
 	public void init() throws ServletException
 	{
 		contentHostingService = (ContentHostingService) ComponentManager.get(ContentHostingService.class.getName());
+		aliasService = ComponentManager.get(AliasService.class);
 
 		// Set our properties from the initialization parameters
 		String value = null;

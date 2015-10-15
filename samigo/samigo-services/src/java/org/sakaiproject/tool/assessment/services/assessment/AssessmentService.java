@@ -861,22 +861,8 @@ public class AssessmentService {
 						ToolManager.getTool("sakai.samigo").getTitle(), cr
 						.getContentType(), cr.streamContent(), cr.getProperties());
 			}
-		} catch (IdInvalidException e) {
-			log.warn(e.getMessage());
-		} catch (PermissionException e) {
-			log.warn(e.getMessage());
-		} catch (IdUnusedException e) {
-			log.warn(e.getMessage());
-		} catch (TypeException e) {
-			log.warn(e.getMessage());
-		} catch (InconsistentException e) {
-			log.warn(e.getMessage());
-		} catch (IdUsedException e) {
-			log.warn(e.getMessage());
-		} catch (OverQuotaException e) {
-			log.warn(e.getMessage());
-		} catch (ServerOverloadException e) {
-			log.warn(e.getMessage());
+		} catch (Exception e) {
+			log.warn("Could not copy resource " + resourceId + ", " + e.getMessage());
 		}
 		return cr_copy;
 	}

@@ -59,6 +59,10 @@
 					[<xsl:value-of select="outcomes/decvar[@varname='requiredOptionsCount']/@maxvalue" />|<xsl:value-of select="outcomes/decvar[@varname='scoreUserSet']/@defaultval" />]<xsl:value-of select="outcomes/interpretvar/material/mattext" />
 					@ATTACH@
 					<xsl:for-each
+						select="outcomes/interpretvar/material/mattext">
+						@<xsl:value-of select='@label' />[<xsl:value-of select='@texttype' />](<xsl:value-of select='@size' />)<xsl:value-of select="@uri" />
+					</xsl:for-each>
+					<xsl:for-each
 						select="outcomes/interpretvar/material/matimage">
 						@<xsl:value-of select='@label' />[<xsl:value-of select='@imagtype' />](<xsl:value-of select='@size' />)<xsl:value-of select="@uri" />
 					</xsl:for-each>

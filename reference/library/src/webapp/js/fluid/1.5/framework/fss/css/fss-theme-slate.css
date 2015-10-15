@@ -1,0 +1,188 @@
+/*
+          Slate - Low Contrast Greyscale
+=============================================
+ * Color Scheme:
+ *     white     : #ffffff
+ *     grey      : #cccccc
+ *     dark grey : #999999
+ *     deep grey : #666666
+ */
+
+/* 
+ * General Styling
+ */
+
+.fl-theme-slate,
+.fl-theme-slate.fl-preview-theme {color:#000000; background-color:#cccccc; border-color:#999999;}
+
+/* Links */
+.fl-theme-slate a {color: #ebebeb; font-weight:bold;}
+.fl-theme-slate a:hover {color: #ffffff;}
+
+/* Headers */
+.fl-theme-slate h1 {color:#999999; border-bottom-width:0.2em; border-bottom-style:solid;} 
+.fl-theme-slate h2 {color: #ffffff;}
+
+/* Tables */
+.fl-theme-slate th {border:0.1em solid #ffffff; background-color:#dfefff;}
+.fl-theme-slate td {border:0.1em solid #999999;}
+
+/* 
+ * FSS Elements
+ */
+
+/* Focus */
+.fl-theme-slate .fl-focus:focus,
+.fl-theme-slate .fl-focus :focus,
+.fl-theme-slate.fl-focus :focus,
+.fl-theme-slate .selectable  {outline: 0.1em solid #000;}
+
+/* Text fields, Textareas */
+.fl-theme-slate .fl-textfield,
+.fl-theme-slate .fl-textarea {background-color:#ccc; border:1px solid #666;}
+
+/* Icons */
+.fl-theme-slate .fl-icon {background-color:#ebebeb}
+
+/* Buttons */
+.fl-theme-slate .fl-button-left,
+.fl-theme-slate .fl-button-right {color:#FFFFFF; background-color:#999;}
+.fl-theme-slate .fl-button-left {background-image:url('../images/themes/slate/buttons-med-cap.png');}
+.fl-theme-slate .fl-button-right {background-image:url('../images/themes/slate/buttons-med-cap.png');}
+.fl-theme-slate .fl-button-inner {background-image:url('../images/themes/slate/buttons-med-bg.png');}
+
+/* Tabs */
+.fl-theme-slate .fl-tabs {border-bottom-color:#999999;}
+.fl-theme-slate .fl-tabs li,
+.fl-theme-slate .fl-tabs li a  {font-weight:bold; color:#999999; border-color:#999999; border-bottom-color:#999999; background-color:#666; text-decoration:none;}
+.fl-theme-slate .fl-tabs li a:hover {background-color:#999; color:#fff;}
+
+.fl-theme-slate .fl-tabs li.fl-activeTab,
+.fl-theme-slate .fl-tabs li.fl-activeTab:hover,
+.fl-theme-slate .fl-tabs li.fl-activeTab a,
+.fl-theme-slate .fl-tabs li.fl-activeTab a:hover,
+
+.fl-theme-slate .fl-tabs li.fl-tabs-active,
+.fl-theme-slate .fl-tabs li.fl-tabs-active a,
+.fl-theme-slate .fl-tabs li.fl-tabs-active a:hover {background-color: #ebebeb; border-bottom-color:#ccc; color:#000;}
+.fl-theme-slate .fl-tabs-content {background-color:#ebebeb; color:#000; border:1px solid #999999; border-top:none;}
+
+.fl-theme-slate .fl-tabs-enhanced {
+    background:url('../images/themes/slate/tabs-light-container-bg.png') repeat-x left bottom;
+    border-bottom:none;
+    margin:10px 1px 0;
+    padding:5px 0 6px;
+    *padding:0;
+}
+
+.fl-theme-slate .fl-tabs-enhanced li {
+    background: transparent url('../images/themes/slate/tabs-light-cap.png') no-repeat left top; 
+    padding:4px 0 6px 16px;
+    *padding-top:0;
+}
+.fl-theme-slate .fl-tabs-enhanced li a {
+    background: transparent url('../images/themes/slate/tabs-light-bg.png') no-repeat right top; 
+    border:none;
+    margin:0;
+    padding:4px 16px 6px 0;
+    color:#666666;
+    *padding-bottom:4px;
+}
+.fl-theme-slate .fl-tabs-enhanced li.fl-tabs-active {
+    background:transparent url('../images/themes/slate/tabs-light-active-cap.png') no-repeat scroll left top;
+}
+.fl-theme-slate .fl-tabs-enhanced li.fl-tabs-active a {
+    background:transparent url('../images/themes/slate/tabs-light-active-bg.png') no-repeat scroll right top;
+    color:#000000;
+}
+
+/* Menu */
+.fl-theme-slate .fl-listmenu, 
+.fl-theme-slate .fl-list-menu {border:1px solid #999999; border-bottom-width:2px; background-color:#ccc;}
+.fl-theme-slate .fl-listmenu li, 
+.fl-theme-slate .fl-list-menu li,
+.fl-theme-slate .fl-listmenu li a, 
+.fl-theme-slate .fl-list-menu li a  {font-weight:bold; background-color:#999; border-color:#ccc; text-decoration:none;}
+.fl-theme-slate .fl-listmenu a:hover, 
+.fl-theme-slate .fl-list-menu a:hover {background-color:#ebebeb; color:#000;}
+.fl-theme-slate .fl-listmenu .fl-activemenu a, 
+.fl-theme-slate .fl-list-menu .fl-activemenu a,
+.fl-theme-slate .fl-listmenu .fl-activemenu a:hover, 
+.fl-theme-slate .fl-list-menu .fl-activemenu a:hover { background-color: #ccc; border-bottom-color:#ccc; color:#000000;}
+
+/* Grid */
+.fl-theme-slate .fl-grid {border:2px solid #999999; background-color:#ccc;}
+.fl-theme-slate .fl-grid li {background-color:#999; border:1px solid #999999}
+.fl-theme-slate .fl-grid .fl-grid-caption {background-color:#666; color:#ffffff; }
+
+/* Widgets */
+.fl-theme-slate .fl-widget {background:#cccccc url('../images/themes/slate/widget-bg.png') repeat-x top left; border:1px solid #666666;}                        
+.fl-theme-slate .fl-widget h2 {color:#ccc;}
+.fl-theme-slate .fl-widget .fl-icon-more  {background-image:url('../images/themes/slate/icon-widget-More.png'); margin-left:0px;}
+.fl-theme-slate .fl-widget .fl-icon-close {background-image:url('../images/themes/slate/icon-widget-Close.png'); margin-right:0px;}
+
+/* Widget titlebar */
+.fl-theme-slate .fl-grabbable .fl-widget-titlebar {background-image:url('../images/themes/slate/icon-widget-gripper.png');}
+.fl-theme-slate .fl-widget-titlebar .icon {background-position:center center;}
+.fl-theme-slate .fl-widget-titlebar .fl-button-right,
+.fl-theme-slate .fl-widget-titlebar .fl-button-left {
+    color:#333;
+    background-image:url('../images/themes/slate/buttons-titlebar-cap.png');
+    text-decoration:none;
+}
+.fl-theme-slate .fl-widget-titlebar .fl-button-inner {
+    background-image:url('../images/themes/slate/buttons-titlebar-bg.png');
+    padding-bottom:0.3em;
+    padding-top:0;
+}
+
+/* Widget options */
+.fl-theme-slate .fl-widget-options li {border-left:1px solid #ccc;}
+.fl-theme-slate .fl-widget-options a.icon:hover {background-color:#ffffff; border-color:#000;}
+
+/* Widget content */
+.fl-theme-slate .fl-widget-content {background-color:#bfbfbf;}
+
+/* Widget Content Background */
+.fl-theme-slate .fl-widget-content .fl-tabs-enhanced {
+    background:url('../images/themes/slate/tabs-med-container-bg.png') repeat-x left bottom;
+    border-bottom:none;
+    margin:10px 1px 0;
+    padding:5px 0 6px;
+    *padding:0;
+}
+
+.fl-theme-slate .fl-widget-content .fl-tabs-enhanced li {
+    background: transparent url('../images/themes/slate/tabs-med-cap.png') no-repeat left top; 
+    padding:4px 0 6px 16px;
+    *padding-top:0;
+}
+.fl-theme-slate .fl-widget-content .fl-tabs-enhanced li a {
+    background: transparent url('../images/themes/slate/tabs-med-bg.png') no-repeat right top; 
+    border:none;
+    margin:0;
+    padding:4px 16px 6px 0;
+    color:#666666;
+    *padding-bottom:4px;
+}
+.fl-theme-slate .fl-widget-content .fl-tabs-enhanced li.fl-tabs-active {
+    background:transparent url('../images/themes/slate/tabs-med-active-cap.png') no-repeat scroll left top;
+}
+.fl-theme-slate .fl-widget-content .fl-tabs-enhanced li.fl-tabs-active a {
+    background:transparent url('../images/themes/slate/tabs-med-active-bg.png') no-repeat scroll right top;
+    color:#000000;
+}
+
+/* 
+ * Infusion Components
+ */
+
+/* Progress */
+.fl-theme-slate .fl-progress-bounds {border-color:#999999; background-color:#ccc;}
+.fl-theme-slate .fl-progress-fill {color:#999999; background-color:#000;}
+
+/* Reorderer */
+.fl-theme-slate .fl-reorderer-dropMarker {background-color:#f00;}
+
+/* Inline Edit */
+.fl-theme-slate .fl-inlineEdit-edit {background-color:#dfefff; border:0.1em solid #ffffff; margin:-0.1em;}

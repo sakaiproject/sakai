@@ -4,48 +4,28 @@
 }
 #selectSite{
 	position: fixed;
-	@include transition( left 1s linear );
+	@include transition( left 0.4s linear );
 	&.dhtml_more_tabs{
 		background: $toolMenuColor;
 		display: block;
 		position: fixed;
 		top: 0;
 		left: 40%;
-		width: calc( 60% - 2em );
-		height: calc( 100% - 2em );
+		width: 60% ;
+		height: 100% ;
 		padding: 1em;
-		overflow: auto;
+		overflow-y: auto;
+		overflow-x: hidden;
 		z-index: 1005;
 		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
 		@media #{$phone}{
-			width: calc( 85% - 2em );
+			width: 85% ;
 			left: 15%  ;
 		}
 	}
 	&.outscreen{
 		left: calc(100% + 2em) ;
 		max-width:1200px;
-		#otherSiteCloseW{
-			.toggler{
-				.hamburger{
-			  		> span{
-			  			&.top{
-			  				@include transform( rotate(0deg) );
-			  				top:  0;
-			  				left: 0;
-			  			}
-			  			&.middle{
-			  				opacity: 1;
-			  			}
-			  			&.bottom{
-			  				@include transform( rotate(0deg) );
-			  				top:  0;
-			  				left: 0;
-			  			}
-			  		}
-				}
-			}
-		}
 	}
 	h4{
 		font-size: 1.8em;
@@ -92,6 +72,12 @@ ul.otherSitesCategorList{
 		}
 		&.is-selected{
 			background: lighten($background-color, 10%);
+			a{
+				color: $background-color-secondary;
+				.fullTitle{
+					color: $background-color-secondary;
+				}
+			}
 		}
 	}
 }
@@ -123,31 +109,5 @@ ul.otherSitesCategorList{
 	.toggler{
 		text-decoration: none;
 		color: darken($errorcolor, 50%);
-		.hamburger{
-			@include display-flex(inline-flex);
-	  		@include flex-direction(column);
-	  		@include align-items(flex-end);
-	  		@include justify-content(space-between);
-		  	@include transition( all 0.25s linear );
-	  		> span{
-	  			height: 8px;
-		  		@include transition( all 0.25s linear );
-	  			&.top{
-	  				@include transform( rotate(-45deg) );
-	  				position: relative;
-	  				top: 12px;
-	  				left: -12px;
-	  			}
-	  			&.middle{
-	  				opacity: 0;
-	  			}
-	  			&.bottom{
-	  				@include transform( rotate(45deg) );
-	  				position: relative;
-	  				top: -3px;
-	  				left: 17px;
-	  			}
-	  		}
-		}
 	}
 }

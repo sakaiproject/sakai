@@ -240,5 +240,19 @@
 			<version>${sakai.jackson.version}</version>
 			<scope>compile</scope>
 		</dependency>
+
+        <!-- Samigo shared dependencies -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math</artifactId>
+            <version>${sakai.commons-math.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>OKI</groupId>
+            <artifactId>OkiOSID</artifactId>
+            <version>${sakai.okiosid.version}</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>

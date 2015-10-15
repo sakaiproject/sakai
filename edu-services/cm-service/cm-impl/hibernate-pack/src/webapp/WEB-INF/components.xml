@@ -148,6 +148,9 @@
    		<property name="classPathToXml">
    			<value>org/sakaiproject/coursemanagement/impl/job/sampleCMData.xml</value>
    		</property>
+   		<property name="authzGroupService">
+   			<ref bean="org.sakaiproject.authz.api.AuthzGroupService"/>
+   		</property>
    	</bean>
 -->
 

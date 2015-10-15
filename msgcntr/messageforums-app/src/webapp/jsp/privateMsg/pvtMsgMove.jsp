@@ -8,7 +8,7 @@
 	<sakai:view title="#{msgs.pvt_move} #{msgs.pvt_rcvd_msgs}">
 <!--jsp/privateMsg/pvtMsgMove.jsp-->	
 		<h:form id="pvtMsgMove">
-		       		<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+		       		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
        		<sakai:script contextBase="/messageforums-tool" path="/js/sak-10625.js"/>
        		<sakai:script contextBase="/messageforums-tool" path="/js/messages.js"/>
 		<f:verbatim><div class="breadCrumb specialLink"><h3></f:verbatim>

@@ -261,8 +261,8 @@ ALTER TABLE SAKAI_CLUSTER ADD COLUMN STATUS VARCHAR(8);
 ALTER TABLE SAKAI_CLUSTER CHANGE SERVER_ID SERVER_ID_INSTANCE VARCHAR (64);
 ALTER TABLE SAKAI_CLUSTER ADD COLUMN SERVER_ID VARCHAR (64);
 
--- SAK 27937 - Course grade to disable course points
-ALTER TABLE GB_GRADEBOOK_T ADD COLUMN COURSE_POINTS_DISPLAYED bit not null
+-- SAK-27937 - Course grade to disable course points
+ALTER TABLE GB_GRADEBOOK_T ADD COLUMN COURSE_POINTS_DISPLAYED bit(1) NOT NULL DEFAULT b'0';
 -- End SAK-27937
 
 --
@@ -417,3 +417,7 @@ INSERT INTO SAKAI_SITE VALUES('!contact-us', 'Contact Us', null, null, null, '',
 INSERT INTO SAKAI_SITE_PAGE VALUES('!contact-us', '!contact-us', 'Contact Us', '0', 1, '0' );
 INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 'sakai.feedback', 1, 'Contact Us', NULL );
 -- END SAK-29271
+
+-- SAK-29733 Change Schedule to Calendar for existing sites
+UPDATE SAKAI_SITE_TOOL SET TITLE="Calendar" WHERE REGISTRATION = "sakai.schedule" AND TITLE = "Schedule";
+UPDATE SAKAI_SITE_PAGE SET TITLE="Calendar" WHERE TITLE = "Schedule";

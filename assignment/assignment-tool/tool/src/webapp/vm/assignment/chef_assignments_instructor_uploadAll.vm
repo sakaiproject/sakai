@@ -181,15 +181,15 @@
 			<p class="act">
 			#if ($download)
 				#set($alertMessage = $tlang.getString('downloadall.alert.choose.element'))
-				#set($actionString="#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')")
+				#set($actionString="#toolLinkParam($action 'doDownload_all')")
 				<input type="button" name="downloadButton" id="downloadButton"  accesskey="d" class="active"
 						onclick="invokeDownloadUrl('$accessPointUrl', '$actionString', '$alertMessage', '$contextString', '$viewString', '$searchString', '$showSubmissionByFilterSearchOnly');" value="$tlang.getString('downloadall.button.download')" />
 			#else
 				<input type="button" name="uploadButton" id="uploadButton"  accesskey="s" class="active"
-						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doDownload_upload_all' 'flow=upload')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
+						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doUpload_all')'; submitform('uploadAllForm');" value="$tlang.getString('uploadall.button.upload')" />
 			#end	
 					<input type="button" name="cancelButton" id="cancelButton"  accesskey="x"
-						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_download_upload_all' 'flow=cancel')'; submitform('uploadAllForm');" value="$tlang.getString('gen.can')" />
+						onclick="ASN.disableControls();ASN.showSpinner('downloadUploadSpinner');document.getElementById('uploadAllForm').action='#toolLinkParam($action 'doCancel_download_upload_all')'; submitform('uploadAllForm');" value="$tlang.getString('gen.can')" />
 					<img id="downloadUploadSpinner" class="spinner" src="/library/image/indicator.gif" />
 		</p>
 		</div>

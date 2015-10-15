@@ -6,6 +6,9 @@ body.is-logged-out{
 			top: $header-size;
 		}
 	}
+	.#{$namespace}mainHeader.is-maximized ~ #container #toolMenuWrap{
+		top: $header-size;
+	}
 }
 #toolMenuWrap{
 	background: $toolMenuColor;

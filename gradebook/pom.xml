@@ -19,11 +19,6 @@
     <module>grades-rest</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/gradebook/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/gradebook/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/gradebook/trunk</url>
-  </scm>
 
   <dependencyManagement>
     <dependencies>

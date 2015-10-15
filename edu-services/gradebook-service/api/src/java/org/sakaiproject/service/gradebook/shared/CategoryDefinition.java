@@ -40,9 +40,18 @@ public class CategoryDefinition implements Serializable {
     private Integer drop_lowest;
     private Integer dropHighest;
     private Integer keepHighest;
-    private boolean extraCredit;
+    private Boolean extraCredit;
     
     private List<Assignment> assignmentList;
+    
+    public CategoryDefinition() {
+    	
+    }
+    
+    public CategoryDefinition(Long id, String name) {
+    	this.id = id;
+    	this.name = name;
+    }
     
     /**
      * 
@@ -140,11 +149,11 @@ public class CategoryDefinition implements Serializable {
 		this.keepHighest = keepHighest;
 	}
 
-	public boolean isExtraCredit() {
+	public Boolean isExtraCredit() {
 		return extraCredit;
 	}
 
-	public void setExtraCredit(boolean extraCredit) {
+	public void setExtraCredit(Boolean extraCredit) {
 		this.extraCredit = extraCredit;
 	}
 }

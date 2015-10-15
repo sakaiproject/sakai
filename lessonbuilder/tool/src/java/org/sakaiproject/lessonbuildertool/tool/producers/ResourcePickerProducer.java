@@ -38,7 +38,7 @@ import org.sakaiproject.tool.api.ToolSession;
 
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.localeutil.LocaleGetter;                                                                                          
-import uk.ac.cam.caret.sakai.rsf.helper.HelperViewParameters;
+import org.sakaiproject.rsf.helper.HelperViewParameters;
 import uk.org.ponder.rsf.components.UICommand;
 import uk.org.ponder.rsf.components.UIContainer;
 import uk.org.ponder.rsf.components.UIOutput;
@@ -123,11 +123,12 @@ public class ResourcePickerProducer implements ViewComponentProducer, ViewParams
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_TITLE_TEXT, "Please Choose a File");
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_INSTRUCTION_TEXT, messageLocator.getMessage("simplepage.filepicker_instructions"));
-		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_SINGLE);
+		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_MAX_ATTACHMENTS, FilePickerHelper.CARDINALITY_MULTIPLE);
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS, new ArrayList());
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_RESOURCE_FILTER, null);
 		toolSession.setAttribute(FilePickerHelper.FILE_PICKER_ATTACH_LINKS, ServerConfigurationService.getString("lessonbuilder.attachlinks", "true"));
 		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ITEMID, ((FilePickerViewParameters) viewparams).getPageItemId());
+		toolSession.setAttribute(SimplePageBean.LESSONBUILDER_ADDBEFORE, ((FilePickerViewParameters) viewparams).getAddBefore());
 
 		if (simplePageBean.getCurrentPage().getOwner() != null) {
 		    toolSession.setAttribute(FilePickerHelper.DEFAULT_COLLECTION_ID, "/user/" + simplePageBean.getCurrentUserId() + "/");

@@ -130,7 +130,7 @@ echo('<input type="submit" onclick="javascript:lmsdataToggle();return false;" va
   $parms["oauth_callback"] = "about:blank";
   $parms["lis_outcome_service_url"] = $outcomes;
   $parms["content_item_return_url"] = $content_url;
-  $parms["accept_media_types"] = "application/vnd.ims.lti.v1.ltilink,application/imsccml+xml";
+  $parms["accept_media_types"] = "application/vnd.ims.lti.v1.ltilink,application/vnd.ims.imsccv1p*";
   $parms["lis_result_sourcedid"] = '{"zap" : "Siân JSON 1234 Sourcedid <>&lt;"}';
     
 if ( strpos($cur_url, "localhost" ) === FALSE ) $parms['launch_presentation_css_url'] = $cssurl;

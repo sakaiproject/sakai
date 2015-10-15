@@ -33,7 +33,7 @@ import org.sakaiproject.authz.api.AuthzGroup;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityService;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.content.api.*;
 import org.sakaiproject.content.api.GroupAwareEntity.AccessMode;
@@ -90,6 +90,11 @@ import java.util.regex.Pattern;
 import org.sakaiproject.lessonbuildertool.tool.beans.helpers.ResourceHelper;
 import au.com.bytecode.opencsv.CSVParser;
 
+import org.sakaiproject.portal.util.ToolUtils;
+import org.sakaiproject.lti.api.LTIService;
+import org.sakaiproject.basiclti.util.SakaiBLTIUtil;
+import org.imsglobal.lti2.ContentItem;
+
 /**
  * Backing bean for Simple pages
  * 
@@ -133,6 +138,7 @@ public class SimplePageBean {
 	public static final String GRADES[] = { "A+", "A", "A-", "B+", "B", "B-", "C+", "C", "C-", "D+", "D", "D-", "E", "F" };
 	public static final String FILTERHTML = "lessonbuilder.filterhtml";
 	public static final String LESSONBUILDER_ITEMID = "lessonbuilder.itemid";
+	public static final String LESSONBUILDER_ADDBEFORE = "sakai.addbefore";
 	public static final String LESSONBUILDER_PATH = "lessonbuilder.path";
 	public static final String LESSONBUILDER_BACKPATH = "lessonbuilder.backpath";
 	public static final String LESSONBUILDER_ID = "sakai.lessonbuildertool";
@@ -223,7 +229,6 @@ public class SimplePageBean {
 	private boolean required;
 	private boolean subrequirement;
 	private boolean prerequisite;
-	private boolean breakbelow;
 	private boolean newWindow;
 	private String dropDown;
 	private String points;
@@ -246,7 +251,8 @@ public class SimplePageBean {
 	private Date releaseDate;
 	private boolean hasReleaseDate;
 	private boolean nodownloads;
-
+	private String addBefore;  // add new item before this item
+    
 	private String redirectSendingPage = null;
 	private String redirectViewId = null;
 	private String quiztool = null;
@@ -531,8 +537,10 @@ public class SimplePageBean {
         }
 	
 	private ToolManager toolManager;
+	private LTIService ltiService;
 	private SecurityService securityService;
 	private SiteService siteService;
+	private AuthzGroupService authzGroupService;
 	private SimplePageToolDao simplePageToolDao;
 	private LessonsAccess lessonsAccess;
         private LessonBuilderAccessService lessonBuilderAccessService;
@@ -746,6 +754,11 @@ public class SimplePageBean {
 	public void setNodownloads(boolean n) {
 		this.nodownloads = n;
 	}
+
+	public void setAddBefore(String n) {
+		this.addBefore = n;
+	}
+
         public void setImporttop(boolean i) {
 	    this.importtop = i;
 	}
@@ -790,10 +803,6 @@ public class SimplePageBean {
 		this.prerequisite = prerequisite;
 	}
 	
-	public void setBreakbelow(boolean breakbelow) {
-		this.breakbelow = breakbelow;
-	}
-
 	public void setNewWindow(boolean newWindow) {
 		this.newWindow = newWindow;
 	}
@@ -1069,10 +1078,6 @@ public class SimplePageBean {
 
 				item.setHtml(html);
 				item.setPrerequisite(this.prerequisite);
-				if (this.breakbelow)
-				    item.setAttribute("groupedWithBelow", "true");
-				else
-				    item.removeAttribute("groupedWithBelow");
 				setItemGroups(item, selectedGroups);
 				update(item);
 			} else {
@@ -1162,74 +1167,78 @@ public class SimplePageBean {
 		    return "permission-failed";
 
 		ToolSession toolSession = sessionManager.getCurrentToolSession();
-		List refs = null;
-		String id = null;
-		String name = null;
-		String mimeType = null;
-		String description = null;
+		List<Reference> refs = null;
+		String returnMesssage = null;
 
 		if (toolSession.getAttribute(FilePickerHelper.FILE_PICKER_CANCEL) == null && toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS) != null) {
 
 			refs = (List) toolSession.getAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
-			if (refs == null || refs.size() != 1) {
+			//Changed 'refs.size != 1' to refs.isEmpty() as there can be multiple Resources
+			if (refs == null || refs.isEmpty()) {
 				return "no-reference";
 			}
-			Reference ref = (Reference) refs.get(0);
-			id = ref.getId();
-			
-			description = ref.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
-			
-			name = ref.getProperties().getProperty("DAV:displayname");
-
-			// URLs are complex. There are two issues:
-			// 1) The stupid helper treats a URL as a file upload. Have to make it a URL type.
-			// I suspect we're intended to upload a file from the URL, but I don't think
-			// any part of Sakai actually does that. So we reset Sakai's file type to URL
-			// 2) Lesson builder needs to know the mime type, to know how to set up the
-			// OBJECT or IFRAME. We send that out of band in the "html" field of the 
-			// lesson builder item entry. I see no way to do that other than to talk
-			// to the server at the other end and see what MIME type it claims.
-			mimeType = ref.getProperties().getProperty("DAV:getcontenttype");
-			if (mimeType.equals("text/url")) {
-			        mimeType = null; // use default rules if we can't find it
-				String url = null;
-				// part 1, fix up the type fields
-				boolean pushed = false;
-				try {
-					pushed = pushAdvisor();
-					ContentResourceEdit res = contentHostingService.editResource(id);
-					res.setContentType("text/url");
-					res.setResourceType("org.sakaiproject.content.types.urlResource");
-					url = new String(res.getContent());
-					contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
-				} catch (Exception ignore) {
-					return "no-reference";
-				}finally {
-					if(pushed) popAdvisor();
-				}
-				// part 2, find the actual data type.
-				if (url != null)
-				    mimeType = getTypeOfUrl(url);
-			} else if (isCaption) {
-			    // sakai probably sees it as a normal text file.
-			    // some browsers require the mime type to be right
-				boolean pushed = false;
-				try {
-					pushed = pushAdvisor();
-					ContentResourceEdit res = contentHostingService.editResource(id);
-					res.setContentType("text/vtt");
-					contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
-				} catch (Exception ignore) {
-					return "no-reference";
-				}finally {
-					if(pushed) popAdvisor();
-				}
+			for(Reference reference : refs){
+				returnMesssage = processSingleResource(reference, type, isWebSite, isCaption);
 			}
 		} else {
 			return "cancel";
 		}
 
-		boolean pushed = false;
+		return returnMesssage;
+	}
+
+	//This method is written to enable user to select multiple Resources from the tool
+	private String processSingleResource(Reference reference,int type, boolean isWebSite, boolean isCaption){
+
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		String id  = reference.getId();
+		String description = reference.getProperties().getProperty(ResourceProperties.PROP_DESCRIPTION);
+		String name = reference.getProperties().getProperty("DAV:displayname");
+
+		// URLs are complex. There are two issues:
+		// 1) The stupid helper treats a URL as a file upload. Have to make it a URL type.
+		// I suspect we're intended to upload a file from the URL, but I don't think
+		// any part of Sakai actually does that. So we reset Sakai's file type to URL
+		// 2) Lesson builder needs to know the mime type, to know how to set up the
+		// OBJECT or IFRAME. We send that out of band in the "html" field of the
+		// lesson builder item entry. I see no way to do that other than to talk
+		// to the server at the other end and see what MIME type it claims.
+		String mimeType = reference.getProperties().getProperty("DAV:getcontenttype");
+		if (mimeType.equals("text/url")) {
+			mimeType = null; // use default rules if we can't find it
+			String url = null;
+			// part 1, fix up the type fields
+			boolean pushed = false;
+			try {
+				pushed = pushAdvisor();
+				ContentResourceEdit res = contentHostingService.editResource(id);
+				res.setContentType("text/url");
+				res.setResourceType("org.sakaiproject.content.types.urlResource");
+				url = new String(res.getContent());
+				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
+			} catch (Exception ignore) {
+				return "no-reference";
+			}finally {
+				if(pushed) popAdvisor();
+			}
+			// part 2, find the actual data type.
+			if (url != null)
+				mimeType = getTypeOfUrl(url);
+		} else if (isCaption) {
+			// sakai probably sees it as a normal text file.
+			// some browsers require the mime type to be right
+			boolean pushed = false;
+			try {
+				pushed = pushAdvisor();
+				ContentResourceEdit res = contentHostingService.editResource(id);
+				res.setContentType("text/vtt");
+				contentHostingService.commitResource(res, NotificationService.NOTI_NONE);
+			} catch (Exception ignore) {
+				return "no-reference";
+			}finally {
+				if(pushed) popAdvisor();
+			}
+		}boolean pushed = false;
 		try {
 		    // I don't think we want the user adding anything he doesn't have access to
 		    // accessservice depends upon that
@@ -1248,6 +1257,7 @@ public class SimplePageBean {
 		//}
 
 		Long itemId = (Long)toolSession.getAttribute(LESSONBUILDER_ITEMID);
+		addBefore = (String)toolSession.getAttribute(LESSONBUILDER_ADDBEFORE);
 
 		if (!itemOk(itemId))
 		    return "permission-failed";
@@ -1255,6 +1265,7 @@ public class SimplePageBean {
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_ATTACHMENTS);
 		toolSession.removeAttribute(FilePickerHelper.FILE_PICKER_CANCEL);
 		toolSession.removeAttribute(LESSONBUILDER_ITEMID);
+		toolSession.removeAttribute(LESSONBUILDER_ADDBEFORE);
 
 		String[] split = id.split("/");
 
@@ -1371,15 +1382,56 @@ public class SimplePageBean {
 	    // add at the end of the page
 	        List<SimplePageItem> items = getItemsOnPage(getCurrentPageId());
 		// ideally the following should be the same, but there can be odd cases. So be safe
-		int size = items.size();
-		if (size > 0) {
-		    int seq = items.get(size-1).getSequence();
-		    if (seq > size)
-			size = seq;
+		long before = 0;
+		boolean addAfter = false;
+		if (addBefore.startsWith("-")) {
+		    addAfter = true;
+		    addBefore = addBefore.substring(1);
 		}
-		size++;
+		if (addBefore != null && !addBefore.equals("")) {
+		    try {
+			before = Long.parseLong(addBefore);
+		    } catch (Exception e) {
+			// nothing. ignore bad arg
+		    }
+		}
 
-		SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), size, type, id, name);
+		// we have an item id. insert before it
+		int nseq = 0;  // sequence number of new item
+		boolean after = false; // we found the item to insert before
+		if (before > 0) {
+		    // have an item number specified, look for the item to insert before
+		    for (SimplePageItem item: items) {
+			if (item.getId() == before) {
+			    // found item to insert before
+			    // use its sequence and bump up it and all after
+			    nseq = item.getSequence();
+			    after = true;
+			    if (addAfter) {
+				nseq++;
+				continue;
+			    }
+			}
+			if (after) {
+			    item.setSequence(item.getSequence() + 1);
+			    simplePageToolDao.quickUpdate(item);
+			}
+		    }			    
+		}
+
+		// if after not set, we didn't find the item; either no item specified or it
+		// isn't on the page
+		if (!after) {
+		    nseq = items.size();
+		    if (nseq > 0) {
+			int seq = items.get(nseq-1).getSequence();
+			if (seq > nseq)
+			    nseq = seq;
+		    }
+		    nseq++;
+		}
+		    
+		SimplePageItem i = simplePageToolDao.makeItem(getCurrentPageId(), nseq, type, id, name);
 
 		// defaults to a fixed width and height, appropriate for some things, but for an
 		// image, leave it blank, since browser will then use the native size
@@ -1406,7 +1458,7 @@ public class SimplePageBean {
 	    if (group == null)
 		return owner.equals(getCurrentUserId());
 	    else
-		return AuthzGroupService.getUserRole(getCurrentUserId(), group) != null;
+		return authzGroupService.getUserRole(getCurrentUserId(), group) != null;
 
 	}
 
@@ -1420,7 +1472,7 @@ public class SimplePageBean {
 	    if (group == null)
 		return owner.equals(getCurrentUserId());
 	    else
-		return AuthzGroupService.getUserRole(getCurrentUserId(), group) != null;
+		return authzGroupService.getUserRole(getCurrentUserId(), group) != null;
 
 	}
 
@@ -1477,6 +1529,10 @@ public class SimplePageBean {
 	    return securityService.unlock(SimplePage.PERMISSION_LESSONBUILDER_SEE_ALL, ref);
 	}
 
+	public void setLtiService(LTIService service) {
+		ltiService = service;
+	}
+
 	public void setToolManager(ToolManager toolManager) {
 		this.toolManager = toolManager;
 	}
@@ -1487,6 +1543,10 @@ public class SimplePageBean {
 
 	public void setSiteService(SiteService service) {
 		siteService = service;
+	}
+
+	public void setAuthzGroupService(AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	public void setSimplePageToolDao(Object dao) {
@@ -2614,10 +2674,6 @@ public class SimplePageBean {
 			i.setName(name);
 			i.setDescription(description);
 			i.setRequired(required);
-			if (this.breakbelow)
-			    i.setAttribute("groupedWithBelow", "true");
-			else
-			    i.removeAttribute("groupedWithBelow");
 
 			i.setPrerequisite(prerequisite);
 			i.setSubrequirement(subrequirement);
@@ -2882,10 +2938,6 @@ public class SimplePageBean {
 					i.setSakaiId(selectedEntity);
 					i.setName(selectedObject.getTitle());
 				    }
-				    if (this.breakbelow)
-					i.setAttribute("groupedWithBelow", "true");
-				    else
-					i.removeAttribute("groupedWithBelow");
 
 				    // reset assignment-specific stuff
 				    i.setDescription("");
@@ -2962,10 +3014,7 @@ public class SimplePageBean {
 				    //	 i.setDescription("(" + messageLocator.getMessage("simplepage.due") + " " + df.format(selectedObject.getDueDate()) + ")");
 				    //  else
 				    // i.setDescription(null);
-				    if (this.breakbelow)
-					i.setAttribute("groupedWithBelow", "true");
-				    else
-					i.removeAttribute("groupedWithBelow");
+
 				    update(i);
 				}
 			    } else {
@@ -3177,6 +3226,7 @@ public class SimplePageBean {
 		         && i.getType() != SimplePageItem.BLTI
 		         && i.getType() != SimplePageItem.COMMENTS
 		         && i.getType() != SimplePageItem.QUESTION
+			 && i.getType() != SimplePageItem.BREAK
 		         && i.getType() != SimplePageItem.STUDENT_CONTENT) {
 	       Object cached = groupCache.get(i.getSakaiId());
 	       if (cached != null) {
@@ -3398,6 +3448,8 @@ public class SimplePageBean {
 	   case SimplePageItem.QUESTION:
 	   case SimplePageItem.STUDENT_CONTENT:
 	       return setLBItemGroups(i, groups);
+	   case SimplePageItem.BREAK:
+	       return null;  // better not actually happen
 	   }
 	   if (lessonEntity != null) {
 	       // need a list to sort it.
@@ -3617,10 +3669,7 @@ public class SimplePageBean {
 				    }
 				    // reset quiz-specific stuff
 				    i.setDescription("");
-				    if (this.breakbelow)
-					i.setAttribute("groupedWithBelow", "true");
-				    else
-					i.removeAttribute("groupedWithBelow");
+
 				    update(i);
 				}
 			    } else  // no, add new item
@@ -3727,10 +3776,6 @@ public class SimplePageBean {
 			i.setDescription(description);
 			i.setHtml(mimetype);
 			i.setPrerequisite(this.prerequisite);
-			if (this.breakbelow)
-			    i.setAttribute("groupedWithBelow", "true");
-			else
-			    i.removeAttribute("groupedWithBelow");
 			update(i);
 			setItemGroups(i, selectedGroups);
 			return "success";
@@ -3907,7 +3952,10 @@ public class SimplePageBean {
 	
 	private boolean uploadSizeOk(MultipartFile file) {
 	    long uploadedFileSize = file.getSize();
+	    return uploadSizeOk(uploadedFileSize);
+	}
 
+	private boolean uploadSizeOk(long uploadedFileSize) {
 	    if (uploadedFileSize == 0) {
 		setErrMessage(messageLocator.getMessage("simplepage.filezero"));
 		return false;
@@ -4497,7 +4545,9 @@ public class SimplePageBean {
 		}
 
 		// item is page, and it is hidden or not released
-		if (item.getType() == SimplePageItem.PAGE) {
+		if (item.getType() == SimplePageItem.BREAK)
+		    return true;  // breaks are always visible to all users
+		else if (item.getType() == SimplePageItem.PAGE) {
 		    SimplePage itemPage = getPage(Long.valueOf(item.getSakaiId()));
 		    if (itemPage.isHidden())
 			return false;
@@ -4534,7 +4584,7 @@ public class SimplePageBean {
 			    usersite = null;
 		    }
 
-		    if (owner != null && usersite != null && AuthzGroupService.getUserRole(usersite, group) != null) {
+		    if (owner != null && usersite != null && authzGroupService.getUserRole(usersite, group) != null) {
 			return true;
 		    } else if (owner != null && group == null && id.startsWith("/user/" + owner)) {
 			return true;
@@ -5152,9 +5202,11 @@ public class SimplePageBean {
 	public String getYoutubeKey(SimplePageItem i) {
 		String sakaiId = i.getSakaiId();
 
+		// this is called only from contexts where we know it's OK to get the data.
+		// indeed if I were doing it over I'd put it in the item, not resources
 		SecurityAdvisor advisor = null;
 		try {
-			if(getCurrentPage().getOwner() != null) {
+			// if(getCurrentPage().getOwner() != null) {
 				// Need to allow access into owner's home directory
 				advisor = new SecurityAdvisor() {
 					public SecurityAdvice isAllowed(String userId, String function, String reference) {
@@ -5166,7 +5218,7 @@ public class SimplePageBean {
 					}
 				};
 				securityService.pushAdvisor(advisor);
-			}
+			// }
 			// find the resource
 			ContentResource resource = null;
 			try {
@@ -5296,7 +5348,7 @@ public class SimplePageBean {
 
 		if (!success && canRecurse) {
 			try {
-			    AuthzGroupService.getAuthzGroup(groupId);
+			    authzGroupService.getAuthzGroup(groupId);
 			    // group exists, it was something else. Who knows what
 			    return;
 			} catch (org.sakaiproject.authz.api.GroupNotDefinedException ee) {
@@ -5358,6 +5410,7 @@ public class SimplePageBean {
 		name = org.apache.commons.lang.StringUtils.abbreviateMiddle(name, "_", maxname);
 	    return name;
 	}
+
 
 
 
@@ -5598,20 +5651,29 @@ public class SimplePageBean {
 			if (!checkCsrf())
 			    return;
 
+			if (multipartMap.size() > 0) {
+				// 	user specified a file, create it
+				for(MultipartFile file : multipartMap.values()){
+					if (file.isEmpty())
+						file = null;
+					addMultimediaFile(file);
+				}
+			}
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		} finally {
+			if(advisor != null) securityService.popAdvisor();
+		}
+		
+	}
+
+	public void addMultimediaFile(MultipartFile file){
+		try{
 			
 			String name = null;
 			String sakaiId = null;
 			String mimeType = null;
-			MultipartFile file = null;
-			
-			if (multipartMap.size() > 0) {
-				// 	user specified a file, create it
-				file = multipartMap.values().iterator().next();
-				// zero length is valid. We get that if it's not a file upload
-				if (file.isEmpty())
-				    file = null;
 
-			}
 			
 			if (file != null) {
 				if (!uploadSizeOk(file))
@@ -5762,15 +5824,12 @@ public class SimplePageBean {
 			
 			SimplePageItem item = null;
 			if (itemId == -1 && isMultimedia) {
-				int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
-				item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.MULTIMEDIA, sakaiId, name);
+			    item = appendItem(sakaiId, name, SimplePageItem.MULTIMEDIA);
 			} else if(itemId == -1 && isWebsite) {
 			    String websiteName = name.substring(0,name.indexOf("."));
-			    int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
-			    item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, websiteName);
+			    item = appendItem(sakaiId, websiteName, SimplePageItem.RESOURCE);
 			} else if (itemId == -1) {
-				int seq = getItemsOnPage(getCurrentPageId()).size() + 1;
-				item = simplePageToolDao.makeItem(getCurrentPageId(), seq, SimplePageItem.RESOURCE, sakaiId, name);
+			    item = appendItem(sakaiId, name, SimplePageItem.RESOURCE);
 			} else if (isCaption) {
 				item = findItem(itemId);
 				if (item == null)
@@ -5800,10 +5859,6 @@ public class SimplePageBean {
 			// remember who added it, for permission checks
 			item.setAttribute("addedby", getCurrentUserId());
 
-			if (this.breakbelow)
-			    item.setAttribute("groupedWithBelow", "true");
-			else
-			    item.removeAttribute("groupedWithBelow");
 			item.setPrerequisite(this.prerequisite);
 
 			if (mimeType != null) {
@@ -5830,9 +5885,9 @@ public class SimplePageBean {
 			
 			clearImageSize(item);
 			try {
-				if (itemId == -1)
-					saveItem(item);
-				else
+			    //		if (itemId == -1)
+			    //		saveItem(item);
+			    //		  else
 					update(item);
 			} catch (Exception e) {
 			    System.out.println("save error " + e);
@@ -5840,11 +5895,8 @@ public class SimplePageBean {
 			}
 		}catch(Exception ex) {
 			ex.printStackTrace();
-		} finally {
-		    if(advisor != null) securityService.popAdvisor();
 		}
 	}
-
 	public boolean deleteRecursive(File path) throws FileNotFoundException{
 		if (!path.exists()) throw new FileNotFoundException(path.getAbsolutePath());
 		boolean ret = true;
@@ -5856,45 +5908,134 @@ public class SimplePageBean {
 		return ret && path.delete();
 	}
 
+	public List<Map<String, Object>> getToolsFileItem() {
+		return ltiService.getToolsFileItem();
+	}
+
+	public void handleFileItem() {
+		ToolSession toolSession = sessionManager.getCurrentToolSession();
+		if (toolSession != null) toolSession.setAttribute("lessonbuilder.fileImportDone", "true");
+                String returnedData = ToolUtils.getRequestParameter("data");
+                String contentItems = ToolUtils.getRequestParameter("content_items");
+
+                // Retrieve the tool associated with the content item
+                String toolId = ToolUtils.getRequestParameter("toolId");
+                Long toolKey = SakaiBLTIUtil.getLongNull(toolId);
+                if ( toolKey == 0 || toolKey < 0 ) {
+			setErrKey("simplepage.lti-import-error-id", toolId);
+                        return;
+                }
+
+                Map<String, Object> tool = ltiService.getTool(toolKey);
+                if ( tool == null ) {
+			setErrKey("simplepage.lti-import-error-id", toolId);
+                        return;
+                }
+
+                // Parse, validate and check OAuth signature for the incoming ContentItem
+                ContentItem contentItem = null;
+                try {
+                        contentItem = SakaiBLTIUtil.getContentItemFromRequest(tool);
+                } catch(Exception e) {
+			setErrKey("simplepage.lti-import-bad-content-item", e.getMessage());
+			e.printStackTrace();
+                        return;
+                }
+		// System.out.println("contentItem="+contentItem);
+
+		// Extract the content item data
+		Map item = (Map) contentItem.getItemOfType(ContentItem.TYPE_FILEITEM);
+		if ( item == null ) {
+			setErrKey("simplepage.lti-import-missing-file-item", null);
+			return;
+		}
+
+		String localUrl = (String) item.get("url");
+		// System.out.println("localUrl="+localUrl);
+
+		InputStream fis = null;
+		if ( localUrl != null && localUrl.length() > 1 ) {
+			try {
+				URL parsedUrl = new URL(localUrl);
+				URLConnection yc = parsedUrl.openConnection();
+				fis = yc.getInputStream();
+			} catch ( Exception e ) {
+				setErrKey("simplepage.lti-import-error-reading-url", localUrl);
+				e.printStackTrace();
+				return;
+			}
+
+			// System.out.println("Importing...");
+			long length = importCcFromStream(fis);
+			if ( length > 0 && toolSession != null) {
+				String successMessage = messageLocator.getMessage("simplepage.lti-import-success-length").replace("{}", length+"");
+				toolSession.setAttribute("lessonbuilder.fileImportDone", successMessage);
+			}
+			return;
+		} else {
+			setErrKey("simplepage.lti-import-missing-url", null);
+		}
+	}
+
+	// Import a Common Cartridge
 	public void importCc() {
 	    if (!canEditPage())
 		return;
 	    if (!checkCsrf())
 		return;
 
+	    // Import an uploaded file
 	    MultipartFile file = null;
-
 	    if (multipartMap.size() > 0) {
 		// user specified a file, create it
 		file = multipartMap.values().iterator().next();
 	    }
 
+	    InputStream fis = null;
 	    if (file != null) {
 		if (!uploadSizeOk(file))
 		    return;
 
+		try {
+		    fis = file.getInputStream();
+		} catch(IOException e) {
+		    setErrKey("simplepage.cc-error", "");
+		    e.printStackTrace();
+		    return;
+		}
+		long length = importCcFromStream(fis);
+		setTopRefresh();
+	    }
+	}
+
+	// Import a Common Cartridge form an InputStream
+	private long importCcFromStream(InputStream fis) {
+
 		File cc = null;
 		File root = null;
+	        long length = 0;
 		try {
 		    cc = File.createTempFile("ccloader", "file");
 		    root = File.createTempFile("ccloader", "root");
 		    if (root.exists()) {
 			if (!root.delete()) {
 			    setErrMessage("unable to delete temp file for load");
-			    return;
+			    return -1;
 			}
 		    }
 		    if (!root.mkdir()) {
 			setErrMessage("unable to create temp directory for load");
-			return;
+			return -1;
 		    }
-		    BufferedInputStream bis = new BufferedInputStream(file.getInputStream());
+		    BufferedInputStream bis = new BufferedInputStream(fis);
 		    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(cc));
 		    byte[] buffer = new byte[8096];
 		    int n = 0;
 		    while ((n = bis.read(buffer, 0, 8096)) >= 0) {
-			if (n > 0)
+			if (n > 0) {
 			    bos.write(buffer, 0, n);
+			    length += n;
+			}
 		    }
 		    bis.close();
 		    bos.close();
@@ -5922,11 +6063,11 @@ public class SimplePageBean {
 		    }
 
 		    parser.parse(new PrintHandler(this, cartridgeLoader, simplePageToolDao, quizobject, topicobject, bltiEntity, assignobject, importtop));
-		    setTopRefresh();
 		} catch (Exception e) {
 		    setErrKey("simplepage.cc-error", "");
 		  
 		    e.printStackTrace();
+		    length = -1;
 		} finally {
 		    if (cc != null)
 			try {
@@ -5940,10 +6081,10 @@ public class SimplePageBean {
 			    
 			}
 		}
-	    }
+		return length;
 	}
 
-    // called by edit dialog to update parameters of a Youtube item
+	// called by edit dialog to update parameters of a Youtube item
 	public void updateYoutube() {
 		if (!itemOk(youtubeId))
 		    return;
@@ -6004,10 +6145,6 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
-		if (this.breakbelow)
-		    item.setAttribute("groupedWithBelow", "true");
-		else
-		    item.removeAttribute("groupedWithBelow");
 		item.setPrerequisite(this.prerequisite);
 
 		update(item);
@@ -6086,10 +6223,6 @@ public class SimplePageBean {
 		item.setHeight(height);
 		item.setWidth(width);
 		item.setDescription(description);
-		if (this.breakbelow)
-		    item.setAttribute("groupedWithBelow", "true");
-		else
-		    item.removeAttribute("groupedWithBelow");
 		item.setPrerequisite(prerequisite);
 		item.setHtml(mimetype);
 		update(item);
@@ -6098,7 +6231,8 @@ public class SimplePageBean {
 
 	}
 	
-	public void addCommentsSection() {
+	public void addCommentsSection(String ab) {
+		addBefore = ab; // used by appendItem
 		if(canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.comments-section"), SimplePageItem.COMMENTS);
 			item.setDescription(messageLocator.getMessage("simplepage.comments-section"));
@@ -6206,10 +6340,6 @@ public class SimplePageBean {
 			comment.setAnonymous(anonymous);
 			setItemGroups(comment, selectedGroups);
 			comment.setRequired(required);
-			if (this.breakbelow)
-			    comment.setAttribute("groupedWithBelow", "true");
-			else
-			    comment.removeAttribute("groupedWithBelow");
 			comment.setPrerequisite(prerequisite);
 			
 			if(maxPoints == null || maxPoints.equals("")) {
@@ -6310,7 +6440,8 @@ public class SimplePageBean {
 		return "failure";
 	}
 	
-	public void addStudentContentSection() {
+	public void addStudentContentSection(String ab) {
+		addBefore = ab; // used by appebdItem
 		if(getCurrentPage().getOwner() == null && canEditPage()) {
 			SimplePageItem item = appendItem("", messageLocator.getMessage("simplepage.student-content"), SimplePageItem.STUDENT_CONTENT);
 			item.setDescription(messageLocator.getMessage("simplepage.student-content"));
@@ -6644,10 +6775,6 @@ public class SimplePageBean {
 		    item.setGradebookPoints(pointsInt);
 		else
 		    item.setGradebookPoints(null);
-		if (this.breakbelow)
-		    item.setAttribute("groupedWithBelow", "true");
-		else
-		    item.removeAttribute("groupedWithBelow");
 		item.setPrerequisite(prerequisite);
 		
 		update(item);
@@ -6810,10 +6937,6 @@ public class SimplePageBean {
 			page.setShowComments(comments);
 			page.setForcedCommentsAnonymous(forcedAnon);
 			page.setRequired(required);
-			if (this.breakbelow)
-			    page.setAttribute("groupedWithBelow", "true");
-			else
-			    page.removeAttribute("groupedWithBelow");
 			page.setPrerequisite(prerequisite);
 			page.setGroupOwned(groupOwned);
 			
@@ -6974,7 +7097,7 @@ public class SimplePageBean {
 				if (group != null)
 				    group = "/site/" + getCurrentSiteId() + "/group/" + group;
 				try {
-				    AuthzGroup g = AuthzGroupService.getAuthzGroup(group);
+				    AuthzGroup g = authzGroupService.getAuthzGroup(group);
 				    Set<Member> members = g.getMembers();
 				    for (Member m: members) {
 					gradebookIfc.updateExternalAssessmentScore(getCurrentSiteId(), pageItem.getGradebookId(),

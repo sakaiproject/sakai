@@ -1,19 +1,19 @@
 ﻿/*
-Copyright (c) 2003-2014, CKSource - Frederico Knabben. All rights reserved.
+Copyright (c) 2003-2015, CKSource - Frederico Knabben. All rights reserved.
 For licensing, see LICENSE.md or http://ckeditor.com/license
 */
 CKEDITOR.plugins.setLang( 'image2', 'ku', {
 	alt: 'جێگرەوەی دەق',
 	btnUpload: 'ناردنی بۆ ڕاژه',
-	captioned: 'Captioned image', // MISSING
-	captionPlaceholder: 'Caption', // MISSING
+	captioned: 'وێنەی بەسەردێر',
+	captionPlaceholder: 'سەردێر',
 	infoTab: 'زانیاری وێنه',
 	lockRatio: 'داخستنی ڕێژه',
 	menu: 'خاسیەتی وێنه',
-	pathName: 'image', // MISSING
-	pathNameCaption: 'caption', // MISSING
+	pathName: 'وێنە',
+	pathNameCaption: 'سەردێر',
 	resetSize: 'ڕێکخستنەوەی قەباره',
-	resizer: 'Click and drag to resize', // MISSING
+	resizer: 'کرتەبکە و ڕایبکێشە بۆ قەبارە گۆڕین',
 	title: 'خاسیەتی وێنه',
 	uploadTab: 'بارکردن',
 	urlMissing: 'سەرچاوەی بەستەری وێنه بزره'

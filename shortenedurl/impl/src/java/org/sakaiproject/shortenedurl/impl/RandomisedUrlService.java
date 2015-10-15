@@ -21,10 +21,10 @@
 
 package org.sakaiproject.shortenedurl.impl;
 
-import java.net.MalformedURLException;
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 
 import org.apache.commons.lang.RandomStringUtils;
@@ -115,7 +115,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		
 		//check values
 		if(StringUtils.isBlank(url)){
-			log.error("URL was empty, aborting...");
+			log.warn("URL was empty, aborting...");
 			return null;
 		}
 		
@@ -124,7 +124,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		String key = getExistingKey(url);
 		if(key != null) {
 			//log
-			log.info("Returning existing key: " + key);
+			log.debug("Returning existing key: " + key);
 			
 			//post event
 			postEvent(ShortenedUrlService.EVENT_CREATE_EXISTS, PREFIX+key, false);
@@ -148,10 +148,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 			attempts++;
 		}
 		
-		//new key created so post event
-		if(log.isDebugEnabled()) {
-			log.debug("Created:" + newKey + " for URL: " + url);
-		}
+		log.debug("Created:" + newKey + " for URL: " + url);
 		postEvent(ShortenedUrlService.EVENT_CREATE_OK, PREFIX + newKey, true);
 		
 		//save 
@@ -165,18 +162,22 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	
 	
 	/**
-	 * Gets the original URL for the given shortened URL.
+	 * Gets the encoded URL for the given shortened URL.
 	 * This is used by the RandomisedUrlService servlet to translate short URLs back into their original URLs. 
 	 * 
 	 * @param key - the key value, eg 6whjq
-	 * @return the original URL mapped to this record or null if errors
+	 * @return the original encoded URL mapped to this record or null if errors
 	 */
 	public String resolve(final String key) {
 		
+		if (StringUtils.isBlank(key)) {
+			return null;
+		}
+
 		//first check cache
-		if(cache.containsKey(key)){
-			log.debug("Fetching url from cache for key: " + key);
-			return (String)cache.get(key);
+		String value = (String) cache.get(key);
+		if (value != null) {
+			return encodeUrl(value);
 		}
 		
 		//then check db
@@ -204,23 +205,21 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 		}
 		
 		//log
-		log.info("Request for valid record: " + key);
+		log.debug("Request for valid record: " + key);
 		
 		//post success event
 		postEvent(ShortenedUrlService.EVENT_GET_URL_OK, PREFIX+key, false);
 		
 		//add to cache
 		String url = randomisedUrl.getUrl();
-		
-		//SHORTURL-39 encode it, reutn null if failure
+		addToCache(key, url);
+
 		String encodedUrl = encodeUrl(url);
 		if(StringUtils.isBlank(encodedUrl)) {
 			return null;
 		}
 		
-		log.debug("Encoded URL: " + encodedUrl);
-		
-		addToCache(key, encodedUrl);
+		log.debug("URL: " + encodedUrl);
 		
 		return encodedUrl;
 	}
@@ -235,11 +234,15 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 	 * @return
 	 */
 	private String getExistingKey(final String url) {
+
+		if (StringUtils.isBlank(url)) {
+			return null;
+		}
 		
 		//first check cache
-		if(cache.containsKey(url)){
-			log.debug("Fetching key from cache for URL: " + url);
-			return (String)cache.get(url);
+		String value = (String) cache.get(url);
+		if (value != null) {
+			return value;
 		}
 		
 		//then check db
@@ -361,7 +364,7 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
 			//add to db
 			RandomisedUrl randomisedUrl = new RandomisedUrl(key, url);
 			getHibernateTemplate().save(randomisedUrl);
-			log.info("RandomisedUrl saved as: " + key);
+			log.debug("RandomisedUrl saved as: " + key);
 			
 			//and put it in the cache, both ways
 			addToCache(key, url);
@@ -403,22 +406,24 @@ public class RandomisedUrlService extends HibernateDaoSupport implements Shorten
   		log.debug("Added entry to cache, key: " + k +", value: " + v);
 		cache.put(k, v);
   	}
-  	
+
   	/**
   	 * Encodes a full URL.
   	 * 
   	 * @param rawUrl the URL to encode.
   	 */
   	private String encodeUrl(String rawUrl) {
-  		
+  		if (StringUtils.isBlank(rawUrl)) {
+  			return null;
+  		}
   		String encodedUrl = null;
   		
   		try {
 	  		URL url = new URL(rawUrl);
 	  		URI uri = new URI(url.getProtocol(), url.getUserInfo(), url.getHost(), url.getPort(), url.getPath(), url.getQuery(), url.getRef());
-	  		encodedUrl = uri.toURL().toString();
+	  		encodedUrl = uri.toASCIIString();
   		} catch (Exception e) {
-	  		log.debug("Error encoding url: " + rawUrl +". " + e.getClass() + ": " + e.getMessage());
+  			log.warn("encoding url: " + rawUrl + ", " + e.getMessage(), e);
 		}
   		
   		return encodedUrl;

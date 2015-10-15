@@ -87,6 +87,7 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
       // get assessment from deliveryBean if id matches. otherwise, this is the 1st time
       // that DeliveryActionListener is called, so pull it from DB
       PublishedAssessmentFacade publishedAssessment = getPublishedAssessment(delivery, id);
+      PublishedAssessmentService pubService = new PublishedAssessmentService();
       // set show student score
       setShowStudentScore(delivery, publishedAssessment);
       setShowStudentQuestionScore(delivery, publishedAssessment);
@@ -122,13 +123,14 @@ public class LinearAccessDeliveryActionListener extends DeliveryActionListener
               }    	  
           }
       }
-      
+
+      super.populateSubmissionsRemaining(pubService, publishedAssessment, delivery);
+
       // itemGradingHash will end up with 
       // (Long publishedItemId, ArrayList itemGradingDatas) and
       // (String "sequence"+itemId, Integer sequence) and
       // (String "items", Long itemscount)
       GradingService service = new GradingService();
-      PublishedAssessmentService pubService = new PublishedAssessmentService();
       AssessmentGradingData ag = null;
       
       // this returns a HashMap with (publishedItemId, itemGrading)

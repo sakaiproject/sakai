@@ -305,9 +305,16 @@ public class ToolUtils
 	}
 
 	/**
+	 * Get the base URL for tools with no "border" - (i.e. within an iframe)
+	 */
+
+	public static String getToolBorderlessBaseUrl()
+	{
+		return ServerConfigurationService.getToolUrl();
+	}
+
+	/**
 	 * Get the base URL for tools not including the ToolId (only works in tools)
-	 *
-	 * @return Returns true for JSR_168 portlets
 	 */
 
 	public static String getToolBaseUrl()

@@ -11,6 +11,11 @@ body.is-logged-out{
 	.Mrphs-mainHeader .Mrphs-headerLogo .Mrphs-headerLogo--institution{
 		margin: 0.6em 1.5em 0 1em;
 	}
+	.#{$namespace}topHeader{
+		@media #{$phone}{
+			min-height:4.2em;
+		}
+	}
 }
 
 .#{$namespace}mainHeader{
@@ -71,11 +76,6 @@ body.is-logged-out{
 			@include background-image(linear-gradient(left, $background-color-secondary 78%, darken($background-color-secondary, 5%) 100%));
 			@media #{$phone}{
 				background: $background-color-secondary;
-			}
-		}
-		@media #{$phone}{
-			.#{$namespace}login-Message{
-				display: none;
 			}
 		}
 	}
@@ -161,6 +161,7 @@ body.is-logged-out{
 		text-align: left;
 		border-left: 1px solid darken( $primary-color, 5% );
 		padding: 0 0.5em;
+		margin-bottom:0px;
 	}
 
 
@@ -171,6 +172,9 @@ body.is-logged-out{
 
 	#loginForm{
 		margin: 0 0.8em 0 0;
+		@media #{$phone}{
+			margin: 0 0.3em 0 0;
+		}
 		input[type="text"],input[type="password"],input[type="email"]{
 			padding: 0.35em 0.3em;
 		}
@@ -188,11 +192,18 @@ body.is-logged-out{
 									darken( $primary-color, 15% ) );
 			}
 		}
+		div{
+			display:inline-block;
+			@media #{$phone}{
+				max-width:260px;
+			}
+		}
 	}
 
 	#loginUser{
 		display: block;
 		padding: 0.9em 1.5em 0.9em 0.9em;
+		margin: 0 0.8em 0 0;
 		&.has-avatar{
 			padding: 0em 1.5em 0.8em 0px;
 			position: relative;
@@ -234,11 +245,14 @@ body.is-logged-out{
 		@extend .sitesNav__drop;
 		float: right;
 		position: relative;
-		margin-top: -1.5em;
+		margin-top: -2.5em;
+		padding: 18px 22px 27px 14px;
+		display: block;
+		left: 12px;
 		&.is-clicked{
 			@include transform( rotate(180deg) );
 			position: relative;
-			top: 3px;
+			top: 0px;
 		}
 	}
 
@@ -249,8 +263,11 @@ body.is-logged-out{
 			background-color: $primary-color;
 			text-align: left;
 			padding: 0.5em;
-			margin: -0.5em 0 0 0;
+			margin: -0.5em 0 0 2.6em;
 			@extend .userNav__subnav;
+			@media #{$phone}{
+				margin: -0.5em 0 0 -9em;
+			}
 		}
 	}
 	
@@ -265,6 +282,9 @@ body.is-logged-out{
 			font-style: normal;
 		}
 	}
+}
+.#{$namespace}sitesNav__menu{
+	margin-bottom:0px;
 }
 .#{$namespace}sitesNav__menuitem--myworkspace{
 	@media #{$phone}{
@@ -332,7 +352,7 @@ body.is-logged-out{
 		margin: 0 0 0 0;
 		li.#{$namespace}sitesNav__menuitem{
 			display: inline-block;
-			margin: 0 0 0 -4px; //Fix for inline-block space items;
+			margin: 1px 0 0 -4px; //Fix for inline-block space items;
 			a{
 				border-right: 1px solid darken( $background-color-secondary, 10% );
 				color: $text-color;
@@ -414,7 +434,7 @@ body.is-logged-out{
 	&.scrolled-sites{
 		@media #{$desktop}{
 			ul{
-				width: calc(100% - 6.8em);
+				width: calc(100% - 4.1em);
 			}
 			#show-all-sites{
 				background: darken( $background-color-secondary, 5% );
@@ -426,8 +446,8 @@ body.is-logged-out{
 				color: $primary-color;
 				/*top: 1.5em;*/
 				right: 0em;
-				width:5.2em;
-				height: 2.1em;
+				width:6.5em;
+				height: 2.8em;
 				border-left: 1px solid darken( $background-color-secondary, 10% );
 				padding: 0.7em 0.5em 0 0.4em;
 				outline: 0;
@@ -482,7 +502,7 @@ body.is-logged-out{
 	font-size: 1.5em;
 	top: 0em;
 	right: 0em;
-	width:1.5em;
+	width:2.5em;
 	border-left: 1px solid darken( $background-color-secondary, 10% );
 	padding: 0 9px;
 	outline: 0;

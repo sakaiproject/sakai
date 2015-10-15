@@ -18,10 +18,5 @@
     <module>memory-tool/tool</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/memory/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/memory/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/memory/trunk</url>
-  </scm>
 
 </project>

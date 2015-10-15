@@ -1,9 +1,11 @@
 @import "defaults";
 
+@import "base/bootstrap-defaults";
 @import "base/extendables";
 @import "base/defaults";
 @import "base/responsive";
 @import "base/icons";
+
 
 @import "modules/main";
 @import "modules/navigation/base";
@@ -16,6 +18,7 @@
 @import "modules/tool/calendar/calendar";
 @import "modules/tool/chat/chat";
 @import "modules/tool/lessons/lessons";
+@import "modules/tool/sitemanage/sitemanage";
 
 @import "base/rtl";
 

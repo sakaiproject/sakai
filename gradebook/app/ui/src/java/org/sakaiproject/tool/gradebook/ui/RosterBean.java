@@ -259,7 +259,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				for (Category category : categories) {
 					catIds.add(category.getId());
 				}
-				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds, getGradebook().getCategory_type());
+				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds);
 				List<Category> tmpCatList = new ArrayList<Category>();
 				for (Category category : categories) {
 					if(viewableCats.contains(category.getId())){
@@ -937,7 +937,7 @@ public class RosterBean extends EnrollmentTableBean implements Serializable, Pag
 				for (Category category : (List<Category>) categoriesFilter) {
 					catIds.add(category.getId());
 				}
-				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds, getGradebook().getCategory_type());
+				List<Long> viewableCats = getGradebookPermissionService().getCategoriesForUser(getGradebookId(), getUserUid(), catIds);
 				List<Category> tmpCatList = new ArrayList<Category>();
 				for (Category category : (List<Category>) categoriesFilter) {
 					if(viewableCats.contains(category.getId())){

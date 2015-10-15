@@ -3,10 +3,8 @@
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
 #set( $H = '-' )
-
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
-<script type="text/javascript" src="/library/js/jquery/ui/1.10.3/jquery-ui.1.10.3.full.min.js"></script>
-<link href="/library/js/jquery/ui/1.10.3/css/ui-lightness/jquery-ui-1.10.3.custom.min.css" rel="stylesheet" type="text/css" />
+<!-- jQuery already loaded in assignment_chef_header -->
+<link href="/library/js/jquery/ui/1.11.3/themes/ui-lightness/jquery-ui.min.css" rel="stylesheet" type="text/css" />
 <link href="/sakai-assignment-tool/css/assignment.css" type="text/css" rel="stylesheet" />
 
 <script type="text/javascript">

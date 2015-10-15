@@ -503,6 +503,15 @@ public class PagePickerProducer implements ViewComponentProducer, NavigationCase
                         if(SimplePageItem.TEXT == pageItem.getType()) {
                             UIOutput.make(itemListItem, "name",  messageLocator.getMessage("simplepage.chooser.textitemplaceholder"))
                                 .decorate(new UIFreeAttributeDecorator("class", "text-item-placeholder"));
+			} else if(SimplePageItem.BREAK == pageItem.getType()) {
+			    String text = null;
+			    if ("section".equals(pageItem.getFormat()))
+				text = messageLocator.getMessage("simplepage.break-here");
+			    else 
+				text = messageLocator.getMessage("simplepage.break-column-here");
+                            UIOutput.make(itemListItem, "name", text)
+                                .decorate(new UIFreeAttributeDecorator("class", "text-item-placeholder"));
+
                         } else {
                             UIOutput.make(itemListItem, "name", pageItem.getName());
                         }

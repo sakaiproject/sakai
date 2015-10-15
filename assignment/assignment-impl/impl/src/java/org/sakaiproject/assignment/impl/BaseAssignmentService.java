@@ -25,6 +25,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.poi.hssf.usermodel.*;
@@ -34,7 +35,6 @@ import org.sakaiproject.announcement.api.AnnouncementService;
 import org.sakaiproject.assignment.api.*;
 import org.sakaiproject.assignment.taggable.api.AssignmentActivityProducer;
 import org.sakaiproject.authz.api.*;
-import org.sakaiproject.authz.cover.AuthzGroupService;
 import org.sakaiproject.authz.cover.FunctionManager;
 import org.sakaiproject.calendar.api.Calendar;
 import org.sakaiproject.calendar.api.CalendarEvent;
@@ -104,6 +104,7 @@ import java.util.zip.ZipOutputStream;
 
 //Export to excel
 import java.text.DecimalFormat;
+import org.sakaiproject.entitybroker.DeveloperHelperService;
 
 /**
  * <p>
@@ -168,6 +169,16 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private SecurityService securityService = null;
 	public void setSecurityService(SecurityService securityService){
 		this.securityService = securityService;
+	}
+
+	private DeveloperHelperService developerHelperService = null;
+	public void setDeveloperHelperService( DeveloperHelperService developerHelperService ) {
+		this.developerHelperService = developerHelperService;
+	}
+
+	private AuthzGroupService authzGroupService;
+	public void setAuthzGroupService (AuthzGroupService authzGroupService) {
+		this.authzGroupService = authzGroupService;
 	}
 
 	String newline = "<br />\n";
@@ -1524,7 +1535,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(assignment.getReference());
+				authzGroupService.removeAuthzGroup(assignment.getReference());
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -1632,7 +1643,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// 8. remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(assignment.getReference());
+				authzGroupService.removeAuthzGroup(assignment.getReference());
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -1703,12 +1714,12 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		    }
 		    catch (PermissionException e)
 		    {
-		        M_log.warn("getCalendar: The current user does not have permission to access " +
+		        M_log.error("getCalendar: The current user does not have permission to access " +
 		                "the calendar for context: " + contextId, e);
 		    }
 		    catch (Exception ex)
 		    {
-		        M_log.warn("getCalendar: Unknown exception occurred retrieving calendar for site: " + contextId, ex);
+		        M_log.error("getCalendar: Unknown exception occurred retrieving calendar for site: " + contextId, ex);
 		        calendar = null;
 		    }
 		}
@@ -2517,11 +2528,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		}
 		catch (IdUnusedException e)
 		{
-			M_log.warn(" commitEdit(), submissionId=" + submissionRef, e);
+			M_log.error(" commitEdit(), submissionId=" + submissionRef, e);
 		}
 		catch (PermissionException e)
 		{
-			M_log.warn(" commitEdit(), submissionId=" + submissionRef, e);
+			M_log.error(" commitEdit(), submissionId=" + submissionRef, e);
 		}
 
 	} // commitEdit(Submission)
@@ -2771,8 +2782,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	private String htmlContent(AssignmentSubmission s) 
 	{	
 		Assignment a = s.getAssignment();
-		
 		String context = s.getContext();
+		boolean isAnon = assignmentUsesAnonymousGrading( a );
 		
 		String siteTitle = "";
 		String siteUrl = "";
@@ -2806,11 +2817,11 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				submitterNames = submitterNames.concat("; ");
 				submitterIds = submitterIds.concat("; ");
 			}
-			submitterNames = submitterNames.concat(u.getDisplayName());
+			submitterNames = submitterNames.concat( ( isAnon ? s.getAnonymousSubmissionId() : u.getDisplayName() ) );
 			submitterIds = submitterIds.concat(u.getDisplayId());
 		}
 		buffer.append(rb.getString("noti.student") + " " + submitterNames);
-		if (submitterIds.length() != 0)
+		if (submitterIds.length() != 0 && !isAnon)
 		{
 			buffer.append("( " + submitterIds + " )");
 		}
@@ -2958,7 +2969,8 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		buffer.append(rb.getString("noti.site.title") + " " + siteTitle + newline);
 		buffer.append(rb.getString("noti.site.url") + " <a href=\""+ siteUrl+ "\">" + siteUrl + "</a>"+ newline);
 		// notification text
-		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), siteTitle}));
+		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
+		buffer.append(rb.getFormattedMessage("noti.releasegrade.text", new String[]{a.getTitle(), linkToToolInSite}));
 		
 		return buffer.toString();
 	}
@@ -2987,11 +2999,13 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		if (s.getSubmitterIds() != null && s.getSubmitterIds().size() > 0) {
 		    userId = (String) s.getSubmitterIds().get(0);
 		}
+
+		String linkToToolInSite = "<a href=\"" + developerHelperService.getToolViewURL( "sakai.assignment.grades", null, null, null ) + "\">" + siteTitle + "</a>";
 		if (canSubmit(context,a,userId)) {
-		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), siteTitle}));
+		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.text", new String[]{a.getTitle(), linkToToolInSite}));
 		}
 		else {
-		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new String[]{a.getTitle(), siteTitle}));
+		    buffer.append(rb.getFormattedMessage("noti.releaseresubmission.noresubmit.text", new String[]{a.getTitle(), linkToToolInSite}));
 		}
 	 		
 	 	return buffer.toString();
@@ -3067,7 +3081,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// remove any realm defined for this resource
 			try
 			{
-				AuthzGroupService.removeAuthzGroup(AuthzGroupService.getAuthzGroup(submission.getReference()));
+				authzGroupService.removeAuthzGroup(authzGroupService.getAuthzGroup(submission.getReference()));
 			}
 			catch (AuthzPermissionException e)
 			{
@@ -3288,7 +3302,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			return submittable;
 		}
 
-		Set<String> siteSubmitterIds = AuthzGroupService.getUsersIsAllowed(
+		Set<String> siteSubmitterIds = authzGroupService.getUsersIsAllowed(
 				SECURE_ADD_ASSIGNMENT_SUBMISSION, Arrays.asList(site.getReference()));
 		Map<String, Set<String>> groupIdUserIds = new HashMap<String, Set<String>>();
 		for (Group group : site.getGroups()) {
@@ -3929,7 +3943,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			}
 
 			// ask the authzGroup service to filter them down based on function
-			groupRefs = AuthzGroupService.getAuthzGroupsIsAllowed(userId,
+			groupRefs = authzGroupService.getAuthzGroupsIsAllowed(userId,
 					function, groupRefs);
 
 			// pick the Group objects from the site's groups to return, those that are in the groupRefs list
@@ -4091,7 +4105,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			if (a.getAccess() == Assignment.AssignmentAccess.GROUPED)
 			{
 				// for grouped assignment, need to include those users that with "all.groups" and "grade assignment" permissions on the site level
-				AuthzGroup group = AuthzGroupService.getAuthzGroup(SiteService.siteReference(a.getContext()));
+				AuthzGroup group = authzGroupService.getAuthzGroup(SiteService.siteReference(a.getContext()));
 				if (group != null)
 				{
 					// get the roles which are allowed for submission but not for all_site control
@@ -4149,7 +4163,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		
 		try
 		{
-			AuthzGroup group = AuthzGroupService.getAuthzGroup(context);
+			AuthzGroup group = authzGroupService.getAuthzGroup(context);
 			
 			// get the roles which are allowed for submission but not for all_site control
 			Set rolesAllowSubmission = group.getRolesIsAllowed(SECURE_ADD_ASSIGNMENT_SUBMISSION);
@@ -4928,7 +4942,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					try
 					{
-						AuthzGroup group = AuthzGroupService.getAuthzGroup(authzGroupRef);
+						AuthzGroup group = authzGroupService.getAuthzGroup(authzGroupRef);
 						Set grants = group.getUsers();
 						for (Iterator iUserIds = grants.iterator(); iUserIds.hasNext();)
 						{
@@ -5228,6 +5242,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        // Create the ZIP file
 	        String submittersName = "";
 	        String caughtException = null;
+	        String caughtStackTrace = null;
 	        while (submissions.hasNext())
 	        {
 
@@ -5369,6 +5384,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	                catch (Exception e)
 	                {
 	                    caughtException = e.toString();
+	                    if (M_log.isDebugEnabled()) {
+	                      caughtStackTrace = ExceptionUtils.getStackTrace(e);
+	                    }
 	                    break;
 	                }
 	            } // if the user is still in site
@@ -5390,6 +5408,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 	        {
 	            // log the error
 	            exceptionMessage.append(" Exception " + caughtException + " for creating submission zip file for assignment " + "\"" + assignmentTitle + "\"\n");
+	            if (M_log.isDebugEnabled()) {
+	               exceptionMessage.append(caughtStackTrace);
+	            }
 	        }
 	    }
 	    catch (IOException e)
@@ -5442,6 +5463,7 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			// Create the ZIP file
 			String submittersName = "";
 			String caughtException = null;
+			String caughtStackTrace = null;
 			while (submissions.hasNext())
 			{
 				AssignmentSubmission s = (AssignmentSubmission) submissions.next();
@@ -5635,6 +5657,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 					catch (Exception e)
 					{
 						caughtException = e.toString();
+						if (M_log.isDebugEnabled()) {
+							caughtStackTrace = ExceptionUtils.getStackTrace(e);
+						}
 						break;
 					}
 				} // if the user is still in site
@@ -5656,6 +5681,9 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 			{
 				// log the error
 				exceptionMessage.append(" Exception " + caughtException + " for creating submission zip file for assignment " + "\"" + assignmentTitle + "\"\n");
+				if (M_log.isDebugEnabled()) {
+					exceptionMessage.append(caughtStackTrace);
+				}
 			}
 		}
 		catch (IOException e)
@@ -11573,16 +11601,19 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 		{
 		    Assignment a = getAssignment();
 		    if (a.isGroup()) {
-		    	try {
-		    		Site site = SiteService.getSite(a.getContext());
+		        try {
+		            Site site = SiteService.getSite(a.getContext());
 		            Group _g = site.getGroup(m_submitterId);
-		            return getSubmitterIdList("false", _g.getId(), null, a.getReference(), a.getContext());
+		            if (_g !=null) {
+		                return getSubmitterIdList("false", _g.getId(), null, a.getReference(), a.getContext());
+		            }
 		    	} catch (IdUnusedException _iue) {
 		            return null;
 		        }
 		    } else { 
 		        return m_submitters;
 		    }
+		    return new ArrayList();
 		}
 
 		/**
@@ -11725,33 +11756,45 @@ public abstract class BaseAssignmentService implements AssignmentService, Entity
 				{
 					int factor = getAssignment().getContent().getFactor();
 					int dec = (int)Math.log10(factor);
-					String decimal_gradePoint = "";
+					String decSeparator = FormattedText.getDecimalSeparator();
+					String decimalGradePoint = "";
 					try
 					{
 						Integer.parseInt(grade);
 						// if point grade, display the grade with factor decimal place
-						decimal_gradePoint =  grade.substring(0, grade.length() - dec) + "." + grade.substring(grade.length() - dec);
+						int length = grade.length();
+						if (length > dec) {
+							decimalGradePoint = grade.substring(0, grade.length() - dec) + decSeparator + grade.substring(grade.length() - dec);
+						}
+						else {
+							String newGrade = "0".concat(decSeparator);
+							for (int i = length; i < dec; i++) {
+								newGrade = newGrade.concat("0");
+							}
+							decimalGradePoint = newGrade.concat(grade);
+						}
 					}
 					catch (NumberFormatException e) {
 						try {
 							Float.parseFloat(grade);
-							decimal_gradePoint = grade;
+							decimalGradePoint = grade;
 						}
 						catch (Exception e1) {
 							return grade;
 						}
 					}
 					// get localized number format
-					NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);				
+					NumberFormat nbFormat = FormattedText.getNumberFormat(dec,dec,false);
+					DecimalFormat dcformat = (DecimalFormat) nbFormat;
 					// show grade in localized number format
 					try {
-						Double dblGrade = new Double(decimal_gradePoint);
-						decimal_gradePoint = nbFormat.format(dblGrade);
+						Double dblGrade = dcformat.parse(decimalGradePoint).doubleValue();
+						decimalGradePoint = nbFormat.format(dblGrade);
 					}
 					catch (Exception e) {
 						return grade;
 					}
-					return decimal_gradePoint;
+					return decimalGradePoint;
 				}
 				else
 				{

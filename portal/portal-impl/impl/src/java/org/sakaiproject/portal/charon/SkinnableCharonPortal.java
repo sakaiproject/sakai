@@ -89,6 +89,7 @@ import org.sakaiproject.portal.charon.handlers.StaticStylesHandler;
 import org.sakaiproject.portal.charon.handlers.TimeoutDialogHandler;
 import org.sakaiproject.portal.charon.handlers.ToolHandler;
 import org.sakaiproject.portal.charon.handlers.ToolResetHandler;
+import org.sakaiproject.portal.charon.handlers.PageResetHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteHandler;
 import org.sakaiproject.portal.charon.handlers.WorksiteResetHandler;
 import org.sakaiproject.portal.charon.handlers.XLoginHandler;
@@ -1797,6 +1798,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 			String logInOutUrl2 = null;
 			String message2 = null;
 			String image2 = null;
+			String logoutWarningMessage = "";
 
 			// for showing user display name and id next to logout (SAK-10492)
 			String loginUserDispName = null;
@@ -1876,8 +1878,11 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 				// since we are doing logout, cancel top.login
 				topLogin = false;
+				
+				logoutWarningMessage = rloader.getString("sit_logout_warn");
 			}
 			rcontext.put("loginTopLogin", Boolean.valueOf(topLogin));
+			rcontext.put("logoutWarningMessage", logoutWarningMessage);
 
 			// display portal links - SAK-22983
 			String portalLinks = portalService.getPortalLinks();
@@ -2006,6 +2011,7 @@ public class SkinnableCharonPortal extends HttpServlet implements Portal
 
 		addHandler(new ToolHandler());
 		addHandler(new ToolResetHandler());
+		addHandler(new PageResetHandler());
 		addHandler(new PageHandler());
 		addHandler(worksiteHandler);
 		addHandler(new WorksiteResetHandler());

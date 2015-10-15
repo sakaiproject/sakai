@@ -571,5 +571,11 @@ public class SiteServiceSqlDefault implements SiteServiceSql
 	{
 		return "SAKAI_SITE.IS_SOFTLY_DELETED = '0' and ";
 	}
-	
+
+	/**
+	 * returns part of the where clause to retrieve sites that are unpublished
+	 */
+	public String getUnpublishedSitesOnlySql() {
+		return "SAKAI_SITE.PUBLISHED = '0' and ";
+	}
 }

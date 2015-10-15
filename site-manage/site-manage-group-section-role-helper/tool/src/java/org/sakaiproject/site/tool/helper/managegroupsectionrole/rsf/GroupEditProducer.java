@@ -25,7 +25,7 @@ import org.sakaiproject.util.SortedIterator;
 import org.sakaiproject.user.api.User;
 import org.sakaiproject.user.api.UserDirectoryService;
 
-import uk.ac.cam.caret.sakai.rsf.producers.FrameAdjustingProducer;
+import org.sakaiproject.rsf.producers.FrameAdjustingProducer;
 import uk.org.ponder.messageutil.MessageLocator;
 import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
@@ -294,8 +294,8 @@ public class GroupEditProducer implements ViewComponentProducer, ActionResultInt
 	     }
 
 		 // SAK-29645
-		 Set<String> groupMemberLabels = new HashSet<>();
-		 Set<String> groupMemberValues = new HashSet<>();
+		 List<String> groupMemberLabels = new ArrayList<>();
+		 List<String> groupMemberValues = new ArrayList<>();
 
 		 // add the rosters first
 		 if (groupRosters != null)

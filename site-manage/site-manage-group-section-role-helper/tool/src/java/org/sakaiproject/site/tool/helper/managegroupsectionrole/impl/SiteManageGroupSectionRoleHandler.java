@@ -54,9 +54,6 @@ import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import au.com.bytecode.opencsv.CSVReader;
 import java.util.Arrays;
-import org.sakaiproject.coursemanagement.api.CourseManagementService;
-import org.sakaiproject.coursemanagement.api.Membership;
-import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 
 /**
  * 
@@ -103,7 +100,6 @@ public class SiteManageGroupSectionRoleHandler {
     public String groupTitleUser = "";
     
     // SAK-29373
-    public CourseManagementService cms;
     public int rosterOptionAssign = OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
     public boolean rosterGroupSplit = true;
     public String rosterNumToSplitGroup = "";
@@ -205,6 +201,7 @@ public class SiteManageGroupSectionRoleHandler {
             selectedSiteMembers = new String[]{};
             selectedRosters = new HashMap<>();
             selectedRoles = new HashMap<>();
+            memberList = new String();
 
             optionAssign=OPTION_ASSIGN_BY_ROLES_OR_ROSTER;
             groupSplit = true;
@@ -787,7 +784,7 @@ public class SiteManageGroupSectionRoleHandler {
     			resetParams();
 	        } 
 	        catch (IdUnusedException | PermissionException e) {
-	        	M_log.warn(this + ".processAddGroup: cannot find site " + site.getId(), e);
+	        	M_log.error(this + ".processAddGroup: cannot find site " + site.getId(), e);
 	            return null;
 	        }
     	}
@@ -821,7 +818,7 @@ public class SiteManageGroupSectionRoleHandler {
                 }
                 catch (Exception e)
                 {
-                    M_log.warn( e );
+                    M_log.error( e );
                 }
             }
 	    	return "confirm";
@@ -846,10 +843,10 @@ public class SiteManageGroupSectionRoleHandler {
 				siteService.save(site);
 			} catch (IdUnusedException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.notfound.alert","cannot find site"));
-				M_log.warn(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
+				M_log.error(this + ".processDeleteGroups: Problem of saving site after group removal: site id =" + site.getId(), e);
 			} catch (PermissionException e) {
 				messages.addMessage(new TargettedMessage("editgroup.site.permission.alert","not allowed to find site"));
-				M_log.warn(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
+				M_log.error(this + ".processDeleteGroups: Permission problem of saving site after group removal: site id=" + site.getId(), e);
 			}
 	    	
 	    }
@@ -1062,7 +1059,7 @@ public class SiteManageGroupSectionRoleHandler {
                 resetParams();
             } 
             catch (IdUnusedException | PermissionException e) {
-                M_log.warn(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
+                M_log.error(this + ".processAutoCreateGroup: cannot find site " + site.getId(), e);
                 return null;
             }
         }
@@ -1084,26 +1081,17 @@ public class SiteManageGroupSectionRoleHandler {
         if( StringUtils.isNotBlank( groupTitle ) && StringUtils.isNotBlank( providerID ) )
         {
             Set<String> userSet = new HashSet<>();
-            try
+            List<AuthzGroup> realms = authzGroupService.getAuthzGroups( providerID, null );
+            for( AuthzGroup realm : realms )
             {
-                Set<Membership> sectionMembers = cms.getSectionMemberships( providerID );
-                for( Membership member : sectionMembers )
+                if( providerID.equals( realm.getProviderGroupId() ) )
                 {
-                    String userEID = member.getUserId();
-                    try
+                    Set<Member> members = realm.getMembers();
+                    for( Member member : members )
                     {
-                        String userID = userDirectoryService.getUserId( userEID );
-                        userSet.add( userID );
-                    }
-                    catch( UserNotDefinedException ex )
-                    {
-                        M_log.debug( this + ".createRandomGroupsForRoster: user not defined = " + userEID, ex );
+                        userSet.add( member.getUserId() );
                     }
                 }
-            }
-            catch( IdNotFoundException ex )
-            {
-                M_log.debug( this + ".createRandomGroupsForRoster: can't find section for provider ID = " + providerID, ex );
             }
 
             createRandomGroups( rosterGroupSplit, new ArrayList<>( userSet ), groupTitle, unit );

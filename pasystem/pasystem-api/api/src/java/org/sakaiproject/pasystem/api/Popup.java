@@ -32,8 +32,6 @@ import static org.sakaiproject.pasystem.api.ValidationHelper.*;
  * A data object representing a popup.
  */
 public class Popup {
-
-    @Getter
     private final String uuid;
     @Getter
     private String descriptor;
@@ -85,6 +83,15 @@ public class Popup {
      */
     public static Popup create(String uuid, String descriptor, long startTime, long endTime, boolean isOpenCampaign, String template) {
         return new Popup(uuid, descriptor, startTime, endTime, isOpenCampaign, template);
+    }
+
+
+    public String getUuid() throws MissingUuidException {
+        if (this.uuid == null) {
+            throw new MissingUuidException("No UUID has been set for this popup");
+        }
+
+        return this.uuid;
     }
 
     /**

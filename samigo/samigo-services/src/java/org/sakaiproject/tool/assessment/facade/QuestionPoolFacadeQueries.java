@@ -463,7 +463,7 @@ public class QuestionPoolFacadeQueries
         Iterator j = itemList.iterator();
         while (j.hasNext()) {
           ItemData itemData = (ItemData) j.next();
-          h.put(itemData.getItemIdString(), itemData);
+          h.put(itemData.getItemId(), itemData);
         }
         ArrayList itemArrayList = new ArrayList();
         Iterator i = questionPoolItems.iterator();

@@ -1,7 +1,7 @@
 ##<!-- $Header: /cvs/sakai2/legacy/tools/src/webapp/vm/helper/chef_permissions.vm,v 1.4 2005/05/28 03:04:36 ggolden.umich.edu Exp $ -->
 <div class="portletBody">
 <link href="/sakai-authz-tool/css/authz.css" type="text/css" rel="stylesheet" media="all" />
-<script type="text/javascript" src="/library/js/jquery/jquery-1.9.1.min.js"></script>
+<script>includeLatestJQuery('chef_permissions.vm');</script>
 <script type="text/javascript" src="/sakai-authz-tool/js/authz.js"></script>
 	
 #if($menu)
@@ -48,7 +48,8 @@
 		#end
 		## end if there are any groups at all			
 		<div class="actionItem itemAction" style="float:left;padding-top:.5em">
-			<a id="restdef" href="#">$thelp.getString("per.lis.restoredef")</a>
+			<input type="button" value="$thelp.getString("per.lis.restoredef")" onclick="AUTHZ.disableControls();AUTHZ.showSpinner( 'undoSpinner' );window.location.reload();" />
+			<img id="undoSpinner" class="spinner" src="/library/image/indicator.gif" />
 		</div>
 	</div>
 	

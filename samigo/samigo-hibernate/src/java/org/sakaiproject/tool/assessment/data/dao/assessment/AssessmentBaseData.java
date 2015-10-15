@@ -43,6 +43,7 @@ public class AssessmentBaseData
   static Category errorLogger = Category.getInstance("errorLogger");
 
   private static final long serialVersionUID = 7526471155622776147L;
+  public static final int TITLE_LENGTH = 255;
   private Long assessmentBaseId;
   private Boolean isTemplate;
   private Long parentId;

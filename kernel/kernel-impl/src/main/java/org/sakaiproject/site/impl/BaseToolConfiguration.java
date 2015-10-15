@@ -121,15 +121,22 @@ public class BaseToolConfiguration extends org.sakaiproject.util.Placement imple
 	 **/
 	private boolean getTitleCustom(SitePage page)
 	{
-		String custom = (String)page.getProperties().get(SitePage.PAGE_CUSTOM_TITLE_PROP);
-		if ( custom != null )
-			return Boolean.parseBoolean(custom);
-		else	if ( "sakai.iframe".equals(m_toolId) || "sakai.news".equals(m_toolId) || "sakai.rutgers.linktool".equals(m_toolId) )
-			return true;
-		else if (m_toolId != null && m_toolId.startsWith("sakai.iframe"))
-			return true;
+		if (page.isHomePage())
+		{
+			return page.getHomeToolsTitleCustom(getId());
+		}
 		else
-			return false;
+		{
+			String custom = (String)page.getProperties().get(SitePage.PAGE_CUSTOM_TITLE_PROP);
+			if ( custom != null )
+				return Boolean.parseBoolean(custom);
+			else	if ( "sakai.iframe".equals(m_toolId) || "sakai.news".equals(m_toolId) || "sakai.rutgers.linktool".equals(m_toolId) )
+				return true;
+			else if (m_toolId != null && m_toolId.startsWith("sakai.iframe"))
+				return true;
+			else
+				return false;
+		}
 	}
 
 	/**

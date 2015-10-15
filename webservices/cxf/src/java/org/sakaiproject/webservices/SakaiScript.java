@@ -1,3 +1,18 @@
+/**
+ * Copyright (c) 2005 The Apereo Foundation
+ *
+ * Licensed under the Educational Community License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *             http://opensource.org/licenses/ecl2
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package org.sakaiproject.webservices;
 
 import java.util.ArrayList;
@@ -9,6 +24,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
+import java.util.Date;
+import java.util.Collections;
 
 import javax.jws.WebMethod;
 import javax.jws.WebParam;
@@ -92,7 +109,7 @@ public class SakaiScript extends AbstractWebService {
         Session s = sessionManager.getSession(sessionid);
 
         if (s == null) {
-            return "null";
+            return "";
         } else {
             return sessionid;
         }
@@ -554,13 +571,15 @@ public class SakaiScript extends AbstractWebService {
         try {
             Site site = siteService.getSite(siteid);
             Group group = site.getGroup(groupid);
-            if (group == null)
+            if (group == null) {
+                LOG.error("addMemberToGroup called with group that does not exist: " + groupid);
                 return false;
+            }
 
             Role r = site.getUserRole(userid);
             Member m = site.getMember(userid);
             group.addMember(userid, r != null ? r.getId() : "", m != null ? m.isActive() : true, false);
-            siteService.save(site);
+            siteService.saveGroupMembership(site);
             return true;
         } catch (Exception e) {
             LOG.error("WS addMemberToGroup(): " + e.getClass().getName() + " : " + e.getMessage());
@@ -1120,7 +1139,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.addMember(userid, roleid, true, false);
-            siteService.save(site);
+            siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS addMemberToSiteWithRole(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -2497,7 +2516,7 @@ public class SakaiScript extends AbstractWebService {
             Site site = siteService.getSite(siteid);
             String userid = userDirectoryService.getUserByEid(eid).getId();
             site.removeMember(userid);
-            siteService.save(site);
+            siteService.saveSiteMembership(site);
         } catch (Exception e) {
             LOG.error("WS removeMemberFromSite(): " + e.getClass().getName() + " : " + e.getMessage());
             return e.getClass().getName() + " : " + e.getMessage();
@@ -3902,8 +3921,7 @@ public class SakaiScript extends AbstractWebService {
         } catch (Throwable t) {
             LOG.warn(this + "getPlacementId(): Error encountered: " + t.getMessage(), t);
         }
-        return null;
-
+        return "";
     }
 
     /**
@@ -4105,7 +4123,11 @@ public class SakaiScript extends AbstractWebService {
             @WebParam(name = "siteid", partName = "siteid") @QueryParam("siteid") String siteid) {
 
         Session s = establishSession(sessionid);
-        return siteService.getParentSite(siteid);
+        String parent = siteService.getParentSite(siteid);
+        if (parent == null) {
+            parent = "";
+        }
+        return parent;
     }
     
     /**
@@ -4255,6 +4277,201 @@ public class SakaiScript extends AbstractWebService {
                 }
             }
         }
+    }
+
+    @WebMethod
+    @Path("/getSessionCountForServer")
+    @Produces("text/plain")
+    @GET
+    public Integer getSessionCountForServer(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "serverid", partName = "serverid") @QueryParam("serverid") String serverid,
+            @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
+        //register the session with presence
+        Session s = establishSession(sessionid);
+
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Session Count For Server: " + s.getUserId());
+        }
+        try {
+            Map servers = usageSessionService.getOpenSessionsByServer();
+            List matchingServers = (List) getServersByServerId(servers).get(serverid);
+
+            if (matchingServers.size() == 0) {
+                LOG.warn("can't find any sessions for server with id=" + serverid);
+                return new Integer(0);
+            }
+
+            Collections.sort(matchingServers);
+            // find the latest started server with matching id
+            String serverKey = (String) matchingServers.get(matchingServers.size() - 1);
+
+            return getSessionCountForServer(servers, serverKey, millisBeforeExpire);
+        } catch (Exception e) {
+            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+        }
+        return new Integer(0);
+    }
+
+
+    @WebMethod
+    @Path("/getSessionTotalCount")
+    @Produces("text/plain")
+    @GET
+    public int getSessionTotalCount(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "millisBeforeExpire", partName = "millisBeforeExpire") @QueryParam("millisBeforeExpire") int millisBeforeExpire) {
+        //register the session with presence
+        Session s = establishSession(sessionid);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to get Total Session Count: " + s.getUserId());
+        }
+        int count = 0;
+
+        try {
+            Map servers = usageSessionService.getOpenSessionsByServer();
+            Map serversByServerId = getServersByServerId(servers);
+
+
+            for (Iterator i = serversByServerId.keySet().iterator(); i.hasNext(); ) {
+                String serverKey = (String) i.next();
+                List matchingServers = (List) serversByServerId.get(serverKey);
+                Collections.sort(matchingServers);
+                // find the latest started server, and add to count
+                count += getSessionCountForServer(servers, (String) matchingServers.get(matchingServers.size() - 1), millisBeforeExpire);
+            }
+        } catch (Exception e) {
+            LOG.error("error in getSessionsForServer() ws call:" + e.getMessage(), e);
+        }
+        return new Integer(count);
+    }
+
+    private Integer getSessionCountForServer(Map servers, String serverKey, int millisBeforeExpire) {
+        int count = 0;
+        List selectedServer = (List) servers.get(serverKey);
+
+        if (selectedServer != null) {
+            for (Iterator i = selectedServer.iterator(); i.hasNext(); ) {
+                UsageSession session = (UsageSession) i.next();
+                Long lastActivityTime = activityService.getLastEventTimeForUser(session.getUserId());
+                if (lastActivityTime != null &&
+                        ((new Date().getTime() - lastActivityTime) < millisBeforeExpire)) {
+                    LOG.warn("adding count for " + serverKey);
+                    count++;
+                } else {
+                    LOG.warn("not including user:" + session.getUserEid() +
+                            " in active session count last activity was more than " +
+                            millisBeforeExpire + " ago or no activity detected.");
+                }
+            }
+        } else {
+            LOG.warn("can't find any sessions for server with id=" + serverKey);
+        }
+        return new Integer(count);
+
+    }
+
+    protected Map getServersByServerId(Map servers) {
+        Map serverByServerId = new HashMap();
+
+        // create Map of servers key'd by serverId only
+        for (Iterator i = servers.keySet().iterator(); i.hasNext(); ) {
+            String key = (String) i.next();
+            List matchingServers;
+            String serverKey = key.split("-")[0];
+            if (!serverByServerId.containsKey(serverKey)) {
+                matchingServers = new ArrayList();
+                serverByServerId.put(serverKey, matchingServers);
+            } else {
+                matchingServers = (List) serverByServerId.get(serverKey);
+            }
+
+            LOG.warn("adding " + key + " to " + serverKey + " list");
+            matchingServers.add(key);
+        }
+        return serverByServerId;
+    }
+
+    /**
+     * Check if a user exists (either as an account in Sakai or in any external provider)
+     *
+     * @param sessionid the id of a valid session
+     * @param userid    the internal user id
+     * @return true/false
+     */
+    @WebMethod
+    @Path("/checkForUserById")
+    @Produces("text/plain")
+    @GET
+    public boolean checkForUserById(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid,
+            @WebParam(name = "userid", partName = "userid") @QueryParam("userid") String userid) {
+        Session s = establishSession(sessionid);
+        if (!securityService.isSuperUser()) {
+            LOG.warn("NonSuperUser trying to checkForUserById: " + s.getUserId());
+            throw new RuntimeException("NonSuperUser trying to checkForUserById: " + s.getUserId());
+        }
+
+        try {
+            User u = null;
+            u = userDirectoryService.getUser(userid);
+            if (u != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception e) {
+            LOG.error("WS checkForUserById(): " + e.getClass().getName() + " : " + e.getMessage());
+            return false;
+        }
+    }
+
+
+    @WebMethod
+    @Path("/isSuperUser")
+    @Produces("text/plain")
+    @GET
+    public boolean isSuperUser(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session s = establishSession(sessionid);
+
+        return securityService.isSuperUser(s.getUserId());
+
+    }
+
+    @WebMethod
+    @Path("/resetAllUserWorkspace")
+    @Produces("text/plain")
+    @GET
+    public boolean resetAllUserWorkspace(
+            @WebParam(name = "sessionid", partName = "sessionid") @QueryParam("sessionid") String sessionid) {
+        Session session = establishSession(sessionid);
+        //check that ONLY super user's are accessing this
+        if (!securityService.isSuperUser(session.getUserId())) {
+            LOG.warn("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+            throw new RuntimeException("WS resetAllUserWorkspace(): Permission denied. Restricted to super users.");
+        }
+
+        try {
+            List<String> siteList = siteService.getSiteIds(SelectionType.ANY, null, null,
+                    null, SortType.NONE, null);
+            if (siteList != null && siteList.size() > 0) {
+                for (Iterator i = siteList.iterator(); i.hasNext(); ) {
+                    String siteId =  (String) i.next();
+                    if (siteService.isUserSite(siteId) && !(siteId.equals("~admin"))){
+                        siteService.removeSite(siteService.getSite(siteId));
+                    }
+                }
+            }
+        } catch (Throwable t) {
+            LOG.warn(this + ".resetAllUserWorkspace: Error encountered" + t.getMessage(), t);
+            return false;
+        }
+
+        return true;
+
     }
 
 }

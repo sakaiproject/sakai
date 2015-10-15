@@ -282,6 +282,13 @@ public class GradebookExternalAssessmentServiceImpl extends BaseHibernateManager
         hibTempl.deleteAll(toBeDeleted);
         if (log.isInfoEnabled()) log.info("Deleted " + numberDeleted + " externally defined scores");
 
+        toBeDeleted = hibTempl.find( "from Comment as c where c.gradableObject = ?", asn );
+        hibTempl.deleteAll( toBeDeleted );
+        if( log.isInfoEnabled() )
+        {
+            log.info( "Deleted " + toBeDeleted.size() + " externally defined score comments" );
+        }
+
         // Delete the assessment.
 		hibTempl.flush();
 		hibTempl.clear();

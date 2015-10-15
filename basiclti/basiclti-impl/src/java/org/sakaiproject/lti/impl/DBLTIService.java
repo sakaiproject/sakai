@@ -346,9 +346,10 @@ public class DBLTIService extends BaseLTIService implements LTIService {
 			contentModel = contentModelList.toArray(new String[contentModelList.size()]);
 		}
 
-		// Copy to fa_icon across
+		// Copy to fa_icon across - If a tool is edited in the UI, an icon is added and
+		// removed, the icon ends up as "none" versus being set back to null
 		String fa_icon = (String) tool.get(LTI_FA_ICON);
-		if ( fa_icon != null && fa_icon.length() > 0 ) {
+		if ( fa_icon != null && fa_icon.length() > 0 && ! "none".equals(fa_icon) ) {
 			newProps.put(LTI_FA_ICON, fa_icon);
 		}
 

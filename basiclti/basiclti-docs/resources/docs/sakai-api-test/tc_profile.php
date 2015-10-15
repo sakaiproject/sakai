@@ -20,7 +20,7 @@ echo <<< EOF
   "@context": [
     "http://purl.imsglobal.org/ctx/lti/v2/ToolConsumerProfile",
     {
-      "tcp": "$cur_url/$consumer_key"
+      "tcp": "$cur_url/$consumer_key#"
     }
   ],
   "@type": "ToolConsumerProfile",

@@ -72,11 +72,6 @@
     </profile>
   </profiles>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/mailsender/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/mailsender/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>
@@ -98,31 +93,6 @@
         <groupId>${project.groupId}</groupId>
         <artifactId>mailsender-impl</artifactId>
         <version>${project.version}</version>
-      </dependency>
-      <!-- RSF -->
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>sakairsf</artifactId>
-        <version>${sakairsf.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>SakaiRSFComponents-evolvers</artifactId>
-        <version>${sakairsf.components.version}</version>
-        <type>jar</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.sakairsf</groupId>
-        <artifactId>SakaiRSFComponents-templates</artifactId>
-        <version>${sakairsf.components.version}</version>
-        <type>war</type>
-      </dependency>
-      <dependency>
-        <groupId>uk.org.ponder.rsfutil</groupId>
-        <artifactId>RSFComponents-templates</artifactId>
-        <version>${rsfutil.version}</version>
-        <type>war</type>
       </dependency>
       <!-- TESTING -->
       <dependency>

@@ -25,11 +25,6 @@
     <module>elasticsearch</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/search/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/search/trunk</url>
-  </scm>
 
   <dependencyManagement>
     <dependencies>

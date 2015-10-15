@@ -15,11 +15,6 @@
     <url>http://sakaiproject.org/</url>
   </organization>
   <inceptionYear>2003</inceptionYear>
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</developerConnection>
-    <url>https://source.sakaiproject.org/svn/kernel/trunk/kernel-impl</url>
-  </scm>
   <packaging>jar</packaging>
   <properties>
     <deploy.target />
@@ -95,18 +90,10 @@
 	<dependency>
 		<groupId>org.apache.tika</groupId>
 		<artifactId>tika-core</artifactId>
-		<version>${sakai.tika.version}</version>
 	</dependency>
 	<dependency>
 		<groupId>org.apache.tika</groupId>
 		<artifactId>tika-parsers</artifactId>
-		<version>${sakai.tika.version}</version>
-		<exclusions>
-			<exclusion>
-				<groupId>de.l3s.boilerpipe</groupId>
-				<artifactId>boilerpipe</artifactId>
-			</exclusion>
-		</exclusions>
 	</dependency>
      <!-- https://jira.sakaiproject.org/browse/KNL-1320 -DH -->
          <dependency>
@@ -149,7 +136,7 @@
     <dependency>
       <groupId>commons-validator</groupId>
       <artifactId>commons-validator</artifactId>
-      <version>1.4.0</version>
+      <version>1.4.1</version>
     </dependency>
     <dependency>
         <!-- for parsing CSV data from config service files -->

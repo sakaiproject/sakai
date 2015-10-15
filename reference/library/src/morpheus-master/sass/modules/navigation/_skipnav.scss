@@ -7,7 +7,7 @@
 			top: 2em;
 			left: 0em;
 			height:1.5em;
-			width:1.1em;
+			width:2em;
 			display: block;
 			color: $background-color-secondary;
 			background: lighten( $background-color, 5% );
@@ -39,30 +39,6 @@
 					width: 32px;
 					height: 32px;
 					font-size: 2.7em;
-					/*@include display-flex(inline-flex);*/
-			  		@include flex-direction(column);
-			  		@include align-items(flex-end);
-			  		@include justify-content(space-between);
-				  	@include transition( all 0.5s linear );
-			  		> span{
-			  			display: block;
-			  			height: 8px;
-			  			color: $background-color-secondary;
-				  		@include transition( all 0.5s linear );
-			  			&.top{
-			  				position: relative;
-			  				top: -25px;
-			  			}
-			  			&.middle{
-			  				position: relative;
-			  				top: -27px;
-			  				opacity: 1;
-			  			}
-			  			&.bottom{
-			  				position: relative;
-			  				top: -29px;
-			  			}
-			  		}
 				}
 			}
 		}

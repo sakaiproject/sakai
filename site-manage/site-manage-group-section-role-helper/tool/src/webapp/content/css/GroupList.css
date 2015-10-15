@@ -248,3 +248,7 @@ div.act img#editJoinableGroupSpinner {
 	padding: 0;
 }
 /* SAK-29650 - end */
+
+div.autoGroupsRoleContainer {
+	margin-top: 2em;
+}

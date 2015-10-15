@@ -65,7 +65,7 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.velocity.tools.generic.SortTool;
 import org.sakaiproject.alias.api.Alias;
-import org.sakaiproject.alias.cover.AliasService;
+import org.sakaiproject.alias.api.AliasService;
 import org.sakaiproject.api.privacy.PrivacyManager;
 import org.sakaiproject.archive.api.ImportMetadata;
 import org.sakaiproject.archive.cover.ArchiveService;
@@ -76,9 +76,10 @@ import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.PermissionsHelper;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.authz.api.RoleAlreadyDefinedException;
+import org.sakaiproject.authz.api.RoleProvider;
 import org.sakaiproject.authz.api.SecurityAdvisor;
 import org.sakaiproject.authz.api.SecurityAdvisor.SecurityAdvice;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.authz.cover.SecurityService;
 import org.sakaiproject.cheftool.Context;
 import org.sakaiproject.cheftool.JetspeedRunData;
@@ -203,8 +204,7 @@ public class SiteAction extends PagedResourceActionII {
 	private org.sakaiproject.authz.api.GroupProvider groupProvider = (org.sakaiproject.authz.api.GroupProvider) ComponentManager
 			.get(org.sakaiproject.authz.api.GroupProvider.class);
 
-	private org.sakaiproject.authz.api.AuthzGroupService authzGroupService = (org.sakaiproject.authz.api.AuthzGroupService) ComponentManager
-			.get(org.sakaiproject.authz.api.AuthzGroupService.class);
+	private AuthzGroupService authzGroupService = ComponentManager.get(AuthzGroupService.class);
 
 	private org.sakaiproject.archive.api.ArchiveService archiveService = (org.sakaiproject.archive.api.ArchiveService) ComponentManager
 			.get(org.sakaiproject.archive.api.ArchiveService.class);
@@ -217,6 +217,8 @@ public class SiteAction extends PagedResourceActionII {
 	
 	private org.sakaiproject.sitemanage.api.SiteTypeProvider siteTypeProvider = (org.sakaiproject.sitemanage.api.SiteTypeProvider) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.SiteTypeProvider.class);
+
+	private AliasService aliasService = ComponentManager.get(AliasService.class);
 	
 	private static org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService questionService = (org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService) ComponentManager
 	.get(org.sakaiproject.sitemanage.api.model.SiteSetupQuestionService.class);
@@ -737,6 +739,8 @@ public class SiteAction extends PagedResourceActionII {
 	private final static String NEWS_TOOL_CHANNEL_CONFIG = "channel-url";
 	private final static String NEWS_TOOL_CHANNEL_CONFIG_VALUE = "http://sakaiproject.org/feed";
 	
+   	private final static String LESSONS_TOOL_ID = "sakai.lessonbuildertool";
+
 	private final static int UUID_LENGTH = 36;
 	
 	/** the course set definition from CourseManagementService **/
@@ -1526,6 +1530,11 @@ public class SiteAction extends PagedResourceActionII {
 			if (state.getAttribute(STATE_VIEW_SELECTED) == null) {
 				state.setAttribute(STATE_VIEW_SELECTED, SiteConstants.SITE_TYPE_ALL);
 			}
+
+			if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false) && !SecurityService.isSuperUser()) {
+				views.put(SiteConstants.SITE_ACTIVE, rb.getString("java.myActive"));
+				views.put(SiteConstants.SITE_INACTIVE, rb.getString("java.myInactive"));
+			}
 			
 			// sort the keys in the views lookup
 			List<String> viewKeys = Collections.list(views.keys());
@@ -1886,7 +1895,7 @@ public class SiteAction extends PagedResourceActionII {
 			context.put("published", Boolean.valueOf(siteInfo.published));
 			context.put("joinable", Boolean.valueOf(siteInfo.joinable));
 			context.put("joinerRole", siteInfo.joinerRole);
-            addAccess(context, siteInfo.allow_anon, siteInfo.allow_auth);
+			context.put("additionalAccess", getAdditionRoles(siteInfo));
 
 			// bjones86 - SAK-24423 - add joinable site settings to context
 			JoinableSiteSettings.addJoinableSiteSettingsToNewSiteConfirmContext( context, siteInfo );
@@ -1992,9 +2001,7 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("allowUpdateSiteMembership", Boolean
 						.valueOf(allowUpdateSiteMembership));
 
- 				AdditionalAccess access = getAdditionalAccess(site);
- 				
- 				addAccess(context, access.anon, access.auth);
+				context.put("additionalAccess", getAdditionRoles(site));
 
 				Menu b = new MenuImpl(portlet, data, (String) state
 						.getAttribute(STATE_ACTION));
@@ -2403,7 +2410,7 @@ public class SiteAction extends PagedResourceActionII {
 				}
 				
 			} catch (Exception e) {
-				M_log.warn(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
+				M_log.error(this + " buildContextForTemplate chef_site-siteInfo-list.vm ", e);
 			}
 
 			roles = getRoles(state);
@@ -2424,7 +2431,7 @@ public class SiteAction extends PagedResourceActionII {
 			// UVa add realm object to context so we can provide last modified time
 			realmId = SiteService.siteReference(site.getId());
 			try {
-				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 				context.put("realmModifiedTime",realm.getModifiedTime().toStringLocalFullZ());
 			} catch (GroupNotDefinedException e) {
 				M_log.warn(this + "  IdUnusedException " + realmId);
@@ -2724,9 +2731,9 @@ public class SiteAction extends PagedResourceActionII {
 					context.put("disableJoinable", Boolean.TRUE);
 				}
 				
-				AdditionalAccess access = getAdditionalAccess(site);
+				Map<String, AdditionalRole> access = getAdditionalAccess(site);
 				
-				addAccess(context, access.anon, access.auth);
+				addAccess(context, access);
 
 				// bjones86 - SAK-23257
 				context.put("roles", getJoinerRoles(site.getReference(), state, site.getType()));
@@ -2771,23 +2778,27 @@ public class SiteAction extends PagedResourceActionII {
 					realmTemplate = realmTemplate + "." + siteInfo.site_type;
 				}
 				try {
-					AuthzGroup r = AuthzGroupService.getAuthzGroup(realmTemplate);
+					AuthzGroup r = authzGroupService.getAuthzGroup(realmTemplate);
 					
 					// bjones86 - SAK-23257
 					context.put("roles", getJoinerRoles(r.getId(), state, null));
 				} catch (GroupNotDefinedException e) {
 					try {
-						AuthzGroup rr = AuthzGroupService.getAuthzGroup("!site.template");
+						AuthzGroup rr = authzGroupService.getAuthzGroup("!site.template");
 						
 						// bjones86 - SAK-23257
 						context.put("roles", getJoinerRoles(rr.getId(), state, null));
 					} catch (GroupNotDefinedException ee) {
 					}
 				}
-				
-				addAccess(context, siteInfo.allow_anon, siteInfo.allow_auth);
 
-				// new site, go to confirmation page
+				Map<String, AdditionalRole> additionalRoles = loadAdditionalRoles();
+				for (AdditionalRole role: additionalRoles.values()) {
+					if (siteInfo.additionalRoles.contains(role.getId())) {
+						role.granted = true;
+					}
+				}
+				addAccess(context,additionalRoles);
 				context.put("continue", "10");
 
 				siteType = (String) state.getAttribute(STATE_SITE_TYPE);
@@ -3666,8 +3677,8 @@ public class SiteAction extends PagedResourceActionII {
 				context.put("backIndex", "36");
 			}
 
-			context.put("authzGroupService", AuthzGroupService.getInstance());
-			
+			context.put("authzGroupService", authzGroupService);
+
 			if (selectedSect !=null && !selectedSect.isEmpty() && state.getAttribute(STATE_SITE_QUEST_UNIQNAME) == null){
 				context.put("value_uniqname", selectedSect.get(0).getAuthorizerString());
 			}
@@ -3719,15 +3730,99 @@ public class SiteAction extends PagedResourceActionII {
 		// should never be reached
 		return (String) getContext(data).get("template") + TEMPLATE[0];
 	}
-
-	private void addAccess(Context context, boolean anon, boolean auth) {
-		if (anon) {
-			context.put("access", "anonymous");
-		} else if (auth) {
-			context.put("access", "authenticated");
-		} else {
-			context.put("access", "members");
+	
+	private void addAccess(Context context, Map<String, AdditionalRole> access) {
+		boolean disableAdditional = access.size() == 0;
+		context.put("disableAdditional", disableAdditional);
+		if (!disableAdditional) {
+			List<AdditionalRoleGroup> roleSets = sortAdditionalRoles(access);
+			context.put("additionalRoleGroups", roleSets);
 		}
+	}
+	
+	private List<AdditionalRoleGroup> sortAdditionalRoles(Map<String, AdditionalRole> access) {
+		HashMap<String, AdditionalRoleGroup> roleMap = new HashMap<String, AdditionalRoleGroup>();
+		for (String roleId : access.keySet()) {
+			//take key (role group label) from role prefix (until last dot). 
+			//.aaa.eee.iii.roleid => key=.aaa.eee.iii 
+			int index = roleId.lastIndexOf(".");
+			String key = (index >= 0) ? roleId.substring(0, index) : "";
+			AdditionalRoleGroup arg = roleMap.get(key);
+			if(arg == null) {
+				arg = new AdditionalRoleGroup(authzGroupService.getRoleGroupName(key));
+				roleMap.put(key, arg);
+			}
+			
+			List <AdditionalRole> roles = arg.getRoles();
+			roles.add(access.get(roleId));
+		}
+		List<AdditionalRoleGroup> roleSets = new ArrayList<AdditionalRoleGroup>();
+		roleSets.addAll(roleMap.values());
+		//order categories by name
+		Collections.sort(roleSets);
+		//order roles in categories by name
+		for (AdditionalRoleGroup roleGroup: roleSets) {
+			Collections.sort(roleGroup.getRoles());
+		}
+		return roleSets;
+	}
+
+	private List<String> getAdditionRoles(AuthzGroup realm) {
+		List<String> roles = new ArrayList<String>();
+		for (Role role : (Set<Role>)realm.getRoles()) {
+			if (!authzGroupService.isRoleAssignable(role.getId())) {
+				roles.add(authzGroupService.getRoleName(role.getId()));
+			}
+		}
+		// Make sure it's always in the same order.
+		Collections.sort(roles);
+		return roles;
+	}
+	
+	private List<String> getAdditionRoles(SiteInfo siteInfo) {
+		List<String> roles = new ArrayList<String>();
+		for (String roleId : siteInfo.additionalRoles) {
+			roles.add(authzGroupService.getRoleName(roleId));
+		}
+		// Make sure it's always in the same order.
+		Collections.sort(roles);
+		return roles;
+	}
+	
+	private Map<String, AdditionalRole> getAdditionalAccess(AuthzGroup realm) {
+		// Check for .auth/.anon
+		Map<String, AdditionalRole> additionalRoles = loadAdditionalRoles(); 
+		for (Role role : (Set<Role>)realm.getRoles()) {
+			if (!authzGroupService.isRoleAssignable(role.getId())) {
+				AdditionalRole additionalRole = additionalRoles.get(role.getId());
+				if (additionalRole == null) {
+					additionalRole = new AdditionalRole();
+					additionalRole.id = role.getId();
+					additionalRole.name = authzGroupService.getRoleName(role.getId());
+					additionalRole.editable = false;
+					additionalRoles.put(additionalRole.id, additionalRole);
+				}
+				additionalRole.granted = true;
+			}
+		}
+		return additionalRoles;
+	}
+	
+	/**
+	 * Load the possible additional roles for this site.
+	 * This should really all be behind an API.
+	 * @return
+	 */
+	protected Map<String, AdditionalRole> loadAdditionalRoles() {
+		Map<String, AdditionalRole> additionalRoles = new HashMap<String, AdditionalRole>();
+		for (String roleId : authzGroupService.getAdditionalRoles()) {			
+				AdditionalRole role = new AdditionalRole();
+				role.id = roleId;
+				role.name = authzGroupService.getRoleName(role.id);
+				role.editable = true;
+				additionalRoles.put(role.id, role);
+			}
+		return additionalRoles;
 	}
 
 	private void toolSelectionIntoContext(Context context, SessionState state, String siteType, String siteId, String overridePageOrderSiteTypes) {
@@ -3826,9 +3921,10 @@ public class SiteAction extends PagedResourceActionII {
 				String ltiToolId = toolMap.get("id").toString();
 				String siteId = StringUtils.trimToNull((String) toolMap.get(m_ltiService.LTI_SITE_ID));
 				toolMap.put("selected", linkedLtiContents.containsKey(ltiToolId));
-				if ( siteId == null || siteId.equals(site.getId()) )
+				if ( siteId == null || (site != null && siteId.equals(site.getId())))
 				{
-					// only show the system-range lti tools or tools for current site
+					// only show the system-range lti tools (siteId = null)
+					// or site-range lti tools for current site (siteId != null), and current siteId equals to current site's id
 					ltiTools.put(ltiToolId, toolMap);
 				}
 			}
@@ -3862,19 +3958,6 @@ public class SiteAction extends PagedResourceActionII {
 				state.setAttribute(STATE_TOOL_REGISTRATION_SELECTED_LIST, idSelected);
 			}
 		}
-	}
-
-	private AdditionalAccess getAdditionalAccess(AuthzGroup realm) {
-		// Check for .auth/.anon
-		AdditionalAccess access = new AdditionalAccess();
-		for (Role role : (Set<Role>)realm.getRoles()) {
-			if (".auth".equals(role.getId())) {
-				access.auth = true;
-			} else if (".anon".equals(role.getId())) {
-				access.anon = true;
-			}
-		}
-		return access;
 	}
 
 	private String getSelectionString(List selections, int numSelections) {
@@ -4318,7 +4401,7 @@ public class SiteAction extends PagedResourceActionII {
 			// in the properties file, use 1 MB as a default
 			max_file_size_mb = "1";
 			max_bytes = 1024 * 1024;
-			M_log.warn(this + ".doUpload_Mtrl_Frm_File: wrong setting of content.upload.max = " + max_file_size_mb, e);
+			M_log.error(this + ".doUpload_Mtrl_Frm_File: wrong setting of content.upload.max = " + max_file_size_mb, e);
 		}
 		if (fileFromUpload == null) {
 			// "The user submitted a file to upload but it was too big!"
@@ -4354,10 +4437,10 @@ public class SiteAction extends PagedResourceActionII {
 				fileInput = new ResetOnCloseInputStream(tempFile);
 			}
 			catch (FileNotFoundException fnfe) {
-				M_log.warn("FileNotFoundException creating temp import file",fnfe);
+				M_log.error("FileNotFoundException creating temp import file",fnfe);
 			}
 			catch (IOException ioe) {
-				M_log.warn("IOException creating temp import file",ioe);
+				M_log.error("IOException creating temp import file",ioe);
 			}
 			finally {
 				IOUtils.closeQuietly(fileInputStream);
@@ -4771,13 +4854,21 @@ public class SiteAction extends PagedResourceActionII {
 					userWorkspaceSite = SiteService.getSite(SiteService
 							.getUserSiteId(userId));
 				} catch (IdUnusedException e) {
-					M_log.warn(this + "sizeResources, template index = 0: Cannot find user "
+					M_log.error(this + "sizeResources, template index = 0: Cannot find user "
 							+ SessionManager.getCurrentSessionUserId()
 							+ "'s My Workspace site.", e);
 				}
 
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
+
+					org.sakaiproject.site.api.SiteService.SelectionType selectionType;
+					if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.MEMBER;
+					} else {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
+					}
+
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
@@ -4792,8 +4883,8 @@ public class SiteAction extends PagedResourceActionII {
 						}
 						size += SiteService
 								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-										null, search, null);
+										selectionType,
+										null, search, termProp);
 					} else if (view.equalsIgnoreCase(SiteConstants.SITE_TYPE_DELETED)) {
 						size += SiteService
 								.countSites(
@@ -4807,11 +4898,20 @@ public class SiteAction extends PagedResourceActionII {
 							size++;
 						} catch (IdUnusedException e) {
 						}
+					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
+						view = null;
+						size += SiteService.countSites(
+							org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW,
+								view, search, termProp);
+					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
+						view = null;
+						size += SiteService.countSites(
+										org.sakaiproject.site.api.SiteService.SelectionType.INACTIVE_ONLY,
+										null, search, termProp);
 					} else {
 						// search for specific type of sites
-						size += SiteService
-								.countSites(
-										org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+						size += SiteService.countSites(
+										selectionType,
 										view, search, termProp);
 					}
 				}
@@ -4919,10 +5019,19 @@ public class SiteAction extends PagedResourceActionII {
 					userWorkspaceSite = SiteService.getSite(SiteService
 							.getUserSiteId(userId));
 				} catch (IdUnusedException e) {
-					M_log.warn(this + "readResourcesPage template index = 0 :Cannot find user " + SessionManager.getCurrentSessionUserId() + "'s My Workspace site.", e);
+					M_log.error(this + "readResourcesPage template index = 0 :Cannot find user " + SessionManager.getCurrentSessionUserId() + "'s My Workspace site.", e);
 				}
 				String view = (String) state.getAttribute(STATE_VIEW_SELECTED);
 				if (view != null) {
+
+					org.sakaiproject.site.api.SiteService.SelectionType selectionType;
+
+					if (ServerConfigurationService.getBoolean("sitesetup.show.unpublished", false)) {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.MEMBER;
+					} else {
+						selectionType = org.sakaiproject.site.api.SiteService.SelectionType.ACCESS;
+					}
+
 					if (view.equals(SiteConstants.SITE_TYPE_ALL)) {
 						view = null;
 						// add my workspace if any
@@ -4938,7 +5047,7 @@ public class SiteAction extends PagedResourceActionII {
 						rv
 								.addAll(SiteService
 										.getSites(
-												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
+												selectionType,
 												null, search, termProp, sortType,
 												new PagingPosition(first, last)));
 					}
@@ -4955,12 +5064,20 @@ public class SiteAction extends PagedResourceActionII {
 								null,
 								search, null, sortType,
 								new PagingPosition(first, last));
+					} else if (view.equals(SiteConstants.SITE_ACTIVE)) {
+						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.PUBVIEW,
+								null, search, termProp, sortType,
+								new PagingPosition(first, last)));
+					} else if (view.equals(SiteConstants.SITE_INACTIVE)) {
+						rv.addAll(SiteService.getSites(org.sakaiproject.site.api.SiteService.SelectionType.INACTIVE_ONLY,
+								null, search, termProp, sortType,
+								new PagingPosition(first, last)));
 					} else {
 						rv.addAll(SiteService
-										.getSites(
-												org.sakaiproject.site.api.SiteService.SelectionType.ACCESS,
-												view, search, termProp, sortType,
-												new PagingPosition(first, last)));
+								.getSites(
+										selectionType,
+										view, search, termProp, sortType,
+										new PagingPosition(first, last)));
 					}
 				}
 
@@ -5216,10 +5333,10 @@ public class SiteAction extends PagedResourceActionII {
 						SiteService.removeSite(site);
 						M_log.debug("Removed site: " + site.getId());
 					} catch (IdUnusedException e) {
-						M_log.warn(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
+						M_log.error(this +".doSite_delete_confirmed - IdUnusedException " + id, e);
 						addAlert(state, rb.getFormattedMessage("java.couldnt", new Object[]{site_title,id}));
 					} catch (PermissionException e) {
-						M_log.warn(this + ".doSite_delete_confirmed -  PermissionException, site " + site_title + "(" + id + ").", e);
+						M_log.error(this + ".doSite_delete_confirmed -  PermissionException, site " + site_title + "(" + id + ").", e);
 						addAlert(state, rb.getFormattedMessage("java.dontperm", new Object[]{site_title}));
 					}
 				} else {
@@ -5481,7 +5598,7 @@ public class SiteAction extends PagedResourceActionII {
 			}catch (Exception e) {  
 				// should never happened, as the list of templates are generated
 				// from existing sites
-				M_log.warn(this + ".doSite_type" + e.getClass().getName(), e);
+				M_log.error(this + ".doSite_type" + e.getClass().getName(), e);
 				state.removeAttribute(STATE_TEMPLATE_SITE);
 			}
 			
@@ -5648,7 +5765,7 @@ public class SiteAction extends PagedResourceActionII {
 								UserDirectoryService.getUserByEid(eid);
 							} catch (UserNotDefinedException e) {
 								addAlert(state, rb.getFormattedMessage("java.validAuthor", new Object[]{ServerConfigurationService.getString("officialAccountName")}));
-								M_log.warn(this + ".doManual_add_course: cannot find user with eid=" + eid, e);
+								M_log.error(this + ".doManual_add_course: cannot find user with eid=" + eid, e);
 							}
 						}
 					}
@@ -6569,7 +6686,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				{
 					public SecurityAdvice isAllowed(String userId, String function, String reference)
 					{
-						if ( AliasService.SECURE_ADD_ALIAS.equals(function) || 
+						if ( AliasService.SECURE_ADD_ALIAS.equals(function) ||
 								AliasService.SECURE_UPDATE_ALIAS.equals(function) ) {
 							return SecurityAdvice.ALLOWED; 
 						}
@@ -6585,7 +6702,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 			SiteInfo siteInfo = (SiteInfo) state.getAttribute(STATE_SITE_INFO);
 			if (siteInfo != null) {
-				addAuthAnonRoles(state, site, siteInfo.allow_auth, siteInfo.allow_anon);
+				for (String role : siteInfo.additionalRoles) {
+					updateAdditionalRole(state, site, role, true);
+				}
 			}
 
 			Site templateSite = (Site) state.getAttribute(STATE_TEMPLATE_SITE);
@@ -6756,7 +6875,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (reference != null)
 		{
 			// get the email alias when an Email Archive tool has been selected
-			List aliases = AliasService.getAliases(reference, 1, 1);
+			List aliases = aliasService.getAliases(reference, 1, 1);
 			if (aliases.size() > 0) {
 				alias = ((Alias) aliases.get(0)).getId();
 			}
@@ -6795,7 +6914,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			return;
 		}
 		String siteReference = SiteService.siteReference(siteId);
-		List<String> existingAliasIds = toIdList(AliasService.getAliases(siteReference));
+		List<String> existingAliasIds = toIdList(aliasService.getAliases(siteReference));
 		Set<String> proposedAliasIds = siteInfo.siteRefAliases;
 		Set<String> aliasIdsToDelete = new HashSet<String>(existingAliasIds);
 		aliasIdsToDelete.removeAll(proposedAliasIds);
@@ -6803,29 +6922,29 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		aliasIdsToAdd.removeAll(existingAliasIds);
 		for ( String aliasId : aliasIdsToDelete ) {
 			try {
-				AliasService.removeAlias(aliasId);
+				aliasService.removeAlias(aliasId);
 			} catch ( PermissionException e ) {
 				addAlert(state, rb.getFormattedMessage("java.delalias", new Object[]{aliasId}));
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.delalias", new Object[]{aliasId}), e);
+				M_log.error(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.delalias", new Object[]{aliasId}), e);
 			} catch ( IdUnusedException e ) {
 				// no problem
 			} catch ( InUseException e ) {
 				addAlert(state, rb.getFormattedMessage("java.delalias", new Object[]{aliasId}) + rb.getFormattedMessage("java.alias.locked", new Object[]{aliasId}));
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.delalias", new Object[]{aliasId}) + rb.getFormattedMessage("java.alias.locked", new Object[]{aliasId}), e);
+				M_log.error(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.delalias", new Object[]{aliasId}) + rb.getFormattedMessage("java.alias.locked", new Object[]{aliasId}), e);
 	 			}
 	 		}
 		for ( String aliasId : aliasIdsToAdd ) {
 			try {
-				AliasService.setAlias(aliasId, siteReference);
+				aliasService.setAlias(aliasId, siteReference);
 			} catch ( PermissionException e ) {
 				addAlert(state, rb.getString("java.addalias") + " ");
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias"), e);
+				M_log.error(this + ".setSiteReferenceAliases: " + rb.getString("java.addalias"), e);
 			} catch ( IdInvalidException e ) {
 				addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{aliasId}));
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.alias.isinval", new Object[]{aliasId}), e);
+				M_log.error(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.alias.isinval", new Object[]{aliasId}), e);
 			} catch ( IdUsedException e ) {
 				addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}));
-				M_log.warn(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}), e);
+				M_log.error(this + ".setSiteReferenceAliases: " + rb.getFormattedMessage("java.alias.exists", new Object[]{aliasId}), e);
 			}
 		}
 	}
@@ -6881,14 +7000,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if ((providerCourseList != null)
 				&& (providerCourseList.size() != 0)) {
 			try {
-				AuthzGroup realmEdit = AuthzGroupService
+				AuthzGroup realmEdit = authzGroupService
 						.getAuthzGroup(realm);
 				String providerRealm = buildExternalRealm(siteId, state,
 						providerCourseList, StringUtils.trimToNull(realmEdit.getProviderGroupId()));
 				realmEdit.setProviderGroupId(providerRealm);
-				AuthzGroupService.save(realmEdit);
+				authzGroupService.save(realmEdit);
 			} catch (GroupNotDefinedException e) {
-				M_log.warn(this + ".updateCourseSiteSections: IdUnusedException, not found, or not an AuthzGroup object", e);
+				M_log.error(this + ".updateCourseSiteSections: IdUnusedException, not found, or not an AuthzGroup object", e);
 				addAlert(state, rb.getString("java.realm"));
 			}
 			catch (AuthzPermissionException e)
@@ -7061,7 +7180,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	private String buildExternalRealm(String id, SessionState state,
 			List<String> providerIdList, String existingProviderIdString) {
 		String realm = SiteService.siteReference(id);
-		if (!AuthzGroupService.allowUpdate(realm)) {
+		if (!authzGroupService.allowUpdate(realm)) {
 			addAlert(state, rb.getString("java.rosters"));
 			return null;
 		}
@@ -7818,7 +7937,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						}
 						catch (Exception e)
 						{
-							M_log.warn(this + ".doMenu_siteinfo_addClass: " + e.getMessage() + site.getId(), e);
+							M_log.error(this + ".doMenu_siteinfo_addClass: " + e.getMessage() + site.getId(), e);
 						}
 						found=true;
 					}
@@ -7839,7 +7958,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 			catch (Exception e)
 			{
-				M_log.warn(this + ".doMenu_siteinfo_addClass: " + e.getMessage() + termEid, e);
+				M_log.error(this + ".doMenu_siteinfo_addClass: " + e.getMessage() + termEid, e);
 			}
 		}
 		else
@@ -7997,6 +8116,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Site.setTitle(siteInfo.title);
 		}
 
+		//Process description so it doesn't give an error on home
+		siteInfo.description = FormattedText.processFormattedText(siteInfo.description, new StringBuilder());
+		
 		Site.setDescription(siteInfo.description);
 		Site.setShortDescription(siteInfo.short_description);
 
@@ -8151,8 +8273,8 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	 */
 	private boolean aliasEditingPermissioned(SessionState state, String siteId) {
 		String siteRef = SiteService.siteReference(siteId);
-		return AliasService.allowSetAlias("", siteRef) &&
-			AliasService.allowRemoveTargetAliases(siteRef);
+		return aliasService.allowSetAlias("", siteRef) &&
+			aliasService.allowRemoveTargetAliases(siteRef);
 	}
 
 	/**
@@ -8305,7 +8427,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.setAttribute(STATE_SITE_TYPE, type);
 
 		} catch (IdUnusedException e) {
-			M_log.warn(this + ".getReviseSite: " +  e.toString() + " site id = " + siteId, e);
+			M_log.error(this + ".getReviseSite: " +  e.toString() + " site id = " + siteId, e);
 		}
 
 		// one site has been selected
@@ -8504,11 +8626,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// list of all removed user
 		List<String> usersDeleted = new Vector<String>();
 	
-		if (AuthzGroupService.allowUpdate(realmId)
+		if (authzGroupService.allowUpdate(realmId)
 						|| SiteService.allowUpdateSiteMembership(s.getId())) {
 			try {
 				// init variables useful for actual edits and mainainersAfterProposedChanges check
-				AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realmId);
 				String maintainRoleString = realmEdit.getMaintainRole();
 				List participants = collectionToList((Collection) state.getAttribute(STATE_PARTICIPANT_LIST));
 
@@ -8640,7 +8762,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								}
 							}
 						} catch (UserNotDefinedException e) {
-							M_log.warn(this + ".doUpdate_participant: IdUnusedException " + rId + ". ", e);
+							M_log.error(this + ".doUpdate_participant: IdUnusedException " + rId + ". ", e);
 							if (("admins".equals(showOrphanedMembers) && SecurityService.isSuperUser()) || ("maintainers".equals(showOrphanedMembers))) {
 								Member userMember = realmEdit.getMember(rId);
 								if (userMember != null) {
@@ -8657,7 +8779,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 				// if user doesn't have update, don't let them add or remove any role with site.upd in it.
 
-				if (!AuthzGroupService.allowUpdate(realmId)) {
+				if (!authzGroupService.allowUpdate(realmId)) {
 					// see if any changed have site.upd
 					for (String rolename: roles) {
 						Role role = realmEdit.getRole(rolename);
@@ -8667,7 +8789,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 						}
 				}
-				AuthzGroupService.save(realmEdit);
+				authzGroupService.save(realmEdit);
 				
 				// do the audit logging - Doing this in one bulk call to the database will cause the actual audit stamp to be off by maybe 1 second at the most
 				// but seems to be a better solution than call this multiple time for every update
@@ -8707,10 +8829,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 			} catch (GroupNotDefinedException e) {
 				addAlert(state, rb.getString("java.problem2"));
-				M_log.warn(this + ".doUpdate_participant: IdUnusedException " + s.getTitle() + "(" + realmId + "). ", e);
+				M_log.error(this + ".doUpdate_participant: IdUnusedException " + s.getTitle() + "(" + realmId + "). ", e);
 			} catch (AuthzPermissionException e) {
 				addAlert(state, rb.getString("java.changeroles"));
-				M_log.warn(this + ".doUpdate_participant: PermissionException " + s.getTitle() + "(" + realmId + "). ", e);
+				M_log.error(this + ".doUpdate_participant: PermissionException " + s.getTitle() + "(" + realmId + "). ", e);
 			}
 		}
 
@@ -8778,7 +8900,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						}
 						catch (Exception ee)
 						{
-							M_log.warn(this + ".doUpdate_related_group_participants: " + ee.getMessage() + g.getId(), ee);
+							M_log.error(this + ".doUpdate_related_group_participants: " + ee.getMessage() + g.getId(), ee);
 						}
 					}
 					
@@ -8788,7 +8910,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 			catch (Exception e)
 			{
-				M_log.warn(this + ".doUpdate_related_group_participants: " + e.getMessage() + s.getId(), e);
+				M_log.error(this + ".doUpdate_related_group_participants: " + e.getMessage() + s.getId(), e);
 			}
 		}
 	}
@@ -8809,8 +8931,6 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		readInputAndUpdateStateVariable(state, params, "include", STATE_SITE_ACCESS_INCLUDE, true);
 		readInputAndUpdateStateVariable(state, params, "joinable", STATE_JOINABLE, true);
 		readInputAndUpdateStateVariable(state, params, "joinerRole", STATE_JOINERROLE, false);
-
-		String access = params.getString("access");
 		
 		// bjones86 - SAK-24423 - get all joinable site settings from the form input
 		JoinableSiteSettings.getAllFormInputs( state, params );
@@ -8841,7 +8961,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 
 			doUpdate_site_access_joinable(data, state, params, sEdit);
-			addAuthAnonRoles(state, sEdit, "authenticated".equals(access), "anonymous".equals(access));
+			
+			Map<String, AdditionalRole> additionalRoles = getAdditionalAccess(sEdit);
+			for(String role : additionalRoles.keySet()) {
+				boolean userChoice = params.getBoolean("role"+role);
+				AdditionalRole additionalRole = additionalRoles.get(role);
+				if (additionalRole.editable) {
+					if (additionalRole.granted != userChoice) {
+						updateAdditionalRole(state, sEdit, role, userChoice);
+					}
+				}
+			}
 
 			if (state.getAttribute(STATE_MESSAGE) == null) {
 				commitSite(sEdit);
@@ -8898,10 +9028,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					siteInfo.joinable = false;
 					siteInfo.joinerRole = null;
 				}
-				
-				if (access != null) {
-					siteInfo.allow_anon = "anonymous".equals(access);
-					siteInfo.allow_auth = "authenticated".equals(access);
+				// Stash the list of roles to add to the site.
+				siteInfo.additionalRoles = new HashSet<String>();
+				Map<String, AdditionalRole> additionalRoles = loadAdditionalRoles();
+				for(String role : additionalRoles.keySet()) {
+					boolean userChoice = params.getBoolean("role"+role);
+					if (userChoice) {
+						siteInfo.additionalRoles.add(role);
+					}
 				}
 
 				state.setAttribute(STATE_SITE_INFO, siteInfo);
@@ -8920,10 +9054,39 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			
 
 	} // doUpdate_site_access
+	
+	private void updateAdditionalRole(SessionState state, Site site, String roleId, boolean add) {
+		try {
+			if (add) {
+				AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.roles");
+				Role role = templateGroup.getRole(roleId);
+				if (role == null) {
+					role = templateGroup.getRole(".default");
+				}
+				if (site.getRole(roleId) == null) {
+					try {
+						site.addRole(roleId, role);
+					} catch (RoleAlreadyDefinedException e) {
+						addAlert(state, "java.authroleexists");
+					}
+				} else {
+					M_log.warn("Attempting to add a role ("+ roleId+ ") that already exists in site: "+ site.getId());
+				}
+			} else {
+				if (site.getRole(roleId) != null) {
+					site.removeRole(roleId);
+				} else {
+					M_log.warn("Attempting to remove a role ("+ roleId+ ") that isn't defined in site: "+ site.getId());
+				}
+			}
+		} catch (GroupNotDefinedException gnde) {
+			addAlert(state, rb.getString("java.rolenotfound"));
+		}
+	}
 
 	private void addAuthAnonRoles(SessionState state, Site site, boolean auth, boolean anon) {
 		try {
-			AuthzGroup templateGroup = AuthzGroupService.getAuthzGroup("!site.roles");
+			AuthzGroup templateGroup = authzGroupService.getAuthzGroup("!site.roles");
 			if (auth) {
 				if (site.getRole(".anon") != null) {
 					site.removeRole(".anon");
@@ -9468,7 +9631,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								String realm = SiteService.siteReference(site.getId());
 								try 
 								{
-									AuthzGroup realmEdit = AuthzGroupService.getAuthzGroup(realm);
+									AuthzGroup realmEdit = authzGroupService.getAuthzGroup(realm);
 									if (SiteTypeUtil.isCourseSite(siteType)) 
 									{
 										// also remove the provider id attribute if any
@@ -9478,13 +9641,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 									// add current user as the maintainer
 									realmEdit.addMember(UserDirectoryService.getCurrentUser().getId(), site.getMaintainRole(), true, false);
 									
-									AuthzGroupService.save(realmEdit);
+									authzGroupService.save(realmEdit);
 								} catch (GroupNotDefinedException e) {
-									M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
+									M_log.error(this + ".actionForTemplate chef_siteinfo-duplicate: IdUnusedException, not found, or not an AuthzGroup object "+ realm, e);
 									addAlert(state, rb.getString("java.realm"));
 								} catch (AuthzPermissionException e) {
 									addAlert(state, this + rb.getString("java.notaccess"));
-									M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
+									M_log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.notaccess"), e);
 								}
 							
 							} catch (IdUnusedException e) {
@@ -9509,13 +9672,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 						} catch (IdInvalidException e) {
 							addAlert(state, rb.getString("java.siteinval"));
-							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.siteinval") + " site id = " + newSiteId, e);
+							M_log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.siteinval") + " site id = " + newSiteId, e);
 						} catch (IdUsedException e) {
 							addAlert(state, rb.getString("java.sitebeenused"));
-							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.sitebeenused") + " site id = " + newSiteId, e);
+							M_log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.sitebeenused") + " site id = " + newSiteId, e);
 						} catch (PermissionException e) {
 							addAlert(state, rb.getString("java.allowcreate"));
-							M_log.warn(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.allowcreate") + " site id = " + newSiteId, e);
+							M_log.error(this + ".actionForTemplate chef_siteinfo-duplicate: " + rb.getString("java.allowcreate") + " site id = " + newSiteId, e);
 						}
 					}
 				}
@@ -9705,7 +9868,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 				catch (Exception e)
 				{
-					M_log.warn(this + ".actionForTemplate chef_siteinfo-addCourseConfirm: " +  e.getMessage() + site.getId(), e);
+					M_log.error(this + ".actionForTemplate chef_siteinfo-addCourseConfirm: " +  e.getMessage() + site.getId(), e);
 				}
 				
 				removeAddClassContext(state);
@@ -9762,7 +9925,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		Site site = getStateSite(state);
 		try {
 			// the target realm
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(SiteService.siteReference(site.getId()));
+			AuthzGroup realm = authzGroupService.getAuthzGroup(SiteService.siteReference(site.getId()));
 			
 			List importSites = new ArrayList(Arrays.asList(params.getStrings("importSites")));
 			for (int i = 0; i < importSites.size(); i++) {
@@ -9772,7 +9935,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					
 					// get realm information
 					String fromRealmId = SiteService.siteReference(fromSite.getId());
-					AuthzGroup fromRealm = AuthzGroupService.getAuthzGroup(fromRealmId);
+					AuthzGroup fromRealm = authzGroupService.getAuthzGroup(fromRealmId);
 					// get all users in the from site
 					Set fromUsers = fromRealm.getUsers();
 					for (Iterator iFromUsers = fromUsers.iterator(); iFromUsers.hasNext();)
@@ -9786,10 +9949,10 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						}
 					}
 				} catch (GroupNotDefinedException e) {
-					M_log.warn(this + ".importSitesUsers: GroupNotDefinedException, " + fromSiteId + " not found, or not an AuthzGroup object", e);
+					M_log.error(this + ".importSitesUsers: GroupNotDefinedException, " + fromSiteId + " not found, or not an AuthzGroup object", e);
 					addAlert(state, rb.getString("java.cannotedit"));
 				} catch (IdUnusedException e) {
-					M_log.warn(this + ".importSitesUsers: IdUnusedException, " + fromSiteId + " not found, or not an AuthzGroup object", e);
+					M_log.error(this + ".importSitesUsers: IdUnusedException, " + fromSiteId + " not found, or not an AuthzGroup object", e);
 				
 				}
 			}
@@ -9798,13 +9961,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			EventTrackingService.post(EventTrackingService.newEvent(SiteService.SECURE_UPDATE_SITE_MEMBERSHIP, realm.getId(), false));
 			
 			// save realm
-			AuthzGroupService.save(realm);
+			authzGroupService.save(realm);
 			
 		} catch (GroupNotDefinedException e) {
-			M_log.warn(this + ".importSitesUsers: IdUnusedException, " + site.getTitle() + "(" + site.getId() + ") not found, or not an AuthzGroup object", e);
+			M_log.error(this + ".importSitesUsers: IdUnusedException, " + site.getTitle() + "(" + site.getId() + ") not found, or not an AuthzGroup object", e);
 			addAlert(state, rb.getString("java.cannotedit"));
 		} catch (AuthzPermissionException e) {
-			M_log.warn(this + ".importSitesUsers: PermissionException, user does not have permission to edit AuthzGroup object " + site.getTitle() + "(" + site.getId() + "). ", e);
+			M_log.error(this + ".importSitesUsers: PermissionException, user does not have permission to edit AuthzGroup object " + site.getTitle() + "(" + site.getId() + "). ", e);
 			addAlert(state, rb.getString("java.notaccess"));
 		}
 	}
@@ -10065,7 +10228,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				|| (providerCourseSectionList.size() == 0)) {
 			// no section access so remove Provider Id
 			try {
-				AuthzGroup realmEdit1 = AuthzGroupService
+				AuthzGroup realmEdit1 = authzGroupService
 						.getAuthzGroup(realmId);
 				
 				boolean hasNonProvidedMainroleUser = false;
@@ -10089,16 +10252,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				else
 				{
 					realmEdit1.setProviderGroupId(NULL_STRING);
-					AuthzGroupService.save(realmEdit1);
+					authzGroupService.save(realmEdit1);
 				}
 			} catch (GroupNotDefinedException e) {
-				M_log.warn(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
+				M_log.error(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
 						+ "(" + realmId
 						+ ") not found, or not an AuthzGroup object", e);
 				addAlert(state, rb.getString("java.cannotedit"));
 				return;
 			} catch (AuthzPermissionException e) {
-				M_log.warn(this + ".updateCourseClasses: PermissionException, user does not have permission to edit AuthzGroup object "
+				M_log.error(this + ".updateCourseClasses: PermissionException, user does not have permission to edit AuthzGroup object "
 								+ site.getTitle() + "(" + realmId + "). ", e);
 				addAlert(state, rb.getString("java.notaccess"));
 				return;
@@ -10110,18 +10273,18 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			String externalRealm = buildExternalRealm(id, state,
 					providerCourseSectionList, null);
 			try {
-				AuthzGroup realmEdit2 = AuthzGroupService
+				AuthzGroup realmEdit2 = authzGroupService
 						.getAuthzGroup(realmId);
 				realmEdit2.setProviderGroupId(externalRealm);
-				AuthzGroupService.save(realmEdit2);
+				authzGroupService.save(realmEdit2);
 			} catch (GroupNotDefinedException e) {
-				M_log.warn(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
+				M_log.error(this + ".updateCourseClasses: IdUnusedException, " + site.getTitle()
 						+ "(" + realmId
 						+ ") not found, or not an AuthzGroup object", e);
 				addAlert(state, rb.getString("java.cannotclasses"));
 				return;
 			} catch (AuthzPermissionException e) {
-				M_log.warn(this
+				M_log.error(this
 								+ ".updateCourseClasses: PermissionException, user does not have permission to edit AuthzGroup object "
 								+ site.getTitle() + "(" + realmId + "). ", e);
 				addAlert(state, rb.getString("java.notaccess"));
@@ -10146,7 +10309,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			Group group = (Group) iGroups.next();
 			try
 			{
-				AuthzGroup gRealm = AuthzGroupService.getAuthzGroup(group.getReference());
+				AuthzGroup gRealm = authzGroupService.getAuthzGroup(group.getReference());
 				String gProviderId = StringUtils.trimToNull(gRealm.getProviderGroupId());
 				if (gProviderId != null)
 				{
@@ -10155,13 +10318,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						&& !listContainsString(providerCourseSectionList, gProviderId))
 					{
 						// if none of those three lists contains the provider id, remove the group and realm
-						AuthzGroupService.removeAuthzGroup(group.getReference());
+						authzGroupService.removeAuthzGroup(group.getReference());
 					}
 				}
 			}
 			catch (Exception e)
 			{
-				M_log.warn(this + ".updateCourseClasses: cannot remove authzgroup : " + group.getReference(), e);
+				M_log.error(this + ".updateCourseClasses: cannot remove authzgroup : " + group.getReference(), e);
 			}
 		}
 
@@ -10178,7 +10341,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 								(List<SectionObject>) state.getAttribute(STATE_MANUAL_ADD_COURSE_FIELDS), 
 								"manual");
 			} catch (Exception e) {
-				M_log.warn(this +".updateCourseClasses:" + e.toString(), e);
+				M_log.error(this +".updateCourseClasses:" + e.toString(), e);
 			}
 		}
 		if (notifyClasses != null && notifyClasses.size() > 0) {
@@ -10186,7 +10349,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				// send out class access confirmation notifications
 				sendSiteNotification(state, getStateSite(state), notifyClasses);
 			} catch (Exception e) {
-				M_log.warn(this + ".updateCourseClasses:" + e.toString(), e);
+				M_log.error(this + ".updateCourseClasses:" + e.toString(), e);
 			}
 		}
 	} // updateCourseClasses
@@ -10407,7 +10570,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					SiteService.getSite(id);
 					state.setAttribute(STATE_SITE_INSTANCE_ID, id);
 				} catch (IdUnusedException e) {
-					M_log.warn(this + ".updateSiteAttributes: IdUnusedException "
+					M_log.error(this + ".updateSiteAttributes: IdUnusedException "
 							+ siteInfo.getTitle() + "(" + id + ") not found", e);
 				}
 			}
@@ -10561,7 +10724,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			String currentSiteId = StringUtils.trimToNull((String) state.getAttribute(STATE_SITE_INSTANCE_ID));
 			boolean editingSite = currentSiteId != null;
 			try {
-				String targetRef = AliasService.getTarget(aliasId);
+				String targetRef = aliasService.getTarget(aliasId);
 				if ( editingSite ) {
 					String siteRef = SiteService.siteReference(currentSiteId);
 					boolean targetsCurrentSite = siteRef.equals(targetRef);
@@ -10610,16 +10773,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String realmId = SiteService.siteReference((String) state
 				.getAttribute(STATE_SITE_INSTANCE_ID));
 		try {
-			AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+			AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 			// Filter the roles so we only display user roles
 			for (Role role: (Set<Role>)realm.getRoles()) {
-				if (isUserRole(role)) {
+				if (authzGroupService.isRoleAssignable(role.getId())) {
 					roles.add(role);
 				}
 			}
 			Collections.sort(roles);
 		} catch (GroupNotDefinedException e) {
-			M_log.warn( this + ".getRoles: IdUnusedException " + realmId, e);
+			M_log.error( this + ".getRoles: IdUnusedException " + realmId, e);
 		}
 		return roles;
 
@@ -10642,7 +10805,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		if (realmId != null)
 		{
 			try {
-				AuthzGroup realm = AuthzGroupService.getAuthzGroup(realmId);
+				AuthzGroup realm = authzGroupService.getAuthzGroup(realmId);
 				// get all roles that allows at least one permission in the list
 				Set<String> permissionAllowedRoleIds = new HashSet<String>();
 				for(String permission:prohibitPermissionForJoinerRole)
@@ -10677,7 +10840,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				}
 				Collections.sort(roles);
 			} catch (GroupNotDefinedException e) {
-				M_log.warn( this + ".getRoles: IdUnusedException " + realmId, e);
+				M_log.error( this + ".getRoles: IdUnusedException " + realmId, e);
 			}
 		}
 		return roles;
@@ -10770,11 +10933,11 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				if (alias != null) {
 					if (!Validator.checkEmailLocal(alias)) {
 						addAlert(state, rb.getString("java.theemail"));
-					} else if (!AliasService.allowSetAlias(alias, channelReference )) {
+					} else if (!aliasService.allowSetAlias(alias, channelReference )) {
 						addAlert(state, rb.getString("java.addalias"));
 					} else {
 						try {
-							String target = AliasService.getTarget(alias);
+							String target = aliasService.getTarget(alias);
 							boolean targetsThisSite = site.getReference().equals(target) ||
 									channelReference.equals(target);
 							if (!(targetsThisSite)) {
@@ -10782,14 +10945,14 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							}
 						} catch (IdUnusedException ee) {
 							try {
-								AliasService.setAlias(alias,
+								aliasService.setAlias(alias,
 										channelReference);
 							} catch (IdUsedException exception) {
-								M_log.warn(this + ".saveFeatures setAlias IdUsedException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+								M_log.error(this + ".saveFeatures setAlias IdUsedException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
 							} catch (IdInvalidException exception) {
-								M_log.warn(this + ".saveFeatures setAlias IdInvalidException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+								M_log.error(this + ".saveFeatures setAlias IdInvalidException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
 							} catch (PermissionException exception) {
-								M_log.warn(this + ".saveFeatures setAlias PermissionException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
+								M_log.error(this + ".saveFeatures setAlias PermissionException:"+exception.getMessage()+" alias="+ alias + " channelReference="+channelReference, exception);
 							}
 						}
 					}
@@ -10895,7 +11058,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							String toolTitleText = rb.getString(SYNOPTIC_TOOL_TITLE_MAP.get(homeToolId));
 							addSynopticTool(page, homeToolId, toolTitleText, synopticToolIndex + ",1", synopticToolIndex++);
 						} catch (Exception e) {
-							M_log.warn(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
+							M_log.error(this + ".saveFeatures addSynotpicTool: " + e.getMessage() + " site id = " + site.getId() + " tool = " + homeToolId, e);
 						}
 					}
 					
@@ -11855,17 +12018,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				
 			} catch (IdUsedException e) {
 				addAlert(state, rb.getFormattedMessage("java.sitewithid.exists", new Object[]{id}));
-				M_log.warn(this + ".addNewSite: " + rb.getFormattedMessage("java.sitewithid.exists", new Object[]{id}), e);
+				M_log.error(this + ".addNewSite: " + rb.getFormattedMessage("java.sitewithid.exists", new Object[]{id}), e);
 				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			} catch (IdInvalidException e) {
 				addAlert(state, rb.getFormattedMessage("java.sitewithid.notvalid", new Object[]{id}));
-				M_log.warn(this + ".addNewSite: " + rb.getFormattedMessage("java.sitewithid.notvalid", new Object[]{id}), e);
+				M_log.error(this + ".addNewSite: " + rb.getFormattedMessage("java.sitewithid.notvalid", new Object[]{id}), e);
 				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			} catch (PermissionException e) {
 				addAlert(state, rb.getFormattedMessage("java.permission", new Object[]{id}));
-				M_log.warn(this + ".addNewSite: " + rb.getFormattedMessage("java.permission", new Object[]{id}), e);
+				M_log.error(this + ".addNewSite: " + rb.getFormattedMessage("java.permission", new Object[]{id}), e);
 				state.setAttribute(STATE_TEMPLATE_INDEX, params.getString("templateIndex"));
 				return;
 			}
@@ -11986,7 +12149,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			state.setAttribute(FORM_SITEINFO_URL_BASE, getSiteBaseUrl());
 			
 		} catch (Exception e) {
-			M_log.warn(this + ".sitePropertiesIntoState: " + e.getMessage(), e);
+			M_log.error(this + ".sitePropertiesIntoState: " + e.getMessage(), e);
 		}
 
 	} // sitePropertiesIntoState
@@ -12547,13 +12710,13 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						} else {
 							if (!Validator.checkEmailLocal(emailId)) {
 								addAlert(state, rb.getString("java.theemail"));
-							} else if (!AliasService.allowSetAlias(emailId, channelReference )) {
+							} else if (!aliasService.allowSetAlias(emailId, channelReference )) {
 								addAlert(state, rb.getString("java.addalias"));
 							} else {
 								// check to see whether the alias has been used by
 								// other sites
 								try {
-									String target = AliasService.getTarget(emailId);
+									String target = aliasService.getTarget(emailId);
 									if (target != null) {
 										if (siteId != null) {
 											if (!target.equals(channelReference)) {
@@ -12998,9 +13161,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 		public boolean joinable = false;
 		
-		public boolean allow_auth = false;
-		
-		public boolean allow_anon = false;
+		public Set<String> additionalRoles = Collections.EMPTY_SET;
 
 		public String joinerRole = NULL_STRING;
 
@@ -13142,15 +13303,61 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		}		
 
 	} // SiteInfo
-	
-	/**
-	 * Allow the additional access details to be passed and returned form 
-	 * methods easily.
-	 * @author buckett
-	 */
-	public class AdditionalAccess {
-		boolean auth = false;
-		boolean anon = false;
+
+	public class AdditionalRoleGroup implements Comparable<AdditionalRoleGroup>{
+		public String name;
+		public List<AdditionalRole> roles;
+		
+		public AdditionalRoleGroup(String name) {
+			this.name = name;
+			this.roles = new ArrayList<AdditionalRole>();
+		}
+		public String getName() {
+			return name;
+		}
+		public List<AdditionalRole> getRoles() {
+			return roles;
+		}
+		
+		public int getSize() {
+			return roles.size();
+		}
+		
+		@Override
+		public int compareTo(AdditionalRoleGroup arg0) {
+			if(arg0 == null) return 1;
+			if(this.name == null && arg0.name == null) return 0;
+			if(this.name == null || arg0.name == null) return (this.name == null) ? -1 : 1;
+			return this.name.compareTo(arg0.name);
+		}
+	}
+
+	public class AdditionalRole implements Comparable<AdditionalRole>{
+		public String id;
+		public String name;
+		public boolean editable;
+		public boolean granted;
+		
+		public String getId() {
+			return id;
+		}
+		public String getName() {
+			return name;
+		}
+		public boolean isEditable() {
+			return editable;
+		}
+		public boolean isGranted() {
+			return granted;
+		}
+		
+		@Override
+		public int compareTo(AdditionalRole arg0) {
+			if(arg0 == null) return 1;
+			if(this.name == null && arg0.name == null) return 0;
+			if(this.name == null || arg0.name == null) return (this.name == null) ? -1 : 1;
+			return this.name.compareTo(arg0.name);
+		}
 	}
 
 	// customized type tool related
@@ -13203,7 +13410,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			try {
 				template = SiteService.getSite(templateId);
 			} catch (Exception e) {
-				M_log.warn(this + ".addSiteTypeFeatures:" + e.getMessage() + templateId, e);
+				M_log.error(this + ".addSiteTypeFeatures:" + e.getMessage() + templateId, e);
 			}
 			if (template != null) {
 				// create a new site based on the template
@@ -13212,7 +13419,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					// set site type
 					edit.setType(SiteTypeUtil.getTargetSiteType(template.getType()));
 				} catch (Exception e) {
-					M_log.warn(this + ".addSiteTypeFeatures:" + " add/edit site id=" + id, e);
+					M_log.error(this + ".addSiteTypeFeatures:" + " add/edit site id=" + id, e);
 				}
 	
 				// set the tab, etc.
@@ -13229,7 +13436,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					try {
 						SiteService.save(edit);
 					} catch (Exception e) {
-						M_log.warn(this + ".addSiteTypeFeatures:" + " commitEdit site id=" + id, e);
+						M_log.error(this + ".addSiteTypeFeatures:" + " commitEdit site id=" + id, e);
 					}
 	
 					// now that the site and realm exist, we can set the email alias
@@ -13240,16 +13447,16 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 					String alias = siteTypeProvider.getSiteAlias(type, pList);
 					String channelReference = mailArchiveChannelReference(id);
 					try {
-						AliasService.setAlias(alias, channelReference);
+						aliasService.setAlias(alias, channelReference);
 					} catch (IdUsedException ee) {
 						addAlert(state, rb.getFormattedMessage("java.alias.exists", new Object[]{alias}));
-						M_log.warn(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.exists", new Object[]{alias}), ee);
+						M_log.error(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.exists", new Object[]{alias}), ee);
 					} catch (IdInvalidException ee) {
 						addAlert(state, rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}));
-						M_log.warn(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}), ee);
+						M_log.error(this + ".addSiteTypeFeatures:" + rb.getFormattedMessage("java.alias.isinval", new Object[]{alias}), ee);
 					} catch (PermissionException ee) {
 						addAlert(state, rb.getString("java.addalias"));
-						M_log.warn(this + ".addSiteTypeFeatures:" + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ", ee);
+						M_log.error(this + ".addSiteTypeFeatures:" + SessionManager.getCurrentSessionUserId() + " does not have permission to add alias. ", ee);
 					}
 				}
 			}
@@ -13346,7 +13553,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						}
 					}
 				} catch (Throwable t) {
-					M_log.warn(this + ".transferCopyEntities: Error encountered while asking EntityTransfer to transferCopyEntities from: "
+					M_log.error(this + ".transferCopyEntities: Error encountered while asking EntityTransfer to transferCopyEntities from: "
 									+ fromContext + " to: " + toContext, t);
 				}
 			}
@@ -13449,7 +13656,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 							etRM.updateEntityReferences(toContext, transversalMap);
 						}
 					} catch (Throwable t) {
-						M_log.warn(
+						M_log.error(
 								"Error encountered while asking EntityTransfer to updateEntityReferences at site: "
 								+ toContext, t);
 					}
@@ -13484,7 +13691,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 						}
 					}
 				} catch (Throwable t) {
-					M_log.warn(
+					M_log.error(
 							"Error encountered while asking EntityTransfer to transferCopyEntities from: "
 									+ fromContext + " to: " + toContext, t);
 				}
@@ -13537,6 +13744,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		// an option if the imported site contains it
 		boolean displayWebContent = false;
 		boolean displayNews = false;
+		boolean displayLessons = false;
 
 		Set importSites = ((Hashtable) state.getAttribute(STATE_IMPORT_SITES))
 				.keySet();
@@ -13559,12 +13767,17 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 
 			if (site.getToolForCommonId(NEWS_TOOL_ID) != null)
 				displayNews = true;
+			if (site.getToolForCommonId(LESSONS_TOOL_ID) != null)
+				displayLessons = true;
+
 		}
 		
 		if (displayWebContent && !toolIdList.contains(WEB_CONTENT_TOOL_ID))
 			toolIdList.add(WEB_CONTENT_TOOL_ID);
 		if (displayNews && !toolIdList.contains(NEWS_TOOL_ID))
 			toolIdList.add(NEWS_TOOL_ID);
+		if (displayLessons && !toolIdList.contains(LESSONS_TOOL_ID))
+			toolIdList.add(LESSONS_TOOL_ID);
 		if (ServerConfigurationService.getBoolean("site-manage.importoption.siteinfo", false)){
 			toolIdList.add(SITE_INFO_TOOL_ID);
 		}
@@ -13767,9 +13980,9 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 		String azgId = "!site.template.course";
 		AuthzGroup azgTemplate;
 		try {
-			azgTemplate = AuthzGroupService.getAuthzGroup(azgId);
+			azgTemplate = authzGroupService.getAuthzGroup(azgId);
 		} catch (GroupNotDefinedException e) {
-			M_log.warn(this + ".getRolesAllowedToAttachSection: Could not find authz group " + azgId, e);
+			M_log.error(this + ".getRolesAllowedToAttachSection: Could not find authz group " + azgId, e);
 			return new HashSet();
 		}
 		Set roles = azgTemplate.getRolesIsAllowed("site.upd");
@@ -14867,7 +15080,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 			}
 			catch (IOException e)
 			{
-				M_log.warn("Problem sending redirect to: "+ url,  e);
+				M_log.error("Problem sending redirect to: "+ url,  e);
 			}
 			return;
 		}
@@ -14911,7 +15124,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 	}
 	
 	private Collection<String> prefixSiteAliasIds(String prefix, Site site) {
-		return prefixSiteAliasIds(prefix, AliasService.getAliases(site.getReference()));
+		return prefixSiteAliasIds(prefix, aliasService.getAliases(site.getReference()));
 	}
 	
 	private Collection<String> prefixSiteAliasIds(String prefix, Collection<? extends Object> aliases) {
@@ -15270,7 +15483,7 @@ private Map<String,List> getTools(SessionState state, String type, Site site) {
 				quota = getSiteSpecificQuota(site);
 			}
 		} catch (IdUnusedException e) {
-			M_log.warn("Quota calculation could not find the site " + siteId
+			M_log.error("Quota calculation could not find the site " + siteId
 					+ "for site specific quota calculation",
 					M_log.isDebugEnabled() ? e : null);
 		}

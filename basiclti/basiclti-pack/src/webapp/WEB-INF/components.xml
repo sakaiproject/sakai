@@ -51,6 +51,7 @@
                 class="org.sakaiproject.lti.impl.LTIRoleMapperImpl"
                 singleton="true">
             <property name="siteService"><ref bean="org.sakaiproject.site.api.SiteService"/></property>
+            <property name="serverConfigurationService"><ref bean="org.sakaiproject.component.api.ServerConfigurationService"/></property>
         </bean>
 
         <bean id="org.sakaiproject.lti.api.SiteMembershipUpdater"

@@ -21,11 +21,6 @@
     <module>scoring-service</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/edu-services/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/edu-services/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

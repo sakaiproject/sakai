@@ -46,6 +46,7 @@ import org.sakaiproject.tool.assessment.data.ifc.assessment.PublishedAssessmentI
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemMetaDataIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextAttachmentIfc;
 import org.sakaiproject.tool.assessment.data.ifc.assessment.ItemTextIfc;
+import org.sakaiproject.tool.assessment.data.ifc.shared.AgentDataIfc;
 import org.sakaiproject.tool.assessment.facade.AssessmentFacade;
 import org.sakaiproject.tool.assessment.facade.ItemFacade;
 import org.sakaiproject.tool.assessment.facade.PublishedItemFacade;
@@ -53,6 +54,7 @@ import org.sakaiproject.tool.assessment.facade.TypeFacade;
 import org.sakaiproject.tool.assessment.services.GradingService;
 import org.sakaiproject.tool.assessment.services.ItemService;
 import org.sakaiproject.tool.assessment.services.PublishedItemService;
+import org.sakaiproject.tool.assessment.services.QuestionPoolService;
 import org.sakaiproject.tool.assessment.services.assessment.AssessmentService;
 import org.sakaiproject.tool.assessment.services.assessment.PublishedAssessmentService;
 import org.sakaiproject.tool.assessment.ui.bean.author.AnswerBean;
@@ -66,6 +68,9 @@ import org.sakaiproject.tool.assessment.ui.bean.author.MatchItemBean;
 import org.sakaiproject.tool.assessment.ui.bean.author.CalculatedQuestionBean;
 import org.sakaiproject.tool.assessment.ui.bean.authz.AuthorizationBean;
 import org.sakaiproject.tool.assessment.ui.listener.util.ContextUtil;
+import org.sakaiproject.component.cover.ComponentManager;
+import org.sakaiproject.user.api.UserDirectoryService;
+
 import org.sakaiproject.util.FormattedText;
 
 /**
@@ -169,6 +174,30 @@ public class ItemModifyListener implements ActionListener
       }
       else {
           // This item is in a question pool
+          UserDirectoryService userDirectoryService = ComponentManager.get(UserDirectoryService.class);
+          String currentUserId = userDirectoryService.getCurrentUser().getId();
+          QuestionPoolService qpdelegate = new QuestionPoolService();
+          List<Long> poolIds = qpdelegate.getPoolIdsByItem(itemId);
+          boolean authorized = false;
+          poolloop:
+          for (Long poolId: poolIds) {
+              List agents = qpdelegate.getAgentsWithAccess(poolId);
+              for (Object agent: agents) {
+                  if (currentUserId.equals(((AgentDataIfc)agent).getIdString())) {
+                      authorized = true;
+                      break poolloop;
+                  }
+              }
+          }
+          if (!authorized) {
+              String err=(String)ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages", "denied_edit_assessment_error");
+              context.addMessage(null,new FacesMessage(err));
+              itemauthorbean.setOutcome("author");
+              if (log.isDebugEnabled()) {
+                  log.debug("itemID " + itemId + " in pool is being returned null from populateItemBean because it fails isUSerAllowedToEditAssessment for user " + currentUserId);
+              }
+              return false;
+          }
       }
 
       bean.setItemId(itemfacade.getItemId().toString());

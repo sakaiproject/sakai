@@ -21,11 +21,6 @@
     <module>mergedlist-util/util</module>
   </modules>
 
-  <scm>
-    <connection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</connection>
-    <developerConnection>scm:svn:https://source.sakaiproject.org/svn/site/trunk</developerConnection>
-    <url>https://source.sakaiproject.org/svn/site/trunk</url>
-  </scm>
 
   <distributionManagement>
     <site>

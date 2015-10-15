@@ -67,7 +67,7 @@ import org.apache.commons.logging.LogFactory;
 import org.imsglobal.basiclti.BasicLTIUtil;
 import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
-import org.sakaiproject.authz.cover.AuthzGroupService;
+import org.sakaiproject.authz.api.AuthzGroupService;
 import org.sakaiproject.component.cover.ServerConfigurationService;
 import org.sakaiproject.event.cover.UsageSessionService;
 import org.sakaiproject.id.cover.IdManager;
@@ -89,15 +89,11 @@ import org.imsglobal.basiclti.BasicLTIConstants;
 import org.sakaiproject.basiclti.util.LegacyShaUtil;
 import org.sakaiproject.util.FormattedText;
 
-import org.sakaiproject.lessonbuildertool.SimplePageItem;
-
 import org.imsglobal.pox.IMSPOXRequest;
 
 import org.sakaiproject.lti.api.LTIService;
 import org.sakaiproject.util.foorm.SakaiFoorm;
 import org.sakaiproject.util.foorm.FoormUtil;
-
-import org.sakaiproject.blti.LessonsFacade;
 
 /**
  * Notes:
@@ -130,15 +126,6 @@ public class ServiceServlet extends HttpServlet {
     protected static SakaiFoorm foorm = new SakaiFoorm();
 
     protected static LTIService ltiService = null;
-
-	protected static XPath xpath = null;
-	protected static XPathExpression LESSONS_RESOURCES_EXPR = null;
-	protected static XPathExpression LESSONS_FOLDER_EXPR = null;
-	protected static XPathExpression LESSONS_TYPE_EXPR = null;
-	protected static XPathExpression LESSONS_TITLE_EXPR = null;
-	protected static XPathExpression LESSONS_TEMPID_EXPR = null;
-	protected static XPathExpression LESSONS_URL_EXPR = null;
-	protected static XPathExpression LESSONS_CUSTOM_EXPR = null;
 
 	private final String returnHTML = 
 		"<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\"\n" + 
@@ -184,21 +171,7 @@ public class ServiceServlet extends HttpServlet {
 	@Override
 		public void init(ServletConfig config) throws ServletException {
 			super.init(config);
-            LessonsFacade.init();
 			if ( ltiService == null ) ltiService = (LTIService) ComponentManager.get("org.sakaiproject.lti.api.LTIService");
-			try {
-				xpath = XPathFactory.newInstance().newXPath();
-				LESSONS_RESOURCES_EXPR = xpath.compile("params/resources/*");
-				LESSONS_FOLDER_EXPR = xpath.compile("resources/*");
-				LESSONS_TYPE_EXPR = xpath.compile("type");
-				LESSONS_TITLE_EXPR = xpath.compile("title");
-				LESSONS_TEMPID_EXPR = xpath.compile("tempId");
-				LESSONS_URL_EXPR = xpath.compile("launchUrl");
-				LESSONS_CUSTOM_EXPR = xpath.compile("launchParams");
-			} catch (Exception e) {
-				M_log.error("Error compiling XPath expressions.");
-				throw new ServletException();
-			}
 		}
 
 	/* launch_presentation_return_url=http://lmsng.school.edu/portal/123/page/988/
@@ -670,7 +643,7 @@ public class ServiceServlet extends HttpServlet {
 					if ( roleMap.containsKey(role.getId()) ) {
 						ims_role = roleMap.get(role.getId());
 					} 
-					else if (AuthzGroupService.isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/"+siteId))
+					else if (ComponentManager.get(AuthzGroupService.class).isAllowed(ims_user_id, SiteService.SECURE_UPDATE_SITE, "/site/" + siteId))
 					{
 						ims_role = "Instructor";
 					}
@@ -790,11 +763,7 @@ public class ServiceServlet extends HttpServlet {
 					SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED, SakaiBLTIUtil.BASICLTI_OUTCOMES_ENABLED_DEFAULT);
 			if ( ! "true".equals(allowOutcomes) ) allowOutcomes = null;
 
-			String allowLori = ServerConfigurationService.getString(
-					SakaiBLTIUtil.BASICLTI_LORI_ENABLED, SakaiBLTIUtil.BASICLTI_LORI_ENABLED_DEFAULT);
-			if ( ! "true".equals(allowLori) ) allowLori = null;
-
-			if (allowOutcomes == null && allowLori == null ) {
+			if (allowOutcomes == null ) {
 				M_log.warn("LTI Services are disabled IP=" + ipAddress);
 				response.setStatus(HttpServletResponse.SC_FORBIDDEN);
 				return;
@@ -817,12 +786,6 @@ public class ServiceServlet extends HttpServlet {
                    "deleteResultRequest".equals(lti_message_type) )  && allowOutcomes != null ) {
 				sourcedid = bodyMap.get("/resultRecord/sourcedGUID/sourcedId");
 				message_type = "basicoutcome";
-			} else if ( "getCourseStructureRequest".equals(lti_message_type) ) {
-                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
-				message_type = "getstructure";
-			} else if ( "addCourseResourcesRequest".equals(lti_message_type) ) {
-                sourcedid = bodyMap.get("/params/sourcedGUID/sourcedId");
-				message_type = "addstructure";
 			} else {
 				String output = pox.getResponseUnsupported("Not supported "+lti_message_type);
 				response.setContentType("application/xml");
@@ -944,350 +907,12 @@ public class ServiceServlet extends HttpServlet {
 				return;
 			}
 
-			String placementLori = pitch.getProperty("allowlori");
-
-			// Outcomes handled above
-			if ( allowLori != null && "on".equals(placementLori) && "getstructure".equals(message_type) ) {
-				processCourseStructureXml(request, response, lti_message_type, siteId, pox);
-			} else if ( allowLori != null && "on".equals(placementLori) && "addstructure".equals(message_type) ) {
-				processAddResourceXML(request, response, lti_message_type, siteId, pox);
-			} else {
-				response.setContentType("application/xml");
-				PrintWriter writer = response.getWriter();
-				String desc = "Message received and validated operation="+pox.getOperation();
-				String output = pox.getResponseUnsupported(desc);
-				writer.println(output);
-			}
-		}
-
-	protected void processCourseStructureXml(HttpServletRequest request, HttpServletResponse response, 
-			String lti_message_type, String siteId, IMSPOXRequest pox)
-		throws java.io.IOException
-	{
-            // userId is irrelevant as this is server to server
-			Map<String,String> bodyMap = pox.getBodyMap();
-			String context_id = bodyMap.get("/params/courseId");
-			if ( context_id == null || ! context_id.equals(siteId) ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				M_log.warn("mis-match courseId="+context_id+" siteId="+siteId);
-				return;
-			}
-
-			// First make sure that we have Lessons in the site
-			SitePage lessonsPage = null;
-			ToolConfiguration lessonsConfig = null;
-			try {
-				Site site = SiteService.getSite(siteId);
-				for (SitePage page : (List<SitePage>)site.getPages()) {
-					for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
-						String tid = tool.getToolId();
-						if ( "sakai.lessonbuildertool".equals(tid) ) {
-							lessonsPage = page;
-							lessonsConfig = tool;
-							break;
-						}
-					}
-				}
-			} catch (IdUnusedException ex) {
-				doErrorXML(request, response, pox, "outcomes.notools", "sourcedid", null);
-				M_log.warn("Could not scan site for Lessons tool.");
-				return;
-			}
-
-			if ( lessonsConfig == null ) {
-				M_log.warn("Could not find sakai.lessonbulder in site="+siteId);
-				doErrorXML(request, response, pox, "outcomes.nolessons", "sourcedid", null);
-				return;
-			}
-
-			// Now lets find the structure within Lessons
-			List<Long> structureList = new ArrayList<Long>();
-
-			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
-			List<Map<String,Object>> structureMap = iteratePagesXML(sitePages,structureList,0);
-
-			if ( structureMap.size() < 1 ) {
-				Map<String,Object> cMap = new TreeMap<String,Object>();
-				cMap.put("/folderId","0");
-				cMap.put("/title",lessonsPage.getTitle());
-				cMap.put("/description",lessonsPage.getTitle());
-				cMap.put("/type","folder");
-				structureMap.add(cMap);
-			}
-
-			Map<String,Object> theMap = new TreeMap<String,Object>();
-			theMap.put("/getCourseStructureResponse/resources/resource",structureMap);
-			String theXml = XMLMap.getXMLFragment(theMap, true);
-			String output = pox.getResponseSuccess("processCourseStructureXml", theXml);
-
-			PrintWriter out = response.getWriter();
-			out.println(output);
-			M_log.debug(output);
-			return;
-	}
-
-	protected void processAddResourceXML(HttpServletRequest request, HttpServletResponse response, 
-			String lti_message_type, String siteId, IMSPOXRequest pox)
-		throws java.io.IOException
-	{
-            // userId is irrelevant because this is server to server
-			Map<String,String> bodyMap = pox.getBodyMap();
-			String context_id = bodyMap.get("/params/courseId");
-
-			if ( context_id == null || ! context_id.equals(siteId) ) {
-				doErrorXML(request, response, pox, "outcomes.sourcedid", "sourcedid", null);
-				M_log.warn("mis-match courseId="+context_id+" siteId="+siteId);
-				return;
-			}
-
-			String folder_id = bodyMap.get("/params/folderId");
-			Long folderId = null;
-			try { folderId = new Long(folder_id); }
-			catch (Exception e) { folderId = null; }
-
-			List<Long> structureList = new ArrayList<Long>();
-			List<SimplePageItem> sitePages = LessonsFacade.findItemsInSite(context_id);
-			SimplePageItem thePage = LessonsFacade.findFolder(sitePages, folderId, structureList, 1);
-
-			// Something wrong, add on the first page
-			if ( thePage == null ) {
-				M_log.debug("Inserting at top...");
-				for (SimplePageItem i : sitePages) {
-					if (i.getType() != SimplePageItem.PAGE) continue;
-					// System.out.println("item="+i.getName()+"id="+i.getId()+" sakaiId="+i.getSakaiId());
-					thePage = i;
-					break;
-				}
-			}
-
-			// No pages in Lessons yet... 
-			// If we can find the Lessons tool, lets add its first page. 
-			if ( thePage == null ) {
-				M_log.debug("Creating top page...");
-				SitePage lessonsPage = null;
-				ToolConfiguration lessonsConfig = null;
-				try {
-					Site site = SiteService.getSite(siteId);
-					for (SitePage page : (List<SitePage>)site.getPages()) {
-						for(ToolConfiguration tool : (List<ToolConfiguration>) page.getTools()) {
-							String tid = tool.getToolId();
-							if ( "sakai.lessonbuildertool".equals(tid) ) {
-								lessonsPage = page;
-								lessonsConfig = tool;
-								break;
-							}
-						}
-					}
-				} catch (IdUnusedException ex) {
-					M_log.warn("Could not load site.");
-				}
-				if ( lessonsConfig == null ) {
-					M_log.warn("Could not find sakai.lessonbulder in site="+siteId);
-				} else {
-					String title = lessonsPage.getTitle();
-					String toolId = lessonsConfig.getPageId();
-					thePage = LessonsFacade.addFirstPage(siteId, toolId, title);
-				}
-			}
-
-			if ( thePage == null ) {
-				doErrorXML(request, response, pox, "lessons.page.notfound", 
-					"Unable to find page in structure at "+folderId, null);
-				return;
-			}
-
-			Element bodyElement = pox.bodyElement;
-			// System.out.println(XMLMap.nodeToString(bodyElement));
-			// System.out.println(XMLMap.nodeToString(bodyElement, true));
-			NodeList nl = null;
-			try {
-				Object result = LESSONS_RESOURCES_EXPR.evaluate(bodyElement, XPathConstants.NODESET);
-				nl = (NodeList) result;
-				// System.out.println("result = "+result+" count="+nl.getLength());
-			} catch(Exception e) {
-				e.printStackTrace();
-				nl = null;
-			}
-
-			if ( nl == null || nl.getLength() < 1 ) {
-				doErrorXML(request, response, pox, "lessons.page.noresources", 
-					"No resources to add", null);
-				return;
-			}
-
-
-            Long pageNum = Long.valueOf(thePage.getSakaiId());
-            List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
-			int seq = items.size() + 1;
-            List<Map<String,String>> resultList = new ArrayList<Map<String,String>>();
-
-			recursivelyAddResourcesXML(context_id, thePage, nl, seq, resultList);
-			// One success means overall status is a success
-			boolean success = false;
-			for ( Map<String,String> result : resultList ) {
-				if ( "success".equals(result.get("/status")) ) success = true;
-			}
-
-            Map<String,Object> theMap = new TreeMap<String,Object>();
-            theMap.put("/addCourseResourcesResponse/resources/resource",resultList);
-            String theXml = XMLMap.getXMLFragment(theMap, true);
-
 			response.setContentType("application/xml");
-			String output = null;
-			if ( success ) {
-				output = pox.getResponseSuccess("Items Added",theXml);
-			} else {
-				output = pox.getResponseFailure("Items were not added", null);
-			}
-
-			PrintWriter out = response.getWriter();
-			out.println(output);
-			M_log.debug(output);
-	}
-
-	protected void recursivelyAddResourcesXML(String siteId, SimplePageItem thePage, NodeList nl, 
-        int startPos, List<Map<String,String>> resultList)
-	{
-		for(int i=0, cnt=nl.getLength(); i<cnt; i++)
-		{
-			Node node = nl.item(i);
-			if ( node.getNodeType() != Node.ELEMENT_NODE ) continue;
-			M_log.debug("Node="+node.getNodeName());
-
-			if ( ! "resource".equals(node.getNodeName()) ) {
-				continue;
-			}
-
-			String typeStr = null;
-			try {
-				typeStr = (String) LESSONS_TYPE_EXPR.evaluate(node);
-			} catch (Exception e) {
-				typeStr = null;
-			}
-			String titleStr = null;
-			try {
-				titleStr = (String) LESSONS_TITLE_EXPR.evaluate(node);
-			} catch (Exception e) {
-				titleStr = null;
-			}
-			String tempId = null;
-			try {
-				tempId = (String) LESSONS_TEMPID_EXPR.evaluate(node);
-			} catch (Exception e) {
-				tempId = null;
-			}
-			
-			if ( "folder".equals(typeStr) ) {
-				SimplePageItem subPageItem = LessonsFacade.addLessonsFolder(thePage, titleStr, startPos);
-                if ( tempId != null ) {
-                    Map<String,String> result = new TreeMap<String,String> ();
-                    result.put("/tempId",tempId);
-                    result.put("/id", subPageItem.getSakaiId());
-                    resultList.add(result);
-                }
-				startPos++;
-				NodeList childNodes = null;
-				try {
-					Object result = LESSONS_FOLDER_EXPR.evaluate(node, XPathConstants.NODESET);
-					childNodes = (NodeList) result;
-					M_log.debug("children of the folder = "+result+" count="+childNodes.getLength());
-				} catch(Exception e) {
-					e.printStackTrace();
-					nl = null;
-				}
-
-				M_log.debug("===== DOWN THE RABIT HOLE ==========");
-				recursivelyAddResourcesXML(siteId, subPageItem, childNodes, 1, resultList);
-				continue;
-			}
-
-			if ( ! "lti".equals(typeStr) ) {
-				M_log.warn("No support for type:"+typeStr);
-				continue;
-			}
-
-			String launchUrl = null;
-			try {
-				launchUrl = (String) LESSONS_URL_EXPR.evaluate(node);
-			} catch (Exception e) {
-				launchUrl = null;
-			}
-			String launchParams = null;
-			try {
-				launchParams = (String) LESSONS_CUSTOM_EXPR.evaluate(node);
-			} catch (Exception e) {
-				launchParams = null;
-			}
-
-			if ( titleStr == null || launchUrl == null || launchParams == null ) {
-				M_log.warn("Missing required value type, name, url, launch, parms");
-				continue;
-			}
-
-            M_log.debug("type="+typeStr+" name="+titleStr+" launchUrl="+launchUrl+" lanchParams="+launchParams);
-
-            Map<String,String> result = new TreeMap<String,String> ();
-            result.put("/tempId",tempId);
-
-			// Time to add the launch tool
-			String sakaiId = null;
-            try {
-			    sakaiId = LessonsFacade.doImportTool(siteId, launchUrl, titleStr, null, launchParams);
-                if ( sakaiId == null ) {
-                    result.put("/status", "failure");
-                    result.put("/description","doImportTool failed");
-				    M_log.warn("Unable to add LTI Placement "+titleStr);
-                } else {
-                    result.put("/status", "success");
-                    result.put("/description","doImportTool success");
-                    result.put("/id", sakaiId);
-                }
-            } catch (Exception e) {
-                sakaiId = null;
-                e.printStackTrace();
-                result.put("/status", "failure");
-                result.put("/description", e.getMessage());
-            }
-            resultList.add(result);
-
-			if ( sakaiId == null ) continue;
-
-			LessonsFacade.addLessonsLaunch(thePage, sakaiId, titleStr, startPos);
+			PrintWriter writer = response.getWriter();
+			String desc = "Message received and validated operation="+pox.getOperation();
+			String output = pox.getResponseUnsupported(desc);
+			writer.println(output);
 		}
-	}
-
-	protected List<Map<String,Object>> iteratePagesXML(List<SimplePageItem> sitePages, 
-		List<Long> structureList, int depth)
-	{
-		List<Map<String,Object>> structureMap = new ArrayList<Map<String,Object>>();
-
-		if ( depth > 10 ) return null;
-		for (SimplePageItem i : sitePages) {
-			if ( structureList.size() > 50 ) return structureMap;
-            // System.out.println("d="+depth+" o="+structureList.size()+" Page ="+i.getSakaiId()+" title="+i.getName());
-			if (i.getType() != SimplePageItem.PAGE) continue;
-			Long pageNum = Long.valueOf(i.getSakaiId());
-
-			String title = i.getName();
-			if ( structureList.size() == 50 ) title = " ... ";
-			structureList.add(i.getId());
-
-			Map<String,Object> cMap = new TreeMap<String,Object>();
-			cMap.put("/folderId",i.getSakaiId());
-			cMap.put("/title",title);
-			cMap.put("/description",title);
-			cMap.put("/type","folder");
-
-			List<SimplePageItem> items = LessonsFacade.findItemsOnPage(pageNum);
-            // System.out.println("Items="+items);
-		    List<Map<String,Object>> subMap = iteratePagesXML(items, structureList, depth+1);
-            if (subMap != null && subMap.size() > 0 ) {
-			    cMap.put("/resources/resource",subMap);
-            }
-			structureMap.add(cMap);
-		}
-        return structureMap;
-	}
 
 	protected void processOutcomeXml(HttpServletRequest request, HttpServletResponse response, 
 			String lti_message_type, String sourcedid, IMSPOXRequest pox)

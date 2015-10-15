@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<registration>
+	<tool id="sakai.rsf.components" title="RSF Sakai Component Test" description="Demonstration of RSF components for Sakai">
+	</tool>
+</registration>
