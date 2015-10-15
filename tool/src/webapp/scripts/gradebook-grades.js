@@ -1994,16 +1994,29 @@ GradebookToolbar.prototype.setupToggleGradeItems = function() {
   self.$toolbar.on("click", "#toggleGradeItemsToolbarItem", function(event) {
     event.preventDefault();
 
-    $(this).toggleClass("on");
+    var $button = $(this);
 
-    if ($(this).hasClass("on")) {
+    $button.toggleClass("on");
+
+    if ($button.hasClass("on")) {
       repositionPanel();
-      $(this).attr("aria-expanded", "true");
+      $button.attr("aria-expanded", "true");
       self.$gradeItemsFilterPanel.show().attr("aria-hidden", "false");
     } else {
-      $(this).attr("aria-expanded", "false");
+      $button.attr("aria-expanded", "false");
       self.$gradeItemsFilterPanel.hide().attr("aria-hidden", "true");
     }
+
+    // Support click outside menu panel to close panel
+    function hidePanelOnOuterClick(mouseDownEvent) {
+      if ($(mouseDownEvent.target).closest(".gb-toggle-grade-items-panel, #toggleGradeItemsToolbarItem").length == 0) {
+        $button.removeClass("on");
+        $button.attr("aria-expanded", "false");
+        self.$gradeItemsFilterPanel.hide().attr("aria-hidden", "true");
+        $(document).off("mousedown", hidePanelOnOuterClick);
+      }
+    };
+    $(document).on("mousedown", hidePanelOnOuterClick);
 
     return false;
   });
