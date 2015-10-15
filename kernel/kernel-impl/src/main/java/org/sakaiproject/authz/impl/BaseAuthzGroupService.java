@@ -631,7 +631,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 		// allow any advisors to make last minute changes 
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
-			authzGroupAdvisor.update(azGroup);
+			try {
+				authzGroupAdvisor.update(azGroup);
+			} catch (Exception e) {
+				M_log.error("Advisor error during completeSave()", e);
+			}
 		}
 		// complete the azGroup
 		m_storage.save(azGroup);
@@ -688,7 +692,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 		// allow any advisors to make last minute changes 
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
-			authzGroupAdvisor.groupUpdate(azGroup, userId, roleId);
+			try {
+				authzGroupAdvisor.groupUpdate(azGroup, userId, roleId);
+			} catch (Exception e) {
+				M_log.error("Advisor error during addMemberToGroup()", e);
+			}
 		}
 		
 		// add user to the azGroup
@@ -724,7 +732,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 		// allow any advisors to make last minute changes 
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
-			authzGroupAdvisor.groupUpdate(azGroup, userId, azGroup.getMember(userId).getRole().getId());
+			try {
+				authzGroupAdvisor.groupUpdate(azGroup, userId, azGroup.getMember(userId).getRole().getId());
+			} catch (Exception e) {
+				M_log.error("Advisor error during removeMemberFromGroup()", e);
+			}
 		}
 		// remove user from the azGroup
 		m_storage.removeUser(azGroup, userId);
@@ -868,7 +880,11 @@ public abstract class BaseAuthzGroupService implements AuthzGroupService
 
 		// allow any advisors to make last minute changes 
 		for (AuthzGroupAdvisor authzGroupAdvisor : authzGroupAdvisors) {
-			authzGroupAdvisor.remove(azGroup);
+			try {
+				authzGroupAdvisor.remove(azGroup);
+			} catch (Exception e) {
+				M_log.error("Advisor error during removeAuthzGroup()", e);
+			}
 		}
         // KNL-1230 handle removal of authzgroups by processing caching changes
         try {
