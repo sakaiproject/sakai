@@ -2741,9 +2741,10 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 						
 			//only update the variables for the calculation if:
 			// 1. the assignment has points to be assigned
-			// 2. its not extra credit
-			// 3. there is a grade for the student 
-			if(assignment.getPoints() != null && !assignment.isExtraCredit() && StringUtils.isNotBlank(grade)) {
+			// 2. there is a grade for the student 
+			// 3. it's included in course grade calculations
+			// 4. it's released to the student (safety check against condition 3)
+			if(assignment.getPoints() != null && StringUtils.isNotBlank(grade) && assignment.isCounted() && assignment.isReleased()) {
 				totalPossible = totalPossible.add(new BigDecimal(assignment.getPoints().toString()));
 				numOfAssignments++;
 				numScored++;
