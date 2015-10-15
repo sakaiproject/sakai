@@ -2,22 +2,20 @@
 -- SAKAI_USER_PROPERTY
 -----------------------------------------------------------------------------
 
-CREATE TABLE SAKAI_USER_PROPERTY
+CREATE TABLE IF NOT EXISTS SAKAI_USER_PROPERTY
 (
        USER_ID             VARCHAR (99) NOT NULL,
-       NAME                 VARCHAR (99) NOT NULL,
-       VALUE                LONGTEXT NULL
+       NAME                VARCHAR (99) NOT NULL,
+       VALUE               LONGTEXT NULL,
+       PRIMARY KEY         (`USER_ID`,`NAME`),
+       CONSTRAINT `sakai_user_property_ibfk_1` FOREIGN KEY (`USER_ID`) REFERENCES `SAKAI_USER` (`USER_ID`)
 );
-
-
-ALTER TABLE SAKAI_USER_PROPERTY
-       ADD  ( PRIMARY KEY (USER_ID, NAME) ) ;
 
 -----------------------------------------------------------------------------
 -- SAKAI_USER
 -----------------------------------------------------------------------------
 
-CREATE TABLE SAKAI_USER
+CREATE TABLE IF NOT EXISTS SAKAI_USER
 (
        USER_ID              VARCHAR (99) NOT NULL,
        EMAIL                VARCHAR (255) NULL,
@@ -29,57 +27,29 @@ CREATE TABLE SAKAI_USER
        CREATEDBY            VARCHAR (99) NOT NULL,
        MODIFIEDBY           VARCHAR (99) NOT NULL,
        CREATEDON            TIMESTAMP NOT NULL,
-       MODIFIEDON           DATETIME NOT NULL
-);
-
-ALTER TABLE SAKAI_USER
-       ADD  ( PRIMARY KEY (USER_ID) ) ;
-
-
-ALTER TABLE SAKAI_USER_PROPERTY
-       ADD  ( FOREIGN KEY (USER_ID)
-                             REFERENCES SAKAI_USER (USER_ID) ) ;
-
-CREATE INDEX IE_SAKAI_USER_CREATED ON SAKAI_USER
-(
-       CREATEDBY                      ASC,
-       CREATEDON                      ASC
-);
-
-CREATE INDEX IE_SAKAI_USER_MODDED ON SAKAI_USER
-(
-       MODIFIEDBY                     ASC,
-       MODIFIEDON                     ASC
-);
-
-CREATE INDEX IE_SAKAI_USER_EMAIL ON SAKAI_USER
-(
-       EMAIL_LC                       ASC
+       MODIFIEDON           DATETIME NOT NULL,
+       PRIMARY KEY          (`USER_ID`),
+       KEY `IE_SAKAI_USER_CREATED` (`CREATEDBY`,`CREATEDON`),
+       KEY `IE_SAKAI_USER_MODDED` (`MODIFIEDBY`,`MODIFIEDON`),
+       KEY `IE_SAKAI_USER_EMAIL` (`EMAIL_LC`)
 );
 
 -----------------------------------------------------------------------------
 -- SAKAI_USER_ID_MAP
 -----------------------------------------------------------------------------
 
-CREATE TABLE SAKAI_USER_ID_MAP
+CREATE TABLE IF NOT EXISTS SAKAI_USER_ID_MAP
 (
        USER_ID             VARCHAR (99) NOT NULL,
-       EID                 VARCHAR (255) NOT NULL
-);
-
-
-ALTER TABLE SAKAI_USER_ID_MAP
-       ADD  ( PRIMARY KEY (USER_ID) ) ;
-
-CREATE UNIQUE INDEX AK_SAKAI_USER_ID_MAP_EID ON SAKAI_USER_ID_MAP
-(
-       EID                       ASC
+       EID                 VARCHAR (255) NOT NULL,
+       PRIMARY KEY         (`USER_ID`),
+       UNIQUE KEY `AK_SAKAI_USER_ID_MAP_EID` (`EID`)
 );
 
 -- populate with the admin and postmaster users
 
-INSERT INTO SAKAI_USER VALUES ('admin', '', '', 'Sakai', 'Administrator', '', 'ISMvKXpXpadDiUoOSoAfww==', 'admin', 'admin', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
-INSERT INTO SAKAI_USER VALUES ('postmaster', '', '', 'Sakai', 'Postmaster', '', '', 'postmaster', 'postmaster', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+INSERT IGNORE INTO SAKAI_USER VALUES ('admin', '', '', 'Sakai', 'Administrator', '', 'ISMvKXpXpadDiUoOSoAfww==', 'admin', 'admin', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
+INSERT IGNORE INTO SAKAI_USER VALUES ('postmaster', '', '', 'Sakai', 'Postmaster', '', '', 'postmaster', 'postmaster', CURRENT_TIMESTAMP(), CURRENT_TIMESTAMP());
 
-INSERT INTO SAKAI_USER_ID_MAP VALUES ('admin', 'admin');
-INSERT INTO SAKAI_USER_ID_MAP VALUES ('postmaster', 'postmaster');
+INSERT IGNORE INTO SAKAI_USER_ID_MAP VALUES ('admin', 'admin');
+INSERT IGNORE INTO SAKAI_USER_ID_MAP VALUES ('postmaster', 'postmaster');

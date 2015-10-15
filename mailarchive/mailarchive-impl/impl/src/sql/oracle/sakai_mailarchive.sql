@@ -27,8 +27,11 @@ CREATE TABLE MAILARCHIVE_MESSAGE (
                                    CHECK (PUBVIEW IN (1, 0)),
        OWNER                VARCHAR2(99) NULL,
        MESSAGE_DATE         DATE NOT NULL,
-       XML                  LONG NULL
+       XML                  LONG NULL,
+       SUBJECT           VARCHAR2 (255) default null,
+       BODY              CLOB default null
 );
+
 
 ALTER TABLE MAILARCHIVE_MESSAGE
        ADD  ( PRIMARY KEY (CHANNEL_ID, MESSAGE_ID) ) ;
@@ -67,3 +70,8 @@ INSERT INTO MAILARCHIVE_CHANNEL VALUES ('/mailarchive/channel/!site/postmaster',
 	<properties/>
 </channel>
 ');
+
+CREATE INDEX MAILARCHIVE_SUBJECT_INDEX ON MAILARCHIVE_MESSAGE
+(
+        SUBJECT
+);

@@ -24,6 +24,8 @@ CREATE TABLE MAILARCHIVE_MESSAGE (
        OWNER                VARCHAR (99) NULL,
        MESSAGE_DATE         DATETIME NOT NULL,
        XML                  LONGVARCHAR NULL,
+       SUBJECT              VARCHAR (255) NULL,
+       BODY                 LONGVARCHAR NULL,
        PRIMARY KEY (CHANNEL_ID, MESSAGE_ID)
 );
 
@@ -55,6 +57,12 @@ CREATE INDEX MAILARC_MSG_CDD ON MAILARCHIVE_MESSAGE
 	MESSAGE_DATE,
 	DRAFT
 );
+
+CREATE INDEX IE_MAILARC_SUBJECT ON MAILARCHIVE_MESSAGE
+(
+       SUBJECT                   ASC
+);
+
 
 INSERT INTO MAILARCHIVE_CHANNEL VALUES ('/mailarchive/channel/!site/postmaster', 1, '<?xml version="1.0" encoding="UTF-8"?>
 <channel context="!site" id="postmaster" next-message-id="1">
