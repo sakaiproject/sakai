@@ -179,18 +179,7 @@ body.is-logged-out{
 			padding: 0.35em 0.3em;
 		}
 		.#{$namespace}loginForm__button{
-			@if $button-gradiant {
-				@include sakai-button(  $background-color-secondary, 
-									darken( $background-color-secondary, 15% ), 
-									darken( $background-color-secondary, 25% ), 
-									$button-text-color-secondary );
-			}
-			@else{
-				@include sakai-button(  darken( $background-color-secondary, 15% ), 
-									darken( $background-color-secondary, 15% ), 
-									darken( $background-color-secondary, 15% ), 
-									darken( $primary-color, 15% ) );
-			}
+			@extend .button;
 		}
 		div{
 			display:inline-block;
@@ -209,7 +198,7 @@ body.is-logged-out{
 			position: relative;
 			margin-top: -0.8em;
 			.#{$namespace}userNav__submenuitem--username{
-				color: $button-text-color;
+				color: $background-color-secondary;
 				text-decoration: underline;
 				@media #{$phone}{
 					display: none;
@@ -548,18 +537,7 @@ body.is-logged-out{
 			padding: 3px;
 		}
 		button{
-			@if $button-gradiant {
-				@include sakai-button(  $background-color-secondary, 
-									darken( $background-color-secondary, 15% ), 
-									darken( $background-color-secondary, 25% ), 
-									$button-text-color-secondary );
-			}
-			@else{
-				@include sakai-button(  darken( $background-color-secondary, 15% ), 
-									darken( $background-color-secondary, 15% ), 
-									darken( $background-color-secondary, 15% ), 
-									darken( $primary-color, 15% ) );
-			}
+			@extend .button;
 		}
 	}
 }

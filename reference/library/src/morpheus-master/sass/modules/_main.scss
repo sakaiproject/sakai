@@ -32,12 +32,11 @@
 }
 
 .#{$namespace}pageColumns--single, .#{$namespace}footer{
-	/* Optimal Typography for 16px Fonts 		//
-	// http://www.pearsonified.com/typography/	//
-	// Approx CPL 97 							*/
-	/*max-width: #{$default-font-size * 2 + $measure };*/
 	margin: 0 1em 1em 1em;
 	clear: both;
+	@media #{$phone}{
+		margin: 0 0 0 0;
+	}
 }
 
 .#{$namespace}footer{

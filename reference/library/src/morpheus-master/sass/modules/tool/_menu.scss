@@ -1,33 +1,16 @@
 .navIntraTool{
-	font-size: 0.8em;
-	border-top: 1px solid $background-color-secondary;
-	background-color : darken($tool-background-color, 10%);
-	padding:  5px 10px;
-	margin: 0 0 0.1em $tool-background-color;
 	li{
 		display: inline-block;
-		margin: 0.4em 0.5em 0.4em 0 !important;
+		margin: 0 0 0.5em 0;
 		span{
-			margin:  0 0 0 0;
-			padding: 0 0 0 0;
-			border-left: 0px none;
+			display: inline;
 			a{
-				@if $button-gradiant {
-					@include sakai-button( $button-color, darken( $button-color, 10% ), darken( $button-color, 10% ), $button-text-color );
-				}
-				@else {
-					@include sakai-button( $button-color, $button-color, darken( $button-color, 10% ), $button-text-color );
-				}
+				@extend .button;
 			}
 			&.current{
+				@extend .button_color;
 				a{
-					@if $button-gradiant {
-						@include sakai-button( $primary-color, darken( $primary-color, 5% ), $primary-color, $background-color );
-					}
-					@else {
-						@include sakai-button( $primary-color, $primary-color, $primary-color, $background-color );
-					}
-
+					@extend .button_color;
 				}
 			}
 			&.inactive{
@@ -35,26 +18,14 @@
 			}
 		}
 		a{
-			@if $button-gradiant {
-				@include sakai-button( $button-color, darken( $button-color, 10% ), darken( $button-color, 10% ), $button-text-color );
-			} 
-			@else {
-				@include sakai-button( $button-color, $button-color, $button-color, $button-text-color );
-			}
+			@extend .button;
 
 			&.current{
-				@if $button-gradiant {
-					@include sakai-button( $primary-color, darken( $primary-color, 5% ), $primary-color, $background-color );
-				} 
-				@else {
-					@include sakai-button( $primary-color, $primary-color, $primary-color, $background-color );
-				}
-
+				@extend .button_color;
 			}
 		}
 		.searchField{
-			margin: 0 0 0 0.8em;
-			padding: 0.35em 0.55em;
+			
 		}
 	}
 }
@@ -64,12 +35,39 @@
 	background: $warncolor;
 	border: 1px solid darken($warncolor, 15%);
 	padding: 0.7em 0.8em;
+	display: inline-block;
 }
 
 .listNav{
+	margin: 1em 0;
 	.instruction{
-		float: left;
+		display: block;
+		float: none;
 		font-size: 0.8em !important;
-		margin: 0 0.5em 0 0;
+		margin: 0 0.5em 1em 0;
 	}
+	.inlineForm{
+		display: inline-block;
+		@media #{$phone}{
+			display: table-cell;
+			&[name="pagesizeForm"]{
+				text-align: center;
+			}
+			select{
+				width: 100%;
+			}
+			input[type="submit"]{
+				margin: 0 0 0 0;
+				&[disabled="disabled"]{
+					display: none;
+				}
+			}
+		}
+		legend{
+			display: none;
+		}
+	}
+}
+.viewNav{
+
 }
