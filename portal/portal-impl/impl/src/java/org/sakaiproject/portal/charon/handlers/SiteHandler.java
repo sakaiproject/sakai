@@ -981,19 +981,6 @@ public class SiteHandler extends WorksiteHandler
 
 		return true;
 	}
-	
-	/**
-	 * Public function for sanitize <head> tag if it has a <title> inside
-	 * @param header: String with the HTML inside <head> tag
-	 * @return Sanitized header without tool title.
-	 */
-	public String removeTitleFromHeader( String header ){
-
-		// Titles come twice to view and tool title overwrites main title because
-		// it is printed before.
-
-		return header.replaceAll( "(?i)<title[^>]*(.|\\n)*<\\/title>", "" );
-	}
 
 	/*
 	 * Optionally actually grab the tool's output and include it in the same
@@ -1076,8 +1063,17 @@ public class SiteHandler extends WorksiteHandler
 			Map m = new HashMap<String,String> ();
 			String headString = responseStr.substring(headStart + 1, headEnd);
 			
-			headString = removeTitleFromHeader( headString );
+			// SAK-29908 
+			// Titles come twice to view and tool title overwrites main title because
+			// it is printed before.
 
+			int titleStart = headString.indexOf("<title");
+			int titleEnd = headString.indexOf("</title");
+			titleEnd = findEndOfTag(headString, titleEnd);
+			
+			headString = (titleStart != -1 && titleEnd != -1)?headString.substring(0, titleStart) + headString.substring(titleEnd + 1):headString;
+			// End SAK-29908
+			
 			String bodyString = responseStr.substring(bodyStart + 1, bodyEnd);
 			if (tidAllow.indexOf(":debug:") >= 0)
 			{
