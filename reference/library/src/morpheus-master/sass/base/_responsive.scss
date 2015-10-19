@@ -1,11 +1,3 @@
-// https://github.com/Team-Sass/breakpoint/wiki/Respond-To
-
-$break-small-end: 	800px;
-
-$phone:   "only screen and (max-width : #{ $break-small-end })";
-$desktop: "only screen and (min-width : #{ $break-small-end + 1 })";
-
-//This shouldn't be here but classes are togglered in body :(
 body{
 	@media #{$phone}{
 		&.toolsNav--displayed{

@@ -18,30 +18,32 @@ a{
 	text-decoration:underline;
 }
 input, textarea{
-	color: $text-color ;
+	color: $text-color;
+	font-family: $font-family;
+	font-size: 	 $default-font-size;
 }
 
 h1, h2, h3, h4, h5, h6{
 	font-family: $header-font-family;
-	font-weight: $header-font-weight;
-	line-height: 1.1;
+	font-weight: 700;
+	line-height: 1.05;
+	margin: 0.75em 0 0.5em 0;
 }
 
-// Using 3:4 - perfect fourth
 h1{
-	font-size: 2.375em;
+	font-size: #{$default-font-size + 8};
 }
 
 h2{
-	font-size: 1.75em;
+	font-size: #{$default-font-size + 6};
 }
 
 h3{
-	font-size: 1.3125em;
+	font-size: #{$default-font-size + 4};
 }
 
 h4{
-	font-size: 1em;
+	font-size: #{$default-font-size + 2};
 }
 
 .skip{
@@ -49,47 +51,41 @@ h4{
 }
 
 input[type="submit"],input[type="button"]{
-
-	@if $button-gradiant {
-		@include sakai-button(  $button-color-secondary, 
-							darken( $button-color-secondary, 15% ), 
-							darken( $button-color-secondary, 25% ), 
-							$button-text-color-secondary );
-	}
-	@else{
-		
-		@include sakai-button(  $button-color-secondary, 
-							$button-color-secondary, 
-							$button-color-secondary, 
-							$button-text-color-secondary );
-	}
-	&:focus, &::-moz-focus-inner{
-		outline-color: invert;
-	}
+	@extend .button_color;
 }
 
 input[type="reset"],input[type="button"]{
-	@if $button-gradiant {
-		@include sakai-button(  darken($button-color-secondary,5%), 
-							darken( $button-color-secondary, 20% ), 
-							darken( $button-color-secondary, 30% ), 
-							$button-text-color-secondary );
+	@extend .button_color;
+}
+
+input[type="checkbox"], input[type="radio"]{
+	background-color: #FFF;
+	border: 1px solid #A0A0A0;
+	display: inline-block;
+	height: 16px;
+	width: 16px;
+	vertical-align: sub;
+	@include appearance(none);
+	&:checked{
+		border: 1px solid #60b3e3;
 	}
-	@else{
-		
-		@include sakai-button(  darken($button-color-secondary,5%), 
-							darken($button-color-secondary,5%), 
-							darken($button-color-secondary,5%), 
-							$button-text-color-secondary );
+}
+input[type="checkbox"]{
+	@include border-radius(3px);
+	&:checked{
+		background-image: inline-image("check.png");
+		background-size: 16px;
 	}
-	&:focus, &::-moz-focus-inner{
-		outline-color: invert;
+}
+input[type="radio"]{
+	@include border-radius(24px);
+	&:checked{
+		@include background-image(radial-gradient(#60b3e3, #FFF 5px));
 	}
 }
 
 select{
-	padding: 0.25em;
-	border: 1px solid $warncolor;
+	@extend .select;
 }
 
 .is-hidden{

@@ -38,19 +38,7 @@ ul#otherSitesMenu{
 	li{
 		display: inline-block;
 		a{
-			font-size: 0.8em;
-			@if $button-gradiant {
-				@include sakai-button(  $button-color, 
-							darken( $button-color, 15% ), 
-							darken( $button-color, 25% ), 
-							$button-text-color );
-			}
-			@else {
-				@include sakai-button(  $button-color, 
-							$button-color, 
-							$button-color, 
-							$button-text-color );
-			}
+			@extend .button;
 		}
 	}
 }

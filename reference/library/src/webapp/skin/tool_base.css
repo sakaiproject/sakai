@@ -16,7 +16,7 @@ testing as this browser in some configurations will sometimes apply these defini
 	width: 50%;
 }
 
-	.navIntraTool,.navIntraToolLink, .itemAction, .act,.listNav, .viewNav, .navPanel, .screenOnly {
+.itemAction, .act, .navPanel, .screenOnly {
 	display: none;
 }
 
@@ -226,77 +226,6 @@ ul.attachList li{
 	height: 100%;
 }
 
-/*boxes controls and filters on views ("view by"*/
-/*see announcement list*/
-.viewNav{
-	font-size: 1em;
-	padding: .2em;
-	float: left;
-	width: auto;
-	line-height: 2em;
-	margin: 0 .1em;
-}
-
-.viewNav label{
-	padding-right: 1em;
-}
-
-/*formish elements in the listView subpanel - see schedule list, range of events filters*/
-.viewNav .shorttext{
-	margin: 0;
-	clear:both
-}
-
-.viewNav .shorttext label{
-	width: 8em;
-	float: left;
-}
-
-.viewNav .labelindnt{
-	margin-left: 10em !important;
-}
-
-/* listNav: boxes paging controls on list views,  searchNav: boxes searching controls on views */
-/*see announcement list, email archive list*/
-.listNav,.searchNav{
-	float: right;
-	vertical-align: bottom;
-	padding: 0;
-	font-size: 1em;
-	text-align: right;
-	line-height: 2em;
-	clear: right;
-	margin: .2em;
-}
-
-/* tan hack:  ie6 will wrap all the input children of these unless told not to do so */
-* html body .listNav, * html body .searchNav {
-	white-space: nowrap;
-}
-
-/*these panels will sometimes have a block with instructions, status markers, etc - we can get at it via inheritance*/
-.listNav div.instruction, .searchNav div.instruction{
-	text-align: center;
-	font-size: .9em;
-    font-family: verdana, arial, helvetica, sans-serif\0/;
-}
-/*listNav inputs have punct. marks as labels, adding a screen reader only fieldset with the real label makes them usable */
-div.listNav fieldset { 
-     display:inline; 
-     margin:0; 
-     padding:0; 
-   } 
-div.listNav legend { 
-     display:inline; 
-     margin:0; 
-     padding:0; 
-     position: absolute !important; 
-     top:1px;
-     left:1px; 
-     clip: rect(1px 1px 1px 1px); /* IE6, IE7 */ 
-     clip: rect(1px, 1px, 1px, 1px); 
-} 
-
 /*searchNav panel has a special text input*/
 .searchNav input.searchField{
 	background-color: #fff;
@@ -404,123 +333,6 @@ table.discTria img, .topicHeadings img,  .msgHeadings img{
 }
 h4 + div.itemAction{
 	margin: .1em 0 0 1.5em;
-}
-
-/*toolbar - turn into a list for 2.6 - default list render here, style in tool.css*/
-.navIntraTool li{
-	list-style: none;
-	display: inline;
-	margin:0 !important;
-	padding:0 !important;
-	color: #777
-}
-
-.navIntraTool li span a{
-	margin:0 !important;
-	padding:0 !important;
-}
-/*for tool bar items that have icons*/
-.navIntraTool li span a img{
-	vertical-align: bottom;
-}
-.navIntraTool li span, .navIntraTool li span.current, .navIntraTool li span.inactive{
-	border-left:1px solid #ccc;
-	margin:0;
-	padding:0 5px 0 8px
-}
-/*special style for the first item, namely no border-left. Note: tools will define the first
- * toolbar item thus: ".navIntraTool li.firstToolBarItem span" for legacy browsers like IE 6. Since IE6 is no
- * longer supported switching to the more flexible first-child pseudo class. Next 2 are to 
- * deal with some things in site-setup
-*/
-
-.navIntraTool .realToolBarLink span {
-    border:none;
-}
-.navIntraTool .realToolBarLink ~ .realToolBarLink span{
-    border-left:1px solid #ccc;
-}
-.navIntraTool li:first-child span {
-	border:none;
-	margin:0;
-	padding: 0 5px 0 8px;
-}
-/*some toolbars have input type=text, and the next item (fieldSibling) is a submit link*/
-.navIntraTool li span.formItem,.navIntraTool li span.fieldSibling  {
-	margin:0;
-	border:none;
-	padding:0;
-}
-.navIntraTool li span.fieldSibling {
-	padding: 0 5px 0 0;
-}
-/*style for item that would be a link if you were not at the page already*/
-.navIntraTool li span.current{
-	color:#777;
-}
-
-.navIntraTool li span.inactive{
-	color:#777;
-}
-
-/*for action controls */
-/*create any item type*/
-.act{
-	padding: 1em 0;
-}
-
-/*the default action in this control - keep in mind that anything you do to it (except to the font) will make 
-you loose the native buttonishness affordance of the os/browser  - empty here - color defiend in tool.css*/
-.act input.active{
-}
-
-/* SECTION 5 INDENTING CLASSES:use these classes with <div> blocks to structure layout hierarchically.*/
-.indnt0,.tier0{
-	margin-left: 0  !important;
-}
-
-.indnt1,.tier1{
-	margin-left: 1em  !important;
-}
-
-.indnt2,.tier2{
-	margin-left: 2em  !important;
-}
-
-.indnt3,.tier3{
-	margin-left: 3em  !important;
-}
-
-.indnt4,.tier4{
-	margin-left: 4em  !important;
-}
-
-.indnt5,.tier5{
-	margin-left: 5em  !important;
-}
-
-.indnt6,.tier6{
-	margin-left: 6em  !important;
-}
-
-.indnt7,.tier7{
-	margin-left: 7em  !important;
-}
-
-.indnt8,.tier8{
-	margin-left: 8em  !important;
-}
-
-.indnt9,.tier9{
-	margin-left: 9em  !important;
-}
-
-.indnt10,.tier10{
-	margin-left: 10em  !important;
-}
-
-.pad0{
-	padding-left: 0  !important;
 }
 
 /*SECTION 6 MESSAGES */
@@ -723,20 +535,10 @@ hr.itemSeparator{
 	
 /*	see: create a resource*/
 	
-/*these two have a border that needs to match the background to avoid some tedious problems in IE*/	
-.shorttext,.longtext,.filepicker{
-	margin: .4em 1em;
-	border: 1px solid #fff;
-}
 .shorttext{
 	clear:both;
 }
-.shorttext label,.filepicker  label{
-	margin-right: 1em;
-	width: 14.5em;
-	font-weight: normal;
-	float: left;
-}
+
 #attachForm .shorttext label, #attachForm .filepicker  label{
 	min-width: 19.5em;
 }

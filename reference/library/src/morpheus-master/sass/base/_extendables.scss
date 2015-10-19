@@ -31,26 +31,109 @@
 
 }
 
+.select{
+	background-color: $button-background-secondary-color;
+	background-image: inline-image("icon-arrow-down.png");
+	background-position: right 50%;
+	background-repeat: no-repeat;
+	border-top: 1px solid $button-border-color;
+	border-left: 1px solid $button-border-color;
+	border-right: 1px solid $button-border-color;
+	border-bottom: 1px solid rgba($button-border-color, 0.8);
+	color: #777;
+	font-family: $font-family;
+	font-size: #{$default-font-size - 1};
+	max-width: 90%;
+	margin: 0 0 1em 0;
+	padding: 0.05em 2em 0em 0.5em;
+	text-align: left;
+	@include appearance(none);
+	@include border-radius(3px);
+	@include box-shadow( 0 3px 0px $button-border-color );
+	@media #{$phone}{
+		padding: 0.2em 2em 0.2em 0.5em;
+	}
+}
 
-@mixin sakai-button($begin-color, $end-color, $border-color, $text-color) {
-	border:  1px solid $border-color;
-	color:   $text-color;
-	cursor:  pointer;
-	display: inline-block;
-	padding: 0.35em 0.55em !important;
-	text-decoration: none;
-	@include background-image( linear-gradient( $begin-color , $end-color ) );
-	@include border-radius( 2px );
+.button_color{
+	color: $button-color-text-color;
+	cursor: pointer;
+	border-top: 1px solid $button-color-border-color;
+	border-left: 1px solid $button-color-border-color;
+	border-right: 1px solid $button-color-border-color;
+	border-bottom: 1px solid rgba( lighten( $button-color-background-secondary-color, 10% ) , 0.6);
+	font-family: $font-family;
+	font-size: #{$default-font-size - 1};
+	letter-spacing: 0.8px;
+	margin: 0.5em 0.8em 0.5em 0;
+	padding: 0.2em 0.8em 0.25em 0.8em;
+	position: relative;
+	@include appearance(none);
+	@include background-image( linear-gradient( $button-color-background-color, $button-color-background-secondary-color ) );
+	@include box-shadow( 0 3px 0px $button-color-border-color );
+	@include border-radius(3px);
+	@include text-shadow( 0px 1px 3px rgba(0,0,0,0.35) );
 	&:hover{
-		@if $button-gradiant {
-			@include background-image( linear-gradient( $end-color , $begin-color ) );
-		}
-		@else {
-			@include background-image( linear-gradient( darken($begin-color , 10%) , darken($begin-color , 10%) )  );
+		background: $button-color-background-color;
+	}
+	&:active{
+		border-bottom: 4px solid $button-color-background-color;
+		outline: 0;
+		padding: 0.2em 0.8em 0.25em 0.5em;
+		@include background-image( linear-gradient( $button-color-background-secondary-color, $button-color-background-color ) );
+		@include box-shadow( inset 0 3px 3px $button-color-border-color );
+		@media #{$phone}{
+			padding: 0.5em 1.2em 0.65em 1.2em;
 		}
 	}
-	a{
-		color:   $text-color;
-		text-decoration: none;
+	&[disabled="disabled"]{
+		background: $button-color-background-color;
+		color: $button-background-color;
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+	@media #{$phone}{
+		padding: 0.5em 1.2em 0.65em 1.2em;
+	}
+}
+
+.button{
+	color: $button-text-color;
+	cursor: pointer;
+	border-top: 1px solid $button-border-color;
+	border-left: 1px solid $button-border-color;
+	border-right: 1px solid $button-border-color;
+	border-bottom: 1px solid rgba($button-background-secondary-color, 0.9);
+	display: inline-block;
+	font-family: $font-family;
+	font-size: #{$default-font-size - 1};
+	letter-spacing: 0.8px;
+	margin: 0.5em 0.8em 0.5em 0;
+	padding: 0.2em 0.8em 0.25em 0.8em;
+	text-decoration: none;
+	@include appearance(none);
+	@include background-image( linear-gradient( $button-background-secondary-color, $button-background-color ) );
+	@include box-shadow( 0 3px 0px $button-border-color );
+	@include border-radius(3px);
+	&:hover{
+		background: $button-background-color;
+	}
+	&:active{
+		border-bottom: 4px solid $button-background-secondary-color;
+		outline: 0;
+		@include background-image( linear-gradient( $button-background-color, $button-background-secondary-color ) );
+		@include box-shadow( inset 0 3px 3px $button-border-color );
+		@media #{$phone}{
+			padding: 0.5em 1.2em 0.65em 1.2em;
+		}
+	}
+	&[disabled="disabled"]{
+		background: $button-background-color;
+		color: lighten( $button-text-color, 15% );
+		cursor: not-allowed;
+		opacity: 0.7;
+	}
+	@media #{$phone}{
+		padding: 0.5em 1.2em 0.65em 1.2em;
 	}
 }

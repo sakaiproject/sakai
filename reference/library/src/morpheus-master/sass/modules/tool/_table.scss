@@ -3,19 +3,30 @@ table{
 		font-size: 0.8em;
 		border: 1px solid darken($tool-background-color, 10%);
 		background-color: $tool-background-color;
+		@media #{$phone}{
+			display: block;
+    		margin: 3em 0;
+    		overflow: auto;
+		}
 		tr{
 			td {
 				border-right: 1px solid darken($tool-background-color, 10%);
 				padding: 0.25em;
+				font-family: $font-family;
+				font-size:   $default-font-size;
 				> * {
 					font-family: $font-family;
+					font-size:   $default-font-size;
 					font-weight: 400;
+					@media #{$phone}{
+						display: block;
+					}
 				}
 			}
 			&:nth-child(odd){
-				background: darken($tool-background-color, 10%);
+				background: darken($tool-background-color, 5%);
 				td{
-					border-right: 1px solid darken($tool-background-color, 10%);
+					border-right: 1px solid darken($tool-background-color, 15%);
 				}
 			}
 		}
