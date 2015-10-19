@@ -38,11 +38,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import org.sakaiproject.cheftool.VmServlet;
-import org.sakaiproject.citation.api.Citation;
-import org.sakaiproject.citation.api.CitationCollection;
-import org.sakaiproject.citation.api.CitationService;
-import org.sakaiproject.citation.api.Schema;
-import org.sakaiproject.citation.api.ConfigurationService;
+import org.sakaiproject.citation.api.*;
 import org.sakaiproject.component.cover.ComponentManager;
 import org.sakaiproject.content.api.ContentHostingService;
 import org.sakaiproject.content.api.ContentResource;
@@ -398,7 +394,7 @@ public class CitationServlet extends VmServlet
 
 	public void addCitation(ContentResource resource, Citation citation) throws IdUnusedException, ServerOverloadException {
 		String citationCollectionId = new String(resource.getContent());
-		CitationCollection collection = citationService.getCollection(citationCollectionId);
+		CitationCollection collection = citationService.getUnnestedCitationCollection(citationCollectionId);
 
 		collection.add(citation);
 		citationService.save(collection);
