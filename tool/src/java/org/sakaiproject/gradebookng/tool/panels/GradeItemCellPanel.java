@@ -16,6 +16,7 @@ import org.apache.wicket.ajax.attributes.AjaxCallListener;
 import org.apache.wicket.ajax.attributes.AjaxRequestAttributes;
 import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.core.util.string.ComponentRenderer;
+import org.apache.wicket.event.Broadcast;
 import org.apache.wicket.extensions.ajax.markup.html.AjaxEditableLabel;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
@@ -30,6 +31,7 @@ import org.sakaiproject.gradebookng.business.GradeSaveResponse;
 import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.gradebookng.business.model.GbGradeInfo;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
+import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 
 /**
@@ -94,6 +96,7 @@ public class GradeItemCellPanel extends Panel {
 		final Long assignmentId = (Long) modelData.get("assignmentId");
 		final Double assignmentPoints = (Double) modelData.get("assignmentPoints");
 		final String studentUuid = (String) modelData.get("studentUuid");
+		final Long categoryId = (Long) modelData.get("categoryId");
 		final boolean isExternal = (boolean) modelData.get("isExternal");
 		final GbGradeInfo gradeInfo = (GbGradeInfo) modelData.get("gradeInfo");
 		final GbRole role = (GbRole) modelData.get("role");
@@ -212,6 +215,7 @@ public class GradeItemCellPanel extends Panel {
 					}
 
 					//refresh the components we need
+					send(getPage(), Broadcast.BREADTH, new ScoreChangedEvent(studentUuid, categoryId, target));
 					target.addChildren(getPage(), FeedbackPanel.class);
 					target.add(getParentCellFor(this));
 					target.add(this);
