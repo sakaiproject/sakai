@@ -1870,6 +1870,9 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		String action = request.getParameter("sakai_action");
 		logger.debug("Received action: "+action+" for file: "+fullPath);
 		
+		// set up rundata, in case we're called from RSF
+		checkRunData(request);
+
 		if(fullPath != null)
 		{
 			Long fileSize = Long.parseLong(request.getHeader("content-length"));

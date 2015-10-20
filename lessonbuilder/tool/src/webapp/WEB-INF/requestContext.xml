@@ -264,9 +264,8 @@
 		<property name="ltiService" ref="org.sakaiproject.lti.api.LTIService" />
 	</bean>
 	<!-- Over-riding the CommonsMultipartResolver to have multiple files incoming under the same form input name  -->
-	<bean id="multipartResolver" class="org.sakaiproject.lessonbuildertool.resolver.MultiCommonsMultipartResolver">
+	<bean id="commonsMultipartResolver" class="org.sakaiproject.lessonbuildertool.resolver.MultiCommonsMultipartResolver">
 	</bean>
-	
 	<bean name="gradingBean" class="org.sakaiproject.lessonbuildertool.tool.beans.GradingBean">
 		<property name="simplePageToolDao">
 			<ref bean="org.sakaiproject.lessonbuildertool.model.SimplePageToolDao" />
