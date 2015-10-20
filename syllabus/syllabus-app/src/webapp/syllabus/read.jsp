@@ -212,7 +212,7 @@
 					<h:commandButton
 						action="#{SyllabusTool.processReadPost}"
 						styleClass="active"
-						value="#{msgs.bar_post}"
+						value="#{msgs.bar_publish}"
 						accesskey="s" />
 					<h:commandButton
 						action="#{SyllabusTool.processReadPreview}"

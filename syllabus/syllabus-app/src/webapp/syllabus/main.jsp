@@ -65,7 +65,9 @@
 				deleteItemTitle: $("#messages #deleteItemTitle").html(),
 				deleteAttachmentTitle: $("#messages #deleteAttachmentTitle").html(),
 				bar_new: $("#messages #bar_new").html(),
-				addItemTitle: $("#messages #addItemTitle").html()
+				bar_publish: $("#messages #bar_publish").html(),
+				addItemTitle: $("#messages #addItemTitle").html(),
+				draftTitlePrefix: $("#messages #draftTitlePrefix").html()
 			};
 		setupAccordion('<%= org.sakaiproject.util.Web.escapeJavascript(thisId)%>',<h:outputText value="#{SyllabusTool.editAble == 'true' ? true : false}"/>, msgs, 
 							'<h:outputText value="#{SyllabusTool.openDataId}"/>');
@@ -248,6 +250,7 @@
 								<f:verbatim>class="draft"</f:verbatim>
 							</f:subview>
 							<f:verbatim>></f:verbatim>
+							<h:outputText styleClass="draftTitlePrefix" rendered="#{eachEntry.status == eachEntry.draftStatus}" value="#{msgs.draftTitlePrefix}" />
 							<h:outputText styleClass="editItem editItemTitle" value="#{eachEntry.entry.title}" />
 							<f:subview id="dateStudent" rendered="#{!SyllabusTool.editAble && (eachEntry.entry.startDate != null || eachEntry.entry.endDate != null)}">
 								<f:verbatim><span style="font-weight: normal; color: grey; float: right"></f:verbatim>
@@ -379,7 +382,9 @@
 				<span id="deleteItemTitle"></f:verbatim><h:outputText value="#{msgs.deleteItemTitle}"/><f:verbatim></span>
 				<span id="deleteAttachmentTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
 				<span id="bar_new"></f:verbatim><h:outputText value="#{msgs.bar_new}"/><f:verbatim></span>
+				<span id="bar_publish"></f:verbatim><h:outputText value="#{msgs.bar_publish}" /><f:verbatim></span>
 				<span id="addItemTitle"></f:verbatim><h:outputText value="#{msgs.addItemTitle}"/><f:verbatim></span>
+				<span id="draftTitlePrefix"></f:verbatim><h:outputText value="#{msgs.draftTitlePrefix}"/><f:verbatim></span>
 			</span>
 		</f:verbatim>
 	</sakai:view_content>
