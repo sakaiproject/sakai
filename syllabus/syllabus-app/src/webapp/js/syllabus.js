@@ -45,14 +45,14 @@ function setupAccordion(iframId, isInstructor, msgs, openDataId){
 			//find how much this item was dragged:
 			var dragEndIndex = ui.item.index();
 			var moved = dragStartIndex - dragEndIndex;
-			if(moved != 0){
+			if(moved !== 0){
 				//update the position:
 				postAjax($(ui.item).children(":first").attr("syllabusItem"), {"move": moved}, msgs);
 			}
 		}
 		});
 	}
-	if(activeVar === false && openDataId && openDataId != ''){
+	if(activeVar === false && openDataId && openDataId !== ''){
 		//instructor is working on this data item, keep it open and focused on when refreshing
 		$( "#accordion div[syllabusItem=" + openDataId + "].group .ui-accordion-header").click().focus();
 		
@@ -75,7 +75,7 @@ function mySetMainFrameHeight(id, minHeight)
 {
 	// run the script only if this window's name matches the id parameter
 	// this tells us that the iframe in parent by the name of 'id' is the one who spawned us
-	if (typeof window.name != "undefined" && id != window.name) return;
+	if (typeof window.name !== "undefined" && id !== window.name) return;
 
 	var frame = parent.document.getElementById(id);
 	if (frame)
@@ -90,16 +90,16 @@ function mySetMainFrameHeight(id, minHeight)
 		var clientH = document.body.clientHeight;
 		var innerDocScrollH = null;
 
-		if (typeof(frame.contentDocument) != 'undefined' || typeof(frame.contentWindow) != 'undefined')
+		if (typeof(frame.contentDocument) !== 'undefined' || typeof(frame.contentWindow) !== 'undefined')
 		{
 			// very special way to get the height from IE on Windows!
 			// note that the above special way of testing for undefined variables is necessary for older browsers
 			// (IE 5.5 Mac) to not choke on the undefined variables.
  			var innerDoc = (frame.contentDocument) ? frame.contentDocument : frame.contentWindow.document;
-			innerDocScrollH = (innerDoc != null) ? innerDoc.body.scrollHeight : null;
+			innerDocScrollH = (innerDoc !== null) ? innerDoc.body.scrollHeight : null;
 		}
 
-		if (document.all && innerDocScrollH != null)
+		if (document.all && innerDocScrollH !== null)
 		{
 			// IE on Windows only
 			height = innerDocScrollH;
@@ -163,7 +163,7 @@ function setupEditable(msgs, iframId){
 			postAjax($(this).parents('div.group').attr("syllabusItem"), params, msgs);
 		},
 		validate: function(value) {
-		    if($.trim(value) == '') {
+		    if($.trim(value) === '') {
 		        return msgs.required;
 		    }
 		}
@@ -325,14 +325,14 @@ function showMessage(message, success){
 	//set topPos to top of the scroll bar for this iFrame
 	try{
 		topPos = $(window.parent.$("html,body")).scrollTop();
-		if(topPos == 0){
+		if(topPos === 0){
 			//try a different method to be sure
 			topPos = $(window.parent.$("body")).scrollTop();
 		}
 	}catch(e){}
 	//if this is an iframe, adjust top by the offset of the iframe
 	try{
-		if(topPos != 0){
+		if(topPos !== 0){
 			topPos = topPos - $(window.parent.$("iframe")).offset().top; 
 		}
 	}catch(e){}
@@ -347,7 +347,7 @@ function showMessage(message, success){
 }
 
 function postAjax(id, params, msgs){
-	var d = $.Deferred
+	var d = $.Deferred;
 	$.ajax({
 		type: 'POST',
 		url: "/direct/syllabus/" + id + ".json",
@@ -371,7 +371,7 @@ function postAjax(id, params, msgs){
 
 function getDateTime(dateTimeStr){
 	var split = dateTimeStr.split(" ");
-	if(split.length == 3){
+	if(split.length === 3){
 		var dateStr = split[0];
 		var timeStr = split[1] + " " + split[2];
 		var date = new Date(Date.parse(dateStr));
@@ -389,14 +389,14 @@ function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 	$("." + imgClass).click(function(event){
 		var status;
 		//custom action for calendar:
-		if(action == "linkCalendar"){
+		if(action === "linkCalendar"){
 			//make sure at least one date is set
 			if(!$(this).hasClass(classOn)){
 				//only warn user is they are turning on the calendar sync
 				var startTime = $(this).parents('div.group').find(".startTimeInput").text();
 				var endTime = $(this).parents('div.group').find(".endTimeInput").text();
-				if((startTime == null || "" == $.trim(startTime) || $.trim(startTime) == $.trim(msgs.clickToAddStartDate))
-						&& (endTime == null || "" == $.trim(endTime) || $.trim(endTime) == $.trim(msgs.clickToAddEndDate))){
+				if((startTime === null || "" === $.trim(startTime) || $.trim(startTime) === $.trim(msgs.clickToAddStartDate))
+						&& (endTime === null || "" === $.trim(endTime) || $.trim(endTime) === $.trim(msgs.clickToAddEndDate))){
 					showMessage(msgs.calendarDatesNeeded, false);
 					event.stopPropagation();
 					return;
@@ -416,12 +416,15 @@ function setupToggleImages(action, imgClass, classOn, classOff, msgs){
 			$(this).parents('div.group').find("." + classOn).fadeIn();
 		}
 		//custom action for publish and unpublish:
-		if(action == "publish"){
+		if(action === "publish"){
 			//toggle the draft class
 			if(status){
 				$(this).parent().find(".editItemTitle").parent().removeClass("draft");
+				$(this).parent().find( ".draftTitlePrefix " ).remove();
 			}else{
 				$(this).parent().find(".editItemTitle").parent().addClass("draft");
+				var span = "<span class='draftTitlePrefix'>" + msgs.draftTitlePrefix + "</span>";
+				$(this).parent().find(".editItemTitle").parent().prepend( span );
 			}
 		}
 		
@@ -504,9 +507,37 @@ function showConfirmDelete(deleteButton, msgs, event){
 	event.stopPropagation();
 }
 
+function doAddItemButtonClick( msgs, published )
+{
+	var title = $( "#newTitle" ).val();
+	if( !title || "" === title.trim() )
+	{
+		$( "#requiredTitle" ).show();
+		setTimeout( function() { $( "#requiredTitle" ).fadeOut(); }, 5000 );
+	}
+	else
+	{
+		// ID doesn't exist since we're adding a new one
+		var id = "0";
+		params = 
+		{
+			"add" : true,
+			"title": title,
+			"siteId": $("#siteId").val(),
+			"published": published
+		
+		};
+
+		postAjax( id, params, msgs );
+		if( $( "#successInfo" ).is( ":visible" ) )
+		{
+			location.reload();
+		}
+	}
+}
+
 function showConfirmAdd(msgs, mainframeId){
 	$('#container', this.top.document).append("<div></div>");
-	var emptyDiv = $('<div></div>', this.top.document);
 	$('<div></div>').appendTo('body')
 		.html("<div><h6>" + msgs.syllabus_title + "</h6><input type='text' id='newTitle'/></div><div style='display:none' id='requiredTitle' class='warning'>" + msgs.required + "</div>" +
 				"<h6>" + msgs.syllabus_content + "</h6><div class='bodyInput' id='newContentDiv'><textarea cols='120' id='newContentTextAreaWysiwyg'/></div>")
@@ -525,34 +556,12 @@ function showConfirmAdd(msgs, mainframeId){
 			resizable: true,
 			buttons: [
 				{
+					text: msgs.bar_publish,
+					click: function() { doAddItemButtonClick( msgs, true ); $( this ).dialog( "close" ); }
+				},
+				{
 					text: msgs.bar_new,
-					click: function () {
-						var title = $("#newTitle").val();
-						if(!title || "" == title.trim()){
-							$("#requiredTitle").show();
-							setTimeout(
-								function(){
-									$("#requiredTitle").fadeOut();
-								},
-								5000
-							);
-						}else{
-							$("#newContentTextAreaWysiwyg").val($('#newContentDiv').find('iframe').contents().find('body').html()).change();
-							// id doesn't exist since we are adding a new one
-							var id = "0";
-							params = {
-								"add" : true,
-								"title": title,
-								"siteId": $("#siteId").val(),
-								"content": $("#newContentTextAreaWysiwyg").val()
-							};
-							postAjax(id, params, msgs);
-							if($("#successInfo").is(":visible")){
-								location.reload();
-							}
-							$(this).dialog("close");
-						}
-					}
+					click: function() { doAddItemButtonClick( msgs, false ); $( this ).dialog( "close" ); }
 				},
 				{
 					text: msgs.bar_cancel,
@@ -578,5 +587,5 @@ function showConfirmAdd(msgs, mainframeId){
 if(typeof String.prototype.trim !== 'function') {
 	String.prototype.trim = function() {
 		return this.replace(/^\s+|\s+$/g, ''); 
-	}
+	};
 }
