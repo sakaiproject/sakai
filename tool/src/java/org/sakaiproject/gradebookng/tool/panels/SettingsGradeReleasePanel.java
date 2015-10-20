@@ -65,11 +65,10 @@ public class SettingsGradeReleasePanel extends Panel {
         	
         };
         courseGradeType.setOutputMarkupPlaceholderTag(true);
+        add(courseGradeType);
         
-        //checkboxes in the container
-        //display course grade
-        /*
-        final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade", new PropertyModel<Boolean>(model, "courseGradeDisplayed")) {
+        //letter grade
+        final AjaxCheckBox letterGrade = new AjaxCheckBox("letterGrade", new PropertyModel<Boolean>(model, "courseLetterGradeDisplayed")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
@@ -77,13 +76,32 @@ public class SettingsGradeReleasePanel extends Panel {
 				//nothing required
 			}
         };
-        displayCourseGrade.setOutputMarkupId(true);
-        add(displayCourseGrade);
-        */
+        letterGrade.setOutputMarkupId(true);
+        courseGradeType.add(letterGrade);
         
+        //percentage
+        final AjaxCheckBox percentage = new AjaxCheckBox("percentage", new PropertyModel<Boolean>(model, "courseAverageDisplayed")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				//nothing required
+			}
+        };
+        percentage.setOutputMarkupId(true);
+        courseGradeType.add(percentage);
         
-        add(courseGradeType);
-        
+        //points
+        final AjaxCheckBox points = new AjaxCheckBox("points", new PropertyModel<Boolean>(model, "coursePointsDisplayed")) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			protected void onUpdate(AjaxRequestTarget target) {
+				//nothing required
+			}
+        };
+        points.setOutputMarkupId(true);
+        courseGradeType.add(points);
         
         //behaviour for when the 'display course grade' checkbox is changed
         displayCourseGrade.add(new AjaxFormComponentUpdatingBehavior("onchange") {
