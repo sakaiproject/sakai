@@ -1,5 +1,7 @@
 package org.sakaiproject.gradebookng.tool.pages;
 
+import org.apache.wicket.markup.html.form.Button;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.model.CompoundPropertyModel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeEntryPanel;
 import org.sakaiproject.gradebookng.tool.panels.SettingsGradeReleasePanel;
@@ -18,6 +20,11 @@ public class SettingsPage extends BasePage {
 
 	public SettingsPage() {
 		disableLink(this.settingsPageLink);
+	}
+	
+	@Override
+	public void onInitialize() {
+		super.onInitialize();
 		
 		//get settings
 		GradebookInformation settings = this.businessService.getGradebookSettings();
@@ -25,9 +32,54 @@ public class SettingsPage extends BasePage {
 		//form model
 		CompoundPropertyModel<GradebookInformation> formModel = new CompoundPropertyModel<GradebookInformation>(settings);
 		
+		//form
+		Form<GradebookInformation> form = new Form<GradebookInformation>("form", formModel) {
+			private static final long serialVersionUID = 1L;
+
+			@Override
+			public void onSubmit() {
+				
+				GradebookInformation settings = this.getModelObject();
+				System.out.println("settings: " + settings.getGradeType());
+				
+				
+				businessService.updateGradebookSettings(settings);
+				/*
+				Assignment assignment = this.getModelObject();
+				
+				//TODO validation of the fields here
+				
+				if(businessService.updateAssignment(assignment)) {
+					GradebookPage rval = new GradebookPage();
+					rval.info(MessageFormat.format(getString("message.edititem.success"),assignment.getName()));
+					setResponsePage(rval);
+				} else {
+					error(getString("message.edititem.error"));
+				}
+				*/
+				
+				getSession().info(getString("settingspage.update.success"));
+				setResponsePage(new SettingsPage());
+				
+			}
+		};
+		
+		//cancel button
+		Button cancel = new Button("cancel") {
+			private static final long serialVersionUID = 1L;
+			@Override
+			public void onSubmit() {
+				setResponsePage(new GradebookPage());
+			}
+		};
+		cancel.setDefaultFormProcessing(false);
+        form.add(cancel);
+		
 		//panels
-		add(new SettingsGradeEntryPanel("gradeEntryPanel", formModel));
-		add(new SettingsGradeReleasePanel("gradeReleasePanel", formModel));
+		form.add(new SettingsGradeEntryPanel("gradeEntryPanel", formModel));
+		form.add(new SettingsGradeReleasePanel("gradeReleasePanel", formModel));
+		
+		add(form);
 		
 	}
 	

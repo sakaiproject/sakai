@@ -7,19 +7,13 @@
 		<h3><wicket:message key="settingspage.gradeentry.heading">Grade Entry</wicket:message></h3>
 		<p><wicket:message key="settingspage.gradeentry.text">How will graders enter grades...</wicket:message></p>
 		
-		<form wicket:id="form">
-			<div wicket:id="gradeEntry">
-		  		<div class="radio"><label><input wicket:id="points" type="radio"/><wicket:message key="settingspage.gradeentry.points" /></label></div>
-		  		<div class="radio"><label><input wicket:id="percentages" type="radio"/><wicket:message key="settingspage.gradeentry.percentages" /></label></div>
-			</div>
+		
+		<div wicket:id="gradeEntry">
+	  		<div class="radio"><label><input wicket:id="points" type="radio"/><wicket:message key="settingspage.gradeentry.points" /></label></div>
+	  		<div class="radio"><label><input wicket:id="percentages" type="radio"/><wicket:message key="settingspage.gradeentry.percentages" /></label></div>
+		</div>
+		
 			
-			<div>
-				<input type="submit" class="active" wicket:message="value:button.savechanges" />
-				<input type="submit" wicket:id="cancel" wicket:message="value:button.cancel" />
-			</div>
-			
-		</form>
-
 	</wicket:panel>
 </body>
 </html>
