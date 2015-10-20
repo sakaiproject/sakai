@@ -9720,10 +9720,13 @@ public class DiscussionForumTool
 	public Rank getAuthorRank(String userEid) {
 		// if both types of ranks exist for the same user, use the "Special rank assigned to selected site member(s)" type first.
 		Rank currRank = null;
-		currRank = findRankByUser(userEid);
-		if (currRank == null) {
-			int authorCount = messageManager.findAuthoredMessageCountForStudent(userEid);
-			currRank = findRankByMinPost(authorCount);
+		if (isRanksEnabled())
+		{
+			currRank = findRankByUser(userEid);
+			if (currRank == null) {
+				int authorCount = messageManager.findAuthoredMessageCountForStudent(userEid);
+				currRank = findRankByMinPost(authorCount);
+			}
 		}
 		return currRank;
 	}
