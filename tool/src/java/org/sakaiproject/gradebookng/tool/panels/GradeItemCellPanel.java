@@ -519,6 +519,7 @@ public class GradeItemCellPanel extends Panel {
 
 
 	private void addPopover(Component component, List<GradeCellNotification> notifications) {
+		modelData.put("gradeable", gradeable);
 		GradeItemCellPopoverPanel popover = new GradeItemCellPopoverPanel("popover", Model.ofMap(modelData), notifications);
 		String popoverString = ComponentRenderer.renderComponent(popover).toString();
 

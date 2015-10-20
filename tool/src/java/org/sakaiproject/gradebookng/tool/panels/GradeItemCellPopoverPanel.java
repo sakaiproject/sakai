@@ -43,6 +43,14 @@ public class GradeItemCellPopoverPanel extends Panel {
 
 			hasCommentNotification.add(new AttributeModifier("data-assignmentid", (Long) modelData.get("assignmentId")));
 			hasCommentNotification.add(new AttributeModifier("data-studentUuid", (String) modelData.get("studentUuid")));
+
+			WebMarkupContainer editCommentContainer = new WebMarkupContainer("editCommentContainer") {
+				@Override
+				public boolean isVisible() {
+					return (boolean) modelData.get("gradeable");
+				}
+			};
+			hasCommentNotification.add(editCommentContainer);
 		}
 
 		WebMarkupContainer isOverLimitNotification = new WebMarkupContainer("isOverLimitNotification");
