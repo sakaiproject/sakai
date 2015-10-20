@@ -1666,7 +1666,7 @@ public class GradebookNgBusinessService {
     	 Gradebook gradebook = getGradebook(siteId);
     	 
     	 //disabled until the gb service mods are in master
-    	 //this.gradebookService.updateGradebookInformation(gradebook.getUid(), settings);
+    	 this.gradebookService.updateGradebookSettings(gradebook.getUid(), settings);
      }
     
 
