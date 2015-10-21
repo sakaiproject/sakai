@@ -239,6 +239,17 @@ $(document).ready(function() {
 			$("#site").prop("disabled", false);
 		}
 	}
+	
+	function toggleAutoAnnounceOptions(checked){
+		var section = document.getElementById("selectAutoAnnounceOptions");
+		if(checked){
+			section.style.display="block";
+			resizeFrame('grow');
+		}else{
+			section.style.display="none";
+			resizeFrame('shrink');
+		}
+	}
 </script>
 <script type="text/javascript">
 	focus_path = [ '$fField' ];
@@ -639,14 +650,27 @@ $(document).ready(function() {
 		#if ($!name_CheckAutoAnnounce)
 			<p class="checkbox  indnt2">
 				#if ($value_CheckAutoAnnounce.equals("true"))
-					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" />
+					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" checked="checked" onclick="toggleAutoAnnounceOptions(this.checked)" />
 				#else
-					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" />
+					<input id="$name_CheckAutoAnnounce" name="$name_CheckAutoAnnounce" type="checkbox" value="true" onclick="toggleAutoAnnounceOptions(this.checked)" />
 				#end
 				<label for="$name_CheckAutoAnnounce">
 					$tlang.getString("gen.anntheope") 
 				</label>
 			</p>
+			#if ($!$value_CheckAutoAnnounce.equals("true"))
+			<div id="selectAutoAnnounceOptions" class="indnt3">
+			#else
+			<div id="selectAutoAnnounceOptions" style="display:none" class="indnt3">
+			#end
+				<p class="checkbox  indnt2">
+					<select name="$name_OpenDateNotification" id="$name_OpenDateNotification">
+						<option value="$value_opendate_notification_none" #if($value_OpenDateNotification.equals($value_opendate_notification_none)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.none')</option>
+						<option value="$value_opendate_notification_low" #if($value_OpenDateNotification.equals($value_opendate_notification_low)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.low')</option>
+						<option value="$value_opendate_notification_high" #if($value_OpenDateNotification.equals($value_opendate_notification_high)) selected="selected" #end>$tlang.getString('send.notification.opendate.email.high')</option>
+					</select> 
+			    </p>
+			</div>
 		#end
 		<p class="checkbox  indnt2">
 			#if (!$!value_CheckAddHonorPledge.equals("1"))
