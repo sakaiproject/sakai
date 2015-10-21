@@ -9,3 +9,26 @@ var setupSkipNav = function(){
     $PBJQ(target).attr('tabindex','-1').focus();
    });
 };
+
+$PBJQ( document ).ready(function() {
+	
+	var lastScrollTop = 0;
+
+	$PBJQ(document).scroll(function(event){
+	   console.log( "entra en el scroll" );
+	   var st = $PBJQ(this).scrollTop();
+	   if (st > lastScrollTop && st > 90 ){
+	   	   $PBJQ(".Mrphs-topHeader").addClass('moving');
+	   	   $PBJQ(".Mrphs-toolsNav__title--current-site").addClass('moving');
+	   	   $PBJQ(".Mrphs-skipNav__menu").addClass('moving');
+	   	   $PBJQ(".Mrphs-sitesNav__menuitem--myworkspace").addClass('moving');
+	   } else if( st > 90 ) {
+	   	    $PBJQ(".Mrphs-topHeader").removeClass('moving');
+	   	   	$PBJQ(".Mrphs-toolsNav__title--current-site").removeClass('moving');
+	   	   	$PBJQ(".Mrphs-skipNav__menu").removeClass('moving');
+	   	   	$PBJQ(".Mrphs-sitesNav__menuitem--myworkspace").removeClass('moving');
+	   }
+	   lastScrollTop = st;
+	});
+
+});

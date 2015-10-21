@@ -2,30 +2,23 @@
     <ul role="menu" class="Mrphs-skipNav__menu">
 
         #if ($siteNavHasAccessibilityURL)
-
             <li role="menuitem" class="Mrphs-skipNav__menuitem">
                 <a href="$siteNavAccessibilityURL" class="Mrphs-skipNav__link Mrphs-skipNav__link--accessibility" title="${rloader.sit_accessibility}" accesskey="0">${rloader.sit_accessibility}</a>
             </li>
-
         #end ## END of IF ($siteNavHasAccessibilityURL)
-
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--content">
-            <a href="#tocontent" class="Mrphs-skipNav__link" title="${rloader.sit_jumpcontent}" accesskey="c"><span>${rloader.sit_jumpcontent}</span></a>
+            <a href="#tocontent" class="Mrphs-skipNav__link" title="${rloader.sit_jumpcontent}" accesskey="c">
+                ${rloader.sit_jumpcontent}
+            </a>
         </li>
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--tools">
-            <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l"><i class="fa fa-angle-double-right"></i><span>${rloader.sit_jumptools}</span></a>
+            <a href="#totoolmenu" class="Mrphs-skipNav__link js-toggle-tools-nav" title="${rloader.sit_jumptools}" accesskey="l">
+                ${rloader.sit_jumptools}
+            </a>
         </li>
         <li role="menuitem" class="Mrphs-skipNav__menuitem Mrphs-skipNav__menuitem--worksite">
-
-	     <a href="#sitetabs" id="more-sites-menu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
-		<div id="show-all-sites-mobile" tabindex="-1" aria-hidden="true">
-			<i class="fa fa-angle-double-left"></i>
-			<span>${rloader.sit_more}</span>
-		</div>
-                <span class="hamburger hamburger-sites"> 
-                     <i class="fa fa-close"></i>
-                </span>
-                <span>${rloader.sit_jumpworksite}</span>
+            <a href="#sitetabs" id="more-sites-menu" class="Mrphs-skipNav__link js-toggle-sites-nav" title="${rloader.sit_jumpworksite}" accesskey="w">
+		      ${rloader.sit_more}
             </a>
         </li>
     </ul>
