@@ -86,7 +86,7 @@
 			padding: 0.5em 1.2em 0.65em 1.2em;
 		}
 	}
-	&[disabled="disabled"]{
+	&[disabled="disabled"],&[disabled],&[disabled="true"]{
 		background: $button-color-background-color;
 		color: $button-background-color;
 		cursor: not-allowed;
@@ -127,7 +127,7 @@
 			padding: 0.5em 1.2em 0.65em 1.2em;
 		}
 	}
-	&[disabled="disabled"]{
+	&[disabled="disabled"],&[disabled],&[disabled="true"]{
 		background: $button-background-color;
 		color: lighten( $button-text-color, 15% );
 		cursor: not-allowed;
