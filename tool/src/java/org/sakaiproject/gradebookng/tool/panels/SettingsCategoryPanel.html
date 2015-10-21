@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:wicket="http://wicket.apache.org/dtds.data/wicket-xhtml1.4-strict.dtd">
+
+<body>
+	<wicket:panel>
+
+		<h3><wicket:message key="settingspage.categories.heading">Categories & Weighting</wicket:message></h3>		
+		
+		<div wicket:id="categoryType">
+	  		<div class="radio"><label><input wicket:id="none" type="radio"/><wicket:message key="settingspage.categories.none" /></label></div>
+	  		<div class="radio"><label><input wicket:id="categoriesOnly" type="radio"/><wicket:message key="settingspage.categories.categoriesonly" /></label></div>
+			<div class="radio"><label><input wicket:id="categoriesAndWeighting" type="radio"/><wicket:message key="settingspage.categories.categoriesweighting" /></label></div>
+		</div>
+		
+		<div wicket:id="categorySettings">
+	  		<div class="checkbox"><label><input wicket:id="dropHighest" type="checkbox"/><wicket:message key="settingspage.categories.drophighest" /></label></div>
+	  		<div class="checkbox"><label><input wicket:id="dropLowest" type="checkbox"/><wicket:message key="settingspage.categories.droplowest" /></label></div>
+			<div class="checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><wicket:message key="settingspage.categories.keephighest" /></label></div>
+		</div>
+		
+			
+	</wicket:panel>
+</body>
+</html>
