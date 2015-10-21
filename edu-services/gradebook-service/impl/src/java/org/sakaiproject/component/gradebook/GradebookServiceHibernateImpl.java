@@ -3015,7 +3015,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			
 			//new
 			if(!catMap.containsKey(name)) {
-				this.createCategory(gradebook.getId(), def.getName(), def.getWeight(), def.getDropLowest(), def.getDropHighest(), def.getKeepHighest(), def.isExtraCredit());
+				this.createCategory(gradebook.getId(), def.getName(), def.getWeight(), def.getDrop_lowest(), def.getDropHighest(), def.getKeepHighest(), def.isExtraCredit());
 				continue;
 			}
 			
@@ -3024,7 +3024,7 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 				Category existing = catMap.get(name);
 				existing.setName(def.getName());
 				existing.setWeight(def.getWeight());
-				existing.setDrop_lowest(def.getDropLowest());
+				existing.setDrop_lowest(def.getDrop_lowest());
 				existing.setDropHighest(def.getDropHighest());
 				existing.setKeepHighest(def.getKeepHighest());
 				existing.setExtraCredit(def.isExtraCredit());
