@@ -1639,6 +1639,7 @@ public class SiteManageGroupSectionRoleHandler {
 			return null;
 		}
     	int joinableSetNumOfGroupsInt;
+    	joinableSetNumOfGroups = StringUtils.trimToEmpty( joinableSetNumOfGroups );
     	if(joinableSetNumOfGroups == null || "".equals(joinableSetNumOfGroups)){
     		messages.addMessage(new TargettedMessage("numGroups.empty.alert","num-groups"));
 			return null;
@@ -1658,6 +1659,7 @@ public class SiteManageGroupSectionRoleHandler {
 			}
     	}
     	int joinableSetNumOfMembersInt;
+    	joinableSetNumOfMembers = StringUtils.trimToEmpty( joinableSetNumOfMembers );
     	if(joinableSetNumOfMembers == null || "".equals(joinableSetNumOfMembers)){
     		messages.addMessage(new TargettedMessage("maxMembers.empty.alert","num-groups"));
 			return null;
