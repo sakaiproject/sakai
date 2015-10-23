@@ -37,7 +37,8 @@ body.is-logged-out{
 			display:	inline-block;
 			margin:		0.6em 1.5em 0 4em;
 			@media #{$phone}{
-				display: none;
+				margin: 0.2em 0 0 4em;
+				float: left;
 			}
 		}
 	}
@@ -136,6 +137,7 @@ body.is-logged-out{
 	color: $background-color-secondary;
 	font-size: 0.9em;
 	text-align: right;
+	@include transition( top 0.25s linear );
 	a{
 		color: $background-color-secondary;
 	}
@@ -144,6 +146,17 @@ body.is-logged-out{
 		vertical-align: middle;
 		@media #{$phone}{
 			display: inline;
+		}
+	}
+	@media #{$phone}{
+		position: fixed;
+		width: 100%;
+		top: 0;
+		&.moving{
+			top: -4.2em;
+			#mastLogin #loginLinks ul.#{$namespace}userNav__subnav{
+				display: none;
+			}
 		}
 	}
 
@@ -255,7 +268,7 @@ body.is-logged-out{
 			margin: -0.5em 0 0 2.6em;
 			@extend .userNav__subnav;
 			@media #{$phone}{
-				margin: -0.5em 0 0 -9em;
+				margin: 2.8em 0 0 -9em;
 			}
 		}
 	}
@@ -276,21 +289,23 @@ body.is-logged-out{
 	margin-bottom:0px;
 }
 .#{$namespace}sitesNav__menuitem--myworkspace{
-	@media #{$phone}{
-		background: $primary-color;
-	}
 	border-right:  1px solid darken( $background-color-secondary, 10% );
 	font-size: 0.95em;
 	left: 0;
 	height:3.3em;
-	@media #{$phone}{
-	 	height:3.1em;
-		border-right: 1px solid darken( $primary-color, 5% );
-	}
 	position: absolute;
 	background: darken( $background-color-secondary, 5% );
 	@media #{$phone}{
+		background: $primary-color;
+		border-right: 1px solid darken( $primary-color, 5% );
+	 	height:3.1em;
+		position: fixed;
 		top: 0;
+		z-index: 1000;
+		@include transition(top 0.25s linear);
+		&.moving{
+			top: -4.5em;
+		}
 	}
 	span{
 		display: none;

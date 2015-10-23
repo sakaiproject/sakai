@@ -20,7 +20,8 @@
 		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
 		@media #{$phone}{
 			width: 85% ;
-			left: 15%  ;
+			left: 15%;
+			padding: 1em 1em 3em 1em;
 		}
 	}
 	&.outscreen{
