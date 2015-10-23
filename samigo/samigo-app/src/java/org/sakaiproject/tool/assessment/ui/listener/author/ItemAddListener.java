@@ -177,7 +177,7 @@ public class ItemAddListener
     if(iType.equals(TypeFacade.TRUE_FALSE.toString()))
     {   
       String corrAnswer = item.getCorrAnswer();
-      if (corrAnswer == null){
+      if (StringUtils.isBlank(corrAnswer)){
 	    err = ContextUtil.getLocalizedString("org.sakaiproject.tool.assessment.bundle.AuthorMessages","corrAnswer");
 	    context.addMessage(null,new FacesMessage(err));
 	    item.setOutcome("trueFalseItem");
