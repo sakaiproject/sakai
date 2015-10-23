@@ -38,6 +38,11 @@ public class AddGradeItemPanelContent extends Panel {
     @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
     protected GradebookNgBusinessService businessService;
   
+
+    final AjaxCheckBox counted;
+    final AjaxCheckBox released;
+
+
     public AddGradeItemPanelContent(String id, Model<Assignment> assignmentModel) {
         super(id, assignmentModel);
 
@@ -99,32 +104,30 @@ public class AddGradeItemPanelContent extends Panel {
         extraCredit.setOutputMarkupId(true);
         add(extraCredit);
         
-        final AjaxCheckBox released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
+        released = new AjaxCheckBox("released", new PropertyModel<Boolean>(assignmentModel, "released")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				//nothing required
+				if(!this.getModelObject()) {
+					counted.setModelObject(false);
+					target.add(counted);
+				}
 			}
         };
         released.setOutputMarkupId(true);
-        released.setEnabled(!assignmentModel.getObject().isCounted());
         add(released);
         
         //if checked, release must also be checked and then disabled
-        final AjaxCheckBox counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
+        counted = new AjaxCheckBox("counted", new PropertyModel<Boolean>(assignmentModel, "counted")) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
 				if(this.getModelObject()) {
 					released.setModelObject(true);
-					released.setEnabled(false);
-				} else {
-					released.setEnabled(true);
 				}
 				target.add(released);
-				target.add(this);
 			}
         };
 
@@ -158,11 +161,9 @@ public class AddGradeItemPanelContent extends Panel {
 					if (category == null) {
 						counted.setEnabled(false);
 						counted.setModelObject(false);
-						released.setEnabled(true);
 					} else {
 						counted.setEnabled(true);
 						counted.setModelObject(true);
-						released.setEnabled(false);
 						released.setModelObject(true);
 					}
 
