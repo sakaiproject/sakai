@@ -21,6 +21,9 @@ import org.apache.wicket.markup.html.basic.Label;
 import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.form.Radio;
 import org.apache.wicket.markup.html.form.RadioGroup;
+import org.apache.wicket.markup.html.form.TextField;
+import org.apache.wicket.markup.html.list.ListItem;
+import org.apache.wicket.markup.html.list.ListView;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.markup.repeater.Item;
 import org.apache.wicket.markup.repeater.data.ListDataProvider;
@@ -33,6 +36,7 @@ import org.sakaiproject.gradebookng.business.GradebookNgBusinessService;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 import org.sakaiproject.service.gradebook.shared.CategoryDefinition;
 import org.sakaiproject.service.gradebook.shared.GradebookInformation;
+import org.sakaiproject.service.gradebook.shared.PermissionDefinition;
 
 public class SettingsCategoryPanel extends Panel {
 	
@@ -44,6 +48,7 @@ public class SettingsCategoryPanel extends Panel {
 	IModel<GradebookInformation> model;
 	
 	DataTable table;
+	
 	
 	@Setter @Getter
 	boolean isDropHighest = false;
@@ -249,6 +254,48 @@ public class SettingsCategoryPanel extends Panel {
         table.setOutputMarkupId(true);
         add(table);
         
+        
+        //render table of categories
+        final WebMarkupContainer categoriesContainer = new WebMarkupContainer("categoriesContainer");
+    	ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categories2", categories) {
+
+  			private static final long serialVersionUID = 1L;
+
+  			@Override
+  			protected void populateItem(final ListItem<CategoryDefinition> item) {
+  				
+  				CategoryDefinition category = item.getModelObject();
+  				
+  				//name
+  				TextField<String> name = new TextField<String>("name", new PropertyModel<String>(category, "name"));
+  				item.add(name);
+  				
+  				//weight
+  				TextField<Double> weight = new TextField<Double>("weight", new PropertyModel<Double>(category, "weight"));
+  				item.add(weight);
+  				
+  				//remove button
+				AjaxButton remove = new AjaxButton("remove") {
+					private static final long serialVersionUID = 1L;
+					@Override
+					public void onSubmit(AjaxRequestTarget target, Form<?> form) {
+						
+						//remove current item
+						CategoryDefinition current = item.getModelObject();
+						categories.remove(current);
+						
+						target.add(categoriesContainer);
+					}
+				};
+				remove.setDefaultFormProcessing(false);
+				item.add(remove);
+  				
+  			}
+  		};
+  		categoriesContainer.setOutputMarkupId(true);
+  		categoriesContainer.add(categoriesView);
+  		add(categoriesContainer);
+        
         //add category button
         AjaxButton addCategory = new AjaxButton("addCategory") {
 			private static final long serialVersionUID = 1L;
@@ -259,7 +306,7 @@ public class SettingsCategoryPanel extends Panel {
 				CategoryDefinition cd = new CategoryDefinition();
 				cd.setAssignmentList(Collections.<Assignment> emptyList());
 				categories.add(cd);
-				target.add(table);
+				target.add(categoriesContainer);
 			}
         };
         addCategory.setDefaultFormProcessing(false);
