@@ -350,6 +350,37 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
     column-count: 2;
 }
 
+.coltrans {
+   border-color: transparent;
+}
+
+.colgray {
+   background-color: #f8f8f8;
+   border-color: #aaa;
+}
+.colred {
+   background-color: #fff0f0;
+   border-color: #600;
+   color: #600;
+}
+.colblue {
+   background-color: #f4f4ff;
+   border-color: #004;
+   color: #004;
+}
+.colgreen {
+   background-color: #f6fff6;
+   border-color: #030;
+   color: #030;
+}
+.colyellow {
+   background-color: #ffffe8;
+   border-color: #840;
+   color: #840;
+}
+
+
+
 .columnopen, .addbottom {
   text-decoration: none;
 }

@@ -2050,6 +2050,12 @@ $(document).ready(function() {
 	    $('#columndouble').prop('checked', col.hasClass('double'));
 	    $('#columnsplit').prop('checked', col.hasClass('split'));
 	    $('#columnitem').val(itemid);
+	    $('#columntrans').prop('selected', col.hasClass('coltrans'));
+	    $('#columngray').prop('selected', col.hasClass('colgray'));
+	    $('#columnred').prop('selected', col.hasClass('colred'));
+	    $('#columnblue').prop('selected', col.hasClass('colblue'));
+	    $('#columngreen').prop('selected', col.hasClass('colgreen'));
+	    $('#columnyellow').prop('selected', col.hasClass('colyellow'));
 	    $('#column-dialog').dialog('open');
 	    return false;
 	}
@@ -2064,7 +2070,18 @@ $(document).ready(function() {
 		var width = $('#columndouble').prop('checked') ? 2 : 1;
 		var split = $('#columnsplit').prop('checked') ? 2 : 1;
 		var col =  $('.currentlyediting');
-		setColumnProperties(itemid, width, split);
+		var color_index = $('#columnbackground')[0].selectedIndex; 
+		var color = '';
+		switch (color_index) {
+		case 0: color = ''; break;
+		case 1: color = 'trans'; break;
+		case 2: color = 'gray'; break;
+		case 3: color = 'red'; break;
+		case 4: color = 'blue'; break;
+		case 5: color = 'green'; break;
+		case 6: color = 'yellow'; break;
+		}
+		setColumnProperties(itemid, width, split, color);
 		if (width === 2)
 		    col.addClass('double');		    
 		else
@@ -2073,6 +2090,9 @@ $(document).ready(function() {
 		    col.addClass('split');
 		else
 		    col.removeClass('split');
+		col.removeClass('coltrans colgray colred colblue colgreen colyellow');
+		if (color !== '')
+		    col.addClass('col' + color);
 		fixupColAttrs();
 		fixupHeights();
 		$('#column-dialog').dialog('close');
@@ -2809,7 +2829,7 @@ function deleteBreak(itemId, type) {
 	    }});
 }
 
-function setColumnProperties(itemId, width, split) {
+function setColumnProperties(itemId, width, split, color) {
     var errors = '';
     var url = location.protocol + '//' + location.host + 
 	'/lessonbuilder-tool/ajax';
@@ -2818,7 +2838,7 @@ function setColumnProperties(itemId, width, split) {
     $.ajax({type: "POST",
 	    async: false,
 	    url: url,
-		data: {op: 'setcolumnproperties', itemid: itemId, width: width, split: split, csrf: csrf},
+		data: {op: 'setcolumnproperties', itemid: itemId, width: width, split: split, csrf: csrf, color: color},
 	    success: function(data){
 		ok = data;
 	    }});
