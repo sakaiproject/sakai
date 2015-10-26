@@ -18,6 +18,12 @@
 			<div class="checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><wicket:message key="settingspage.categories.keephighest" /></label></div>
 		</div>
 		
+		<!--  this may need to be a list view instead, so we have more control over markup? -->
+		<table wicket:id="categories" class="table-striped table-bordered table-hover"></table>
+		
+		<div>
+			<button wicket:id="addCategory" type="submit" class="btn btn-default"><wicket:message key="settingspage.categories.add" /></button>
+		</div>		
 			
 	</wicket:panel>
 </body>
