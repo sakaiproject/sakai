@@ -850,6 +850,24 @@ public class SiteHandler extends WorksiteHandler
 			rcontext.put("viewAsStudentLink", Boolean.valueOf(roleswapcheck)); // this will tell our UI if we want the link for swapping roles to display
 			rcontext.put("roleSwitchState", roleswitchstate); // this will tell our UI if we are in a role swapped state or not
 
+			int tabDisplayLabel = 1;
+			
+			if (loggedIn) 
+			{
+				Preferences prefs = PreferencesService.getPreferences(session.getUserId());
+				ResourceProperties props = prefs.getProperties("sakai:portal:sitenav");
+				try 
+				{
+					tabDisplayLabel = (int) props.getLongProperty("tab:label");
+				} 
+				catch (Exception any) 
+				{
+					tabDisplayLabel = 1;
+				}
+			}
+			
+			rcontext.put("tabDisplayLabel", tabDisplayLabel);
+			
 			SiteView siteView = portal.getSiteHelper().getSitesView(
 					SiteView.View.DHTML_MORE_VIEW, req, session, siteId);
 			siteView.setPrefix(prefix);

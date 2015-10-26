@@ -71,7 +71,7 @@
 
                                     <li #if (${site.isCurrentSite})class="is-selected" #end>
 
-                                        #if ( ${site.shortDescription} )
+                                        #if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )
                                             <a href="${site.siteUrl}" title="${site.fullTitle}"><span  class="fullTitle">${site.shortDescription}</span></a><a href="#" id="${site.siteId}" class="toolMenus"><span class="skip">Tools</span></a>
 
                                         #else

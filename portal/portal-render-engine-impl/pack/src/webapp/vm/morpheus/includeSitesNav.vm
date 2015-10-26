@@ -23,7 +23,7 @@
     
                 <li class="Mrphs-sitesNav__menuitem #if (${site.isCurrentSite}) is-selected #end">
                     <a href="${site.siteUrl}" title="${site.fullTitle}" role="menuitem" aria-haspopup="true">
-                        <span>#if ( ${site.shortDescription} )${site.shortDescription}#else${site.siteTitle}#end</span>
+                        <span>#if ( ( ${tabDisplayLabel} == 2 ) && ( ${site.shortDescription} ) )${site.shortDescription}#else${site.siteTitle}#end</span>
                         <span class="Mrphs-sitesNav__dropdown" tabindex="-1" data-site-id="${site.siteId}"></span>
                     </a>
                 </li>
