@@ -44,7 +44,7 @@ public class SettingsPage extends BasePage {
 			public void onSubmit() {
 				
 				GradebookInformation settings = this.getModelObject();
-				System.out.println("settings: " + settings.getGradeType());
+				System.out.println("settings: " + settings);
 				
 				
 				businessService.updateGradebookSettings(settings);
