@@ -538,7 +538,7 @@ public class AjaxServer extends HttpServlet
 
     }
 
-    public static String setColumnProperties(String itemId, String width, String split, String csrfToken) {
+    public static String setColumnProperties(String itemId, String width, String split, String color, String csrfToken) {
 
 	if (itemId == null || width == null || split == null) {
 	    log.error("Ajax setColumnProperties passed null argument");
@@ -555,6 +555,15 @@ public class AjaxServer extends HttpServlet
 	} catch (Exception e) {
 	    log.error("Ajax setColumnProperties passwd non-numeric width or split");
 	    return null;
+	}
+
+	if (color != null) {
+	    if (color.equals(""))
+		color = null;
+	    else if (!color.matches("^[a-z]*$")) {
+		log.error("Ajax setColumnProperties passwd unreasonable color");
+		return null;
+	    }
 	}
 
 	// currently this is only needed by the instructor
@@ -618,6 +627,12 @@ public class AjaxServer extends HttpServlet
 	else
 	    item.setAttribute("colsplit", split);
 	
+
+	if (color == null)
+	    item.removeAttribute("colcolor");
+	else
+	    item.setAttribute("colcolor", color);
+
 	simplePageToolDao.quickUpdate(item);
 	return "ok";
 
@@ -736,8 +751,9 @@ public class AjaxServer extends HttpServlet
 	  String itemId = req.getParameter("itemid");
 	  String width = req.getParameter("width");
 	  String split = req.getParameter("split");
+	  String color = req.getParameter("color");
 	  String csrfToken = req.getParameter("csrf");
-	  out.println(setColumnProperties(itemId, width, split, csrfToken));
+	  out.println(setColumnProperties(itemId, width, split, color, csrfToken));
       } else if (op.equals("deleteitem")) {
 	  String itemId = req.getParameter("itemid");
 	  String csrfToken = req.getParameter("csrf");

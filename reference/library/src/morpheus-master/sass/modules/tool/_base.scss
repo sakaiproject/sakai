@@ -2,6 +2,7 @@
 	background: $primary-color;
 	margin: 1em 0 0 0;
 	padding: 0.5em;
+	position: relative;
 	.#{$namespace}toolTitleNav__title{
 		color: lighten( $text-color, 70% );
 		display: inline-block;
@@ -34,31 +35,39 @@
 	}
 
 	.#{$namespace}toolTitleNav__link{
-		vertical-align: 0%;
 		color: lighten( $text-color, 70% );
-		text-decoration :none;
 		margin-right: 0.25em;
+		padding: 5px 0 0 0;
+		text-decoration :none;
+		vertical-align: 0%;
 		@include icon();
 		&--directurl{
 			@extend .fa;
 			@extend .fa-link;
 			@extend .fa-lg;
+			position: absolute;
+			right: #{$icon-size * 1.5};
 		}
 		&--help-popup{
 			@extend .fa;
 			@extend .fa-question;
 			@extend .fa-lg;
+			position: absolute;
+			right: 0;
 		}
 		&--edit{
 			@extend .fa;
 			@extend .fa-pencil;
 			@extend .fa-lg;	
+			position: absolute;
+			right: #{$icon-size * 3};
 		}
 		&--reset{
 			@extend .fa;
 			@extend .fa-share;
 			@extend .fa-lg;	
 			font-size: 0.9em;
+			float: left;
 		}
 	}
 
@@ -74,6 +83,8 @@
 
 .portletBody{
 	background: $tool-background-color;
-	padding: #{$default-font-size / 2};
-	padding-bottom: 40px;
+	padding: $default-font-size $default-font-size 40px $default-font-size;
+	@media #{$phone}{
+		padding: 16px 16px 40px 16px;
+	}
 }

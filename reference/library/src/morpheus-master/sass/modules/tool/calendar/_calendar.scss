@@ -1,7 +1,7 @@
 table.calendar{
 	font-size: 0.8em;
 	tr{
-		border-bottom: 1px solid darken($button-color-secondary, 10%);
+		border-bottom: 1px solid lighten($text-color, 10%);
 		td{
 			text-align: center;
 		}
@@ -9,21 +9,7 @@ table.calendar{
 }
 
 .viewLinkControl{
-	font-size: 0.8em;
-	margin: 0.5em 0;
-	@if $button-gradiant {
-		@include sakai-button(  $button-color-secondary, 
-							darken( $button-color-secondary, 15% ), 
-							darken( $button-color-secondary, 25% ), 
-							$button-text-color-secondary );
-	}
-	@else {
-		@include sakai-button(  $button-color-secondary, 
-							$button-color-secondary, 
-							$button-color-secondary, 
-							$button-text-color-secondary);
-
-	}
+	@extend .button;
 }
 
 .calendarLegend{

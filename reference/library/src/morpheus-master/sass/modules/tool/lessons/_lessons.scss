@@ -1,9 +1,3 @@
 .lessonsToolButton {
-   font-size: 75%;
-   @if $button-gradiant {
-	@include sakai-button( $button-text-color, darken( $button-text-color, 10% ), darken( $button-text-color, 10% ), $button-color );
-   }
-   @else {
-	@include sakai-button( $button-text-color, $button-text-color, darken( $button-text-color, 10% ), $button-color );
-   }
+   @extend .button;
 }

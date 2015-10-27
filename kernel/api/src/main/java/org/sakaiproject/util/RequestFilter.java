@@ -1300,8 +1300,13 @@ public class RequestFilter implements Filter
 			res.setHeader("X-UA-Compatible",m_UACompatible);
 		}
 
-		if (!isLTIProviderAllowed) {
+		if (!isLTIProviderAllowed && (!useContentHostingDomain || !req.getServerName().equals(chsDomain))) {
 			res.setHeader("X-Frame-Options", "SAMEORIGIN");
+		}
+
+		UsageSession us = (UsageSession)s.getAttribute(UsageSessionService.USAGE_SESSION_KEY);
+		if (us != null) {
+			res.setHeader("X-Sakai-Session",us.getId());
 		}
 
 		return res;

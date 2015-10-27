@@ -421,3 +421,31 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 
 -- SAK-29733 Change Schedule to Calendar for existing sites
 UPDATE SAKAI_SITE_TOOL SET TITLE="Calendar" WHERE REGISTRATION = "sakai.schedule" AND TITLE = "Schedule";
 UPDATE SAKAI_SITE_PAGE SET TITLE="Calendar" WHERE TITLE = "Schedule";
+
+-- SAK-30000 Site creation notification email template updates
+UPDATE email_template_item
+SET message = ' 
+From Worksite Setup to ${serviceName} support:
+
+<#if courseSite ="true">Official Course Site<#else>Site </#if> ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} <#if courseSite ="true">for ${termTitle} </#if>
+<#if numSections = "1">with access to the roster for this section:<#elseif numSections != "0">with access to rosters for these ${numSections} sections:</#if>
+
+${sections}
+'
+WHERE template_key = 'sitemanage.notifySiteCreation' AND template_locale = 'default';
+UPDATE email_template_item
+SET subject = 'Site "${siteTitle}" was successfully created by ${currentUserDisplayName}', message = '
+Hi, ${currentUserDisplayName}:
+
+Your site "${siteTitle}" has been successfully created. The following is a copy of the site creation notification email sent to ${serviceName} support:
+
+
+From Worksite Setup to ${serviceName} support:
+
+<#if courseSite ="true">Official Course Site<#else>Site </#if> ${siteTitle} (ID ${siteId}) was set up by ${currentUserDisplayName} (${currentUserDisplayId}, email ${currentUserEmail}) on ${dateDisplay} <#if courseSite ="true">for ${termTitle} </#if>
+<#if numSections = "1">with access to the roster for this section:<#elseif numSections != "0">with access to rosters for these ${numSections} sections:</#if>
+
+${sections}
+'
+WHERE template_key = 'sitemanage.notifySiteCreation.confirmation' AND template_locale = 'default';
+-- END SAK-30000

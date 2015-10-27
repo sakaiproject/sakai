@@ -44,7 +44,7 @@ response.setContentType("text/html; charset=UTF-8");
 	                           <h:outputText value="#{msgs.event_log_user_id}" />
 	                       </t:commandSortHeader>
 	                   </f:facet>
-	                   <h:outputText value="#{audit.user.eid}" />
+	                   <h:outputText value="#{audit.user.displayId}" />
 	               </h:column>
 	               <h:column>
 	                   <f:facet name="header">

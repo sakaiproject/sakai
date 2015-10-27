@@ -1115,7 +1115,9 @@ public class ShowPageProducer implements ViewComponentProducer, DefaultView, Nav
 				    Integer split = new Integer(i.getAttribute("colsplit") == null ? "1" : i.getAttribute("colsplit"));
 				    colnum += width; // number after this column
 
-				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"")));
+				    String color = i.getAttribute("colcolor");
+
+				    columnContainer.decorate(new UIStyleDecorator("cols" + cols + (colnum == cols?" lastcol":"") + (width > 1?" double":"") + (split > 1?" split":"") + (color == null?"":" col"+color)));
 				    UIComponent delIcon = UIOutput.make(columnContainer, "section-td");
 				    if (first)
 					delIcon.decorate(new UIFreeAttributeDecorator("style", "display:none"));

@@ -9510,7 +9510,7 @@ public class AssignmentAction extends PagedResourceActionII
         } catch (Exception e) {
             M_log.error(e);
 			String uiService = ServerConfigurationService.getString("ui.service", "Sakai");
-			String[] args = new String[]{contentReviewService.getServiceName(), uiService};
+			String[] args = new String[]{contentReviewService.getServiceName(), uiService, e.toString()};
             state.setAttribute("alertMessage", rb.getFormattedMessage("content_review.error.createAssignment", args));
         }
 		return false;

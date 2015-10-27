@@ -961,7 +961,13 @@ public abstract class BaseSiteService implements SiteService, Observer
 
 		// Give the site advisors, if any, a chance to make last minute changes to the site
 		for(Iterator<SiteAdvisor> iter = siteAdvisors.iterator(); iter.hasNext();) {
-			iter.next().update(site);
+			try {
+				iter.next().update(site);
+			}
+			catch (Exception e)
+			{
+				M_log.error("Advisor error in doSave()", e);
+			}
 		}
 
 		site.setFullyLoaded(true);

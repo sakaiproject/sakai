@@ -176,9 +176,12 @@ public class CollectionAccessFormatter
 			// Iterate through content items
 
 			URI baseUri = new URI(x.getUrl());
-						
+
+			String hiddenClassParent = x.isAvailable() ? "" : " inactive";
+			String hiddenClass;
 			for (ContentEntity content : members) {
 
+				hiddenClass = hiddenClassParent;
 				ResourceProperties properties = content.getProperties();
 				boolean isCollection = content.isCollection();
 				String xs = content.getId();
@@ -214,10 +217,10 @@ public class CollectionAccessFormatter
 					URI contentUri = new URI(contentUrl);
 					URI relativeUri = baseUri.relativize(contentUri);
 					contentUrl = relativeUri.toString();
-
+					if(!content.isAvailable()) {
+							hiddenClass = " inactive";
+					}
 					String displayName = properties.getProperty(ResourceProperties.PROP_DISPLAY_NAME);
-
-					final String hiddenClass = content.isHidden() ? " inactive" : "";
 
 					if (isCollection)
 					{
@@ -230,9 +233,7 @@ public class CollectionAccessFormatter
 						}
 						StringBuilder li
 							= new StringBuilder("<li class=\"folder\"><a href=\"").append(contentUrl).append("\"");
-						if (content.isHidden()) {
-							li.append(" class=\"inactive\"");
-						}
+						li.append(" class=\""+hiddenClass+"\"");
 						li.append(">")
 							.append(formattedText.escapeHtml(displayName))
 							.append("</a>")
@@ -252,11 +253,9 @@ public class CollectionAccessFormatter
 						}
 						String resourceType = content.getResourceType().replace('.', '_');
 						StringBuilder li
-							= new StringBuilder("<li class=\"file\"><a href=\"").append(contentUrl).append("\" target=_blank class=\"");
+							= new StringBuilder("<li class=\"file" + hiddenClass +"\"><a href=\"").append(contentUrl).append("\" target=_blank class=\"");
 						li.append(resourceType);
-						if (content.isHidden()) {
-							li.append(" inactive");
-						}
+						li.append(hiddenClass);
 						li.append("\">");
 						li.append(formattedText.escapeHtml(displayName));
 						li.append("</a>").append(desc).append("</li>");

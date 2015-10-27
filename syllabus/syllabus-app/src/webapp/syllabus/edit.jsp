@@ -201,9 +201,9 @@
 					<h:commandButton
 						action="#{SyllabusTool.processEditPost}"
 						styleClass="active"
-						value="#{msgs.bar_post}" 
+						value="#{msgs.bar_publish}"
 						accesskey="s"
-						title="#{msgs.button_post}" />
+						title="#{msgs.button_publish}" />
 					<h:commandButton
 						action="#{SyllabusTool.processEditPreview}"
 						value="#{msgs.bar_preview}"

@@ -7,15 +7,20 @@
 
 $namespace : "Mrphs-";
 
+$break-small-end: 	800px;
+
+$phone:   "only screen and (max-width : #{ $break-small-end })";
+$desktop: "only screen and (min-width : #{ $break-small-end + 1 })";
+
 /* Typography*/
 
 //Google family Fonts URL
-$font-family-url: "//fonts.googleapis.com/css?family=Noto+Sans" !default;
-$header-font-family-url: "//fonts.googleapis.com/css?family=Raleway:300" !default;
+$font-family-url: "//fonts.googleapis.com/css?family=Noto+Sans:400,700" !default;
+$header-font-family-url: "//fonts.googleapis.com/css?family=Raleway:300,700" !default;
 
 //Typography variables
 $font-family: "Noto Sans", "Helvetica Neue", Arial, sans-serif !default;
-$default-font-size: 15px !default;
+$default-font-size: 14px !default;
 $default-font-weight: 400 !default;										// 300, 400 or 700 as you wish
 $header-font-family: "Raleway", Arial, sans-serif !default;
 $header-font-weight: 300 !default;										// 300, 400 or 700 as you wish
@@ -31,12 +36,18 @@ $primary-color:    			 #43a7c8 !default;
 $secondary-color:  			 #F00 !default;
 
 $text-color:				 #363636 !default;
-$button-text-color:			 #F8F8F8 !default;
-$button-text-color-secondary:			$text-color !default;
 
-$button-gradiant:	false !default;
-$button-color: 				 $primary-color !default;
-$button-color-secondary:		#8fbbec;
+/* Linknav button colors */
+$button-text-color:	 #777 !default;
+$button-border-color: #C0C0C0 !default;
+$button-background-color: #F0F0F0 !default;
+$button-background-secondary-color: #FFF !default;
+/* General button colors */
+$button-color-text-color: #FFF !default;
+$button-color-border-color: #4a8db3 !default;
+$button-color-background-color: #60b3e3 !default;
+$button-color-background-secondary-color: #5299c2 !default;
+/* ///////////// */
 
 $okcolor: 					 #dff0d8 !default;
 $errorcolor: 			 	 #f2dede !default;

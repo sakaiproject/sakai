@@ -325,7 +325,7 @@
 									</f:verbatim>
 								</h:panelGroup>
 							</f:facet>
-							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPost}" onchange="toggleCalendarCheckbox(this);"/>
+							<h:selectBooleanCheckbox styleClass="postBox" value="#{eachEntry.posted}" title="#{msgs.selectThisCheckBoxPublish}" onchange="toggleCalendarCheckbox(this);" />
 						</h:column>
 						<h:column rendered="#{! SyllabusTool.displayNoEntryMsg}">
 							<f:facet name="header">

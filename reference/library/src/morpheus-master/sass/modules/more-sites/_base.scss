@@ -20,7 +20,8 @@
 		@include box-shadow( 5px 0 50px 0px rgba(0,0,0,0.5) );
 		@media #{$phone}{
 			width: 85% ;
-			left: 15%  ;
+			left: 15%;
+			padding: 1em 1em 3em 1em;
 		}
 	}
 	&.outscreen{
@@ -38,19 +39,7 @@ ul#otherSitesMenu{
 	li{
 		display: inline-block;
 		a{
-			font-size: 0.8em;
-			@if $button-gradiant {
-				@include sakai-button(  $button-color, 
-							darken( $button-color, 15% ), 
-							darken( $button-color, 25% ), 
-							$button-text-color );
-			}
-			@else {
-				@include sakai-button(  $button-color, 
-							$button-color, 
-							$button-color, 
-							$button-text-color );
-			}
+			@extend .button;
 		}
 	}
 }
