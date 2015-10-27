@@ -292,7 +292,7 @@ body.is-logged-out{
 	border-right:  1px solid darken( $background-color-secondary, 10% );
 	font-size: 0.95em;
 	left: 0;
-	height:3.3em;
+	height:3.2em;
 	position: absolute;
 	background: darken( $background-color-secondary, 5% );
 	@media #{$phone}{
@@ -354,9 +354,13 @@ body.is-logged-out{
 		font-family: $header-font-family;
 		font-weight: $header-font-weight;
 		margin: 0 0 0 0;
+		@include display-flex;
+		@include flex-direction(row);
 		li.#{$namespace}sitesNav__menuitem{
 			display: inline-block;
 			margin: 1px 0 0 -4px; //Fix for inline-block space items;
+			order: 2;
+			@include flex-shrink( 0 );
 			a{
 				border-right: 1px solid darken( $background-color-secondary, 10% );
 				color: $text-color;
@@ -387,6 +391,7 @@ body.is-logged-out{
 			&.is-selected{
 				background: $background-color;
 				color: $background-color-secondary;
+				order: 1;
 				a{
 					border-right: 0px none;
 					color: $background-color-secondary;
