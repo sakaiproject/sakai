@@ -36,12 +36,10 @@ public class AddGradeItemPanelContent extends Panel {
 	private static final long serialVersionUID = 1L;
 
     @SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
-    protected GradebookNgBusinessService businessService;
+    private GradebookNgBusinessService businessService;
   
-
-    final AjaxCheckBox counted;
-    final AjaxCheckBox released;
-
+    private AjaxCheckBox counted;
+    private AjaxCheckBox released;
 
     public AddGradeItemPanelContent(String id, Model<Assignment> assignmentModel) {
         super(id, assignmentModel);
