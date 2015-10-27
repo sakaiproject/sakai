@@ -240,7 +240,7 @@ body.is-logged-out{
 		padding: 0.9em 0.5em;
 	}
 
-	.#{$namespace}userNav__drop{
+	.#{$namespace}userNav__dropdown, .#{$namespace}userNav__drop{
 		@extend .fa-angle-down;
 		@extend .fa;
 		@extend .fa-lg;
@@ -368,7 +368,7 @@ body.is-logged-out{
 					@include box-shadow( inset 0 0 15px rgba(100,100,100,0.5) );
 				}
 			}
-			.#{$namespace}sitesNav__drop{
+			.#{$namespace}sitesNav__drop, .#{$namespace}sitesNav__dropdown{
 				@extend .fa-angle-down;
 				@extend .fa;
 				@extend .fa-lg;
@@ -391,7 +391,7 @@ body.is-logged-out{
 					border-right: 0px none;
 					color: $background-color-secondary;
 					padding: 0.8em 0.9em 0.8em 0.9em;
-					.#{$namespace}sitesNav__drop{
+					.#{$namespace}sitesNav__dropdown{
 						display: none;
 					}
 					&:hover{
