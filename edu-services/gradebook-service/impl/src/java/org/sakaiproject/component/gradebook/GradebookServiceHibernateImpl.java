@@ -369,10 +369,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		rval.setCategoryType(gradebook.getCategory_type());
 		rval.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
 
-		//these can be removed in Sakai 11 as they will no longer be used
-		rval.setAssignments(getAssignments(gradebookUid));
-		rval.setCategory(getCategories(gradebook.getId()));
-		
 		//add in the category definitions
 		rval.setCategories(this.getCategoryDefinitions(gradebookUid));
 		

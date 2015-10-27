@@ -27,6 +27,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+
 /**
  * Represents the settings for the gradebook
  *
@@ -36,12 +39,10 @@ public class GradebookInformation implements Serializable {
 	
 	private String selectedGradingScaleUid;
 	private Map<String, Double> selectedGradingScaleBottomPercents;
-	private Collection<Assignment> assignments;
 	private boolean displayReleasedGradeItemsToStudents;
 	
 	private int gradeType;
 	private int categoryType;
-	private List category; //Category
 	private List<CategoryDefinition> categories;
 	private String gradeScale;
 	
@@ -79,12 +80,6 @@ public class GradebookInformation implements Serializable {
 			Map<String, Double> selectedGradingScaleBottomPercents) {
 		this.selectedGradingScaleBottomPercents = selectedGradingScaleBottomPercents;
 	}
-	public Collection<Assignment> getAssignments() {
-		return assignments;
-	}
-	public void setAssignments(Collection<Assignment> assignments) {
-		this.assignments = assignments;
-	}
 	public boolean isDisplayReleasedGradeItemsToStudents() {
 		return displayReleasedGradeItemsToStudents;
 	}
@@ -103,12 +98,6 @@ public class GradebookInformation implements Serializable {
 	}
 	public void setCategoryType(int categoryType) {
 		this.categoryType = categoryType;
-	}
-	public List getCategory() {
-		return category;
-	}
-	public void setCategory(List category) {
-		this.category = category;
 	}
 	public String getGradeScale() {
 		return gradeScale;
@@ -145,6 +134,11 @@ public class GradebookInformation implements Serializable {
 	}
 	public void setCourseAverageDisplayed(boolean courseAverageDisplayed) {
 		this.courseAverageDisplayed = courseAverageDisplayed;
+	}
+	
+	@Override
+	public String toString() {
+		return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
 	}
 
 }
