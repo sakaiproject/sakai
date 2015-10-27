@@ -383,6 +383,12 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
     if ($(document).scrollTop() + $fixedHeader.height() + 80 > self.$table.offset().top + self.$spreadsheet.height()) {
       // don't change anything as we don't want the fixed header to scroll to below the table
     } else if (self.$table.offset().top < $(document).scrollTop()) {
+      if ($fixedHeader.is(":not(:visible)")) {
+        setTimeout(function() {
+          // refresh category label positions
+          self.$spreadsheet.trigger("scroll");
+        });
+      }
       $fixedHeader.
           show().
           css("top", $(document).scrollTop() - self.$spreadsheet.offset().top + "px").
@@ -827,6 +833,34 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
   self.$spreadsheet.addClass("gb-grouped-by-category");
   self.refreshFixedTableHeader(true);
   self.refreshHiddenVisualCue();
+
+  // setup category header text so it is visible when horizontal scrolling
+  setTimeout(function() {
+    function setupScrollHandlerToUpdateCategoryLabelPosition() {
+      self.$spreadsheet.find(".gb-category-label").each(function() {
+        var $label = $(this);
+
+        var overlay = self.$fixedColumns.width();
+        var offset = $label.position().left;
+
+        if ($label.closest("table.gb-fixed-header-table").length > 0) {
+          offset = $label.position().left + $label.closest("table.gb-fixed-header-table").position().left;
+        }
+
+        if (overlay > offset) {
+          var leftOffset = Math.min($label.parent().width() - $label.width() - 20, overlay - offset);
+          $label.css("marginLeft", leftOffset);
+        } else {
+          $label.css("marginLeft", "");
+        }
+      });
+    };
+
+    self.$spreadsheet.
+      off("scroll", setupScrollHandlerToUpdateCategoryLabelPosition).
+      on("scroll", setupScrollHandlerToUpdateCategoryLabelPosition);
+  });
+
   self.$spreadsheet.trigger("scroll"); // force redraw of the fixed columns
 };
 
