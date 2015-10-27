@@ -1121,6 +1121,13 @@
                     <regexp name="boolean"/>
                 </regexp-list>
             </attribute>
+            <attribute name="scrolling">
+                <literal-list>
+                    <literal value="auto"/>
+                    <literal value="yes"/>
+                    <literal value="no"/>
+                </literal-list>
+            </attribute>
         </tag>
         <tag name="frameset" action="remove"/>
         <tag name="frame" action="remove"/>
@@ -3426,13 +3433,11 @@
             </category-list>
             <literal-list>
                 <literal value="static"/>
-                <!-- possible to perform phishing attacks with the following -->
-                <!--
-                <literal value="relative"/>
-                <literal value="absolute"/>
-                <literal value="fixed"/>
-                 -->
                 <literal value="inherit"/>
+                <!-- possible to perform phishing attacks with the following -->
+                <literal value="relative"/>
+                <literal value="fixed"/>
+                <literal value="absolute"/>
             </literal-list>
         </property>
         <property name="richness" default="50" description="">
