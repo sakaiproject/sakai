@@ -33,7 +33,7 @@ function GradebookSpreadsheet($spreadsheet) {
   this._refreshColumnOrder();
 
   this.setupColoredCategories();
-  this.setupPopovers();
+  this.setupMenusAndPopovers();
 
   this.setupNewAssignmentFocus();
 
@@ -1195,7 +1195,7 @@ GradebookSpreadsheet.prototype.setupStudentFilter = function() {
 };
 
 
-GradebookSpreadsheet.prototype.setupPopovers = function() {
+GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
   var self = this;
 
   self.popoverClicked = false;
@@ -1235,6 +1235,23 @@ GradebookSpreadsheet.prototype.setupPopovers = function() {
     var cell = self.getCellModelForStudentAndAssignment($link.data("studentuuid"), $link.data("assignmentid"));
     self.$spreadsheet.find('[data-toggle="popover"]').popover("hide");
     cell.$cell.focus();
+  });
+
+  // close the dropdown if the user navigates away from it
+  self.$spreadsheet.find(".btn-group").on("shown.bs.dropdown", function(event) {
+    var $btnGroup = $(event.target);
+
+    function handleDropdownItemBlur(blurEvent) {
+      if ($(blurEvent.relatedTarget).closest(".btn-group.open").length == 0) {
+        $btnGroup.find(".btn.dropdown-toggle").dropdown("toggle");
+      }
+    };
+
+    $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").on("blur", handleDropdownItemBlur);
+
+    $btnGroup.one("hidden.bs.dropdown", function() {
+      $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").off("blur", handleDropdownItemBlur);
+    });
   });
 };
 
