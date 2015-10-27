@@ -357,26 +357,32 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("Their is no gradbook associated with this Id: "+gradebookUid);
 		}
 		
-		GradebookInformation gradebookInfo = new GradebookInformation();
+		GradebookInformation rval = new GradebookInformation();
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
 		if(selectedGradeMapping!=null) {
-			gradebookInfo.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
-			gradebookInfo.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
-			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
+			rval.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+			rval.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
+			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
 		
-		gradebookInfo.setGradeType(gradebook.getGrade_type());
-		gradebookInfo.setCategoryType(gradebook.getCategory_type());
-		gradebookInfo.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
+		rval.setGradeType(gradebook.getGrade_type());
+		rval.setCategoryType(gradebook.getCategory_type());
+		rval.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
 
 		//these can be removed in Sakai 11 as they will no longer be used
-		gradebookInfo.setAssignments(getAssignments(gradebookUid));
-		gradebookInfo.setCategory(getCategories(gradebook.getId()));
+		rval.setAssignments(getAssignments(gradebookUid));
+		rval.setCategory(getCategories(gradebook.getId()));
 		
 		//add in the category definitions
-		gradebookInfo.setCategories(this.getCategoryDefinitions(gradebookUid));
+		rval.setCategories(this.getCategoryDefinitions(gradebookUid));
 		
-		return gradebookInfo;
+		//add in the course grade display settings
+		rval.setCourseGradeDisplayed(gradebook.isCourseGradeDisplayed());
+		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
+		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
+		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
+		
+		return rval;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -2971,7 +2977,6 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		
 
 		//TODO set the grading scale stuff. the inverse of:
-		
 		/*
 		GradebookInformation gradebookInfo = new GradebookInformation();
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
@@ -2992,8 +2997,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		//set display release items to students
 		gradebook.setAssignmentsDisplayed(gbInfo.isDisplayReleasedGradeItemsToStudents());
 		
-		//set course grade displayed
+		//set course grade display settings
 		gradebook.setCourseGradeDisplayed(gbInfo.isCourseGradeDisplayed());
+		gradebook.setCourseLetterGradeDisplayed(gbInfo.isCourseLetterGradeDisplayed());
+		gradebook.setCoursePointsDisplayed(gbInfo.isCoursePointsDisplayed());
+		gradebook.setCourseAverageDisplayed(gbInfo.isCourseAverageDisplayed());
 		
 		//update categories
 		List<CategoryDefinition> categoryDefinitions = gbInfo.getCategories();
@@ -3042,10 +3050,9 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		}
 		
-		
 		//no need to set assignments, gbInfo doesn't update them
-		
-	
+
+		//persist
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				session.update(gradebook);

@@ -45,7 +45,25 @@ public class GradebookInformation implements Serializable {
 	private List<CategoryDefinition> categories;
 	private String gradeScale;
 	
-	private boolean courseGradeDisplayed;
+	/**
+	 * Is the course grade to be shown at all?
+	 */
+	private boolean courseGradeDisplayed; 
+	
+	/**
+	 * If the course grade is displayed, should the letter grade be displayed?
+	 */
+	private boolean courseLetterGradeDisplayed;
+	
+	/**
+	 * If the course grade is displayed, should the total points be displayed?
+	 */
+	private boolean coursePointsDisplayed;
+	
+	/**
+	 * If the course grade is displayed, should the percentage be displayed?
+	 */
+	private boolean courseAverageDisplayed;
 	
 	
 	public String getSelectedGradingScaleUid() {
@@ -110,7 +128,23 @@ public class GradebookInformation implements Serializable {
 	public void setCategories(List<CategoryDefinition> categories) {
 		this.categories = categories;
 	}
-	
-	
+	public boolean isCourseLetterGradeDisplayed() {
+		return courseLetterGradeDisplayed;
+	}
+	public void setCourseLetterGradeDisplayed(boolean courseLetterGradeDisplayed) {
+		this.courseLetterGradeDisplayed = courseLetterGradeDisplayed;
+	}
+	public boolean isCoursePointsDisplayed() {
+		return coursePointsDisplayed;
+	}
+	public void setCoursePointsDisplayed(boolean coursePointsDisplayed) {
+		this.coursePointsDisplayed = coursePointsDisplayed;
+	}
+	public boolean isCourseAverageDisplayed() {
+		return courseAverageDisplayed;
+	}
+	public void setCourseAverageDisplayed(boolean courseAverageDisplayed) {
+		this.courseAverageDisplayed = courseAverageDisplayed;
+	}
 
 }
