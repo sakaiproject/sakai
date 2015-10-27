@@ -1971,6 +1971,7 @@ $(document).ready(function() {
 
 		// need trigger on the A we just added
 		section.find('.section-merge-link').click(sectionMergeLink);
+		section.find('.columnopen').click(columnOpenLink);
 		fixupColAttrs();
 		fixupHeights();
 		closeDropdownc();
@@ -1995,6 +1996,7 @@ $(document).ready(function() {
 
 		// need trigger on the A we just added
 		column.find('.column-merge-link').click(columnMergeLink);
+		column.find('.columnopen').click(columnOpenLink);
 		fixupColAttrs();
 		fixupHeights();
 		closeDropdownc();
