@@ -50,6 +50,9 @@
 	@include appearance(none);
 	@include border-radius(3px);
 	@include box-shadow( 0 3px 0px $button-border-color );
+	&::-ms-expand {
+	    display: none;
+	}
 	@media #{$phone}{
 		padding: 0.2em 2em 0.2em 0.5em;
 	}
