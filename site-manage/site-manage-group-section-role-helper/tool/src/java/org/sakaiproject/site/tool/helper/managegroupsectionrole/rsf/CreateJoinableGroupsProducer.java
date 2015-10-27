@@ -193,7 +193,10 @@ public class CreateJoinableGroupsProducer implements ViewComponentProducer, Acti
 
 		// Delete Set button:
 		if(edit){
-			UICommand.make(groupForm, "delete", messageLocator.getMessage("group.joinable.delete"), "#{SiteManageGroupSectionRoleHandler.processDeleteJoinableSet}");
+			//UICommand.make(groupForm, "delete", messageLocator.getMessage("group.joinable.delete"), "#{SiteManageGroupSectionRoleHandler.processDeleteJoinableSet}");
+			//To add delete confirmation step before actually deleting joinable groups.
+			UIForm deleteGroupsForm = UIForm.make(tofill, "delete-groups-form",new JoinableGroupDelViewParameters(JoinableGroupDelProducer.VIEW_ID, joinableSetId));
+			UICommand.make(deleteGroupsForm, "delete", messageLocator.getMessage("group.joinable.delete"));
 		}
 
 		//process any messages

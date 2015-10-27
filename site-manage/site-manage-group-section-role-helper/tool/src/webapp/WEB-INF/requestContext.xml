@@ -61,6 +61,14 @@
     <property name="targettedMessageList" ref="targettedMessageList" />
     <property name="authzGroupService" ref="org.sakaiproject.authz.api.AuthzGroupService" />
   </bean>
+
+  <bean id="JoinableGroupDelProducer"
+        class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.JoinableGroupDelProducer">
+    <property name="handler" ref="SiteManageGroupSectionRoleHandler" />
+    <property name="messageLocator" ref="messageLocator"/>
+    <property name="frameAdjustingProducer" ref="frameAdjustingProducer"/>
+    <property name="targettedMessageList" ref="targettedMessageList" />
+  </bean>
   
   <bean id="GroupImportStep1Producer"
      class="org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf.GroupImportStep1Producer">
