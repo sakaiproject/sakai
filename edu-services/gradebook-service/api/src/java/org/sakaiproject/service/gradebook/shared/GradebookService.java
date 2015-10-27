@@ -772,4 +772,13 @@ public interface GradebookService {
 	 */
 	@SuppressWarnings("rawtypes")
 	List getViewableSections(String gradebookUid);
+	
+	/**
+	 * Update the settings for this gradebook
+	 * 
+	 * @param gradebookUid
+	 * @param gbInfo GradebookInformation object
+	 */
+	void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo);
+
 }

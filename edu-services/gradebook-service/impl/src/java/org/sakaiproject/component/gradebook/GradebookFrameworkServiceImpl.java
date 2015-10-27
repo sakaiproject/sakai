@@ -139,6 +139,9 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 				gradebook.setGrade_type(GradebookService.GRADE_TYPE_POINTS);
 				gradebook.setCategory_type(GradebookService.CATEGORY_TYPE_NO_CATEGORY);
 
+				//SAK-29740 make backwards compatible
+				gradebook.setCourseLetterGradeDisplayed(true);
+				
 				// Update the gradebook with the new selected grade mapping
 				session.update(gradebook);
 

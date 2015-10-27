@@ -357,19 +357,28 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			throw new IllegalArgumentException("Their is no gradbook associated with this Id: "+gradebookUid);
 		}
 		
-		GradebookInformation gradebookInfo = new GradebookInformation();
+		GradebookInformation rval = new GradebookInformation();
 		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
 		if(selectedGradeMapping!=null) {
-			gradebookInfo.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
-			gradebookInfo.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
-			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
+			rval.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+			rval.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
+			rval.setGradeScale(selectedGradeMapping.getGradingScale().getName());
 		}
-		gradebookInfo.setAssignments(getAssignments(gradebookUid));
-		gradebookInfo.setGradeType(gradebook.getGrade_type());
-		gradebookInfo.setCategoryType(gradebook.getCategory_type());	
-		gradebookInfo.setCategory(getCategories(gradebook.getId()));
-		gradebookInfo.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
-		return gradebookInfo;
+		
+		rval.setGradeType(gradebook.getGrade_type());
+		rval.setCategoryType(gradebook.getCategory_type());
+		rval.setDisplayReleasedGradeItemsToStudents(gradebook.isAssignmentsDisplayed());
+
+		//add in the category definitions
+		rval.setCategories(this.getCategoryDefinitions(gradebookUid));
+		
+		//add in the course grade display settings
+		rval.setCourseGradeDisplayed(gradebook.isCourseGradeDisplayed());
+		rval.setCourseLetterGradeDisplayed(gradebook.isCourseLetterGradeDisplayed());
+		rval.setCoursePointsDisplayed(gradebook.isCoursePointsDisplayed());
+		rval.setCourseAverageDisplayed(gradebook.isCourseAverageDisplayed());
+		
+		return rval;
 	}
 	
 	@SuppressWarnings("rawtypes")
@@ -2941,7 +2950,114 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 	public List<CourseSection> getViewableSections(String gradebookUid) {
 		return this.getAuthz().getViewableSections(gradebookUid);
 	}
+	
+	@Override
+	public void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo) {
+		if (gradebookUid == null ) {
+			throw new IllegalArgumentException("null gradebookUid " + gradebookUid) ;
+		}
+	    
+		//must be instructor type person
+		if (!currentUserHasEditPerm(gradebookUid)) {
+			log.error("AUTHORIZATION FAILURE: User " + getUserUid() + " in gradebook " + gradebookUid + " attempted to edit gb information");
+			throw new SecurityException("You do not have permission to edit gradebook information in site " + gradebookUid);
+		}
+	        
+		final Gradebook gradebook = getGradebook(gradebookUid);
+		if(gradebook==null) {
+			throw new IllegalArgumentException("There is no gradebook associated with this id: " + gradebookUid);
+		}
+		
+		//update the grade mapping
+		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
+		
 
+		//TODO set the grading scale stuff. the inverse of:
+		/*
+		GradebookInformation gradebookInfo = new GradebookInformation();
+		GradeMapping selectedGradeMapping = gradebook.getSelectedGradeMapping();
+		if(selectedGradeMapping!=null) {
+			gradebookInfo.setSelectedGradingScaleUid(selectedGradeMapping.getGradingScale().getUid());
+			gradebookInfo.setSelectedGradingScaleBottomPercents(new HashMap<String,Double>(selectedGradeMapping.getGradeMap()));
+			gradebookInfo.setGradeScale(selectedGradeMapping.getGradingScale().getName());
+		}
+		
+		*/
+				
+		//set grade type
+		gradebook.setGrade_type(gbInfo.getGradeType());
+		
+		//set category type
+		gradebook.setCategory_type(gbInfo.getCategoryType());
+		
+		//set display release items to students
+		gradebook.setAssignmentsDisplayed(gbInfo.isDisplayReleasedGradeItemsToStudents());
+		
+		//set course grade display settings
+		gradebook.setCourseGradeDisplayed(gbInfo.isCourseGradeDisplayed());
+		gradebook.setCourseLetterGradeDisplayed(gbInfo.isCourseLetterGradeDisplayed());
+		gradebook.setCoursePointsDisplayed(gbInfo.isCoursePointsDisplayed());
+		gradebook.setCourseAverageDisplayed(gbInfo.isCourseAverageDisplayed());
+		
+		//update categories
+		List<CategoryDefinition> categoryDefinitions = gbInfo.getCategories();
+		
+		List<Category> categories = this.getCategories(gradebook.getId());
+		Map<String,Category> catMap = new HashMap<>();
+		for(Category cat: categories) {
+			catMap.put(cat.getName(), cat);
+		}
+		
+		//compare lists, add and update as required
+		//also get a list of category names (have to use names as ids are only assigned at save time)
+		//also, category names are unique within a gradebook
+		List<String> categoryDefNames = new ArrayList<>();
+		for(CategoryDefinition def: categoryDefinitions) {
+			String name = def.getName();
+			
+			categoryDefNames.add(name);
+			
+			//new
+			if(!catMap.containsKey(name)) {
+				this.createCategory(gradebook.getId(), def.getName(), def.getWeight(), def.getDrop_lowest(), def.getDropHighest(), def.getKeepHighest(), def.isExtraCredit());
+				continue;
+			}
+			
+			//update
+			if(catMap.containsKey(name)) {
+				Category existing = catMap.get(name);
+				existing.setName(def.getName());
+				existing.setWeight(def.getWeight());
+				existing.setDrop_lowest(def.getDrop_lowest());
+				existing.setDropHighest(def.getDropHighest());
+				existing.setKeepHighest(def.getKeepHighest());
+				existing.setExtraCredit(def.isExtraCredit());
+				this.updateCategory(existing);
+				continue;
+			}
+			
+		}
+		
+		//handle deletes
+		//if category no longer in definition id list, it's to be deleted
+		for(Category cat: categories) {
+			if(categoryDefNames.contains(cat.getName())){
+				this.removeCategory(cat.getId());
+			}
+		}
+		
+		//no need to set assignments, gbInfo doesn't update them
+
+		//persist
+		getHibernateTemplate().execute(new HibernateCallback() {
+			public Object doInHibernate(Session session) throws HibernateException {
+				session.update(gradebook);
+				return null;
+			}
+		});
+	}
+
+	
 	
 	public void setEventTrackingService(EventTrackingService eventTrackingService) {
 		this.eventTrackingService = eventTrackingService;
