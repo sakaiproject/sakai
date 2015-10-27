@@ -353,10 +353,15 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .coltrans {
    border-color: transparent;
 }
-
+/* 
+   Any changes shoud be checked to make sure they have enough
+   contrast for accessiblity. These colors have been checked
+   against the WebAIM Color Contrast Checker. I've tried to
+   make them subjectively the same darkness.
+*/
 .colgray {
-   background-color: #f8f8f8;
-   border-color: #aaa;
+   background-color: #f0f0f0;
+   border-color: #222;
 }
 .colred {
    background-color: #fff0f0;
