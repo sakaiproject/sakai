@@ -1953,11 +1953,14 @@ public class ResourcesHelperAction extends VelocityPortletPaneledAction
 		{
 			if (action!=null)
 			{
+			    JetspeedRunData rundata = (JetspeedRunData) request.getAttribute(ATTR_RUNDATA);
+			    if (checkCSRFToken(request,rundata,action)) {
 				if (action.equals("doFinishUpload"))
 				{
 					notifyDragAndDropCompleted(request);
 				}
 				super.doPost(request, response);
+			    }
 			}
 			else
 			{
