@@ -149,15 +149,26 @@
 /* Dropdown Menus */
 #gradebookGrades td .btn-group {
   position: absolute;
-  bottom: 1px;
+  bottom: 2px;
   right: 1px;
 }
 #gradebookGrades .gb-cell {
   cursor: pointer;
 }
+#gradebookGradesTable tbody .btn.dropdown-toggle {
+  opacity: 0.3;
+  border-color: #EEE;
+}
+#gradebookGradesTable tbody .btn.dropdown-toggle:focus,
+#gradebookGradesTable tbody .btn.dropdown-toggle:active,
+#gradebookGradesTable tbody .btn.dropdown-toggle:hover,
+#gradebookGradesTable tbody .open .btn.dropdown-toggle {
+    opacity: 1;
+    border-color: #DDD;
+}
 #gradebookGrades th .btn-group {
   position: absolute;
-  bottom: 1px;
+  bottom: 2px;
   right: -3px;
 }
 #gradebookGrades .btn.dropdown-toggle {
