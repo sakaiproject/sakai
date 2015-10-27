@@ -1,0 +1,109 @@
+ .#{$namespace}sakai-messages{
+	@media #{$phone}{
+		#compose{
+			max-width: 100%;
+			overflow: auto;
+		}
+		table{
+			display: block;		
+			tr{
+				display: inline;
+			}
+			td{
+				display: block;
+				.breadCrumb{
+					word-wrap: break-word;
+					h3{
+						white-space: pre-line;
+						max-width: 320px;
+					}
+				}
+			}
+			&.hierItemBlockWrapper, &.hierItemBlockWrapper .listHier, &[id$="pvtmsgs"], &[id$="privateForums"]{
+				display: table;
+				max-width: 100%;
+				overflow: auto;
+				tr{
+					display: table-row;
+				}
+				td{
+					display: table-cell;
+					a{
+						display: block;
+						max-width: 60px;
+						white-space: pre-wrap;
+						word-wrap: break-word;
+					}
+				}
+				/*
+				a{
+					white-space: pre-wrap;
+				    white-space: -moz-pre-wrap; 
+				    white-space: -pre-wrap; 
+				    white-space: -o-pre-wrap; 
+				    word-wrap: break-word; 
+				 */
+			}
+		}
+		.cke{
+			max-width: 100%;
+			width: auto !important;
+		}
+		.select2-search__field, .shorttext input[type="text"]{
+			max-width: 100% !important;
+			width: 99% !important;
+		}
+		.checkbox{
+			white-space: normal !important;
+		}
+		.itemSummary {
+			td {
+				word-wrap: break-word;
+				white-space: pre-line;
+				max-width: 320px;
+			}
+		}
+		.textPanel, .textPanel > *{
+			word-wrap: break-word;
+			white-space: pre-line;
+			max-width: 320px;
+		}
+	}
+	.radio, .checkbox{
+		position: inherit !important;
+		input[type="checkbox"],input[type="radio"]{
+			margin-left: -4px;
+		}
+	}
+	.jsfFormTable {
+	    position: relative;
+	}
+	.hierItemBlockWrapper{
+		td{
+			display: table-cell;
+			a{
+				display: block;
+				max-width: 260px;
+			}
+		}
+	}
+	.msgAdvSearch{
+		.checkbox{
+			display: inline-block;
+			margin: 0 0.5em;
+		}
+	}
+	table.navPanel {
+		.searchNav{
+			input[type="submit"]{
+			    position: relative;
+			    top: -4px;
+			    left: 7px;
+			}
+		}
+	}
+	.msgAdvSearch{
+		position: relative;
+		top: -5px;
+	}
+}
