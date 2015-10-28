@@ -54,6 +54,9 @@ import uk.org.ponder.messageutil.TargettedMessage;
 import uk.org.ponder.messageutil.TargettedMessageList;
 import au.com.bytecode.opencsv.CSVReader;
 import java.util.Arrays;
+import org.sakaiproject.coursemanagement.api.CourseManagementService;
+import org.sakaiproject.coursemanagement.api.Section;
+import org.sakaiproject.coursemanagement.api.exception.IdNotFoundException;
 
 /**
  * 
@@ -76,6 +79,7 @@ public class SiteManageGroupSectionRoleHandler {
     public ToolManager toolManager = null;
     public SessionManager sessionManager = null;
     public ServerConfigurationService serverConfigurationService;
+    public CourseManagementService cms = null;
     private List<Group> groups = null;
     public String memberList = "";
     public boolean update = false;
@@ -318,7 +322,32 @@ public class SiteManageGroupSectionRoleHandler {
         }
         return providerIds;
     }
-    
+
+    /**
+     * Get the user facing label text for a given roster ID (for auto groups UI).
+     * The label will be in the format of "<rosterTitle> (<rosterID>)"
+     * @param rosterID the internal ID of the roster
+     * @return the user facing label for the given roster
+     */
+    public String getRosterLabel( String rosterID )
+    {
+        String label = rosterID;
+        try
+        {
+            Section s = cms.getSection( rosterID );
+            if( s != null )
+            {
+                label = s.getTitle() + " (" + rosterID + ")";
+            }
+        }
+        catch( IdNotFoundException ex )
+        {
+            M_log.debug( this + ".getRosterLabel: no section found for " + rosterID, ex );
+        }
+
+        return label;
+    }
+
     /**
      * Gets the roles for the current site excluding the group
      * @param group the group to be excluded from the results

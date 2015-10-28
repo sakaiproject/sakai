@@ -1,12 +1,9 @@
 package org.sakaiproject.site.tool.helper.managegroupsectionrole.rsf;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.sakaiproject.authz.api.Member;
 import org.sakaiproject.authz.api.Role;
 import org.sakaiproject.site.api.Group;
 import org.sakaiproject.site.api.SiteService;
@@ -49,7 +46,7 @@ import uk.org.ponder.rsf.viewstate.ViewParamsReporter;
 public class GroupAutoCreateProducer implements ViewComponentProducer, ActionResultInterceptor, ViewParamsReporter {
 
 	/** Our log (commons). */
-	private static Log M_log = LogFactory.getLog(GroupAutoCreateProducer.class);
+	private static final Log M_log = LogFactory.getLog(GroupAutoCreateProducer.class);
 	
     public SiteManageGroupSectionRoleHandler handler;
     public static final String VIEW_ID = "GroupAutoCreate";
@@ -74,16 +71,8 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 
     public void fillComponents(UIContainer arg0, ViewParameters arg1, ComponentChecker arg2) {
     	
-    	String state="";
-    	
-    	// id for group
-    	String groupId = null;
     	// title for group
     	String groupTitle = null;
-    	// description for group
-    	String groupDescription = null;
-    	// member list for group
-    	Collection<Member> groupMembers = new Vector<Member>();
     	
     	UIForm groupForm = UIForm.make(arg0, "groups-form");
 
@@ -93,14 +82,11 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
     		 try
     		 {
     			 Group g = siteService.findGroup(id);
-    			 groupId = g.getId();
     			 groupTitle = g.getTitle();
-    			 groupDescription = g.getDescription();
-    			 groupMembers = g.getMembers();
     		 }
     		 catch (Exception e)
     		 {
-    			 M_log.debug(this + "fillComponents: cannot get group id=" + id);
+    			 M_log.debug(this + "fillComponents: cannot get group id=" + id, e);
     		 }
     	 }
     	 else
@@ -112,7 +98,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
          UIOutput.make(groupForm, "prompt", messageLocator.getMessage("group.autocreate.newgroups"));
          
          UIOutput.make(groupForm, "group_label", messageLocator.getMessage("group.title"));
-         UIInput titleTextIn = UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
+         UIInput.make(groupForm, "group_title", "#{SiteManageGroupSectionRoleHandler.title}",groupTitle);
 		 
 		 // for the site rosters list
 		 List<String> siteRosters= handler.getSiteRosters(null);
@@ -125,7 +111,7 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 			 for (String roster: siteRosters) {
 				 UIBranchContainer tablerow = UIBranchContainer.make(rosterOptions, "roster-row:");
 				 UIBoundBoolean checkbox = UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster.replaceAll("\\.", "-_p_-") + "}");
-				 UILabelTargetDecorator.targetLabel(UIOutput.make(tablerow, "roster-title", roster), checkbox);
+				 UILabelTargetDecorator.targetLabel(UIOutput.make(tablerow, "roster-title", handler.getRosterLabel( roster )), checkbox);
 				 
 				 // check whether there is already a group with this roster
 				 if (handler.existRosterGroup(roster))
@@ -256,13 +242,13 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
          UICommand cancel = UICommand.make(groupForm, "cancel", messageLocator.getMessage("cancel"), "#{SiteManageGroupSectionRoleHandler.processBack}");
          cancel.parameters.add(new UIDeletionBinding("#{destroyScope.resultScope}"));
          
-         int i = 0;
+         int i;
          //process any messages
          tml = handler.messages;
          if (tml.size() > 0) {
  			for (i = 0; i < tml.size(); i ++ ) {
- 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", Integer.valueOf(i).toString());
- 				String outString = "";
+ 				UIBranchContainer errorRow = UIBranchContainer.make(arg0,"error-row:", Integer.toString(i));
+ 				String outString;
  				if (tml.messageAt(i).args != null ) {
  					outString = messageLocator.getMessage(tml.messageAt(i).acquireMessageCode(),tml.messageAt(i).args[0]);
  				} else {
