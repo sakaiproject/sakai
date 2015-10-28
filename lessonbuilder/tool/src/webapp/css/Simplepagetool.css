@@ -422,6 +422,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .edit-col .ui-button-text, #submit-grading .ui-button-text, .portalmenu .ui-button-text {
 	font-size: 60%;
 }
+.edit-col {
+  font-size: 70%;
+}
 
 .buttonItem {
 	padding-left: 20px
