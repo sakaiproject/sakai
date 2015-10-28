@@ -1363,7 +1363,61 @@ public class SiteManageGroupSectionRoleHandler {
 		
     	return rv;
     }
-    
+
+    /**
+     * Find all users in the current site who are not a member of any of a set's
+     * given groups
+     * @param setGroups all existing groups for the set
+     * @return a list of all users who are not in any of the set's groups
+     */
+    public List<User> getUsersNotInJoinableSet( List<Group> setGroups )
+    {
+        // Build a set of all user IDs in any of the set's groups
+        Set<String> usersInSet = new HashSet<>();
+        for( Group setGroup : setGroups )
+        {
+            usersInSet.addAll( setGroup.getUsers() );
+        }
+
+        // Find users of the site with specified role(s) who are not in any of the set's groups
+        List<User> usersNotInSet = new ArrayList<>();
+        for( String userID : site.getUsers() )
+        {
+            if( !usersInSet.contains( userID ) )
+            {
+                try
+                {
+                    usersNotInSet.add( userDirectoryService.getUser( userID ) );
+                }
+                catch( UserNotDefinedException ex )
+                {
+                    M_log.debug( this + ".getUsersNotInJoinableSet: can't find user for " + userID, ex );
+                }
+            }
+        }
+
+        // Return sorted list of users not in the set
+        Collections.sort( usersNotInSet, new UserComparator() );
+        return usersNotInSet;
+    }
+
+    /**
+    * Sorts users by last name, first name, display id
+    * 
+    * @author <a href="mailto:carl.hall@et.gatech.edu">Carl Hall</a>
+    */
+    private static class UserComparator implements Comparator<User>
+    {
+        public int compare(User user1, User user2)
+        {
+            String displayName1 = user1.getLastName() + ", " + user1.getFirstName() + " ("
+                    + user1.getDisplayId() + ")";
+            String displayName2 = user2.getLastName() + ", " + user2.getFirstName() + " ("
+                    + user2.getDisplayId() + ")";
+            return displayName1.compareTo( displayName2 );
+        }
+    }
+
     /** 
      ** Comparator for sorting Group objects
      **/
