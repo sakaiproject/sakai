@@ -1,5 +1,21 @@
 <!-- $Id$ -->
 <!-- start: chef_assignments_instructor_new_edit_assignment.vm  -->
+##Defining macro to repeat buttons at the top and bottom of the page
+#macro(buttonBar $submitnotif)
+	<div class="act">
+		<input accesskey="s" type="button" class="active" name="post" value="$tlang.getString("gen.pos")"
+				onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('$submitnotif','post','newAssignmentForm');document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
+		<input accesskey="v" type="button" name="preview" value="$tlang.getString("gen.pre")"
+				onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('$submitnotif','preview','newAssignmentForm');document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
+		#if (!($!assignment && !$assignment.draft))
+			<input accesskey="d" type="button" name="save" value="$tlang.getString("gen.savdra")"
+				onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('$submitnotif','save','newAssignmentForm');document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
+		#end
+		<input accesskey="x" type="button" name="cancel" value="$tlang.getString("gen.can")"
+				onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
+		<span id="$submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
+	</div>
+#end
 ##<!-- $Header: Exp $ -->
 ## Assignments - Instructor new Assignment view
 #set( $H = '-' )
@@ -274,6 +290,9 @@ $(document).ready(function() {
 		<div style="display:block;clear:both">
 		</div>
 	#end
+
+	#set($submitnotif="submitnotifTop")
+	#buttonBar($submitnotif)
 
 	<form name = "newAssignmentForm" action="#toolForm("AssignmentAction")" method="post" onsubmit="return true;">
 		<input type="hidden" name="assignmentId" value="$!assignment.Reference" />
@@ -1835,19 +1854,8 @@ $(document).ready(function() {
 				<input class="extraNodeInput" type="button" id ="allPurpose_cancel" value="$tlang.getString("allPurpose_cancel")" />
 			</p>
 		</fieldset>
-			<div class="act">
-				<input accesskey="s" type="button" class="active" name="post" id="post" value="$tlang.getString("gen.pos")" 
-						onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','post','newAssignmentForm');document.getElementById('option').value='post';document.newAssignmentForm.submit();return false;" />
-				<input accesskey="v" type="button" name="preview" id="preview" value="$tlang.getString("gen.pre")" 
-						onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','preview','newAssignmentForm');document.getElementById('option').value='preview';document.newAssignmentForm.submit();return false;" />
-				#if (!($!assignment && !$assignment.draft))
-					<input accesskey="d" type="button" name="save" id="save" value="$tlang.getString("gen.savdra")" 
-							onclick="javascript:document.newAssignmentForm.onsubmit();showNotif('submitnotif','save','newAssignmentForm');document.getElementById('option').value='save';document.newAssignmentForm.submit();return false;" />
-				#end
-				<input accesskey="x" type="button" name="cancel" id="cancel" value="$tlang.getString("gen.can")" 
-							onclick="javascript:document.newAssignmentForm.onsubmit();document.getElementById('option').value='canceledit';document.newAssignmentForm.submit();return false;" />
-				<span id="submitnotif" style="visibility:hidden">$tlang.getString("gen.proces")</span>
-			</div>
+		#set($submitnotif="submitnotifBottom")
+		#buttonBar($submitnotif)
 		<input type="hidden" name="sakai_csrf_token" value="$sakai_csrf_token" />
 	</form>
 	<script type="text/JavaScript">
