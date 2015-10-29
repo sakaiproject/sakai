@@ -30,6 +30,7 @@ import uk.org.ponder.rsf.components.UISelectLabel;
 import uk.org.ponder.rsf.components.UIVerbatim;
 import uk.org.ponder.rsf.components.UIDeletionBinding;
 import uk.org.ponder.rsf.components.decorators.UILabelTargetDecorator;
+import uk.org.ponder.rsf.components.decorators.UITooltipDecorator;
 import uk.org.ponder.rsf.flow.ARIResult;
 import uk.org.ponder.rsf.flow.ActionResultInterceptor;
 import uk.org.ponder.rsf.view.ComponentChecker;
@@ -111,7 +112,9 @@ public class GroupAutoCreateProducer implements ViewComponentProducer, ActionRes
 			 for (String roster: siteRosters) {
 				 UIBranchContainer tablerow = UIBranchContainer.make(rosterOptions, "roster-row:");
 				 UIBoundBoolean checkbox = UIBoundBoolean.make(tablerow, "roster-checkbox", "#{SiteManageGroupSectionRoleHandler.selectedRosters." + roster.replaceAll("\\.", "-_p_-") + "}");
-				 UILabelTargetDecorator.targetLabel(UIOutput.make(tablerow, "roster-title", handler.getRosterLabel( roster )), checkbox);
+				 UIOutput rosterTitle = UIOutput.make(tablerow, "roster-title", handler.getRosterLabel(roster));
+				 rosterTitle.decorate(new UITooltipDecorator(roster));
+				 UILabelTargetDecorator.targetLabel(rosterTitle, checkbox);
 				 
 				 // check whether there is already a group with this roster
 				 if (handler.existRosterGroup(roster))
