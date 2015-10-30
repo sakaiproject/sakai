@@ -47,6 +47,15 @@ public class EditorConfiguration
 	{
 		return ServerConfigurationService.getString("wysiwyg.editor");
 	}
+
+	/**
+	 * Get the file browser that should be used when picking a file in CKEditor.
+	 * @return The file browser, i.e. fckeditor
+	 */
+	public static String getCKEditorFileBrowser()
+	{
+		return ServerConfigurationService.getString("wysiwyg.editor.ckeditor.browser", "fckeditor");
+	}
 	
 	/**
 	 * Determine whether the CitationsService is fully configured to enable 
