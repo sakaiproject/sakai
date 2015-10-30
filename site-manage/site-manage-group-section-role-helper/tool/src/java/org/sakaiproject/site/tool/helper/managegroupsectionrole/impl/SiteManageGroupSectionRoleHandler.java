@@ -337,7 +337,7 @@ public class SiteManageGroupSectionRoleHandler {
             Section s = cms.getSection( rosterID );
             if( s != null )
             {
-                label = s.getTitle() + " (" + rosterID + ")";
+                label = StringUtils.defaultIfBlank(s.getTitle(), rosterID);
             }
         }
         catch( IdNotFoundException ex )
