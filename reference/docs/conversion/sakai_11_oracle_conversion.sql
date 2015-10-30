@@ -439,6 +439,10 @@ INSERT INTO SAKAI_SITE_TOOL VALUES('!contact-us', '!contact-us', '!contact-us', 
 ALTER TABLE SAKAI_SESSION MODIFY SESSION_USER_AGENT VARCHAR2 (255 CHAR);
 -- END KNL-1379
 
+-- SAK-29733 Change Schedule to Calendar for existing sites
+UPDATE SAKAI_SITE_TOOL SET TITLE="Calendar" WHERE REGISTRATION = "sakai.schedule" AND TITLE = "Schedule";
+UPDATE SAKAI_SITE_PAGE SET TITLE="Calendar" WHERE TITLE = "Schedule";
+
 -- SAK-30000 Site creation notification email template updates
 UPDATE email_template_item
 SET message = ' 
