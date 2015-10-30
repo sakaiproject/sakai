@@ -30,6 +30,7 @@ public interface DefaultPermissionsManager
   public static final String FUNCTION_NEW_RESPONSE="messagecenter.newResponse";
   public static final String FUNCTION_NEW_RESPONSE_TO_RESPONSE="messagecenter.newResponseToResponse";
   public static final String FUNCTION_MOVE_POSTINGS="messagecenter.movePostings";
+  public static final String FUNCTION_IDENTIFY_ANON_AUTHORS="messagecenter.identifyAnonAuthors";
   public static final String FUNCTION_CHANGE_SETTINGS="messagecenter.changeSettings";
   public static final String FUNCTION_POST_TO_GRADEBOOK="messagecenter.postToGradebook";
  

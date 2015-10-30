@@ -84,6 +84,8 @@ public class DiscussionTopicBean
   private String locked = "";
   private String moderated = "";
   private String postFirst = "";
+  private String postAnonymous = "";
+  private String revealIDsToRoles = "";
   private String mustRespondBeforeReading = "";
   private String parentForumId = "";
   
@@ -556,6 +558,62 @@ public class DiscussionTopicBean
       topic.setPostFirst(Boolean.valueOf(false));
     }
   }
+
+  /**
+   * @return Returns the postAnonymous status.
+   */
+  public String getPostAnonymous()
+  {
+    LOG.debug("getPostAnonymous()");
+    if ("".equals(postAnonymous))
+    {
+      boolean isAnonymous = topic != null && topic.getPostAnonymous() != null && topic.getPostAnonymous().booleanValue();
+      postAnonymous = Boolean.valueOf(isAnonymous).toString();
+    }
+    return postAnonymous;
+  }
+
+  /**
+   * @param postAnonymous
+   * Set the postAnonymous status
+   */
+  public void setPostAnonymous(String postAnonymous)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("setPostAnonymous(String " + postAnonymous + ")");
+    }
+    boolean isAnonymous = Boolean.TRUE.toString().equals(postAnonymous);
+    topic.setPostAnonymous(Boolean.valueOf(isAnonymous));
+  }
+
+  /**
+   * @return Returns the revealIDsToRoles status.
+   */
+  public String getRevealIDsToRoles()
+  {
+    LOG.debug("getRevealIDsToRoles()");
+    if ("".equals(revealIDsToRoles))
+    {
+      boolean isRevealIDsToRoles = topic != null && topic.getRevealIDsToRoles() != null && topic.getRevealIDsToRoles().booleanValue();
+      revealIDsToRoles = Boolean.valueOf(isRevealIDsToRoles).toString();
+    }
+    return revealIDsToRoles;
+  }
+
+  /**
+   * @param revelIDsToRoles
+   * Set the revealIDsToRoles status
+   */
+  public void setRevealIDsToRoles(String revealIDsToRoles)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("setRevealIDsToRoles(String " + revealIDsToRoles + ")");
+    }
+    boolean isRevealIDsToRoles = Boolean.TRUE.toString().equals(revealIDsToRoles);
+    topic.setRevealIDsToRoles(Boolean.valueOf(isRevealIDsToRoles));
+  }
     
 
   /**
@@ -614,6 +672,60 @@ public class DiscussionTopicBean
        LOG.debug("setTopicPostFirst(String "+ postFirst+")");
     }
     topic.setPostFirst(postFirst);    
+  }
+
+  /**
+   * @return Returns boolean value of postAnonymous status.
+   */
+  public Boolean getTopicPostAnonymous()
+  {
+    LOG.debug("getTopicPostAnonymous()");
+    if ("".equals(postAnonymous))
+    {
+      boolean isPostAnonymous = topic != null && topic.getPostAnonymous() != null && topic.getPostAnonymous();
+      postAnonymous = Boolean.valueOf(isPostAnonymous).toString();
+    }
+    return Boolean.parseBoolean(postAnonymous);
+  }
+
+  /**
+   * @param Boolean postAnonymous
+   * Set the postAnonymous staus.
+   */
+  public void setTopicPostAnonymous(Boolean postAnonymous)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("setTopicPostAnonymous(String " + postAnonymous + ")");
+    }
+    topic.setPostAnonymous(postAnonymous);
+  }
+
+  /**
+   * @return Returns boolean value of revealIDsToRoles status.
+   */
+  public Boolean getTopicRevealIDsToRoles()
+  {
+    LOG.debug("getTopicRevealIDsToRoles()");
+    if ("".equals(revealIDsToRoles))
+    {
+      boolean isRevealIDsToRoles = topic != null && topic.getRevealIDsToRoles() != null && topic.getRevealIDsToRoles();
+      revealIDsToRoles = Boolean.valueOf(isRevealIDsToRoles).toString();
+    }
+    return Boolean.parseBoolean(revealIDsToRoles);
+  }
+
+  /**
+   * @param Boolean revealIDsToRoles
+   * Set the revealIDsToRoles status.
+   */
+  public void setTopicRevealIDsToRoles(Boolean revealIDsToRoles)
+  {
+    if (LOG.isDebugEnabled())
+    {
+      LOG.debug("setTopicRevealIDsToRoles(String " + revealIDsToRoles + ")");
+    }
+    topic.setRevealIDsToRoles(revealIDsToRoles);
   }
     
 

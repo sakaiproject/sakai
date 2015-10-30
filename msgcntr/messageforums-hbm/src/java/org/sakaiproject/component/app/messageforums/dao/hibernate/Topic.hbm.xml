@@ -67,6 +67,14 @@
 	<property name="postFirst">
       	<column name="POST_FIRST" not-null="true" />
     </property>
+
+    <property name="postAnonymous">
+        <column name="POST_ANONYMOUS" not-null="true" />
+    </property>
+
+    <property name="revealIDsToRoles">
+        <column name="REVEAL_IDS_TO_ROLES" not-null="true" />
+    </property>
 	
 	<property name="autoMarkThreadsRead" column="AUTO_MARK_THREADS_READ" not-null="true" />
 
@@ -329,6 +337,23 @@
     <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
              left join fetch topic.membershipItemSet
              where topic.id = :id
+    ]]>
+  </query>
+
+  <query name="findTopicsInSite">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.openForum as forum
+             join forum.area as area
+             where area.contextId = :contextId
+    ]]>
+  </query>
+
+  <query name="findAnonymousTopicsInSite">
+    <![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.TopicImpl as topic
+             join topic.openForum as forum
+             join forum.area as area
+             where area.contextId = :contextId and
+             topic.postAnonymous = true
     ]]>
   </query>
  

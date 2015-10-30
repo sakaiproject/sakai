@@ -168,6 +168,19 @@ public class PermissionBean {
         Boolean.valueOf(moderatePostings));
   }
 
+  public boolean getIdentifyAnonAuthors()
+  {
+    return item != null && item.getPermissionLevel() != null 
+        && item.getPermissionLevel().getIdentifyAnonAuthors() != null 
+        && item.getPermissionLevel().getIdentifyAnonAuthors();
+  }
+
+  public void setIdentifyAnonAuthors(boolean identifyAnonAuthors)
+  {
+    this.item.getPermissionLevel().setIdentifyAnonAuthors(
+        Boolean.valueOf(identifyAnonAuthors));
+  }
+
   public boolean getMovePosting()
   {
     if (item != null && item.getPermissionLevel() != null

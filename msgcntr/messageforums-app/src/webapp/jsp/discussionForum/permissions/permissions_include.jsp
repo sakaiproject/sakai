@@ -90,6 +90,10 @@
           <h:selectBooleanCheckbox id="moderatePostings" value="#{permission.moderatePostings}" onclick="javascript:setCorrespondingLevel(this.id);" disabled="#{(not ForumTool.editMode) || ForumTool.disableModeratePerm}"/>
           <h:outputLabel for="moderatePostings"><h:outputText value="#{msgs.perm_moderate_postings}" /></h:outputLabel>
         </h:panelGroup>
+        <h:panelGroup styleClass="checkbox" style="display: #{ForumTool.anonymousEnabled ? '' : 'none'}">
+          <h:selectBooleanCheckbox id="identifyAnonAuthors" value="#{permission.identifyAnonAuthors}" onclick="setCorrespondingLevel(this.id);" disabled="#{not ForumTool.editMode}"/>
+          <h:outputLabel for="identifyAnonAuthors"><h:outputText value="#{msgs.perm_identify_anon_authors}" /></h:outputLabel>
+        </h:panelGroup>
 		</h:panelGroup>
         <h:panelGroup styleClass="permissionRadioGroup">
 						<h:outputText value="#{msgs.perm_revise_postings}" style="display:block;padding:.3em;margin:0  "/>

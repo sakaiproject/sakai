@@ -64,6 +64,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.sakaiproject.api.app.messageforums.AnonymousManager;
 import org.sakaiproject.api.app.messageforums.Area;
 import org.sakaiproject.api.app.messageforums.AreaManager;
 import org.sakaiproject.api.app.messageforums.Attachment;
@@ -243,6 +244,7 @@ public class DiscussionForumTool
   private static final String SHORT_DESC_TOO_LONG = "cdfm_short_desc_too_long";
   private static final String LAST_REVISE_BY = "cdfm_last_revise_msg"; 
   private static final String LAST_REVISE_ON = "cdfm_last_revise_msg_on";
+  private static final String LAST_REVISE_ON_ANON = "cdfm_last_revise_msg_on_anon";
   private static final String VALID_FORUM_TITLE_WARN = "cdfm_valid_forum_title_warn";
   private static final String VALID_TOPIC_TITLE_WARN = "cdfm_valid_topic_title_warn";
   private static final String INVALID_SELECTED_FORUM ="cdfm_invalid_selected_forum";
@@ -272,6 +274,7 @@ public class DiscussionForumTool
   private static final String INVALID_COMMENT = "cdfm_add_comment_invalid";
   private static final String INSUFFICIENT_PRIVILEGES_TO_ADD_COMMENT = "cdfm_insufficient_privileges_add_comment";
   private static final String MOD_COMMENT_TEXT = "cdfm_moderator_comment_text";
+  private static final String MOD_COMMENT_TEXT_ANON = "cdfm_moderator_comment_text_anon";
   private static final String NO_MSG_SEL_FOR_APPROVAL = "cdfm_no_message_mark_approved";
   private static final String MSGS_APPROVED = "cdfm_approve_msgs_success";
   private static final String MSGS_DENIED = "cdfm_deny_msgs_success";
@@ -412,6 +415,8 @@ public class DiscussionForumTool
   // rank
   private RankManager rankManager;
   private ForumRankBean forumRankBean;
+
+  private AnonymousManager anonymousManager;
   
    
   public void setContentHostingService(ContentHostingService contentHostingService) {
@@ -2627,13 +2632,9 @@ public class DiscussionForumTool
 	      return gotoMain();
 	    }
 	    //threadMessage = messageManager.getMessageByIdWithAttachments(threadMessage.getId());
-	    selectedThreadHead = new DiscussionMessageBean(threadMessage, messageManager);
-	    //make sure we have the thread head of depth 0
-	    while(selectedThreadHead.getMessage().getInReplyTo() != null){
-	    	threadMessage = messageManager.getMessageByIdWithAttachments(selectedThreadHead.getMessage().getInReplyTo().getId());
-	    	selectedThreadHead = new DiscussionMessageBean(
-	    			threadMessage, messageManager);
-	    }
+	    selectedThreadHead = getThreadHeadForMessage(threadMessage);
+	    threadMessage = selectedThreadHead.getMessage();
+
 	    DiscussionTopic topic=forumManager.getTopicById(Long.valueOf(topicId));
 	    selectedMessage = selectedThreadHead;
 	    setSelectedForumForCurrentTopic(topic);
@@ -3261,6 +3262,10 @@ public class DiscussionForumTool
 			  }
 		  }
 
+		// Determine if we should display authors' userIDs or their anonIDs
+		boolean useAnonymousId = isUseAnonymousId(topic);
+		Map<String, String> userIdAnonIdMap = Collections.emptyMap();
+
 		  List msgIdList = new ArrayList();
     	if (temp_messages == null || temp_messages.size() < 1)
     	{
@@ -3268,6 +3273,11 @@ public class DiscussionForumTool
     		decoTopic.setUnreadNoMessages(0);
     	}
 		  else {
+    	if (useAnonymousId)
+    	{
+    		// We're in an anonymous context and there are messages. Get the anonIDs for all the authors in this topic
+    		userIdAnonIdMap = getUserIdAnonIdMapForMessages(temp_messages);
+    	}
     	for (Iterator msgIter = temp_messages.iterator(); msgIter.hasNext();) {
     		Message msg = (Message) msgIter.next();
     		if(msg != null && !msg.getDraft().booleanValue() && !msg.getDeleted()) {
@@ -3324,6 +3334,13 @@ public class DiscussionForumTool
     		{
     			DiscussionMessageBean decoMsg = new DiscussionMessageBean(message,
     					messageManager);
+    			// Set anonymous attributes on the bean (reduces queries later; improves performance)
+    			decoMsg.setUseAnonymousId(useAnonymousId);
+    			if (useAnonymousId)
+    			{
+    				String userId = message.getAuthorId();
+    				decoMsg.setAnonId(userIdAnonIdMap.get(userId));
+    			}
     			if(isRead || (isNewResponse && decoMsg.getIsOwn()))
     			{
     				Boolean readStatus = (Boolean) messageReadStatusMap.get(message.getId());
@@ -3345,7 +3362,7 @@ public class DiscussionForumTool
     				decoMsg.setUserCanDelete(decoTopicGetIsDeleteAny || (isOwn && decoTopicGetIsDeleteOwn));
     				LOG.debug("decoMsg.setUserCanEmail()");
     				LOG.debug("isSectionTA()" + isSectionTA());
-    				decoMsg.setUserCanEmail(isInstructor() || isSectionTA());
+    				decoMsg.setUserCanEmail(!useAnonymousId && (isInstructor() || isSectionTA()));
     				decoTopic.addMessage(decoMsg);
     			}
 				if (LOG.isDebugEnabled()) LOG.debug("SETRANK calling getSelectedMessage, we can set Rank here");
@@ -3371,6 +3388,13 @@ public class DiscussionForumTool
 
 				  DiscussionMessageBean decoMsg = new DiscussionMessageBean(message,
 						  messageManager);
+				  // Set anonymous attributes on the bean (reduces queries later; improves performance)
+				  decoMsg.setUseAnonymousId(useAnonymousId);
+				  if (useAnonymousId)
+				  {
+				  	String userId = message.getAuthorId();
+				  	decoMsg.setAnonId(userIdAnonIdMap.get(userId));
+				  }
 				  decoMsg.setMoved(true);
 				  decoTopic.addMessage(decoMsg);
 			  }
@@ -3380,6 +3404,100 @@ public class DiscussionForumTool
 	  }
     return decoTopic;
   }
+
+	public void setAnonymousManager(AnonymousManager anonymousManager)
+	{
+		this.anonymousManager = anonymousManager;
+	}
+
+	public boolean isAnonymousEnabled()
+	{
+		return anonymousManager.isAnonymousEnabled();
+	}
+
+	public boolean isPostAnonymousRevisable()
+	{
+		return anonymousManager.isPostAnonymousRevisable();
+	}
+
+	public boolean isRevealIDsToRolesRevisable()
+	{
+		return anonymousManager.isRevealIDsToRolesRevisable();
+	}
+
+	/** Determines whether the postAnonymous checkbox should be enabled / disabled (visibility is not controlled here) */
+	public boolean isNewTopicOrPostAnonymousRevisable()
+	{
+		return !isExistingTopic() || isPostAnonymousRevisable();
+	}
+
+	/** Determines whether the revealIDsToRoles checkbox should be enabled / disabled (visibility is not controlled here) */
+	public boolean isNewTopicOrRevealIDsToRolesRevisable()
+	{
+		return !isExistingTopic() || isRevealIDsToRolesRevisable();
+	}
+
+	public boolean isExistingTopic()
+	{
+		// Topic exists if it has an ID
+		return selectedTopic != null && selectedTopic.getTopic() != null && selectedTopic.getTopic().getId() != null;
+	}
+
+	public boolean isSiteHasAnonymousTopics()
+	{
+		return forumManager.isSiteHasAnonymousTopics(getSiteId());
+	}
+
+	/**
+	 * Determines whether the current user should see anonymous IDs in the context of the specified topic.
+	 * @param topic
+	 * @param true if the topic is anonymous and revealIDsToRoles is disabled or
+	 * revealIDsToRoles is enabled, but the user doesn't have the permission to identify users in this topic
+	 */
+	private boolean isUseAnonymousId(Topic topic)
+	{
+		if (topic == null)
+		{
+			throw new IllegalArgumentException("isUseAnonymousId invoked with null topic");
+		}
+
+		if (!isAnonymousEnabled())
+		{
+			return false;
+		}
+
+		// if topic.postAnonymous
+		//   if topic.revealIDsToRoles
+		//     return !uiPermissionsManager.isIdentifyAnonAuthors (anonymous only if they don't have permission to see identities)
+		//   return true (anonymous for all)
+		//  return false (not anonymous)
+
+		// Condenses to
+		return topic.getPostAnonymous() && (!topic.getRevealIDsToRoles() || !uiPermissionsManager.isIdentifyAnonAuthors(topic));
+	}
+
+	/**
+	 * Gets a userId -> anonymousID map containing entries for every author obtained from the 'messages' list.
+	 * Does so in a single query (unless anonymous mappings are missing, in which case they are created)
+	 * @param messages list of Messages
+	 */
+	private Map<String, String> getUserIdAnonIdMapForMessages(List<Message> messages)
+	{
+		if (messages == null)
+		{
+			throw new IllegalArgumentException("getUserIdAnonIdMapForMessages: null argument");
+		}
+
+		String siteId = ToolManager.getCurrentPlacement().getContext();
+		// Iterate over messages and construct a list of authors
+		List<String> userIds = new ArrayList<>();
+		for (Message message : messages)
+		{
+			userIds.add(message.getAuthorId());
+		}
+
+		return anonymousManager.getOrCreateUserIdAnonIdMap(siteId, userIds);
+	}
 
   private Boolean resetTopicById(String externalTopicId)
   {
@@ -4192,11 +4310,7 @@ public class DiscussionForumTool
   		return gotoMain();
   	}
 	  // we have to get the first message that is not a response
-	  DiscussionMessageBean cur = selectedMessage;
-	  while (cur.getMessage().getInReplyTo() != null) {
-		  cur = new DiscussionMessageBean(messageManager.getMessageByIdWithAttachments(cur.getMessage().getInReplyTo().getId()), messageManager);
-	  }
-	  selectedMessage = cur;
+	  selectedMessage = getThreadHeadForMessage(selectedMessage.getMessage());
 	  
 	  List tempMsgs = selectedTopic.getMessages();
 	    if(tempMsgs != null)
@@ -4550,13 +4664,7 @@ public class DiscussionForumTool
   		//return ALL_MESSAGES;
   		//check selectedThreadHead exists
   		if(selectedThreadHead == null){
-  			selectedThreadHead = new DiscussionMessageBean(selectedMessage.getMessage(), messageManager);
-  			//make sure we have the thread head of depth 0
-  			while(selectedThreadHead.getMessage().getInReplyTo() != null){
-  				selectedThreadHead = new DiscussionMessageBean(
-  						messageManager.getMessageByIdWithAttachments(selectedThreadHead.getMessage().getInReplyTo().getId()), 
-  						messageManager);
-  			}
+  			selectedThreadHead = getThreadHeadForMessage(selectedMessage.getMessage());
   		}
   		//since replyTo has been set to the selected message, the selected message was update
   		//we need to grab the newest one from the db
@@ -4759,14 +4867,13 @@ public class DiscussionForumTool
 		// optionally include the revision history. by default, revision history is included
 		boolean showRevisionHistory = ServerConfigurationService.getBoolean("msgcntr.forums.showRevisionHistory",true);
 		if (showRevisionHistory) {
-		    String revisedInfo = "<p class=\"lastRevise textPanelFooter\">" + getResourceBundleString(LAST_REVISE_BY);
-	        revisedInfo += getUserNameOrEid();
-	        revisedInfo  += " " + getResourceBundleString(LAST_REVISE_ON);
-	        SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), getUserLocale());
-	        formatter.setTimeZone(getUserTimeZone());
-	        Date now = new Date();
-	        revisedInfo += formatter.format(now) + " </p> ";
-	        currentBody = revisedInfo.concat(currentBody);
+			String revisedInfo = "<p class=\"lastRevise textPanelFooter\">";
+			revisedInfo += createLastReviseByString(dfTopic);
+			SimpleDateFormat formatter = new SimpleDateFormat(getResourceBundleString("date_format"), getUserLocale());
+			formatter.setTimeZone(getUserTimeZone());
+			Date now = new Date();
+			revisedInfo += formatter.format(now) + " </p> ";
+			currentBody = revisedInfo.concat(currentBody);
 		} 
 
 		StringBuilder alertMsg = new StringBuilder();
@@ -4904,9 +5011,7 @@ public class DiscussionForumTool
 		  // optionally display the revision history. by default, revision history is included
 		  boolean showRevisionHistory = ServerConfigurationService.getBoolean("msgcntr.forums.showRevisionHistory",true);
 		  if (showRevisionHistory){
-		      String revisedInfo = getResourceBundleString(LAST_REVISE_BY);
-	          revisedInfo += getUserNameOrEid();
-	          revisedInfo += " " + getResourceBundleString(LAST_REVISE_ON);
+		      String revisedInfo = createLastReviseByString(selectedTopic.getTopic());
 	          Date now = new Date();
 	          revisedInfo += now.toString() + " <br/> ";
 		      currentBody = revisedInfo.concat(currentBody);
@@ -4986,6 +5091,18 @@ public class DiscussionForumTool
 
     return ALL_MESSAGES;
   }
+
+	/**
+	 * For revised posts, creates the 'last revised (by ...) on ' part
+	 */
+	private String createLastReviseByString(Topic t)
+	{
+		if (t.getPostAnonymous())
+		{
+			return getResourceBundleString(LAST_REVISE_ON_ANON) + " ";
+		}
+		return getResourceBundleString(LAST_REVISE_BY) + getUserNameOrEid() + " " + getResourceBundleString(LAST_REVISE_ON);
+	}
 
   public String processDfReplyMsgCancel()
   {
@@ -5288,14 +5405,64 @@ public class DiscussionForumTool
 	  if (messages != null && !messages.isEmpty())
 	  {
 		  messages = messageManager.sortMessageByDate(messages, true);
+
+		  // For anonymous performance
+		  //Maps topics to a boolean representing whether anonymousIDs should be displayed within the topic's context
+		  Map<Topic, Boolean> topicUseAnonIdMap = new HashMap<>();
+		  // Maps userIds to all the messages that are within an anonymous context
+		  Map<String, List<DiscussionMessageBean>> userIdAnonMessagesMap = new HashMap<>();
 	  
 		  Iterator msgIter = messages.iterator();
 		  while (msgIter.hasNext())
 		  {
 			  Message msg = (Message) msgIter.next();
+
+			  // Determine if we should display anonIds in the context of this message's topic, keep track of this in a map to minimize redundant permission checks, etc.
+			  Topic topic = msg.getTopic();
+			  Boolean useAnonId = topicUseAnonIdMap.get(topic);
+			  if (useAnonId == null)
+			  {
+			  	useAnonId = isUseAnonymousId(topic);
+			  	topicUseAnonIdMap.put(topic, useAnonId);
+			  }
+
 			  DiscussionMessageBean decoMsg = new DiscussionMessageBean(msg, messageManager);
+
+			  decoMsg.setUseAnonymousId(useAnonId);
+			  // If the message's context is anonymous, map the author to this message bean. We'll use this map to set the anonIDs momentarily
+			  if (useAnonId)
+			  {
+			  	String userId = msg.getAuthorId();
+			  	List<DiscussionMessageBean> userAnonymousMessages = userIdAnonMessagesMap.get(userId);
+			  	if (userAnonymousMessages == null)
+			  	{
+			  		userAnonymousMessages = new ArrayList<>();
+			  		userIdAnonMessagesMap.put(userId, userAnonymousMessages);
+			  	}
+			  	userAnonymousMessages.add(decoMsg);
+			  }
+
 			  pendingMsgs.add(decoMsg);
 			  numPendingMessages++;
+		  }
+
+		  // For all message beans in anonymous contexts, populate their anonymousIDs now to reduce queries and improve performance
+		  // Get the anonId map for all releveant users.
+		  String siteId = ToolManager.getCurrentPlacement().getContext();
+		  // AnonymousManager requires lists (because it needs to sublist into groups of 1000 for Oracle)
+		  // Convert to userIdAnonMessagesMap's keySet into a list
+		  List<String> userIdList = new ArrayList<>();
+		  userIdList.addAll(userIdAnonMessagesMap.keySet());
+		  Map<String, String> userIdAnonIdMap = anonymousManager.getOrCreateUserIdAnonIdMap(siteId, userIdList);
+		  for (String userId : userIdList)
+		  {
+		  	// Set the user's anonId on all of their decoMsgs
+		  	String anonId = userIdAnonIdMap.get(userId);
+		  	List<DiscussionMessageBean> userMessages = userIdAnonMessagesMap.get(userId);
+		  	for (DiscussionMessageBean decoMsg : userMessages)
+		  	{
+		  		decoMsg.setAnonId(anonId);
+		  	}
 		  }
 	  }
 	  
@@ -5578,8 +5745,15 @@ public class DiscussionForumTool
 	  StringBuilder sb = new StringBuilder();
 	  sb.append("<div class=\"messageCommentWrap\">");
 	  sb.append("<div class=\"messageCommentMD\">");
-	  sb.append(getResourceBundleString(MOD_COMMENT_TEXT) + " ");
-	  sb.append(UserDirectoryService.getCurrentUser().getDisplayName());
+	  if (selectedTopic.getTopic().getPostAnonymous())
+	  {
+	  	sb.append(getResourceBundleString(MOD_COMMENT_TEXT_ANON));
+	  }
+	  else
+	  {
+	  	sb.append(getResourceBundleString(MOD_COMMENT_TEXT)).append(" ");
+	  	sb.append(UserDirectoryService.getCurrentUser().getDisplayName());
+	  }
 	  sb.append("</div>");
 	  sb.append("<div class=\"messageCommentBody\">");
 	  sb.append(moderatorComments);
@@ -7201,147 +7375,7 @@ public class DiscussionForumTool
         //for group awareness
         //DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), DBMembershipItem.TYPE_ROLE);
         DBMembershipItem membershipItem = permissionLevelManager.createDBMembershipItem(permBean.getItem().getName(), permBean.getSelectedLevel(), permBean.getItem().getType());
-                if (PermissionLevelManager.PERMISSION_LEVEL_NAME_OWNER.equals(membershipItem.getPermissionLevelName())){
-        	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-        	            
-        	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-        	            membershipItem.setPermissionLevel(level);
-        	          }
-        	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_AUTHOR.equals(membershipItem.getPermissionLevelName())){
-        	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-        	            
-        	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-        	            membershipItem.setPermissionLevel(level);
-        	          }
-        	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CONTRIBUTOR.equals(membershipItem.getPermissionLevelName())){
-        	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-        	           mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-        	           mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-        	            
-        	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-        	            membershipItem.setPermissionLevel(level);
-        	          }
-        	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_REVIEWER.equals(membershipItem.getPermissionLevelName())){
-        	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-        	            
-        	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-        	            membershipItem.setPermissionLevel(level);
-        	          }
-        	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONEDITING_AUTHOR.equals(membershipItem.getPermissionLevelName())){
-        	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-        	            
-        	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-        	            membershipItem.setPermissionLevel(level);
-        	          }
-        	        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_NONE.equals(membershipItem.getPermissionLevelName())){
-        	            PermissionsMask mask = new PermissionsMask();                
-        	            mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-        	            mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-        	            mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-        	            mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-        	            mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-        	            mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-        	            mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-        	            mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
-        	            mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-        	            mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-        	            mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-        	            mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-        	            mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-        	            
-        	            PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-        	            membershipItem.setPermissionLevel(level);
-        	          }
-        
-        if (PermissionLevelManager.PERMISSION_LEVEL_NAME_CUSTOM.equals(membershipItem.getPermissionLevelName())){
-          PermissionsMask mask = new PermissionsMask();                
-          mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
-          mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
-          mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
-          mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
-          mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
-          mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
-          mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
-          mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
-          mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
-          mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
-          mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
-          mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
-          mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
-          mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
-          
-          PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
-          membershipItem.setPermissionLevel(level);
-        }
+        setupMembershipItemPermission(membershipItem, permBean);
         
                 
         // save DBMembershiptItem here to get an id so we can add to the set
@@ -7384,6 +7418,34 @@ public class DiscussionForumTool
     }
     siteMembers = null;
   }
+
+	/**
+	 * Using a PermissionBean, constructs a PermissionMask, then constructs a PermissionLevel, and assigns it to a MembershipItem
+	 * @param membershipItem membershipItem the item on which to apply the new permission level
+	 * @param permBean the PermissionBean from which the new PermissionLevel should be based
+	 */
+	private void setupMembershipItemPermission(DBMembershipItem membershipItem, PermissionBean permBean)
+	{
+		PermissionsMask mask = new PermissionsMask();                
+		mask.put(PermissionLevel.NEW_FORUM, Boolean.valueOf(permBean.getNewForum())); 
+		mask.put(PermissionLevel.NEW_TOPIC, Boolean.valueOf(permBean.getNewTopic()));
+		mask.put(PermissionLevel.NEW_RESPONSE, Boolean.valueOf(permBean.getNewResponse()));
+		mask.put(PermissionLevel.NEW_RESPONSE_TO_RESPONSE, Boolean.valueOf(permBean.getResponseToResponse()));
+		mask.put(PermissionLevel.MOVE_POSTING, Boolean.valueOf(permBean.getMovePosting()));
+		mask.put(PermissionLevel.CHANGE_SETTINGS,Boolean.valueOf(permBean.getChangeSettings()));
+		mask.put(PermissionLevel.POST_TO_GRADEBOOK, Boolean.valueOf(permBean.getPostToGradebook()));
+		mask.put(PermissionLevel.READ, Boolean.valueOf(permBean.getRead()));
+		mask.put(PermissionLevel.MARK_AS_READ,Boolean.valueOf(permBean.getMarkAsRead()));
+		mask.put(PermissionLevel.MODERATE_POSTINGS, Boolean.valueOf(permBean.getModeratePostings()));
+		mask.put(PermissionLevel.IDENTIFY_ANON_AUTHORS, Boolean.valueOf(permBean.getIdentifyAnonAuthors()));
+		mask.put(PermissionLevel.DELETE_OWN, Boolean.valueOf(permBean.getDeleteOwn()));
+		mask.put(PermissionLevel.DELETE_ANY, Boolean.valueOf(permBean.getDeleteAny()));
+		mask.put(PermissionLevel.REVISE_OWN, Boolean.valueOf(permBean.getReviseOwn()));
+		mask.put(PermissionLevel.REVISE_ANY, Boolean.valueOf(permBean.getReviseAny()));
+		
+		PermissionLevel level = permissionLevelManager.createPermissionLevel(permBean.getSelectedLevel(), typeManager.getCustomLevelType(), mask);
+		membershipItem.setPermissionLevel(level);
+	}
   
   /**
    * processActionAddGroupsUsers
@@ -7947,7 +8009,8 @@ public class DiscussionForumTool
 		 selectedMessage.setRevise(selectedTopic.getIsReviseAny() 
 					|| (selectedTopic.getIsReviseOwn() && isOwn));  
 		 selectedMessage.setUserCanDelete(selectedTopic.getIsDeleteAny() || (isOwn && selectedTopic.getIsDeleteOwn()));
-		 selectedMessage.setUserCanEmail(isInstructor() || isSectionTA());
+		 boolean useAnonymousId = isUseAnonymousId(selectedTopic.getTopic());
+		 selectedMessage.setUserCanEmail(!useAnonymousId && (isInstructor() || isSectionTA()));
 
 		 // Set Rank for selectedMessage.
 		 String userEid = message.getCreatedBy();
@@ -8548,6 +8611,8 @@ public class DiscussionForumTool
 	newTopic.setDraft(fromTopic.getDraft());
 	newTopic.setModerated(fromTopic.getModerated());
 	newTopic.setPostFirst(fromTopic.getPostFirst());
+	newTopic.setPostAnonymous(fromTopic.getPostAnonymous());
+	newTopic.setRevealIDsToRoles(fromTopic.getRevealIDsToRoles());
 	newTopic.setAutoMarkThreadsRead(fromTopic.getAutoMarkThreadsRead());
 
 	// Get/set the topic's permissions
@@ -8726,15 +8791,14 @@ public class DiscussionForumTool
 	 * @return the head of the discussion thread for the given msg
 	 */
 	private DiscussionMessageBean getThreadHeadForMessage(Message msg) {
-	    DiscussionMessageBean threadHead = new DiscussionMessageBean(msg, messageManager);
-        //make sure we have the thread head of depth 0
-        while(threadHead.getMessage().getInReplyTo() != null){
-            threadHead = new DiscussionMessageBean(
-                    messageManager.getMessageByIdWithAttachments(threadHead.getMessage().getInReplyTo().getId()), 
-                    messageManager);
-        }
-        
-        return threadHead;
+		Message inReplyTo = msg.getInReplyTo();
+		while (inReplyTo != null)
+		{
+			// Have to use getMessageByIdWithAttachments, or we'll get LazyInitializationExceptions
+			msg = messageManager.getMessageByIdWithAttachments(inReplyTo.getId());
+			inReplyTo = msg.getInReplyTo();
+		}
+		return new DiscussionMessageBean(msg, messageManager);
 	}
 
 	public String getEditorRows() {
@@ -8847,6 +8911,8 @@ public class DiscussionForumTool
                 thisTopic.setLocked(topicTempate.getTopic().getLocked());
                 thisTopic.setModerated(topicTempate.getTopic().getModerated());
                 thisTopic.setPostFirst(topicTempate.getTopic().getPostFirst());
+                thisTopic.setPostAnonymous(topicTempate.getTopic().getPostAnonymous());
+                thisTopic.setRevealIDsToRoles(topicTempate.getTopic().getRevealIDsToRoles());
                 thisTopic.setAvailabilityRestricted(topicTempate.getTopic().getAvailabilityRestricted());
                 thisTopic.setOpenDate(topicTempate.getTopic().getOpenDate());
                 thisTopic.setCloseDate(topicTempate.getTopic().getCloseDate());

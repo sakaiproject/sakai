@@ -222,7 +222,7 @@
 					<h:outputText rendered="#{ForumTool.selectedMessage.message.deleted && !ForumTool.needToPostFirst}"  value="#{msgs.cdfm_msg_deleted_label}" styleClass="instruction"/>
 					<h:outputText value="#{msgs.cdfm_postFirst_warning}" rendered="#{ForumTool.needToPostFirst}" styleClass="messageAlert"/>
 					<h:panelGroup rendered="#{!ForumTool.selectedMessage.message.deleted}" style="display:block">
-						<h:panelGroup styleClass="authorImage" rendered="#{ForumTool.showProfileInfo}">
+						<h:panelGroup styleClass="authorImage" rendered="#{ForumTool.showProfileInfo && !ForumTool.selectedMessage.useAnonymousId}">
 							<h:outputLink value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/formatted" styleClass="authorProfile" rendered="#{ForumTool.showProfileLink}">
 								<h:graphicImage value="#{ForumTool.serverUrl}/direct/profile/#{ForumTool.selectedMessage.message.authorId}/image/thumb" alt="#{ForumTool.selectedMessage.message.author}" />
 							</h:outputLink>
@@ -232,11 +232,12 @@
 						<h:outputText 	rendered="#{ForumTool.allowedToApproveMsg && ForumTool.allowedToDenyMsg}" value="#{msgs.cdfm_msg_pending_label}" styleClass="messagePending"/>
 						<h:outputText value="#{ForumTool.selectedMessage.message.title}"  styleClass="title" />
 						<h:outputText value="<br />" escape="false" />
-						<h:outputText value="#{ForumTool.selectedMessage.message.author}" styleClass="textPanelFooter" rendered="#{!ForumTool.instructor}"/>
-                        <h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{ForumTool.selectedMessage.message.author }" styleClass="textPanelFooter" rendered="#{ForumTool.instructor}">
+						<h:outputText value="#{ForumTool.selectedMessage.anonAwareAuthor}" styleClass="textPanelFooter #{ForumTool.selectedMessage.useAnonymousId ? 'anonymousAuthor' : ''}" rendered="#{!ForumTool.instructor || ForumTool.selectedMessage.useAnonymousId}"/>
+						<h:outputText value=" #{msgs.cdfm_me}" styleClass="textPanelFooter" rendered="#{ForumTool.selectedMessage.currentUserAndAnonymous}" />
+						<h:commandLink action="#{mfStatisticsBean.processActionStatisticsUser}" immediate="true" title=" #{ForumTool.selectedMessage.anonAwareAuthor }" styleClass="textPanelFooter #{ForumTool.selectedMessage.useAnonymousId ? 'anonymousAuthor' : ''}" rendered="#{ForumTool.instructor && !ForumTool.selectedMessage.useAnonymousId}">
                         	<f:param value="#{ForumTool.selectedMessage.authorEid}" name="siteUserId"/>
                         	<f:param value="#{ForumTool.selectedMessage.message.author}" name="siteUser"/>
-                        	<h:outputText value="#{ForumTool.selectedMessage.message.author}"/>
+                        	<h:outputText value="#{ForumTool.selectedMessage.anonAwareAuthor}"/>
                         </h:commandLink>
 						<h:outputText value=" #{msgs.cdfm_openb} "  styleClass="textPanelFooter" />
 						<h:outputText value="#{ForumTool.selectedMessage.message.created}"  styleClass="textPanelFooter" >

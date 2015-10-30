@@ -247,6 +247,9 @@
 .allMessages td.attach{
 	vertical-align:middle;
 }
+.allMessages .anonymousAuthor{
+	font-size:1.2em;
+}
 .pendingApproval{
 	/*listing of a message pending aproval*/
 	border-left: 2px solid #ccc;
@@ -564,6 +567,10 @@ img.authorImage {
 	max-height: 2.5em;
 	width: auto !important;
 	vertical-align: bottom !important;
+}
+.anonymousAuthor {
+	font-family: Consolas,monaco,"Lucida Console","Lucida Sans Typewriter","Bitstream Vera Sans Mono","Andale Mono",AndaleMono,monospace;
+	font-size: 1.2em;
 }
 .moreMenuLink span{
     padding-right:15px;

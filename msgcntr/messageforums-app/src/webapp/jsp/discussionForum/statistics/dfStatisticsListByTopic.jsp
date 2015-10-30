@@ -105,7 +105,7 @@
 				var position =  $(link).position();
 				dialogutil.openDialog('dialogDiv', 'dialogFrame', position.top);
 			}
-			var warn = true;
+			var warn = false;
 			window.onbeforeunload = function (evt) {
 				if(warn && '<h:outputText value="#{mfStatisticsBean.selectedAssign}"/>' != 'Default_0'){
 					var message = "<h:outputText value="#{msgs.confirm_navigation}" escape="false"/>";
@@ -122,6 +122,7 @@
        		<script type="text/javascript">includeLatestJQuery("msgcntr");</script>
 			<sakai:script contextBase="/messageforums-tool" path="/js/dialog.js"/>
 			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/dialog.css" />
+			<link rel="stylesheet" type="text/css" href="/messageforums-tool/css/msgcntr_statistics.css" />
 		<script type="text/javascript">		
 			function toggleComments(link){
 				if(link.innerHTML == "<h:outputText value="#{msgs.stat_forum_comments_show}" escape="false"/>"){
@@ -201,14 +202,14 @@
 	           <f:selectItems value="#{mfStatisticsBean.assignments}" />
 	        </h:selectOneMenu>          
           </h:panelGroup>  
-          <h:panelGroup styleClass="itemNav" rendered="#{!empty mfStatisticsBean.groups}">
+          <h:panelGroup styleClass="itemNav" rendered="#{!empty mfStatisticsBean.groupsForStatisticsByTopic}">
           
           </h:panelGroup>
-          <h:panelGroup styleClass="itemNav" rendered="#{!empty mfStatisticsBean.groups}">
+          <h:panelGroup styleClass="itemNav" rendered="#{!empty mfStatisticsBean.cachedGroupsForStatisticsByTopic}">
 	      	<h:outputText value="#{msgs.filter_by_group}: "/>
 	  		<h:selectOneMenu id="grade" value="#{mfStatisticsBean.selectedGroup}" valueChangeListener="#{mfStatisticsBean.processGroupChange}"
 	          onchange="document.forms[0].submit();">
-	           <f:selectItems value="#{mfStatisticsBean.groups}" />
+	           <f:selectItems value="#{mfStatisticsBean.cachedGroupsForStatisticsByTopic}" />
 	        </h:selectOneMenu>          
           </h:panelGroup>  
         </h:panelGrid>
@@ -217,7 +218,7 @@
 	  	
 	  	<f:subview id="defaultValueView" rendered="#{mfStatisticsBean.selectedAssign != 'Default_0'}">
 	  		<div class="itemNav" style="display: block">
-	  			<h:inputText styleClass="defaultValue" size="5" value="0"/>
+	  			<h:inputText styleClass="defaultValue" size="5" value="0" onkeyup="warn = true;"/>
           		<f:verbatim>
           			<input type="button" onclick="applyDefaultToUngraded();" value="</f:verbatim><h:outputText value="#{msgs.stat_forum_default_grade}"/><f:verbatim>"/>
           		</f:verbatim>
@@ -225,7 +226,11 @@
 	  	</f:subview>
 	  	
 	  	
-  		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.topicStatistics}" var="stat" rendered="true"
+		<%--
+			Use cahcedTopicStatistics - value is cached from #{!empty mfStatisticsBean.groupForStatisticsByTopic} above.
+			Retrieve the topic statistics, then clear the cache since dfStatisticsBean is scoped to the session, and we don't want this data to persist for future requests
+		--%>
+  		<h:dataTable styleClass="listHier lines nolines" id="members" value="#{mfStatisticsBean.gradeStatisticsForStatsListByTopic}" var="stat" rendered="true"
    	 		columnClasses="specialLink,bogus,bogus,bogus,bogus,bogus,bogus" cellpadding="0" cellspacing="0">
   			<h:column>
   				<f:facet name="header">
@@ -241,7 +246,8 @@
   				    <f:param value="#{stat.escapedSiteUser}" name="siteUser"/>
   				    <f:param value="dialogDiv" name="dialogDivId"/>
 					<f:param value="dialogFrame" name="frameId"/>
-				   	<h:outputText value="#{stat.siteUser}" />
+					<h:outputText rendered="#{!stat.useAnonId}" value="#{stat.siteUser}" />
+					<h:outputText rendered="#{stat.useAnonId}" value="#{stat.siteAnonId}" styleClass="anonymousAuthor"/>
 				</h:outputLink>
 			</h:column>
 			<h:column>
@@ -324,7 +330,7 @@
 						</h:outputFormat>
 					</h:commandLink>
   				</f:facet>
-  				<h:inputText size="5" value="#{stat.gradebookAssignment.score}" rendered="#{stat.gradebookAssignment.allowedToGrade}" styleClass="gradeInput"/>
+  				<h:inputText size="5" value="#{stat.gradebookAssignment.score}" rendered="#{stat.gradebookAssignment.allowedToGrade}" styleClass="gradeInput" onkeyup="warn = true;"/>
   				<h:outputText value="#{msgs.stat_forum_na}" rendered="#{!stat.gradebookAssignment.allowedToGrade}"/>
   				<h:outputText value=" %" rendered="#{mfStatisticsBean.gradeByPercent && stat.gradebookAssignment.allowedToGrade}" />
   			</h:column>
@@ -336,7 +342,7 @@
 			  			
 			  				  		  				
   				</f:facet>
-  				<h:inputTextarea rows="4" cols="35" value="#{stat.gradebookAssignment.comment}" style="display:none" styleClass="comments" rendered="#{stat.gradebookAssignment.allowedToGrade}"/>
+  				<h:inputTextarea rows="4" cols="35" value="#{stat.gradebookAssignment.comment}" style="display:none" styleClass="comments" rendered="#{stat.gradebookAssignment.allowedToGrade}" onkeyup="warn = true"/>
   				<h:outputText value="#{msgs.stat_forum_comments_hidden}" styleClass="commentsHidden" rendered="#{stat.gradebookAssignment.allowedToGrade}"/>
   				<h:outputText value="#{msgs.stat_forum_na}" rendered="#{!stat.gradebookAssignment.allowedToGrade}"/>
   			</h:column>

@@ -22,6 +22,7 @@
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/MessageMoveHistory.hbm.xml</value>
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/Rank.hbm.xml</value>                  
                 <value>org/sakaiproject/component/app/messageforums/dao/hibernate/RankImage.hbm.xml</value>
+                <value>org/sakaiproject/component/app/messageforums/dao/hibernate/AnonymousMapping.hbm.xml</value>
             </list>
         </property>
     </bean>
@@ -692,4 +693,12 @@
         </property> 
     </bean>
  
+    <bean id="org.sakaiproject.api.app.messageforums.AnonymousManager" class="org.sakaiproject.component.app.messageforums.AnonymousManagerImpl">
+        <property name="sessionFactory">
+            <ref bean="org.sakaiproject.springframework.orm.hibernate.GlobalSessionFactory"/>
+        </property>
+        <property name="serverConfigurationService">
+            <ref bean="org.sakaiproject.component.api.ServerConfigurationService"/>
+        </property>
+    </bean>
 </beans>

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC "-//Hibernate/Hibernate Mapping DTD 3.0//EN" "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+	<class name="org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl" table="MFR_ANONYMOUS_MAPPING_T">
+		<composite-id>
+			<key-property name="siteId">
+				<column name="SITE_ID" length="255" not-null="true"/>
+			</key-property>
+			<key-property name="userId">
+				<column name="USER_ID" length="255" not-null="true"/>
+			</key-property>
+		</composite-id>
+		<property column="ANON_ID" name="anonId" not-null="true" type="string"/>
+	</class>
+
+	<query name="findMappingsBySite">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl as mapping where mapping.siteId = :siteId]]>
+	</query>
+
+	<query name="findMappingsBySiteAndUsers">
+		<![CDATA[from org.sakaiproject.component.app.messageforums.dao.hibernate.AnonymousMappingImpl as mapping where mapping.siteId = :siteId and mapping.userId in (:userIds)]]>
+	</query>
+
+</hibernate-mapping>
