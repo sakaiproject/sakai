@@ -2999,62 +2999,64 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		gradebook.setCoursePointsDisplayed(gbInfo.isCoursePointsDisplayed());
 		gradebook.setCourseAverageDisplayed(gbInfo.isCourseAverageDisplayed());
 		
-		//update categories
-		List<CategoryDefinition> categoryDefinitions = gbInfo.getCategories();
+		List<CategoryDefinition> newCategoryDefinitions = gbInfo.getCategories();
 		
-		List<Category> categories = this.getCategories(gradebook.getId());
-		Map<String,Category> catMap = new HashMap<>();
-		for(Category cat: categories) {
-			catMap.put(cat.getName(), cat);
+		//get current categories and build a mapping list of Category.id to Category
+		List<Category> currentCategories = this.getCategories(gradebook.getId());
+		Map<Long,Category> currentCategoryMap = new HashMap<>();
+		for(Category c: currentCategories) {
+			currentCategoryMap.put(c.getId(), c);
 		}
 		
-		//compare lists, add and update as required
-		//also get a list of category names (have to use names as ids are only assigned at save time)
-		//also, category names are unique within a gradebook
-		List<String> categoryDefNames = new ArrayList<>();
-		for(CategoryDefinition def: categoryDefinitions) {
-			String name = def.getName();
-			
-			categoryDefNames.add(name);
+		//compare current list with given list, add/update/remove as required
+		//Rules:
+		//If category does not have an ID it is new
+		//If category has an ID it is to be updated. Update and remove from currentCategoryMap.
+		//Any categories remaining in currentCategoryMap are to be removed.
+		for(CategoryDefinition newDef: newCategoryDefinitions) {
 			
 			//new
-			if(!catMap.containsKey(name)) {
-				this.createCategory(gradebook.getId(), def.getName(), def.getWeight(), def.getDrop_lowest(), def.getDropHighest(), def.getKeepHighest(), def.isExtraCredit());
+			if(newDef.getId() == null) {
+				this.createCategory(gradebook.getId(), newDef.getName(), newDef.getWeight(), newDef.getDrop_lowest(), newDef.getDropHighest(), newDef.getKeepHighest(), newDef.isExtraCredit());
 				continue;
-			}
+			} 
 			
 			//update
-			if(catMap.containsKey(name)) {
-				Category existing = catMap.get(name);
-				existing.setName(def.getName());
-				existing.setWeight(def.getWeight());
-				existing.setDrop_lowest(def.getDrop_lowest());
-				existing.setDropHighest(def.getDropHighest());
-				existing.setKeepHighest(def.getKeepHighest());
-				existing.setExtraCredit(def.isExtraCredit());
+			else {
+				Category existing = currentCategoryMap.get(newDef.getId());
+				existing.setName(newDef.getName());
+				existing.setWeight(newDef.getWeight());
+				existing.setDrop_lowest(newDef.getDrop_lowest());
+				existing.setDropHighest(newDef.getDropHighest());
+				existing.setKeepHighest(newDef.getKeepHighest());
+				existing.setExtraCredit(newDef.isExtraCredit());
 				this.updateCategory(existing);
+				
+				//remove from currentCategoryMap so we know not to delete it
+				currentCategoryMap.remove(newDef.getId());
 				continue;
 			}
 			
 		}
 		
 		//handle deletes
-		//if category no longer in definition id list, it's to be deleted
-		for(Category cat: categories) {
-			if(categoryDefNames.contains(cat.getName())){
-				this.removeCategory(cat.getId());
-			}
+		//anything left in currentCategoryMap was not included in the new list, delete them
+		for(Entry<Long, Category> cat: currentCategoryMap.entrySet()) {
+			this.removeCategory(cat.getKey());
 		}
 		
 		//no need to set assignments, gbInfo doesn't update them
 
 		//persist
+		this.updateGradebook(gradebook);
+		/*
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
-				session.update(gradebook);
+				session.save(gradebook);
 				return null;
 			}
 		});
+		*/
 	}
 
 	
