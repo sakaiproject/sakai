@@ -100,6 +100,10 @@
             <artifactId>gradebook-service-api</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.sakaiproject.edu-services.gradebook</groupId>
+            <artifactId>gradebook-service-hibernate</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.sakaiproject.msgcntr</groupId>
             <artifactId>messageforums-api</artifactId>
         </dependency>

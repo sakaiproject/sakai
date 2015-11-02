@@ -86,6 +86,12 @@
         </jaxrs:serviceBeans>
     </jaxrs:server>
 
+    <jaxrs:server id="SakaiGradebookRS" address="/rest/gradebook">
+        <jaxrs:serviceBeans>
+            <ref bean="org.sakaiproject.webservices.SakaiGradebook"/>
+        </jaxrs:serviceBeans>
+    </jaxrs:server>
+
     <jaxws:endpoint id="SakaiJob"
                     implementor="#org.sakaiproject.webservices.SakaiJob"
                     address="/soap/job"/>
@@ -134,6 +140,10 @@
                     implementor="#org.sakaiproject.webservices.Activity"
                     address="/soap/activity"/>
 
+    <jaxws:endpoint id="SakaiGradebook"
+                    implementor="#org.sakaiproject.webservices.SakaiGradebook"
+                    address="/soap/gradebook"/>
+
     <bean id="org.sakaiproject.webservices.AbstractWebService" class="org.sakaiproject.webservices.AbstractWebService" init-method="init">
         <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService"/>
         <property name="sessionManager" ref="org.sakaiproject.tool.api.SessionManager"/>
@@ -178,5 +188,8 @@
     <bean id="org.sakaiproject.webservices.SakaiConfiguration" class="org.sakaiproject.webservices.SakaiConfiguration" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" />
      <bean id="org.sakaiproject.webservices.Activity" class="org.sakaiproject.webservices.Activity" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService">
          <property name="eventQueryService" ref="org.sakaiproject.event.api.EventQueryService"/>
+     </bean>
+    <bean id="org.sakaiproject.webservices.SakaiGradebook" class="org.sakaiproject.webservices.SakaiGradebook" init-method="init" parent="org.sakaiproject.webservices.AbstractWebService" >
+        <property name="gradebookFrameworkService" ref="org.sakaiproject.service.gradebook.GradebookFrameworkService"/>
     </bean>
 </beans>

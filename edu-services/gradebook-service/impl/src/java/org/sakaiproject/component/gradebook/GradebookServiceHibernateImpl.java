@@ -3079,6 +3079,17 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 		this.gradebookPermissionService = gradebookPermissionService;
 	}
 
-	
+	@Override
+	public Set getGradebookGradeMappings(final Long gradebookId) {
+		return (Set)getHibernateTemplate().execute(new HibernateCallback() {
+			@Override
+			public Set doInHibernate(Session session) throws HibernateException {
+				Gradebook gradebook = (Gradebook)session.load(Gradebook.class, gradebookId);
+				Hibernate.initialize(gradebook.getGradeMappings());
+				return gradebook.getGradeMappings();
+			}
+		});
+	}
+
 	
 }

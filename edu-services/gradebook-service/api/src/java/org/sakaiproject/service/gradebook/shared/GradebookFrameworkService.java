@@ -22,6 +22,8 @@
 package org.sakaiproject.service.gradebook.shared;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 
 /**
  * This service is meant to be used by the framework which manages the Gradebook
@@ -78,5 +80,32 @@ public interface GradebookFrameworkService {
      *	The UID of the grading scale to use as the default for new gradebooks.
 	 */
 	public void setDefaultGradingScale(String uid);
+
+	/**
+	 *
+	 *	returns all the Available Grading Scales in the system.
+	 */
+	public List getAvailableGradingScales();
+
+	/**
+	 * Adds a new grade scale to an existing gradebook.
+	 *
+	 * @param scaleUuid
+	 *   The Uuid of the scale we want to be added to the gradebook
+	 * @param gradebook
+	 *   The gradebook with GradeMappings where we will add the grading scale.
+	 *
+	 */
+	public void saveGradeMappingToGradebook(String scaleUuid, String gradebookUid);
+
+
+	/**
+	 * Update a grademapping with new values.
+	 *
+	 * @param gradeMapping
+	 *   The gradeMApping to update.
+	 *
+	 */
+	public void updateGradeMapping(Long gradeMappingId, Map<String, Double> gradeMap);
 
 }
