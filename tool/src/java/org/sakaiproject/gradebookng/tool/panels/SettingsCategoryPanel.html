@@ -12,38 +12,40 @@
 			<div class="radio"><label><input wicket:id="categoriesAndWeighting" type="radio"/><wicket:message key="settingspage.categories.categoriesweighting" /></label></div>
 		</div>
 		
-		<div wicket:id="categorySettings">
+		<div>
 	  		<div class="checkbox"><label><input wicket:id="dropHighest" type="checkbox"/><wicket:message key="settingspage.categories.drophighest" /></label></div>
 	  		<div class="checkbox"><label><input wicket:id="dropLowest" type="checkbox"/><wicket:message key="settingspage.categories.droplowest" /></label></div>
 			<div class="checkbox"><label><input wicket:id="keepHighest" type="checkbox"/><wicket:message key="settingspage.categories.keephighest" /></label></div>
 		</div>
-				
-		<table wicket:id="categoriesView" class="table-striped table-bordered table-hover">
-			<thead>
-				<tr>
-					<th><wicket:message key="settingspage.categories.categorycolhead" /></th>
-					<th><wicket:message key="settingspage.categories.weightcolhead" /></th>
-					<th><wicket:message key="settingspage.categories.extracreditcolhead" /></th>
-					<th><wicket:message key="settingspage.categories.itemscolhead" /></th>
-					<th><wicket:message key="settingspage.categories.drophighestcolhead" /></th>
-					<th><wicket:message key="settingspage.categories.droplowestcolhead" /></th>
-					<th><wicket:message key="settingspage.categories.keephighestcolhead" /></th>
-					<th><wicket:message key="settingspage.categories.removecolhead" /></th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr>
-					<td><input wicket:id="name" type="text" /></td>
-					<td><input wicket:id="weight" type="text" size="5" /></td>
-					<td><input wicket:id="extraCredit" type="checkbox" /></td>
-					<td><span wicket:id="numItems">0 items(s)</span></td>
-					<td><input wicket:id="categoryDropHighest" type="checkbox" /></td>
-					<td><input wicket:id="categoryDropLowest" type="checkbox" /></td>
-					<td><input wicket:id="categoryKeepHighest" type="checkbox" /></td>
-					<td><button wicket:id="remove" class="btn btn-link"><wicket:message key="button.remove" /></button></td>
-				</tr>
-			</tbody>
-		</table>
+		
+		<div wicket:id="categoriesWrap">
+			<table class="table-striped table-bordered table-hover">
+				<thead>
+					<tr>
+						<th><wicket:message key="settingspage.categories.categorycolhead" /></th>
+						<th><wicket:message key="settingspage.categories.weightcolhead" /></th>
+						<th><wicket:message key="settingspage.categories.extracreditcolhead" /></th>
+						<th><wicket:message key="settingspage.categories.itemscolhead" /></th>
+						<th><wicket:message key="settingspage.categories.drophighestcolhead" /></th>
+						<th><wicket:message key="settingspage.categories.droplowestcolhead" /></th>
+						<th><wicket:message key="settingspage.categories.keephighestcolhead" /></th>
+						<th><wicket:message key="settingspage.categories.removecolhead" /></th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr wicket:id="categoriesView">
+						<td><input wicket:id="name" type="text" /></td>
+						<td><input wicket:id="weight" type="text" size="5" /></td>
+						<td><input wicket:id="extraCredit" type="checkbox" /></td>
+						<td><span wicket:id="numItems">0 items(s)</span></td>
+						<td><input wicket:id="categoryDropHighest" type="checkbox" /></td>
+						<td><input wicket:id="categoryDropLowest" type="checkbox" /></td>
+						<td><input wicket:id="categoryKeepHighest" type="checkbox" /></td>
+						<td><button wicket:id="remove" class="btn btn-link"><wicket:message key="button.remove" /></button></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
 		
 		<div>
 			<button wicket:id="addCategory" type="submit" class="btn btn-default"><wicket:message key="settingspage.categories.add" /></button>

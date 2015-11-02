@@ -47,19 +47,13 @@ public class SettingsCategoryPanel extends Panel {
 	@SpringBean(name="org.sakaiproject.gradebookng.business.GradebookNgBusinessService")
 	protected GradebookNgBusinessService businessService;
 	
-	IModel<GradebookInformation> model;
+	IModel<GradebookInformation> model;	
 	
-	DataTable table;
-	
-	
-	@Setter @Getter
 	boolean isDropHighest = false;
-	
-	@Setter @Getter
 	boolean isDropLowest = false;
-	
-	@Setter @Getter
 	boolean isKeepHighest = false;
+	
+	WebMarkupContainer categoriesWrap;
 
 	public SettingsCategoryPanel(String id, IModel<GradebookInformation> model) {
 		super(id, model);
@@ -71,7 +65,7 @@ public class SettingsCategoryPanel extends Panel {
 	public void onInitialize() {
 		super.onInitialize();
 		
-		//get categories
+		//get categories, passed in
 		final List<CategoryDefinition> categories = this.model.getObject().getCategories();
 		
 		//parse the categories and see if we have any drophighest/lowest/keep highest and set the flags for the checkboxes to use
@@ -95,53 +89,49 @@ public class SettingsCategoryPanel extends Panel {
 		
 		categoryType.setRequired(true);
 		add(categoryType);
-		
-		//category settings
-		WebMarkupContainer categorySettings = new WebMarkupContainer("categorySettings");
-		
+				
 		//enable drop highest
-        final AjaxCheckBox dropHighest = new AjaxCheckBox("dropHighest", Model.of(isDropHighest())) {
+        final AjaxCheckBox dropHighest = new AjaxCheckBox("dropHighest", Model.of(isDropHighest)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				setDropHighest(this.getModelObject());
-				target.add(table);
+				isDropHighest = this.getModelObject();
+				target.add(categoriesWrap);
 			}
         };
         dropHighest.setOutputMarkupId(true);
-        categorySettings.add(dropHighest);
+        add(dropHighest);
         
         //enable drop lowest
-        final AjaxCheckBox dropLowest = new AjaxCheckBox("dropLowest", Model.of(isDropLowest())) {
+        final AjaxCheckBox dropLowest = new AjaxCheckBox("dropLowest", Model.of(isDropLowest)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				setDropLowest(this.getModelObject());
-				target.add(table);
+				isDropHighest = this.getModelObject();
+				target.add(categoriesWrap);
 			}
         };
         dropLowest.setOutputMarkupId(true);
-        categorySettings.add(dropLowest);
+        add(dropLowest);
         
      	//enable keep highest
-        final AjaxCheckBox keepHighest = new AjaxCheckBox("keepHighest", Model.of(isKeepHighest())) {
+        final AjaxCheckBox keepHighest = new AjaxCheckBox("keepHighest", Model.of(isKeepHighest)) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
 			protected void onUpdate(AjaxRequestTarget target) {
-				setKeepHighest(this.getModelObject());
-				target.add(table);
+				isKeepHighest = this.getModelObject();
+				target.add(categoriesWrap);
 			}
         };
         keepHighest.setOutputMarkupId(true);
-        categorySettings.add(keepHighest);
-        
-        add(categorySettings);
-        
-        //render table of categories
-    	ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView", categories) {
+        add(keepHighest);
+                
+        //render rows of categories
+        categoriesWrap = new WebMarkupContainer("categoriesWrap");
+    	ListView<CategoryDefinition> categoriesView = new ListView<CategoryDefinition>("categoriesView", model.getObject().getCategories()) {
 
   			private static final long serialVersionUID = 1L;
 
@@ -190,7 +180,13 @@ public class SettingsCategoryPanel extends Panel {
 						
 						//remove current item
 						CategoryDefinition current = item.getModelObject();
-						categories.remove(current);
+						//categories.remove(current);
+						
+						System.out.println(current);
+						
+						//model.getObject().getCategories().remove(current);
+						
+						//target.add(categoriesWrap);
 					}
 				};
 				remove.setDefaultFormProcessing(false);
@@ -198,7 +194,11 @@ public class SettingsCategoryPanel extends Panel {
   				
   			}
   		};
-  		add(categoriesView);
+  		categoriesView.setReuseItems(true);
+  		categoriesWrap.add(categoriesView);
+  		categoriesWrap.setOutputMarkupId(true);
+  		add(categoriesWrap);
+  		
         
         //add category button
         AjaxButton addCategory = new AjaxButton("addCategory") {
@@ -209,14 +209,15 @@ public class SettingsCategoryPanel extends Panel {
 				
 				CategoryDefinition cd = new CategoryDefinition();
 				cd.setAssignmentList(Collections.<Assignment> emptyList());
-				categories.add(cd);
+				
+				model.getObject().getCategories().add(cd);
+				
+				target.add(categoriesWrap);
 			}
         };
         addCategory.setDefaultFormProcessing(false);
         add(addCategory);
 		
 	}
-	
-	
 	
 }
