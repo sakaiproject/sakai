@@ -201,7 +201,7 @@
 
 		</div>
 		
-		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink" role="menu" aria-label="Add content menu">
+		<div id="addContentDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="Add content menu">
 		<ul>
 		  <li>
 		    <a role="menuitem" href="#" rsf:id="add-text" class="add-text-link add-before-param" ><span rsf:id="msg.simplepage.text"></span></a>
@@ -254,7 +254,7 @@
 		</ul>
 		</div>
 
-		<div rsf:id="moreDiv" id="moreDiv" style="display:none" class="dropDownDiv specialLink" role="menu" aria-label="More menu options">
+		<div rsf:id="moreDiv" id="moreDiv" style="display:none" class="dropDownDiv specialLink lessonsDialog" role="menu" aria-label="More menu options">
 		  <ul>
                     <!-- add new page -->
                     <li>
@@ -817,7 +817,7 @@
 			  <p rsf:id="locale" id="locale"></p>
 			</div>
 
-			<div id="subpage-dialog" rsf:id="subpage-dialog">
+			<div id="subpage-dialog" rsf:id="subpage-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="subpage-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -850,7 +850,7 @@
                 </form>
 			</div>
 			
-			<div id="edit-item-dialog" rsf:id="edit-item-dialog">
+			<div id="edit-item-dialog" rsf:id="edit-item-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="edit-item-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -992,7 +992,7 @@
                 </form>
 			</div>
 
-			<div id="add-multimedia-dialog" rsf:id="add-multimedia-dialog">
+			<div id="add-multimedia-dialog" rsf:id="add-multimedia-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="mm-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -1069,7 +1069,7 @@
 			</div>
 			
 
-            <div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog">
+            <div id="edit-multimedia-dialog" rsf:id="edit-multimedia-dialog" class="lessonsDialog">
                 <form action="#" rsf:id="edit-multimedia-form" class="controlsPanel">
                   <input type="hidden" rsf:id="csrf10" />
                     <div class="">
@@ -1138,7 +1138,7 @@
                 </form>
 			</div>
 			
-			<div id="import-cc-dialog" rsf:id="import-cc-dialog">
+			<div id="import-cc-dialog" rsf:id="import-cc-dialog" class="lessonsDialog">
                 <form action="#" rsf:id="import-cc-form" method="post" enctype="multipart/form-data" class="controlsPanel">
                   <input type="hidden" rsf:id="csrf11" />
                     <div class="">                  
@@ -1190,7 +1190,7 @@
                 </form>
 			</div>
 
-			<div id="export-cc-dialog" rsf:id="export-cc-dialog">
+			<div id="export-cc-dialog" rsf:id="export-cc-dialog" class="lessonsDialog">
 				<form action="#" rsf:id="export-cc-form" method="post" enctype="multipart/form-data" class="controlPanel">
 					<div class="">					
 					  <p class="required">
@@ -1215,7 +1215,7 @@
 				</form>
 			</div>
 
-			<div id="edit-title-dialog" rsf:id="edit-title-dialog">
+			<div id="edit-title-dialog" rsf:id="edit-title-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="edit-title-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -1298,7 +1298,7 @@
                 </form>
 			</div>
 
-            <div id="new-page-dialog" rsf:id="new-page-dialog" class="controlsPanel">
+            <div id="new-page-dialog" rsf:id="new-page-dialog" class="controlsPanel lessonsDialog">
                     <p class="instruction"  style="margin-bottom:1em" rsf:id="msg=simplepage.new-page-explanation"></p>
                 <div class="ui-widget" id="new-page-error-container">
                     <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
@@ -1343,7 +1343,7 @@
 		</div>
             </div>
 
-            <div id="remove-page-dialog" rsf:id="remove-page-dialog">
+            <div id="remove-page-dialog" rsf:id="remove-page-dialog" class="lessonsDialog">
                 <div class="controlsPanel">
                     <div class="instruction" rsf:id="remove-page-explanation"></div>
                     <form action="#" rsf:id="remove-page-form">
@@ -1357,7 +1357,7 @@
                 </div>
             </div>
 
-			<div id="youtube-dialog" rsf:id="youtube-dialog">
+			<div id="youtube-dialog" rsf:id="youtube-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="edit-youtube-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -1400,7 +1400,7 @@
                 </form>
 			</div>
 			
-            <div id="movie-dialog" rsf:id="movie-dialog">
+            <div id="movie-dialog" rsf:id="movie-dialog" class="lessonsDialog">
 				<div class="ui-widget" id="movie-error-container">
 					<div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 						<p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -1468,7 +1468,7 @@
 				</form>
 			</div>
 			
-			<div id="comments-dialog" rsf:id="comments-dialog">
+			<div id="comments-dialog" rsf:id="comments-dialog" class="lessonsDialog">
        <form action="#" rsf:id="comments-form" class="controlsPanel">
          <input type="hidden" rsf:id="csrf19" />
 
@@ -1509,7 +1509,7 @@
 			<!-- /* RU Rubrics */ -->
 			<!-- The create rubric form will not reload the page on submit like the the other dialog boxes. 
 			Instead, the data is placed in the parent dialog box (student-dialog). -->
-			<div id="peer-eval-create-dialog" rsf:id="peer-eval-create-dialog">
+			<div id="peer-eval-create-dialog" rsf:id="peer-eval-create-dialog" class="lessonsDialog">
 			  <!-- On open, it needs to pull the related information in and set the values... -->
 			  <form class="peer-eval-create-form">
 
@@ -1541,12 +1541,12 @@
 			  </div>
 			</div>
 
-			<div id="delete-confirm" class="controlsPanel">
+			<div id="delete-confirm" class="controlsPanel lessonsDialog">
 			  <p><span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 0 0;"></span>
 			    <p id="delete-confirm-message">Delete ok?</p></p>
 			</div>
 	
-			<div id="student-dialog" rsf:id="student-dialog">
+			<div id="student-dialog" rsf:id="student-dialog" class="lessonsDialog">
                 <form action="#" rsf:id="student-form" class="controlsPanel">
                   <input type="hidden" rsf:id="csrf20" />
 
@@ -1674,7 +1674,7 @@
                 </form>
 			</div>
 			
-			<div id="question-dialog" rsf:id="question-dialog">
+			<div id="question-dialog" rsf:id="question-dialog" class="lessonsDialog">
 			  <div class="ui-widget" id="question-error-container">
 			    <div class="ui-state-error ui-corner-all" style="padding: 0 .7em;"> 
 			      <p><span class="ui-icon ui-icon-alert" style="float: left; margin-right: .3em;"></span> 
@@ -1788,7 +1788,7 @@
 		</div>
 	</div>
 	
-	<div id="column-dialog" class="controlsPanel">
+	<div id="column-dialog" class="controlsPanel lessonsDialog">
           <form action="#" method="post" enctype="multipart/form-data">
             <div class="">                  
               <input type="hidden" name="columnitem" id="columnitem" />
@@ -1819,7 +1819,7 @@
           </form>
 	</div>
 
-	<div rsf:id="delete-dialog" id="delete-dialog" class="controlsPanel">
+	<div rsf:id="delete-dialog" id="delete-dialog" class="controlsPanel lessonsDialog">
 		<span id="delete-dialog-comment-url" style="display:none"></span>
 	
 		<span class="ui-icon ui-icon-alert" style="float:left; margin:0 7px 0 0;"></span>
