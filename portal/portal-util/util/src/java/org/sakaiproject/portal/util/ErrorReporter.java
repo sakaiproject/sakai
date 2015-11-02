@@ -29,6 +29,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.ResourceBundle;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -54,8 +55,6 @@ import org.sakaiproject.user.cover.UserDirectoryService;
 import org.sakaiproject.util.FormattedText;
 import org.sakaiproject.util.ResourceLoader;
 
-import org.sakaiproject.portal.util.BufferedServletResponse;
-
 /**
  * <p>
  * ErrorReporter helps with end-user formatted error reporting, user feedback
@@ -71,6 +70,7 @@ public class ErrorReporter
 
 	/** messages. */
 	private static ResourceLoader rb = new ResourceLoader("portal-util");
+	private static final ResourceBundle rbDefault = ResourceBundle.getBundle("portal-util", Locale.getDefault());
 
 	private Map<String, String> censoredHeaders = new HashMap<String, String>();
 
@@ -274,6 +274,9 @@ public class ErrorReporter
 			String problem, String problemdigest, String requestURI,
 			String requestDisplay, String placementDisplay, String userReport)
 	{
+		// logging and emailing should use the system default locale instead of the user's locale
+		ResourceBundle rb = rbDefault;
+		
 		// log
 		M_log.warn(rb.getString("bugreport.bugreport") + " "
 				+ rb.getString("bugreport.bugid") + ": " + bugId + " "
@@ -554,12 +557,13 @@ public class ErrorReporter
 		}
 		catch (Throwable any)
 		{
-			M_log.warn(rb.getString("bugreport.troublereporting"), any);
+			M_log.warn(rbDefault.getString("bugreport.troublereporting"), any);
 		}
 	}
 
 	private String placementDisplay()
 	{
+		ResourceBundle rb = rbDefault;
 		StringBuilder sb = new StringBuilder();
 		try
 		{
@@ -592,6 +596,7 @@ public class ErrorReporter
 	@SuppressWarnings("rawtypes")
 	private String requestDisplay(HttpServletRequest request)
 	{
+		ResourceBundle rb = rbDefault;
 		StringBuilder sb = new StringBuilder();
 		try
 		{
@@ -738,7 +743,7 @@ public class ErrorReporter
 		}
 		catch (IOException e)
 		{
-			M_log.warn(rb.getString("bugreport.troubleredirecting"), e);
+			M_log.warn(rbDefault.getString("bugreport.troubleredirecting"), e);
 		}
 	}
 
@@ -806,7 +811,7 @@ public class ErrorReporter
 		}
 		catch (Throwable any)
 		{
-			M_log.warn(rb.getString("bugreport.troublethanks"), any);
+			M_log.warn(rbDefault.getString("bugreport.troublethanks"), any);
 		}
 	}
 }
