@@ -46,7 +46,7 @@
                     </div>
                     <div id="genPanel">
                         <div rsf:id="additional-title-row:">
-                            <h4 rsf:id="additional-title" onclick="toggleGenPanel( this );"></h4>
+                            <h4 rsf:id="additional-title" onclick="togglePanel( this, false ); adjustDivHeights();"></h4>
                         </div>
                         <div rsf:id="num-groups-row:">
                             <p class="shorttext">
@@ -105,6 +105,17 @@
                         <img id="editJoinableGroupSpinner" class="spinner" src="/library/image/indicator.gif" />
                     </div>
                 <input type="hidden" rsf:id="groupTitle-group-orig"/>
+                </div>
+                <div id="userPanel">
+                    <div rsf:id="usersNotInSet-title-row:" id="userPanelHeader">
+                        <h4 rsf:id="usersNotInSet-title" onclick="togglePanel( this, true ); adjustDivHeights();"></h4>
+                    </div>
+                    <div id="userRowsContainer">
+                        <div rsf:id="user-row:">
+                            <div rsf:id="user">
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </form>
          </div>
