@@ -783,10 +783,17 @@ public interface GradebookService {
 	void updateGradebookSettings(String gradebookUid, GradebookInformation gbInfo);
 
 	/**
-	 * Return the gradebook but with the GradeMappings. The normal getGradebook(siteId)
+	 * Return the GradeMappings for the given gradebook. The normal getGradebook(siteId)
 	 * doesn't return the GradeMapping.
 	 * @param gradebookId
-	 * @return a gradebook with all the GradeMappings.
+	 * @return Set of GradeMappings for the gradebook
 	 */
-	public Set getGradebookGradeMappings(Long gradebookId);
+	Set getGradebookGradeMappings(Long gradebookId);
+	
+	/**
+	 * Return the GradeMappings for the given gradebook.
+	 * @param gradebookUid
+	 * @return Set of GradeMappings for the gradebook
+	 */
+	Set getGradebookGradeMappings(String gradebookUid);
 }
