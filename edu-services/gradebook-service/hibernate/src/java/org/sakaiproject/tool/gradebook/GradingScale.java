@@ -101,6 +101,10 @@ public class GradingScale implements Serializable, Comparable {
             append(getUid()).toString();
     }
 
+    /**
+     * Convert this GradeingScale instance to a GradingScaleDefinition
+     * @return
+     */
 	public GradingScaleDefinition toGradingScaleDefinition(){
 		GradingScaleDefinition scaleDef = new GradingScaleDefinition();
 		scaleDef.setUid(this.getUid());

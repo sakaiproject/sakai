@@ -191,7 +191,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 		});
 	}
 
-	public void updateGradeMapping(Long gradeMappingId, Map<String, Double> gradeMap){
+	@Override
+	public void updateGradeMapping(final Long gradeMappingId, final Map<String, Double> gradeMap){
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 				GradeMapping gradeMapping = (GradeMapping)session.load(GradeMapping.class, gradeMappingId);
@@ -203,7 +204,8 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 		});
 	}
 
-	public void saveGradeMappingToGradebook(String scaleUuid, String gradebookUid) {
+	@Override
+	public void saveGradeMappingToGradebook(final String scaleUuid, final String gradebookUid) {
 		getHibernateTemplate().execute(new HibernateCallback() {
 			public Object doInHibernate(Session session) throws HibernateException {
 
@@ -225,6 +227,7 @@ public class GradebookFrameworkServiceImpl extends BaseHibernateManager implemen
 		});
 	}
 
+	@Override
 	public List getAvailableGradingScales() {
 
 		return (List)getHibernateTemplate().execute(new HibernateCallback() {

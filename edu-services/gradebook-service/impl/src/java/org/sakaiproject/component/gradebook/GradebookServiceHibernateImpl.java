@@ -3090,6 +3090,11 @@ public class GradebookServiceHibernateImpl extends BaseHibernateManager implemen
 			}
 		});
 	}
-
+	
+	@Override
+	public Set getGradebookGradeMappings(final String gradebookUid) {
+		final Long gradebookId = getGradebook(gradebookUid).getId();
+		return this.getGradebookGradeMappings(gradebookId);
+	}
 	
 }

@@ -82,8 +82,8 @@ public interface GradebookFrameworkService {
 	public void setDefaultGradingScale(String uid);
 
 	/**
-	 *
-	 *	returns all the Available Grading Scales in the system.
+	 *	Get all of the available Grading Scales in the system.
+	 *	@return List of GradingScale
 	 */
 	public List getAvailableGradingScales();
 
@@ -91,19 +91,18 @@ public interface GradebookFrameworkService {
 	 * Adds a new grade scale to an existing gradebook.
 	 *
 	 * @param scaleUuid
-	 *   The Uuid of the scale we want to be added to the gradebook
-	 * @param gradebook
+	 *   The uuid of the scale we want to be added to the gradebook
+	 * @param gradebookUid
 	 *   The gradebook with GradeMappings where we will add the grading scale.
 	 *
 	 */
 	public void saveGradeMappingToGradebook(String scaleUuid, String gradebookUid);
 
-
 	/**
 	 * Update a grademapping with new values.
 	 *
-	 * @param gradeMapping
-	 *   The gradeMApping to update.
+	 * @param gradeMappingId id of GradeMapping to update
+	 * @param gradeMap the updated map of grades
 	 *
 	 */
 	public void updateGradeMapping(Long gradeMappingId, Map<String, Double> gradeMap);
