@@ -406,6 +406,9 @@ a.edit-link:link, a.edit-link:visited, a.section-merge-link:link, a.section-merg
 .columnopen, .addbottom {
   text-decoration: none;
 }
+.edit-col {
+  font-size: 70%;
+}
 
 .mainList li {
     position: relative;
