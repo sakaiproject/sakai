@@ -24,20 +24,20 @@ import static org.mockito.Mockito.withSettings;
 import org.apache.cxf.jaxrs.client.WebClient;
 import org.junit.Test;
 import org.sakaiproject.tool.api.Session;
-import org.sakaiproject.user.api.PreferencesEdit;
-import org.sakaiproject.entity.api.ResourcePropertiesEdit;
 import org.sakaiproject.user.api.User;
 import org.junit.rules.ExpectedException;
+import org.sakaiproject.authz.api.AuthzGroup;
+import org.sakaiproject.authz.api.Member;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.lang.RuntimeException;
 
-public class SakaiScriptSetUserTimeZoneTest extends AbstractCXFTest {
+public class SakaiScriptChangeSiteMemberStatusTest extends AbstractCXFTest {
 	public static final String SESSION_ID = "***SESSION_HAS_BEEN_MOCKERIZED***";
 	public static final String NULL_SESSION = "***NULL_SESSION***";
-	private static final String SOAP_OPERATION = "setUserTimeZone";
+	private static final String SOAP_OPERATION = "changeSiteMemberStatus";
 
 	public ExpectedException thrown = ExpectedException.none();
 
@@ -59,40 +59,36 @@ public class SakaiScriptSetUserTimeZoneTest extends AbstractCXFTest {
 	protected void addServiceMocks(AbstractWebService service) {
 
 		User mockUser = mock(User.class);
-		when(service.securityService.isSuperUser("admin")).thenReturn(true);
+		User mockUser2 = mock(User.class);
+		AuthzGroup mockAuthzGroup = mock(AuthzGroup.class);
+		Member mockMember = mock(Member.class);
 
-		PreferencesEdit mockPrefs = mock(PreferencesEdit.class);
 
 		try {
-		when(service.userDirectoryService.getUserByEid("admin")).thenReturn(mockUser);
+			when(service.userDirectoryService.getUserByEid("userEid")).thenReturn(mockUser);
 			when(service.userDirectoryService.getUserByEid("nouser")).thenReturn(null);
+			when(service.userDirectoryService.getUserByEid("userEidNoPerm")).thenReturn(mockUser2);
+			when(service.siteService.siteReference("siteid")).thenReturn("realmId");
+			when(service.authzGroupService.allowUpdate("realmId")).thenReturn(true);
+			when(service.siteService.allowUpdateSiteMembership("siteid")).thenReturn(true);
+			when(service.authzGroupService.getAuthzGroup("realmId")).thenReturn(mockAuthzGroup);
+			when(mockUser.getId()).thenReturn("userId");
+			when(mockUser2.getId()).thenReturn("userEidNoPerm");
+			when(mockAuthzGroup.getMember("userId")).thenReturn(mockMember);
+			when(mockAuthzGroup.getMember("userIdNoPerm")).thenReturn(null);
 		} catch (Exception e) {
+
 		}
 
-		when(mockUser.getId()).thenReturn("admin");
-
-		try {
-		when(service.preferencesService.edit("admin")).thenReturn(mockPrefs);
-		} catch (Exception e) {
-		}
-
-		try {
-			when(service.preferencesService.add("admin")).thenReturn(mockPrefs);
-		} catch (Exception e) {
-		}
-
-		ResourcePropertiesEdit mockprops = mock(ResourcePropertiesEdit.class);
-		when(mockPrefs.getPropertiesEdit("sakai:time")).thenReturn(mockprops);
 
 		Session mockSession = mock(Session.class);
 		when(service.sessionManager.getSession(SESSION_ID)).thenReturn(mockSession);
 		when(service.sessionManager.getSession(NULL_SESSION)).thenReturn(null);
 		when(mockSession.getUserId()).thenReturn("admin");
-
 	}
 
 	@Test
-	public void testSetUserTimeZone() {
+	public void testChangeSiteMemberStatus() {
 		WebClient client = WebClient.create(getFullEndpointAddress());
 
 		addClientMocks(client);
@@ -101,8 +97,9 @@ public class SakaiScriptSetUserTimeZoneTest extends AbstractCXFTest {
 		client.accept("text/plain");
 		client.path("/" + getOperation());
 		client.query("sessionid", SESSION_ID);
-		client.query("eid", "admin");
-		client.query("timeZoneId", "Europe/Oslo");
+		client.query("siteid", "siteid");
+		client.query("eid", "userEid");
+		client.query("active", true);
 
 
 		// client result
@@ -114,7 +111,7 @@ public class SakaiScriptSetUserTimeZoneTest extends AbstractCXFTest {
 	}
 
 	@Test
-	public void testSetUserTimeZoneNotExistingUser() {
+	public void testChangeSiteMemberStatusNotExitingUser() {
 		WebClient client = WebClient.create(getFullEndpointAddress());
 
 		addClientMocks(client);
@@ -123,12 +120,37 @@ public class SakaiScriptSetUserTimeZoneTest extends AbstractCXFTest {
 		client.accept("text/plain");
 		client.path("/" + getOperation());
 		client.query("sessionid", SESSION_ID);
+		client.query("siteid", "siteid");
 		client.query("eid", "nouser");
-		client.query("timeZoneId", "Europe/Oslo");
+		client.query("active", true);
 
 		// client result
 		thrown.expect(RuntimeException.class);
 		client.get(String.class);
+
+	}
+
+	@Test
+	public void testSetChangeSiteMemberStatusNotMember() {
+		WebClient client = WebClient.create(getFullEndpointAddress());
+
+		addClientMocks(client);
+
+		// client call
+		client.accept("text/plain");
+		client.path("/" + getOperation());
+		client.query("sessionid", SESSION_ID);
+		client.query("siteid", "siteid");
+		client.query("eid", "userEidNoPerm");
+		client.query("active", true);
+
+		// client result
+		String result = client.get(String.class);
+
+		// client result
+		assertNotNull(result);
+		assertEquals("WS changeSiteMemberStatus(): User: " + "userEidNoPerm" + " does not exist in site : " + "siteid", result);
+
 
 	}
 }
