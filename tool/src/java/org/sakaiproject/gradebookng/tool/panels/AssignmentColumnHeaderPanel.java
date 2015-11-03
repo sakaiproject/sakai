@@ -9,6 +9,7 @@ import org.apache.wicket.ajax.markup.html.AjaxLink;
 import org.apache.wicket.extensions.ajax.markup.html.modal.ModalWindow;
 import org.apache.wicket.markup.html.WebMarkupContainer;
 import org.apache.wicket.markup.html.basic.Label;
+import org.apache.wicket.markup.html.form.Form;
 import org.apache.wicket.markup.html.link.Link;
 import org.apache.wicket.markup.html.panel.Panel;
 import org.apache.wicket.model.IModel;
@@ -20,7 +21,6 @@ import org.sakaiproject.gradebookng.business.SortDirection;
 import org.sakaiproject.gradebookng.business.model.GbAssignmentGradeSortOrder;
 import org.sakaiproject.gradebookng.business.util.FormatHelper;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
-import org.sakaiproject.gradebookng.tool.pages.EditGradebookItemPage;
 import org.sakaiproject.gradebookng.tool.pages.GradebookPage;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
@@ -43,7 +43,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 	public AssignmentColumnHeaderPanel(String id, IModel<Assignment> modelData) {
 		super(id);
 		this.modelData = modelData;
-		
 	}
 	
 	@Override
@@ -96,7 +95,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		
 		add(title);
 		
-		
 		add(new Label("totalPoints", Model.of(assignment.getPoints())));
 		add(new Label("dueDate", Model.of(FormatHelper.formatDate(assignment.getDueDate(), getString("label.noduedate")))));
 
@@ -144,12 +142,18 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			}
 		};
 		
-		menu.add(new Link<Long>("editAssignmentDetails", Model.of(assignment.getId())){
+		menu.add(new AjaxLink<Long>("editAssignmentDetails", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
+			
 			@Override
-			public void onClick() {
-				setResponsePage(new EditGradebookItemPage(this.getModel()));
+			public void onClick(AjaxRequestTarget target) {
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				ModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
+				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
+				window.showUnloadConfirmation(false);
+				window.show(target);
 			}
+			
 			@Override
 			public boolean isVisible() {
 				if(assignment.isExternallyMaintained()) {
@@ -157,6 +161,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				}
 				return true;
 			}
+
 		});
 		
 		menu.add(new Link<Long>("viewAssignmentGradeStatistics", Model.of(assignment.getId())){
@@ -202,7 +207,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				setResponsePage(new GradebookPage());
 			}
 		});
-		
 				
 		menu.add(new Link<Long>("moveAssignmentRight", Model.of(assignment.getId())){
 			private static final long serialVersionUID = 1L;
@@ -232,7 +236,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 					businessService.updateAssignmentOrder(assignmentId, (order+1));
 				}
 				
-				
 				setResponsePage(new GradebookPage());
 			}
 		});
@@ -255,15 +258,13 @@ public class AssignmentColumnHeaderPanel extends Panel {
 				
 				GradebookPage gradebookPage = (GradebookPage) this.getPage();
 				final ModalWindow window = gradebookPage.getUpdateUngradedItemsWindow();
-
-				Component content = new UpdateUngradedItemsPanel(window.getContentId(), this.getModel(), window);
-
-				window.setContent(content);
+				final UpdateUngradedItemsPanel panel = new UpdateUngradedItemsPanel(window.getContentId(), this.getModel(), window);
+				window.setContent(panel);
 				window.showUnloadConfirmation(false);
 				window.show(target);
 
-				content.setOutputMarkupId(true);
-				target.appendJavaScript("new GradebookUpdateUngraded($(\"#"+content.getMarkupId()+"\"));");
+				panel.setOutputMarkupId(true);
+				target.appendJavaScript("new GradebookUpdateUngraded($(\"#"+panel.getMarkupId()+"\"));");
 			}
 			
 			@Override
@@ -277,33 +278,24 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 
 		// delete item
-		menu.add(new WebMarkupContainer("deleteGradeItem") {
+		menu.add(new AjaxLink<Long>("deleteGradeItem", Model.of(assignment.getId())) {
 			private static final long serialVersionUID = 1L;
 
 			@Override
-			public void onInitialize() {
-				super.onInitialize();
+			public void onClick(AjaxRequestTarget target) {
 
-				add(new AjaxLink<Long>("deleteGradeItemAction", Model.of(assignment.getId())) {
-					private static final long serialVersionUID = 1L;
+				GradebookPage gradebookPage = (GradebookPage) this.getPage();
+				final ModalWindow window = gradebookPage.getDeleteItemWindow();
+				final DeleteItemPanel panel = new DeleteItemPanel(window.getContentId(), this.getModel(), window);
 
-					@Override
-					public void onClick(AjaxRequestTarget target) {
-
-						GradebookPage gradebookPage = (GradebookPage) this.getPage();
-						final ModalWindow window = gradebookPage.getDeleteItemWindow();
-						final DeleteItemPanel panel = new DeleteItemPanel(window.getContentId(), this.getModel(), window);
-
-						window.setContent(panel);
-						window.showUnloadConfirmation(false);
-						window.show(target);
-					}
-				});
+				window.setContent(panel);
+				window.showUnloadConfirmation(false);
+				window.show(target);
 			}
-
+			
 			@Override
 			public boolean isVisible() {
-				if (assignment.isExternallyMaintained()) {
+				if(assignment.isExternallyMaintained()) {
 					return false;
 				}
 				return true;
@@ -311,8 +303,6 @@ public class AssignmentColumnHeaderPanel extends Panel {
 		});
 		
 		add(menu);
-
-
-
+		
 	}
 }

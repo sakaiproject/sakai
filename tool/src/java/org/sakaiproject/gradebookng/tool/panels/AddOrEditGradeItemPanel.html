@@ -4,12 +4,9 @@
 <body>
 	<wicket:panel>
 
-
-
-
-        <form wicket:id="addGradeItemForm" class="form-horizontal">
+        <form wicket:id="addOrEditGradeItemForm" class="form-horizontal">
 		
-			<h2><wicket:message key="heading.addgradeitem" /></h2>
+			<h2 wicket:id="heading">Add/Edit Title Here</h2>
 
             <div wicket:id="addGradeFeedback"></div>
 
@@ -17,14 +14,12 @@
                 <div wicket:id="subComponents"></div>
 
 				<div class="col-xs-offset-3 col-xs-5">
-					<button wicket:id="submit" type="submit" class="btn btn-primary"><wicket:message key="button.create" /></button>
+					<button wicket:id="submit" type="submit" class="btn btn-primary">Create Button</button>
 					<button wicket:id="cancel" type="button" class="btn btn-link"><wicket:message key="button.cancel" /></button>
 				</div>
 			</div>
 		
 		</form>
-
-
 
 	</wicket:panel>
 </body>

@@ -39,7 +39,7 @@ import org.sakaiproject.gradebookng.business.model.GbStudentGradeInfo;
 import org.sakaiproject.gradebookng.business.util.Temp;
 import org.sakaiproject.gradebookng.tool.model.GradebookUiSettings;
 import org.sakaiproject.gradebookng.tool.model.ScoreChangedEvent;
-import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanel;
+import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanel;
 import org.sakaiproject.gradebookng.tool.panels.AssignmentColumnHeaderPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnCellPanel;
 import org.sakaiproject.gradebookng.tool.panels.CategoryColumnHeaderPanel;
@@ -67,7 +67,7 @@ public class GradebookPage extends BasePage {
 	public static final String UNCATEGORIZED = "Uncategorized";
 	public static final String CREATED_ASSIGNMENT_ID_PARAM = "createdAssignmentId";
 
-	ModalWindow addGradeItemWindow;
+	ModalWindow addOrEditGradeItemWindow;
 	ModalWindow studentGradeSummaryWindow;
 	ModalWindow updateUngradedItemsWindow;
 	ModalWindow gradeLogWindow;
@@ -95,12 +95,12 @@ public class GradebookPage extends BasePage {
 		/**
 		 * Note that SEMI_TRANSPARENT has a 100% black background and TRANSPARENT is overridden to 10% opacity
 		 */
-		addGradeItemWindow = new ModalWindow("addGradeItemWindow");
-		addGradeItemWindow.setMaskType(MaskType.TRANSPARENT);
-		addGradeItemWindow.setResizable(false);
-		addGradeItemWindow.setUseInitialHeight(false);
-		addGradeItemWindow.showUnloadConfirmation(false);
-		form.add(addGradeItemWindow);
+		addOrEditGradeItemWindow = new ModalWindow("addOrEditGradeItemWindow");
+		addOrEditGradeItemWindow.setMaskType(MaskType.TRANSPARENT);
+		addOrEditGradeItemWindow.setResizable(false);
+		addOrEditGradeItemWindow.setUseInitialHeight(false);
+		addOrEditGradeItemWindow.showUnloadConfirmation(false);
+		form.add(addOrEditGradeItemWindow);
 		
 		studentGradeSummaryWindow = new ModalWindow("studentGradeSummaryWindow");
 		studentGradeSummaryWindow.setMaskType(MaskType.TRANSPARENT);
@@ -144,8 +144,8 @@ public class GradebookPage extends BasePage {
 		AjaxButton addGradeItem = new AjaxButton("addGradeItem") {
 			@Override
 			public void onSubmit(AjaxRequestTarget target, Form form) {
-				ModalWindow window = getAddGradeItemWindow();
-				window.setContent(new AddGradeItemPanel(window.getContentId(), window));
+				ModalWindow window = getAddOrEditGradeItemWindow();
+				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
 				window.show(target);
 			}
 			
@@ -478,8 +478,8 @@ public class GradebookPage extends BasePage {
 	 * Getters for panels to get at modal windows
 	 * @return
 	 */
-	public ModalWindow getAddGradeItemWindow() {
-		return this.addGradeItemWindow;
+	public ModalWindow getAddOrEditGradeItemWindow() {
+		return this.addOrEditGradeItemWindow;
 	}
 	
 	public ModalWindow getStudentGradeSummaryWindow() {
