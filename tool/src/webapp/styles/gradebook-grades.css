@@ -202,7 +202,7 @@
   border-right: 1px solid #DDD;
 }
 #gradebookGrades .gb-categories-row td {
-  text-align: center;
+  text-align: left;
   background: #e6e6e6;
 }
 #gradebookGrades.gb-grouped-by-category .dragtable-sortable {
