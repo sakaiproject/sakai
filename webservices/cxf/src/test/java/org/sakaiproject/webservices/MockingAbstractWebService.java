@@ -44,6 +44,7 @@ import org.sakaiproject.tool.api.SessionManager;
 import org.sakaiproject.tool.api.ToolManager;
 import org.sakaiproject.tool.assessment.samlite.api.SamLiteService;
 import org.sakaiproject.user.api.UserDirectoryService;
+import org.sakaiproject.user.api.PreferencesService;
 
 public class MockingAbstractWebService {
 
@@ -78,6 +79,7 @@ public class MockingAbstractWebService {
 			instance.setIdManager(mock(IdManager.class));
 			instance.setGradebookExternalAssessmentService(mock(GradebookExternalAssessmentService.class));
 			instance.setActivityService(mock(ActivityService.class));
+			instance.setPreferencesService(mock(PreferencesService.class));
 		} catch (InstantiationException | IllegalAccessException e) {
 			e.printStackTrace();
 		}
