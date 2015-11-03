@@ -64,7 +64,7 @@ public class ConsoleBasePage extends SakaiPortletWebPage implements IHeaderContr
 	@SpringBean
 	private LearningManagementSystem lms;
 	@SpringBean
-	private ToolManager toolManager;
+	public ToolManager toolManager;
 
 	
 	public ConsoleBasePage() {

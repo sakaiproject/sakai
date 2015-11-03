@@ -359,7 +359,7 @@ public class PackageConfigurationPage extends ConsoleBasePage {
 		return PAGE_ICON;
 	}
 
-	protected String getAssessmentExternalId(final GradebookSetup gradebook, AssessmentSetup assessment) {
+	public static String getAssessmentExternalId(final GradebookSetup gradebook, AssessmentSetup assessment) {
 		String assessmentExternalId = "" + gradebook.getContentPackageId() + ":" + assessment.getLaunchData().getItemIdentifier();
 		return assessmentExternalId;
 	}
