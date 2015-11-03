@@ -1281,6 +1281,18 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
       }
     };
 
+    $btnGroup.find(".btn.dropdown-toggle").on("mousedown", function(mouseDownEvent) {
+      if ($(mouseDownEvent.target).closest(".btn-group.open").length > 0) {
+        mouseDownEvent.stopPropagation();
+        $(mouseDownEvent.target).focus();
+      }
+    })
+
+    $btnGroup.find("ul.dropdown-menu li a").on("mousedown", function(mouseDownEvent) {
+      mouseDownEvent.stopPropagation();
+      $(mouseDownEvent.target).focus();
+    })
+
     $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").on("blur", handleDropdownItemBlur);
 
     $btnGroup.one("hidden.bs.dropdown", function() {
