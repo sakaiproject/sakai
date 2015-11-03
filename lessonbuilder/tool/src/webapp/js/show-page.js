@@ -220,6 +220,7 @@ $(document).ready(function() {
 		$('#column-dialog').dialog({
 			autoOpen: false,
 			modal: true,
+			width: 'auto',
 			resizable: false,
 			draggable: true
 		}).parent('.ui-dialog').css('zIndex',150000);

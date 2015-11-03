@@ -1329,15 +1329,17 @@ font-size: 90%;
   font-family:FontAwesome;
 }
 .fa-edit-icon{
-  font-size:200%;
+  font-size:16px;
   font-weight: normal;
   color: #aaa;
   font-family:FontAwesome;
 }
 .fa-group-icon {
-  font-size:200%;
+  font-size:16px;
   font-family:FontAwesome;
 }
 .mainList li:hover.canEdit {
     background-color: #eee;
 }
+
+
