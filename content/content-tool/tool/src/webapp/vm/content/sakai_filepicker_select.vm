@@ -32,6 +32,14 @@ ul.makeMenu li {
 </style>
 <![endif]><![endif]-->
 
+<style type="text/css">
+table.listHier .attach {
+   width:auto;
+}
+#actions {
+   width:auto;
+}
+</style>
 <script type="text/javascript">includeLatestJQuery('content_filepicker');</script>
 <script type="text/JavaScript">
 		function openCopyrightWindow(theURL,winName,winSettings) 
@@ -55,24 +63,31 @@ ul.makeMenu li {
 <script  type="text/javascript">
 $(document).ready(function() {
 	jQuery('.portletBody').click(function(e) { 
-			
+
 		if ( e.target.className !='menuOpen' &&e.target.className !='dropdn'  ){
 			$('.makeMenuChild').hide();
+		} else {
+			if( e.target.className =='dropdn' ){
+			    $('.makeMenuChild').hide();
+			    var menuid = $(e.target).parent('li').attr('id');
+			    var menuopen = $('#menu-' + menuid);
+			    if (typeof(menuopen.dialog('instance')) === "undefined") {
+				menuopen.dialog({
+				    autoOpen: false,
+				    modal: true,
+				    resizable: false,
+				    draggable: false
+				});
+			    }
+			    menuopen.dialog('open');
+			} else {
+			    var targetId=e.target.id;
+			    $('.makeMenuChild').hide();
+			    $('#menu-' + targetId).show();
+			}
 		}
-			else
-			{
-				if( e.target.className =='dropdn' ){
-					targetId=$(e.target).parent('li').attr('id');
-				$('.makeMenuChild').hide();
-				$('#menu-' + targetId).show();
-				}
-				else{
-					
-			targetId=e.target.id;
-			$('.makeMenuChild').hide();
-			$('#menu-' + targetId).show();
-			}}
 	});
+	$('.makeMenuChild').hide();	
 	});
 </script>
 <div class="portletBody specialLink">
