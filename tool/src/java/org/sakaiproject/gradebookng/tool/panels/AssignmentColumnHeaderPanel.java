@@ -149,7 +149,7 @@ public class AssignmentColumnHeaderPanel extends Panel {
 			public void onClick(AjaxRequestTarget target) {
 				GradebookPage gradebookPage = (GradebookPage) this.getPage();
 				ModalWindow window = gradebookPage.getAddOrEditGradeItemWindow();
-				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, null));
+				window.setContent(new AddOrEditGradeItemPanel(window.getContentId(), window, this.getModel()));
 				window.showUnloadConfirmation(false);
 				window.show(target);
 			}
