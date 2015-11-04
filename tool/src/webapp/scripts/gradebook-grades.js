@@ -385,8 +385,7 @@ GradebookSpreadsheet.prototype.setupFixedTableHeader = function(reset) {
     } else if (self.$table.offset().top < $(document).scrollTop()) {
       if ($fixedHeader.is(":not(:visible)")) {
         setTimeout(function() {
-          // refresh category label positions
-          self.$spreadsheet.trigger("scroll");
+          self.$spreadsheet.trigger("refreshcategorylabels.aspace");
         });
       }
       $fixedHeader.
@@ -836,29 +835,40 @@ GradebookSpreadsheet.prototype.enableGroupByCategory = function() {
 
   // setup category header text so it is visible when horizontal scrolling
   setTimeout(function() {
-    function setupScrollHandlerToUpdateCategoryLabelPosition() {
-      self.$spreadsheet.find(".gb-category-label").each(function() {
-        var $label = $(this);
+    function setupScrollHandlerToUpdateCategoryLabelPosition(event) {
+      if (self.$spreadsheet.data("categoryScrollTimeout")) {
+        clearTimeout(self.$spreadsheet.data("categoryScrollTimeout"));
+      }
+      // only reposition every 100ms after a scroll.. to avoid too
+      // many repositions
+      self.$spreadsheet.data("categoryScrollTimeout", setTimeout(function() {
+        self.$spreadsheet.find(".gb-category-label").each(function() {
+          var $label = $(this);
 
-        var overlay = self.$fixedColumns.width();
-        var offset = $label.position().left;
+          var overlay = self.$fixedColumns.width();
+          var offset = $label.position().left;
 
-        if ($label.closest("table.gb-fixed-header-table").length > 0) {
-          offset = $label.position().left + $label.closest("table.gb-fixed-header-table").position().left;
-        }
+          if ($label.closest("table.gb-fixed-header-table").length > 0) {
+            offset = $label.position().left + $label.closest("table.gb-fixed-header-table").position().left;
+          }
 
-        if (overlay > offset) {
-          var leftOffset = Math.min($label.parent().width() - $label.width() - 20, overlay - offset);
-          $label.css("marginLeft", leftOffset);
-        } else {
-          $label.css("marginLeft", "");
-        }
-      });
+          if (overlay > offset) {
+            var leftOffset = Math.min($label.parent().width() - $label.width() - 20, overlay - offset);
+            $label.animate({
+              marginLeft: leftOffset
+            });
+          } else {
+            $label.animate({
+              marginLeft: 0
+            });
+          }
+        });
+      }, 100));
     };
 
     self.$spreadsheet.
-      off("scroll", setupScrollHandlerToUpdateCategoryLabelPosition).
-      on("scroll", setupScrollHandlerToUpdateCategoryLabelPosition);
+      off("scroll refreshcategorylabels.aspace", setupScrollHandlerToUpdateCategoryLabelPosition).
+      on("scroll refreshcategorylabels.aspace", setupScrollHandlerToUpdateCategoryLabelPosition);
   });
 
   self.$spreadsheet.trigger("scroll"); // force redraw of the fixed columns
@@ -1280,6 +1290,18 @@ GradebookSpreadsheet.prototype.setupMenusAndPopovers = function() {
         $btnGroup.find(".btn.dropdown-toggle").dropdown("toggle");
       }
     };
+
+    $btnGroup.find(".btn.dropdown-toggle").on("mousedown", function(mouseDownEvent) {
+      if ($(mouseDownEvent.target).closest(".btn-group.open").length > 0) {
+        mouseDownEvent.stopPropagation();
+        $(mouseDownEvent.target).focus();
+      }
+    })
+
+    $btnGroup.find("ul.dropdown-menu li a").on("mousedown", function(mouseDownEvent) {
+      mouseDownEvent.stopPropagation();
+      $(mouseDownEvent.target).focus();
+    })
 
     $btnGroup.find(".btn.dropdown-toggle, ul.dropdown-menu li a").on("blur", handleDropdownItemBlur);
 
