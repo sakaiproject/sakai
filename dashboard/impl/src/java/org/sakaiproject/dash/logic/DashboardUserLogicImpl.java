@@ -93,6 +93,14 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId) {
+		 return getCurrentNewsLinks(sakaiId, siteId, false);
+	}
+	/*
+	 * This method is used for getting CurrentNewsLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<NewsLink> getCurrentNewsLinks(String sakaiId, String siteId, boolean includeInfoLinkUrl) {
 		List<NewsLink> links = dao.getCurrentNewsLinks(sakaiId, siteId);
 
 		if(links != null) {
@@ -110,10 +118,12 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 						} else {
 							item.setTitle(typeObj.getGroupTitle(itemCount, item.getContext().getContextTitle(), item.getNewsTimeLabelKey()));
 						}
+					}else{
+						logger.debug("The source type is null");
 					}
 				}else{
-					//When getItemCount() > 1 the infoLinkUrl is null and hence we don't need to run this call.
-					if(item!=null){
+					//When getItemCount() > 1 the infoLinkUrl is null and hence we don't get the InfoLinkUrl and we are running this call only for entity broker feed.
+					if(item!=null && includeInfoLinkUrl){
 						setItemInfoLinkUrl(item);
 					}
 				}
@@ -189,10 +199,22 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
+		 return getFutureCalendarLinks(sakaiUserId, contextId, hidden,false);
+	}
+	
+	/*
+	 * This method is used for getting FutureCalendarLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId, String contextId, boolean hidden, boolean includeInfoLinkUrl) {
 		List<CalendarLink> futureCalendarLinks = dao.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
+		if(!includeInfoLinkUrl){
+			return futureCalendarLinks;
+		}
 		for (CalendarLink calendarLink : futureCalendarLinks) {
-            		CalendarItem calendarItem = calendarLink.getCalendarItem();		
-            		setItemInfoLinkUrl(calendarItem);
+			CalendarItem calendarItem = calendarLink.getCalendarItem();		
+			setItemInfoLinkUrl(calendarItem);
 		}
 		return futureCalendarLinks;
 	}
@@ -202,7 +224,18 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId) {
+		 return getHiddenNewsLinks(sakaiId,siteId,false);
+	}
+	/*
+	 * This method is used for getting HiddenNewsLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<NewsLink> getHiddenNewsLinks(String sakaiId, String siteId, boolean includeInfoLinkUrl) {
 		List<NewsLink> hiddenNewsLinks = dao.getHiddenNewsLinks(sakaiId, siteId);
+		if(!includeInfoLinkUrl){
+			return hiddenNewsLinks;
+		}
 		for (NewsLink newsLink : hiddenNewsLinks) {
 			NewsItem item = newsLink.getNewsItem();
 			setItemInfoLinkUrl(item);
@@ -224,7 +257,18 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden) {
+		 return getPastCalendarLinks(sakaiUserId, contextId, hidden,false);
+	}
+	/*
+	 * This method is used for getting PastCalendarLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId, String contextId, boolean hidden, boolean includeInfoLinkUrl) {
 		List<CalendarLink> pastCalendarLinks = dao.getPastCalendarLinks(sakaiUserId, contextId, hidden);
+		if(!includeInfoLinkUrl){
+			return pastCalendarLinks;
+		}
 		for (CalendarLink calendarLink : pastCalendarLinks) {
             		CalendarItem calendarItem = calendarLink.getCalendarItem();		
             		setItemInfoLinkUrl(calendarItem);
@@ -237,7 +281,19 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId) {
+		 return getStarredCalendarLinks(sakaiUserId, contextId,false);
+	}
+	
+	/*
+	 * This method is used for getting StarredCalendarLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId, String contextId, boolean includeInfoLinkUrl) {
 		List<CalendarLink> starredCalendarLinks = dao.getStarredCalendarLinks(sakaiUserId, contextId);
+		if(!includeInfoLinkUrl){
+			return starredCalendarLinks;
+		}
 		for (CalendarLink calendarLink : starredCalendarLinks) {
             		CalendarItem calendarItem = calendarLink.getCalendarItem();		
             		setItemInfoLinkUrl(calendarItem);
@@ -250,7 +306,20 @@ public class DashboardUserLogicImpl implements DashboardUserLogic {
 	 */
 	@Override
 	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId) {
+		return getStarredNewsLinks(sakaiId, siteId, false);
+	}
+	
+	/*
+	 * This method is used for getting StarredNewsLinks, if 'includeInfoLinkUrl`= true directUrl of a particular source type will be included 
+	 * part of the list. For EntityBroker feed call we are including this infolinkUrl as part of the list. For the Dashboard UI call we are not as this has 
+	 * some performance issues.
+	 */
+	
+	public List<NewsLink> getStarredNewsLinks(String sakaiId, String siteId, boolean includeInfoLinkUrl) {
 		List<NewsLink> starredNewsLinks = dao.getStarredNewsLinks(sakaiId, siteId);
+		if(!includeInfoLinkUrl){
+			return starredNewsLinks;
+		}
 		for (NewsLink newsLink : starredNewsLinks) {
 			NewsItem item = newsLink.getNewsItem();
 			setItemInfoLinkUrl(item);

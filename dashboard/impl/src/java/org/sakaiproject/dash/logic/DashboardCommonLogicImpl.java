@@ -1327,6 +1327,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		return this.dashboardUserLogic.getCurrentNewsLinks(sakaiUserId, contextId);
 	}
 	
+	public List<NewsLink> getCurrentNewsLinks(String sakaiUserId,String contextId, boolean includeInfoLinkUrl) {
+		
+		return this.dashboardUserLogic.getCurrentNewsLinks(sakaiUserId, contextId, includeInfoLinkUrl);
+	}
+	
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getFutureCalendarLinks(java.lang.String, java.lang.String, boolean)
 	 */
@@ -1336,6 +1341,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 		return this.dashboardUserLogic.getFutureCalendarLinks(sakaiUserId, contextId, hidden);
 	}
+	
+	public List<CalendarLink> getFutureCalendarLinks(String sakaiUserId,
+			String contextId, boolean hidden, boolean includeInfoLinkUrl) {
+		
+		return this.dashboardUserLogic.getFutureCalendarLinks(sakaiUserId, contextId, hidden,includeInfoLinkUrl);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getHiddenNewsLinks(java.lang.String, java.lang.String)
@@ -1344,6 +1355,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	public List<NewsLink> getHiddenNewsLinks(String sakaiUserId, String siteId) {
 		
 		return this.dashboardUserLogic.getHiddenNewsLinks(sakaiUserId, siteId);
+	}
+	
+	public List<NewsLink> getHiddenNewsLinks(String sakaiUserId, String siteId, boolean includeInfoLinkUrl) {
+		
+		return this.dashboardUserLogic.getHiddenNewsLinks(sakaiUserId, siteId, includeInfoLinkUrl);
 	}
 
 	/* (non-Javadoc)
@@ -1365,6 +1381,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 		return this.dashboardUserLogic.getPastCalendarLinks(sakaiUserId, contextId, hidden);
 	}
+	
+	public List<CalendarLink> getPastCalendarLinks(String sakaiUserId,
+			String contextId, boolean hidden, boolean includeInfoLinkUrl) {
+		
+		return this.dashboardUserLogic.getPastCalendarLinks(sakaiUserId, contextId, hidden, includeInfoLinkUrl);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getStarredCalendarLinks(java.lang.String, java.lang.String)
@@ -1375,6 +1397,12 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 		
 		return this.dashboardUserLogic.getStarredCalendarLinks(sakaiUserId, contextId);
 	}
+	
+	public List<CalendarLink> getStarredCalendarLinks(String sakaiUserId,
+			String contextId, boolean includeInfoLinkUrl) {
+		
+		return this.dashboardUserLogic.getStarredCalendarLinks(sakaiUserId, contextId, includeInfoLinkUrl);
+	}
 
 	/* (non-Javadoc)
 	 * @see org.sakaiproject.dash.app.DashboardUserLogic#getStarredNewsLinks(java.lang.String, java.lang.String)
@@ -1383,6 +1411,11 @@ public class DashboardCommonLogicImpl implements DashboardCommonLogic, Observer 
 	public List<NewsLink> getStarredNewsLinks(String sakaiUserId, String siteId) {
 		
 		return this.dashboardUserLogic.getStarredNewsLinks(sakaiUserId, siteId);
+	}
+	
+	public List<NewsLink> getStarredNewsLinks(String sakaiUserId, String siteId,boolean includeInfoLinkUrl) {
+		
+		return this.dashboardUserLogic.getStarredNewsLinks(sakaiUserId, siteId, includeInfoLinkUrl);
 	}
 
 	/* (non-Javadoc)
