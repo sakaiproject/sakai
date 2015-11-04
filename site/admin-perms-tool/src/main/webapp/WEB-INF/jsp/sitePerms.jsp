@@ -81,6 +81,19 @@
                       <label for="roleSelect-${role}">${role}</label>
                   </li>
                   </c:forEach>
+                  <c:if test="${not empty additionalRoles}">
+					<c:set var="lastGroupRole" value="-none-"/>
+					<c:forEach var="additionalrole" items="${additionalRoles}" varStatus="counter">
+						<c:if test="${lastGroupRole != additionalrole.groupId}">
+							<li><hr/></li>
+						</c:if>
+						<li class="checkbox">
+							<input id="roleSelect-${additionalrole.id}" type="checkbox" name="site-role" value="${additionalrole.id}" />
+							<label for="roleSelect-${additionalrole.id}">${additionalrole.name}</label>
+						</li>
+						<c:set var="lastGroupRole" value="${additionalrole.groupId}"/>
+					</c:forEach>
+                  </c:if>
               </ul>
               </fieldset>
             </div>
