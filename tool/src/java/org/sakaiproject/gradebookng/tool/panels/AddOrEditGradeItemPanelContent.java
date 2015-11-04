@@ -31,7 +31,7 @@ import org.sakaiproject.tool.gradebook.Gradebook;
  * @author Steve Swinsburg (steve.swinsburg@gmail.com)
  *
  */
-public class AddGradeItemPanelContent extends Panel {
+public class AddOrEditGradeItemPanelContent extends Panel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -41,12 +41,12 @@ public class AddGradeItemPanelContent extends Panel {
     private AjaxCheckBox counted;
     private AjaxCheckBox released;
 
-    public AddGradeItemPanelContent(String id, Model<Assignment> assignmentModel) {
+    public AddOrEditGradeItemPanelContent(String id, Model<Assignment> assignmentModel) {
         super(id, assignmentModel);
 
         final Gradebook gradebook = businessService.getGradebook();
 
-        final AddGradeItemPanelContent thisPanel = this;
+        final AddOrEditGradeItemPanelContent thisPanel = this;
 
         Assignment assignment = assignmentModel.getObject();
 

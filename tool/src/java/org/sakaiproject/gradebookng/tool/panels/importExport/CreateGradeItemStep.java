@@ -11,7 +11,7 @@ import org.apache.wicket.model.Model;
 import org.apache.wicket.model.StringResourceModel;
 import org.sakaiproject.gradebookng.business.model.ProcessedGradeItem;
 import org.sakaiproject.gradebookng.tool.model.ImportWizardModel;
-import org.sakaiproject.gradebookng.tool.panels.AddGradeItemPanelContent;
+import org.sakaiproject.gradebookng.tool.panels.AddOrEditGradeItemPanelContent;
 import org.sakaiproject.service.gradebook.shared.Assignment;
 
 import java.util.ArrayList;
@@ -104,7 +104,7 @@ public class CreateGradeItemStep extends Panel {
 
         form.add(new Label("createItemHeader", new StringResourceModel("importExport.createItem.heading", this, null, step, importWizardModel.getTotalSteps())));
 
-        AddGradeItemPanelContent gradePanelContent = new AddGradeItemPanelContent("subComponents", assignmentModel);
+        AddOrEditGradeItemPanelContent gradePanelContent = new AddOrEditGradeItemPanelContent("subComponents", assignmentModel);
 
         form.add(gradePanelContent);
 
