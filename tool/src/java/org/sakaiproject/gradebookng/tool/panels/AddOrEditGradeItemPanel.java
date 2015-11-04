@@ -67,6 +67,9 @@ public class AddOrEditGradeItemPanel extends Panel {
 		if(mode == Mode.EDIT) {
 			Long assignmentId = this.model.getObject();
 			assignment = this.businessService.getAssignment(assignmentId);
+			
+			//TODO if we are in edit mode and don't have an assignment, need to error here
+			
 		} else {
 			//Mode.ADD
 			assignment = new Assignment();
@@ -135,19 +138,11 @@ public class AddOrEditGradeItemPanel extends Panel {
 		};
 		
 		//submit button label
-		if(mode == Mode.EDIT) {
-			submit.setLabel(new ResourceModel("button.savechanges"));
-		} else {
-			submit.setLabel(new ResourceModel("button.create"));
-		}
+		submit.add(new Label("submitLabel", this.getSubmitButtonLabel()));
 		form.add(submit);
 		
 		//heading
-		if(mode == Mode.EDIT) {
-			form.add(new Label("heading", new ResourceModel("heading.editgradeitem")));
-		} else {
-			form.add(new Label("heading", new ResourceModel("heading.addgradeitem")));
-		}
+		form.add(new Label("heading", this.getHeadingLabel()));
 
 		//add the common components
 		form.add(new AddOrEditGradeItemPanelContent("subComponents", formModel));
@@ -189,6 +184,30 @@ public class AddOrEditGradeItemPanel extends Panel {
 		form.add(cancel);
 		
 		add(form);
+	}
+	
+	/**
+	 * Helper to get the model for the button
+	 * @return
+	 */
+	private ResourceModel getSubmitButtonLabel() {
+		if(mode == Mode.EDIT) {
+			return new ResourceModel("button.savechanges");
+		} else {
+			return new ResourceModel("button.create");
+		}
+	}
+	
+	/**
+	 * Helper to get the model for the heading
+	 * @return
+	 */
+	private ResourceModel getHeadingLabel() {
+		if(mode == Mode.EDIT) {
+			return new ResourceModel("heading.editgradeitem");
+		} else {
+			return new ResourceModel("heading.addgradeitem");
+		}
 	}
 	
 }
