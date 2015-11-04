@@ -1,0 +1,17 @@
+<assembly>
+  <id>template-zip-assembly</id>
+  <formats>
+    <format>zip</format>
+  </formats>
+  <includeBaseDirectory>false</includeBaseDirectory>
+  <fileSets>
+    <fileSet>
+      <directory>src/webapp/templates</directory>
+      <includes>
+        <include>**/*.html</include>
+        <include>**/*.txt</include>
+      </includes>
+      <outputDirectory>pasystem-sample-templates</outputDirectory>
+    </fileSet>
+  </fileSets>
+</assembly>

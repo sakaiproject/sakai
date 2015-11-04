@@ -7,7 +7,9 @@
 <section class="pasystem-section">
   <header class="pasystem-section-header">
     <h3>{{{t this "Banners"}}}</h3>
-    <a href="{{{newURL this 'banners' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Banner"}}}</a>
+    <div class="btn-toolbar">
+        <a href="{{{newURL this 'banners' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Banner"}}}</a>
+    </div>
   </header>
 
   <table class="pasystem-table table table-striped table-hover table-condensed">
@@ -43,7 +45,10 @@
   <header class="pasystem-section-header">
     <h3>{{{t this "Popups"}}}</h3>
 
-    <a href="{{{newURL this 'popups' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Popup"}}}</a>
+    <div class="btn-toolbar">
+        <a href="{{{newURL this 'popups' 'new'}}}" class="btn btn-primary btn-sm pull-right">{{{t this "Create Popup"}}}</a>
+        <a title="{{{t this "Download ToolTip"}}}" href="/pasystem-tool/pasystem-samples.zip" class="btn btn-default btn-sm pull-right">{{{t this "Download Templates"}}}</a>
+    </div>
   </header>
 
   <table class="pasystem-table table table-striped table-hover table-condensed">
