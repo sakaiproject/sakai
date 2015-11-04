@@ -1,0 +1,26 @@
+#* @vtlmacrolibrary path="../resources/sakai_metadata-edit.vm" *#
+#* @vtlvariable name="item" type="org.sakaiproject.content.tool.ListItem" *#
+#* @vtlvariable name="site_id" type="java.lang.String" *#
+#* @vtlvariable name="metadataType" type="org.sakaiproject.content.metadata.model.MetadataType" *#
+#* @vtlvariable name="metadataValue" type="java.lang.Object" *#
+#* @vtlvariable name="multipleMetadataType" type="java.util.List<java.lang.String>" *#
+#* @vtlvariable name="groupMetadataLevel" type="int" *#
+#* @vtlvariable name="groupMetadataValue" type="java.util.List<java.lang.Object>" *#
+#* @vtlvariable name="groupMetadataType" type="java.util.List<org.sakaiproject.content.metadata.model.MetadataType>" *#
+#* @vtlvariable name="suffix" type="java.lang.String" *#
+
+#* Watch out when using this with a group metadata as the template for the group changes all null
+   values into empty strings. This is because in Velocity you can't assign null to an existing 
+   value without changing the configuration of Velocity.
+ *#
+<label for="${metadataType.uniqueName}${suffix}">#printMetadataName($metadataType)</label>
+
+#if($multipleMetadataType.contains($metadataType.uniqueName))
+  #foreach($value in $metadataValue)
+    <input type="checkbox" name="${metadataType.uniqueName}${suffix}" value="true" id="${metadataType.uniqueName}${suffix}"
+           #if($value && $value != "")checked="true"#end />
+  #end
+#else
+  <input type="checkbox" name="${metadataType.uniqueName}${suffix}" value="true" id="${metadataType.uniqueName}${suffix}"
+           #if($metadataValue && $metadataValue != "")checked="true"#end />
+#end
