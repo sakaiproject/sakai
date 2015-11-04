@@ -162,11 +162,6 @@
       </dependency>
       <!-- IMPL dependencies -->
       <dependency>
-        <groupId>org.sakaiproject</groupId>
-        <artifactId>generic-dao</artifactId>
-        <version>${generic-dao.version}</version>
-      </dependency>
-      <dependency>
         <groupId>org.azeckoski</groupId>
         <artifactId>reflectutils</artifactId>
         <version>${reflectutils.version}</version>

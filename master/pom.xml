@@ -123,8 +123,8 @@
     <sakai.slf4j.version>1.7.5</sakai.slf4j.version>
     <sakai.poi.version>3.13</sakai.poi.version>
     <sakai.okiosid.version>2.0</sakai.okiosid.version>
-    <generic-dao.version>0.9.18</generic-dao.version>
     <joda.time.version>2.9</joda.time.version>
+    <sakai.genericdao.version>0.10.0-SNAPSHOT</sakai.genericdao.version>
     <reflectutils.version>0.9.20</reflectutils.version>
     <!-- Sakai modules that are versioned separately -->
     <!-- lessonbuilder tool pom depends on msgcntr ver prop. Need to add a profile to the LB tool pom to mark change between 10.x master and earlier versions -->
@@ -981,6 +981,11 @@
         <artifactId>sakai-db-ext</artifactId>
         <version>${sakai.version}</version>
         <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.sakaiproject.genericdao</groupId>
+        <artifactId>generic-dao</artifactId>
+        <version>${sakai.genericdao.version}</version>
       </dependency>
       <dependency>
         <groupId>org.sakaiproject.courier</groupId>
