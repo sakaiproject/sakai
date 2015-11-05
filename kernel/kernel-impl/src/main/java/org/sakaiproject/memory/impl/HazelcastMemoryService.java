@@ -21,14 +21,16 @@
 
 package org.sakaiproject.memory.impl;
 
-import com.hazelcast.client.HazelcastClient;
-import com.hazelcast.client.config.ClientConfig;
-import com.hazelcast.client.config.ClientNetworkConfig;
-import com.hazelcast.config.Config;
-import com.hazelcast.core.DistributedObject;
-import com.hazelcast.core.Hazelcast;
-import com.hazelcast.core.HazelcastInstance;
-import com.hazelcast.core.IMap;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Properties;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.UUID;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -40,23 +42,38 @@ import org.sakaiproject.memory.api.CacheRefresher;
 import org.sakaiproject.memory.api.Configuration;
 import org.sakaiproject.memory.api.MemoryService;
 
-import java.util.*;
+import com.hazelcast.client.ClientConfig;
+import com.hazelcast.client.HazelcastClient;
+import com.hazelcast.config.Config;
+import com.hazelcast.core.Hazelcast;
+import com.hazelcast.core.HazelcastInstance;
+import com.hazelcast.core.IMap;
 
 /**
- * Hazelcast based implementation of the MemoryService API which is automatically distributed by the nature of hazelcast
+ * Hazelcast based implementation of the MemoryService API which is automatically distributed by the nature of hazelcast.
+ * We back this with an ehcache instance for the L2 (hibernate) caching, which isn't quite ready to serialize everything that 
+ * would need to be serialized. 
  *
  * See https://jira.sakaiproject.org/browse/KNL-1272
  * Send questions to Aaron Zeckoski
  * @author Aaron Zeckoski (azeckoski @ unicon.net) (azeckoski @ gmail.com)
  */
-public class HazelcastMemoryService implements MemoryService {
-
+public class HazelcastMemoryService implements MemoryService, Serializable {
+    private static final String USER_DIRECTORY_SERVICE_CALL_CACHE_NAME = "org.sakaiproject.user.api.UserDirectoryService.callCache";
+    /**
+     * Define the set of client services (by name) that will use the HC cache. Everything else uses EH cache.
+     */
+    private static final Set<String> CLIENT_SERVICES = new HashSet<String>();
+    {
+        CLIENT_SERVICES.add(USER_DIRECTORY_SERVICE_CALL_CACHE_NAME);
+    }
+    
     final Log log = LogFactory.getLog(HazelcastMemoryService.class);
 
     ServerConfigurationService serverConfigurationService;
     SecurityService securityService;
     HazelcastInstance hcInstance;
-
+    EhcacheMemoryService ems;
 
     public HazelcastMemoryService() {}
 
@@ -73,9 +90,7 @@ public class HazelcastMemoryService implements MemoryService {
         boolean clientConfigured = StringUtils.isNotBlank(clientServers);
         if (clientConfigured) {
             ClientConfig clientConfig = new ClientConfig();
-            ClientNetworkConfig clientNetworkConfig = new ClientNetworkConfig();
-            clientNetworkConfig.addAddress(StringUtils.split(clientServers, ','));
-            clientConfig.setNetworkConfig(clientNetworkConfig);
+            clientConfig.addAddress(StringUtils.split(clientServers, ','));
             hcInstance = HazelcastClient.newHazelcastClient(clientConfig);
         } else {
             // start up a local server instead
@@ -86,7 +101,9 @@ public class HazelcastMemoryService implements MemoryService {
         if (hcInstance == null) {
             throw new IllegalStateException("init(): HazelcastInstance is null!");
         }
-        log.info("INIT: " + hcInstance.getName() + " ("+(clientConfigured?"client:"+hcInstance.getClientService():"localServer")+"), cache maps: " + hcInstance.getDistributedObjects());
+        log.info("INIT: " + hcInstance.getName() + " ("
+                + (clientConfigured ? "client:" + hcInstance.getClientService() : "localServer") + "), cache maps: "
+                + HazelcastClient.getAllHazelcastClients());
     }
 
     /**
@@ -117,22 +134,37 @@ public class HazelcastMemoryService implements MemoryService {
         return p;
     }
 
-    @Override
-    public <K, V, C extends Configuration<K, V>> Cache createCache(String cacheName, C configuration) {
-        return new HazelcastCache(makeHazelcastCache(cacheName, configuration));
-    }
+    /**
+     * Currently limiting the use of Hazelcast for caching, so a service has to have its name in the list or it gets an ehcache.
+     * 
+     * @see org.sakaiproject.memory.api.MemoryService#createCache(java.lang.String, org.sakaiproject.memory.api.Configuration)
+     */
+     @Override
+     public <K, V, C extends Configuration<K, V>>  Cache createCache(String cacheName, C configuration) {
+        if (CLIENT_SERVICES.contains(cacheName)) {
+            return new SakaiHazelcastCache(makeHazelcastCache(cacheName, configuration), hcInstance, ems.createCache(
+                    cacheName + "L2", configuration));
+        }
+        return ems.createCache(cacheName, configuration);
+     }
 
-    @Override
-    public Cache getCache(String cacheName) {
-        return new HazelcastCache(makeHazelcastCache(cacheName, null));
-    }
+     /**
+      * Currently limiting the use of Hazelcast for caching, so only the items in the client list get HC, otherwise use EH.
+      * 
+      * @see HazelcastMemoryService.CLIENT_SERVICES
+      * @see org.sakaiproject.memory.api.MemoryService#getCache(java.lang.String)
+      */
+      @Override
+      public <K, V>Cache<K, V> getCache(String cacheName) {
+          return createCache(cacheName, null);
+      }
 
     @Override
     public Iterable<String> getCacheNames() {
         if (this.hcInstance != null) {
-            Collection<DistributedObject> distributedObjects = hcInstance.getDistributedObjects();
+            Collection<HazelcastClient> distributedObjects = HazelcastClient.getAllHazelcastClients();
             ArrayList<String> names = new ArrayList<String>(distributedObjects.size());
-            for (DistributedObject distributedObject : distributedObjects) {
+            for (HazelcastClient distributedObject : distributedObjects) {
                 names.add(distributedObject.getName());
             }
             return names;
@@ -168,11 +200,9 @@ public class HazelcastMemoryService implements MemoryService {
             throw new SecurityException("Only super admin can reset cachers, current user not super admin");
         }
         if (this.hcInstance != null) {
-            Collection<DistributedObject> distributedObjects = hcInstance.getDistributedObjects();
-            for (DistributedObject distributedObject : distributedObjects) {
-                if (distributedObject instanceof IMap) {
-                    ((IMap)distributedObject).clear();
-                }
+            Collection<HazelcastClient> distributedObjects = HazelcastClient.getAllHazelcastClients();
+            for (HazelcastClient distributedObject : distributedObjects) {
+                distributedObject.getMap(distributedObject.getName()).clear();
             }
         }
     }
@@ -197,9 +227,9 @@ public class HazelcastMemoryService implements MemoryService {
         buf.append(" maxMemory: "); buf.append(Runtime.getRuntime().maxMemory());
         buf.append("\n\n");
 
-        Collection<DistributedObject> distributedObjects = hcInstance.getDistributedObjects();
+        Collection<HazelcastClient> distributedObjects = HazelcastClient.getAllHazelcastClients();
         TreeMap<String, IMap> caches = new TreeMap<String, IMap>();
-        for (DistributedObject distributedObject : distributedObjects) {
+        for (HazelcastClient distributedObject : distributedObjects) {
             if (distributedObject instanceof IMap) {
                 caches.put(distributedObject.getName(), (IMap) distributedObject);
             }
@@ -207,7 +237,8 @@ public class HazelcastMemoryService implements MemoryService {
 
         // summary (cache descriptions)
         for (Map.Entry<String, IMap> entry : caches.entrySet()) {
-            Cache c = new HazelcastCache(entry.getValue());
+            IMap imap = entry.getValue();
+            Cache c = new SakaiHazelcastCache(imap, hcInstance, ems.getCache(imap.getName() + "L2"));
             buf.append(c.getDescription()).append("\n");
         }
 
@@ -405,4 +436,11 @@ public class HazelcastMemoryService implements MemoryService {
         this.securityService = securityService;
     }
 
+    /**
+     * Set the L2 cache (ehcache) to use
+     * @param ems The cache to use
+     */
+     public void setEhcacheMemoryService(EhcacheMemoryService ems) {
+         this.ems = ems;
+     }
 }

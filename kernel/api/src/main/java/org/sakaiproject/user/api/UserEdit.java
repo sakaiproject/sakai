@@ -22,6 +22,7 @@
 package org.sakaiproject.user.api;
 
 import org.sakaiproject.entity.api.Edit;
+import org.sakaiproject.time.api.Time;
 
 /**
  * <p>
@@ -120,5 +121,25 @@ public interface UserEdit extends User, Edit
 	 * Make the users eid unchangeable during the edit
 	 */
 	void restrictEditEid();
+
+  /**
+   * Set the last modified user id.
+   */
+  void setLastModifiedUserId(String id);
+
+  /**
+   * Set the last modified time
+   */
+  void setLastModifiedTime(Time lastModifiedTime);
+
+  /**
+   * Set the created user id
+   */
+  void setCreatedUserId(String id);
+
+  /**
+   * Set the creation time
+   */
+  void setCreatedTime(Time createdTime);
 	
 }

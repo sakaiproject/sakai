@@ -229,7 +229,7 @@ public class SakaiCacheManagerFactoryBean implements FactoryBean<CacheManager>, 
                         if (this.shared) {
                             this.cacheManager = (CacheManager) ReflectionUtils.invokeMethod(createWithConfiguration, null, configuration);
                         } else {
-                            this.cacheManager = new CacheManager(configuration);
+                            this.cacheManager = CacheManager.create(configuration);
                         }
                     }
                 } else if (this.shared) {

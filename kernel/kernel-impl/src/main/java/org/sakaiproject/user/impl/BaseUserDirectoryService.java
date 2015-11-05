@@ -50,6 +50,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
@@ -63,7 +64,7 @@ import java.util.*;
  * Each User that ever goes through Sakai is allocated a Sakai unique UUID. Even if we don't keep the User record in Sakai, we keep a map of this id to the external eid.
  * </p>
  */
-public abstract class BaseUserDirectoryService implements UserDirectoryService, UserFactory
+public abstract class BaseUserDirectoryService implements UserDirectoryService, UserFactory, UserEditHelper
 {
 	/** Our log (commons). */
 	private static Log M_log = LogFactory.getLog(BaseUserDirectoryService.class);
@@ -165,7 +166,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 *        if true, form within the access path only (i.e. starting with /content)
 	 * @return the partial URL that forms the root of resource URLs.
 	 */
-	protected String getAccessPoint(boolean relative)
+	public String getAccessPoint(boolean relative)
 	{
 		return (relative ? "" : serverConfigurationService().getAccessUrl()) + m_relativeAccessPoint;
 	}
@@ -504,7 +505,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @return the TimeService collaborator.
 	 */
-	protected abstract TimeService timeService();
+    public abstract TimeService timeService();
 
 	/**
 	 * @return the IdManager collaborator.
@@ -514,7 +515,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * @return the FormattedTextProcessor collaborator
 	 */
-    protected abstract FormattedText formattedText();
+    public abstract FormattedText formattedText();
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Init and Destroy
@@ -1701,27 +1702,24 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	/**
 	 * Create the live properties for the user.
 	 */
-	protected void addLiveProperties(BaseUserEdit edit)
+    public void addLiveProperties(UserEdit edit)
 	{
 		String current = sessionManager().getCurrentSessionUserId();
-
-		edit.m_createdUserId = current;
-		edit.m_lastModifiedUserId = current;
-
+		edit.setCreatedUserId(current);
+		edit.setLastModifiedUserId(current);
 		Time now = timeService().newTime();
-		edit.m_createdTime = now;
-		edit.m_lastModifiedTime = (Time) now.clone();
+		edit.setCreatedTime(now);
+		edit.setLastModifiedTime((Time) now.clone());
 	}
 
 	/**
 	 * Update the live properties for a user for when modified.
 	 */
-	protected void addLiveUpdateProperties(BaseUserEdit edit)
+	protected void addLiveUpdateProperties(UserEdit edit)
 	{
 		String current = sessionManager().getCurrentSessionUserId();
-
-		edit.m_lastModifiedUserId = current;
-		edit.m_lastModifiedTime = timeService().newTime();
+		edit.setLastModifiedUserId(current);
+		edit.setLastModifiedTime(timeService().newTime());
 	}
 
 	/**
@@ -1731,7 +1729,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 *        The id to clean up.
 	 * @return A cleaned up id.
 	 */
-	protected String cleanId(String id)
+	public String cleanId(String id)
 	{
 		// if we are not doing separate id and eid, use the eid rules
 		if (!m_separateIdEid) {
@@ -1750,7 +1748,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 	 *        The eid to clean up.
 	 * @return A cleaned up eid.
 	 */
-	protected String cleanEid(String eid)
+	public String cleanEid(String eid)
 	{
         eid = StringUtils.lowerCase(eid);
         eid = StringUtils.trimToNull(eid);
@@ -1963,929 +1961,7 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		return u;
 	}
 
-	/**********************************************************************************************************************************************************************************************************************************************************
-	 * UserEdit implementation
-	 *********************************************************************************************************************************************************************************************************************************************************/
 
-	/**
-	 * <p>
-	 * BaseUserEdit is an implementation of the UserEdit object.
-	 * </p>
-	 */
-	public class BaseUserEdit implements UserEdit, SessionBindingListener
-	{
-		/** The event code for this edit. */
-		protected String m_event = null;
-
-		/** Active flag. */
-		protected boolean m_active = false;
-
-		/** The user id. */
-		protected String m_id = null;
-
-		/** The user eid. */
-		protected String m_eid = null;
-
-		/** The user first name. */
-		protected String m_firstName = null;
-
-		/** The user last name. */
-		protected String m_lastName = null;
-
-		/** The user email address. */
-		protected String m_email = null;
-
-		/** The user password. */
-		protected String m_pw = null;
-
-		/** The properties. */
-		protected ResourcePropertiesEdit m_properties = null;
-
-		/** The user type. */
-		protected String m_type = null;
-
-		/** The created user id. */
-		protected String m_createdUserId = null;
-
-		/** The last modified user id. */
-		protected String m_lastModifiedUserId = null;
-
-		/** The time created. */
-		protected Time m_createdTime = null;
-
-		/** The time last modified. */
-		protected Time m_lastModifiedTime = null;
-
-		/** If editing the first name is restricted **/
-		protected boolean m_restrictedFirstName = false;
-
-		/** If editing the last name is restricted **/
-		protected boolean m_restrictedLastName = false;
-
-
-		/** If editing the email is restricted **/
-		protected boolean m_restrictedEmail = false;
-
-		/** If editing the password is restricted **/
-		protected boolean m_restrictedPassword = false;
-
-		/** If editing the type is restricted **/
-		protected boolean m_restrictedType = false;
-		
-		/** if editing the eid is restricted **/
-		protected boolean m_restrictedEid = false;
-
-		// in object cache of the sort name.
-		private transient String m_sortName;
-
-		/**
-		 * Construct.
-		 *
-		 * @param id
-		 *        The user id.
-		 */
-		public BaseUserEdit(String id, String eid)
-		{
-			m_id = id;
-			m_eid = eid;
-
-			// setup for properties
-			BaseResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
-			m_properties = props;
-
-			// if the id is not null (a new user, rather than a reconstruction)
-			// and not the anon (id == "") user,
-			// add the automatic (live) properties
-			if ((m_id != null) && (m_id.length() > 0)) addLiveProperties(this);
-			
-			//KNL-567 lazy set the properties to be lazy so they get loaded
-			props.setLazy(true);
-		}
-
-		public BaseUserEdit(String id)
-		{
-			this(id, null);
-		}
-
-		public BaseUserEdit()
-		{
-			this(null, null);
-		}
-
-		/**
-		 * Construct from another User object.
-		 *
-		 * @param user
-		 *        The user object to use for values.
-		 */
-		public BaseUserEdit(User user)
-		{
-			setAll(user);
-		}
-
-		/**
-		 * Construct from information in XML.
-		 *
-		 * @param el
-		 *        The XML DOM Element definining the user.
-		 */
-		public BaseUserEdit(Element el)
-		{
-			// setup for properties
-			m_properties = new BaseResourcePropertiesEdit();
-
-			m_id = cleanId(el.getAttribute("id"));
-			m_eid = cleanEid(el.getAttribute("eid"));
-			m_firstName = StringUtils.trimToNull(el.getAttribute("first-name"));
-			m_lastName = StringUtils.trimToNull(el.getAttribute("last-name"));
-			setEmail(StringUtils.trimToNull(el.getAttribute("email")));
-			m_pw = el.getAttribute("pw");
-			m_type = StringUtils.trimToNull(el.getAttribute("type"));
-			m_createdUserId = StringUtils.trimToNull(el.getAttribute("created-id"));
-			m_lastModifiedUserId = StringUtils.trimToNull(el.getAttribute("modified-id"));
-
-			String time = StringUtils.trimToNull(el.getAttribute("created-time"));
-			if (time != null)
-			{
-				m_createdTime = timeService().newTimeGmt(time);
-			}
-
-			time = StringUtils.trimToNull(el.getAttribute("modified-time"));
-			if (time != null)
-			{
-				m_lastModifiedTime = timeService().newTimeGmt(time);
-			}
-
-			// the children (roles, properties)
-			NodeList children = el.getChildNodes();
-			final int length = children.getLength();
-			for (int i = 0; i < length; i++)
-			{
-				Node child = children.item(i);
-				if (child.getNodeType() != Node.ELEMENT_NODE) continue;
-				Element element = (Element) child;
-
-				// look for properties
-				if (element.getTagName().equals("properties"))
-				{
-					// re-create properties
-					m_properties = new BaseResourcePropertiesEdit(element);
-
-					// pull out some properties into fields to convert old (pre 1.38) versions
-					if (m_createdUserId == null)
-					{
-						m_createdUserId = m_properties.getProperty("CHEF:creator");
-					}
-					if (m_lastModifiedUserId == null)
-					{
-						m_lastModifiedUserId = m_properties.getProperty("CHEF:modifiedby");
-					}
-					if (m_createdTime == null)
-					{
-						try
-						{
-							m_createdTime = m_properties.getTimeProperty("DAV:creationdate");
-						}
-						catch (Exception ignore)
-						{
-						}
-					}
-					if (m_lastModifiedTime == null)
-					{
-						try
-						{
-							m_lastModifiedTime = m_properties.getTimeProperty("DAV:getlastmodified");
-						}
-						catch (Exception ignore)
-						{
-						}
-					}
-					m_properties.removeProperty("CHEF:creator");
-					m_properties.removeProperty("CHEF:modifiedby");
-					m_properties.removeProperty("DAV:creationdate");
-					m_properties.removeProperty("DAV:getlastmodified");
-				}
-			}
-		}
-
-		/**
-		 * ReConstruct.
-		 *
-		 * @param id
-		 *        The id.
-		 * @param eid
-		 *        The eid.
-		 * @param email
-		 *        The email.
-		 * @param firstName
-		 *        The first name.
-		 * @param lastName
-		 *        The last name.
-		 * @param type
-		 *        The type.
-		 * @param pw
-		 *        The password.
-		 * @param createdBy
-		 *        The createdBy property.
-		 * @param createdOn
-		 *        The createdOn property.
-		 * @param modifiedBy
-		 *        The modified by property.
-		 * @param modifiedOn
-		 *        The modified on property.
-		 */
-		public BaseUserEdit(String id, String eid, String email, String firstName, String lastName, String type, String pw,
-				String createdBy, Time createdOn, String modifiedBy, Time modifiedOn)
-		{
-			m_id = id;
-			m_eid = eid;
-			m_firstName = firstName;
-			m_lastName = lastName;
-			m_type = type;
-			setEmail(email);
-			m_pw = pw;
-			m_createdUserId = createdBy;
-			m_lastModifiedUserId = modifiedBy;
-			m_createdTime = createdOn;
-			m_lastModifiedTime = modifiedOn;
-
-			// setup for properties, but mark them lazy since we have not yet established them from data
-			BaseResourcePropertiesEdit props = new BaseResourcePropertiesEdit();
-			props.setLazy(true);
-			m_properties = props;
-		}
-
-		/**
-		 * Take all values from this object.
-		 *
-		 * @param user
-		 *        The user object to take values from.
-		 */
-		protected void setAll(User user)
-		{
-			m_id = user.getId();
-			m_eid = user.getEid();
-			m_firstName = user.getFirstName();
-			m_lastName = user.getLastName();
-			m_type = user.getType();
-			setEmail(user.getEmail());
-			m_pw = ((BaseUserEdit) user).m_pw;
-			m_createdUserId = ((BaseUserEdit) user).m_createdUserId;
-			m_lastModifiedUserId = ((BaseUserEdit) user).m_lastModifiedUserId;
-			if (((BaseUserEdit) user).m_createdTime != null) m_createdTime = (Time) ((BaseUserEdit) user).m_createdTime.clone();
-			if (((BaseUserEdit) user).m_lastModifiedTime != null)
-				m_lastModifiedTime = (Time) ((BaseUserEdit) user).m_lastModifiedTime.clone();
-
-			m_properties = new BaseResourcePropertiesEdit();
-			m_properties.addAll(user.getProperties());
-			((BaseResourcePropertiesEdit) m_properties).setLazy(((BaseResourceProperties) user.getProperties()).isLazy());
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Element toXml(Document doc, Stack stack)
-		{
-			Element user = doc.createElement("user");
-
-			if (stack.isEmpty())
-			{
-				doc.appendChild(user);
-			}
-			else
-			{
-				((Element) stack.peek()).appendChild(user);
-			}
-
-			stack.push(user);
-
-			user.setAttribute("id", getId());
-			user.setAttribute("eid", getEid());
-			if (m_firstName != null) user.setAttribute("first-name", m_firstName);
-			if (m_lastName != null) user.setAttribute("last-name", m_lastName);
-			if (m_type != null) user.setAttribute("type", m_type);
-			user.setAttribute("email", getEmail());
-			user.setAttribute("created-id", m_createdUserId);
-			user.setAttribute("modified-id", m_lastModifiedUserId);
-			
-			if (m_createdTime != null)
-			{
-				user.setAttribute("created-time", m_createdTime.toString());
-			}
-
-			if (m_lastModifiedTime != null)
-			{
-				user.setAttribute("modified-time", m_lastModifiedTime.toString());
-			}
-
-			// properties
-			getProperties().toXml(doc, stack);
-
-			stack.pop();
-
-			return user;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getId()
-		{
-			return m_id;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getEid()
-		{
-			return m_eid;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getUrl()
-		{
-			return getAccessPoint(false) + m_id;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getReference()
-		{
-			return userReference(m_id);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getReference(String rootProperty)
-		{
-			return getReference();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getUrl(String rootProperty)
-		{
-			return getUrl();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public ResourceProperties getProperties()
-		{
-			// if lazy, resolve
-			if (((BaseResourceProperties) m_properties).isLazy())
-			{
-				((BaseResourcePropertiesEdit) m_properties).setLazy(false);
-				m_storage.readProperties(this, m_properties);
-			}
-
-			return m_properties;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public User getCreatedBy()
-		{
-			try
-			{
-				return getUser(m_createdUserId);
-			}
-			catch (Exception e)
-			{
-				return getAnonymousUser();
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public User getModifiedBy()
-		{
-			try
-			{
-				return getUser(m_lastModifiedUserId);
-			}
-			catch (Exception e)
-			{
-				return getAnonymousUser();
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Time getCreatedTime()
-		{
-			return m_createdTime;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Date getCreatedDate()
-		{
-			return new Date(m_createdTime.getTime());
-		}
-		/**
-		 * @inheritDoc
-		 */
-		public Time getModifiedTime()
-		{
-			return m_lastModifiedTime;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public Date getModifiedDate()
-		{
-			return new Date(m_lastModifiedTime.getTime());
-		}
-		
-		/**
-		 * @inheritDoc
-		 */
-		public String getDisplayName()
-		{
-			String rv = null;
-
-			// If a contextual aliasing service exists, let it have the first try.
-			if (m_contextualUserDisplayService != null) {
-				rv = m_contextualUserDisplayService.getUserDisplayName(this);
-				if (rv != null) {
-					return rv;
-				}
-			}
-
-			// let the provider handle it, if we have that sort of provider, and it wants to handle this
-			if ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP))
-			{
-				rv = ((DisplayAdvisorUDP) m_provider).getDisplayName(this);
-			}
-
-			if (rv == null)
-			{
-				// or do it this way
-				StringBuilder buf = new StringBuilder(128);
-				if (m_firstName != null) buf.append(m_firstName);
-				if (m_lastName != null)
-				{
-					if (buf.length() > 0) buf.append(" ");
-					buf.append(m_lastName);
-				}
-
-				if (buf.length() == 0)
-				{
-					rv = getEid();
-				}
-
-				else
-				{
-					rv = buf.toString();
-				}
-			}
-
-			return rv;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getDisplayId()
-		{
-			String rv = null;
-			
-			// If a contextual aliasing service exists, let it have the first try.
-			if (m_contextualUserDisplayService != null) {
-				rv = m_contextualUserDisplayService.getUserDisplayId(this);
-				if (rv != null) {
-					return rv;
-				}
-			}
-
-			// let the provider handle it, if we have that sort of provider, and it wants to handle this
-			if ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP))
-			{
-				rv = ((DisplayAdvisorUDP) m_provider).getDisplayId(this);
-			}
-
-			// use eid if not
-			if (rv == null)
-			{
-				rv = getEid();
-			}
-
-			return rv;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getFirstName()
-		{
-			if (m_firstName == null) return "";
-			return m_firstName;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getLastName()
-		{
-			if (m_lastName == null) return "";
-			return m_lastName;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getSortName()
-		{
-			if (m_sortName == null)
-			{
-				if (m_provider != null && m_provider instanceof DisplaySortAdvisorUPD)
-				{
-					String rv = ((DisplaySortAdvisorUPD) m_provider).getSortName(this); 
-					if (rv != null)
-					{
-						m_sortName = rv;
-						return rv;
-					}
-				} 
-
-				// Cache this locally in the object as otherwise when sorting users we generate lots of objects.
-				StringBuilder buf = new StringBuilder(128);
-				if (m_lastName != null) buf.append(m_lastName);
-				if (m_firstName != null)
-				{
-					//KNL-524 no comma if the last name is null
-					if (m_lastName != null)
-					{
-						buf.append(", ");
-					}
-					buf.append(m_firstName);
-				}
-
-				m_sortName = (buf.length() == 0)?getEid():buf.toString();
-			}
-
-			return m_sortName;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getEmail()
-		{
-			if (m_email == null) return "";
-			return m_email;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public String getType()
-		{
-			return m_type;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public boolean checkPassword(String pw)
-		{
-			pw = StringUtils.trimToNull(pw);
-
-			return m_pwdService.check(pw, m_pw);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		@Override
-		public boolean equals(Object o) {
-			if (this == o) return true;
-			if (o == null || getClass() != o.getClass()) return false;
-
-			BaseUserEdit that = (BaseUserEdit) o;
-
-			if (m_id != null ? !m_id.equals(that.m_id) : that.m_id != null) return false;
-			if (m_eid != null ? !m_eid.equals(that.m_eid) : that.m_eid != null) return false;
-
-			return true;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public int hashCode()
-		{
-			String id = getId();
-			if (id == null)
-			{
-				// Maintains consistency with Sakai 2.4.x behavior.
-				id = "";
-			}
-			return id.hashCode();
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public int compareTo(Object obj)
-		{
-			if (!(obj instanceof User)) throw new ClassCastException();
-
-			// if the object are the same, say so
-			if (obj == this) return 0;
-
-			// start the compare by comparing their sort names
-			int compare = getSortName().compareTo(((User) obj).getSortName());
-
-			// if these are the same
-			if (compare == 0)
-			{
-				// sort based on (unique) eid
-				compare = getEid().compareTo(((User) obj).getEid());
-			}
-
-			return compare;
-		}
-
-		/**
-		 * Clean up.
-		 */
-		protected void finalize()
-		{
-			// catch the case where an edit was made but never resolved
-			if (m_active)
-			{
-				cancelEdit(this);
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setId(String id)
-		{
-			// set once only!
-			if (m_id == null)
-			{
-				m_id = id;
-			}
-			else throw new UnsupportedOperationException("Tried to change user ID from " + m_id + " to " + id);
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setEid(String eid)
-		{
-			if (!m_restrictedEid) 
-			{
-				m_eid = eid;
-				m_sortName = null;
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setFirstName(String name)
-		{
-		    if(!m_restrictedFirstName) {
-		        // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
-		    	m_firstName = formattedText().convertFormattedTextToPlaintext(name);
-		    	m_sortName = null;
-		    }
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setLastName(String name)
-		{
-			if(!m_restrictedLastName) {
-                // https://jira.sakaiproject.org/browse/SAK-20226 - removed html from name
-		    	m_lastName = formattedText().convertFormattedTextToPlaintext(name);
-		    	m_sortName = null;
-		    }
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setEmail(String email)
-		{
-			if(!m_restrictedEmail) {
-				m_email = email;
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setPassword(String pw)
-		{
-
-			if(!m_restrictedPassword) {
-
-				// to clear it
-				if (pw == null)
-				{
-					m_pw = null;
-				}
-
-				// else encode the new one
-				else
-				{
-					// encode this password
-					String encoded = m_pwdService.encrypt(pw);
-					m_pw = encoded;
-				}
-			}
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void setType(String type)
-		{
-			if(!m_restrictedType) {
-
-				m_type = type;
-
-			}
-		}
-
-		public void restrictEditFirstName() {
-
-			m_restrictedFirstName = true;
-
-		}
-
-		public void restrictEditLastName() {
-
-			m_restrictedLastName = true;
-
-		}
-
-
-
-		public void restrictEditEmail() {
-
-			m_restrictedEmail = true;
-
-		}
-
-		public void restrictEditPassword() {
-
-			m_restrictedPassword = true;
-
-		}
-		
-		public void restrictEditEid() {
-			m_restrictedEid = true;
-		}
-
-		public void restrictEditType() {
-
-			m_restrictedType = true;
-
-		}
-
-		/**
-		 * Take all values from this object.
-		 *
-		 * @param user
-		 *        The user object to take values from.
-		 */
-		protected void set(User user)
-		{
-			setAll(user);
-		}
-
-		/**
-		 * Access the event code for this edit.
-		 *
-		 * @return The event code for this edit.
-		 */
-		protected String getEvent()
-		{
-			return m_event;
-		}
-
-		/**
-		 * Set the event code for this edit.
-		 *
-		 * @param event
-		 *        The event code for this edit.
-		 */
-		protected void setEvent(String event)
-		{
-			m_event = event;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public ResourcePropertiesEdit getPropertiesEdit()
-		{
-			// if lazy, resolve
-			if (((BaseResourceProperties) m_properties).isLazy())
-			{
-				((BaseResourcePropertiesEdit) m_properties).setLazy(false);
-				m_storage.readProperties(this, m_properties);
-			}
-
-			return m_properties;
-		}
-
-		/**
-		 * Enable editing.
-		 */
-		protected void activate()
-		{
-			m_active = true;
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public boolean isActiveEdit()
-		{
-			return m_active;
-		}
-
-		/**
-		 * Close the edit object - it cannot be used after this.
-		 */
-		protected void closeEdit()
-		{
-			m_active = false;
-		}
-
-		/**
-		 * Check this User object to see if it is selected by the criteria.
-		 *
-		 * @param criteria
-		 *        The critera.
-		 * @return True if the User object is selected by the criteria, false if not.
-		 */
-		protected boolean selectedBy(String criteria)
-		{
-			if (StringUtil.containsIgnoreCase(getSortName(), criteria) || StringUtil.containsIgnoreCase(getDisplayName(), criteria)
-					|| StringUtil.containsIgnoreCase(getEid(), criteria) || StringUtil.containsIgnoreCase(getEmail(), criteria))
-			{
-				return true;
-			}
-
-			return false;
-		}
-
-		@Override
-		public String toString()
-		{
-			return "BaseUserEdit{" +
-					"m_id='" + m_id + '\'' +
-					", m_eid='" + m_eid + '\'' +
-					'}';
-		}
-
-		/******************************************************************************************************************************************************************************************************************************************************
-		 * SessionBindingListener implementation
-		 *****************************************************************************************************************************************************************************************************************************************************/
-
-		/**
-		 * @inheritDoc
-		 */
-		public void valueBound(SessionBindingEvent event)
-		{
-		}
-
-		/**
-		 * @inheritDoc
-		 */
-		public void valueUnbound(SessionBindingEvent event)
-		{
-			if (M_log.isDebugEnabled()) M_log.debug("valueUnbound()");
-
-			// catch the case where an edit was made but never resolved
-			if (m_active)
-			{
-				cancelEdit(this);
-			}
-		}
-	}
 
 	/**********************************************************************************************************************************************************************************************************************************************************
 	 * Storage
@@ -3080,4 +2156,74 @@ public abstract class BaseUserDirectoryService implements UserDirectoryService, 
 		public List<User> getUsersByEids(Collection<String> eids);
 	}
 
+    @Override
+    public void readProperties(UserEdit edit, ResourcePropertiesEdit props) {
+        // if lazy, resolve
+        if (props instanceof BaseResourceProperties && ((BaseResourceProperties) props).isLazy()) {
+            ((BaseResourcePropertiesEdit) props).setLazy(false);
+        }
+        m_storage.readProperties(edit, props);
+    }
+
+    @Override
+    public String encodePassword(String pw) {
+        return m_pwdService.encrypt(pw);
+    }
+
+    @Override
+    public boolean checkPassword(String pw1, String pw2) {
+        return m_pwdService.check(pw1, pw2);
+    }
+
+    @Override
+    public String getSortName(UserEdit user) {
+        return (m_provider != null && m_provider instanceof DisplaySortAdvisorUPD) ? ((DisplaySortAdvisorUPD) m_provider)
+                .getSortName(user) : null;
+    }
+    
+    @Override
+    public String getUserDisplayId(UserEdit user) {
+        return (m_contextualUserDisplayService != null) ?  m_contextualUserDisplayService.getUserDisplayId(user) : null;
+    }
+
+    @Override
+    public String getUserDisplayName(UserEdit user) {
+        return (m_contextualUserDisplayService != null) ? m_contextualUserDisplayService.getUserDisplayName(user) : null;
+    }
+
+    @Override
+    public String getDisplayName(UserEdit user) {
+        return ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP)) ? ((DisplayAdvisorUDP) m_provider)
+                .getDisplayName(user) : null;
+    }
+
+    @Override
+    public String getDisplayId(UserEdit user) {
+        return ((m_provider != null) && (m_provider instanceof DisplayAdvisorUDP)) ? ((DisplayAdvisorUDP) m_provider)
+                .getDisplayId(user) : null;
+    }
+
+    @Override
+    public void setLazyProperties(ResourcePropertiesEdit properties, User user) {
+        if (properties instanceof BaseResourcePropertiesEdit) {
+            ((BaseResourcePropertiesEdit) properties).setLazy(((BaseResourceProperties) user.getProperties()).isLazy());
+        }
+    }
+
+    @Override
+    public void setLazyProperties(ResourcePropertiesEdit properties, boolean lazy) {
+        if (properties instanceof BaseResourcePropertiesEdit) {
+            ((BaseResourcePropertiesEdit) properties).setLazy(lazy);
+        }
+    }
+
+    @Override
+    public ResourcePropertiesEdit getResourcePropertiesEdit() {
+        return new BaseResourcePropertiesEdit();
+    }
+
+    @Override
+    public ResourcePropertiesEdit getResourcePropertiesEdit(Element element) {
+        return new BaseResourcePropertiesEdit(element);
+    }
 }

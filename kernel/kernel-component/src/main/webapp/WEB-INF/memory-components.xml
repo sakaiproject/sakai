@@ -7,7 +7,6 @@
         class="org.sakaiproject.memory.impl.BaseMemoryService"
         init-method="init" destroy-method="destroy" singleton="true">
     <property name="serverConfigurationService" ref="org.sakaiproject.component.api.ServerConfigurationService" />
-    <property name="cacheManager" ref="org.sakaiproject.memory.api.MemoryService.cacheManager" />
   </bean>
 
     <bean id="org.sakaiproject.memory.api.MemoryService.cacheManager" 
