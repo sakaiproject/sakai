@@ -117,7 +117,7 @@
 									<f:convertDateTime pattern=", EEE, " timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 							<h:outputText value="#{timeSlot.timeSlot.endTime}" rendered="#{NewSignupMeetingBean.signupMeeting.meetingCrossDays}">
-									<f:convertDateTime  dateStyle="short" timeZone="#{UserTimeZone.userTimeZone}"/>
+									<f:convertDateTime  dateStyle="short" pattern="#{UserLocale.dateFormat}" timeZone="#{UserTimeZone.userTimeZone}"/>
 							</h:outputText>
 						</h:panelGroup>		
 			   		</h:column>
